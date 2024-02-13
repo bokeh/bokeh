@@ -4,7 +4,7 @@ import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
-import type {DictLike} from "../types"
+import type {Dict} from "../types"
 import {Enum} from "../kinds"
 import {logger} from "../logging"
 import {dict} from "./object"
@@ -15,7 +15,7 @@ export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
 
 export type FormatterSpec = CustomJSHover | FormatterType
-export type Formatters = DictLike<FormatterSpec>
+export type Formatters = Dict<FormatterSpec>
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}

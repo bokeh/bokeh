@@ -10,10 +10,10 @@ import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import {Signal0} from "core/signaling"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 
-type Ranges = DictLike<Range>
-type Scales = DictLike<Scale>
+type Ranges = Dict<Range>
+type Scales = Dict<Scale>
 
 export class CartesianFrame {
 

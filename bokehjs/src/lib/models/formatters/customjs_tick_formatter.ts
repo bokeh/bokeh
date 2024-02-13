@@ -1,6 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
 import type * as p from "core/properties"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
@@ -8,7 +8,7 @@ export namespace CustomJSTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
-    args: p.Property<DictLike<unknown>>
+    args: p.Property<Dict<unknown>>
     code: p.Property<string>
   }
 }

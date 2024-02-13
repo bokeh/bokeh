@@ -9,7 +9,7 @@ import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
 import {is_undefined} from "core/util/types"
 import {range} from "core/util/array"
-import {entries} from "core/util/object"
+import {dict} from "core/util/object"
 
 type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
 
@@ -36,8 +36,6 @@ export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 function orNaN(v: number | undefined): number {
   return v != null ? v : NaN
 }
-
-const {hasOwnProperty} = Object.prototype
 
 export class GeoJSONDataSource extends ColumnarDataSource {
   declare properties: GeoJSONDataSource.Props
@@ -80,9 +78,11 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
   private _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
     const properties = item.properties ?? {}
-    for (const [property, value] of entries(properties)) {
-      if (!hasOwnProperty.call(data, property))
+    const data_proxy = dict(data)
+    for (const [property, value] of dict(properties)) {
+      if (!data_proxy.has(property)) {
         data[property] = this._get_new_nan_array(item_count)
+      }
       // orNaN necessary here to prevent null values from ending up in the column
       data[property][i] = orNaN(value)
     }

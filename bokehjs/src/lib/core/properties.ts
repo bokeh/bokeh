@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, DictLike} from "./types"
+import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
 import type * as types from "./types"
 import {includes, repeat} from "./util/array"
@@ -363,7 +363,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
 
 /** @deprecated */
 export class AnyScalar extends ScalarSpec<any> {}
-export class DictScalar<T> extends ScalarSpec<DictLike<T>> {}
+export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
 export class ColorScalar extends ScalarSpec<types.Color | null> {}
 export class NumberScalar extends ScalarSpec<number> {}
 export class StringScalar extends ScalarSpec<string> {}

@@ -1,7 +1,7 @@
 import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys, values, typed_values, typed_entries} from "./util/object"
+import {keys, values, typed_values, typed_entries, PlainObjectProxy} from "./util/object"
 import {has_refs} from "./util/refs"
 
 type ESMap<K, V> = globalThis.Map<K, V>
@@ -11,8 +11,6 @@ type ESSet<V> = globalThis.Set<V>
 const ESSet = globalThis.Set
 
 type ESIterable<V> = globalThis.Iterable<V>
-
-const {hasOwnProperty} = Object.prototype
 
 export abstract class Kind<T> {
   __type__: T
@@ -194,23 +192,23 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is this["__type__"] {
-      if (!tp.isPlainObject(value))
+      if (!tp.isPlainObject(value)) {
         return false
-
-      const {struct_type} = this
-
-      for (const key of keys(value)) {
-        if (!hasOwnProperty.call(struct_type, key))
-          return false
       }
 
-      for (const key in struct_type) {
-        if (hasOwnProperty.call(struct_type, key)) {
-          const item_type = struct_type[key]
-          const item = value[key]
+      const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
 
-          if (!item_type.valid(item))
-            return false
+      for (const key of keys(value)) {
+        if (!struct_type_proxy.has(key)) {
+          return false
+        }
+      }
+
+      for (const [key, item_type] of struct_type_proxy) {
+        const item = value[key]
+
+        if (!item_type.valid(item)) {
+          return false
         }
       }
 
@@ -234,26 +232,26 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is this["__type__"] {
-      if (!tp.isPlainObject(value))
+      if (!tp.isPlainObject(value)) {
         return false
-
-      const {struct_type} = this
-
-      for (const key of keys(value)) {
-        if (!hasOwnProperty.call(struct_type, key))
-          return false
       }
 
-      for (const key in struct_type) {
-        if (!hasOwnProperty.call(value, key))
+      const value_proxy = new PlainObjectProxy(value)
+      const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
+
+      for (const key of value_proxy.keys()) {
+        if (!struct_type_proxy.has(key)) {
+          return false
+        }
+      }
+
+      for (const [key, item_type] of struct_type_proxy) {
+        const item = value_proxy.get(key)
+        if (item === undefined) {
           continue
-
-        if (hasOwnProperty.call(struct_type, key)) {
-          const item_type = struct_type[key]
-          const item = value[key]
-
-          if (!item_type.valid(item))
-            return false
+        }
+        if (!item_type.valid(item)) {
+          return false
         }
       }
 
@@ -429,7 +427,7 @@ export namespace Kinds {
     }
   }
 
-  export class Dict<ItemType> extends Kind<types.DictLike<ItemType>> {
+  export class Dict<ItemType> extends Kind<types.Dict<ItemType>> {
 
     constructor(readonly item_type: Kind<ItemType>) {
       super()

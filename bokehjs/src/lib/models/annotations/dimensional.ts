@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {entries} from "core/util/object"
@@ -40,7 +40,7 @@ export abstract class Dimensional extends Model {
     super(attrs)
   }
 
-  abstract get_basis(): DictLike<[number, string, string?]>
+  abstract get_basis(): Dict<[number, string, string?]>
 
   static {
     this.define<Dimensional.Props>(({Nullable, Array, String, Number}) => ({
@@ -103,7 +103,7 @@ export abstract class Dimensional extends Model {
 export namespace CustomDimensional {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Dimensional.Props & {
-    basis: p.Property<DictLike<[number, string, string?]>>
+    basis: p.Property<Dict<[number, string, string?]>>
   }
 }
 
@@ -122,7 +122,7 @@ export abstract class CustomDimensional extends Dimensional {
     }))
   }
 
-  get_basis(): DictLike<[number, string, string?]> {
+  get_basis(): Dict<[number, string, string?]> {
     return this.basis
   }
 }
@@ -182,7 +182,7 @@ export class Metric extends Dimensional {
     ["q", 1e-30, "q",    "quecto"],
   ] as const
 
-  get_basis(): DictLike<[number, string, string?]> {
+  get_basis(): Dict<[number, string, string?]> {
     const {base_unit, full_unit} = this
     const basis: {[key: string]: [number, string, string?]} = {}
 
@@ -211,7 +211,7 @@ export class ReciprocalMetric extends Metric {
     super(attrs)
   }
 
-  override get_basis(): DictLike<[number, string, string?]> {
+  override get_basis(): Dict<[number, string, string?]> {
     const basis = super.get_basis()
     const reciprocal_basis: {[key: string]: [number, string]} = {}
 

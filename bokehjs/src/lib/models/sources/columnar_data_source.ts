@@ -3,7 +3,7 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew, Data, DictLike} from "core/types"
+import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
@@ -23,7 +23,7 @@ export namespace ColumnarDataSource {
 
   export type Props = DataSource.Props & {
     data: p.Property<Data> // XXX: this is hack!!!
-    default_values: p.Property<DictLike<unknown>>
+    default_values: p.Property<Dict<unknown>>
     selection_policy: p.Property<SelectionPolicy>
     inspected: p.Property<Selection>
   }

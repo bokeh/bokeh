@@ -1,5 +1,5 @@
 import * as p from "./properties"
-import type {Color, DictLike} from "./types"
+import type {Color, Dict} from "./types"
 import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import * as k from "./kinds"
 import type {Texture} from "models/textures/texture"
@@ -8,7 +8,7 @@ import {isString} from "./util/types"
 import type {HasProps} from "./has_props"
 
 export type HatchPattern = HatchPatternType | string
-export type HatchExtra = DictLike<Texture>
+export type HatchExtra = Dict<Texture>
 
 // Primitive
 
