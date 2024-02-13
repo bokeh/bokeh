@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {entries} from "core/util/object"
 import {isString, isPlainObject} from "core/util/types"
 import type {Styles} from "models/dom/styles"
@@ -1173,7 +1173,7 @@ export type CSSVariables = {[key in `--${string}`]?: string | null}
 
 export type CSSStyles = CSSStylesCamel & CSSStylesDashed & CSSStylesSnake & CSSVariables
 
-export type CSSStylesLike = CSSStyles | DictLike<string | null> | Styles
+export type CSSStylesLike = CSSStyles | Dict<string | null> | Styles
 
 const _style_decl = document.createElement("div").style
 function _css_name(attr: string): string | null {
@@ -1227,7 +1227,7 @@ export function apply_styles(declaration: CSSStyleDeclaration, styles: CSSStyles
   }
 }
 
-export type CSSStyleSheetDecl = DictLike<CSSStylesLike>
+export type CSSStyleSheetDecl = Dict<CSSStylesLike>
 
 export function compose_stylesheet(stylesheet: CSSStyleSheetDecl): string {
   const css = []

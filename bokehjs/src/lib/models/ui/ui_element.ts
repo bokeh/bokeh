@@ -3,7 +3,6 @@ import {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
 import type {Menu} from "./menus/menu"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
-import type {DictLike} from "core/types"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
 import type {ViewOf} from "core/view"
@@ -27,6 +26,9 @@ export type StylesLike = typeof StylesLike["__type__"]
 
 export const StyleSheets = Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike)))
 export type StyleSheets = typeof StyleSheets["__type__"]
+
+export const CSSVariables = Dict(Ref(Node))
+export type CSSVariables = typeof CSSVariables["__type__"]
 
 export type DOMBoxSizing = {
   width_policy: SizingPolicy | "auto"
@@ -291,7 +293,7 @@ export namespace UIElement {
   export type Props = Model.Props & {
     visible: p.Property<boolean>
     css_classes: p.Property<string[]>
-    css_variables: p.Property<DictLike<Node>>
+    css_variables: p.Property<CSSVariables>
     styles: p.Property<StylesLike>
     stylesheets: p.Property<StyleSheets>
     context_menu: p.Property<Menu | null>
@@ -309,10 +311,10 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, String, Ref, AnyRef}) => ({
+    this.define<UIElement.Props>(({Boolean, Array, String, AnyRef}) => ({
       visible: [ Boolean, true ],
       css_classes: [ Array(String), [] ],
-      css_variables: [ Dict(Ref(Node)), {} ],
+      css_variables: [ CSSVariables, {} ],
       styles: [ StylesLike, {} ],
       stylesheets: [ StyleSheets, [] ],
       context_menu: [ Nullable(AnyRef<Menu>()), null ],
