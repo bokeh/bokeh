@@ -4,7 +4,7 @@ import {
   Auto,
   Enum,
   Int,
-  Map,
+  Mapping,
   NonNegative,
   Opt,
   Or,
@@ -87,4 +87,4 @@ export type TrackSizingLike = typeof TrackSizingLike["__type__"]
 export const TrackSizingLike = Or(TrackSize, TrackSizing)
 
 export type TracksSizing = typeof TracksSizing["__type__"]
-export const TracksSizing = Or(TrackSizingLike, Array(TrackSizingLike), Map(Int, TrackSizingLike))
+export const TracksSizing = Or(TrackSizingLike, Array(TrackSizingLike), Mapping(Int, TrackSizingLike))

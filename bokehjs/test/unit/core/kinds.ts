@@ -227,15 +227,15 @@ describe("core/kinds module", () => {
   })
 
   it("should support Map kind", () => {
-    const tp = k.Map(k.Int, k.String)
+    const tp = k.Mapping(k.Int, k.String)
     expect(`${tp}`).to.be.equal("Map(Int, String)")
     expect(tp.valid(new Map())).to.be.true
     expect(tp.valid(new Map([[0, "a"]]))).to.be.true
     expect(tp.valid(new Map([[0, "a"], [1, "b"]]))).to.be.true
     expect(tp.valid(new Map([[0, 1]]))).to.be.false
     expect(tp.may_have_refs()).to.be.equal(false)
-    expect((k.Map(k.Int, k.AnyRef())).may_have_refs()).to.be.equal(true)
-    expect((k.Map(k.AnyRef(), k.Int)).may_have_refs()).to.be.equal(true)
+    expect((k.Mapping(k.Int, k.AnyRef())).may_have_refs()).to.be.equal(true)
+    expect((k.Mapping(k.AnyRef(), k.Int)).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Set kind", () => {

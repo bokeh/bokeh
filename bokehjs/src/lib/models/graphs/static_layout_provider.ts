@@ -22,8 +22,8 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static {
-    this.define<StaticLayoutProvider.Props>(({Number, String, Int, Arrayable, Map, Or}) => ({
-      graph_layout: [ Map(Or(Int, String), Arrayable(Number)), new globalThis.Map() ], // TODO: length == 2
+    this.define<StaticLayoutProvider.Props>(({Number, String, Int, Arrayable, Mapping, Or}) => ({
+      graph_layout: [ Mapping(Or(Int, String), Arrayable(Number)), new Map() ], // TODO: length == 2
     }))
   }
 

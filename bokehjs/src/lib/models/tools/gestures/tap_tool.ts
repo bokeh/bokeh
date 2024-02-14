@@ -7,7 +7,7 @@ import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
-import {PartialStruct, Boolean, Or, Map, Enum} from "core/kinds"
+import {PartialStruct, Boolean, Or, Mapping, Enum} from "core/kinds"
 import {non_null} from "core/util/types"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
@@ -15,7 +15,7 @@ import {tool_icon_tap_select} from "styles/icons.css"
 
 export const Modifiers = Or(
   PartialStruct({shift: Boolean, ctrl: Boolean, alt: Boolean}),
-  Map(Enum("shift", "ctrl", "alt"), Boolean),
+  Mapping(Enum("shift", "ctrl", "alt"), Boolean),
 )
 export type Modifiers = typeof Modifiers["__type__"]
 

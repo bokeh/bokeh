@@ -583,7 +583,7 @@ export class BaseColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Map, Or, Ref, Auto, Nullable}) => ({
+    this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Mapping, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(Or(String, Ref(BaseText))), null ],
@@ -593,7 +593,7 @@ export class BaseColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map() ],
+      major_label_overrides: [ Mapping(Or(String, Number), Or(String, Ref(BaseText))), new Map() ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       label_standoff:        [ Number, 5 ],
       margin:                [ Number, 30 ],

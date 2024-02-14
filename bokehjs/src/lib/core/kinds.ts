@@ -456,7 +456,7 @@ export namespace Kinds {
     }
   }
 
-  export class Map<KeyType, ItemType> extends Kind<ESMap<KeyType, ItemType>> {
+  export class Mapping<KeyType, ItemType> extends Kind<ESMap<KeyType, ItemType>> {
 
     constructor(readonly key_type: Kind<KeyType>, readonly item_type: Kind<ItemType>) {
       super()
@@ -620,7 +620,7 @@ export const Iterable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Itera
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
-export const Map = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Map(key_type, item_type)
+export const Mapping = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Mapping(key_type, item_type)
 export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)
 export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
@@ -641,3 +641,6 @@ export const FontSize = String
 export const Font = String
 export const Angle = Number
 export const Float = Number
+
+// backwards compatibility aliases
+export const Map = Mapping

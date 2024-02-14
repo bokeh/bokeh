@@ -30,13 +30,13 @@ class TestModel extends HasProps {
     super(attrs)
   }
   static {
-    this.define<TestModel.Props>(({Number, String, Nullable, Ref, Array, Set, Map, Struct}) => ({
+    this.define<TestModel.Props>(({Number, String, Nullable, Ref, Array, Set, Mapping, Struct}) => ({
       p0: [ Number, 0 ],
       p1: [ String, "abc" ],
       p2: [ Nullable(Ref(TestModel)), null ],
       p3: [ Array(Ref(TestModel)), [] ],
       p4: [ Set(Ref(TestModel)), new globalThis.Set() ],
-      p5: [ Map(Ref(TestModel), Ref(TestModel)), new globalThis.Map() ],
+      p5: [ Mapping(Ref(TestModel), Ref(TestModel)), new Map() ],
       p6: [ Struct({foo: Nullable(Ref(TestModel))}), {foo: null} ],
     }))
   }

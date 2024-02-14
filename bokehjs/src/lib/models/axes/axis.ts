@@ -805,7 +805,7 @@ export class Axis extends GuideRenderer {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Map, Tuple, Or, Nullable, Auto, Enum}) => ({
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Mapping, Tuple, Or, Nullable, Auto, Enum}) => ({
       dimension:               [ Or(Enum(0, 1), Auto), "auto" ],
       face:                    [ Or(Face, Auto), "auto" ],
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
@@ -817,7 +817,7 @@ export class Axis extends GuideRenderer {
       axis_label_align:        [ Align, "center" ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(LabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map() ],
+      major_label_overrides:   [ Mapping(Or(String, Number), Or(String, Ref(BaseText))), new Map() ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],
