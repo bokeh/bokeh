@@ -362,15 +362,13 @@ class RGB(Color):
     def brightness(self) -> float:
         """ Perceived brightness of a color in [0, 1] range. """
         # http://alienryderflex.com/hsp.html
-        r, g, b = self.r, self.g, self.b
-        return sqrt(0.299*r**2 + 0.587*g**2 + 0.114*b**2)/255
+        return sqrt(0.299*self.r**2 + 0.587*self.g**2 + 0.114*self.b**2) / 255
 
     @property
     def luminance(self) -> float:
         """ Perceived luminance of a color in [0, 1] range. """
         # https://en.wikipedia.org/wiki/Relative_luminance
-        r, g, b = self.r, self.g, self.b
-        return (0.2126*r**2.2 + 0.7152*g**2.2 + 0.0722*b**2.2) / 255**2.2
+        return (0.2126*self.r**2.2 + 0.7152*self.g**2.2 + 0.0722*self.b**2.2) / 255**2.2
 
 class HSL(Color):
     ''' Represent colors by specifying their Hue, Saturation, and lightness.
