@@ -3,12 +3,16 @@ import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import type * as p from "core/properties"
+import {Float, Str, Int, Arrayable as Arr, Dict, Mapping, Or} from "core/kinds"
+
+export const GraphLayout = Or(Dict(Arr(Float)), Mapping(Or(Int, Str), Arr(Float)))
+export type GraphLayout = typeof GraphLayout["__type__"]
 
 export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutProvider.Props & {
-    graph_layout: p.Property<Map<number | string, Arrayable<number>>>
+    graph_layout: p.Property<GraphLayout>
   }
 }
 
@@ -22,8 +26,8 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static {
-    this.define<StaticLayoutProvider.Props>(({Number, String, Int, Arrayable, Mapping, Or}) => ({
-      graph_layout: [ Mapping(Or(Int, String), Arrayable(Number)), new Map() ], // TODO: length == 2
+    this.define<StaticLayoutProvider.Props>(() => ({
+      graph_layout: [ GraphLayout, new Map() ], // TODO: length == 2
     }))
   }
 
@@ -33,7 +37,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     const n = index.length
     const xs = new Float64Array(n)
     const ys = new Float64Array(n)
-    const {graph_layout} = this
+    const graph_layout = dict(this.graph_layout)
     for (let i = 0; i < n; i++) {
       const j = index[i] as string | number
       const [x, y] = graph_layout.get(j) ?? [NaN, NaN]
@@ -53,7 +57,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     const edge_xs = data.get("xs")
     const edge_ys = data.get("ys")
     const has_paths = edge_xs != null && edge_ys != null
-    const {graph_layout} = this
+    const graph_layout = dict(this.graph_layout)
     for (let i = 0; i < n; i++) {
       const in_layout = graph_layout.has(starts[i]) && graph_layout.has(ends[i])
       if (has_paths && in_layout) {

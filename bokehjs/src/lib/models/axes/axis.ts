@@ -16,6 +16,7 @@ import type {Orient, Normal, Dimension} from "core/layout/side_panel"
 import {Panel, SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
 import {sum, repeat} from "core/util/array"
+import {dict} from "core/util/object"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import type {Factor} from "models/ranges/factor_range"
@@ -28,9 +29,13 @@ import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {parse_delimited_string} from "models/text/utils"
-import {Str, Float, Ref, Or, Mapping} from "core/kinds"
+import {Str, Float, Ref, Or, Dict, Mapping} from "core/kinds"
 
-export const LabelOverrides = Mapping(Or(Str, Float), Or(Str, Ref(BaseText)))
+export const LabelOverrides =
+  Or(
+    Dict(Or(Str, Ref(BaseText))),
+    Mapping(Or(Str, Float), Or(Str, Ref(BaseText))),
+  )
 export type LabelOverrides = typeof LabelOverrides["__type__"]
 
 const {abs} = Math
@@ -121,7 +126,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected async _init_major_labels(): Promise<void> {
-    for (const [label, label_text] of this.model.major_label_overrides) {
+    for (const [label, label_text] of dict(this.model.major_label_overrides)) {
       const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
       this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
     }
