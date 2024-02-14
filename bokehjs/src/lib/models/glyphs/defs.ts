@@ -2,6 +2,8 @@ import type {MarkerType} from "core/enums"
 import type {LineVector, FillVector, HatchVector} from "core/visuals"
 import type {Context2d} from "core/util/canvas"
 
+export type VectorVisuals = {line: LineVector, fill: FillVector, hatch: HatchVector}
+
 const SQ3 = Math.sqrt(3)
 const SQ5 = Math.sqrt(5)
 const c36 = (SQ5+1)/4
@@ -90,8 +92,6 @@ function _one_tri(ctx: Context2d, r: number): void {
   ctx.lineTo(0, a-h)
   ctx.closePath()
 }
-
-type VectorVisuals = {line: LineVector, fill: FillVector, hatch: HatchVector}
 
 function asterisk(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_cross(ctx, r)
@@ -342,7 +342,7 @@ function y(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
 
 export type RenderOne = (ctx: Context2d, i: number, r: number, visuals: VectorVisuals) => void
 
-export const marker_funcs: {[key in MarkerType]: RenderOne} = {
+export const marker_funcs = {
   asterisk,
   circle,
   circle_cross,
@@ -371,4 +371,4 @@ export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   dash,
   x,
   y,
-}
+} satisfies {[key in MarkerType]: RenderOne}

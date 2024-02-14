@@ -139,6 +139,7 @@ __all__ = (
     'RoundingFunction',
     'ScrollbarPolicy',
     'SelectionMode',
+    'ShapeName',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -460,6 +461,9 @@ ScrollbarPolicy = enumeration("auto", "visible", "hidden")
 
 #: Selection modes
 SelectionMode = enumeration("replace", "append", "intersect", "subtract", "xor")
+
+#: Names of pre-defined shapes (used in ``Text.outline_shape``)
+ShapeName = enumeration("plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "triangle")
 
 #: Sizing mode policies
 SizingModeType = Literal["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit"]

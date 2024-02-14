@@ -79,6 +79,7 @@ ALL  = (
     'RoundingFunction',
     'ScrollbarPolicy',
     'SelectionMode',
+    'ShapeName',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -294,6 +295,9 @@ class Test_bce:
     def test_SelectionMode(self) -> None:
         assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract", "xor")
 
+    def test_ShapeName(self) -> None:
+        assert tuple(bce.ShapeName) == ("plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "triangle")
+
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
 
@@ -388,6 +392,7 @@ def test_enums_contents() -> None:
         'RoundingFunction',
         'ScrollbarPolicy',
         'SelectionMode',
+        'ShapeName',
         'SizingMode',
         'SizingPolicy',
         'SortDirection',

@@ -193,6 +193,10 @@ describe("enums module", () => {
     expect([...enums.SelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract", "xor"])
   })
 
+  it("should have ShapeName", () => {
+    expect([...enums.ShapeName]).to.be.equal(["plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "triangle"])
+  })
+
   it("should have Side", () => {
     expect([...enums.Side]).to.be.equal(["above", "below", "left", "right"])
   })

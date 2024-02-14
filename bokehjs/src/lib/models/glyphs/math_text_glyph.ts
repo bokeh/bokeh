@@ -1,6 +1,7 @@
 import {Text, TextView} from "./text"
 import type {BaseText} from "../text/base_text"
 import {MathTextView} from "../text/math_text"
+import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
@@ -41,16 +42,14 @@ export abstract class MathTextGlyphView extends TextView {
 
   protected abstract _build_label(text: string): BaseText
 
-  protected override async _build_labels(): Promise<void> {
-    const {text} = this.base ?? this
-
+  protected override async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {
     const labels = Array.from(text, (text_i) => {
       return text_i == null ? null : this._build_label(text_i)
     })
 
     await build_views(this._label_views, labels.filter(non_null), {parent: this.renderer})
 
-    this.labels = labels.map((label_i) => {
+    return labels.map((label_i) => {
       return label_i == null ? null : this._label_views.get(label_i)!.graphics()
     })
   }

@@ -169,6 +169,9 @@ export const ScrollbarPolicy = Enum("auto", "visible", "hidden")
 export type SelectionMode = typeof SelectionMode["__type__"]
 export const SelectionMode = Enum("replace", "append", "intersect", "subtract", "xor")
 
+export const ShapeName = Enum("plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "triangle")
+export type ShapeName = typeof ShapeName["__type__"]
+
 export type Side = "above" | "below" | "left" | "right"
 export const Side = Enum("above", "below", "left", "right")
 
