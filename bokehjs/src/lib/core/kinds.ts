@@ -57,13 +57,13 @@ export namespace Kinds {
     }
   }
 
-  export class Boolean extends Primitive<boolean> {
+  export class Bool extends Primitive<boolean> {
     valid(value: unknown): value is boolean {
       return tp.isBoolean(value)
     }
 
     override toString(): string {
-      return "Boolean"
+      return "Bool"
     }
   }
 
@@ -103,17 +103,17 @@ export namespace Kinds {
     }
   }
 
-  export class Number extends Primitive<number> {
+  export class Float extends Primitive<number> {
     valid(value: unknown): value is number {
       return tp.isNumber(value)
     }
 
     override toString(): string {
-      return "Number"
+      return "Float"
     }
   }
 
-  export class Int extends Number {
+  export class Int extends Float {
     override valid(value: unknown): value is number {
       return super.valid(value) && tp.isInteger(value)
     }
@@ -123,7 +123,7 @@ export namespace Kinds {
     }
   }
 
-  export class Percent extends Number {
+  export class Percent extends Float {
     override valid(value: unknown): value is number {
       return super.valid(value) && 0 <= value && value <= 1
     }
@@ -382,17 +382,17 @@ export namespace Kinds {
     }
   }
 
-  export class String extends Primitive<string> {
+  export class Str extends Primitive<string> {
     valid(value: unknown): value is string {
       return tp.isString(value)
     }
 
     override toString(): string {
-      return "String"
+      return "Str"
     }
   }
 
-  export class Regex extends String {
+  export class Regex extends Str {
     constructor(readonly regex: RegExp) {
       super()
     }
@@ -475,7 +475,7 @@ export namespace Kinds {
     }
 
     override toString(): string {
-      return `Map(${this.key_type.toString()}, ${this.item_type.toString()})`
+      return `Mapping(${this.key_type.toString()}, ${this.item_type.toString()})`
     }
 
     may_have_refs(): boolean {
@@ -524,7 +524,7 @@ export namespace Kinds {
     }
   }
 
-  export class CSSLength extends String {
+  export class CSSLength extends Str {
     /*
     override valid(value: unknown): value is string {
       return super.valid(value) // TODO: && this._parse(value)
@@ -603,11 +603,11 @@ export namespace Kinds {
 
 export const Any = new Kinds.Any()
 export const Unknown = new Kinds.Unknown()
-export const Boolean = new Kinds.Boolean()
-export const Number = new Kinds.Number()
+export const Bool = new Kinds.Bool()
+export const Float = new Kinds.Float()
 export const Int = new Kinds.Int()
 export const Bytes = new Kinds.Bytes()
-export const String = new Kinds.String()
+export const Str = new Kinds.Str()
 export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
@@ -637,10 +637,12 @@ export const Color = new Kinds.Color()
 export const Auto = Enum("auto")
 export const CSSLength = new Kinds.CSSLength()
 
-export const FontSize = String
-export const Font = String
-export const Angle = Number
-export const Float = Number
+export const FontSize = Str
+export const Font = Str
+export const Angle = Float
 
 // backwards compatibility aliases
+export const Boolean = Bool
+export const String = Str
+export const Number = Float
 export const Map = Mapping

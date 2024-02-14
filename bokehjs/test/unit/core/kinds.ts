@@ -22,9 +22,9 @@ describe("core/kinds module", () => {
     expect(tp.may_have_refs()).to.be.equal(true)
   })
 
-  it("should support Boolean kind", () => {
-    const tp = k.Boolean
-    expect(`${tp}`).to.be.equal("Boolean")
+  it("should support Bool kind", () => {
+    const tp = k.Bool
+    expect(`${tp}`).to.be.equal("Bool")
     expect(tp.valid(true)).to.be.true
     expect(tp.valid(false)).to.be.true
     expect(tp.valid(0)).to.be.false
@@ -33,9 +33,9 @@ describe("core/kinds module", () => {
     expect(tp.may_have_refs()).to.be.equal(false)
   })
 
-  it("should support Number kind", () => {
-    const tp = k.Number
-    expect(`${tp}`).to.be.equal("Number")
+  it("should support Float kind", () => {
+    const tp = k.Float
+    expect(`${tp}`).to.be.equal("Float")
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(0.1)).to.be.true
     expect(tp.valid("a")).to.be.false
@@ -57,9 +57,9 @@ describe("core/kinds module", () => {
     expect(tp.may_have_refs()).to.be.equal(false)
   })
 
-  it("should support String kind", () => {
-    const tp = k.String
-    expect(`${tp}`).to.be.equal("String")
+  it("should support Str kind", () => {
+    const tp = k.Str
+    expect(`${tp}`).to.be.equal("Str")
     expect(tp.valid(0)).to.be.false
     expect(tp.valid("a")).to.be.true
     expect(tp.may_have_refs()).to.be.equal(false)
@@ -112,8 +112,8 @@ describe("core/kinds module", () => {
   })
 
   it("should support Or kind", () => {
-    const tp = k.Or(k.Int, k.String)
-    expect(`${tp}`).to.be.equal("Or(Int, String)")
+    const tp = k.Or(k.Int, k.Str)
+    expect(`${tp}`).to.be.equal("Or(Int, Str)")
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(1)).to.be.true
     expect(tp.valid("a")).to.be.true
@@ -125,8 +125,8 @@ describe("core/kinds module", () => {
   })
 
   it("should support Tuple kind", () => {
-    const tp = k.Tuple(k.Int, k.String)
-    expect(`${tp}`).to.be.equal("Tuple(Int, String)")
+    const tp = k.Tuple(k.Int, k.Str)
+    expect(`${tp}`).to.be.equal("Tuple(Int, Str)")
     expect(tp.valid([0, "a"])).to.be.true
     expect(tp.valid(["a", 0])).to.be.false
     expect(tp.valid([])).to.be.false
@@ -143,9 +143,9 @@ describe("core/kinds module", () => {
   })
 
   it("should support Struct kind", () => {
-    const tp = k.Struct({a: k.Int, b: k.String, c: k.Opt(k.Array(k.Int))})
+    const tp = k.Struct({a: k.Int, b: k.Str, c: k.Opt(k.Array(k.Int))})
 
-    expect(`${tp}`).to.be.equal("Struct({a: Int, b: String, c: Opt(Array(Int))})")
+    expect(`${tp}`).to.be.equal("Struct({a: Int, b: Str, c: Opt(Array(Int))})")
 
     expect(tp.valid({})).to.be.false
     expect(tp.valid({a: 0})).to.be.false
@@ -155,14 +155,14 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
 
     expect(tp.may_have_refs()).to.be.equal(false)
-    const tp1 = k.Struct({a: k.Int, b: k.String, c: k.Opt(k.Array(k.AnyRef()))})
+    const tp1 = k.Struct({a: k.Int, b: k.Str, c: k.Opt(k.Array(k.AnyRef()))})
     expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
   it("should support PartialStruct kind", () => {
-    const tp = k.PartialStruct({a: k.Int, b: k.String, c: k.Array(k.Int)})
+    const tp = k.PartialStruct({a: k.Int, b: k.Str, c: k.Array(k.Int)})
 
-    expect(`${tp}`).to.be.equal("Struct({a?: Int, b?: String, c?: Array(Int)})")
+    expect(`${tp}`).to.be.equal("Struct({a?: Int, b?: Str, c?: Array(Int)})")
 
     expect(tp.valid({})).to.be.true
     expect(tp.valid({a: 0})).to.be.true
@@ -173,7 +173,7 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
 
     expect(tp.may_have_refs()).to.be.equal(false)
-    const tp1 = k.PartialStruct({a: k.Int, b: k.String, c: k.Opt(k.Array(k.AnyRef()))})
+    const tp1 = k.PartialStruct({a: k.Int, b: k.Str, c: k.Opt(k.Array(k.AnyRef()))})
     expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
@@ -227,8 +227,8 @@ describe("core/kinds module", () => {
   })
 
   it("should support Map kind", () => {
-    const tp = k.Mapping(k.Int, k.String)
-    expect(`${tp}`).to.be.equal("Map(Int, String)")
+    const tp = k.Mapping(k.Int, k.Str)
+    expect(`${tp}`).to.be.equal("Mapping(Int, Str)")
     expect(tp.valid(new Map())).to.be.true
     expect(tp.valid(new Map([[0, "a"]]))).to.be.true
     expect(tp.valid(new Map([[0, "a"], [1, "b"]]))).to.be.true
@@ -319,8 +319,8 @@ describe("core/kinds module", () => {
     expect(tp0.valid(0.0)).to.be.true
     expect(tp0.valid(1.1)).to.be.false
 
-    const tp1 = k.NonNegative(k.Number)
-    expect(`${tp1}`).to.be.equal("NonNegative(Number)")
+    const tp1 = k.NonNegative(k.Float)
+    expect(`${tp1}`).to.be.equal("NonNegative(Float)")
     expect(tp1.valid(-1)).to.be.false
     expect(tp1.valid(0)).to.be.true
     expect(tp1.valid(1)).to.be.true
@@ -343,8 +343,8 @@ describe("core/kinds module", () => {
     expect(tp0.valid(0.0)).to.be.false
     expect(tp0.valid(1.1)).to.be.false
 
-    const tp1 = k.Positive(k.Number)
-    expect(`${tp1}`).to.be.equal("Positive(Number)")
+    const tp1 = k.Positive(k.Float)
+    expect(`${tp1}`).to.be.equal("Positive(Float)")
     expect(tp1.valid(-1)).to.be.false
     expect(tp1.valid(0)).to.be.false
     expect(tp1.valid(1)).to.be.true
