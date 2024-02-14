@@ -539,13 +539,13 @@ export class Document implements Equatable {
           break
         }
         case "ColumnDataChanged": {
-          const {model, attr, cols} = event
-          const data = dict(event.data)
+          const {model, attr, data, cols} = event
           if (cols != null) {
+            const new_data = dict(data)
             const current_data = dict(model.property(attr).get_value() as Data)
             for (const [name, column] of current_data) {
-              if (!data.has(name)) {
-                data.set(name, column)
+              if (!new_data.has(name)) {
+                new_data.set(name, column)
               }
             }
           }
