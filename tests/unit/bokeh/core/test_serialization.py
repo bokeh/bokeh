@@ -244,7 +244,6 @@ class TestSerializer:
                 MapRep(
                     type="map",
                     entries=[("col0", [1, 2, 3])],
-                    plain=True,
                 ),
             )],
         )

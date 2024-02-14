@@ -61,7 +61,6 @@ from ..util.serialization import (
     transform_series,
 )
 from ..util.warnings import BokehUserWarning, warn
-from .property.wrappers import PropertyValueColumnData
 from .types import ID
 
 if TYPE_CHECKING:
@@ -120,7 +119,6 @@ class SetRep(TypedDict):
 class MapRep(TypedDict):
     type: Literal["map"]
     entries: NotRequired[list[tuple[AnyRep, AnyRep]]]
-    plain: NotRequired[bool]
 
 class BytesRep(TypedDict):
     type: Literal["bytes"]
@@ -341,12 +339,6 @@ class Serializer:
                 type="map",
                 entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
             )
-
-        # Allow to deserialize column data dicts as plain objects in JS. This
-        # is for backwards compatibility, in particular for usage in CustomJS.
-        # Consider removing in bokeh 4.0.
-        if isinstance(obj, PropertyValueColumnData):
-            result["plain"] = True
 
         return result
 
