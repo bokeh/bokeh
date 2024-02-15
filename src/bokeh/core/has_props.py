@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 # Bokeh imports
+from ..settings import settings
 from ..util.strings import append_docstring, nice_join
 from ..util.warnings import warn
 from .property.descriptor_factory import PropertyDescriptorFactory
@@ -412,7 +413,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             name=self.__qualified_model__,
         )
 
-        properties = self.properties_with_values(include_defaults=False)
+        properties = self.properties_with_values(include_defaults=settings.serialize_include_defaults())
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
         if attributes:
