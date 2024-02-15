@@ -36,14 +36,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Pane(UIElement):
-    """
-    A UI element that can hold other DOM-based UI elements.
+    """ A UI element that can hold other DOM-based UI elements.
 
-    ``Pane`` is a basic block of building DOM-based UIs, and as such it
-    doesn't any properties for controlling its position and other visual
-    aspects. These must be set up by using CSS stylesheets. If finer
-    control is needed, use ``Panel`` or ``LayoutDOM`` derived models
-    instead.
+    ``Pane`` is a basic building block of DOM-based UIs, and as such it
+    doesn't include any properties for controlling its position and other
+    visual aspects. These must be configured up by using CSS stylesheets.
+    If finer control is needed, use ``Panel`` or ``LayoutDOM`` derived
+    models instead.
     """
 
     # explicit __init__ to support Init signatures

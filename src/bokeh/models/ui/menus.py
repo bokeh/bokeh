@@ -61,8 +61,7 @@ class MenuItem(Model):
         super().__init__(*args, **kwargs)
 
 class ActionItem(MenuItem):
-    """
-    A basic menu item with an icon, label, shortcut, sub-menu and an associated action.
+    """ A basic menu item with an icon, label, shortcut, sub-menu and an associated action.
 
     Only label is required. All other properties are optional.
     """
@@ -127,9 +126,9 @@ class DividerItem(MenuItem):
         super().__init__(*args, **kwargs)
 
 class Menu(UIElement):
-    """
-    An implicitly positioned panel containing a collection of
-    commands, checked items, etc.
+    """ An implicitly positioned panel containing a collection of items.
+
+    These items can include commands, checked items, dividers, etc.
     """
 
     # explicit __init__ to support Init signatures

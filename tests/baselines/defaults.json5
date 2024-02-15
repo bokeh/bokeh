@@ -5025,7 +5025,7 @@
   },
   Indexed: {
     __extends__: "Coordinate",
-    i: {
+    index: {
       type: "symbol",
       name: "unset",
     },

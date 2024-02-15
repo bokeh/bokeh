@@ -42,14 +42,14 @@ __all__ = (
     "XY",
 )
 
+ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
-
 class Coordinate(Model):
-    """
+    """ A base class for various types of coordinate specifications.
     """
 
     # explicit __init__ to support Init signatures
@@ -57,8 +57,7 @@ class Coordinate(Model):
         super().__init__(*args, **kwargs)
 
 class XY(Coordinate):
-    """
-    A point in a Cartesian coordinate system.
+    """ A point in a Cartesian coordinate system.
 
     .. note::
         This model is experimental and may change at any point.
@@ -77,19 +76,26 @@ class XY(Coordinate):
     """)
 
 class Indexed(Coordinate):
-    """
+    """ A coordinate computed given an index into a renderer's data.
+
+    .. note::
+        This model is experimental and may change at any point.
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    i = Required(Int())
-    renderer = Instance(".models.renderers.GlyphRenderer")
+    index = Required(Int, help="""
+    An index into the data.
+    """)
+
+    renderer = Instance(".models.renderers.GlyphRenderer", help="""
+    A renderer that is the provider of the data.
+    """)
 
 class Node(Coordinate):
-    """
-    Represents a symbolic coordinate (by name).
+    """ Represents a symbolic coordinate (by name).
 
     .. note::
         This model is experimental and may change at any point.
@@ -158,12 +164,15 @@ class BoxNodes:
     @property
     def left(self) -> Node:
         return self._node("left")
+
     @property
     def right(self) -> Node:
         return self._node("right")
+
     @property
     def top(self) -> Node:
         return self._node("top")
+
     @property
     def bottom(self) -> Node:
         return self._node("bottom")
@@ -171,9 +180,11 @@ class BoxNodes:
     @property
     def top_left(self) -> Node:
         return self._node("top_left")
+
     @property
     def top_center(self) -> Node:
         return self._node("top_center")
+
     @property
     def top_right(self) -> Node:
         return self._node("top_right")
@@ -181,9 +192,11 @@ class BoxNodes:
     @property
     def center_left(self) -> Node:
         return self._node("center_left")
+
     @property
     def center(self) -> Node:
         return self._node("center")
+
     @property
     def center_right(self) -> Node:
         return self._node("center_right")
@@ -191,9 +204,11 @@ class BoxNodes:
     @property
     def bottom_left(self) -> Node:
         return self._node("bottom_left")
+
     @property
     def bottom_center(self) -> Node:
         return self._node("bottom_center")
+
     @property
     def bottom_right(self) -> Node:
         return self._node("bottom_right")
@@ -201,6 +216,7 @@ class BoxNodes:
     @property
     def width(self) -> Node:
         return self._node("width")
+
     @property
     def height(self) -> Node:
         return self._node("height")

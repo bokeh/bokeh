@@ -46,8 +46,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Dialog(UIElement):
-    """
-    A floating, movable and resizable container for UI elements.
+    """ A floating, movable and resizable container for UI elements.
 
     .. note::
         This model and all its properties is experimental and may change at any point.
@@ -107,7 +106,7 @@ class Dialog(UIElement):
 
     Property ``close_action`` determines what happens when a dialog is
     closed. Note that even if dialog can't be closed through the UI,
-    in can be closed programmatically.
+    it can be closed programmatically.
     """)
 
     close_action = Enum("hide", "destroy", default="destroy", help="""
@@ -124,9 +123,11 @@ class Dialog(UIElement):
     resizable = Enum(Resizable, default="all", help="""
     Determines whether or in which directions a dialog can be resized.
     """)
+
     movable = Enum(Movable, default="both", help="""
     Determines whether or in which directions a dialog can be moved.
     """)
+
     symmetric = Bool(default=False, help="""
     Determines if resizing one edge or corner affects the opposite one.
     """)

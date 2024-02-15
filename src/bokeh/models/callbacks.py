@@ -241,31 +241,47 @@ class SetValue(Callback):
             return f"{self.value!r} is not a valid value for {self.obj}.{self.attr}"
 
 class ToggleVisibility(Callback):
-    """ Allows toggle visibility of an UI element. """
+    """ Toggle visibility of a UI element. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    target = Required(Instance(".models.ui.UIElement"))
+    target = Required(Instance(".models.ui.UIElement"), help="""
+    A UI element to show or hide.
+    """)
 
 class OpenDialog(Callback):
-    """ Allows to open a dialog box. """
+    """ Open a dialog box. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dialog = Required(Instance(".models.ui.Dialog"))
+    dialog = Required(Instance(".models.ui.Dialog"), help="""
+    A dialog instance to open.
+
+    This will either build and display an new dialog view or re-open an
+    existing dialog view if it was hidden.
+
+    .. note::
+        To display multiple instances of dialog, one needs to clone the
+        dialog's model and use another instance of ``OpenDialog``.
+    """)
 
 class CloseDialog(Callback):
-    """ Allows to close a dialog box. """
+    """ Close a dialog box. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dialog = Required(Instance(".models.ui.Dialog"))
+    dialog = Required(Instance(".models.ui.Dialog"), help="""
+    A dialog instance to close.
+
+    The behavior of this action depends on the configuration of the dialog,
+    in particular ``Dialog.close_action`` property.
+    """)
 
 # TODO: class Show(Callback): target = Required(Either(Instance(DOMNode), Instance(UIElement)))
 # TODO: class Hide(Callback): ...

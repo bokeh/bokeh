@@ -1153,7 +1153,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override resolve_indexed(coord: Indexed): XY {
-    const {i, renderer} = coord
+    const {index: i, renderer} = coord
     const rv = this.renderer_view(renderer)
     if (rv != null && rv.has_finished()) {
       const [sx, sy] = rv.glyph.scenterxy(i, NaN, NaN)

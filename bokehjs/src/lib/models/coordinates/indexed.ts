@@ -5,7 +5,7 @@ import type {GlyphRenderer} from "../renderers/glyph_renderer"
 export namespace Indexed {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Coordinate.Props & {
-    i: p.Property<number>
+    index: p.Property<number>
     renderer: p.Property<GlyphRenderer>
   }
 }
@@ -21,7 +21,7 @@ export class Indexed extends Coordinate {
 
   static {
     this.define<Indexed.Props>(({Int, AnyRef}) => ({
-      i: [ Int ],
+      index: [ Int ],
       renderer: [ AnyRef<GlyphRenderer>() ],
     }))
   }

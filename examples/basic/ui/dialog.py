@@ -42,7 +42,7 @@ def ui(N: int, output_backend: OutputBackendType):
     show_plot.js_on_click(OpenDialog(dialog=dialog))
     close_plot.js_on_click(CloseDialog(dialog=dialog))
 
-    # Alternatively one can use a CustomJS callback to achieve the same effect:
+    # Alternatively a CustomJS callback can be used to achieve the same effect:
     #
     # from bokeh.models import CustomJS
     # close_plot.js_on_click(
