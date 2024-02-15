@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 # Bokeh imports
 from ..core.properties import (
@@ -43,6 +43,79 @@ __all__ = (
 )
 
 ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+class BoxNodes:
+    """ Provider of box nodes for box-like models. """
+
+    def __init__(self, target: Model | ImplicitTarget) -> None:
+        self.target = target
+
+    def _node(self, symbol: str) -> Node:
+        return Node(target=self.target, symbol=symbol)
+
+    @property
+    def left(self) -> Node:
+        return self._node("left")
+
+    @property
+    def right(self) -> Node:
+        return self._node("right")
+
+    @property
+    def top(self) -> Node:
+        return self._node("top")
+
+    @property
+    def bottom(self) -> Node:
+        return self._node("bottom")
+
+    @property
+    def top_left(self) -> Node:
+        return self._node("top_left")
+
+    @property
+    def top_center(self) -> Node:
+        return self._node("top_center")
+
+    @property
+    def top_right(self) -> Node:
+        return self._node("top_right")
+
+    @property
+    def center_left(self) -> Node:
+        return self._node("center_left")
+
+    @property
+    def center(self) -> Node:
+        return self._node("center")
+
+    @property
+    def center_right(self) -> Node:
+        return self._node("center_right")
+
+    @property
+    def bottom_left(self) -> Node:
+        return self._node("bottom_left")
+
+    @property
+    def bottom_center(self) -> Node:
+        return self._node("bottom_center")
+
+    @property
+    def bottom_right(self) -> Node:
+        return self._node("bottom_right")
+
+    @property
+    def width(self) -> Node:
+        return self._node("width")
+
+    @property
+    def height(self) -> Node:
+        return self._node("height")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -128,98 +201,13 @@ class Node(Coordinate):
     Optional pixel offset for the computed coordinate.
     """)
 
-    @classmethod
-    @property
-    def canvas(cls) -> BoxNodes:
-        return BoxNodes("canvas")
+    canvas: ClassVar[BoxNodes] = BoxNodes("canvas")
 
-    @classmethod
-    @property
-    def plot(cls) -> BoxNodes:
-        return BoxNodes("plot")
+    plot: ClassVar[BoxNodes] = BoxNodes("plot")
 
-    @classmethod
-    @property
-    def frame(cls) -> BoxNodes:
-        return BoxNodes("frame")
+    frame: ClassVar[BoxNodes] = BoxNodes("frame")
 
-    @classmethod
-    @property
-    def parent(cls) -> BoxNodes:
-        return BoxNodes("parent")
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-class BoxNodes:
-    """ Provider of box nodes for box-like models. """
-
-    def __init__(self, target: Model | ImplicitTarget) -> None:
-        self.target = target
-
-    def _node(self, symbol: str) -> Node:
-        return Node(target=self.target, symbol=symbol)
-
-    @property
-    def left(self) -> Node:
-        return self._node("left")
-
-    @property
-    def right(self) -> Node:
-        return self._node("right")
-
-    @property
-    def top(self) -> Node:
-        return self._node("top")
-
-    @property
-    def bottom(self) -> Node:
-        return self._node("bottom")
-
-    @property
-    def top_left(self) -> Node:
-        return self._node("top_left")
-
-    @property
-    def top_center(self) -> Node:
-        return self._node("top_center")
-
-    @property
-    def top_right(self) -> Node:
-        return self._node("top_right")
-
-    @property
-    def center_left(self) -> Node:
-        return self._node("center_left")
-
-    @property
-    def center(self) -> Node:
-        return self._node("center")
-
-    @property
-    def center_right(self) -> Node:
-        return self._node("center_right")
-
-    @property
-    def bottom_left(self) -> Node:
-        return self._node("bottom_left")
-
-    @property
-    def bottom_center(self) -> Node:
-        return self._node("bottom_center")
-
-    @property
-    def bottom_right(self) -> Node:
-        return self._node("bottom_right")
-
-    @property
-    def width(self) -> Node:
-        return self._node("width")
-
-    @property
-    def height(self) -> Node:
-        return self._node("height")
+    parent: ClassVar[BoxNodes] = BoxNodes("parent")
 
 #-----------------------------------------------------------------------------
 # Private API
