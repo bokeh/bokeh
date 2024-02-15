@@ -21,6 +21,7 @@ import datetime as dt
 import sys
 from array import array as TypedArray
 from math import inf, nan
+from types import SimpleNamespace
 from typing import Any, Sequence
 
 # External imports
@@ -244,9 +245,25 @@ class TestSerializer:
                 MapRep(
                     type="map",
                     entries=[("col0", [1, 2, 3])],
-                    plain=True,
                 ),
             )],
+        )
+
+    def test_SimpleNamespace(self) -> None:
+        val = SimpleNamespace(a={1: [2, 3]}, b=None, c=True, d=inf)
+
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        # TODO StructRep
+        assert rep == MapRep(
+            type="map",
+            entries=[
+                ("a", MapRep(type="map", entries=[(1, [2, 3])])),
+                ("b", None),
+                ("c", True),
+                ("d", NumberRep(type="number", value="+inf")),
+            ],
         )
 
     def test_set(self) -> None:

@@ -191,12 +191,17 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_map(obj: MapRep): Map<unknown, unknown> | {[key: string]: unknown} {
-    const result = new Map(map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)]))
-    if (obj.plain ?? false) {
-      return Object.fromEntries(result)
+  protected _decode_map(obj: MapRep): Map<unknown, unknown> | PlainObject<unknown> {
+    const entries = map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)] as const)
+    const is_plain = entries.every(([key, _val]) => isString(key))
+    // An empty container will result in a plain object, not a Map, thus in the case of
+    // kinds.Mapping property type, one needs to accommodate for this in all instances.
+    // Fortunately there are few of these scattered across `src/lib/models/`. See HACK
+    // in `Mapping.coerce()` in `core/util/kinds`.
+    if (is_plain) {
+      return Object.fromEntries(entries)
     } else {
-      return result
+      return new Map(entries)
     }
   }
 

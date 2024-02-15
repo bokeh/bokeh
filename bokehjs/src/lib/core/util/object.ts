@@ -127,6 +127,6 @@ export class PlainObjectProxy<V> implements Map<string, V> {
   }
 }
 
-export function dict<V>(obj: Dict<V>): Map<string, V> {
+export function dict<V, K=string>(obj: Dict<V> | Map<K, V>): Map<K | string, V> {
   return isPlainObject(obj) ? new PlainObjectProxy(obj) : obj
 }

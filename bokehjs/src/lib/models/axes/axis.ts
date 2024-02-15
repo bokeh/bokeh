@@ -16,6 +16,7 @@ import type {Orient, Normal, Dimension} from "core/layout/side_panel"
 import {Panel, SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
 import {sum, repeat} from "core/util/array"
+import {dict} from "core/util/object"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import type {Factor} from "models/ranges/factor_range"
@@ -28,6 +29,14 @@ import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {parse_delimited_string} from "models/text/utils"
+import {Str, Float, Ref, Or, Dict, Mapping} from "core/kinds"
+
+export const LabelOverrides =
+  Or(
+    Dict(Or(Str, Ref(BaseText))),
+    Mapping(Or(Str, Float), Or(Str, Ref(BaseText))),
+  )
+export type LabelOverrides = typeof LabelOverrides["__type__"]
 
 const {abs} = Math
 
@@ -117,7 +126,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected async _init_major_labels(): Promise<void> {
-    for (const [label, label_text] of this.model.major_label_overrides) {
+    for (const [label, label_text] of dict(this.model.major_label_overrides)) {
       const _label_text = isString(label_text) ? parse_delimited_string(label_text) : label_text
       this._major_label_views.set(label, await build_view(_label_text, {parent: this}))
     }
@@ -756,7 +765,7 @@ export namespace Axis {
     axis_label_align: p.Property<Align>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<LabelOrientation | number>
-    major_label_overrides: p.Property<Map<string /*Cat*/ | number, string | BaseText>>
+    major_label_overrides: p.Property<LabelOverrides>
     major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
@@ -805,7 +814,7 @@ export class Axis extends GuideRenderer {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Map, Tuple, Or, Nullable, Auto, Enum}) => ({
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({
       dimension:               [ Or(Enum(0, 1), Auto), "auto" ],
       face:                    [ Or(Face, Auto), "auto" ],
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
@@ -817,7 +826,7 @@ export class Axis extends GuideRenderer {
       axis_label_align:        [ Align, "center" ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(LabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map() ],
+      major_label_overrides:   [ LabelOverrides, new Map() ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],
