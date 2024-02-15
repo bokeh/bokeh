@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from types import SimpleNamespace
 from typing import Any, Generic, TypeVar
 
 # Bokeh imports
@@ -49,15 +50,17 @@ class Optional(Generic[T]):
 class Struct(ParameterizedProperty[T]):
     """ Accept values that are structures.
 
-
     """
 
     _fields: dict[str, Property[Any]]
     _optional: set[str]
 
-    def __init__(self, **fields) -> None:
+    def __init__(self, **fields: Any) -> None:
         default = fields.pop("default", None)
         help = fields.pop("help", None)
+
+        if not fields:
+            raise ValueError("expected specification of fields, got nothing")
 
         self._fields = {}
         self._optional = set()
@@ -84,6 +87,9 @@ class Struct(ParameterizedProperty[T]):
     def validate(self, value: Any, detail: bool = True):
         super().validate(value, detail)
 
+        if isinstance(value, SimpleNamespace):
+            value = value.__dict__
+
         if isinstance(value, dict) and len(value) <= len(self._fields):
             for name, type in self._fields.items():
                 if name not in value:
@@ -109,6 +115,23 @@ class Struct(ParameterizedProperty[T]):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class struct(SimpleNamespace):
+    """
+    Allow access unnamed struct with attributes and keys.
+
+    .. note::
+        This feature is experimental and may change in the short term.
+    """
+
+    def __getitem__(self, key: str) -> Any:
+        return getattr(self, key)
+
+    def __setitem__(self, key: str, val: Any) -> None:
+        setattr(self, key, val)
+
+    def __delitem__(self, key: str) -> None:
+        delattr(self, key)
 
 #-----------------------------------------------------------------------------
 # Private API

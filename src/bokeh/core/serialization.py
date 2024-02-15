@@ -24,6 +24,7 @@ import datetime as dt
 import sys
 from array import array as TypedArray
 from math import isinf, isnan
+from types import SimpleNamespace
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -279,6 +280,8 @@ class Serializer:
             return self._encode_set(obj)
         elif isinstance(obj, dict):
             return self._encode_dict(obj)
+        elif isinstance(obj, SimpleNamespace):
+            return self._encode_struct(obj)
         elif isinstance(obj, bytes):
             return self._encode_bytes(obj)
         elif isinstance(obj, slice):
@@ -341,6 +344,9 @@ class Serializer:
             )
 
         return result
+
+    def _encode_struct(self, obj: SimpleNamespace) -> MapRep:
+        return self._encode_dict(obj.__dict__)
 
     def _encode_dataclass(self, obj: Any) -> ObjectRep:
         cls = type(obj)
