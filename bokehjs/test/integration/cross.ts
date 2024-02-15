@@ -42,5 +42,9 @@ describe("Bug", () => {
     it("doesn't allow using dict-based pseudo structs in model APIs", async () => {
       await test("regressions/issue_13637.json5")
     })
+
+    it.no_image("doesn't allow deserialization of an empty dict as an empty Map", async () => {
+      await test("regressions/issue_13637_empty_map.json5")
+    })
   })
 })
