@@ -39,8 +39,8 @@ export class FlexDiv extends UIElement {
   static {
     this.prototype.default_view = FlexDivView
 
-    this.define<FlexDiv.Props>(({Array, DOMNode}) => ({
-      children: [ Array(DOMNode), [] ],
+    this.define<FlexDiv.Props>(({Array, Node}) => ({
+      children: [ Array(Node), [] ],
     }))
   }
 }

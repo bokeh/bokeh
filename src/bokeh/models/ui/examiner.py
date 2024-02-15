@@ -50,7 +50,7 @@ class Examiner(UIElement):
 
     target = Nullable(Instance(HasProps), help="""
     The model and its references to inspect. If not specified, then all models
-    in the document the inpector model belongs to will be inspected.
+    in the document the examiner model belongs to will be inspected.
     """)
 
 #-----------------------------------------------------------------------------

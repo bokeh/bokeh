@@ -18,6 +18,7 @@ import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
+import {HTML} from "../dom/html"
 
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
@@ -95,6 +96,8 @@ export namespace Plot {
     reset_policy: p.Property<ResetPolicy>
 
     hold_render: p.Property<boolean>
+
+    attribution: p.Property<(string | HTML)[]>
   } & Mixins
 
   export type Mixins =
@@ -193,6 +196,8 @@ export class Plot extends LayoutDOM {
       reset_policy:      [ ResetPolicy, "standard" ],
 
       hold_render:       [ Boolean, false ],
+
+      attribution:       [ Array(Or(String, Ref(HTML))), [] ],
     }))
 
     this.override<Plot.Props>({

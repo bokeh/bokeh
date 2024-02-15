@@ -24,6 +24,7 @@ from . import (
     examiner,
     icons,
     menus,
+    panels,
     panes,
     tooltips,
     ui_element,
@@ -32,6 +33,7 @@ from .dialogs import *
 from .examiner import *
 from .icons import *
 from .menus import *
+from .panels import *
 from .panes import *
 from .tooltips import *
 from .ui_element import *
@@ -45,6 +47,7 @@ __all__ = (
     *icons.__all__,
     *examiner.__all__,
     *menus.__all__,
+    *panels.__all__,
     *panes.__all__,
     *tooltips.__all__,
     *ui_element.__all__,

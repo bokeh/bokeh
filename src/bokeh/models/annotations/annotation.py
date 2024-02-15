@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Instance, InstanceDefault, Override
-from ..renderers import Renderer
+from ..renderers.renderer import CompositeRenderer
 from ..sources import ColumnDataSource, DataSource
 
 #-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class Annotation(Renderer):
+class Annotation(CompositeRenderer):
     ''' Base class for all annotation models.
 
     '''

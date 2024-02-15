@@ -2,7 +2,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
 import {TextBox} from "core/graphics"
 import type {Size, Layoutable} from "core/layout"
-import type {Panel} from "core/layout/side_panel"
+import type {SidePanel} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 
@@ -10,7 +10,7 @@ export class HTMLTitleView extends TextAnnotationView {
   declare model: HTMLTitle
   declare visuals: HTMLTitle.Visuals
   declare layout: Layoutable
-  declare panel: Panel
+  declare panel: SidePanel
 
   protected _get_location(): [number, number] {
     const hmargin = this.model.offset

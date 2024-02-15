@@ -4,7 +4,7 @@ import {GridAlignmentLayout} from "./alignments"
 import type {UIElement} from "../ui/ui_element"
 import type {TracksSizing, TrackSizing} from "../common/kinds"
 import {GridSpacing} from "../common/kinds"
-import type {CSSOurStyles} from "core/dom"
+import type {CSSStyles} from "core/css"
 import {px} from "core/dom"
 import {Container} from "core/layout/grid"
 import {enumerate} from "core/util/iterator"
@@ -37,7 +37,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
   override _update_layout(): void {
     super._update_layout()
 
-    const styles: CSSOurStyles = {}
+    const styles: CSSStyles = {}
 
     const [row_gap, column_gap] = (() => {
       const {spacing} = this.model
@@ -59,7 +59,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
       ncols = max(ncols, col + col_span)
 
       // CSS grid is 1-based, but layout is 0-based
-      const styles: CSSOurStyles = {}
+      const styles: CSSStyles = {}
       styles.grid_row_start = `${row + 1}`
       styles.grid_row_end = `span ${row_span}`
       styles.grid_column_start = `${col + 1}`

@@ -74,7 +74,7 @@ from _util_models import (
 # Setup
 #-----------------------------------------------------------------------------
 
-ANNOTATION = [
+RENDERER = [
     "visible",
     "level",
     "coordinates",
@@ -82,6 +82,17 @@ ANNOTATION = [
     "y_range_name",
     "group",
     "propagate_hover",
+    "context_menu",
+]
+
+COMPOSITE_RENDERER = [
+    "renderers",
+    "elements",
+]
+
+ANNOTATION = [
+    *RENDERER,
+    *COMPOSITE_RENDERER,
 ]
 
 #-----------------------------------------------------------------------------

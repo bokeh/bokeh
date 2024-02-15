@@ -163,7 +163,7 @@
     syncable: true,
   },
   Annotation: {
-    __extends__: "Renderer",
+    __extends__: "CompositeRenderer",
     level: "annotation",
   },
   DataAnnotation: {
@@ -1803,6 +1803,13 @@
   Callback: {
     __extends__: "Model",
   },
+  CloseDialog: {
+    __extends__: "Callback",
+    dialog: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   CustomCode: {
     __extends__: "Callback",
   },
@@ -1816,6 +1823,13 @@
       name: "unset",
     },
     module: "auto",
+  },
+  OpenDialog: {
+    __extends__: "Callback",
+    dialog: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   OpenURL: {
     __extends__: "Callback",
@@ -1833,6 +1847,13 @@
       name: "unset",
     },
     value: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ToggleVisibility: {
+    __extends__: "Callback",
+    target: {
       type: "symbol",
       name: "unset",
     },
@@ -1872,18 +1893,6 @@
       type: "symbol",
       name: "unset",
     },
-  },
-  Node: {
-    __extends__: "Model",
-    target: {
-      type: "symbol",
-      name: "unset",
-    },
-    symbol: {
-      type: "symbol",
-      name: "unset",
-    },
-    offset: 0,
   },
   GlobalImportedStyleSheet: {
     __extends__: "ImportedStyleSheet",
@@ -2234,7 +2243,9 @@
   },
   "bokeh.models.dom.DOMElement": {
     __extends__: "bokeh.models.dom.DOMNode",
-    style: null,
+    style: {
+      type: "map",
+    },
     children: [],
   },
   "bokeh.models.dom.DOMNode": {
@@ -2244,7 +2255,7 @@
     __extends__: "bokeh.models.dom.DOMElement",
   },
   "bokeh.models.dom.HTML": {
-    __extends__: "Model",
+    __extends__: "bokeh.models.dom.DOMNode",
     html: {
       type: "symbol",
       name: "unset",
@@ -4832,7 +4843,7 @@
     spacing: 0,
   },
   LayoutDOM: {
-    __extends__: "UIElement",
+    __extends__: "Pane",
     disabled: false,
     width: null,
     height: null,
@@ -4847,7 +4858,6 @@
     flow_mode: "block",
     sizing_mode: null,
     align: "auto",
-    context_menu: null,
     resizable: false,
   },
   Row: {
@@ -5010,6 +5020,43 @@
     color_baseline: null,
     stack_labels: null,
   },
+  Coordinate: {
+    __extends__: "Model",
+  },
+  Indexed: {
+    __extends__: "Coordinate",
+    index: {
+      type: "symbol",
+      name: "unset",
+    },
+    renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Node: {
+    __extends__: "Coordinate",
+    target: {
+      type: "symbol",
+      name: "unset",
+    },
+    symbol: {
+      type: "symbol",
+      name: "unset",
+    },
+    offset: 0,
+  },
+  XY: {
+    __extends__: "Coordinate",
+    x: {
+      type: "symbol",
+      name: "unset",
+    },
+    y: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   GridPlot: {
     __extends__: [
       "LayoutDOM",
@@ -5124,6 +5171,7 @@
     aspect_scale: 1,
     reset_policy: "standard",
     hold_render: false,
+    attribution: [],
   },
   DataRange: {
     __extends__: "NumericalRange",
@@ -5348,6 +5396,11 @@
       attributes: {},
     },
   },
+  CompositeRenderer: {
+    __extends__: "Renderer",
+    renderers: [],
+    elements: [],
+  },
   DataRenderer: {
     __extends__: "Renderer",
     level: "glyph",
@@ -5365,6 +5418,7 @@
     y_range_name: "default",
     group: null,
     propagate_hover: false,
+    context_menu: null,
   },
   RendererGroup: {
     __extends__: "Model",
@@ -6392,10 +6446,19 @@
       type: "symbol",
       name: "unset",
     },
-    buttons: [],
-    modal: false,
+    pinnable: true,
+    collapsible: true,
+    minimizable: true,
+    maximizable: true,
     closable: true,
-    draggable: true,
+    close_action: "destroy",
+    resizable: "all",
+    movable: "both",
+    symmetric: false,
+    top_limit: null,
+    bottom_limit: null,
+    left_limit: null,
+    right_limit: null,
   },
   Examiner: {
     __extends__: "UIElement",
@@ -6410,7 +6473,7 @@
     color: "gray",
   },
   Icon: {
-    __extends__: "Model",
+    __extends__: "UIElement",
     size: "1em",
   },
   SVGIcon: {
@@ -6427,39 +6490,47 @@
       name: "unset",
     },
   },
-  Action: {
+  ActionItem: {
     __extends__: "MenuItem",
     icon: null,
     label: {
       type: "symbol",
       name: "unset",
     },
-    description: null,
+    shortcut: null,
     menu: null,
+    tooltip: null,
+    disabled: false,
+    action: null,
   },
-  CheckAction: {
-    __extends__: "Action",
+  CheckableItem: {
+    __extends__: "ActionItem",
     checked: false,
   },
-  Divider: {
+  DividerItem: {
     __extends__: "MenuItem",
   },
   Menu: {
     __extends__: "UIElement",
     items: [],
     reversed: false,
-    orientation: "vertical",
   },
   MenuItem: {
-    __extends__: "UIElement",
+    __extends__: "Model",
   },
-  Section: {
-    __extends__: "MenuItem",
-    items: [],
+  Panel: {
+    __extends__: "Pane",
+    position: {
+      type: "symbol",
+      name: "unset",
+    },
+    anchor: "top_left",
+    width: "auto",
+    height: "auto",
   },
   Pane: {
     __extends__: "UIElement",
-    children: [],
+    elements: [],
   },
   Tooltip: {
     __extends__: "UIElement",
@@ -6479,10 +6550,14 @@
     __extends__: "Model",
     visible: true,
     css_classes: [],
+    css_variables: {
+      type: "map",
+    },
     styles: {
       type: "map",
     },
     stylesheets: [],
+    context_menu: null,
   },
   AbstractButton: {
     __extends__: [

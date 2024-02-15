@@ -1,7 +1,7 @@
 import type {ClientSession} from "../client/session"
 import {parse_token, pull_session} from "../client/connection"
 import {logger} from "../core/logging"
-import type {ViewManager} from "../core/view"
+import type {ViewManager} from "../core/view_manager"
 
 import {add_document_standalone} from "./standalone"
 import type {EmbedTarget} from "./dom"

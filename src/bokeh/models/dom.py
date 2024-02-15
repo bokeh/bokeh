@@ -31,7 +31,6 @@ from ..core.properties import (
     Either,
     Instance,
     List,
-    Nullable,
     Required,
     String,
 )
@@ -41,7 +40,6 @@ from ..core.validation import error
 from ..core.validation.errors import NOT_A_PROPERTY_OF
 from ..model import Model, Qualified
 from .css import Styles
-from .renderers import RendererGroup
 from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -86,7 +84,7 @@ class DOMElement(DOMNode):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    style = Nullable(Either(Instance(Styles), Dict(String, String)))
+    style = Either(Instance(Styles), Dict(String, String), default={})
 
     children = List(Either(String, Instance(DOMNode), Instance(UIElement)), default=[])
 
@@ -135,7 +133,7 @@ class ToggleGroup(Action):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    groups = List(Instance(RendererGroup))
+    groups = List(Instance(".models.renderers.RendererGroup"))
 
 @abstract
 class Placeholder(DOMNode):
@@ -188,7 +186,7 @@ class ColorRef(ValueRef):
     hex = Bool(default=True)
     swatch = Bool(default=True)
 
-class HTML(Model, Qualified):
+class HTML(DOMNode):
     """ A parsed HTML fragment with optional references to DOM nodes and UI elements. """
 
     def __init__(self, *html: str | DOMNode | UIElement, **kwargs: Any) -> None:

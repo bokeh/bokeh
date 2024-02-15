@@ -11,8 +11,8 @@ import {String, Ref, Or} from "core/kinds"
 const HTMLRef = Or(Ref(DOMNode), Ref(UIElement))
 type HTMLRef = typeof HTMLRef["__type__"]
 
-const RawHTML = String
-type RawHTML = typeof RawHTML["__type__"]
+const HTMLMarkup = String
+type RawHTML = typeof HTMLMarkup["__type__"]
 
 export class HTMLView extends DOMNodeView {
   declare model: HTML
@@ -45,7 +45,6 @@ export class HTMLView extends DOMNodeView {
 
   render(): void {
     empty(this.el)
-    this.el.style.display = "contents"
 
     const html = (() => {
       const {html} = this.model
@@ -56,8 +55,16 @@ export class HTMLView extends DOMNodeView {
       }
     })()
 
-    const nodes = this.parse_html(html)
+    const nodes = (() => {
+      if (isString(html)) {
+        return this.parse_html(html)
+      } else {
+        return [html]
+      }
+    })()
+
     this.el.append(...nodes)
+    this.finish()
   }
 
   parse_html(html: string): Node[] {
@@ -107,7 +114,7 @@ export namespace HTML {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DOMNode.Props & {
-    html: p.Property<RawHTML | (RawHTML | HTMLRef)[]>
+    html: p.Property<Node | RawHTML | (RawHTML | HTMLRef)[]>
     refs: p.Property<HTMLRef[]>
   }
 }
@@ -125,8 +132,8 @@ export class HTML extends DOMNode {
   static {
     this.prototype.default_view = HTMLView
 
-    this.define<HTML.Props>(({Array, Or}) => ({
-      html: [ Or(RawHTML, Array(Or(RawHTML, HTMLRef))) ],
+    this.define<HTML.Props>(({Node, Array, Or}) => ({
+      html: [ Or(Node, HTMLMarkup, Array(Or(HTMLMarkup, HTMLRef))) ],
       refs: [ Array(HTMLRef), [] ],
     }))
   }

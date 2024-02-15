@@ -1,9 +1,10 @@
 import type {HasProps} from "./has_props"
-import type {View, ViewOf, ViewManager} from "./view"
+import type {View, ViewOf} from "./view"
+import type {ViewManager} from "./view_manager"
 import {difference} from "./util/array"
 import {assert} from "./util/assert"
 
-export {type IterViews} from "./view"
+export type {IterViews, ViewOf} from "./view"
 
 export type ViewStorage<T extends HasProps> = Map<T, ViewOf<T>>
 export type Options<T extends View> = {parent: T["parent"] | null, owner?: ViewManager}
@@ -23,12 +24,14 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
   return view
 }
 
+export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
+
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
   options: Options<ViewOf<T>> = {parent: null},
   cls: (model: T) => T["default_view"] = (model) => model.default_view,
-): Promise<{created: ViewOf<T>[], removed: ViewOf<T>[]}> {
+): Promise<BuildResult<T>> {
 
   const to_remove = difference([...view_storage.keys()], models)
 

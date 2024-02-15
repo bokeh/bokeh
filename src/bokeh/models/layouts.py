@@ -64,7 +64,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
 )
 from ..model import Model
-from .ui.menus import Menu
+from .ui.panes import Pane
 from .ui.tooltips import Tooltip
 from .ui.ui_element import UIElement
 
@@ -92,7 +92,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class LayoutDOM(UIElement):
+class LayoutDOM(Pane):
     """ The base class for layoutable components.
 
     """
@@ -273,15 +273,6 @@ class LayoutDOM(UIElement):
     This property is useful only if this component is a child element of a layout
     (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
     grid track align).
-    """)
-
-    context_menu = Nullable(Instance(Menu), default=None, help="""
-    A menu to display when user right clicks on the component.
-
-    .. note::
-        To display a native context menu, the viewer will need to right-click
-        twice. The second click closes the Bokeh context menu and falls back
-        back the native one.
     """)
 
     resizable = Either(Bool, Enum(Dimensions), default=False, help="""

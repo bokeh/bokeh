@@ -40,6 +40,7 @@ from ...core.properties import (
 )
 from ...events import ButtonClick, MenuItemClick
 from ..callbacks import Callback
+from ..dom import DOMNode
 from ..ui.icons import BuiltinIcon, Icon
 from ..ui.tooltips import Tooltip
 from .widget import Widget
@@ -101,8 +102,8 @@ class AbstractButton(Widget, ButtonLike):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    label = String("Button", help="""
-    The text label for the button to display.
+    label = Either(Instance(DOMNode), String, default="Button", help="""
+    Either HTML or plain text label for the button to display.
     """)
 
     icon = Nullable(Instance(Icon), help="""

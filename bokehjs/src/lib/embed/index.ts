@@ -7,7 +7,7 @@ import {unescape, uuid4} from "../core/util/string"
 import {entries} from "core/util/object"
 import {isString} from "../core/util/types"
 import {defer} from "core/util/defer"
-import type {ViewManager} from "core/view"
+import type {ViewManager} from "core/view_manager"
 
 import type {DocsJson, RenderItem, Roots} from "./json"
 import {add_document_standalone} from "./standalone"

@@ -15,28 +15,16 @@ import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
-import {Enum, Number, Nullable, Ref, Or} from "core/kinds"
 import {BorderRadius} from "../common/kinds"
+import * as Box from "../common/box_kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import {Node} from "../coordinates/node"
+import {Coordinate} from "../coordinates/coordinate"
 
 export const EDGE_TOLERANCE = 2.5
 
 const {abs} = Math
-
-type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
-type Edge = "left" | "right" | "top" | "bottom"
-type HitTarget = Corner | Edge | "area"
-
-const Resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all")
-type Resizable = typeof Resizable["__type__"]
-
-const Movable = Enum("none", "x", "y", "both")
-type Movable = typeof Movable["__type__"]
-
-const Limit = Nullable(Or(Number, Ref(Node)))
-type Limit = typeof Limit["__type__"]
 
 export class BoxAnnotationView extends AnnotationView implements Pannable, Pinchable, Moveable, AutoRanged {
   declare model: BoxAnnotation
@@ -63,10 +51,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom, bottom_units,
     } = this.model
 
-    const left_ok = left_units == "data" && !(left instanceof Node)
-    const right_ok = right_units == "data" && !(right instanceof Node)
-    const top_ok = top_units == "data" && !(top instanceof Node)
-    const bottom_ok = bottom_units == "data" && !(bottom instanceof Node)
+    const left_ok = left_units == "data" && !(left instanceof Coordinate)
+    const right_ok = right_units == "data" && !(right instanceof Coordinate)
+    const top_ok = top_units == "data" && !(top instanceof Coordinate)
+    const bottom_ok = bottom_units == "data" && !(bottom instanceof Coordinate)
 
     const [x0, x1] = (() => {
       if (left_ok && right_ok)
@@ -128,8 +116,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   override compute_geometry(): void {
     super.compute_geometry()
 
-    const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
-      return value instanceof Node ? this.resolve_node(value)[dim] : mapper.compute(value)
+    const compute = (dim: "x" | "y", value: number | Coordinate, mapper: CoordinateMapper): number => {
+      return value instanceof Coordinate ? this.resolve_as_scalar(value, dim) : mapper.compute(value)
     }
 
     const {left, right, top, bottom} = this.model
@@ -144,10 +132,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   protected _render(): void {
-    this.compute_geometry() // TODO: remove this
-
-    if (!this.bbox.is_valid)
+    if (!this.bbox.is_valid) {
       return
+    }
 
     const {ctx} = this.layer
     ctx.save()
@@ -179,7 +166,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return bbox.contains(sx, sy)
   }
 
-  private _hit_test(sx: number, sy: number): HitTarget | null {
+  private _hit_test(sx: number, sy: number): Box.HitTarget | null {
     const {left, right, bottom, top} = this.bbox
     const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
 
@@ -227,7 +214,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
   }
 
-  private _can_hit(target: HitTarget): boolean {
+  private _can_hit(target: Box.HitTarget): boolean {
     const {left, right, top, bottom} = this.resizable
     switch (target) {
       case "top_left":     return top && left
@@ -242,7 +229,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
   }
 
-  private _pan_state: {bbox: BBox, target: HitTarget} | null = null
+  private _pan_state: {bbox: BBox, target: Box.HitTarget} | null = null
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
@@ -265,9 +252,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const {mappers} = this
 
-    const resolve = (dim: "x" | "y", limit: Node | number | null, mapper: CoordinateMapper): number => {
-      if (limit instanceof Node) {
-        return this.resolve_node(limit)[dim]
+    const resolve = (dim: "x" | "y", limit: Coordinate | number | null, mapper: CoordinateMapper): number => {
+      if (limit instanceof Coordinate) {
+        return this.resolve_as_scalar(limit, dim)
       } else if (limit == null) {
         return NaN
       } else {
@@ -397,10 +384,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const computed_lrtb = (() => {
       return {
-        left:   left   instanceof Node ? left   : lrtb.left,
-        right:  right  instanceof Node ? right  : lrtb.right,
-        top:    top    instanceof Node ? top    : lrtb.top,
-        bottom: bottom instanceof Node ? bottom : lrtb.bottom,
+        left:   left   instanceof Coordinate ? left   : lrtb.left,
+        right:  right  instanceof Coordinate ? right  : lrtb.right,
+        top:    top    instanceof Coordinate ? top    : lrtb.top,
+        bottom: bottom instanceof Coordinate ? bottom : lrtb.bottom,
       }
     })()
 
@@ -459,10 +446,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const {left, right, top, bottom} = this.model
       const {mappers} = this
       return {
-        left:   left   instanceof Node ? left   : mappers.left.invert(slrtb.left),
-        right:  right  instanceof Node ? right  : mappers.right.invert(slrtb.right),
-        top:    top    instanceof Node ? top    : mappers.top.invert(slrtb.top),
-        bottom: bottom instanceof Node ? bottom : mappers.bottom.invert(slrtb.bottom),
+        left:   left   instanceof Coordinate ? left   : mappers.left.invert(slrtb.left),
+        right:  right  instanceof Coordinate ? right  : mappers.right.invert(slrtb.right),
+        top:    top    instanceof Coordinate ? top    : mappers.top.invert(slrtb.top),
+        bottom: bottom instanceof Coordinate ? bottom : mappers.bottom.invert(slrtb.bottom),
       }
     })()
 
@@ -530,20 +517,20 @@ export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    top: p.Property<number | Node>
-    bottom: p.Property<number | Node>
-    left: p.Property<number | Node>
-    right: p.Property<number | Node>
+    top: p.Property<number | Coordinate>
+    bottom: p.Property<number | Coordinate>
+    left: p.Property<number | Coordinate>
+    right: p.Property<number | Coordinate>
 
     top_units: p.Property<CoordinateUnits>
     bottom_units: p.Property<CoordinateUnits>
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
 
-    top_limit: p.Property<Limit>
-    bottom_limit: p.Property<Limit>
-    left_limit: p.Property<Limit>
-    right_limit: p.Property<Limit>
+    top_limit: p.Property<Box.Limit>
+    bottom_limit: p.Property<Box.Limit>
+    left_limit: p.Property<Box.Limit>
+    right_limit: p.Property<Box.Limit>
 
     min_width: p.Property<number>
     min_height: p.Property<number>
@@ -553,8 +540,8 @@ export namespace BoxAnnotation {
     border_radius: p.Property<BorderRadius>
 
     editable: p.Property<boolean>
-    resizable: p.Property<Resizable>
-    movable: p.Property<Movable>
+    resizable: p.Property<Box.Resizable>
+    movable: p.Property<Box.Movable>
     symmetric: p.Property<boolean>
 
     tl_cursor: p.Property<string>
@@ -603,20 +590,20 @@ export class BoxAnnotation extends Annotation {
     ])
 
     this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or, NonNegative, Positive}) => ({
-      top:          [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "top"}) ],
-      bottom:       [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "bottom"}) ],
-      left:         [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "left"}) ],
-      right:        [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "right"}) ],
+      top:          [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "top"}) ],
+      bottom:       [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "bottom"}) ],
+      left:         [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "left"}) ],
+      right:        [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "right"}) ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
 
-      top_limit:    [ Limit, null ],
-      bottom_limit: [ Limit, null ],
-      left_limit:   [ Limit, null ],
-      right_limit:  [ Limit, null ],
+      top_limit:    [ Box.Limit, null ],
+      bottom_limit: [ Box.Limit, null ],
+      left_limit:   [ Box.Limit, null ],
+      right_limit:  [ Box.Limit, null ],
 
       min_width:    [ NonNegative(Number), 0 ],
       min_height:   [ NonNegative(Number), 0 ],
@@ -626,8 +613,8 @@ export class BoxAnnotation extends Annotation {
       border_radius: [ BorderRadius, 0 ],
 
       editable:     [ Boolean, false ],
-      resizable:    [ Resizable, "all" ],
-      movable:      [ Movable, "both" ],
+      resizable:    [ Box.Resizable, "all" ],
+      movable:      [ Box.Movable, "both" ],
       symmetric:    [ Boolean, false ],
     }))
 
@@ -655,7 +642,7 @@ export class BoxAnnotation extends Annotation {
 
   readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
 
-  update({left, right, top, bottom}: LRTB<number | Node>): void {
+  update({left, right, top, bottom}: LRTB<number | Coordinate>): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 

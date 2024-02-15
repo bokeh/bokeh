@@ -2,8 +2,14 @@ import {HasProps} from "./has_props"
 import type {Property} from "./properties"
 import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
-import {isArray} from "./util/types"
-import type {BBox} from "./util/bbox"
+import {isArray, isString, isNumber} from "./util/types"
+import type {BBox, XY} from "./util/bbox"
+import type {Coordinate} from "../models/coordinates/coordinate"
+import type {NodeTarget} from "../models/coordinates/node"
+import {Node} from "../models/coordinates/node"
+import {XY as XY_} from "../models/coordinates/xy"
+import {Indexed} from "../models/coordinates/indexed"
+import {ViewManager} from "./view_manager"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -90,11 +96,16 @@ export class View implements ISignalable {
 
   async lazy_initialize(): Promise<void> {}
 
-  protected _removed: boolean = false
+  protected _destroyed: boolean = false
   remove(): void {
     this.disconnect_signals()
+    this.owner.remove(this)
     this.removed.emit()
-    this._removed = true
+    this._destroyed = true
+  }
+
+  get is_destroyed(): boolean {
+    return this._destroyed
   }
 
   toString(): string {
@@ -177,143 +188,98 @@ export class View implements ISignalable {
       }
     }
   }
-}
 
-export class ViewManager {
-  protected readonly _roots: Set<View>
-
-  constructor(roots: Iterable<View> = [], protected drop?: (view: View) => void) {
-    this._roots = new Set(roots)
-  }
-
-  toString(): string {
-    const views = [...this._roots].map((view) => `${view}`).join(", ")
-    return `ViewManager(${views})`
-  }
-
-  get<T extends HasProps>(model: T): ViewOf<T> | null {
-    for (const view of this._roots) {
-      if (view.model == model)
-        return view
-    }
+  resolve_frame(): View | null {
     return null
   }
 
-  get_by_id(id: string): ViewOf<HasProps> | null {
-    for (const view of this._roots) {
-      if (view.model.id == id)
-        return view
-    }
+  resolve_canvas(): View | null {
     return null
   }
 
-  add(view: View): void {
-    this._roots.add(view)
+  resolve_plot(): View | null {
+    return null
   }
 
-  delete(view: View): void {
-    this._roots.delete(view)
-  }
-
-  clear(): void {
-    const drop = this.drop ?? ((view: View) => this.delete(view))
-    for (const view of this) {
-      drop(view)
-    }
-  }
-
-  /* TODO (TS 5.2)
-  [Symbol.dispose](): void {
-    this.clear()
-  }
-  */
-
-  get roots(): View[] {
-    return [...this._roots]
-  }
-
-  *[Symbol.iterator](): IterViews {
-    yield* this._roots
-  }
-
-  *views(): IterViews {
-    yield* this.query(() => true)
-  }
-
-  *query(fn: (view: View) => boolean): IterViews {
-    const visited = new Set<View>()
-
-    function* descend(view: View): IterViews {
-      if (visited.has(view)) {
-        return
+  resolve_target(target: NodeTarget): View | null {
+    if (isString(target)) {
+      const ascend = (fn: (view: View) => View | null) => {
+        let obj: View | null = this
+        while (obj != null) {
+          const view = fn(obj)
+          if (view != null) {
+            return view
+          } else {
+            obj = obj.parent
+          }
+        }
+        return null
       }
-
-      visited.add(view)
-
-      if (fn(view)) {
-        yield view
+      switch (target) {
+        case "parent": return this.parent
+        case "frame":  return ascend((view) => view.resolve_frame())
+        case "canvas": return ascend((view) => view.resolve_canvas())
+        case "plot":   return ascend((view) => view.resolve_plot())
       }
-
-      for (const child of view.children()) {
-        yield* descend(child)
+    } else {
+      const queue: View[] = [this.root]
+      while (true) {
+        const child = queue.shift()
+        if (child == null) {
+          break
+        } else if (child.model == target) {
+          return child
+        } else {
+          queue.push(...child.children())
+        }
       }
-    }
-
-    for (const root of this._roots) {
-      yield* descend(root)
+      return null
     }
   }
 
-  query_one(fn: (view: View) => boolean): View | null {
-    for (const view of this.query(fn)) {
-      return view
+  resolve_symbol(_node: Node): XY | number {
+    return {x: NaN, y: NaN}
+  }
+
+  resolve_node(node: Node): XY | number {
+    const target = this.resolve_target(node.target)
+    if (target != null) {
+      return target.resolve_symbol(node)
+    } else {
+      return {x: NaN, y: NaN}
     }
-    return null
   }
 
-  *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
-    yield* this.query((view) => view.model == model)
-  }
+  resolve_xy?(coord: XY_): XY
+  resolve_indexed?(coord: Indexed): XY
 
-  *find_by_id(id: string): IterViews {
-    yield* this.query((view) => view.model.id == id)
-  }
-
-  find_one<T extends HasProps>(model: T): ViewOf<T> | null {
-    for (const view of this.find(model)) {
-      return view
+  resolve_coordinate(coord: Coordinate): XY | number {
+    if (coord instanceof XY_) {
+      let obj: View | null = this
+      while (obj != null && obj.resolve_xy == null) {
+        obj = obj.parent
+      }
+      return obj?.resolve_xy?.(coord) ?? {x: NaN, y: NaN}
+    } else if (coord instanceof Indexed) {
+      let obj: View | null = this
+      while (obj != null && obj.resolve_indexed == null) {
+        obj = obj.parent
+      }
+      return obj?.resolve_indexed?.(coord) ?? {x: NaN, y: NaN}
+    } else if (coord instanceof Node) {
+      return this.resolve_node(coord)
+    } else {
+      return {x: NaN, y: NaN}
     }
-    return null
   }
 
-  find_one_by_id(id: string): View | null {
-    for (const view of this.find_by_id(id)) {
-      return view
-    }
-    return null
+  resolve_as_xy(coord: Coordinate): XY {
+    const value = this.resolve_coordinate(coord)
+    return isNumber(value) ? {x: NaN, y: NaN} : value
   }
 
-  get_one<T extends HasProps>(model: T): ViewOf<T> {
-    const view = this.find_one(model)
-    if (view != null)
-      return view
-    else
-      throw new Error(`cannot find a view for ${model}`)
-  }
-
-  get_one_by_id(id: string): View {
-    const view = this.find_one_by_id(id)
-    if (view != null)
-      return view
-    else
-      throw new Error(`cannot find a view for a model with '${id}' identity`)
-  }
-
-  find_all<T extends HasProps>(model: T): ViewOf<T>[] {
-    return [...this.find(model)]
-  }
-
-  find_all_by_id(id: string): View[] {
-    return [...this.find_by_id(id)]
+  resolve_as_scalar(coord: Coordinate, dim: "x" | "y"): number {
+    const value = this.resolve_coordinate(coord)
+    return isNumber(value) ? value : value[dim]
   }
 }

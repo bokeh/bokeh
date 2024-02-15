@@ -13,7 +13,7 @@ import {Align, Face, LabelOrientation} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
 import {Indices} from "core/types"
 import type {Orient, Normal, Dimension} from "core/layout/side_panel"
-import {Panel, SideLayout} from "core/layout/side_panel"
+import {SidePanel, SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
 import {sum, repeat} from "core/util/array"
 import {dict} from "core/util/object"
@@ -60,12 +60,12 @@ export class AxisView extends GuideRendererView {
 
   layout?: Layoutable
 
-  private _panel: Panel
-  get panel(): Panel {
+  private _panel: SidePanel
+  get panel(): SidePanel {
     return this._panel
   }
-  set panel(panel: Panel) {
-    this._panel = new Panel(panel.side, this.model.face)
+  set panel(panel: SidePanel) {
+    this._panel = new SidePanel(panel.side, this.model.face)
   }
 
   /*private*/ _axis_label_view: BaseTextView | null = null

@@ -8,7 +8,7 @@ export * from "../core/util/eq"
 import type {Arrayable} from "core/types"
 import type {NDArrayType} from "core/util/ndarray"
 import {is_NDArray, ndarray} from "core/util/ndarray"
-import {isNumber} from "core/util/types"
+import {isNumber, isArrayable} from "core/util/types"
 import {range, linspace as _linspace} from "core/util/array"
 import {map, sum as _sum, bin_counts} from "core/util/arrayable"
 import {Random} from "core/util/random"
@@ -20,7 +20,7 @@ import * as math from "core/util/math"
 export type Numerical<T = number> = number | Floating | Arrayable<T>
 
 export function is_Numerical(x: unknown): x is Numerical {
-  return isNumber(x) || is_Floating(x) || is_NDArray(x)
+  return isNumber(x) || is_Floating(x) || is_NDArray(x) || isArrayable(x)
 }
 
 export namespace np {

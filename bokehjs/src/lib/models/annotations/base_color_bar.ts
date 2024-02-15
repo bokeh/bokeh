@@ -23,7 +23,7 @@ import type {Layoutable, SizingPolicy, Percent} from "core/layout"
 import {Grid} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
-import {Panel} from "core/layout/side_panel"
+import {SidePanel} from "core/layout/side_panel"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
@@ -395,11 +395,11 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     const {_title_view} = this
     if (orientation == "horizontal") {
-      _title_view.panel = new Panel("above")
+      _title_view.panel = new SidePanel("above")
       _title_view.update_layout()
       top_panel.children.push(_title_view.layout)
     } else {
-      _title_view.panel = new Panel("left")
+      _title_view.panel = new SidePanel("left")
       _title_view.update_layout()
       left_panel.children.push(_title_view.layout)
     }
@@ -426,7 +426,7 @@ export abstract class BaseColorBarView extends AnnotationView {
     })()
 
     const {_axis_view} = this
-    _axis_view.panel = new Panel(side)
+    _axis_view.panel = new SidePanel(side)
     _axis_view.update_layout()
     if (_axis_view.layout != null)
       stack.children.push(_axis_view.layout)

@@ -19,13 +19,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import RenderLevel
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
+    Either,
     Enum,
     Instance,
+    List,
     Nullable,
     Override,
     String,
@@ -38,6 +43,7 @@ from ..coordinates import CoordinateMapping
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "CompositeRenderer",
     "DataRenderer",
     "GuideRenderer",
     "Renderer",
@@ -58,7 +64,7 @@ class RendererGroup(Model):
         super().__init__(*args, **kwargs)
 
     visible = Bool(default=True, help="""
-    Makes all groupped renderers visible or not.
+    Makes all grouped renderers visible or not.
     """)
 
 #-----------------------------------------------------------------------------
@@ -95,13 +101,55 @@ class Renderer(Model):
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
 
-    group = Nullable(Instance(RendererGroup))
+    group = Nullable(Instance(RendererGroup), help="""
+    .. note::
+        This property is experimental and may change at any point.
+    """)
 
     propagate_hover = Bool(default=False, help="""
     Allows to propagate hover events to the parent renderer, frame or canvas.
 
     .. note::
         This property is experimental and may change at any point.
+    """)
+
+    context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""
+    A menu to display when user right clicks on the component.
+
+    .. note::
+        Use shift key when right clicking to display the native context menu.
+    """)
+
+@abstract
+class CompositeRenderer(Renderer):
+    """ A renderer that allows attaching other renderers and DOM-based UIs.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    renderers = List(Instance(Renderer), default=[], help="""
+    A collection of renderers attached to this renderer.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    elements = List(
+        Either(
+            Instance(".models.ui.UIElement"),
+            Instance(".models.dom.DOMNode"),
+        ),
+    )(default=[], help="""
+    A collection of DOM-based UI elements attached to this renderer.
+
+    This can include floating elements like tooltips, allowing to establish
+    a parent-child relationship between this renderer and its UI elements.
+
+    .. note::
+        This property is an equivalent of ``Pane.elements`` in DOM-based UIs.
     """)
 
 @abstract

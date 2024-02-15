@@ -9,6 +9,11 @@ export class TextView extends DOMNodeView {
     this.el.textContent = this.model.content
   }
 
+  // TODO This shouldn't be here.
+  override after_render(): void {
+    this.finish()
+  }
+
   protected override _createElement(): globalThis.Text {
     return document.createTextNode("")
   }

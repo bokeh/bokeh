@@ -139,7 +139,7 @@ const _align_lookup_positive: {[key in Side]: Align} = {
 export type Dimension = 0 | 1
 export type Normal = -1 | 0 | 1
 
-export class Panel {
+export class SidePanel {
   readonly face: Face
   readonly dimension: Dimension
   readonly orientation: Orientation
@@ -216,7 +216,7 @@ export class Panel {
 
 export class SideLayout extends ContentLayoutable {
 
-  constructor(readonly panel: Panel, readonly get_size: () => Size, readonly rotate: boolean = false) {
+  constructor(readonly panel: SidePanel, readonly get_size: () => Size, readonly rotate: boolean = false) {
     super()
 
     if (this.panel.is_horizontal)

@@ -72,7 +72,7 @@ export class ToolbarView extends UIElementView {
     const reversed = location == "left" || location == "above"
     const orientation = this.model.horizontal ? "vertical" : "horizontal"
     this._overflow_menu = new ContextMenu([], {
-      target: this.root.el,
+      target: this.el,
       orientation,
       reversed,
       prevent_hide: (event) => {
@@ -89,13 +89,17 @@ export class ToolbarView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {buttons, tools} = this.model.properties
+    const {buttons, tools, location, autohide} = this.model.properties
     this.on_change([buttons, tools], async () => {
       await this._build_tool_button_views()
       this.render()
     })
 
-    this.connect(this.model.properties.autohide.change, () => {
+    this.on_change(location, () => {
+      this.render()
+    })
+
+    this.on_change(autohide, () => {
       this._on_visible_change()
     })
   }

@@ -2073,7 +2073,7 @@ describe("Bug", () => {
 
       const pane = new Pane({
         styles: {width: "300px", height: "300px", overflow_y: "scroll"},
-        children: [plot],
+        elements: [plot],
       })
 
       await display(pane, [350, 350])
@@ -2138,7 +2138,7 @@ describe("Bug", () => {
       const plot = figure({sizing_mode: "stretch_both"})
       plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
 
-      const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
+      const pane = new Pane({styles: {width: "200px", height: "200px"}, elements: [plot]})
       const {view} = await display(pane, [350, 350])
       await paint()
 
@@ -2747,7 +2747,7 @@ describe("Bug", () => {
           }
         `],
         styles: {display: "none"},
-        children: [plot],
+        elements: [plot],
       })
 
       const {view} = await display(pane, [300, 300])

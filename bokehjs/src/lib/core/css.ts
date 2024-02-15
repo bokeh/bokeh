@@ -1,3 +1,9 @@
+import {logger} from "core/logging"
+import type {Dict} from "core/types"
+import {entries} from "core/util/object"
+import {isString, isPlainObject} from "core/util/types"
+import type {Styles} from "models/dom/styles"
+
 export type GlobalValues = "inherit" | "initial" | "revert" | "revert-layer" | "unset"
 export type FlexDirection = GlobalValues | "row" | "row-reverse" | "column" | "column-reverse"
 export type Position = GlobalValues | "static" | "relative" | "absolute" | "fixed" | "sticky"
@@ -1163,8 +1169,80 @@ type CSSStylesSnake = {
   z_index?: string | null
 }
 
-export type CSSStylesNative = CSSStylesCamel & CSSStylesDashed
+export type CSSVariables = {[key in `--${string}`]?: string | null}
 
-export type CSSOurStyles = CSSStylesDashed & CSSStylesSnake
+export type CSSStyles = CSSStylesCamel & CSSStylesDashed & CSSStylesSnake & CSSVariables
 
-export type CSSStyles = CSSStylesNative & CSSStylesSnake
+export type CSSStylesLike = CSSStyles | Dict<string | null> | Styles
+
+const _style_decl = document.createElement("div").style
+function _css_name(attr: string): string | null {
+  if (attr.startsWith("--")) {
+    return attr
+  }
+  const name = attr.replaceAll(/_/g, "-").replaceAll(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
+  // XXX hasOwnProperty() doesn't work for unknown reasons (e.g. in Firefox)
+  if (name in _style_decl) {
+    return name
+  }
+  const webkit_name = `-webkit-${name}`
+  if (webkit_name in _style_decl) {
+    return webkit_name
+  }
+  const moz_name = `-moz-${name}`
+  if (moz_name in _style_decl) {
+    return moz_name
+  }
+  logger.warn(`unknown CSS property '${attr}'`)
+  return null
+}
+
+function* _iter_styles(styles: CSSStylesLike): Iterable<[string, unknown]> {
+  if (isPlainObject(styles) || styles instanceof Map) {
+    for (const [key, val] of entries(styles)) {
+      const name = _css_name(key)
+      if (name != null) {
+        yield [name, val]
+      }
+    }
+  } else {
+    for (const prop of styles.own_properties()) {
+      if (prop.dirty) {
+        const name = _css_name(prop.attr)
+        if (name != null) {
+          yield [name, prop.get_value()]
+        }
+      }
+    }
+  }
+}
+
+export function apply_styles(declaration: CSSStyleDeclaration, styles: CSSStylesLike): void {
+  for (const [name, value] of _iter_styles(styles)) {
+    if (isString(value)) {
+      declaration.setProperty(name, value)
+    } else {
+      declaration.removeProperty(name)
+    }
+  }
+}
+
+export type CSSStyleSheetDecl = Dict<CSSStylesLike>
+
+export function compose_stylesheet(stylesheet: CSSStyleSheetDecl): string {
+  const css = []
+
+  for (const [selector, styles] of entries(stylesheet)) {
+    css.push(`${selector} {`)
+
+    for (const [name, value] of _iter_styles(styles)) {
+      if (isString(value) && value.length != 0) {
+        css.push(`  ${name}: ${value};`)
+      }
+    }
+
+    css.push("}")
+  }
+
+  return css.join("\n")
+}

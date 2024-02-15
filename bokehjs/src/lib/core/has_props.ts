@@ -508,6 +508,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  *own_properties(): PropertyGenerator {
+    const self = Object.getPrototypeOf(this) as HasProps
+    const base = Object.getPrototypeOf(self) as HasProps
+    const exclude = new Set(keys(base._props))
+    for (const prop of this) {
+      if (!exclude.has(prop.attr)) {
+        yield prop
+      }
+    }
+  }
+
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs

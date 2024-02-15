@@ -27,6 +27,7 @@ import type {BokehEvent, BokehEventType, BokehEventMap, ModelEvent} from "core/b
 import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
+import type {ViewManager} from "core/view_manager"
 
 Deserializer.register("model", decode_def)
 
@@ -78,6 +79,9 @@ export const DEFAULT_TITLE = "Bokeh Application"
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document implements Equatable {
+  /** @experimental */
+  views_manager?: ViewManager
+
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 

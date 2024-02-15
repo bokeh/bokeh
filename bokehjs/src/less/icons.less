@@ -178,45 +178,44 @@
   .tool-icon-mask(var(--bokeh-icon-fullscreen));
 }
 
-.bk-tool-icon-chevron-up {
-  .tool-icon-mask(var(--bokeh-icon-chevron-up));
-}
+.bk-tool-icon-chevron-up    { .tool-icon-mask(var(--bokeh-icon-chevron-up)); }
+.bk-tool-icon-chevron-down  { .tool-icon-mask(var(--bokeh-icon-chevron-down)); }
+.bk-tool-icon-chevron-left  { .tool-icon-mask(var(--bokeh-icon-chevron-left)); }
+.bk-tool-icon-chevron-right { .tool-icon-mask(var(--bokeh-icon-chevron-right)); }
 
-.bk-tool-icon-chevron-down {
-  .tool-icon-mask(var(--bokeh-icon-chevron-down));
-}
+.bk-tool-icon-caret-up    { .tool-icon-mask(var(--bokeh-icon-caret-up)); }
+.bk-tool-icon-caret-down  { .tool-icon-mask(var(--bokeh-icon-caret-down)); }
+.bk-tool-icon-caret-left  { .tool-icon-mask(var(--bokeh-icon-caret-left)); }
+.bk-tool-icon-caret-right { .tool-icon-mask(var(--bokeh-icon-caret-right)); }
 
-.bk-tool-icon-chevron-left {
-  .tool-icon-mask(var(--bokeh-icon-chevron-left));
-}
+.bk-tool-icon-see-on  { .tool-icon-mask(var(--bokeh-icon-see-on)); }
+.bk-tool-icon-see-off { .tool-icon-mask(var(--bokeh-icon-see-off)); }
 
-.bk-tool-icon-chevron-right {
-  .tool-icon-mask(var(--bokeh-icon-chevron-right));
-}
+.bk-tool-icon-x-grip { .tool-icon-mask(var(--bokeh-icon-y-grip)); }
+.bk-tool-icon-y-grip { .tool-icon-mask(var(--bokeh-icon-y-grip)); }
 
-.bk-tool-icon-caret-up {
-  .tool-icon-mask(var(--bokeh-icon-caret-up));
-}
+.bk-tool-icon-arrow-down-to-bar { .tool-icon-mask(var(--bokeh-icon-arrow-down-to-bar)); }
+.bk-tool-icon-arrow-up-from-bar { .tool-icon-mask(var(--bokeh-icon-arrow-up-from-bar)); }
 
-.bk-tool-icon-caret-down {
-  .tool-icon-mask(var(--bokeh-icon-caret-down));
-}
+.bk-tool-icon-minimize { .tool-icon-mask(var(--bokeh-icon-minimize)); }
+.bk-tool-icon-maximize { .tool-icon-mask(var(--bokeh-icon-maximize)); }
 
-.bk-tool-icon-caret-left {
-  .tool-icon-mask(var(--bokeh-icon-caret-left));
-}
+.bk-tool-icon-pin      { .tool-icon-mask(var(--bokeh-icon-pin)); }
+.bk-tool-icon-unpin    { .tool-icon-mask(var(--bokeh-icon-unpin)); }
 
-.bk-tool-icon-caret-right {
-  .tool-icon-mask(var(--bokeh-icon-caret-right));
-}
+.bk-tool-icon-pointer  { .tool-icon-mask(var(--bokeh-icon-hand-pointing));  }
+.bk-tool-icon-delete   { .tool-icon-mask(var(--bokeh-icon-trash)); }
 
-.bk-tool-icon-see-on {
-  .tool-icon-mask(var(--bokeh-icon-see-on));
-}
+.bk-tool-icon-bold   { .tool-icon-mask(var(--bokeh-icon-bold));   }
+.bk-tool-icon-italic { .tool-icon-mask(var(--bokeh-icon-italic)); }
 
-.bk-tool-icon-see-off {
-  .tool-icon-mask(var(--bokeh-icon-see-off));
-}
+.bk-tool-icon-text-align-left   { .tool-icon-mask(var(--bokeh-icon-text-align-left));   }
+.bk-tool-icon-text-align-center { .tool-icon-mask(var(--bokeh-icon-text-align-center)); }
+.bk-tool-icon-text-align-right  { .tool-icon-mask(var(--bokeh-icon-text-align-right));  }
+
+.bk-tool-icon-check { .tool-icon-mask(var(--bokeh-icon-check));  }
+.bk-tool-icon-square { .tool-icon-mask(var(--bokeh-icon-square));  }
+.bk-tool-icon-square-check { .tool-icon-mask(var(--bokeh-icon-square-check));  }
 
 :host {
   // Based on https://tabler-icons.io/ (MIT License)
@@ -270,4 +269,30 @@
   --bokeh-icon-see-off: data-uri("icons/see-off.svg");
 
   --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
+
+  --bokeh-icon-x-grip: data-uri("icons/x-grip.svg");
+  --bokeh-icon-y-grip: data-uri("icons/y-grip.svg");
+
+  --bokeh-icon-arrow-down-to-bar: data-uri("icons/arrow-down-to-bar.svg");
+  --bokeh-icon-arrow-up-from-bar: data-uri("icons/arrow-up-from-bar.svg");
+
+  --bokeh-icon-minimize: data-uri("icons/minimize.svg");
+  --bokeh-icon-maximize: data-uri("icons/maximize.svg");
+
+  --bokeh-icon-pin: data-uri("icons/pin.svg");
+  --bokeh-icon-unpin: data-uri("icons/unpin.svg");
+
+  --bokeh-icon-hand-pointing: data-uri("icons/hand-pointing.svg");
+  --bokeh-icon-trash: data-uri("icons/trash.svg");
+
+  --bokeh-icon-bold: data-uri("icons/bold.svg");
+  --bokeh-icon-italic: data-uri("icons/italic.svg");
+
+  --bokeh-icon-text-align-left: data-uri("icons/text-align-left.svg");
+  --bokeh-icon-text-align-center: data-uri("icons/text-align-center.svg");
+  --bokeh-icon-text-align-right: data-uri("icons/text-align-right.svg");
+
+  --bokeh-icon-check: data-uri("icons/check.svg");
+  --bokeh-icon-square: data-uri("icons/square.svg");
+  --bokeh-icon-square-check: data-uri("icons/square-check.svg");
 }

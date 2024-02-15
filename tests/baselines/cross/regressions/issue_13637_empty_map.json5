@@ -19,10 +19,15 @@
         syncable: true,
         visible: true,
         css_classes: [],
+        css_variables: {
+          type: "map",
+        },
         styles: {
           type: "map",
         },
         stylesheets: [],
+        context_menu: null,
+        elements: [],
         disabled: false,
         width: 600,
         height: 600,
@@ -37,7 +42,6 @@
         flow_mode: "block",
         sizing_mode: null,
         align: "auto",
-        context_menu: null,
         resizable: false,
         x_range: {
           type: "object",
@@ -190,6 +194,9 @@
             y_range_name: "default",
             group: null,
             propagate_hover: false,
+            context_menu: null,
+            renderers: [],
+            elements: [],
             text: "",
             padding: 0,
             border_radius: 0,
@@ -258,6 +265,7 @@
               y_range_name: "default",
               group: null,
               propagate_hover: false,
+              context_menu: null,
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
@@ -497,6 +505,7 @@
               y_range_name: "default",
               group: null,
               propagate_hover: false,
+              context_menu: null,
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
@@ -695,10 +704,14 @@
             syncable: true,
             visible: true,
             css_classes: [],
+            css_variables: {
+              type: "map",
+            },
             styles: {
               type: "map",
             },
             stylesheets: [],
+            context_menu: null,
             logo: "normal",
             autohide: false,
             tools: [],
@@ -738,6 +751,7 @@
         aspect_scale: 1,
         reset_policy: "standard",
         hold_render: false,
+        attribution: [],
       },
     },
   ],

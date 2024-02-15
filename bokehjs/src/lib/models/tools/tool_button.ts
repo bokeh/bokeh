@@ -31,9 +31,11 @@ export abstract class ToolButtonView extends UIElementView {
     const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
     const items = this.model.tool.menu ?? []
     this._menu = new ContextMenu(!reverse ? items : reversed(items), {
-      target: this.root.el,
+      target: this.parent.el,
       orientation,
-      prevent_hide: (event) => event.composedPath().includes(this.el),
+      prevent_hide: (event) => {
+        return event.composedPath().includes(this.el)
+      },
     })
 
     this._ui_gestures = new UIGestures(this.el, {

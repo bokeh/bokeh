@@ -7,16 +7,13 @@ import type {Plot} from "../plots/plot"
 import type {CartesianFrame} from "../canvas/cartesian_frame"
 import type {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {div, remove, InlineStyleSheet} from "core/dom"
+import {HTML} from "../dom/html"
 import type * as p from "core/properties"
 import type {Image} from "core/util/image"
 import {ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
-import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
-
-import attribution_css from "styles/attribution.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -41,8 +38,6 @@ export class TileRendererView extends RendererView {
   protected render_timer?: number
   protected prefetch_timer?: number
 
-  protected attribution_el?: HTMLElement
-
   override mark_finished(): void {
     super.mark_finished()
     this._tiles = []
@@ -52,13 +47,6 @@ export class TileRendererView extends RendererView {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.tile_source.change, () => this.request_render())
-  }
-
-  override remove(): void {
-    if (this.attribution_el != null) {
-      remove(this.attribution_el)
-    }
-    super.remove()
   }
 
   get_extent(): Extent {
@@ -100,39 +88,8 @@ export class TileRendererView extends RendererView {
     this._last_width = undefined
   }
 
-  protected _update_attribution(): void {
-    if (this.attribution_el != null) {
-      remove(this.attribution_el)
-    }
-
-    const {attribution} = this.model.tile_source
-
-    if (isString(attribution) && attribution.length > 0) {
-      const {layout, frame} = this.plot_view
-      const offset_right = layout.bbox.width - frame.bbox.right
-      const offset_bottom = layout.bbox.height - frame.bbox.bottom
-      const max_width = frame.bbox.width
-
-      this.attribution_el = div({
-        style: {
-          right: `${offset_right}px`,
-          bottom: `${offset_bottom}px`,
-          "max-width": `${max_width}px`,
-        },
-      })
-
-      const contents_el = div()
-      contents_el.innerHTML = attribution
-
-      const shadow_el = this.attribution_el.attachShadow({mode: "open"})
-      const stylesheet = new InlineStyleSheet(attribution_css)
-      stylesheet.install(shadow_el)
-      shadow_el.appendChild(contents_el)
-
-      this.attribution_el.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
-      this.plot_view.canvas_view.add_event(this.attribution_el)
-    }
-    // TODO: add support for DOMElement
+  override get attribution(): HTML | string | null {
+    return new HTML({html: [this.model.tile_source.attribution]})
   }
 
   protected _map_data(): void {
@@ -151,7 +108,6 @@ export class TileRendererView extends RendererView {
       this.y_range.reset_start = new_extent[1]
       this.y_range.reset_end = new_extent[3]
     }
-    this._update_attribution()
   }
 
   protected _create_tile(x: number, y: number, z: number, bounds: Bounds, cache_only: boolean = false): void {

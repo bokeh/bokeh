@@ -35,7 +35,7 @@ from ...core.properties import (
 )
 from ...core.property.bases import Init
 from ...core.property.singletons import Intrinsic
-from ...model import Model
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,7 +57,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class Icon(Model):
+class Icon(UIElement):
     """ An abstract base class for icon elements.
 
     """
@@ -122,8 +122,8 @@ class TablerIcon(Icon):
         This icon set is MIT licensed (see https://github.com/tabler/tabler-icons/blob/master/LICENSE).
 
     .. note::
-        External icons are loaded from thrid-party servers and may not be avilable
-        immediately (e.g. due to slow iternet connection) or not available at all.
+        External icons are loaded from third-party servers and may not be available
+        immediately (e.g. due to slow internet connection) or not available at all.
         It isn't possible to create a self-contained bundles with the use of
         ``inline`` resources. To circumvent this, one use ``SVGIcon``, by copying
         the SVG contents of an icon from Tabler's web site.

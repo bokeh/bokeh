@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.properties import CoordinateLike, Either, Instance
-from ..coordinates import Node
+from ..nodes import Node
 
 #-----------------------------------------------------------------------------
 # Globals and constants
