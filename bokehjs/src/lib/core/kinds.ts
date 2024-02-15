@@ -304,7 +304,7 @@ export namespace Kinds {
     }
   }
 
-  export class Array<ItemType> extends Kind<ItemType[]> {
+  export class List<ItemType> extends Kind<ItemType[]> {
     constructor(readonly item_type: Kind<ItemType>) {
       super()
     }
@@ -314,7 +314,7 @@ export namespace Kinds {
     }
 
     override toString(): string {
-      return `Array(${this.item_type.toString()})`
+      return `List(${this.item_type.toString()})`
     }
 
     may_have_refs(): boolean {
@@ -536,13 +536,13 @@ export namespace Kinds {
     }
   }
 
-  export class Function<Args extends unknown[], Ret> extends Kind<(...args: Args) => Ret> {
+  export class Func<Args extends unknown[], Ret> extends Kind<(...args: Args) => Ret> {
     valid(value: unknown): value is this["__type__"] {
       return tp.isFunction(value)
     }
 
     override toString(): string {
-      return "Function(...)"
+      return "Func(...)"
     }
 
     may_have_refs(): boolean {
@@ -618,14 +618,14 @@ export const Struct = <T extends {[key: string]: unknown}>(struct_type: Kinds.Ob
 export const PartialStruct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.PartialStruct(struct_type)
 export const Iterable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Iterable(item_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
-export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
+export const List = <ItemType>(item_type: Kind<ItemType>) => new Kinds.List(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
 export const Mapping = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Mapping(key_type, item_type)
 export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)
 export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
 export const AnyRef = <ObjType extends object>() => new Kinds.AnyRef<ObjType>()
-export const Function = <Args extends unknown[], Ret>() => new Kinds.Function<Args, Ret>()
+export const Func = <Args extends unknown[], Ret>() => new Kinds.Func<Args, Ret>()
 export const DOMNode = new Kinds.DOMNode()
 
 export const NonNegative = <BaseType extends number>(base_type: Kind<BaseType>) => new Kinds.NonNegative(base_type)
@@ -641,8 +641,11 @@ export const FontSize = Str
 export const Font = Str
 export const Angle = Float
 
-// backwards compatibility aliases
+// backwards compatibility aliases (these collide with built-in types)
+// TODO deprecate this and update the codebase
 export const Boolean = Bool
 export const String = Str
 export const Number = Float
+export const Array = List
 export const Map = Mapping
+export const Function = Func

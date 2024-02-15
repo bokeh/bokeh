@@ -143,9 +143,9 @@ describe("core/kinds module", () => {
   })
 
   it("should support Struct kind", () => {
-    const tp = k.Struct({a: k.Int, b: k.Str, c: k.Opt(k.Array(k.Int))})
+    const tp = k.Struct({a: k.Int, b: k.Str, c: k.Opt(k.List(k.Int))})
 
-    expect(`${tp}`).to.be.equal("Struct({a: Int, b: Str, c: Opt(Array(Int))})")
+    expect(`${tp}`).to.be.equal("Struct({a: Int, b: Str, c: Opt(List(Int))})")
 
     expect(tp.valid({})).to.be.false
     expect(tp.valid({a: 0})).to.be.false
@@ -155,14 +155,14 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
 
     expect(tp.may_have_refs()).to.be.equal(false)
-    const tp1 = k.Struct({a: k.Int, b: k.Str, c: k.Opt(k.Array(k.AnyRef()))})
+    const tp1 = k.Struct({a: k.Int, b: k.Str, c: k.Opt(k.List(k.AnyRef()))})
     expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
   it("should support PartialStruct kind", () => {
-    const tp = k.PartialStruct({a: k.Int, b: k.Str, c: k.Array(k.Int)})
+    const tp = k.PartialStruct({a: k.Int, b: k.Str, c: k.List(k.Int)})
 
-    expect(`${tp}`).to.be.equal("Struct({a?: Int, b?: Str, c?: Array(Int)})")
+    expect(`${tp}`).to.be.equal("Struct({a?: Int, b?: Str, c?: List(Int)})")
 
     expect(tp.valid({})).to.be.true
     expect(tp.valid({a: 0})).to.be.true
@@ -173,7 +173,7 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
 
     expect(tp.may_have_refs()).to.be.equal(false)
-    const tp1 = k.PartialStruct({a: k.Int, b: k.Str, c: k.Opt(k.Array(k.AnyRef()))})
+    const tp1 = k.PartialStruct({a: k.Int, b: k.Str, c: k.Opt(k.List(k.AnyRef()))})
     expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
@@ -203,15 +203,15 @@ describe("core/kinds module", () => {
     expect((k.Arrayable(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
-  it("should support Array kind", () => {
-    const tp = k.Array(k.Int)
-    expect(`${tp}`).to.be.equal("Array(Int)")
+  it("should support List kind", () => {
+    const tp = k.List(k.Int)
+    expect(`${tp}`).to.be.equal("List(Int)")
     expect(tp.valid([])).to.be.true
     expect(tp.valid([0, 1, 2])).to.be.true
     expect(tp.valid([0, "a"])).to.be.false
     expect(tp.valid(["a"])).to.be.false
     expect(tp.may_have_refs()).to.be.equal(false)
-    expect((k.Array(k.AnyRef())).may_have_refs()).to.be.equal(true)
+    expect((k.List(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Dict kind", () => {
@@ -283,9 +283,9 @@ describe("core/kinds module", () => {
     expect(tp.may_have_refs()).to.be.equal(true)
   })
 
-  it("should support Function kind", () => {
-    const tp = k.Function()
-    expect(`${tp}`).to.be.equal("Function(...)")
+  it("should support Func kind", () => {
+    const tp = k.Func()
+    expect(`${tp}`).to.be.equal("Func(...)")
     expect(tp.valid(() => 1)).to.be.true
     expect(tp.valid(async () => 1)).to.be.true
     expect(tp.valid(function() { return 1 })).to.be.true
@@ -354,5 +354,25 @@ describe("core/kinds module", () => {
     expect(tp1.valid(1.1)).to.be.true
 
     expect(tp0.may_have_refs()).to.be.equal(false)
+  })
+
+  it("should support deprecated aliases", () => {
+    const tp0 = k.Boolean
+    expect(`${tp0}`).to.be.equal("Bool")
+
+    const tp1 = k.String
+    expect(`${tp1}`).to.be.equal("Str")
+
+    const tp2 = k.Number
+    expect(`${tp2}`).to.be.equal("Float")
+
+    const tp3 = k.Array(k.Number)
+    expect(`${tp3}`).to.be.equal("List(Float)")
+
+    const tp4 = k.Map(k.Number, k.Boolean)
+    expect(`${tp4}`).to.be.equal("Mapping(Float, Bool)")
+
+    const tp5 = k.Function()
+    expect(`${tp5}`).to.be.equal("Func(...)")
   })
 })
