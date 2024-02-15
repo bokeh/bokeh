@@ -196,7 +196,8 @@ export class Deserializer {
     const is_plain = entries.every(([key, _val]) => isString(key))
     // An empty container will result in a plain object, not a Map, thus in the case of
     // kinds.Mapping property type, one needs to accommodate for this in all instances.
-    // Fortunately there are few of these scattered across `src/lib/models/`.
+    // Fortunately there are few of these scattered across `src/lib/models/`. See HACK
+    // in `Mapping.coerce()` in `core/util/kinds`.
     if (is_plain) {
       return Object.fromEntries(entries)
     } else {

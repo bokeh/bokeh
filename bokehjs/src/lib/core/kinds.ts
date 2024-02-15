@@ -1,7 +1,7 @@
 import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys, values, typed_values, typed_entries, PlainObjectProxy} from "./util/object"
+import {keys, values, typed_values, typed_entries, is_empty, PlainObjectProxy} from "./util/object"
 import {has_refs} from "./util/refs"
 
 type ESMap<K, V> = globalThis.Map<K, V>
@@ -14,6 +14,8 @@ type ESIterable<V> = globalThis.Iterable<V>
 
 export abstract class Kind<T> {
   __type__: T
+
+  coerce?(value: unknown): unknown
 
   abstract valid(value: unknown): value is this["__type__"]
 
@@ -462,9 +464,19 @@ export namespace Kinds {
       super()
     }
 
+    override coerce(value: unknown): unknown {
+      // HACK accommodate for deserialization of {type: "map"}
+      if (tp.isPlainObject(value) && is_empty(value)) {
+        return new ESMap()
+      } else {
+        return value
+      }
+    }
+
     valid(value: unknown): value is this["__type__"] {
-      if (!(value instanceof ESMap))
+      if (!(value instanceof ESMap)) {
         return false
+      }
 
       for (const [key, item] of value.entries()) {
         if (!(this.key_type.valid(key) && this.item_type.valid(item)))

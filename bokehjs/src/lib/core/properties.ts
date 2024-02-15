@@ -176,10 +176,14 @@ export abstract class Property<T = unknown> {
       }
     }
 
-    if (attr_value !== unset)
+    if (attr_value !== unset) {
+      if (this.kind.coerce != null) {
+        attr_value = this.kind.coerce(attr_value) as T
+      }
       this._update(attr_value)
-    else
+    } else {
       this._value = unset
+    }
 
     this._initialized = true
   }
