@@ -227,17 +227,12 @@ describe("ToolbarView", () => {
   })
 
   describe("visible attribute of tools in toolbar", () => {
-    let hover: HoverTool
-    let pan: PanTool
-    let tap: TapTool
-
-    before_each(() => {
-      hover = new HoverTool()
-      pan = new PanTool()
-      tap = new TapTool()
-    })
 
     it("should have correct visibility status of tools", () => {
+      const hover = new HoverTool()
+      const pan = new PanTool()
+      const tap = new TapTool()
+
       expect(hover.visible).to.be.true
       expect(pan.visible).to.be.true
       expect(tap.visible).to.be.true
@@ -259,8 +254,10 @@ describe("ToolbarView", () => {
     })
 
     it("should not add tools with visible=false", async () => {
-      hover.visible = false
-      pan.visible = false
+      const hover = new HoverTool({visible: false})
+      const pan = new PanTool({visible: false})
+      const tap = new TapTool()
+
       const tb = new Toolbar({tools: [hover, pan, tap]})
       const tb_visible_true = new Toolbar({tools: [tap]})
       const tbv = await build_view(tb, {parent: null})
@@ -274,21 +271,27 @@ describe("ToolbarView", () => {
     })
 
     it("should have default tools all be visible", async () => {
+      const hover = new HoverTool()
+      const pan = new PanTool()
+      const tap = new TapTool()
+
       const tb = new Toolbar({tools: [hover, pan, tap]})
       const tbv = await build_view(tb, {parent: null})
       expect(tbv.tool_buttons.length).to.be.equal(3)
     })
 
     it("should show no tools if all tools have visible=false", async () => {
-      hover.visible = false
-      pan.visible = false
-      tap.visible = false
+      const hover = new HoverTool({visible: false})
+      const pan = new PanTool({visible: false})
+      const tap = new TapTool({visible: false})
       const tb = new Toolbar({tools: [hover, pan, tap]})
       const tbv = await build_view(tb, {parent: null})
       expect(tbv.tool_buttons.length).to.be.equal(0)
     })
 
     it("should properly show tools after changing visibility", async () => {
+      const hover = new HoverTool()
+
       const tb = new Toolbar({tools: [hover]})
       let tbv = await build_view(tb, {parent: null})
 
@@ -303,7 +306,6 @@ describe("ToolbarView", () => {
       expect(tbv.tool_buttons.length).to.be.equal(1)
       expect(tbv.tool_buttons[0].tool.tool_name).to.be.equal("Hover")
     })
-
   })
 })
 

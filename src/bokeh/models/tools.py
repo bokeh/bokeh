@@ -192,9 +192,8 @@ class Tool(Model):
     user interface as a tooltip.
     """)
 
-    visible = Bool(True, help="""
-    Whether an on/off toggle button should appear in the toolbar for this
-    inspection tool. If ``False``, tool button will not appear on the toolbar.
+    visible = Bool(default=True, help="""
+    Whether a tool button associated with this tool should appear in the toolbar.
     """)
 
     _known_aliases: tp.ClassVar[dict[str, tp.Callable[[], Tool]]] = {}
