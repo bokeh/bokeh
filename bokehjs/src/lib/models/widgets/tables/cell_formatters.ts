@@ -68,7 +68,7 @@ export class StringFormatter extends CellFormatter {
     }))
   }
 
-  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
     const {font_style, text_align, text_color, background_color} = this
 
     const text = div(value == null ? "" : `${value}`)
@@ -78,7 +78,7 @@ export class StringFormatter extends CellFormatter {
     if (isValue(font_style)) {
       resolved_font_style = font_style.value
     } else if (isField(font_style)) {
-      resolved_font_style = _dataContext[font_style.field]
+      resolved_font_style = dataContext[font_style.field]
     } else if (isExpr(font_style)) {
       // TODO
     } else {
@@ -105,7 +105,7 @@ export class StringFormatter extends CellFormatter {
     if (isValue(text_align)) {
       text.style.textAlign = text_align.value
     } else if (isField(text_align)) {
-      text.style.textAlign = _dataContext[text_align.field]
+      text.style.textAlign = dataContext[text_align.field]
     } else if (isExpr(text_align)) {
       // TODO
     } else {
@@ -120,11 +120,11 @@ export class StringFormatter extends CellFormatter {
       }
     } else if (isField(text_color)) {
       if (text_color.transform != null && text_color.transform instanceof ColorMapper) {
-        const rgbaArray = text_color.transform.rgba_mapper.v_compute([_dataContext[text_color.field]])
-        const [r, g, b, a] = rgbaArray
+        const rgba_array = text_color.transform.rgba_mapper.v_compute([dataContext[text_color.field]])
+        const [r, g, b, a] = rgba_array
         text.style.color = rgba2css([r, g, b, a])
       } else {
-        text.style.color = _dataContext[text_color.field]
+        text.style.color = color2css(dataContext[text_color.field])
       }
     } else if (isExpr(text_color)) {
       // TODO
@@ -139,11 +139,11 @@ export class StringFormatter extends CellFormatter {
       }
     } else if (isField(background_color)) {
       if (background_color.transform != null && background_color.transform instanceof ColorMapper) {
-        const rgbaArray = background_color.transform.rgba_mapper.v_compute([_dataContext[background_color.field]])
-        const [r, g, b, a] = rgbaArray
+        const rgba_array = background_color.transform.rgba_mapper.v_compute([dataContext[background_color.field]])
+        const [r, g, b, a] = rgba_array
         text.style.backgroundColor = rgba2css([r, g, b, a])
       } else {
-        text.style.backgroundColor = _dataContext[background_color.field]
+        text.style.backgroundColor = color2css(dataContext[background_color.field])
       }
     } else if (isExpr(background_color)) {
       // TODO
