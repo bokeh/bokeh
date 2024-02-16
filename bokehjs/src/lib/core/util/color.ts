@@ -58,9 +58,13 @@ function hex(v: uint8): string {
   return _hex_table[v >> 4] + _hex_table[v & 0xf]
 }
 
+export function rgba2css([r, g, b, a]: RGBA): string {
+  return `rgba(${r}, ${g}, ${b}, ${a/255})`
+}
+
 export function color2css(color: Color | null, alpha?: number): string {
   const [r, g, b, a] = color2rgba(color, alpha)
-  return `rgba(${r}, ${g}, ${b}, ${a/255})`
+  return rgba2css([r, g, b, a])
 }
 
 export function color2hex(color: Color | null, alpha?: number): string {
@@ -236,4 +240,11 @@ export function brightness(color: Color): number {
   // http://alienryderflex.com/hsp.html
   const [r, g, b] = color2rgba(color)
   return sqrt(0.299*r**2 + 0.587*g**2 + 0.114*b**2)/255
+}
+
+export function luminance(color: Color): number {
+  // Relative luminance of a color in [0, 1] range.
+  // https://en.wikipedia.org/wiki/Relative_luminance
+  const [r, g, b] = color2rgba(color)
+  return (0.2126*r**2.2 + 0.7152*g**2.2 + 0.0722*b**2.2) / 255**2.2
 }
