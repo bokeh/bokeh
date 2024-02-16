@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
-import type {Attrs, Data} from "./types"
+import type {Attrs, Data, Dict} from "./types"
 import type {ISignalable} from "./signaling"
 import {Signal0, Signal, Signalable} from "./signaling"
 import type {Ref} from "./util/refs"
@@ -31,7 +31,7 @@ import {isExpr} from "./vectorization"
 import type {PatchSet} from "./patching"
 import {stream_to_columns, patch_to_columns} from "./patching"
 
-type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
+type AttrsLike = Dict<unknown>
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -304,8 +304,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       let property: p.Property<unknown>
 
       if (type instanceof p.PropertyAlias) {
+        const property = this.properties[type.attr]
+        if (typeof property === "undefined") {
+          throw new Error(`can't resolve ${type.attr} before ${name} to create an alias`)
+        }
         Object.defineProperty(this.properties, name, {
-          get: () => this.properties[type.attr],
+          get: () => property,
           configurable: false,
           enumerable: false,
         })
@@ -339,9 +343,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       visited.add(prop.attr)
     }
 
-    for (const attr of vals.keys()) {
-      if (!visited.has(attr))
-        this.property(attr)
+    for (const [attr, val] of vals) {
+      if (!visited.has(attr)) {
+        // either throws for unknown properties or updates aliased properties
+        this.property(attr).set_value(val)
+      }
     }
   }
 
