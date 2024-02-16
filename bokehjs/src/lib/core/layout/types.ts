@@ -75,8 +75,8 @@ export type SizeHint = Size & {
   align?: LRTB<boolean> & {fixed_width?: boolean, fixed_height?: boolean}
 }
 
-export type SizingPolicy = "fixed" | "fit" | "min" | "max"
 export const SizingPolicy = Enum("fixed", "fit", "min", "max")
+export type SizingPolicy = typeof SizingPolicy["__type__"]
 
 export type Sizing = number | "fit" | "min" | "max"
 

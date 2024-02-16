@@ -9,8 +9,8 @@ import {Enum} from "core/kinds"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
-type SearchStrategy = typeof SearchStrategy["__type__"]
 const SearchStrategy = Enum("starts_with", "includes")
+type SearchStrategy = typeof SearchStrategy["__type__"]
 
 export class AutocompleteInputView extends TextInputView {
   declare model: AutocompleteInput
