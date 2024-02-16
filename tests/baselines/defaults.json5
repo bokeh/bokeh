@@ -6119,7 +6119,6 @@
   },
   InspectTool: {
     __extends__: "GestureTool",
-    toggleable: true,
   },
   LassoSelectTool: {
     __extends__: [

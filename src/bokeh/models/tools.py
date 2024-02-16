@@ -345,11 +345,7 @@ class InspectTool(GestureTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    toggleable = Bool(True, help="""
-    Whether an on/off toggle button should appear in the toolbar for this
-    inspection tool. If ``False``, the viewers of a plot will not be able to
-    toggle the inspector on or off using the toolbar.
-    """)
+    toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
