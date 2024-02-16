@@ -120,7 +120,7 @@ export class ToolbarView extends UIElementView {
         const groups = [
           ...values(this.model.gestures).map((gesture) => gesture.tools),
           this.model.actions,
-          this.model.inspectors.filter((tool) => tool.toggleable),
+          this.model.inspectors,
           this.model.auxiliaries,
         ]
         const buttons = groups.map((group) => {
