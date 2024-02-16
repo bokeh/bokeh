@@ -86,6 +86,11 @@ export class ToolProxy<T extends Tool> extends Model {
     return "toggleable" in tool && (tool as InspectTool).toggleable
   }
 
+  get visible(): boolean {
+    const tool = this.tools[0] as Tool
+    return tool.visible
+  }
+
   override initialize(): void {
     super.initialize()
     this.do = new Signal0(this, "do")

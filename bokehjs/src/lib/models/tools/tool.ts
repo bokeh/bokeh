@@ -124,6 +124,7 @@ export namespace Tool {
   export type Props = Model.Props & {
     icon: p.Property<ToolIcon | string | null>
     description: p.Property<string | null>
+    visible: p.Property<boolean>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
   }
@@ -142,9 +143,10 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({String, Regex, Nullable, Or}) => ({
+    this.define<Tool.Props>(({Boolean, String, Regex, Nullable, Or}) => ({
       icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
       description: [ Nullable(String), null ],
+      visible: [ Boolean, true ],
     }))
 
     this.internal<Tool.Props>(({Boolean}) => ({
