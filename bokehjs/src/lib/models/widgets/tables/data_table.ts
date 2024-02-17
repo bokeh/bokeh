@@ -465,14 +465,15 @@ export class DataTableView extends WidgetView {
   }
 
   protected _sync_selected_with_view(): void {
-    const {index, source} = this.data
+    const index = this.data.view.indices
+    const {source} = this.data
 
-    const not_filtered = filter(source.selected.indices, (item) => index.includes(item))
-    const was_filtered = filter(this._filtered_selection, (item) => index.includes(item))
+    const not_filtered = filter(source.selected.indices, (i) => index.get(i))
+    const was_filtered = new Set(filter(this._filtered_selection, (i) => index.get(i)))
 
     this._filtered_selection = [
-      ...filter(this._filtered_selection, (item) => !was_filtered.includes(item)),
-      ...filter(source.selected.indices, (item) => !index.includes(item)),
+      ...filter(this._filtered_selection, (i) => !was_filtered.has(i)),
+      ...filter(source.selected.indices, (i) => !index.get(i)),
     ]
 
     source.selected.indices = [
