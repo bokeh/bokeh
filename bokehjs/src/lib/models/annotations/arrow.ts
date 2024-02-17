@@ -10,7 +10,7 @@ import type {FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
 
@@ -59,7 +59,7 @@ export class ArrowView extends DataAnnotationView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    const indices = Indices.all_set(this._x_start.length)
+    const indices = PackedIndices.all_set(this._x_start.length)
     this.start?.set_data(source, indices)
     this.end?.set_data(source, indices)
   }

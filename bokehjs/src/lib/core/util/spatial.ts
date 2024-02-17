@@ -1,6 +1,6 @@
 import FlatBush from "flatbush"
 
-import type {Rect, TypedArray} from "../types"
+import type {Rect, TypedArray, Indices} from "../types"
 import {PackedIndices} from "./indices"
 import {empty} from "./bbox"
 
@@ -120,7 +120,7 @@ export class SpatialIndex {
 
   indices(rect: Rect): Indices {
     if (this.index == null) {
-      return new Indices(0)
+      return new PackedIndices(0)
     } else {
       const {x0, y0, x1, y1} = this._normalize(rect)
       return this.index.search_indices(x0, y0, x1, y1)

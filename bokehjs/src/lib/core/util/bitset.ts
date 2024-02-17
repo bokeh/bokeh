@@ -1,13 +1,13 @@
 import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
-import type {Arrayable, ArrayableNew} from "../types"
+import type {Arrayable, ArrayableNew, Indices} from "../types"
 import {assert, AssertionError} from "./assert"
 import {has_refs} from "core/util/refs"
 
 const WORD_LENGTH = 32
 const FULL_WORD = 0xffffffff
 
-export class BitSet implements Equatable {
+export class BitSet implements Indices, Equatable {
   readonly [Symbol.toStringTag] = "BitSet"
 
   static readonly [has_refs] = false

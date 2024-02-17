@@ -3,6 +3,7 @@ import type * as p from "core/properties"
 import type {Selection} from "../selections/selection"
 import {View} from "core/view"
 import {PackedIndices} from "core/util/indices"
+import type {Indices} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
@@ -91,9 +92,9 @@ export namespace CDSView {
   export type Props = Model.Props & {
     filter: p.Property<Filter>
     // internal
-    indices: p.Property<PackedIndices>
+    indices: p.Property<Indices>
     indices_map: p.Property<Map<number, number>>
-    masked: p.Property<PackedIndices | null>
+    masked: p.Property<Indices | null>
   }
 }
 
@@ -114,10 +115,10 @@ export class CDSView extends Model {
       filter: [ Ref(Filter), () => new AllIndices() ],
     }))
 
-    this.internal<CDSView.Props>(({Int, Mapping, Ref, Nullable}) => ({
-      indices:     [ Ref(PackedIndices) ],
+    this.internal<CDSView.Props>(({Int, Mapping, AnyRef, Nullable}) => ({
+      indices:     [ AnyRef<Indices>() ],
       indices_map: [ Mapping(Int, Int), new Map() ],
-      masked:      [ Nullable(Ref(PackedIndices)), null ],
+      masked:      [ Nullable(AnyRef<Indices>()), null ],
     }))
   }
 

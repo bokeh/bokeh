@@ -111,9 +111,31 @@ export type Interval = {
   end: number
 }
 
-export type Indices = {
+export interface Indices {
   [Symbol.iterator](): Iterator<number>
-  select<T>(array: Arrayable<T>): Arrayable<T>
+
   readonly count: number
   readonly size: number
+
+  clone(): Indices
+
+  get(k: number): boolean
+  set(k: number, v?: boolean): void
+  unset(k: number): void
+
+  select<T>(array: Arrayable<T>): Arrayable<T>
+
+  // in-place ops
+  invert(): void
+  add(other: Indices): void
+  intersect(other: Indices): void
+  subtract(other: Indices): void
+  symmetric_subtract(other: Indices): void
+
+  // cloning ops
+  inversion(): Indices
+  union(other: Indices): Indices
+  intersection(other: Indices): Indices
+  difference(other: Indices): Indices
+  symmetric_difference(other: Indices): Indices
 }

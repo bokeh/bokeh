@@ -258,7 +258,7 @@ export class GlyphRendererView extends DataRendererView {
   async set_data(indices?: number[]): Promise<void> {
     const source = this.model.data_source
 
-    this.all_indices = OpaqueIndices.from_packed(this.model.view.indices)
+    this.all_indices = OpaqueIndices.from(this.model.view.indices)
     const {all_indices} = this
 
     await this.glyph.set_data(source, all_indices, indices)
