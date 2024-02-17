@@ -12,16 +12,18 @@ const _wgs84_mercator = proj4(wgs84, mercator)
 
 export const wgs84_mercator = {
   compute(x: number, y: number): [number, number] {
-    if (isFinite(x) && isFinite(y))
+    if (isFinite(x) && isFinite(y)) {
       return _wgs84_mercator.forward([x, y])
-    else
+    } else {
       return [NaN, NaN]
+    }
   },
   invert(merc_x: number, merc_y: number): [number, number] {
-    if (isFinite(merc_x) && isFinite(merc_y))
+    if (isFinite(merc_x) && isFinite(merc_y)) {
       return _wgs84_mercator.inverse([merc_x, merc_y])
-    else
+    } else {
       return [NaN, NaN]
+    }
   },
 }
 

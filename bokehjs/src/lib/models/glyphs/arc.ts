@@ -30,8 +30,9 @@ export class ArcView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {
-    if (!this.visuals.line.doit)
+    if (!this.visuals.line.doit) {
       return
+    }
 
     const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
@@ -43,8 +44,9 @@ export class ArcView extends XYGlyphView {
       const start_angle_i = start_angle.get(i)
       const end_angle_i = end_angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
+      if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i)) {
         continue
+      }
 
       this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
 

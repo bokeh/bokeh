@@ -222,14 +222,18 @@ class CanvasGradient implements globalThis.CanvasGradient {
       this.__root.nodeName === "linearGradient" &&
       this.__root.getAttribute("x1") === this.__root.getAttribute("x2") &&
       this.__root.getAttribute("y1") === this.__root.getAttribute("y2")
-    ) return
+    ) {
+      return
+    }
 
     if (
       this.__root.nodeName === "radialGradient" &&
       this.__root.getAttribute("cx") === this.__root.getAttribute("fx") &&
       this.__root.getAttribute("cy") === this.__root.getAttribute("fy") &&
       this.__root.getAttribute("r") === this.__root.getAttribute("r0")
-    ) return
+    ) {
+      return
+    }
 
     const stop = this.__ctx.__createElement("stop")
     stop.setAttribute("offset", `${offset}`)
@@ -566,8 +570,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Sets current element to parent, or just root if already root
     */
   restore(): void {
-    if (this.__stack.length == 0)
+    if (this.__stack.length == 0) {
       return
+    }
 
     const {transform, clip_path, attributes} = this.__stack.pop()!
 
@@ -591,8 +596,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     *  scales the current element
     */
   scale(x: number, y?: number): void {
-    if (!isFinite(x) || (y != null && !isFinite(y)))
+    if (!isFinite(x) || (y != null && !isFinite(y))) {
       return
+    }
     this._transform.scale(x, y ?? x)
   }
 
@@ -600,8 +606,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * rotates the current element
     */
   rotate(angle: number): void {
-    if (!isFinite(angle))
+    if (!isFinite(angle)) {
       return
+    }
     this._transform.rotate(angle)
   }
 
@@ -609,8 +616,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * translates the current element
     */
   translate(x: number, y: number): void {
-    if (!isFinite(x + y))
+    if (!isFinite(x + y)) {
       return
+    }
     this._transform.translate(x, y)
   }
 
@@ -618,8 +626,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * applies a transform to the current element
     */
   transform(a: number, b: number, c: number, d: number, e: number, f: number): void {
-    if (!isFinite(a + b + c + d + e + f))
+    if (!isFinite(a + b + c + d + e + f)) {
       return
+    }
     this._transform.transform(a, b, c, d, e, f)
   }
 
@@ -670,8 +679,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * if the currentPathElement is not empty create a new path element
     */
   moveTo(x: number, y: number): void {
-    if (!isFinite(x + y))
+    if (!isFinite(x + y)) {
       return
+    }
 
     const currentElement = this.__currentElement
     if (currentElement.nodeName !== "path") {
@@ -696,11 +706,12 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Adds a line to command
     */
   lineTo(x: number, y: number): void {
-    if (!isFinite(x + y))
+    if (!isFinite(x + y)) {
       return
-    if (!this._hasCurrentDefaultPath)
+    }
+    if (!this._hasCurrentDefaultPath) {
       this.moveTo(x, y)
-    else {
+    } else {
       const [tx, ty] = this._transform.apply(x, y)
       this.__addPathCommand(tx, ty, `L ${tx} ${ty}`)
     }
@@ -710,8 +721,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Add a bezier command
     */
   bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void {
-    if (!isFinite(cp1x + cp1y + cp2x + cp2y + x + y))
+    if (!isFinite(cp1x + cp1y + cp2x + cp2y + x + y)) {
       return
+    }
     const [tx, ty] = this._transform.apply(x, y)
     const [tcp1x, tcp1y] = this._transform.apply(cp1x, cp1y)
     const [tcp2x, tcp2y] = this._transform.apply(cp2x, cp2y)
@@ -722,8 +734,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Adds a quadratic curve to command
     */
   quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void {
-    if (!isFinite(cpx + cpy + x + y))
+    if (!isFinite(cpx + cpy + x + y)) {
       return
+    }
     const [tx, ty] = this._transform.apply(x, y)
     const [tcpx, tcpy] = this._transform.apply(cpx, cpy)
     this.__addPathCommand(tx, ty, `Q ${tcpx} ${tcpy} ${tx} ${ty}`)
@@ -735,11 +748,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * @see http://www.w3.org/TR/2015/WD-2dcontext-20150514/#dom-context-2d-arcto
     */
   arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void {
-    if (!isFinite(x1 + y1 + x2 + y2 + radius))
+    if (!isFinite(x1 + y1 + x2 + y2 + radius)) {
       return
+    }
     // Let the point (x0, y0) be the last point in the subpath.
-    if (this.__currentPosition == null)
+    if (this.__currentPosition == null) {
       return
+    }
 
     // Issue #12699.
     // this.__currentPosition has already been transformed using this._transform.
@@ -853,12 +868,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
   fill(path_or_fill_rule?: Path2D | CanvasFillRule, fill_rule?: CanvasFillRule): void {
     let path: Path2D | null = null
-    if (path_or_fill_rule instanceof Path2D)
+    if (path_or_fill_rule instanceof Path2D) {
       path = path_or_fill_rule
-    else if (fill_rule == null)
+    } else if (fill_rule == null) {
       fill_rule = path_or_fill_rule
-    else
+    } else {
       throw new Error("invalid arguments")
+    }
 
     if (path != null) {
       throw new Error("not implemented")
@@ -885,8 +901,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     *  Adds a rectangle to the path.
     */
   rect(x: number, y: number, width: number, height: number): void {
-    if (!isFinite(x + y + width + height))
+    if (!isFinite(x + y + width + height)) {
       return
+    }
     this.moveTo(x, y)
     this.lineTo(x + width, y)
     this.lineTo(x + width, y + height)
@@ -899,8 +916,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * adds a rectangle element
     */
   fillRect(x: number, y: number, width: number, height: number): void {
-    if (!isFinite(x + y + width + height))
+    if (!isFinite(x + y + width + height)) {
       return
+    }
     this.beginPath()
     this.rect(x, y, width, height)
     this.fill()
@@ -914,8 +932,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * @param height
     */
   strokeRect(x: number, y: number, width: number, height: number): void {
-    if (!isFinite(x + y + width + height))
+    if (!isFinite(x + y + width + height)) {
       return
+    }
     this.beginPath()
     this.rect(x, y, width, height)
     this.stroke()
@@ -937,8 +956,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * "Clears" a canvas by just drawing a white rectangle in the current group.
     */
   clearRect(x: number, y: number, width: number, height: number): void {
-    if (!isFinite(x + y + width + height))
+    if (!isFinite(x + y + width + height)) {
       return
+    }
     if (x === 0 && y === 0 && width === this.width && height === this.height) {
       this.__clearCanvas()
       return
@@ -957,8 +977,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Returns a canvas gradient object that has a reference to it's parent def
     */
   createLinearGradient(x1: number, y1: number, x2: number, y2: number): CanvasGradient {
-    if (!isFinite(x1 + y1 + x2 + y2))
+    if (!isFinite(x1 + y1 + x2 + y2)) {
       throw new Error("The provided double value is non-finite")
+    }
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const [tx2, ty2] = this._transform.apply(x2, y2)
     const grad = this.__createElement("linearGradient", {
@@ -978,8 +999,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Returns a canvas gradient object that has a reference to it's parent def
     */
   createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient {
-    if (!isFinite(x0 + y0 + r0 + x1 + y1 + r1))
+    if (!isFinite(x0 + y0 + r0 + x1 + y1 + r1)) {
       throw new Error("The provided double value is non-finite")
+    }
     const [tx0, ty0] = this._transform.apply(x0, y0)
     const [tx1, ty1] = this._transform.apply(x1, y1)
     const grad = this.__createElement("radialGradient", {
@@ -1046,8 +1068,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         g.setAttribute("clip-path", this._clip_path)
         g.appendChild(text_el)
         return g
-      } else
+      } else {
         return text_el
+      }
     })()
     this.__root.appendChild(el)
   }
@@ -1056,8 +1079,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Creates a text element, in position x,y
     */
   fillText(text: string, x: number, y: number): void {
-    if (!isFinite(x + y))
+    if (!isFinite(x + y)) {
       return
+    }
     this.__applyText(text, x, y, "fill")
   }
 
@@ -1065,8 +1089,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Strokes text
     */
   strokeText(text: string, x: number, y: number): void {
-    if (!isFinite(x + y))
+    if (!isFinite(x + y)) {
       return
+    }
     this.__applyText(text, x, y, "stroke")
   }
 
@@ -1083,11 +1108,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   }
 
   ellipse(x: number, y: number, radius_x: number, radius_y: number, rotation: number, start_angle: number, end_angle: number, counterclockwise: boolean = false): void {
-    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle))
+    if (!isFinite(x + y + radius_x + radius_y + rotation + start_angle + end_angle)) {
       return
+    }
 
-    if (radius_x < 0 || radius_y < 0)
+    if (radius_x < 0 || radius_y < 0) {
       throw new DOMException("IndexSizeError, radius can't be negative")
+    }
 
     const initial_diff = counterclockwise ? end_angle - start_angle : start_angle - end_angle
 
@@ -1156,12 +1183,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
   clip(path_or_fill_rule?: Path2D | CanvasFillRule, fill_rule?: CanvasFillRule): void {
     let path: Path2D | null = null
-    if (path_or_fill_rule instanceof Path2D)
+    if (path_or_fill_rule instanceof Path2D) {
       path = path_or_fill_rule
-    else if (fill_rule == null)
+    } else if (fill_rule == null) {
       fill_rule = path_or_fill_rule
-    else
+    } else {
       throw new Error("invalid arguments")
+    }
 
     if (path != null) {
       throw new Error("not implemented")
@@ -1198,8 +1226,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
     if (args.length == 2) {
       [dx, dy] = args
-      if (!isFinite(dx + dy))
+      if (!isFinite(dx + dy)) {
         return
+      }
       sx = 0
       sy = 0
       const [w, h] = width_height(image)
@@ -1207,8 +1236,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       dh = sh = h
     } else if (args.length == 4) {
       [dx, dy, dw, dh] = args
-      if (!isFinite(dx + dy + dw + dh))
+      if (!isFinite(dx + dy + dw + dh)) {
         return
+      }
       sx = 0
       sy = 0
       const [w, h] = width_height(image)
@@ -1216,8 +1246,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       sh = h
     } else if (args.length === 8) {
       [sx, sy, sw, sh, dx, dy, dw, dh] = args
-      if (!isFinite(sx + sy + sw + sh + dx + dy + dw + dh))
+      if (!isFinite(sx + sy + sw + sh + dx + dy + dw + dh)) {
         return
+      }
     } else {
       throw new Error(`Inavlid number of arguments passed to drawImage: ${arguments.length}`)
     }
@@ -1231,16 +1262,19 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       const svg_node = image instanceof SVGSVGElement ? image : image.get_svg()
       const svg = svg_node.cloneNode(true) as SVGElement
       let scope: SVGElement
-      if (transform.is_identity && this.globalAlpha == 1.0 && this._clip_path == null)
+      if (transform.is_identity && this.globalAlpha == 1.0 && this._clip_path == null) {
         scope = parent
-      else {
+      } else {
         scope = this.__createElement("g")
-        if (!transform.is_identity)
+        if (!transform.is_identity) {
           this._apply_transform(scope, transform)
-        if (this.globalAlpha != 1.0)
+        }
+        if (this.globalAlpha != 1.0) {
           scope.setAttribute("opacity", `${this.globalAlpha}`)
-        if (this._clip_path != null)
+        }
+        if (this._clip_path != null) {
           scope.setAttribute("clip-path", this._clip_path)
+        }
         parent.appendChild(scope)
       }
       for (const child of [...svg.childNodes]) {
@@ -1261,8 +1295,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
-      if (this.globalAlpha != 1.0)
+      if (this.globalAlpha != 1.0) {
         svgImage.setAttribute("opacity", `${this.globalAlpha}`)
+      }
 
       if (sx != 0 || sy != 0 || sw !== image.width || sh !== image.height) {
         // crop the image using a temporary canvas
@@ -1282,15 +1317,17 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         scope.setAttribute("clip-path", this._clip_path)
         scope.appendChild(svgImage)
         parent.appendChild(scope)
-      } else
+      } else {
         parent.appendChild(svgImage)
+      }
     } else if (image instanceof HTMLCanvasElement) {
       const svgImage = this.__createElement("image")
       svgImage.setAttribute("width", `${dw}`)
       svgImage.setAttribute("height", `${dh}`)
       svgImage.setAttribute("preserveAspectRatio", "none")
-      if (this.globalAlpha != 1.0)
+      if (this.globalAlpha != 1.0) {
         svgImage.setAttribute("opacity", `${this.globalAlpha}`)
+      }
 
       // draw canvas onto temporary canvas so that smoothing can be handled
       const canvas = this.__document.createElement("canvas")
@@ -1309,8 +1346,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         scope.setAttribute("clip-path", this._clip_path)
         scope.appendChild(svgImage)
         parent.appendChild(scope)
-      } else
+      } else {
         parent.appendChild(svgImage)
+      }
     }
   }
 
@@ -1355,19 +1393,21 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
   getLineDash(): number[] {
     const {lineDash} = this
-    if (isString(lineDash))
+    if (isString(lineDash)) {
       return lineDash.split(",").map((v) => parseInt(v))
-    else if (lineDash == null)
+    } else if (lineDash == null) {
       return []
-    else
+    } else {
       return lineDash
+    }
   }
 
   setLineDash(segments: number[]): void {
-    if (segments.length > 0)
+    if (segments.length > 0) {
       this.lineDash = segments.join(",")
-    else
+    } else {
       this.lineDash = null
+    }
   }
 
   getTransform(): DOMMatrix {
@@ -1381,12 +1421,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   setTransform(...args: [DOMMatrix2DInit?] | [DOMMatrix] | [number, number, number, number, number, number]): void {
     let matrix: DOMMatrix
 
-    if (isNumber(args[0]))
+    if (isNumber(args[0])) {
       matrix = new DOMMatrix(args as number[])
-    else if (args[0] instanceof DOMMatrix)
+    } else if (args[0] instanceof DOMMatrix) {
       matrix = args[0]
-    else
+    } else {
       matrix = new DOMMatrix(Object.values(args[0] == null))
+    }
 
     this._transform = AffineTransform.from_DOMMatrix(matrix)
   }

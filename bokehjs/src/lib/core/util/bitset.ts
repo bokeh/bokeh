@@ -32,18 +32,20 @@ export class BitSet implements Equatable {
   }
 
   [equals](that: this, cmp: Comparator): boolean {
-    if (!cmp.eq(this.size, that.size))
+    if (!cmp.eq(this.size, that.size)) {
       return false
+    }
     const {_nwords} = this
     const trailing = this.size % BitSet._word_length
     const n = trailing == 0 ? _nwords : _nwords - 1
     for (let i = 0; i < n; i++) {
-      if (this._array[i] != that._array[i])
+      if (this._array[i] != that._array[i]) {
         return false
+      }
     }
-    if (trailing == 0)
+    if (trailing == 0) {
       return true
-    else {
+    } else {
       const msb = 1 << (trailing - 1)
       const mask = (msb - 1)^msb
       return (this._array[n] & mask) == (that._array[n] & mask)
@@ -97,10 +99,11 @@ export class BitSet implements Equatable {
     this._count = null
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
-    if (v)
+    if (v) {
       this._array[i] |= 0b1 << j
-    else
+    } else {
       this._array[i] &= ~(0b1 << j)
+    }
   }
 
   unset(k: number): void {
@@ -114,8 +117,9 @@ export class BitSet implements Equatable {
   private _count: number | null = null
   get count(): number {
     let count = this._count
-    if (count == null)
+    if (count == null) {
       this._count = count = this._get_count()
+    }
     return count
   }
 
@@ -128,8 +132,9 @@ export class BitSet implements Equatable {
         k += BitSet._word_length
       } else {
         for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
-          if (((word >>> j) & 0b1) == 0b1)
+          if (((word >>> j) & 0b1) == 0b1) {
             c += 1
+          }
         }
       }
     }
@@ -145,8 +150,9 @@ export class BitSet implements Equatable {
         continue
       }
       for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
-        if (((word >>> j) & 0b1) == 0b1)
+        if (((word >>> j) & 0b1) == 0b1) {
           yield k
+        }
       }
     }
   }
@@ -160,8 +166,9 @@ export class BitSet implements Equatable {
         continue
       }
       for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
-        if (((word >>> j) & 0b1) == 0b0)
+        if (((word >>> j) & 0b1) == 0b0) {
           yield k
+        }
       }
     }
   }

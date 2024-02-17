@@ -46,10 +46,11 @@ export function map_one_level(factors: L1Factor[], padding: number, offset: numb
 
   for (let i = 0; i < factors.length; i++) {
     const factor = factors[i]
-    if (!mapping.has(factor))
+    if (!mapping.has(factor)) {
       mapping.set(factor, {value: 0.5 + i*(1 + padding) + offset})
-    else
+    } else {
       throw new Error(`duplicate factor or subfactor: ${factor}`)
+    }
   }
 
   return [mapping, (factors.length - 1)*padding]
@@ -199,8 +200,9 @@ export class FactorRange extends Range {
         const y0 = mapping.get(f0)
         if (y0 != null) {
           const y1 = y0.mapping.get(f1)
-          if (y1 != null)
+          if (y1 != null) {
             return y1.value
+          }
         }
         return NaN
       }
@@ -212,8 +214,9 @@ export class FactorRange extends Range {
           const y1 = y0.mapping.get(f1)
           if (y1 != null) {
             const y2 = y1.mapping.get(f2)
-            if (y2 != null)
+            if (y2 != null) {
               return y2.value
+            }
           }
         }
         return NaN
@@ -223,11 +226,13 @@ export class FactorRange extends Range {
 
   // convert a string factor into a synthetic coordinate
   synthetic(x: FactorLike): number {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return x
+    }
 
-    if (isString(x))
+    if (isString(x)) {
       return this._lookup([x])
+    }
 
     let offset = 0
     const off = x[x.length-1]
@@ -274,8 +279,9 @@ export class FactorRange extends Range {
           }
         }
         return {levels: 3, mapping, tops, mids, inside_padding}
-      } else
+      } else {
         unreachable()
+      }
     })()
 
     this._mapping = mapping

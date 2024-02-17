@@ -33,9 +33,9 @@ export class BezierView extends GlyphView {
       const cx1_i = cx1[i]
       const cy1_i = cy1[i]
 
-      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
+      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i)) {
         index.add_empty()
-      else {
+      } else {
         const {x0, y0, x1, y1} = cbb(x0_i, y0_i, cx0_i, cy0_i, cx1_i, cy1_i, x1_i, y1_i)
         index.add_rect(x0, y0, x1, y1)
       }
@@ -43,8 +43,9 @@ export class BezierView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
-    if (!this.visuals.line.doit)
+    if (!this.visuals.line.doit) {
       return
+    }
 
     const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = {...this, ...data}
 
@@ -58,8 +59,9 @@ export class BezierView extends GlyphView {
       const scx1_i = scx1[i]
       const scy1_i = scy1[i]
 
-      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
+      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.moveTo(sx0_i, sy0_i)

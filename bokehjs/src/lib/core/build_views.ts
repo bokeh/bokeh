@@ -54,8 +54,9 @@ export async function build_views<T extends HasProps>(
     created_views.push(view)
   }
 
-  for (const view of created_views)
+  for (const view of created_views) {
     view.connect_signals()
+  }
 
   return {
     created: created_views,

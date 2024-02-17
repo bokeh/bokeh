@@ -53,7 +53,8 @@ export class Cloner {
       return new Map([...obj].map(([k, v]) => [this.clone(k), this.clone(v)]))
     } else if (obj instanceof Set) {
       return new Set([...obj].map((v) => this.clone(v)))
-    } else
+    } else {
       throw new CloningError(`${Object.prototype.toString.call(obj)} is not cloneable`)
+    }
   }
 }

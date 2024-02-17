@@ -75,16 +75,18 @@ export function isArray<T>(obj: unknown): obj is T[] {
 
 export function isArrayOf<T>(array: unknown[], predicate: (item: unknown) => item is T): array is T[] {
   for (const item of array) {
-    if (!predicate(item))
+    if (!predicate(item)) {
       return false
+    }
   }
   return true
 }
 
 export function isArrayableOf<T>(array: Arrayable, predicate: (item: unknown) => item is T): array is Arrayable<T> {
   for (const item of array) {
-    if (!predicate(item))
+    if (!predicate(item)) {
       return false
+    }
   }
   return true
 }

@@ -119,8 +119,9 @@ export class AffineTransform implements Equatable {
   }
 
   rotate(angle: number): this {
-    if (angle == 0)
+    if (angle == 0) {
       return this
+    }
     const s = sin(angle)
     const c = cos(angle)
     return this.transform(c, s, -s, c, 0, 0)

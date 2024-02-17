@@ -121,14 +121,15 @@ export class ToolProxy<T extends Tool> extends Model {
 
   get menu(): MenuItem[] | null {
     const {menu} = this.tools[0]
-    if (menu == null)
+    if (menu == null) {
       return null
+    }
 
     const items = []
     for (const [item, i] of enumerate(menu)) {
-      if (item == null)
+      if (item == null) {
         items.push(null)
-      else {
+      } else {
         const handler = () => {
           for (const tool of this.tools) {
             tool.menu?.[i]?.handler?.()

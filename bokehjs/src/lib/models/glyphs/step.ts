@@ -25,8 +25,9 @@ export class StepView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     const npoints = indices.length
-    if (npoints < 2)
+    if (npoints < 2) {
       return
+    }
 
     const {sx, sy} = {...this, ...data}
     const mode = this.model.mode
@@ -37,21 +38,24 @@ export class StepView extends XYGlyphView {
     let prev_finite = false
     const i = indices[0]
     let is_finite = isFinite(sx[i] + sy[i])
-    if (mode == "center")
+    if (mode == "center") {
       drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+    }
 
     for (const i of indices) {
       const next_finite = isFinite(sx[i+1] + sy[i+1])
       switch (mode) {
         case "before":
           drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
-          if (i < sx.length-1)
+          if (i < sx.length-1) {
             drawing = this._render_xy(ctx, drawing, is_finite && next_finite ? sx[i] : NaN, sy[i+1])
+          }
           break
         case "after":
           drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
-          if (i < sx.length-1)
+          if (i < sx.length-1) {
             drawing = this._render_xy(ctx, drawing, is_finite && next_finite ? sx[i+1] : NaN, sy[i])
+          }
           break
         case "center":
           if (is_finite && next_finite) {
@@ -59,8 +63,9 @@ export class StepView extends XYGlyphView {
             drawing = this._render_xy(ctx, drawing, midx, sy[i])
             drawing = this._render_xy(ctx, drawing, midx, sy[i+1])
           } else {
-            if (prev_finite)
+            if (prev_finite) {
               drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+            }
             drawing = this._render_xy(ctx, drawing, next_finite ? sx[i+1] : NaN, sy[i+1])
           }
           break
@@ -72,8 +77,9 @@ export class StepView extends XYGlyphView {
     }
     if (drawing) {
       const i = indices[npoints-1]
-      if (this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i]))
+      if (this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])) {
         ctx.stroke()
+      }
     }
   }
 

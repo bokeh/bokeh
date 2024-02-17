@@ -28,8 +28,9 @@ export abstract class DataAnnotationView extends AnnotationView {
   set_data(source: ColumnarDataSource): void {
     const self = this as any
     for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
+      }
 
       if (prop instanceof p.BaseCoordinateSpec) {
         const array = prop.array(source)
@@ -41,10 +42,12 @@ export abstract class DataAnnotationView extends AnnotationView {
     }
 
     if (this.plot_model.use_map) {
-      if (self._x != null)
+      if (self._x != null) {
         inplace.project_xy(self._x, self._y)
-      if (self._xs != null)
+      }
+      if (self._xs != null) {
         inplace.project_xsys(self._xs, self._ys)
+      }
     }
 
     for (const visual of this.visuals) {

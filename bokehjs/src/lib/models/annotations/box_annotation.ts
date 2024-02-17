@@ -57,25 +57,27 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const bottom_ok = bottom_units == "data" && !(bottom instanceof Coordinate)
 
     const [x0, x1] = (() => {
-      if (left_ok && right_ok)
+      if (left_ok && right_ok) {
         return left <= right ? [left, right] : [right, left]
-      else if (left_ok)
+      } else if (left_ok) {
         return [left, left]
-      else if (right_ok)
+      } else if (right_ok) {
         return [right, right]
-      else
+      } else {
         return [NaN, NaN]
+      }
     })()
 
     const [y0, y1] = (() => {
-      if (top_ok && bottom_ok)
+      if (top_ok && bottom_ok) {
         return top <= bottom ? [top, bottom] : [bottom, top]
-      else if (top_ok)
+      } else if (top_ok) {
         return [top, top]
-      else if (bottom_ok)
+      } else if (bottom_ok) {
         return [bottom, bottom]
-      else
+      } else {
         return [NaN, NaN]
+      }
     })()
 
     return {x0, x1, y0, y1}
@@ -160,8 +162,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    if (!this.model.visible || !this.model.editable)
+    if (!this.model.visible || !this.model.editable) {
       return false
+    }
     const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
@@ -180,26 +183,35 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const hits_top = dt < tolerance && dt < db
     const hits_bottom = db < tolerance && db < dt
 
-    if (hits_top && hits_left)
+    if (hits_top && hits_left) {
       return "top_left"
-    if (hits_top && hits_right)
+    }
+    if (hits_top && hits_right) {
       return "top_right"
-    if (hits_bottom && hits_left)
+    }
+    if (hits_bottom && hits_left) {
       return "bottom_left"
-    if (hits_bottom && hits_right)
+    }
+    if (hits_bottom && hits_right) {
       return "bottom_right"
+    }
 
-    if (hits_left)
+    if (hits_left) {
       return "left"
-    if (hits_right)
+    }
+    if (hits_right) {
       return "right"
-    if (hits_top)
+    }
+    if (hits_top) {
       return "top"
-    if (hits_bottom)
+    }
+    if (hits_bottom) {
       return "bottom"
+    }
 
-    if (this.bbox.contains(sx, sy))
+    if (this.bbox.contains(sx, sy)) {
       return "area"
+    }
 
     return null
   }

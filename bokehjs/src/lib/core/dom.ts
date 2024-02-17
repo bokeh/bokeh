@@ -19,17 +19,20 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
     }
 
     for (let [attr, value] of entries(attrs)) {
-      if (value == null || isBoolean(value) && !value)
+      if (value == null || isBoolean(value) && !value) {
         continue
+      }
 
       if (attr === "class") {
-        if (isString(value))
+        if (isString(value)) {
           value = value.split(/\s+/)
+        }
 
         if (isArray(value)) {
           for (const cls of value as (string | null | undefined)[]) {
-            if (cls != null)
+            if (cls != null) {
               element.classList.add(cls)
+            }
           }
           continue
         }
@@ -53,24 +56,27 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
     }
 
     function append(child: HTMLItem) {
-      if (isString(child))
+      if (isString(child)) {
         element.appendChild(document.createTextNode(child))
-      else if (child instanceof Node)
+      } else if (child instanceof Node) {
         element.appendChild(child)
-      else if (child instanceof NodeList || child instanceof HTMLCollection) {
+      } else if (child instanceof NodeList || child instanceof HTMLCollection) {
         for (const el of child) {
           element.appendChild(el)
         }
-      } else if (child != null && child !== false)
+      } else if (child != null && child !== false) {
         throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
+      }
     }
 
     for (const child of children) {
       if (isArray(child)) {
-        for (const _child of child)
+        for (const _child of child) {
           append(_child)
-      } else
+        }
+      } else {
         append(child)
+      }
     }
 
     return element
@@ -109,30 +115,34 @@ export function createSVGElement<T extends keyof SVGElementTagNameMap>(
   const element = document.createElementNS("http://www.w3.org/2000/svg", tag)
 
   for (const [attr, value] of entries(attrs ?? {})) {
-    if (value == null || value === false)
+    if (value == null || value === false) {
       continue
+    }
     element.setAttribute(attr, value)
   }
 
   function append(child: HTMLItem): void {
-    if (isString(child))
+    if (isString(child)) {
       element.appendChild(document.createTextNode(child))
-    else if (child instanceof Node)
+    } else if (child instanceof Node) {
       element.appendChild(child)
-    else if (child instanceof NodeList || child instanceof HTMLCollection) {
+    } else if (child instanceof NodeList || child instanceof HTMLCollection) {
       for (const el of child) {
         element.appendChild(el)
       }
-    } else if (child != null && child !== false)
+    } else if (child != null && child !== false) {
       throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
+    }
   }
 
   for (const child of children) {
     if (isArray(child)) {
-      for (const _child of child)
+      for (const _child of child) {
         append(_child)
-    } else
+      }
+    } else {
       append(child)
+    }
   }
 
   return element
@@ -147,8 +157,9 @@ export function nbsp(): Text {
 }
 
 export function append(element: Node, ...children: Node[]): void {
-  for (const child of children)
+  for (const child of children) {
     element.appendChild(child)
+  }
 }
 
 export function remove(element: Node): void {
@@ -234,8 +245,9 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   let node: HTMLElement | null = el
 
   while ((node = node.parentElement) != null) {
-    if (node.matches(selector))
+    if (node.matches(selector)) {
       return node
+    }
   }
 
   return null
@@ -331,9 +343,9 @@ export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   style.width  = `${box.width}px`
   style.height = `${box.height}px`
 
-  if (margin == null)
+  if (margin == null) {
     style.margin = ""
-  else {
+  } else {
     const {top, right, bottom, left} = margin
     style.margin = `${top}px ${right}px ${bottom}px ${left}px`
   }
@@ -346,8 +358,9 @@ export class ClassList {
     const values = []
     for (let i = 0; i < this.class_list.length; i++) {
       const item = this.class_list.item(i)
-      if (item != null)
+      if (item != null) {
         values.push(item)
+      }
     }
     return values
   }
@@ -357,8 +370,9 @@ export class ClassList {
   }
 
   add(...classes: string[]): this {
-    for (const cls of classes)
+    for (const cls of classes) {
       this.class_list.add(cls)
+    }
     return this
   }
 
@@ -382,10 +396,11 @@ export class ClassList {
 
   toggle(cls: string, activate?: boolean): this {
     const add = activate != null ? activate : !this.has(cls)
-    if (add)
+    if (add) {
       this.add(cls)
-    else
+    } else {
       this.remove(cls)
+    }
     return this
   }
 }
@@ -399,10 +414,11 @@ export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean)
     state = !el.hasAttribute(attr)
   }
 
-  if (state)
+  if (state) {
     el.setAttribute(attr, "true")
-  else
+  } else {
     el.removeAttribute(attr)
+  }
 }
 
 type WhitespaceKeys = "Tab" | "Enter" | " "

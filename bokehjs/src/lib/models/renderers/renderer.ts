@@ -54,10 +54,11 @@ export abstract class RendererView extends View implements visuals.Renderable {
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
-    if (_coordinates != null)
+    if (_coordinates != null) {
       return _coordinates
-    else
+    } else {
       return this._coordinates = this._initialize_coordinates()
+    }
   }
 
   private _custom_coordinates: CoordinateTransform | null = null

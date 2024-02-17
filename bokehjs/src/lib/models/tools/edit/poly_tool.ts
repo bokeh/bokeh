@@ -25,16 +25,18 @@ export abstract class PolyToolView extends EditToolView {
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     const data = dict(point_cds.data)
     if (pxkey) {
-      if (isArray(xs))
+      if (isArray(xs)) {
         data.set(pxkey, xs)
-      else
+      } else {
         point_glyph.x = {value: xs}
+      }
     }
     if (pykey) {
-      if (isArray(ys))
+      if (isArray(ys)) {
         data.set(pykey, ys)
-      else
+      } else {
         point_glyph.y = {value: ys}
+      }
     }
     this._emit_cds_changes(point_cds, true, true, false)
   }
@@ -54,10 +56,12 @@ export abstract class PolyToolView extends EditToolView {
       if (vertex_selected.length != 0) {
         const index = point_ds.selected.indices[0]
         const data = dict(point_ds.data)
-        if (pxkey)
+        if (pxkey) {
           x = data.get(pxkey)![index] as number
-        if (pykey)
+        }
+        if (pykey) {
           y = data.get(pykey)![index] as number
+        }
         point_ds.selection_manager.clear()
       }
     }

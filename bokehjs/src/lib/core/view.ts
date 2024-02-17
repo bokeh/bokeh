@@ -177,9 +177,9 @@ export class View implements ISignalable {
 
   private _idle_notified: boolean = false
   notify_finished(): void {
-    if (!this.is_root)
+    if (!this.is_root) {
       this.root.notify_finished()
-    else {
+    } else {
       if (!this._idle_notified && this.has_finished()) {
         if (this.model.document != null) {
           this._idle_notified = true

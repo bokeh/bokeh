@@ -9,9 +9,10 @@ export async function load_module<T>(module: Promise<T>): Promise<T | null> {
   } catch (e) {
     // XXX: this exposes the underlying module system and hinders
     // interoperability with other module systems and bundlers
-    if (is_ModuleError(e) && e.code === "MODULE_NOT_FOUND")
+    if (is_ModuleError(e) && e.code === "MODULE_NOT_FOUND") {
       return null
-    else
+    } else {
       throw e
+    }
   }
 }

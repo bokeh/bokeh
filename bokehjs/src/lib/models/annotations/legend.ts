@@ -67,10 +67,11 @@ export class LegendView extends AnnotationView {
     this.update_geometry()
 
     const {panel} = this
-    if (panel != null)
+    if (panel != null) {
       this.layout = new SideLayout(panel, () => this.get_size())
-    else
+    } else {
       this.layout = undefined
+    }
   }
 
   override connect_signals(): void {
@@ -131,17 +132,19 @@ export class LegendView extends AnnotationView {
       const n = entries.length
       if (vertical) {
         if (nrows != "auto") {
-        } else if (ncols != "auto")
+        } else if (ncols != "auto") {
           nrows = ceil(n / ncols)
-        else
+        } else {
           nrows = Infinity
+        }
         ncols = Infinity
       } else {
         if (ncols != "auto") {
-        } else if (nrows != "auto")
+        } else if (nrows != "auto") {
           ncols = ceil(n / nrows)
-        else
+        } else {
           ncols = Infinity
+        }
         nrows = Infinity
       }
       return {ncols, nrows}
@@ -181,8 +184,9 @@ export class LegendView extends AnnotationView {
     title_panel.set_sizing({visible: title_visible}) // doesn't work
 
     const border_box = (() => {
-      if (!title_visible)
+      if (!title_visible) {
         return new Column([grid])
+      }
       switch (this.model.title_location) {
         case "above": return new Column([title_panel, grid])
         case "below": return new Column([grid, title_panel])
@@ -286,10 +290,12 @@ export class LegendView extends AnnotationView {
   }
 
   override cursor(sx: number, sy: number): string | null {
-    if (this.model.click_policy == "none")
+    if (this.model.click_policy == "none") {
       return null
-    if (this._hit_test(sx, sy) != null)
+    }
+    if (this._hit_test(sx, sy) != null) {
       return "pointer"
+    }
     return null
   }
 
@@ -321,10 +327,12 @@ export class LegendView extends AnnotationView {
     this.update_geometry()
     this.compute_geometry()
 
-    if (this.model.items.length == 0)
+    if (this.model.items.length == 0) {
       return
-    if (!some(this.model.items, (item) => item.visible))
+    }
+    if (!some(this.model.items, (item) => item.visible)) {
       return
+    }
 
     const {ctx} = this.layer
     ctx.save()
@@ -344,8 +352,9 @@ export class LegendView extends AnnotationView {
 
   protected _draw_title(ctx: Context2d): void {
     const {title} = this.model
-    if (title == null || title.length == 0 || !this.visuals.title_text.doit)
+    if (title == null || title.length == 0 || !this.visuals.title_text.doit) {
       return
+    }
 
     const {left, top} = this.bbox
     ctx.save()
@@ -381,8 +390,9 @@ export class LegendView extends AnnotationView {
     })()
 
     const has_item_background = (_i: number, row: number, col: number) => {
-      if (!this.visuals.item_background_fill.doit)
+      if (!this.visuals.item_background_fill.doit) {
         return false
+      }
       switch (this.model.item_background_policy) {
         case "every": return true
         case "even":  return (row % 2 == 0) == (col % 2 == 0)

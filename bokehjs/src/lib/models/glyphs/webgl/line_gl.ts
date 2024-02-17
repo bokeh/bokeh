@@ -26,21 +26,23 @@ export class LineGL extends SingleLineGL {
       const n = main_show.length
       const main_show_array = main_show.get_sized_array(n)
 
-      if (this._show == null)
+      if (this._show == null) {
         this._show = new Uint8Buffer(this.regl_wrapper)
+      }
       const show_array = this._show.get_sized_array(n)   // equal to npoints+1
       show_array.fill(0)
 
-      let iprev = indices[0]  // Previous index
-      if (nonselection && iprev > 0)
-        show_array[iprev] = main_show_array[iprev]  // Start of first line
+      let iprev = indices[0] // Previous index
+      if (nonselection && iprev > 0) {
+        show_array[iprev] = main_show_array[iprev] // Start of first line
+      }
 
       for (let k = 1; k < indices.length; k++) {
         const i = indices[k]
 
-        if (i == iprev+1)
+        if (i == iprev+1) {
           show_array[i] = main_show_array[i]
-        else if (nonselection) {
+        } else if (nonselection) {
           // Gap in indices, end previous line and start new one
           show_array[iprev+1] = main_show_array[iprev+1]
           show_array[i] = main_show_array[i]
@@ -50,8 +52,9 @@ export class LineGL extends SingleLineGL {
       }
 
       // iprev is now the last index
-      if (nonselection && iprev != n-2)
-        show_array[iprev+1] = main_show_array[iprev+1]  // End of last line
+      if (nonselection && iprev != n-2) {
+        show_array[iprev+1] = main_show_array[iprev+1] // End of last line
+      }
 
       this._show.update()
       show = this._show
@@ -69,8 +72,9 @@ export class LineGL extends SingleLineGL {
     const sy = this.glyph.sy
     const npoints = sx.length
 
-    if (this._points == null)
+    if (this._points == null) {
       this._points = new Float32Buffer(this.regl_wrapper)
+    }
     const points_array = this._points.get_sized_array((npoints+2)*2)
     this._set_points_single(points_array, sx, sy)
     this._points.update()

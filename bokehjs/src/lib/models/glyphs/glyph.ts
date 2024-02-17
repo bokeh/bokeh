@@ -63,10 +63,11 @@ export abstract class GlyphView extends View {
 
   get index(): SpatialIndex {
     const {_index} = this
-    if (_index != null)
+    if (_index != null) {
       return _index
-    else
+    } else {
       throw new Error(`${this}.index_data() wasn't called`)
+    }
   }
 
   get data_size(): number {
@@ -75,10 +76,11 @@ export abstract class GlyphView extends View {
       return base.data_size
     } else {
       const {_data_size} = this
-      if (_data_size != null)
+      if (_data_size != null) {
         return _data_size
-      else
+      } else {
         throw new Error(`${this}.set_data() wasn't called`)
+      }
     }
   }
 
@@ -186,8 +188,9 @@ export abstract class GlyphView extends View {
       }
     }
 
-    if (dilate)
+    if (dilate) {
       inplace_map(sdist, (sd) => ceil(sd))
+    }
 
     return sdist
   }
@@ -234,8 +237,9 @@ export abstract class GlyphView extends View {
   private *_iter_visuals(): Generator<p.VectorSpec<unknown> | p.ScalarSpec<unknown>> {
     for (const visual of this.visuals) {
       for (const prop of visual) {
-        if (prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)
+        if (prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec) {
           yield prop
+        }
       }
     }
   }
@@ -446,10 +450,11 @@ export abstract class GlyphView extends View {
 
   mask_data(): Indices {
     /** Returns subset indices in the viewport. */
-    if (this._mask_data == null)
+    if (this._mask_data == null) {
       return Indices.all_set(this.data_size)
-    else
+    } else {
       return this._mask_data()
+    }
   }
 
   protected _mask_data?(): Indices

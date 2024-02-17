@@ -32,8 +32,9 @@ export class PatchView extends XYGlyphView {
         if (move) {
           ctx.moveTo(sx_i, sy_i)
           move = false
-        } else
+        } else {
           ctx.lineTo(sx_i, sy_i)
+        }
       }
     }
 

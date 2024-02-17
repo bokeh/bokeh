@@ -41,8 +41,9 @@ export class AjaxDataSource extends WebDataSource {
   protected initialized: boolean = false
 
   override destroy(): void {
-    if (this.interval != null)
+    if (this.interval != null) {
       clearInterval(this.interval)
+    }
     super.destroy()
   }
 

@@ -80,12 +80,14 @@ export function unzip(array: unknown[][]): unknown[][] {
   const k = min(array.map((a) => a.length))
   const results: unknown[][] = Array(k)
 
-  for (let j = 0; j < k; j++)
+  for (let j = 0; j < k; j++) {
     results[j] = new Array(n)
+  }
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < k; j++)
+    for (let j = 0; j < k; j++) {
       results[j][i] = array[i][j]
+    }
   }
 
   return results
@@ -186,11 +188,13 @@ export function union<T>(...arrays: Arrayable<T>[]): T[] {
 export function intersection<T>(array: Arrayable<T>, ...arrays: Arrayable<T>[]): T[] {
   const result: T[] = []
   top: for (const item of array) {
-    if (includes(result, item))
+    if (includes(result, item)) {
       continue
+    }
     for (const other of arrays) {
-      if (!includes(other, item))
+      if (!includes(other, item)) {
         continue top
+      }
     }
     result.push(item)
   }
@@ -234,10 +238,11 @@ export function remove<T>(array: T[], item: T): void {
 
 export function remove_by<T>(array: T[], key: (item: T) => boolean): void {
   for (let i = 0; i < array.length;) {
-    if (key(array[i]))
+    if (key(array[i])) {
       array.splice(i, 1)
-    else
+    } else {
       i++
+    }
   }
 }
 
@@ -255,8 +260,9 @@ export function split<T, S, R extends Exclude<T, S>>(array: (T | S)[], separator
     if (array[j] === separator) {
       chunks.push(array.slice(i, j) as R[])
       i = ++j
-    } else
+    } else {
       ++j
+    }
   }
 
   chunks.push(array.slice(i) as R[])
@@ -270,8 +276,9 @@ export function shuffle<T>(array: T[]): T[] {
   const shuffled = new Array(length)
   for (let i = 0; i < length; i++) {
     const rand = randomIn(0, i)
-    if (rand !== i)
+    if (rand !== i) {
       shuffled[i] = shuffled[rand]
+    }
     shuffled[rand] = array[i]
   }
   return shuffled

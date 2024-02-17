@@ -123,8 +123,9 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
       const {xs, ys} = this.model
       const [x0, x1, y0, y1] = minmax2(xs, ys)
       return {x0, x1, y0, y1}
-    } else
+    } else {
       return empty()
+    }
   }
 
   log_bounds(): Rect {
@@ -183,8 +184,9 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    if (!this.model.visible || !this.model.editable)
+    if (!this.model.visible || !this.model.editable) {
       return false
+    }
     return this.poly.contains(sx, sy)
   }
 
@@ -194,8 +196,9 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     const tolerance = Math.max(EDGE_TOLERANCE, this.model.line_width/2)
 
     for (const [px, py, i] of this.poly) {
-      if (abs(px - sx) < tolerance && abs(py - sy) < tolerance)
+      if (abs(px - sx) < tolerance && abs(py - sy) < tolerance) {
         return {type: "node", i}
+      }
     }
 
     const spt = {x: sx, y: sy}

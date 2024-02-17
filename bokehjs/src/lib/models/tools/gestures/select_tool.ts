@@ -34,12 +34,13 @@ export abstract class SelectToolView extends GestureToolView {
 
     for (const r of this.computed_renderers) {
       let source: DataSource
-      if (r instanceof GlyphRenderer)
+      if (r instanceof GlyphRenderer) {
         source = r.data_source
-      else if (r instanceof GraphRenderer)
+      } else if (r instanceof GraphRenderer) {
         source = r.node_renderer.data_source
-      else
+      } else {
         continue
+      }
 
       const renderers = renderers_by_source.get(source) ?? []
       renderers_by_source.set(source, [...renderers, r])
@@ -79,21 +80,23 @@ export abstract class SelectToolView extends GestureToolView {
   protected _select_mode(modifiers: KeyModifiers): SelectionMode {
     const {shift, ctrl} = modifiers
 
-    if (!shift && !ctrl)
+    if (!shift && !ctrl) {
       return this.model.mode
-    else if (shift && !ctrl)
+    } else if (shift && !ctrl) {
       return "append"
-    else if (!shift && ctrl)
+    } else if (!shift && ctrl) {
       return "intersect"
-    else if (shift && ctrl)
+    } else if (shift && ctrl) {
       return "subtract"
-    else
+    } else {
       unreachable()
+    }
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     if (ev.key == "Escape") {
       this._clear_selection()

@@ -59,14 +59,15 @@ export class MultiLineView extends GlyphView {
         const sx_j = sx[j]
         const sy_j = sy[j]
 
-        if (!isFinite(sx_j + sy_j))
+        if (!isFinite(sx_j + sy_j)) {
           move = true
-        else {
+        } else {
           if (move) {
             ctx.moveTo(sx_j, sy_j)
             move = false
-          } else
+          } else {
             ctx.lineTo(sx_j, sy_j)
+          }
         }
       }
 
@@ -125,8 +126,9 @@ export class MultiLineView extends GlyphView {
       const vsi = vs.get(i)
       const points: number[] = []
       for (let j = 0, endj = vsi.length - 1; j < endj; j++) {
-        if (vsi[j] <= val && val <= vsi[j + 1])
+        if (vsi[j] <= val && val <= vsi[j + 1]) {
           points.push(j)
+        }
       }
       if (points.length > 0) {
         hits.set(i, points)

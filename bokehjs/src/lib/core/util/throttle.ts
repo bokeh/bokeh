@@ -57,11 +57,13 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
   }
 
   fn.stop = function() {
-    if (timeout != null)
+    if (timeout != null) {
       clearTimeout(timeout)
+    }
 
-    if (request != null)
+    if (request != null) {
       cancelAnimationFrame(request)
+    }
 
     resolver()
   }

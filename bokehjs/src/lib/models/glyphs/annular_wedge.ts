@@ -68,8 +68,9 @@ export class AnnularWedgeView extends XYGlyphView {
       const start_angle_i = start_angle.get(i)
       const end_angle_i = end_angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
+      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i)) {
         continue
+      }
 
       const angle_i = end_angle_i - start_angle_i
 
@@ -114,8 +115,9 @@ export class AnnularWedgeView extends XYGlyphView {
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
       const [sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
       const dist = (sx0-sx1)**2 + (sy0-sy1)**2
-      if (dist <= or2 && dist >= ir2)
+      if (dist <= or2 && dist >= ir2) {
         candidates.push(i)
+      }
     }
 
     const anticlock = this.model.direction == "anticlock"

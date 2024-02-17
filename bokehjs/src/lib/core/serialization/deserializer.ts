@@ -27,10 +27,11 @@ export class DeserializationError extends Error {}
 export class Deserializer {
 
   static register(type: string, decoder: Decoder): void {
-    if (!_decoders.has(type))
+    if (!_decoders.has(type)) {
       _decoders.set(type, decoder)
-    else
+    } else {
       throw new Error(`'${type}' already registered for decoding`)
+    }
   }
 
   constructor(
@@ -139,8 +140,9 @@ export class Deserializer {
       } else {
         return this._decode_plain_object(obj)
       }
-    } else
+    } else {
       return obj
+    }
   }
 
   protected _decode_symbol(obj: SymbolRep): symbol {
@@ -156,8 +158,9 @@ export class Deserializer {
           case "+inf": return +Infinity
           case "-inf": return -Infinity
         }
-      } else if (isNumber(value))
+      } else if (isNumber(value)) {
         return value
+      }
     }
 
     this.error(`invalid number representation '${obj}'`)
@@ -209,14 +212,16 @@ export class Deserializer {
     const {data} = obj
     if (is_ref(data)) {
       const buffer = this._buffers.get(data.id)
-      if (buffer != null)
+      if (buffer != null) {
         return buffer
-      else
+      } else {
         this.error(`buffer for id=${data.id} not found`)
-    } else if (isString(data))
+      }
+    } else if (isString(data)) {
       return base64_to_buffer(data)
-    else
+    } else {
       return data.buffer
+    }
   }
 
   protected _decode_slice(obj: SliceRep): Slice {
@@ -290,18 +295,20 @@ export class Deserializer {
   protected _decode_object(obj: ObjectRep): unknown {
     const {type, attributes} = obj
     const cls = this._resolve_type(type)
-    if (attributes != null)
+    if (attributes != null) {
       return new cls(this._decode(attributes))
-    else
+    } else {
       return new cls()
+    }
   }
 
   protected _decode_ref(obj: Ref): HasProps {
     const instance = this.references.get(obj.id)
-    if (instance != null)
+    if (instance != null) {
       return instance
-    else
+    } else {
       this.error(`reference ${obj.id} isn't known`)
+    }
   }
 
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
@@ -334,9 +341,10 @@ export class Deserializer {
 
   private _resolve_type(type: string): any {
     const cls = this.resolver.get(type)
-    if (cls != null)
+    if (cls != null) {
       return cls
-    else
+    } else {
       this.error(`could not resolve type '${type}', which could be due to a widget or a custom model not being registered before first usage`)
+    }
   }
 }

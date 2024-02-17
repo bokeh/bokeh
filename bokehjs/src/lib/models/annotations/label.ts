@@ -70,8 +70,9 @@ export class LabelView extends TextAnnotationView implements Pannable {
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    if (!this.model.visible || !this.model.editable)
+    if (!this.model.visible || !this.model.editable) {
       return false
+    }
     return this._hit_test(sx, sy) == "area"
   }
 
@@ -85,10 +86,11 @@ export class LabelView extends TextAnnotationView implements Pannable {
     const right = left + width
     const bottom = top + height
 
-    if (left <= x && x <= right && top <= y && y <= bottom)
+    if (left <= x && x <= right && top <= y && y <= bottom) {
       return "area"
-    else
+    } else {
       return null
+    }
   }
 
   private _can_hit(_target: HitTarget): boolean {

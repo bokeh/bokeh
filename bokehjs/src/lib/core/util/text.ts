@@ -25,9 +25,9 @@ const has_OffscreenCanvas = (() => {
 })()
 
 const _offscreen_canvas = (() => {
-  if (has_OffscreenCanvas)
+  if (has_OffscreenCanvas) {
     return (w: number, h: number) => new OffscreenCanvas(w, h)
-  else {
+  } else {
     return (w: number, h: number) => {
       const canvas = document.createElement("canvas")
       canvas.width = w
@@ -115,9 +115,11 @@ const _internal_font_metrics = (() => {
     const measure_ascent = (data: Uint8ClampedArray) => {
       let k = 0
       for (let i = 0; i <= baseline; i++) {
-        for (let j = 0; j < width; j++, k += 4)
-          if (data[k] != 255)
+        for (let j = 0; j < width; j++, k += 4) {
+          if (data[k] != 255) {
             return baseline - i
+          }
+        }
       }
       return 0
     }
@@ -125,9 +127,11 @@ const _internal_font_metrics = (() => {
     const measure_descent = (data: Uint8ClampedArray) => {
       let k = data.length - 4
       for (let i = height; i >= baseline; i--) {
-        for (let j = 0; j < width; j++, k -= 4)
-          if (data[k] != 255)
+        for (let j = 0; j < width; j++, k -= 4) {
+          if (data[k] != 255) {
             return i - baseline
+          }
+        }
       }
       return 0
     }
@@ -191,8 +195,9 @@ export function parse_css_font_size(size: string): {value: number, unit: string}
   if (match != null) {
     const [, value,, unit] = match
     const number = Number(value)
-    if (isFinite(number))
+    if (isFinite(number)) {
       return {value: number, unit}
+    }
   }
   return null
 }
@@ -202,8 +207,9 @@ export function parse_css_length(size: string): {value: number, unit: string} | 
   if (match != null) {
     const [, value,, unit] = match
     const number = Number(value)
-    if (isFinite(number))
+    if (isFinite(number)) {
       return {value: number, unit}
+    }
   }
   return null
 }

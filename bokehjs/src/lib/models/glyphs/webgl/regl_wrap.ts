@@ -21,8 +21,9 @@ import marker_fragment_shader from "./marker.frag"
 let regl_wrapper: ReglWrapper | null = null
 
 export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
-  if (regl_wrapper == null)
+  if (regl_wrapper == null) {
     regl_wrapper = new ReglWrapper(gl)
+  }
   return regl_wrapper
 }
 
@@ -157,26 +158,30 @@ export class ReglWrapper {
   }
 
   public accumulate(): ReglRenderFunction {
-    if (this._accumulate == null)
+    if (this._accumulate == null) {
       this._accumulate = regl_accumulate(this._regl, this._rect_geometry, this._rect_triangles)
+    }
     return this._accumulate
   }
 
   public dashed_line(): ReglRenderFunction {
-    if (this._dashed_line == null)
+    if (this._dashed_line == null) {
       this._dashed_line = regl_dashed_line(this._regl, this._line_geometry, this._line_triangles)
+    }
     return this._dashed_line
   }
 
   public get_dash(line_dash: number[]): DashReturn {
-    if (this._dash_cache == null)
+    if (this._dash_cache == null) {
       this._dash_cache = new DashCache(this._regl)
+    }
     return this._dash_cache.get(line_dash)
   }
 
   public image(): ReglRenderFunction {
-    if (this._image == null)
+    if (this._image == null) {
       this._image = regl_image(this._regl, this._rect_geometry, this._rect_triangles)
+    }
     return this._image
   }
 
@@ -199,8 +204,9 @@ export class ReglWrapper {
   }
 
   public solid_line(): ReglRenderFunction {
-    if (this._solid_line == null)
+    if (this._solid_line == null) {
       this._solid_line = regl_solid_line(this._regl, this._line_geometry, this._line_triangles)
+    }
     return this._solid_line
   }
 }

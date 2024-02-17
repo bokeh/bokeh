@@ -2,8 +2,9 @@ export class AssertionError extends Error {}
 export class UnreachableError extends Error {}
 
 export function assert(condition: boolean | (() => boolean), message?: string): asserts condition {
-  if (condition === true || (condition !== false && condition()))
+  if (condition === true || (condition !== false && condition())) {
     return
+  }
 
   throw new AssertionError(message ?? "Assertion failed")
 }

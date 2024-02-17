@@ -36,8 +36,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
     const ntypes = main_gl_glyph._unique_marker_types.length
     for (const marker_type of main_gl_glyph._unique_marker_types) {
-      if (marker_type == null)
+      if (marker_type == null) {
         continue
+      }
 
       let nshow = nmarkers  // Number of markers to show.
       const prev_nmarkers = this._show.length
@@ -62,8 +63,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
       }
       this._show.update()
 
-      if (nshow == 0)
+      if (nshow == 0) {
         continue
+      }
 
       this._draw_one_marker_type(marker_type, transform, main_gl_glyph)
     }

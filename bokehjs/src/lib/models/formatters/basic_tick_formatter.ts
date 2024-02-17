@@ -5,10 +5,11 @@ import type * as p from "core/properties"
 export function unicode_replace(input: string): string {
   let output = ""
   for (const c of input) {
-    if (c == "-")
+    if (c == "-") {
       output += "\u2212"
-    else
+    } else {
       output += c
+    }
   }
   return output
 }
@@ -53,8 +54,9 @@ export class BasicTickFormatter extends TickFormatter {
   }
 
   _need_sci(ticks: number[]): boolean {
-    if (!this.use_scientific)
+    if (!this.use_scientific) {
       return false
+    }
 
     const {scientific_limit_high} = this
     const {scientific_limit_low} = this
@@ -62,8 +64,9 @@ export class BasicTickFormatter extends TickFormatter {
 
     for (const tick of ticks) {
       const tick_abs = Math.abs(tick)
-      if (tick_abs <= zeroish)
+      if (tick_abs <= zeroish) {
         continue
+      }
       if (tick_abs >= scientific_limit_high || tick_abs <= scientific_limit_low) {
         return true
       }
@@ -110,8 +113,9 @@ export class BasicTickFormatter extends TickFormatter {
   }
 
   doFormat(ticks: number[], _opts: {loc: number}): string[] {
-    if (ticks.length == 0)
+    if (ticks.length == 0) {
       return []
+    }
     const need_sci = this._need_sci(ticks)
     const precision = this.precision == "auto" ? this._auto_precision(ticks, need_sci) : this.precision
     return this._format_with_precision(ticks, need_sci, precision)

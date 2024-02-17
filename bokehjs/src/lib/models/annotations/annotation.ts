@@ -20,8 +20,9 @@ export abstract class AnnotationView extends CompositeRendererView {
     if (this.displayed) {
       const {width, height} = this._get_size()
       return {width: Math.round(width), height: Math.round(height)}
-    } else
+    } else {
       return {width: 0, height: 0}
+    }
   }
 
   protected _get_size(): Size {

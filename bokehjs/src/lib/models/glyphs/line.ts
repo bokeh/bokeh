@@ -38,21 +38,24 @@ export class LineView extends XYGlyphView {
       const sx_i = sx[i]
       const sy_i = sy[i]
 
-      if (nonselection && !move && iprev != null && i-iprev > 1 && isFinite(sx[iprev+1] + sy[iprev+1]))
-        ctx.lineTo(sx[iprev+1], sy[iprev+1])  // End of previous line
+      if (nonselection && !move && iprev != null && i-iprev > 1 && isFinite(sx[iprev+1] + sy[iprev+1])) {
+        ctx.lineTo(sx[iprev+1], sy[iprev+1]) // End of previous line
+      }
 
-      if (!isFinite(sx_i + sy_i))
+      if (!isFinite(sx_i + sy_i)) {
         move = true
-      else {
+      } else {
         if (move || gap(i)) {
           if (nonselection && i > 0 && isFinite(sx[i-1] + sy[i-1])) {
-            ctx.moveTo(sx[i-1], sy[i-1])  // Start of new line
+            ctx.moveTo(sx[i-1], sy[i-1]) // Start of new line
             ctx.lineTo(sx_i, sy_i)
-          } else
+          } else {
             ctx.moveTo(sx_i, sy_i)
+          }
           move = false
-        } else
+        } else {
           ctx.lineTo(sx_i, sy_i)
+        }
 
         iprev = i
       }
@@ -60,8 +63,9 @@ export class LineView extends XYGlyphView {
 
     if (nonselection && !move && iprev != null) {
       const n = sx.length
-      if (iprev < n-1 && isFinite(sx[iprev+1] + sy[iprev+1]))
-        ctx.lineTo(sx[iprev+1], sy[iprev+1])  // End of final line
+      if (iprev < n-1 && isFinite(sx[iprev+1] + sy[iprev+1])) {
+        ctx.lineTo(sx[iprev+1], sy[iprev+1]) // End of final line
+      }
     }
 
     this.visuals.line.set_value(ctx)

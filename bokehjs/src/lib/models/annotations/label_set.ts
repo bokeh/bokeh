@@ -59,8 +59,9 @@ export class LabelSetView extends DataAnnotationView {
       const angle_i = this.angle.get(i)
       const text_i = this.text.get(i)
 
-      if (!isFinite(sx_i + sy_i + angle_i) || text_i == null)
+      if (!isFinite(sx_i + sy_i + angle_i) || text_i == null) {
         continue
+      }
 
       this._paint(ctx, i, `${text_i}`, sx_i, sy_i, angle_i)
     }
@@ -86,8 +87,9 @@ export class LabelSetView extends DataAnnotationView {
       this.visuals.border_line.apply(ctx, i)
     }
 
-    if (this.visuals.text.doit)
+    if (this.visuals.text.doit) {
       graphics.paint(ctx)
+    }
   }
 }
 

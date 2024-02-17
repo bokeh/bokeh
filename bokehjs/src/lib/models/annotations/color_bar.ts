@@ -46,8 +46,9 @@ export class ColorBarView extends BaseColorBarView {
   get color_mapper(): ColorMapper {
     // Color mapper that is used to render this colorbar.
     let mapper = this.model.color_mapper
-    if (mapper instanceof WeightedStackColorMapper)
+    if (mapper instanceof WeightedStackColorMapper) {
       mapper = mapper.alpha_mapper
+    }
     return mapper
   }
 
@@ -60,23 +61,25 @@ export class ColorBarView extends BaseColorBarView {
   override _create_axis(): Axis {
     const {color_mapper} = this
 
-    if (color_mapper instanceof CategoricalColorMapper)
+    if (color_mapper instanceof CategoricalColorMapper) {
       return new CategoricalAxis()
-    else if (color_mapper instanceof LogColorMapper)
+    } else if (color_mapper instanceof LogColorMapper) {
       return new LogAxis()
-    else
+    } else {
       return new LinearAxis()
+    }
   }
 
   override _create_formatter(): TickFormatter {
     const {color_mapper} = this
 
-    if (this._ticker instanceof LogTicker)
+    if (this._ticker instanceof LogTicker) {
       return new LogTickFormatter()
-    else if (color_mapper instanceof CategoricalColorMapper)
+    } else if (color_mapper instanceof CategoricalColorMapper) {
       return new CategoricalTickFormatter()
-    else
+    } else {
       return new BasicTickFormatter()
+    }
   }
 
   override _create_major_range(): Range {
@@ -91,41 +94,44 @@ export class ColorBarView extends BaseColorBarView {
     */
     const {color_mapper} = this
 
-    if (color_mapper instanceof CategoricalColorMapper)
+    if (color_mapper instanceof CategoricalColorMapper) {
       return new FactorRange({factors: color_mapper.factors})
-    else if (color_mapper instanceof ContinuousColorMapper) {
+    } else if (color_mapper instanceof ContinuousColorMapper) {
       const {min, max} = this._continuous_metrics(color_mapper)
       return new Range1d({start: min, end: max})
-    } else
+    } else {
       unreachable()
+    }
   }
 
   override _create_major_scale(): Scale {
     const {color_mapper} = this
 
-    if (color_mapper instanceof LinearColorMapper)
+    if (color_mapper instanceof LinearColorMapper) {
       return new LinearScale()
-    else if (color_mapper instanceof LogColorMapper)
+    } else if (color_mapper instanceof LogColorMapper) {
       return new LogScale()
-    else if (color_mapper instanceof ScanningColorMapper)
+    } else if (color_mapper instanceof ScanningColorMapper) {
       return new LinearInterpolationScale({binning: this._scanning_binning(color_mapper)})
-    else if (color_mapper instanceof CategoricalColorMapper)
+    } else if (color_mapper instanceof CategoricalColorMapper) {
       return new CategoricalScale()
-    else
+    } else {
       unreachable()
+    }
   }
 
   override _create_ticker(): Ticker {
     const {color_mapper} = this
 
-    if (color_mapper instanceof LogColorMapper)
+    if (color_mapper instanceof LogColorMapper) {
       return new LogTicker()
-    else if (color_mapper instanceof ScanningColorMapper)
+    } else if (color_mapper instanceof ScanningColorMapper) {
       return new BinnedTicker({mapper: color_mapper})
-    else if (color_mapper instanceof CategoricalColorMapper)
+    } else if (color_mapper instanceof CategoricalColorMapper) {
       return new CategoricalTicker()
-    else
+    } else {
       return new BasicTicker()
+    }
   }
 
   // Return min and max metrics of ContinuousColorMapper, modified to account
@@ -237,8 +243,9 @@ export class ColorBarView extends BaseColorBarView {
     this._index_high = null
     if (display_high != null) {
       const index_high = color_mapper.value_to_index(display_high, binning.length)
-      if (index_high < binning.length-1)
+      if (index_high < binning.length-1) {
         this._index_high = index_high
+      }
     }
 
     this._index_low = null
@@ -256,11 +263,13 @@ export class ColorBarView extends BaseColorBarView {
       const n = end - start + 1
       if (n > 0) {
         const new_binning = new Array<number>(n)
-        for (let i = 0; i < n; i++)
+        for (let i = 0; i < n; i++) {
           new_binning[i] = binning[i + start]
+        }
         binning = new_binning
-      } else
+      } else {
         binning = [NaN]
+      }
     }
 
     return binning
@@ -283,14 +292,16 @@ export class ColorBarView extends BaseColorBarView {
       return
     }
 
-    if (orientation == "vertical")
+    if (orientation == "vertical") {
       palette = reversed(palette)
+    }
 
     const [w, h] = (() => {
-      if (orientation == "vertical")
+      if (orientation == "vertical") {
         return [1, palette.length]
-      else
+      } else {
         return [palette.length, 1]
+      }
     })()
 
     const canvas = this._image = document.createElement("canvas")

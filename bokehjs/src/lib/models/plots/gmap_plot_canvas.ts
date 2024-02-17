@@ -86,8 +86,9 @@ export class GMapPlotView extends PlotView {
         this._build_map()
         this.request_paint("everything")
       })
-    } else
+    } else {
       this._build_map()
+    }
   }
 
   override remove(): void {

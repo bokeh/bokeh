@@ -59,8 +59,9 @@ export class AnnulusView extends XYGlyphView {
       const sinner_radius_i = sinner_radius[i]
       const souter_radius_i = souter_radius[i]
 
-      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i))
+      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2*Math.PI, true)
@@ -103,8 +104,9 @@ export class AnnulusView extends XYGlyphView {
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
       const [sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
       const dist = (sx0 - sx1)**2 + (sy0 - sy1)**2
-      if (dist <= or2 && dist >= ir2)
+      if (dist <= or2 && dist >= ir2) {
         indices.push(i)
+      }
     }
 
     return new Selection({indices})

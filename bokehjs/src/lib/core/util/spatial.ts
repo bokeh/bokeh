@@ -47,10 +47,9 @@ class _FlatBush extends FlatBush {
         const nodeMaxX = this._boxes[pos + 2]
         const nodeMaxY = this._boxes[pos + 3]
 
-        if (maxX < nodeMinX) continue
-        if (maxY < nodeMinY) continue
-        if (minX > nodeMaxX) continue
-        if (minY > nodeMaxY) continue
+        if (maxX < nodeMinX || maxY < nodeMinY || minX > nodeMaxX || minY > nodeMaxY) {
+          continue
+        }
 
         if (nodeIndex < this.numItems * 4) {
           results.set(index) // leaf item
@@ -76,17 +75,19 @@ export class SpatialIndex {
   }
 
   add_rect(x0: number, y0: number, x1: number, y1: number): void {
-    if (!isFinite(x0 + y0 + x1 + y1))
+    if (!isFinite(x0 + y0 + x1 + y1)) {
       this.add_empty()
-    else
+    } else {
       this.index?.add(x0, y0, x1, y1)
+    }
   }
 
   add_point(x: number, y: number) {
-    if (!isFinite(x + y))
+    if (!isFinite(x + y)) {
       this.add_empty()
-    else
+    } else {
       this.index?.add(x, y, x, y)
+    }
   }
 
   add_empty(): void {
@@ -99,26 +100,28 @@ export class SpatialIndex {
 
   protected _normalize(rect: Rect): Rect {
     let {x0, y0, x1, y1} = rect
-    if (x0 > x1)
+    if (x0 > x1) {
       [x0, x1] = [x1, x0]
-    if (y0 > y1)
+    }
+    if (y0 > y1) {
       [y0, y1] = [y1, y0]
+    }
     return {x0, y0, x1, y1}
   }
 
   get bbox(): Rect {
-    if (this.index == null)
+    if (this.index == null) {
       return empty()
-    else {
+    } else {
       const {minX, minY, maxX, maxY} = this.index
       return {x0: minX, y0: minY, x1: maxX, y1: maxY}
     }
   }
 
   indices(rect: Rect): Indices {
-    if (this.index == null)
+    if (this.index == null) {
       return new Indices(0)
-    else {
+    } else {
       const {x0, y0, x1, y1} = this._normalize(rect)
       return this.index.search_indices(x0, y0, x1, y1)
     }
@@ -126,8 +129,9 @@ export class SpatialIndex {
 
   bounds(rect: Rect): Rect {
     const bounds = empty()
-    if (this.index == null)
+    if (this.index == null) {
       return bounds
+    }
 
     const {boxes} = this.index
     for (const i of this.indices(rect)) {
@@ -135,14 +139,18 @@ export class SpatialIndex {
       const y0 = boxes[4*i + 1]
       const x1 = boxes[4*i + 2]
       const y1 = boxes[4*i + 3]
-      if (x0 >= rect.x0 && x0 < bounds.x0)
+      if (x0 >= rect.x0 && x0 < bounds.x0) {
         bounds.x0 = x0
-      if (x1 <= rect.x1 && x1 > bounds.x1)
+      }
+      if (x1 <= rect.x1 && x1 > bounds.x1) {
         bounds.x1 = x1
-      if (y0 >= rect.y0 && y0 < bounds.y0)
+      }
+      if (y0 >= rect.y0 && y0 < bounds.y0) {
         bounds.y0 = y0
-      if (y1 <= rect.y1 && y1 > bounds.y1)
+      }
+      if (y1 <= rect.y1 && y1 > bounds.y1) {
         bounds.y1 = y1
+      }
     }
 
     return bounds

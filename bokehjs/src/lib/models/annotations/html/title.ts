@@ -69,8 +69,9 @@ export class HTMLTitleView extends TextAnnotationView {
 
   protected _render(): void {
     const {text} = this.model
-    if (text.length == 0)
+    if (text.length == 0) {
       return
+    }
 
     this.model.text_baseline = this.model.vertical_align
     this.model.text_align = this.model.align

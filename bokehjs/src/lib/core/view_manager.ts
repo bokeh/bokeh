@@ -25,16 +25,18 @@ export class ViewManager {
 
   get<T extends HasProps>(model: T): ViewOf<T> | null {
     for (const view of this._roots) {
-      if (view.model == model)
+      if (view.model == model) {
         return view
+      }
     }
     return null
   }
 
   get_by_id(id: string): ViewOf<HasProps> | null {
     for (const view of this._roots) {
-      if (view.model.id == id)
+      if (view.model.id == id) {
         return view
+      }
     }
     return null
   }
@@ -132,18 +134,20 @@ export class ViewManager {
 
   get_one<T extends HasProps>(model: T): ViewOf<T> {
     const view = this.find_one(model)
-    if (view != null)
+    if (view != null) {
       return view
-    else
+    } else {
       throw new Error(`cannot find a view for ${model}`)
+    }
   }
 
   get_one_by_id(id: string): View {
     const view = this.find_one_by_id(id)
-    if (view != null)
+    if (view != null) {
       return view
-    else
+    } else {
       throw new Error(`cannot find a view for a model with '${id}' identity`)
+    }
   }
 
   find_all<T extends HasProps>(model: T): ViewOf<T>[] {

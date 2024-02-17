@@ -41,10 +41,11 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override update_layout(): void {
     const {panel} = this
-    if (panel != null)
+    if (panel != null) {
       this.layout = new SideLayout(panel, () => this.get_size(), false)
-    else
+    } else {
       this.layout = undefined
+    }
   }
 
   override connect_signals(): void {
@@ -65,11 +66,13 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
 
-    if (!this._text_view.has_finished())
+    if (!this._text_view.has_finished()) {
       return false
+    }
 
     return true
   }

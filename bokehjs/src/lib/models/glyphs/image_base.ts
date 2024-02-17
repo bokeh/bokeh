@@ -86,8 +86,9 @@ export abstract class ImageBaseView extends XYGlyphView {
         const sdw_i = sdw[i]
         const sdh_i = sdh[i]
 
-        if (image_data_i == null || !isFinite(sx_i + sy_i + sdw_i + sdh_i))
+        if (image_data_i == null || !isFinite(sx_i + sy_i + sdw_i + sdh_i)) {
           continue
+        }
 
         const tx_i = xy_sign.x*xy_anchor.x*sdw_i
         const ty_i = xy_sign.y*xy_anchor.y*sdh_i
@@ -118,8 +119,9 @@ export abstract class ImageBaseView extends XYGlyphView {
     const {image_dimension} = this
 
     for (let i = 0; i < n; i++) {
-      if (indices != null && !indices.includes(i))
+      if (indices != null && !indices.includes(i)) {
         continue
+      }
 
       const img = this.image.get(i)
       assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
@@ -163,9 +165,9 @@ export abstract class ImageBaseView extends XYGlyphView {
     assert(this.image_data != null)
     const image_data_i = this.image_data[i]
     if (image_data_i != null && image_data_i.width  == this._width[i]
-                             && image_data_i.height == this._height[i])
+                             && image_data_i.height == this._height[i]) {
       return image_data_i
-    else {
+    } else {
       const canvas = document.createElement("canvas")
       canvas.width = this._width[i]
       canvas.height = this._height[i]
