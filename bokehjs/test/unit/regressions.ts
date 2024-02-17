@@ -1516,29 +1516,33 @@ describe("Bug", () => {
         new TableColumn({field: "y", title: "y", width: 50}),
       ]
       const filter = new AllIndices()
-      const CDSview = new CDSView({filter})
+      const cds_view = new CDSView({filter})
 
-      const table = new DataTable({source, columns, selectable: "checkbox", view: CDSview, width: 300, height: 400})
+      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       await view.ready
 
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
-      await mouse_click(checkbox1.querySelector('input[type="checkbox"]')!)
+      const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox1_el)
+      await mouse_click(checkbox1_el)
       expect(view.get_selected_rows()).to.be.equal([2])
       expect(table.source.selected.indices).to.be.equal([2])
 
-      table.view.filter=new IndexFilter({indices: [0, 1]})
+      table.view.filter = new IndexFilter({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([])
 
       const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
-      await mouse_click(checkbox2.querySelector('input[type="checkbox"]')!)
+      const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox2_el)
+      await mouse_click(checkbox2_el)
       expect(view.get_selected_rows()).to.be.equal([0])
       expect(table.source.selected.indices).to.be.equal([0])
 
-      table.view.filter=new IndexFilter({indices: [0, 1, 2]})
+      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
       expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())

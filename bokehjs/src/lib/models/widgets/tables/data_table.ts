@@ -12,6 +12,7 @@ import {dict} from "core/util/object"
 import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range, sort_by, map} from "core/util/array"
+import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
 import {logger} from "core/logging"
 import type {DOMBoxSizing} from "../../layouts/layout_dom"
@@ -463,24 +464,22 @@ export class DataTableView extends WidgetView {
     return this.grid.getSelectedRows()
   }
 
-  _sync_selected_with_view(): void {
-    const notFiltered = [...this.data.source.selected.indices].filter((element) =>
-      this.data.index.includes(element))
+  protected _sync_selected_with_view(): void {
+    const {index, source} = this.data
 
-    const wasFiltered = this._filtered_selection.filter((element) =>
-      this.data.index.includes(element))
+    const not_filtered = filter(source.selected.indices, (item) => index.includes(item))
+    const was_filtered = filter(this._filtered_selection, (item) => index.includes(item))
 
-    this._filtered_selection=this._filtered_selection.filter((element)=>
-      !wasFiltered.includes(element))
+    this._filtered_selection = [
+      ...filter(this._filtered_selection, (item) => !was_filtered.includes(item)),
+      ...filter(source.selected.indices, (item) => !index.includes(item)),
+    ]
 
-    this._filtered_selection.push(
-      ...[...this.data.source.selected.indices].filter(
-        (element) => !this.data.index.includes(element),
-      ))
-
-    this.data.source.selected.indices = [...wasFiltered, ...notFiltered]
+    source.selected.indices = [
+      ...was_filtered,
+      ...not_filtered,
+    ]
   }
-
 }
 
 export namespace DataTable {
