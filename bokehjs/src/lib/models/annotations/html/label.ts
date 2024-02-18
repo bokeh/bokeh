@@ -13,10 +13,11 @@ export class HTMLLabelView extends TextAnnotationView {
 
   override update_layout(): void {
     const {panel} = this
-    if (panel != null)
+    if (panel != null) {
       this.layout = new SideLayout(panel, () => this.get_size(), false)
-    else
+    } else {
       this.layout = undefined
+    }
   }
 
   // XXX: this needs to use CSS computed styles

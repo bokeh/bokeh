@@ -50,8 +50,9 @@ export class EllipseView extends CenterRotatableView  {
       const sheight_i = sheight[i]
       const angle_i = angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + swidth_i + sheight_i + angle_i))
+      if (!isFinite(sx_i + sy_i + swidth_i + sheight_i + angle_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.ellipse(sx_i, sy_i, swidth_i/2, sheight_i/2, angle_i, 0, 2*Math.PI)

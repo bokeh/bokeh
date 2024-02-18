@@ -18,8 +18,9 @@ export class LineEditToolView extends LineToolView {
   _drawing: boolean = false
 
   override _press(ev: TapEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     const renderers = this.model.renderers
     for (const renderer of renderers) {
@@ -33,11 +34,13 @@ export class LineEditToolView extends LineToolView {
   }
 
   _show_intersections(): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
-    if (this._selected_renderer == null)
+    if (this._selected_renderer == null) {
       return
+    }
 
     const renderers = this.model.renderers
     if (renderers.length == 0) {
@@ -61,9 +64,9 @@ export class LineEditToolView extends LineToolView {
   override _tap(ev: TapEvent): void {
     const renderer = this.model.intersection_renderer
     const point = this._map_drag(ev.sx, ev.sy, renderer)
-    if (point == null)
+    if (point == null) {
       return
-    else if (this._drawing && this._selected_renderer != null) {
+    } else if (this._drawing && this._selected_renderer != null) {
       const mode = this._select_mode(ev)
       const selected_points = this._select_event(ev, mode, [renderer])
       if (selected_points.length == 0) {
@@ -76,8 +79,9 @@ export class LineEditToolView extends LineToolView {
   }
 
   _update_line_cds(): void {
-    if (this._selected_renderer == null)
+    if (this._selected_renderer == null) {
       return
+    }
     const point_glyph: any = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
     const data = dict(point_cds.data)
@@ -101,16 +105,19 @@ export class LineEditToolView extends LineToolView {
   }
 
   override _pan(ev: PanEvent): void {
-    if (this._basepoint == null)
+    if (this._basepoint == null) {
       return
+    }
     this._drag_points(ev, [this.model.intersection_renderer], this.model.dimensions)
-    if (this._selected_renderer != null)
+    if (this._selected_renderer != null) {
       this._selected_renderer.data_source.change.emit()
+    }
   }
 
   override _pan_end(ev: PanEvent): void {
-    if (this._basepoint == null)
+    if (this._basepoint == null) {
       return
+    }
     this._drag_points(ev, [this.model.intersection_renderer])
     this._emit_cds_changes(this.model.intersection_renderer.data_source, false, true, true)
     if (this._selected_renderer != null) {

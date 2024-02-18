@@ -42,8 +42,9 @@ export class RayView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Ray.Data>): void {
-    if (!this.visuals.line.doit)
+    if (!this.visuals.line.doit) {
       return
+    }
 
     const {sx, sy, slength, angle} = {...this, ...data}
 
@@ -53,8 +54,9 @@ export class RayView extends XYGlyphView {
       const angle_i = angle.get(i)
       const slength_i = slength[i]
 
-      if (!isFinite(sx_i + sy_i + angle_i + slength_i))
+      if (!isFinite(sx_i + sy_i + angle_i + slength_i)) {
         continue
+      }
 
       ctx.translate(sx_i, sy_i)
       ctx.rotate(angle_i)

@@ -76,19 +76,23 @@ export class Signal0<Sender extends object> extends Signal<void, Sender> {
 export namespace Signal {
   export function disconnect_between(sender: object, receiver: object): void {
     const receivers = receivers_for_sender.get(sender)
-    if (receivers == null || receivers.length === 0)
+    if (receivers == null || receivers.length === 0) {
       return
+    }
 
     const senders = senders_for_receiver.get(receiver)
-    if (senders == null || senders.length === 0)
+    if (senders == null || senders.length === 0) {
       return
+    }
 
     for (const connection of senders) {
-      if (connection.signal == null)
+      if (connection.signal == null) {
         return
+      }
 
-      if (connection.signal.sender === sender)
+      if (connection.signal.sender === sender) {
         connection.signal = null
+      }
     }
 
     schedule_cleanup(receivers)
@@ -97,12 +101,14 @@ export namespace Signal {
 
   export function disconnect_sender(sender: object): void {
     const receivers = receivers_for_sender.get(sender)
-    if (receivers == null || receivers.length === 0)
+    if (receivers == null || receivers.length === 0) {
       return
+    }
 
     for (const connection of receivers) {
-      if (connection.signal == null)
+      if (connection.signal == null) {
         return
+      }
 
       const receiver = connection.context ?? connection.slot
       connection.signal = null
@@ -114,19 +120,23 @@ export namespace Signal {
 
   export function disconnect_receiver(receiver: object, slot?: Slot<any, any>, except_senders?: Set<object>): void {
     const senders = senders_for_receiver.get(receiver)
-    if (senders == null || senders.length === 0)
+    if (senders == null || senders.length === 0) {
       return
+    }
 
     for (const connection of senders) {
-      if (connection.signal == null)
+      if (connection.signal == null) {
         return
+      }
 
-      if (slot != null && connection.slot != slot)
+      if (slot != null && connection.slot != slot) {
         continue
+      }
 
       const sender = connection.signal.sender
-      if (except_senders != null && except_senders.has(sender))
+      if (except_senders != null && except_senders.has(sender)) {
         continue
+      }
 
       connection.signal = null
       schedule_cleanup(receivers_for_sender.get(sender)!)

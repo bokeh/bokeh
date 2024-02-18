@@ -87,8 +87,9 @@ export abstract class LRTBView extends GlyphView {
       const sright_i = sright[i]
       const sbottom_i = sbottom[i]
 
-      if (!isFinite(sleft_i + stop_i + sright_i + sbottom_i))
+      if (!isFinite(sleft_i + stop_i + sright_i + sbottom_i)) {
         continue
+      }
 
       ctx.beginPath()
       const box = BBox.from_lrtb({left: sleft_i, right: sright_i, top: stop_i, bottom: sbottom_i})

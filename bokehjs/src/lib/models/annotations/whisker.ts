@@ -21,20 +21,24 @@ export class WhiskerView extends UpperLowerView {
     yield* super.children()
 
     const {lower_head, upper_head} = this
-    if (lower_head != null)
+    if (lower_head != null) {
       yield lower_head
-    if (upper_head != null)
+    }
+    if (upper_head != null) {
       yield upper_head
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {lower_head, upper_head} = this.model
-    if (lower_head != null)
+    if (lower_head != null) {
       this.lower_head = await build_view(lower_head, {parent: this})
-    if (upper_head != null)
+    }
+    if (upper_head != null) {
       this.upper_head = await build_view(upper_head, {parent: this})
+    }
   }
 
   override set_data(source: ColumnarDataSource): void {

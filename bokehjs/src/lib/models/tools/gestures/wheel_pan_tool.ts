@@ -12,10 +12,11 @@ export class WheelPanToolView extends GestureToolView {
     let factor = this.model.speed*ev.delta
 
     // clamp the magnitude of factor, if it is > 1 bad things happen
-    if (factor > 0.9)
+    if (factor > 0.9) {
       factor = 0.9
-    else if (factor < -0.9)
+    } else if (factor < -0.9) {
       factor = -0.9
+    }
 
     this._update_ranges(factor)
   }

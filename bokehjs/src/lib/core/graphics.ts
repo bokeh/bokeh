@@ -52,8 +52,9 @@ export abstract class GraphicsBox {
   _y_anchor: "top"  | "center" | "baseline" | "bottom" = "center"
 
   set base_font_size(v: number | null | undefined) {
-    if (v != null)
+    if (v != null) {
       this._base_font_size = v
+    }
   }
 
   get base_font_size(): number {
@@ -92,9 +93,9 @@ export abstract class GraphicsBox {
   size(): Size {
     const {width, height} = this._size()
     const {angle} = this
-    if (angle == null || angle == 0)
+    if (angle == null || angle == 0) {
       return {width, height}
-    else {
+    } else {
       const c = Math.cos(Math.abs(angle))
       const s = Math.sin(Math.abs(angle))
 
@@ -108,9 +109,9 @@ export abstract class GraphicsBox {
   rect(): Rect {
     const rect = this._rect()
     const {angle} = this
-    if (angle == null || angle == 0)
+    if (angle == null || angle == 0) {
       return rect
-    else {
+    } else {
       const {sx, sy} = this.position
       const tr = new AffineTransform()
       tr.translate(sx, sy)
@@ -210,13 +211,14 @@ export class TextBox extends GraphicsBox {
   }
 
   override infer_text_height() {
-    if (this.text.includes("\n"))
+    if (this.text.includes("\n")) {
       return "ascent_descent"
-    else {
+    } else {
       function is_math_like(text: string): boolean {
         for (const c of new Set(text)) {
-          if ("0" <= c && c <= "9")
+          if ("0" <= c && c <= "9") {
             continue
+          }
           switch (c) {
             case ",":
             case ".":
@@ -232,10 +234,11 @@ export class TextBox extends GraphicsBox {
         return true
       }
 
-      if (is_math_like(this.text))
+      if (is_math_like(this.text)) {
         return "cap"
-      else
+      } else {
         return "ascent_descent"
+      }
     }
   }
 
@@ -321,9 +324,9 @@ export class TextBox extends GraphicsBox {
     const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
-      if (isNumber(x_anchor))
+      if (isNumber(x_anchor)) {
         return x_anchor*width
-      else {
+      } else {
         switch (x_anchor) {
           case "left": return 0
           case "center": return 0.5*width
@@ -333,9 +336,9 @@ export class TextBox extends GraphicsBox {
     })()
 
     const y = sy - (() => {
-      if (isNumber(y_anchor))
+      if (isNumber(y_anchor)) {
         return y_anchor*height
-      else {
+      } else {
         switch (y_anchor) {
           case "top": return 0
           case "center": return 0.5*height
@@ -354,8 +357,9 @@ export class TextBox extends GraphicsBox {
                 case "ascent_descent":
                   return metrics.ascent
               }
-            } else
+            } else {
               return 0.5*height
+            }
           }
         }
       }
@@ -576,9 +580,9 @@ export class BaseExpo extends GraphicsBox {
     const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
 
     const x = sx - (() => {
-      if (isNumber(x_anchor))
+      if (isNumber(x_anchor)) {
         return x_anchor*width
-      else {
+      } else {
         switch (x_anchor) {
           case "left": return 0
           case "center": return 0.5*width
@@ -588,9 +592,9 @@ export class BaseExpo extends GraphicsBox {
     })()
 
     const y = sy - (() => {
-      if (isNumber(y_anchor))
+      if (isNumber(y_anchor)) {
         return y_anchor*height
-      else {
+      } else {
         switch (y_anchor) {
           case "top": return 0
           case "center": return 0.5*height

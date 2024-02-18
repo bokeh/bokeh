@@ -51,10 +51,11 @@ export class WheelZoomToolView extends GestureToolView {
       } else {
         const {zoom_together} = this.model
         if (zoom_together == "all") {
-          if (axis_view.dimension == 0)
+          if (axis_view.dimension == 0) {
             return [x_frame, []]
-          else
+          } else {
             return [[], y_frame]
+          }
         } else {
           const {x_scale, y_scale} = axis_view.coordinates
 
@@ -63,10 +64,11 @@ export class WheelZoomToolView extends GestureToolView {
               return [[x_scale], [y_scale]]
             }
             case "none": {
-              if (axis_view.dimension == 0)
+              if (axis_view.dimension == 0) {
                 return [[x_scale], []]
-              else
+              } else {
                 return [[], [y_scale]]
+              }
             }
           }
         }

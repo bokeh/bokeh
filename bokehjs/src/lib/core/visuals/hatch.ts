@@ -16,8 +16,9 @@ export class Hatch extends VisualProperties {
     this._update_iteration++
     this._hatch_image = null
 
-    if (!this.doit)
+    if (!this.doit) {
       return
+    }
 
     const color = this.hatch_color.get_value()!
     const alpha = this.hatch_alpha.get_value()
@@ -76,10 +77,11 @@ export class Hatch extends VisualProperties {
 
   pattern(ctx: Context2d): CanvasPattern | null {
     const image = this._hatch_image
-    if (image == null)
+    if (image == null) {
       return null
-    else
+    } else {
       return ctx.createPattern(image, this.repetition())
+    }
   }
 
   repetition(): CanvasPatternRepetition {
@@ -130,8 +132,9 @@ export class HatchScalar extends VisualUniforms {
     this._hatch_image = new p.UniformScalar(null, n)
 
     this._static_doit = this._compute_static_doit()
-    if (!this._static_doit)
+    if (!this._static_doit) {
       return
+    }
 
     const color = this.hatch_color.value
     const alpha = this.hatch_alpha.value
@@ -185,10 +188,11 @@ export class HatchScalar extends VisualUniforms {
 
   pattern(ctx: Context2d): CanvasPattern | null {
     const image = this._hatch_image.value
-    if (image == null)
+    if (image == null) {
       return null
-    else
+    } else {
       return ctx.createPattern(image, this.repetition())
+    }
   }
 
   repetition(): CanvasPatternRepetition {
@@ -223,16 +227,19 @@ export class HatchVector extends VisualUniforms {
 
   protected _compute_static_doit(): boolean {
     const {hatch_color} = this
-    if (hatch_color.is_Scalar() && hatch_color.value == 0)
+    if (hatch_color.is_Scalar() && hatch_color.value == 0) {
       return false
+    }
     const {hatch_alpha} = this
-    if (hatch_alpha.is_Scalar() && hatch_alpha.value == 0)
+    if (hatch_alpha.is_Scalar() && hatch_alpha.value == 0) {
       return false
+    }
     const {hatch_pattern} = this
     if (hatch_pattern.is_Scalar()) {
       const pattern = hatch_pattern.value
-      if (pattern == " " || pattern == "blank" || pattern == null)
+      if (pattern == " " || pattern == "blank" || pattern == null) {
         return false
+      }
     }
     return true
   }
@@ -246,8 +253,9 @@ export class HatchVector extends VisualUniforms {
     this._hatch_image = new p.UniformScalar(null, n)
 
     this._static_doit = this._compute_static_doit()
-    if (!this._static_doit)
+    if (!this._static_doit) {
       return
+    }
 
     const resolve_image = (pattern: HatchPattern, color: Color, alpha: number, scale: number, weight: number,
         finalize: (image: CanvasImageSource) => void) => {
@@ -314,15 +322,19 @@ export class HatchVector extends VisualUniforms {
   }
 
   v_doit(i: number): boolean {
-    if (!this.doit)
+    if (!this.doit) {
       return false
-    if (this.hatch_color.get(i) == 0)
+    }
+    if (this.hatch_color.get(i) == 0) {
       return false
-    if (this.hatch_alpha.get(i) == 0)
+    }
+    if (this.hatch_alpha.get(i) == 0) {
       return false
+    }
     const pattern = this.hatch_pattern.get(i)
-    if (pattern == " " || pattern == "blank" || pattern == null)
+    if (pattern == " " || pattern == "blank" || pattern == null) {
       return false
+    }
     return true
   }
 
@@ -341,10 +353,11 @@ export class HatchVector extends VisualUniforms {
 
   pattern(ctx: Context2d, i: number): CanvasPattern | null {
     const image = this._hatch_image.get(i)
-    if (image == null)
+    if (image == null) {
       return null
-    else
+    } else {
       return ctx.createPattern(image, this.repetition(i))
+    }
   }
 
   repetition(i: number): CanvasPatternRepetition {

@@ -48,13 +48,16 @@ export class Visuals {
         }
       })()
 
-      if (visual instanceof VisualProperties)
+      if (visual instanceof VisualProperties) {
         visual.update()
+      }
 
       this._visuals.push(visual)
 
       Object.defineProperty(this, prefix + visual.type, {
-        get() { return visual },
+        get() {
+          return visual
+        },
         configurable: false,
         enumerable: true,
       })

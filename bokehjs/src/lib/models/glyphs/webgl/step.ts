@@ -37,8 +37,9 @@ export class StepGL extends SingleLineGL {
 
     const nstep_points = mode == "center" ? 2*npoints : 2*npoints-1
 
-    if (this._points == null)
+    if (this._points == null) {
       this._points = new Float32Buffer(this.regl_wrapper)
+    }
     const points_array = this._points.get_sized_array((nstep_points+2)*2)
 
     // WebGL renderer needs just one of (x, y) coordinates of inserted step points

@@ -66,14 +66,16 @@ export class ImageVector extends VisualUniforms {
 
   get doit(): boolean {
     const {global_alpha} = this
-    if (global_alpha.is_Scalar() && global_alpha.value == 0)
+    if (global_alpha.is_Scalar() && global_alpha.value == 0) {
       return false
+    }
     return true
   }
 
   v_doit(i: number): boolean {
-    if (this.global_alpha.get(i) == 0)
+    if (this.global_alpha.get(i) == 0) {
       return false
+    }
     return true
   }
 

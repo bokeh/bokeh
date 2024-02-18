@@ -27,10 +27,11 @@ export class GridPlotView extends LayoutDOMView {
 
   protected _update_location(): void {
     const location = this.model.toolbar_location
-    if (location == null)
+    if (location == null) {
       this.model.toolbar.visible = false
-    else
+    } else {
       this.model.toolbar.setv({visible: true, location})
+    }
   }
 
   override initialize(): void {

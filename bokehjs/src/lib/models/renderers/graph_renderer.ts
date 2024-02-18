@@ -89,10 +89,12 @@ export class GraphRendererView extends DataRendererView {
 
   override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     if (renderer instanceof GlyphRenderer) {
-      if (renderer == this.edge_view.model)
+      if (renderer == this.edge_view.model) {
         return this.edge_view
-      if (renderer == this.node_view.model)
+      }
+      if (renderer == this.node_view.model) {
         return this.node_view
+      }
     }
     return super.renderer_view(renderer)
   }

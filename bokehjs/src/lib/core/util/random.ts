@@ -50,8 +50,9 @@ export abstract class AbstractRandom {
       const v = this.float()
       const common = sqrt(-2.0*log(u))
       array[i] = mu + sigma*(common*cos(2.0*PI*v))
-      if (i + 1 < size)
+      if (i + 1 < size) {
         array[i + 1] = mu + sigma*(common*sin(2.0*PI*v))
+      }
     }
 
     return array
@@ -71,8 +72,9 @@ export class LCGRandom extends AbstractRandom {
   constructor(seed: number) {
     super()
     this._seed = seed % MAX_INT32
-    if (this._seed <= 0)
+    if (this._seed <= 0) {
       this._seed += MAX_INT32 - 1
+    }
   }
 
   integer(): number {

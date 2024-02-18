@@ -14,10 +14,11 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override update_layout(): void {
     const {panel} = this
-    if (panel != null)
+    if (panel != null) {
       this.layout = new SideLayout(panel, () => this.get_size(), true)
-    else
+    } else {
       this.layout = undefined
+    }
   }
 
   protected el: HTMLElement
@@ -39,8 +40,9 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   override render(): void {
-    if (!this.model.visible)
+    if (!this.model.visible) {
       undisplay(this.el)
+    }
 
     super.render()
   }

@@ -119,15 +119,17 @@ export class ImageURLView extends XYGlyphView {
       for (let i = 0; i < n; i++) {
         [xs[i], xs[n + i]] = x0x1(this.x[i], this.w.get(i) ?? 0)
       }
-    } else
+    } else {
       xs.set(this.x, 0)
+    }
 
     if (h_data) {
       for (let i = 0; i < n; i++) {
         [ys[i], ys[n + i]] = y0y1(this.y[i], this.h.get(i) ?? 0)
       }
-    } else
+    } else {
       ys.set(this.y, 0)
+    }
 
     const [x0, x1, y0, y1] = minmax2(xs, ys)
     this._bounds_rect = {x0, x1, y0, y1}
@@ -217,8 +219,12 @@ export class ImageURLView extends XYGlyphView {
                           sx: Arrayable<number>, sy: Arrayable<number>,
                           sw: Arrayable<number>, sh: Arrayable<number>,
                           angle: p.Uniform<number>, alpha: p.Uniform<number>): void {
-    if (!isFinite(sw[i])) sw[i] = image.width
-    if (!isFinite(sh[i])) sh[i] = image.height
+    if (!isFinite(sw[i])) {
+      sw[i] = image.width
+    }
+    if (!isFinite(sh[i])) {
+      sh[i] = image.height
+    }
 
     const sw_i = sw[i]
     const sh_i = sh[i]
@@ -253,8 +259,9 @@ export class ImageURLView extends XYGlyphView {
       ctx.translate(-sw2, -sh2)
 
       ctx.translate(-sx_i, -sy_i)
-    } else
+    } else {
       ctx.drawImage(image, sx_i, sy_i, sw_i, sh_i)
+    }
 
     ctx.restore()
   }

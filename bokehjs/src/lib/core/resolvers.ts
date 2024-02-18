@@ -18,10 +18,11 @@ export class ModelResolver {
 
   register(model: typeof HasProps, force: boolean = false): void {
     const name = model.__qualified__
-    if (force || this.get(name) == null)
+    if (force || this.get(name) == null) {
       this._known_models.set(name, model)
-    else
+    } else {
       console.warn(`Model '${name}' was already registered with this resolver`)
+    }
   }
 
   get names(): string[] {

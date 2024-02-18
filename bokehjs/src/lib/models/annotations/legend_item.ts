@@ -75,13 +75,15 @@ export class LegendItem extends Model {
 
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers()
-    if (!data_source_validation)
+    if (!data_source_validation) {
       logger.error("Non matching data sources on legend item renderers")
+    }
 
     // Validate label in data_source
     const field_validation = this._check_field_label_on_data_source()
-    if (!field_validation)
+    if (!field_validation) {
       logger.error(`Bad column name on label: ${this.label}`)
+    }
   }
 
   get_field_from_label_prop(): string | null {
@@ -108,17 +110,19 @@ export class LegendItem extends Model {
     const field = this.get_field_from_label_prop()
     if (field != null) {
       let source: ColumnarDataSource
-      if (this.renderers.length != 0)
+      if (this.renderers.length != 0) {
         source = this.renderers[0].data_source
-      else
+      } else {
         return ["No source found"]
+      }
 
       if (source instanceof ColumnarDataSource) {
         const data = source.get_column(field)
-        if (data != null)
+        if (data != null) {
           return uniq(Array.from(data))
-        else
+        } else {
           return ["Invalid field"]
+        }
       }
     }
 

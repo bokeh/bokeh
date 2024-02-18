@@ -46,8 +46,9 @@ export class ImageGL extends BaseGLGlyph {
     const {global_alpha} = this.glyph.visuals.image
 
     for (const i of indices) {
-      if (main_gl_glyph._tex[i] == null || main_gl_glyph._bounds[i] == null)
+      if (main_gl_glyph._tex[i] == null || main_gl_glyph._bounds[i] == null) {
         continue
+      }
 
       const props: ImageProps = {
         scissor: this.regl_wrapper.scissor,
@@ -70,8 +71,9 @@ export class ImageGL extends BaseGLGlyph {
     const {image} = this.glyph
     const nimage = image.length
 
-    if (this._bounds.length != nimage)
+    if (this._bounds.length != nimage) {
       this._bounds = Array(nimage).fill(null)
+    }
 
     for (let i = 0; i < nimage; i++) {
       const {sx, sy, sdw: sw, sdh: sh, xy_anchor, xy_scale, xy_sign} = this.glyph
@@ -85,8 +87,9 @@ export class ImageGL extends BaseGLGlyph {
         continue
       }
 
-      if (this._bounds[i] == null)
+      if (this._bounds[i] == null) {
         this._bounds[i] = new Float32Buffer(this.regl_wrapper)
+      }
       const bounds_array = this._bounds[i]!.get_sized_array(4)
 
       bounds_array[0] = sx[i] + sw[i]*(0.5*(1 - xy_scale.x) - xy_anchor.x)*xy_sign.x
@@ -124,10 +127,11 @@ export class ImageGL extends BaseGLGlyph {
         type: "uint8",
       }
 
-      if (this._tex[i] == null)
+      if (this._tex[i] == null) {
         this._tex[i] = this.regl_wrapper.texture(tex_options)
-      else
-        this._tex[i]!(tex_options)  // Reuse existing WebGL texture
+      } else {
+        this._tex[i]!(tex_options) // Reuse existing WebGL texture
+      }
     }
   }
 }

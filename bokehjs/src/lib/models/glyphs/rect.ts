@@ -128,11 +128,13 @@ export class RectView extends CenterRotatableView {
       const sheight_i = sheight[i]
       const angle_i = angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + swidth_i + sheight_i + angle_i))
+      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + swidth_i + sheight_i + angle_i)) {
         continue
+      }
 
-      if (swidth_i == 0 || sheight_i == 0)
+      if (swidth_i == 0 || sheight_i == 0) {
         continue
+      }
 
       ctx.beginPath()
       if (angle_i != 0) {
@@ -236,16 +238,18 @@ export class RectView extends CenterRotatableView {
 
     const m = spt0.length
     const spt1 = new ArrayType(m)
-    for (let i = 0; i < m; i++)
+    for (let i = 0; i < m; i++) {
       spt1[i] = spt0[i] + spans[i]
+    }
 
     const pt0 = scale.v_invert(spt0)
     const pt1 = scale.v_invert(spt1)
 
     const n = pt0.length
     const ddist = new ArrayType(n)
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       ddist[i] = abs(pt1[i] - pt0[i])
+    }
     return ddist
   }
 

@@ -27,13 +27,15 @@ export class TapToolView extends SelectToolView {
   declare model: TapTool
 
   override _tap(ev: TapEvent): void {
-    if (this.model.gesture == "tap")
+    if (this.model.gesture == "tap") {
       this._handle_tap(ev)
+    }
   }
 
   override _doubletap(ev: TapEvent): void {
-    if (this.model.gesture == "doubletap")
+    if (this.model.gesture == "doubletap") {
       this._handle_tap(ev)
+    }
   }
 
   _handle_tap(ev: TapEvent): void {
@@ -84,8 +86,9 @@ export class TapToolView extends SelectToolView {
   protected _inspect(geometry: PointGeometry, modifiers?: KeyModifiers): void {
     for (const r of this.computed_renderers) {
       const rv = this.plot_view.renderer_view(r)
-      if (rv == null)
+      if (rv == null) {
         continue
+      }
 
       const sm = r.get_selection_manager()
       const did_hit = sm.inspect(rv, geometry)

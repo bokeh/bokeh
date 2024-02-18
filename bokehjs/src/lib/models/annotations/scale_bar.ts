@@ -127,10 +127,11 @@ export class ScaleBarView extends AnnotationView {
     this.update_geometry()
 
     const {panel} = this
-    if (panel != null)
+    if (panel != null) {
       this.layout = new SideLayout(panel, () => this.get_size())
-    else
+    } else {
       this.layout = undefined
+    }
   }
 
   override update_geometry(): void {

@@ -48,8 +48,9 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
 
   protected _render(): void {
     const {location, location_units} = this.model
-    if (location == null)
+    if (location == null) {
       return
+    }
 
     function compute(value: number, units: CoordinateUnits, scale: Scale,
         view: CoordinateMapper, canvas: CoordinateMapper): number {
@@ -100,8 +101,9 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    if (!this.model.visible || !this.model.editable)
+    if (!this.model.visible || !this.model.editable) {
       return false
+    }
     return this._hit_test(sx, sy) != null
   }
 

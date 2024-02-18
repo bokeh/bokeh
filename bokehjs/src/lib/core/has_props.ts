@@ -110,13 +110,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   declare _mixins: [string, object][]
 
   private static _fix_default(default_value: any, _attr: string): () => any {
-    if (default_value === undefined || default_value === p.unset)
+    if (default_value === undefined || default_value === p.unset) {
       return () => p.unset
-    else if (isFunction(default_value))
+    } else if (isFunction(default_value)) {
       return default_value
-    else if (isPrimitive(default_value))
+    } else if (isPrimitive(default_value)) {
       return () => default_value
-    else {
+    } else {
       const cloner = new Cloner()
       return () => cloner.clone(default_value)
     }
@@ -125,11 +125,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // TODO: don't use Partial<>, but exclude inherited properties
   static define<T, HP extends HasProps = HasProps>(obj: Partial<p.DefineOf<T, HP>> | ((types: typeof kinds) => Partial<p.DefineOf<T, HP>>)): void {
     for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
-      if (name in this.prototype._props)
+      if (name in this.prototype._props) {
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
+      }
 
-      if (name in this.prototype)
+      if (name in this.prototype) {
         throw new Error(`attempted to redefine attribute '${this.prototype.type}.${name}'`)
+      }
 
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
@@ -198,8 +200,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
     for (const [name, prop] of entries(obj)) {
       const default_value = this._fix_default(prop, name)
-      if (!(name in this.prototype._props))
+      if (!(name in this.prototype._props)) {
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
+      }
       const value = this.prototype._props[name]
       const props = {...this.prototype._props}
       props[name] = {...value, default_value}
@@ -227,17 +230,19 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
-    if (name in this.properties)
+    if (name in this.properties) {
       return this.properties[name]
-    else
+    } else {
       throw new Error(`unknown property ${this.type}.${name}`)
+    }
   }
 
   get attributes(): Attrs {
     const attrs: Attrs = {}
     for (const prop of this) {
-      if (!prop.is_unset)
+      if (!prop.is_unset) {
         attrs[prop.attr] = prop.get_value()
+      }
     }
     return attrs
   }
@@ -255,8 +260,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   [equals](that: this, cmp: Comparator): boolean {
     for (const p0 of this) {
       const p1 = that.property(p0.attr)
-      if (!cmp.eq(p0.get_value(), p1.get_value()))
+      if (!cmp.eq(p0.get_value(), p1.get_value())) {
         return false
+      }
     }
     return true
   }
@@ -314,10 +320,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           enumerable: false,
         })
       } else {
-        if (type instanceof k.Kind)
+        if (type instanceof k.Kind) {
           property = new p.PrimitiveProperty(this, name, type, default_value, options)
-        else
+        } else {
           property = new type(this, name, k.Any, default_value, options)
+        }
 
         this.properties[name] = property
       }
@@ -359,23 +366,28 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   assert_initialized(): void {
     for (const prop of this) {
-      if (prop.syncable && !prop.readonly)
+      if (prop.syncable && !prop.readonly) {
         prop.get_value()
+      }
     }
   }
 
   connect_signals(): void {
     for (const prop of this) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
-      if (prop.is_unset)
+      }
+      if (prop.is_unset) {
         continue
+      }
 
       const value = prop.get_value() as Scalar<unknown> | Vector<unknown>
-      if (value.transform != null)
+      if (value.transform != null) {
         this.connect(value.transform.change, () => this.transformchange.emit())
-      if (isExpr(value))
+      }
+      if (isExpr(value)) {
         this.connect(value.expr.change, () => this.exprchange.emit())
+      }
     }
   }
 
@@ -455,8 +467,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   setv(changed_attrs: Attrs, options: HasProps.SetOptions = {}): void {
     const changes = entries(changed_attrs)
 
-    if (changes.length == 0)
+    if (changes.length == 0) {
       return
+    }
 
     if (options.silent ?? false) {
       this._clear_watchers()
@@ -483,8 +496,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     if (document != null) {
       const changed: [Property, unknown, unknown][] = []
       for (const [prop, value] of previous) {
-        if (updated.has(prop))
+        if (updated.has(prop)) {
           changed.push([prop, value, prop.get_value()])
+        }
       }
 
       for (const [prop, old_value, new_value] of changed) {
@@ -509,8 +523,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   *syncable_properties(): PropertyGenerator {
     for (const prop of this) {
-      if (prop.syncable)
+      if (prop.syncable) {
         yield prop
+      }
     }
   }
 
@@ -572,10 +587,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   attach_document(doc: Document): void {
     // This should only be called by the Document implementation to set the document field
     if (this.document != null) {
-      if (this.document == doc)
+      if (this.document == doc) {
         return
-      else
+      } else {
         throw new Error("models must be owned by only a single document")
+      }
     }
 
     this.document = doc
@@ -596,25 +612,29 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     HasProps._value_record_references(old_value, old_refs, {recursive: false})
 
     for (const new_id of new_refs) {
-      if (!old_refs.has(new_id))
+      if (!old_refs.has(new_id)) {
         return true
+      }
     }
 
     for (const old_id of old_refs) {
-      if (!new_refs.has(old_id))
+      if (!new_refs.has(old_id)) {
         return true
+      }
     }
 
     return false
   }
 
   protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
-    if (!this.is_syncable)
+    if (!this.is_syncable) {
       return
+    }
 
     const {document} = this
-    if (document == null)
+    if (document == null) {
       return
+    }
 
     const events = []
     for (const [prop,, new_value] of changes) {

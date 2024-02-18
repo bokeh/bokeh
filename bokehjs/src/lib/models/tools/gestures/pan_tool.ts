@@ -52,10 +52,12 @@ export class PanToolView extends GestureToolView {
     if (!bbox.contains(sx, sy)) {
       const hr = bbox.h_range
       const vr = bbox.v_range
-      if (sx < hr.start || sx > hr.end)
+      if (sx < hr.start || sx > hr.end) {
         this.v_axis_only = true
-      if (sy < vr.start || sy > vr.end)
+      }
+      if (sy < vr.start || sy > vr.end) {
         this.h_axis_only = true
+      }
     }
 
     this.model.document?.interactive_start(this.plot_view.model)
@@ -70,8 +72,9 @@ export class PanToolView extends GestureToolView {
     this.h_axis_only = false
     this.v_axis_only = false
 
-    if (this.pan_info != null)
+    if (this.pan_info != null) {
       this.plot_view.state.push("pan", {range: this.pan_info})
+    }
 
     this.plot_view.trigger_ranges_update_event()
   }
@@ -170,9 +173,9 @@ export class PanTool extends GestureTool {
 
   override get computed_icon(): string {
     const icon = super.computed_icon
-    if (icon != null)
+    if (icon != null) {
       return icon
-    else {
+    } else {
       switch (this.dimensions) {
         case "both":   return `.${icons.tool_icon_pan}`
         case "width":  return `.${icons.tool_icon_x_pan}`

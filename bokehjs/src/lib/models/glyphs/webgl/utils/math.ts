@@ -25,8 +25,9 @@ function gcd2(a: number, b: number): number {
 export function gcd(values: number[]): number {
   let ret = values[0]
 
-  for (let i = 1; i < values.length; i++)
+  for (let i = 1; i < values.length; i++) {
     ret = gcd2(ret, values[i])
+  }
 
   return ret
 }

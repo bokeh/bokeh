@@ -29,8 +29,9 @@ export class BoxSelectToolView extends RegionSelectToolView {
 
     const {active} = this.model.properties
     this.on_change(active, () => {
-      if (!this.model.active && !this.model.persistent)
+      if (!this.model.active && !this.model.persistent) {
         this._clear_overlay()
+      }
     })
   }
 
@@ -97,16 +98,18 @@ export class BoxSelectToolView extends RegionSelectToolView {
   override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     const {frame} = this.plot_view
-    if (!frame.bbox.contains(sx, sy))
+    if (!frame.bbox.contains(sx, sy)) {
       return
+    }
 
     this._clear_other_overlays()
     this._base_point = [sx, sy]
   }
 
   override _pan(ev: PanEvent): void {
-    if (this._base_point == null)
+    if (this._base_point == null) {
       return
+    }
 
     const {sx, sy} = ev
     const [sxlim, sylim] = this._compute_limits([sx, sy])
@@ -120,8 +123,9 @@ export class BoxSelectToolView extends RegionSelectToolView {
   }
 
   override _pan_end(ev: PanEvent): void {
-    if (this._base_point == null)
+    if (this._base_point == null) {
       return
+    }
 
     const {sx, sy} = ev
     const [sxlim, sylim] = this._compute_limits([sx, sy])
@@ -145,8 +149,9 @@ export class BoxSelectToolView extends RegionSelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     if (ev.key == "Escape") {
       if (this._is_selecting) {
@@ -164,10 +169,11 @@ export class BoxSelectToolView extends RegionSelectToolView {
   }
 
   override _clear_selection(): void {
-    if (this.model.overlay.visible)
+    if (this.model.overlay.visible) {
       this._clear_overlay()
-    else
+    } else {
       super._clear_selection()
+    }
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
@@ -257,9 +263,9 @@ export class BoxSelectTool extends RegionSelectTool {
 
   override get computed_icon(): string {
     const icon = super.computed_icon
-    if (icon != null)
+    if (icon != null) {
       return icon
-    else {
+    } else {
       switch (this.dimensions) {
         case "both":   return `.${icons.tool_icon_box_select}`
         case "width":  return `.${icons.tool_icon_x_box_select}`

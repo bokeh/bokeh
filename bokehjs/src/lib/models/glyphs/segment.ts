@@ -37,8 +37,9 @@ export class SegmentView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Segment.Data>): void {
-    if (!this.visuals.line.doit)
+    if (!this.visuals.line.doit) {
       return
+    }
 
     const {sx0, sy0, sx1, sy1} = {...this, ...data}
 
@@ -48,8 +49,9 @@ export class SegmentView extends GlyphView {
       const sx1_i = sx1[i]
       const sy1_i = sy1[i]
 
-      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i))
+      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i)) {
         continue
+      }
 
       this._render_decorations(ctx, i, sx0_i, sy0_i, sx1_i, sy1_i)
 
@@ -128,8 +130,9 @@ export class SegmentView extends GlyphView {
     const candidates = this.index.indices({x0, y0, x1, y1})
 
     for (const i of candidates) {
-      if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i]))
+      if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i])) {
         indices.push(i)
+      }
 
       const threshold = 1.5 + (this.line_width.get(i)/2)// Maximum pixel difference to detect hit
 

@@ -9,9 +9,9 @@ import type {Context2d} from "../util/canvas"
 import {isArray, isInteger} from "../util/types"
 
 export function resolve_line_dash(line_dash: LineDash | string | number[]): number[] {
-  if (isArray(line_dash))
+  if (isArray(line_dash)) {
     return line_dash
-  else {
+  } else {
     switch (line_dash) {
       case "solid":   return []
       case "dashed":  return [6]
@@ -132,24 +132,30 @@ export class LineVector extends VisualUniforms {
 
   get doit(): boolean {
     const {line_color} = this
-    if (line_color.is_Scalar() && line_color.value == 0)
+    if (line_color.is_Scalar() && line_color.value == 0) {
       return false
+    }
     const {line_alpha} = this
-    if (line_alpha.is_Scalar() && line_alpha.value == 0)
+    if (line_alpha.is_Scalar() && line_alpha.value == 0) {
       return false
+    }
     const {line_width} = this
-    if (line_width.is_Scalar() && line_width.value == 0)
+    if (line_width.is_Scalar() && line_width.value == 0) {
       return false
+    }
     return true
   }
 
   v_doit(i: number): boolean {
-    if (this.line_color.get(i) == 0)
+    if (this.line_color.get(i) == 0) {
       return false
-    if (this.line_alpha.get(i) == 0)
+    }
+    if (this.line_alpha.get(i) == 0) {
       return false
-    if (this.line_width.get(i) == 0)
+    }
+    if (this.line_width.get(i) == 0) {
       return false
+    }
     return true
   }
 

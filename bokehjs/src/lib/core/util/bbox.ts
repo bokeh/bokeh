@@ -36,21 +36,23 @@ export function positive_y(): Rect {
 }
 
 function _min(a: number, b: number): number {
-  if (isNaN(a))
+  if (isNaN(a)) {
     return b
-  else if (isNaN(b))
+  } else if (isNaN(b)) {
     return a
-  else
+  } else {
     return min(a, b)
+  }
 }
 
 function _max(a: number, b: number): number {
-  if (isNaN(a))
+  if (isNaN(a)) {
     return b
-  else if (isNaN(b))
+  } else if (isNaN(b)) {
     return a
-  else
+  } else {
     return max(a, b)
+  }
 }
 
 export function union(a: Rect, b: Rect): Rect {
@@ -132,8 +134,9 @@ export class BBox implements Rect, Equatable {
         this.x1 = NaN
         this.y1 = NaN
       } else {
-        if (!(x0 <= x1 && y0 <= y1))
+        if (!(x0 <= x1 && y0 <= y1)) {
           throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
+        }
         this.x0 = x0
         this.y0 = y0
         this.x1 = x1
@@ -141,8 +144,9 @@ export class BBox implements Rect, Equatable {
       }
     } else if ("x" in box) {
       const {x, y, width, height} = box
-      if (!(width >= 0 && height >= 0))
+      if (!(width >= 0 && height >= 0)) {
         throw new Error(`invalid bbox {x: ${x}, y: ${y}, width: ${width}, height: ${height}}`)
+      }
       this.x0 = x
       this.y0 = y
       this.x1 = x + width
@@ -187,12 +191,15 @@ export class BBox implements Rect, Equatable {
 
       if (left > right || top > bottom) {
         if (correct) {
-          if (left > right)
+          if (left > right) {
             left = right
-          if (top > bottom)
+          }
+          if (top > bottom) {
             top = bottom
-        } else
+          }
+        } else {
           throw new Error(`invalid bbox {left: ${left}, top: ${top}, right: ${right}, bottom: ${bottom}}`)
+        }
       }
 
       this.x0 = left
@@ -394,15 +401,17 @@ export class BBox implements Rect, Equatable {
   }
 
   clip(x: number, y: number): [number, number] {
-    if (x < this.x0)
+    if (x < this.x0) {
       x = this.x0
-    else if (x > this.x1)
+    } else if (x > this.x1) {
       x = this.x1
+    }
 
-    if (y < this.y0)
+    if (y < this.y0) {
       y = this.y0
-    else if (y > this.y1)
+    } else if (y > this.y1) {
       y = this.y1
+    }
 
     return [x, y]
   }
@@ -435,9 +444,9 @@ export class BBox implements Rect, Equatable {
   }
 
   intersection(that: Rect): BBox | null {
-    if (!this.intersects(that))
+    if (!this.intersects(that)) {
       return null
-    else {
+    } else {
       return new BBox({
         x0: max(this.x0, that.x0),
         y0: max(this.y0, that.y0),

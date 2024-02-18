@@ -47,14 +47,16 @@ export class BoxZoomToolView extends GestureToolView {
     if (bx <= cx) {
       left = bx
       right = bx + vw*xmod
-      if (right > hend)
+      if (right > hend) {
         right = hend
+      }
     // bx is right
     } else {
       right = bx
       left = bx - vw*xmod
-      if (left < hstart)
+      if (left < hstart) {
         left = hstart
+      }
     }
 
     vw = Math.abs(right - left)
@@ -65,24 +67,27 @@ export class BoxZoomToolView extends GestureToolView {
     if (by <= cy) {
       bottom = by
       top = by + vw/a
-      if (top > vend)
+      if (top > vend) {
         top = vend
+      }
     // by is top
     } else {
       top = by
       bottom = by - vw/a
-      if (bottom < vstart)
+      if (bottom < vstart) {
         bottom = vstart
+      }
     }
 
     vh = Math.abs(top - bottom)
 
-    // bx is left
-    if (bx <= cx)
+    if (bx <= cx) {
+      // bx is left
       right = bx + a*vh
-    // bx is right
-    else
+    } else {
+      // bx is right
       left = bx - a*vh
+    }
 
     return [[left, right], [bottom, top]]
   }
@@ -107,39 +112,45 @@ export class BoxZoomToolView extends GestureToolView {
 
         const tol = 5
 
-        if (dx < tol && dy > tol)
+        if (dx < tol && dy > tol) {
           return "height"
-        else if (dx > tol && dy < tol)
+        } else if (dx > tol && dy < tol) {
           return "width"
-        else
+        } else {
           return "both"
-      } else
+        }
+      } else {
         return dimensions
+      }
     })()
 
-    if (this.model.match_aspect && dims == "both")
+    if (this.model.match_aspect && dims == "both") {
       return this._match_aspect(base_point, curr_point, frame)
-    else
+    } else {
       return this.model._get_dim_limits(base_point, curr_point, frame, dims)
+    }
   }
 
   override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
-    if (this.plot_view.frame.bbox.contains(sx, sy))
+    if (this.plot_view.frame.bbox.contains(sx, sy)) {
       this._base_point = [sx, sy]
+    }
   }
 
   override _pan(ev: PanEvent): void {
-    if (this._base_point == null)
+    if (this._base_point == null) {
       return
+    }
 
     const [[left, right], [top, bottom]] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
     this.model.overlay.update({left, right, top, bottom})
   }
 
   override _pan_end(ev: PanEvent): void {
-    if (this._base_point == null)
+    if (this._base_point == null) {
       return
+    }
 
     const [sx, sy] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
     this._update(sx, sy)
@@ -159,16 +170,18 @@ export class BoxZoomToolView extends GestureToolView {
 
   override _doubletap(_ev: TapEvent): void {
     const {state} = this.plot_view
-    if (state.peek()?.type == "box_zoom")
+    if (state.peek()?.type == "box_zoom") {
       state.undo()
+    }
   }
 
   _update([sx0, sx1]: Point, [sy0, sy1]: Point): void {
     // If the viewing window is too small, no-op: it is likely that the user did
     // not intend to make this box zoom and instead was trying to cancel out of the
     // zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
-    if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5)
+    if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5) {
       return
+    }
 
     const {x_scales, y_scales} = this.plot_view.frame
 
@@ -261,9 +274,9 @@ export class BoxZoomTool extends GestureTool {
 
   override get computed_icon(): string {
     const icon = super.computed_icon
-    if (icon != null)
+    if (icon != null) {
       return icon
-    else {
+    } else {
       switch (this.dimensions) {
         case "both":   return `.${icons.tool_icon_box_zoom}`
         case "width":  return `.${icons.tool_icon_x_box_zoom}`

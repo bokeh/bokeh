@@ -65,8 +65,9 @@ export class PatchesView extends GlyphView {
           if (move) {
             ctx.moveTo(sx_j, sy_j)
             move = false
-          } else
+          } else {
             ctx.lineTo(sx_j, sy_j)
+          }
         }
       }
 
@@ -153,8 +154,9 @@ export class PatchesView extends GlyphView {
           }
           k = j + 1
         }
-        if (j == n)
+        if (j == n) {
           break
+        }
       }
     }
 
@@ -191,8 +193,9 @@ export class PatchesView extends GlyphView {
         }
         k = j + 1
       }
-      if (j == n)
+      if (j == n) {
         break
+      }
     }
 
     unreachable()

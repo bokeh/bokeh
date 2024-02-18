@@ -12,8 +12,12 @@ export abstract class Uniform<T = number> implements Equatable {
   abstract [equals](that: this, cmp: Comparator): boolean
   abstract map<U>(fn: (v: T) => U): Uniform<U>
 
-  is_Scalar(): this is UniformScalar<T> { return this.is_scalar }
-  is_Vector(): this is UniformVector<T> { return !this.is_scalar }
+  is_Scalar(): this is UniformScalar<T> {
+    return this.is_scalar
+  }
+  is_Vector(): this is UniformVector<T> {
+    return !this.is_scalar
+  }
 }
 
 export class UniformScalar<T> extends Uniform<T> {
@@ -92,8 +96,9 @@ export class ColorUniformVector extends UniformVector<number> {
 
   override *[Symbol.iterator](): Generator<number, void, undefined> {
     const n = this.length
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       yield this.get(i)
+    }
   }
 }
 

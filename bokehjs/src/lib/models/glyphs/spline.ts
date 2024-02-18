@@ -38,14 +38,15 @@ export class SplineView extends XYGlyphView {
       const sx_i = sxt[j]
       const sy_i = syt[j]
 
-      if (!isFinite(sx_i + sy_i))
+      if (!isFinite(sx_i + sy_i)) {
         move = true
-      else {
+      } else {
         if (move) {
           ctx.moveTo(sx_i, sy_i)
           move = false
-        } else
+        } else {
           ctx.lineTo(sx_i, sy_i)
+        }
       }
     }
 

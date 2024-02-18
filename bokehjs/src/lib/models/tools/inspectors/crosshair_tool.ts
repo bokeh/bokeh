@@ -71,15 +71,17 @@ export class CrosshairToolView extends InspectToolView {
   }
 
   override _move(ev: MoveEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     const {sx, sy} = ev
 
-    if (!this.plot_view.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy)) {
       this._update_spans(NaN, NaN)
-    else
+    } else {
       this._update_spans(sx, sy)
+    }
   }
 
   override _move_exit(_e: MoveEvent): void {

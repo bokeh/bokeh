@@ -183,7 +183,9 @@ describe("core/kinds module", () => {
     expect(tp.valid([])).to.be.true
     expect(tp.valid([0, 1, 2])).to.be.true
     expect(tp.valid(new Set([1, 2, 3]))).to.be.true
-    expect(tp.valid((function* () { yield 1; yield 2 })())).to.be.true
+    expect(tp.valid((function* () {
+      yield 1; yield 2
+    })())).to.be.true
     expect(tp.valid([0, "a"])).to.be.true // no item validation
     expect(tp.valid(["a"])).to.be.true    // no item validation
 

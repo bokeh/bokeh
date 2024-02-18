@@ -29,13 +29,13 @@ export function decode_rgba(rgba: uint32): RGBA {
 
 export function color2rgba(color: Color | null, alpha: number = 1.0): RGBA {
   const [r, g, b, a] = (() => {
-    if (color == null)
+    if (color == null) {
       return transparent()
-    else if (isInteger(color))
+    } else if (isInteger(color)) {
       return decode_rgba(color)
-    else if (isString(color))
+    } else if (isString(color)) {
       return css4_parse(color) ?? transparent()
-    else {
+    } else {
       if (color.length == 2) {
         const [name, alpha] = color
         return color2rgba(name, alpha)
@@ -128,16 +128,17 @@ export function css4_parse(color: string): RGBA | null {
   */
   color = color.trim().toLowerCase()
 
-  if (color == "")
+  if (color == "") {
     return null
-  else if (color == "transparent")
+  } else if (color == "transparent") {
     return transparent()
-  else if (is_named_color(color)) {
+  } else if (is_named_color(color)) {
     return decode_rgba(named_colors[color])
   } else if (color[0] == "#") {
     const v = Number(`0x${color.substring(1)}`)
-    if (isNaN(v))
+    if (isNaN(v)) {
       return null
+    }
     switch (color.length - 1) {
       case 3: {
         const r = (v >> 8) & 0xf
@@ -183,25 +184,27 @@ export function css4_parse(color: string): RGBA | null {
       const bp = b.endsWith("%")
       const ap = a.endsWith("%")
 
-      if (!(rp && gp && bp || (!rp && !gp && !bp)))
+      if (!(rp && gp && bp || (!rp && !gp && !bp))) {
         return null
+      }
 
-      if (rp) r = r.slice(0, -1)
-      if (gp) g = g.slice(0, -1)
-      if (bp) b = b.slice(0, -1)
-      if (ap) a = a.slice(0, -1)
+      if (rp) { r = r.slice(0, -1) }
+      if (gp) { g = g.slice(0, -1) }
+      if (bp) { b = b.slice(0, -1) }
+      if (ap) { a = a.slice(0, -1) }
 
       let R = Number(r)
       let G = Number(g)
       let B = Number(b)
       let A = Number(a)
 
-      if (isNaN(R + G + B + A))
+      if (isNaN(R + G + B + A)) {
         return null
+      }
 
-      if (rp) R = 255*(R/100)
-      if (gp) G = 255*(G/100)
-      if (bp) B = 255*(B/100)
+      if (rp) { R = 255*(R/100) }
+      if (gp) { G = 255*(G/100) }
+      if (bp) { B = 255*(B/100) }
       A = 255*(ap ? A/100 : A)
 
       R = byte(R)
@@ -213,20 +216,24 @@ export function css4_parse(color: string): RGBA | null {
     }
   } else {
     const style = css4_normalize(color)
-    if (style != null)
+    if (style != null) {
       return css4_parse(style)
+    }
   }
 
   return null
 }
 
 export function is_Color(value: unknown): value is Color {
-  if (isInteger(value))
+  if (isInteger(value)) {
     return true
-  if (isString(value) && css4_parse(value) != null)
+  }
+  if (isString(value) && css4_parse(value) != null) {
     return true
-  if (isArray(value) && (value.length == 3 || value.length == 4))
+  }
+  if (isArray(value) && (value.length == 3 || value.length == 4)) {
     return true
+  }
   return false
 }
 

@@ -22,8 +22,9 @@ export class MultiLineGL extends BaseLineGL {
     const main_gl_glyph = main_glyph.glglyph!
     const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped
 
-    if (data_changed_or_mapped)
+    if (data_changed_or_mapped) {
       main_gl_glyph._set_data(main_gl_glyph.data_changed)
+    }
 
     if ((data_changed_or_mapped && main_gl_glyph._is_dashed) || this._is_dashed) {
       // length_so_far is a data property as it depends on point positions in canvas coordinates
@@ -40,8 +41,9 @@ export class MultiLineGL extends BaseLineGL {
     const {data_size} = this.glyph  // Number of lines
     let framebuffer: Framebuffer2D | null = null
     let tex: Texture2D | null = null
-    if (data_size > 1)
+    if (data_size > 1) {
       [framebuffer, tex] = this.regl_wrapper.framebuffer_and_texture
+    }
 
     let point_offset = 0
     let prev_index = -1
@@ -56,8 +58,9 @@ export class MultiLineGL extends BaseLineGL {
       const nsegments = npoints - 1  // Points array includes extra points at each end
 
       // Not necessary if just a single line
-      if (framebuffer != null)
+      if (framebuffer != null) {
         this.regl_wrapper.clear_framebuffer(framebuffer)
+      }
 
       this._draw_single(main_gl_glyph, transform, index, point_offset, nsegments, framebuffer)
 
@@ -91,8 +94,9 @@ export class MultiLineGL extends BaseLineGL {
     const line_count = this.glyph.data_size
     const total_point_count =  this.glyph.sxs.data.length
 
-    if (this._points == null)
+    if (this._points == null) {
       this._points = new Float32Buffer(this.regl_wrapper)
+    }
     const points_array = this._points.get_sized_array((total_point_count + 2*line_count)*2)
 
     let point_offset = 0
@@ -111,8 +115,9 @@ export class MultiLineGL extends BaseLineGL {
     this._points.update()
 
     if (data_changed) {
-      if (this._show == null)
+      if (this._show == null) {
         this._show = new Uint8Buffer(this.regl_wrapper)
+      }
       const show_array = this._show.get_sized_array(total_point_count + line_count)
 
       let point_offset = 0
@@ -142,8 +147,9 @@ export class MultiLineGL extends BaseLineGL {
     const points_array = this._points!.get_array()
     const show_array = this._show!.get_array()
 
-    if (this._length_so_far == null)
+    if (this._length_so_far == null) {
       this._length_so_far = new Float32Buffer(this.regl_wrapper)
+    }
     const length_so_far = this._length_so_far.get_sized_array(total_point_count - line_count)
 
     let point_offset = 0

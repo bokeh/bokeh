@@ -103,8 +103,9 @@ export class TextView extends XYGlyphView {
       const angle_i = angle.get(i)
       const label_i = labels[i]
 
-      if (!isFinite(sx_i + sy_i + angle_i) || label_i == null)
+      if (!isFinite(sx_i + sy_i + angle_i) || label_i == null) {
         continue
+      }
 
       const swidth_i = swidth[i]
       const sheight_i = sheight[i]
@@ -155,8 +156,9 @@ export class TextView extends XYGlyphView {
       const angle_i = angle.get(i)
       const label_i = labels[i]
 
-      if (!isFinite(sx_i + sy_i + angle_i) || label_i == null)
+      if (!isFinite(sx_i + sy_i + angle_i) || label_i == null) {
         continue
+      }
 
       const swidth_i = swidth[i]
       const sheight_i = sheight[i]

@@ -132,8 +132,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (view == null) {
       for (const [, renderer_view] of this.renderer_views) {
         const view = renderer_view.renderer_view(renderer)
-        if (view != null)
+        if (view != null) {
           return view
+        }
       }
     }
     return view
@@ -149,8 +150,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     if (result != null) {
       const {value, unit} = result
-      if (unit == "px")
+      if (unit == "px") {
         return value
+      }
     }
 
     return null
@@ -174,19 +176,22 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   pause(): void {
-    if (this._is_paused == null)
+    if (this._is_paused == null) {
       this._is_paused = 1
-    else
+    } else {
       this._is_paused += 1
+    }
   }
 
   unpause(no_render: boolean = false): void {
-    if (this._is_paused == null)
+    if (this._is_paused == null) {
       throw new Error("wasn't paused")
+    }
 
     this._is_paused = Math.max(this._is_paused - 1, 0)
-    if (this._is_paused == 0 && !no_render)
+    if (this._is_paused == 0 && !no_render) {
       this.request_paint("everything")
+    }
   }
 
   private _needs_notify: boolean = false
@@ -205,9 +210,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   invalidate_painters(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
-    if (to_invalidate == "everything")
+    if (to_invalidate == "everything") {
       this._invalidate_all = true
-    else if (isArray(to_invalidate)) {
+    } else if (isArray(to_invalidate)) {
       for (const item of to_invalidate) {
         const view = (() => {
           if (item instanceof RendererView) {
@@ -376,9 +381,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {frame_align} = this.model
     layout.aligns = (() => {
-      if (isBoolean(frame_align))
+      if (isBoolean(frame_align)) {
         return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
-      else {
+      } else {
         const {left=true, right=true, top=true, bottom=true} = frame_align
         return {left, right, top, bottom}
       }
@@ -428,18 +433,20 @@ export class PlotView extends LayoutDOMView implements Renderable {
           for (let i = 0; i < panels.length; i++) {
             const panel = panels[i]
             if (panel instanceof Title) {
-              if (location == "above" || location == "below")
+              if (location == "above" || location == "below") {
                 panels[i] = [panel, this._toolbar]
-              else
+              } else {
                 panels[i] = [this._toolbar, panel]
+              }
               push_toolbar = false
               break
             }
           }
         }
 
-        if (push_toolbar)
+        if (push_toolbar) {
           panels.push(this._toolbar)
+        }
       } else {
         const panels = get_side(location, true)
         panels.push(this._toolbar)
@@ -461,8 +468,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (isArray(panel)) {
           const items = panel.map((subpanel) => {
             const item = set_layout(side, subpanel)
-            if (item == null)
+            if (item == null) {
               return undefined
+            }
             if (subpanel instanceof ToolbarPanel) {
               const dim = horizontal ? "width_policy" : "height_policy"
               item.set_sizing({...item.sizing, [dim]: "min"})
@@ -483,8 +491,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
           layouts.push(layout)
         } else {
           const layout = set_layout(side, panel)
-          if (layout != null)
+          if (layout != null) {
             layouts.push(layout)
+          }
         }
       }
 
@@ -570,14 +579,18 @@ export class PlotView extends LayoutDOMView implements Renderable {
     layout.left_panel = left_panel
     layout.right_panel = right_panel
 
-    if (inner_top_panel.children.length != 0)
+    if (inner_top_panel.children.length != 0) {
       layout.inner_top_panel = inner_top_panel
-    if (inner_bottom_panel.children.length != 0)
+    }
+    if (inner_bottom_panel.children.length != 0) {
       layout.inner_bottom_panel = inner_bottom_panel
-    if (inner_left_panel.children.length != 0)
+    }
+    if (inner_left_panel.children.length != 0) {
       layout.inner_left_panel = inner_left_panel
-    if (inner_right_panel.children.length != 0)
+    }
+    if (inner_right_panel.children.length != 0) {
       layout.inner_right_panel = inner_right_panel
+    }
 
     this.layout = layout
   }
@@ -613,8 +626,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
   get axis_views(): AxisView[] {
     const views = []
     for (const [, renderer_view] of this.renderer_views) {
-      if (renderer_view instanceof AxisView)
+      if (renderer_view instanceof AxisView) {
         views.push(renderer_view)
+      }
     }
     return views
   }
@@ -667,8 +681,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (selection != null) {
           ds.selected.update(selection, true)
         }
-      } else
+      } else {
         ds.selection_manager.clear()
+      }
     }
   }
 
@@ -707,11 +722,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
     yield* right
     yield* center
 
-    if (this._title != null)
+    if (this._title != null) {
       yield this._title
+    }
 
-    if (this._toolbar != null)
+    if (this._toolbar != null) {
       yield this._toolbar
+    }
 
     for (const [, view] of this.tool_views) {
       yield* view.overlays
@@ -813,13 +830,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
 
     if (this.model.visible) {
       for (const [, renderer_view] of this.renderer_views) {
-        if (!renderer_view.has_finished())
+        if (!renderer_view.has_finished()) {
           return false
+        }
       }
     }
 
@@ -856,8 +875,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     `)
 
     for (const [, child_view] of this.renderer_views) {
-      if (child_view instanceof AnnotationView)
+      if (child_view instanceof AnnotationView) {
         child_view.after_layout?.()
+      }
     }
 
     this.model.setv({
@@ -901,8 +921,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   paint(): void {
-    if (this.is_paused)
+    if (this.is_paused) {
       return
+    }
 
     if (this.is_displayed) {
       logger.trace(`${this.toString()}.paint()`)
@@ -935,8 +956,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
           }
           this.request_paint("everything") // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
-      } else
+      } else {
         document.interactive_stop()
+      }
     }
 
     if (this._range_manager.invalidate_dataranges) {
@@ -953,12 +975,14 @@ export class PlotView extends LayoutDOMView implements Renderable {
     } else {
       for (const painter of this._invalidated_painters) {
         const {level} = painter.model
-        if (level != "overlay")
+        if (level != "overlay") {
           do_primary = true
-        else
+        } else {
           do_overlays = true
-        if (do_primary && do_overlays)
+        }
+        if (do_primary && do_overlays) {
           break
+        }
       }
     }
     this._invalidated_painters.clear()
@@ -991,8 +1015,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (do_overlays || settings.wireframe) {
       overlays.prepare()
       this._paint_levels(overlays.ctx, "overlay", frame_box, false)
-      if (settings.wireframe)
+      if (settings.wireframe) {
         this.paint_layout(overlays.ctx, this.layout)
+      }
       overlays.finish()
     }
 
@@ -1013,8 +1038,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
     for (const renderer of this.computed_renderers) {
-      if (renderer.level != level)
+      if (renderer.level != level) {
         continue
+      }
 
       const renderer_view = this.renderer_views.get(renderer)!
 
@@ -1040,8 +1066,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     ctx.strokeRect(x, y, width, height)
     for (const child of layout) {
       ctx.save()
-      if (!layout.absolute)
+      if (!layout.absolute) {
         ctx.translate(x, y)
+      }
       this.paint_layout(ctx, child)
       ctx.restore()
     }

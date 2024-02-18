@@ -2,8 +2,9 @@ import type {TypedArray} from "../types"
 
 export function concat<T extends TypedArray>(array0: T, ...arrays: ArrayLike<number>[]): T {
   let n = array0.length
-  for (const array of arrays)
+  for (const array of arrays) {
     n += array.length
+  }
 
   const result = new array0.constructor(n) as T
   result.set(array0, 0)

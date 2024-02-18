@@ -36,8 +36,9 @@ export class Text extends VisualProperties {
   }
 
   override update(): void {
-    if (!this.doit)
+    if (!this.doit) {
       return
+    }
 
     const font = this.font_value()
     load_font(font, this.obj)
@@ -97,8 +98,9 @@ export class TextScalar extends VisualUniforms {
   }
 
   override update(): void {
-    if (!this.doit)
+    if (!this.doit) {
       return
+    }
 
     const font = this.font_value()
     load_font(font, this.obj)
@@ -176,19 +178,23 @@ export class TextVector extends VisualUniforms {
 
   get doit(): boolean {
     const {text_color} = this
-    if (text_color.is_Scalar() && text_color.value == 0)
+    if (text_color.is_Scalar() && text_color.value == 0) {
       return false
+    }
     const {text_alpha} = this
-    if (text_alpha.is_Scalar() && text_alpha.value == 0)
+    if (text_alpha.is_Scalar() && text_alpha.value == 0) {
       return false
+    }
     return true
   }
 
   v_doit(i: number): boolean {
-    if (this.text_color.get(i) == 0)
+    if (this.text_color.get(i) == 0) {
       return false
-    if (this.text_alpha.get(i) == 0)
+    }
+    if (this.text_alpha.get(i) == 0) {
       return false
+    }
     return true
   }
 

@@ -14,8 +14,9 @@ export class SlopeView extends AnnotationView {
 
   protected _render(): void {
     const {gradient, y_intercept} = this.model
-    if (gradient == null || y_intercept == null)
+    if (gradient == null || y_intercept == null) {
       return
+    }
 
     const {frame} = this.plot_view
 
@@ -43,10 +44,11 @@ export class SlopeView extends AnnotationView {
         const sx_start = xscale.compute(x_start)
         const sx_end = xscale.compute(x_end)
 
-        if (sx_start <= sx_end)
+        if (sx_start <= sx_end) {
           return [sx_start, sx_end, sy_start, sy_end]
-        else
+        } else {
           return [sx_end, sx_start, sy_end, sy_start]
+        }
       }
     })()
 
@@ -61,15 +63,17 @@ export class SlopeView extends AnnotationView {
       ctx.lineTo(sx1, sy1)
       ctx.lineTo(sx1, sy1)
       if (sy0 <= sy1) {
-        if (sx1 < right)
+        if (sx1 < right) {
           ctx.lineTo(right, bottom)
+        }
         ctx.lineTo(right, top)
         ctx.lineTo(left, top)
       } else {
         ctx.lineTo(right, top)
         ctx.lineTo(left, top)
-        if (sx0 > left)
+        if (sx0 > left) {
           ctx.lineTo(left, bottom)
+        }
       }
       ctx.closePath()
       this.visuals.above_fill.apply(ctx)
@@ -85,11 +89,13 @@ export class SlopeView extends AnnotationView {
       if (sy0 <= sy1) {
         ctx.lineTo(right, bottom)
         ctx.lineTo(left, bottom)
-        if (sx0 > left)
+        if (sx0 > left) {
           ctx.lineTo(left, top)
+        }
       } else {
-        if (sx1 < right)
+        if (sx1 < right) {
           ctx.lineTo(right, top)
+        }
         ctx.lineTo(right, bottom)
         ctx.lineTo(left, bottom)
       }

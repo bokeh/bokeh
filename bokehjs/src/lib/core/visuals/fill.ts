@@ -82,19 +82,23 @@ export class FillVector extends VisualUniforms {
 
   get doit(): boolean {
     const {fill_color} = this
-    if (fill_color.is_Scalar() && fill_color.value == 0)
+    if (fill_color.is_Scalar() && fill_color.value == 0) {
       return false
+    }
     const {fill_alpha} = this
-    if (fill_alpha.is_Scalar() && fill_alpha.value == 0)
+    if (fill_alpha.is_Scalar() && fill_alpha.value == 0) {
       return false
+    }
     return true
   }
 
   v_doit(i: number): boolean {
-    if (this.fill_color.get(i) == 0)
+    if (this.fill_color.get(i) == 0) {
       return false
-    if (this.fill_alpha.get(i) == 0)
+    }
+    if (this.fill_alpha.get(i) == 0) {
       return false
+    }
     return true
   }
 

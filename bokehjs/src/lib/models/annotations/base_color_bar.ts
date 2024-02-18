@@ -179,10 +179,11 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   protected _update_frame(): void {
     const [x_scale, y_scale, x_range, y_range] = (() => {
-      if (this.orientation == "horizontal")
+      if (this.orientation == "horizontal") {
         return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const
-      else
+      } else {
         return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
+      }
     })()
     this._frame.in_x_scale = x_scale
     this._frame.in_y_scale = y_scale
@@ -221,23 +222,26 @@ export abstract class BaseColorBarView extends AnnotationView {
           case "center_right":
             return ["center", "end"] as const
         }
-      } else
-        return ["end", "start"] as const // "bottom_left"
+      } else {
+        return ["end", "start"] as const
+      } // "bottom_left"
     })()
 
     const orientation = this._orientation = (() => {
       const {orientation} = this.model
       if (orientation == "auto") {
-        if (this.panel != null)
+        if (this.panel != null) {
           return this.panel.is_horizontal ? "horizontal" : "vertical"
-        else {
-          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center"))
+        } else {
+          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center")) {
             return "vertical"
-          else
+          } else {
             return "horizontal"
+          }
         }
-      } else
+      } else {
         return orientation
+      }
     })()
 
     this._update_frame()
@@ -269,9 +273,9 @@ export abstract class BaseColorBarView extends AnnotationView {
     const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
     const margin_box = (() => {
       if (this.panel == null) {
-        if (isString(location))
+        if (isString(location)) {
           return {left: margin, right: margin, top: margin, bottom: margin}
-        else {
+        } else {
           const [left, bottom] = location
           return {left, right: margin, top: margin, bottom}
         }
@@ -356,8 +360,9 @@ export abstract class BaseColorBarView extends AnnotationView {
       if ((orientation == "horizontal" ? w : h) == "auto") {
         major_policy = "fixed"
         const major_size_factor = this._get_major_size_factor()
-        if (major_size_factor != null)
+        if (major_size_factor != null) {
           major_size = major_size_factor*MINOR_DIM
+        }
         min_major_size = {percent: MAJOR_DIM_MIN_SCALAR}
         max_major_size = {percent: MAJOR_DIM_MAX_SCALAR}
       } else {
@@ -406,10 +411,11 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     const {panel} = this
     const side = (() => {
-      if (panel != null && orientation == panel.orientation)
+      if (panel != null && orientation == panel.orientation) {
         return panel.side
-      else
+      } else {
         return orientation == "horizontal" ? "below" : "right"
+      }
     })()
 
     const stack = (() => {
@@ -428,8 +434,9 @@ export abstract class BaseColorBarView extends AnnotationView {
     const {_axis_view} = this
     _axis_view.panel = new SidePanel(side)
     _axis_view.update_layout()
-    if (_axis_view.layout != null)
+    if (_axis_view.layout != null) {
       stack.children.push(_axis_view.layout)
+    }
 
     if (this.panel != null) {
       const outer = new Grid([{layout, row: 0, col: 0}])

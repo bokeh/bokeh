@@ -25,8 +25,9 @@ export class Matrix<T> {
     for (let y = 0; y < this.nrows; y++) {
       for (let x = 0; x < this.ncols; x++) {
         const value = this._matrix[y][x]
-        if (value !== undefined)
+        if (value !== undefined) {
           yield [value, y, x]
+        }
       }
     }
   }
@@ -45,10 +46,11 @@ export class Matrix<T> {
     const fn = Matrix.from(obj)
 
     const {nrows, ncols} = this
-    if (nrows == fn.nrows && ncols == fn.ncols)
+    if (nrows == fn.nrows && ncols == fn.ncols) {
       return new Matrix(nrows, ncols, (row, col) => fn.at(row, col)(this.at(row, col), row, col))
-    else
+    } else {
       throw new Error("dimensions don't match")
+    }
   }
 
   to_sparse(): [T, number, number][] {

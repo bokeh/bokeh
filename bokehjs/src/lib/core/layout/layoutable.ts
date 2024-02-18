@@ -172,8 +172,9 @@ export abstract class Layoutable {
       this.set_sizing()
     }
 
-    if (!this.sizing.visible)
+    if (!this.sizing.visible) {
       return {width: 0, height: 0}
+    }
 
     const exact_width = (width: number) => {
       return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
@@ -226,15 +227,17 @@ export abstract class Layoutable {
 
   clip_size(size: Size, viewport: Size): Size {
     function clip(size: number, vsize: number, min_size?: number | Percent, max_size?: number | Percent): number {
-      if (min_size == null)
+      if (min_size == null) {
         min_size = 0
-      else if (!isNumber(min_size))
+      } else if (!isNumber(min_size)) {
         min_size = round(min_size.percent*vsize)
+      }
 
-      if (max_size == null)
+      if (max_size == null) {
         max_size = Infinity
-      else if (!isNumber(max_size))
+      } else if (!isNumber(max_size)) {
         max_size = round(max_size.percent*vsize)
+      }
 
       return max(min_size, min(size, max_size))
     }

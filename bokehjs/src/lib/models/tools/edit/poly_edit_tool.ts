@@ -20,11 +20,13 @@ export class PolyEditToolView extends PolyToolView {
   _cur_index: number | null = null
 
   override _press(ev: TapEvent): void {
-    if (this.model.vertex_renderer == null || !this.model.active)
+    if (this.model.vertex_renderer == null || !this.model.active) {
       return
+    }
     const point = this._map_drag(ev.sx, ev.sy, this.model.vertex_renderer)
-    if (point == null)
+    if (point == null) {
       return
+    }
     const [x, y] = point
 
     // Perform hit testing
@@ -41,8 +43,12 @@ export class PolyEditToolView extends PolyToolView {
         point_cds.selection_manager.clear()
       } else {
         point_cds.selected.indices = [index+1]
-        if (pxkey) point_cds.get_array(pxkey).splice(index+1, 0, x)
-        if (pykey) point_cds.get_array(pykey).splice(index+1, 0, y)
+        if (pxkey) {
+          point_cds.get_array(pxkey).splice(index+1, 0, x)
+        }
+        if (pykey) {
+          point_cds.get_array(pykey).splice(index+1, 0, y)
+        }
         this._drawing = true
       }
       point_cds.change.emit()
@@ -53,10 +59,12 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   _show_vertices(ev: UIEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
-    if (this.model.renderers.length == 0)
+    }
+    if (this.model.renderers.length == 0) {
       return
+    }
 
     const vsync_renderer = this.model.renderers[0]
     const vsync_updater = () => this._update_vertices(vsync_renderer)
@@ -84,8 +92,12 @@ export class PolyEditToolView extends PolyToolView {
     const index = this._cur_index
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
-    if (this._drawing) return
-    if ((index == null) && (xkey || ykey)) return
+    if (this._drawing) {
+      return
+    }
+    if ((index == null) && (xkey || ykey)) {
+      return
+    }
 
     let xs: number[]
     let ys: number[]
@@ -115,22 +127,28 @@ export class PolyEditToolView extends PolyToolView {
   override _move(ev: MoveEvent): void {
     if (this._drawing && this._selected_renderer != null) {
       const renderer = this.model.vertex_renderer
-      if (renderer == null)
+      if (renderer == null) {
         return
+      }
       const cds = renderer.data_source
       const data = dict(cds.data)
       const glyph: any = renderer.glyph
       const point = this._map_drag(ev.sx, ev.sy, renderer)
-      if (point == null)
+      if (point == null) {
         return
+      }
       let [x, y] = point
       const indices = cds.selected.indices
       ;[x, y] = this._snap_to_vertex(ev, x, y)
       cds.selected.indices = indices
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       const index = indices[0]
-      if (xkey) data.get(xkey)![index] = x
-      if (ykey) data.get(ykey)![index] = y
+      if (xkey) {
+        data.get(xkey)![index] = x
+      }
+      if (ykey) {
+        data.get(ykey)![index] = y
+      }
       cds.change.emit()
       this._selected_renderer.data_source.change.emit()
     }
@@ -138,12 +156,13 @@ export class PolyEditToolView extends PolyToolView {
 
   override _tap(ev: TapEvent): void {
     const renderer = this.model.vertex_renderer
-    if (renderer == null)
+    if (renderer == null) {
       return
+    }
     const point = this._map_drag(ev.sx, ev.sy, renderer)
-    if (point == null)
+    if (point == null) {
       return
-    else if (this._drawing && this._selected_renderer != null) {
+    } else if (this._drawing && this._selected_renderer != null) {
       let [x, y] = point
       const cds = renderer.data_source
       // Type once dataspecs are typed
@@ -175,44 +194,56 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   _remove_vertex(): void {
-    if (!this._drawing || this._selected_renderer == null)
+    if (!this._drawing || this._selected_renderer == null) {
       return
+    }
     const renderer = this.model.vertex_renderer
-    if (renderer == null)
+    if (renderer == null) {
       return
+    }
     const cds = renderer.data_source
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
     const index = cds.selected.indices[0]
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
-    if (xkey) cds.get_array(xkey).splice(index, 1)
-    if (ykey) cds.get_array(ykey).splice(index, 1)
+    if (xkey) {
+      cds.get_array(xkey).splice(index, 1)
+    }
+    if (ykey) {
+      cds.get_array(ykey).splice(index, 1)
+    }
     cds.change.emit()
     this._emit_cds_changes(this._selected_renderer.data_source)
   }
 
   override _pan_start(ev: PanEvent): void {
-    if (this.model.vertex_renderer == null)
+    if (this.model.vertex_renderer == null) {
       return
+    }
     this._select_event(ev, "append", [this.model.vertex_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 
   override _pan(ev: PanEvent): void {
-    if (this._basepoint == null)
+    if (this._basepoint == null) {
       return
-    if (this.model.vertex_renderer == null)
+    }
+    if (this.model.vertex_renderer == null) {
       return
+    }
     this._drag_points(ev, [this.model.vertex_renderer])
-    if (this._selected_renderer != null)
+    if (this._selected_renderer != null) {
       this._selected_renderer.data_source.change.emit()
+    }
   }
 
   override _pan_end(ev: PanEvent): void {
-    if (this._basepoint == null)
+    if (this._basepoint == null) {
       return
-    if (this.model.vertex_renderer == null)
+    }
+    if (this.model.vertex_renderer == null) {
       return
+    }
     this._drag_points(ev, [this.model.vertex_renderer])
     this._emit_cds_changes(this.model.vertex_renderer.data_source, false, true, true)
     if (this._selected_renderer != null) {
@@ -222,8 +253,9 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame)
+    if (!this.model.active || !this._mouse_in_frame) {
       return
+    }
     let renderers: GlyphRenderer[]
     if (this._selected_renderer != null) {
       const {vertex_renderer} = this.model

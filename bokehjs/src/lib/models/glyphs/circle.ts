@@ -99,8 +99,9 @@ export class CircleView extends XYGlyphView {
       const sy_i = sy[i]
       const sradius_i = sradius[i]
 
-      if (!isFinite(sx_i + sy_i + sradius_i))
+      if (!isFinite(sx_i + sy_i + sradius_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.arc(sx_i, sy_i, sradius_i, 0, 2*Math.PI, false)

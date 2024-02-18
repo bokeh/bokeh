@@ -54,12 +54,14 @@ export class ToolbarView extends UIElementView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
 
     for (const child_view of this._tool_button_views.values()) {
-      if (!child_view.has_finished())
+      if (!child_view.has_finished()) {
         return false
+      }
     }
 
     return true
@@ -433,24 +435,27 @@ export class Toolbar extends UIElement {
     if (this.active_inspect == "auto") {
       // do nothing as all tools are active be default
     } else if (this.active_inspect == null) {
-      for (const inspector of this.inspectors)
+      for (const inspector of this.inspectors) {
         inspector.active = false
+      }
     } else if (isArray(this.active_inspect)) {
       const active_inspect = intersection(this.active_inspect, this.inspectors)
       if (active_inspect.length != this.active_inspect.length) {
         this.active_inspect = active_inspect
       }
       for (const inspector of this.inspectors) {
-        if (!includes(this.active_inspect, inspector))
+        if (!includes(this.active_inspect, inspector)) {
           inspector.active = false
+        }
       }
     } else {
       let found = false
       for (const inspector of this.inspectors) {
-        if (inspector != this.active_inspect)
+        if (inspector != this.active_inspect) {
           inspector.active = false
-        else
+        } else {
           found = true
+        }
       }
       if (!found) {
         this.active_inspect = null
@@ -461,8 +466,9 @@ export class Toolbar extends UIElement {
       if (tool.active) {
         // tool was activated by a proxy, but we need to finish configuration manually
         this._active_change(tool)
-      } else
+      } else {
         tool.active = true
+      }
     }
 
     // Connecting signals has to be done before changing the active state of the tools.
@@ -526,8 +532,9 @@ export class Toolbar extends UIElement {
         }
         this.gestures[et].active = tool
         logger.debug(`Toolbar: activating tool: ${tool} for event type '${et}'`)
-      } else
+      } else {
         this.gestures[et].active = null
+      }
     }
   }
 }

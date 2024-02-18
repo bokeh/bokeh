@@ -12,8 +12,9 @@ export function intersection<T>(set: Set<T>, ...sets: Set<T>[]): Set<T> {
   const result = new Set<T>()
   top: for (const item of set) {
     for (const other of sets) {
-      if (!other.has(item))
+      if (!other.has(item)) {
         continue top
+      }
     }
     result.add(item)
   }

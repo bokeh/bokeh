@@ -168,14 +168,16 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is T {
-      if (!tp.isArray(value))
+      if (!tp.isArray(value)) {
         return false
+      }
 
       for (let i = 0; i < this.types.length; i++) {
         const type = this.types[i]
         const item = value[i]
-        if (!type.valid(item))
+        if (!type.valid(item)) {
           return false
+        }
       }
 
       return true
@@ -482,8 +484,9 @@ export namespace Kinds {
       }
 
       for (const [key, item] of value.entries()) {
-        if (!(this.key_type.valid(key) && this.item_type.valid(item)))
+        if (!(this.key_type.valid(key) && this.item_type.valid(item))) {
           return false
+        }
       }
 
       return true
@@ -505,12 +508,14 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is this["__type__"] {
-      if (!(value instanceof ESSet))
+      if (!(value instanceof ESSet)) {
         return false
+      }
 
       for (const item of value) {
-        if (!this.item_type.valid(item))
+        if (!this.item_type.valid(item)) {
           return false
+        }
       }
 
       return true
