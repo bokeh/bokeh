@@ -12,7 +12,7 @@ import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
 
 export const FormatterType = Enum("numeral", "printf", "datetime")
-export type FormatterType = "numeral" | "printf" | "datetime"
+export type FormatterType = typeof FormatterType["__type__"]
 
 export type FormatterSpec = CustomJSHover | FormatterType
 export type Formatters = Dict<FormatterSpec>
