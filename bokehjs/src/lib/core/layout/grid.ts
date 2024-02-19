@@ -164,22 +164,26 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
   }
 
   override is_width_expanding(): boolean {
-    if (super.is_width_expanding())
+    if (super.is_width_expanding()) {
       return true
+    }
 
-    if (this.sizing.width_policy == "fixed")
+    if (this.sizing.width_policy == "fixed") {
       return false
+    }
 
     const {cols} = this._state
     return some(cols, (col) => col.policy == "max")
   }
 
   override is_height_expanding(): boolean {
-    if (super.is_height_expanding())
+    if (super.is_height_expanding()) {
       return true
+    }
 
-    if (this.sizing.height_policy == "fixed")
+    if (this.sizing.height_policy == "fixed") {
       return false
+    }
 
     const {rows} = this._state
     return some(rows, (row) => row.policy == "max")
@@ -206,29 +210,31 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       const row = ((): RowSizing => {
         const sizing = isPlainObject(this.rows) ? this.rows[y] ?? this.rows["*"] : this.rows
 
-        if (sizing == null)
+        if (sizing == null) {
           return {policy: "auto"}
-        else if (isNumber(sizing))
+        } else if (isNumber(sizing)) {
           return {policy: "fixed", height: sizing}
-        else if (isString(sizing))
+        } else if (isString(sizing)) {
           return {policy: sizing} as RowSizing
-        else
+        } else {
           return sizing
+        }
       })()
 
       const align = row.align ?? "auto"
 
-      if (row.policy == "fixed")
+      if (row.policy == "fixed") {
         rows[y] = {policy: "fixed", height: row.height, align}
-      else if (row.policy == "min")
+      } else if (row.policy == "min") {
         rows[y] = {policy: "min", align}
-      else if (row.policy == "fit" || row.policy == "max")
+      } else if (row.policy == "fit" || row.policy == "max") {
         rows[y] = {policy: row.policy, flex: row.flex ?? 1, align}
-      else {
-        if (some(items.row(y), (layout) => layout.is_height_expanding()))
+      } else {
+        if (some(items.row(y), (layout) => layout.is_height_expanding())) {
           rows[y] = {policy: "max", flex: 1, align}
-        else
+        } else {
           rows[y] = {policy: "min", align}
+        }
       }
     }
 
@@ -237,29 +243,31 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       const col = ((): ColSizing => {
         const sizing = isPlainObject(this.cols) ? this.cols[x] ?? this.cols["*"] : this.cols
 
-        if (sizing == null)
+        if (sizing == null) {
           return {policy: "auto"}
-        else if (isNumber(sizing))
+        } else if (isNumber(sizing)) {
           return {policy: "fixed", width: sizing}
-        else if (isString(sizing))
+        } else if (isString(sizing)) {
           return {policy: sizing} as ColSizing
-        else
+        } else {
           return sizing
+        }
       })()
 
       const align = col.align ?? "auto"
 
-      if (col.policy == "fixed")
+      if (col.policy == "fixed") {
         cols[x] = {policy: "fixed", width: col.width, align}
-      else if (col.policy == "min")
+      } else if (col.policy == "min") {
         cols[x] = {policy: "min", align}
-      else if (col.policy == "fit" || col.policy == "max")
+      } else if (col.policy == "fit" || col.policy == "max") {
         cols[x] = {policy: col.policy, flex: col.flex ?? 1, align}
-      else {
-        if (some(items.col(x), (layout) => layout.is_width_expanding()))
+      } else {
+        if (some(items.col(x), (layout) => layout.is_width_expanding())) {
           cols[x] = {policy: "max", flex: 1, align}
-        else
+        } else {
           cols[x] = {policy: "min", align}
+        }
       }
     }
 
@@ -323,10 +331,11 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       const radjustable = []
       for (let r = r0; r <= r1; r++) {
         const row = rows[r]
-        if (row.policy == "fixed")
+        if (row.policy == "fixed") {
           size.height -= row.height
-        else
+        } else {
           radjustable.push(r)
+        }
       }
 
       if (size.height > 0) {
@@ -339,10 +348,11 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       const cadjustable = []
       for (let c = c0; c <= c1; c++) {
         const col = cols[c]
-        if (col.policy == "fixed")
+        if (col.policy == "fixed") {
           size.width -= col.width
-        else
+        } else {
           cadjustable.push(c)
+        }
       }
 
       if (size.width > 0) {
@@ -370,20 +380,22 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
     })
 
     let available_height: number
-    if (this.sizing.height_policy == "fixed" && this.sizing.height != null)
+    if (this.sizing.height_policy == "fixed" && this.sizing.height != null) {
       available_height = this.sizing.height
-    else if (viewport.height != Infinity && this.is_height_expanding())
+    } else if (viewport.height != Infinity && this.is_height_expanding()) {
       available_height = viewport.height
-    else
+    } else {
       available_height = preferred.size.height
+    }
 
     let height_flex = 0
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
-      if (row.policy == "fit" || row.policy == "max")
+      if (row.policy == "fit" || row.policy == "max") {
         height_flex += row.flex
-      else
+      } else {
         available_height -= preferred.row_heights[y]
+      }
     }
 
     available_height -= (nrows - 1)*rspacing
@@ -402,8 +414,9 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       let nadjustable = 0
       for (let y = 0; y < nrows; y++) {
         const row = rows[y]
-        if (row.policy != "fixed")
+        if (row.policy != "fixed") {
           nadjustable++
+        }
       }
 
       let overflow_height = -available_height
@@ -420,20 +433,22 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
     }
 
     let available_width: number
-    if (this.sizing.width_policy == "fixed" && this.sizing.width != null)
+    if (this.sizing.width_policy == "fixed" && this.sizing.width != null) {
       available_width = this.sizing.width
-    else if (viewport.width != Infinity && this.is_width_expanding())
+    } else if (viewport.width != Infinity && this.is_width_expanding()) {
       available_width = viewport.width
-    else
+    } else {
       available_width = preferred.size.width
+    }
 
     let width_flex = 0
     for (let x = 0; x < ncols; x++) {
       const col = cols[x]
-      if (col.policy == "fit" || col.policy == "max")
+      if (col.policy == "fit" || col.policy == "max") {
         width_flex += col.flex
-      else
+      } else {
         available_width -= preferred.col_widths[x]
+      }
     }
 
     available_width -= (ncols - 1)*cspacing
@@ -452,8 +467,9 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       let nadjustable = 0
       for (let x = 0; x < ncols; x++) {
         const col = cols[x]
-        if (col.policy != "fixed")
+        if (col.policy != "fixed") {
           nadjustable++
+        }
       }
 
       let overflow_width = -available_width
@@ -493,11 +509,15 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
     const {row_heights, col_widths, size_hints} = this._measure_grid(outer)
 
     const rows = this._state.rows.map((row, r): RowSpec & {top: number, height: number, bottom: number} => {
-      return {...row, top: 0, height: row_heights[r], get bottom() { return this.top + this.height }}
+      return {...row, top: 0, height: row_heights[r], get bottom() {
+        return this.top + this.height
+      }}
     })
 
     const cols = this._state.cols.map((col, c): ColSpec & {left: number, width: number, right: number} => {
-      return {...col, left: 0, width: col_widths[c], get right() { return this.left + this.width }}
+      return {...col, left: 0, width: col_widths[c], get right() {
+        return this.left + this.width
+      }}
     })
 
     const items = size_hints.map((_, item) => {
@@ -547,20 +567,22 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
       const valign = r0 == r1 && rows[r0].align != "auto" ? rows[r0].align : sizing.valign
 
       let left = cols[c0].left
-      if (halign == "start")
+      if (halign == "start") {
         left += sizing.margin.left
-      else if (halign == "center")
+      } else if (halign == "center") {
         left += round((span.width - width)/2)
-      else if (halign == "end")
+      } else if (halign == "end") {
         left += span.width - sizing.margin.right - width
+      }
 
       let top = rows[r0].top
-      if (valign == "start")
+      if (valign == "start") {
         top += sizing.margin.top
-      else if (valign == "center")
+      } else if (valign == "center") {
         top += round((span.height - height)/2)
-      else if (valign == "end")
+      } else if (valign == "end") {
         top += span.height - sizing.margin.bottom - height
+      }
 
       item.outer = new BBox({left, top, width, height})
     })
@@ -625,8 +647,9 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
         //}
 
         item.inner = inner
-      } else
+      } else {
         item.inner = outer
+      }
     })
 
     items.foreach((_, {layout, outer, inner}) => {

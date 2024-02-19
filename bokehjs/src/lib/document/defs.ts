@@ -89,7 +89,7 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
         }
         case "Map": {
           const [, keyref, valref] = ref
-          return kinds.Map(kind_of(keyref), kind_of(valref))
+          return kinds.Mapping(kind_of(keyref), kind_of(valref))
         }
         case "Enum": {
           const [, ...items] = ref

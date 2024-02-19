@@ -29,6 +29,7 @@ export function to_big_endian(values: Uint32Array): Uint32Array {
       j += 4
     }
     return result
-  } else
+  } else {
     return values
+  }
 }

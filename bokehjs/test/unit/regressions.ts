@@ -2,9 +2,10 @@ import sinon from "sinon"
 
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
-import {PlotActions, actions, xy, line, tap} from "../interactive"
+import {PlotActions, actions, xy, line, tap, mouse_click} from "../interactive"
 
 import {
+  AllIndices,
   BooleanFilter,
   BoxAnnotation,
   BoxEditTool,
@@ -19,6 +20,7 @@ import {
   DataRange1d,
   GlyphRenderer,
   HoverTool,
+  IndexFilter,
   Legend,
   LegendItem,
   Line,
@@ -74,7 +76,7 @@ import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
-import {TableDataProvider} from "@bokehjs/models/widgets/tables/data_table"
+import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_table"
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
@@ -1495,6 +1497,55 @@ describe("Bug", () => {
       await view.ready
 
       expect(updates.target && updates.range).to.be.true
+    })
+  })
+
+  describe("in issue #13536", () => {
+    it("doesn't allow selected rows to sync correctly when rows are filtered", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          index: [0, 1, 2],
+          x: [1, 2, 3],
+          y: ["a", "b", "c"],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "index", title: "#", width: 50}),
+        new TableColumn({field: "x", title: "x", width: 50}),
+        new TableColumn({field: "y", title: "y", width: 50}),
+      ]
+      const filter = new AllIndices()
+      const cds_view = new CDSView({filter})
+
+      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const {view} = await display(table, [350, 450])
+
+      await view.ready
+
+      const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
+      const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox1_el)
+      await mouse_click(checkbox1_el)
+      expect(view.get_selected_rows()).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal([2])
+
+      table.view.filter = new IndexFilter({indices: [0, 1]})
+
+      expect(view.get_selected_rows()).to.be.equal([])
+      expect(table.source.selected.indices).to.be.equal([])
+
+      const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
+      const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox2_el)
+      await mouse_click(checkbox2_el)
+      expect(view.get_selected_rows()).to.be.equal([0])
+      expect(table.source.selected.indices).to.be.equal([0])
+
+      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+
+      expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
+      expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
     })
   })
 })

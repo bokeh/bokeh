@@ -115,8 +115,9 @@ export class VStripView extends GlyphView {
       const sx0_i = sx0[i]
       const sx1_i = sx1[i]
 
-      if (!isFinite(sx0_i + sx1_i))
+      if (!isFinite(sx0_i + sx1_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.rect(sx0_i, top, sx1_i - sx0_i, height)

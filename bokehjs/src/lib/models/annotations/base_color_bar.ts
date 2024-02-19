@@ -1,8 +1,9 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import type {Axis} from "../axes"
-import {LinearAxis} from "../axes"
+import type {Axis} from "../axes/axis"
+import {LabelOverrides} from "../axes/axis"
+import {LinearAxis} from "../axes/linear_axis"
 import {Ticker} from "../tickers/ticker"
 import {BasicTicker} from "../tickers"
 import {TickFormatter} from "../formatters/tick_formatter"
@@ -22,7 +23,7 @@ import type {Layoutable, SizingPolicy, Percent} from "core/layout"
 import {Grid} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
-import {Panel} from "core/layout/side_panel"
+import {SidePanel} from "core/layout/side_panel"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
@@ -178,10 +179,11 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   protected _update_frame(): void {
     const [x_scale, y_scale, x_range, y_range] = (() => {
-      if (this.orientation == "horizontal")
+      if (this.orientation == "horizontal") {
         return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const
-      else
+      } else {
         return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
+      }
     })()
     this._frame.in_x_scale = x_scale
     this._frame.in_y_scale = y_scale
@@ -220,23 +222,26 @@ export abstract class BaseColorBarView extends AnnotationView {
           case "center_right":
             return ["center", "end"] as const
         }
-      } else
-        return ["end", "start"] as const // "bottom_left"
+      } else {
+        return ["end", "start"] as const
+      } // "bottom_left"
     })()
 
     const orientation = this._orientation = (() => {
       const {orientation} = this.model
       if (orientation == "auto") {
-        if (this.panel != null)
+        if (this.panel != null) {
           return this.panel.is_horizontal ? "horizontal" : "vertical"
-        else {
-          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center"))
+        } else {
+          if (halign == "start" || halign == "end" || (/*halign == "center" &&*/ valign == "center")) {
             return "vertical"
-          else
+          } else {
             return "horizontal"
+          }
         }
-      } else
+      } else {
         return orientation
+      }
     })()
 
     this._update_frame()
@@ -268,9 +273,9 @@ export abstract class BaseColorBarView extends AnnotationView {
     const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
     const margin_box = (() => {
       if (this.panel == null) {
-        if (isString(location))
+        if (isString(location)) {
           return {left: margin, right: margin, top: margin, bottom: margin}
-        else {
+        } else {
           const [left, bottom] = location
           return {left, right: margin, top: margin, bottom}
         }
@@ -355,8 +360,9 @@ export abstract class BaseColorBarView extends AnnotationView {
       if ((orientation == "horizontal" ? w : h) == "auto") {
         major_policy = "fixed"
         const major_size_factor = this._get_major_size_factor()
-        if (major_size_factor != null)
+        if (major_size_factor != null) {
           major_size = major_size_factor*MINOR_DIM
+        }
         min_major_size = {percent: MAJOR_DIM_MIN_SCALAR}
         max_major_size = {percent: MAJOR_DIM_MAX_SCALAR}
       } else {
@@ -394,21 +400,22 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     const {_title_view} = this
     if (orientation == "horizontal") {
-      _title_view.panel = new Panel("above")
+      _title_view.panel = new SidePanel("above")
       _title_view.update_layout()
       top_panel.children.push(_title_view.layout)
     } else {
-      _title_view.panel = new Panel("left")
+      _title_view.panel = new SidePanel("left")
       _title_view.update_layout()
       left_panel.children.push(_title_view.layout)
     }
 
     const {panel} = this
     const side = (() => {
-      if (panel != null && orientation == panel.orientation)
+      if (panel != null && orientation == panel.orientation) {
         return panel.side
-      else
+      } else {
         return orientation == "horizontal" ? "below" : "right"
+      }
     })()
 
     const stack = (() => {
@@ -425,10 +432,11 @@ export abstract class BaseColorBarView extends AnnotationView {
     })()
 
     const {_axis_view} = this
-    _axis_view.panel = new Panel(side)
+    _axis_view.panel = new SidePanel(side)
     _axis_view.update_layout()
-    if (_axis_view.layout != null)
+    if (_axis_view.layout != null) {
       stack.children.push(_axis_view.layout)
+    }
 
     if (this.panel != null) {
       const outer = new Grid([{layout, row: 0, col: 0}])
@@ -531,7 +539,7 @@ export namespace BaseColorBar {
     scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
-    major_label_overrides: p.Property<Map<string | number, string | BaseText>>
+    major_label_overrides: p.Property<LabelOverrides>
     major_label_policy: p.Property<LabelingPolicy>
     label_standoff: p.Property<number>
     margin: p.Property<number>
@@ -583,7 +591,7 @@ export class BaseColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Map, Or, Ref, Auto, Nullable}) => ({
+    this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(Or(String, Ref(BaseText))), null ],
@@ -593,7 +601,7 @@ export class BaseColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map() ],
+      major_label_overrides: [ LabelOverrides, new Map() ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       label_standoff:        [ Number, 5 ],
       margin:                [ Number, 30 ],

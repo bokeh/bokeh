@@ -3,9 +3,9 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-import type {Arrayable, TypedArray} from "../types"
+import type {Arrayable, TypedArray, Dict} from "../types"
 
-const toString = Object.prototype.toString
+const {toString} = Object.prototype
 
 export function is_undefined(obj: unknown): obj is undefined {
   return typeof obj === "undefined"
@@ -75,16 +75,18 @@ export function isArray<T>(obj: unknown): obj is T[] {
 
 export function isArrayOf<T>(array: unknown[], predicate: (item: unknown) => item is T): array is T[] {
   for (const item of array) {
-    if (!predicate(item))
+    if (!predicate(item)) {
       return false
+    }
   }
   return true
 }
 
 export function isArrayableOf<T>(array: Arrayable, predicate: (item: unknown) => item is T): array is Arrayable<T> {
   for (const item of array) {
-    if (!predicate(item))
+    if (!predicate(item)) {
       return false
+    }
   }
   return true
 }
@@ -104,6 +106,10 @@ export function isBasicObject<T>(obj: unknown): obj is {[key: string]: T} {
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
   return isObject(obj) && (is_nullish(obj.constructor) || obj.constructor === Object)
+}
+
+export function isDict<T>(obj: unknown): obj is Dict<T> {
+  return obj instanceof Map || isPlainObject(obj)
 }
 
 export function isIterable(obj: unknown): obj is Iterable<unknown> {

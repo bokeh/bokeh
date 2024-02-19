@@ -155,18 +155,21 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     this._is_dashed = !(line_dash.is_Scalar() && line_dash.get(0).length == 0)
 
     if (this._is_dashed) {
-      if (this._dash_offset == null)
+      if (this._dash_offset == null) {
         this._dash_offset = new Float32Buffer(this.regl_wrapper)
+      }
       this._dash_offset.set_from_prop(line_visuals.line_dash_offset)
 
       const n = line_dash.length
 
-      if (this._dash_tex_info == null)
+      if (this._dash_tex_info == null) {
         this._dash_tex_info = new Float32Buffer(this.regl_wrapper, 4)
+      }
       const dash_tex_info = this._dash_tex_info.get_sized_array(4*n)
 
-      if (this._dash_scale == null)
+      if (this._dash_scale == null) {
         this._dash_scale = new Float32Buffer(this.regl_wrapper)
+      }
       const dash_scale = this._dash_scale.get_sized_array(n)
 
       // All other dash properties are assumed vector rather than scalar.
@@ -176,8 +179,9 @@ export abstract class BaseLineGL extends BaseGLGlyph {
           // This line is dashed
           const [tex_info, tex, scale] = this.regl_wrapper.get_dash(arr)
           this._dash_tex.push(tex)
-          for (let j = 0; j < 4; j++)
+          for (let j = 0; j < 4; j++) {
             dash_tex_info[4*i + j] = tex_info[j]
+          }
           dash_scale[i] = scale
         } else {
           // This line is solid

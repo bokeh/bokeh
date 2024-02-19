@@ -28,8 +28,9 @@ export class ScatterView extends MarkerView {
       const angle_i = angle.get(i)
       const marker_i = marker.get(i)
 
-      if (!isFinite(sx_i + sy_i + size_i + angle_i) || marker_i == null)
+      if (!isFinite(sx_i + sy_i + size_i + angle_i) || marker_i == null) {
         continue
+      }
 
       const r = size_i/2
 

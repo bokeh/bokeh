@@ -34,6 +34,7 @@ from ...core.properties import (
 )
 from ...model import Model
 from ..css import Styles, StyleSheet
+from ..nodes import Node
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -68,6 +69,19 @@ class UIElement(Model):
     A list of additional CSS classes to add to the underlying DOM element.
     """).accepts(Seq(String), lambda x: list(x))
 
+    css_variables = Dict(String, Instance(Node), default={}, help="""
+    Allows to define dynamically computed CSS variables.
+
+    This can be used, for example, to coordinate positioning and styling
+    between canvas' renderers and/or visuals and HTML-based UI elements.
+
+    Variables defined here are equivalent to setting the same variables
+    under ``:host { ... }`` in a CSS stylesheet.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     styles = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
     Inline CSS styles applied to the underlying DOM element.
     """)
@@ -84,6 +98,13 @@ class UIElement(Model):
     Note that all bokeh's components use shadow DOM, thus any included style
     sheets must reflect that, e.g. use ``:host`` CSS pseudo selector to access
     the root DOM element.
+    """)
+
+    context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""
+    A menu to display when user right clicks on the component.
+
+    .. note::
+        Use shift key when right clicking to display the native context menu.
     """)
 
 #-----------------------------------------------------------------------------

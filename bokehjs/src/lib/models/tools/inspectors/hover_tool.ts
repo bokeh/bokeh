@@ -70,10 +70,11 @@ export function _nearest_line_hit(
 
   const [d1, d2] = (function() {
     if (geometry.type == "span") {
-      if (geometry.direction == "h")
+      if (geometry.direction == "h") {
         return [Math.abs(p1.x - sx), Math.abs(p2.x - sx)]
-      else
+      } else {
         return [Math.abs(p1.y - sy), Math.abs(p2.y - sy)]
+      }
     }
 
     // point geometry case
@@ -108,8 +109,9 @@ export class HoverToolView extends InspectToolView {
   override *children(): IterViews {
     yield* super.children()
     yield* this._ttviews.values()
-    if (this._template_view != null)
+    if (this._template_view != null) {
       yield this._template_view
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -150,8 +152,9 @@ export class HoverToolView extends InspectToolView {
     ttmodels.clear()
 
     const {tooltips} = this.model
-    if (tooltips == null)
+    if (tooltips == null) {
       return
+    }
 
     const {computed_renderers} = this
     for (const r of computed_renderers) {
@@ -162,7 +165,6 @@ export class HoverToolView extends InspectToolView {
         interactive: false,
         visible: true,
         position: null,
-        target: this.parent.canvas.overlays_el,
       })
 
       if (r instanceof GlyphRenderer) {
@@ -177,9 +179,9 @@ export class HoverToolView extends InspectToolView {
 
     const glyph_renderers = [...(function* () {
       for (const r of computed_renderers) {
-        if (r instanceof GlyphRenderer)
+        if (r instanceof GlyphRenderer) {
           yield r
-        else if (r instanceof GraphRenderer) {
+        } else if (r instanceof GraphRenderer) {
           yield r.node_renderer
           yield r.edge_renderer
         }
@@ -212,12 +214,13 @@ export class HoverToolView extends InspectToolView {
   }
 
   override _move(ev: MoveEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
     const {sx, sy} = ev
-    if (!this.plot_view.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy)) {
       this._clear()
-    else {
+    } else {
       this._current_sxy = [sx, sy]
       this._inspect(sx, sy)
     }
@@ -230,9 +233,9 @@ export class HoverToolView extends InspectToolView {
 
   _inspect(sx: number, sy: number): void {
     const geometry: PointGeometry | SpanGeometry = (() => {
-      if (this.model.mode == "mouse")
+      if (this.model.mode == "mouse") {
         return {type: "point", sx, sy}
-      else {
+      } else {
         const direction = this.model.mode == "vline" ? "h" : "v"
         return {type: "span", direction, sx, sy}
       }
@@ -241,8 +244,9 @@ export class HoverToolView extends InspectToolView {
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()
       const rview = this.plot_view.renderer_view(r)
-      if (rview != null)
+      if (rview != null) {
         sm.inspect(rview, geometry)
+      }
     }
 
     this._emit_callback(geometry)
@@ -261,8 +265,9 @@ export class HoverToolView extends InspectToolView {
 
     const ds = selection_manager.source
     const renderer_view = this.plot_view.renderer_view(renderer)
-    if (renderer_view == null)
+    if (renderer_view == null) {
       return
+    }
 
     const {sx, sy} = geometry
     const xscale = renderer_view.coordinates.x_scale
@@ -414,11 +419,13 @@ export class HoverToolView extends InspectToolView {
           const [snap_sx, snap_sy] = (function() {
             if (point_policy == "snap_to_data") {
               const pt = glyph.get_anchor_point(anchor, i, [sx, sy])
-              if (pt != null)
+              if (pt != null) {
                 return [pt.x, pt.y]
+              }
               const ptc = glyph.get_anchor_point("center", i, [sx, sy])
-              if (ptc != null)
+              if (ptc != null) {
                 return [ptc.x, ptc.y]
+              }
               return [sx, sy]
             }
             return [sx, sy]
@@ -443,51 +450,59 @@ export class HoverToolView extends InspectToolView {
     const {bbox} = this.plot_view.frame
     const in_frame = tooltips.filter(([sx, sy]) => bbox.contains(sx, sy))
 
-    if (in_frame.length == 0)
+    if (in_frame.length == 0) {
       tooltip.clear()
-    else {
+    } else {
       const {content} = tooltip
       assert(content instanceof Element)
       empty(content)
       for (const [,, node] of in_frame) {
-        if (node != null)
+        if (node != null) {
           content.appendChild(node)
+        }
       }
 
       const [x, y] = in_frame[in_frame.length-1]
-      tooltip.setv({position: [x, y]}, {check_eq: false}) // XXX: force update
+      tooltip.show({x, y})
     }
   }
 
   update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
-    if (!(geometry.type == "point" || geometry.type == "span"))
+    if (!(geometry.type == "point" || geometry.type == "span")) {
       return
+    }
 
-    if (this.model.muted_policy == "ignore" && renderer.muted)
+    if (this.model.muted_policy == "ignore" && renderer.muted) {
       return
+    }
 
     const tooltip = this.ttmodels.get(renderer)
-    if (is_undefined(tooltip))
+    if (is_undefined(tooltip)) {
       return
+    }
 
     this._update(renderer, geometry, tooltip)
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
     const {callback} = this.model
-    if (callback == null)
+    if (callback == null) {
       return
+    }
 
     for (const renderer of this.computed_renderers) {
-      if (!(renderer instanceof GlyphRenderer))
+      if (!(renderer instanceof GlyphRenderer)) {
         continue
+      }
 
       const glyph_renderer_view = this.plot_view.renderer_view(renderer)
-      if (glyph_renderer_view == null)
+      if (glyph_renderer_view == null) {
         continue
+      }
 
       const {x_scale, y_scale} = glyph_renderer_view.coordinates
       const x = x_scale.invert(geometry.sx)
@@ -606,8 +621,9 @@ export class HoverToolView extends InspectToolView {
       return div(content)
     }
 
-    if (isFunction(tooltips))
+    if (isFunction(tooltips)) {
       return tooltips(ds, vars)
+    }
 
     if (tooltips instanceof Template) {
       this._template_view!.update(ds, i, vars)

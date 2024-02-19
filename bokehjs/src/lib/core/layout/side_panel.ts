@@ -139,7 +139,7 @@ const _align_lookup_positive: {[key in Side]: Align} = {
 export type Dimension = 0 | 1
 export type Normal = -1 | 0 | 1
 
-export class Panel {
+export class SidePanel {
   readonly face: Face
   readonly dimension: Dimension
   readonly orientation: Orientation
@@ -209,35 +209,39 @@ export class Panel {
     if (isString(orient)) {
       const side = this.face_adjusted_side
       return _angle_lookup[side][orient]
-    } else
+    } else {
       return -orient
+    }
   }
 }
 
 export class SideLayout extends ContentLayoutable {
 
-  constructor(readonly panel: Panel, readonly get_size: () => Size, readonly rotate: boolean = false) {
+  constructor(readonly panel: SidePanel, readonly get_size: () => Size, readonly rotate: boolean = false) {
     super()
 
-    if (this.panel.is_horizontal)
+    if (this.panel.is_horizontal) {
       this.set_sizing({width_policy: "max", height_policy: "fixed"})
-    else
+    } else {
       this.set_sizing({width_policy: "fixed", height_policy: "max"})
+    }
   }
 
   protected _content_size(): Sizeable {
     const {width, height} = this.get_size()
-    if (!this.rotate || this.panel.is_horizontal)
+    if (!this.rotate || this.panel.is_horizontal) {
       return new Sizeable({width, height})
-    else
+    } else {
       return new Sizeable({width: height, height: width})
+    }
   }
 
   override has_size_changed(): boolean {
     const {width, height} = this._content_size()
-    if (this.panel.is_horizontal)
+    if (this.panel.is_horizontal) {
       return this.bbox.height != height
-    else
+    } else {
       return this.bbox.width != width
+    }
   }
 }

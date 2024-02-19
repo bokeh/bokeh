@@ -19,8 +19,9 @@ export abstract class SingleLineGL extends BaseLineGL {
 
     const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped
 
-    if (data_changed_or_mapped)
+    if (data_changed_or_mapped) {
       main_gl_glyph._set_data(main_gl_glyph.data_changed)
+    }
 
     if ((data_changed_or_mapped && main_gl_glyph._is_dashed) || this._is_dashed) {
       // length_so_far is a data property as it depends on point positions in canvas coordinates
@@ -55,8 +56,9 @@ export abstract class SingleLineGL extends BaseLineGL {
       // Points array includes extra points at each end
       const npoints = points_array.length/2 - 2
 
-      if (this._show == null)
+      if (this._show == null) {
         this._show = new Uint8Buffer(this.regl_wrapper)
+      }
       const show_array = this._show.get_sized_array(npoints+1)
       this._set_show_single(show_array, points_array)
       this._show.update()
@@ -72,8 +74,9 @@ export abstract class SingleLineGL extends BaseLineGL {
     // Points array includes extra points at each end
     const npoints = points_array.length/2 - 2
 
-    if (this._length_so_far == null)
+    if (this._length_so_far == null) {
       this._length_so_far = new Float32Buffer(this.regl_wrapper)
+    }
     const length_so_far = this._length_so_far.get_sized_array(npoints - 1)
     this._set_length_single(length_so_far, points_array, show_array)
     this._length_so_far.update()

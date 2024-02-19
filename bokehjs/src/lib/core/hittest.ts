@@ -13,8 +13,9 @@ export function point_in_poly(x: number, y: number, px: Arrayable<number>, py: A
     const x2 = px[i]
     const y2 = py[i]
     if ((y1 < y) != (y2 < y)) {
-      if ((x1 + (y - y1)/(y2 - y1)*(x2 - x1)) < x)
+      if ((x1 + (y - y1)/(y2 - y1)*(x2 - x1)) < x) {
         inside = !inside
+      }
     }
     x1 = x2
     y1 = y2
@@ -43,13 +44,16 @@ export function dist_2_pts(p0: Point, p1: Point): number {
 
 export function dist_to_segment_squared(p: Point, v: Point, w: Point): number {
   const l2 = dist_2_pts(v, w)
-  if (l2 == 0)
+  if (l2 == 0) {
     return dist_2_pts(p, v)
+  }
   const t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2
-  if (t < 0)
+  if (t < 0) {
     return dist_2_pts(p, v)
-  if (t > 1)
+  }
+  if (t > 1) {
     return dist_2_pts(p, w)
+  }
 
   const q = {x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y)}
   return dist_2_pts(p, q)

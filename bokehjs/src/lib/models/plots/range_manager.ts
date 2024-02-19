@@ -85,12 +85,14 @@ export class RangeManager {
 
     let calculate_log_bounds = false
     for (const [, xr] of frame.x_ranges) {
-      if (xr instanceof DataRange1d && xr.scale_hint == "log")
+      if (xr instanceof DataRange1d && xr.scale_hint == "log") {
         calculate_log_bounds = true
+      }
     }
     for (const [, yr] of frame.y_ranges) {
-      if (yr instanceof DataRange1d && yr.scale_hint == "log")
+      if (yr instanceof DataRange1d && yr.scale_hint == "log") {
         calculate_log_bounds = true
+      }
     }
 
     for (const renderer of this.parent.auto_ranged_renderers) {
@@ -111,8 +113,9 @@ export class RangeManager {
     const height = frame.y_target.span
 
     let r: number | undefined
-    if (this.parent.model.match_aspect !== false && width != 0 && height != 0)
+    if (this.parent.model.match_aspect !== false && width != 0 && height != 0) {
       r = (1/this.parent.model.aspect_scale)*(width/height)
+    }
 
     for (const [, xr] of frame.x_ranges) {
       if (xr instanceof DataRange1d) {
@@ -122,8 +125,9 @@ export class RangeManager {
           follow_enabled = true
         }
       }
-      if (xr.bounds != null)
+      if (xr.bounds != null) {
         has_bounds = true
+      }
     }
 
     for (const [, yr] of frame.y_ranges) {
@@ -134,8 +138,9 @@ export class RangeManager {
           follow_enabled = true
         }
       }
-      if (yr.bounds != null)
+      if (yr.bounds != null) {
         has_bounds = true
+      }
     }
 
     if (follow_enabled && has_bounds) {
@@ -154,12 +159,14 @@ export class RangeManager {
 
     for (const renderer of this.parent.auto_ranged_renderers) {
       const {coordinates} = renderer.model
-      if (coordinates != null)
+      if (coordinates != null) {
         this._update_dataranges(coordinates)
+      }
     }
 
-    if (this.compute_initial() != null)
+    if (this.compute_initial() != null) {
       this.invalidate_dataranges = false
+    }
   }
 
   compute_initial(): RangeInfo | null {
@@ -186,9 +193,9 @@ export class RangeManager {
         yrs.set(range, {start, end})
       }
     }
-    if (good_vals)
+    if (good_vals) {
       return {xrs, yrs}
-    else {
+    } else {
       logger.warn("could not set initial ranges")
       return null
     }
@@ -270,13 +277,15 @@ export class RangeManager {
     // the scroll-zoom tool maintains its focus position. Setting `maintain_focus`
     // to false results in a more "gliding" behavior, allowing one to
     // zoom out more smoothly, at the cost of losing the focus position.
-    if (scrolling && hit_bound && maintain_focus)
+    if (scrolling && hit_bound && maintain_focus) {
       return
+    }
 
     for (const [rng, range_info] of range_state) {
       rng.have_updated_interactively = true
-      if (rng.start != range_info.start || rng.end != range_info.end)
+      if (rng.start != range_info.start || rng.end != range_info.end) {
         rng.setv(range_info)
+      }
     }
   }
 

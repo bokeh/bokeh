@@ -1,12 +1,10 @@
-import type {DOMBoxSizing} from "../ui/ui_element"
-import {UIElement, UIElementView} from "../ui/ui_element"
-import {Menu} from "../menus/menu"
+import type {DOMBoxSizing, UIElement, UIElementView} from "../ui/ui_element"
+import {Pane, PaneView} from "../ui/pane"
 import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
-import type {CSSOurStyles} from "core/dom"
-import {remove, px} from "core/dom"
-import type {Display} from "core/css"
+import {px} from "core/dom"
+import type {Display, CSSStyles} from "core/css"
 import {isNumber, isArray, isNotNull} from "core/util/types"
 import type * as p from "core/properties"
 
@@ -29,7 +27,7 @@ type OuterDisplay = "flow" | "flow-root" | "flex" | "grid" | "table"
 
 export type FullDisplay = {inner: InnerDisplay, outer: OuterDisplay}
 
-export abstract class LayoutDOMView extends UIElementView {
+export abstract class LayoutDOMView extends PaneView {
   declare model: LayoutDOM
   declare parent: DOMElementView | null
 
@@ -82,12 +80,6 @@ export abstract class LayoutDOMView extends UIElementView {
     })
     this.el.addEventListener("mouseleave", (event) => {
       this.mouseleave.emit(event)
-    })
-    this.el.addEventListener("contextmenu", (event) => {
-      if (this.model.context_menu != null) {
-        console.log("context menu")
-        event.preventDefault()
-      }
     })
 
     if (this.parent instanceof LayoutDOMView) {
@@ -164,19 +156,16 @@ export abstract class LayoutDOMView extends UIElementView {
 
     if (created_children.size != 0) {
       for (const child_view of this.child_views) {
-        remove(child_view.el)
+        child_view.el.remove()
       }
 
       for (const child_view of this.child_views) {
-        this.shadow_el.append(child_view.el)
+        const is_new = created_children.has(child_view)
 
-        if (created_children.has(child_view)) {
-          child_view.render()
-          if (child_view instanceof LayoutDOMView) {
-            child_view.r_after_render()
-          } else {
-            child_view.after_render()
-          }
+        if (is_new) {
+          child_view.render_to(this.shadow_el)
+        } else {
+          this.shadow_el.append(child_view.el)
         }
       }
     }
@@ -230,7 +219,7 @@ export abstract class LayoutDOMView extends UIElementView {
       return isNumber(value) ? px(value) : `${value.percent}%`
     }
 
-    const styles: CSSOurStyles = {}
+    const styles: CSSStyles = {}
 
     const display = this._intrinsic_display()
     styles.display = css_display(display)
@@ -457,15 +446,12 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   private _was_built: boolean = false
-  override render_to(element: Node | null): void {
-    if (!this.is_layout_root) {
-      throw new Error(`${this.toString()} is not a root layout`)
+  override render_to(target: Node | null): void {
+    if (target != null) {
+      target.appendChild(this.el)
     }
-
     this.render()
-    if (element != null) {
-      element.appendChild(this.el)
-    }
+
     this.r_after_render()
     this._was_built = true
 
@@ -504,11 +490,6 @@ export abstract class LayoutDOMView extends UIElementView {
         })
       }
     }
-  }
-
-  async rebuild(): Promise<void> {
-    await this.build_child_views()
-    this.invalidate_render()
   }
 
   invalidate_layout(): void {
@@ -651,7 +632,7 @@ export abstract class LayoutDOMView extends UIElementView {
 export namespace LayoutDOM {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = UIElement.Props & {
+  export type Props = Pane.Props & {
     width: p.Property<number | null>
     height: p.Property<number | null>
     min_width: p.Property<number | null>
@@ -666,14 +647,13 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode | null>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align] | "auto">
-    context_menu: p.Property<Menu | null>
     resizable: p.Property<boolean | Dimensions>
   }
 }
 
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
-export abstract class LayoutDOM extends UIElement {
+export abstract class LayoutDOM extends Pane {
   declare properties: LayoutDOM.Props
   declare __view_type__: LayoutDOMView
 
@@ -683,7 +663,7 @@ export abstract class LayoutDOM extends UIElement {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, Auto, Tuple, Or, Null, Nullable, Ref} = types
+      const {Boolean, Number, Auto, Tuple, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -701,7 +681,6 @@ export abstract class LayoutDOM extends UIElement {
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
-        context_menu:  [ Nullable(Ref(Menu)), null ],
         resizable:     [ Or(Boolean, Dimensions), false ],
       }
     })

@@ -1,6 +1,6 @@
 import {HasProps} from "./core/has_props"
 import type {Class} from "./core/class"
-import type {DictLike} from "./core/types"
+import type {Dict} from "./core/types"
 import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
 import type * as p from "./core/properties"
 import {isString, isPlainObject} from "./core/util/types"
@@ -23,8 +23,8 @@ export namespace Model {
   export type Props = HasProps.Props & {
     tags: p.Property<unknown[]>
     name: p.Property<string | null>
-    js_property_callbacks: p.Property<DictLike<ChangeCallback[]>>
-    js_event_callbacks: p.Property<DictLike<EventCallback[]>>
+    js_property_callbacks: p.Property<Dict<ChangeCallback[]>>
+    js_event_callbacks: p.Property<Dict<EventCallback[]>>
     subscribed_events: p.Property<Set<string>>
     syncable: p.Property<boolean>
   }

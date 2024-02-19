@@ -32,18 +32,22 @@ export class Comparator {
   }
 
   eq(a: any, b: any): boolean {
-    if (Object.is(a, b))
+    if (Object.is(a, b)) {
       return true
+    }
 
-    if (a === wildcard || b === wildcard)
+    if (a === wildcard || b === wildcard) {
       return true
+    }
 
-    if (a == null || b == null)
+    if (a == null || b == null) {
       return a === b
+    }
 
     const class_name = toString.call(a)
-    if (class_name != toString.call(b))
+    if (class_name != toString.call(b)) {
       return false
+    }
 
     switch (class_name) {
       case "[object Number]":
@@ -68,8 +72,9 @@ export class Comparator {
     while (length-- > 0) {
       // Linear search. Performance is inversely proportional to the number of
       // unique nested structures.
-      if (a_stack[length] === a)
+      if (a_stack[length] === a) {
         return b_stack[length] === b
+      }
     }
 
     a_stack.push(a)
@@ -128,12 +133,14 @@ export class Comparator {
   arrays(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
     const {length} = a
 
-    if (length != b.length)
+    if (length != b.length) {
       return false
+    }
 
     for (let i = 0; i < length; i++) {
-      if (!this.eq(a[i], b[i]))
+      if (!this.eq(a[i], b[i])) {
         return false
+      }
     }
 
     return true
@@ -150,26 +157,31 @@ export class Comparator {
       const an_done = an.done ?? false
       const bn_done = bn.done ?? false
 
-      if (an_done && bn_done)
+      if (an_done && bn_done) {
         return true
-      if (an_done || bn_done)
+      }
+      if (an_done || bn_done) {
         return false
+      }
 
-      if (!this.eq(an.value, bn.value))
+      if (!this.eq(an.value, bn.value)) {
         return false
+      }
     }
   }
 
   maps(a: Map<unknown, unknown>, b: Map<unknown, unknown>): boolean {
-    if (a.size != b.size)
+    if (a.size != b.size) {
       return false
+    }
 
-    if (this.structural)
+    if (this.structural) {
       return this.iterables(a.entries(), b.entries())
-    else {
+    } else {
       for (const [key, val] of a) {
-        if (!b.has(key) || !this.eq(val, b.get(key)))
+        if (!b.has(key) || !this.eq(val, b.get(key))) {
           return false
+        }
       }
 
       return true
@@ -177,15 +189,17 @@ export class Comparator {
   }
 
   sets(a: Set<unknown>, b: Set<unknown>): boolean {
-    if (a.size != b.size)
+    if (a.size != b.size) {
       return false
+    }
 
-    if (this.structural)
+    if (this.structural) {
       return this.iterables(a.entries(), b.entries())
-    else {
+    } else {
       for (const key of a) {
-        if (!b.has(key))
+        if (!b.has(key)) {
           return false
+        }
       }
 
       return true
@@ -195,26 +209,31 @@ export class Comparator {
   objects(a: PlainObject, b: PlainObject): boolean {
     const keys = Object.keys(a)
 
-    if (keys.length != Object.keys(b).length)
+    if (keys.length != Object.keys(b).length) {
       return false
+    }
 
     for (const key of keys) {
-      if (!hasOwnProperty.call(b, key) || !this.eq(a[key], b[key]))
+      if (!hasOwnProperty.call(b, key) || !this.eq(a[key], b[key])) {
         return false
+      }
     }
 
     return true
   }
 
   nodes(a: Node, b: Node): boolean {
-    if (a.nodeType != b.nodeType)
+    if (a.nodeType != b.nodeType) {
       return false
+    }
 
-    if (a.textContent != b.textContent)
+    if (a.textContent != b.textContent) {
       return false
+    }
 
-    if (!this.iterables(a.childNodes, b.childNodes))
+    if (!this.iterables(a.childNodes, b.childNodes)) {
       return false
+    }
 
     return true
   }

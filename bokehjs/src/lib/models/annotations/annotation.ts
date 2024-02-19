@@ -1,16 +1,16 @@
-import {Renderer, RendererView} from "../renderers/renderer"
+import {CompositeRenderer, CompositeRendererView} from "../renderers/composite_renderer"
 
-import type {Panel} from "core/layout/side_panel"
+import type {SidePanel} from "core/layout/side_panel"
 import type {Size, Layoutable} from "core/layout"
 import type {SerializableState} from "core/view"
 import type {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
 
-export abstract class AnnotationView extends RendererView {
+export abstract class AnnotationView extends CompositeRendererView {
   declare model: Annotation
 
   layout?: Layoutable
-  panel?: Panel
+  panel?: SidePanel
   bbox?: BBox
 
   update_layout?(): void
@@ -20,8 +20,9 @@ export abstract class AnnotationView extends RendererView {
     if (this.displayed) {
       const {width, height} = this._get_size()
       return {width: Math.round(width), height: Math.round(height)}
-    } else
+    } else {
       return {width: 0, height: 0}
+    }
   }
 
   protected _get_size(): Size {
@@ -54,14 +55,14 @@ export abstract class AnnotationView extends RendererView {
 export namespace Annotation {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Renderer.Props
+  export type Props = CompositeRenderer.Props
 
-  export type Visuals = Renderer.Visuals
+  export type Visuals = CompositeRenderer.Visuals
 }
 
 export interface Annotation extends Annotation.Attrs {}
 
-export abstract class Annotation extends Renderer {
+export abstract class Annotation extends CompositeRenderer {
   declare properties: Annotation.Props
   declare __view_type__: AnnotationView
 

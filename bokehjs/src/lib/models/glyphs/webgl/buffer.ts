@@ -39,8 +39,9 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   // Return array of correct size, creating it if necessary.
   // Must call update() when finished setting the array values.
   get_sized_array(length: number): ArrayType {
-    if (this.array == null || this.array.length != length)
+    if (this.array == null || this.array.length != length) {
       this.array = this.new_array(length)
+    }
 
     return this.array
   }
@@ -70,8 +71,9 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     const len = prop.is_Scalar() ? 1 : prop.length
     const array = this.get_sized_array(len)
 
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       array[i] = prop.get(i)
+    }
 
     this.update(prop.is_Scalar())
   }
@@ -174,8 +176,9 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     const len = hatch_pattern_prop.is_Scalar() ? 1 : hatch_pattern_prop.length
     const array = this.get_sized_array(len)
 
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       array[i] = hatch_pattern_to_index(hatch_pattern_prop.get(i))
+    }
 
     this.update(hatch_pattern_prop.is_Scalar())
   }
@@ -184,8 +187,9 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     const len = line_cap_prop.is_Scalar() ? 1 : line_cap_prop.length
     const array = this.get_sized_array(len)
 
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       array[i] = cap_lookup[line_cap_prop.get(i)]
+    }
 
     this.update(line_cap_prop.is_Scalar())
   }
@@ -194,8 +198,9 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     const len = line_join_prop.is_Scalar() ? 1 : line_join_prop.length
     const array = this.get_sized_array(len)
 
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       array[i] = join_lookup[line_join_prop.get(i)]
+    }
 
     this.update(line_join_prop.is_Scalar())
   }

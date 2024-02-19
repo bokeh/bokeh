@@ -18,21 +18,24 @@ export class PolyDrawToolView extends PolyToolView {
   _initialized: boolean = false
 
   override _tap(ev: TapEvent): void {
-    if (this._drawing)
+    if (this._drawing) {
       this._draw(ev, "add", true)
-    else
+    } else {
       this._select_event(ev, this._select_mode(ev), this.model.renderers)
+    }
   }
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
     const renderer = this.model.renderers[0]
     const point = this._map_drag(ev.sx, ev.sy, renderer)
 
-    if (!this._initialized)
+    if (!this._initialized) {
       this.activate() // Ensure that activate has been called
+    }
 
-    if (point == null)
+    if (point == null) {
       return
+    }
 
     const [x, y] = this._snap_to_vertex(ev, ...point)
 
@@ -42,8 +45,12 @@ export class PolyDrawToolView extends PolyToolView {
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
-      if (xkey) cds.get_array(xkey).push([x, x])
-      if (ykey) cds.get_array(ykey).push([y, y])
+      if (xkey) {
+        cds.get_array(xkey).push([x, x])
+      }
+      if (ykey) {
+        cds.get_array(ykey).push([y, y])
+      }
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "edit") {
       if (xkey) {
@@ -116,8 +123,9 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override _press(ev: TapEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
     if (this._drawing) {
       this._drawing = false
       this._draw(ev, "edit", true)
@@ -155,8 +163,9 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame)
+    if (!this.model.active || !this._mouse_in_frame) {
       return
+    }
     for (const renderer of this.model.renderers) {
       if (ev.key == "Backspace") {
         this._delete_selected(renderer)
@@ -171,29 +180,33 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    if (!this.model.drag)
+    if (!this.model.drag) {
       return
+    }
     this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
   override _pan(ev: PanEvent): void {
-    if (this._basepoint == null || !this.model.drag)
+    if (this._basepoint == null || !this.model.drag) {
       return
+    }
     const [bx, by] = this._basepoint
     // Process polygon/line dragging
     for (const renderer of this.model.renderers) {
       const basepoint = this._map_drag(bx, by, renderer)
       const point = this._map_drag(ev.sx, ev.sy, renderer)
-      if (point == null || basepoint == null)
+      if (point == null || basepoint == null) {
         continue
+      }
 
       const cds = renderer.data_source
       // Type once dataspecs are typed
       const glyph: any = renderer.glyph
       const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-      if (!xkey && !ykey)
+      if (!xkey && !ykey) {
         continue
+      }
       const [x, y] = point
       const [px, py] = basepoint
       const [dx, dy] = [x-px, y-py]
@@ -212,8 +225,12 @@ export class PolyDrawToolView extends PolyToolView {
           length = xs.length
         }
         for (let i = 0; i < length; i++) {
-          if (xs) xs[i] += dx
-          if (ys) ys[i] += dy
+          if (xs) {
+            xs[i] += dx
+          }
+          if (ys) {
+            ys[i] += dy
+          }
         }
       }
       cds.change.emit()
@@ -222,17 +239,20 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   override _pan_end(ev: PanEvent): void {
-    if (!this.model.drag)
+    if (!this.model.drag) {
       return
+    }
     this._pan(ev)
-    for (const renderer of this.model.renderers)
+    for (const renderer of this.model.renderers) {
       this._emit_cds_changes(renderer.data_source)
+    }
     this._basepoint = null
   }
 
   override activate(): void {
-    if (this.model.vertex_renderer == null || !this.model.active)
+    if (this.model.vertex_renderer == null || !this.model.active) {
       return
+    }
     this._show_vertices()
     if (!this._initialized) {
       for (const renderer of this.model.renderers) {
@@ -248,8 +268,9 @@ export class PolyDrawToolView extends PolyToolView {
       this._remove()
       this._drawing = false
     }
-    if (this.model.vertex_renderer != null)
+    if (this.model.vertex_renderer != null) {
       this._hide_vertices()
+    }
   }
 }
 

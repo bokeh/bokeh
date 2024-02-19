@@ -59,8 +59,9 @@ export class VSpanView extends GlyphView {
     for (const i of indices) {
       const sx_i = sx[i]
 
-      if (!isFinite(sx_i))
+      if (!isFinite(sx_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.moveTo(sx_i, top)

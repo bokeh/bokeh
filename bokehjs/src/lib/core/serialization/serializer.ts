@@ -110,9 +110,9 @@ export class Serializer {
   }
 
   protected _encode(obj: unknown): unknown {
-    if (is_Serializable(obj))
+    if (is_Serializable(obj)) {
       return obj[serialize](this)
-    else if (isArray(obj)) {
+    } else if (isArray(obj)) {
       const n = obj.length
       const result: unknown[] = new Array(n)
       for (let i = 0; i < n; i++) {
@@ -127,43 +127,49 @@ export class Serializer {
       return {type: "bytes", data}
     } else if (isPlainObject(obj)) {
       const items = entries(obj)
-      if (items.length == 0)
+      if (items.length == 0) {
         return {type: "map"}
-      else
+      } else {
         return {type: "map", entries: [...map(items, ([key, val]) => [this.encode(key), this.encode(val)])]}
+      }
     } else if (obj === null || isBoolean(obj) || isString(obj)) {
       return obj
     } else if (isNumber(obj)) {
-      if (isNaN(obj))
+      if (isNaN(obj)) {
         return {type: "number", value: "nan"}
-      else if (!isFinite(obj))
+      } else if (!isFinite(obj)) {
         return {type: "number", value: `${obj < 0 ? "-" : "+"}inf`}
-      else
+      } else {
         return obj
+      }
     } else if (obj instanceof Date) {
       const iso = obj.toISOString()
       return {type: "date", iso}
     } else if (obj instanceof Set) {
-      if (obj.size == 0)
+      if (obj.size == 0) {
         return {type: "set"}
-      else
+      } else {
         return {type: "set", entries: [...map(obj.values(), (val) => this.encode(val))]}
+      }
     } else if (obj instanceof Map) {
-      if (obj.size == 0)
+      if (obj.size == 0) {
         return {type: "map"}
-      else
+      } else {
         return {type: "map", entries: [...map(obj.entries(), ([key, val]) => [this.encode(key), this.encode(val)])]}
+      }
     } else if (isSymbol(obj) && obj.description != null) {
       return {type: "symbol", name: obj.description}
-    } else
+    } else {
       throw new SerializationError(`${Object.prototype.toString.call(obj)} is not serializable`)
+    }
   }
 
   encode_struct(struct: {[key: string]: unknown}): {[key: string]: unknown} {
     const result: {[key: string]: unknown} = {}
     for (const [key, val] of entries(struct)) {
-      if (val !== undefined)
+      if (val !== undefined) {
         result[key] = this.encode(val)
+      }
     }
     return result
   }

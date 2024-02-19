@@ -26,32 +26,34 @@ export class Printer {
 
   to_string(obj: unknown): string {
     if (isObject(obj)) {
-      if (this.visited.has(obj))
+      if (this.visited.has(obj)) {
         return "<circular>"
-      else
+      } else {
         this.visited.add(obj)
+      }
     }
 
-    if (is_Printable(obj))
+    if (is_Printable(obj)) {
       return obj[pretty](this)
-    else if (isBoolean(obj))
+    } else if (isBoolean(obj)) {
       return this.boolean(obj)
-    else if (isNumber(obj))
+    } else if (isNumber(obj)) {
       return this.number(obj)
-    else if (isString(obj))
+    } else if (isString(obj)) {
       return this.string(obj)
-    else if (isArray(obj))
+    } else if (isArray(obj)) {
       return this.array(obj)
-    else if (isIterable(obj))
+    } else if (isIterable(obj)) {
       return this.iterable(obj)
-    else if (isPlainObject(obj))
+    } else if (isPlainObject(obj)) {
       return this.object(obj)
-    else if (isSymbol(obj))
+    } else if (isSymbol(obj)) {
       return this.symbol(obj)
-    else if (obj instanceof ArrayBuffer)
+    } else if (obj instanceof ArrayBuffer) {
       return this.array_buffer(obj)
-    else
+    } else {
       return `${obj}`
+    }
   }
 
   token(val: string): string {
@@ -63,22 +65,24 @@ export class Printer {
   }
 
   number(val: number): string {
-    if (this.precision != null)
+    if (this.precision != null) {
       return val.toFixed(this.precision)
-    else
+    } else {
       return `${val}`
+    }
   }
 
   string(val: string): string {
     const sq = val.includes("'")
     const dq = val.includes('"')
 
-    if (sq && dq)
+    if (sq && dq) {
       return `\`${val.replace(/`/g, "\\`")}\``
-    else if (dq)
+    } else if (dq) {
       return `'${val}'`
-    else
+    } else {
       return `"${val}"`
+    }
   }
 
   symbol(val: symbol): string {

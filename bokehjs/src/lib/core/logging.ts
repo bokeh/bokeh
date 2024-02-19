@@ -34,12 +34,14 @@ export class Logger {
 
   static get(name: string, level: LogLevel = Logger.INFO): Logger {
     if (name.length > 0) {
-      if (name in _loggers)
+      if (name in _loggers) {
         return _loggers[name]
-      else
+      } else {
         return _loggers[name] = new Logger(name, level)
-    } else
+      }
+    } else {
       throw new TypeError("Logger.get() expects a non-empty string name and an optional log-level")
+    }
   }
 
   _name: string
@@ -59,20 +61,22 @@ export class Logger {
   }
 
   set_level(log_level: LogLevel | string): void {
-    if (log_level instanceof LogLevel)
+    if (log_level instanceof LogLevel) {
       this._log_level = log_level
-    else if (isString(log_level) && log_level in Logger.log_levels)
+    } else if (isString(log_level) && log_level in Logger.log_levels) {
       this._log_level = Logger.log_levels[log_level]
-    else
+    } else {
       throw new Error("Logger.set_level() expects a log-level object or a string name of a log-level")
+    }
 
     const logger_name = `[${this._name}]`
 
     for (const [name, log_level] of entries(Logger.log_levels)) {
-      if (log_level.level < this._log_level.level || this._log_level.level === Logger.OFF.level)
+      if (log_level.level < this._log_level.level || this._log_level.level === Logger.OFF.level) {
         (this as any)[name] = function() {}
-      else
+      } else {
         (this as any)[name] = _method_factory(name, logger_name)
+      }
     }
   }
 
@@ -88,10 +92,11 @@ export class Logger {
 }
 
 function _method_factory(method_name: string, logger_name: string): (...args: unknown[]) => void  {
-  if ((console as any)[method_name] != null)
+  if ((console as any)[method_name] != null) {
     return (console as any)[method_name].bind(console, logger_name)
-  else
+  } else {
     return console.log.bind(console, logger_name)
+  }
 }
 
 export const logger = Logger.get("bokeh")

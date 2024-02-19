@@ -52,10 +52,11 @@ export class ContourColorBarView extends BaseColorBarView {
     const levels = this.model.levels
     const scale = this._major_scale
     scale.source_range = this._major_range
-    if (vertical)
+    if (vertical) {
       scale.target_range = new Range1d({start: bbox.bottom, end: bbox.top})
-    else
+    } else {
       scale.target_range = new Range1d({start: bbox.left, end: bbox.right})
+    }
     const scaled_levels = scale.v_compute(levels)
 
     const multi_polygons = this._fill_view.glyph as MultiPolygonsView
@@ -65,10 +66,11 @@ export class ContourColorBarView extends BaseColorBarView {
       ctx.save()
       for (let i = 0; i < nfill; i++) {
         ctx.beginPath()
-        if (vertical)
+        if (vertical) {
           ctx.rect(bbox.left, scaled_levels[i], bbox.width, scaled_levels[i+1] - scaled_levels[i])
-        else
+        } else {
           ctx.rect(scaled_levels[i], bbox.top, scaled_levels[i+1] - scaled_levels[i], bbox.height)
+        }
         multi_polygons.visuals.fill.apply(ctx, i)
         multi_polygons.visuals.hatch.apply(ctx, i)
       }

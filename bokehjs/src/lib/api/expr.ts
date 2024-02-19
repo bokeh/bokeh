@@ -1,5 +1,6 @@
 import type {Arrayable} from "core/types"
 import {isFunction} from "core/util/types"
+import {dict} from "core/util/object"
 import type {NDArrayType} from "core/util/ndarray"
 import type {Expression} from "./parser"
 import {
@@ -10,6 +11,7 @@ import type {Numerical} from "./linalg"
 import {np, is_Numerical} from "./linalg"
 
 function evaluate(ast: Expression, refs: unknown[]): unknown {
+  const np_proxy = dict(np)
 
   function resolve(ast: Expression): unknown {
     switch (ast.type) {
@@ -35,13 +37,14 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
         const obj = resolve(ast.object)
         if (obj === np) {
           const {name} = ast.member
-          if (Object.prototype.hasOwnProperty.call(np, name)) {
-            return (np as any)[name]
+          const member = np_proxy.get(name)
+          if (member !== undefined) {
+            return member
           } else {
             throw new Error(`'np.${name}' doesn't exist`)
           }
         } else {
-          throw new Error("not an accessable expression")
+          throw new Error("not an accessible expression")
         }
       case INDEX:
         throw new Error("not an indexable expression")

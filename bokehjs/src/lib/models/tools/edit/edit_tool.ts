@@ -2,7 +2,7 @@ import type * as p from "core/properties"
 import type {PointGeometry} from "core/geometry"
 import type {UIEvent, MoveEvent} from "core/ui_events"
 import type {Dimensions, SelectionMode} from "core/enums"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {includes} from "core/util/array"
 import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
@@ -25,16 +25,17 @@ export abstract class EditToolView extends GestureToolView {
   protected _select_mode(ev: UIEvent): SelectionMode {
     const {shift, ctrl} = ev.modifiers
 
-    if (!shift && !ctrl)
+    if (!shift && !ctrl) {
       return "replace"
-    else if (shift && !ctrl)
+    } else if (shift && !ctrl) {
       return "append"
-    else if (!shift && ctrl)
+    } else if (!shift && ctrl) {
       return "intersect"
-    else if (shift && ctrl)
+    } else if (shift && ctrl) {
       return "subtract"
-    else
+    } else {
       unreachable()
+    }
   }
 
   override _move_enter(_e: MoveEvent): void {
@@ -52,8 +53,9 @@ export abstract class EditToolView extends GestureToolView {
       return null
     }
     const renderer_view = this.plot_view.renderer_view(renderer)
-    if (renderer_view == null)
+    if (renderer_view == null) {
       return null
+    }
 
     const x = renderer_view.coordinates.x_scale.invert(sx)
     const y = renderer_view.coordinates.y_scale.invert(sy)
@@ -78,14 +80,16 @@ export abstract class EditToolView extends GestureToolView {
   _pop_glyphs(cds: ColumnarDataSource, num_objects: number): void {
     // Pops rows in the CDS until only num_objects are left
     const columns = cds.columns()
-    if (num_objects == 0 || columns.length == 0)
+    if (num_objects == 0 || columns.length == 0) {
       return
+    }
     const data = dict(cds.data)
     for (const column of columns) {
       let array = cds.get_array(column)
       const drop = array.length-num_objects+1
-      if (drop < 1)
+      if (drop < 1) {
         continue
+      }
       if (!isArray(array)) {
         array = Array.from(array)
         data.set(column, array)
@@ -95,10 +99,12 @@ export abstract class EditToolView extends GestureToolView {
   }
 
   _emit_cds_changes(cds: ColumnarDataSource, redraw: boolean = true, clear: boolean = true, emit: boolean = true): void {
-    if (clear)
+    if (clear) {
       cds.selection_manager.clear()
-    if (redraw)
+    }
+    if (redraw) {
       cds.change.emit()
+    }
     if (emit) {
       const {data} = cds
       cds.setv({data}, {check_eq: false})
@@ -106,8 +112,9 @@ export abstract class EditToolView extends GestureToolView {
   }
 
   _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[], dim: Dimensions = "both"): void {
-    if (this._basepoint == null)
+    if (this._basepoint == null) {
       return
+    }
     const [bx, by] = this._basepoint
     for (const renderer of renderers) {
       const basepoint = this._map_drag(bx, by, renderer)
@@ -191,7 +198,7 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    default_overrides: p.Property<DictLike<unknown>>
+    default_overrides: p.Property<Dict<unknown>>
     empty_value: p.Property<unknown>
   }
 }

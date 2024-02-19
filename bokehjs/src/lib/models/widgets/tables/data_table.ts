@@ -12,6 +12,7 @@ import {dict} from "core/util/object"
 import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range, sort_by, map} from "core/util/array"
+import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
 import {logger} from "core/logging"
 import type {DOMBoxSizing} from "../../layouts/layout_dom"
@@ -153,6 +154,8 @@ export class DataTableView extends WidgetView {
   protected _in_selection_update = false
   protected _width: number | null = null
 
+  private _filtered_selection: number[] = []
+
   get data_source(): p.Property<ColumnarDataSource> {
     return this.model.properties.source
   }
@@ -252,6 +255,8 @@ export class DataTableView extends WidgetView {
 
       this.data.sort(sorters)
     }
+    this._sync_selected_with_view()
+    this.updateSelection()
     this.grid.invalidate()
     this.updateLayout(true, true)
   }
@@ -457,6 +462,24 @@ export class DataTableView extends WidgetView {
 
   get_selected_rows(): number[] {
     return this.grid.getSelectedRows()
+  }
+
+  protected _sync_selected_with_view(): void {
+    const index = this.data.view.indices
+    const {source} = this.data
+
+    const not_filtered = filter(source.selected.indices, (i) => index.get(i))
+    const was_filtered = new Set(filter(this._filtered_selection, (i) => index.get(i)))
+
+    this._filtered_selection = [
+      ...filter(this._filtered_selection, (i) => !was_filtered.has(i)),
+      ...filter(source.selected.indices, (i) => !index.get(i)),
+    ]
+
+    source.selected.indices = [
+      ...was_filtered,
+      ...not_filtered,
+    ]
   }
 }
 

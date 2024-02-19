@@ -9,7 +9,7 @@ import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
 import {is_undefined} from "core/util/types"
 import {range} from "core/util/array"
-import {entries} from "core/util/object"
+import {dict} from "core/util/object"
 
 type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
 
@@ -36,8 +36,6 @@ export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 function orNaN(v: number | undefined): number {
   return v != null ? v : NaN
 }
-
-const {hasOwnProperty} = Object.prototype
 
 export class GeoJSONDataSource extends ColumnarDataSource {
   declare properties: GeoJSONDataSource.Props
@@ -80,9 +78,11 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
   private _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
     const properties = item.properties ?? {}
-    for (const [property, value] of entries(properties)) {
-      if (!hasOwnProperty.call(data, property))
+    const data_proxy = dict(data)
+    for (const [property, value] of dict(properties)) {
+      if (!data_proxy.has(property)) {
         data[property] = this._get_new_nan_array(item_count)
+      }
       // orNaN necessary here to prevent null values from ending up in the column
       data[property][i] = orNaN(value)
     }
@@ -112,8 +112,9 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         break
       }
       case "Polygon": {
-        if (geometry.coordinates.length > 1)
+        if (geometry.coordinates.length > 1) {
           logger.warn("Bokeh does not support Polygons with holes in, only exterior ring used.")
+        }
 
         const exterior_ring = geometry.coordinates[0]
         for (let j = 0; j < exterior_ring.length; j++) {
@@ -141,8 +142,9 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       case "MultiPolygon": {
         const exterior_rings = []
         for (const polygon of geometry.coordinates) {
-          if (polygon.length > 1)
+          if (polygon.length > 1) {
             logger.warn("Bokeh does not support Polygons with holes in, only exterior ring used.")
+          }
           exterior_rings.push(polygon[0])
         }
 
@@ -166,21 +168,25 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     let items: (Feature<GeoItem> | GeoItem)[]
     switch (geojson.type) {
       case "GeometryCollection": {
-        if (is_undefined(geojson.geometries))
+        if (is_undefined(geojson.geometries)) {
           throw new Error("No geometries found in GeometryCollection")
+        }
 
-        if (geojson.geometries.length === 0)
+        if (geojson.geometries.length === 0) {
           throw new Error("geojson.geometries must have one or more items")
+        }
 
         items = geojson.geometries
         break
       }
       case "FeatureCollection": {
-        if (is_undefined(geojson.features))
+        if (is_undefined(geojson.features)) {
           throw new Error("No features found in FeaturesCollection")
+        }
 
-        if (geojson.features.length == 0)
+        if (geojson.features.length == 0) {
           throw new Error("geojson.features must have one or more items")
+        }
 
         items = geojson.features
         break
@@ -192,10 +198,11 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     let item_count = 0
     for (const item of items) {
       const geometry = item.type === "Feature" ? item.geometry : item
-      if (geometry.type == "GeometryCollection")
+      if (geometry.type == "GeometryCollection") {
         item_count += geometry.geometries.length
-      else
+      } else {
         item_count += 1
+      }
     }
 
     const data: GeoData = {
@@ -214,14 +221,16 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       if (geometry.type == "GeometryCollection") {
         for (const g of geometry.geometries) {
           this._add_geometry(g, data, arr_index)
-          if (item.type === "Feature")
+          if (item.type === "Feature") {
             this._add_properties(item, data, arr_index, item_count)
+          }
           arr_index += 1
         }
       } else {
         this._add_geometry(geometry, data, arr_index)
-        if (item.type === "Feature")
+        if (item.type === "Feature") {
           this._add_properties(item, data, arr_index, item_count)
+        }
         arr_index += 1
       }
     }

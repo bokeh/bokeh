@@ -24,7 +24,12 @@ log = logging.getLogger(__name__)
 from math import inf
 
 # Bokeh imports
-from ...core.enums import CoordinateUnits, Dimension
+from ...core.enums import (
+    CoordinateUnits,
+    Dimension,
+    Movable,
+    Resizable,
+)
 from ...core.properties import (
     Bool,
     CoordinateLike,
@@ -50,12 +55,7 @@ from ...core.property_mixins import (
     ScalarLineProps,
 )
 from ..common.properties import Coordinate
-from ..coordinates import (
-    FrameBottom,
-    FrameLeft,
-    FrameRight,
-    FrameTop,
-)
+from ..nodes import BoxNodes, Node
 from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead, TeeHead
 
@@ -87,21 +87,21 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Coordinate(default=lambda: FrameLeft(), help="""
+    left = Coordinate(default=lambda: Node.frame.left, help="""
     The x-coordinates of the left edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameLeft())
+    """).accepts(Null, lambda _: Node.frame.left)
 
-    right = Coordinate(default=lambda: FrameRight(), help="""
+    right = Coordinate(default=lambda: Node.frame.right, help="""
     The x-coordinates of the right edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameRight())
+    """).accepts(Null, lambda _: Node.frame.right)
 
-    top = Coordinate(default=lambda: FrameTop(), help="""
+    top = Coordinate(default=lambda: Node.frame.top, help="""
     The y-coordinates of the top edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameTop())
+    """).accepts(Null, lambda _: Node.frame.top)
 
-    bottom = Coordinate(default=lambda: FrameBottom(), help="""
+    bottom = Coordinate(default=lambda: Node.frame.bottom, help="""
     The y-coordinates of the bottom edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameBottom())
+    """).accepts(Null, lambda _: Node.frame.bottom)
 
     left_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the left attribute. Interpreted as |data units| by
@@ -193,7 +193,7 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
-    resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all", default="all", help="""
+    resizable = Enum(Resizable, default="all", help="""
     If `editable` is set, this property allows to configure which
     combinations of edges are allowed to be moved, thus allows
     restrictions on resizing of the box.
@@ -202,7 +202,7 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
-    movable = Enum("none", "x", "y", "both", default="both", help="""
+    movable = Enum(Movable, default="both", help="""
     If `editable` is set, this property allows to configure in which
     directions the box can be moved.
 
@@ -252,6 +252,10 @@ class BoxAnnotation(Annotation):
 
     hover_fill_color = Override(default=None)
     hover_fill_alpha = Override(default=0.4)
+
+    @property
+    def nodes(self) -> BoxNodes:
+        return BoxNodes(self)
 
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.

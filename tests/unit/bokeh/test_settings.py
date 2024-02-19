@@ -64,6 +64,7 @@ _expected_settings = (
     'resources',
     'rootdir',
     'secret_key',
+    'serialize_include_defaults',
     'sign_sessions',
     'simple_ids',
     'ssl_certfile',
@@ -393,6 +394,9 @@ class TestDefaults:
 
     def test_secret_key(self):
         assert bs.settings.secret_key.default is None
+
+    def test_serialize_include_defaults(self):
+        assert bs.settings.serialize_include_defaults.default is False
 
     def test_sign_sessions(self):
         assert bs.settings.sign_sessions.default is False

@@ -1,11 +1,10 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
-import {Styles} from "./styles"
-import {UIElement} from "../ui/ui_element"
+import {UIElement, StylesLike} from "../ui/ui_element"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import type {DictLike} from "core/types"
-import {entries} from "core/util/object"
 import {isString} from "core/util/types"
+import {apply_styles} from "core/css"
+import {empty} from "core/dom"
 import type * as p from "core/properties"
 
 export abstract class DOMElementView extends DOMNodeView {
@@ -31,34 +30,8 @@ export abstract class DOMElementView extends DOMNodeView {
   }
 
   override render(): void {
-    const {style} = this.model
-    if (style != null) {
-      /*
-      type IsString<T> = T extends string ? T : never
-      type Key = Exclude<IsString<keyof CSSStyleDeclaration>,
-        "length" | "parentRule" | "getPropertyPriority" | "getPropertyValue" | "item" | "removeProperty" | "setProperty">
-      //this.el.style[key as Key] = value
-      */
-
-      if (style instanceof Styles) {
-        for (const prop of style) {
-          const value = prop.get_value()
-          if (isString(value)) {
-            const name = prop.attr.replace(/_/g, "-")
-            if (this.el.style.hasOwnProperty(name)) {
-              this.el.style.setProperty(name, value)
-            }
-          }
-        }
-      } else {
-        for (const [key, value] of entries(style)) {
-          const name = key.replace(/_/g, "-")
-          if (this.el.style.hasOwnProperty(name)) {
-            this.el.style.setProperty(name, value)
-          }
-        }
-      }
-    }
+    empty(this.el)
+    apply_styles(this.el.style, this.model.style)
 
     for (const child of this.model.children) {
       if (isString(child)) {
@@ -77,7 +50,7 @@ export abstract class DOMElementView extends DOMNodeView {
 export namespace DOMElement {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DOMNode.Props & {
-    style: p.Property<Styles | DictLike<string> | null>
+    style: p.Property<StylesLike>
     children: p.Property<(string | DOMNode | UIElement)[]>
   }
 }
@@ -93,9 +66,11 @@ export abstract class DOMElement extends DOMNode {
   }
 
   static {
-    this.define<DOMElement.Props>(({String, Array, Dict, Or, Nullable, Ref}) => ({
-      style: [ Nullable(Or(Ref(Styles), Dict(String))), null ],
-      children: [ Array(Or(String, Ref(DOMNode), Ref(UIElement))), [] ],
-    }))
+    this.define<DOMElement.Props>(({String, Array, Or, Ref}) => {
+      return {
+        style: [ StylesLike, {} ],
+        children: [ Array(Or(String, Ref(DOMNode), Ref(UIElement))), [] ],
+      }
+    })
   }
 }

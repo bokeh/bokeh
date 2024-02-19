@@ -16,8 +16,9 @@ export class PointDrawToolView extends EditToolView {
 
     const renderer = this.model.renderers[0]
     const point = this._map_drag(ev.sx, ev.sy, renderer)
-    if (point == null)
+    if (point == null) {
       return
+    }
 
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
@@ -26,8 +27,12 @@ export class PointDrawToolView extends EditToolView {
     const [x, y] = point
 
     this._pop_glyphs(cds, this.model.num_objects)
-    if (xkey) cds.get_array(xkey).push(x)
-    if (ykey) cds.get_array(ykey).push(y)
+    if (xkey) {
+      cds.get_array(xkey).push(x)
+    }
+    if (ykey) {
+      cds.get_array(ykey).push(y)
+    }
     this._pad_empty_columns(cds, [xkey, ykey])
 
     const {data} = cds
@@ -35,8 +40,9 @@ export class PointDrawToolView extends EditToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame)
+    if (!this.model.active || !this._mouse_in_frame) {
       return
+    }
     for (const renderer of this.model.renderers) {
       if (ev.key == "Backspace") {
         this._delete_selected(renderer)
@@ -47,24 +53,28 @@ export class PointDrawToolView extends EditToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    if (!this.model.drag)
+    if (!this.model.drag) {
       return
+    }
     this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
   override _pan(ev: PanEvent): void {
-    if (!this.model.drag || this._basepoint == null)
+    if (!this.model.drag || this._basepoint == null) {
       return
+    }
     this._drag_points(ev, this.model.renderers)
   }
 
   override _pan_end(ev: PanEvent): void {
-    if (!this.model.drag)
+    if (!this.model.drag) {
       return
+    }
     this._pan(ev)
-    for (const renderer of this.model.renderers)
+    for (const renderer of this.model.renderers) {
       this._emit_cds_changes(renderer.data_source, false, true, true)
+    }
     this._basepoint = null
   }
 }

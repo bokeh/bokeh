@@ -46,10 +46,11 @@ export class DashCache {
     for (let i = 0; i < n; i++) {
       len += pattern[i]
       twice_jumps.push(pattern[i] + pattern[(i+1) % n])
-      if (i % 2 == 0)
-        dist_max = Math.max(dist_max, pattern[i])   // Dash.
-      else
-        dist_min = Math.min(dist_min, -pattern[i])  // Gap.
+      if (i % 2 == 0) {
+        dist_max = Math.max(dist_max, pattern[i])  // Dash.
+      } else {
+        dist_min = Math.min(dist_min, -pattern[i]) // Gap.
+      }
     }
     dist_min *= 0.5
     dist_max *= 0.5
@@ -58,8 +59,9 @@ export class DashCache {
 
     // Starts and ends of dashes and gaps.
     const starts_and_ends: number[] = [0]
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       starts_and_ends.push(starts_and_ends[i] + pattern[i])
+    }
 
     // Length of texture, webgl requires a power of 2.
     const ideal_ntex = 2*len / twice_jumps_gcd
@@ -95,14 +97,16 @@ export class DashCache {
       const x = xstart + i*dtex  // Distance along texture.
 
       // Which dash are we in?
-      if (x > starts_and_ends[dash_index + 1])
+      if (x > starts_and_ends[dash_index + 1]) {
         dash_index++
+      }
 
       const xsize = pattern[dash_index]
       const xmid = starts_and_ends[dash_index] + 0.5*xsize
       let dist_float = 0.5*xsize - Math.abs(x - xmid)
-      if (dash_index % 2 == 1)
-        dist_float = -dist_float  // Change sign for gaps between dashes.
+      if (dash_index % 2 == 1) {
+        dist_float = -dist_float // Change sign for gaps between dashes.
+      }
 
       dist[i] = Math.round(255*(dist_float-dist_min) / (dist_max-dist_min))
     }
@@ -158,8 +162,9 @@ export class DashCache {
 
   public get(pattern: number[]): DashReturn {
     // Odd-length patterns are repeated to match canvas.
-    if (pattern.length % 2 == 1)
+    if (pattern.length % 2 == 1) {
       pattern = concat([pattern, pattern])
+    }
 
     return this._get_or_create(pattern)
   }

@@ -27,6 +27,7 @@ import type {BokehEvent, BokehEventType, BokehEventMap, ModelEvent} from "core/b
 import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
+import type {ViewManager} from "core/view_manager"
 
 Deserializer.register("model", decode_def)
 
@@ -78,6 +79,9 @@ export const DEFAULT_TITLE = "Bokeh Application"
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document implements Equatable {
+  /** @experimental */
+  views_manager?: ViewManager
+
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 
@@ -539,13 +543,13 @@ export class Document implements Equatable {
           break
         }
         case "ColumnDataChanged": {
-          const {model, attr, cols} = event
-          const data = dict(event.data)
+          const {model, attr, data, cols} = event
           if (cols != null) {
+            const new_data = dict(data)
             const current_data = dict(model.property(attr).get_value() as Data)
             for (const [name, column] of current_data) {
-              if (!data.has(name)) {
-                data.set(name, column)
+              if (!new_data.has(name)) {
+                new_data.set(name, column)
               }
             }
           }

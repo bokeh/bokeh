@@ -104,8 +104,6 @@ __all__ = (
     'Dimension',
     'Dimensions',
     'Direction',
-    'Enumeration',
-    'enumeration',
     'FlowMode',
     'FontStyle',
     'HAlign',
@@ -126,6 +124,7 @@ __all__ = (
     'Location',
     'MapType',
     'MarkerType',
+    'Movable',
     'NamedColor',
     'NumeralLanguage',
     'Orientation',
@@ -135,6 +134,7 @@ __all__ = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'Resizable',
     'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
@@ -418,6 +418,9 @@ MarkerType = enumeration(
     "triangle", "triangle_dot", "triangle_pin", "x", "y",
 )
 
+#: Indicates in which dimensions an object (a renderer or an UI element) can be moved.
+Movable = enumeration("none", "x", "y", "both")
+
 #: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
@@ -431,7 +434,8 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
 Orientation = enumeration("horizontal", "vertical")
 
 #: Specify an output backend to render a plot area onto
-OutputBackend = enumeration("canvas", "svg", "webgl")
+OutputBackendType = Literal["canvas", "svg", "webgl"]
+OutputBackend = enumeration(OutputBackendType)
 
 #: Whether range padding should be interpreted a percentage or and absolute quantity
 PaddingUnits = enumeration("percent", "absolute")
@@ -448,6 +452,9 @@ RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "
 
 #: What reset actions should occur on a Plot reset
 ResetPolicy = enumeration("standard", "event_only")
+
+#: Indicates in which dimensions an object (a renderer or an UI element) can be resized.
+Resizable = enumeration("none", "left", "right", "top", "bottom", "x", "y", "all")
 
 #: Specify which resolutions should be used for stripping of leading zeros
 ResolutionType = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
@@ -492,20 +499,41 @@ TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
 #: Well known tool icon names
 ToolIcon = enumeration(
   "append_mode",
+  "arrow_down_to_bar",
+  "arrow_up_from_bar",
+  "auto_box_zoom",
+  "bold",
   "box_edit",
   "box_select",
   "box_zoom",
+  "caret_down",
+  "caret_left",
+  "caret_right",
+  "caret_up",
+  "check",
+  "chevron_down",
+  "chevron_left",
+  "chevron_right",
+  "chevron_up",
   "clear_selection",
   "copy",
   "crosshair",
+  "delete",
   "freehand_draw",
+  "fullscreen",
   "help",
   "hover",
   "intersect_mode",
+  "invert_selection",
+  "italic",
   "lasso_select",
   "line_edit",
+  "maximize",
+  "minimize",
   "pan",
+  "pin",
   "point_draw",
+  "pointer",
   "poly_draw",
   "poly_edit",
   "polygon_select",
@@ -514,13 +542,30 @@ ToolIcon = enumeration(
   "replace_mode",
   "reset",
   "save",
+  "see_off",
+  "see_on",
+  "settings",
+  "square",
+  "square_check",
   "subtract_mode",
   "tap_select",
+  "text_align_center",
+  "text_align_left",
+  "text_align_right",
   "undo",
+  "unknown",
+  "unpin",
   "wheel_pan",
   "wheel_zoom",
-  "xpan",
-  "ypan",
+  "x_box_select",
+  "x_box_zoom",
+  "x_grip",
+  "x_pan",
+  "xor_mode",
+  "y_box_select",
+  "y_box_zoom",
+  "y_grip",
+  "y_pan",
   "zoom_in",
   "zoom_out",
 )

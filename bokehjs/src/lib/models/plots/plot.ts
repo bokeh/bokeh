@@ -8,7 +8,7 @@ import {concat, remove_by} from "core/util/array"
 import {difference} from "core/util/set"
 import {isString} from "core/util/types"
 import type {LRTB} from "core/util/bbox"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
@@ -18,6 +18,7 @@ import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
+import {HTML} from "../dom/html"
 
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
@@ -64,11 +65,11 @@ export namespace Plot {
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
 
-    extra_x_ranges: p.Property<DictLike<Range>>
-    extra_y_ranges: p.Property<DictLike<Range>>
+    extra_x_ranges: p.Property<Dict<Range>>
+    extra_y_ranges: p.Property<Dict<Range>>
 
-    extra_x_scales: p.Property<DictLike<Scale>>
-    extra_y_scales: p.Property<DictLike<Scale>>
+    extra_x_scales: p.Property<Dict<Scale>>
+    extra_y_scales: p.Property<Dict<Scale>>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -95,6 +96,8 @@ export namespace Plot {
     reset_policy: p.Property<ResetPolicy>
 
     hold_render: p.Property<boolean>
+
+    attribution: p.Property<(string | HTML)[]>
   } & Mixins
 
   export type Mixins =
@@ -193,6 +196,8 @@ export class Plot extends LayoutDOM {
       reset_policy:      [ ResetPolicy, "standard" ],
 
       hold_render:       [ Boolean, false ],
+
+      attribution:       [ Array(Or(String, Ref(HTML))), [] ],
     }))
 
     this.override<Plot.Props>({

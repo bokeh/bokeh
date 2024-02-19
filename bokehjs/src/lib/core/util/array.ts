@@ -18,15 +18,19 @@ export {
 const slice = Array.prototype.slice
 
 export function head<T>(array: T[]): T {
-  return array[0]
-}
-
-export function tail<T>(array: ArrayLike<T>): T {
-  return array[array.length-1]
+  if (array.length != 0) {
+    return array[0]
+  } else {
+    throw new Error("out of bounds access")
+  }
 }
 
 export function last<T>(array: ArrayLike<T>): T {
-  return array[array.length-1]
+  if (array.length != 0) {
+    return array[array.length-1]
+  } else {
+    throw new Error("out of bounds access")
+  }
 }
 
 export function copy<T>(array: T[]): T[] {
@@ -41,12 +45,13 @@ export function nth<T>(array: T[], index: number): T {
   return array[index >= 0 ? index : array.length + index]
 }
 
-export function zip<A, B>(As: A[], Bs: B[]): [A, B][]
-export function zip<A, B, C>(As: A[], Bs: B[], Cs: C[]): [A, B, C][]
-export function zip<T>(...arrays: T[][]): T[][]
-export function zip(...arrays: unknown[][]): unknown[][] {
-  if (arrays.length == 0)
+export function zip<A, B>(As: Arrayable<A>, Bs: Arrayable<B>): [A, B][]
+export function zip<A, B, C>(As: Arrayable<A>, Bs: Arrayable<B>, Cs: Arrayable<C>): [A, B, C][]
+export function zip<T>(...arrays: Arrayable<T>[]): T[][]
+export function zip(...arrays: Arrayable<unknown>[]): unknown[][] {
+  if (arrays.length == 0) {
     return []
+  }
 
   const n = min(arrays.map((a) => a.length))
   const k = arrays.length
@@ -55,8 +60,9 @@ export function zip(...arrays: unknown[][]): unknown[][] {
 
   for (let i = 0; i < n; i++) {
     result[i] = new Array(k)
-    for (let j = 0; j < k; j++)
+    for (let j = 0; j < k; j++) {
       result[i][j] = arrays[j][i]
+    }
   }
 
   return result
@@ -74,12 +80,14 @@ export function unzip(array: unknown[][]): unknown[][] {
   const k = min(array.map((a) => a.length))
   const results: unknown[][] = Array(k)
 
-  for (let j = 0; j < k; j++)
+  for (let j = 0; j < k; j++) {
     results[j] = new Array(n)
+  }
 
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < k; j++)
+    for (let j = 0; j < k; j++) {
       results[j][i] = array[i][j]
+    }
   }
 
   return results
@@ -180,11 +188,13 @@ export function union<T>(...arrays: Arrayable<T>[]): T[] {
 export function intersection<T>(array: Arrayable<T>, ...arrays: Arrayable<T>[]): T[] {
   const result: T[] = []
   top: for (const item of array) {
-    if (includes(result, item))
+    if (includes(result, item)) {
       continue
+    }
     for (const other of arrays) {
-      if (!includes(other, item))
+      if (!includes(other, item)) {
         continue top
+      }
     }
     result.push(item)
   }
@@ -222,12 +232,17 @@ export function remove_at<T>(array: T[], i: number): T[] {
   return result
 }
 
+export function remove<T>(array: T[], item: T): void {
+  remove_by(array, (value) => value == item)
+}
+
 export function remove_by<T>(array: T[], key: (item: T) => boolean): void {
   for (let i = 0; i < array.length;) {
-    if (key(array[i]))
+    if (key(array[i])) {
       array.splice(i, 1)
-    else
+    } else {
       i++
+    }
   }
 }
 
@@ -245,8 +260,9 @@ export function split<T, S, R extends Exclude<T, S>>(array: (T | S)[], separator
     if (array[j] === separator) {
       chunks.push(array.slice(i, j) as R[])
       i = ++j
-    } else
+    } else {
       ++j
+    }
   }
 
   chunks.push(array.slice(i) as R[])
@@ -260,8 +276,9 @@ export function shuffle<T>(array: T[]): T[] {
   const shuffled = new Array(length)
   for (let i = 0; i < length; i++) {
     const rand = randomIn(0, i)
-    if (rand !== i)
+    if (rand !== i) {
       shuffled[i] = shuffled[rand]
+    }
     shuffled[rand] = array[i]
   }
   return shuffled

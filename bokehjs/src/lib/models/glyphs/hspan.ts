@@ -59,8 +59,9 @@ export class HSpanView extends GlyphView {
     for (const i of indices) {
       const sy_i = sy[i]
 
-      if (!isFinite(sy_i))
+      if (!isFinite(sy_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.moveTo(left, sy_i)

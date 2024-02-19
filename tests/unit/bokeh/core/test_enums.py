@@ -28,7 +28,7 @@ import bokeh.core.enums as bce # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-ALL  = (
+ALL = (
     'Align',
     'AlternationPolicy',
     'Anchor',
@@ -44,8 +44,6 @@ ALL  = (
     'Dimension',
     'Dimensions',
     'Direction',
-    'Enumeration',
-    'enumeration',
     'FlowMode',
     'FontStyle',
     'HAlign',
@@ -66,6 +64,7 @@ ALL  = (
     'Location',
     'MapType',
     'MarkerType',
+    'Movable',
     'NamedColor',
     'NumeralLanguage',
     'Orientation',
@@ -75,6 +74,7 @@ ALL  = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'Resizable',
     'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
@@ -257,6 +257,9 @@ class Test_bce:
                                          "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
                                          "triangle", "triangle_dot", "triangle_pin", "x", "y")
 
+    def test_Movable(self) -> None:
+        assert tuple(bce.Movable) == ("none", "x", "y", "both")
+
     def test_NamedColor(self) -> None:
         assert len(tuple(bce.NamedColor)) == 148
         assert tuple(bce.NamedColor) == tuple(named.__all__)
@@ -284,6 +287,9 @@ class Test_bce:
 
     def test_ResetPolicy(self) -> None:
         assert tuple(bce.ResetPolicy) == ("standard", "event_only")
+
+    def test_Resizable(self) -> None:
+        assert tuple(bce.Resizable) == ("none", "left", "right", "top", "bottom", "x", "y", "all")
 
     def test_ResolutionType(self) -> None:
         assert tuple(bce.ResolutionType) == ("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
@@ -319,11 +325,78 @@ class Test_bce:
         assert tuple(bce.TextureRepetition) == ("repeat", "repeat_x", "repeat_y", "no_repeat")
 
     def test_ToolIcon(self) -> None:
-        assert tuple(bce.ToolIcon) == ("append_mode", "box_edit", "box_select", "box_zoom", "clear_selection",
-            "copy", "crosshair", "freehand_draw", "help", "hover", "intersect_mode", "lasso_select",
-            "line_edit", "pan", "point_draw", "poly_draw", "poly_edit", "polygon_select", "range", "redo",
-            "replace_mode", "reset", "save", "subtract_mode", "tap_select", "undo", "wheel_pan", "wheel_zoom",
-            "xpan", "ypan", "zoom_in", "zoom_out")
+        assert tuple(bce.ToolIcon) == (
+            "append_mode",
+            "arrow_down_to_bar",
+            "arrow_up_from_bar",
+            "auto_box_zoom",
+            "bold",
+            "box_edit",
+            "box_select",
+            "box_zoom",
+            "caret_down",
+            "caret_left",
+            "caret_right",
+            "caret_up",
+            "check",
+            "chevron_down",
+            "chevron_left",
+            "chevron_right",
+            "chevron_up",
+            "clear_selection",
+            "copy",
+            "crosshair",
+            "delete",
+            "freehand_draw",
+            "fullscreen",
+            "help",
+            "hover",
+            "intersect_mode",
+            "invert_selection",
+            "italic",
+            "lasso_select",
+            "line_edit",
+            "maximize",
+            "minimize",
+            "pan",
+            "pin",
+            "point_draw",
+            "pointer",
+            "poly_draw",
+            "poly_edit",
+            "polygon_select",
+            "range",
+            "redo",
+            "replace_mode",
+            "reset",
+            "save",
+            "see_off",
+            "see_on",
+            "settings",
+            "square",
+            "square_check",
+            "subtract_mode",
+            "tap_select",
+            "text_align_center",
+            "text_align_left",
+            "text_align_right",
+            "undo",
+            "unknown",
+            "unpin",
+            "wheel_pan",
+            "wheel_zoom",
+            "x_box_select",
+            "x_box_zoom",
+            "x_grip",
+            "x_pan",
+            "xor_mode",
+            "y_box_select",
+            "y_box_zoom",
+            "y_grip",
+            "y_pan",
+            "zoom_in",
+            "zoom_out",
+        )
 
     def test_TooltipAttachment(self) -> None:
         assert tuple(bce.TooltipAttachment) == ("horizontal", "vertical", "left", "right", "above", "below")
@@ -339,72 +412,7 @@ class Test_bce:
 
 # any changes to contents of bce.py easily trackable here
 def test_enums_contents() -> None:
-    assert [ name for name in dir(bce) if isinstance(getattr(bce, name), bce.Enumeration) ] == [
-        'Align',
-        'AlternationPolicy',
-        'Anchor',
-        'AngleUnits',
-        'AutosizeMode',
-        'ButtonType',
-        'CalendarPosition',
-        'ContextWhich',
-        'CoordinateUnits',
-        'DashPattern',
-        'DateFormat',
-        'DatetimeUnits',
-        'Dimension',
-        'Dimensions',
-        'Direction',
-        'FlowMode',
-        'FontStyle',
-        'HAlign',
-        'HatchPattern',
-        'HatchPatternAbbreviation',
-        'HoldPolicy',
-        'HorizontalLocation',
-        'ImageOrigin',
-        'JitterRandomDistribution',
-        'KeyModifier',
-        'LabelOrientation',
-        'LatLon',
-        'LegendClickPolicy',
-        'LegendLocation',
-        'LineCap',
-        'LineDash',
-        'LineJoin',
-        'Location',
-        'MapType',
-        'MarkerType',
-        'NamedColor',
-        'NumeralLanguage',
-        'Orientation',
-        'OutputBackend',
-        'PaddingUnits',
-        'Palette',
-        'Place',
-        'RenderLevel',
-        'ResetPolicy',
-        'ResolutionType',
-        'RoundingFunction',
-        'ScrollbarPolicy',
-        'SelectionMode',
-        'SizingMode',
-        'SizingPolicy',
-        'SortDirection',
-        'SpatialUnits',
-        'StartEnd',
-        'StepMode',
-        'TextAlign',
-        'TextBaseline',
-        'TextureRepetition',
-        'ToolIcon',
-        'TooltipAttachment',
-        'TooltipFieldFormatter',
-        'TrackPolicy',
-        'VAlign',
-        'VerticalAlign',
-        'VerticalLocation',
-    ]
+    assert [name for name in dir(bce) if isinstance(getattr(bce, name), bce.Enumeration)] == list(ALL)
 
 #-----------------------------------------------------------------------------
 # Private API

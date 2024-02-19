@@ -487,7 +487,7 @@ describe("Widgets", () => {
       },
     })
 
-    const formatter = new StringFormatter({font_style: "bold"})
+    const formatter = new StringFormatter({font_style: {value: "bold"}})
 
     const columns = [
       new TableColumn({field: "d2", title: "Name", width: 80, sortable: false, formatter}),

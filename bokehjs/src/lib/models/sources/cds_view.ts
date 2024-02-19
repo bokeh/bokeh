@@ -114,9 +114,9 @@ export class CDSView extends Model {
       filter: [ Ref(Filter), () => new AllIndices() ],
     }))
 
-    this.internal<CDSView.Props>(({Int, Map, Ref, Nullable}) => ({
+    this.internal<CDSView.Props>(({Int, Mapping, Ref, Nullable}) => ({
       indices:     [ Ref(Indices) ],
-      indices_map: [ Map(Int, Int), new globalThis.Map() ],
+      indices_map: [ Mapping(Int, Int), new Map() ],
       masked:      [ Nullable(Ref(Indices)), null ],
     }))
   }

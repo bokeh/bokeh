@@ -74,10 +74,11 @@ export abstract class ToolView extends View {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => {
-      if (this.model.active)
+      if (this.model.active) {
         this.activate()
-      else
+      } else {
         this.deactivate()
+      }
     })
   }
 
@@ -124,6 +125,7 @@ export namespace Tool {
   export type Props = Model.Props & {
     icon: p.Property<ToolIcon | string | null>
     description: p.Property<string | null>
+    visible: p.Property<boolean>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
   }
@@ -142,9 +144,10 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({String, Regex, Nullable, Or}) => ({
+    this.define<Tool.Props>(({Boolean, String, Regex, Nullable, Or}) => ({
       icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
       description: [ Nullable(String), null ],
+      visible: [ Boolean, true ],
     }))
 
     this.internal<Tool.Props>(({Boolean}) => ({
@@ -197,16 +200,18 @@ export abstract class Tool extends Model {
     if (dims == "width" || dims == "both") {
       sxlim = [min([sx0, sx1]),           max([sx0, sx1])]
       sxlim = [max([sxlim[0], hr.start]), min([sxlim[1], hr.end])]
-    } else
+    } else {
       sxlim = [hr.start, hr.end]
+    }
 
     const vr = frame.bbox.v_range
     let sylim: [number, number]
     if (dims == "height" || dims == "both") {
       sylim = [min([sy0, sy1]),           max([sy0, sy1])]
       sylim = [max([sylim[0], vr.start]), min([sylim[1], vr.end])]
-    } else
+    } else {
       sylim = [vr.start, vr.end]
+    }
 
     return [sxlim, sylim]
   }
@@ -215,14 +220,15 @@ export abstract class Tool extends Model {
   // by the active dimensions. Used by tools that have dimensions
   protected _get_dim_tooltip(dims: Dimensions | "auto"): string {
     const {description, tool_name} = this
-    if (description != null)
+    if (description != null) {
       return description
-    else if (dims == "both")
+    } else if (dims == "both") {
       return tool_name
-    else if (dims == "auto")
+    } else if (dims == "auto") {
       return `${tool_name} (either x, y or both dimensions)`
-    else
+    } else {
       return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
+    }
   }
 
   /** @prototype */
@@ -237,9 +243,9 @@ export abstract class Tool extends Model {
 
   static from_string(name: string): Tool {
     const fn = this.prototype._known_aliases.get(name)
-    if (fn != null)
+    if (fn != null) {
       return fn()
-    else {
+    } else {
       const names = [...this.prototype._known_aliases.keys()]
       throw new Error(`unexpected tool name '${name}', possible tools are ${names.join(", ")}`)
     }

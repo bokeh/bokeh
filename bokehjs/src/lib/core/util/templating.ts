@@ -4,7 +4,7 @@ import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
-import type {DictLike} from "../types"
+import type {Dict} from "../types"
 import {Enum} from "../kinds"
 import {logger} from "../logging"
 import {dict} from "./object"
@@ -12,10 +12,10 @@ import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
 
 export const FormatterType = Enum("numeral", "printf", "datetime")
-export type FormatterType = "numeral" | "printf" | "datetime"
+export type FormatterType = typeof FormatterType["__type__"]
 
 export type FormatterSpec = CustomJSHover | FormatterType
-export type Formatters = DictLike<FormatterSpec>
+export type Formatters = Dict<FormatterSpec>
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
@@ -44,8 +44,9 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
     })()
 
     return sprintf(format, value)
-  } else
-    return `${value}`  // get strings for categorical types
+  } else {
+    return `${value}` // get strings for categorical types
+  }
 }
 
 export function get_formatter(raw_spec: string, format?: string, formatters?: Formatters): FormatterFunc {
@@ -91,16 +92,19 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
   const column = data_source.get_column(name)
 
   // missing column
-  if (column == null)
+  if (column == null) {
     return null
+  }
 
   // null index (e.g for patch)
-  if (ind == null)
+  if (ind == null) {
     return null
+  }
 
   // typical (non-image) index
-  if (isNumber(ind))
+  if (isNumber(ind)) {
     return column[ind]
+  }
 
   // image index
   const data = column[ind.index]
@@ -112,10 +116,14 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
     } else if (is_NDArray(data) && data.dimension == 3) {
       // For 3d array return whole of 3rd axis
       return data.slice(ind.flat_index*data.shape[2], (ind.flat_index + 1)*data.shape[2])
-    } else
-      return data[ind.flat_index] // inspect flat array
-  } else
-    return data // inspect per-image scalar data
+    } else {
+      // inspect flat array
+      return data[ind.flat_index]
+    }
+  } else {
+    // inspect per-image scalar data
+    return data
+  }
 }
 
 export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index | null, special_vars: Vars) {
@@ -179,9 +187,9 @@ export function replace_placeholders(content: string | {html: string}, data_sour
     }
   })
 
-  if (!has_html)
+  if (!has_html) {
     return str
-  else {
+  } else {
     const parser = new DOMParser()
     const document = parser.parseFromString(str, "text/html")
     return [...document.body.childNodes]

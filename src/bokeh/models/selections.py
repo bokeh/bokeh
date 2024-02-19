@@ -24,7 +24,6 @@ from ..core.properties import (
     Int,
     List,
     Seq,
-    String,
     Struct,
 )
 from ..model import Model
@@ -77,7 +76,7 @@ class Selection(Model):
     were selected by a selection tool.
     """)
 
-    multiline_indices = Dict(String, Seq(Int), default={}, help="""
+    multiline_indices = Dict(Int, Seq(Int), default={}, help="""
     The detailed point indices included in a selection on a ``MultiLine``.
 
     This value records which points, on which lines, are part of a selection

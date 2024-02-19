@@ -7,7 +7,7 @@ import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {TextBox} from "core/graphics"
-import {SideLayout, Panel} from "core/layout/side_panel"
+import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import type {Context2d} from "core/util/canvas"
 import type {Size, Layoutable} from "core/layout"
@@ -103,7 +103,7 @@ export class ScaleBarView extends AnnotationView {
 
     this.axis_view = await build_view(this.axis, {parent: this.plot_view})
     this.axis_view.coordinates = coordinates
-    this.axis_view.panel = new Panel(this.model.orientation == "horizontal" ? "below" : "right")
+    this.axis_view.panel = new SidePanel(this.model.orientation == "horizontal" ? "below" : "right")
     this.axis_view.update_layout()
   }
 
@@ -127,10 +127,11 @@ export class ScaleBarView extends AnnotationView {
     this.update_geometry()
 
     const {panel} = this
-    if (panel != null)
+    if (panel != null) {
       this.layout = new SideLayout(panel, () => this.get_size())
-    else
+    } else {
       this.layout = undefined
+    }
   }
 
   override update_geometry(): void {
@@ -151,7 +152,7 @@ export class ScaleBarView extends AnnotationView {
     const {orientation} = this.model
 
     const text_box = new TextBox({text})
-    const text_panel = new Panel(location)
+    const text_panel = new SidePanel(location)
 
     text_box.visuals = visuals.values()
     const text_orientation = (() => {

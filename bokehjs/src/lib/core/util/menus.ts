@@ -83,18 +83,21 @@ export class ContextMenu { //extends DOMComponentView {
   }
 
   protected _on_mousedown = (event: MouseEvent) => {
-    if (event.composedPath().includes(this.el))
+    if (event.composedPath().includes(this.el)) {
       return
+    }
 
-    if (this.prevent_hide?.(event) ?? false)
+    if (this.prevent_hide?.(event) ?? false) {
       return
+    }
 
     this.hide()
   }
 
   protected _on_keydown = (event: KeyboardEvent) => {
-    if (event.key == "Escape")
+    if (event.key == "Escape") {
       this.hide()
+    }
   }
 
   protected _on_blur = () => {
@@ -205,13 +208,15 @@ export class ContextMenu { //extends DOMComponentView {
   }
 
   show(at?: At): void {
-    if (this.items.length == 0)
+    if (this.items.length == 0) {
       return
+    }
 
     if (!this._open) {
       this.render()
-      if (this.shadow_el.children.length == 0)
+      if (this.shadow_el.children.length == 0) {
         return
+      }
       (this.target.shadowRoot ?? this.target).appendChild(this.el)
       this._position(at ?? {left: 0, top: 0})
       this._listen()

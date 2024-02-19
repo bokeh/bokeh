@@ -33,12 +33,13 @@ export class RaggedArray<ArrayType extends TypedArray = Float64Array> implements
         offsets[i] = offset
         offset += length
       }
-      if (offset < 256)
+      if (offset < 256) {
         return new Uint8Array(offsets)
-      else if (offset < 65536)
+      } else if (offset < 65536) {
         return new Uint16Array(offsets)
-      else
+      } else {
         return offsets
+      }
     })()
     const array = new ctor(offset)
     for (let i = 0; i < n; i++) {

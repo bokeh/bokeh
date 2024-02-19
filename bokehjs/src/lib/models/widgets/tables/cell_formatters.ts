@@ -2,14 +2,16 @@ import tz from "timezone"
 import * as Numbro from "@bokeh/numbro"
 import {_} from "underscore.template"
 
-import type * as p from "core/properties"
+import * as p from "core/properties"
 import {div, i} from "core/dom"
-import type {Color} from "core/types"
-import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
+import {isExpr, isField, isValue} from "core/vectorization"
+import {RoundingFunction} from "core/enums"
 import {isNumber, isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
-import {color2css} from "core/util/color"
+import {color2css, rgba2css} from "core/util/color"
 import {Model} from "../../../model"
+import {ColorMapper} from "../../mappers/color_mapper"
+import {unreachable} from "core/util/assert"
 
 export namespace CellFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -39,9 +41,10 @@ export namespace StringFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CellFormatter.Props & {
-    font_style: p.Property<FontStyle>
-    text_align: p.Property<TextAlign>
-    text_color: p.Property<Color | null>
+    font_style: p.FontStyleSpec
+    text_align: p.TextAlignSpec
+    text_color: p.ColorSpec
+    background_color: p.ColorSpec
     nan_format: p.Property<string>
   }
 }
@@ -56,37 +59,96 @@ export class StringFormatter extends CellFormatter {
   }
 
   static {
-    this.define<StringFormatter.Props>(({Color, Nullable, String}) => ({
-      font_style: [ FontStyle, "normal" ],
-      text_align: [ TextAlign, "left"   ],
-      text_color: [ Nullable(Color), null ],
+    this.define<StringFormatter.Props>(({String}) => ({
+      font_style: [ p.FontStyleSpec, {value: "normal"} ],
+      text_align: [ p.TextAlignSpec, {value: "left"} ],
+      text_color: [ p.ColorSpec, null ],
+      background_color: [ p.ColorSpec, null ],
       nan_format: [ String, "-"],
     }))
   }
 
-  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
-    const {font_style, text_align, text_color} = this
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
+    const {font_style, text_align, text_color, background_color} = this
 
     const text = div(value == null ? "" : `${value}`)
-    switch (font_style) {
+
+    // Font style
+    let resolved_font_style
+    if (isValue(font_style)) {
+      resolved_font_style = font_style.value
+    } else if (isField(font_style)) {
+      resolved_font_style = dataContext[font_style.field]
+    } else if (isExpr(font_style)) {
+      // TODO
+    } else {
+      unreachable()
+    }
+
+    switch (resolved_font_style) {
       case "normal":
-        break
-      case "bold":
-        text.style.fontWeight = "bold"
+        // nothing to do
         break
       case "italic":
         text.style.fontStyle = "italic"
         break
-      case "bold italic":
+      case "bold":
         text.style.fontWeight = "bold"
+        break
+      case "bold italic":
         text.style.fontStyle = "italic"
+        text.style.fontWeight = "bold"
         break
     }
 
-    text.style.textAlign = text_align
+    // Text align
+    if (isValue(text_align)) {
+      text.style.textAlign = text_align.value
+    } else if (isField(text_align)) {
+      text.style.textAlign = dataContext[text_align.field]
+    } else if (isExpr(text_align)) {
+      // TODO
+    } else {
+      unreachable()
+    }
 
-    if (text_color != null) {
-      text.style.color = color2css(text_color)
+    // Text color
+    // Handle the most common case first : isValue and value == null
+    if (isValue(text_color)) {
+      if (text_color.value != null) {
+        text.style.color = color2css(text_color.value)
+      }
+    } else if (isField(text_color)) {
+      if (text_color.transform != null && text_color.transform instanceof ColorMapper) {
+        const rgba_array = text_color.transform.rgba_mapper.v_compute([dataContext[text_color.field]])
+        const [r, g, b, a] = rgba_array
+        text.style.color = rgba2css([r, g, b, a])
+      } else {
+        text.style.color = color2css(dataContext[text_color.field])
+      }
+    } else if (isExpr(text_color)) {
+      // TODO
+    } else {
+      unreachable()
+    }
+
+    // Background color
+    if (isValue(background_color)) {
+      if (background_color.value != null) {
+        text.style.backgroundColor = color2css(background_color.value)
+      }
+    } else if (isField(background_color)) {
+      if (background_color.transform != null && background_color.transform instanceof ColorMapper) {
+        const rgba_array = background_color.transform.rgba_mapper.v_compute([dataContext[background_color.field]])
+        const [r, g, b, a] = rgba_array
+        text.style.backgroundColor = rgba2css([r, g, b, a])
+      } else {
+        text.style.backgroundColor = color2css(dataContext[background_color.field])
+      }
+    } else if (isExpr(background_color)) {
+      // TODO
+    } else {
+      unreachable()
     }
 
     return text.outerHTML

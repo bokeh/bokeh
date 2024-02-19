@@ -23,10 +23,12 @@ export function angle_dist(lhs: number, rhs: number): number {
 
 export function angle_between(mid: number, lhs: number, rhs: number, anticlock: boolean = false): boolean {
   const d = angle_dist(lhs, rhs)
-  if (d == 0)
+  if (d == 0) {
     return false
-  if (d == 2*PI)
+  }
+  if (d == 2*PI) {
     return true
+  }
   const norm_mid = angle_norm(mid)
   const cond = angle_dist(lhs, norm_mid) <= d && angle_dist(norm_mid, rhs) <= d
   return !anticlock ? cond : !cond
@@ -93,10 +95,12 @@ export function clamp(val: number, min: number, max: number): number {
 }
 
 export function cycle(val: number, min: number, max: number): number {
-  if (val > max)
+  if (val > max) {
     return min
-  if (val < min)
+  }
+  if (val < min) {
     return max
+  }
   return val
 }
 

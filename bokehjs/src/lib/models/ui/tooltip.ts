@@ -1,19 +1,23 @@
 import {UIElement, UIElementView} from "./ui_element"
+import {DOMNode} from "../dom/dom_node"
+import {Coordinate} from "../coordinates/coordinate"
 import {Selector} from "../selectors/selector"
-import type {HTMLView} from "../dom/html"
-import {HTML} from "../dom/html"
 import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {div, bounding_box, box_size} from "core/dom"
 import {DOMElementView} from "core/dom_view"
-import {isString} from "core/util/types"
+import {isString, isArray} from "core/util/types"
 import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
-import type {IterViews} from "core/build_views"
+import type {IterViews, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
+import {Model} from "model"
+
+const NativeNode = globalThis.Node
+type NativeNode = globalThis.Node
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
 import icons_css from "styles/icons.css"
@@ -40,7 +44,7 @@ export class TooltipView extends UIElementView {
         return this.owner.find_one(target)?.el ?? null
       } else if (target instanceof Selector) {
         return target.find_one(document)
-      } else if (target instanceof Node) {
+      } else if (target instanceof NativeNode) {
         return target
       } else {
         const {parent} = this
@@ -61,12 +65,12 @@ export class TooltipView extends UIElementView {
     this._init_target()
   }
 
-  protected _html: HTMLView | null = null
+  protected _element_view: ViewOf<DOMNode | UIElement> | null = null
 
   override *children(): IterViews {
     yield* super.children()
-    if (this._html != null) {
-      yield this._html
+    if (this._element_view != null) {
+      yield this._element_view
     }
   }
 
@@ -74,8 +78,8 @@ export class TooltipView extends UIElementView {
     await super.lazy_initialize()
 
     const {content} = this.model
-    if (content instanceof HTML) {
-      this._html = await build_view(content, {parent: this})
+    if (content instanceof Model) {
+      this._element_view = await build_view(content, {parent: this})
     }
 
     this.render()
@@ -123,7 +127,7 @@ export class TooltipView extends UIElementView {
   }
 
   override remove(): void {
-    this._html?.remove()
+    this._element_view?.remove()
     this._observer.disconnect()
     super.remove()
   }
@@ -132,13 +136,13 @@ export class TooltipView extends UIElementView {
     return [...super.stylesheets(), tooltips_css, icons_css]
   }
 
-  get content(): Node {
+  get content(): NativeNode {
     const {content} = this.model
     if (isString(content)) {
       return document.createTextNode(content)
-    } else if (content instanceof HTML) {
-      assert(this._html != null)
-      return this._html.el
+    } else if (content instanceof Model) {
+      assert(this._element_view != null)
+      return this._element_view.el
     } else {
       return content
     }
@@ -147,18 +151,17 @@ export class TooltipView extends UIElementView {
   override render(): void {
     super.render()
 
-    this._html?.render()
+    this._element_view?.render_to(null)
     this.arrow_el = div({class: [tooltips.arrow]})
     this.content_el = div({class: tooltips.tooltip_content}, this.content)
     this.shadow_el.append(this.arrow_el, this.content_el)
 
-    if (this.model.closable) {
-      const close_el = div({class: tooltips.close})
-      close_el.addEventListener("click", () => {
-        this.model.visible = false
-      })
-      this.shadow_el.appendChild(close_el)
-    }
+    this.class_list.toggle(tooltips.closable, this.model.closable)
+    const close_el = div({class: tooltips.close})
+    this.shadow_el.append(close_el)
+    close_el.addEventListener("click", () => {
+      this.model.visible = false
+    })
 
     this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
     this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
@@ -229,9 +232,12 @@ export class TooltipView extends UIElementView {
           }
         })()
         return [sx, sy]
-      } else {
+      } else if (isArray(position)) {
         const [x, y] = position
         return [bbox.left + x, bbox.top + y]
+      } else {
+        const {x, y} = this.resolve_as_xy(position)
+        return [x, y]
       }
     })()
 
@@ -363,9 +369,9 @@ export namespace Tooltip {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    target: p.Property<UIElement | Selector | Node | "auto">
-    position: p.Property<Anchor | [number, number] | null>
-    content: p.Property<string | HTML | Node>
+    target: p.Property<UIElement | Selector | NativeNode | "auto">
+    position: p.Property<Anchor | [number, number] | Coordinate | null>
+    content: p.Property<string | DOMNode | UIElement | NativeNode>
     attachment: p.Property<TooltipAttachment | "auto">
     show_arrow: p.Property<boolean>
     closable: p.Property<boolean>
@@ -387,9 +393,9 @@ export class Tooltip extends UIElement {
     this.prototype.default_view = TooltipView
 
     this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
-      target: [ Or(Ref(UIElement), Ref(Selector), Ref(Node), Auto), "auto" ],
-      position: [ Nullable(Or(Anchor, Tuple(Number, Number))), null ],
-      content: [ Or(String, Ref(HTML), Ref(Node)) ],
+      target: [ Or(Ref(UIElement), Ref(Selector), Ref(NativeNode), Auto), "auto" ],
+      position: [ Nullable(Or(Anchor, Tuple(Number, Number), Ref(Coordinate))), null ],
+      content: [ Or(String, Ref(DOMNode), Ref(UIElement), Ref(NativeNode)) ],
       attachment: [ Or(TooltipAttachment, Auto), "auto" ],
       show_arrow: [ Boolean, true ],
       closable: [ Boolean, false ],
@@ -399,6 +405,10 @@ export class Tooltip extends UIElement {
     this.override<Tooltip.Props>({
       visible: false,
     })
+  }
+
+  show({x, y}: {x: number, y: number}): void {
+    this.setv({position: [x, y], visible: true}, {check_eq: false}) // XXX: force update
   }
 
   clear(): void {

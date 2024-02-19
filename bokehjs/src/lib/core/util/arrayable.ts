@@ -28,27 +28,31 @@ export function is_sorted<T>(array: Arrayable<T>): boolean {
 }
 
 export function copy<T>(array: Arrayable<T>): Arrayable<T> {
-  if (Array.isArray(array))
+  if (Array.isArray(array)) {
     return array.slice()
-  else
+  } else {
     return new (array.constructor as any)(array)
+  }
 }
 
 export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T> {
   const len = array.length
 
-  if (start < 0)
+  if (start < 0) {
     start += len
+  }
 
-  if (start < 0)
+  if (start < 0) {
     start = 0
-  else if (start > len)
+  } else if (start > len) {
     start = len
+  }
 
-  if (k == null || k > len - start)
+  if (k == null || k > len - start) {
     k = len - start
-  else if (k < 0)
+  } else if (k < 0) {
     k = 0
+  }
 
   const n = len - k + items.length
 
@@ -147,8 +151,9 @@ export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array:
   let k = 0
   for (let i = 0; i < n; i++) {
     const value = array[i]
-    if (pred(value, i, array))
+    if (pred(value, i, array)) {
       result[k++] = value
+    }
   }
   return head(result, k)
 }
@@ -156,8 +161,9 @@ export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array:
 export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, index: number, array: Arrayable<T>) => T, initial?: T): T {
   const n = array.length
 
-  if (initial === undefined && n == 0)
+  if (initial === undefined && n == 0) {
     throw new Error("can't reduce an empty array without an initial value")
+  }
 
   let value: T
   let i: number
@@ -188,8 +194,12 @@ export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Array
     const a = left.key
     const b = right.key
     if (a !== b) {
-      if (a > b) return  1
-      if (a < b) return -1
+      if (a > b) {
+        return  1
+      }
+      if (a < b) {
+        return -1
+      }
     }
     return left.index - right.index
   })
@@ -251,10 +261,10 @@ export function minmax2(arr: Arrayable<number>, brr: Arrayable<number>): [number
     a = arr[i]
     b = brr[i]
     if (!isNaN(a) && !isNaN(b)) {
-      if (a < a_min) a_min = a
-      if (a > a_max) a_max = a
-      if (b < b_min) b_min = b
-      if (b > b_max) b_max = b
+      if (a < a_min) { a_min = a }
+      if (a > a_max) { a_max = a }
+      if (b < b_min) { b_min = b }
+      if (b > b_max) { b_max = b }
     }
   }
 
@@ -262,8 +272,9 @@ export function minmax2(arr: Arrayable<number>, brr: Arrayable<number>): [number
 }
 
 export function min_by<T>(array: Arrayable<T>, key: (item: T, i: number) => number): T {
-  if (array.length == 0)
+  if (array.length == 0) {
     throw new Error("min_by() called with an empty array")
+  }
 
   let result = array[0]
   let result_computed = key(result, 0)
@@ -281,8 +292,9 @@ export function min_by<T>(array: Arrayable<T>, key: (item: T, i: number) => numb
 }
 
 export function max_by<T>(array: Arrayable<T>, key: (item: T, i: number) => number): T {
-  if (array.length == 0)
+  if (array.length == 0) {
     throw new Error("max_by() called with an empty array")
+  }
 
   let result = array[0]
   let result_computed = key(result, 0)
@@ -318,16 +330,18 @@ export function cumsum(array: Arrayable<number>): Arrayable<number> {
 
 export function every<T>(iter: Iterable<T>, predicate: (item: T) => boolean): boolean {
   for (const item of iter) {
-    if (!predicate(item))
+    if (!predicate(item)) {
       return false
+    }
   }
   return true
 }
 
 export function some<T>(iter: Iterable<T>, predicate: (item: T) => boolean): boolean {
   for (const item of iter) {
-    if (predicate(item))
+    if (predicate(item)) {
       return true
+    }
   }
   return false
 }
@@ -337,8 +351,9 @@ function _find_index(dir: -1 | 1) {
     const length = array.length
     let index = dir > 0 ? 0 : length - 1
     for (; index >= 0 && index < length; index += dir) {
-      if (predicate(array[index]))
+      if (predicate(array[index])) {
         return index
+      }
     }
     return -1
   }
@@ -427,11 +442,11 @@ export function interpolate(points: Arrayable<number>, x_values: Arrayable<numbe
     }
 
     const index = left_edge_index(point, x_values)
-    if (index == -1)
+    if (index == -1) {
       results[i] = y_values[0]
-    else if (index == x_values.length)
+    } else if (index == x_values.length) {
       results[i] = y_values[y_values.length-1]
-    else if (index == x_values.length-1 || x_values[index] == point) {
+    } else if (index == x_values.length-1 || x_values[index] == point) {
       results[i] = y_values[index]
     } else {
       const x0 = x_values[index]
@@ -449,28 +464,33 @@ function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number
   let res = slope*(x-x0) + y0
   if (!isFinite(res)) {
     res = slope*(x-x1) + y1
-    if (!isFinite(res) && (y0 == y1))
+    if (!isFinite(res) && (y0 == y1)) {
       res = y0
+    }
   }
   return res
 }
 
 export function left_edge_index(point: number, intervals: Arrayable<number>): number {
-  if (point < intervals[0])
+  if (point < intervals[0]) {
     return -1
-  if (point > intervals[intervals.length - 1])
+  }
+  if (point > intervals[intervals.length - 1]) {
     return intervals.length
-  if (intervals.length == 1)
+  }
+  if (intervals.length == 1) {
     // Implies point == intervals[0]
     return 0
+  }
   let leftEdgeIndex = 0
   let rightEdgeIndex = intervals.length - 1
   while (rightEdgeIndex - leftEdgeIndex != 1) {
     const indexOfNumberToCompare = leftEdgeIndex + Math.floor((rightEdgeIndex - leftEdgeIndex)/2)
-    if (point >= intervals[indexOfNumberToCompare])
+    if (point >= intervals[indexOfNumberToCompare]) {
       leftEdgeIndex = indexOfNumberToCompare
-    else
+    } else {
       rightEdgeIndex = indexOfNumberToCompare
+    }
   }
   return leftEdgeIndex
 }

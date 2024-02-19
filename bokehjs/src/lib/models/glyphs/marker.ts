@@ -27,8 +27,9 @@ export abstract class MarkerView extends XYGlyphView {
       const size_i = size.get(i)
       const angle_i = angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + size_i + angle_i))
+      if (!isFinite(sx_i + sy_i + size_i + angle_i)) {
         continue
+      }
 
       const r = size_i/2
 

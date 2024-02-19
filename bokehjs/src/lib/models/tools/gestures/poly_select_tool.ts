@@ -62,16 +62,18 @@ export class PolySelectToolView extends RegionSelectToolView {
 
     const {active} = this.model.properties
     this.on_change(active, () => {
-      if (!this.model.active && !this.model.persistent)
+      if (!this.model.active && !this.model.persistent) {
         this._clear_overlay()
+      }
     })
   }
 
   override _tap(ev: TapEvent): void {
     const {sx, sy} = ev
     const {frame} = this.plot_view
-    if (!frame.bbox.contains(sx, sy))
+    if (!frame.bbox.contains(sx, sy)) {
       return
+    }
 
     this._clear_other_overlays()
 
@@ -105,8 +107,9 @@ export class PolySelectToolView extends RegionSelectToolView {
     this._do_select(sxs, sys, true, this._select_mode(ev))
     this.plot_view.state.push("poly_select", {selection: this.plot_view.get_selection()})
 
-    if (!this.model.persistent)
+    if (!this.model.persistent) {
       this._clear_overlay()
+    }
   }
 
   override _press(ev: TapEvent): void {
@@ -114,8 +117,9 @@ export class PolySelectToolView extends RegionSelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     if (ev.key == "Enter") {
       this._finish_selection(ev.modifiers)
@@ -133,9 +137,9 @@ export class PolySelectToolView extends RegionSelectToolView {
   }
 
   override _clear_selection(): void {
-    if (this.model.overlay.visible)
+    if (this.model.overlay.visible) {
       this._clear_overlay()
-    else {
+    } else {
       this._is_selecting = false
       super._clear_selection()
     }

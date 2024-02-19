@@ -40,15 +40,16 @@ export class LogTickFormatter extends TickFormatter {
   }
 
   override format_graphics(ticks: number[], opts: {loc: number}): GraphicsBox[] {
-    if (ticks.length == 0)
+    if (ticks.length == 0) {
       return []
+    }
 
     const base = this.ticker?.base ?? 10
     const expos = this._exponents(ticks, base)
 
-    if (expos == null)
+    if (expos == null) {
       return this.basic_formatter.format_graphics(ticks, opts)
-    else {
+    } else {
       return expos.map((expo) => {
         if (abs(expo) < this.min_exponent) {
           const b = new TextBox({text: unicode_replace(`${base**expo}`)})
@@ -71,26 +72,30 @@ export class LogTickFormatter extends TickFormatter {
       if (last_exponent != exponent) {
         last_exponent = exponent
         exponents.push(exponent)
-      } else
+      } else {
         return null
+      }
     }
     return exponents
   }
 
   doFormat(ticks: number[], opts: {loc: number}): string[] {
-    if (ticks.length == 0)
+    if (ticks.length == 0) {
       return []
+    }
 
     const base = this.ticker?.base ?? 10
     const expos = this._exponents(ticks, base)
-    if (expos == null)
+    if (expos == null) {
       return this.basic_formatter.doFormat(ticks, opts)
-    else
+    } else {
       return expos.map((expo) => {
-        if (abs(expo)<this.min_exponent)
+        if (abs(expo)<this.min_exponent) {
           return unicode_replace(`${base**expo}`)
-        else
+        } else {
           return unicode_replace(`${base}^${expo}`)
+        }
       })
+    }
   }
 }

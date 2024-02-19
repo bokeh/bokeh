@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, DictLike} from "./types"
+import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
 import type * as types from "./types"
 import {includes, repeat} from "./util/array"
@@ -148,8 +148,9 @@ export abstract class Property<T = unknown> {
   }
 
   initialize(initial_value: T | Unset = unset): void {
-    if (this._initialized)
+    if (this._initialized) {
       throw new Error("already initialized")
+    }
 
     let attr_value: T | Unset = unset
 
@@ -158,9 +159,9 @@ export abstract class Property<T = unknown> {
       this._dirty = true
     } else {
       const value = this._default_override()
-      if (value !== unset)
+      if (value !== unset) {
         attr_value = value
-      else {
+      } else {
         let themed = false
         if (global_theme != null) {
           const value = global_theme.get(this.obj, this.attr) as T | undefined
@@ -176,25 +177,30 @@ export abstract class Property<T = unknown> {
       }
     }
 
-    if (attr_value !== unset)
+    if (attr_value !== unset) {
+      if (this.kind.coerce != null) {
+        attr_value = this.kind.coerce(attr_value) as T
+      }
       this._update(attr_value)
-    else
+    } else {
       this._value = unset
+    }
 
     this._initialized = true
   }
 
   get_value(): T {
-    if (this._value !== unset)
+    if (this._value !== unset) {
       return this._value
-    else
+    } else {
       throw new UnsetValueError(`${this.obj}.${this.attr} is unset`)
+    }
   }
 
   set_value(val: T): void {
-    if (!this._initialized)
+    if (!this._initialized) {
       this.initialize(val)
-    else {
+    } else {
       this._update(val)
       this._dirty = true
     }
@@ -241,8 +247,9 @@ export abstract class Property<T = unknown> {
     this.validate(attr_value)
     if (this.convert != null) {
       const converted = this.convert(attr_value, this.obj)
-      if (converted !== undefined)
+      if (converted !== undefined) {
         attr_value = converted
+      }
     }
     this._value = attr_value
     this.on_update?.(attr_value, this.obj)
@@ -300,16 +307,17 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
   protected override _value: this["__scalar__"] | Unset = unset
 
   override get_value(): S {
-    if (this._value !== unset)
+    if (this._value !== unset) {
       return this._value
-    else
+    } else {
       throw new Error(`${this.obj}.${this.attr} is unset`)
+    }
   }
 
   protected override _update(attr_value: S | T): void {
-    if (isSpec(attr_value))
+    if (isSpec(attr_value)) {
       this._value = attr_value as S
-    else {
+    } else {
       this._value = {value: attr_value} as any // Value<T>
     }
 
@@ -318,18 +326,20 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
         return serializer.encode_struct((() => {
-          if (value !== undefined)
+          if (value !== undefined) {
             return {type: "value", value, transform, units}
-          else if (field !== undefined)
+          } else if (field !== undefined) {
             return {type: "field", field, transform, units}
-          else
+          } else {
             return {type: "expr", expr, transform, units}
+          }
         })())
       }
     }
 
-    if (isValue(this._value))
+    if (isValue(this._value)) {
       this.validate(this._value.value)
+    }
   }
 
   materialize(value: T): T {
@@ -346,15 +356,17 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     if (isExpr(obj)) {
       const {expr, transform} = obj
       let result = (expr as ScalarExpression<T>).compute(source)
-      if (transform != null)
+      if (transform != null) {
         result = transform.compute(result) as any
+      }
       result = this.materialize(result)
       return this.scalar(result, n)
     } else {
       const {value, transform} = obj
       let result = value
-      if (transform != null)
+      if (transform != null) {
         result = transform.compute(result)
+      }
       result = this.materialize(result as any)
       return this.scalar(result, n)
     }
@@ -363,7 +375,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
 
 /** @deprecated */
 export class AnyScalar extends ScalarSpec<any> {}
-export class DictScalar<T> extends ScalarSpec<DictLike<T>> {}
+export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
 export class ColorScalar extends ScalarSpec<types.Color | null> {}
 export class NumberScalar extends ScalarSpec<number> {}
 export class StringScalar extends ScalarSpec<string> {}
@@ -389,35 +401,39 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   protected override _value: this["__vector__"] | Unset = unset
 
   override get_value(): V {
-    if (this._value !== unset)
+    if (this._value !== unset) {
       return this._value
-    else
+    } else {
       throw new Error(`${this.obj}.${this.attr} is unset`)
+    }
   }
 
   protected override _update(attr_value: V | T): void {
-    if (isSpec(attr_value))
+    if (isSpec(attr_value)) {
       this._value = attr_value as V
-    else
-      this._value = {value: attr_value} as any // Value<T>
+    } else {
+      this._value = {value: attr_value} as any
+    } // Value<T>
 
     if (isPlainObject(this._value)) {
       const {_value} = this
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
         return serializer.encode_struct((() => {
-          if (value !== undefined)
+          if (value !== undefined) {
             return {type: "value", value, transform, units}
-          else if (field !== undefined)
+          } else if (field !== undefined) {
             return {type: "field", field, transform, units}
-          else
+          } else {
             return {type: "expr", expr, transform, units}
+          }
         })())
       }
     }
 
-    if (isValue(this._value))
+    if (isValue(this._value)) {
       this.validate(this._value.value)
+    }
   }
 
   materialize(value: T): T {
@@ -443,8 +459,9 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       const {field, transform} = obj
       let array = source.get_column(field)
       if (array != null) {
-        if (transform != null)
+        if (transform != null) {
           array = transform.v_compute(array)
+        }
         array = this.v_materialize(array)
         return this.vector(array)
       } else {
@@ -459,19 +476,22 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     } else if (isExpr(obj)) {
       const {expr, transform} = obj
       let array = (expr as VectorExpression<T>).v_compute(source)
-      if (transform != null)
+      if (transform != null) {
         array = transform.v_compute(array) as any
+      }
       array = this.v_materialize(array)
       return this.vector(array)
     } else if (isValue(obj)) {
       const {value, transform} = obj
       let result = value
-      if (transform != null)
+      if (transform != null) {
         result = transform.compute(result)
+      }
       result = this.materialize(result as any)
       return this.scalar(result, n)
-    } else
+    } else {
       unreachable()
+    }
   }
 
   array(source: ColumnarDataSource): Arrayable<unknown> {
@@ -483,9 +503,9 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     if (isField(obj)) {
       const {field} = obj
       const column = source.get_column(field)
-      if (column != null)
+      if (column != null) {
         array = this.normalize(column)
-      else {
+      } else {
         const message = `attempted to retrieve property array for nonexistent field '${field}'`
         if (settings.force_fields) {
           throw new Error(message)
@@ -505,13 +525,15 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         const values = new Float64Array(length)
         values.fill(value)
         array = values
-      } else
+      } else {
         array = repeat(value, length)
+      }
     }
 
     const {transform} = obj
-    if (transform != null)
+    if (transform != null) {
       array = transform.v_compute(array)
+    }
     return array
   }
 }
@@ -541,12 +563,14 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 
   set units(units: Units) {
     if (this._value !== unset) {
-      if (units != this.default_units)
+      if (units != this.default_units) {
         this._value.units = units
-      else
+      } else {
         delete this._value.units
-    } else
+      }
+    } else {
       throw new Error(`${this.obj}.${this.attr} is unset`)
+    }
   }
 }
 
@@ -564,18 +588,34 @@ export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor>
 export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
 export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
 
-export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
-export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
+export class XCoordinateSpec extends CoordinateSpec {
+  readonly dimension = "x"
+}
+export class YCoordinateSpec extends CoordinateSpec {
+  readonly dimension = "y"
+}
 
-export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
-export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
+export class XCoordinateSeqSpec extends CoordinateSeqSpec {
+  readonly dimension = "x"
+}
+export class YCoordinateSeqSpec extends CoordinateSeqSpec {
+  readonly dimension = "y"
+}
 
-export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "x" }
-export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
+export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
+  readonly dimension = "x"
+}
+export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
+  readonly dimension = "y"
+}
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
-  get default_units(): enums.AngleUnits { return "rad" }
-  get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
+  get default_units(): enums.AngleUnits {
+    return "rad"
+  }
+  get valid_units(): enums.AngleUnits[] {
+    return [...enums.AngleUnits]
+  }
 
   override materialize(value: number): number {
     const coeff = -to_radians_coeff(this.units)
@@ -595,8 +635,12 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
 }
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
-  get default_units(): enums.SpatialUnits { return "data" }
-  get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
+  get default_units(): enums.SpatialUnits {
+    return "data"
+  }
+  get valid_units(): enums.SpatialUnits[] {
+    return [...enums.SpatialUnits]
+  }
 }
 
 export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null

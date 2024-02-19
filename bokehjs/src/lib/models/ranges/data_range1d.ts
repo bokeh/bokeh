@@ -152,15 +152,17 @@ export class DataRange1d extends DataRange {
   /*protected*/ _compute_min_max(plot_bounds: Iterable<[PlotView, Rect]>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const [plot, rect] of plot_bounds) {
-      if (plot.model.visible)
+      if (plot.model.visible) {
         overall = bbox.union(overall, rect)
+      }
     }
 
     let min, max: number
-    if (dimension == 0)
+    if (dimension == 0) {
       [min, max] = [overall.x0, overall.x1]
-    else
+    } else {
       [min, max] = [overall.y0, overall.y1]
+    }
 
     return [min, max]
   }
@@ -170,24 +172,28 @@ export class DataRange1d extends DataRange {
 
     let start, end: number
 
-    if (this._initial_start != null)
+    if (this._initial_start != null) {
       min = this._initial_start
-    if (this._initial_end != null)
+    }
+    if (this._initial_end != null) {
       max = this._initial_end
+    }
 
     if (this.scale_hint == "log") {
       if (isNaN(min) || !isFinite(min) || min <= 0) {
-        if (isNaN(max) || !isFinite(max) || max <= 0)
+        if (isNaN(max) || !isFinite(max) || max <= 0) {
           min = 0.1
-        else
+        } else {
           min = max / 100
+        }
         logger.warn(`could not determine minimum data value for log axis, DataRange1d using value ${min}`)
       }
       if (isNaN(max) || !isFinite(max) || max <= 0) {
-        if (isNaN(min) || !isFinite(min) || min <= 0)
+        if (isNaN(min) || !isFinite(min) || min <= 0) {
           max = 10
-        else
+        } else {
           max = min * 100
+        }
         logger.warn(`could not determine maximum data value for log axis, DataRange1d using value ${max}`)
       }
 
@@ -212,13 +218,14 @@ export class DataRange1d extends DataRange {
       end   = 10**(center + span / 2.0)
     } else {
       let span: number
-      if (max == min)
+      if (max == min) {
         span = this.default_span
-      else {
-        if (this.range_padding_units == "percent")
+      } else {
+        if (this.range_padding_units == "percent") {
           span = (max - min)*(1 + range_padding)
-        else
+        } else {
           span = (max - min) + 2*range_padding
+        }
       }
       const center = (max + min) / 2.0
       start = center - span / 2.0
@@ -233,26 +240,29 @@ export class DataRange1d extends DataRange {
 
     const follow_interval = this.follow_interval
     if (follow_interval != null && Math.abs(start - end) > follow_interval) {
-      if (this.follow == "start")
+      if (this.follow == "start") {
         end = start + follow_sign*follow_interval
-      else if (this.follow == "end")
+      } else if (this.follow == "end") {
         start = end - follow_sign*follow_interval
+      }
     }
 
     return [start, end]
   }
 
   update(bounds: Bounds, dimension: Dim, plot: PlotView, ratio?: number): void {
-    if (this.have_updated_interactively)
+    if (this.have_updated_interactively) {
       return
+    }
 
     const renderers = this.computed_renderers()
 
     // update the raw data bounds for all renderers we care about
     let total_bounds = this._compute_plot_bounds(renderers, bounds)
 
-    if (ratio != null)
+    if (ratio != null) {
       total_bounds = this.adjust_bounds_for_aspect(total_bounds, ratio)
+    }
 
     this._plot_bounds.set(plot, total_bounds)
 
@@ -264,17 +274,21 @@ export class DataRange1d extends DataRange {
 
     if (this._initial_start != null) {
       if (this.scale_hint == "log") {
-        if (this._initial_start > 0)
+        if (this._initial_start > 0) {
           start = this._initial_start
-      } else
+        }
+      } else {
         start = this._initial_start
+      }
     }
     if (this._initial_end != null) {
       if (this.scale_hint == "log") {
-        if (this._initial_end > 0)
+        if (this._initial_end > 0) {
           end = this._initial_end
-      } else
+        }
+      } else {
         end = this._initial_end
+      }
     }
 
     let needs_emit = false
@@ -287,10 +301,12 @@ export class DataRange1d extends DataRange {
     const [_start, _end] = [this.start, this.end]
     if (start != _start || end != _end) {
       const new_range: {start?: number, end?: number} = {}
-      if (start != _start)
+      if (start != _start) {
         new_range.start = start
-      if (end != _end)
+      }
+      if (end != _end) {
         new_range.end = end
+      }
       this.setv(new_range)
       needs_emit = false
     }

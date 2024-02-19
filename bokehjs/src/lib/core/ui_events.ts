@@ -267,8 +267,9 @@ export class UIEventBus {
     const views = plot_view.get_renderer_views()
 
     for (const view of reversed(views)) {
-      if (view.interactive_hit?.(sx, sy) ?? false)
+      if (view.interactive_hit?.(sx, sy) ?? false) {
         return view
+      }
     }
 
     return null
@@ -285,8 +286,9 @@ export class UIEventBus {
   hit_test_plot(sx: number, sy: number): PlotView | null {
     // TODO: z-index
     for (const plot_view of this.canvas_view.plot_views) {
-      if (plot_view.bbox.relative()/*XXX*/.contains(sx, sy))
+      if (plot_view.bbox.relative()/*XXX*/.contains(sx, sy)) {
         return plot_view
+      }
     }
 
     return null
@@ -418,9 +420,9 @@ export class UIEventBus {
           }
         }
       } else {
-        if (event_type == "pan")
+        if (event_type == "pan") {
           this._current_pan_view.on_pan(e as PanEvent)
-        else if (event_type == "pan:end") {
+        } else if (event_type == "pan:end") {
           this._current_pan_view.on_pan_end(e as PanEvent)
           this._current_pan_view = null
         }
@@ -439,9 +441,9 @@ export class UIEventBus {
           }
         }
       } else {
-        if (event_type == "pinch")
+        if (event_type == "pinch") {
           this._current_pinch_view.on_pinch(e as PinchEvent)
-        else if (event_type == "pinch:end") {
+        } else if (event_type == "pinch:end") {
           this._current_pinch_view.on_pinch_end(e as PinchEvent)
           this._current_pinch_view = null
         }
@@ -460,9 +462,9 @@ export class UIEventBus {
           }
         }
       } else {
-        if (event_type == "rotate")
+        if (event_type == "rotate") {
           this._current_rotate_view.on_rotate(e as RotateEvent)
-        else if (event_type == "rotate:end") {
+        } else if (event_type == "rotate:end") {
           this._current_rotate_view.on_rotate_end(e as RotateEvent)
           this._current_rotate_view = null
         }
@@ -545,16 +547,18 @@ export class UIEventBus {
 
         if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.tap.active
-          if (active_gesture != null)
+          if (active_gesture != null) {
             this.trigger(signal, e, active_gesture)
+          }
         }
         break
       }
       case "doubletap": {
         if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.doubletap.active ?? gestures.tap.active
-          if (active_gesture != null)
+          if (active_gesture != null) {
             this.trigger(signal, e, active_gesture)
+          }
         }
         break
       }
@@ -605,8 +609,9 @@ export class UIEventBus {
       }
       default: {
         const active_gesture = gestures[base_type].active
-        if (active_gesture != null)
+        if (active_gesture != null) {
           this.trigger(signal, e, active_gesture)
+        }
       }
     }
 

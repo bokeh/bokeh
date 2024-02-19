@@ -1,0 +1,758 @@
+{
+  roots: [
+    {
+      type: "object",
+      name: "Plot",
+      id: "p1016",
+      attributes: {
+        name: null,
+        tags: [],
+        js_event_callbacks: {
+          type: "map",
+        },
+        js_property_callbacks: {
+          type: "map",
+        },
+        subscribed_events: {
+          type: "set",
+        },
+        syncable: true,
+        visible: true,
+        css_classes: [],
+        css_variables: {
+          type: "map",
+        },
+        styles: {
+          type: "map",
+        },
+        stylesheets: [],
+        context_menu: null,
+        elements: [],
+        disabled: false,
+        width: 600,
+        height: 600,
+        min_width: null,
+        min_height: null,
+        max_width: null,
+        max_height: null,
+        margin: null,
+        width_policy: "auto",
+        height_policy: "auto",
+        aspect_ratio: null,
+        flow_mode: "block",
+        sizing_mode: null,
+        align: "auto",
+        resizable: false,
+        x_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1017",
+          attributes: {
+            name: null,
+            tags: [],
+            js_event_callbacks: {
+              type: "map",
+            },
+            js_property_callbacks: {
+              type: "map",
+            },
+            subscribed_events: {
+              type: "set",
+            },
+            syncable: true,
+            start: {
+              type: "number",
+              value: "nan",
+            },
+            end: {
+              type: "number",
+              value: "nan",
+            },
+            renderers: [],
+            range_padding: 0.1,
+            range_padding_units: "percent",
+            bounds: null,
+            min_interval: null,
+            max_interval: null,
+            flipped: false,
+            follow: null,
+            follow_interval: null,
+            default_span: 2.0,
+            only_visible: false,
+          },
+        },
+        y_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1018",
+          attributes: {
+            name: null,
+            tags: [],
+            js_event_callbacks: {
+              type: "map",
+            },
+            js_property_callbacks: {
+              type: "map",
+            },
+            subscribed_events: {
+              type: "set",
+            },
+            syncable: true,
+            start: {
+              type: "number",
+              value: "nan",
+            },
+            end: {
+              type: "number",
+              value: "nan",
+            },
+            renderers: [],
+            range_padding: 0.1,
+            range_padding_units: "percent",
+            bounds: null,
+            min_interval: null,
+            max_interval: null,
+            flipped: false,
+            follow: null,
+            follow_interval: null,
+            default_span: 2.0,
+            only_visible: false,
+          },
+        },
+        x_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1019",
+          attributes: {
+            name: null,
+            tags: [],
+            js_event_callbacks: {
+              type: "map",
+            },
+            js_property_callbacks: {
+              type: "map",
+            },
+            subscribed_events: {
+              type: "set",
+            },
+            syncable: true,
+          },
+        },
+        y_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1020",
+          attributes: {
+            name: null,
+            tags: [],
+            js_event_callbacks: {
+              type: "map",
+            },
+            js_property_callbacks: {
+              type: "map",
+            },
+            subscribed_events: {
+              type: "set",
+            },
+            syncable: true,
+          },
+        },
+        extra_x_ranges: {
+          type: "map",
+        },
+        extra_y_ranges: {
+          type: "map",
+        },
+        extra_x_scales: {
+          type: "map",
+        },
+        extra_y_scales: {
+          type: "map",
+        },
+        hidpi: true,
+        title: {
+          type: "object",
+          name: "Title",
+          id: "p1021",
+          attributes: {
+            name: null,
+            tags: [],
+            js_event_callbacks: {
+              type: "map",
+            },
+            js_property_callbacks: {
+              type: "map",
+            },
+            subscribed_events: {
+              type: "set",
+            },
+            syncable: true,
+            level: "annotation",
+            visible: true,
+            coordinates: null,
+            x_range_name: "default",
+            y_range_name: "default",
+            group: null,
+            propagate_hover: false,
+            context_menu: null,
+            renderers: [],
+            elements: [],
+            text: "",
+            padding: 0,
+            border_radius: 0,
+            text_color: "#444444",
+            text_outline_color: null,
+            text_alpha: 1.0,
+            text_font: "helvetica",
+            text_font_size: "13px",
+            text_font_style: "bold",
+            text_align: "left",
+            text_baseline: "bottom",
+            text_line_height: 1.0,
+            background_fill_color: null,
+            background_fill_alpha: 1.0,
+            background_hatch_color: null,
+            background_hatch_alpha: 1.0,
+            background_hatch_scale: 12.0,
+            background_hatch_pattern: null,
+            background_hatch_weight: 1.0,
+            background_hatch_extra: {
+              type: "map",
+            },
+            border_line_color: null,
+            border_line_alpha: 1.0,
+            border_line_width: 1,
+            border_line_join: "bevel",
+            border_line_cap: "butt",
+            border_line_dash: [],
+            border_line_dash_offset: 0,
+            vertical_align: "bottom",
+            align: "left",
+            offset: 0,
+            standoff: 10,
+          },
+        },
+        title_location: "above",
+        outline_line_color: "#e5e5e5",
+        outline_line_alpha: 1.0,
+        outline_line_width: 1,
+        outline_line_join: "bevel",
+        outline_line_cap: "butt",
+        outline_line_dash: [],
+        outline_line_dash_offset: 0,
+        renderers: [
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1005",
+            attributes: {
+              name: null,
+              tags: [],
+              js_event_callbacks: {
+                type: "map",
+              },
+              js_property_callbacks: {
+                type: "map",
+              },
+              subscribed_events: {
+                type: "set",
+              },
+              syncable: true,
+              level: "glyph",
+              visible: true,
+              coordinates: null,
+              x_range_name: "default",
+              y_range_name: "default",
+              group: null,
+              propagate_hover: false,
+              context_menu: null,
+              data_source: {
+                type: "object",
+                name: "ColumnDataSource",
+                id: "p1002",
+                attributes: {
+                  name: null,
+                  tags: [],
+                  js_event_callbacks: {
+                    type: "map",
+                  },
+                  js_property_callbacks: {
+                    type: "map",
+                  },
+                  subscribed_events: {
+                    type: "set",
+                  },
+                  syncable: true,
+                  selected: {
+                    type: "object",
+                    name: "Selection",
+                    id: "p1003",
+                    attributes: {
+                      name: null,
+                      tags: [],
+                      js_event_callbacks: {
+                        type: "map",
+                      },
+                      js_property_callbacks: {
+                        type: "map",
+                      },
+                      subscribed_events: {
+                        type: "set",
+                      },
+                      syncable: true,
+                      indices: [],
+                      line_indices: [],
+                      multiline_indices: {
+                        type: "map",
+                      },
+                      image_indices: [],
+                    },
+                  },
+                  default_values: {
+                    type: "map",
+                  },
+                  selection_policy: {
+                    type: "object",
+                    name: "UnionRenderers",
+                    id: "p1004",
+                    attributes: {
+                      name: null,
+                      tags: [],
+                      js_event_callbacks: {
+                        type: "map",
+                      },
+                      js_property_callbacks: {
+                        type: "map",
+                      },
+                      subscribed_events: {
+                        type: "set",
+                      },
+                      syncable: true,
+                    },
+                  },
+                  data: {
+                    type: "map",
+                  },
+                },
+              },
+              view: {
+                type: "object",
+                name: "CDSView",
+                id: "p1006",
+                attributes: {
+                  name: null,
+                  tags: [],
+                  js_event_callbacks: {
+                    type: "map",
+                  },
+                  js_property_callbacks: {
+                    type: "map",
+                  },
+                  subscribed_events: {
+                    type: "set",
+                  },
+                  syncable: true,
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1007",
+                    attributes: {
+                      name: null,
+                      tags: [],
+                      js_event_callbacks: {
+                        type: "map",
+                      },
+                      js_property_callbacks: {
+                        type: "map",
+                      },
+                      subscribed_events: {
+                        type: "set",
+                      },
+                      syncable: true,
+                    },
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "Rect",
+                id: "p1001",
+                attributes: {
+                  name: null,
+                  tags: [],
+                  js_event_callbacks: {
+                    type: "map",
+                  },
+                  js_property_callbacks: {
+                    type: "map",
+                  },
+                  subscribed_events: {
+                    type: "set",
+                  },
+                  syncable: true,
+                  decorations: [],
+                  x: {
+                    type: "value",
+                    value: 0,
+                  },
+                  y: {
+                    type: "value",
+                    value: 0,
+                  },
+                  width: {
+                    type: "value",
+                    value: 1,
+                  },
+                  height: {
+                    type: "value",
+                    value: 1,
+                  },
+                  angle: {
+                    type: "value",
+                    value: 0.0,
+                  },
+                  border_radius: 0,
+                  dilate: false,
+                  line_color: {
+                    type: "value",
+                    value: "black",
+                  },
+                  line_alpha: {
+                    type: "value",
+                    value: 1.0,
+                  },
+                  line_width: {
+                    type: "value",
+                    value: 1,
+                  },
+                  line_join: {
+                    type: "value",
+                    value: "bevel",
+                  },
+                  line_cap: {
+                    type: "value",
+                    value: "butt",
+                  },
+                  line_dash: {
+                    type: "value",
+                    value: [],
+                  },
+                  line_dash_offset: {
+                    type: "value",
+                    value: 0,
+                  },
+                  fill_color: {
+                    type: "value",
+                    value: "gray",
+                  },
+                  fill_alpha: {
+                    type: "value",
+                    value: 1.0,
+                  },
+                  hatch_color: {
+                    type: "value",
+                    value: "black",
+                  },
+                  hatch_alpha: {
+                    type: "value",
+                    value: 1.0,
+                  },
+                  hatch_scale: {
+                    type: "value",
+                    value: 12.0,
+                  },
+                  hatch_pattern: {
+                    type: "value",
+                    value: null,
+                  },
+                  hatch_weight: {
+                    type: "value",
+                    value: 1.0,
+                  },
+                  hatch_extra: {
+                    type: "map",
+                  },
+                },
+              },
+              selection_glyph: "auto",
+              nonselection_glyph: "auto",
+              hover_glyph: null,
+              muted_glyph: "auto",
+              muted: false,
+            },
+          },
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1013",
+            attributes: {
+              name: null,
+              tags: [],
+              js_event_callbacks: {
+                type: "map",
+              },
+              js_property_callbacks: {
+                type: "map",
+              },
+              subscribed_events: {
+                type: "set",
+              },
+              syncable: true,
+              level: "glyph",
+              visible: true,
+              coordinates: null,
+              x_range_name: "default",
+              y_range_name: "default",
+              group: null,
+              propagate_hover: false,
+              context_menu: null,
+              data_source: {
+                type: "object",
+                name: "ColumnDataSource",
+                id: "p1010",
+                attributes: {
+                  name: null,
+                  tags: [],
+                  js_event_callbacks: {
+                    type: "map",
+                  },
+                  js_property_callbacks: {
+                    type: "map",
+                  },
+                  subscribed_events: {
+                    type: "set",
+                  },
+                  syncable: true,
+                  selected: {
+                    type: "object",
+                    name: "Selection",
+                    id: "p1009",
+                    attributes: {
+                      name: null,
+                      tags: [],
+                      js_event_callbacks: {
+                        type: "map",
+                      },
+                      js_property_callbacks: {
+                        type: "map",
+                      },
+                      subscribed_events: {
+                        type: "set",
+                      },
+                      syncable: true,
+                      indices: [],
+                      line_indices: [],
+                      multiline_indices: {
+                        type: "map",
+                      },
+                      image_indices: [],
+                    },
+                  },
+                  default_values: {
+                    type: "map",
+                  },
+                  selection_policy: {
+                    type: "object",
+                    name: "UnionRenderers",
+                    id: "p1012",
+                    attributes: {
+                      name: null,
+                      tags: [],
+                      js_event_callbacks: {
+                        type: "map",
+                      },
+                      js_property_callbacks: {
+                        type: "map",
+                      },
+                      subscribed_events: {
+                        type: "set",
+                      },
+                      syncable: true,
+                    },
+                  },
+                  data: {
+                    type: "map",
+                  },
+                },
+              },
+              view: {
+                type: "object",
+                name: "CDSView",
+                id: "p1014",
+                attributes: {
+                  name: null,
+                  tags: [],
+                  js_event_callbacks: {
+                    type: "map",
+                  },
+                  js_property_callbacks: {
+                    type: "map",
+                  },
+                  subscribed_events: {
+                    type: "set",
+                  },
+                  syncable: true,
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1015",
+                    attributes: {
+                      name: null,
+                      tags: [],
+                      js_event_callbacks: {
+                        type: "map",
+                      },
+                      js_property_callbacks: {
+                        type: "map",
+                      },
+                      subscribed_events: {
+                        type: "set",
+                      },
+                      syncable: true,
+                    },
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "MultiLine",
+                id: "p1008",
+                attributes: {
+                  name: null,
+                  tags: [],
+                  js_event_callbacks: {
+                    type: "map",
+                  },
+                  js_property_callbacks: {
+                    type: "map",
+                  },
+                  subscribed_events: {
+                    type: "set",
+                  },
+                  syncable: true,
+                  decorations: [],
+                  xs: {
+                    type: "value",
+                    value: [
+                      1,
+                      2,
+                      3,
+                    ],
+                  },
+                  ys: {
+                    type: "value",
+                    value: [
+                      1,
+                      2,
+                      3,
+                    ],
+                  },
+                  line_color: {
+                    type: "value",
+                    value: "black",
+                  },
+                  line_alpha: {
+                    type: "value",
+                    value: 1.0,
+                  },
+                  line_width: {
+                    type: "value",
+                    value: 1,
+                  },
+                  line_join: {
+                    type: "value",
+                    value: "bevel",
+                  },
+                  line_cap: {
+                    type: "value",
+                    value: "butt",
+                  },
+                  line_dash: {
+                    type: "value",
+                    value: [],
+                  },
+                  line_dash_offset: {
+                    type: "value",
+                    value: 0,
+                  },
+                },
+              },
+              selection_glyph: "auto",
+              nonselection_glyph: "auto",
+              hover_glyph: null,
+              muted_glyph: "auto",
+              muted: false,
+            },
+          },
+        ],
+        toolbar: {
+          type: "object",
+          name: "Toolbar",
+          id: "p1022",
+          attributes: {
+            name: null,
+            tags: [],
+            js_event_callbacks: {
+              type: "map",
+            },
+            js_property_callbacks: {
+              type: "map",
+            },
+            subscribed_events: {
+              type: "set",
+            },
+            syncable: true,
+            visible: true,
+            css_classes: [],
+            css_variables: {
+              type: "map",
+            },
+            styles: {
+              type: "map",
+            },
+            stylesheets: [],
+            context_menu: null,
+            logo: "normal",
+            autohide: false,
+            tools: [],
+            active_drag: "auto",
+            active_inspect: "auto",
+            active_scroll: "auto",
+            active_tap: "auto",
+            active_multi: "auto",
+          },
+        },
+        toolbar_location: "right",
+        toolbar_sticky: true,
+        toolbar_inner: false,
+        left: [],
+        right: [],
+        above: [],
+        below: [],
+        center: [],
+        frame_width: null,
+        frame_height: null,
+        frame_align: true,
+        background_fill_color: "#ffffff",
+        background_fill_alpha: 1.0,
+        border_fill_color: "#ffffff",
+        border_fill_alpha: 1.0,
+        min_border_top: null,
+        min_border_bottom: null,
+        min_border_left: null,
+        min_border_right: null,
+        min_border: 5,
+        lod_factor: 10,
+        lod_threshold: 2000,
+        lod_interval: 300,
+        lod_timeout: 500,
+        output_backend: "canvas",
+        match_aspect: false,
+        aspect_scale: 1,
+        reset_policy: "standard",
+        hold_render: false,
+        attribution: [],
+      },
+    },
+  ],
+}

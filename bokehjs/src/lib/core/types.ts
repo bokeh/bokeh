@@ -39,10 +39,12 @@ export function infer_type(a0: FloatArray, a1: FloatArray): FloatArrayConstructo
 export function infer_type(a0: Arrayable<number>, a1?: Arrayable<number>): FloatArrayConstructor
 
 export function infer_type(a0: Arrayable<number>, a1?: Arrayable<number>): FloatArrayConstructor {
-  if (a0 instanceof Float64Array || a0 instanceof Array)
+  if (a0 instanceof Float64Array || a0 instanceof Array) {
     return Float64Array
-  if (a1 instanceof Float64Array || a1 instanceof Array)
+  }
+  if (a1 instanceof Float64Array || a1 instanceof Array) {
     return Float64Array
+  }
   return Float32Array
 }
 
@@ -50,10 +52,11 @@ export type ScreenArray = Float32Array
 export const ScreenArray = Float32Array
 
 export function to_screen(array: Iterable<number>): ScreenArray {
-  if (!(array instanceof Float32Array))
+  if (!(array instanceof Float32Array)) {
     return Float32Array.from(array)
-  else
+  } else {
     return array
+  }
 }
 
 export type Arrayable<T = any> = {
@@ -71,9 +74,9 @@ export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 
 export type PlainObject<T = unknown> = {[key: string]: T}
 
-export type DictLike<T> = PlainObject<T> | Map<string, T>
+export type Dict<T> = PlainObject<T> | Map<string, T>
 
-export type Data<T = unknown> = DictLike<Arrayable<T>>
+export type Data<T = unknown> = Dict<Arrayable<T>>
 
 export type Attrs = PlainObject<unknown>
 

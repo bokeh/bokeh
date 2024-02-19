@@ -27,11 +27,13 @@ export class MercatorTickFormatter extends BasicTickFormatter {
   }
 
   override doFormat(ticks: number[], opts: {loc: number}): string[] {
-    if (this.dimension == null)
+    if (this.dimension == null) {
       throw new Error("MercatorTickFormatter.dimension not configured")
+    }
 
-    if (ticks.length == 0)
+    if (ticks.length == 0) {
       return []
+    }
 
     const n = ticks.length
     const proj_ticks = new Array(n)

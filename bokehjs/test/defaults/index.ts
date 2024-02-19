@@ -26,10 +26,6 @@ import defaults_json5 from "./defaults.json5"
 
 function _transform_defaults(obj: unknown): void {
   if (isPlainObject(obj)) {
-    if (obj.type == "map") {
-      delete obj.plain
-    }
-
     for (const val of values(obj)) {
       _transform_defaults(val)
     }

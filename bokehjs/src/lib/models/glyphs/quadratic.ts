@@ -31,9 +31,9 @@ export class QuadraticView extends GlyphView {
       const cx_i = cx[i]
       const cy_i = cy[i]
 
-      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
+      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i)) {
         index.add_empty()
-      else {
+      } else {
         const {x0, y0, x1, y1} = qbb(x0_i, y0_i, cx_i, cy_i, x1_i, y1_i)
         index.add_rect(x0, y0, x1, y1)
       }
@@ -41,8 +41,9 @@ export class QuadraticView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Quadratic.Data>): void {
-    if (!this.visuals.line.doit)
+    if (!this.visuals.line.doit) {
       return
+    }
 
     const {sx0, sy0, sx1, sy1, scx, scy} = {...this, ...data}
 
@@ -54,8 +55,9 @@ export class QuadraticView extends GlyphView {
       const scx_i = scx[i]
       const scy_i = scy[i]
 
-      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
+      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.moveTo(sx0_i, sy0_i)

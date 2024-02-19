@@ -1,4 +1,4 @@
-import type {Arrayable, Data, DictLike} from "core/types"
+import type {Arrayable, Data, Dict} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import type {NDArray} from "core/util/ndarray"
 import {dict} from "core/util/object"
@@ -11,10 +11,11 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
   if (isArray(col) && isArray(new_col)) {
     const result = col.concat(new_col)
 
-    if (rollover != null && result.length > rollover)
+    if (rollover != null && result.length > rollover) {
       return result.slice(-rollover)
-    else
+    } else {
       return result
+    }
   }
 
   const total_len = col.length + new_col.length
@@ -28,19 +29,21 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
     const result = (() => {
       if (col.length < rollover) {
         const ctor = (() => {
-          if (isTypedArray(col))
+          if (isTypedArray(col)) {
             return col.constructor
-          else if (isTypedArray(new_col))
+          } else if (isTypedArray(new_col)) {
             return new_col.constructor
-          else
+          } else {
             throw new Error("unsupported array types")
+          }
         })()
 
         const result = new ctor(rollover)
         result.set(col, 0)
         return result
-      } else
+      } else {
         return col
+      }
     })()
 
     // shift values in original col to accommodate new_col
@@ -56,12 +59,13 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
     return result
   } else {
     const col_ = (() => {
-      if (isTypedArray(col))
+      if (isTypedArray(col)) {
         return col
-      else if (isTypedArray(new_col))
+      } else if (isTypedArray(new_col)) {
         return new new_col.constructor(col)
-      else
+      } else {
         throw new Error("unsupported array types")
+      }
     })()
     return typed_array.concat(col_, new_col)
   }
@@ -86,7 +90,7 @@ export function slice(ind: number | Slice, length: number): [number, number, num
 
 export type Patch<T> = [number, T] | [[number, number | Slice] | [number, number | Slice, number | Slice], T[]] | [Slice, T[]]
 
-export type PatchSet<T> = DictLike<Patch<T>[]>
+export type PatchSet<T> = Dict<Patch<T>[]>
 
 // exported for testing
 export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]): Set<number> {
@@ -112,8 +116,9 @@ export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]):
       if (ind.length === 2) {
         shape = [1, shape[0]]
         index = [ind[0], 0, ind[1]]
-      } else
+      } else {
         index = ind
+      }
     } else {
       if (isNumber(ind)) {
         value = [val]

@@ -32,14 +32,16 @@ export class BoxEditToolView extends EditToolView {
   protected _recent_renderers: GlyphRenderer[] = []
 
   override _tap(ev: TapEvent): void {
-    if ((this._draw_basepoint != null) || (this._basepoint != null))
+    if ((this._draw_basepoint != null) || (this._basepoint != null)) {
       return
+    }
     this._recent_renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame)
+    if (!this.model.active || !this._mouse_in_frame) {
       return
+    }
     for (const renderer of this.model.renderers) {
       if (ev.key == "Backspace") {
         this._delete_selected(renderer)
@@ -55,8 +57,9 @@ export class BoxEditToolView extends EditToolView {
               append: boolean, emit: boolean = false): void {
     const renderer = this._recent_renderers[0] ?? this.model.renderers[0]
     const renderer_view = this.plot_view.renderer_view(renderer)
-    if (renderer_view == null)
+    if (renderer_view == null) {
       return
+    }
     const {glyph} = renderer
     const cds = renderer.data_source
     const data = dict(cds.data)
@@ -147,8 +150,9 @@ export class BoxEditToolView extends EditToolView {
       this._pad_empty_columns(cds, keys(fields))
     } else {
       const length = cds.get_length()
-      if (length == null)
+      if (length == null) {
         return
+      }
       const index = length - 1
       for (const [key, val] of entries(fields)) {
         data.get(key)![index] = val
@@ -158,8 +162,9 @@ export class BoxEditToolView extends EditToolView {
   }
 
   _update_box(ev: UIEvent, append: boolean = false, emit: boolean = false): void {
-    if (this._draw_basepoint == null)
+    if (this._draw_basepoint == null) {
       return
+    }
     const curpoint: [number, number] = [ev.sx, ev.sy]
     const frame = this.plot_view.frame
     const dims = this.model.dimensions
@@ -168,8 +173,9 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _press(ev: TapEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
     if (this._draw_basepoint != null) {
       this._update_box(ev, false, true)
       this._draw_basepoint = null
@@ -186,13 +192,15 @@ export class BoxEditToolView extends EditToolView {
 
   override _pan_start(ev: PanEvent): void {
     if (ev.modifiers.shift) {
-      if (this._draw_basepoint != null)
+      if (this._draw_basepoint != null) {
         return
+      }
       this._draw_basepoint = [ev.sx, ev.sy]
       this._update_box(ev, true, false)
     } else {
-      if (this._basepoint != null)
+      if (this._basepoint != null) {
         return
+      }
       this._recent_renderers = this._select_event(ev, "append", this.model.renderers)
       this._basepoint = [ev.sx, ev.sy]
     }
@@ -200,19 +208,22 @@ export class BoxEditToolView extends EditToolView {
 
   override _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
     if (ev.modifiers.shift) {
-      if (this._draw_basepoint == null)
+      if (this._draw_basepoint == null) {
         return
+      }
       this._update_box(ev, append, emit)
     } else {
-      if (this._basepoint == null)
+      if (this._basepoint == null) {
         return
+      }
       this._drag_points(ev, this.model.renderers)
     }
   }
 
   override _drag_points(ev: UIEvent, renderers: GlyphRenderer[], dim: Dimensions = "both"): void {
-    if (this._basepoint == null)
+    if (this._basepoint == null) {
       return
+    }
     const [bx, by] = this._basepoint
     for (const renderer of renderers) {
       const basepoint = this._map_drag(bx, by, renderer)
@@ -233,12 +244,20 @@ export class BoxEditToolView extends EditToolView {
       const fields: {[key: string]: number} = {}
       if (glyph instanceof XYGlyph) {
         const {x, y} = glyph
-        if (isField(x)) fields[x.field] = dx
-        if (isField(y)) fields[y.field] = dy
+        if (isField(x)) {
+          fields[x.field] = dx
+        }
+        if (isField(y)) {
+          fields[y.field] = dy
+        }
       } else if (glyph instanceof Block) {
         const {x, y} = glyph
-        if (isField(x)) fields[x.field] = dx
-        if (isField(y)) fields[y.field] = dy
+        if (isField(x)) {
+          fields[x.field] = dx
+        }
+        if (isField(y)) {
+          fields[y.field] = dy
+        }
       } else if (glyph instanceof Quad) {
         const {right, bottom, left, top} = glyph
         if (isField(left) && isField(right)) {
@@ -301,8 +320,9 @@ export class BoxEditToolView extends EditToolView {
       this._draw_basepoint = null
     } else {
       this._basepoint = null
-      for (const renderer of this.model.renderers)
+      for (const renderer of this.model.renderers) {
         this._emit_cds_changes(renderer.data_source, false, true, true)
+      }
     }
   }
 }

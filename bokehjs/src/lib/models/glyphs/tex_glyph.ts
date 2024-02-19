@@ -2,8 +2,12 @@ import {MathTextGlyph, MathTextGlyphView} from "./math_text_glyph"
 import type {BaseText} from "../text/base_text"
 import {TeX} from "../text/math_text"
 import type * as p from "core/properties"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
+import {Enum, Or, Auto} from "core/kinds"
 import {parse_delimited_string} from "../text/utils"
+
+const DisplayMode = Or(Enum("inline", "block"), Auto)
+type DisplayMode = typeof DisplayMode["__type__"]
 
 export interface TeXGlyphView extends TeXGlyph.Data {}
 
@@ -29,8 +33,8 @@ export namespace TeXGlyph {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MathTextGlyph.Props & {
-    macros: p.Property<DictLike<string | [string, number]>>
-    display: p.Property<"inline" | "block" | "auto">
+    macros: p.Property<Dict<string | [string, number]>>
+    display: p.Property<DisplayMode>
   }
 
   export type Visuals = MathTextGlyph.Visuals
@@ -51,9 +55,9 @@ export class TeXGlyph extends MathTextGlyph {
   static {
     this.prototype.default_view = TeXGlyphView
 
-    this.define<TeXGlyph.Props>(({Enum, Number, String, Dict, Tuple, Or, Auto}) => ({
+    this.define<TeXGlyph.Props>(({Number, String, Dict, Tuple, Or}) => ({
       macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
-      display: [ Or(Enum("inline", "block"), Auto), "auto" ],
+      display: [ DisplayMode, "auto" ],
     }))
   }
 }

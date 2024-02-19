@@ -37,8 +37,9 @@ export class CanvasLayer {
       case "canvas": {
         this._el = this._canvas = canvas({class: "bk-layer"})
         const ctx = this.canvas.getContext("2d")
-        if (ctx == null)
+        if (ctx == null) {
           throw new Error("unable to obtain 2D rendering context")
+        }
         this._ctx = ctx
         if (hidpi) {
           this.pixel_ratio = devicePixelRatio
@@ -60,8 +61,9 @@ export class CanvasLayer {
   }
 
   resize(width: number, height: number): void {
-    if (this.bbox.width == width && this.bbox.height == height)
+    if (this.bbox.width == width && this.bbox.height == height) {
       return
+    }
 
     this.bbox = new BBox({left: 0, top: 0, width, height})
 

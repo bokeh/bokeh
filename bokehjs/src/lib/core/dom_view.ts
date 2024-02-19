@@ -13,7 +13,7 @@ export abstract class DOMView extends View {
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
 
-  el: Node
+  el: ChildNode
   shadow_el?: ShadowRoot
 
   get children_el(): Node {
@@ -40,9 +40,14 @@ export abstract class DOMView extends View {
 
   abstract render(): void
 
-  render_to(element: Node): void {
-    element.appendChild(this.el)
+  render_to(target: Node | null): void {
     this.render()
+    target?.appendChild(this.el)
+    this.after_render()
+  }
+
+  after_render(): void {
+    this.reposition()
   }
 
   finish(): void {
@@ -53,6 +58,8 @@ export abstract class DOMView extends View {
   protected _createElement(): this["el"] {
     return createElement(this.constructor.tag_name, {class: this.css_classes()})
   }
+
+  reposition(_displayed?: boolean): void {}
 }
 
 export abstract class DOMElementView extends DOMView {
@@ -92,6 +99,11 @@ export abstract class DOMComponentView extends DOMElementView {
     this.empty()
     this._update_stylesheets()
     this._update_css_classes()
+    this._update_css_variables()
+  }
+
+  override reposition(_displayed?: boolean): void {
+    this._update_css_variables() // TODO remove this when node invalidation is implemented
   }
 
   protected *_stylesheets(): Iterable<StyleSheet> {
@@ -104,6 +116,8 @@ export abstract class DOMComponentView extends DOMElementView {
     yield `bk-${this.model.type.replace(/\./g, "-")}`
     yield* this.css_classes()
   }
+
+  protected *_css_variables(): Iterable<[string, string]> {}
 
   protected _applied_stylesheets: StyleSheet[] = []
   protected _apply_stylesheets(stylesheets: StyleSheet[]): void {
@@ -127,5 +141,12 @@ export abstract class DOMComponentView extends DOMElementView {
     this.class_list.remove(this._applied_css_classes)
     this._applied_css_classes = []
     this._apply_css_classes([...this._css_classes()])
+  }
+
+  protected _update_css_variables(): void {
+    for (const [name, value] of this._css_variables()) {
+      const full_name = name.startsWith("--") ? name : `--${name}`
+      this.el.style.setProperty(full_name, value)
+    }
   }
 }

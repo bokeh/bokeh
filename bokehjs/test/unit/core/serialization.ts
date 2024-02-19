@@ -7,7 +7,7 @@ import type {MapRep, NDArrayRep} from "@bokehjs/core/serialization/reps"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {HasProps} from "@bokehjs/core/has_props"
-import type {DictLike} from "@bokehjs/core/types"
+import type {Dict} from "@bokehjs/core/types"
 import type * as p from "@bokehjs/core/properties"
 import {Slice} from "@bokehjs/core/util/slice"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -25,7 +25,7 @@ namespace SomeModel {
   export type Props = HasProps.Props & {
     value: p.Property<number>
     array: p.Property<number[]>
-    dict: p.Property<DictLike<number>>
+    dict: p.Property<Dict<number>>
     map: p.Property<Map<number[], number>>
     set: p.Property<Set<number[]>>
     obj: p.Property<SomeModel | null>
@@ -312,11 +312,12 @@ describe("core/serialization module", () => {
       const rep: MapRep = {
         type: "map",
         entries: [
-          ["data", {
-            type: "map",
-            entries: [["col0", [1, 2, 3]]],
-            plain: true,
-          }],
+          ["a", {type: "map"}],
+          ["b", {type: "map", entries: []}],
+          ["c", {type: "map", entries: [["a", [1, 2, 3]]]}],
+          ["d", {type: "map", entries: [[0, "a"], [1, "b"]]}],
+          ["e", {type: "map", entries: [[0, "a"], ["x", "b"]]}],
+          ["f", {type: "map", entries: [[[1], "a"], [[1, 2], "b"]]}],
         ],
       }
 
@@ -324,7 +325,14 @@ describe("core/serialization module", () => {
       const deserializer = new Deserializer(resolver)
 
       const val = deserializer.decode(rep)
-      expect(val).to.be.equal(new Map([["data", {col0: [1, 2, 3]}]]))
+      expect(val).to.be.structurally.equal({
+        a: {},
+        b: {},
+        c: {a: [1, 2, 3]},
+        d: new Map([[0, "a"], [1, "b"]]),
+        e: new Map<number | string, string>([[0, "a"], ["x", "b"]]),
+        f: new Map([[[1], "a"], [[1, 2], "b"]]),
+      })
     })
 
     it("that supports ndarrays", () => {

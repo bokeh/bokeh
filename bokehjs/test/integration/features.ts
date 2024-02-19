@@ -129,7 +129,7 @@ describe("Feature", () => {
       p1.scatter([1, 2, 3], [1, 2, 3], {color: "green"})
 
       const row = new Row({children: [p0, p1], sizing_mode: "stretch_width"})
-      const pane = new Pane({children: [row], styles: {width: "500px", height: "250px"}})
+      const pane = new Pane({elements: [row], styles: {width: "500px", height: "250px"}})
       const {view} = await display(pane, [650, 300])
       await paint()
 

@@ -715,8 +715,15 @@ class Settings:
     A long, cryptographically-random secret unique to a Bokeh deployment.
     """)
 
+    serialize_include_defaults: PrioritizedSetting[bool] = \
+        PrioritizedSetting("serialize_include_defaults", "BOKEH_SERIALIZE_INCLUDE_DEFAULTS", default=False, help="""
+    Wether to include default values when serializing ``HasProps`` instances.
+
+    This is primarily useful for testing, debugging serialization/protocol and other internal purpose.
+    """)
+
     sign_sessions: PrioritizedSetting[bool] = PrioritizedSetting("sign_sessions", "BOKEH_SIGN_SESSIONS", default=False, help="""
-    Whether the Boeh server should only allow sessions signed with a secret key.
+    Whether the Bokeh server should only allow sessions signed with a secret key.
 
     If True, ``BOKEH_SECRET_KEY`` must also be set.
     """)

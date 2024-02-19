@@ -39,26 +39,33 @@ export function _get_resolution(resolution_secs: number, span_secs: number): Res
   const adjusted_ms = resolution_secs * 1.1 * 1000
   const span_ms = span_secs * 1000
 
-  if (adjusted_ms < ONE_MILLI)
+  if (adjusted_ms < ONE_MILLI) {
     return "microseconds"
+  }
 
-  if (adjusted_ms < ONE_SECOND)
+  if (adjusted_ms < ONE_SECOND) {
     return "milliseconds"
+  }
 
-  if (adjusted_ms < ONE_MINUTE)
+  if (adjusted_ms < ONE_MINUTE) {
     return span_ms >= ONE_MINUTE ? "minsec"  : "seconds"
+  }
 
-  if (adjusted_ms < ONE_HOUR)
+  if (adjusted_ms < ONE_HOUR) {
     return span_ms >= ONE_HOUR ? "hourmin" : "minutes"
+  }
 
-  if (adjusted_ms < ONE_DAY)
+  if (adjusted_ms < ONE_DAY) {
     return "hours"
+  }
 
-  if (adjusted_ms < ONE_MONTH)
+  if (adjusted_ms < ONE_MONTH) {
     return "days"
+  }
 
-  if (adjusted_ms < ONE_YEAR)
+  if (adjusted_ms < ONE_YEAR) {
     return "months"
+  }
 
   return "years"
 }
@@ -149,8 +156,9 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   doFormat(ticks: number[], _opts: {loc: number}, _resolution?: ResolutionType): string[] {
-    if (ticks.length == 0)
+    if (ticks.length == 0) {
       return []
+    }
 
     const span = Math.abs(ticks[ticks.length-1] - ticks[0])/1000.0
     const r = span / (ticks.length - 1)
@@ -181,8 +189,9 @@ export class DatetimeTickFormatter extends TickFormatter {
     while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
       next_index += 1
 
-      if (next_index == resolution_order.length)
+      if (next_index == resolution_order.length) {
         break
+      }
 
       // The way to check that we are at the boundary of the next unit of
       // time is by checking that we have 0 units of the resolution, i.e.
@@ -221,8 +230,9 @@ export class DatetimeTickFormatter extends TickFormatter {
     const loc = this.context_location
     const which = this.context_which
 
-    if (this.context == null)
+    if (this.context == null) {
       return label
+    }
 
     if ((which == "start" && i == 0) ||
         (which == "end" && i == N-1) ||
@@ -232,8 +242,9 @@ export class DatetimeTickFormatter extends TickFormatter {
       const context = isString(this.context) ?
         _strftime(tick, this.context) : this.context.doFormat([tick], {loc: 0}, resolution)[0]
 
-      if (context == "")
+      if (context == "") {
         return label
+      }
 
       switch (loc) {
         case "above": return `${context}\n${label}`

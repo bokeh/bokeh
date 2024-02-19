@@ -95,12 +95,6 @@ from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
-from .coordinates import (
-    FrameBottom,
-    FrameLeft,
-    FrameRight,
-    FrameTop,
-)
 from .dom import Template
 from .glyphs import (
     HStrip,
@@ -113,6 +107,7 @@ from .glyphs import (
     VStrip,
     XYGlyph,
 )
+from .nodes import Node
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
 from .ui import UIElement
@@ -195,6 +190,10 @@ class Tool(Model):
     A string describing the purpose of this tool. If not defined, an auto-generated
     description will be used. This description will be typically presented in the
     user interface as a tooltip.
+    """)
+
+    visible = Bool(default=True, help="""
+    Whether a tool button associated with this tool should appear in the toolbar.
     """)
 
     _known_aliases: tp.ClassVar[dict[str, tp.Callable[[], Tool]]] = {}
@@ -346,11 +345,7 @@ class InspectTool(GestureTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    toggleable = Bool(True, help="""
-    Whether an on/off toggle button should appear in the toolbar for this
-    inspection tool. If ``False``, the viewers of a plot will not be able to
-    toggle the inspector on or off using the toolbar.
-    """)
+    toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
@@ -442,10 +437,10 @@ DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     right=nan,
     top=nan,
     bottom=nan,
-    left_limit=FrameLeft(),
-    right_limit=FrameRight(),
-    top_limit=FrameTop(),
-    bottom_limit=FrameBottom(),
+    left_limit=Node.frame.left,
+    right_limit=Node.frame.right,
+    top_limit=Node.frame.top,
+    bottom_limit=Node.frame.bottom,
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",

@@ -21,10 +21,11 @@ export class ContourRendererView extends DataRendererView {
   }
 
   get glyph_view(): GlyphView {
-    if (this.fill_view.glyph.data_size > 0)
+    if (this.fill_view.glyph.data_size > 0) {
       return this.fill_view.glyph
-    else
+    } else {
       return this.line_view.glyph
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -48,10 +49,12 @@ export class ContourRendererView extends DataRendererView {
 
   override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     if (renderer instanceof GlyphRenderer) {
-      if (renderer == this.fill_view.model)
+      if (renderer == this.fill_view.model) {
         return this.fill_view
-      if (renderer == this.line_view.model)
+      }
+      if (renderer == this.line_view.model) {
         return this.line_view
+      }
     }
     return super.renderer_view(renderer)
   }

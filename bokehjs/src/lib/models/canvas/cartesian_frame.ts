@@ -5,15 +5,18 @@ import type {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
+import type {Node} from "../coordinates/node"
 
+import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import {Signal0} from "core/signaling"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
+import {isNumber} from "core/util/types"
 
-type Ranges = DictLike<Range>
-type Scales = DictLike<Scale>
+type Ranges = Dict<Range>
+type Scales = Dict<Scale>
 
 export class CartesianFrame {
 
@@ -152,5 +155,18 @@ export class CartesianFrame {
 
   get y_scale(): Scale {
     return this._y_scales.get("default")!
+  }
+
+  // TODO remove this when CartesianFrameView is implemented
+  resolve_symbol(node: Node): XY | number {
+    const target = this
+    const value = target.bbox.resolve(node.symbol)
+    const {offset} = node
+    if (isNumber(value)) {
+      return value + offset
+    } else {
+      const {x, y} = value
+      return {x: x + offset, y: y + offset}
+    }
   }
 }

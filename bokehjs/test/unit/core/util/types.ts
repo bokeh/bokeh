@@ -2,6 +2,7 @@ import {expect} from "assertions"
 
 import {
   isBoolean,
+  isDict,
   isNumber,
   isInteger,
   isString,
@@ -149,6 +150,20 @@ describe("core/util/types module", () => {
     expect(isPlainObject({})).to.be.true
     expect(isPlainObject(Object.create(null))).to.be.true
     expect(isPlainObject(new X())).to.be.false
+    expect(isPlainObject(new Map())).to.be.false
+    expect(isPlainObject(new Map([[new X(), 1]]))).to.be.false
+    expect(isPlainObject(new Set())).to.be.false
+    expect(isPlainObject(new Set([new X()]))).to.be.false
+  })
+
+  it("should support isDict() function", () => {
+    expect(isDict(0)).to.be.false
+    expect(isDict({})).to.be.true
+    expect(isDict(Object.create(null))).to.be.true
+    expect(isDict(new Map())).to.be.true
+    expect(isDict(new Map([[new X(), 1]]))).to.be.true
+    expect(isDict(new Set())).to.be.false
+    expect(isDict(new Set([new X()]))).to.be.false
   })
 
   it("should support isBasicObject() function", () => {

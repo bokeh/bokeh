@@ -1,4 +1,5 @@
-Pane bbox=[0, 0, 300, 100]
+Pane bbox=[0, 0, 400, 100]
   Pane bbox=[0, 0, 100, 100]
   Pane bbox=[100, 0, 100, 100]
   Pane bbox=[200, 0, 100, 100]
+  Pane bbox=[300, 0, 100, 100]

@@ -64,16 +64,18 @@ export class LassoSelectToolView extends RegionSelectToolView {
 
     const {active} = this.model.properties
     this.on_change(active, () => {
-      if (!this.model.active && !this.model.persistent)
+      if (!this.model.active && !this.model.persistent) {
         this._clear_overlay()
+      }
     })
   }
 
   override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     const {frame} = this.plot_view
-    if (!frame.bbox.contains(sx, sy))
+    if (!frame.bbox.contains(sx, sy)) {
       return
+    }
 
     this._clear_other_overlays()
 
@@ -118,8 +120,9 @@ export class LassoSelectToolView extends RegionSelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     if (ev.key == "Escape") {
       if (this.model.overlay.visible) {
@@ -132,10 +135,11 @@ export class LassoSelectToolView extends RegionSelectToolView {
   }
 
   override _clear_selection(): void {
-    if (this.model.overlay.visible)
+    if (this.model.overlay.visible) {
       this._clear_overlay()
-    else
+    } else {
       super._clear_selection()
+    }
   }
 
   _do_select(sx: NumArray, sy: NumArray, final: boolean, mode: SelectionMode): void {

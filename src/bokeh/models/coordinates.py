@@ -18,16 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import (
-    Either,
-    Enum,
-    Instance,
-    InstanceDefault,
-    Int,
-    Required,
-    String,
-)
-from ..core.property.singletons import Optional, Undefined
+from ..core.properties import Instance, InstanceDefault
 from ..model import Model
 from .ranges import DataRange1d, Range
 from .scales import LinearScale, Scale
@@ -38,7 +29,6 @@ from .scales import LinearScale, Scale
 
 __all__ = (
     "CoordinateMapping",
-    "Node",
 )
 
 #-----------------------------------------------------------------------------
@@ -78,56 +68,9 @@ class CoordinateMapping(Model):
     The vertical range to map y-coordinates in the target coordinate space.
     """)
 
-class Node(Model):
-    """
-    Represents a symbolic coordinate (by name).
-
-    .. note::
-        This model is experimental and may change at any point.
-    """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    target = Required(Either(Instance(Model), Enum("canvas", "plot", "frame", "parent")), help="""
-    The provider of coordinates for this node.
-
-    This can be either a concrete model that can provide its coordinates (e.g.
-    a renderer, a frame or a canvas) or an implicit target defined by the
-    enum, which is resolved as the nearest parent of the given type. If the
-    provider cannot be determined or it isn't able to provide coordinates,
-    then the node resolved to an invalid coordinate (with x and y components
-    being ``NaN``).
-    """)
-
-    symbol = Required(String, help="""
-    A symbolic name of a coordinate to provide.
-
-    The allowed terms are dependent on the target of this node. For example,
-    for box-like targets this will comprise of box anchors (e.g. center, top
-    left) and box edges (e.g. top, left).
-    """)
-
-    offset = Int(default=0, help="""
-    Optional pixel offset for the computed coordinate.
-    """)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-def FrameLeft(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", symbol="left", offset=offset)
-
-def FrameRight(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", symbol="right", offset=offset)
-
-def FrameTop(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", symbol="top", offset=offset)
-
-def FrameBottom(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", symbol="bottom", offset=offset)
 
 #-----------------------------------------------------------------------------
 # Private API

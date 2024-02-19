@@ -46,8 +46,6 @@ import {GestureTool} from "../models/tools/gestures/gesture_tool"
 import type {TypedGlyphRenderer, NamesOf, AuxGlyph} from "./glyph_api"
 import {GlyphAPI} from "./glyph_api"
 
-const {hasOwnProperty} = Object.prototype
-
 export type ToolName = keyof ToolAliases
 
 const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
@@ -370,17 +368,25 @@ export class Figure extends BaseFigure {
     }
 
     defaults = {...defaults}
-    if (!hasOwnProperty.call(defaults, "text_color")) {
+    const trait_defaults: Attrs = {}
+
+    const props_proxy = dict(props)
+    const prototype_props_proxy = dict(cls.prototype._props)
+    const defaults_proxy = dict(defaults)
+    const trait_defaults_proxy = dict(trait_defaults)
+    const override_defaults_proxy = dict(override_defaults)
+
+    if (!defaults_proxy.has("text_color")) {
       defaults.text_color = "black"
     }
-    if (!hasOwnProperty.call(defaults, "hatch_color")) {
+    if (!defaults_proxy.has("hatch_color")) {
       defaults.hatch_color = "black"
     }
-    const trait_defaults: Attrs = {}
-    if (!hasOwnProperty.call(trait_defaults, "color")) {
+
+    if (!trait_defaults_proxy.has("color")) {
       trait_defaults.color = _default_color
     }
-    if (!hasOwnProperty.call(trait_defaults, "alpha")) {
+    if (!trait_defaults_proxy.has("alpha")) {
       trait_defaults.alpha = _default_alpha
     }
 
@@ -389,19 +395,19 @@ export class Figure extends BaseFigure {
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
-        if (hasOwnProperty.call(props, prefix + pname)) {
+        if (props_proxy.has(prefix + pname)) {
           result[pname] = props[prefix + pname]
           delete props[prefix + pname]
-        } else if (!hasOwnProperty.call(cls.prototype._props, trait) && hasOwnProperty.call(props, prefix + trait)) {
+        } else if (!prototype_props_proxy.has(trait) && props_proxy.has(prefix + trait)) {
           result[pname] = props[prefix + trait]
-        } else if (hasOwnProperty.call(override_defaults, trait)) {
+        } else if (override_defaults_proxy.has(trait)) {
           result[pname] = override_defaults[trait]
-        } else if (hasOwnProperty.call(defaults, pname)) {
+        } else if (defaults_proxy.has(pname)) {
           result[pname] = defaults[pname]
-        } else if (hasOwnProperty.call(trait_defaults, trait)) {
+        } else if (trait_defaults_proxy.has(trait)) {
           result[pname] = trait_defaults[trait]
         }
-        if (!hasOwnProperty.call(cls.prototype._props, trait)) {
+        if (!prototype_props_proxy.has(trait)) {
           traits.add(trait)
         }
       }

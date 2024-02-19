@@ -115,8 +115,9 @@ export class HStripView extends GlyphView {
       const sy0_i = sy0[i]
       const sy1_i = sy1[i]
 
-      if (!isFinite(sy0_i + sy1_i))
+      if (!isFinite(sy0_i + sy1_i)) {
         continue
+      }
 
       ctx.beginPath()
       ctx.rect(left, sy0_i, width, sy1_i - sy0_i)

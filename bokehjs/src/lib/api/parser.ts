@@ -1,5 +1,7 @@
 // Based on https://ericsmekens.github.io/jsep/.
 
+import {dict} from "core/util/object"
+
 type Primitive = null | boolean | string | number | symbol
 
 const TAB_CODE    =  9
@@ -105,17 +107,17 @@ export type Failure = {
 // ----------
 // Use a quickly-accessible map to store all of the unary operators
 // Values are set to `1` (it really doesn't matter)
-const unary_ops: {[key: string]: number} = {
+const unary_ops = dict<number>({
   "-": 1,
   "!": 1,
   "~": 1,
   "+": 1,
-}
+})
 
 // Also use a map for the binary operations but set their values to their
 // binary precedence for quick reference (higher number = higher precedence)
 // see [Order of operations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
-const binary_ops: {[key: string]: number} = {
+const binary_ops = dict<number>({
   "||":  1,
   "&&":  2,
   "|":   3,
@@ -127,7 +129,7 @@ const binary_ops: {[key: string]: number} = {
   "+":   9, "-":   9,
   "*":  10, "/":  10, "%":  10,
   "**": 11,
-}
+})
 
 // Additional valid identifier chars, apart from a-z, A-Z and 0-9 (except on the starting char)
 const additional_identifier_chars = new Set(["$", "_"])
@@ -135,21 +137,21 @@ const additional_identifier_chars = new Set(["$", "_"])
 // Literals
 // ----------
 // Store the values to return for the various literals we may encounter
-const literals: {[key: string]: Primitive} = {
+const literals = dict<Primitive>({
   true: true,
   false: false,
   null: null,
-}
+})
 
-function max_key_len(obj: object): number {
-  return Math.max(0, ...Object.keys(obj).map(k => k.length))
+function max_key_len(obj: Map<string, unknown>): number {
+  return Math.max(0, ...[...obj.keys()].map((k) => k.length))
 }
 
 const max_unop_len = max_key_len(unary_ops)
 const max_binop_len = max_key_len(binary_ops)
 
 function binary_precedence(op_val: string): number {
-  return op_val in binary_ops ? binary_ops[op_val] : 0
+  return binary_ops.get(op_val) ?? 0
 }
 
 function is_decimal_digit(ch: number): boolean {
@@ -159,7 +161,7 @@ function is_decimal_digit(ch: number): boolean {
 function is_identifier_start(ch: number): boolean {
   return (ch >= 65 && ch <= 90) || // A...Z
     (ch >= 97 && ch <= 122) || // a...z
-    (ch >= 128 && !(String.fromCharCode(ch) in binary_ops)) || // any non-ASCII that is not an operator
+    (ch >= 128 && !binary_ops.has(String.fromCharCode(ch))) || // any non-ASCII that is not an operator
     (additional_identifier_chars.has(String.fromCharCode(ch))) // additional characters
 }
 
@@ -276,7 +278,7 @@ export class Parser {
       // Don't accept a binary op when it is an identifier.
       // Binary ops that start with a identifier-valid character must be followed
       // by a non identifier-part valid character
-      if (binary_ops.hasOwnProperty(to_check) && (
+      if (binary_ops.has(to_check) && (
         !is_identifier_start(this.code) ||
         (this.index + to_check.length < this.expr.length && !is_identifier_part(this.expr.charCodeAt(this.index + to_check.length)))
       )) {
@@ -398,7 +400,7 @@ export class Parser {
         // Don't accept an unary op when it is an identifier.
         // Unary ops that start with a identifier-valid character must be followed
         // by a non identifier-part valid character
-        if (unary_ops.hasOwnProperty(to_check) && (
+        if (unary_ops.has(to_check) && (
           !is_identifier_start(this.code) ||
           (this.index + to_check.length < this.expr.length && !is_identifier_part(this.expr.charCodeAt(this.index + to_check.length)))
         )) {
@@ -420,10 +422,11 @@ export class Parser {
 
       if (is_identifier_start(ch)) {
         node = this.gobbleIdentifier()
-        if (literals.hasOwnProperty(node.name)) {
+        const value = literals.get(node.name)
+        if (value !== undefined) {
           node = {
             type: LITERAL,
-            value: literals[node.name],
+            value,
           }
         }
       } else if (ch == OPAREN_CODE) { // open parenthesis

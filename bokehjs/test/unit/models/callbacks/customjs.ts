@@ -32,7 +32,7 @@ describe("CustomJS", () => {
       expect_instanceof(rng_copy, Range1d)
 
       expect(cb.args).to.be.equal({rng})
-      expect(cb_copy.args).to.be.equal(new Map([["rng", rng_copy]]))
+      expect(cb_copy.args).to.be.equal({rng: rng_copy})
     })
   })
 

@@ -113,8 +113,9 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<MultiPolygons.Data>): void {
-    if (!this.visuals.fill.doit && !this.visuals.line.doit)
+    if (!this.visuals.fill.doit && !this.visuals.line.doit) {
       return
+    }
 
     const {sxs, sys} = {...this, ...data}
 
@@ -139,10 +140,11 @@ export class MultiPolygonsView extends GlyphView {
             const sx_ijkl = sx_ijk[l]
             const sy_ijkl = sy_ijk[l]
 
-            if (l == 0)
+            if (l == 0) {
               ctx.moveTo(sx_ijkl, sy_ijkl)
-            else
+            } else {
               ctx.lineTo(sx_ijkl, sy_ijkl)
+            }
           }
 
           ctx.closePath()

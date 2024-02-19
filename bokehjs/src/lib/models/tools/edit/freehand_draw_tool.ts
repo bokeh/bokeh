@@ -11,13 +11,15 @@ export class FreehandDrawToolView extends EditToolView {
   declare model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
-    if (!this.model.active)
+    if (!this.model.active) {
       return
+    }
 
     const renderer = this.model.renderers[0]
     const point = this._map_drag(ev.sx, ev.sy, renderer)
-    if (point == null)
+    if (point == null) {
       return
+    }
 
     const [x, y] = point
     const cds = renderer.data_source
@@ -26,8 +28,12 @@ export class FreehandDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
-      if (xkey) cds.get_array(xkey).push([x])
-      if (ykey) cds.get_array(ykey).push([y])
+      if (xkey) {
+        cds.get_array(xkey).push([x])
+      }
+      if (ykey) {
+        cds.get_array(ykey).push([y])
+      }
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "add") {
       if (xkey) {
@@ -71,8 +77,9 @@ export class FreehandDrawToolView extends EditToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame)
+    if (!this.model.active || !this._mouse_in_frame) {
       return
+    }
     for (const renderer of this.model.renderers) {
       if (ev.key == "Escape") {
         renderer.data_source.selection_manager.clear()

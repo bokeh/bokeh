@@ -1,26 +1,34 @@
 import {Model} from "../../model"
+import {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
+import type {Menu} from "./menus/menu"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
-import {logger} from "core/logging"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
+import type {ViewOf} from "core/view"
 import {DOMComponentView} from "core/dom_view"
 import type {SerializableState} from "core/view"
-import type {CSSStyles, StyleSheet, StyleSheetLike} from "core/dom"
+import type {StyleSheet, StyleSheetLike} from "core/dom"
+import {build_view} from "core/build_views"
+import {apply_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
-import {keys, entries} from "core/util/object"
+import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
-import {isString} from "core/util/types"
+import {entries} from "core/util/object"
+import {isNumber} from "core/util/types"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
 import {Array, Or, Ref, String, Dict, Nullable} from "core/kinds"
 
-const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
-type StylesLike = typeof StylesLike["__type__"]
+export const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
+export type StylesLike = typeof StylesLike["__type__"]
 
-const StyleSheets = Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike)))
-type StyleSheets = typeof StyleSheets["__type__"]
+export const StyleSheets = Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike)))
+export type StyleSheets = typeof StyleSheets["__type__"]
+
+export const CSSVariables = Dict(Ref(Node))
+export type CSSVariables = typeof CSSVariables["__type__"]
 
 export type DOMBoxSizing = {
   width_policy: SizingPolicy | "auto"
@@ -34,19 +42,6 @@ export type DOMBoxSizing = {
 
 const {round, floor} = Math
 
-function* _iter_styles(styles: CSSStyles | Map<string, string | null> | Styles): Iterable<[string, unknown]> {
-  if (styles instanceof Styles) {
-    const model_attrs = new Set(keys(Model.prototype._props))
-    for (const prop of styles) {
-      if (!model_attrs.has(prop.attr)) {
-        yield [prop.attr, prop.get_value()]
-      }
-    }
-  } else {
-    yield* entries(styles)
-  }
-}
-
 export abstract class UIElementView extends DOMComponentView {
   declare model: UIElement
 
@@ -58,6 +53,16 @@ export abstract class UIElementView extends DOMComponentView {
     yield* this.model.css_classes
   }
 
+  protected override *_css_variables(): Iterable<[string, string]> {
+    yield* super._css_variables()
+    for (const [name, node] of entries(this.model.css_variables)) {
+      const value = this.resolve_coordinate(node)
+      if (isNumber(value)) {
+        yield [name, `${value}px`]
+      }
+    }
+  }
+
   protected override *_stylesheets(): Iterable<StyleSheet> {
     yield* super._stylesheets()
     yield this.style
@@ -67,29 +72,10 @@ export abstract class UIElementView extends DOMComponentView {
 
   protected *_computed_stylesheets(): Iterable<StyleSheet> {
     for (const stylesheet of this.model.stylesheets) {
-      if (isString(stylesheet)) {
-        yield new InlineStyleSheet(stylesheet)
-      } else if (stylesheet instanceof BaseStyleSheet) {
+      if (stylesheet instanceof BaseStyleSheet) {
         yield stylesheet.underlying()
       } else {
-        const output = []
-
-        for (const [selector, styles] of entries(stylesheet)) {
-          output.push(`${selector} {`)
-
-          for (const [attr, value] of _iter_styles(styles)) {
-            const name = attr.replace(/_/g, "-")
-
-            if (isString(value) && value.length != 0) {
-              output.push(`  ${name}: ${value};`)
-            }
-          }
-
-          output.push("}")
-        }
-
-        const css = output.join("\n")
-        yield new InlineStyleSheet(css)
+        yield new InlineStyleSheet(stylesheet)
       }
     }
   }
@@ -164,6 +150,8 @@ export abstract class UIElementView extends DOMComponentView {
 
   protected _resize_observer: ResizeObserver
 
+  protected _context_menu: ViewOf<Menu> | null = null
+
   override initialize(): void {
     super.initialize()
 
@@ -171,18 +159,49 @@ export abstract class UIElementView extends DOMComponentView {
     this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {context_menu} = this.model
+    if (context_menu != null) {
+      this._context_menu = await build_view(context_menu, {parent: this})
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible, styles, css_classes, stylesheets} = this.model.properties
+    const {visible, styles, css_classes, css_variables, stylesheets} = this.model.properties
     this.on_change(visible, () => this._update_visible())
     this.on_change(styles, () => this._update_styles())
     this.on_change(css_classes, () => this._update_css_classes())
+    this.on_transitive_change(css_variables, () => this._update_css_variables())
     this.on_change(stylesheets, () => this._update_stylesheets())
+
+    this.el.addEventListener("contextmenu", (event) => this.show_context_menu(event))
+  }
+
+  get_context_menu(_xy: XY): ViewOf<Menu> | null {
+    return this._context_menu
+  }
+
+  show_context_menu(event: MouseEvent): void {
+    if (!event.shiftKey) {
+      const rect = this.el.getBoundingClientRect()
+      const x = event.x - rect.x
+      const y = event.y - rect.y
+
+      const context_menu = this.get_context_menu({x, y})
+      if (context_menu != null) {
+        event.stopPropagation()
+        event.preventDefault()
+        context_menu.show({x, y})
+      }
+    }
   }
 
   override remove(): void {
     this._resize_observer.disconnect()
+    this._context_menu?.remove()
     super.remove()
   }
 
@@ -195,11 +214,6 @@ export abstract class UIElementView extends DOMComponentView {
     this.finish()
   }
 
-  override render_to(element: Node): void {
-    super.render_to(element)
-    this.after_render()
-  }
-
   override render(): void {
     super.render()
     this._apply_styles()
@@ -208,7 +222,9 @@ export abstract class UIElementView extends DOMComponentView {
 
   protected _after_render(): void {}
 
-  after_render(): void {
+  override after_render(): void {
+    super.after_render()
+
     this.update_style()
     this.update_bbox()
 
@@ -235,25 +251,7 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _apply_styles(): void {
-    const {styles} = this.model
-
-    const apply = (name: string, value: unknown) => {
-      const known = name in this.el.style   // XXX: hasOwnProperty() doesn't work for unknown reasons
-      if (known && isString(value)) {
-        this.el.style[name as any] = value  // XXX: setProperty() doesn't support camel-case
-      }
-      return known
-    }
-
-    for (const [attr, value] of _iter_styles(styles)) {
-      const name = attr.replace(/_/g, "-")
-
-      if (!apply(name, value)) {
-        if (!apply(`-webkit-${name}`, value) && !apply(`-moz-${name}`, value)) {
-          logger.trace(`unknown CSS property '${name}'`)
-        }
-      }
-    }
+    apply_styles(this.el.style, this.model.styles)
   }
 
   protected _update_visible(): void {
@@ -276,6 +274,17 @@ export abstract class UIElementView extends DOMComponentView {
   override serializable_state(): SerializableState {
     return {...super.serializable_state(), bbox: this.bbox}
   }
+
+  override resolve_symbol(node: Node): XY | number {
+    const value = this.bbox.resolve(node.symbol)
+    const {offset} = node
+    if (isNumber(value)) {
+      return value + offset
+    } else {
+      const {x, y} = value
+      return {x: x + offset, y: y + offset}
+    }
+  }
 }
 
 export namespace UIElement {
@@ -284,8 +293,10 @@ export namespace UIElement {
   export type Props = Model.Props & {
     visible: p.Property<boolean>
     css_classes: p.Property<string[]>
-    styles: p.Property<CSSStyles | Map<string, string | null> | Styles>
+    css_variables: p.Property<CSSVariables>
+    styles: p.Property<StylesLike>
     stylesheets: p.Property<StyleSheets>
+    context_menu: p.Property<Menu | null>
   }
 }
 
@@ -300,11 +311,13 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, String}) => ({
+    this.define<UIElement.Props>(({Boolean, Array, String, AnyRef}) => ({
       visible: [ Boolean, true ],
       css_classes: [ Array(String), [] ],
+      css_variables: [ CSSVariables, {} ],
       styles: [ StylesLike, {} ],
       stylesheets: [ StyleSheets, [] ],
+      context_menu: [ Nullable(AnyRef<Menu>()), null ],
     }))
   }
 }

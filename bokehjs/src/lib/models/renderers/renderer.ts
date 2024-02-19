@@ -1,8 +1,10 @@
+import type {ViewOf} from "core/view"
 import {View} from "core/view"
+import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
-import {isString} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
@@ -10,7 +12,10 @@ import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {Node} from "../coordinates/node"
+import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
+import {Menu} from "../ui/menus/menu"
+import type {HTML} from "../dom/html"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -41,13 +46,19 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   declare readonly parent: PlotView
 
+  protected _context_menu: ViewOf<Menu> | null = null
+  get context_menu(): ViewOf<Menu> | null {
+    return this._context_menu
+  }
+
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
-    if (_coordinates != null)
+    if (_coordinates != null) {
       return _coordinates
-    else
+    } else {
       return this._coordinates = this._initialize_coordinates()
+    }
   }
 
   private _custom_coordinates: CoordinateTransform | null = null
@@ -58,6 +69,19 @@ export abstract class RendererView extends View implements visuals.Renderable {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {context_menu} = this.model
+    if (context_menu != null) {
+      this._context_menu = await build_view(context_menu, {parent: this.plot_view})
+    }
+  }
+
+  override remove(): void {
+    this._context_menu?.remove()
+    super.remove()
   }
 
   override connect_signals(): void {
@@ -152,9 +176,13 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   render(): void {
+    this.update_geometry()
+    this.compute_geometry()
+
     if (this.displayed) {
       this._render()
     }
+
     this._has_finished = true
   }
 
@@ -174,65 +202,37 @@ export abstract class RendererView extends View implements visuals.Renderable {
    */
   compute_geometry(): void {}
 
-  /**
-   * Compute screen coordinates for a symbolic node.
-   */
-  resolve_node(node: Node): {x: number, y: number} {
-    const target = (() => {
-      if (isString(node.target)) {
-        switch (node.target) {
-          case "canvas": return this.plot_view.canvas
-          case "frame":  return this.plot_view.frame
-          case "plot":   return this.plot_view
-          case "parent": return this.parent
-        }
-      } else {
-        if (node.target instanceof Renderer) {
-          const view = this.plot_view.renderer_view(node.target)
-          if (view != null) {
-            return view
-          }
-        }
-        return null
-      }
-    })()
+  override resolve_frame(): View | null {
+    return this.plot_view.frame as any // TODO CartesianFrameView (PR #13286)
+  }
 
-    function xy(x: number, y: number) {
-      const {offset} = node
-      return {x: x + offset, y: y + offset}
-    }
+  override resolve_canvas(): View | null {
+    return this.plot_view.canvas
+  }
 
-    if (target == null) {
-      return xy(NaN, NaN)
-    }
+  override resolve_plot(): View | null {
+    return this.plot_view
+  }
 
+  override resolve_symbol(node: Node): XY | number {
+    const target = this
+    // There's no common API for bbox handling in Renderer's class hierarchy.
     if (!("bbox" in target && target.bbox instanceof BBox)) {
-      return xy(NaN, NaN)
+      return {x: NaN, y: NaN}
+    } else {
+      const value = target.bbox.resolve(node.symbol)
+      const {offset} = node
+      if (isNumber(value)) {
+        return value + offset
+      } else {
+        const {x, y} = value
+        return {x: x + offset, y: y + offset}
+      }
     }
+  }
 
-    const {bbox} = target
-    switch (node.symbol) {
-      case "top_left":   return xy(bbox.left, bbox.top)
-      case "top_center": return xy(bbox.hcenter, bbox.top)
-      case "top_right":  return xy(bbox.right, bbox.top)
-
-      case "center_left":   return xy(bbox.left, bbox.vcenter)
-      case "center_center": return xy(bbox.hcenter, bbox.vcenter)
-      case "center_right":  return xy(bbox.right, bbox.vcenter)
-
-      case "bottom_left":   return xy(bbox.left, bbox.bottom)
-      case "bottom_center": return xy(bbox.hcenter, bbox.bottom)
-      case "bottom_right":  return xy(bbox.right, bbox.bottom)
-
-      case "center": return xy(bbox.hcenter, bbox.vcenter)
-
-      case "top":    return xy(NaN, bbox.top)
-      case "left":   return xy(bbox.left, NaN)
-      case "right":  return xy(bbox.right, NaN)
-      case "bottom": return xy(NaN, bbox.bottom)
-
-      default: return xy(NaN, NaN)
-    }
+  get attribution(): HTML | string | null {
+    return null
   }
 }
 
@@ -247,6 +247,7 @@ export namespace Renderer {
     y_range_name: p.Property<string>
     coordinates: p.Property<CoordinateMapping | null>
     propagate_hover: p.Property<boolean>
+    context_menu: p.Property<Menu | null>
   }
 
   export type Visuals = visuals.Visuals
@@ -271,6 +272,7 @@ export abstract class Renderer extends Model {
       y_range_name: [ String, "default" ],
       coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
       propagate_hover: [ Boolean, false ],
+      context_menu: [ Nullable(Ref(Menu)), null ],
     }))
   }
 }

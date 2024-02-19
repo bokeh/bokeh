@@ -20,9 +20,9 @@ export function qbb(
     x1: number, y1: number): Rect {
 
   function _qbb(u: number, v: number, w: number): [number, number] {
-    if (v == (u + w)/2)
+    if (v == (u + w)/2) {
       return [u, w]
-    else {
+    } else {
       const t = (u - v) / (u - 2*v + w)
       const bd = u*(1 - t)**2 + 2*v*(1 - t)*t + w*t**2
       return [min(u, w, bd), max(u, w, bd)]
@@ -66,28 +66,34 @@ export function cbb(
       c = 3*y1 - 3*y0
     }
 
-    if (abs(a) < 1e-12) { // Numerical robustness
-      if (abs(b) < 1e-12) // Numerical robustness
+    // Numerical robustness
+    if (abs(a) < 1e-12) {
+      if (abs(b) < 1e-12) {
         continue
+      }
       const t = -c / b
-      if (0 < t && t < 1)
+      if (0 < t && t < 1) {
         tvalues.push(t)
+      }
       continue
     }
 
     const b2ac = b**2 - 4*c*a
     const sqrtb2ac = sqrt(b2ac)
 
-    if (b2ac < 0)
+    if (b2ac < 0) {
       continue
+    }
 
     const t1 = (-b + sqrtb2ac) / (2*a)
-    if (0 < t1 && t1 < 1)
+    if (0 < t1 && t1 < 1) {
       tvalues.push(t1)
+    }
 
     const t2 = (-b - sqrtb2ac) / (2*a)
-    if (0 < t2 && t2 < 1)
+    if (0 < t2 && t2 < 1) {
       tvalues.push(t2)
+    }
   }
 
   const n = tvalues.length

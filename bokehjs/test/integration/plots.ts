@@ -7,6 +7,7 @@ import {mouse_click} from "../interactive"
 import {figure} from "@bokehjs/api/plotting"
 import type {Location} from "@bokehjs/core/enums"
 import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
+import {Text} from "@bokehjs/models/dom"
 
 describe("Plot", () => {
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
@@ -122,7 +123,7 @@ describe("Plot", () => {
 
     const pane = new Pane({
       styles: {display: "flex", flex_direction: "row"},
-      children: [plot(true), plot(false)],
+      elements: [plot(true), plot(false)],
     })
     await display(pane, [650, 350])
   })
@@ -264,7 +265,11 @@ describe("Plot", () => {
     plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
 
     const pane = new Pane({
-      children: ["This plot should", plot, "create its own block."],
+      elements: [
+        new Text({content: "This plot should"}),
+        plot,
+        new Text({content: "create its own block."}),
+      ],
     })
     await display(pane, [300, 100])
   })
@@ -278,7 +283,11 @@ describe("Plot", () => {
     plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
 
     const pane = new Pane({
-      children: ["This plot should", plot, "be displayed inline."],
+      elements: [
+        new Text({content: "This plot should"}),
+        plot,
+        new Text({content: "be displayed inline."}),
+      ],
     })
     await display(pane, [300, 100])
   })

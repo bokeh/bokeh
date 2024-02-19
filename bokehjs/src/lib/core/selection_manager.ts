@@ -24,10 +24,11 @@ export class SelectionManager {
     const glyph_renderer_views: GlyphRendererView[] = []
     const graph_renderer_views: GraphRendererView[] = []
     for (const r of renderer_views) {
-      if (is_GlyphRendererView(r))
+      if (is_GlyphRendererView(r)) {
         glyph_renderer_views.push(r)
-      else if (is_GraphRendererView(r))
+      } else if (is_GraphRendererView(r)) {
         graph_renderer_views.push(r)
+      }
     }
 
     let did_hit = false

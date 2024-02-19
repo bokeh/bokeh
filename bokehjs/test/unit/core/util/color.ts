@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {color2rgba, css4_parse, brightness} from "@bokehjs/core/util/color"
+import {color2rgba, css4_parse, brightness, luminance} from "@bokehjs/core/util/color"
 
 describe("core/util/color module", () => {
   const halfgray = color2rgba("rgb(128, 128, 128)")
@@ -235,5 +235,12 @@ describe("core/util/color module", () => {
     expect(brightness([127, 127, 127])).to.be.similar(0.498)
     expect(brightness([128, 128, 128])).to.be.similar(0.502)
     expect(brightness([255, 255, 255])).to.be.similar(1.000)
+  })
+
+  it("should support luminance() function", () => {
+    expect(luminance([  0,   0,   0])).to.be.similar(0.000)
+    expect(luminance([190,   0, 190])).to.be.similar(0.149)
+    expect(luminance([130, 130,  90])).to.be.similar(0.218)
+    expect(luminance([255, 255, 255])).to.be.similar(1.000)
   })
 })

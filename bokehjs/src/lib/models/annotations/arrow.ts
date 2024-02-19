@@ -37,20 +37,24 @@ export class ArrowView extends DataAnnotationView {
     yield* super.children()
 
     const {start, end} = this
-    if (start != null)
+    if (start != null) {
       yield start
-    if (end != null)
+    }
+    if (end != null) {
       yield end
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {start, end} = this.model
-    if (start != null)
+    if (start != null) {
       this.start = await build_view(start, {parent: this})
-    if (end != null)
+    }
+    if (end != null) {
       this.end = await build_view(end, {parent: this})
+    }
   }
 
   override set_data(source: ColumnarDataSource): void {
@@ -152,8 +156,9 @@ export class ArrowView extends DataAnnotationView {
         ctx.restore()
       }
 
-      if (!this.visuals.line.doit)
+      if (!this.visuals.line.doit) {
         continue
+      }
 
       ctx.save()
 

@@ -27,10 +27,11 @@ export class GridPlotView extends LayoutDOMView {
 
   protected _update_location(): void {
     const location = this.model.toolbar_location
-    if (location == null)
+    if (location == null) {
       this.model.toolbar.visible = false
-    else
+    } else {
       this.model.toolbar.setv({visible: true, location})
+    }
   }
 
   override initialize(): void {
@@ -52,10 +53,10 @@ export class GridPlotView extends LayoutDOMView {
     const {toolbar, toolbar_location, children, rows, cols, spacing} = this.model.properties
     this.on_change(toolbar_location, async () => {
       this._update_location()
-      await this.rebuild()
+      this.invalidate_layout()
     })
     this.on_change([toolbar, children, rows, cols, spacing], async () => {
-      await this.rebuild()
+      await this.update_children()
     })
 
     this.on_change(this.model.toolbar.properties.tools, async () => {
