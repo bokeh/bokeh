@@ -44,9 +44,9 @@ def make_calendar(year: int, month: int, firstweekday: str = "Mon") -> Plot:
 
     source = ColumnDataSource(data=dict(
         days            = list(day_names)*month_weeks,
-        weeks           = sum([ [str(week)]*7 for week in range(month_weeks) ], []),
+        weeks           = [day for week in range(month_weeks) for day in [str(week)]*7],
         month_days      = month_days,
-        day_backgrounds = sum([week_days]*month_weeks, []),
+        day_backgrounds = [ day for week in [week_days]*month_weeks for day in week],
     ))
 
     holidays = [ (date, summary.replace("(US-OPM)", "").strip()) for (date, summary) in us_holidays

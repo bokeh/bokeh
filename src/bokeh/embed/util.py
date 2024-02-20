@@ -143,7 +143,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
     docs = {obj.document for obj in objs if obj.document is not None}
 
     if always_new:
-        def finish() -> None:  # noqa
+        def finish() -> None:
             _dispose_temp_doc(objs)
         doc = _create_temp_doc(objs)
     else:
