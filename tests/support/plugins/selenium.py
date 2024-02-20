@@ -26,7 +26,6 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Iterator,
-    NoReturn,
     Sequence,
 )
 from warnings import warn
@@ -115,7 +114,7 @@ def driver(pytestconfig: config.Config) -> Iterator[WebDriver]:
     driver.quit()
 
 @pytest.fixture(scope="session")
-def has_no_console_errors(pytestconfig: config.Config) -> Callable[[WebDriver], bool | NoReturn]:
+def has_no_console_errors(pytestconfig: config.Config) -> Callable[[WebDriver], bool]:
     ''' Provide a function to assert no browser console errors are present.
 
     Unfortunately logs are only accessibly with Chrome web driver, see e.g.
@@ -129,7 +128,7 @@ def has_no_console_errors(pytestconfig: config.Config) -> Callable[[WebDriver], 
 
     if driver_name == "chrome":
 
-        def func(driver: WebDriver) -> bool | NoReturn:
+        def func(driver: WebDriver) -> bool:
             logs = driver.get_log('browser')
             severe_errors = [x for x in logs if x.get('level') == 'SEVERE']
             non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
@@ -139,11 +138,10 @@ def has_no_console_errors(pytestconfig: config.Config) -> Callable[[WebDriver], 
                     warn(f"There were severe network errors (this may or may not have affected your test): {severe_errors}")
                 return True
 
-            # XXX: no return should be needed with NoReturn type (type-checker bug?)
-            return pytest.fail(f"Console errors: {non_network_errors}")
+            pytest.fail(f"Console errors: {non_network_errors}")
 
     else:
-        def func(driver: WebDriver) -> bool | NoReturn:
+        def func(driver: WebDriver) -> bool:
             return True
 
     return func
