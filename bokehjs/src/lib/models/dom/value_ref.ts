@@ -1,4 +1,5 @@
-import {Placeholder, PlaceholderView} from "./placeholder"
+import {Placeholder, PlaceholderView, Formatter} from "./placeholder"
+import type {Formatters} from "./placeholder"
 import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -6,18 +7,13 @@ import type {Index} from "core/util/templating"
 import {_get_column_value, MISSING, DEFAULT_FORMATTERS} from "core/util/templating"
 import {execute} from "core/util/callbacks"
 import {isArray} from "core/util/types"
-import {FormatterType} from "core/enums"
 import type * as p from "core/properties"
 import type {PlainObject} from "core/types"
-import {Or, Ref} from "core/kinds"
-
-const Formatter = Or(FormatterType, Ref(CustomJS), Ref(CustomJSHover))
-type Formatter = typeof Formatter["__type__"]
 
 export class ValueRefView extends PlaceholderView {
   declare model: ValueRef
 
-  update(source: ColumnarDataSource, i: Index | null, vars: PlainObject/*, formatters?: Formatters*/): void {
+  update(source: ColumnarDataSource, i: Index | null, vars: PlainObject, _formatters?: Formatters): void {
     const {field, format, formatter} = this.model
     const value = _get_column_value(field, source, i)
 

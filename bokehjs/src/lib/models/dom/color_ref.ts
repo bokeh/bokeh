@@ -1,8 +1,10 @@
 import {ValueRef, ValueRefView} from "./value_ref"
+import type {Formatters} from "./placeholder"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {Index as DataIndex} from "core/util/templating"
+import type {Index} from "core/util/templating"
 import {_get_column_value} from "core/util/templating"
 import {span} from "core/dom"
+import type {PlainObject} from "core/types"
 import type * as p from "core/properties"
 import * as styles from "styles/tooltips.css"
 
@@ -22,9 +24,9 @@ export class ColorRefView extends ValueRefView {
     this.el.appendChild(this.swatch_el)
   }
 
-  override update(source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
+  override update(source: ColumnarDataSource, i: Index | null, _vars: PlainObject, _formatters?: Formatters): void {
     const value = _get_column_value(this.model.field, source, i)
-    const text = value == null ? "???" : `${value}` //.toString()
+    const text = value == null ? "???" : `${value}`
     this.el.textContent = text
   }
 }
