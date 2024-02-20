@@ -139,7 +139,7 @@ class ToggleGroup(Action):
     groups = List(Instance(".models.renderers.RendererGroup"))
 
 @abstract
-class Placeholder(DOMNode):
+class Placeholder(DOMElement):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:

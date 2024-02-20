@@ -96,7 +96,7 @@ from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
-from .dom import DOMNode
+from .dom import DOMElement
 from .glyphs import (
     HStrip,
     Line,
@@ -1451,7 +1451,7 @@ class HoverTool(InspectTool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(Null, Instance(DOMNode), String, List(Tuple(String, String)),
+    tooltips = Either(Null, Instance(DOMElement), String, List(Tuple(String, String)),
         default=[
             ("index","$index"),
             ("data (x, y)","($x, $y)"),
