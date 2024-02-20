@@ -27,9 +27,8 @@ from typing import TYPE_CHECKING, Any
 from .bases import Property
 
 if TYPE_CHECKING:
-    # XXX: groupby.groupby possibly due to a bug in import following in mypy
     from pandas import DataFrame  # noqa: F401
-    from pandas.core.groupby.groupby import GroupBy  # noqa: F401
+    from pandas.core.groupby import GroupBy  # noqa: F401
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -75,8 +74,8 @@ class PandasGroupBy(Property["GroupBy[Any]"]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        import pandas as pd
-        if isinstance(value, pd.core.groupby.GroupBy):  # type: ignore
+        from pandas.core.groupby import GroupBy
+        if isinstance(value, GroupBy):
             return
 
         msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"
