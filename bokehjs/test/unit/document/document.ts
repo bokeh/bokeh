@@ -1,6 +1,7 @@
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import * as sinon from "sinon"
 
+import type {Patch} from "@bokehjs/document"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -11,6 +12,7 @@ import type * as p from "@bokehjs/core/properties"
 import {ColumnDataSource} from "@bokehjs/models"
 import {DocumentReady} from "@bokehjs/core/bokeh_events"
 import {Slice} from "@bokehjs/core/util/slice"
+import {unique_id} from "@bokehjs/core/util/string"
 
 import {trap} from "../../util"
 
@@ -44,6 +46,7 @@ namespace SomeModel {
   export type Props = Model.Props & {
     foo: p.Property<number>
     child: p.Property<Model | null>
+    children: p.Property<SomeModel[]>
   }
 }
 
@@ -57,9 +60,10 @@ class SomeModel extends Model {
   }
 
   static {
-    this.define<SomeModel.Props>(({Number, Ref, Nullable}) => ({
+    this.define<SomeModel.Props>(({Number, Ref, Nullable, List}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
+      children: [ List(Ref(SomeModel)), [] ],
     }))
   }
 }
@@ -151,6 +155,7 @@ describe("Document", () => {
     const doc = new Document({roots: [root]})
     expect(doc.roots().length).to.be.equal(1)
     expect(doc._all_models.size).to.be.equal(2)
+    expect(doc.all_models).to.be.equal(new Set([root, child]))
   })
 
   it("has working add_root", () => {
@@ -1120,6 +1125,126 @@ describe("Document", () => {
       expect(events.filter((e) => e.sync).length).to.be.equal(1)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 40, 50, 6]})
+    })
+  })
+
+  it("can patch already known references (issue #13611)", () => {
+    const child5_id = unique_id()
+    const child4 = new SomeModel({foo: 104})
+    const child3 = new SomeModel({foo: 103})
+    const child2 = new SomeModel({foo: 102, children: [child3, child4]})
+    const child1 = new SomeModel({foo: 101})
+    const root = new SomeModel({foo: 100, children: [child1, child2]})
+
+    const updates = {
+      root_foo: 0,
+      root_children: 0,
+      child1_foo: 0,
+      child1_children: 0,
+      child2_foo: 0,
+      child2_children: 0,
+      child3_foo: 0,
+      child3_children: 0,
+      child4_foo: 0,
+      child4_children: 0,
+    }
+
+    root.on_change(root.properties.foo, () => updates.root_foo += 1)
+    root.on_change(root.properties.children, () => updates.root_children += 1)
+    child1.on_change(child1.properties.foo, () => updates.child1_foo += 1)
+    child1.on_change(child1.properties.children, () => updates.child1_children += 1)
+    child2.on_change(child2.properties.foo, () => updates.child2_foo += 1)
+    child2.on_change(child2.properties.children, () => updates.child2_children += 1)
+    child3.on_change(child3.properties.foo, () => updates.child3_foo += 1)
+    child3.on_change(child3.properties.children, () => updates.child3_children += 1)
+    child4.on_change(child4.properties.foo, () => updates.child4_foo += 1)
+    child4.on_change(child4.properties.children, () => updates.child4_children += 1)
+
+    const doc = new Document()
+    doc.add_root(root)
+
+    expect(doc.all_models).to.be.equal(new Set([root, child1, child2, child3, child4]))
+
+    const patch1: Patch = {
+      events: [
+        {
+          kind: "ModelChanged",
+          model: root.ref(),
+          attr: "foo",
+          new: 200,
+        },
+        {
+          kind: "ModelChanged",
+          model: root.ref(),
+          attr: "children",
+          new: [
+            child1.ref(),
+            {
+              type: "object",
+              name: "SomeModel",
+              id: child2.id,
+              attributes: {
+                foo: 202,
+                children: [
+                  {
+                    type: "object",
+                    name: "SomeModel",
+                    id: child3.id,
+                    attributes: {
+                      foo: 203,
+                      children: [
+                        {
+                          type: "object",
+                          name: "SomeModel",
+                          id: child5_id,
+                          attributes: {
+                            foo: 205,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  child4.ref(),
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    }
+    doc.apply_json_patch(patch1)
+
+    expect(root.foo).to.be.equal(200)
+    expect(root.children).to.be.equal([child1, child2])
+
+    expect(child1.foo).to.be.equal(101)
+    expect(child1.children).to.be.equal([])
+
+    expect(child2.foo).to.be.equal(202)
+    expect(child2.children).to.be.equal([child3, child4])
+
+    expect(child3.foo).to.be.equal(203)
+    expect(child3.children.length).to.be.equal(1)
+    const [child5] = child3.children
+
+    expect(child4.foo).to.be.equal(104)
+    expect(child4.children).to.be.equal([])
+
+    expect(child5.id).to.be.equal(child5_id)
+    expect(child5.foo).to.be.equal(205)
+    expect(child5.children).to.be.equal([])
+
+    expect(updates).to.be.equal({
+      root_foo: 1,
+      root_children: 0,   // same value
+      child1_foo: 0,      // no change
+      child1_children: 0, // no change
+      child2_foo: 1,
+      child2_children: 0, // same value
+      child3_foo: 1,
+      child3_children: 1,
+      child4_foo: 0,      // no change
+      child4_children: 0, // no change
     })
   })
 })

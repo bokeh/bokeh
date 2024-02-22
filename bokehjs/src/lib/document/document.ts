@@ -126,6 +126,10 @@ export class Document implements Equatable {
     return this == that
   }
 
+  get all_models(): Set<HasProps> {
+    return new Set(this._all_models.values())
+  }
+
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
     for (const root of this._roots) {
