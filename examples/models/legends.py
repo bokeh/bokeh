@@ -45,7 +45,7 @@ preview_save = SaveTool()
 
 plot.add_tools(pan, wheel_zoom, preview_save)
 
-# Add axes (Note it"s important to add these before adding legends in side panels)
+# Add axes (Note it's important to add these before adding legends in side panels)
 plot.add_layout(LinearAxis(), "below")
 plot.add_layout(LinearAxis(), "left")
 plot.add_layout(LinearAxis(), "right")
