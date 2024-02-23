@@ -62,7 +62,7 @@ const loader = `\
     if (alias != null)
       return alias;
 
-    const trailing = name.length > 0 && name[name.lenght-1] === "/";
+    const trailing = name.length > 0 && name[name.length-1] === "/";
     const index = aliases[name + (trailing ? "" : "/") + "index"];
     if (index != null)
       return index;
@@ -219,11 +219,11 @@ ${comment(license)}
 })(this, function(Bokeh, version) {
   let define;
   return (function(modules, entry, aliases, externals) {
-    const bokeh = typeof Bokeh !== "undefined" && (version != null ? Bokeh[version] : Bokeh);
+    const bokeh = typeof Bokeh !== "undefined" ? (version != null ? Bokeh[version] : Bokeh) : null;
     if (bokeh != null) {
       return bokeh.register_plugin(modules, entry, aliases);
     } else {
-      throw new Error("Cannot find Bokeh " + version + ". You have to load it prior to loading plugins.");
+      throw new Error("Cannot find Bokeh" + (version != null ? " " + version : "") + ". You have to load it prior to loading plugins.");
     }
   })
 `
