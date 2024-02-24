@@ -819,7 +819,7 @@ class DataTable(TableWidget):
 
     selectable = Either(Bool(True), Enum("checkbox"), help="""
     Whether a table's rows can be selected or not. Using ``checkbox`` is
-    equivalent  to ``True``, but makes selection visible through a checkbox
+    equivalent to ``True``, but makes selection visible through a checkbox
     for each row,  instead of highlighting rows. Multiple selection is
     allowed and can be achieved by either clicking multiple checkboxes (if
     enabled) or using Shift + click on rows.
@@ -832,7 +832,7 @@ class DataTable(TableWidget):
 
     To prevent the index column from being added, set to None.
 
-    If the absolute value of index_position  is larger than the length of
+    If the absolute value of index_position is larger than the length of
     the columns, then the index will appear at the beginning or end, depending
     on the sign.
     """)
