@@ -1,4 +1,4 @@
-''' A map representation of unemployment rate in US using the `US_States Dataset <sampledata_us_states>`.
+''' A map representation of unemployment rate in US using the :ref:`US_States Dataset <sampledata_us_states>`.
 This example demonstrates using IndexFilter, ColorMapper and HoverTool with
 basic plot elements such as patches. When hovering over the points,
 the state and its umemployment rate is shown.
