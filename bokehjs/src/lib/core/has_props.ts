@@ -336,21 +336,22 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     if (deferred) {
       assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
     } else {
-      this.initialize_props(dict(attrs))
+      this.initialize_props(attrs)
       this.finalize()
       this.connect_signals()
     }
   }
 
-  initialize_props(vals: Map<string, unknown>): void {
+  initialize_props(vals: Dict<unknown>): void {
+    const vals_proxy = dict(vals)
     const visited = new Set<string>()
     for (const prop of this) {
-      const val = vals.get(prop.attr)
+      const val = vals_proxy.get(prop.attr)
       prop.initialize(val)
       visited.add(prop.attr)
     }
 
-    for (const [attr, val] of vals) {
+    for (const [attr, val] of vals_proxy) {
       if (!visited.has(attr)) {
         // either throws for unknown properties or updates aliased properties
         this.property(attr).set_value(val)

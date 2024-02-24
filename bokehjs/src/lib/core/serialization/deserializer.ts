@@ -6,7 +6,7 @@ import type {Ref} from "../util/refs"
 import {is_ref} from "../util/refs"
 import type {NDArray} from "../util/ndarray"
 import {ndarray} from "../util/ndarray"
-import {entries, dict} from "../util/object"
+import {entries} from "../util/object"
 import {map} from "../util/array"
 import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
@@ -312,23 +312,28 @@ export class Deserializer {
   }
 
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
-    const ref = this.references.get(obj.id)
-    if (ref != null) {
-      this.warning(`reference already known '${obj.id}'`)
-      return ref
-    }
-
     const {id, name: type, attributes} = obj
 
-    const cls = this._resolve_type(type)
-    const instance: HasProps = new cls({id})
-    this.references.set(id, instance)
+    const ref = this.references.get(id)
+    if (ref != null) {
+      if (ref.type == type) {
+        const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+        ref.setv(decoded_attributes, {sync: false})
+        return ref
+      } else {
+        this.error(`type mismatch for an existing reference '${ref}', expected '${type}'`)
+      }
+    } else {
+      const cls = this._resolve_type(type)
+      const instance: HasProps = new cls({id})
+      this.references.set(id, instance)
 
-    const decoded_attributes = this._decode(attributes ?? {}) as Attrs
-    instance.initialize_props(dict(decoded_attributes))
+      const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+      instance.initialize_props(decoded_attributes)
 
-    this._finalizable.add(instance)
-    return instance
+      this._finalizable.add(instance)
+      return instance
+    }
   }
 
   error(message: string): never {
