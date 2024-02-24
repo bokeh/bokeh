@@ -15,7 +15,7 @@ BokehJS. You can also use BokehJS as a standalone library or in
 combination with JavaScript frameworks, such as React_, Vue_, Angular_,
 and others.
 
-See `Developing with JavaScript`_ for more information about BokehJS.
+See :ref:`Developing with JavaScript <ug_advanced_bokehjs>` for more information about BokehJS.
 
 hvPlot
 ------
@@ -30,8 +30,8 @@ Panel
 
 The `Panel`_ library provides a high-level reactive interface that makes
 it easy to build data-intensive dashboards and web applications on top of
-Bokeh. Panel enables full interoperability between `Jupyter notebooks`_
-and `Bokeh server`_. This lets you develop or prototype applications in
+Bokeh. Panel enables full interoperability between :ref:`Jupyter notebooks <ug_output_jupyter>`
+and :ref:`Bokeh server <ug_server>`. This lets you develop or prototype applications in
 a notebook and deploy them on a server. Panel also interfaces with other
 plotting libraries and lets you incorporate multiple data-science
 artifacts into a single Bokeh application. Furthermore, the library
@@ -96,11 +96,8 @@ is an `example`_ of interaction HoloViews.
 .. _React: https://reactjs.org
 .. _Angular: https://angular.io
 .. _Vue: https://vuejs.org/
-.. _Developing with JavaScript: https://docs.bokeh.org/en/dev/docs/user_guide/bokehjs.html
 .. _hvPlot: https://hvplot.holoviz.org/
 .. _Panel: https://panel.holoviz.org/
-.. _Jupyter notebooks: https://docs.bokeh.org/en/latest/docs/user_guide/jupyter.html
-.. _Bokeh server: https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 .. _Datashader: https://github.com/bokeh/datashader
 .. _overplotting: https://anaconda.org/jbednar/plotting_pitfalls
 .. _HoloViews: http://holoviews.org

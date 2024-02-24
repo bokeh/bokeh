@@ -92,7 +92,7 @@ throughout the narrative documentation:
    "Python", "Always capitalize Python (the language)"
 
 For definitions and concepts used throughout Bokeh's documentation, see the
-:ref:`ug_glossary` in :ref:`ug_intro`.
+:ref:`ug_glossary`.
 
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
@@ -103,7 +103,7 @@ Setting up and building Bokeh's documentation
 ---------------------------------------------
 
 Bokeh uses :doc:`Sphinx <sphinx:index>` to generate the HTML files displayed
-at docs.bokeh.org_. The documentation is written in
+at :ref:`docs.bokeh.org <about>`. The documentation is written in
 :doc:`reStructuredText (ReST) <sphinx:usage/restructuredtext/index>`.
 
 HTML is the only output format supported by Bokeh's documentation. Many pages
@@ -311,7 +311,7 @@ To learn more about options for the Sphinx build process, see
 
 Writing Bokeh's documentation
 -----------------------------
-The documentation available at docs.bokeh.org_ mainly consists of those two
+The documentation available at :ref:`docs.bokeh.org <about>` mainly consists of those two
 elements:
 
 :ref:`Narrative documentation <contributor_guide_documentation_edit_narrative>`
@@ -435,7 +435,7 @@ For example:
         """)
 
 .. note::
-  `Release Notes`_ are generally handled by the Bokeh core team as part of
+  :ref:`Release Notes <releases>` are generally handled by the Bokeh core team as part of
   Bokeh's `release management`_. Each release should add a new file under
   ``docs/bokeh/source/docs/releases`` that briefly describes the changes in the
   release, including any migration notes. The filename should be
@@ -450,12 +450,10 @@ For example:
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility
 .. _word list of the Google developer documentation style guide: https://developers.google.com/style/word-list
-.. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
 .. _Google developers website: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
 .. _Napoleon's Google style: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _official reStructuredText website: https://docutils.sourceforge.io/rst.html
 .. _experimental Sphinx feature: https://github.com/sphinx-doc/sphinx/issues/6881
-.. _Release Notes: https://docs.bokeh.org/en/latest/docs/releases.html
 .. _release management: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
