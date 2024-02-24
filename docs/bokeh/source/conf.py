@@ -30,7 +30,7 @@ version = settings.docs_version() or __version__
 
 add_module_names = False
 
-exclude_patterns = ["docs/releases/*"]
+exclude_patterns = ["docs/includes/*", "docs/releases/*"]
 
 extensions = [
     "sphinxext.opengraph",
