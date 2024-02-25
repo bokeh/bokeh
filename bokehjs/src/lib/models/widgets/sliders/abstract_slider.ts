@@ -215,9 +215,9 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
   }
 
   static {
-    this.define<AbstractSlider.Props>(({Unknown, Bool, String, Color, Enum, Nullable}) => {
+    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Color, Enum, Nullable}) => {
       return {
-        title:           [ Nullable(String), "" ],
+        title:           [ Nullable(Str), "" ],
         show_value:      [ Bool, true ],
         value:           [ Unknown ],
         value_throttled: [ Unknown, p.unset, {readonly: true} ],

@@ -630,14 +630,14 @@ export class BoxAnnotation extends Annotation {
       symmetric:    [ Bool, false ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({String}) => ({
-      tl_cursor: [ String, "nwse-resize" ],
-      tr_cursor: [ String, "nesw-resize" ],
-      bl_cursor: [ String, "nesw-resize" ],
-      br_cursor: [ String, "nwse-resize" ],
-      ew_cursor: [ String, "ew-resize" ],
-      ns_cursor: [ String, "ns-resize" ],
-      in_cursor: [ String, "move" ],
+    this.internal<BoxAnnotation.Props>(({Str}) => ({
+      tl_cursor: [ Str, "nwse-resize" ],
+      tr_cursor: [ Str, "nesw-resize" ],
+      bl_cursor: [ Str, "nesw-resize" ],
+      br_cursor: [ Str, "nwse-resize" ],
+      ew_cursor: [ Str, "ew-resize" ],
+      ns_cursor: [ Str, "ns-resize" ],
+      in_cursor: [ Str, "move" ],
     }))
 
     this.override<BoxAnnotation.Props>({

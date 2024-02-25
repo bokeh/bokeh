@@ -144,11 +144,11 @@ export class NumericInput extends InputWidget {
   static {
     this.prototype.default_view = NumericInputView
 
-    this.define<NumericInput.Props>(({Number, String, Enum, Ref, Or, Nullable}) => ({
+    this.define<NumericInput.Props>(({Number, Str, Enum, Ref, Or, Nullable}) => ({
       value:       [ Nullable(Number), null ],
-      placeholder: [ String, "" ],
+      placeholder: [ Str, "" ],
       mode:        [ Enum("int", "float"), "int" ],
-      format:      [ Nullable(Or(String, Ref(TickFormatter))), null ],
+      format:      [ Nullable(Or(Str, Ref(TickFormatter))), null ],
       low:         [ Nullable(Number), null ],
       high:        [ Nullable(Number), null ],
     }))

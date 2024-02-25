@@ -20,8 +20,8 @@ export class PrintfTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<PrintfTickFormatter.Props>(({String}) => ({
-      format: [ String, "%s" ],
+    this.define<PrintfTickFormatter.Props>(({Str}) => ({
+      format: [ Str, "%s" ],
     }))
   }
 

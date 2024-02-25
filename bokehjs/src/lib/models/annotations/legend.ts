@@ -519,12 +519,12 @@ export class Legend extends Annotation {
       ["item_background_", mixins.Fill],
     ])
 
-    this.define<Legend.Props>(({Number, Int, String, Array, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({
+    this.define<Legend.Props>(({Number, Int, Str, Array, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({
       orientation:      [ Orientation, "vertical" ],
       ncols:            [ Or(Positive(Int), Auto), "auto" ],
       nrows:            [ Or(Positive(Int), Auto), "auto" ],
       location:         [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
-      title:            [ Nullable(String), null ],
+      title:            [ Nullable(Str), null ],
       title_location:   [ Location, "above" ],
       title_standoff:   [ Number, 5 ],
       label_standoff:   [ Number, 5 ],

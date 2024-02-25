@@ -264,12 +264,12 @@ export abstract class Renderer extends Model {
   }
 
   static {
-    this.define<Renderer.Props>(({Bool, String, Ref, Nullable}) => ({
+    this.define<Renderer.Props>(({Bool, Str, Ref, Nullable}) => ({
       group:        [ Nullable(Ref(RendererGroup)), null ],
       level:        [ RenderLevel, "image" ],
       visible:      [ Bool, true ],
-      x_range_name: [ String, "default" ],
-      y_range_name: [ String, "default" ],
+      x_range_name: [ Str, "default" ],
+      y_range_name: [ Str, "default" ],
       coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
       propagate_hover: [ Bool, false ],
       context_menu: [ Nullable(Ref(Menu)), null ],

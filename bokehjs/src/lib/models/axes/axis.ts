@@ -814,13 +814,13 @@ export class Axis extends GuideRenderer {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({
+    this.define<Axis.Props>(({Any, Int, Number, Str, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({
       dimension:               [ Or(Enum(0, 1), Auto), "auto" ],
       face:                    [ Or(Face, Auto), "auto" ],
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
-      axis_label:              [ Nullable(Or(String, Ref(BaseText))), null],
+      axis_label:              [ Nullable(Or(Str, Ref(BaseText))), null],
       axis_label_standoff:     [ Int, 5 ],
       axis_label_orientation:  [ Or(LabelOrientation, Number), "parallel" ],
       axis_label_align:        [ Align, "center" ],

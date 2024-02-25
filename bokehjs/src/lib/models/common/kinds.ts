@@ -11,7 +11,7 @@ import {
   PartialStruct,
   Percent,
   Ref,
-  String,
+  Str,
   Tuple,
 } from "core/kinds"
 import type {HasProps} from "core/has_props"
@@ -77,7 +77,7 @@ export type GridSpacing = typeof GridSpacing["__type__"]
 export const TrackAlign = Enum("start", "center", "end", "auto")
 export type TrackAlign = typeof TrackAlign["__type__"]
 
-export const TrackSize = String
+export const TrackSize = Str
 export type TrackSize = typeof TrackSize["__type__"]
 
 export const TrackSizing = PartialStruct({size: TrackSize, align: TrackAlign})

@@ -39,8 +39,8 @@ export class Text extends DOMNode {
   static {
     this.prototype.default_view = TextView
 
-    this.define<Text.Props>(({String}) => ({
-      content: [ String, "" ],
+    this.define<Text.Props>(({Str}) => ({
+      content: [ Str, "" ],
     }))
   }
 }

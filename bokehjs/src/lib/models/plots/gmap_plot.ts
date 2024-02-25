@@ -56,10 +56,10 @@ export class GMapOptions extends MapOptions {
   }
 
   static {
-    this.define<GMapOptions.Props>(({Bool, Int, String, Nullable}) => ({
+    this.define<GMapOptions.Props>(({Bool, Int, Str, Nullable}) => ({
       map_type:      [ MapType, "roadmap"],
       scale_control: [ Bool, false ],
-      styles:        [ Nullable(String), null ],
+      styles:        [ Nullable(Str), null ],
       tilt:          [ Int, 45 ],
     }))
   }
@@ -89,10 +89,10 @@ export class GMapPlot extends Plot {
   static {
     this.prototype.default_view = GMapPlotView
 
-    this.define<GMapPlot.Props>(({String, Bytes, Ref}) => ({
+    this.define<GMapPlot.Props>(({Str, Bytes, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
       api_key:     [ Bytes ],
-      api_version: [ String, "weekly" ],
+      api_version: [ Str, "weekly" ],
     }))
 
     this.override<GMapPlot.Props>({

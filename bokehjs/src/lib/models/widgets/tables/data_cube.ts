@@ -82,8 +82,8 @@ export class GroupingInfo extends Model {
   }
 
   static {
-    this.define<GroupingInfo.Props>(({Bool, String, Array, Ref}) => ({
-      getter:      [ String, "" ],
+    this.define<GroupingInfo.Props>(({Bool, Str, Array, Ref}) => ({
+      getter:      [ Str, "" ],
       aggregators: [ Array(Ref(RowAggregator)), [] ],
       collapsed:   [ Bool, false ],
     }))

@@ -670,8 +670,8 @@ export class HoverTool extends InspectTool {
   static {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>(({Any, Bool, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
-      tooltips: [ Nullable(Or(Ref(Template), String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
+    this.define<HoverTool.Props>(({Any, Bool, Str, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
+      tooltips: [ Nullable(Or(Ref(Template), Str, Array(Tuple(Str, Str)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],

@@ -78,11 +78,11 @@ export abstract class WebDataSource extends ColumnDataSource {
   }
 
   static {
-    this.define<WebDataSource.Props>(({Any, Int, String, Nullable}) => ({
+    this.define<WebDataSource.Props>(({Any, Int, Str, Nullable}) => ({
       max_size: [ Nullable(Int), null ],
       mode:     [ UpdateMode, "replace" ],
       adapter:  [ Nullable(Any /*TODO*/), null ],
-      data_url: [ String ],
+      data_url: [ Str ],
     }))
   }
 }

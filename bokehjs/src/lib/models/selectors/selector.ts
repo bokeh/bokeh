@@ -19,8 +19,8 @@ export abstract class Selector extends Model {
   }
 
   static {
-    this.define<Selector.Props>(({String}) => ({
-      query: [ String ],
+    this.define<Selector.Props>(({Str}) => ({
+      query: [ Str ],
     }))
   }
 

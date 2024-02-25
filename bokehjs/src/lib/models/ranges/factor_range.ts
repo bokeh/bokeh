@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Or, String as Str, Array as Arr, Tuple} from "core/kinds"
+import {Or, Str as Str, Array as Arr, Tuple} from "core/kinds"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import {Signal0} from "core/signaling"
@@ -147,10 +147,10 @@ export class FactorRange extends Range {
       end:                 [ Number, p.unset, {readonly: true} ],
     }))
 
-    this.internal<FactorRange.Props>(({Number, String, Array, Tuple, Nullable}) => ({
+    this.internal<FactorRange.Props>(({Number, Str, Array, Tuple, Nullable}) => ({
       levels: [ Number ], // how many levels of
-      mids:   [ Nullable(Array(Tuple(String, String))), null ], // mid level factors (if 3 total levels)
-      tops:   [ Nullable(Array(String)), null ], // top level factors (whether 2 or 3 total levels)
+      mids:   [ Nullable(Array(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
+      tops:   [ Nullable(Array(Str)), null ], // top level factors (whether 2 or 3 total levels)
     }))
   }
 

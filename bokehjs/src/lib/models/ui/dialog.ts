@@ -628,9 +628,9 @@ export class Dialog extends UIElement {
   static {
     this.prototype.default_view = DialogView
 
-    this.define<Dialog.Props>(({Bool, String, Ref, Or, Nullable, Enum}) => ({
-      title: [ Nullable(Or(String, Ref(DOMNode), Ref(UIElement))), null ],
-      content: [ Or(String, Ref(DOMNode), Ref(UIElement)) ],
+    this.define<Dialog.Props>(({Bool, Str, Ref, Or, Nullable, Enum}) => ({
+      title: [ Nullable(Or(Str, Ref(DOMNode), Ref(UIElement))), null ],
+      content: [ Or(Str, Ref(DOMNode), Ref(UIElement)) ],
 
       pinnable: [ Bool, true ],
       collapsible: [ Bool, true ],

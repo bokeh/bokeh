@@ -137,19 +137,19 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<DatetimeTickFormatter.Props>(({Bool, Nullable, Or, Ref, String, Arrayable}) => ({
-      microseconds: [ String, "%fus" ],
-      milliseconds: [ String, "%3Nms" ],
-      seconds: [ String, "%Ss" ],
-      minsec: [ String, ":%M:%S" ],
-      minutes: [ String, ":%M" ],
-      hourmin: [ String, "%H:%M" ],
-      hours: [ String, "%Hh" ],
-      days: [ String, "%m/%d" ],
-      months: [ String, "%m/%Y" ],
-      years: [ String, "%Y" ],
+    this.define<DatetimeTickFormatter.Props>(({Bool, Nullable, Or, Ref, Str, Arrayable}) => ({
+      microseconds: [ Str, "%fus" ],
+      milliseconds: [ Str, "%3Nms" ],
+      seconds: [ Str, "%Ss" ],
+      minsec: [ Str, ":%M:%S" ],
+      minutes: [ Str, ":%M" ],
+      hourmin: [ Str, "%H:%M" ],
+      hours: [ Str, "%Hh" ],
+      days: [ Str, "%m/%d" ],
+      months: [ Str, "%m/%Y" ],
+      years: [ Str, "%Y" ],
       strip_leading_zeros: [ Or(Bool, Arrayable(ResolutionType)), false ],
-      context: [ Nullable(Or(String, Ref(DatetimeTickFormatter))), null ],
+      context: [ Nullable(Or(Str, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
     }))

@@ -75,7 +75,7 @@ export const Hatch: p.DefineOf<Hatch> = {
   hatch_color:      [ k.Nullable(k.Color), "black" ],
   hatch_alpha:      [ k.Alpha, 1.0 ],
   hatch_scale:      [ k.Number, 12.0 ],
-  hatch_pattern:    [ k.Nullable(k.Or(HatchPatternType, k.String)), null ],
+  hatch_pattern:    [ k.Nullable(k.Or(HatchPatternType, k.Str)), null ],
   hatch_weight:     [ k.Number, 1.0 ],
   hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
 }

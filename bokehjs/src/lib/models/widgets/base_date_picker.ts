@@ -3,10 +3,10 @@ import type flatpickr from "flatpickr"
 import {PickerBase, PickerBaseView} from "./picker_base"
 import type * as p from "core/properties"
 import {isArray} from "core/util/types"
-import {Or, Tuple, String, Number, Array, Ref, Struct} from "core/kinds"
+import {Or, Tuple, Str, Number, Array, Ref, Struct} from "core/kinds"
 
 export type DateLike = typeof DateLike["__type__"]
-export const DateLike = Or(Ref(Date), String, Number)
+export const DateLike = Or(Ref(Date), Str, Number)
 
 export type DateLikeList = typeof DateLikeList["__type__"]
 export const DateLikeList = Array(Or(DateLike, Tuple(DateLike, DateLike), Struct({from: DateLike, to: DateLike})))
@@ -122,7 +122,7 @@ export abstract class BaseDatePicker extends PickerBase {
       max_date:       [ Nullable(DateLike), null ],
       disabled_dates: [ Nullable(DateLikeList), null ],
       enabled_dates:  [ Nullable(DateLikeList), null ],
-      date_format:    [ String, "Y-m-d" ],
+      date_format:    [ Str, "Y-m-d" ],
     }))
   }
 }

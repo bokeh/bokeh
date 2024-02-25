@@ -90,7 +90,7 @@ class Some extends HasProps {
       int: [ kinds.Int ],
       angle: [ kinds.Angle ],
       percent: [ kinds.Percent ],
-      string: [ kinds.String ],
+      string: [ kinds.Str ],
       font_size: [ kinds.FontSize ],
       font: [ kinds.Font ],
       direction: [ enums.Direction ],

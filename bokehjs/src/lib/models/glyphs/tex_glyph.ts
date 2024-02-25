@@ -55,8 +55,8 @@ export class TeXGlyph extends MathTextGlyph {
   static {
     this.prototype.default_view = TeXGlyphView
 
-    this.define<TeXGlyph.Props>(({Number, String, Dict, Tuple, Or}) => ({
-      macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
+    this.define<TeXGlyph.Props>(({Number, Str, Dict, Tuple, Or}) => ({
+      macros: [ Dict(Or(Str, Tuple(Str, Number))), {} ],
       display: [ DisplayMode, "auto" ],
     }))
   }

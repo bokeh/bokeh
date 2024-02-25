@@ -1,13 +1,13 @@
 import type flatpickr from "flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
-import {String, Number, Or} from "core/kinds"
+import {Str, Number, Or} from "core/kinds"
 import {Clock} from "core/enums"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
 
 export type TimeLike = typeof TimeLike["__type__"]
-export const TimeLike = Or(String, Number)
+export const TimeLike = Or(Str, Number)
 
 export class TimePickerView extends PickerBaseView {
   declare model: TimePicker
@@ -125,11 +125,11 @@ export class TimePicker extends PickerBase {
   static {
     this.prototype.default_view = TimePickerView
 
-    this.define<TimePicker.Props>(({Bool, String, Nullable, Positive, Int}) => ({
+    this.define<TimePicker.Props>(({Bool, Str, Nullable, Positive, Int}) => ({
       value: [ Nullable(TimeLike), null ],
       min_time: [ Nullable(TimeLike), null ],
       max_time: [ Nullable(TimeLike), null ],
-      time_format: [ String, "H:i" ],
+      time_format: [ Str, "H:i" ],
       hour_increment: [ Positive(Int), 1 ],
       minute_increment: [ Positive(Int), 1 ],
       second_increment: [ Positive(Int), 1 ],

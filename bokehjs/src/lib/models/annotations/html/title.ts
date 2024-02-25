@@ -140,8 +140,8 @@ export class HTMLTitle extends TextAnnotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<HTMLTitle.Props>(({Number, String}) => ({
-      text:             [ String, "" ],
+    this.define<HTMLTitle.Props>(({Number, Str}) => ({
+      text:             [ Str, "" ],
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
       offset:           [ Number, 0 ],

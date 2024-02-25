@@ -6,12 +6,12 @@ import type * as p from "core/properties"
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
-import {Unknown, String, Array, Tuple, Or, Dict} from "core/kinds"
+import {Unknown, Str, Array, Tuple, Or, Dict} from "core/kinds"
 
 const Value = Unknown
 type Value = typeof Value["__type__"]
 
-const Label = String
+const Label = Str
 type Label = typeof Label["__type__"]
 
 const Options = Array(Or(Label, Tuple(Value, Label)))

@@ -22,8 +22,8 @@ export class ImageURLTexture extends Texture {
   }
 
   static {
-    this.define<ImageURLTexture.Props>(({String}) => ({
-      url: [ String ],
+    this.define<ImageURLTexture.Props>(({Str}) => ({
+      url: [ Str ],
     }))
   }
 

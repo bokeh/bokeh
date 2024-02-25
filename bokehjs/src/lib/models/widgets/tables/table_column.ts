@@ -32,9 +32,9 @@ export class TableColumn extends Model {
   }
 
   static {
-    this.define<TableColumn.Props>(({Bool, Number, String, Nullable, Ref}) => ({
-      field:        [ String ],
-      title:        [ Nullable(String), null ],
+    this.define<TableColumn.Props>(({Bool, Number, Str, Nullable, Ref}) => ({
+      field:        [ Str ],
+      title:        [ Nullable(Str), null ],
       width:        [ Number, 300 ],
       formatter:    [ Ref(CellFormatter), () => new StringFormatter() ],
       editor:       [ Ref(CellEditor), () => new StringEditor() ],

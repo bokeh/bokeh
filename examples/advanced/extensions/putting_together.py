@@ -74,8 +74,8 @@ export class Custom extends UIElement {
     // bokeh.core.properties.String will correspond to ``String`` in the
     // JS implementation. Where JS lacks a given type, you can use
     // ``p.Any`` as a "wildcard" property type.
-    this.define<Custom.Props>(({String, Ref}) => ({
-      text:   [ String, "Custom text" ],
+    this.define<Custom.Props>(({Str, Ref}) => ({
+      text:   [ Str, "Custom text" ],
       slider: [ Ref(Slider) ],
     }))
   }

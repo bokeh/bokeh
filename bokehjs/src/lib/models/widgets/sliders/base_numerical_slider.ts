@@ -41,12 +41,12 @@ export abstract class BaseNumericalSlider extends AbstractSlider<number> {
   }
 
   static {
-    this.define<BaseNumericalSlider.Props>(({Number, String, Or, Ref}) => {
+    this.define<BaseNumericalSlider.Props>(({Number, Str, Or, Ref}) => {
       return {
         start:  [ Number ],
         end:    [ Number ],
         step:   [ Number, 1 ],
-        format: [ Or(String, Ref(TickFormatter)) ],
+        format: [ Or(Str, Ref(TickFormatter)) ],
       }
     })
   }

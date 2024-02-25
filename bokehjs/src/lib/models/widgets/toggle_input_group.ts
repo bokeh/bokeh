@@ -44,8 +44,8 @@ export abstract class ToggleInputGroup extends Control {
   }
 
   static {
-    this.define<ToggleInputGroup.Props>(({Bool, String, Array}) => ({
-      labels: [ Array(String), [] ],
+    this.define<ToggleInputGroup.Props>(({Bool, Str, Array}) => ({
+      labels: [ Array(Str), [] ],
       inline: [ Bool, false ],
     }))
   }

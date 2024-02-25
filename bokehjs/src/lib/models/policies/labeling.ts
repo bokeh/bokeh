@@ -100,9 +100,9 @@ export class CustomLabelingPolicy extends LabelingPolicy {
   }
 
   static {
-    this.define<CustomLabelingPolicy.Props>(({Unknown, String, Dict}) => ({
+    this.define<CustomLabelingPolicy.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],
-      code: [ String, "" ],
+      code: [ Str, "" ],
     }))
   }
 

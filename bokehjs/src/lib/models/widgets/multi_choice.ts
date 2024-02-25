@@ -164,12 +164,12 @@ export class MultiChoice extends InputWidget {
   static {
     this.prototype.default_view = MultiChoiceView
 
-    this.define<MultiChoice.Props>(({Bool, Int, String, Array, Tuple, Or, Nullable}) => ({
-      value:               [ Array(String), [] ],
-      options:             [ Array(Or(String, Tuple(String, String))), [] ],
+    this.define<MultiChoice.Props>(({Bool, Int, Str, Array, Tuple, Or, Nullable}) => ({
+      value:               [ Array(Str), [] ],
+      options:             [ Array(Or(Str, Tuple(Str, Str))), [] ],
       max_items:           [ Nullable(Int), null ],
       delete_button:       [ Bool, true ],
-      placeholder:         [ Nullable(String), null ],
+      placeholder:         [ Nullable(Str), null ],
       option_limit:        [ Nullable(Int), null ],
       search_option_limit: [ Nullable(Int), null ],
       solid:               [ Bool, true ],

@@ -591,10 +591,10 @@ export class BaseColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Or, Ref, Auto, Nullable}) => ({
+    this.define<BaseColorBar.Props>(({Alpha, Number, Str, Tuple, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
-      title:                 [ Nullable(Or(String, Ref(BaseText))), null ],
+      title:                 [ Nullable(Or(Str, Ref(BaseText))), null ],
       title_standoff:        [ Number, 2 ],
       width:                 [ Or(Number, Auto), "auto" ],
       height:                [ Or(Number, Auto), "auto" ],

@@ -80,8 +80,8 @@ export class GroupBox extends LayoutDOM {
   static {
     this.prototype.default_view = GroupBoxView
 
-    this.define<GroupBox.Props>(({Bool, String, Nullable, Ref}) => ({
-      title: [ Nullable(String), null ],
+    this.define<GroupBox.Props>(({Bool, Str, Nullable, Ref}) => ({
+      title: [ Nullable(Str), null ],
       child: [ Ref(UIElement) ],
       checkable: [ Bool, false ],
     }))

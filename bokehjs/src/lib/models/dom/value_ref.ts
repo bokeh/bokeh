@@ -33,8 +33,8 @@ export class ValueRef extends Placeholder {
 
   static {
     this.prototype.default_view = ValueRefView
-    this.define<ValueRef.Props>(({String}) => ({
-      field: [ String ],
+    this.define<ValueRef.Props>(({Str}) => ({
+      field: [ Str ],
     }))
   }
 }

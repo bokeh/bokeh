@@ -119,12 +119,12 @@ export class HTMLLabel extends TextAnnotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<HTMLLabel.Props>(({Number, String, Angle}) => ({
+    this.define<HTMLLabel.Props>(({Number, Str, Angle}) => ({
       x:           [ Number ],
       x_units:     [ CoordinateUnits, "data" ],
       y:           [ Number ],
       y_units:     [ CoordinateUnits, "data" ],
-      text:        [ String, "" ],
+      text:        [ Str, "" ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],

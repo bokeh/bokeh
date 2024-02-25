@@ -555,19 +555,19 @@ export class ScaleBar extends Annotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<ScaleBar.Props>(({NonNegative, Number, String, Ref, Or, Auto}) => ({
+    this.define<ScaleBar.Props>(({NonNegative, Number, Str, Ref, Or, Auto}) => ({
       range:          [ Or(Ref(Range), Auto), "auto" ],
-      unit:           [ String, "m" ],
+      unit:           [ Str, "m" ],
       dimensional:    [ Ref(Dimensional), () => new MetricLength() ],
       orientation:    [ Orientation, "horizontal" ],
       bar_length:     [ NonNegative(Number), 0.2 ],
       length_sizing:  [ LengthSizing, "adaptive" ],
       location:       [ Anchor, "top_right" ],
-      label:          [ String, "@{value} @{unit}" ],
+      label:          [ Str, "@{value} @{unit}" ],
       label_align:    [ Align, "center" ],
       label_location: [ Location, "below" ],
       label_standoff: [ Number, 5 ],
-      title:          [ String, "" ],
+      title:          [ Str, "" ],
       title_align:    [ Align, "center" ],
       title_location: [ Location, "above" ],
       title_standoff: [ Number, 5 ],

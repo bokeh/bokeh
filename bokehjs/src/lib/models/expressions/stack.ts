@@ -22,8 +22,8 @@ export class Stack extends Expression {
   }
 
   static {
-    this.define<Stack.Props>(({String, Array}) => ({
-      fields: [ Array(String), [] ],
+    this.define<Stack.Props>(({Str, Array}) => ({
+      fields: [ Array(Str), [] ],
     }))
   }
 

@@ -225,8 +225,8 @@ export abstract class TextAnnotation extends Annotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<TextAnnotation.Props>(({String, Or, Ref}) => ({
-      text: [ Or(String, Ref(BaseText)), "" ],
+    this.define<TextAnnotation.Props>(({Str, Or, Ref}) => ({
+      text: [ Or(Str, Ref(BaseText)), "" ],
       padding: [ Padding, 0 ],
       border_radius: [ BorderRadius, 0 ],
     }))

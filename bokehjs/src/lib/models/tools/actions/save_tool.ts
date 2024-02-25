@@ -59,8 +59,8 @@ export class SaveTool extends ActionTool {
   static {
     this.prototype.default_view = SaveToolView
 
-    this.define<SaveTool.Props>(({String, Nullable}) => ({
-      filename: [ Nullable(String), null ],
+    this.define<SaveTool.Props>(({Str, Nullable}) => ({
+      filename: [ Nullable(Str), null ],
     }))
 
     this.register_alias("save", () => new SaveTool())

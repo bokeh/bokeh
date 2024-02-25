@@ -135,7 +135,7 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>(({Bool, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+    this.define<Plot.Props>(({Bool, Number, Str, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Bool, true ],
@@ -146,7 +146,7 @@ export class Plot extends LayoutDOM {
       frame_align:       [ Or(Bool, Struct({left: Opt(Bool), right: Opt(Bool), top: Opt(Bool), bottom: Opt(Bool)})), true ],
 
       // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
-      title:             [ Or(Ref(Title), String, Null), "", {
+      title:             [ Or(Ref(Title), Str, Null), "", {
         convert: (title) => isString(title) ? new Title({text: title}) : title,
       }],
       title_location:    [ Nullable(Location), "above" ],
@@ -197,7 +197,7 @@ export class Plot extends LayoutDOM {
 
       hold_render:       [ Bool, false ],
 
-      attribution:       [ Array(Or(String, Ref(HTML))), [] ],
+      attribution:       [ Array(Or(Str, Ref(HTML))), [] ],
     }))
 
     this.override<Plot.Props>({

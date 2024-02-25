@@ -23,9 +23,9 @@ export class SetValue extends Callback {
   }
 
   static {
-    this.define<SetValue.Props>(({String, Unknown, Ref}) => ({
+    this.define<SetValue.Props>(({Str, Unknown, Ref}) => ({
       obj: [ Ref(HasProps) ],
-      attr: [ String ],
+      attr: [ Str ],
       value: [ Unknown ],
     }))
   }

@@ -23,8 +23,8 @@ export class CumSum extends Expression {
   }
 
   static {
-    this.define<CumSum.Props>(({Bool, String}) => ({
-      field:        [ String         ],
+    this.define<CumSum.Props>(({Bool, Str}) => ({
+      field:        [ Str         ],
       include_zero: [ Bool, false ],
     }))
   }

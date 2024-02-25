@@ -23,9 +23,9 @@ export class CustomJSHover extends Model {
   }
 
   static {
-    this.define<CustomJSHover.Props>(({Unknown, String, Dict}) => ({
+    this.define<CustomJSHover.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],
-      code: [ String, "" ],
+      code: [ Str, "" ],
     }))
   }
 

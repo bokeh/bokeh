@@ -524,7 +524,7 @@ export class DataTable extends TableWidget {
   static {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>(({Array, Bool, Int, Ref, String, Enum, Or, Nullable}) => ({
+    this.define<DataTable.Props>(({Array, Bool, Int, Ref, Str, Enum, Or, Nullable}) => ({
       autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit"), "force_fit" ],
       auto_edit:           [ Bool, false ],
       columns:             [ Array(Ref(TableColumn)), [] ],
@@ -536,7 +536,7 @@ export class DataTable extends TableWidget {
       editable:            [ Bool, false ],
       selectable:          [ Or(Bool, Enum("checkbox")), true ],
       index_position:      [ Nullable(Int), 0 ],
-      index_header:        [ String, "#" ],
+      index_header:        [ Str, "#" ],
       index_width:         [ Int, 40 ],
       scroll_to_selection: [ Bool, true ],
       header_row:          [ Bool, true ],

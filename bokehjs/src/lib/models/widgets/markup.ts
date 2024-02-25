@@ -75,8 +75,8 @@ export abstract class Markup extends Widget {
   }
 
   static {
-    this.define<Markup.Props>(({Bool, String}) => ({
-      text:  [ String, "" ],
+    this.define<Markup.Props>(({Bool, Str}) => ({
+      text:  [ Str, "" ],
       disable_math: [ Bool, false ],
     }))
   }

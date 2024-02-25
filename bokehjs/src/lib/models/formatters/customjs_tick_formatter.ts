@@ -23,9 +23,9 @@ export class CustomJSTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<CustomJSTickFormatter.Props>(({Unknown, String, Dict}) => ({
+    this.define<CustomJSTickFormatter.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],
-      code: [ String, "" ],
+      code: [ Str, "" ],
     }))
   }
 
