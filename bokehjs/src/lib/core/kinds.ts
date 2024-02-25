@@ -662,10 +662,15 @@ export const Font = Str
 export const Angle = Float
 
 // backwards compatibility aliases (these collide with built-in types)
-// TODO deprecate this and update the codebase
+/** @deprecated */
 export const Boolean = Bool
+/** @deprecated */
 export const String = Str
+/** @deprecated */
 export const Number = Float
+/** @deprecated */
 export const Array = List
+/** @deprecated */
 export const Map = Mapping
+/** @deprecated */
 export const Function = Func
