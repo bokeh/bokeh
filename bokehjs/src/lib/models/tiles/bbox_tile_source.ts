@@ -19,8 +19,8 @@ export class BBoxTileSource extends MercatorTileSource {
   }
 
   static {
-    this.define<BBoxTileSource.Props>(({Boolean}) => ({
-      use_latlon: [ Boolean, false ],
+    this.define<BBoxTileSource.Props>(({Bool}) => ({
+      use_latlon: [ Bool, false ],
     }))
   }
 

@@ -23,9 +23,9 @@ export class MercatorTileSource extends TileSource {
   }
 
   static {
-    this.define<MercatorTileSource.Props>(({Boolean}) => ({
-      snap_to_zoom: [ Boolean, false ],
-      wrap_around:  [ Boolean, true ],
+    this.define<MercatorTileSource.Props>(({Bool}) => ({
+      snap_to_zoom: [ Bool, false ],
+      wrap_around:  [ Bool, true ],
     }))
 
     this.override<MercatorTileSource.Props>({

@@ -601,7 +601,7 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or, NonNegative, Positive}) => ({
+    this.define<BoxAnnotation.Props>(({Bool, Number, Ref, Or, NonNegative, Positive}) => ({
       top:          [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "top"}) ],
       bottom:       [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "bottom"}) ],
       left:         [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "left"}) ],
@@ -624,10 +624,10 @@ export class BoxAnnotation extends Annotation {
 
       border_radius: [ BorderRadius, 0 ],
 
-      editable:     [ Boolean, false ],
+      editable:     [ Bool, false ],
       resizable:    [ Box.Resizable, "all" ],
       movable:      [ Box.Movable, "both" ],
-      symmetric:    [ Boolean, false ],
+      symmetric:    [ Bool, false ],
     }))
 
     this.internal<BoxAnnotation.Props>(({String}) => ({

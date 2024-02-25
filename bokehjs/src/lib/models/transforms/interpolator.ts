@@ -27,11 +27,11 @@ export abstract class Interpolator extends Transform {
   }
 
   static {
-    this.define<Interpolator.Props>(({Boolean, Number, String, Ref, Array, Or, Nullable}) => ({
+    this.define<Interpolator.Props>(({Bool, Number, String, Ref, Array, Or, Nullable}) => ({
       x:    [ Or(String, Array(Number)) ],
       y:    [ Or(String, Array(Number)) ],
       data: [ Nullable(Ref(ColumnarDataSource)), null ],
-      clip: [ Boolean, true ],
+      clip: [ Bool, true ],
     }))
   }
 

@@ -185,7 +185,7 @@ export class Label extends TextAnnotation {
   static {
     this.prototype.default_view = LabelView
 
-    this.define<Label.Props>(({Boolean, Number, Angle, Or, Ref}) => ({
+    this.define<Label.Props>(({Bool, Number, Angle, Or, Ref}) => ({
       anchor:      [ TextAnchor, "auto" ],
       x:           [ Or(Number, Ref(Coordinate)) ],
       y:           [ Or(Number, Ref(Coordinate)) ],
@@ -196,7 +196,7 @@ export class Label extends TextAnnotation {
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       direction:   [ Direction, "anticlock" ],
-      editable:    [ Boolean, false ],
+      editable:    [ Bool, false ],
     }))
   }
 

@@ -311,8 +311,8 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, String, AnyRef}) => ({
-      visible: [ Boolean, true ],
+    this.define<UIElement.Props>(({Bool, Array, String, AnyRef}) => ({
+      visible: [ Bool, true ],
       css_classes: [ Array(String), [] ],
       css_variables: [ CSSVariables, {} ],
       styles: [ StylesLike, {} ],

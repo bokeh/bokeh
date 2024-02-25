@@ -32,15 +32,15 @@ export class TableColumn extends Model {
   }
 
   static {
-    this.define<TableColumn.Props>(({Boolean, Number, String, Nullable, Ref}) => ({
+    this.define<TableColumn.Props>(({Bool, Number, String, Nullable, Ref}) => ({
       field:        [ String ],
       title:        [ Nullable(String), null ],
       width:        [ Number, 300 ],
       formatter:    [ Ref(CellFormatter), () => new StringFormatter() ],
       editor:       [ Ref(CellEditor), () => new StringEditor() ],
-      sortable:     [ Boolean, true ],
+      sortable:     [ Bool, true ],
       default_sort: [ Sort, "ascending" ],
-      visible:      [ Boolean, true ],
+      visible:      [ Bool, true ],
     }))
   }
 

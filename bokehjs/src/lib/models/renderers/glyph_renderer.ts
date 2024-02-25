@@ -545,7 +545,7 @@ export class GlyphRenderer extends DataRenderer {
   static {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Null, Nullable}) => ({
+    this.define<GlyphRenderer.Props>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
       view:               [ Ref(CDSView), () => new CDSView() ],
       glyph:              [ Ref(Glyph) ],
@@ -553,7 +553,7 @@ export class GlyphRenderer extends DataRenderer {
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
       selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted_glyph:        [ Or(Ref(Glyph), Auto, Null), "auto" ],
-      muted:              [ Boolean, false ],
+      muted:              [ Bool, false ],
     }))
   }
 

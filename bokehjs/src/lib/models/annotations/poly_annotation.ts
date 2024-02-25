@@ -366,12 +366,12 @@ export class PolyAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<PolyAnnotation.Props>(({Boolean, Number, Arrayable}) => ({
+    this.define<PolyAnnotation.Props>(({Bool, Number, Arrayable}) => ({
       xs:       [ Arrayable(Number), [] ],
       ys:       [ Arrayable(Number), [] ],
       xs_units: [ CoordinateUnits, "data" ],
       ys_units: [ CoordinateUnits, "data" ],
-      editable: [ Boolean, false ],
+      editable: [ Bool, false ],
     }))
 
     this.override<PolyAnnotation.Props>({

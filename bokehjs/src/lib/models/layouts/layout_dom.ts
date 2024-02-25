@@ -663,7 +663,7 @@ export abstract class LayoutDOM extends Pane {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, Auto, Tuple, Or, Null, Nullable} = types
+      const {Bool, Number, Auto, Tuple, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -679,9 +679,9 @@ export abstract class LayoutDOM extends Pane {
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
         flow_mode:     [ FlowMode, "block" ],
         sizing_mode:   [ Nullable(SizingMode), null ],
-        disabled:      [ Boolean, false ],
+        disabled:      [ Bool, false ],
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
-        resizable:     [ Or(Boolean, Dimensions), false ],
+        resizable:     [ Or(Bool, Dimensions), false ],
       }
     })
   }

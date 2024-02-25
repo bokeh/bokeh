@@ -82,7 +82,7 @@ class Some extends HasProps {
       anchor: [ enums.Anchor ],
       any: [ kinds.Any ],
       array: [ kinds.Array(kinds.Number) ],
-      boolean: [ kinds.Boolean ],
+      boolean: [ kinds.Bool ],
       color: [ kinds.Color ],
       instance_has_props: [ kinds.Ref(HasProps) ],
       instance_bitset: [ kinds.Ref(BitSet) ],

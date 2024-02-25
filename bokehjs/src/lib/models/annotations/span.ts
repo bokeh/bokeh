@@ -250,11 +250,11 @@ export class Span extends Annotation {
       ["hover_", mixins.Line],
     ])
 
-    this.define<Span.Props>(({Boolean, Number, Nullable}) => ({
+    this.define<Span.Props>(({Bool, Number, Nullable}) => ({
       location:       [ Nullable(Number), null ],
       location_units: [ CoordinateUnits, "data" ],
       dimension:      [ Dimension, "width" ],
-      editable:       [ Boolean, false ],
+      editable:       [ Bool, false ],
     }))
 
     this.override<Span.Props>({

@@ -103,12 +103,12 @@ export class FileInput extends InputWidget {
   static {
     this.prototype.default_view = FileInputView
 
-    this.define<FileInput.Props>(({Boolean, String, Array, Or}) => ({
+    this.define<FileInput.Props>(({Bool, String, Array, Or}) => ({
       value:     [ Or(String, Array(String)), p.unset, {readonly: true} ],
       mime_type: [ Or(String, Array(String)), p.unset, {readonly: true} ],
       filename:  [ Or(String, Array(String)), p.unset, {readonly: true} ],
       accept:    [ Or(String, Array(String)), "" ],
-      multiple:  [ Boolean, false ],
+      multiple:  [ Bool, false ],
     }))
   }
 }

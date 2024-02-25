@@ -32,10 +32,10 @@ export class ToolProxy<T extends Tool> extends Model {
   }
 
   static {
-    this.define<ToolProxy.Props<Tool>>(({Boolean, Array, Ref}) => ({
+    this.define<ToolProxy.Props<Tool>>(({Bool, Array, Ref}) => ({
       tools:    [ Array(Ref(Tool)), [] ],
-      active:   [ Boolean, (self) => some((self as ToolProxy<Tool>).tools, (tool) => tool.active) ],
-      disabled: [ Boolean, false ],
+      active:   [ Bool, (self) => some((self as ToolProxy<Tool>).tools, (tool) => tool.active) ],
+      disabled: [ Bool, false ],
     }))
   }
 

@@ -524,22 +524,22 @@ export class DataTable extends TableWidget {
   static {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Nullable}) => ({
+    this.define<DataTable.Props>(({Array, Bool, Int, Ref, String, Enum, Or, Nullable}) => ({
       autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit"), "force_fit" ],
-      auto_edit:           [ Boolean, false ],
+      auto_edit:           [ Bool, false ],
       columns:             [ Array(Ref(TableColumn)), [] ],
-      fit_columns:         [ Nullable(Boolean), null ],
+      fit_columns:         [ Nullable(Bool), null ],
       frozen_columns:      [ Nullable(Int), null ],
       frozen_rows:         [ Nullable(Int), null ],
-      sortable:            [ Boolean, true ],
-      reorderable:         [ Boolean, true ],
-      editable:            [ Boolean, false ],
-      selectable:          [ Or(Boolean, Enum("checkbox")), true ],
+      sortable:            [ Bool, true ],
+      reorderable:         [ Bool, true ],
+      editable:            [ Bool, false ],
+      selectable:          [ Or(Bool, Enum("checkbox")), true ],
       index_position:      [ Nullable(Int), 0 ],
       index_header:        [ String, "#" ],
       index_width:         [ Int, 40 ],
-      scroll_to_selection: [ Boolean, true ],
-      header_row:          [ Boolean, true ],
+      scroll_to_selection: [ Bool, true ],
+      header_row:          [ Bool, true ],
       row_height:          [ Int, 25 ],
     }))
 

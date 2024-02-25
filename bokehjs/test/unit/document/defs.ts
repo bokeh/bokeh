@@ -111,7 +111,7 @@ describe("document/defs module", () => {
         properties: [
           {name: "prop0", kind: "Any", default: 0},
           {name: "prop1", kind: "Unknown", default: 1},
-          {name: "prop2", kind: "Boolean", default: true},
+          {name: "prop2", kind: "Bool", default: true},
           {name: "prop3", kind: "Number", default: 1.23},
           {name: "prop4", kind: "Int", default: 123},
           {name: "prop5", kind: "String", default: "abc"},

@@ -56,9 +56,9 @@ class SubclassWithProps extends HasProps {
     super(attrs)
   }
   static {
-    this.define<SubclassWithProps.Props>(({Boolean, Number}) => ({
+    this.define<SubclassWithProps.Props>(({Bool, Number}) => ({
       foo: [ Number, 0 ],
-      bar: [ Boolean, true ],
+      bar: [ Bool, true ],
     }))
   }
 }

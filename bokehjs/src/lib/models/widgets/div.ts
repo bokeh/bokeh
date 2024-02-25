@@ -35,8 +35,8 @@ export class Div extends Markup {
   static {
     this.prototype.default_view = DivView
 
-    this.define<Div.Props>(({Boolean}) => ({
-      render_as_text: [ Boolean, false ],
+    this.define<Div.Props>(({Bool}) => ({
+      render_as_text: [ Bool, false ],
     }))
   }
 }

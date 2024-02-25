@@ -342,10 +342,10 @@ export class Toolbar extends UIElement {
   static {
     this.prototype.default_view = ToolbarView
 
-    this.define<Toolbar.Props>(({Boolean, Array, Or, Ref, Nullable, Auto}) => ({
+    this.define<Toolbar.Props>(({Bool, Array, Or, Ref, Nullable, Auto}) => ({
       tools:          [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
-      autohide:       [ Boolean, false ],
+      autohide:       [ Bool, false ],
       active_drag:    [ Nullable(Or(Ref(Drag), Auto)), "auto" ],
       active_inspect: [ Nullable(Or(Ref(Inspection), Array(Ref(Inspection)), Auto)), "auto" ],
       active_scroll:  [ Nullable(Or(Ref(Scroll), Auto)), "auto" ],
@@ -353,11 +353,11 @@ export class Toolbar extends UIElement {
       active_multi:   [ Nullable(Or(Ref(GestureTool), Auto)), "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Null, Auto}) => {
+    this.internal<Toolbar.Props>(({Array, Bool, Ref, Or, Null, Auto}) => {
       return {
         buttons:    [ Or(Array(Or(Ref(ToolButton), Null)), Auto), "auto" ],
         location:   [ Location, "right" ],
-        inner:      [ Boolean, false ],
+        inner:      [ Bool, false ],
         gestures:   [ GesturesMap, create_gesture_map ],
         actions:    [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors: [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],

@@ -19,8 +19,8 @@ export class CheckableItem extends ActionItem {
   }
 
   static {
-    this.define<CheckableItem.Props>(({Boolean}) => ({
-      checked: [ Boolean, false ],
+    this.define<CheckableItem.Props>(({Bool}) => ({
+      checked: [ Bool, false ],
     }))
   }
 }

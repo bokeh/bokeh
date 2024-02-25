@@ -137,7 +137,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<DatetimeTickFormatter.Props>(({Boolean, Nullable, Or, Ref, String, Arrayable}) => ({
+    this.define<DatetimeTickFormatter.Props>(({Bool, Nullable, Or, Ref, String, Arrayable}) => ({
       microseconds: [ String, "%fus" ],
       milliseconds: [ String, "%3Nms" ],
       seconds: [ String, "%Ss" ],
@@ -148,7 +148,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       days: [ String, "%m/%d" ],
       months: [ String, "%m/%Y" ],
       years: [ String, "%Y" ],
-      strip_leading_zeros: [ Or(Boolean, Arrayable(ResolutionType)), false ],
+      strip_leading_zeros: [ Or(Bool, Arrayable(ResolutionType)), false ],
       context: [ Nullable(Or(String, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],

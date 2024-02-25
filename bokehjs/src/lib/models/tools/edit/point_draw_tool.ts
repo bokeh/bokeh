@@ -103,9 +103,9 @@ export class PointDrawTool extends EditTool {
   static {
     this.prototype.default_view = PointDrawToolView
 
-    this.define<PointDrawTool.Props>(({Boolean, Int, Array, Ref}) => ({
-      add:         [ Boolean, true ],
-      drag:        [ Boolean, true ],
+    this.define<PointDrawTool.Props>(({Bool, Int, Array, Ref}) => ({
+      add:         [ Bool, true ],
+      drag:        [ Bool, true ],
       num_objects: [ Int, 0 ],
       renderers:   [ Array(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
     }))

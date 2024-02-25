@@ -125,7 +125,7 @@ export class TimePicker extends PickerBase {
   static {
     this.prototype.default_view = TimePickerView
 
-    this.define<TimePicker.Props>(({Boolean, String, Nullable, Positive, Int}) => ({
+    this.define<TimePicker.Props>(({Bool, String, Nullable, Positive, Int}) => ({
       value: [ Nullable(TimeLike), null ],
       min_time: [ Nullable(TimeLike), null ],
       max_time: [ Nullable(TimeLike), null ],
@@ -133,7 +133,7 @@ export class TimePicker extends PickerBase {
       hour_increment: [ Positive(Int), 1 ],
       minute_increment: [ Positive(Int), 1 ],
       second_increment: [ Positive(Int), 1 ],
-      seconds: [ Boolean, false ],
+      seconds: [ Bool, false ],
       clock: [ Clock, "24h" ],
     }))
   }

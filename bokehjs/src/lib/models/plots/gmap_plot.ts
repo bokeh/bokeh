@@ -56,9 +56,9 @@ export class GMapOptions extends MapOptions {
   }
 
   static {
-    this.define<GMapOptions.Props>(({Boolean, Int, String, Nullable}) => ({
+    this.define<GMapOptions.Props>(({Bool, Int, String, Nullable}) => ({
       map_type:      [ MapType, "roadmap"],
-      scale_control: [ Boolean, false ],
+      scale_control: [ Bool, false ],
       styles:        [ Nullable(String), null ],
       tilt:          [ Int, 45 ],
     }))

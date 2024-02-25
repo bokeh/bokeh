@@ -135,15 +135,15 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+    this.define<Plot.Props>(({Bool, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
-      toolbar_sticky:    [ Boolean, true ],
-      toolbar_inner:     [ Boolean, false ],
+      toolbar_sticky:    [ Bool, true ],
+      toolbar_inner:     [ Bool, false ],
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
-      frame_align:       [ Or(Boolean, Struct({left: Opt(Boolean), right: Opt(Boolean), top: Opt(Boolean), bottom: Opt(Boolean)})), true ],
+      frame_align:       [ Or(Bool, Struct({left: Opt(Bool), right: Opt(Bool), top: Opt(Bool), bottom: Opt(Bool)})), true ],
 
       // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
       title:             [ Or(Ref(Title), String, Null), "", {
@@ -176,7 +176,7 @@ export class Plot extends LayoutDOM {
       lod_threshold:     [ Nullable(Number), 2000 ],
       lod_timeout:       [ Number, 500 ],
 
-      hidpi:             [ Boolean, true ],
+      hidpi:             [ Bool, true ],
       output_backend:    [ OutputBackend, "canvas" ],
 
       min_border:        [ Nullable(Number), 5 ],
@@ -190,12 +190,12 @@ export class Plot extends LayoutDOM {
       outer_width:       [ Number, p.unset, {readonly: true} ],
       outer_height:      [ Number, p.unset, {readonly: true} ],
 
-      match_aspect:      [ Boolean, false ],
+      match_aspect:      [ Bool, false ],
       aspect_scale:      [ Number, 1 ],
 
       reset_policy:      [ ResetPolicy, "standard" ],
 
-      hold_render:       [ Boolean, false ],
+      hold_render:       [ Bool, false ],
 
       attribution:       [ Array(Or(String, Ref(HTML))), [] ],
     }))

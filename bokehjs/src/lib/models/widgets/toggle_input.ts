@@ -42,8 +42,8 @@ export abstract class ToggleInput extends Widget {
   }
 
   static {
-    this.define<ToggleInput.Props>(({Boolean}) => ({
-      active: [ Boolean, false ],
+    this.define<ToggleInput.Props>(({Bool}) => ({
+      active: [ Bool, false ],
     }))
   }
 }

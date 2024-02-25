@@ -97,11 +97,11 @@ export class RangeTool extends Tool {
   static {
     this.prototype.default_view = RangeToolView
 
-    this.define<RangeTool.Props>(({Boolean, Ref, Nullable}) => ({
+    this.define<RangeTool.Props>(({Bool, Ref, Nullable}) => ({
       x_range:       [ Nullable(Ref(Range)), null ],
       y_range:       [ Nullable(Ref(Range)), null ],
-      x_interaction: [ Boolean, true ],
-      y_interaction: [ Boolean, true ],
+      x_interaction: [ Bool, true ],
+      y_interaction: [ Bool, true ],
       overlay:       [ Ref(BoxAnnotation), DEFAULT_RANGE_OVERLAY ],
     }))
 

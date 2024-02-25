@@ -49,8 +49,8 @@ export class Toggle extends AbstractButton {
   static {
     this.prototype.default_view = ToggleView
 
-    this.define<Toggle.Props>(({Boolean}) => ({
-      active: [ Boolean, false ],
+    this.define<Toggle.Props>(({Bool}) => ({
+      active: [ Bool, false ],
     }))
 
     this.override<Toggle.Props>({
