@@ -100,6 +100,7 @@ Basic Properties
 .. autoclass:: Nothing
 .. autoclass:: Null
 .. autoclass:: Percent
+.. autoclass:: Primitive
 .. autoclass:: Positive
 .. autoclass:: PositiveInt
 .. autoclass:: RGB
@@ -267,6 +268,7 @@ __all__ = (
     'PandasDataFrame',
     'PandasGroupBy',
     'Percent',
+    'Primitive',
     'Positive',
     'PositiveInt',
     'RGB',
@@ -304,7 +306,7 @@ __all__ = (
 
 from .property.alias import Alias, DeprecatedAlias
 
-from .property.aliases import CoordinateLike
+from .property.aliases import CoordinateLike, Primitive
 
 from .property.any import Any
 from .property.any import AnyRef

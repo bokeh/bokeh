@@ -9,7 +9,7 @@ import type {InspectTool} from "./inspectors/inspect_tool"
 import type {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
 
-export type ToolLike<T extends Tool> = T | ToolProxy<T>
+export type ToolLike<T extends Tool = Tool> = T | ToolProxy<T>
 
 export namespace ToolProxy {
   export type Attrs<T extends Tool> = p.AttrsOf<Props<T>>

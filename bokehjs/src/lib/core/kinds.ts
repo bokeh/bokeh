@@ -661,6 +661,8 @@ export const FontSize = Str
 export const Font = Str
 export const Angle = Float
 
+export const Primitive = Or(Null, Bool, Float, Str)
+
 // backwards compatibility aliases (these collide with built-in types)
 // TODO deprecate this and update the codebase
 export const Boolean = Bool

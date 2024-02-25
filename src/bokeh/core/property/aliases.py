@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from .datetime import Datetime
 from .either import Either
 from .factors import Factor
-from .primitive import Float
+from .primitive import Bool, Complex, Float, Null, String
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -32,6 +32,7 @@ from .primitive import Float
 
 __all__ = (
     "CoordinateLike",
+    "Primitive",
 )
 
 #-----------------------------------------------------------------------------
@@ -39,6 +40,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 CoordinateLike = Either(Float, Datetime, Factor)
+
+Primitive = Either(Null, Bool, Float, Complex, String, Datetime)
 
 #-----------------------------------------------------------------------------
 # Dev API

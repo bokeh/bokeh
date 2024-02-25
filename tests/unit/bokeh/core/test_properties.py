@@ -116,6 +116,7 @@ ALL = (
     'PandasDataFrame',
     'PandasGroupBy',
     'Percent',
+    'Primitive',
     'Positive',
     'PositiveInt',
     'RGB',

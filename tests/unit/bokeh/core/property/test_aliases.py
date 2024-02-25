@@ -37,12 +37,12 @@ import bokeh.core.property.aliases as bcpc # isort:skip
 
 ALL = (
     "CoordinateLike",
+    "Primitive",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
 
 class Test_CoordinateLike:
     def test_valid(self) -> None:
@@ -69,6 +69,33 @@ class Test_CoordinateLike:
         prop = bcpc.CoordinateLike()
         assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+class Test_Primitive:
+    def test_valid(self) -> None:
+        prop = bcpc.Primitive()
+        assert prop.is_valid(None)
+        assert prop.is_valid(False)
+        assert prop.is_valid(True)
+        assert prop.is_valid(-1.0)
+        assert prop.is_valid(-1)
+        assert prop.is_valid(0)
+        assert prop.is_valid(1)
+        assert prop.is_valid(0.0)
+        assert prop.is_valid(1.0)
+        assert prop.is_valid(1.0 + 1.0j)
+        assert prop.is_valid("")
+        assert prop.is_valid(datetime.datetime.now())
+        assert prop.is_valid(datetime.time(10,12))
+        assert prop.is_valid(np.datetime64("2020-01-11"))
+        assert prop.is_valid(pd.Timestamp("2010-01-11"))
+
+    def test_invalid(self) -> None:
+        prop = bcpc.Primitive()
         assert not prop.is_valid(())
         assert not prop.is_valid([])
         assert not prop.is_valid({})

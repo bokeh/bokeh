@@ -22,10 +22,12 @@ from ..core.has_props import abstract
 from ..core.properties import (
     AnyRef,
     Bool,
+    Either,
     Instance,
     Int,
     NonEmpty,
     Nullable,
+    Primitive,
     Required,
     RestrictedDict,
     Seq,
@@ -176,8 +178,8 @@ class GroupFilter(Filter):
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = Required(String, help="""
-    The value of the column indicating the rows of data to keep.
+    group = Required(Either(Seq(Primitive), Primitive), help="""
+    The value or a collection of values of the column indicating the rows of data to keep.
     """)
 
     def __init__(self, *args, **kwargs) -> None:

@@ -28,7 +28,7 @@ export abstract class ToolButtonView extends UIElementView {
 
     const {location} = this.parent.model
     const reverse = location == "left" || location == "above"
-    const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
+    const orientation = this.parent.horizontal ? "vertical" : "horizontal"
     const items = this.model.tool.menu ?? []
     this._menu = new ContextMenu(!reverse ? items : reversed(items), {
       target: this.parent.el,
