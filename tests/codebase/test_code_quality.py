@@ -63,6 +63,7 @@ message_carriage  = "File contains carriage returns at end of line: {path}, line
 message_eof       = "File does not end with a newline: {path}, line {line_no}"
 message_multi_bof = "File starts with more than 1 empty line: {path}, line {line_no}"
 message_multi_eof = "File ends with more than 1 empty line: {path}, line {line_no}"
+message_bokeh_ref = "File contains static reference to bokeh.org: {path}, line {line_no}"
 message_too_long  = f"File contains a line with over {MAX_LINE_LENGTH} characters: {{path}}, line {{line_no}}"
 
 def tab_in_leading(s: str) -> bool:
@@ -107,6 +108,8 @@ def collect_errors() -> list[str]:
                 errors.append((message_carriage, fname, line_no))
             if use_tab_rule(fname) and tab_in_leading(line):
                 errors.append((message_tabs, fname, line_no))
+            if line.strip().startswith('..') and 'https://docs.bokeh.org' in line:
+                errors.append((message_bokeh_ref, fname, line_no))
             #if len(line) > MAX_LINE_LENGTH:
             #    errors.append((message_too_long, fname, line_no))
 

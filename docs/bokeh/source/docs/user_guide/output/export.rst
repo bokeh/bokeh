@@ -217,7 +217,6 @@ You can export an SVG plot in several ways:
 
 .. _Selenium: https://www.selenium.dev/documentation/en/
 .. _web drivers: https://www.selenium.dev/documentation/en/webdriver/
-.. _Conda: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html?highlight=conda#id4
 .. _ChromeDriver documentation: https://chromedriver.chromium.org/
 .. _geckodriver repository on GitHub: https://github.com/mozilla/geckodriver/releases
 .. _geckodriver documentation: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
