@@ -234,9 +234,9 @@ export class Grid extends GuideRenderer {
       ["band_",       mixins.Hatch],
     ])
 
-    this.define<Grid.Props>(({Number, Auto, Enum, Ref, Tuple, Or, Nullable}) => ({
-      bounds:    [ Or(Tuple(Number, Number), Auto), "auto" ],
-      cross_bounds: [ Or(Tuple(Number, Number), Auto), "auto" ],
+    this.define<Grid.Props>(({Float, Auto, Enum, Ref, Tuple, Or, Nullable}) => ({
+      bounds:    [ Or(Tuple(Float, Float), Auto), "auto" ],
+      cross_bounds: [ Or(Tuple(Float, Float), Auto), "auto" ],
       dimension: [ Enum(0, 1), 0 ],
       axis:      [ Nullable(Ref(Axis)), null ],
       ticker:    [ Nullable(Ref(Ticker)), null ],

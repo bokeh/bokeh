@@ -33,8 +33,8 @@ class AnotherModel extends Model {
   }
 
   static {
-    this.define<AnotherModel.Props>(({Number}) => ({
-      bar: [ Number, 1 ],
+    this.define<AnotherModel.Props>(({Float}) => ({
+      bar: [ Float, 1 ],
     }))
   }
 }
@@ -60,8 +60,8 @@ class SomeModel extends Model {
   }
 
   static {
-    this.define<SomeModel.Props>(({Number, Ref, Nullable, List}) => ({
-      foo:   [ Number, 2 ],
+    this.define<SomeModel.Props>(({Float, Ref, Nullable, List}) => ({
+      foo:   [ Float, 2 ],
       child: [ Nullable(Ref(Model)), null ],
       children: [ List(Ref(SomeModel)), [] ],
     }))
@@ -119,8 +119,8 @@ class ModelWithConstructTimeChanges extends Model {
   }
 
   static {
-    this.define<ModelWithConstructTimeChanges.Props>(({Number, Ref, Nullable}) => ({
-      foo:   [ Number, 2 ],
+    this.define<ModelWithConstructTimeChanges.Props>(({Float, Ref, Nullable}) => ({
+      foo:   [ Float, 2 ],
       child: [ Nullable(Ref(Model)), null ],
     }))
   }

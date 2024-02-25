@@ -663,20 +663,20 @@ export abstract class LayoutDOM extends Pane {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Bool, Number, Auto, Tuple, Or, Null, Nullable} = types
-      const Number2 = Tuple(Number, Number)
-      const Number4 = Tuple(Number, Number, Number, Number)
+      const {Bool, Float, Auto, Tuple, Or, Null, Nullable} = types
+      const Number2 = Tuple(Float, Float)
+      const Number4 = Tuple(Float, Float, Float, Float)
       return {
-        width:         [ Nullable(Number), null ],
-        height:        [ Nullable(Number), null ],
-        min_width:     [ Nullable(Number), null ],
-        min_height:    [ Nullable(Number), null ],
-        max_width:     [ Nullable(Number), null ],
-        max_height:    [ Nullable(Number), null ],
-        margin:        [ Nullable(Or(Number, Number2, Number4)), null ],
+        width:         [ Nullable(Float), null ],
+        height:        [ Nullable(Float), null ],
+        min_width:     [ Nullable(Float), null ],
+        min_height:    [ Nullable(Float), null ],
+        max_width:     [ Nullable(Float), null ],
+        max_height:    [ Nullable(Float), null ],
+        margin:        [ Nullable(Or(Float, Number2, Number4)), null ],
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
-        aspect_ratio:  [ Or(Number, Auto, Null), null ],
+        aspect_ratio:  [ Or(Float, Auto, Null), null ],
         flow_mode:     [ FlowMode, "block" ],
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Bool, false ],

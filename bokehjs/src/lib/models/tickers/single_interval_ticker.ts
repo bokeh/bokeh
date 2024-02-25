@@ -52,8 +52,8 @@ export class SingleIntervalTicker extends BaseSingleIntervalTicker {
   }
 
   static {
-    this.define<SingleIntervalTicker.Props>(({Number}) => ({
-      interval: [ Number ],
+    this.define<SingleIntervalTicker.Props>(({Float}) => ({
+      interval: [ Float ],
     }))
   }
 

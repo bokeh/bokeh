@@ -27,9 +27,9 @@ export class MapOptions extends Model {
   }
 
   static {
-    this.define<MapOptions.Props>(({Int, Number}) => ({
-      lat:  [ Number ],
-      lng:  [ Number ],
+    this.define<MapOptions.Props>(({Int, Float}) => ({
+      lat:  [ Float ],
+      lng:  [ Float ],
       zoom: [ Int, 12 ],
     }))
   }

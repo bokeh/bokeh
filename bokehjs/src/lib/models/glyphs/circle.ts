@@ -283,10 +283,10 @@ export class Circle extends XYGlyph {
 
     this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])
 
-    this.define<Circle.Props>(({Number}) => ({
+    this.define<Circle.Props>(({Float}) => ({
       radius:           [ p.DistanceSpec, {field: "radius"} ],
       radius_dimension: [ RadiusDimension, "x" ],
-      hit_dilation:     [ Number, 1.0 ],
+      hit_dilation:     [ Float, 1.0 ],
     }))
   }
 }

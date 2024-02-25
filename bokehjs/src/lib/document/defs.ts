@@ -15,7 +15,7 @@ export type ModelDef = {
   overrides?: OverrideDef[]
 }
 
-export type PrimitiveKindRef = "Any" | "Unknown" | "Bool" | "Number" | "Int" | "Bytes" | "Str" | "Null"
+export type PrimitiveKindRef = "Any" | "Unknown" | "Bool" | "Float" | "Int" | "Bytes" | "Str" | "Null"
 
 export type KindRef =
   PrimitiveKindRef |
@@ -50,7 +50,7 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
         case "Any": return kinds.Any
         case "Unknown": return kinds.Unknown
         case "Bool": return kinds.Bool
-        case "Number": return kinds.Number
+        case "Float": return kinds.Float
         case "Int": return kinds.Int
         case "Bytes": return kinds.Bytes
         case "Str": return kinds.Str

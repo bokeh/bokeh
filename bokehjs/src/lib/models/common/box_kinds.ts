@@ -1,4 +1,4 @@
-import {Enum, Nullable, Number, Or, Ref} from "../../core/kinds"
+import {Enum, Nullable, Float, Or, Ref} from "../../core/kinds"
 import {Node} from "../coordinates/node"
 
 export const Corner = Enum("top_left", "top_right", "bottom_left", "bottom_right")
@@ -16,5 +16,5 @@ export type Resizable = typeof Resizable["__type__"]
 export const Movable = Enum("none", "x", "y", "both")
 export type Movable = typeof Movable["__type__"]
 
-export const Limit = Nullable(Or(Number, Ref(Node)))
+export const Limit = Nullable(Or(Float, Ref(Node)))
 export type Limit = typeof Limit["__type__"]

@@ -20,10 +20,10 @@ class Some0Model extends Model {
     super(attrs)
   }
   static {
-    this.define<Some0Model.Props>(({Bool, Number, Str}) => ({
+    this.define<Some0Model.Props>(({Bool, Float, Str}) => ({
       foo: [ Bool, false ],
       bar: [ Str ],
-      baz: [ Number, 1 ],
+      baz: [ Float, 1 ],
     }))
   }
 }
@@ -44,10 +44,10 @@ class Some1Model extends Model {
     super(attrs)
   }
   static {
-    this.define<Some1Model.Props>(({Bool, Number, Str, Array, Ref, Nullable}) => ({
+    this.define<Some1Model.Props>(({Bool, Float, Str, Array, Ref, Nullable}) => ({
       p0: [ Bool, false ],
       p1: [ Str, "foo" ],
-      p2: [ Number, 1 ],
+      p2: [ Float, 1 ],
       p3: [ Nullable(Array(Ref(Model))), null ],
     }))
   }

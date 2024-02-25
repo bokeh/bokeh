@@ -250,8 +250,8 @@ export class Span extends Annotation {
       ["hover_", mixins.Line],
     ])
 
-    this.define<Span.Props>(({Bool, Number, Nullable}) => ({
-      location:       [ Nullable(Number), null ],
+    this.define<Span.Props>(({Bool, Float, Nullable}) => ({
+      location:       [ Nullable(Float), null ],
       location_units: [ CoordinateUnits, "data" ],
       dimension:      [ Dimension, "width" ],
       editable:       [ Bool, false ],

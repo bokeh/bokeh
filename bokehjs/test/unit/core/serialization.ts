@@ -42,10 +42,10 @@ class SomeModel extends HasProps {
   }
 
   static {
-    this.define<SomeModel.Props>(({Number, Array, Dict, Ref, Nullable}) => ({
-      value: [ Number, 1 ],
-      array: [ Array(Number), [] ],
-      dict: [ Dict(Number), {} ],
+    this.define<SomeModel.Props>(({Float, Array, Dict, Ref, Nullable}) => ({
+      value: [ Float, 1 ],
+      array: [ Array(Float), [] ],
+      dict: [ Dict(Float), {} ],
       obj: [ Nullable(Ref(SomeModel)), null ],
     }))
   }

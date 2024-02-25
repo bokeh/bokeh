@@ -238,11 +238,11 @@ export class Spinner extends NumericInput {
   static {
     this.prototype.default_view = SpinnerView
 
-    this.define<Spinner.Props>(({Number, Nullable}) => ({
-      value_throttled:      [ Nullable(Number), p.unset, {readonly: true} ],
-      step:                 [ Number, 1 ],
-      page_step_multiplier: [ Number, 10 ],
-      wheel_wait:           [ Number, 100 ],
+    this.define<Spinner.Props>(({Float, Nullable}) => ({
+      value_throttled:      [ Nullable(Float), p.unset, {readonly: true} ],
+      step:                 [ Float, 1 ],
+      page_step_multiplier: [ Float, 10 ],
+      wheel_wait:           [ Float, 100 ],
     }))
 
     this.override<Spinner.Props>({

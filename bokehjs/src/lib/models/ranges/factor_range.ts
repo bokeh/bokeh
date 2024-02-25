@@ -136,19 +136,19 @@ export class FactorRange extends Range {
   }
 
   static {
-    this.define<FactorRange.Props>(({Number}) => ({
+    this.define<FactorRange.Props>(({Float}) => ({
       factors:             [ FactorSeq, [] ],
-      factor_padding:      [ Number, 0 ],
-      subgroup_padding:    [ Number, 0.8 ],
-      group_padding:       [ Number, 1.4 ],
-      range_padding:       [ Number, 0 ],
+      factor_padding:      [ Float, 0 ],
+      subgroup_padding:    [ Float, 0.8 ],
+      group_padding:       [ Float, 1.4 ],
+      range_padding:       [ Float, 0 ],
       range_padding_units: [ PaddingUnits, "percent" ],
-      start:               [ Number, p.unset, {readonly: true} ],
-      end:                 [ Number, p.unset, {readonly: true} ],
+      start:               [ Float, p.unset, {readonly: true} ],
+      end:                 [ Float, p.unset, {readonly: true} ],
     }))
 
-    this.internal<FactorRange.Props>(({Number, Str, Array, Tuple, Nullable}) => ({
-      levels: [ Number ], // how many levels of
+    this.internal<FactorRange.Props>(({Float, Str, Array, Tuple, Nullable}) => ({
+      levels: [ Float ], // how many levels of
       mids:   [ Nullable(Array(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
       tops:   [ Nullable(Array(Str)), null ], // top level factors (whether 2 or 3 total levels)
     }))

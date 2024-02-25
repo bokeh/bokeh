@@ -43,8 +43,8 @@ export abstract class Dimensional extends Model {
   abstract get_basis(): Dict<[number, string, string?]>
 
   static {
-    this.define<Dimensional.Props>(({Nullable, Array, Str, Number}) => ({
-      ticks: [ Array(Number) ],
+    this.define<Dimensional.Props>(({Nullable, Array, Str, Float}) => ({
+      ticks: [ Array(Float) ],
       include: [ Nullable(Array(Str)), null ],
       exclude: [ Array(Str), [] ],
     }))
@@ -117,8 +117,8 @@ export abstract class CustomDimensional extends Dimensional {
   }
 
   static {
-    this.define<CustomDimensional.Props>(({Dict, Tuple, Number, Str, Or}) => ({
-      basis: [ Dict(Or(Tuple(Number, Str), Tuple(Number, Str, Str))) ],
+    this.define<CustomDimensional.Props>(({Dict, Tuple, Float, Str, Or}) => ({
+      basis: [ Dict(Or(Tuple(Float, Str), Tuple(Float, Str, Str))) ],
     }))
   }
 

@@ -112,7 +112,7 @@ describe("document/defs module", () => {
           {name: "prop0", kind: "Any", default: 0},
           {name: "prop1", kind: "Unknown", default: 1},
           {name: "prop2", kind: "Bool", default: true},
-          {name: "prop3", kind: "Number", default: 1.23},
+          {name: "prop3", kind: "Float", default: 1.23},
           {name: "prop4", kind: "Int", default: 123},
           {name: "prop5", kind: "Str", default: "abc"},
           {name: "prop6", kind: "Null", default: null},
@@ -156,7 +156,7 @@ describe("document/defs module", () => {
         name: "some.Some3",
         extends: {id: "ColumnDataSource"},
         properties: [
-          {name: "prop0", kind: "Number", default: 1},
+          {name: "prop0", kind: "Float", default: 1},
         ],
         overrides: [
           {name: "data", default: {default_column: [0, 1, 2]}},
@@ -166,7 +166,7 @@ describe("document/defs module", () => {
         name: "some.Some4",
         extends: {id: "some.Some3"},
         properties: [
-          {name: "prop1", kind: ["Array", "Number"], default: [0, 1, 2]},
+          {name: "prop1", kind: ["Array", "Float"], default: [0, 1, 2]},
         ],
         overrides: [
           {name: "data", default: {default_column: [3, 4, 5]}},

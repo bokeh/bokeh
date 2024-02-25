@@ -30,8 +30,8 @@ class TestModel extends HasProps {
     super(attrs)
   }
   static {
-    this.define<TestModel.Props>(({Number, Str, Nullable, Ref, Array, Set, Mapping, Struct}) => ({
-      p0: [ Number, 0 ],
+    this.define<TestModel.Props>(({Float, Str, Nullable, Ref, Array, Set, Mapping, Struct}) => ({
+      p0: [ Float, 0 ],
       p1: [ Str, "abc" ],
       p2: [ Nullable(Ref(TestModel)), null ],
       p3: [ Array(Ref(TestModel)), [] ],
@@ -56,8 +56,8 @@ class SubclassWithProps extends HasProps {
     super(attrs)
   }
   static {
-    this.define<SubclassWithProps.Props>(({Bool, Number}) => ({
-      foo: [ Number, 0 ],
+    this.define<SubclassWithProps.Props>(({Bool, Float}) => ({
+      foo: [ Float, 0 ],
       bar: [ Bool, true ],
     }))
   }
@@ -113,10 +113,10 @@ class Some0 extends HasProps {
     super(attrs)
   }
   static {
-    this.define<Some0.Props>(({Number}) => ({
-      prop0: [ Number, () => next() ],
-      prop1: [ Number, () => next() ],
-      prop2: [ Number, () => next() ],
+    this.define<Some0.Props>(({Float}) => ({
+      prop0: [ Float, () => next() ],
+      prop1: [ Float, () => next() ],
+      prop2: [ Float, () => next() ],
     }))
   }
 }

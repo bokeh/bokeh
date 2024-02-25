@@ -29,8 +29,8 @@ export abstract class Icon extends UIElement {
   }
 
   static {
-    this.define<Icon.Props>(({Number, Or, CSSLength}) => ({
-      size: [ Or(Number, CSSLength), "1em" ],
+    this.define<Icon.Props>(({Float, Or, CSSLength}) => ({
+      size: [ Or(Float, CSSLength), "1em" ],
     }))
   }
 }

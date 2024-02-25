@@ -176,10 +176,10 @@ export class ScientificFormatter extends StringFormatter {
   }
 
   static {
-    this.define<ScientificFormatter.Props>(({Number}) => ({
-      precision:        [ Number, 10 ],
-      power_limit_high: [ Number, 5 ],
-      power_limit_low:  [ Number, -3 ],
+    this.define<ScientificFormatter.Props>(({Float}) => ({
+      precision:        [ Float, 10 ],
+      power_limit_high: [ Float, 5 ],
+      power_limit_low:  [ Float, -3 ],
     }))
   }
 

@@ -55,11 +55,11 @@ export type Text = {
 export const Line: p.DefineOf<Line> = {
   line_color:       [ k.Nullable(k.Color), "black" ],
   line_alpha:       [ k.Alpha, 1.0 ],
-  line_width:       [ k.Number, 1 ],
+  line_width:       [ k.Float, 1 ],
   line_join:        [ LineJoin, "bevel"],
   line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Or(LineDash, k.Array(k.Number)), [] ],
-  line_dash_offset: [ k.Number, 0 ],
+  line_dash:        [ k.Or(LineDash, k.Array(k.Float)), [] ],
+  line_dash_offset: [ k.Float, 0 ],
 }
 
 export const Fill: p.DefineOf<Fill> = {
@@ -74,9 +74,9 @@ export const Image: p.DefineOf<Image> = {
 export const Hatch: p.DefineOf<Hatch> = {
   hatch_color:      [ k.Nullable(k.Color), "black" ],
   hatch_alpha:      [ k.Alpha, 1.0 ],
-  hatch_scale:      [ k.Number, 12.0 ],
+  hatch_scale:      [ k.Float, 12.0 ],
   hatch_pattern:    [ k.Nullable(k.Or(HatchPatternType, k.Str)), null ],
-  hatch_weight:     [ k.Number, 1.0 ],
+  hatch_weight:     [ k.Float, 1.0 ],
   hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
 }
 
@@ -89,7 +89,7 @@ export const Text: p.DefineOf<Text> = {
   text_font_style:    [ FontStyle, "normal" ],
   text_align:         [ TextAlign, "left" ],
   text_baseline:      [ TextBaseline, "bottom" ],
-  text_line_height:   [ k.Number, 1.2 ],
+  text_line_height:   [ k.Float, 1.2 ],
 }
 
 // Scalar

@@ -23,8 +23,8 @@ export class LinearInterpolationScale extends Scale<number> {
   }
 
   static {
-    this.internal<LinearInterpolationScale.Props>(({Number, Arrayable, Ref}) => ({
-      binning:      [ Arrayable(Number) ],
+    this.internal<LinearInterpolationScale.Props>(({Float, Arrayable, Ref}) => ({
+      binning:      [ Arrayable(Float) ],
       linear_scale: [ Ref(LinearScale) ],
     }))
   }

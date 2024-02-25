@@ -139,11 +139,11 @@ export class CrosshairTool extends InspectTool {
   static {
     this.prototype.default_view = CrosshairToolView
 
-    this.define<CrosshairTool.Props>(({Alpha, Number, Color, Auto, Tuple, Ref, Or}) => ({
+    this.define<CrosshairTool.Props>(({Alpha, Float, Color, Auto, Tuple, Ref, Or}) => ({
       overlay: [ Or(Auto, Ref(Span), Tuple(Ref(Span), Ref(Span))), "auto" ],
       dimensions: [ Dimensions, "both" ],
       line_color: [ Color, "black" ],
-      line_width: [ Number, 1 ],
+      line_width: [ Float, 1 ],
       line_alpha: [ Alpha, 1 ],
     }))
 

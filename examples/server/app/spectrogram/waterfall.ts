@@ -129,8 +129,8 @@ export class WaterfallRenderer extends Renderer {
   static {
     this.prototype.default_view = WaterfallRendererView
 
-    this.define<WaterfallRenderer.Props>(({Int, Number, Color, Array}) => ({
-      latest:      [ Array(Number), [] ],
+    this.define<WaterfallRenderer.Props>(({Int, Float, Color, Array}) => ({
+      latest:      [ Array(Float), [] ],
       palette:     [ Array(Color) ],
       num_grams:   [ Int ],
       gram_length: [ Int ],

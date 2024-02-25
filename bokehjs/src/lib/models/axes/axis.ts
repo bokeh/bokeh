@@ -814,25 +814,25 @@ export class Axis extends GuideRenderer {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<Axis.Props>(({Any, Int, Number, Str, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({
+    this.define<Axis.Props>(({Any, Int, Float, Str, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({
       dimension:               [ Or(Enum(0, 1), Auto), "auto" ],
       face:                    [ Or(Face, Auto), "auto" ],
-      bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
+      bounds:                  [ Or(Tuple(Float, Float), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
       axis_label:              [ Nullable(Or(Str, Ref(BaseText))), null],
       axis_label_standoff:     [ Int, 5 ],
-      axis_label_orientation:  [ Or(LabelOrientation, Number), "parallel" ],
+      axis_label_orientation:  [ Or(LabelOrientation, Float), "parallel" ],
       axis_label_align:        [ Align, "center" ],
       major_label_standoff:    [ Int, 5 ],
-      major_label_orientation: [ Or(LabelOrientation, Number), "horizontal" ],
+      major_label_orientation: [ Or(LabelOrientation, Float), "horizontal" ],
       major_label_overrides:   [ LabelOverrides, new Map() ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
-      major_tick_in:           [ Number, 2 ],
-      major_tick_out:          [ Number, 6 ],
-      minor_tick_in:           [ Number, 0 ],
-      minor_tick_out:          [ Number, 4 ],
-      fixed_location:          [ Nullable(Or(Number, Any)), null ],
+      major_tick_in:           [ Float, 2 ],
+      major_tick_out:          [ Float, 6 ],
+      minor_tick_in:           [ Float, 0 ],
+      minor_tick_out:          [ Float, 4 ],
+      fixed_location:          [ Nullable(Or(Float, Any)), null ],
     }))
 
     this.override<Axis.Props>({

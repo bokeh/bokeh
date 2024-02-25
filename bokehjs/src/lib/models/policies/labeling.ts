@@ -62,8 +62,8 @@ export class NoOverlap extends LabelingPolicy {
   }
 
   static {
-    this.define<NoOverlap.Props>(({Number}) => ({
-      min_distance: [ Number, 5 ],
+    this.define<NoOverlap.Props>(({Float}) => ({
+      min_distance: [ Float, 5 ],
     }))
   }
 

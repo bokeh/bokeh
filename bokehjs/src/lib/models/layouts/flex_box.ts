@@ -121,9 +121,9 @@ export abstract class FlexBox extends LayoutDOM {
   }
 
   static {
-    this.define<FlexBox.Props>(({Number, Array, Ref}) => ({
+    this.define<FlexBox.Props>(({Float, Array, Ref}) => ({
       children: [ Array(Ref(UIElement)), [] ],
-      spacing:  [ Number, 0 ],
+      spacing:  [ Float, 0 ],
     }))
   }
 }

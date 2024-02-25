@@ -366,10 +366,10 @@ export class ParallelSelectionTool extends BoxSelectTool {
   static {
     this.prototype.default_view = ParallelSelectionView
 
-    this.define<ParallelSelectionTool.Props>(({Number, AnyRef}) => ({
+    this.define<ParallelSelectionTool.Props>(({Float, AnyRef}) => ({
       renderer_select: [ AnyRef<GlyphRenderer & HasRectCDS>() ],
       renderer_data:   [ AnyRef<GlyphRenderer & HasMultiLineCDS>() ],
-      box_width:       [ Number, 30 ],
+      box_width:       [ Float, 30 ],
     }))
   }
 

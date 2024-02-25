@@ -343,10 +343,10 @@ export class ColorBar extends BaseColorBar {
   static {
     this.prototype.default_view = ColorBarView
 
-    this.define<ColorBar.Props>(({Nullable, Number, Ref}) => ({
+    this.define<ColorBar.Props>(({Nullable, Float, Ref}) => ({
       color_mapper: [ Ref(ColorMapper) ],
-      display_low:  [ Nullable(Number), null ],
-      display_high: [ Nullable(Number), null ],
+      display_low:  [ Nullable(Float), null ],
+      display_high: [ Nullable(Float), null ],
     }))
   }
 }

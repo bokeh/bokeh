@@ -50,13 +50,13 @@ export class DataRange1d extends DataRange {
   }
 
   static {
-    this.define<DataRange1d.Props>(({Bool, Number, Nullable}) => ({
-      range_padding:       [ Number, 0.1 ],
+    this.define<DataRange1d.Props>(({Bool, Float, Nullable}) => ({
+      range_padding:       [ Float, 0.1 ],
       range_padding_units: [ PaddingUnits, "percent" ],
       flipped:             [ Bool, false ],
       follow:              [ Nullable(StartEnd), null ],
-      follow_interval:     [ Nullable(Number), null ],
-      default_span:        [ Number, 2.0 ],
+      follow_interval:     [ Nullable(Float), null ],
+      default_span:        [ Float, 2.0 ],
       only_visible:        [ Bool, false ],
     }))
 

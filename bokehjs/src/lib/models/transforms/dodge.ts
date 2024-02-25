@@ -19,8 +19,8 @@ export class Dodge extends RangeTransform {
   }
 
   static {
-    this.define<Dodge.Props>(({Number}) => ({
-      value: [ Number, 0 ],
+    this.define<Dodge.Props>(({Float}) => ({
+      value: [ Float, 0 ],
     }))
   }
 

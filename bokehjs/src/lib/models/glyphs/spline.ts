@@ -90,8 +90,8 @@ export class Spline extends XYGlyph {
 
     this.mixins<Spline.Mixins>(mixins.LineScalar)
 
-    this.define<Spline.Props>(({Bool, Number}) => ({
-      tension: [ Number,  0.5   ],
+    this.define<Spline.Props>(({Bool, Float}) => ({
+      tension: [ Float,  0.5   ],
       closed:  [ Bool, false ],
     }))
   }

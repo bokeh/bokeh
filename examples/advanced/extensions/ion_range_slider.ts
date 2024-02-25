@@ -108,11 +108,11 @@ export class IonRangeSlider extends InputWidget {
     // types have counterparts, e.g. bokeh.core.properties.String will be
     // String in the JS implementation. Where the JS type system is not yet
     // as rich, you can use p.Any as a "wildcard" property type.
-    this.define<IonRangeSlider.Props>(({Bool, Number, Tuple, Nullable}) => ({
-      range: [ Nullable(Tuple(Number, Number)), null ],
-      start: [ Number, 0 ],
-      end:   [ Number, 1 ],
-      step:  [ Nullable(Number), 0.1 ],
+    this.define<IonRangeSlider.Props>(({Bool, Float, Tuple, Nullable}) => ({
+      range: [ Nullable(Tuple(Float, Float)), null ],
+      start: [ Float, 0 ],
+      end:   [ Float, 1 ],
+      step:  [ Nullable(Float), 0.1 ],
       grid:  [ Bool, true ],
     }))
   }

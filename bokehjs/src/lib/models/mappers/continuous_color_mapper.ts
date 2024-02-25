@@ -28,10 +28,10 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   }
 
   static {
-    this.define<ContinuousColorMapper.Props>(({Number, Str, Ref, Color, Or, Tuple, Array, Nullable}) => {
+    this.define<ContinuousColorMapper.Props>(({Float, Str, Ref, Color, Or, Tuple, Array, Nullable}) => {
       return {
-        high:       [ Nullable(Number), null ],
-        low:        [ Nullable(Number), null ],
+        high:       [ Nullable(Float), null ],
+        low:        [ Nullable(Float), null ],
         high_color: [ Nullable(Color), null ],
         low_color:  [ Nullable(Color), null ],
         domain:     [ Array(Tuple(Ref(GlyphRenderer), Or(Str, Array(Str)))), [] ],

@@ -125,11 +125,11 @@ export class Title extends TextAnnotation {
   static {
     this.prototype.default_view = TitleView
 
-    this.define<Title.Props>(({Number}) => ({
+    this.define<Title.Props>(({Float}) => ({
       vertical_align: [ VerticalAlign, "bottom" ],
       align:          [ TextAlign, "left" ],
-      offset:         [ Number, 0 ],
-      standoff:       [ Number, 10 ],
+      offset:         [ Float, 0 ],
+      standoff:       [ Float, 10 ],
     }))
 
     this.override<Title.Props>({

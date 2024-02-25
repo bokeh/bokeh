@@ -202,9 +202,9 @@ export class CategoricalAxis extends Axis {
       ["subgroup_",  mixins.Text],
     ])
 
-    this.define<CategoricalAxis.Props>(({Number, Or}) => ({
-      group_label_orientation:    [ Or(LabelOrientation, Number), "parallel" ],
-      subgroup_label_orientation: [ Or(LabelOrientation, Number), "parallel" ],
+    this.define<CategoricalAxis.Props>(({Float, Or}) => ({
+      group_label_orientation:    [ Or(LabelOrientation, Float), "parallel" ],
+      subgroup_label_orientation: [ Or(LabelOrientation, Float), "parallel" ],
     }))
 
     this.override<CategoricalAxis.Props>({

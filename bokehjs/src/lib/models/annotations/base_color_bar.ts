@@ -591,25 +591,25 @@ export class BaseColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<BaseColorBar.Props>(({Alpha, Number, Str, Tuple, Or, Ref, Auto, Nullable}) => ({
-      location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
+    this.define<BaseColorBar.Props>(({Alpha, Float, Str, Tuple, Or, Ref, Auto, Nullable}) => ({
+      location:              [ Or(Anchor, Tuple(Float, Float)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(Or(Str, Ref(BaseText))), null ],
-      title_standoff:        [ Number, 2 ],
-      width:                 [ Or(Number, Auto), "auto" ],
-      height:                [ Or(Number, Auto), "auto" ],
+      title_standoff:        [ Float, 2 ],
+      width:                 [ Or(Float, Auto), "auto" ],
+      height:                [ Or(Float, Auto), "auto" ],
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
       major_label_overrides: [ LabelOverrides, new Map() ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
-      label_standoff:        [ Number, 5 ],
-      margin:                [ Number, 30 ],
-      padding:               [ Number, 10 ],
-      major_tick_in:         [ Number, 5 ],
-      major_tick_out:        [ Number, 0 ],
-      minor_tick_in:         [ Number, 0 ],
-      minor_tick_out:        [ Number, 0 ],
+      label_standoff:        [ Float, 5 ],
+      margin:                [ Float, 30 ],
+      padding:               [ Float, 10 ],
+      major_tick_in:         [ Float, 5 ],
+      major_tick_out:        [ Float, 0 ],
+      minor_tick_in:         [ Float, 0 ],
+      minor_tick_out:        [ Float, 0 ],
     }))
 
     this.override<BaseColorBar.Props>({

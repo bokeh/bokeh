@@ -448,8 +448,8 @@ export class NumberEditor extends CellEditor {
 
   static {
     this.prototype.default_view = NumberEditorView
-    this.define<NumberEditor.Props>(({Number}) => ({
-      step: [ Number, 0.01 ],
+    this.define<NumberEditor.Props>(({Float}) => ({
+      step: [ Float, 0.01 ],
     }))
   }
 }

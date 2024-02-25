@@ -33,9 +33,9 @@ export class Jitter extends RangeTransform {
   }
 
   static {
-    this.define<Jitter.Props>(({Number}) => ({
-      mean:         [ Number, 0 ],
-      width:        [ Number, 1 ],
+    this.define<Jitter.Props>(({Float}) => ({
+      mean:         [ Float, 0 ],
+      width:        [ Float, 1 ],
       distribution: [ Distribution, "uniform" ],
     }))
 
