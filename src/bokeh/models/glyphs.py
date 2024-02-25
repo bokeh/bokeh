@@ -124,6 +124,7 @@ __all__ = (
     'Line',
     'Marker',
     'MathMLGlyph',
+    'MathTextGlyph',
     'MultiLine',
     'MultiPolygons',
     'Patch',
@@ -1583,7 +1584,9 @@ class Text(XYGlyph, TextGlyph):
 
 @abstract
 class MathTextGlyph(Text):
-    """ Base class for math text glyphs. """
+    """ Base class for math text glyphs.
+
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:

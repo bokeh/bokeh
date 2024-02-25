@@ -295,7 +295,7 @@ class DateFormatter(StringFormatter):
         super().__init__(*args, **kwargs)
 
     format = Either(Enum(DateFormat), String, default='ISO-8601', help="""
-    The date format can be any standard  `strftime`_ format string, as well
+    The date format can be any standard `strftime`_ format string, as well
     as any of the following predefined format names:
 
     ================================================ ================== ===================
@@ -339,7 +339,7 @@ class DateFormatter(StringFormatter):
         The day of the month as a decimal number (range 01 to 31).
 
     %D
-        Equivalent to %m/%d/%y.  (Americans should note that in many
+        Equivalent to %m/%d/%y. (Americans should note that in many
         other countries %d/%m/%y is rather common. This means that in
         international context this format is ambiguous and should not
         be used.)
@@ -382,11 +382,11 @@ class DateFormatter(StringFormatter):
 
     %k
         The hour (24-hour clock) as a decimal number (range 0 to 23).
-        Single digits are preceded by a blank.  (See also %H.)
+        Single digits are preceded by a blank. (See also %H.)
 
     %l
         The hour (12-hour clock) as a decimal number (range 1 to 12).
-        Single digits are preceded by a blank.  (See also %I.)  (TZ)
+        Single digits are preceded by a blank. (See also %I.) (TZ)
 
     %m
         The month as a decimal number (range 01 to 12).
@@ -407,7 +407,7 @@ class DateFormatter(StringFormatter):
 
     %p
         Either "AM" or "PM" according to the given time value, or the
-        corresponding strings for the current locale.  Noon is treated
+        corresponding strings for the current locale. Noon is treated
         as "PM" and midnight as "AM".
 
     %P
@@ -415,7 +415,7 @@ class DateFormatter(StringFormatter):
         string for the current locale.
 
     %r
-        The time in a.m. or p.m. notation.  In the POSIX locale this
+        The time in a.m. or p.m. notation. In the POSIX locale this
         is equivalent to %I:%M:%S %p.
 
     %R
@@ -427,7 +427,7 @@ class DateFormatter(StringFormatter):
         +0000 (UTC).
 
     %S
-        The second as a decimal number (range 00 to 60).  (The range
+        The second as a decimal number (range 00 to 60). (The range
         is up to 60 to allow for occasional leap seconds.)
 
     %t
@@ -444,12 +444,12 @@ class DateFormatter(StringFormatter):
     %U
         The week number of the current year as a decimal number, range
         00 to 53, starting with the first Sunday as the first day of
-        week 01.  See also %V and %W.
+        week 01. See also %V and %W.
 
     %V
         The ISO 8601 week number (see NOTES) of the current year as a
         decimal number, range 01 to 53, where week 1 is the first week
-        that has at least 4 days in the new year.  See also %U and %W.
+        that has at least 4 days in the new year. See also %U and %W.
 
     %w
         The day of the week as a decimal, range 0 to 6, Sunday being 0.
@@ -502,7 +502,7 @@ class DateFormatter(StringFormatter):
 
 class HTMLTemplateFormatter(CellFormatter):
     ''' HTML formatter using a template.
-    This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
+    This uses Underscore's `template` method and syntax. http://underscorejs.org/#template
     The formatter has access other items in the row via the `dataContext` object passed to the formatter.
     So, for example, if another column in the datasource was named `url`, the template could access it as:
 
@@ -511,7 +511,7 @@ class HTMLTemplateFormatter(CellFormatter):
         <a href="<%= url %>"><%= value %></a>
 
     To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate`,
-    or `escape`.  See the Underscore `template` documentation for more information.  http://underscorejs.org/#template
+    or `escape`. See the Underscore `template` documentation for more information. http://underscorejs.org/#template
 
     Example: Simple HTML template to format the column value as code.
 
@@ -784,7 +784,7 @@ class DataTable(TableWidget):
 
     Whether columns should be fit to the available width. This results in
     no horizontal scrollbar showing up, but data can get unreadable if there
-    is not enough space available. If set to ``True``, each column's width is
+    is not enough space available. If set to True, each column's width is
     understood as maximum width.
     """)
 
@@ -819,8 +819,8 @@ class DataTable(TableWidget):
 
     selectable = Either(Bool(True), Enum("checkbox"), help="""
     Whether a table's rows can be selected or not. Using ``checkbox`` is
-    equivalent  to ``True``, but makes selection visible through a checkbox
-    for each row,  instead of highlighting rows. Multiple selection is
+    equivalent to True, but makes selection visible through a checkbox
+    for each row, instead of highlighting rows. Multiple selection is
     allowed and can be achieved by either clicking multiple checkboxes (if
     enabled) or using Shift + click on rows.
     """)
@@ -832,7 +832,7 @@ class DataTable(TableWidget):
 
     To prevent the index column from being added, set to None.
 
-    If the absolute value of index_position  is larger than the length of
+    If the absolute value of index_position is larger than the length of
     the columns, then the index will appear at the beginning or end, depending
     on the sign.
     """)
