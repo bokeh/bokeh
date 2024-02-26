@@ -138,10 +138,10 @@ export class GridPlot extends LayoutDOM {
   static {
     this.prototype.default_view = GridPlotView
 
-    this.define<GridPlot.Props>(({Array, Ref, Nullable}) => ({
+    this.define<GridPlot.Props>(({List, Ref, Nullable}) => ({
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
-      children: [ Array(GridChild(LayoutDOM)), [] ],
+      children: [ List(GridChild(LayoutDOM)), [] ],
       rows: [ Nullable(TracksSizing), null ],
       cols: [ Nullable(TracksSizing), null ],
       spacing: [ GridSpacing, 0 ],

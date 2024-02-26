@@ -132,9 +132,9 @@ export class HTML extends DOMNode {
   static {
     this.prototype.default_view = HTMLView
 
-    this.define<HTML.Props>(({Node, Array, Or}) => ({
-      html: [ Or(Node, HTMLMarkup, Array(Or(HTMLMarkup, HTMLRef))) ],
-      refs: [ Array(HTMLRef), [] ],
+    this.define<HTML.Props>(({Node, List, Or}) => ({
+      html: [ Or(Node, HTMLMarkup, List(Or(HTMLMarkup, HTMLRef))) ],
+      refs: [ List(HTMLRef), [] ],
     }))
   }
 }

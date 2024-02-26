@@ -23,7 +23,7 @@ export type KindRef =
   ["Nullable", KindRef] |
   ["Or", KindRef, ...KindRef[]] |
   ["Tuple", KindRef, ...KindRef[]] |
-  ["Array", KindRef] |
+  ["List", KindRef] |
   ["Struct", ...([string, KindRef][])] |
   ["Dict", KindRef] |
   ["Mapping", KindRef, KindRef] |
@@ -63,45 +63,45 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
           return kinds.Regex(new RegExp(regex, flags))
         }
         case "Nullable": {
-          const [, subref] = ref
-          return kinds.Nullable(kind_of(subref))
+          const [, sub_ref] = ref
+          return kinds.Nullable(kind_of(sub_ref))
         }
         case "Or": {
-          const [, subref, ...subrefs] = ref
-          return kinds.Or(kind_of(subref), ...subrefs.map(kind_of))
+          const [, sub_ref, ...sub_refs] = ref
+          return kinds.Or(kind_of(sub_ref), ...sub_refs.map(kind_of))
         }
         case "Tuple": {
-          const [, subref, ...subrefs] = ref
-          return kinds.Tuple(kind_of(subref), ...subrefs.map(kind_of))
+          const [, sub_ref, ...sub_refs] = ref
+          return kinds.Tuple(kind_of(sub_ref), ...sub_refs.map(kind_of))
         }
-        case "Array": {
-          const [, subref] = ref
-          return kinds.Array(kind_of(subref))
+        case "List": {
+          const [, sub_ref] = ref
+          return kinds.List(kind_of(sub_ref))
         }
         case "Struct": {
-          const [, ...entryrefs] = ref
-          const entries: [string, kinds.Kind<unknown>][] = entryrefs.map(([key, valref]) => [key, kind_of(valref)])
+          const [, ...entry_refs] = ref
+          const entries: [string, kinds.Kind<unknown>][] = entry_refs.map(([key, val_ref]) => [key, kind_of(val_ref)])
           return kinds.Struct(to_object(entries))
         }
         case "Dict": {
-          const [, valref] = ref
-          return kinds.Dict(kind_of(valref))
+          const [, val_ref] = ref
+          return kinds.Dict(kind_of(val_ref))
         }
         case "Mapping": {
-          const [, keyref, valref] = ref
-          return kinds.Mapping(kind_of(keyref), kind_of(valref))
+          const [, key_ref, val_ref] = ref
+          return kinds.Mapping(kind_of(key_ref), kind_of(val_ref))
         }
         case "Enum": {
           const [, ...items] = ref
           return kinds.Enum(...items)
         }
         case "Ref": {
-          const [, modelref] = ref
-          const model = deserializer.resolver.get(modelref.id)
+          const [, model_ref] = ref
+          const model = deserializer.resolver.get(model_ref.id)
           if (model != null) {
             return kinds.Ref(model)
           } else {
-            throw new Error(`${modelref.id} wasn't defined before referencing it`)
+            throw new Error(`${model_ref.id} wasn't defined before referencing it`)
           }
         }
         case "AnyRef": {

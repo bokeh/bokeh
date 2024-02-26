@@ -210,8 +210,8 @@ export class AutocompleteInput extends TextInput {
   static {
     this.prototype.default_view = AutocompleteInputView
 
-    this.define<AutocompleteInput.Props>(({Bool, Int, Str, Array, NonNegative, Positive, Nullable}) => ({
-      completions:    [ Array(Str), [] ],
+    this.define<AutocompleteInput.Props>(({Bool, Int, Str, List, NonNegative, Positive, Nullable}) => ({
+      completions:    [ List(Str), [] ],
       min_characters: [ NonNegative(Int), 2 ],
       max_completions: [ Nullable(Positive(Int)), null ],
       case_sensitive: [ Bool, true ],

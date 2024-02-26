@@ -297,10 +297,10 @@ export class PolyDrawTool extends PolyTool {
   static {
     this.prototype.default_view = PolyDrawToolView
 
-    this.define<PolyDrawTool.Props>(({Bool, Int, Array, Ref}) => ({
+    this.define<PolyDrawTool.Props>(({Bool, Int, List, Ref}) => ({
       drag:        [ Bool, true ],
       num_objects: [ Int, 0 ],
-      renderers:   [ Array(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
+      renderers:   [ List(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
     }))
   }
 

@@ -30,9 +30,9 @@ export class LegendItem extends Model {
   }
 
   static {
-    this.define<LegendItem.Props>(({Bool, Int, Array, Ref, Nullable}) => ({
+    this.define<LegendItem.Props>(({Bool, Int, List, Ref, Nullable}) => ({
       label:     [ p.NullStringSpec, null ],
-      renderers: [ Array(Ref(GlyphRenderer)), [] ],
+      renderers: [ List(Ref(GlyphRenderer)), [] ],
       index:     [ Nullable(Int), null ],
       visible:   [ Bool, true ],
     }))

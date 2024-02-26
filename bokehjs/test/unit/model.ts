@@ -44,11 +44,11 @@ class Some1Model extends Model {
     super(attrs)
   }
   static {
-    this.define<Some1Model.Props>(({Bool, Float, Str, Array, Ref, Nullable}) => ({
+    this.define<Some1Model.Props>(({Bool, Float, Str, List, Ref, Nullable}) => ({
       p0: [ Bool, false ],
       p1: [ Str, "foo" ],
       p2: [ Float, 1 ],
-      p3: [ Nullable(Array(Ref(Model))), null ],
+      p3: [ Nullable(List(Ref(Model))), null ],
     }))
   }
 }

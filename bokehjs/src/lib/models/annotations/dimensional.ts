@@ -43,10 +43,10 @@ export abstract class Dimensional extends Model {
   abstract get_basis(): Dict<[number, string, string?]>
 
   static {
-    this.define<Dimensional.Props>(({Nullable, Array, Str, Float}) => ({
-      ticks: [ Array(Float) ],
-      include: [ Nullable(Array(Str)), null ],
-      exclude: [ Array(Str), [] ],
+    this.define<Dimensional.Props>(({Nullable, List, Str, Float}) => ({
+      ticks: [ List(Float) ],
+      include: [ Nullable(List(Str)), null ],
+      exclude: [ List(Str), [] ],
     }))
   }
 

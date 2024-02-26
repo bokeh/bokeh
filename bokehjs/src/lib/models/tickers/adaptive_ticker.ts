@@ -28,9 +28,9 @@ export class AdaptiveTicker extends ContinuousTicker {
   }
 
   static {
-    this.define<AdaptiveTicker.Props>(({Float, Array, Nullable}) => ({
+    this.define<AdaptiveTicker.Props>(({Float, List, Nullable}) => ({
       base:         [ Float, 10.0 ],
-      mantissas:    [ Array(Float), [1, 2, 5] ],
+      mantissas:    [ List(Float), [1, 2, 5] ],
       min_interval: [ Float, 0.0 ],
       max_interval: [ Nullable(Float), null ],
     }))

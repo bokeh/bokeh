@@ -162,9 +162,9 @@ export abstract class CompositeRenderer extends Renderer {
   }
 
   static {
-    this.define<CompositeRenderer.Props>(({Array, Ref}) => ({
-      renderers: [ Array(Ref(Renderer)), [] ],
-      elements: [ Array(ElementLike), [] ],
+    this.define<CompositeRenderer.Props>(({List, Ref}) => ({
+      renderers: [ List(Ref(Renderer)), [] ],
+      elements: [ List(ElementLike), [] ],
     }))
   }
 }

@@ -269,10 +269,10 @@ export class PaletteSelect extends InputWidget {
   static {
     this.prototype.default_view = PaletteSelectView
 
-    this.define<PaletteSelect.Props>(({Int, Str, Array, NonNegative, Positive, Or, Auto}) => {
+    this.define<PaletteSelect.Props>(({Int, Str, List, NonNegative, Positive, Or, Auto}) => {
       return {
         value: [ Str ],
-        items: [ Array(Item) ],
+        items: [ List(Item) ],
         swatch_width: [ NonNegative(Int), 100 ],
         swatch_height: [ Or(Auto, NonNegative(Int)), "auto" ],
         ncols: [ Positive(Int), 1 ],

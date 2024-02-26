@@ -188,8 +188,8 @@ export class StringEditor extends CellEditor {
 
   static {
     this.prototype.default_view = StringEditorView
-    this.define<StringEditor.Props>(({Str, Array}) => ({
-      completions: [ Array(Str), [] ],
+    this.define<StringEditor.Props>(({Str, List}) => ({
+      completions: [ List(Str), [] ],
     }))
   }
 }
@@ -257,8 +257,8 @@ export class SelectEditor extends CellEditor {
 
   static {
     this.prototype.default_view = SelectEditorView
-    this.define<SelectEditor.Props>(({Str, Array}) => ({
-      options: [ Array(Str), [] ],
+    this.define<SelectEditor.Props>(({Str, List}) => ({
+      options: [ List(Str), [] ],
     }))
   }
 }

@@ -6,7 +6,7 @@ import type * as p from "core/properties"
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
-import {Unknown, Str, Array, Tuple, Or, Dict} from "core/kinds"
+import {Unknown, Str, List, Tuple, Or, Dict} from "core/kinds"
 
 const Value = Unknown
 type Value = typeof Value["__type__"]
@@ -14,7 +14,7 @@ type Value = typeof Value["__type__"]
 const Label = Str
 type Label = typeof Label["__type__"]
 
-const Options = Array(Or(Label, Tuple(Value, Label)))
+const Options = List(Or(Label, Tuple(Value, Label)))
 type Options = typeof Options["__type__"]
 
 const OptionsGroups = Dict(Options)

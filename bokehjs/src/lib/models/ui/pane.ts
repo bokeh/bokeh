@@ -125,8 +125,8 @@ export class Pane extends UIElement {
   static {
     this.prototype.default_view = PaneView
 
-    this.define<Pane.Props>(({Array}) => ({
-      elements: [ Array(ElementLike), [] ],
+    this.define<Pane.Props>(({List}) => ({
+      elements: [ List(ElementLike), [] ],
     }))
   }
 }

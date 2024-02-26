@@ -83,10 +83,10 @@ export class ContourRenderer extends DataRenderer {
   static {
     this.prototype.default_view = ContourRendererView
 
-    this.define<ContourRenderer.Props>(({Array, Float, Ref}) => ({
+    this.define<ContourRenderer.Props>(({List, Float, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
-      levels:        [ Array(Float), [] ],
+      levels:        [ List(Float), [] ],
     }))
   }
 

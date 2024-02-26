@@ -81,7 +81,7 @@ class Some extends HasProps {
     this.define<Some.Props>((kinds) => ({
       anchor: [ enums.Anchor ],
       any: [ kinds.Any ],
-      array: [ kinds.Array(kinds.Float) ],
+      array: [ kinds.List(kinds.Float) ],
       boolean: [ kinds.Bool ],
       color: [ kinds.Color ],
       instance_has_props: [ kinds.Ref(HasProps) ],

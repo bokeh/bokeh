@@ -350,10 +350,10 @@ export class BoxEditTool extends EditTool {
   static {
     this.prototype.default_view = BoxEditToolView
 
-    this.define<BoxEditTool.Props>(({Int, Array, Ref}) => ({
+    this.define<BoxEditTool.Props>(({Int, List, Ref}) => ({
       dimensions:  [ Dimensions, "both" ],
       num_objects: [ Int, 0 ],
-      renderers:   [ Array(Ref<BoxLikeGlyphRenderer>(GlyphRenderer as any)), [] ],
+      renderers:   [ List(Ref<BoxLikeGlyphRenderer>(GlyphRenderer as any)), [] ],
     }))
   }
 

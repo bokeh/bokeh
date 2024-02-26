@@ -135,7 +135,7 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>(({Bool, Float, Str, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+    this.define<Plot.Props>(({Bool, Float, Str, List, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Bool, true ],
@@ -151,13 +151,13 @@ export class Plot extends LayoutDOM {
       }],
       title_location:    [ Nullable(Location), "above" ],
 
-      above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
+      above:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      below:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      left:              [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      right:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      center:            [ List(Or(Ref(Annotation), Ref(Grid))), [] ],
 
-      renderers:         [ Array(Ref(Renderer)), [] ],
+      renderers:         [ List(Ref(Renderer)), [] ],
 
       x_range:           [ Ref(Range), () => new DataRange1d() ],
       y_range:           [ Ref(Range), () => new DataRange1d() ],
@@ -197,7 +197,7 @@ export class Plot extends LayoutDOM {
 
       hold_render:       [ Bool, false ],
 
-      attribution:       [ Array(Or(Str, Ref(HTML))), [] ],
+      attribution:       [ List(Or(Str, Ref(HTML))), [] ],
     }))
 
     this.override<Plot.Props>({

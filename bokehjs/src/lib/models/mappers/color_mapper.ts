@@ -53,8 +53,8 @@ export abstract class ColorMapper extends Mapper<Color> {
   }
 
   static {
-    this.define<ColorMapper.Props>(({Color, Array}) => ({
-      palette:   [ Array(Color) ],
+    this.define<ColorMapper.Props>(({Color, List}) => ({
+      palette:   [ List(Color) ],
       nan_color: [ Color, "gray" ],
     }))
   }

@@ -79,8 +79,8 @@ export class CheckboxGroup extends ToggleInputGroup {
   static {
     this.prototype.default_view = CheckboxGroupView
 
-    this.define<CheckboxGroup.Props>(({Int, Array}) => ({
-      active: [ Array(Int), [] ],
+    this.define<CheckboxGroup.Props>(({Int, List}) => ({
+      active: [ List(Int), [] ],
     }))
   }
 }

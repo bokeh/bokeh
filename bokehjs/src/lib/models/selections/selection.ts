@@ -48,15 +48,15 @@ export class Selection extends Model {
   }
 
   static {
-    this.define<Selection.Props>(({Int, Array, Struct}) => ({
+    this.define<Selection.Props>(({Int, List, Struct}) => ({
       indices:           [ OpaqueIndices, [] ],
       line_indices:      [ OpaqueIndices, [] ],
       multiline_indices: [ MultiIndices, new Map() ],
-      image_indices:     [ Array(Struct({index: Int, i: Int, j: Int, flat_index: Int})), [] ],
+      image_indices:     [ List(Struct({index: Int, i: Int, j: Int, flat_index: Int})), [] ],
     }))
 
-    this.internal<Selection.Props>(({Array, AnyRef, Nullable}) => ({
-      selected_glyphs:   [ Array(AnyRef()), [] ],
+    this.internal<Selection.Props>(({List, AnyRef, Nullable}) => ({
+      selected_glyphs:   [ List(AnyRef()), [] ],
       view:              [ Nullable(AnyRef()), null ],
     }))
   }

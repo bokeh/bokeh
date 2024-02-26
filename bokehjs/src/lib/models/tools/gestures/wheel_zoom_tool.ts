@@ -9,12 +9,12 @@ import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
 import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
-import {Enum, Array, Ref, Or, Auto} from "core/kinds"
+import {Enum, List, Ref, Or, Auto} from "core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
 type ZoomTogether = typeof ZoomTogether["__type__"]
 
-const Renderers = Or(Array(Ref(DataRenderer)), Auto)
+const Renderers = Or(List(Ref(DataRenderer)), Auto)
 type Renderers = typeof Renderers["__type__"]
 
 export class WheelZoomToolView extends GestureToolView {

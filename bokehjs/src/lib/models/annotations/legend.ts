@@ -519,7 +519,7 @@ export class Legend extends Annotation {
       ["item_background_", mixins.Fill],
     ])
 
-    this.define<Legend.Props>(({Float, Int, Str, Array, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({
+    this.define<Legend.Props>(({Float, Int, Str, List, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({
       orientation:      [ Orientation, "vertical" ],
       ncols:            [ Or(Positive(Int), Auto), "auto" ],
       nrows:            [ Or(Positive(Int), Auto), "auto" ],
@@ -535,7 +535,7 @@ export class Legend extends Annotation {
       margin:           [ Float, 10 ],
       padding:          [ Float, 10 ],
       spacing:          [ Float, 3 ],
-      items:            [ Array(Ref(LegendItem)), [] ],
+      items:            [ List(Ref(LegendItem)), [] ],
       click_policy:     [ LegendClickPolicy, "none" ],
       item_background_policy: [ AlternationPolicy, "none" ],
     }))

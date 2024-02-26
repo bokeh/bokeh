@@ -313,8 +313,8 @@ export class PolyEditTool extends PolyTool {
   static {
     this.prototype.default_view = PolyEditToolView
 
-    this.define<PolyEditTool.Props>(({Array, Ref}) => ({
-      renderers: [ Array(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
+    this.define<PolyEditTool.Props>(({List, Ref}) => ({
+      renderers: [ List(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
     }))
   }
 

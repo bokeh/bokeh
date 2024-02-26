@@ -1,6 +1,6 @@
 import type {Kind, Constructor} from "core/kinds"
 import {
-  Array,
+  List,
   Auto,
   Enum,
   Int,
@@ -86,5 +86,5 @@ export type TrackSizing = typeof TrackSizing["__type__"]
 export const TrackSizingLike = Or(TrackSize, TrackSizing)
 export type TrackSizingLike = typeof TrackSizingLike["__type__"]
 
-export const TracksSizing = Or(TrackSizingLike, Array(TrackSizingLike), Mapping(Int, TrackSizingLike))
+export const TracksSizing = Or(TrackSizingLike, List(TrackSizingLike), Mapping(Int, TrackSizingLike))
 export type TracksSizing = typeof TracksSizing["__type__"]

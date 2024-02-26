@@ -212,8 +212,8 @@ export class Tabs extends LayoutDOM {
   static {
     this.prototype.default_view = TabsView
 
-    this.define<Tabs.Props>(({Int, Array, Ref}) => ({
-      tabs:          [ Array(Ref(TabPanel)), [] ],
+    this.define<Tabs.Props>(({Int, List, Ref}) => ({
+      tabs:          [ List(Ref(TabPanel)), [] ],
       tabs_location: [ Location, "above" ],
       active:        [ Int, 0 ],
     }))

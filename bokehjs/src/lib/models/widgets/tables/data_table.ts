@@ -524,10 +524,10 @@ export class DataTable extends TableWidget {
   static {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>(({Array, Bool, Int, Ref, Str, Enum, Or, Nullable}) => ({
+    this.define<DataTable.Props>(({List, Bool, Int, Ref, Str, Enum, Or, Nullable}) => ({
       autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit"), "force_fit" ],
       auto_edit:           [ Bool, false ],
-      columns:             [ Array(Ref(TableColumn)), [] ],
+      columns:             [ List(Ref(TableColumn)), [] ],
       fit_columns:         [ Nullable(Bool), null ],
       frozen_columns:      [ Nullable(Int), null ],
       frozen_rows:         [ Nullable(Int), null ],

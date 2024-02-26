@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Or, Str as Str, Array as Arr, Tuple} from "core/kinds"
+import {Or, Str, List, Tuple} from "core/kinds"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import {Signal0} from "core/signaling"
@@ -17,7 +17,7 @@ export type Factor = L1Factor | L2Factor | L3Factor
 export type FactorSeq = L1Factor[] | L2Factor[] | L3Factor[]
 
 export const Factor = Or(Str, Tuple(Str, Str), Tuple(Str, Str, Str))
-export const FactorSeq = Or(Arr(Str), Arr(Tuple(Str, Str)), Arr(Tuple(Str, Str, Str)))
+export const FactorSeq = Or(List(Str), List(Tuple(Str, Str)), List(Tuple(Str, Str, Str)))
 
 export type BoxedFactor = [string] | L2Factor | L3Factor
 
@@ -147,10 +147,10 @@ export class FactorRange extends Range {
       end:                 [ Float, p.unset, {readonly: true} ],
     }))
 
-    this.internal<FactorRange.Props>(({Float, Str, Array, Tuple, Nullable}) => ({
+    this.internal<FactorRange.Props>(({Float, Str, List, Tuple, Nullable}) => ({
       levels: [ Float ], // how many levels of
-      mids:   [ Nullable(Array(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
-      tops:   [ Nullable(Array(Str)), null ], // top level factors (whether 2 or 3 total levels)
+      mids:   [ Nullable(List(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
+      tops:   [ Nullable(List(Str)), null ], // top level factors (whether 2 or 3 total levels)
     }))
   }
 

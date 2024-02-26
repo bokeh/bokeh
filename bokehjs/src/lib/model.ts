@@ -50,11 +50,11 @@ export class Model extends HasProps {
   }
 
   static {
-    this.define<Model.Props>(({Any, Unknown, Bool, Str, Array, Set, Dict, Nullable}) => ({
-      tags:                  [ Array(Unknown), [] ],
+    this.define<Model.Props>(({Any, Unknown, Bool, Str, List, Set, Dict, Nullable}) => ({
+      tags:                  [ List(Unknown), [] ],
       name:                  [ Nullable(Str), null ],
-      js_property_callbacks: [ Dict(Array(Any /*TODO*/)), {} ],
-      js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), {} ],
+      js_property_callbacks: [ Dict(List(Any /*TODO*/)), {} ],
+      js_event_callbacks:    [ Dict(List(Any /*TODO*/)), {} ],
       subscribed_events:     [ Set(Str), new globalThis.Set() ],
       syncable:              [ Bool, true ],
     }))

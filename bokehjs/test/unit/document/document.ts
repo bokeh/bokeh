@@ -87,8 +87,8 @@ class SomeModelWithChildren extends Model {
   }
 
   static {
-    this.define<SomeModelWithChildren.Props>(({Array, Ref}) => ({
-      children: [ Array(Ref(Model)), [] ],
+    this.define<SomeModelWithChildren.Props>(({List, Ref}) => ({
+      children: [ List(Ref(Model)), [] ],
     }))
   }
 }

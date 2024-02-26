@@ -66,10 +66,10 @@ export abstract class DOMElement extends DOMNode {
   }
 
   static {
-    this.define<DOMElement.Props>(({Str, Array, Or, Ref}) => {
+    this.define<DOMElement.Props>(({Str, List, Or, Ref}) => {
       return {
         style: [ StylesLike, {} ],
-        children: [ Array(Or(Str, Ref(DOMNode), Ref(UIElement))), [] ],
+        children: [ List(Or(Str, Ref(DOMNode), Ref(UIElement))), [] ],
       }
     })
   }

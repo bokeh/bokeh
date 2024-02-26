@@ -227,8 +227,8 @@ export class Menu extends UIElement {
   static {
     this.prototype.default_view = MenuView
 
-    this.define<Menu.Props>(({Bool, Array, Ref}) => ({
-      items: [ Array(Ref(MenuItem)), [] ],
+    this.define<Menu.Props>(({Bool, List, Ref}) => ({
+      items: [ List(Ref(MenuItem)), [] ],
       reversed: [ Bool, false ],
     }))
   }

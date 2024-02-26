@@ -62,8 +62,8 @@ export class Template extends DOMElement {
 
   static {
     this.prototype.default_view = TemplateView
-    this.define<Template.Props>(({Array, Ref}) => ({
-      actions: [ Array(Ref(Action)), [] ],
+    this.define<Template.Props>(({List, Ref}) => ({
+      actions: [ List(Ref(Action)), [] ],
     }))
   }
 }

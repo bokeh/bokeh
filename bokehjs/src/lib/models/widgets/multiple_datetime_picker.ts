@@ -43,8 +43,8 @@ export class MultipleDatetimePicker extends BaseDatetimePicker {
   static {
     this.prototype.default_view = MultipleDatetimePickerView
 
-    this.define<MultipleDatetimePicker.Props>(({Str, Array}) => ({
-      value: [ Array(DateLike), [] ],
+    this.define<MultipleDatetimePicker.Props>(({Str, List}) => ({
+      value: [ List(DateLike), [] ],
       separator: [ Str, ", " ],
     }))
   }

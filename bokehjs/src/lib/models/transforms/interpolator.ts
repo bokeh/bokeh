@@ -27,9 +27,9 @@ export abstract class Interpolator extends Transform {
   }
 
   static {
-    this.define<Interpolator.Props>(({Bool, Float, Str, Ref, Array, Or, Nullable}) => ({
-      x:    [ Or(Str, Array(Float)) ],
-      y:    [ Or(Str, Array(Float)) ],
+    this.define<Interpolator.Props>(({Bool, Float, Str, Ref, List, Or, Nullable}) => ({
+      x:    [ Or(Str, List(Float)) ],
+      y:    [ Or(Str, List(Float)) ],
       data: [ Nullable(Ref(ColumnarDataSource)), null ],
       clip: [ Bool, true ],
     }))

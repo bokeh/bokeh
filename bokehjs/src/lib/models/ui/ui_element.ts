@@ -19,12 +19,12 @@ import {entries} from "core/util/object"
 import {isNumber} from "core/util/types"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
-import {Array, Or, Ref, Str, Dict, Nullable} from "core/kinds"
+import {List, Or, Ref, Str, Dict, Nullable} from "core/kinds"
 
 export const StylesLike = Or(Dict(Nullable(Str)), Ref(Styles)) // TODO: add validation for CSSStyles
 export type StylesLike = typeof StylesLike["__type__"]
 
-export const StyleSheets = Array(Or(Ref(BaseStyleSheet), Str, Dict(StylesLike)))
+export const StyleSheets = List(Or(Ref(BaseStyleSheet), Str, Dict(StylesLike)))
 export type StyleSheets = typeof StyleSheets["__type__"]
 
 export const CSSVariables = Dict(Ref(Node))
@@ -311,9 +311,9 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Bool, Array, Str, AnyRef}) => ({
+    this.define<UIElement.Props>(({Bool, List, Str, AnyRef}) => ({
       visible: [ Bool, true ],
-      css_classes: [ Array(Str), [] ],
+      css_classes: [ List(Str), [] ],
       css_variables: [ CSSVariables, {} ],
       styles: [ StylesLike, {} ],
       stylesheets: [ StyleSheets, [] ],

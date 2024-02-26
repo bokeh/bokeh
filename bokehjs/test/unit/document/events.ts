@@ -37,8 +37,8 @@ class TestModelWithProps extends Model {
   }
 
   static {
-    this.define<any>(({Float, Array}) => ({
-      foo: [ Array(Float), [] ],
+    this.define<any>(({Float, List}) => ({
+      foo: [ List(Float), [] ],
     }))
   }
 }
