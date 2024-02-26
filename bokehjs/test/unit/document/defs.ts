@@ -132,7 +132,7 @@ describe("document/defs module", () => {
           {name: "prop5", kind: ["Array", ["Tuple", "Int", "Str"]], default: [[0, "a"], [1, "b"], [2, "c"]]},
           {name: "prop6", kind: ["Struct", ["name0", "Int"], ["name1", "Str"]], default: {name0: 0, name1: "a"}},
           {name: "prop7", kind: ["Dict", "Int"], default: {a: 0, b: 1, c: 2}},
-          {name: "prop8", kind: ["Map", ["Array", "Str"], "Int"], default: new Map([[["a", "a"], 0], [["b"], 1]])},
+          {name: "prop8", kind: ["Mapping", ["Array", "Str"], "Int"], default: new Map([[["a", "a"], 0], [["b"], 1]])},
           {name: "prop9", kind: ["Enum", "enum0", "enum1", "enum2"], default: "enum2"},
         ],
       }, {

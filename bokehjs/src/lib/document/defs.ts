@@ -26,7 +26,7 @@ export type KindRef =
   ["Array", KindRef] |
   ["Struct", ...([string, KindRef][])] |
   ["Dict", KindRef] |
-  ["Map", KindRef, KindRef] |
+  ["Mapping", KindRef, KindRef] |
   ["Enum", ...string[]] |
   ["Ref", Ref] |
   ["AnyRef"]
@@ -87,7 +87,7 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
           const [, valref] = ref
           return kinds.Dict(kind_of(valref))
         }
-        case "Map": {
+        case "Mapping": {
           const [, keyref, valref] = ref
           return kinds.Mapping(kind_of(keyref), kind_of(valref))
         }

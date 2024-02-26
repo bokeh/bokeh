@@ -228,7 +228,7 @@ describe("core/kinds module", () => {
     expect((k.Dict(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
-  it("should support Map kind", () => {
+  it("should support Mapping kind", () => {
     const tp = k.Mapping(k.Int, k.Str)
     expect(`${tp}`).to.be.equal("Mapping(Int, Str)")
     expect(tp.valid(new Map())).to.be.true
