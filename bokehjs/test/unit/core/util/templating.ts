@@ -108,48 +108,48 @@ describe("templating module", () => {
     const imindex2 = {index: 0, i: 1, j: 0, flat_index: 1}
 
     it("should return $ values from special_vars", () => {
-      const v = tmpl.get_value("$x", source, 0, {x: 99999})
+      const v = tmpl.get_value("$", "x", source, 0, {x: 99999})
       expect(v).to.be.equal(99999)
     })
 
     it("should return a missing value marker on unknown special vars", () => {
-      expect(tmpl.get_value("$x", source, 0, {})).to.be.equal("???")
+      expect(tmpl.get_value("$", "x", source, 0, {})).to.be.equal("???")
     })
 
     it("should return null for missing column", () => {
-      const v = tmpl.get_value("x", source, 0, {})
+      const v = tmpl.get_value("@", "_x", source, 0, {})
       expect(v).to.be.null
     })
 
     it("should return integer indices from columns", () => {
-      const v1 = tmpl.get_value("@foo", source, 0, {})
+      const v1 = tmpl.get_value("@", "foo", source, 0, {})
       expect(v1).to.be.equal(10)
 
-      const v2 = tmpl.get_value("@foo", source, 1, {})
+      const v2 = tmpl.get_value("@", "foo", source, 1, {})
       expect(v2).to.be.equal(1.002)
     })
 
     it("should index flat typed array format for images", () => {
-      const v1 = tmpl.get_value("@floats", imsource, imindex1, {})
+      const v1 = tmpl.get_value("@", "floats", imsource, imindex1, {})
       expect(v1).to.be.equal(5)
 
-      const v2 = tmpl.get_value("@floats", imsource, imindex2, {})
+      const v2 = tmpl.get_value("@", "floats", imsource, imindex2, {})
       expect(v2).to.be.equal(1)
     })
 
     it("should index array of arrays format for images", () => {
-      const v1 = tmpl.get_value("@arrs", imsource, imindex1, {})
+      const v1 = tmpl.get_value("@", "arrs", imsource, imindex1, {})
       expect(v1).to.be.equal(50)
 
-      const v2 = tmpl.get_value("@arrs", imsource, imindex2, {})
+      const v2 = tmpl.get_value("@", "arrs", imsource, imindex2, {})
       expect(v2).to.be.equal(10)
     })
 
     it("should index scalar data format for images", () => {
-      const v1 = tmpl.get_value("@labels", imsource, imindex1, {})
+      const v1 = tmpl.get_value("@", "labels", imsource, imindex1, {})
       expect(v1).to.be.equal("test label")
 
-      const v2 = tmpl.get_value("@labels", imsource, imindex2, {})
+      const v2 = tmpl.get_value("@", "labels", imsource, imindex2, {})
       expect(v2).to.be.equal("test label")
     })
   })
@@ -289,6 +289,87 @@ describe("templating module", () => {
 
       const s2 = tmpl.replace_placeholders("stuff @bar", source, 2, undefined, undefined, encodeURIComponent)
       expect(s2).to.be.equal("stuff 'qux'%22quux%22")
+    })
+  })
+
+  describe("process_placeholders()", () => {
+    it("should support simplified syntax", () => {
+      const found: [string, string, string?][] = []
+      const result = tmpl.process_placeholders("@x @0 @_ @xyz @012 @_x @_0 @x_ @0_ @x_0 @ł @_ł @ł_ @ł0 @Wörter", (type, name, format, i) => {
+        found.push([type, name, format])
+        return `${i}`
+      })
+      expect(result).to.be.equal("0 1 2 3 4 5 6 7 8 9 10 11 12 13 14")
+      expect(found).to.be.equal([
+        ["@", "x", undefined],
+        ["@", "0", undefined],
+        ["@", "_", undefined],
+        ["@", "xyz", undefined],
+        ["@", "012", undefined],
+        ["@", "_x", undefined],
+        ["@", "_0", undefined],
+        ["@", "x_", undefined],
+        ["@", "0_", undefined],
+        ["@", "x_0", undefined],
+        ["@", "ł", undefined],
+        ["@", "_ł", undefined],
+        ["@", "ł_", undefined],
+        ["@", "ł0", undefined],
+        ["@", "Wörter", undefined],
+      ])
+    })
+
+    it("should support complete syntax", () => {
+      const found: [string, string, string?][] = []
+      const result = tmpl.process_placeholders("@{x} @{0} @{_} @{} @{ } @{  xyz   } @{xyz} @{012} @{xyz 012} @{~`!@#$%^&*()_-+= []|\\:;\"'<,>.?/} @{Słowa @Wörter}", (type, name, format, i) => {
+        found.push([type, name, format])
+        return `${i}`
+      })
+      expect(result).to.be.equal("0 1 2 @{} 3 4 5 6 7 8 9")
+      expect(found).to.be.equal([
+        ["@", "x", undefined],
+        ["@", "0", undefined],
+        ["@", "_", undefined],
+        ["@", "", undefined],
+        ["@", "xyz", undefined],
+        ["@", "xyz", undefined],
+        ["@", "012", undefined],
+        ["@", "xyz 012", undefined],
+        ["@", "~`!@#$%^&*()_-+= []|\\:;\"'<,>.?/", undefined],
+        ["@", "Słowa @Wörter", undefined],
+      ])
+    })
+
+    it("should support simplified syntax with formatting", () => {
+      const found: [string, string, string?][] = []
+      const result = tmpl.process_placeholders("@x{} @x{ } @x{f} @x{format} @{x}{:}", (type, name, format, i) => {
+        found.push([type, name, format])
+        return `${i}`
+      })
+      expect(result).to.be.equal("0{} 1 2 3 4")
+      expect(found).to.be.equal([
+        ["@", "x", undefined],
+        ["@", "x", " "],
+        ["@", "x", "f"],
+        ["@", "x", "format"],
+        ["@", "x", ":"],
+      ])
+    })
+
+    it("should support complete syntax with formatting", () => {
+      const found: [string, string, string?][] = []
+      const result = tmpl.process_placeholders("@{x}{} @{x}{ } @{x}{f} @{x}{format} @{x}{:}", (type, name, format, i) => {
+        found.push([type, name, format])
+        return `${i}`
+      })
+      expect(result).to.be.equal("0{} 1 2 3 4")
+      expect(found).to.be.equal([
+        ["@", "x", undefined],
+        ["@", "x", " "],
+        ["@", "x", "f"],
+        ["@", "x", "format"],
+        ["@", "x", ":"],
+      ])
     })
   })
 })

@@ -49,7 +49,7 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
   }
 }
 
-export function get_formatter(raw_spec: string, format?: string, formatters?: Formatters): FormatterFunc {
+export function get_formatter(spec: string, format?: string, formatters?: Formatters): FormatterFunc {
   // no format, use default built in formatter
   if (format == null) {
     return basic_formatter
@@ -57,7 +57,7 @@ export function get_formatter(raw_spec: string, format?: string, formatters?: Fo
 
   // format spec in the formatters dict, use that
   if (formatters != null) {
-    const formatter = dict(formatters).get(raw_spec)
+    const formatter = dict(formatters).get(spec)
     if (formatter != null) {
       if (isString(formatter)) {
         if (formatter in DEFAULT_FORMATTERS) {
@@ -79,7 +79,7 @@ export function get_formatter(raw_spec: string, format?: string, formatters?: Fo
 
 const MISSING = "???"
 
-function  _get_special_value(name: string, special_vars: Vars) {
+function _get_special_value(name: string, special_vars: Vars) {
   if (name in special_vars) {
     return special_vars[name]
   } else {
@@ -126,13 +126,12 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
   }
 }
 
-export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index | null, special_vars: Vars) {
-  if (raw_name[0] == "$") {
-    const name = raw_name.substring(1)
-    return _get_special_value(name, special_vars)
-  } else {
-    const name = raw_name.substring(1).replace(/[{}]/g, "")
-    return _get_column_value(name, data_source, i)
+type PlaceholderType = "$" | "@"
+
+export function get_value(type: PlaceholderType, name: string, data_source: ColumnarDataSource, i: Index | null, special_vars: Vars) {
+  switch (type) {
+    case "$": return _get_special_value(name, special_vars)
+    case "@": return _get_column_value(name, data_source, i)
   }
 }
 
@@ -152,15 +151,8 @@ export function replace_placeholders(content: string | {html: string}, data_sour
   // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
   str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
 
-  //
-  // (?:\$\w+) - special vars: $x
-  // (?:@\w+) - simple names: @foo
-  // (?:@{(?:[^{}]+)})) - full names: @{one two}
-  //
-  // (?:{([^{}]+)})? - (optional) format for all of the above: @foo{fmt}
-  //
-  str = str.replace(/((?:\$\w+)|(?:@\w+)|(?:@{(?:[^{}]+)}))(?:{([^{}]+)})?/g, (_match, spec, format) => {
-    const value = get_value(spec, data_source, i, special_vars)
+  str = process_placeholders(str, (type, name, format, _, spec) => {
+    const value = get_value(type, name, data_source, i, special_vars)
 
     // 'safe' format, return the value as-is
     if (format == "safe") {
@@ -180,7 +172,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
           return "NaN"
         } else {
           const formatter = get_formatter(spec, format, formatters)
-          return `${formatter(value, format, special_vars)}`
+          return `${formatter(value, format ?? "", special_vars)}`
         }
       })()
       return encode != null ? encode(result) : result
@@ -196,18 +188,24 @@ export function replace_placeholders(content: string | {html: string}, data_sour
   }
 }
 
-export function process_placeholders(text: string, fn: (type: "@" | "$", spec: string, format?: string) => string | null | undefined): string {
-  //
-  // (?:\$\w+) - special vars: $x
-  // (?:@\w+) - simple names: @foo
-  // (?:@{(?:[^{}]+)})) - full names: @{one two}
-  //
-  // (?:{([^{}]+)})? - (optional) format for all of the above: @foo{fmt}
-  //
-  const regex = /((?:\$\w+)|(?:@\w+)|(?:@{(?:[^{}]+)}))(?:{([^{}]+)})?/g
-  return text.replace(regex, (_match, spec: string, format?: string) => {
+/**
+ * This supports the following:
+ *
+ * - simple vars: $x
+ * - simple names: @x, @słowa_0, @Wörter (@ symbol followed by unicode letters, numbers or underscore)
+ * - full vars: ${one two}
+ * - full names: @{one two} (@{anything except curly brackets}
+ * - optional formatting: $x{format}, ${x}{format}, @x{format}, @{one two}{format}
+ */
+const regex = /((?:[$@][\p{Letter}\p{Number}_]+)|(?:[$@]\{(?:[^{}]+)\}))(?:\{([^{}]+)\})?/gu
+
+type PlaceholderReplacer = (type: PlaceholderType, name: string, format: string | undefined, i: number, spec: string) => string | null | undefined
+
+export function process_placeholders(text: string, fn: PlaceholderReplacer): string {
+  let i = 0
+  return text.replace(regex, (_match, spec: string, format: string | undefined) => {
     const type = spec[0] as "@" | "$"
-    const name = spec.substring(1).replace(/[{}]/g, "").trim()
-    return fn(type, name, format) ?? MISSING
+    const name = spec.substring(1).replace(/^{/, "").replace(/}$/, "").trim()
+    return fn(type, name, format, i++, spec) ?? MISSING
   })
 }
