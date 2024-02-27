@@ -297,8 +297,8 @@ export class Canvas extends UIElement {
   static {
     this.prototype.default_view = CanvasView
 
-    this.define<Canvas.Props>(({Boolean}) => ({
-      hidpi:          [ Boolean, true ],
+    this.define<Canvas.Props>(({Bool}) => ({
+      hidpi:          [ Bool, true ],
       output_backend: [ OutputBackend, "canvas" ],
     }))
   }

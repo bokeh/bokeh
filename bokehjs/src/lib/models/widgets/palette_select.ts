@@ -15,9 +15,9 @@ import * as item_css from "styles/widgets/palette_select_item.css"
 import * as pane_css from "styles/widgets/palette_select_pane.css"
 import * as icons_css from "styles/icons.css"
 
-import {Tuple, String, Arrayable, Color} from "core/kinds"
+import {Tuple, Str, Arrayable, Color} from "core/kinds"
 
-const Item = Tuple(String, Arrayable(Color))
+const Item = Tuple(Str, Arrayable(Color))
 type Item = typeof Item["__type__"]
 
 export class PaletteSelectView extends InputWidgetView {
@@ -269,10 +269,10 @@ export class PaletteSelect extends InputWidget {
   static {
     this.prototype.default_view = PaletteSelectView
 
-    this.define<PaletteSelect.Props>(({Int, String, Array, NonNegative, Positive, Or, Auto}) => {
+    this.define<PaletteSelect.Props>(({Int, Str, List, NonNegative, Positive, Or, Auto}) => {
       return {
-        value: [ String ],
-        items: [ Array(Item) ],
+        value: [ Str ],
+        items: [ List(Item) ],
         swatch_width: [ NonNegative(Int), 100 ],
         swatch_height: [ Or(Auto, NonNegative(Int)), "auto" ],
         ncols: [ Positive(Int), 1 ],

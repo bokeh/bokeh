@@ -23,9 +23,9 @@ export class Minimum extends ScalarExpression<number> {
   }
 
   static {
-    this.define<Minimum.Props>(({Number, String}) => ({
-      field:   [ String ],
-      initial: [ Number, Infinity ],
+    this.define<Minimum.Props>(({Float, Str}) => ({
+      field:   [ Str ],
+      initial: [ Float, Infinity ],
     }))
   }
 

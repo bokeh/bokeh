@@ -20,10 +20,10 @@ class Some0Model extends Model {
     super(attrs)
   }
   static {
-    this.define<Some0Model.Props>(({Boolean, Number, String}) => ({
-      foo: [ Boolean, false ],
-      bar: [ String ],
-      baz: [ Number, 1 ],
+    this.define<Some0Model.Props>(({Bool, Float, Str}) => ({
+      foo: [ Bool, false ],
+      bar: [ Str ],
+      baz: [ Float, 1 ],
     }))
   }
 }
@@ -44,11 +44,11 @@ class Some1Model extends Model {
     super(attrs)
   }
   static {
-    this.define<Some1Model.Props>(({Boolean, Number, String, Array, Ref, Nullable}) => ({
-      p0: [ Boolean, false ],
-      p1: [ String, "foo" ],
-      p2: [ Number, 1 ],
-      p3: [ Nullable(Array(Ref(Model))), null ],
+    this.define<Some1Model.Props>(({Bool, Float, Str, List, Ref, Nullable}) => ({
+      p0: [ Bool, false ],
+      p1: [ Str, "foo" ],
+      p2: [ Float, 1 ],
+      p3: [ Nullable(List(Ref(Model))), null ],
     }))
   }
 }

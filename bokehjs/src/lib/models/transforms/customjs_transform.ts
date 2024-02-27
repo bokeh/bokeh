@@ -24,10 +24,10 @@ export class CustomJSTransform extends Transform {
   }
 
   static {
-    this.define<CustomJSTransform.Props>(({Unknown, String, Dict}) => ({
+    this.define<CustomJSTransform.Props>(({Unknown, Str, Dict}) => ({
       args:   [ Dict(Unknown), {} ],
-      func:   [ String, "" ],
-      v_func: [ String, "" ],
+      func:   [ Str, "" ],
+      v_func: [ Str, "" ],
     }))
   }
 

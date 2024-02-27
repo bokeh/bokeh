@@ -21,8 +21,8 @@ export class BooleanFilter extends Filter {
   }
 
   static {
-    this.define<BooleanFilter.Props>(({Boolean, Iterable, Nullable}) => ({
-      booleans: [ Nullable(Iterable(Boolean)), null ],
+    this.define<BooleanFilter.Props>(({Bool, Iterable, Nullable}) => ({
+      booleans: [ Nullable(Iterable(Bool)), null ],
     }))
   }
 

@@ -67,10 +67,10 @@ export class FontAwesomeIcon extends Icon {
   static {
     this.prototype.default_view = FontAwesomeIconView
 
-    this.define<FontAwesomeIcon.Props>(({Boolean, String, Enum, Nullable}) => ({
-      icon_name: [ String ],
+    this.define<FontAwesomeIcon.Props>(({Bool, Str, Enum, Nullable}) => ({
+      icon_name: [ Str ],
       flip:      [ Nullable(Enum("horizontal", "vertical")), null ],
-      spin:      [ Boolean, false ],
+      spin:      [ Bool, false ],
     }))
   }
 }

@@ -25,12 +25,12 @@ export class TabPanel extends Model {
   }
 
   static {
-    this.define<TabPanel.Props>(({Boolean, String, Ref, Nullable}) => ({
-      title:    [ String, "" ],
+    this.define<TabPanel.Props>(({Bool, Str, Ref, Nullable}) => ({
+      title:    [ Str, "" ],
       tooltip:  [ Nullable(Ref(Tooltip)), null ],
       child:    [ Ref(UIElement) ],
-      closable: [ Boolean, false ],
-      disabled: [ Boolean, false ],
+      closable: [ Bool, false ],
+      disabled: [ Bool, false ],
     }))
   }
 }

@@ -144,10 +144,10 @@ export class Surface3d extends LayoutDOM {
     // types have counterparts, e.g. ``bokeh.core.properties.String`` will be
     // ``String`` in the JS implementatin. Where the JS type system is not yet
     // as rich, you can use ``p.Any`` as a "wildcard" property type.
-    this.define<Surface3d.Props>(({String, Ref}) => ({
-      x:            [ String ],
-      y:            [ String ],
-      z:            [ String ],
+    this.define<Surface3d.Props>(({Str, Ref}) => ({
+      x:            [ Str ],
+      y:            [ Str ],
+      z:            [ Str ],
       data_source:  [ Ref(ColumnDataSource) ],
     }))
   }

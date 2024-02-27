@@ -20,8 +20,8 @@ export abstract class DataRange extends NumericalRange {
   }
 
   static {
-    this.define<DataRange.Props>(({Array, AnyRef, Or, Auto}) => ({
-      renderers: [ Or(Array(AnyRef<DataRenderer>()), Auto), [] ],
+    this.define<DataRange.Props>(({List, AnyRef, Or, Auto}) => ({
+      renderers: [ Or(List(AnyRef<DataRenderer>()), Auto), [] ],
     }))
 
     this.override<DataRange.Props>({

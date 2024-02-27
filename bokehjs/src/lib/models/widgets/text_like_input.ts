@@ -70,10 +70,10 @@ export class TextLikeInput extends InputWidget {
   }
 
   static {
-    this.define<TextLikeInput.Props>(({Int, String, Nullable}) => ({
-      value:       [ String, "" ],
-      value_input: [ String, "" ],
-      placeholder: [ String, "" ],
+    this.define<TextLikeInput.Props>(({Int, Str, Nullable}) => ({
+      value:       [ Str, "" ],
+      value_input: [ Str, "" ],
+      placeholder: [ Str, "" ],
       max_length:  [ Nullable(Int), null ],
     }))
   }

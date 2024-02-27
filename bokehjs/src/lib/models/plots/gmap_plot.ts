@@ -27,9 +27,9 @@ export class MapOptions extends Model {
   }
 
   static {
-    this.define<MapOptions.Props>(({Int, Number}) => ({
-      lat:  [ Number ],
-      lng:  [ Number ],
+    this.define<MapOptions.Props>(({Int, Float}) => ({
+      lat:  [ Float ],
+      lng:  [ Float ],
       zoom: [ Int, 12 ],
     }))
   }
@@ -56,10 +56,10 @@ export class GMapOptions extends MapOptions {
   }
 
   static {
-    this.define<GMapOptions.Props>(({Boolean, Int, String, Nullable}) => ({
+    this.define<GMapOptions.Props>(({Bool, Int, Str, Nullable}) => ({
       map_type:      [ MapType, "roadmap"],
-      scale_control: [ Boolean, false ],
-      styles:        [ Nullable(String), null ],
+      scale_control: [ Bool, false ],
+      styles:        [ Nullable(Str), null ],
       tilt:          [ Int, 45 ],
     }))
   }
@@ -89,10 +89,10 @@ export class GMapPlot extends Plot {
   static {
     this.prototype.default_view = GMapPlotView
 
-    this.define<GMapPlot.Props>(({String, Bytes, Ref}) => ({
+    this.define<GMapPlot.Props>(({Str, Bytes, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
       api_key:     [ Bytes ],
-      api_version: [ String, "weekly" ],
+      api_version: [ Str, "weekly" ],
     }))
 
     this.override<GMapPlot.Props>({

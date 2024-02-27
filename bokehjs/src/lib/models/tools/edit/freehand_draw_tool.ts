@@ -112,9 +112,9 @@ export class FreehandDrawTool extends EditTool {
   static {
     this.prototype.default_view = FreehandDrawToolView
 
-    this.define<FreehandDrawTool.Props>(({Int, Array, Ref}) => ({
+    this.define<FreehandDrawTool.Props>(({Int, List, Ref}) => ({
       num_objects: [ Int, 0 ],
-      renderers:   [ Array(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
+      renderers:   [ List(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
     }))
 
     this.register_alias("freehand_draw", () => new FreehandDrawTool())

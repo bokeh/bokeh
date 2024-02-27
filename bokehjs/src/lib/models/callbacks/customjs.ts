@@ -42,10 +42,10 @@ export class CustomJS extends Callback {
   }
 
   static {
-    this.define<CustomJS.Props>(({Unknown, String, Dict, Auto, Or, Boolean}) => ({
+    this.define<CustomJS.Props>(({Unknown, Str, Dict, Auto, Or, Bool}) => ({
       args: [ Dict(Unknown), {} ],
-      code: [ String ],
-      module: [ Or(Auto, Boolean), "auto" ],
+      code: [ Str ],
+      module: [ Or(Auto, Bool), "auto" ],
     }))
   }
 

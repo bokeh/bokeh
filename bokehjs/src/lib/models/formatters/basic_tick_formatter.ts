@@ -35,9 +35,9 @@ export class BasicTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<BasicTickFormatter.Props>(({Boolean, Int, Auto, Or}) => ({
+    this.define<BasicTickFormatter.Props>(({Bool, Int, Auto, Or}) => ({
       precision:        [ Or(Int, Auto), "auto" ],
-      use_scientific:   [ Boolean, true],
+      use_scientific:   [ Bool, true],
       power_limit_high: [ Int, 5 ],
       power_limit_low:  [ Int, -3 ],
     }))

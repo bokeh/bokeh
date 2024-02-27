@@ -34,8 +34,8 @@ export class ZoomOutTool extends ZoomBaseTool {
   static {
     this.prototype.default_view = ZoomOutToolView
 
-    this.define<ZoomOutTool.Props>(({Boolean}) => ({
-      maintain_focus: [ Boolean, true ],
+    this.define<ZoomOutTool.Props>(({Bool}) => ({
+      maintain_focus: [ Bool, true ],
     }))
 
     this.register_alias("zoom_out", () => new ZoomOutTool({dimensions: "both"}))

@@ -144,15 +144,15 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({Boolean, String, Regex, Nullable, Or}) => ({
+    this.define<Tool.Props>(({Bool, Str, Regex, Nullable, Or}) => ({
       icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
-      description: [ Nullable(String), null ],
-      visible: [ Boolean, true ],
+      description: [ Nullable(Str), null ],
+      visible: [ Bool, true ],
     }))
 
-    this.internal<Tool.Props>(({Boolean}) => ({
-      active: [ Boolean, false ],
-      disabled: [ Boolean, false ],
+    this.internal<Tool.Props>(({Bool}) => ({
+      active: [ Bool, false ],
+      disabled: [ Bool, false ],
     }))
   }
 

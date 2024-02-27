@@ -24,10 +24,10 @@ export class NumeralTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<NumeralTickFormatter.Props>(({String}) => ({
+    this.define<NumeralTickFormatter.Props>(({Str}) => ({
       // TODO (bev) all of these could be tightened up
-      format:   [ String,           "0,0"   ],
-      language: [ String,           "en"    ],
+      format:   [ Str,           "0,0"   ],
+      language: [ Str,           "en"    ],
       rounding: [ RoundingFunction, "round" ],
     }))
   }

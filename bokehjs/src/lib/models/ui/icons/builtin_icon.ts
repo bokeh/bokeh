@@ -68,8 +68,8 @@ export class BuiltinIcon extends Icon {
   static {
     this.prototype.default_view = BuiltinIconView
 
-    this.define<BuiltinIcon.Props>(({String, Color}) => ({
-      icon_name: [ String ],
+    this.define<BuiltinIcon.Props>(({Str, Color}) => ({
+      icon_name: [ Str ],
       color: [ Color, "gray" ],
     }))
   }

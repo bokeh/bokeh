@@ -28,12 +28,12 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   static {
-    this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict, Nullable}) => ({
+    this.define<AjaxDataSource.Props>(({Bool, Int, Str, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],
-      content_type:     [ String, "application/json" ],
-      http_headers:     [ Dict(String), {} ],
+      content_type:     [ Str, "application/json" ],
+      http_headers:     [ Dict(Str), {} ],
       method:           [ HTTPMethod, "POST" ],
-      if_modified:      [ Boolean, false ],
+      if_modified:      [ Bool, false ],
     }))
   }
 

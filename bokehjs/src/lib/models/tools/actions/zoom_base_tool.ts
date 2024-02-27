@@ -118,10 +118,10 @@ export abstract class ZoomBaseTool extends PlotActionTool {
   }
 
   static {
-    this.define<ZoomBaseTool.Props>(({Percent, Or, Array, Ref, Auto, NonNegative, Int}) => ({
+    this.define<ZoomBaseTool.Props>(({Percent, Or, List, Ref, Auto, NonNegative, Int}) => ({
       factor:     [ Percent,    0.1    ],
       dimensions: [ Dimensions, "both" ],
-      renderers:  [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
+      renderers:  [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       level:      [ NonNegative(Int), 0 ],
     }))
   }

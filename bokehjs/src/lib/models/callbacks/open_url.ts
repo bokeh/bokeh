@@ -23,9 +23,9 @@ export class OpenURL extends Callback {
   }
 
   static {
-    this.define<OpenURL.Props>(({Boolean, String}) => ({
-      url: [ String, "http://" ],
-      same_tab: [ Boolean, false ],
+    this.define<OpenURL.Props>(({Bool, Str}) => ({
+      url: [ Str, "http://" ],
+      same_tab: [ Bool, false ],
     }))
   }
 

@@ -21,8 +21,8 @@ export abstract class CompositeFilter extends Filter {
   }
 
   static {
-    this.define<CompositeFilter.Props>(({Array, Ref}) => ({
-      operands: [ Array(Ref(Filter)) ],
+    this.define<CompositeFilter.Props>(({List, Ref}) => ({
+      operands: [ List(Ref(Filter)) ],
     }))
   }
 

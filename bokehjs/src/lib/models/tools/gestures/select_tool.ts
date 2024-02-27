@@ -164,8 +164,8 @@ export abstract class SelectTool extends GestureTool {
   }
 
   static {
-    this.define<SelectTool.Props>(({Array, Ref, Or, Auto}) => ({
-      renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
+    this.define<SelectTool.Props>(({List, Ref, Or, Auto}) => ({
+      renderers: [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:      [ SelectionMode, "replace" ],
     }))
   }

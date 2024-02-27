@@ -113,8 +113,8 @@ export abstract class AbstractButton extends Control {
   }
 
   static {
-    this.define<AbstractButton.Props>(({String, Ref, Or, Nullable}) => ({
-      label:       [ Or(Ref(DOMNode), String), "Button" ],
+    this.define<AbstractButton.Props>(({Str, Ref, Or, Nullable}) => ({
+      label:       [ Or(Ref(DOMNode), Str), "Button" ],
       icon:        [ Nullable(Ref(Icon)), null ],
       button_type: [ ButtonType, "default" ],
     }))

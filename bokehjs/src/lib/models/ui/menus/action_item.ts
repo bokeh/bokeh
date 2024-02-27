@@ -32,13 +32,13 @@ export class ActionItem extends MenuItem {
   }
 
   static {
-    this.define<ActionItem.Props>(({Boolean, String, Nullable, AnyRef, Ref}) => ({
+    this.define<ActionItem.Props>(({Bool, Str, Nullable, AnyRef, Ref}) => ({
       icon: [ Nullable(IconLike), null ],
-      label: [ String ],
-      tooltip: [ Nullable(String), null ],
-      shortcut: [ Nullable(String), null ],
+      label: [ Str ],
+      tooltip: [ Nullable(Str), null ],
+      shortcut: [ Nullable(Str), null ],
       menu: [ Nullable(AnyRef<Menu>()), null ],
-      disabled: [ Boolean, false ],
+      disabled: [ Bool, false ],
       action: [ Nullable(Ref(Callback)), null ],
     }))
   }

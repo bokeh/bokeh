@@ -22,9 +22,9 @@ export class FixedTicker extends ContinuousTicker {
   }
 
   static {
-    this.define<FixedTicker.Props>(({Number, Arrayable}) => ({
-      ticks: [ Arrayable(Number), [] ],
-      minor_ticks: [ Arrayable(Number), [] ],
+    this.define<FixedTicker.Props>(({Float, Arrayable}) => ({
+      ticks: [ Arrayable(Float), [] ],
+      minor_ticks: [ Arrayable(Float), [] ],
     }))
   }
 

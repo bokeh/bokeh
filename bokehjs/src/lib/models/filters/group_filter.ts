@@ -23,9 +23,9 @@ export class GroupFilter extends Filter {
   }
 
   static {
-    this.define<GroupFilter.Props>(({String}) => ({
-      column_name: [ String ],
-      group:       [ String ],
+    this.define<GroupFilter.Props>(({Str}) => ({
+      column_name: [ Str ],
+      group:       [ Str ],
     }))
   }
 

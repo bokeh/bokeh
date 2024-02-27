@@ -49,9 +49,9 @@ export class ColorRef extends ValueRef {
 
   static {
     this.prototype.default_view = ColorRefView
-    this.define<ColorRef.Props>(({Boolean}) => ({
-      hex: [ Boolean, true ],
-      swatch: [ Boolean, true ],
+    this.define<ColorRef.Props>(({Bool}) => ({
+      hex: [ Bool, true ],
+      swatch: [ Bool, true ],
     }))
   }
 }

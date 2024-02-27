@@ -19,9 +19,9 @@ export class XY extends Coordinate {
   }
 
   static {
-    this.define<XY.Props>(({Number}) => ({
-      x: [ Number ],
-      y: [ Number ],
+    this.define<XY.Props>(({Float}) => ({
+      x: [ Float ],
+      y: [ Float ],
     }))
   }
 }

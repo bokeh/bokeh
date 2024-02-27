@@ -49,9 +49,9 @@ export class GridBox extends CSSGridBox {
   static {
     this.prototype.default_view = GridBoxView
 
-    this.define<GridBox.Props>(({Array, Nullable}) => {
+    this.define<GridBox.Props>(({List, Nullable}) => {
       return {
-        children: [ Array(GridChild(UIElement)), [] ],
+        children: [ List(GridChild(UIElement)), [] ],
         rows:     [ Nullable(TracksSizing), null ],
         cols:     [ Nullable(TracksSizing), null ],
       }

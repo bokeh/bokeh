@@ -30,8 +30,8 @@ export class BaseText extends Model {
   }
 
   static {
-    this.define<BaseText.Props>(({String}) => ({
-      text: [ String ],
+    this.define<BaseText.Props>(({Str}) => ({
+      text: [ Str ],
     }))
   }
 }

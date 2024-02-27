@@ -34,8 +34,8 @@ export class ToggleGroup extends Action {
 
   static {
     this.prototype.default_view = ToggleGroupView
-    this.define<ToggleGroup.Props>(({Array, Ref}) => ({
-      groups: [ Array(Ref(RendererGroup)), [] ],
+    this.define<ToggleGroup.Props>(({List, Ref}) => ({
+      groups: [ List(Ref(RendererGroup)), [] ],
     }))
   }
 }

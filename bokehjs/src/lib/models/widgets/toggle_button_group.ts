@@ -75,8 +75,8 @@ export abstract class ToggleButtonGroup extends OrientedControl {
   }
 
   static {
-    this.define<ToggleButtonGroup.Props>(({String, Array}) => ({
-      labels:      [ Array(String), [] ],
+    this.define<ToggleButtonGroup.Props>(({Str, List}) => ({
+      labels:      [ List(Str), [] ],
       button_type: [ ButtonType, "default" ],
     }))
   }

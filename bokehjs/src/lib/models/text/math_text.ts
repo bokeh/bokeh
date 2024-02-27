@@ -592,9 +592,9 @@ export class TeX extends MathText {
   static {
     this.prototype.default_view = TeXView
 
-    this.define<TeX.Props>(({Boolean, Number, String, Dict, Tuple, Or}) => ({
-      macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
-      inline: [ Boolean, false ],
+    this.define<TeX.Props>(({Bool, Float, Str, Dict, Tuple, Or}) => ({
+      macros: [ Dict(Or(Str, Tuple(Str, Float))), {} ],
+      inline: [ Bool, false ],
     }))
   }
 }

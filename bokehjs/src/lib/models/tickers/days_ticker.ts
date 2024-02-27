@@ -51,8 +51,8 @@ export class DaysTicker extends BaseSingleIntervalTicker {
   }
 
   static {
-    this.define<DaysTicker.Props>(({Int, Array}) => ({
-      days: [ Array(Int), [] ],
+    this.define<DaysTicker.Props>(({Int, List}) => ({
+      days: [ List(Int), [] ],
     }))
 
     this.override<DaysTicker.Props>({

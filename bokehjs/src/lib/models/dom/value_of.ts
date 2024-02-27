@@ -56,9 +56,9 @@ export class ValueOf extends DOMNode {
   static {
     this.prototype.default_view = ValueOfView
 
-    this.define<ValueOf.Props>(({String, Ref}) => ({
+    this.define<ValueOf.Props>(({Str, Ref}) => ({
       obj: [ Ref(HasProps) ],
-      attr: [ String ],
+      attr: [ Str ],
     }))
   }
 }

@@ -43,10 +43,10 @@ export abstract class Dimensional extends Model {
   abstract get_basis(): Dict<[number, string, string?]>
 
   static {
-    this.define<Dimensional.Props>(({Nullable, Array, String, Number}) => ({
-      ticks: [ Array(Number) ],
-      include: [ Nullable(Array(String)), null ],
-      exclude: [ Array(String), [] ],
+    this.define<Dimensional.Props>(({Nullable, List, Str, Float}) => ({
+      ticks: [ List(Float) ],
+      include: [ Nullable(List(Str)), null ],
+      exclude: [ List(Str), [] ],
     }))
   }
 
@@ -117,8 +117,8 @@ export abstract class CustomDimensional extends Dimensional {
   }
 
   static {
-    this.define<CustomDimensional.Props>(({Dict, Tuple, Number, String, Or}) => ({
-      basis: [ Dict(Or(Tuple(Number, String), Tuple(Number, String, String))) ],
+    this.define<CustomDimensional.Props>(({Dict, Tuple, Float, Str, Or}) => ({
+      basis: [ Dict(Or(Tuple(Float, Str), Tuple(Float, Str, Str))) ],
     }))
   }
 
@@ -145,9 +145,9 @@ export class Metric extends Dimensional {
   }
 
   static {
-    this.define<Metric.Props>(({String, Nullable}) => ({
-      base_unit: [ String ],
-      full_unit: [ Nullable(String), null ],
+    this.define<Metric.Props>(({Str, Nullable}) => ({
+      base_unit: [ Str ],
+      full_unit: [ Nullable(Str), null ],
     }))
 
     this.override<Metric.Props>({

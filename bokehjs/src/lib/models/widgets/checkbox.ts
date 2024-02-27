@@ -65,8 +65,8 @@ export class Checkbox extends ToggleInput {
   static {
     this.prototype.default_view = CheckboxView
 
-    this.define<Checkbox.Props>(({String}) => ({
-      label: [ String, "" ],
+    this.define<Checkbox.Props>(({Str}) => ({
+      label: [ Str, "" ],
     }))
   }
 }

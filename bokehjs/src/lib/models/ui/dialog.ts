@@ -628,21 +628,21 @@ export class Dialog extends UIElement {
   static {
     this.prototype.default_view = DialogView
 
-    this.define<Dialog.Props>(({Boolean, String, Ref, Or, Nullable, Enum}) => ({
-      title: [ Nullable(Or(String, Ref(DOMNode), Ref(UIElement))), null ],
-      content: [ Or(String, Ref(DOMNode), Ref(UIElement)) ],
+    this.define<Dialog.Props>(({Bool, Str, Ref, Or, Nullable, Enum}) => ({
+      title: [ Nullable(Or(Str, Ref(DOMNode), Ref(UIElement))), null ],
+      content: [ Or(Str, Ref(DOMNode), Ref(UIElement)) ],
 
-      pinnable: [ Boolean, true ],
-      collapsible: [ Boolean, true ],
-      minimizable: [ Boolean, true ],
-      maximizable: [ Boolean, true ],
-      closable: [ Boolean, true ],
+      pinnable: [ Bool, true ],
+      collapsible: [ Bool, true ],
+      minimizable: [ Bool, true ],
+      maximizable: [ Bool, true ],
+      closable: [ Bool, true ],
 
       close_action: [ Enum("hide", "destroy"), "destroy" ],
 
       resizable: [ Box.Resizable, "all" ],
       movable: [ Box.Movable, "both" ],
-      symmetric: [ Boolean, false ],
+      symmetric: [ Bool, false ],
 
       top_limit: [ Box.Limit, null ],
       bottom_limit: [ Box.Limit, null ],

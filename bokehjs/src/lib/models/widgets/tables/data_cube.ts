@@ -82,10 +82,10 @@ export class GroupingInfo extends Model {
   }
 
   static {
-    this.define<GroupingInfo.Props>(({Boolean, String, Array, Ref}) => ({
-      getter:      [ String, "" ],
-      aggregators: [ Array(Ref(RowAggregator)), [] ],
-      collapsed:   [ Boolean, false ],
+    this.define<GroupingInfo.Props>(({Bool, Str, List, Ref}) => ({
+      getter:      [ Str, "" ],
+      aggregators: [ List(Ref(RowAggregator)), [] ],
+      collapsed:   [ Bool, false ],
     }))
   }
 
@@ -342,8 +342,8 @@ export class DataCube extends DataTable {
   static {
     this.prototype.default_view = DataCubeView
 
-    this.define<DataCube.Props>(({Array, Ref}) => ({
-      grouping: [ Array(Ref(GroupingInfo)), [] ],
+    this.define<DataCube.Props>(({List, Ref}) => ({
+      grouping: [ List(Ref(GroupingInfo)), [] ],
       target:   [ Ref(ColumnDataSource) ],
     }))
   }

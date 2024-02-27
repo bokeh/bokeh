@@ -122,10 +122,10 @@ export class ContourColorBar extends BaseColorBar {
   static {
     this.prototype.default_view = ContourColorBarView
 
-    this.define<ContourColorBar.Props>(({Array, Number, Ref}) => ({
+    this.define<ContourColorBar.Props>(({List, Float, Ref}) => ({
       fill_renderer: [ Ref(GlyphRenderer) ],
       line_renderer: [ Ref(GlyphRenderer) ],
-      levels:        [ Array(Number), [] ],
+      levels:        [ List(Float), [] ],
     }))
   }
 }

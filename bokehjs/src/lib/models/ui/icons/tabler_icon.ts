@@ -84,8 +84,8 @@ export class TablerIcon extends Icon {
   static {
     this.prototype.default_view = TablerIconView
 
-    this.define<TablerIcon.Props>(({String}) => ({
-      icon_name: [ String ],
+    this.define<TablerIcon.Props>(({Str}) => ({
+      icon_name: [ Str ],
     }))
   }
 }

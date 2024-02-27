@@ -67,8 +67,8 @@ export class CategoricalSlider extends AbstractSlider<string> {
   static {
     this.prototype.default_view = CategoricalSliderView
 
-    this.define<CategoricalSlider.Props>(({Array, String}) => ({
-      categories: [ Array(String) ],
+    this.define<CategoricalSlider.Props>(({List, Str}) => ({
+      categories: [ List(Str) ],
     }))
   }
 }

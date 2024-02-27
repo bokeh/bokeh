@@ -79,11 +79,11 @@ export abstract class BaseDatetimePicker extends BaseDatePicker {
   }
 
   static {
-    this.define<BaseDatetimePicker.Props>(({Boolean, Positive, Int}) => ({
+    this.define<BaseDatetimePicker.Props>(({Bool, Positive, Int}) => ({
       hour_increment: [ Positive(Int), 1 ],
       minute_increment: [ Positive(Int), 1 ],
       second_increment: [ Positive(Int), 1 ],
-      seconds: [ Boolean, false ],
+      seconds: [ Bool, false ],
       clock: [ Clock, "24h" ],
     }))
 

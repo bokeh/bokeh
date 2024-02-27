@@ -188,9 +188,9 @@ export abstract class InputWidget extends Control {
   }
 
   static {
-    this.define<InputWidget.Props>(({String, Nullable, Or, Ref}) => ({
-      title: [ Or(String, Ref(HTML)), "" ],
-      description: [ Nullable(Or(String, Ref(Tooltip))), null ],
+    this.define<InputWidget.Props>(({Str, Nullable, Or, Ref}) => ({
+      title: [ Or(Str, Ref(HTML)), "" ],
+      description: [ Nullable(Or(Str, Ref(Tooltip))), null ],
     }))
   }
 }

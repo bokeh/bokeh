@@ -59,12 +59,12 @@ export class StringFormatter extends CellFormatter {
   }
 
   static {
-    this.define<StringFormatter.Props>(({String}) => ({
+    this.define<StringFormatter.Props>(({Str}) => ({
       font_style: [ p.FontStyleSpec, {value: "normal"} ],
       text_align: [ p.TextAlignSpec, {value: "left"} ],
       text_color: [ p.ColorSpec, null ],
       background_color: [ p.ColorSpec, null ],
-      nan_format: [ String, "-"],
+      nan_format: [ Str, "-"],
     }))
   }
 
@@ -176,10 +176,10 @@ export class ScientificFormatter extends StringFormatter {
   }
 
   static {
-    this.define<ScientificFormatter.Props>(({Number}) => ({
-      precision:        [ Number, 10 ],
-      power_limit_high: [ Number, 5 ],
-      power_limit_low:  [ Number, -3 ],
+    this.define<ScientificFormatter.Props>(({Float}) => ({
+      precision:        [ Float, 10 ],
+      power_limit_high: [ Float, 5 ],
+      power_limit_low:  [ Float, -3 ],
     }))
   }
 
@@ -235,9 +235,9 @@ export class NumberFormatter extends StringFormatter {
   }
 
   static {
-    this.define<NumberFormatter.Props>(({String}) => ({
-      format:     [ String,           "0,0"   ],
-      language:   [ String,           "en"    ],
+    this.define<NumberFormatter.Props>(({Str}) => ({
+      format:     [ Str,           "0,0"   ],
+      language:   [ Str,           "en"    ],
       rounding:   [ RoundingFunction, "round" ],
 
     }))
@@ -279,8 +279,8 @@ export class BooleanFormatter extends CellFormatter {
   }
 
   static {
-    this.define<BooleanFormatter.Props>(({String}) => ({
-      icon: [ String, "check" ],
+    this.define<BooleanFormatter.Props>(({Str}) => ({
+      icon: [ Str, "check" ],
     }))
   }
 
@@ -307,8 +307,8 @@ export class DateFormatter extends StringFormatter {
   }
 
   static {
-    this.define<DateFormatter.Props>(({String}) => ({
-      format: [ String, "ISO-8601" ],
+    this.define<DateFormatter.Props>(({Str}) => ({
+      format: [ Str, "ISO-8601" ],
     }))
   }
 
@@ -392,8 +392,8 @@ export class HTMLTemplateFormatter extends CellFormatter {
   }
 
   static {
-    this.define<HTMLTemplateFormatter.Props>(({String}) => ({
-      template: [ String, "<%= value %>" ],
+    this.define<HTMLTemplateFormatter.Props>(({Str}) => ({
+      template: [ Str, "<%= value %>" ],
     }))
   }
 

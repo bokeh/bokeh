@@ -46,8 +46,8 @@ export class CheckboxButtonGroup extends ToggleButtonGroup {
   static {
     this.prototype.default_view = CheckboxButtonGroupView
 
-    this.define<CheckboxButtonGroup.Props>(({Int, Array}) => ({
-      active: [ Array(Int), [] ],
+    this.define<CheckboxButtonGroup.Props>(({Int, List}) => ({
+      active: [ List(Int), [] ],
     }))
   }
 }

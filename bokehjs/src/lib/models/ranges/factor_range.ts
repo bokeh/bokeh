@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Or, String as Str, Array as Arr, Tuple} from "core/kinds"
+import {Or, Str, List, Tuple} from "core/kinds"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import {Signal0} from "core/signaling"
@@ -17,7 +17,7 @@ export type Factor = L1Factor | L2Factor | L3Factor
 export type FactorSeq = L1Factor[] | L2Factor[] | L3Factor[]
 
 export const Factor = Or(Str, Tuple(Str, Str), Tuple(Str, Str, Str))
-export const FactorSeq = Or(Arr(Str), Arr(Tuple(Str, Str)), Arr(Tuple(Str, Str, Str)))
+export const FactorSeq = Or(List(Str), List(Tuple(Str, Str)), List(Tuple(Str, Str, Str)))
 
 export type BoxedFactor = [string] | L2Factor | L3Factor
 
@@ -136,21 +136,21 @@ export class FactorRange extends Range {
   }
 
   static {
-    this.define<FactorRange.Props>(({Number}) => ({
+    this.define<FactorRange.Props>(({Float}) => ({
       factors:             [ FactorSeq, [] ],
-      factor_padding:      [ Number, 0 ],
-      subgroup_padding:    [ Number, 0.8 ],
-      group_padding:       [ Number, 1.4 ],
-      range_padding:       [ Number, 0 ],
+      factor_padding:      [ Float, 0 ],
+      subgroup_padding:    [ Float, 0.8 ],
+      group_padding:       [ Float, 1.4 ],
+      range_padding:       [ Float, 0 ],
       range_padding_units: [ PaddingUnits, "percent" ],
-      start:               [ Number, p.unset, {readonly: true} ],
-      end:                 [ Number, p.unset, {readonly: true} ],
+      start:               [ Float, p.unset, {readonly: true} ],
+      end:                 [ Float, p.unset, {readonly: true} ],
     }))
 
-    this.internal<FactorRange.Props>(({Number, String, Array, Tuple, Nullable}) => ({
-      levels: [ Number ], // how many levels of
-      mids:   [ Nullable(Array(Tuple(String, String))), null ], // mid level factors (if 3 total levels)
-      tops:   [ Nullable(Array(String)), null ], // top level factors (whether 2 or 3 total levels)
+    this.internal<FactorRange.Props>(({Float, Str, List, Tuple, Nullable}) => ({
+      levels: [ Float ], // how many levels of
+      mids:   [ Nullable(List(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
+      tops:   [ Nullable(List(Str)), null ], // top level factors (whether 2 or 3 total levels)
     }))
   }
 

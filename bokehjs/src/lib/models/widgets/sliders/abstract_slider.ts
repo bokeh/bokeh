@@ -215,14 +215,14 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
   }
 
   static {
-    this.define<AbstractSlider.Props>(({Unknown, Boolean, String, Color, Enum, Nullable}) => {
+    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Color, Enum, Nullable}) => {
       return {
-        title:           [ Nullable(String), "" ],
-        show_value:      [ Boolean, true ],
+        title:           [ Nullable(Str), "" ],
+        show_value:      [ Bool, true ],
         value:           [ Unknown ],
         value_throttled: [ Unknown, p.unset, {readonly: true} ],
         direction:       [ Enum("ltr", "rtl"), "ltr" ],
-        tooltips:        [ Boolean, true ],
+        tooltips:        [ Bool, true ],
         bar_color:       [ Color, "#e6e6e6" ],
       }
     })

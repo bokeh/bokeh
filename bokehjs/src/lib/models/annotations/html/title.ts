@@ -140,12 +140,12 @@ export class HTMLTitle extends TextAnnotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<HTMLTitle.Props>(({Number, String}) => ({
-      text:             [ String, "" ],
+    this.define<HTMLTitle.Props>(({Float, Str}) => ({
+      text:             [ Str, "" ],
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
-      offset:           [ Number, 0 ],
-      standoff:         [ Number, 10 ],
+      offset:           [ Float, 0 ],
+      standoff:         [ Float, 10 ],
     }))
 
     this.prototype._props.text_align.options.internal = true

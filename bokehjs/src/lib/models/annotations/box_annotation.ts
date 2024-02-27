@@ -601,11 +601,11 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or, NonNegative, Positive}) => ({
-      top:          [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "top"}) ],
-      bottom:       [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "bottom"}) ],
-      left:         [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "left"}) ],
-      right:        [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "right"}) ],
+    this.define<BoxAnnotation.Props>(({Bool, Float, Ref, Or, NonNegative, Positive}) => ({
+      top:          [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "top"}) ],
+      bottom:       [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "bottom"}) ],
+      left:         [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "left"}) ],
+      right:        [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "right"}) ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
@@ -617,27 +617,27 @@ export class BoxAnnotation extends Annotation {
       left_limit:   [ Box.Limit, null ],
       right_limit:  [ Box.Limit, null ],
 
-      min_width:    [ NonNegative(Number), 0 ],
-      min_height:   [ NonNegative(Number), 0 ],
-      max_width:    [ Positive(Number), Infinity ],
-      max_height:   [ Positive(Number), Infinity ],
+      min_width:    [ NonNegative(Float), 0 ],
+      min_height:   [ NonNegative(Float), 0 ],
+      max_width:    [ Positive(Float), Infinity ],
+      max_height:   [ Positive(Float), Infinity ],
 
       border_radius: [ BorderRadius, 0 ],
 
-      editable:     [ Boolean, false ],
+      editable:     [ Bool, false ],
       resizable:    [ Box.Resizable, "all" ],
       movable:      [ Box.Movable, "both" ],
-      symmetric:    [ Boolean, false ],
+      symmetric:    [ Bool, false ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({String}) => ({
-      tl_cursor: [ String, "nwse-resize" ],
-      tr_cursor: [ String, "nesw-resize" ],
-      bl_cursor: [ String, "nesw-resize" ],
-      br_cursor: [ String, "nwse-resize" ],
-      ew_cursor: [ String, "ew-resize" ],
-      ns_cursor: [ String, "ns-resize" ],
-      in_cursor: [ String, "move" ],
+    this.internal<BoxAnnotation.Props>(({Str}) => ({
+      tl_cursor: [ Str, "nwse-resize" ],
+      tr_cursor: [ Str, "nesw-resize" ],
+      bl_cursor: [ Str, "nesw-resize" ],
+      br_cursor: [ Str, "nwse-resize" ],
+      ew_cursor: [ Str, "ew-resize" ],
+      ns_cursor: [ Str, "ns-resize" ],
+      in_cursor: [ Str, "move" ],
     }))
 
     this.override<BoxAnnotation.Props>({

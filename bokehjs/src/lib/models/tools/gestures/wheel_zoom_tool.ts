@@ -9,12 +9,12 @@ import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
 import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
-import {Enum, Array, Ref, Or, Auto} from "core/kinds"
+import {Enum, List, Ref, Or, Auto} from "core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
 type ZoomTogether = typeof ZoomTogether["__type__"]
 
-const Renderers = Or(Array(Ref(DataRenderer)), Auto)
+const Renderers = Or(List(Ref(DataRenderer)), Auto)
 type Renderers = typeof Renderers["__type__"]
 
 export class WheelZoomToolView extends GestureToolView {
@@ -210,14 +210,14 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Boolean, Number, NonNegative, Int}) => ({
+    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int}) => ({
       dimensions:     [ Dimensions, "both" ],
       renderers:      [ Renderers, "auto" ],
       level:          [ NonNegative(Int), 0 ],
-      maintain_focus: [ Boolean, true ],
-      zoom_on_axis:   [ Boolean, true ],
+      maintain_focus: [ Bool, true ],
+      zoom_on_axis:   [ Bool, true ],
       zoom_together:  [ ZoomTogether, "all" ],
-      speed:          [ Number, 1/600 ],
+      speed:          [ Float, 1/600 ],
     }))
 
     this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: "both"}))

@@ -20,13 +20,13 @@ export class Range1d extends NumericalRange {
   }
 
   static {
-    this.define<Range1d.Props>(({Number, Nullable}) => ({
-      reset_start: [ Nullable(Number), null, {
+    this.define<Range1d.Props>(({Float, Nullable}) => ({
+      reset_start: [ Nullable(Float), null, {
         on_update(reset_start, self: Range1d) {
           self._reset_start = reset_start ?? self.start
         },
       }],
-      reset_end: [ Nullable(Number), null, {
+      reset_end: [ Nullable(Float), null, {
         on_update(reset_end, self: Range1d) {
           self._reset_end = reset_end ?? self.end
         },

@@ -48,8 +48,8 @@ export class MonthsTicker extends BaseSingleIntervalTicker {
   }
 
   static {
-    this.define<MonthsTicker.Props>(({Int, Array}) => ({
-      months: [ Array(Int), [] ],
+    this.define<MonthsTicker.Props>(({Int, List}) => ({
+      months: [ List(Int), [] ],
     }))
   }
 

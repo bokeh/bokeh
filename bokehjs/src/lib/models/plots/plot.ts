@@ -135,29 +135,29 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+    this.define<Plot.Props>(({Bool, Float, Str, List, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
-      toolbar_sticky:    [ Boolean, true ],
-      toolbar_inner:     [ Boolean, false ],
+      toolbar_sticky:    [ Bool, true ],
+      toolbar_inner:     [ Bool, false ],
 
-      frame_width:       [ Nullable(Number), null ],
-      frame_height:      [ Nullable(Number), null ],
-      frame_align:       [ Or(Boolean, Struct({left: Opt(Boolean), right: Opt(Boolean), top: Opt(Boolean), bottom: Opt(Boolean)})), true ],
+      frame_width:       [ Nullable(Float), null ],
+      frame_height:      [ Nullable(Float), null ],
+      frame_align:       [ Or(Bool, Struct({left: Opt(Bool), right: Opt(Bool), top: Opt(Bool), bottom: Opt(Bool)})), true ],
 
       // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
-      title:             [ Or(Ref(Title), String, Null), "", {
+      title:             [ Or(Ref(Title), Str, Null), "", {
         convert: (title) => isString(title) ? new Title({text: title}) : title,
       }],
       title_location:    [ Nullable(Location), "above" ],
 
-      above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
-      center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
+      above:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      below:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      left:              [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      right:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
+      center:            [ List(Or(Ref(Annotation), Ref(Grid))), [] ],
 
-      renderers:         [ Array(Ref(Renderer)), [] ],
+      renderers:         [ List(Ref(Renderer)), [] ],
 
       x_range:           [ Ref(Range), () => new DataRange1d() ],
       y_range:           [ Ref(Range), () => new DataRange1d() ],
@@ -171,33 +171,33 @@ export class Plot extends LayoutDOM {
       extra_x_scales:    [ Dict(Ref(Scale)), {} ],
       extra_y_scales:    [ Dict(Ref(Scale)), {} ],
 
-      lod_factor:        [ Number, 10 ],
-      lod_interval:      [ Number, 300 ],
-      lod_threshold:     [ Nullable(Number), 2000 ],
-      lod_timeout:       [ Number, 500 ],
+      lod_factor:        [ Float, 10 ],
+      lod_interval:      [ Float, 300 ],
+      lod_threshold:     [ Nullable(Float), 2000 ],
+      lod_timeout:       [ Float, 500 ],
 
-      hidpi:             [ Boolean, true ],
+      hidpi:             [ Bool, true ],
       output_backend:    [ OutputBackend, "canvas" ],
 
-      min_border:        [ Nullable(Number), 5 ],
-      min_border_top:    [ Nullable(Number), null ],
-      min_border_left:   [ Nullable(Number), null ],
-      min_border_bottom: [ Nullable(Number), null ],
-      min_border_right:  [ Nullable(Number), null ],
+      min_border:        [ Nullable(Float), 5 ],
+      min_border_top:    [ Nullable(Float), null ],
+      min_border_left:   [ Nullable(Float), null ],
+      min_border_bottom: [ Nullable(Float), null ],
+      min_border_right:  [ Nullable(Float), null ],
 
-      inner_width:       [ Number, p.unset, {readonly: true} ],
-      inner_height:      [ Number, p.unset, {readonly: true} ],
-      outer_width:       [ Number, p.unset, {readonly: true} ],
-      outer_height:      [ Number, p.unset, {readonly: true} ],
+      inner_width:       [ Float, p.unset, {readonly: true} ],
+      inner_height:      [ Float, p.unset, {readonly: true} ],
+      outer_width:       [ Float, p.unset, {readonly: true} ],
+      outer_height:      [ Float, p.unset, {readonly: true} ],
 
-      match_aspect:      [ Boolean, false ],
-      aspect_scale:      [ Number, 1 ],
+      match_aspect:      [ Bool, false ],
+      aspect_scale:      [ Float, 1 ],
 
       reset_policy:      [ ResetPolicy, "standard" ],
 
-      hold_render:       [ Boolean, false ],
+      hold_render:       [ Bool, false ],
 
-      attribution:       [ Array(Or(String, Ref(HTML))), [] ],
+      attribution:       [ List(Or(Str, Ref(HTML))), [] ],
     }))
 
     this.override<Plot.Props>({

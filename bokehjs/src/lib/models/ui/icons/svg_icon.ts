@@ -59,8 +59,8 @@ export class SVGIcon extends Icon {
   static {
     this.prototype.default_view = SVGIconView
 
-    this.define<SVGIcon.Props>(({String}) => ({
-      svg: [ String ],
+    this.define<SVGIcon.Props>(({Str}) => ({
+      svg: [ Str ],
     }))
   }
 }

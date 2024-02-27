@@ -33,9 +33,9 @@ class SubclassWithNumberSpec extends DataAnnotation {
   static {
     this.prototype.default_view = SubclassWithNumberSpecView
 
-    this.define<SubclassWithNumberSpec.Props>(({Boolean}) => ({
+    this.define<SubclassWithNumberSpec.Props>(({Bool}) => ({
       foo: [ p.NumberSpec, {field: "colname"} ],
-      bar: [ Boolean, true ],
+      bar: [ Bool, true ],
     }))
   }
 }
@@ -65,9 +65,9 @@ class SubclassWithDistanceSpec extends DataAnnotation {
   static {
     this.prototype.default_view = SubclassWithDistanceSpecView
 
-    this.define<SubclassWithDistanceSpec.Props>(({Boolean}) => ({
+    this.define<SubclassWithDistanceSpec.Props>(({Bool}) => ({
       foo: [ p.DistanceSpec, {field: "colname"} ],
-      bar: [ Boolean, true ],
+      bar: [ Bool, true ],
     }))
   }
 }

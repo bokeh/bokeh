@@ -25,8 +25,8 @@ export class Popup extends Model implements ExecutableOf<TapToolCallback> {
   }
 
   static {
-    this.define<Popup.Props>(({String}) => ({
-      message: [ String, "" ]
+    this.define<Popup.Props>(({Str}) => ({
+      message: [ Str, "" ]
     }))
   }
 

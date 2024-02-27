@@ -111,10 +111,10 @@ describe("document/defs module", () => {
         properties: [
           {name: "prop0", kind: "Any", default: 0},
           {name: "prop1", kind: "Unknown", default: 1},
-          {name: "prop2", kind: "Boolean", default: true},
-          {name: "prop3", kind: "Number", default: 1.23},
+          {name: "prop2", kind: "Bool", default: true},
+          {name: "prop3", kind: "Float", default: 1.23},
           {name: "prop4", kind: "Int", default: 123},
-          {name: "prop5", kind: "String", default: "abc"},
+          {name: "prop5", kind: "Str", default: "abc"},
           {name: "prop6", kind: "Null", default: null},
         ],
         overrides: [
@@ -126,13 +126,13 @@ describe("document/defs module", () => {
         properties: [
           {name: "prop0", kind: ["Regex", "^[a-z][a-z0-9]*"], default: "a0"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
-          {name: "prop2", kind: ["Or", "Int", "String"], default: 1},
-          {name: "prop3", kind: ["Tuple", "Int", "String"], default: [1, "a"]},
-          {name: "prop4", kind: ["Array", "Int"], default: [0, 1, 2]},
-          {name: "prop5", kind: ["Array", ["Tuple", "Int", "String"]], default: [[0, "a"], [1, "b"], [2, "c"]]},
-          {name: "prop6", kind: ["Struct", ["name0", "Int"], ["name1", "String"]], default: {name0: 0, name1: "a"}},
+          {name: "prop2", kind: ["Or", "Int", "Str"], default: 1},
+          {name: "prop3", kind: ["Tuple", "Int", "Str"], default: [1, "a"]},
+          {name: "prop4", kind: ["List", "Int"], default: [0, 1, 2]},
+          {name: "prop5", kind: ["List", ["Tuple", "Int", "Str"]], default: [[0, "a"], [1, "b"], [2, "c"]]},
+          {name: "prop6", kind: ["Struct", ["name0", "Int"], ["name1", "Str"]], default: {name0: 0, name1: "a"}},
           {name: "prop7", kind: ["Dict", "Int"], default: {a: 0, b: 1, c: 2}},
-          {name: "prop8", kind: ["Map", ["Array", "String"], "Int"], default: new Map([[["a", "a"], 0], [["b"], 1]])},
+          {name: "prop8", kind: ["Mapping", ["List", "Str"], "Int"], default: new Map([[["a", "a"], 0], [["b"], 1]])},
           {name: "prop9", kind: ["Enum", "enum0", "enum1", "enum2"], default: "enum2"},
         ],
       }, {
@@ -145,7 +145,7 @@ describe("document/defs module", () => {
           default: {type: "object", name: "some.Some0", id: "some001", attributes: {prop2: false, prop4: 128}},
         }, {
           name: "prop11",
-          kind: ["Array", ["Ref", {id: "some.Some0"}]],
+          kind: ["List", ["Ref", {id: "some.Some0"}]],
           default: [{id: "some001"}, {type: "object", name: "some.Some0", id: "some002", attributes: {prop2: false, prop4: 129}}],
         }],
         overrides: [
@@ -156,7 +156,7 @@ describe("document/defs module", () => {
         name: "some.Some3",
         extends: {id: "ColumnDataSource"},
         properties: [
-          {name: "prop0", kind: "Number", default: 1},
+          {name: "prop0", kind: "Float", default: 1},
         ],
         overrides: [
           {name: "data", default: {default_column: [0, 1, 2]}},
@@ -166,7 +166,7 @@ describe("document/defs module", () => {
         name: "some.Some4",
         extends: {id: "some.Some3"},
         properties: [
-          {name: "prop1", kind: ["Array", "Number"], default: [0, 1, 2]},
+          {name: "prop1", kind: ["List", "Float"], default: [0, 1, 2]},
         ],
         overrides: [
           {name: "data", default: {default_column: [3, 4, 5]}},

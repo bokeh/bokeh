@@ -252,10 +252,10 @@ export class BoxZoomTool extends GestureTool {
   static {
     this.prototype.default_view = BoxZoomToolView
 
-    this.define<BoxZoomTool.Props>(({Boolean, Ref, Or, Auto}) => ({
+    this.define<BoxZoomTool.Props>(({Bool, Ref, Or, Auto}) => ({
       dimensions:   [ Or(Dimensions, Auto), "both" ],
       overlay:      [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
-      match_aspect: [ Boolean, false ],
+      match_aspect: [ Bool, false ],
       origin:       [ BoxOrigin, "corner" ],
     }))
 

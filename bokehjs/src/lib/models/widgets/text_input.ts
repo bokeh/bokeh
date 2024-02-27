@@ -60,9 +60,9 @@ export class TextInput extends TextLikeInput {
   static {
     this.prototype.default_view = TextInputView
 
-    this.define<TextInput.Props>(({String, Nullable}) => ({
-      prefix: [ Nullable(String), null ],
-      suffix: [ Nullable(String), null ],
+    this.define<TextInput.Props>(({Str, Nullable}) => ({
+      prefix: [ Nullable(Str), null ],
+      suffix: [ Nullable(Str), null ],
     }))
   }
 }

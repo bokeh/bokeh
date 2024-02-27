@@ -23,9 +23,9 @@ export class Maximum extends ScalarExpression<number> {
   }
 
   static {
-    this.define<Maximum.Props>(({Number, String}) => ({
-      field:   [ String ],
-      initial: [ Number, -Infinity ],
+    this.define<Maximum.Props>(({Float, Str}) => ({
+      field:   [ Str ],
+      initial: [ Float, -Infinity ],
     }))
   }
 

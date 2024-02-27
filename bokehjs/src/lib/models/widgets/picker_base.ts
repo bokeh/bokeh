@@ -181,10 +181,10 @@ export abstract class PickerBase extends InputWidget {
   }
 
   static {
-    this.define<PickerBase.Props>(({Boolean}) => {
+    this.define<PickerBase.Props>(({Bool}) => {
       return {
         position: [ CalendarPosition, "auto" ],
-        inline:   [ Boolean, false ],
+        inline:   [ Bool, false ],
       }
     })
   }

@@ -52,8 +52,8 @@ export class HBox extends CSSGridBox {
   static {
     this.prototype.default_view = HBoxView
 
-    this.define<HBox.Props>(({Array, Nullable}) => ({
-      children: [ Array(HBoxChild), [] ],
+    this.define<HBox.Props>(({List, Nullable}) => ({
+      children: [ List(HBoxChild), [] ],
       cols: [ Nullable(TracksSizing), null ],
     }))
   }

@@ -28,9 +28,9 @@ export class CustomJSExpr extends Expression {
   }
 
   static {
-    this.define<CustomJSExpr.Props>(({Unknown, String, Dict}) => ({
+    this.define<CustomJSExpr.Props>(({Unknown, Str, Dict}) => ({
       args: [ Dict(Unknown), {} ],
-      code: [ String, "" ],
+      code: [ Str, "" ],
     }))
   }
 

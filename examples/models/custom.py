@@ -68,10 +68,10 @@ export class MyPlot extends Plot {
   static {
     this.prototype.default_view = MyPlotView
 
-    this.define<MyPlot.Props>(({Number, String, Array}) => ({
-      gradient_angle:  [ Number, 0 ],
-      gradient_step:   [ Number, 20 ],
-      gradient_colors: [ Array(String), ["white", "lightgray"] ],
+    this.define<MyPlot.Props>(({Float, Str, List}) => ({
+      gradient_angle:  [ Float, 0 ],
+      gradient_step:   [ Float, 20 ],
+      gradient_colors: [ List(Str), ["white", "lightgray"] ],
     }))
 
     this.override<MyPlot.Props>({

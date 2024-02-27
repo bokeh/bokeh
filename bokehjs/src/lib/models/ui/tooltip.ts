@@ -392,14 +392,14 @@ export class Tooltip extends UIElement {
   static {
     this.prototype.default_view = TooltipView
 
-    this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
+    this.define<Tooltip.Props>(({Bool, Float, Str, Tuple, Or, Ref, Nullable, Auto}) => ({
       target: [ Or(Ref(UIElement), Ref(Selector), Ref(NativeNode), Auto), "auto" ],
-      position: [ Nullable(Or(Anchor, Tuple(Number, Number), Ref(Coordinate))), null ],
-      content: [ Or(String, Ref(DOMNode), Ref(UIElement), Ref(NativeNode)) ],
+      position: [ Nullable(Or(Anchor, Tuple(Float, Float), Ref(Coordinate))), null ],
+      content: [ Or(Str, Ref(DOMNode), Ref(UIElement), Ref(NativeNode)) ],
       attachment: [ Or(TooltipAttachment, Auto), "auto" ],
-      show_arrow: [ Boolean, true ],
-      closable: [ Boolean, false ],
-      interactive: [ Boolean, true ],
+      show_arrow: [ Bool, true ],
+      closable: [ Bool, false ],
+      interactive: [ Bool, true ],
     }))
 
     this.override<Tooltip.Props>({

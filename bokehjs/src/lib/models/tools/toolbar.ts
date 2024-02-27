@@ -250,11 +250,11 @@ export class ToolbarView extends UIElementView {
   }
 }
 
-import {Struct, Ref, Nullable, Array, Or} from "core/kinds"
+import {Struct, Ref, Nullable, List, Or} from "core/kinds"
 
 const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
 const GestureEntry = Struct({
-  tools: Array(GestureToolLike),
+  tools: List(GestureToolLike),
   active: Nullable(GestureToolLike),
 })
 const GesturesMap = Struct({
@@ -342,27 +342,27 @@ export class Toolbar extends UIElement {
   static {
     this.prototype.default_view = ToolbarView
 
-    this.define<Toolbar.Props>(({Boolean, Array, Or, Ref, Nullable, Auto}) => ({
-      tools:          [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
+    this.define<Toolbar.Props>(({Bool, List, Or, Ref, Nullable, Auto}) => ({
+      tools:          [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
-      autohide:       [ Boolean, false ],
+      autohide:       [ Bool, false ],
       active_drag:    [ Nullable(Or(Ref(Drag), Auto)), "auto" ],
-      active_inspect: [ Nullable(Or(Ref(Inspection), Array(Ref(Inspection)), Auto)), "auto" ],
+      active_inspect: [ Nullable(Or(Ref(Inspection), List(Ref(Inspection)), Auto)), "auto" ],
       active_scroll:  [ Nullable(Or(Ref(Scroll), Auto)), "auto" ],
       active_tap:     [ Nullable(Or(Ref(Tap), Auto)), "auto" ],
       active_multi:   [ Nullable(Or(Ref(GestureTool), Auto)), "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Null, Auto}) => {
+    this.internal<Toolbar.Props>(({List, Bool, Ref, Or, Null, Auto}) => {
       return {
-        buttons:    [ Or(Array(Or(Ref(ToolButton), Null)), Auto), "auto" ],
+        buttons:    [ Or(List(Or(Ref(ToolButton), Null)), Auto), "auto" ],
         location:   [ Location, "right" ],
-        inner:      [ Boolean, false ],
+        inner:      [ Bool, false ],
         gestures:   [ GesturesMap, create_gesture_map ],
-        actions:    [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
-        inspectors: [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
-        auxiliaries: [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
-        help:       [ Array(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
+        actions:    [ List(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
+        inspectors: [ List(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
+        auxiliaries: [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
+        help:       [ List(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
       }
     })
   }

@@ -382,11 +382,11 @@ export class TileRenderer extends Renderer {
   static {
     this.prototype.default_view = TileRendererView
 
-    this.define<TileRenderer.Props>(({Boolean, Number, Ref}) => ({
-      alpha:          [ Number, 1.0 ],
-      smoothing:      [ Boolean, true ],
+    this.define<TileRenderer.Props>(({Bool, Float, Ref}) => ({
+      alpha:          [ Float, 1.0 ],
+      smoothing:      [ Bool, true ],
       tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
-      render_parents: [ Boolean, true ],
+      render_parents: [ Bool, true ],
     }))
 
     this.override<TileRenderer.Props>({

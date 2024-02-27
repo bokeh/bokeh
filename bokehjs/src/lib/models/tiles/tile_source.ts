@@ -35,16 +35,16 @@ export abstract class TileSource extends Model {
   }
 
   static {
-    this.define<TileSource.Props>(({Number, String, Dict, Nullable /*, Null, Or, Ref*/}) => ({
-      url:                [ String, "" ],
-      tile_size:          [ Number, 256 ],
-      max_zoom:           [ Number, 30 ],
-      min_zoom:           [ Number, 0 ],
-      extra_url_vars:     [ Dict(String), {} ],
-      attribution:        [ String, ""], // Or(String, Ref(DOMElement), Null), null ],
-      x_origin_offset:    [ Number ],
-      y_origin_offset:    [ Number ],
-      initial_resolution: [ Nullable(Number), null ],
+    this.define<TileSource.Props>(({Float, Str, Dict, Nullable /*, Null, Or, Ref*/}) => ({
+      url:                [ Str, "" ],
+      tile_size:          [ Float, 256 ],
+      max_zoom:           [ Float, 30 ],
+      min_zoom:           [ Float, 0 ],
+      extra_url_vars:     [ Dict(Str), {} ],
+      attribution:        [ Str, ""], // Or(Str, Ref(DOMElement), Null), null ],
+      x_origin_offset:    [ Float ],
+      y_origin_offset:    [ Float ],
+      initial_resolution: [ Nullable(Float), null ],
     }))
   }
 

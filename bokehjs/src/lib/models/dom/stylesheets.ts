@@ -36,8 +36,8 @@ export class InlineStyleSheet extends StyleSheet {
   }
 
   static {
-    this.define<InlineStyleSheet.Props>(({String}) => ({
-      css: [ String ],
+    this.define<InlineStyleSheet.Props>(({Str}) => ({
+      css: [ Str ],
     }))
   }
 
@@ -63,8 +63,8 @@ export class ImportedStyleSheet extends StyleSheet {
   }
 
   static {
-    this.define<ImportedStyleSheet.Props>(({String}) => ({
-      url: [ String ],
+    this.define<ImportedStyleSheet.Props>(({Str}) => ({
+      url: [ Str ],
     }))
   }
 

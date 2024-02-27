@@ -161,9 +161,9 @@ export class LineEditTool extends LineTool {
 
   static {
     this.prototype.default_view = LineEditToolView
-    this.define<LineEditTool.Props>(({Array, Ref}) => ({
+    this.define<LineEditTool.Props>(({List, Ref}) => ({
       dimensions: [ Dimensions, "both" ],
-      renderers:  [ Array(Ref<GlyphRenderer & HasLineGlyph>(GlyphRenderer as any)), [] ],
+      renderers:  [ List(Ref<GlyphRenderer & HasLineGlyph>(GlyphRenderer as any)), [] ],
     }))
   }
 

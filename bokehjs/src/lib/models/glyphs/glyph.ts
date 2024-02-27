@@ -515,8 +515,8 @@ export abstract class Glyph extends Model {
   }
 
   static {
-    this.define<Glyph.Props>(({Array, Ref}) => ({
-      decorations: [ Array(Ref(Decoration)), [] ],
+    this.define<Glyph.Props>(({List, Ref}) => ({
+      decorations: [ List(Ref(Decoration)), [] ],
     }))
   }
 }

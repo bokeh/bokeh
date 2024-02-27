@@ -159,10 +159,10 @@ export abstract class ToolButton extends UIElement {
   }
 
   static {
-    this.define<ToolButton.Props>(({String, Regex, Ref, Nullable, Or}) => ({
+    this.define<ToolButton.Props>(({Str, Regex, Ref, Nullable, Or}) => ({
       tool: [ Or(Ref(Tool), Ref(ToolProxy)) ],
       icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
-      tooltip: [ Nullable(String), null ],
+      tooltip: [ Nullable(Str), null ],
     }))
   }
 }

@@ -52,8 +52,8 @@ export class VBox extends CSSGridBox {
   static {
     this.prototype.default_view = VBoxView
 
-    this.define<VBox.Props>(({Array, Nullable}) => ({
-      children: [ Array(VBoxChild), [] ],
+    this.define<VBox.Props>(({List, Nullable}) => ({
+      children: [ List(VBoxChild), [] ],
       rows: [ Nullable(TracksSizing), null ],
     }))
   }

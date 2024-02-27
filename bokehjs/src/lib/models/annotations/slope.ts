@@ -156,9 +156,9 @@ export class Slope extends Annotation {
       ["below_", mixins.Hatch],
     ])
 
-    this.define<Slope.Props>(({Number, Nullable}) => ({
-      gradient:    [ Nullable(Number), null ],
-      y_intercept: [ Nullable(Number), null ],
+    this.define<Slope.Props>(({Float, Nullable}) => ({
+      gradient:    [ Nullable(Float), null ],
+      y_intercept: [ Nullable(Float), null ],
     }))
 
     this.override<Slope.Props>({

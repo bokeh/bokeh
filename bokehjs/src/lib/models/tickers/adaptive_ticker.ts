@@ -28,11 +28,11 @@ export class AdaptiveTicker extends ContinuousTicker {
   }
 
   static {
-    this.define<AdaptiveTicker.Props>(({Number, Array, Nullable}) => ({
-      base:         [ Number, 10.0 ],
-      mantissas:    [ Array(Number), [1, 2, 5] ],
-      min_interval: [ Number, 0.0 ],
-      max_interval: [ Nullable(Number), null ],
+    this.define<AdaptiveTicker.Props>(({Float, List, Nullable}) => ({
+      base:         [ Float, 10.0 ],
+      mantissas:    [ List(Float), [1, 2, 5] ],
+      min_interval: [ Float, 0.0 ],
+      max_interval: [ Nullable(Float), null ],
     }))
   }
 

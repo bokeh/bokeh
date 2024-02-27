@@ -1,9 +1,9 @@
 import {Model} from "../../model"
 import type {PlotView} from "../plots/plot"
 import type * as p from "core/properties"
-import {Nullable, Or, Tuple, Number, Auto} from "core/kinds"
+import {Nullable, Or, Tuple, Float, Auto} from "core/kinds"
 
-const Bounds = Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto))
+const Bounds = Nullable(Or(Tuple(Nullable(Float), Nullable(Float)), Auto))
 type Bounds = typeof Bounds["__type__"]
 
 export namespace Range {
@@ -26,15 +26,15 @@ export abstract class Range extends Model {
   }
 
   static {
-    this.define<Range.Props>(({Number, Nullable}) => ({
+    this.define<Range.Props>(({Float, Nullable}) => ({
       bounds:       [ Bounds, null, {
         on_update(bounds: Bounds, obj: Range) {
           const [lower, upper] = bounds == "auto" || bounds == null ? [null, null] : bounds
           obj._computed_bounds = [lower ?? -Infinity, upper ?? Infinity]
         },
       }],
-      min_interval: [ Nullable(Number), null ],
-      max_interval: [ Nullable(Number), null ],
+      min_interval: [ Nullable(Float), null ],
+      max_interval: [ Nullable(Float), null ],
     }))
   }
 

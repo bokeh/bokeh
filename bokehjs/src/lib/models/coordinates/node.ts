@@ -67,9 +67,9 @@ export class Node extends Coordinate {
   }
 
   static {
-    this.define<Node.Props>(({String, Int}) => ({
+    this.define<Node.Props>(({Str, Int}) => ({
       target: [ NodeTarget ],
-      symbol: [ String ],
+      symbol: [ Str ],
       offset: [ Int, 0 ],
     }))
   }

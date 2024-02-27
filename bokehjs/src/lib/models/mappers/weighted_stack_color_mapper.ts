@@ -28,10 +28,10 @@ export class WeightedStackColorMapper extends StackColorMapper {
   }
 
   static {
-    this.define<WeightedStackColorMapper.Props>(({Array, Nullable, Number, Ref, String}) => ({
+    this.define<WeightedStackColorMapper.Props>(({List, Nullable, Float, Ref, Str}) => ({
       alpha_mapper:   [ Ref(ContinuousColorMapper) ],
-      color_baseline: [ Nullable(Number), null ],
-      stack_labels:   [ Nullable(Array(String)), null ],
+      color_baseline: [ Nullable(Float), null ],
+      stack_labels:   [ Nullable(List(Str)), null ],
     }))
   }
 

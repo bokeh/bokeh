@@ -130,9 +130,9 @@ export class Dropdown extends AbstractButton {
   static {
     this.prototype.default_view = DropdownView
 
-    this.define<Dropdown.Props>(({Null, Boolean, String, Array, Tuple, Or}) => ({
-      split: [ Boolean, false ],
-      menu:  [ Array(Or(String, Tuple(String, Or(String /*TODO*/)), Null)), [] ],
+    this.define<Dropdown.Props>(({Null, Bool, Str, List, Tuple, Or}) => ({
+      split: [ Bool, false ],
+      menu:  [ List(Or(Str, Tuple(Str, Or(Str /*TODO*/)), Null)), [] ],
     }))
 
     this.override<Dropdown.Props>({

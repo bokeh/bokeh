@@ -24,9 +24,9 @@ export class EqHistColorMapper extends ScanningColorMapper {
   }
 
   static {
-    this.define<EqHistColorMapper.Props>(({Boolean, Int}) => ({
+    this.define<EqHistColorMapper.Props>(({Bool, Int}) => ({
       bins:                    [ Int, 256*256 ],
-      rescale_discrete_levels: [ Boolean, false ],
+      rescale_discrete_levels: [ Bool, false ],
     }))
   }
 

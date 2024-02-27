@@ -24,8 +24,8 @@ class SomeHasProps extends HasProps {
   }
 
   static {
-    this.define<SomeHasProps.Props>(({Number}) => ({
-      prop: [ Number, 0 ],
+    this.define<SomeHasProps.Props>(({Float}) => ({
+      prop: [ Float, 0 ],
     }))
   }
 }
