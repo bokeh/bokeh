@@ -311,7 +311,7 @@ class LayoutDOM(Pane):
     @error(MIN_PREFERRED_MAX_WIDTH)
     def _check_min_preferred_max_width(self):
         min_width = self.min_width if self.min_width is not None else 0
-        width     = self.width     if self.width     is not None else min_width
+        width     = self.width     if self.width     is not None and (self.sizing_mode == "fixed" or self.width_policy == "fixed") else min_width
         max_width = self.max_width if self.max_width is not None else width
 
         if not (min_width <= width <= max_width):
@@ -320,7 +320,7 @@ class LayoutDOM(Pane):
     @error(MIN_PREFERRED_MAX_HEIGHT)
     def _check_min_preferred_max_height(self):
         min_height = self.min_height if self.min_height is not None else 0
-        height     = self.height     if self.height     is not None else min_height
+        height     = self.height     if self.height     is not None and (self.sizing_mode == "fixed" or self.height_policy == "fixed") else min_height
         max_height = self.max_height if self.max_height is not None else height
 
         if not (min_height <= height <= max_height):

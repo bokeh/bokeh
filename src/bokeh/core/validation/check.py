@@ -32,7 +32,7 @@ from typing import (
 # Bokeh imports
 from ...model import Model
 from ...settings import settings
-from ...util.dataclasses import dataclass
+from ...util.dataclasses import dataclass, field
 from .issue import Warning
 
 #-----------------------------------------------------------------------------
@@ -56,12 +56,12 @@ class ValidationIssue:
     code: int
     name: str
     text: str
-    extra: str
+    extra: str = field(default="", compare=False)
 
 @dataclass
 class ValidationIssues:
-    error: list[ValidationIssue]
-    warning: list[ValidationIssue]
+    error: list[ValidationIssue] = field(default_factory=list)
+    warning: list[ValidationIssue] = field(default_factory=list)
 
 ValidatorType = Literal["error", "warning"]
 
@@ -145,7 +145,6 @@ def check_integrity(models: Iterable[Model]) -> ValidationIssues:
 
         >>> check_integrity([empty_row])
         ValidationIssues(
-            error=[],
             warning=[
                 ValidationIssue(
                     code=1002,
@@ -157,7 +156,7 @@ def check_integrity(models: Iterable[Model]) -> ValidationIssues:
         )
 
     '''
-    issues = ValidationIssues(error=[], warning=[])
+    issues = ValidationIssues()
 
     for model in models:
         validators: list[Validator] = []
