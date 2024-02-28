@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/lib",
-  "version": "3.4.0-dev.8",
+  "version": "3.4.0-rc.1",
   "private": true,
   "description": "Internal package for bokehjs' implementation",
   "license": "BSD-3-Clause",
