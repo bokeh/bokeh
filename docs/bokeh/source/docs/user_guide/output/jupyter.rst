@@ -133,14 +133,14 @@ Required Dependencies
 Follow all the JupyterLab (not JupyterHub) instructions above, then continue by
 installing the ``jupyter-server-proxy`` package and enable the server extension as follows:
 
-   .. code:: sh
+.. code:: sh
 
-    pip install jupyter-server-proxy && jupyter serverextension enable --py jupyter-server-proxy
+    pip install jupyter-server-proxy && jupyter server extension enable --py jupyter-server-proxy
 
 If you intend to work with JupyterLab you need to install the corresponding extension,
 either from the GUI or with the following command:
 
-   .. code:: sh
+.. code:: sh
 
     jupyter labextension install @jupyterlab/server-proxy
 
@@ -151,13 +151,13 @@ If you are a JupyterHub admin you can make Bokeh work autotomatically with
 unchanged notebooks by setting an environment variable in the notebook
 environment:
 
-  .. code:: sh
+.. code:: sh
 
    export JUPYTER_BOKEH_EXTERNAL_URL="https//our-hub.science.edu"
 
 Often this is done in JupyterHub Helm chart configuration YAML like this:
 
-  .. code-block:: yaml
+.. code-block:: yaml
 
    hub:
      single_user:
@@ -177,7 +177,7 @@ assign the URL of your JupyterHub installation to the environment variable
 ``EXTERNAL_URL``. JupyterHub defaults to ``JUPYTERHUB_SERVICE_PREFIX`` in this
 case.
 
-   .. code-block:: python
+.. code-block:: python
 
     def remote_jupyter_proxy_url(port):
         """
@@ -206,7 +206,7 @@ Pass the function you defined above to the |show| function as the
 ``notebook_url`` keyword argument. Bokeh then calls this function when it sets
 up the server and creates the URL to load a graph:
 
-   .. code-block:: python
+.. code-block:: python
 
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
