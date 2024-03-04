@@ -398,775 +398,775 @@ type CSSStylesCamel = {
 }
 
 type CSSStylesDashed = {
-  "accent-color"?: string | null
-  "align-content"?: string | null
-  "align-items"?: string | null
-  "align-self"?: string | null
-  "alignment-baseline"?: string | null
-  "all"?: string | null
-  "animation"?: string | null
-  "animation-delay"?: string | null
-  "animation-direction"?: string | null
-  "animation-duration"?: string | null
-  "animation-fill-mode"?: string | null
-  "animation-iteration-count"?: string | null
-  "animation-name"?: string | null
-  "animation-play-state"?: string | null
-  "animation-timing-function"?: string | null
-  "appearance"?: string | null
-  "aspect-ratio"?: string | null
-  "backface-visibility"?: string | null
-  "background"?: string | null
-  "background-attachment"?: string | null
-  "background-blend-mode"?: string | null
-  "background-clip"?: string | null
-  "background-color"?: string | null
-  "background-image"?: string | null
-  "background-origin"?: string | null
-  "background-position"?: string | null
-  "background-position-x"?: string | null
-  "background-position-y"?: string | null
-  "background-repeat"?: string | null
-  "background-size"?: string | null
-  "baseline-shift"?: string | null
-  "block-size"?: string | null
-  "border"?: string | null
-  "border-block"?: string | null
-  "border-block-color"?: string | null
-  "border-block-end"?: string | null
-  "border-block-end-color"?: string | null
-  "border-block-end-style"?: string | null
-  "border-block-end-width"?: string | null
-  "border-block-start"?: string | null
-  "border-block-start-color"?: string | null
-  "border-block-start-style"?: string | null
-  "border-block-start-width"?: string | null
-  "border-block-style"?: string | null
-  "border-block-width"?: string | null
-  "border-bottom"?: string | null
-  "border-bottom-color"?: string | null
-  "border-bottom-left-radius"?: string | null
-  "border-bottom-right-radius"?: string | null
-  "border-bottom-style"?: string | null
-  "border-bottom-width"?: string | null
-  "border-collapse"?: string | null
-  "border-color"?: string | null
-  "border-end-end-radius"?: string | null
-  "border-end-start-radius"?: string | null
-  "border-image"?: string | null
-  "border-image-outset"?: string | null
-  "border-image-repeat"?: string | null
-  "border-image-slice"?: string | null
-  "border-image-source"?: string | null
-  "border-image-width"?: string | null
-  "border-inline"?: string | null
-  "border-inline-color"?: string | null
-  "border-inline-end"?: string | null
-  "border-inline-end-color"?: string | null
-  "border-inline-end-style"?: string | null
-  "border-inline-end-width"?: string | null
-  "border-inline-start"?: string | null
-  "border-inline-start-color"?: string | null
-  "border-inline-start-style"?: string | null
-  "border-inline-start-width"?: string | null
-  "border-inline-style"?: string | null
-  "border-inline-width"?: string | null
-  "border-left"?: string | null
-  "border-left-color"?: string | null
-  "border-left-style"?: string | null
-  "border-left-width"?: string | null
-  "border-radius"?: string | null
-  "border-right"?: string | null
-  "border-right-color"?: string | null
-  "border-right-style"?: string | null
-  "border-right-width"?: string | null
-  "border-spacing"?: string | null
-  "border-start-end-radius"?: string | null
-  "border-start-start-radius"?: string | null
-  "border-style"?: string | null
-  "border-top"?: string | null
-  "border-top-color"?: string | null
-  "border-top-left-radius"?: string | null
-  "border-top-right-radius"?: string | null
-  "border-top-style"?: string | null
-  "border-top-width"?: string | null
-  "border-width"?: string | null
-  "bottom"?: string | null
-  "box-shadow"?: string | null
-  "box-sizing"?: string | null
-  "break-after"?: string | null
-  "break-before"?: string | null
-  "break-inside"?: string | null
-  "caption-side"?: string | null
-  "caret-color"?: string | null
-  "clear"?: string | null
+  "accent-color"?: CSSStylesCamel["accentColor"]
+  "align-content"?: CSSStylesCamel["alignContent"]
+  "align-items"?: CSSStylesCamel["alignItems"]
+  "align-self"?: CSSStylesCamel["alignSelf"]
+  "alignment-baseline"?: CSSStylesCamel["alignmentBaseline"]
+  "all"?: CSSStylesCamel["all"]
+  "animation"?: CSSStylesCamel["animation"]
+  "animation-delay"?: CSSStylesCamel["animationDelay"]
+  "animation-direction"?: CSSStylesCamel["animationDirection"]
+  "animation-duration"?: CSSStylesCamel["animationDuration"]
+  "animation-fill-mode"?: CSSStylesCamel["animationFillMode"]
+  "animation-iteration-count"?: CSSStylesCamel["animationIterationCount"]
+  "animation-name"?: CSSStylesCamel["animationName"]
+  "animation-play-state"?: CSSStylesCamel["animationPlayState"]
+  "animation-timing-function"?: CSSStylesCamel["animationTimingFunction"]
+  "appearance"?: CSSStylesCamel["appearance"]
+  "aspect-ratio"?: CSSStylesCamel["aspectRatio"]
+  "backface-visibility"?: CSSStylesCamel["backfaceVisibility"]
+  "background"?: CSSStylesCamel["background"]
+  "background-attachment"?: CSSStylesCamel["backgroundAttachment"]
+  "background-blend-mode"?: CSSStylesCamel["backgroundBlendMode"]
+  "background-clip"?: CSSStylesCamel["backgroundClip"]
+  "background-color"?: CSSStylesCamel["backgroundColor"]
+  "background-image"?: CSSStylesCamel["backgroundImage"]
+  "background-origin"?: CSSStylesCamel["backgroundOrigin"]
+  "background-position"?: CSSStylesCamel["backgroundPosition"]
+  "background-position-x"?: CSSStylesCamel["backgroundPositionX"]
+  "background-position-y"?: CSSStylesCamel["backgroundPositionY"]
+  "background-repeat"?: CSSStylesCamel["backgroundRepeat"]
+  "background-size"?: CSSStylesCamel["backgroundSize"]
+  "baseline-shift"?: CSSStylesCamel["baselineShift"]
+  "block-size"?: CSSStylesCamel["blockSize"]
+  "border"?: CSSStylesCamel["border"]
+  "border-block"?: CSSStylesCamel["borderBlock"]
+  "border-block-color"?: CSSStylesCamel["borderBlockColor"]
+  "border-block-end"?: CSSStylesCamel["borderBlockEnd"]
+  "border-block-end-color"?: CSSStylesCamel["borderBlockEndColor"]
+  "border-block-end-style"?: CSSStylesCamel["borderBlockEndStyle"]
+  "border-block-end-width"?: CSSStylesCamel["borderBlockEndWidth"]
+  "border-block-start"?: CSSStylesCamel["borderBlockStart"]
+  "border-block-start-color"?: CSSStylesCamel["borderBlockStartColor"]
+  "border-block-start-style"?: CSSStylesCamel["borderBlockStartStyle"]
+  "border-block-start-width"?: CSSStylesCamel["borderBlockStartWidth"]
+  "border-block-style"?: CSSStylesCamel["borderBlockStyle"]
+  "border-block-width"?: CSSStylesCamel["borderBlockWidth"]
+  "border-bottom"?: CSSStylesCamel["borderBottom"]
+  "border-bottom-color"?: CSSStylesCamel["borderBottomColor"]
+  "border-bottom-left-radius"?: CSSStylesCamel["borderBottomLeftRadius"]
+  "border-bottom-right-radius"?: CSSStylesCamel["borderBottomRightRadius"]
+  "border-bottom-style"?: CSSStylesCamel["borderBottomStyle"]
+  "border-bottom-width"?: CSSStylesCamel["borderBottomWidth"]
+  "border-collapse"?: CSSStylesCamel["borderCollapse"]
+  "border-color"?: CSSStylesCamel["borderColor"]
+  "border-end-end-radius"?: CSSStylesCamel["borderEndEndRadius"]
+  "border-end-start-radius"?: CSSStylesCamel["borderEndStartRadius"]
+  "border-image"?: CSSStylesCamel["borderImage"]
+  "border-image-outset"?: CSSStylesCamel["borderImageOutset"]
+  "border-image-repeat"?: CSSStylesCamel["borderImageRepeat"]
+  "border-image-slice"?: CSSStylesCamel["borderImageSlice"]
+  "border-image-source"?: CSSStylesCamel["borderImageSource"]
+  "border-image-width"?: CSSStylesCamel["borderImageWidth"]
+  "border-inline"?: CSSStylesCamel["borderInline"]
+  "border-inline-color"?: CSSStylesCamel["borderInlineColor"]
+  "border-inline-end"?: CSSStylesCamel["borderInlineEnd"]
+  "border-inline-end-color"?: CSSStylesCamel["borderInlineEndColor"]
+  "border-inline-end-style"?: CSSStylesCamel["borderInlineEndStyle"]
+  "border-inline-end-width"?: CSSStylesCamel["borderInlineEndWidth"]
+  "border-inline-start"?: CSSStylesCamel["borderInlineStart"]
+  "border-inline-start-color"?: CSSStylesCamel["borderInlineStartColor"]
+  "border-inline-start-style"?: CSSStylesCamel["borderInlineStartStyle"]
+  "border-inline-start-width"?: CSSStylesCamel["borderInlineStartWidth"]
+  "border-inline-style"?: CSSStylesCamel["borderInlineStyle"]
+  "border-inline-width"?: CSSStylesCamel["borderInlineWidth"]
+  "border-left"?: CSSStylesCamel["borderLeft"]
+  "border-left-color"?: CSSStylesCamel["borderLeftColor"]
+  "border-left-style"?: CSSStylesCamel["borderLeftStyle"]
+  "border-left-width"?: CSSStylesCamel["borderLeftWidth"]
+  "border-radius"?: CSSStylesCamel["borderRadius"]
+  "border-right"?: CSSStylesCamel["borderRight"]
+  "border-right-color"?: CSSStylesCamel["borderRightColor"]
+  "border-right-style"?: CSSStylesCamel["borderRightStyle"]
+  "border-right-width"?: CSSStylesCamel["borderRightWidth"]
+  "border-spacing"?: CSSStylesCamel["borderSpacing"]
+  "border-start-end-radius"?: CSSStylesCamel["borderStartEndRadius"]
+  "border-start-start-radius"?: CSSStylesCamel["borderStartStartRadius"]
+  "border-style"?: CSSStylesCamel["borderStyle"]
+  "border-top"?: CSSStylesCamel["borderTop"]
+  "border-top-color"?: CSSStylesCamel["borderTopColor"]
+  "border-top-left-radius"?: CSSStylesCamel["borderTopLeftRadius"]
+  "border-top-right-radius"?: CSSStylesCamel["borderTopRightRadius"]
+  "border-top-style"?: CSSStylesCamel["borderTopStyle"]
+  "border-top-width"?: CSSStylesCamel["borderTopWidth"]
+  "border-width"?: CSSStylesCamel["borderWidth"]
+  "bottom"?: CSSStylesCamel["bottom"]
+  "box-shadow"?: CSSStylesCamel["boxShadow"]
+  "box-sizing"?: CSSStylesCamel["boxSizing"]
+  "break-after"?: CSSStylesCamel["breakAfter"]
+  "break-before"?: CSSStylesCamel["breakBefore"]
+  "break-inside"?: CSSStylesCamel["breakInside"]
+  "caption-side"?: CSSStylesCamel["captionSide"]
+  "caret-color"?: CSSStylesCamel["caretColor"]
+  "clear"?: CSSStylesCamel["clear"]
   /** @deprecated */
-  "clip"?: string | null
-  "clip-path"?: string | null
-  "clip-rule"?: string | null
-  "color"?: string | null
-  "color-interpolation"?: string | null
-  "color-interpolation-filters"?: string | null
-  "color-scheme"?: string | null
-  "column-count"?: string | null
-  "column-fill"?: string | null
-  "column-gap"?: string | null
-  "column-rule"?: string | null
-  "column-rule-color"?: string | null
-  "column-rule-style"?: string | null
-  "column-rule-width"?: string | null
-  "column-span"?: string | null
-  "column-width"?: string | null
-  "columns"?: string | null
-  "contain"?: string | null
-  "content"?: string | null
-  "counter-increment"?: string | null
-  "counter-reset"?: string | null
-  "counter-set"?: string | null
-  "cursor"?: string | null
-  "direction"?: string | null
-  "display"?: Display | null
-  "dominant-baseline"?: string | null
-  "empty-cells"?: string | null
-  "fill"?: string | null
-  "fill-opacity"?: string | null
-  "fill-rule"?: string | null
-  "filter"?: string | null
-  "flex"?: string | null
-  "flex-basis"?: string | null
-  "flex-direction"?: FlexDirection | null
-  "flex-flow"?: string | null
-  "flex-grow"?: string | null
-  "flex-shrink"?: string | null
-  "flex-wrap"?: string | null
-  "float"?: string | null
-  "flood-color"?: string | null
-  "flood-opacity"?: string | null
-  "font"?: string | null
-  "font-family"?: string | null
-  "font-feature-settings"?: string | null
-  "font-kerning"?: string | null
-  "font-optical-sizing"?: string | null
-  "font-size"?: string | null
-  "font-size-adjust"?: string | null
-  "font-stretch"?: string | null
-  "font-style"?: string | null
-  "font-synthesis"?: string | null
-  "font-variant"?: string | null
+  "clip"?: CSSStylesCamel["clip"]
+  "clip-path"?: CSSStylesCamel["clipPath"]
+  "clip-rule"?: CSSStylesCamel["clipRule"]
+  "color"?: CSSStylesCamel["color"]
+  "color-interpolation"?: CSSStylesCamel["colorInterpolation"]
+  "color-interpolation-filters"?: CSSStylesCamel["colorInterpolationFilters"]
+  "color-scheme"?: CSSStylesCamel["colorScheme"]
+  "column-count"?: CSSStylesCamel["columnCount"]
+  "column-fill"?: CSSStylesCamel["columnFill"]
+  "column-gap"?: CSSStylesCamel["columnGap"]
+  "column-rule"?: CSSStylesCamel["columnRule"]
+  "column-rule-color"?: CSSStylesCamel["columnRuleColor"]
+  "column-rule-style"?: CSSStylesCamel["columnRuleStyle"]
+  "column-rule-width"?: CSSStylesCamel["columnRuleWidth"]
+  "column-span"?: CSSStylesCamel["columnSpan"]
+  "column-width"?: CSSStylesCamel["columnWidth"]
+  "columns"?: CSSStylesCamel["columns"]
+  "contain"?: CSSStylesCamel["contain"]
+  "content"?: CSSStylesCamel["content"]
+  "counter-increment"?: CSSStylesCamel["counterIncrement"]
+  "counter-reset"?: CSSStylesCamel["counterReset"]
+  "counter-set"?: CSSStylesCamel["counterSet"]
+  "cursor"?: CSSStylesCamel["cursor"]
+  "direction"?: CSSStylesCamel["direction"]
+  "display"?: CSSStylesCamel["display"]
+  "dominant-baseline"?: CSSStylesCamel["dominantBaseline"]
+  "empty-cells"?: CSSStylesCamel["emptyCells"]
+  "fill"?: CSSStylesCamel["fill"]
+  "fill-opacity"?: CSSStylesCamel["fillOpacity"]
+  "fill-rule"?: CSSStylesCamel["fillRule"]
+  "filter"?: CSSStylesCamel["filter"]
+  "flex"?: CSSStylesCamel["flex"]
+  "flex-basis"?: CSSStylesCamel["flexBasis"]
+  "flex-direction"?: CSSStylesCamel["flexDirection"]
+  "flex-flow"?: CSSStylesCamel["flexFlow"]
+  "flex-grow"?: CSSStylesCamel["flexGrow"]
+  "flex-shrink"?: CSSStylesCamel["flexShrink"]
+  "flex-wrap"?: CSSStylesCamel["flexWrap"]
+  "float"?: CSSStylesCamel["float"]
+  "flood-color"?: CSSStylesCamel["floodColor"]
+  "flood-opacity"?: CSSStylesCamel["floodOpacity"]
+  "font"?: CSSStylesCamel["font"]
+  "font-family"?: CSSStylesCamel["fontFamily"]
+  "font-feature-settings"?: CSSStylesCamel["fontFeatureSettings"]
+  "font-kerning"?: CSSStylesCamel["fontKerning"]
+  "font-optical-sizing"?: CSSStylesCamel["fontOpticalSizing"]
+  "font-size"?: CSSStylesCamel["fontSize"]
+  "font-size-adjust"?: CSSStylesCamel["fontSizeAdjust"]
+  "font-stretch"?: CSSStylesCamel["fontStretch"]
+  "font-style"?: CSSStylesCamel["fontStyle"]
+  "font-synthesis"?: CSSStylesCamel["fontSynthesis"]
+  "font-variant"?: CSSStylesCamel["fontVariant"]
   /** @deprecated */
-  "font-variant-alternates"?: string | null
-  "font-variant-caps"?: string | null
-  "font-variant-east-asian"?: string | null
-  "font-variant-ligatures"?: string | null
-  "font-variant-numeric"?: string | null
-  "font-variant-position"?: string | null
-  "font-variation-settings"?: string | null
-  "font-weight"?: string | null
-  "gap"?: string | null
-  "grid"?: string | null
-  "grid-area"?: string | null
-  "grid-auto-columns"?: string | null
-  "grid-auto-flow"?: string | null
-  "grid-auto-rows"?: string | null
-  "grid-column"?: string | null
-  "grid-column-end"?: string | null
+  "font-variant-alternates"?: CSSStylesCamel["fontVariantAlternates"]
+  "font-variant-caps"?: CSSStylesCamel["fontVariantCaps"]
+  "font-variant-east-asian"?: CSSStylesCamel["fontVariantEastAsian"]
+  "font-variant-ligatures"?: CSSStylesCamel["fontVariantLigatures"]
+  "font-variant-numeric"?: CSSStylesCamel["fontVariantNumeric"]
+  "font-variant-position"?: CSSStylesCamel["fontVariantPosition"]
+  "font-variation-settings"?: CSSStylesCamel["fontVariationSettings"]
+  "font-weight"?: CSSStylesCamel["fontWeight"]
+  "gap"?: CSSStylesCamel["gap"]
+  "grid"?: CSSStylesCamel["grid"]
+  "grid-area"?: CSSStylesCamel["gridArea"]
+  "grid-auto-columns"?: CSSStylesCamel["gridAutoColumns"]
+  "grid-auto-flow"?: CSSStylesCamel["gridAutoFlow"]
+  "grid-auto-rows"?: CSSStylesCamel["gridAutoRows"]
+  "grid-column"?: CSSStylesCamel["gridColumn"]
+  "grid-column-end"?: CSSStylesCamel["gridColumnEnd"]
   /** @deprecated This is a legacy alias of `column-gap`. */
-  "grid-column-gap"?: string | null
-  "grid-column-start"?: string | null
+  "grid-column-gap"?: CSSStylesCamel["gridColumnGap"]
+  "grid-column-start"?: CSSStylesCamel["gridColumnStart"]
   /** @deprecated This is a legacy alias of `gap`. */
-  "grid-gap"?: string | null
-  "grid-row"?: string | null
-  "grid-row-end"?: string | null
+  "grid-gap"?: CSSStylesCamel["gridGap"]
+  "grid-row"?: CSSStylesCamel["gridRow"]
+  "grid-row-end"?: CSSStylesCamel["gridRowEnd"]
   /** @deprecated This is a legacy alias of `row-gap`. */
-  "grid-row-gap"?: string | null
-  "grid-row-start"?: string | null
-  "grid-template"?: string | null
-  "grid-template-areas"?: string | null
-  "grid-template-columns"?: string | null
-  "grid-template-rows"?: string | null
-  "height"?: string | null
-  "hyphens"?: string | null
+  "grid-row-gap"?: CSSStylesCamel["gridRowGap"]
+  "grid-row-start"?: CSSStylesCamel["gridRowStart"]
+  "grid-template"?: CSSStylesCamel["gridTemplate"]
+  "grid-template-areas"?: CSSStylesCamel["gridTemplateAreas"]
+  "grid-template-columns"?: CSSStylesCamel["gridTemplateColumns"]
+  "grid-template-rows"?: CSSStylesCamel["gridTemplateRows"]
+  "height"?: CSSStylesCamel["height"]
+  "hyphens"?: CSSStylesCamel["hyphens"]
   /** @deprecated */
-  "image-orientation"?: string | null
-  "image-rendering"?: string | null
-  "inline-size"?: string | null
-  "inset"?: string | null
-  "inset-block"?: string | null
-  "inset-block-end"?: string | null
-  "inset-block-start"?: string | null
-  "inset-inline"?: string | null
-  "inset-inline-end"?: string | null
-  "inset-inline-start"?: string | null
-  "isolation"?: string | null
-  "justify-content"?: string | null
-  "justify-items"?: string | null
-  "justify-self"?: string | null
-  "left"?: string | null
-  "letter-spacing"?: string | null
-  "lighting-color"?: string | null
-  "line-break"?: string | null
-  "line-height"?: string | null
-  "list-style"?: string | null
-  "list-style-image"?: string | null
-  "list-style-position"?: string | null
-  "list-style-type"?: string | null
-  "margin"?: string | null
-  "margin-block"?: string | null
-  "margin-block-end"?: string | null
-  "margin-block-start"?: string | null
-  "margin-bottom"?: string | null
-  "margin-inline"?: string | null
-  "margin-inline-end"?: string | null
-  "margin-inline-start"?: string | null
-  "margin-left"?: string | null
-  "margin-right"?: string | null
-  "margin-top"?: string | null
-  "marker"?: string | null
-  "marker-end"?: string | null
-  "marker-mid"?: string | null
-  "marker-start"?: string | null
-  "mask"?: string | null
-  "mask-type"?: string | null
-  "max-block-size"?: string | null
-  "max-height"?: string | null
-  "max-inline-size"?: string | null
-  "max-width"?: string | null
-  "min-block-size"?: string | null
-  "min-height"?: string | null
-  "min-inline-size"?: string | null
-  "min-width"?: string | null
-  "mix-blend-mode"?: string | null
-  "object-fit"?: string | null
-  "object-position"?: string | null
-  "offset"?: string | null
-  "offset-anchor"?: string | null
-  "offset-distance"?: string | null
-  "offset-path"?: string | null
-  "offset-rotate"?: string | null
-  "opacity"?: string | null
-  "order"?: string | null
-  "orphans"?: string | null
-  "outline"?: string | null
-  "outline-color"?: string | null
-  "outline-offset"?: string | null
-  "outline-style"?: string | null
-  "outline-width"?: string | null
-  "overflow"?: string | null
-  "overflow-anchor"?: string | null
-  "overflow-wrap"?: string | null
-  "overflow-x"?: string | null
-  "overflow-y"?: string | null
-  "overscroll-behavior"?: string | null
-  "overscroll-behavior-block"?: string | null
-  "overscroll-behavior-inline"?: string | null
-  "overscroll-behavior-x"?: string | null
-  "overscroll-behavior-y"?: string | null
-  "padding"?: string | null
-  "padding-block"?: string | null
-  "padding-block-end"?: string | null
-  "padding-block-start"?: string | null
-  "padding-bottom"?: string | null
-  "padding-inline"?: string | null
-  "padding-inline-end"?: string | null
-  "padding-inline-start"?: string | null
-  "padding-left"?: string | null
-  "padding-right"?: string | null
-  "padding-top"?: string | null
-  "page-break-after"?: string | null
-  "page-break-before"?: string | null
-  "page-break-inside"?: string | null
-  "paint-order"?: string | null
-  "perspective"?: string | null
-  "perspective-origin"?: string | null
-  "place-content"?: string | null
-  "place-items"?: string | null
-  "place-self"?: string | null
-  "pointer-events"?: string | null
-  "position"?: Position | null
-  "quotes"?: string | null
-  "resize"?: string | null
-  "right"?: string | null
-  "rotate"?: string | null
-  "row-gap"?: string | null
-  "ruby-position"?: string | null
-  "scale"?: string | null
-  "scroll-behavior"?: string | null
-  "scroll-margin"?: string | null
-  "scroll-margin-block"?: string | null
-  "scroll-margin-block-end"?: string | null
-  "scroll-margin-block-start"?: string | null
-  "scroll-margin-bottom"?: string | null
-  "scroll-margin-inline"?: string | null
-  "scroll-margin-inline-end"?: string | null
-  "scroll-margin-inline-start"?: string | null
-  "scroll-margin-left"?: string | null
-  "scroll-margin-right"?: string | null
-  "scroll-margin-top"?: string | null
-  "scroll-padding"?: string | null
-  "scroll-padding-block"?: string | null
-  "scroll-padding-block-end"?: string | null
-  "scroll-padding-block-start"?: string | null
-  "scroll-padding-bottom"?: string | null
-  "scroll-padding-inline"?: string | null
-  "scroll-padding-inline-end"?: string | null
-  "scroll-padding-inline-start"?: string | null
-  "scroll-padding-left"?: string | null
-  "scroll-padding-right"?: string | null
-  "scroll-padding-top"?: string | null
-  "scroll-snap-align"?: string | null
-  "scroll-snap-stop"?: string | null
-  "scroll-snap-type"?: string | null
-  "scrollbar-gutter"?: string | null
-  "shape-image-threshold"?: string | null
-  "shape-margin"?: string | null
-  "shape-outside"?: string | null
-  "shape-rendering"?: string | null
-  "stop-color"?: string | null
-  "stop-opacity"?: string | null
-  "stroke"?: string | null
-  "stroke-dasharray"?: string | null
-  "stroke-dashoffset"?: string | null
-  "stroke-linecap"?: string | null
-  "stroke-linejoin"?: string | null
-  "stroke-miterlimit"?: string | null
-  "stroke-opacity"?: string | null
-  "stroke-width"?: string | null
-  "tab-size"?: string | null
-  "table-layout"?: string | null
-  "text-align"?: string | null
-  "text-align-last"?: string | null
-  "text-anchor"?: string | null
-  "text-combine-upright"?: string | null
-  "text-decoration"?: string | null
-  "text-decoration-color"?: string | null
-  "text-decoration-line"?: string | null
-  "text-decoration-skip-ink"?: string | null
-  "text-decoration-style"?: string | null
-  "text-decoration-thickness"?: string | null
-  "text-emphasis"?: string | null
-  "text-emphasis-color"?: string | null
-  "text-emphasis-position"?: string | null
-  "text-emphasis-style"?: string | null
-  "text-indent"?: string | null
-  "text-orientation"?: string | null
-  "text-overflow"?: string | null
-  "text-rendering"?: string | null
-  "text-shadow"?: string | null
-  "text-transform"?: string | null
-  "text-underline-offset"?: string | null
-  "text-underline-position"?: string | null
-  "top"?: string | null
-  "touch-action"?: string | null
-  "transform"?: string | null
-  "transform-box"?: string | null
-  "transform-origin"?: string | null
-  "transform-style"?: string | null
-  "transition"?: string | null
-  "transition-delay"?: string | null
-  "transition-duration"?: string | null
-  "transition-property"?: string | null
-  "transition-timing-function"?: string | null
-  "translate"?: string | null
-  "unicode-bidi"?: string | null
-  "user-select"?: string | null
-  "vertical-align"?: string | null
-  "visibility"?: string | null
-  "white-space"?: string | null
-  "widows"?: string | null
-  "width"?: string | null
-  "will-change"?: string | null
-  "word-break"?: string | null
-  "word-spacing"?: string | null
+  "image-orientation"?: CSSStylesCamel["imageOrientation"]
+  "image-rendering"?: CSSStylesCamel["imageRendering"]
+  "inline-size"?: CSSStylesCamel["inlineSize"]
+  "inset"?: CSSStylesCamel["inset"]
+  "inset-block"?: CSSStylesCamel["insetBlock"]
+  "inset-block-end"?: CSSStylesCamel["insetBlockEnd"]
+  "inset-block-start"?: CSSStylesCamel["insetBlockStart"]
+  "inset-inline"?: CSSStylesCamel["insetInline"]
+  "inset-inline-end"?: CSSStylesCamel["insetInlineEnd"]
+  "inset-inline-start"?: CSSStylesCamel["insetInlineStart"]
+  "isolation"?: CSSStylesCamel["isolation"]
+  "justify-content"?: CSSStylesCamel["justifyContent"]
+  "justify-items"?: CSSStylesCamel["justifyItems"]
+  "justify-self"?: CSSStylesCamel["justifySelf"]
+  "left"?: CSSStylesCamel["left"]
+  "letter-spacing"?: CSSStylesCamel["letterSpacing"]
+  "lighting-color"?: CSSStylesCamel["lightingColor"]
+  "line-break"?: CSSStylesCamel["lineBreak"]
+  "line-height"?: CSSStylesCamel["lineHeight"]
+  "list-style"?: CSSStylesCamel["listStyle"]
+  "list-style-image"?: CSSStylesCamel["listStyleImage"]
+  "list-style-position"?: CSSStylesCamel["listStylePosition"]
+  "list-style-type"?: CSSStylesCamel["listStyleType"]
+  "margin"?: CSSStylesCamel["margin"]
+  "margin-block"?: CSSStylesCamel["marginBlock"]
+  "margin-block-end"?: CSSStylesCamel["marginBlockEnd"]
+  "margin-block-start"?: CSSStylesCamel["marginBlockStart"]
+  "margin-bottom"?: CSSStylesCamel["marginBottom"]
+  "margin-inline"?: CSSStylesCamel["marginInline"]
+  "margin-inline-end"?: CSSStylesCamel["marginInlineEnd"]
+  "margin-inline-start"?: CSSStylesCamel["marginInlineStart"]
+  "margin-left"?: CSSStylesCamel["marginLeft"]
+  "margin-right"?: CSSStylesCamel["marginRight"]
+  "margin-top"?: CSSStylesCamel["marginTop"]
+  "marker"?: CSSStylesCamel["marker"]
+  "marker-end"?: CSSStylesCamel["markerEnd"]
+  "marker-mid"?: CSSStylesCamel["markerMid"]
+  "marker-start"?: CSSStylesCamel["markerStart"]
+  "mask"?: CSSStylesCamel["mask"]
+  "mask-type"?: CSSStylesCamel["maskType"]
+  "max-block-size"?: CSSStylesCamel["maxBlockSize"]
+  "max-height"?: CSSStylesCamel["maxHeight"]
+  "max-inline-size"?: CSSStylesCamel["maxInlineSize"]
+  "max-width"?: CSSStylesCamel["maxWidth"]
+  "min-block-size"?: CSSStylesCamel["minBlockSize"]
+  "min-height"?: CSSStylesCamel["minHeight"]
+  "min-inline-size"?: CSSStylesCamel["minInlineSize"]
+  "min-width"?: CSSStylesCamel["minWidth"]
+  "mix-blend-mode"?: CSSStylesCamel["mixBlendMode"]
+  "object-fit"?: CSSStylesCamel["objectFit"]
+  "object-position"?: CSSStylesCamel["objectPosition"]
+  "offset"?: CSSStylesCamel["offset"]
+  "offset-anchor"?: CSSStylesCamel["offsetAnchor"]
+  "offset-distance"?: CSSStylesCamel["offsetDistance"]
+  "offset-path"?: CSSStylesCamel["offsetPath"]
+  "offset-rotate"?: CSSStylesCamel["offsetRotate"]
+  "opacity"?: CSSStylesCamel["opacity"]
+  "order"?: CSSStylesCamel["order"]
+  "orphans"?: CSSStylesCamel["orphans"]
+  "outline"?: CSSStylesCamel["outline"]
+  "outline-color"?: CSSStylesCamel["outlineColor"]
+  "outline-offset"?: CSSStylesCamel["outlineOffset"]
+  "outline-style"?: CSSStylesCamel["outlineStyle"]
+  "outline-width"?: CSSStylesCamel["outlineWidth"]
+  "overflow"?: CSSStylesCamel["overflow"]
+  "overflow-anchor"?: CSSStylesCamel["overflowAnchor"]
+  "overflow-wrap"?: CSSStylesCamel["overflowWrap"]
+  "overflow-x"?: CSSStylesCamel["overflowX"]
+  "overflow-y"?: CSSStylesCamel["overflowY"]
+  "overscroll-behavior"?: CSSStylesCamel["overscrollBehavior"]
+  "overscroll-behavior-block"?: CSSStylesCamel["overscrollBehaviorBlock"]
+  "overscroll-behavior-inline"?: CSSStylesCamel["overscrollBehaviorInline"]
+  "overscroll-behavior-x"?: CSSStylesCamel["overscrollBehaviorX"]
+  "overscroll-behavior-y"?: CSSStylesCamel["overscrollBehaviorY"]
+  "padding"?: CSSStylesCamel["padding"]
+  "padding-block"?: CSSStylesCamel["paddingBlock"]
+  "padding-block-end"?: CSSStylesCamel["paddingBlockEnd"]
+  "padding-block-start"?: CSSStylesCamel["paddingBlockStart"]
+  "padding-bottom"?: CSSStylesCamel["paddingBottom"]
+  "padding-inline"?: CSSStylesCamel["paddingInline"]
+  "padding-inline-end"?: CSSStylesCamel["paddingInlineEnd"]
+  "padding-inline-start"?: CSSStylesCamel["paddingInlineStart"]
+  "padding-left"?: CSSStylesCamel["paddingLeft"]
+  "padding-right"?: CSSStylesCamel["paddingRight"]
+  "padding-top"?: CSSStylesCamel["paddingTop"]
+  "page-break-after"?: CSSStylesCamel["pageBreakAfter"]
+  "page-break-before"?: CSSStylesCamel["pageBreakBefore"]
+  "page-break-inside"?: CSSStylesCamel["pageBreakInside"]
+  "paint-order"?: CSSStylesCamel["paintOrder"]
+  "perspective"?: CSSStylesCamel["perspective"]
+  "perspective-origin"?: CSSStylesCamel["perspectiveOrigin"]
+  "place-content"?: CSSStylesCamel["placeContent"]
+  "place-items"?: CSSStylesCamel["placeItems"]
+  "place-self"?: CSSStylesCamel["placeSelf"]
+  "pointer-events"?: CSSStylesCamel["pointerEvents"]
+  "position"?: CSSStylesCamel["position"]
+  "quotes"?: CSSStylesCamel["quotes"]
+  "resize"?: CSSStylesCamel["resize"]
+  "right"?: CSSStylesCamel["right"]
+  "rotate"?: CSSStylesCamel["rotate"]
+  "row-gap"?: CSSStylesCamel["rowGap"]
+  "ruby-position"?: CSSStylesCamel["rubyPosition"]
+  "scale"?: CSSStylesCamel["scale"]
+  "scroll-behavior"?: CSSStylesCamel["scrollBehavior"]
+  "scroll-margin"?: CSSStylesCamel["scrollMargin"]
+  "scroll-margin-block"?: CSSStylesCamel["scrollMarginBlock"]
+  "scroll-margin-block-end"?: CSSStylesCamel["scrollMarginBlockEnd"]
+  "scroll-margin-block-start"?: CSSStylesCamel["scrollMarginBlockStart"]
+  "scroll-margin-bottom"?: CSSStylesCamel["scrollMarginBottom"]
+  "scroll-margin-inline"?: CSSStylesCamel["scrollMarginInline"]
+  "scroll-margin-inline-end"?: CSSStylesCamel["scrollMarginInlineEnd"]
+  "scroll-margin-inline-start"?: CSSStylesCamel["scrollMarginInlineStart"]
+  "scroll-margin-left"?: CSSStylesCamel["scrollMarginLeft"]
+  "scroll-margin-right"?: CSSStylesCamel["scrollMarginRight"]
+  "scroll-margin-top"?: CSSStylesCamel["scrollMarginTop"]
+  "scroll-padding"?: CSSStylesCamel["scrollPadding"]
+  "scroll-padding-block"?: CSSStylesCamel["scrollPaddingBlock"]
+  "scroll-padding-block-end"?: CSSStylesCamel["scrollPaddingBlockEnd"]
+  "scroll-padding-block-start"?: CSSStylesCamel["scrollPaddingBlockStart"]
+  "scroll-padding-bottom"?: CSSStylesCamel["scrollPaddingBottom"]
+  "scroll-padding-inline"?: CSSStylesCamel["scrollPaddingInline"]
+  "scroll-padding-inline-end"?: CSSStylesCamel["scrollPaddingInlineEnd"]
+  "scroll-padding-inline-start"?: CSSStylesCamel["scrollPaddingInlineStart"]
+  "scroll-padding-left"?: CSSStylesCamel["scrollPaddingLeft"]
+  "scroll-padding-right"?: CSSStylesCamel["scrollPaddingRight"]
+  "scroll-padding-top"?: CSSStylesCamel["scrollPaddingTop"]
+  "scroll-snap-align"?: CSSStylesCamel["scrollSnapAlign"]
+  "scroll-snap-stop"?: CSSStylesCamel["scrollSnapStop"]
+  "scroll-snap-type"?: CSSStylesCamel["scrollSnapType"]
+  "scrollbar-gutter"?: CSSStylesCamel["scrollbarGutter"]
+  "shape-image-threshold"?: CSSStylesCamel["shapeImageThreshold"]
+  "shape-margin"?: CSSStylesCamel["shapeMargin"]
+  "shape-outside"?: CSSStylesCamel["shapeOutside"]
+  "shape-rendering"?: CSSStylesCamel["shapeRendering"]
+  "stop-color"?: CSSStylesCamel["stopColor"]
+  "stop-opacity"?: CSSStylesCamel["stopOpacity"]
+  "stroke"?: CSSStylesCamel["stroke"]
+  "stroke-dasharray"?: CSSStylesCamel["strokeDasharray"]
+  "stroke-dashoffset"?: CSSStylesCamel["strokeDashoffset"]
+  "stroke-linecap"?: CSSStylesCamel["strokeLinecap"]
+  "stroke-linejoin"?: CSSStylesCamel["strokeLinejoin"]
+  "stroke-miterlimit"?: CSSStylesCamel["strokeMiterlimit"]
+  "stroke-opacity"?: CSSStylesCamel["strokeOpacity"]
+  "stroke-width"?: CSSStylesCamel["strokeWidth"]
+  "tab-size"?: CSSStylesCamel["tabSize"]
+  "table-layout"?: CSSStylesCamel["tableLayout"]
+  "text-align"?: CSSStylesCamel["textAlign"]
+  "text-align-last"?: CSSStylesCamel["textAlignLast"]
+  "text-anchor"?: CSSStylesCamel["textAnchor"]
+  "text-combine-upright"?: CSSStylesCamel["textCombineUpright"]
+  "text-decoration"?: CSSStylesCamel["textDecoration"]
+  "text-decoration-color"?: CSSStylesCamel["textDecorationColor"]
+  "text-decoration-line"?: CSSStylesCamel["textDecorationLine"]
+  "text-decoration-skip-ink"?: CSSStylesCamel["textDecorationSkipInk"]
+  "text-decoration-style"?: CSSStylesCamel["textDecorationStyle"]
+  "text-decoration-thickness"?: CSSStylesCamel["textDecorationThickness"]
+  "text-emphasis"?: CSSStylesCamel["textEmphasis"]
+  "text-emphasis-color"?: CSSStylesCamel["textEmphasisColor"]
+  "text-emphasis-position"?: CSSStylesCamel["textEmphasisPosition"]
+  "text-emphasis-style"?: CSSStylesCamel["textEmphasisStyle"]
+  "text-indent"?: CSSStylesCamel["textIndent"]
+  "text-orientation"?: CSSStylesCamel["textOrientation"]
+  "text-overflow"?: CSSStylesCamel["textOverflow"]
+  "text-rendering"?: CSSStylesCamel["textRendering"]
+  "text-shadow"?: CSSStylesCamel["textShadow"]
+  "text-transform"?: CSSStylesCamel["textTransform"]
+  "text-underline-offset"?: CSSStylesCamel["textUnderlineOffset"]
+  "text-underline-position"?: CSSStylesCamel["textUnderlinePosition"]
+  "top"?: CSSStylesCamel["top"]
+  "touch-action"?: CSSStylesCamel["touchAction"]
+  "transform"?: CSSStylesCamel["transform"]
+  "transform-box"?: CSSStylesCamel["transformBox"]
+  "transform-origin"?: CSSStylesCamel["transformOrigin"]
+  "transform-style"?: CSSStylesCamel["transformStyle"]
+  "transition"?: CSSStylesCamel["transition"]
+  "transition-delay"?: CSSStylesCamel["transitionDelay"]
+  "transition-duration"?: CSSStylesCamel["transitionDuration"]
+  "transition-property"?: CSSStylesCamel["transitionProperty"]
+  "transition-timing-function"?: CSSStylesCamel["transitionTimingFunction"]
+  "translate"?: CSSStylesCamel["translate"]
+  "unicode-bidi"?: CSSStylesCamel["unicodeBidi"]
+  "user-select"?: CSSStylesCamel["userSelect"]
+  "vertical-align"?: CSSStylesCamel["verticalAlign"]
+  "visibility"?: CSSStylesCamel["visibility"]
+  "white-space"?: CSSStylesCamel["whiteSpace"]
+  "widows"?: CSSStylesCamel["widows"]
+  "width"?: CSSStylesCamel["width"]
+  "will-change"?: CSSStylesCamel["willChange"]
+  "word-break"?: CSSStylesCamel["wordBreak"]
+  "word-spacing"?: CSSStylesCamel["wordSpacing"]
   /** @deprecated */
-  "word-wrap"?: string | null
-  "writing-mode"?: string | null
-  "z-index"?: string | null
+  "word-wrap"?: CSSStylesCamel["wordWrap"]
+  "writing-mode"?: CSSStylesCamel["writingMode"]
+  "z-index"?: CSSStylesCamel["zIndex"]
 }
 
 type CSSStylesSnake = {
-  accent_color?: string | null
-  align_content?: string | null
-  align_items?: string | null
-  align_self?: string | null
-  alignment_baseline?: string | null
-  all?: string | null
-  animation?: string | null
-  animation_delay?: string | null
-  animation_direction?: string | null
-  animation_duration?: string | null
-  animation_fill_mode?: string | null
-  animation_iteration_count?: string | null
-  animation_name?: string | null
-  animation_play_state?: string | null
-  animation_timing_function?: string | null
-  appearance?: string | null
-  aspect_ratio?: string | null
-  backface_visibility?: string | null
-  background?: string | null
-  background_attachment?: string | null
-  background_blend_mode?: string | null
-  background_clip?: string | null
-  background_color?: string | null
-  background_image?: string | null
-  background_origin?: string | null
-  background_position?: string | null
-  background_position_x?: string | null
-  background_position_y?: string | null
-  background_repeat?: string | null
-  background_size?: string | null
-  baseline_shift?: string | null
-  block_size?: string | null
-  border?: string | null
-  border_block?: string | null
-  border_block_color?: string | null
-  border_block_end?: string | null
-  border_block_end_color?: string | null
-  border_block_end_style?: string | null
-  border_block_end_width?: string | null
-  border_block_start?: string | null
-  border_block_start_color?: string | null
-  border_block_start_style?: string | null
-  border_block_start_width?: string | null
-  border_block_style?: string | null
-  border_block_width?: string | null
-  border_bottom?: string | null
-  border_bottom_color?: string | null
-  border_bottom_left_radius?: string | null
-  border_bottom_right_radius?: string | null
-  border_bottom_style?: string | null
-  border_bottom_width?: string | null
-  border_collapse?: string | null
-  border_color?: string | null
-  border_end_end_radius?: string | null
-  border_end_start_radius?: string | null
-  border_image?: string | null
-  border_image_outset?: string | null
-  border_image_repeat?: string | null
-  border_image_slice?: string | null
-  border_image_source?: string | null
-  border_image_width?: string | null
-  border_inline?: string | null
-  border_inline_color?: string | null
-  border_inline_end?: string | null
-  border_inline_end_color?: string | null
-  border_inline_end_style?: string | null
-  border_inline_end_width?: string | null
-  border_inline_start?: string | null
-  border_inline_start_color?: string | null
-  border_inline_start_style?: string | null
-  border_inline_start_width?: string | null
-  border_inline_style?: string | null
-  border_inline_width?: string | null
-  border_left?: string | null
-  border_left_color?: string | null
-  border_left_style?: string | null
-  border_left_width?: string | null
-  border_radius?: string | null
-  border_right?: string | null
-  border_right_color?: string | null
-  border_right_style?: string | null
-  border_right_width?: string | null
-  border_spacing?: string | null
-  border_start_end_radius?: string | null
-  border_start_start_radius?: string | null
-  border_style?: string | null
-  border_top?: string | null
-  border_top_color?: string | null
-  border_top_left_radius?: string | null
-  border_top_right_radius?: string | null
-  border_top_style?: string | null
-  border_top_width?: string | null
-  border_width?: string | null
-  bottom?: string | null
-  box_shadow?: string | null
-  box_sizing?: string | null
-  break_after?: string | null
-  break_before?: string | null
-  break_inside?: string | null
-  caption_side?: string | null
-  caret_color?: string | null
-  clear?: string | null
+  accent_color?: CSSStylesCamel["accentColor"]
+  align_content?: CSSStylesCamel["alignContent"]
+  align_items?: CSSStylesCamel["alignItems"]
+  align_self?: CSSStylesCamel["alignSelf"]
+  alignment_baseline?: CSSStylesCamel["alignmentBaseline"]
+  all?: CSSStylesCamel["all"]
+  animation?: CSSStylesCamel["animation"]
+  animation_delay?: CSSStylesCamel["animationDelay"]
+  animation_direction?: CSSStylesCamel["animationDirection"]
+  animation_duration?: CSSStylesCamel["animationDuration"]
+  animation_fill_mode?: CSSStylesCamel["animationFillMode"]
+  animation_iteration_count?: CSSStylesCamel["animationIterationCount"]
+  animation_name?: CSSStylesCamel["animationName"]
+  animation_play_state?: CSSStylesCamel["animationPlayState"]
+  animation_timing_function?: CSSStylesCamel["animationTimingFunction"]
+  appearance?: CSSStylesCamel["appearance"]
+  aspect_ratio?: CSSStylesCamel["aspectRatio"]
+  backface_visibility?: CSSStylesCamel["backfaceVisibility"]
+  background?: CSSStylesCamel["background"]
+  background_attachment?: CSSStylesCamel["backgroundAttachment"]
+  background_blend_mode?: CSSStylesCamel["backgroundBlendMode"]
+  background_clip?: CSSStylesCamel["backgroundClip"]
+  background_color?: CSSStylesCamel["backgroundColor"]
+  background_image?: CSSStylesCamel["backgroundImage"]
+  background_origin?: CSSStylesCamel["backgroundOrigin"]
+  background_position?: CSSStylesCamel["backgroundPosition"]
+  background_position_x?: CSSStylesCamel["backgroundPositionX"]
+  background_position_y?: CSSStylesCamel["backgroundPositionY"]
+  background_repeat?: CSSStylesCamel["backgroundRepeat"]
+  background_size?: CSSStylesCamel["backgroundSize"]
+  baseline_shift?: CSSStylesCamel["baselineShift"]
+  block_size?: CSSStylesCamel["blockSize"]
+  border?: CSSStylesCamel["border"]
+  border_block?: CSSStylesCamel["borderBlock"]
+  border_block_color?: CSSStylesCamel["borderBlockColor"]
+  border_block_end?: CSSStylesCamel["borderBlockEnd"]
+  border_block_end_color?: CSSStylesCamel["borderBlockEndColor"]
+  border_block_end_style?: CSSStylesCamel["borderBlockEndStyle"]
+  border_block_end_width?: CSSStylesCamel["borderBlockEndWidth"]
+  border_block_start?: CSSStylesCamel["borderBlockStart"]
+  border_block_start_color?: CSSStylesCamel["borderBlockStartColor"]
+  border_block_start_style?: CSSStylesCamel["borderBlockStartStyle"]
+  border_block_start_width?: CSSStylesCamel["borderBlockStartWidth"]
+  border_block_style?: CSSStylesCamel["borderBlockStyle"]
+  border_block_width?: CSSStylesCamel["borderBlockWidth"]
+  border_bottom?: CSSStylesCamel["borderBottom"]
+  border_bottom_color?: CSSStylesCamel["borderBottomColor"]
+  border_bottom_left_radius?: CSSStylesCamel["borderBottomLeftRadius"]
+  border_bottom_right_radius?: CSSStylesCamel["borderBottomRightRadius"]
+  border_bottom_style?: CSSStylesCamel["borderBottomStyle"]
+  border_bottom_width?: CSSStylesCamel["borderBottomWidth"]
+  border_collapse?: CSSStylesCamel["borderCollapse"]
+  border_color?: CSSStylesCamel["borderColor"]
+  border_end_end_radius?: CSSStylesCamel["borderEndEndRadius"]
+  border_end_start_radius?: CSSStylesCamel["borderEndStartRadius"]
+  border_image?: CSSStylesCamel["borderImage"]
+  border_image_outset?: CSSStylesCamel["borderImageOutset"]
+  border_image_repeat?: CSSStylesCamel["borderImageRepeat"]
+  border_image_slice?: CSSStylesCamel["borderImageSlice"]
+  border_image_source?: CSSStylesCamel["borderImageSource"]
+  border_image_width?: CSSStylesCamel["borderImageWidth"]
+  border_inline?: CSSStylesCamel["borderInline"]
+  border_inline_color?: CSSStylesCamel["borderInlineColor"]
+  border_inline_end?: CSSStylesCamel["borderInlineEnd"]
+  border_inline_end_color?: CSSStylesCamel["borderInlineEndColor"]
+  border_inline_end_style?: CSSStylesCamel["borderInlineEndStyle"]
+  border_inline_end_width?: CSSStylesCamel["borderInlineEndWidth"]
+  border_inline_start?: CSSStylesCamel["borderInlineStart"]
+  border_inline_start_color?: CSSStylesCamel["borderInlineStartColor"]
+  border_inline_start_style?: CSSStylesCamel["borderInlineStartStyle"]
+  border_inline_start_width?: CSSStylesCamel["borderInlineStartWidth"]
+  border_inline_style?: CSSStylesCamel["borderInlineStyle"]
+  border_inline_width?: CSSStylesCamel["borderInlineWidth"]
+  border_left?: CSSStylesCamel["borderLeft"]
+  border_left_color?: CSSStylesCamel["borderLeftColor"]
+  border_left_style?: CSSStylesCamel["borderLeftStyle"]
+  border_left_width?: CSSStylesCamel["borderLeftWidth"]
+  border_radius?: CSSStylesCamel["borderRadius"]
+  border_right?: CSSStylesCamel["borderRight"]
+  border_right_color?: CSSStylesCamel["borderRightColor"]
+  border_right_style?: CSSStylesCamel["borderRightStyle"]
+  border_right_width?: CSSStylesCamel["borderRightWidth"]
+  border_spacing?: CSSStylesCamel["borderSpacing"]
+  border_start_end_radius?: CSSStylesCamel["borderStartEndRadius"]
+  border_start_start_radius?: CSSStylesCamel["borderStartStartRadius"]
+  border_style?: CSSStylesCamel["borderStyle"]
+  border_top?: CSSStylesCamel["borderTop"]
+  border_top_color?: CSSStylesCamel["borderTopColor"]
+  border_top_left_radius?: CSSStylesCamel["borderTopLeftRadius"]
+  border_top_right_radius?: CSSStylesCamel["borderTopRightRadius"]
+  border_top_style?: CSSStylesCamel["borderTopStyle"]
+  border_top_width?: CSSStylesCamel["borderTopWidth"]
+  border_width?: CSSStylesCamel["borderWidth"]
+  bottom?: CSSStylesCamel["bottom"]
+  box_shadow?: CSSStylesCamel["boxShadow"]
+  box_sizing?: CSSStylesCamel["boxSizing"]
+  break_after?: CSSStylesCamel["breakAfter"]
+  break_before?: CSSStylesCamel["breakBefore"]
+  break_inside?: CSSStylesCamel["breakInside"]
+  caption_side?: CSSStylesCamel["captionSide"]
+  caret_color?: CSSStylesCamel["caretColor"]
+  clear?: CSSStylesCamel["clear"]
   /** @deprecated */
-  clip?: string | null
-  clip_path?: string | null
-  clip_rule?: string | null
-  color?: string | null
-  color_interpolation?: string | null
-  color_interpolation_filters?: string | null
-  color_scheme?: string | null
-  column_count?: string | null
-  column_fill?: string | null
-  column_gap?: string | null
-  column_rule?: string | null
-  column_rule_color?: string | null
-  column_rule_style?: string | null
-  column_rule_width?: string | null
-  column_span?: string | null
-  column_width?: string | null
-  columns?: string | null
-  contain?: string | null
-  content?: string | null
-  counter_increment?: string | null
-  counter_reset?: string | null
-  counter_set?: string | null
-  cursor?: string | null
-  direction?: string | null
-  display?: Display | null
-  dominant_baseline?: string | null
-  empty_cells?: string | null
-  fill?: string | null
-  fill_opacity?: string | null
-  fill_rule?: string | null
-  filter?: string | null
-  flex?: string | null
-  flex_basis?: string | null
-  flex_direction?: FlexDirection | null
-  flex_flow?: string | null
-  flex_grow?: string | null
-  flex_shrink?: string | null
-  flex_wrap?: string | null
-  float?: string | null
-  flood_color?: string | null
-  flood_opacity?: string | null
-  font?: string | null
-  font_family?: string | null
-  font_feature_settings?: string | null
-  font_kerning?: string | null
-  font_optical_sizing?: string | null
-  font_size?: string | null
-  font_size_adjust?: string | null
-  font_stretch?: string | null
-  font_style?: string | null
-  font_synthesis?: string | null
-  font_variant?: string | null
+  clip?: CSSStylesCamel["clip"]
+  clip_path?: CSSStylesCamel["clipPath"]
+  clip_rule?: CSSStylesCamel["clipRule"]
+  color?: CSSStylesCamel["color"]
+  color_interpolation?: CSSStylesCamel["colorInterpolation"]
+  color_interpolation_filters?: CSSStylesCamel["colorInterpolationFilters"]
+  color_scheme?: CSSStylesCamel["colorScheme"]
+  column_count?: CSSStylesCamel["columnCount"]
+  column_fill?: CSSStylesCamel["columnFill"]
+  column_gap?: CSSStylesCamel["columnGap"]
+  column_rule?: CSSStylesCamel["columnRule"]
+  column_rule_color?: CSSStylesCamel["columnRuleColor"]
+  column_rule_style?: CSSStylesCamel["columnRuleStyle"]
+  column_rule_width?: CSSStylesCamel["columnRuleWidth"]
+  column_span?: CSSStylesCamel["columnSpan"]
+  column_width?: CSSStylesCamel["columnWidth"]
+  columns?: CSSStylesCamel["columns"]
+  contain?: CSSStylesCamel["contain"]
+  content?: CSSStylesCamel["content"]
+  counter_increment?: CSSStylesCamel["counterIncrement"]
+  counter_reset?: CSSStylesCamel["counterReset"]
+  counter_set?: CSSStylesCamel["counterSet"]
+  cursor?: CSSStylesCamel["cursor"]
+  direction?: CSSStylesCamel["direction"]
+  display?: CSSStylesCamel["display"]
+  dominant_baseline?: CSSStylesCamel["dominantBaseline"]
+  empty_cells?: CSSStylesCamel["emptyCells"]
+  fill?: CSSStylesCamel["fill"]
+  fill_opacity?: CSSStylesCamel["fillOpacity"]
+  fill_rule?: CSSStylesCamel["fillRule"]
+  filter?: CSSStylesCamel["filter"]
+  flex?: CSSStylesCamel["flex"]
+  flex_basis?: CSSStylesCamel["flexBasis"]
+  flex_direction?: CSSStylesCamel["flexDirection"]
+  flex_flow?: CSSStylesCamel["flexFlow"]
+  flex_grow?: CSSStylesCamel["flexGrow"]
+  flex_shrink?: CSSStylesCamel["flexShrink"]
+  flex_wrap?: CSSStylesCamel["flexWrap"]
+  float?: CSSStylesCamel["float"]
+  flood_color?: CSSStylesCamel["floodColor"]
+  flood_opacity?: CSSStylesCamel["floodOpacity"]
+  font?: CSSStylesCamel["font"]
+  font_family?: CSSStylesCamel["fontFamily"]
+  font_feature_settings?: CSSStylesCamel["fontFeatureSettings"]
+  font_kerning?: CSSStylesCamel["fontKerning"]
+  font_optical_sizing?: CSSStylesCamel["fontOpticalSizing"]
+  font_size?: CSSStylesCamel["fontSize"]
+  font_size_adjust?: CSSStylesCamel["fontSizeAdjust"]
+  font_stretch?: CSSStylesCamel["fontStretch"]
+  font_style?: CSSStylesCamel["fontStyle"]
+  font_synthesis?: CSSStylesCamel["fontSynthesis"]
+  font_variant?: CSSStylesCamel["fontVariant"]
   /** @deprecated */
-  font_variant_alternates?: string | null
-  font_variant_caps?: string | null
-  font_variant_east_asian?: string | null
-  font_variant_ligatures?: string | null
-  font_variant_numeric?: string | null
-  font_variant_position?: string | null
-  font_variation_settings?: string | null
-  font_weight?: string | null
-  gap?: string | null
-  grid?: string | null
-  grid_area?: string | null
-  grid_auto_columns?: string | null
-  grid_auto_flow?: string | null
-  grid_auto_rows?: string | null
-  grid_column?: string | null
-  grid_column_end?: string | null
+  font_variant_alternates?: CSSStylesCamel["fontVariantAlternates"]
+  font_variant_caps?: CSSStylesCamel["fontVariantCaps"]
+  font_variant_east_asian?: CSSStylesCamel["fontVariantEastAsian"]
+  font_variant_ligatures?: CSSStylesCamel["fontVariantLigatures"]
+  font_variant_numeric?: CSSStylesCamel["fontVariantNumeric"]
+  font_variant_position?: CSSStylesCamel["fontVariantPosition"]
+  font_variation_settings?: CSSStylesCamel["fontVariationSettings"]
+  font_weight?: CSSStylesCamel["fontWeight"]
+  gap?: CSSStylesCamel["gap"]
+  grid?: CSSStylesCamel["grid"]
+  grid_area?: CSSStylesCamel["gridArea"]
+  grid_auto_columns?: CSSStylesCamel["gridAutoColumns"]
+  grid_auto_flow?: CSSStylesCamel["gridAutoFlow"]
+  grid_auto_rows?: CSSStylesCamel["gridAutoRows"]
+  grid_column?: CSSStylesCamel["gridColumn"]
+  grid_column_end?: CSSStylesCamel["gridColumnEnd"]
   /** @deprecated This is a legacy alias of `column_gap`. */
-  grid_column_gap?: string | null
-  grid_column_start?: string | null
+  grid_column_gap?: CSSStylesCamel["gridColumnGap"]
+  grid_column_start?: CSSStylesCamel["gridColumnStart"]
   /** @deprecated This is a legacy alias of `gap`. */
-  grid_gap?: string | null
-  grid_row?: string | null
-  grid_row_end?: string | null
+  grid_gap?: CSSStylesCamel["gridGap"]
+  grid_row?: CSSStylesCamel["gridRow"]
+  grid_row_end?: CSSStylesCamel["gridRowEnd"]
   /** @deprecated This is a legacy alias of `row_gap`. */
-  grid_row_gap?: string | null
-  grid_row_start?: string | null
-  grid_template?: string | null
-  grid_template_areas?: string | null
-  grid_template_columns?: string | null
-  grid_template_rows?: string | null
-  height?: string | null
-  hyphens?: string | null
+  grid_row_gap?: CSSStylesCamel["gridRowGap"]
+  grid_row_start?: CSSStylesCamel["gridRowStart"]
+  grid_template?: CSSStylesCamel["gridTemplate"]
+  grid_template_areas?: CSSStylesCamel["gridTemplateAreas"]
+  grid_template_columns?: CSSStylesCamel["gridTemplateColumns"]
+  grid_template_rows?: CSSStylesCamel["gridTemplateRows"]
+  height?: CSSStylesCamel["height"]
+  hyphens?: CSSStylesCamel["hyphens"]
   /** @deprecated */
-  image_orientation?: string | null
-  image_rendering?: string | null
-  inline_size?: string | null
-  inset?: string | null
-  inset_block?: string | null
-  inset_block_end?: string | null
-  inset_block_start?: string | null
-  inset_inline?: string | null
-  inset_inline_end?: string | null
-  inset_inline_start?: string | null
-  isolation?: string | null
-  justify_content?: string | null
-  justify_items?: string | null
-  justify_self?: string | null
-  left?: string | null
-  letter_spacing?: string | null
-  lighting_color?: string | null
-  line_break?: string | null
-  line_height?: string | null
-  list_style?: string | null
-  list_style_image?: string | null
-  list_style_position?: string | null
-  list_style_type?: string | null
-  margin?: string | null
-  margin_block?: string | null
-  margin_block_end?: string | null
-  margin_block_start?: string | null
-  margin_bottom?: string | null
-  margin_inline?: string | null
-  margin_inline_end?: string | null
-  margin_inline_start?: string | null
-  margin_left?: string | null
-  margin_right?: string | null
-  margin_top?: string | null
-  marker?: string | null
-  marker_end?: string | null
-  marker_mid?: string | null
-  marker_start?: string | null
-  mask?: string | null
-  mask_type?: string | null
-  max_block_size?: string | null
-  max_height?: string | null
-  max_inline_size?: string | null
-  max_width?: string | null
-  min_block_size?: string | null
-  min_height?: string | null
-  min_inline_size?: string | null
-  min_width?: string | null
-  mix_blend_mode?: string | null
-  object_fit?: string | null
-  object_position?: string | null
-  offset?: string | null
-  offset_anchor?: string | null
-  offset_distance?: string | null
-  offset_path?: string | null
-  offset_rotate?: string | null
-  opacity?: string | null
-  order?: string | null
-  orphans?: string | null
-  outline?: string | null
-  outline_color?: string | null
-  outline_offset?: string | null
-  outline_style?: string | null
-  outline_width?: string | null
-  overflow?: string | null
-  overflow_anchor?: string | null
-  overflow_wrap?: string | null
-  overflow_x?: string | null
-  overflow_y?: string | null
-  overscroll_behavior?: string | null
-  overscroll_behavior_block?: string | null
-  overscroll_behavior_inline?: string | null
-  overscroll_behavior_x?: string | null
-  overscroll_behavior_y?: string | null
-  padding?: string | null
-  padding_block?: string | null
-  padding_block_end?: string | null
-  padding_block_start?: string | null
-  padding_bottom?: string | null
-  padding_inline?: string | null
-  padding_inline_end?: string | null
-  padding_inline_start?: string | null
-  padding_left?: string | null
-  padding_right?: string | null
-  padding_top?: string | null
-  page_break_after?: string | null
-  page_break_before?: string | null
-  page_break_inside?: string | null
-  paint_order?: string | null
-  perspective?: string | null
-  perspective_origin?: string | null
-  place_content?: string | null
-  place_items?: string | null
-  place_self?: string | null
-  pointer_events?: string | null
-  position?: Position | null
-  quotes?: string | null
-  resize?: string | null
-  right?: string | null
-  rotate?: string | null
-  row_gap?: string | null
-  ruby_position?: string | null
-  scale?: string | null
-  scroll_behavior?: string | null
-  scroll_margin?: string | null
-  scroll_margin_block?: string | null
-  scroll_margin_block_end?: string | null
-  scroll_margin_block_start?: string | null
-  scroll_margin_bottom?: string | null
-  scroll_margin_inline?: string | null
-  scroll_margin_inline_end?: string | null
-  scroll_margin_inline_start?: string | null
-  scroll_margin_left?: string | null
-  scroll_margin_right?: string | null
-  scroll_margin_top?: string | null
-  scroll_padding?: string | null
-  scroll_padding_block?: string | null
-  scroll_padding_block_end?: string | null
-  scroll_padding_block_start?: string | null
-  scroll_padding_bottom?: string | null
-  scroll_padding_inline?: string | null
-  scroll_padding_inline_end?: string | null
-  scroll_padding_inline_start?: string | null
-  scroll_padding_left?: string | null
-  scroll_padding_right?: string | null
-  scroll_padding_top?: string | null
-  scroll_snap_align?: string | null
-  scroll_snap_stop?: string | null
-  scroll_snap_type?: string | null
-  scrollbar_gutter?: string | null
-  shape_image_threshold?: string | null
-  shape_margin?: string | null
-  shape_outside?: string | null
-  shape_rendering?: string | null
-  stop_color?: string | null
-  stop_opacity?: string | null
-  stroke?: string | null
-  stroke_dasharray?: string | null
-  stroke_dashoffset?: string | null
-  stroke_linecap?: string | null
-  stroke_linejoin?: string | null
-  stroke_miterlimit?: string | null
-  stroke_opacity?: string | null
-  stroke_width?: string | null
-  tab_size?: string | null
-  table_layout?: string | null
-  text_align?: string | null
-  text_align_last?: string | null
-  text_anchor?: string | null
-  text_combine_upright?: string | null
-  text_decoration?: string | null
-  text_decoration_color?: string | null
-  text_decoration_line?: string | null
-  text_decoration_skip_ink?: string | null
-  text_decoration_style?: string | null
-  text_decoration_thickness?: string | null
-  text_emphasis?: string | null
-  text_emphasis_color?: string | null
-  text_emphasis_position?: string | null
-  text_emphasis_style?: string | null
-  text_indent?: string | null
-  text_orientation?: string | null
-  text_overflow?: string | null
-  text_rendering?: string | null
-  text_shadow?: string | null
-  text_transform?: string | null
-  text_underline_offset?: string | null
-  text_underline_position?: string | null
-  top?: string | null
-  touch_action?: string | null
-  transform?: string | null
-  transform_box?: string | null
-  transform_origin?: string | null
-  transform_style?: string | null
-  transition?: string | null
-  transition_delay?: string | null
-  transition_duration?: string | null
-  transition_property?: string | null
-  transition_timing_function?: string | null
-  translate?: string | null
-  unicode_bidi?: string | null
-  user_select?: string | null
-  vertical_align?: string | null
-  visibility?: string | null
-  white_space?: string | null
-  widows?: string | null
-  width?: string | null
-  will_change?: string | null
-  word_break?: string | null
-  word_spacing?: string | null
+  image_orientation?: CSSStylesCamel["imageOrientation"]
+  image_rendering?: CSSStylesCamel["imageRendering"]
+  inline_size?: CSSStylesCamel["inlineSize"]
+  inset?: CSSStylesCamel["inset"]
+  inset_block?: CSSStylesCamel["insetBlock"]
+  inset_block_end?: CSSStylesCamel["insetBlockEnd"]
+  inset_block_start?: CSSStylesCamel["insetBlockStart"]
+  inset_inline?: CSSStylesCamel["insetInline"]
+  inset_inline_end?: CSSStylesCamel["insetInlineEnd"]
+  inset_inline_start?: CSSStylesCamel["insetInlineStart"]
+  isolation?: CSSStylesCamel["isolation"]
+  justify_content?: CSSStylesCamel["justifyContent"]
+  justify_items?: CSSStylesCamel["justifyItems"]
+  justify_self?: CSSStylesCamel["justifySelf"]
+  left?: CSSStylesCamel["left"]
+  letter_spacing?: CSSStylesCamel["letterSpacing"]
+  lighting_color?: CSSStylesCamel["lightingColor"]
+  line_break?: CSSStylesCamel["lineBreak"]
+  line_height?: CSSStylesCamel["lineHeight"]
+  list_style?: CSSStylesCamel["listStyle"]
+  list_style_image?: CSSStylesCamel["listStyleImage"]
+  list_style_position?: CSSStylesCamel["listStylePosition"]
+  list_style_type?: CSSStylesCamel["listStyleType"]
+  margin?: CSSStylesCamel["margin"]
+  margin_block?: CSSStylesCamel["marginBlock"]
+  margin_block_end?: CSSStylesCamel["marginBlockEnd"]
+  margin_block_start?: CSSStylesCamel["marginBlockStart"]
+  margin_bottom?: CSSStylesCamel["marginBottom"]
+  margin_inline?: CSSStylesCamel["marginInline"]
+  margin_inline_end?: CSSStylesCamel["marginInlineEnd"]
+  margin_inline_start?: CSSStylesCamel["marginInlineStart"]
+  margin_left?: CSSStylesCamel["marginLeft"]
+  margin_right?: CSSStylesCamel["marginRight"]
+  margin_top?: CSSStylesCamel["marginTop"]
+  marker?: CSSStylesCamel["marker"]
+  marker_end?: CSSStylesCamel["markerEnd"]
+  marker_mid?: CSSStylesCamel["markerMid"]
+  marker_start?: CSSStylesCamel["markerStart"]
+  mask?: CSSStylesCamel["mask"]
+  mask_type?: CSSStylesCamel["maskType"]
+  max_block_size?: CSSStylesCamel["maxBlockSize"]
+  max_height?: CSSStylesCamel["maxHeight"]
+  max_inline_size?: CSSStylesCamel["maxInlineSize"]
+  max_width?: CSSStylesCamel["maxWidth"]
+  min_block_size?: CSSStylesCamel["minBlockSize"]
+  min_height?: CSSStylesCamel["minHeight"]
+  min_inline_size?: CSSStylesCamel["minInlineSize"]
+  min_width?: CSSStylesCamel["minWidth"]
+  mix_blend_mode?: CSSStylesCamel["mixBlendMode"]
+  object_fit?: CSSStylesCamel["objectFit"]
+  object_position?: CSSStylesCamel["objectPosition"]
+  offset?: CSSStylesCamel["offset"]
+  offset_anchor?: CSSStylesCamel["offsetAnchor"]
+  offset_distance?: CSSStylesCamel["offsetDistance"]
+  offset_path?: CSSStylesCamel["offsetPath"]
+  offset_rotate?: CSSStylesCamel["offsetRotate"]
+  opacity?: CSSStylesCamel["opacity"]
+  order?: CSSStylesCamel["order"]
+  orphans?: CSSStylesCamel["orphans"]
+  outline?: CSSStylesCamel["outline"]
+  outline_color?: CSSStylesCamel["outlineColor"]
+  outline_offset?: CSSStylesCamel["outlineOffset"]
+  outline_style?: CSSStylesCamel["outlineStyle"]
+  outline_width?: CSSStylesCamel["outlineWidth"]
+  overflow?: CSSStylesCamel["overflow"]
+  overflow_anchor?: CSSStylesCamel["overflowAnchor"]
+  overflow_wrap?: CSSStylesCamel["overflowWrap"]
+  overflow_x?: CSSStylesCamel["overflowX"]
+  overflow_y?: CSSStylesCamel["overflowY"]
+  overscroll_behavior?: CSSStylesCamel["overscrollBehavior"]
+  overscroll_behavior_block?: CSSStylesCamel["overscrollBehaviorBlock"]
+  overscroll_behavior_inline?: CSSStylesCamel["overscrollBehaviorInline"]
+  overscroll_behavior_x?: CSSStylesCamel["overscrollBehaviorX"]
+  overscroll_behavior_y?: CSSStylesCamel["overscrollBehaviorY"]
+  padding?: CSSStylesCamel["padding"]
+  padding_block?: CSSStylesCamel["paddingBlock"]
+  padding_block_end?: CSSStylesCamel["paddingBlockEnd"]
+  padding_block_start?: CSSStylesCamel["paddingBlockStart"]
+  padding_bottom?: CSSStylesCamel["paddingBottom"]
+  padding_inline?: CSSStylesCamel["paddingInline"]
+  padding_inline_end?: CSSStylesCamel["paddingInlineEnd"]
+  padding_inline_start?: CSSStylesCamel["paddingInlineStart"]
+  padding_left?: CSSStylesCamel["paddingLeft"]
+  padding_right?: CSSStylesCamel["paddingRight"]
+  padding_top?: CSSStylesCamel["paddingTop"]
+  page_break_after?: CSSStylesCamel["pageBreakAfter"]
+  page_break_before?: CSSStylesCamel["pageBreakBefore"]
+  page_break_inside?: CSSStylesCamel["pageBreakInside"]
+  paint_order?: CSSStylesCamel["paintOrder"]
+  perspective?: CSSStylesCamel["perspective"]
+  perspective_origin?: CSSStylesCamel["perspectiveOrigin"]
+  place_content?: CSSStylesCamel["placeContent"]
+  place_items?: CSSStylesCamel["placeItems"]
+  place_self?: CSSStylesCamel["placeSelf"]
+  pointer_events?: CSSStylesCamel["pointerEvents"]
+  position?: CSSStylesCamel["position"]
+  quotes?: CSSStylesCamel["quotes"]
+  resize?: CSSStylesCamel["resize"]
+  right?: CSSStylesCamel["right"]
+  rotate?: CSSStylesCamel["rotate"]
+  row_gap?: CSSStylesCamel["rowGap"]
+  ruby_position?: CSSStylesCamel["rubyPosition"]
+  scale?: CSSStylesCamel["scale"]
+  scroll_behavior?: CSSStylesCamel["scrollBehavior"]
+  scroll_margin?: CSSStylesCamel["scrollMargin"]
+  scroll_margin_block?: CSSStylesCamel["scrollMarginBlock"]
+  scroll_margin_block_end?: CSSStylesCamel["scrollMarginBlockEnd"]
+  scroll_margin_block_start?: CSSStylesCamel["scrollMarginBlockStart"]
+  scroll_margin_bottom?: CSSStylesCamel["scrollMarginBottom"]
+  scroll_margin_inline?: CSSStylesCamel["scrollMarginInline"]
+  scroll_margin_inline_end?: CSSStylesCamel["scrollMarginInlineEnd"]
+  scroll_margin_inline_start?: CSSStylesCamel["scrollMarginInlineStart"]
+  scroll_margin_left?: CSSStylesCamel["scrollMarginLeft"]
+  scroll_margin_right?: CSSStylesCamel["scrollMarginRight"]
+  scroll_margin_top?: CSSStylesCamel["scrollMarginTop"]
+  scroll_padding?: CSSStylesCamel["scrollPadding"]
+  scroll_padding_block?: CSSStylesCamel["scrollPaddingBlock"]
+  scroll_padding_block_end?: CSSStylesCamel["scrollPaddingBlockEnd"]
+  scroll_padding_block_start?: CSSStylesCamel["scrollPaddingBlockStart"]
+  scroll_padding_bottom?: CSSStylesCamel["scrollPaddingBottom"]
+  scroll_padding_inline?: CSSStylesCamel["scrollPaddingInline"]
+  scroll_padding_inline_end?: CSSStylesCamel["scrollPaddingInlineEnd"]
+  scroll_padding_inline_start?: CSSStylesCamel["scrollPaddingInlineStart"]
+  scroll_padding_left?: CSSStylesCamel["scrollPaddingLeft"]
+  scroll_padding_right?: CSSStylesCamel["scrollPaddingRight"]
+  scroll_padding_top?: CSSStylesCamel["scrollPaddingTop"]
+  scroll_snap_align?: CSSStylesCamel["scrollSnapAlign"]
+  scroll_snap_stop?: CSSStylesCamel["scrollSnapStop"]
+  scroll_snap_type?: CSSStylesCamel["scrollSnapType"]
+  scrollbar_gutter?: CSSStylesCamel["scrollbarGutter"]
+  shape_image_threshold?: CSSStylesCamel["shapeImageThreshold"]
+  shape_margin?: CSSStylesCamel["shapeMargin"]
+  shape_outside?: CSSStylesCamel["shapeOutside"]
+  shape_rendering?: CSSStylesCamel["shapeRendering"]
+  stop_color?: CSSStylesCamel["stopColor"]
+  stop_opacity?: CSSStylesCamel["stopOpacity"]
+  stroke?: CSSStylesCamel["stroke"]
+  stroke_dasharray?: CSSStylesCamel["strokeDasharray"]
+  stroke_dashoffset?: CSSStylesCamel["strokeDashoffset"]
+  stroke_linecap?: CSSStylesCamel["strokeLinecap"]
+  stroke_linejoin?: CSSStylesCamel["strokeLinejoin"]
+  stroke_miterlimit?: CSSStylesCamel["strokeMiterlimit"]
+  stroke_opacity?: CSSStylesCamel["strokeOpacity"]
+  stroke_width?: CSSStylesCamel["strokeWidth"]
+  tab_size?: CSSStylesCamel["tabSize"]
+  table_layout?: CSSStylesCamel["tableLayout"]
+  text_align?: CSSStylesCamel["textAlign"]
+  text_align_last?: CSSStylesCamel["textAlignLast"]
+  text_anchor?: CSSStylesCamel["textAnchor"]
+  text_combine_upright?: CSSStylesCamel["textCombineUpright"]
+  text_decoration?: CSSStylesCamel["textDecoration"]
+  text_decoration_color?: CSSStylesCamel["textDecorationColor"]
+  text_decoration_line?: CSSStylesCamel["textDecorationLine"]
+  text_decoration_skip_ink?: CSSStylesCamel["textDecorationSkipInk"]
+  text_decoration_style?: CSSStylesCamel["textDecorationStyle"]
+  text_decoration_thickness?: CSSStylesCamel["textDecorationThickness"]
+  text_emphasis?: CSSStylesCamel["textEmphasis"]
+  text_emphasis_color?: CSSStylesCamel["textEmphasisColor"]
+  text_emphasis_position?: CSSStylesCamel["textEmphasisPosition"]
+  text_emphasis_style?: CSSStylesCamel["textEmphasisStyle"]
+  text_indent?: CSSStylesCamel["textIndent"]
+  text_orientation?: CSSStylesCamel["textOrientation"]
+  text_overflow?: CSSStylesCamel["textOverflow"]
+  text_rendering?: CSSStylesCamel["textRendering"]
+  text_shadow?: CSSStylesCamel["textShadow"]
+  text_transform?: CSSStylesCamel["textTransform"]
+  text_underline_offset?: CSSStylesCamel["textUnderlineOffset"]
+  text_underline_position?: CSSStylesCamel["textUnderlinePosition"]
+  top?: CSSStylesCamel["top"]
+  touch_action?: CSSStylesCamel["touchAction"]
+  transform?: CSSStylesCamel["transform"]
+  transform_box?: CSSStylesCamel["transformBox"]
+  transform_origin?: CSSStylesCamel["transformOrigin"]
+  transform_style?: CSSStylesCamel["transformStyle"]
+  transition?: CSSStylesCamel["transition"]
+  transition_delay?: CSSStylesCamel["transitionDelay"]
+  transition_duration?: CSSStylesCamel["transitionDuration"]
+  transition_property?: CSSStylesCamel["transitionProperty"]
+  transition_timing_function?: CSSStylesCamel["transitionTimingFunction"]
+  translate?: CSSStylesCamel["translate"]
+  unicode_bidi?: CSSStylesCamel["unicodeBidi"]
+  user_select?: CSSStylesCamel["userSelect"]
+  vertical_align?: CSSStylesCamel["verticalAlign"]
+  visibility?: CSSStylesCamel["visibility"]
+  white_space?: CSSStylesCamel["whiteSpace"]
+  widows?: CSSStylesCamel["widows"]
+  width?: CSSStylesCamel["width"]
+  will_change?: CSSStylesCamel["willChange"]
+  word_break?: CSSStylesCamel["wordBreak"]
+  word_spacing?: CSSStylesCamel["wordSpacing"]
   /** @deprecated */
-  word_wrap?: string | null
-  writing_mode?: string | null
-  z_index?: string | null
+  word_wrap?: CSSStylesCamel["wordWrap"]
+  writing_mode?: CSSStylesCamel["writingMode"]
+  z_index?: CSSStylesCamel["zIndex"]
 }
 
 export type CSSVariables = {[key in `--${string}`]?: string | null}
