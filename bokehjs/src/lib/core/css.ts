@@ -139,7 +139,7 @@ type CSSStylesCamel = {
   counterSet?: string | null
   cursor?: string | null
   direction?: string | null
-  display?: Display | null
+  display?: string /*Display*/ | null
   dominantBaseline?: string | null
   emptyCells?: string | null
   fill?: string | null
@@ -148,7 +148,7 @@ type CSSStylesCamel = {
   filter?: string | null
   flex?: string | null
   flexBasis?: string | null
-  flexDirection?: FlexDirection | null
+  flexDirection?: string /*FlexDirection*/ | null
   flexFlow?: string | null
   flexGrow?: string | null
   flexShrink?: string | null
@@ -296,7 +296,7 @@ type CSSStylesCamel = {
   placeItems?: string | null
   placeSelf?: string | null
   pointerEvents?: string | null
-  position?: Position | null
+  position?: string /*Position*/ | null
   quotes?: string | null
   resize?: string | null
   right?: string | null
