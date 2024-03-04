@@ -585,7 +585,7 @@ export abstract class StyleSheet {
 }
 
 export class InlineStyleSheet extends StyleSheet {
-  protected override readonly el = style({type: "text/css"})
+  protected override readonly el = style()
 
   constructor(css?: string | CSSStyleSheetDecl) {
     super()
