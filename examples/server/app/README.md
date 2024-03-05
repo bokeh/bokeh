@@ -22,7 +22,7 @@ The demos container here are:
 
   <tr><td colspan="2">contour_animated</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/blob/HEAD/examples/server/app/contour_animated.py"><img src="https://docs.bokeh.org/static/contour_animated_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/blob/-/examples/server/app/contour_animated.py"><img src="https://docs.bokeh.org/static/contour_animated_t.png" width=400></img></a></td>
     <td>Using a Python callback to animate a contour plot.</td>
   </tr>
 
@@ -46,7 +46,7 @@ The demos container here are:
 
   <tr><td colspan="2">fourier_animated</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/blob/HEAD/examples/server/app/fourier_animated.py"><img src="https://docs.bokeh.org/static/fourier_animated_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/blob/-/examples/server/app/fourier_animated.py"><img src="https://docs.bokeh.org/static/fourier_animated_t.png" width=400></img></a></td>
     <td>A continuously updating demonstration of Fourier synthesis using periodic callbacks</td>
   </tr>
 
@@ -70,13 +70,13 @@ The demos container here are:
 
   <tr><td colspan="2">selection_histogram</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/blob/HEAD/examples/server/app/selection_histogram.py"><img src="https://docs.bokeh.org/static/selection_histogram_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/blob/-/examples/server/app/selection_histogram.py"><img src="https://docs.bokeh.org/static/selection_histogram_t.png" width=400></img></a></td>
     <td>Shows axis histograms for selected <em>and</em> unselected points in a scatter plot</td>
   </tr>
 
   <tr><td colspan="2">sliders</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/blob/HEAD/examples/server/app/sliders.py"><img src="https://docs.bokeh.org/static/sliders_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/blob/-/examples/server/app/sliders.py"><img src="https://docs.bokeh.org/static/sliders_t.png" width=400></img></a></td>
     <td>A basic demo that has sliders for controlling a plotted trigonometric function</td>
   </tr>
 
