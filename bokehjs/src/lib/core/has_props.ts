@@ -337,8 +337,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
     } else {
       this.initialize_props(attrs)
-      this.finalize()
-      this.connect_signals()
     }
   }
 
@@ -359,12 +357,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  private _initialized: boolean = false
+  initialize(): void {
+    assert(!this._initialized)
+    this._initialized = true
+  }
+
+  /*
   finalize(): void {
     this.initialize()
   }
+  */
+  //instance.finalize()
+  //instance.assert_initialized()
 
-  initialize(): void {}
-
+  /*
   assert_initialized(): void {
     for (const prop of this) {
       if (prop.syncable && !prop.readonly) {
@@ -372,8 +379,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
   }
+  */
 
+  private _signals_connected: boolean = false
   connect_signals(): void {
+    assert(!this._signals_connected)
+    this._signals_connected = true
+
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
@@ -394,6 +406,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   disconnect_signals(): void {
     Signal.disconnect_receiver(this)
+    this._signals_connected = false
   }
 
   destroy(): void {
@@ -559,6 +572,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
               HasProps._value_record_references(value, refs, {recursive})
             }
           }
+          for (const ref of value._references()) {
+            HasProps._value_record_references(ref, refs, {recursive})
+          }
         }
       }
     } else if (isIterable(value)) {
@@ -571,6 +587,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
   }
+
+  protected *_references(): Iterable<HasProps> {}
 
   static references(value: unknown, options: {recursive: boolean}): Set<HasProps> {
     const refs = new Set<HasProps>()
@@ -591,16 +609,24 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       if (this.document == doc) {
         return
       } else {
-        throw new Error("models must be owned by only a single document")
+        throw new Error(`${this} must be owned by only a single document`)
       }
     }
 
     this.document = doc
     this._doc_attached()
+
+    if (!this._initialized) {
+      this.initialize()
+    }
+    if (!this._signals_connected) {
+      this.connect_signals()
+    }
   }
 
   detach_document(): void {
     // This should only be called by the Document implementation to unset the document field
+    this.disconnect_signals()
     this._doc_detached()
     this.document = null
   }
