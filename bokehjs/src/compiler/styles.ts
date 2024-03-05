@@ -5,22 +5,29 @@ import CSS from "css"
 
 import {scan, read, write, rename} from "./sys"
 
-export async function compile_styles(styles_dir: string, css_dir: string): Promise<boolean> {
-  let success = true
-
-  for (const src of scan(styles_dir, [".less", ".css"])) {
-    if (basename(src).startsWith("_")) {
+export function collect_styles(styles_dir: string): string[] {
+  const paths = []
+  for (const path of scan(styles_dir, [".less", ".css"])) {
+    if (basename(path).startsWith("_")) {
       continue
     }
+    paths.push(path)
+  }
+  return paths
+}
 
+export async function compile_styles(paths: string[], styles_dir: string, css_dir: string): Promise<boolean> {
+  let success = true
+
+  for (const path of paths) {
     try {
-      const style = read(src)!
-      const {css} = await lesscss.render(style, {filename: src})
-      const dst = rename(src, {base: styles_dir, dir: css_dir, ext: ".css"})
+      const style = read(path)!
+      const {css} = await lesscss.render(style, {filename: path})
+      const dst = rename(path, {base: styles_dir, dir: css_dir, ext: ".css"})
       write(dst, css)
     } catch (error) {
       success = false
-      console.log(`${chalk.red("\u2717")} failed to compile ${chalk.magenta(src)}:`)
+      console.log(`${chalk.red("\u2717")} failed to compile ${chalk.magenta(path)}:`)
       console.log(`${error}`)
     }
   }

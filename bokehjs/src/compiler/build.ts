@@ -10,7 +10,7 @@ import {
   default_transformers, compiler_host, report_diagnostics,
 } from "./compiler"
 import {Linker} from "./linker"
-import {compile_styles, wrap_css_modules} from "./styles"
+import {collect_styles, compile_styles, wrap_css_modules} from "./styles"
 import * as preludes from "./prelude"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
@@ -47,6 +47,12 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
 
 function print(str: string): void {
   console.log(str)
+}
+
+function print_files(files: string[]): void {
+  for (const file of files) {
+    print(`  ${file}`)
+  }
 }
 
 function npm_install(base_dir: Path): void {
@@ -314,8 +320,12 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const styles_dir = join(base_dir, "styles")
   const css_dir = join(dist_dir, "css")
 
-  print("Compiling styles")
-  if (!await compile_styles(styles_dir, css_dir)) {
+  const styles = collect_styles(styles_dir)
+  print(`Compiling styles (${magenta(`${styles.length} files`)})`)
+  if (setup.verbose) {
+    print_files(styles)
+  }
+  if (!await compile_styles(styles, styles_dir, css_dir)) {
     success = false
   }
 
@@ -326,9 +336,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
   if (setup.verbose) {
-    for (const file of files) {
-      print(`  ${file}`)
-    }
+    print_files(files)
   }
   const tsoutput = compile_files(files, options, transformers, host)
 
