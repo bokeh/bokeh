@@ -48,11 +48,10 @@ export abstract class TileSource extends Model {
     }))
   }
 
-  tiles: Map<string, Tile>
+  readonly tiles: Map<string, Tile> = new Map()
 
   override initialize(): void {
     super.initialize()
-    this.tiles = new Map()
     this._normalize_case()
   }
 
@@ -86,7 +85,7 @@ export abstract class TileSource extends Model {
   }
 
   protected _clear_cache(): void {
-    this.tiles = new Map()
+    this.tiles.clear()
   }
 
   tile_xyz_to_key(x: number, y: number, z: number): string {

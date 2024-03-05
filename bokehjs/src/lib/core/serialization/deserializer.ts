@@ -70,9 +70,7 @@ export class Deserializer {
     })()
 
     for (const instance of finalizable) {
-      this.finalize?.(instance)
-      instance.finalize()
-      instance.assert_initialized()
+      instance.initialize()
     }
 
     // `connect_signals` has to be executed last because it may rely on properties
@@ -81,6 +79,10 @@ export class Deserializer {
     // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
     for (const instance of finalizable) {
       instance.connect_signals()
+    }
+
+    for (const instance of finalizable) {
+      this.finalize?.(instance)
     }
 
     return decoded

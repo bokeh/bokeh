@@ -374,7 +374,7 @@ export class Toolbar extends UIElement {
     })
   }
 
-  active_changed: Signal0<this>
+  readonly active_changed = new Signal0(this, "active_changed")
 
   get horizontal(): boolean {
     return this.location == "above" || this.location == "below"
@@ -396,7 +396,6 @@ export class Toolbar extends UIElement {
 
   override initialize(): void {
     super.initialize()
-    this.active_changed  = new Signal0(this, "active_changed")
     this._init_tools()
     this._activate_tools()
   }

@@ -35,7 +35,7 @@ export interface Model extends Model.Attrs {}
 export abstract class Model extends HasProps {
   declare properties: Model.Props
 
-  private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
+  private readonly _js_callbacks: Map<string, (() => void)[]> = new Map()
 
   override get is_syncable(): boolean {
     return this.syncable
@@ -58,11 +58,6 @@ export abstract class Model extends HasProps {
       subscribed_events:     [ Set(Str), new globalThis.Set() ],
       syncable:              [ Bool, true ],
     }))
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this._js_callbacks = new Map()
   }
 
   override connect_signals(): void {
