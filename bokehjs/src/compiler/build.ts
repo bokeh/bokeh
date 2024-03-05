@@ -55,6 +55,12 @@ function print_files(files: string[]): void {
   }
 }
 
+function count_files(files: string[]): string {
+  const n = files.length
+  const str = `${n} file`
+  return n == 1 ? str : `${str}s`
+}
+
 function npm_install(base_dir: Path): void {
   const npm = process.platform != "win32" ? "npm" : "npm.cmd"
   const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir})
@@ -286,31 +292,35 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print(`TypeScript lib: ${cyan(tslib_dir)}`)
 
   const tsconfig_path = join(base_dir, "tsconfig.json")
-  const tsconfig = (() => {
-    const preconfigure: ts.CompilerOptions = {
-      baseUrl: base_dir,
-      paths: {
-        "@bokehjs/*": [
-          join(bokehjs_dir, "js/lib/*"),
-        ],
-      },
-    }
+  if (file_exists(tsconfig_path)) {
+    print(`Using ${cyan(tsconfig_path)}`)
+  }
 
+  const preconfigure: ts.CompilerOptions = {
+    baseUrl: base_dir,
+    paths: {
+      "@bokehjs/*": [
+        join(bokehjs_dir, "js/lib/*"),
+      ],
+    },
+  }
+
+  function load_tsconfig() {
     if (file_exists(tsconfig_path)) {
-      print(`Using ${cyan(tsconfig_path)}`)
       return read_tsconfig(tsconfig_path, is_package ? undefined : preconfigure)
     } else {
       return parse_tsconfig(tsconfig_json, base_dir, preconfigure)
     }
-  })()
+  }
 
+  const tsconfig = load_tsconfig()
   if (is_failed(tsconfig)) {
     print(report_diagnostics(tsconfig.diagnostics).text)
     return false
   }
 
   let success = true
-  const {files, options} = tsconfig
+  const {options} = tsconfig
 
   const dist_dir = join(base_dir, "dist")
   const lib_dir = options.outDir ?? join(dist_dir, "lib")
@@ -321,7 +331,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const css_dir = join(dist_dir, "css")
 
   const styles = collect_styles(styles_dir)
-  print(`Compiling styles (${magenta(`${styles.length} files`)})`)
+  print(`Compiling styles (${magenta(count_files(styles))})`)
   if (setup.verbose) {
     print_files(styles)
   }
@@ -331,10 +341,19 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   wrap_css_modules(css_dir, lib_dir, dts_dir, dts_internal_dir)
 
+  // load tsconfig.json again to include generated source files
+  const tsconfig2 = load_tsconfig()
+  if (is_failed(tsconfig2)) {
+    print(report_diagnostics(tsconfig2.diagnostics).text)
+    return false
+  }
+
+  const {files} = tsconfig2
+
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, tslib_dir)
 
-  print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
+  print(`Compiling TypeScript (${magenta(count_files(files))})`)
   if (setup.verbose) {
     print_files(files)
   }
