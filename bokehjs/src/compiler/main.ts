@@ -13,6 +13,7 @@ const argv = yargs(process.argv.slice(2)).options({
   "bokehjs-dir": {type: "string", default: "./build"}, // this is what bokeh.settings defaults to
   "bokeh-version": {type: "string"},
   "bokehjs-version": {type: "string"},
+  verbose: {type: "boolean", default: false},
   rebuild: {type: "boolean", default: false},
   interactive: {type: "boolean", default: false},
 }).parseSync()
@@ -58,9 +59,10 @@ async function main() {
     try {
       const base_dir = resolve(argv.baseDir!)
       const bokehjs_dir = resolve(argv.bokehjsDir)
+      const verbose = argv.verbose
       const rebuild = argv.rebuild
       const bokeh_version = argv.bokehVersion!
-      const result = await build(base_dir, bokehjs_dir, {rebuild, bokeh_version})
+      const result = await build(base_dir, bokehjs_dir, {verbose, rebuild, bokeh_version})
       process.exit(result ? 0 : 1)
     } catch (error) {
       const msg = error instanceof Error && error.stack != null ? error.stack : `${error}`

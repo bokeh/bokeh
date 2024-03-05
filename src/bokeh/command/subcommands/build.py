@@ -63,6 +63,10 @@ class Build(Subcommand):
             action="store_true",
             help="Ignore all caches and perform a full rebuild",
         )),
+        ("--verbose", Argument(
+            action="store_true",
+            help="Display detailed build information",
+        )),
         ("--debug", Argument(
             action="store_true",
             help="Run nodejs in debug mode (use --inspect-brk)",
@@ -70,7 +74,7 @@ class Build(Subcommand):
     )
 
     def invoke(self, args: Namespace) -> bool:
-        return build(args.base_dir, rebuild=args.rebuild, debug=args.debug)
+        return build(args.base_dir, rebuild=args.rebuild, verbose=args.verbose, debug=args.debug)
 
 #-----------------------------------------------------------------------------
 # Dev API

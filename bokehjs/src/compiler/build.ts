@@ -10,7 +10,7 @@ import {
   default_transformers, compiler_host, report_diagnostics,
 } from "./compiler"
 import {Linker} from "./linker"
-import {compile_styles, wrap_css_modules} from "./styles"
+import {collect_styles, compile_styles, wrap_css_modules} from "./styles"
 import * as preludes from "./prelude"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
@@ -47,6 +47,18 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
 
 function print(str: string): void {
   console.log(str)
+}
+
+function print_files(files: string[]): void {
+  for (const file of files) {
+    print(`  ${file}`)
+  }
+}
+
+function count_files(files: string[]): string {
+  const n = files.length
+  const str = `${n} file`
+  return n == 1 ? str : `${str}s`
 }
 
 function npm_install(base_dir: Path): void {
@@ -200,6 +212,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
 }
 
 export type BuildOptions = {
+  verbose?: boolean
   rebuild?: boolean
   bokeh_version: string
 }
@@ -208,6 +221,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print(`Working directory: ${cyan(base_dir)}`)
 
   const setup: Required<BuildOptions> = {
+    verbose: base_setup.verbose ?? false,
     rebuild: base_setup.rebuild ?? false,
     bokeh_version: base_setup.bokeh_version,
   }
@@ -278,31 +292,35 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print(`TypeScript lib: ${cyan(tslib_dir)}`)
 
   const tsconfig_path = join(base_dir, "tsconfig.json")
-  const tsconfig = (() => {
-    const preconfigure: ts.CompilerOptions = {
-      baseUrl: base_dir,
-      paths: {
-        "@bokehjs/*": [
-          join(bokehjs_dir, "js/lib/*"),
-        ],
-      },
-    }
+  if (file_exists(tsconfig_path)) {
+    print(`Using ${cyan(tsconfig_path)}`)
+  }
 
+  const preconfigure: ts.CompilerOptions = {
+    baseUrl: base_dir,
+    paths: {
+      "@bokehjs/*": [
+        join(bokehjs_dir, "js/lib/*"),
+      ],
+    },
+  }
+
+  function load_tsconfig() {
     if (file_exists(tsconfig_path)) {
-      print(`Using ${cyan(tsconfig_path)}`)
       return read_tsconfig(tsconfig_path, is_package ? undefined : preconfigure)
     } else {
       return parse_tsconfig(tsconfig_json, base_dir, preconfigure)
     }
-  })()
+  }
 
+  const tsconfig = load_tsconfig()
   if (is_failed(tsconfig)) {
     print(report_diagnostics(tsconfig.diagnostics).text)
     return false
   }
 
   let success = true
-  const {files, options} = tsconfig
+  const {options} = tsconfig
 
   const dist_dir = join(base_dir, "dist")
   const lib_dir = options.outDir ?? join(dist_dir, "lib")
@@ -312,17 +330,33 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const styles_dir = join(base_dir, "styles")
   const css_dir = join(dist_dir, "css")
 
-  print("Compiling styles")
-  if (!await compile_styles(styles_dir, css_dir)) {
+  const styles = collect_styles(styles_dir)
+  print(`Compiling styles (${magenta(count_files(styles))})`)
+  if (setup.verbose) {
+    print_files(styles)
+  }
+  if (!await compile_styles(styles, styles_dir, css_dir)) {
     success = false
   }
 
   wrap_css_modules(css_dir, lib_dir, dts_dir, dts_internal_dir)
 
+  // load tsconfig.json again to include generated source files
+  const tsconfig2 = load_tsconfig()
+  if (is_failed(tsconfig2)) {
+    print(report_diagnostics(tsconfig2.diagnostics).text)
+    return false
+  }
+
+  const {files} = tsconfig2
+
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, tslib_dir)
 
-  print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
+  print(`Compiling TypeScript (${magenta(count_files(files))})`)
+  if (setup.verbose) {
+    print_files(files)
+  }
   const tsoutput = compile_files(files, options, transformers, host)
 
   if (is_failed(tsoutput)) {
