@@ -1,22 +1,25 @@
 // This is based on https://github.com/pimterry/loglevel
 
 import {isString} from "./util/types"
-import {entries} from "./util/object"
+import {values} from "./util/object"
+import {version} from "../version"
 
 const _loggers: {[key: string]: Logger} = {}
 
+type LogMethod = "log" | "trace" | "debug" | "info" | "warn" | "error"
+
 export class LogLevel {
-  constructor(readonly name: string, readonly level: number) {}
+  constructor(readonly name: string, readonly level: number, readonly method: LogMethod) {}
 }
 
 export class Logger {
-  static TRACE = new LogLevel("trace", 0)
-  static DEBUG = new LogLevel("debug", 1)
-  static INFO  = new LogLevel("info",  2)
-  static WARN  = new LogLevel("warn",  6)
-  static ERROR = new LogLevel("error", 7)
-  static FATAL = new LogLevel("fatal", 8)
-  static OFF   = new LogLevel("off",   9)
+  static TRACE = new LogLevel("trace", 0, "trace")
+  static DEBUG = new LogLevel("debug", 1, "debug")
+  static INFO  = new LogLevel("info",  2, "info")
+  static WARN  = new LogLevel("warn",  6, "warn")
+  static ERROR = new LogLevel("error", 7, "error")
+  static FATAL = new LogLevel("fatal", 8, "error")
+  static OFF   = new LogLevel("off",   9, "log")
 
   static log_levels: {[key: string]: LogLevel} = {
     trace: Logger.TRACE,
@@ -63,22 +66,26 @@ export class Logger {
   set_level(log_level: LogLevel | string): void {
     if (log_level instanceof LogLevel) {
       this._log_level = log_level
-    } else if (isString(log_level) && log_level in Logger.log_levels) {
+    } else if (Logger.log_levels.hasOwnProperty(log_level)) {
       this._log_level = Logger.log_levels[log_level]
     } else {
       throw new Error("Logger.set_level() expects a log-level object or a string name of a log-level")
     }
 
-    const logger_name = `[${this._name}]`
+    const prefix = `[${this._name}]`
 
-    for (const [name, log_level] of entries(Logger.log_levels)) {
-      if (log_level.level < this._log_level.level || this._log_level.level === Logger.OFF.level) {
-        (this as any)[name] = function() {}
+    for (const {level, method} of values(Logger.log_levels)) {
+      if (level < this._log_level.level || this._log_level.level === Logger.OFF.level) {
+        this[method] = function() {}
       } else {
-        (this as any)[name] = _method_factory(name, logger_name)
+        this[method] = _method_factory(method, prefix)
       }
     }
+
+    this.log = _method_factory("log", prefix)
   }
+
+  log(..._args: unknown[]): void {}
 
   trace(..._args: unknown[]): void {}
 
@@ -91,23 +98,21 @@ export class Logger {
   error(..._args: unknown[]): void {}
 }
 
-function _method_factory(method_name: string, logger_name: string): (...args: unknown[]) => void  {
-  if ((console as any)[method_name] != null) {
-    return (console as any)[method_name].bind(console, logger_name)
-  } else {
-    return console.log.bind(console, logger_name)
-  }
+function _method_factory(method_name: LogMethod, prefix: string): (...args: unknown[]) => void  {
+  const method = console[method_name]
+  const fn = typeof method != "undefined" ? method : console.log
+  return fn.bind(console, prefix)
 }
 
-export const logger = Logger.get("bokeh")
+export const logger = Logger.get(`bokeh ${version}`)
 
 export function set_log_level(level: string | LogLevel): LogLevel {
   const previous_level = logger.level
   if (isString(level) && !(level in Logger.log_levels)) {
-    console.log(`[bokeh] unrecognized logging level '${level}' passed to Bokeh.set_log_level(), ignoring`)
-    console.log(`[bokeh] valid log levels are: ${Logger.levels.join(", ")}`)
+    logger.log(`unrecognized logging level '${level}' passed to Bokeh.set_log_level(), ignoring`)
+    logger.log(`valid log levels are: ${Logger.levels.join(", ")}`)
   } else {
-    console.log(`[bokeh] setting log level to: '${isString(level) ? level : level.level}'`)
+    logger.log(`setting log level to: '${isString(level) ? level : level.level}'`)
     logger.set_level(level)
   }
   return previous_level

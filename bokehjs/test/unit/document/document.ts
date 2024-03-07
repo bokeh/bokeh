@@ -635,34 +635,30 @@ describe("Document", () => {
     try {
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
-      const py_version = js_version.replace(/-(dev|rc)\./, ".$1")
-      parsed.version = `${py_version}`
+      parsed.version = js_version.replace(/-dev\./, ".dev").replace(/-rc\./, "rc")
       const out0 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out0.warn).to.be.equal("")
 
       parsed.version = "0.0.1"
       const out1 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
-      expect(out1.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
+      expect(out1.warn).to.be.equal(`[bokeh ${js_version}] Bokeh/BokehJS version mismatch: new document using Bokeh ${parsed.version} and BokehJS ${js_version}\n`)
 
+      const py_version = js_version.replace(/-.*/, "")
       parsed.version = `${py_version}rc123`
       const out2 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
-      expect(out2.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
+      expect(out2.warn).to.be.equal(`[bokeh ${js_version}] Bokeh/BokehJS version mismatch: new document using Bokeh ${parsed.version} and BokehJS ${js_version}\n`)
 
-      parsed.version = `${py_version}dev123`
+      parsed.version = `${py_version}.dev123`
       const out3 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
-      expect(out3.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
+      expect(out3.warn).to.be.equal(`[bokeh ${js_version}] Bokeh/BokehJS version mismatch: new document using Bokeh ${parsed.version} and BokehJS ${js_version}\n`)
 
-      parsed.version = `${py_version}-foo`
+      parsed.version = `${py_version}rc123+4.ffaa11dd`
       const out4 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
-      expect(out4.warn).to.be.equal("")
+      expect(out4.warn).to.be.equal(`[bokeh ${js_version}] Bokeh/BokehJS version mismatch: new document using Bokeh ${parsed.version} and BokehJS ${js_version}\n`)
 
-      parsed.version = `${py_version}rc123-foo`
+      parsed.version = `${py_version}.dev123+4.ffaa11dd`
       const out5 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
-      expect(out5.warn).to.be.equal("")
-
-      parsed.version = `${py_version}dev123-bar`
-      const out6 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
-      expect(out6.warn).to.be.equal("")
+      expect(out5.warn).to.be.equal(`[bokeh ${js_version}] Bokeh/BokehJS version mismatch: new document using Bokeh ${parsed.version} and BokehJS ${js_version}\n`)
     } finally {
       logging.set_log_level(original)
     }

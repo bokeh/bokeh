@@ -6,6 +6,7 @@ import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "@bok
 import type {SpatialIndex} from "@bokehjs/core/util/spatial"
 import type {Context2d} from "@bokehjs/core/util/canvas"
 import {with_log_level} from "@bokehjs/core/logging"
+import {version} from "@bokehjs/version"
 
 import {create_glyph_view} from "./_util"
 import {trap} from "../../../util"
@@ -64,7 +65,7 @@ describe("glyph module", () => {
         const out_rect0 = trap(() => {
           expect(glyph_view.hit_test(rect)).to.be.null
         })
-        expect(out_rect0.debug).to.be.equal("[bokeh] 'rect' selection not available for SomeGlyph\n")
+        expect(out_rect0.debug).to.be.equal(`[bokeh ${version}] 'rect' selection not available for SomeGlyph\n`)
         const out_rect1 = trap(() => {
           expect(glyph_view.hit_test(rect)).to.be.null
         })
@@ -74,7 +75,7 @@ describe("glyph module", () => {
         const out_poly0 = trap(() => {
           expect(glyph_view.hit_test(poly)).to.be.null
         })
-        expect(out_poly0.debug).to.be.equal("[bokeh] 'poly' selection not available for SomeGlyph\n")
+        expect(out_poly0.debug).to.be.equal(`[bokeh ${version}] 'poly' selection not available for SomeGlyph\n`)
         const out_poly1 = trap(() => {
           expect(glyph_view.hit_test(poly)).to.be.null
         })

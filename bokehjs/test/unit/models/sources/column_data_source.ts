@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
 import {with_log_level} from "@bokehjs/core/logging"
+import {version} from "@bokehjs/version"
 
 import {keys} from "@bokehjs/core/util/object"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -99,11 +100,11 @@ describe("column_data_source module", () => {
       with_log_level("info", () => {
         const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
         const out0 = trap(() => r0.get_length())
-        expect(out0.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+        expect(out0.warn).to.be.equal(`[bokeh ${version}] data source has columns of inconsistent lengths\n`)
 
         const r1 = new ColumnDataSource({data: {foo: [1], bar: [1, 2], baz: [1]}})
         const out1 = trap(() => r1.get_length())
-        expect(out1.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+        expect(out1.warn).to.be.equal(`[bokeh ${version}] data source has columns of inconsistent lengths\n`)
       })
     })
   })

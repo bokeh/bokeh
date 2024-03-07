@@ -8,13 +8,13 @@ import {ModelResolver} from "core/resolvers"
 import type {ModelRep} from "core/serialization"
 import {Serializer} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
-import {pyify_version} from "core/util/version"
+import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
-import {equals} from "core/util/eq"
+import {equals, is_equal} from "core/util/eq"
 import {copy} from "core/util/array"
 import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
@@ -441,18 +441,21 @@ export class Document implements Equatable {
   }
 
   private static _handle_version(json: DocJson): void {
-    if (json.version != null) {
-      const py_version = json.version
-      const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
-      const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
-      if (!is_dev && pyify_version(js_version) != py_version) {
-        logger.warn("JS/Python version mismatch")
-        logger.warn(versions_string)
-      } else {
-        logger.debug(versions_string)
-      }
-    } else {
+    if (json.version == null) {
       logger.warn("'version' field is missing")
+    }
+
+    const py_version = json.version ?? "0.0.0"
+
+    const py_ver = Version.from(py_version)
+    const js_ver = Version.from(js_version)
+
+    const message = `new document using Bokeh ${py_version} and BokehJS ${js_version}`
+
+    if (is_equal(py_ver, js_ver)) {
+      logger.debug(message)
+    } else {
+      logger.warn(`Bokeh/BokehJS version mismatch: ${message}`)
     }
   }
 
