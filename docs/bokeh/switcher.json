@@ -4,6 +4,10 @@
     "url": "https://docs.bokeh.org/en/latest/"
   },
   {
+    "version": "3.4.0",
+    "url": "https://docs.bokeh.org/en/3.4.0/"
+  },
+  {
     "version": "3.3.0",
     "url": "https://docs.bokeh.org/en/3.3.0/"
   },
@@ -20,7 +24,7 @@
     "url": "https://docs.bokeh.org/en/2.4.3/"
   },
   {
-    "name": "dev (3.4)",
-    "url": "https://docs.bokeh.org/en/dev-3.4/"
+    "name": "dev (3.5)",
+    "url": "https://docs.bokeh.org/en/dev-3.5/"
   }
 ]
