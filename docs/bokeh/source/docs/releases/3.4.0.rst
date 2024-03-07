@@ -3,9 +3,10 @@
 3.4.0
 =====
 
-Bokeh version ``3.4.0`` (December 2023) is a minor milestone of Bokeh project.
+Bokeh version ``3.4.0`` (March 2024) is a minor milestone of Bokeh project.
 
-* Added support for zero latency tap (no single and double tap disambiguation) (:bokeh-pull:`12831`)
+* Added support for "floating" UI elements (e.g. ``Dialog``) and node positioning system (:bokeh-pull:`13538`)
+* Redesigned UI gesture handling and added support for zero latency tap (:bokeh-pull:`12831`)
 * Added support for ``padding``, ``border_radius``, etc. to ``Label`` and ``Title`` (:bokeh-pull:`12825`)
 * Added support for interactivity (rotation) to ``Label`` when ``editable=True`` (:bokeh-pull:`12825`)
 * ``BOKEH_DEV=true`` now defaults to server development resources (:bokeh-pull:`13042`)
@@ -16,3 +17,16 @@ Bokeh version ``3.4.0`` (December 2023) is a minor milestone of Bokeh project.
 * Migrated bokehjs' bundles from ES2017 JavaScript standard to ES2020 (:bokeh-pull:`13565`)
 * Added support for non-visual glyph data property overrides (:bokeh-pull:`13554`)
 * Added support for ``Tool.visible`` property and deprecated ``InspectTool.toggleable`` (:bokeh-pull:`13593`)
+* Deprecated ``figure.circle(size=10)`` in favour of ``figure.scatter(size=10)`` API (:bokeh-pull:`13283`)
+* Added support for ``CategoricalSlider`` widget (:bokeh-pull:`13489`)
+* Added support for default column values to ``ColumnDataSource`` and edit tools (:bokeh-pull:`13518`)
+* Added support for math text glyphs (``TeXGlyph`` and ``MathMLGlyph``) (:bokeh-pull:`13612`)
+* Added support for string nodes to ``StaticLayoutProvider`` (:bokeh-pull:`13618`)
+* Added support for custom units of measurement to ``ScaleBar`` (:bokeh-pull:`13625`)
+* Improved support for styling in ``DataTable`` cell formatters (:bokeh-pull:`13685`)
+* Added support for Unicode names to placeholder syntax (used e.g. by ``HoverTool``) (:bokeh-pull:`13723`)
+* Made all Bokeh generated DOM elements to have unique and CSS-safe identifiers (:bokeh-pull:`13636`)
+* Unified handling of plain objects and ``Map`` objects in bokehjs' APIs (:bokeh-pull:`13696`)
+* Restored dependencies of bokehjs' ``@bokeh/bokehjs`` meta package (:bokeh-pull:`13715`)
+* Many bug fixes to WebGL backend (:bokeh-pull:`13482`, :bokeh-pull:`13649`, :bokeh-pull:`13651`, :bokeh-pull:`13684`)
+* Many bug fixes to SVG backend (:bokeh-pull:`13363`, :bokeh-pull:`13640`)
