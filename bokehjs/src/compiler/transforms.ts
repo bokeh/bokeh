@@ -426,7 +426,7 @@ export function wrap_in_function(module_name: string) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context
     const p = (name: string) => factory.createParameterDeclaration(undefined, undefined, name)
-    const params = [p("require"), p("module"), p("exports"), p("__esModule"), p("__esExport")]
+    const params = [p("require"), p("module"), p("exports"), p("__esModule"), p("__esExport"), p("base_url")]
     const block = factory.createBlock(root.statements, true)
     const func = factory.createFunctionDeclaration(undefined, undefined, "_", undefined, params, undefined, block)
     ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${module_name} `, false)

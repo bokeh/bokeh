@@ -405,7 +405,7 @@ describe("Bug", () => {
       }
 
       const events0: DocumentEvent[] = []
-      const doc = Document.from_json(doc_json, events0)
+      const doc = await Document.from_json(doc_json, events0)
       expect(events0).to.be.empty
 
       expect(doc.roots().length).to.be.equal(1)

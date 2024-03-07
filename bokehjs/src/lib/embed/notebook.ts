@@ -1,4 +1,4 @@
-import type {Patch} from "document"
+import type {InboundPatch} from "document"
 import {Document} from "document"
 import {Receiver} from "protocol/receiver"
 import type {Message} from "protocol/message"
@@ -14,7 +14,7 @@ import {_resolve_element, _resolve_root_elements} from "./dom"
 // This has to be available at Bokeh.embed.kernels in JupyterLab.
 export const kernels: {[key: string]: unknown} = {}
 
-function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {
+async function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): Promise<void> {
   if (comm_msg.buffers.length > 0) {
     receiver.consume(comm_msg.buffers[0].buffer)
   } else {
@@ -23,7 +23,7 @@ function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: Co
 
   const msg = receiver.message
   if (msg != null) {
-    this.apply_json_patch((msg as Message<Patch>).content, msg.buffers)
+    await this.apply_json_patch((msg as Message<InboundPatch>).content, msg.buffers)
   }
 }
 
@@ -52,7 +52,7 @@ function _init_comms(target: string, doc: Document): void {
     } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
-  } else if  (typeof google != "undefined" && google.colab.kernel != null) {
+  } else if (typeof google != "undefined" && google.colab.kernel != null) {
     logger.info(`Registering Google Colab comms for target ${target}`)
     const comm_manager = google.colab.kernel.comms
     try {
@@ -66,7 +66,7 @@ function _init_comms(target: string, doc: Document): void {
             buffers.push(new DataView(buffer))
           }
           const msg = {content, buffers}
-          _handle_notebook_comms.bind(doc)(r, msg)
+          await _handle_notebook_comms.bind(doc)(r, msg)
         }
       })
     } catch (e) {
@@ -82,7 +82,7 @@ export async function embed_items_notebook(docs_json: DocsJson, render_items: Re
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
   }
 
-  const document = Document.from_json(values(docs_json)[0])
+  const document = await Document.from_json(values(docs_json)[0])
 
   for (const item of render_items) {
     if (item.notebook_comms_target != null) {

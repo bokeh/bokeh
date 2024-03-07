@@ -16,3 +16,9 @@ export async function load_module<T>(module: Promise<T>): Promise<T | null> {
     }
   }
 }
+
+export async function import_url(url: string): Promise<unknown> {
+  // XXX: eval() to work around transpilation to require()
+  // https://github.com/microsoft/TypeScript/issues/43329
+  return await eval(`import("${url}")`)
+}

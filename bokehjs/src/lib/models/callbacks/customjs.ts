@@ -7,7 +7,8 @@ import {use_strict} from "core/util/string"
 import type {Model} from "../../model"
 import {logger} from "core/logging"
 import type {Dict} from "core/types"
-import {isFunction} from "core/util/types"
+import {isPlainObject, isFunction} from "core/util/types"
+import {import_url} from "core/util/modules"
 import type {ViewManager} from "core/view_manager"
 import {index} from "embed/standalone"
 
@@ -58,10 +59,8 @@ export class CustomJS extends Callback {
   protected async _compile_module(): Promise<ESFunc> {
     const url = URL.createObjectURL(new Blob([this.code], {type: "text/javascript"}))
     try {
-      // XXX: eval() to work around transpilation to require()
-      // https://github.com/microsoft/TypeScript/issues/43329
-      const module = await eval(`import("${url}")`)
-      if (isFunction(module.default)) {
+      const module = await import_url(url)
+      if (isPlainObject(module) && isFunction(module.default)) {
         return module.default as ESFunc
       } else {
         logger.warn("custom ES module didn't export a default function")

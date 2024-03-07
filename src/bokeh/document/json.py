@@ -113,6 +113,7 @@ DocumentChanged = DocumentPatched
 class DocJson(TypedDict):
     version: NotRequired[str]
     title: NotRequired[str]
+    bundles: NotRequired[list[str]]
     defs: NotRequired[list[ModelDef]]
     roots: list[ModelRep]
     callbacks: NotRequired[dict[str, list[ModelRep]]]

@@ -1,5 +1,6 @@
 import {default_resolver} from "../base"
 import {version as js_version} from "../version"
+import {settings} from "../core/settings"
 import {logger} from "../core/logging"
 import type {Class} from "core/class"
 import type {HasProps} from "core/has_props"
@@ -20,6 +21,7 @@ import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
+import {assert} from "core/util/assert"
 import {Model} from "model"
 import type {ModelDef} from "./defs"
 import {decode_def} from "./defs"
@@ -28,6 +30,8 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
+
+declare const base_url: string | null | undefined
 
 Deserializer.register("model", decode_def)
 
@@ -63,6 +67,7 @@ export class EventManager {
 export type DocJson = {
   version?: string
   title?: string
+  bundles?: string[]
   defs?: ModelDef[]
   roots: ModelRep[]
   callbacks?: {[key: string]: ModelRep[]}
@@ -70,6 +75,10 @@ export type DocJson = {
 
 export type Patch = {
   events: DocumentChanged[]
+}
+
+export type InboundPatch = Patch & {
+  bundles?: string[]
 }
 
 export const documents: Document[] = []
@@ -435,9 +444,9 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json_string(s: string, events?: Out<DocumentEvent[]>): Document {
+  static async from_json_string(s: string, events?: Out<DocumentEvent[]>): Promise<Document> {
     const json = JSON.parse(s)
-    return Document.from_json(json, events)
+    return await Document.from_json(json, events)
   }
 
   private static _handle_version(json: DocJson): void {
@@ -456,9 +465,64 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Document {
+  private static _known_bundles: Set<string> = new Set()
+
+  static async load_bundles(bundles: string[]): Promise<void> {
+
+    const is_absolute = (uri: string): boolean => {
+      return uri.startsWith("http://") || uri.startsWith("https://") || uri.startsWith("/")
+    }
+
+    const load_url = async (url: string): Promise<boolean> => {
+      if (this._known_bundles.has(url)) {
+        return true
+      }
+
+      const response = await fetch(url)
+      if (response.ok) {
+        this._known_bundles.add(url)
+        const module = await response.text()
+        eval(module)
+        return true
+      } else {
+        return false
+      }
+    }
+
+    const build_url = (base_name: string, version?: string): string => {
+      assert(base_url != null)
+      const name = version != null ? `${base_name}-${version}` : base_name
+      const suffix = settings.dev ? ".min.js" : ".js"
+      return `${base_url}/${name}${suffix}`
+    }
+
+    for (const bundle of bundles) {
+      if (is_absolute(bundle)) {
+        if (await load_url(bundle)) {
+          continue
+        }
+      } else {
+        const url = build_url(bundle)
+        if (await load_url(url)) {
+          continue
+        }
+        const versioned_url = build_url(bundle, pyify_version(js_version))
+        if (await load_url(versioned_url)) {
+          continue
+        }
+      }
+
+      console.error(`failed to load '${bundle}' bundle`)
+    }
+  }
+
+  static async from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Promise<Document> {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
+
+    if (doc_json.bundles != null) {
+      await this.load_bundles(doc_json.bundles)
+    }
 
     const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
@@ -502,8 +566,8 @@ export class Document implements Equatable {
     return doc
   }
 
-  replace_with_json(json: DocJson): void {
-    const replacement = Document.from_json(json)
+  async replace_with_json(json: DocJson): Promise<void> {
+    const replacement = await Document.from_json(json)
     replacement.destructively_move(this)
   }
 
@@ -528,7 +592,11 @@ export class Document implements Equatable {
     return patch
   }
 
-  apply_json_patch(patch: Patch, buffers: Map<ID, ArrayBuffer> = new Map()): void {
+  async apply_json_patch(patch: InboundPatch, buffers: Map<ID, ArrayBuffer> = new Map()): Promise<void> {
+    if (patch.bundles != null) {
+      await Document.load_bundles(patch.bundles)
+    }
+
     this._push_all_models_freeze()
 
     const deserializer = new Deserializer(this._resolver, this._all_models, (obj) => obj.attach_document(this))

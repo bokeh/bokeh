@@ -157,17 +157,21 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
     '''
     if objs is not None:
         all_objs    = _all_objs(objs)
-        use_widgets = _use_widgets(all_objs)
-        use_tables  = _use_tables(all_objs)
-        use_gl      = _use_gl(all_objs)
-        use_mathjax = _use_mathjax(all_objs)
+        # use_widgets = _use_widgets(all_objs)
+        # use_tables  = _use_tables(all_objs)
+        # use_gl      = _use_gl(all_objs)
+        # use_mathjax = _use_mathjax(all_objs)
     else:
-        # XXX: force all components on server and in notebook, because we don't know in advance what will be used
         all_objs    = None
-        use_widgets = True
-        use_tables  = True
-        use_gl      = True
-        use_mathjax = True
+        # use_widgets = False
+        # use_tables  = False
+        # use_gl      = False
+        # use_mathjax = False
+
+    use_widgets = False
+    use_tables  = False
+    use_gl      = False
+    use_mathjax = False
 
     js_files: list[URL] = []
     js_raw: list[str] = []
@@ -210,6 +214,34 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
         js_raw.append(ext)
 
     return Bundle(js_files, js_raw, css_files, css_raw, resources.hashes if resources else {})
+
+@dataclass
+class UsedBundles:
+    widgets: bool
+    tables: bool
+    gl: bool
+    mathjax: bool
+
+    def components(self) -> list[str]:
+        result: list[str] = []
+        if self.widgets:
+            result.append("bokeh-widgets")
+        if self.tables:
+            result.append("bokeh-tables")
+        if self.gl:
+            result.append("bokeh-gl")
+        if self.mathjax:
+            result.append("bokeh-mathjax")
+        return result
+
+def used_bundles(objs: Sequence[Model]) -> UsedBundles:
+    all_objs = _all_objs(objs)
+    return UsedBundles(
+        widgets = _use_widgets(all_objs),
+        tables  = _use_tables(all_objs),
+        gl      = _use_gl(all_objs),
+        mathjax = _use_mathjax(all_objs),
+    )
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -471,6 +503,7 @@ def _ext_use_widgets(all_objs: set[HasProps]) -> bool:
 def _ext_use_mathjax(all_objs: set[HasProps]) -> bool:
     from ..models.text import MathText
     return _query_extensions(all_objs, lambda cls: issubclass(cls, MathText))
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

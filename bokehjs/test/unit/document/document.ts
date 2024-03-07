@@ -623,7 +623,7 @@ describe("Document", () => {
     expect(d2.roots().length).to.be.equal(0)
   })
 
-  it("checks for versions matching", () => {
+  it("checks for versions matching", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     const root1 = new SomeModel()
@@ -637,38 +637,38 @@ describe("Document", () => {
       const parsed = JSON.parse(json)
       const py_version = js_version.replace(/-(dev|rc)\./, ".$1")
       parsed.version = `${py_version}`
-      const out0 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out0 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out0.warn).to.be.equal("")
 
       parsed.version = "0.0.1"
-      const out1 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out1 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out1.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
       parsed.version = `${py_version}rc123`
-      const out2 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out2 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out2.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
       parsed.version = `${py_version}dev123`
-      const out3 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out3 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out3.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
       parsed.version = `${py_version}-foo`
-      const out4 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out4 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out4.warn).to.be.equal("")
 
       parsed.version = `${py_version}rc123-foo`
-      const out5 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out5 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out5.warn).to.be.equal("")
 
       parsed.version = `${py_version}dev123-bar`
-      const out6 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      const out6 = await trap(async () => await Document.from_json_string(JSON.stringify(parsed)))
       expect(out6.warn).to.be.equal("")
     } finally {
       logging.set_log_level(original)
     }
   })
 
-  it("can serialize with one model in it", () => {
+  it("can serialize with one model in it", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     const root1 = new SomeModel()
@@ -679,14 +679,14 @@ describe("Document", () => {
     const json = d.to_json_string()
     const parsed = JSON.parse(json)
     parsed.version = js_version
-    const copy = Document.from_json_string(JSON.stringify(parsed))
+    const copy = await Document.from_json_string(JSON.stringify(parsed))
 
     expect(copy.roots().length).to.be.equal(1)
     expect(copy.roots()[0]).to.be.instanceof(SomeModel)
     expect(copy.title()).to.be.equal("Foo")
   })
 
-  it("can serialize excluding defaults", () => {
+  it("can serialize excluding defaults", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     const root1 = new SomeModel()
@@ -697,7 +697,7 @@ describe("Document", () => {
     const json = d.to_json_string(false)
     const parsed = JSON.parse(json)
     parsed.version = js_version
-    const copy = Document.from_json_string(JSON.stringify(parsed))
+    const copy = await Document.from_json_string(JSON.stringify(parsed))
 
     expect(copy.roots().length).to.be.equal(1)
     const model0 = copy.roots()[0]
@@ -725,7 +725,7 @@ describe("Document", () => {
   // TODO copy the following tests from test_document.py here
   // TODO(havocp) test_serialization_more_models
 
-  it("can patch an integer property", () => {
+  it("can patch an integer property", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
@@ -741,18 +741,18 @@ describe("Document", () => {
 
     const event1 = new ev.ModelChangedEvent(d, root1, "foo", 57)
     const patch1 = d.create_json_patch([event1])
-    d.apply_json_patch(patch1)
+    await d.apply_json_patch(patch1)
 
     expect(root1.foo).to.be.equal(57)
 
     const event2 = new ev.ModelChangedEvent(d, child1, "foo", 67)
     const patch2 = d.create_json_patch([event2])
-    d.apply_json_patch(patch2)
+    await d.apply_json_patch(patch2)
 
     expect(child1.foo).to.be.equal(67)
   })
 
-  it("can patch a reference property", () => {
+  it("can patch a reference property", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
@@ -774,7 +774,7 @@ describe("Document", () => {
 
     const event1 = new ev.ModelChangedEvent(d, root1, "child", child3)
     const patch1 = d.create_json_patch([event1])
-    d.apply_json_patch(patch1)
+    await d.apply_json_patch(patch1)
 
     expect(root1.child.id).to.be.equal(child3.id)
     expect_instanceof(root1.child, SomeModel)
@@ -787,7 +787,7 @@ describe("Document", () => {
     // put it back how it was before
     const event2 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch2 = d.create_json_patch([event2])
-    d.apply_json_patch(patch2)
+    await d.apply_json_patch(patch2)
 
     expect(root1.child.id).to.be.equal(child1.id)
     expect_instanceof(root1.child, SomeModel)
@@ -798,7 +798,7 @@ describe("Document", () => {
     expect(d._all_models.has(child3.id)).to.be.false
   })
 
-  it("can patch two properties at once", () => {
+  it("can patch two properties at once", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
@@ -814,7 +814,7 @@ describe("Document", () => {
     const event1 = new ev.ModelChangedEvent(d, root1, "foo", 57)
     const event2 = new ev.ModelChangedEvent(d, root1, "child", child2)
     const patch1 = d.create_json_patch([event1, event2])
-    d.apply_json_patch(patch1)
+    await d.apply_json_patch(patch1)
 
     expect(root1.foo).to.be.equal(57)
     expect(root1.child).to.be.instanceof(SomeModel)
@@ -822,7 +822,7 @@ describe("Document", () => {
     expect(root1_child0.foo).to.be.equal(44)
   })
 
-  it("sets proper document on models added during patching", () => {
+  it("sets proper document on models added during patching", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
@@ -842,13 +842,13 @@ describe("Document", () => {
 
     const event1 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch1 = d.create_json_patch([event1])
-    d.apply_json_patch(patch1)
+    await d.apply_json_patch(patch1)
 
     expect(root1.document?.roots().length).to.be.equal(1)
     expect(root1.child?.document?.roots().length).to.be.equal(1)
   })
 
-  it("sets proper document on models added during construction", () => {
+  it("sets proper document on models added during construction", async () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
@@ -862,7 +862,7 @@ describe("Document", () => {
     const json = d.to_json_string()
     const parsed = JSON.parse(json)
     parsed.version = js_version
-    const copy = Document.from_json_string(JSON.stringify(parsed))
+    const copy = await Document.from_json_string(JSON.stringify(parsed))
 
     const root1_copy = copy.get_model_by_id(root1.id) as ModelWithConstructTimeChanges
 
@@ -877,7 +877,7 @@ describe("Document", () => {
     expect(root1_copy.child?.document).to.be.equal(copy)
   })
 
-  it("can detect changes during model initialization", () => {
+  it("can detect changes during model initialization", async () => {
     const doc_json = {
       version: js_version,
       title: "Bokeh Application",
@@ -892,7 +892,7 @@ describe("Document", () => {
     }
 
     const events: ev.DocumentEvent[] = []
-    const doc = Document.from_json(doc_json, events)
+    const doc = await Document.from_json(doc_json, events)
 
     expect(doc.roots().length).to.be.equal(1)
     expect(events.length).to.be.equal(2)
@@ -962,7 +962,7 @@ describe("Document", () => {
   })
 
   describe("doesn't boomerang events", () => {
-    it("when adding a new root", () => {
+    it("when adding a new root", async () => {
       const doc = new Document()
 
       const events: ev.DocumentEvent[] = []
@@ -971,7 +971,7 @@ describe("Document", () => {
       const model0 = new SomeModel({foo: 127})
       const event = new ev.RootAddedEvent(doc, model0)
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
@@ -985,7 +985,7 @@ describe("Document", () => {
       expect(doc.roots().length).to.be.equal(2)
     })
 
-    it("when removing a root", () => {
+    it("when removing a root", async () => {
       const doc = new Document()
 
       const model0 = new SomeModel({foo: 127})
@@ -999,7 +999,7 @@ describe("Document", () => {
 
       const event = new ev.RootRemovedEvent(doc, model0)
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
@@ -1012,7 +1012,7 @@ describe("Document", () => {
       expect(doc.roots().length).to.be.equal(0)
     })
 
-    it("when changing a title", () => {
+    it("when changing a title", async () => {
       const doc = new Document()
 
       const events: ev.DocumentEvent[] = []
@@ -1022,7 +1022,7 @@ describe("Document", () => {
 
       const event = new ev.TitleChangedEvent(doc, "some title")
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
@@ -1035,7 +1035,7 @@ describe("Document", () => {
       expect(doc.title()).to.be.equal("other title")
     })
 
-    it("when modifying a model", () => {
+    it("when modifying a model", async () => {
       const doc = new Document()
 
       const model = new SomeModel({foo: 127})
@@ -1048,7 +1048,7 @@ describe("Document", () => {
 
       const event = new ev.ModelChangedEvent(doc, model, "foo", 128)
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
@@ -1061,7 +1061,7 @@ describe("Document", () => {
       expect(model.foo).to.be.equal(129)
     })
 
-    it("when changing column data", () => {
+    it("when changing column data", async () => {
       const doc = new Document()
 
       const source = new ColumnDataSource({data: {col0: [1, 2, 3]}})
@@ -1072,14 +1072,14 @@ describe("Document", () => {
 
       const event = new ev.ColumnDataChangedEvent(doc, source, "data", {col1: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col1: [4, 5, 6]})
     })
 
-    it("when streaming to a column", () => {
+    it("when streaming to a column", async () => {
       const doc = new Document()
 
       const source = new ColumnDataSource({data: {col0: [1, 2, 3]}})
@@ -1090,7 +1090,7 @@ describe("Document", () => {
 
       const event = new ev.ColumnsStreamedEvent(doc, source, "data", {col0: [4, 5, 6]})
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
@@ -1103,7 +1103,7 @@ describe("Document", () => {
       expect(source.data).to.be.equal({col0: [1, 2, 3, 4, 5, 6, 7, 8, 9]})
     })
 
-    it("when patching a column", () => {
+    it("when patching a column", async () => {
       const doc = new Document()
 
       const source = new ColumnDataSource({data: {col0: [1, 2, 3, 4, 5, 6]}})
@@ -1114,7 +1114,7 @@ describe("Document", () => {
 
       const event = new ev.ColumnsPatchedEvent(doc, source, "data", {col0: [[new Slice({start: 1, stop: 3}), [20, 30]]]})
       const patch = doc.create_json_patch([event])
-      doc.apply_json_patch(patch)
+      await doc.apply_json_patch(patch)
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
