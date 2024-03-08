@@ -25,7 +25,7 @@ def text():
 
 
 def scatter():
-    colormap = {'Adelie': 'red', 'Chinstrap': 'green', 'Gentoo': 'Blue'}
+    colormap = {'Adelie': 'red', 'Chinstrap': 'green', 'Gentoo': 'blue'}
     penguins["colors"] = penguins["species"].map(colormap)
     source = ColumnDataSource(penguins)
     s = figure(title = "Penguin size")
