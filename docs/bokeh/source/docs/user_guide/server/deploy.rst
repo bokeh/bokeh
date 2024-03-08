@@ -17,6 +17,56 @@ requirements and the expected number of users.
 However, if you have authentication, scaling, or uptime requirements, you'll
 have to consider more sophisticated deployment configurations.
 
+Integrating Bokeh server into other web services
+------------------------------------------------
+
+Bokeh server is frequently used to create plots and dashboards embedded within
+larger parent applications. For instance, in a financial context, this may
+involve incorporating Bokeh-backed trendlines that chart account balances over
+time into a web-based trading platform. In a supply-chain context, a Bokeh view
+could be integrated into an existing inventory management system to
+interactively monitor a store's item supplies.
+
+To meet this use-case, the ``bokeh.embed`` module offers the
+:func:`~bokeh.embed.server_document` and :func:`~bokeh.embed.server_session`
+methods. Refer to :ref:`ug_output_embed_apps` for a detailed discussion of their
+usage, with examples. In short, these methods return the text of an HTML script
+tag that loads a view from Bokeh server, and adds the view to the DOM of any
+page that the script tag is placed in.
+
+If the parent service you wish to integrate with is not Python-based, you can
+still integrate with Bokeh through the ``server_document`` / ``server_session``
+methods. However, you will need to do so by calling out to a small, long-lived
+Python script that returns the text contents of those methods via any standard
+form of IPC.
+
+To allow your parent application to display embedded Bokeh views, you must
+configure the parent application to permit cross-origin requests to your Bokeh
+server instance. This is accomplished by adding the public hostname and port
+number of your Bokeh server to the ``script-src`` and ``connect-src``
+directives of the parent service's `content security policy (CSP)
+<https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP>`_, for both the HTTP(S)
+and WS(S) protocols. The exact procedure for configuring the CSP will depend on
+the toolkit or framework your parent service is built with, so reference the
+specific documentation for that software. As a measure of last resort, CSP
+headers can be overwritten by a reverse-proxy as well.
+
+.. warning::
+    Do not run Bokeh server over HTTP while running the parent service over
+    HTTPS, or vice-versa. Bokeh's loader code determines which protocol to load
+    resources over on the client-side, via ``window.location.protocol``, so if
+    the protocol of the parent service does not match the protocol of your
+    Bokeh server instance, the loader script's requests to Bokeh server will
+    fail.
+
+If your parent application is Python-based, and you don't mind tightly
+integrating your Bokeh server application into your parent application's
+codebase, Bokeh also supports running its underlying Tornado web server through
+a thread launched by your parent application. Practical examples are linked
+under :ref:`ug_server_library`. This approach still requires the use of
+``server_document`` or ``server_session``, but may simplify CSP configuration
+as well as deployment of your Bokeh server app.
+
 SSH tunnels
 ~~~~~~~~~~~
 
