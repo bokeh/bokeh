@@ -2,7 +2,7 @@ from bokeh.layouts import layout
 from bokeh.models import ColumnDataSource, Div, HoverTool, Paragraph
 from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data
-from bokeh.sampledata.iris import flowers
+from bokeh.sampledata.penguins import data as penguins
 
 
 def text():
@@ -25,13 +25,13 @@ def text():
 
 
 def scatter():
-    colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
-    source = ColumnDataSource(flowers)
-    source.data['colors'] = [colormap[x] for x in flowers['species']]
-    s = figure(title = "Iris Morphology")
-    s.xaxis.axis_label = 'Petal Length'
-    s.yaxis.axis_label = 'Petal Width'
-    s.scatter("petal_length", "petal_width", color="colors", source=source,
+    colormap = {'Adelie': 'red', 'Chinstrap': 'green', 'Gentoo': 'Blue'}
+    penguins["colors"] = penguins["species"].map(colormap)
+    source = ColumnDataSource(penguins)
+    s = figure(title = "Penguin size")
+    s.xaxis.axis_label = "Flipper Length (mm)"
+    s.yaxis.axis_label = "Body Mass (g)"
+    s.scatter("flipper_length_mm", "body_mass_g", color="colors", source=source,
               fill_alpha=0.2, size=10, legend_group="species")
     # Lets move the legend off-canvas!
     legend = s.legend[0]

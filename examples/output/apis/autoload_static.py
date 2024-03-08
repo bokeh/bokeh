@@ -5,7 +5,7 @@ from tornado.web import Application, RequestHandler
 from bokeh.embed import autoload_static
 from bokeh.plotting import figure
 from bokeh.resources import CDN
-from bokeh.sampledata.iris import flowers
+from bokeh.sampledata.penguins import data
 from bokeh.util.browser import view
 
 template = Template("""
@@ -43,14 +43,14 @@ class JSHandler(RequestHandler):
     def get(self): self.write(self.js)
 
 def make_plot():
-    colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
-    colors = [colormap[x] for x in flowers['species']]
+    colormap = {'Adelie': 'red', 'Chinstrap': 'green', 'Gentoo': 'blue'}
+    colors = [colormap[x] for x in data['species']]
 
-    p = figure(title = "Iris Morphology")
-    p.xaxis.axis_label = 'Petal Length'
-    p.yaxis.axis_label = 'Petal Width'
+    p = figure(title = "Penguin size")
+    p.xaxis.axis_label = "Bill Length (mm)"
+    p.yaxis.axis_label = "Body Mass (g)"
 
-    p.circle(flowers["petal_length"], flowers["petal_width"],
+    p.scatter(data["bill_length_mm"], data["body_mass_g"],
              color=colors, fill_alpha=0.2, size=10)
 
     return p

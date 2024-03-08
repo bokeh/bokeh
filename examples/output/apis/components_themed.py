@@ -3,19 +3,19 @@ from jinja2 import Template
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
-from bokeh.sampledata.iris import flowers
+from bokeh.sampledata.penguins import data
 from bokeh.themes import Theme
 from bokeh.transform import factor_cmap, factor_mark
 from bokeh.util.browser import view
 
-SPECIES = ['setosa', 'versicolor', 'virginica']
+SPECIES = ['Adelie', 'Chinstrap', 'Gentoo']
 MARKERS = ['hex', 'circle_x', 'triangle']
 
-p = figure(title = "Iris Morphology")
-p.xaxis.axis_label = 'Petal Length'
-p.yaxis.axis_label = 'Sepal Width'
+p = figure(title = "Penguin size")
+p.xaxis.axis_label = "Flipper Length (mm)"
+p.yaxis.axis_label = "Body Mass (g)"
 
-p.scatter("petal_length", "sepal_width", source=flowers, legend_group="species", fill_alpha=0.4, size=12,
+p.scatter("flipper_length_mm", "body_mass_g", source=data, legend_group="species", fill_alpha=0.4, size=12,
           marker=factor_mark('species', MARKERS, SPECIES),
           color=factor_cmap('species', 'Category10_3', SPECIES))
 
