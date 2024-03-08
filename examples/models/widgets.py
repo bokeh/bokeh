@@ -20,7 +20,7 @@ from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, Dialog,
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg
-from bokeh.sampledata.iris import flowers
+from bokeh.sampledata.penguins import data
 from bokeh.util.browser import view
 
 palette_items = [
@@ -231,7 +231,7 @@ pre_text = w.PreText(text="some text")
 
 def mk_tab(color: str):
     plot = figure(width=300, height=300)
-    plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
+    plot.scatter(data["flipper_length_mm"], data["body_mass_g"], color=color, fill_alpha=0.2, size=12)
     return TabPanel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
 
 tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
