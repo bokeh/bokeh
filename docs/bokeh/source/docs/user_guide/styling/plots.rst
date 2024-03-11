@@ -246,6 +246,26 @@ This example uses the first method of passing a color parameter with the
 .. bokeh-plot:: __REPO__/examples/styling/plots/glyph_hover.py
     :source-position: above
 
+Overriding non-visual properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Glyphs allow any data driven property to be overridden, not just visual
+properties. This way the user can, for example, change the size of markers in
+a scatter plot on hover or even offset a glyph from its original position. In
+fact the user can override the primary glyph (``GlyphRenderer.glyph``) with a
+completely unrelated one (e.g. replace ``Circle`` with a ``Rect``).
+
+.. note::
+    Only the primary glyph is used for hit testing and other functions. Secondary
+    glyphs (``selection_glyph``, ``hover_glyph``, etc.) are used for painting and
+    an only affect appearance of a glyph.
+
+This examples shows how to override non-visual properties of a ``Circle`` glyph,
+(``radius`` on hover) and how to use a different glyph on selection:
+
+.. bokeh-plot:: __REPO__/examples/styling/plots/glyph_non_visual.py
+    :source-position: above
+
 .. _ug_styling_plots_axes:
 
 Styling axes
