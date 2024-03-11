@@ -25,7 +25,7 @@ dec = df.open > df.close
 non_working_days = df[['date']].assign(diff=df['date'].diff()-pd.Timedelta('1D'))
 non_working_days = non_working_days[non_working_days['diff']>=pd.Timedelta('1D')]
 
-df['date'] += pd.Timedelta('12H') # move candles to the center of the day
+df['date'] += pd.Timedelta('12h') # move candles to the center of the day
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
@@ -41,8 +41,8 @@ p.renderers.extend(boxes)
 
 p.segment(df.date, df.high, df.date, df.low, color="black")
 
-p.vbar(df.date[dec], pd.Timedelta('16H'), df.open[dec], df.close[dec], color="#eb3c40")
-p.vbar(df.date[inc], pd.Timedelta('16H'), df.open[inc], df.close[inc], fill_color="white",
+p.vbar(df.date[dec], pd.Timedelta('16h'), df.open[dec], df.close[dec], color="#eb3c40")
+p.vbar(df.date[inc], pd.Timedelta('16h'), df.open[inc], df.close[inc], fill_color="white",
        line_color="#49a3a3", line_width=2)
 
 show(p)
