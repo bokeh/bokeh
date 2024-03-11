@@ -81,7 +81,6 @@ class Dimensional(Model):
     def is_known(self, unit: str) -> bool:
         pass
 
-@abstract
 class CustomDimensional(Dimensional):
     """ A base class for units of measurement with an explicit basis.
     """

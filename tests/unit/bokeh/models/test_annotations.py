@@ -47,6 +47,7 @@ from bokeh.models import (
     Title,
     Whisker,
 )
+from bokeh.models.annotations.dimensional import CustomDimensional, Metric
 from bokeh.util.serialization import convert_datetime_type
 
 from _util_models import (
@@ -271,6 +272,25 @@ def test_ScaleBar() -> None:
         prefix("background_", FILL),
         prefix("background_", HATCH),
     )
+
+
+def test_ScaleBar_dimensional() -> None:
+    electronvolts = Metric(base_unit="eV")
+    scale_bar = ScaleBar(unit="MeV", dimensional=electronvolts)
+    assert scale_bar.unit == "MeV"
+    assert scale_bar.dimensional.is_known("MeV")
+
+    angular = CustomDimensional(
+        basis={
+            "°":  (1,      "^\\circ",           "degree"),
+            "'":  (1/60,   "^\\prime",          "minute"),
+            "''": (1/3600, "^{\\prime\\prime}", "second"),
+        },
+        ticks=[1, 3, 6, 12, 60, 120, 240, 360],
+    )
+    scale_bar = ScaleBar(unit="''", dimensional=angular)
+    assert scale_bar.unit == "''"
+    assert scale_bar.dimensional.is_known("''")
 
 
 def test_Arrow() -> None:
