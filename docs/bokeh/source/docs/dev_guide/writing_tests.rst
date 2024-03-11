@@ -14,7 +14,7 @@ When you edit Bokeh's Python code
     Check whether you should update or add
     :ref:`Python tests <contributor_guide_writing_tests_python>`
 
-When your change anything related to BokehJS
+When you change anything related to BokehJS
     Check whether you should update or add
     :ref:`JavaScript tests <contributor_guide_writing_tests_bokehjs>`
 
