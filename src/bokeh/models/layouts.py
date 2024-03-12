@@ -434,6 +434,7 @@ class HBox(LayoutDOM):
         if len(children) != len(set(children)):
             return str(self)
 
+
 class VBox(LayoutDOM):
     """ A CSS grid-based vertical box. """
 
