@@ -23,9 +23,8 @@ from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view
 
 
-def make_calendar(year: int, month: int, firstweekday: str = "Mon") -> Plot:
-    firstweekday = list(day_abbrs).index(firstweekday)
-    calendar = Calendar(firstweekday=firstweekday)
+def make_calendar(year: int, month: int) -> Plot:
+    calendar = Calendar()
 
     month_days  = [ None if not day else str(day) for day in calendar.itermonthdays(year, month) ]
     month_weeks = len(month_days)//7
@@ -34,10 +33,10 @@ def make_calendar(year: int, month: int, firstweekday: str = "Mon") -> Plot:
     weekend = "lightsteelblue"
 
     def weekday(date):
-        return (date.weekday() - firstweekday) % 7
+        return (date.weekday() - calendar.firstweekday) % 7
 
     def pick_weekdays(days):
-        return [ days[i % 7] for i in range(firstweekday, firstweekday+7) ]
+        return [ days[i % 7] for i in range(calendar.firstweekday, calendar.firstweekday+7) ]
 
     day_names = pick_weekdays(day_abbrs)
     week_days = pick_weekdays([workday]*5 + [weekend]*2)

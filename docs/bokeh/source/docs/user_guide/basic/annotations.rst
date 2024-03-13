@@ -255,6 +255,107 @@ the plot using the |add layout| method.
 .. bokeh-plot:: __REPO__/examples/basic/annotations/colorbar_log.py
     :source-position: above
 
+.. _ug_basic_annotations_scale_bars:
+
+Scale bars
+----------
+
+|ScaleBar| is a visual indicator that allows to gauge the size of features on
+a plot. This is particularly useful with maps or images like CT or MRI scans,
+and in situations where using axes would be otherwise inappropriate or too
+verbose.
+
+To create a |ScaleBar| the user needs at least to provide a |Range|, either
+an explicit or an implicit one.
+
+.. code:: python
+
+    from bokeh.models import Range1d, ScaleBar
+
+    scale_bar = ScaleBar(range=Range1d(start=0, end=1000))
+    plot.add_layout(scale_bar)
+
+The range can also be shared with a plot:
+
+.. code:: python
+
+    from bokeh.models import Range1d, ScaleBar
+
+    scale_bar = ScaleBar(range=plot.y_range)
+    plot.add_layout(scale_bar)
+
+The default range for a |ScaleBar| is ``"auto"``, which uses the default x or y
+range of a plot the scale bar is associated with, depending on the orientation
+of the scale bar (``Plot.x_range`` for ``"horizontal"`` and ``Plot.y_range`` for
+``"vertical"`` orientation).
+
+Additionally the user can provide units of measurement (``ScaleBar.dimensional``,
+which takes an instance of ``Dimensional`` model) and the unit of the data range
+(``ScaleBar.unit``). The default units of measurement is metric length represented
+by ``MetricLength`` model and the default unit of data range is meter (``"m"``),
+the same as the base unit of the default measurement system.
+
+If the unit of the data range is different from the base unit, then the user can
+indicate this by changing ``ScaleBar.unit`` appropriately. For example, if the
+range is in kilometers, then the user would indicate this with:
+
+.. code:: python
+
+    from bokeh.models import ScaleBar, Metric
+
+    scale_bar = ScaleBar(
+        range=plot.y_range,
+        unit="km",
+    )
+    plot.add_layout(scale_bar)
+
+Other units of measurement can be provided by configuring ``ScaleBar.dimensional``
+property. This can be other predefined units of measurement like imperial length
+(``ImperialLength``) or angular units (``Angular``). The user can also define
+custom units of measurement. To define custom metric units, for example for a plot
+involving electron volts (eV), the user would use ``Metric(base_unit="eV")`` as
+the basis:
+
+.. code:: python
+
+    from bokeh.models import ScaleBar, Metric
+
+    scale_bar = ScaleBar(
+        range=plot.y_range,
+        unit="MeV",
+        dimensional=Metric(base_unit="eV"),
+    )
+    plot.add_layout(scale_bar)
+
+Non-metric units of measurement can be constructed with ``CustomDimensional``
+model. For example, angular units of measurements can be defined as follows:
+
+.. code:: python
+
+    from bokeh.models import ScaleBar
+    from bokeh.models.annotations.dimensional import CustomDimensional
+
+    units = CustomDimensional(
+        basis={
+            "°":  (1,      "^\\circ",           "degree"),
+            "'":  (1/60,   "^\\prime",          "minute"),
+            "''": (1/3600, "^{\\prime\\prime}", "second"),
+        }
+        ticks=[1, 3, 6, 12, 60, 120, 240, 360]
+    )
+
+    scale_bar = ScaleBar(
+        range=plot.y_range,
+        unit="''",
+        dimensional=units,
+    )
+    plot.add_layout(scale_bar)
+
+A complete example of a scale bar with custom units of measurement:
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/scale_bar_custom_units.py
+    :source-position: above
+
 .. _ug_basic_annotations_arrows:
 
 Arrows
@@ -469,8 +570,10 @@ These are the most commonly used properties for this annotation:
 .. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
+.. |ScaleBar|      replace:: :class:`~bokeh.models.annotations.ScaleBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
+.. |Range|         replace:: :class:`~bokeh.models.ranges.Range`
 .. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
