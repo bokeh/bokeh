@@ -82,28 +82,123 @@ JavaScript code to run in the browser when an event occurs.
 
     from bokeh.models.callbacks import CustomJS
 
-    callback = CustomJS(args=dict(xr=plot.x_range), code="""
+    callback = CustomJS(args=dict(xr=plot.x_range, yr=plot.y_range, slider=slider), code="""
+    // imports
+    import {some_function, SOME_VALUE} from "https://cdn.jsdelivr.net/npm/package@version/file"
 
-    // JavaScript code goes here
+    // constants, definitions and state
+    const MY_VALUE = 3.14
 
-    const a = 10;
+    function my_function(value) {
+        return MY_VALUE*value
+    }
 
-    // the model that triggered the callback is cb_obj:
-    const b = cb_obj.value;
+    class MyClass {
+        constructor(value) {
+            this.value = value
+        }
+    }
 
-    // models passed as args are automagically available
-    xr.start = a;
-    xr.end = b;
+    let count = 0
 
+    // the callback function
+    export default (args, obj, data, context) => {
+        count += 1
+        console.log(`CustomJS was called ${count} times`)
+
+        const a = args.slider.value
+        const b = obj.value
+
+        const {xr, yr} = args
+        xr.start = my_function(a)
+        xr.end = b
+    }
     """)
 
-Note that in addition to the ``code`` property, ``CustomJS`` also accepts
-an ``args`` property that maps string names to Bokeh models. Any Bokeh
-models that are configured in ``args`` (on the "Python side") will
-automatically be available to the JavaScript code by the corresponding name.
+The code snippet must contain a default export, which must be a function defined
+either using arrow function syntax ``() => {}`` or a classical function syntax
+``function() {}``. Depending on the context, this function may be an async
+function, a generator function or an async generator function. Also depending
+on the context, this function may or may not need to return a value.
 
-Additionally, the model that triggers the callback (that is the model that
-the callback is attached to) will be available as ``cb_obj``.
+The callback function uses four positional arguments:
+
+* ``args``
+    this maps to ``CustomJS.args`` property, allowing for mapping names to
+    serializable values, typically providing access to Bokeh models from the
+    code snippet.
+* ``obj``
+    this refers to the model that emitted the callback (this is the model that
+    the callback is attached to).
+* ``data``
+    this is a mapping between names and values provided by the emitter of this
+    callback. This depends on the caller, the event and possibly the context
+    in which the event occurred. For example, a select tool will use ``data``
+    to provide selection geometry, among other things.
+* ``context``
+    this is an additional broader context provided by bokehjs, which is a
+    mapping between names and values, similarly to ``data``. Currently only
+    ``index`` is provided, which allows the user to access bokehjs' view index.
+
+It may be convenient to the user to use object destructuring syntax to gain
+immediate access to passed values, for example:
+
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS(args=dict(xr=plot.x_range, yr=plot.y_range, slider=slider), code="""
+    export default ({xr, yr, slider}, obj, {geometry}, {index}) => {
+        // use xr, yr, slider, geometry and index
+    }
+    """)
+
+Code snippet is compiled once and the callback function (the default export) can
+be evaluated multiple times. This way the user can robustly and efficiently import
+external libraries, define complex classes and data structures and maintain state
+between calls of the callback function. The code snippet is recompiled only when
+properties of ``CustomJS`` instance change.
+
+Alternatively the user can use the legacy variant of ``CustomJS``, where the code
+snippet is the body of the implicit callback function:
+
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS(args=dict(xr=plot.x_range), code="""
+    // JavaScript code goes here
+    const a = 10
+
+    // the model that triggered the callback is cb_obj:
+    const b = cb_obj.value
+
+    // models passed as args are auto-magically available
+    xr.start = a
+    xr.end = b
+    """)
+
+Bokeh distinguishes both approaches by detecting presence or absence of
+``import`` and ``export`` syntax in the code snippet.
+
+In this approach, arguments to the callback function are implicitly defined.
+Names provided by ``CustomJS.args`` are immediately available as positional
+arguments, whereas ``obj``, ``data`` and ``context`` are all available with
+``cb_`` prefix, i.e. ``cb_obj``, ``cb_data`` and ``cb_context``.
+
+Finally the user can create ``CustomJS`` from files, which use useful when
+dealing with large and/or complex code snippets:
+
+.. code:: python
+
+    from bokeh.models.callbacks import CustomJS
+
+    callback = CustomJS.from_file("./my_module.mjs", xr=plot.x_range)
+
+The allowed extensions are:
+
+* ``.mjs`` for the new ``export default () => {}`` variant
+* ``.js`` for legacy ``CustomJS``
 
 .. _ug_interaction_js_callbacks_js_on_change:
 
