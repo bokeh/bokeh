@@ -16,7 +16,7 @@ import buttons_css, * as buttons from "styles/buttons.css"
 export abstract class AbstractButtonView extends ControlView {
   declare model: AbstractButton
 
-  protected label_view: ViewOf<DOMNode>
+  protected label_view?: ViewOf<DOMNode>
   protected icon_view?: ViewOf<Icon>
 
   button_el: HTMLButtonElement
@@ -28,7 +28,9 @@ export abstract class AbstractButtonView extends ControlView {
 
   override *children(): IterViews {
     yield* super.children()
-    yield this.label_view
+    if (this.label_view != null) {
+      yield this.label_view
+    }
     if (this.icon_view != null) {
       yield this.icon_view
     }
@@ -36,13 +38,21 @@ export abstract class AbstractButtonView extends ControlView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+    await this._rebuild_label()
+    await this._rebuild_icon()
+  }
 
+  async _rebuild_label(): Promise<void> {
+    this.label_view?.remove()
     const label = (() => {
       const {label} = this.model
       return isString(label) ? new Text({content: label}) : label
     })()
     this.label_view = await this.owner.build_view(label, this)
+  }
 
+  async _rebuild_icon(): Promise<void> {
+    this.icon_view?.remove()
     const {icon} = this.model
     if (icon != null) {
       this.icon_view = await build_view(icon, {parent: this})
@@ -51,11 +61,23 @@ export abstract class AbstractButtonView extends ControlView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+
+    const {label, icon, button_type, disabled} = this.model.properties
+    this.on_transitive_change(label, async () => {
+      await this._rebuild_label()
+      this.render()
+    })
+    this.on_transitive_change(icon, async () => {
+      await this._rebuild_icon()
+      this.render()
+    })
+    this.on_change([button_type, disabled], () => {
+      this.render()
+    })
   }
 
   override remove(): void {
-    this.label_view.remove()
+    this.label_view?.remove()
     this.icon_view?.remove()
     super.remove()
   }
@@ -64,7 +86,7 @@ export abstract class AbstractButtonView extends ControlView {
     return [...super.stylesheets(), buttons_css]
   }
 
-  _render_button(...children: (string | ChildNode)[]): HTMLButtonElement {
+  _render_button(...children: (string | ChildNode | null | undefined)[]): HTMLButtonElement {
     return button({
       type: "button",
       disabled: this.model.disabled,
@@ -75,8 +97,8 @@ export abstract class AbstractButtonView extends ControlView {
   override render(): void {
     super.render()
 
-    this.label_view.render_to(null)
-    this.button_el = this._render_button(this.label_view.el)
+    this.label_view?.render_to(null)
+    this.button_el = this._render_button(this.label_view?.el)
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
