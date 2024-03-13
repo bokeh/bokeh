@@ -1,0 +1,6 @@
+Plot bbox=[0, 0, 300, 300]
+  CartesianFrame bbox=[29, 5, 266, 273]
+  BoxAnnotation bbox=[41, 141, 121, 125]
+    Tooltip bbox=[-34, -35, 67, 29]
+  LinearAxis bbox=[29, 278, 266, 22]
+  LinearAxis bbox=[0, 5, 29, 273]
