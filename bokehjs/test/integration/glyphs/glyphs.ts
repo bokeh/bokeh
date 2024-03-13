@@ -1,13 +1,14 @@
 import {display, fig, row, column} from "../_util"
 
-import {Range1d, HoverTool} from "@bokehjs/models"
+import {Range1d, HoverTool, ColumnDataSource, Circle, Rect, GlyphRenderer} from "@bokehjs/models"
 import type {Direction, OutputBackend} from "@bokehjs/core/enums"
 import type {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
-import {zip} from "@bokehjs/core/util/array"
+import {zip, range, repeat} from "@bokehjs/core/util/array"
 import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import {np} from "@bokehjs/api/linalg"
+import {Spectral11} from "@bokehjs/api/palettes"
 
 describe("Glyph models", () => {
   const x = [1, 2, 3]
@@ -908,5 +909,75 @@ describe("Glyph models", () => {
     const r1 = row([p(-1, "canvas"), p(-1, "svg"), p(-1, "webgl")])
 
     await display(column([r0, r1]))
+  })
+
+  it("should allow to override Circle.radius", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+      const N = 11
+      const data_source = new ColumnDataSource({
+        data: {
+          x: range(N),
+          y: range(N),
+          radius: repeat(0.5, N),
+          selection_radius: repeat(0.8, N),
+          color: Spectral11,
+        },
+      })
+      data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
+      const glyph = new Circle({fill_color: {field: "color"}})
+      const selection_glyph = new Circle({radius: {field: "selection_radius"}, fill_color: {field: "color"}})
+      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      p.renderers.push(glyph_renderer)
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should allow to override Circle.x and Circle.y", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+      const N = 11
+      const data_source = new ColumnDataSource({
+        data: {
+          x: range(N),
+          y: range(N),
+          x1: range(N).map((xi) => xi + 0.25),
+          y1: range(N).map((yi) => yi + 0.25),
+          color: Spectral11,
+        },
+      })
+      data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
+      const glyph = new Circle({radius: {value: 0.5}, fill_color: {field: "color"}})
+      const selection_glyph = new Circle({x: {field: "x1"}, y: {field: "y1"}, radius: {value: 0.5}, fill_color: {field: "color"}})
+      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      p.renderers.push(glyph_renderer)
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should allow to override Circle with Rect in a GlyphRenderer", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+      const N = 11
+      const data_source = new ColumnDataSource({
+        data: {
+          x: range(N),
+          y: range(N),
+          radius: repeat(0.5, N),
+          width: repeat(1.0, N),
+          height: repeat(1.0, N),
+          color: Spectral11,
+        },
+      })
+      data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
+      const glyph = new Circle({fill_color: {field: "color"}})
+      const selection_glyph = new Rect({fill_color: {field: "color"}})
+      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      p.renderers.push(glyph_renderer)
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 })
