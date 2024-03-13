@@ -3699,4 +3699,13 @@ describe("Bug", () => {
       await display(row([p0, p1]))
     })
   })
+
+  describe("in issue #13755", () => {
+    it("doesn't allow to re-render when Button.label changes", async () => {
+      const button = new Button({label: "Initial label"})
+      const {view} = await display(button, [150, 50])
+      button.label = "Updated label"
+      await view.ready
+    })
+  })
 })
