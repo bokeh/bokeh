@@ -28,7 +28,7 @@ import {
   ParkMillerLCG,
   GridPlot,
   Tooltip,
-  Node,
+  Node, Indexed,
 } from "@bokehjs/models"
 
 import {
@@ -56,7 +56,7 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
-import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
+import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import type {Keys} from "@bokehjs/core/dom"
 import {div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
@@ -3706,6 +3706,42 @@ describe("Bug", () => {
       const {view} = await display(button, [150, 50])
       button.label = "Updated label"
       await view.ready
+    })
+  })
+
+  describe("in issue #13756", () => {
+    it("doesn't correctly position Tooltip when using nodes", async () => {
+      const [left, top] = [100, 50]
+      const p = fig([300, 300], {
+        stylesheets: [`
+        :host {
+            position: relative;
+            left: ${left}px;
+            top: ${top}px;
+        }
+        `],
+      })
+      const cr = p.scatter([1, 2, 3], [1, 2, 3], {size: 20, fill_color: Spectral3})
+
+      const tooltip1 = new Tooltip({
+        position: new Indexed({renderer: cr, index: 1}),
+        content: "Hover over me!",
+        attachment: "right",
+        visible: true,
+      })
+      p.elements.push(tooltip1)
+
+      const box = new BoxAnnotation({left: 1, right: 2, top: 2, bottom: 1})
+      const tooltip2 = new Tooltip({
+        position: new Node({target: box, symbol: "top_center"}),
+        content: "Select me!",
+        attachment: "above",
+        visible: true,
+      })
+      box.elements.push(tooltip2)
+      p.renderers.push(box)
+
+      await display(p, [p.width! + left + 50, p.height! + top + 50])
     })
   })
 })
