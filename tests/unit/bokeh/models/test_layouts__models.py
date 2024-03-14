@@ -71,13 +71,22 @@ def test_Column() -> None:
     check_children_prop(Column)
 
 def check_children_prop_boxes(layout_callable: type[HBox | VBox]):
-    ## component subclasses are layouts, widgets and plots
+    # component subclasses are layouts, widgets and plots
     components = [Row(), Column(), figure()]
 
     # Test layout accepts children argument
     layout2 = layout_callable(children=components)
     assert layout2.children == [{'child': c} for c in components]
     assert layout2._check_repeated_layout_children() == []
+
+    # components with duplicate component subclasses
+    duplicate_component = Column()
+    components = [duplicate_component, Row(), Column(), duplicate_component, figure()]
+    # Test layout duplicate children argument
+    layout3 = layout_callable(children=components)
+    assert layout3.children == [{'child': c} for c in components]
+    assert layout3._check_repeated_layout_children() != []
+
     # Test value error raised when non-layout is provided as children
     with pytest.raises(ValueError):
         layout_callable(children=[ColumnDataSource()])
