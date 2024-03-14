@@ -430,7 +430,7 @@ class HBox(LayoutDOM):
 
     @error(REPEATED_LAYOUT_CHILD)
     def _check_repeated_layout_children(self):
-        children = [ item["child"] for item in self.items ]
+        children = [ item["child"] for item in self.children ]
         if len(children) != len(set(children)):
             return str(self)
 
@@ -455,7 +455,7 @@ class VBox(LayoutDOM):
 
     @error(REPEATED_LAYOUT_CHILD)
     def _check_repeated_layout_children(self):
-        children = [ item["child"] for item in self.items ]
+        children = [ item["child"] for item in self.children ]
         if len(children) != len(set(children)):
             return str(self)
 
