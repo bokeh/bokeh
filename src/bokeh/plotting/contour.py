@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Sequence,
-    Union,
+    TypeAlias,
     cast,
 )
 
@@ -40,13 +40,12 @@ from ..util.dataclasses import dataclass, entries
 if TYPE_CHECKING:
     from contourpy._contourpy import FillReturn_OuterOffset, LineReturn_ChunkCombinedNan
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import TypeAlias
 
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 
-    ContourColor: TypeAlias = Union[ColorLike, Sequence[ColorLike]]
-    ContourColorOrPalette: TypeAlias = Union[ContourColor, Palette, PaletteCollection, ContourColor]
+    ContourColor: TypeAlias = ColorLike | Sequence[ColorLike]
+    ContourColorOrPalette: TypeAlias = ContourColor | Palette | PaletteCollection | ContourColor
 
 #-----------------------------------------------------------------------------
 # Globals and constants

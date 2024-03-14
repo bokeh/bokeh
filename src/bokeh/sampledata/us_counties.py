@@ -44,7 +44,7 @@ log = logging.getLogger(__name__)
 import csv
 import xml.etree.ElementTree as et
 from math import nan
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, TypeAlias, TypedDict
 
 # External imports
 import numpy as np
@@ -54,9 +54,6 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

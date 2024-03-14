@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import typing as tp
+from typing import TypeAlias
 
 # Bokeh imports
 from .bases import Init, SingleParameterizedProperty
@@ -27,9 +28,6 @@ from .container import Seq, Tuple
 from .either import Either
 from .primitive import String
 from .singletons import Intrinsic
-
-if tp.TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,8 +46,8 @@ L1Factor = String
 L2Factor = Tuple(String, String)
 L3Factor = Tuple(String, String, String)
 
-FactorType: TypeAlias = tp.Union[str, tuple[str, str], tuple[str, str]]
-FactorSeqType: TypeAlias = tp.Union[tp.Sequence[str], tp.Sequence[tuple[str, str]], tp.Sequence[tuple[str, str]]]
+FactorType: TypeAlias = str | tuple[str, str] | tuple[str, str]
+FactorSeqType: TypeAlias = tp.Sequence[str] | tp.Sequence[tuple[str, str]] | tp.Sequence[tuple[str, str]]
 
 class Factor(SingleParameterizedProperty[FactorType]):
     """ Represents a single categorical factor. """

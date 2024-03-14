@@ -31,11 +31,10 @@ from os.path import (
 )
 from types import FrameType
 from typing import (
-    TYPE_CHECKING,
     Iterator,
     Literal,
     NoReturn,
-    Union,
+    TypeAlias,
 )
 
 # External imports
@@ -57,9 +56,6 @@ from bokeh.util.terminal import (
 )
 from tests.support.util.examples import Example, Flags, collect_examples
 from tests.support.util.screenshot import JSResult, run_in_chrome
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -245,7 +241,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], verbose: 
 
     assert no_errors, f"{example.relpath} failed with {len(errors)} errors"
 
-ProcStatus: TypeAlias = Union[int, Literal["timeout"]]
+ProcStatus: TypeAlias = int | Literal["timeout"]
 
 def _run_example(example: Example) -> tuple[ProcStatus, float, str, str]:
     code = f"""\

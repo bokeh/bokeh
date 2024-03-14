@@ -34,9 +34,9 @@ from typing import (
     Literal,
     NoReturn,
     Sequence,
+    TypeAlias,
     TypedDict,
     TypeVar,
-    Union,
     cast,
 )
 
@@ -66,7 +66,7 @@ from .types import ID
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import NotRequired, TypeAlias
+    from typing_extensions import NotRequired
 
     from ..core.has_props import Setter
     from ..model import Model
@@ -111,7 +111,7 @@ class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: NotRequired[list[AnyRep]]
 
-ArrayRepLike: TypeAlias = Union[ArrayRep, list[AnyRep]]
+ArrayRepLike: TypeAlias = ArrayRep | list[AnyRep]
 
 class SetRep(TypedDict):
     type: Literal["set"]
@@ -147,7 +147,7 @@ ModelRep = ObjectRefRep
 ByteOrder: TypeAlias = Literal["little", "big"]
 
 DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
-NDDataType: TypeAlias = Union[Literal["bool"], DataType, Literal["object"]]
+NDDataType: TypeAlias = Literal["bool"] | DataType | Literal["object"]
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]
@@ -392,28 +392,23 @@ class Serializer:
         itemsize = obj.itemsize
 
         def dtype() -> DataType:
-            if typecode == "f":
-                return "float32"
-            elif typecode == "d":
-                return "float64"
-            elif typecode in {"B", "H", "I", "L", "Q"}:
-                if obj.itemsize == 1:
-                    return "uint8"
-                elif obj.itemsize == 2:
-                    return "uint16"
-                elif obj.itemsize == 4:
-                    return "uint32"
-                #elif obj.itemsize == 8:
-                #    return "uint64"
-            elif typecode in {"b", "h", "i", "l", "q"}:
-                if obj.itemsize == 1:
-                    return "int8"
-                elif obj.itemsize == 2:
-                    return "int16"
-                elif obj.itemsize == 4:
-                    return "int32"
-                #elif obj.itemsize == 8:
-                #    return "int64"
+            match typecode:
+                case "f":
+                    return "float32"
+                case "d":
+                    return "float64"
+                case "B" | "H" | "I" | "L" | "Q":
+                    match obj.itemsize:
+                        case 1: return "uint8"
+                        case 2: return "uint16"
+                        case 4: return "uint32"
+                        #case 8: return "uint64"
+                case "b" | "h" | "i" | "l" | "q":
+                    match obj.itemsize:
+                        case 1: return "int8"
+                        case 2: return "int16"
+                        case 4: return "int32"
+                        #case 8: return "int64"
             self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
         return TypedArrayRep(
@@ -538,36 +533,36 @@ class Deserializer:
     def _decode(self, obj: AnyRep) -> Any:
         if isinstance(obj, dict):
             if "type" in obj:
-                type = obj["type"]
-                if type in self._decoders:
-                    return self._decoders[type](obj, self)
-                elif type == "ref":
-                    return self._decode_ref(cast(Ref, obj))
-                elif type == "symbol":
-                    return self._decode_symbol(cast(SymbolRep, obj))
-                elif type == "number":
-                    return self._decode_number(cast(NumberRep, obj))
-                elif type == "array":
-                    return self._decode_array(cast(ArrayRep, obj))
-                elif type == "set":
-                    return self._decode_set(cast(SetRep, obj))
-                elif type == "map":
-                    return self._decode_map(cast(MapRep, obj))
-                elif type == "bytes":
-                    return self._decode_bytes(cast(BytesRep, obj))
-                elif type == "slice":
-                    return self._decode_slice(cast(SliceRep, obj))
-                elif type == "typed_array":
-                    return self._decode_typed_array(cast(TypedArrayRep, obj))
-                elif type == "ndarray":
-                    return self._decode_ndarray(cast(NDArrayRep, obj))
-                elif type == "object":
-                    if "id" in obj:
-                        return self._decode_object_ref(cast(ObjectRefRep, obj))
-                    else:
-                        return self._decode_object(cast(ObjectRep, obj))
-                else:
-                    self.error(f"unable to decode an object of type '{type}'")
+                match obj["type"]:
+                    case type if type in self._decoders:
+                        return self._decoders[type](obj, self)
+                    case "ref":
+                        return self._decode_ref(cast(Ref, obj))
+                    case "symbol":
+                        return self._decode_symbol(cast(SymbolRep, obj))
+                    case "number":
+                        return self._decode_number(cast(NumberRep, obj))
+                    case "array":
+                        return self._decode_array(cast(ArrayRep, obj))
+                    case "set":
+                        return self._decode_set(cast(SetRep, obj))
+                    case "map":
+                        return self._decode_map(cast(MapRep, obj))
+                    case "bytes":
+                        return self._decode_bytes(cast(BytesRep, obj))
+                    case "slice":
+                        return self._decode_slice(cast(SliceRep, obj))
+                    case "typed_array":
+                        return self._decode_typed_array(cast(TypedArrayRep, obj))
+                    case "ndarray":
+                        return self._decode_ndarray(cast(NDArrayRep, obj))
+                    case "object":
+                        if "id" in obj:
+                            return self._decode_object_ref(cast(ObjectRefRep, obj))
+                        else:
+                            return self._decode_object(cast(ObjectRep, obj))
+                    case type:
+                        self.error(f"unable to decode an object of type '{type}'")
             elif "id" in obj:
                 return self._decode_ref(cast(Ref, obj))
             else:

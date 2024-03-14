@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 # Bokeh imports
 from ...util.dataclasses import NotRequired, Unspecified, dataclass
@@ -33,8 +33,6 @@ from ..serialization import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from ...models.expressions import Expression
     from ...models.transforms import Transform
 
@@ -143,7 +141,7 @@ class Expr(Serializable):
         else:
             raise KeyError(f"key '{key}' not found")
 
-Vectorized: TypeAlias = Union[Value, Field, Expr]
+Vectorized: TypeAlias = Value | Field | Expr
 
 value = Value
 

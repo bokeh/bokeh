@@ -30,8 +30,8 @@ from typing import (
     Callable,
     Literal,
     Protocol,
+    TypeAlias,
     TypedDict,
-    Union,
     cast,
     overload,
 )
@@ -40,7 +40,6 @@ from uuid import uuid4
 ## External imports
 if TYPE_CHECKING:
     from ipykernel.comm import Comm
-    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID
@@ -505,7 +504,7 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     publish_display_data(data, metadata, transient=transient, **kwargs)
 
 
-ProxyUrlFunc: TypeAlias = Callable[[Union[int, None]], str]
+ProxyUrlFunc: TypeAlias = Callable[[int | None], str]
 
 def show_app(
         app: Application,

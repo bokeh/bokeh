@@ -26,8 +26,8 @@ from typing import (
     Any,
     Literal,
     Sequence,
+    TypeAlias,
     TypedDict,
-    Union,
     cast,
     overload,
 )
@@ -58,7 +58,6 @@ from .wrappers import wrap_in_onload
 
 if TYPE_CHECKING:
     from jinja2 import Template
-    from typing_extensions import TypeAlias
 
     from ..core.types import ID
     from ..document.document import DocJson
@@ -74,14 +73,14 @@ __all__ = (
     'json_item',
 )
 
-ModelLike: TypeAlias = Union[Model, Document]
-ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], dict[str, ModelLike]]
+ModelLike: TypeAlias = Model | Document
+ModelLikeCollection: TypeAlias = Sequence[ModelLike] | dict[str, ModelLike]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike: TypeAlias = Union[None, Theme, type[FromCurdoc]]
+ThemeLike: TypeAlias = None | Theme | type[FromCurdoc]
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed

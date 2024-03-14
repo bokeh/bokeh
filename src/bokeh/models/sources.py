@@ -22,7 +22,7 @@ from typing import (
     TYPE_CHECKING,
     Any as TAny,
     Sequence,
-    Union,
+    TypeAlias,
     overload,
 )
 
@@ -58,7 +58,6 @@ from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
     import pandas as pd
-    from typing_extensions import TypeAlias
 
     from ..core.has_props import Setter
 
@@ -84,9 +83,9 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    DataDict: TypeAlias = dict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
+    DataDict: TypeAlias = dict[str, Sequence[TAny] | npt.NDArray[TAny] | pd.Series | pd.Index]
 
-    Index: TypeAlias = Union[int, slice, tuple[Union[int, slice], ...]]
+    Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
     Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
 

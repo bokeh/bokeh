@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING, Any, Literal, TypedDict
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+from typing import Any, Literal, TypeAlias, TypedDict
 
 from ..common.by import _ByType
 from .webelement import WebElement

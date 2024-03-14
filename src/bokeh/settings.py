@@ -127,8 +127,8 @@ from typing import (
     Generic,
     Literal,
     Sequence,
+    TypeAlias,
     TypeVar,
-    Union,
     cast,
 )
 
@@ -140,8 +140,6 @@ from .util.deprecation import deprecated
 from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from .core.types import PathLike
     from .resources import ResourcesMode
 
@@ -226,7 +224,7 @@ def convert_str_seq(value: list[str] | str) -> list[str]:
 
 LogLevel: TypeAlias = Literal["trace", "debug", "info", "warn", "error", "fatal"]
 
-PyLogLevel: TypeAlias = Union[int, None]
+PyLogLevel: TypeAlias = int | None
 
 _log_levels = {
     "CRITICAL" : logging.CRITICAL,
@@ -334,7 +332,7 @@ class _Unset: pass
 
 T = TypeVar("T")
 
-Unset: TypeAlias = Union[T, type[_Unset]]
+Unset: TypeAlias = T | type[_Unset]
 
 def is_dev() -> bool:
     return convert_bool(os.environ.get("BOKEH_DEV", False))

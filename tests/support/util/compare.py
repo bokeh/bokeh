@@ -21,19 +21,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Sequence,
-    Union,
-)
+from typing import Any, Sequence, TypeAlias
 
 # External imports
 import numpy as np
 import numpy.typing as npt
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -47,14 +39,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Num: TypeAlias = Union[int, float]
-Data: TypeAlias = dict[str,
-    Union[
-        Sequence[Num],
-        Sequence[Sequence[Num]],
-        npt.NDArray[Any],         # XXX: figure out how to type this properly (numpy >= 1.21)
-    ],
-]
+Num: TypeAlias = int | float
+
+# XXX: figure out how to type this properly (numpy >= 1.21)
+Data: TypeAlias = dict[str, Sequence[Num] | Sequence[Sequence[Num]] | npt.NDArray[Any]]
 
 def cds_data_almost_equal(data1: Data, data2: Data, rtol: float = 1e-09, atol: float = 0.0) -> bool:
     '''Compares data dictionaries containing floats, lists and arrays

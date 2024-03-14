@@ -32,7 +32,7 @@ import datetime as dt
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 # External imports
 import numpy as np
@@ -45,7 +45,6 @@ from .strings import format_docstring
 if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
-    from typing_extensions import TypeGuard
 
 #-----------------------------------------------------------------------------
 # Globals and constants

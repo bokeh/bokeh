@@ -23,15 +23,11 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from dataclasses import dataclass, field, fields
 from typing import (
-    TYPE_CHECKING,
     Any,
     Iterable,
+    TypeAlias,
     TypeVar,
-    Union,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,7 +58,7 @@ class _UnspecifiedType:
 Unspecified = _UnspecifiedType()
 
 _T = TypeVar("_T")
-NotRequired: TypeAlias = Union[_UnspecifiedType, _T]
+NotRequired: TypeAlias = _UnspecifiedType | _T
 
 def entries(obj: Any) -> Iterable[tuple[str, Any]]:
     """ Iterate over a dataclass' fields and their values. """

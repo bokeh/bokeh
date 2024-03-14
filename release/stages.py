@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TypeAlias
 
 # Bokeh imports
 from .build import (
@@ -75,9 +75,6 @@ from .remote import (
     publish_bokehjs_to_cdn,
     upload_deployment_tarball,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 __all__ = (
     "BUILD_CHECKS",

@@ -33,8 +33,8 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    TypeAlias,
     TypeVar,
-    Union,
 )
 
 # Bokeh imports
@@ -52,8 +52,6 @@ from .singletons import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from ...document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
@@ -77,9 +75,9 @@ __all__ = (
 
 T = TypeVar("T")
 
-TypeOrInst: TypeAlias = Union[type[T], T]
+TypeOrInst: TypeAlias = type[T] | T
 
-Init: TypeAlias = Union[T, UndefinedType, IntrinsicType]
+Init: TypeAlias = T | UndefinedType | IntrinsicType
 
 class Property(PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh

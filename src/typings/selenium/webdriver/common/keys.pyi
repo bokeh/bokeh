@@ -1,9 +1,6 @@
 # Standard library imports
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+from typing import TypeAlias
 
 _KeySeq: TypeAlias = str | int | Sequence[str]
 

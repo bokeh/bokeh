@@ -25,12 +25,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
+    TypeAlias,
     TypedDict,
-    Union,
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, TypeAlias
+    from typing_extensions import NotRequired
 
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
@@ -97,16 +97,16 @@ class ColumnsPatched(TypedDict):
     attr: str
     patches: Patches
 
-DocumentPatched: TypeAlias = Union[
-    MessageSent,
-    ModelChanged,
-    ColumnDataChanged,
-    ColumnsStreamed,
-    ColumnsPatched,
-    TitleChanged,
-    RootAdded,
-    RootRemoved,
-]
+DocumentPatched: TypeAlias = (
+    MessageSent |
+    ModelChanged |
+    ColumnDataChanged |
+    ColumnsStreamed |
+    ColumnsPatched |
+    TitleChanged |
+    RootAdded |
+    RootRemoved
+)
 
 DocumentChanged = DocumentPatched
 

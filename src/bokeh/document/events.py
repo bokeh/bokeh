@@ -61,7 +61,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Union,
+    TypeAlias,
     cast,
 )
 
@@ -81,7 +81,6 @@ from .json import (
 
 if TYPE_CHECKING:
     import pandas as pd
-    from typing_extensions import TypeAlias
 
     from ..core.has_props import Setter
     from ..model import Model
@@ -119,7 +118,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Buffers: TypeAlias = Union[list[BufferRef], None]
+    Buffers: TypeAlias = list[BufferRef] | None
 
     Invoker: TypeAlias = Callable[..., Any] # TODO
 

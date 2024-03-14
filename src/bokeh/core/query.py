@@ -23,18 +23,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
-    Union,
+    TypeAlias,
 )
 
 # Bokeh imports
 from ..model import Model
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -55,7 +51,7 @@ __all__ = (
     'is_single_string_selector',
 )
 
-SelectorType: TypeAlias = dict[Union[str, type["_Operator"]], Any]
+SelectorType: TypeAlias = dict[str | type["_Operator"], Any]
 
 #-----------------------------------------------------------------------------
 # General API

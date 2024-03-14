@@ -39,13 +39,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import csv
-from typing import TYPE_CHECKING
+from typing import TypeAlias
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

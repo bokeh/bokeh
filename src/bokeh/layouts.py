@@ -31,8 +31,8 @@ from typing import (
     Iterator,
     Literal,
     Sequence,
+    TypeAlias,
     TypeVar,
-    Union,
     overload,
 )
 
@@ -59,9 +59,6 @@ from .models import (
 )
 from .util.dataclasses import dataclass
 from .util.warnings import warn
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -558,7 +555,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 #-----------------------------------------------------------------------------
 
 T = TypeVar("T", bound=Tool)
-MergeFn: TypeAlias = Callable[[type[T], list[T]], Union[Tool, ToolProxy, None]]
+MergeFn: TypeAlias = Callable[[type[T], list[T]], Tool | ToolProxy | None]
 
 def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None,
         ignore: set[str] | None = None) -> list[Tool | ToolProxy]:

@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import warnings
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -64,7 +64,7 @@ class Test_Nullable:
         assert prop0._help == prop0.__doc__ == "help"
 
     def test_eq(self) -> None:
-        assert (bcpn.Nullable(Int) == Union[int, None]) is False
+        assert (bcpn.Nullable(Int) == int | None) is False
 
         assert (bcpn.Nullable(Int) == bcpn.Nullable(Int)) is True
         assert (bcpn.Nullable(Int()) == bcpn.Nullable(Int)) is True

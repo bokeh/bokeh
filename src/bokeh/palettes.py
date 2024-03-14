@@ -420,7 +420,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 # External imports
 import numpy as np
@@ -430,7 +430,6 @@ from .colors.util import RGB, NamedColor
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

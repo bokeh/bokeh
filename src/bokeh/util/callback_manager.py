@@ -29,7 +29,7 @@ from typing import (
     Any,
     Callable,
     Sequence,
-    Union,
+    TypeAlias,
     cast,
 )
 
@@ -38,8 +38,6 @@ from ..events import Event, ModelEvent
 from ..util.functions import get_param_info
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from ..core.has_props import Setter
     from ..core.types import ID
     from ..document.document import Document
@@ -63,7 +61,7 @@ __all__ = (
 # means auto-magically wrapping user-supplied callbacks for awhile.
 EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
 EventCallbackWithoutEvent: TypeAlias = Callable[[], None]
-EventCallback: TypeAlias = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
+EventCallback: TypeAlias = EventCallbackWithEvent | EventCallbackWithoutEvent
 
 PropertyCallback: TypeAlias = Callable[[str, Any, Any], None]
 

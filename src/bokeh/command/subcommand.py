@@ -25,12 +25,11 @@ log = logging.getLogger(__name__)
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
 from typing import (
-    TYPE_CHECKING,
     Any,
     ClassVar,
     Literal,
     Sequence,
-    Union,
+    TypeAlias,
 )
 
 # Bokeh imports
@@ -40,9 +39,6 @@ from ..util.dataclasses import (
     dataclass,
     entries,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,7 +68,7 @@ class Argument:
     help: NotRequired[str] = Unspecified
     metavar: NotRequired[str] = Unspecified
 
-Arg: TypeAlias = tuple[Union[str, tuple[str, ...]], Argument]
+Arg: TypeAlias = tuple[str | tuple[str, ...], Argument]
 Args: TypeAlias = tuple[Arg, ...]
 
 class Subcommand(metaclass=ABCMeta):

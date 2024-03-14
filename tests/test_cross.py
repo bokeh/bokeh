@@ -27,12 +27,11 @@ from typing import (
     TYPE_CHECKING,
     Literal,
     NoReturn,
-    Union,
+    TypeAlias,
 )
 
 if TYPE_CHECKING:
     from types import FrameType
-    from typing_extensions import TypeAlias
 
 # External imports
 import _pytest.config
@@ -93,7 +92,7 @@ def test_cross(case_path: str, config: _pytest.config.Config) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-ProcStatus: TypeAlias = Union[int, Literal["timeout"]]
+ProcStatus: TypeAlias = int | Literal["timeout"]
 
 TIMEOUT = 10 # seconds
 

@@ -41,13 +41,12 @@ import re
 from os.path import relpath
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Callable,
     ClassVar,
     Literal,
     Protocol,
+    TypeAlias,
     TypedDict,
-    Union,
     cast,
     get_args,
 )
@@ -62,9 +61,6 @@ from .util.dataclasses import dataclass, field
 from .util.paths import ROOT_DIR
 from .util.token import generate_session_id
 from .util.version import is_full_release
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -82,7 +78,7 @@ DEFAULT_SERVER_HTTP_URL = server_url()
 BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
 DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
 
-ResourcesMode: TypeAlias = Union[BaseMode, DevMode]
+ResourcesMode: TypeAlias = BaseMode | DevMode
 
 Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
 
@@ -354,12 +350,13 @@ class Resources:
 
         self.messages = []
 
-        if self.mode == "cdn":
-            cdn = self._cdn_urls()
-            self.messages.extend(cdn.messages)
-        elif self.mode == "server":
-            server = self._server_urls()
-            self.messages.extend(server.messages)
+        match self.mode:
+            case "cdn":
+                cdn = self._cdn_urls()
+                self.messages.extend(cdn.messages)
+            case "server":
+                server = self._server_urls()
+                self.messages.extend(server.messages)
 
         self.base_dir = Path(base_dir) if base_dir is not None else settings.bokehjs_path()
 
@@ -434,13 +431,14 @@ class Resources:
         for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external: list[str] | str | None = getattr(cls, resource_attr, None)
 
-            if isinstance(external, str):
-                if external not in external_resources:
-                    external_resources.append(external)
-            elif isinstance(external, list):
-                for e in external:
-                    if e not in external_resources:
-                        external_resources.append(e)
+            match external:
+                case str():
+                    if external not in external_resources:
+                        external_resources.append(external)
+                case list():
+                    for e in external:
+                        if e not in external_resources:
+                            external_resources.append(e)
 
         return external_resources
 
@@ -455,21 +453,22 @@ class Resources:
         files, raw = [], []
         hashes = {}
 
-        if self.mode == "inline":
-            raw = [self._inline(path) for path in paths]
-        elif self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            files = [str(relpath(path, root_dir)) for path in paths]
-        elif self.mode == "absolute":
-            files = list(map(str, paths))
-        elif self.mode == "cdn":
-            cdn = self._cdn_urls()
-            files = list(cdn.urls(self.components_for(kind), kind))
-            if cdn.hashes:
-                hashes = cdn.hashes(self.components_for(kind), kind)
-        elif self.mode == "server":
-            server = self._server_urls()
-            files = list(server.urls(self.components_for(kind), kind))
+        match self.mode:
+            case "inline":
+                raw = [self._inline(path) for path in paths]
+            case "relative":
+                root_dir = self.root_dir or self._default_root_dir
+                files = [str(relpath(path, root_dir)) for path in paths]
+            case "absolute":
+                files = list(map(str, paths))
+            case "cdn":
+                cdn = self._cdn_urls()
+                files = list(cdn.urls(self.components_for(kind), kind))
+                if cdn.hashes:
+                    hashes = cdn.hashes(self.components_for(kind), kind)
+            case "server":
+                server = self._server_urls()
+                files = list(server.urls(self.components_for(kind), kind))
 
         return (files, raw, hashes)
 
@@ -654,7 +653,7 @@ def _compute_single_hash(path: Path) -> str:
 # Code
 # -----------------------------------------------------------------------------
 
-ResourcesLike: TypeAlias = Union[Resources, ResourcesMode]
+ResourcesLike: TypeAlias = Resources | ResourcesMode
 
 CDN = Resources(mode="cdn")
 

@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Union
+from typing import TypeAlias
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
@@ -31,9 +31,6 @@ from ..model import Model
 from ..themes import Theme
 from .elements import div_for_render_item
 from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,7 +48,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-ThemeSource: TypeAlias = Union[Theme, FromCurdoc, None]
+ThemeSource: TypeAlias = Theme | FromCurdoc | None
 
 def notebook_content(model: Model, notebook_comms_target: str | None = None, theme: ThemeSource = FromCurdoc) -> tuple[str, str, Document]:
     ''' Return script and div that will display a Bokeh plot in a Jupyter

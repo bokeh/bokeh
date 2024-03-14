@@ -2,14 +2,14 @@ name: bk-test
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
+  - python=3.10
 
   # runtime
   - contourpy >=1.2
   - jinja2 >=2.7
   - numpy <1.25
   - packaging >=16.8
-  - pandas 1.2
+  - pandas 1*,>=1.2
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10

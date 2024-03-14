@@ -27,7 +27,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Union,
+    TypeAlias,
     cast,
 )
 
@@ -36,8 +36,6 @@ from .exceptions import ValidationError
 from .message import BufferHeader, Message
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from . import Protocol
 
 #-----------------------------------------------------------------------------
@@ -56,7 +54,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Fragment: TypeAlias = Union[str, bytes]
+Fragment: TypeAlias = str | bytes
 
 class Receiver:
     ''' Receive wire message fragments and assemble complete Bokeh server

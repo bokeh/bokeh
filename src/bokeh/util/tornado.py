@@ -30,7 +30,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Union,
+    TypeAlias,
 )
 
 # External imports
@@ -42,7 +42,6 @@ from ..core.types import ID
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -77,9 +76,9 @@ def fixup_windows_event_loop_policy() -> None:
 
 CallbackSync: TypeAlias = Callable[[], None]
 CallbackAsync: TypeAlias = Callable[[], Awaitable[None]]
-Callback: TypeAlias = Union[CallbackSync, CallbackAsync]
+Callback: TypeAlias = CallbackSync | CallbackAsync
 
-InvokeResult: TypeAlias = Union[Awaitable[None], Awaitable[list[Any]], Awaitable[dict[Any, Any]]]
+InvokeResult: TypeAlias = Awaitable[None] | Awaitable[list[Any]] | Awaitable[dict[Any, Any]]
 
 Remover: TypeAlias = Callable[[], None]
 

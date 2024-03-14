@@ -36,13 +36,10 @@ from os.path import (
     splitext,
 )
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Union
+from typing import Literal, TypeAlias
 
 # External imports
 import yaml
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,7 +54,7 @@ __all__ = (
 
 JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 
-PathLike: TypeAlias = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
+PathLike: TypeAlias = str | bytes | os.PathLike[str] | os.PathLike[bytes]
 
 #-----------------------------------------------------------------------------
 # General API
