@@ -65,7 +65,7 @@ describe("SelectionManager", () => {
       glyph_stub.returns(new Selection({indices: [1]}))
       const source = renderer_view.model.data_source
 
-      const did_hit = source.selection_manager.inspect(renderer_view, {type: "point", sx: 0, sy: 0})
+      const did_hit = source.selection_manager.inspect([renderer_view], {type: "point", sx: 0, sy: 0})
       expect(did_hit).to.be.true
       expect(source.inspected.indices).to.be.equal([1])
     })
@@ -78,7 +78,7 @@ describe("SelectionManager", () => {
       source.inspected.indices = [0, 1]
       expect(source.inspected.is_empty()).to.be.false
 
-      const did_hit = source.selection_manager.inspect(renderer_view, {type: "point", sx: 0, sy: 0})
+      const did_hit = source.selection_manager.inspect([renderer_view], {type: "point", sx: 0, sy: 0})
       expect(did_hit).to.be.false
       expect(source.inspected.is_empty()).to.be.true
     })

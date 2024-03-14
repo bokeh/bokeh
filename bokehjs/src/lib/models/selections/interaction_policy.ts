@@ -9,13 +9,26 @@ export abstract class SelectionPolicy extends Model {
 
   abstract hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult
 
-  do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, mode: SelectionMode): boolean {
+  do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, mode: SelectionMode/*, renderer_views: GlyphRendererView[], geometry: Geometry*/): boolean {
     if (hit_test_result == null) {
       return false
     } else {
       source.selected.update(hit_test_result, final, mode)
-      source._select.emit()
+      source._select.emit() // [renderer_views, {geometry}])
       return !source.selected.is_empty()
+    }
+  }
+
+  do_inspection(
+    hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean,
+    mode: SelectionMode, renderer_views: GlyphRendererView[], geometry: Geometry,
+  ): boolean {
+    if (hit_test_result == null) {
+      return false
+    } else {
+      source.inspected.update(hit_test_result, final, mode)
+      source.inspect.emit([renderer_views.map((rv) => rv.model), {geometry}])
+      return !source.inspected.is_empty()
     }
   }
 }

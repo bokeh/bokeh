@@ -39,6 +39,7 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {logger} from "core/logging"
 
 export type TooltipVars = {
   index: number | null
@@ -231,6 +232,27 @@ export class HoverToolView extends InspectToolView {
     this._clear()
   }
 
+  _computed_renderers_by_data_source(): Map<ColumnarDataSource, DataRenderer[]> {
+    const renderers_by_source: Map<ColumnarDataSource, DataRenderer[]> = new Map()
+
+    for (const r of this.computed_renderers) {
+      let source: ColumnarDataSource
+      if (r instanceof GlyphRenderer) {
+        source = r.data_source
+      } else if (r instanceof GraphRenderer) {
+        source = r.node_renderer.data_source
+      } else {
+        logger.warn(`${r} is not supported in this context`)
+        continue
+      }
+
+      const renderers = renderers_by_source.get(source) ?? []
+      renderers_by_source.set(source, [...renderers, r])
+    }
+
+    return renderers_by_source
+  }
+
   _inspect(sx: number, sy: number): void {
     const geometry: PointGeometry | SpanGeometry = (() => {
       if (this.model.mode == "mouse") {
@@ -241,12 +263,11 @@ export class HoverToolView extends InspectToolView {
       }
     })()
 
-    for (const r of this.computed_renderers) {
-      const sm = r.get_selection_manager()
-      const rview = this.plot_view.renderer_view(r)
-      if (rview != null) {
-        sm.inspect(rview, geometry)
-      }
+    const renderers_by_source = this._computed_renderers_by_data_source()
+
+    for (const [source, renderers] of renderers_by_source) {
+      const renderer_views = renderers.map((r) => this.plot_view.get_renderer_view(r))
+      source.selection_manager.inspect(renderer_views, geometry)
     }
 
     this._emit_callback(geometry)
@@ -254,7 +275,11 @@ export class HoverToolView extends InspectToolView {
 
   _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
     const selection_manager = renderer.get_selection_manager()
-    const fullset_indices = selection_manager.inspectors.get(renderer)!
+    const fullset_indices = selection_manager.inspectors.get(renderer)
+    if (fullset_indices == null) {
+      return
+    }
+
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
     // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
@@ -467,7 +492,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
+  update([renderers, {geometry}]: [GlyphRenderer[], {geometry: Geometry}]): void {
     if (!this.model.active) {
       return
     }
@@ -476,16 +501,18 @@ export class HoverToolView extends InspectToolView {
       return
     }
 
-    if (this.model.muted_policy == "ignore" && renderer.muted) {
-      return
-    }
+    for (const renderer of renderers) {
+      if (this.model.muted_policy == "ignore" && renderer.muted) {
+        continue
+      }
 
-    const tooltip = this.ttmodels.get(renderer)
-    if (is_undefined(tooltip)) {
-      return
-    }
+      const tooltip = this.ttmodels.get(renderer)
+      if (tooltip == null) {
+        continue
+      }
 
-    this._update(renderer, geometry, tooltip)
+      this._update(renderer, geometry, tooltip)
+    }
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {

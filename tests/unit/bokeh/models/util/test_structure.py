@@ -33,7 +33,7 @@ def test_structure(nx):
     f = figure(width=400,height=400)
     f.line(x=[1,2,3],y=[1,2,3])
     K = generate_structure_plot(f)
-    assert 45 == len(collect_models(K))
+    assert 48 == len(collect_models(K))
 
 #-----------------------------------------------------------------------------
 # Dev API
