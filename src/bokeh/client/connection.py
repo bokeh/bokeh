@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 from typing import TYPE_CHECKING, Any, Callable
 
 # External imports
@@ -98,6 +99,7 @@ class ClientConnection:
         # We can't use IOLoop.current because then we break
         # when running inside a notebook since ipython also uses it
         self._loop = io_loop if io_loop is not None else IOLoop()
+        self._provided_loop = io_loop is not None
         self._until_predicate = None
         self._server_info = None
 
@@ -311,15 +313,22 @@ class ClientConnection:
             await self._next()
 
     def _loop_until(self, predicate: Callable[[], bool]) -> None:
-        self._until_predicate = predicate
-        try:
-            # this runs self._next ONE time, but
-            # self._next re-runs itself until
-            # the predicate says to quit.
-            self._loop.add_callback(self._next)
-            self._loop.start()
-        except KeyboardInterrupt:
-            self.close("user interruption")
+        if self._provided_loop and asyncio.get_event_loop().is_running():
+            # if the provided IOLoop is running, reuse it
+            task = asyncio.create_task(self._next())
+            def callback(_future: asyncio.Future[Any]) -> None:
+                log.debug("done with ClientConnection._next()")
+            self.io_loop.add_future(task, callback)
+        else:
+            self._until_predicate = predicate
+            try:
+                # this runs self._next ONE time, but
+                # self._next re-runs itself until
+                # the predicate says to quit.
+                self._loop.add_callback(self._next)
+                self._loop.start()
+            except KeyboardInterrupt:
+                self.close("user interruption")
 
     async def _next(self) -> None:
         if self._until_predicate is not None and self._until_predicate():
