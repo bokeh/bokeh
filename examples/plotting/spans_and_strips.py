@@ -1,3 +1,12 @@
+''' This example demonstrates the use of ``hspan``, ``vspan``, ``hstrip`` and
+``vstrip``. It also demonstrates how the default ``HoverTool`` interacts with these glyphs.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.hspan, bokeh.plotting.figure.hstrip, bokeh.plotting.figure.vstrip
+    :keywords: strips, hover tool
+
+'''
+
 from bokeh.io import show
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
