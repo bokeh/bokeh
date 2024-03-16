@@ -12,20 +12,19 @@
     "./src/compiler"
   ],
   "devDependencies": {
-    "@types/eslint": "^8.44.9",
-    "@types/node": "^20.5.6",
+    "@types/eslint": "^8.56.5",
+    "@types/node": "^20.11.28",
     "@types/which": "^3.0.3",
     "@types/yargs": "^17.0.32",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
-    "acorn": "^8.11.2",
+    "acorn": "^8.11.3",
     "chalk": "^4.1.2",
     "del": "^6.1.1",
-    "eslint": "^8.55.0",
-    "semver": "^7.5.4",
+    "eslint": "^8.57.0",
+    "semver": "^7.6.0",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.1.2",
-    "typescript": "~5.3.3",
+    "tsconfig-paths": "^4.2.0",
+    "typescript-eslint": "^7.2.0",
+    "typescript": "~5.4.2",
     "which": "^3.0.1",
     "yargs": "^17.7.2"
   }
