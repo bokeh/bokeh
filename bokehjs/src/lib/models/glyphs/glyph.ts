@@ -71,9 +71,9 @@ export abstract class GlyphView extends View {
   }
 
   get data_size(): number {
-    const {base} = this
-    if (base != null) {
-      return base.data_size
+    const {base_glyph} = this
+    if (base_glyph != null) {
+      return base_glyph.data_size
     } else {
       const {_data_size} = this
       if (_data_size != null) {
@@ -117,7 +117,7 @@ export abstract class GlyphView extends View {
 
   render(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
     if (this.glglyph != null) {
-      this.glglyph.render(ctx, indices, this.base ?? this)
+      this.glglyph.render(ctx, indices, this.base_glyph ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
@@ -244,17 +244,17 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected _base: this | null = null
+  protected _base_glyph: this | null = null
 
-  get base(): this | null {
-    return this._base
+  get base_glyph(): this | null {
+    return this._base_glyph
   }
 
-  set_base<T extends this>(base: T): void {
-    if (base != this && base instanceof this.constructor) {
-      this._base = base
+  set_base_glyph<T extends this>(base_glyph: T): void {
+    if (base_glyph != this && base_glyph instanceof this.constructor) {
+      this._base_glyph = base_glyph
     } else {
-      this._base = null
+      this._base_glyph = null
     }
   }
 
@@ -277,17 +277,17 @@ export abstract class GlyphView extends View {
   }
 
   protected _inherit_attr<Data>(attr: keyof Data): void {
-    const {base} = this
-    assert(base != null)
-    this._inherit_from(attr, base)
+    const {base_glyph} = this
+    assert(base_glyph != null)
+    this._inherit_from(attr, base_glyph)
   }
 
-  protected _inherit_from<Data>(attr: keyof Data, base: this): void {
+  protected _inherit_from<Data>(attr: keyof Data, base_glyph: this): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
       get() {
-        return base[attr as keyof typeof base]
+        return base_glyph[attr as keyof typeof base_glyph]
       },
     })
     this._define_inherited(attr, true)
@@ -301,8 +301,8 @@ export abstract class GlyphView extends View {
     })
   }
 
-  protected _can_inherit_from<T>(prop: p.Property<T>, base: this): boolean {
-    const base_prop = base.model.property(prop.attr)
+  protected _can_inherit_from<T>(prop: p.Property<T>, base_glyph: this): boolean {
+    const base_prop = base_glyph.model.property(prop.attr)
 
     const value = prop.get_value()
     const base_value = base_prop.get_value()
@@ -324,9 +324,9 @@ export abstract class GlyphView extends View {
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
-      const {base} = this
-      if (base != null && this._can_inherit_from(prop, base)) {
-        this._inherit_from(prop.attr, base)
+      const {base_glyph} = this
+      if (base_glyph != null && this._can_inherit_from(prop, base_glyph)) {
+        this._inherit_from(prop.attr, base_glyph)
       } else {
         const uniform = prop.uniform(source).select(indices)
         this._define_attr(prop.attr, uniform)
@@ -372,7 +372,7 @@ export abstract class GlyphView extends View {
 
   async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
-    const {base} = this
+    const {base_glyph} = this
 
     this._data_size = indices.count
 
@@ -385,11 +385,11 @@ export abstract class GlyphView extends View {
         continue
       }
 
-      if (base != null && this._can_inherit_from(prop, base)) {
-        this._inherit_from(prop.attr, base)
+      if (base_glyph != null && this._can_inherit_from(prop, base_glyph)) {
+        this._inherit_from(prop.attr, base_glyph)
 
         if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
-          this._inherit_from(`max_${prop.attr}`, base)
+          this._inherit_from(`max_${prop.attr}`, base_glyph)
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
@@ -420,7 +420,7 @@ export abstract class GlyphView extends View {
 
     this.glglyph?.set_data_changed()
 
-    if (base == null) {
+    if (base_glyph == null) {
       this.index_data()
     }
   }
@@ -461,7 +461,7 @@ export abstract class GlyphView extends View {
 
   map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates
-    const {base} = this
+    const {base_glyph} = this
 
     const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
       const scale = prop.dimension == "x" ? x_scale : y_scale
@@ -475,8 +475,8 @@ export abstract class GlyphView extends View {
 
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
-        if (base != null && this._is_inherited(prop)) {
-          this._inherit_from(`s${prop.attr}`, base)
+        if (base_glyph != null && this._is_inherited(prop)) {
+          this._inherit_from(`s${prop.attr}`, base_glyph)
         } else {
           const array = v_compute(prop)
           this._define_attr(`s${prop.attr}`, array)

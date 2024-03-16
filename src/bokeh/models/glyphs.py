@@ -7,8 +7,6 @@
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
-
-
 The full list of glyphs is below:
 
 .. toctree::
@@ -36,8 +34,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
 from ..core.enums import (
+    Dimension,
     Direction,
     ImageOrigin,
     Palette,
@@ -59,6 +61,7 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     MarkerSpec,
+    Nullable,
     NullDistanceSpec,
     NumberSpec,
     Override,
@@ -97,6 +100,9 @@ from .glyph import (
 )
 from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
 
+if TYPE_CHECKING:
+    from .annotations.arrows import ArrowHead
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -105,6 +111,7 @@ __all__ = (
     'AnnularWedge',
     'Annulus',
     'Arc',
+    #'Band',
     'Bezier',
     'Block',
     'Circle',
@@ -144,6 +151,7 @@ __all__ = (
     'VSpan',
     'VStrip',
     'Wedge',
+    #'Whisker',
     'XYGlyph',
 )
 
@@ -1922,6 +1930,102 @@ class VStrip(LineGlyph, FillGlyph, HatchGlyph):
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the strips.
     """)
+
+def DEFAULT_HEAD() -> ArrowHead:
+    from .annotations import TeeHead  # avoid circular imports
+    return TeeHead(size=10)
+
+class Whisker(LineGlyph):
+    """ Render whiskers along a dimension.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the whisker can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper end of the whiskers.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    lower_head = Nullable(Instance(".models.annotations.ArrowHead"), default=DEFAULT_HEAD, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    upper_head = Nullable(Instance(".models.annotations.ArrowHead"), default=DEFAULT_HEAD, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the whisker body.
+    """)
+
+class Band(LineGlyph, FillGlyph, HatchGlyph):
+    ''' Render a filled area band along a dimension.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the band can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper portion of the filled area band.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 #-----------------------------------------------------------------------------
 # Dev API

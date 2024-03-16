@@ -2,6 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
+import type {Dimension} from "./enums"
 import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
 import type * as types from "./types"
@@ -607,6 +608,22 @@ export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
 }
 export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
   readonly dimension = "y"
+}
+
+export class XOrYCoordinateSpec extends CoordinateSpec {
+  declare readonly obj: HasProps & {dimension: Dimension}
+
+  get dimension(): "x" | "y" {
+    return this.obj.dimension == "width" ? "x" : "y"
+  }
+}
+
+export class XOrYCrossCoordinateSpec extends XOrYCoordinateSpec {
+  declare readonly obj: HasProps & {dimension: Dimension}
+
+  override get dimension(): "x" | "y" {
+    return super.dimension == "x" ? "y" : "x"
+  }
 }
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {

@@ -1,5 +1,5 @@
 import {DataRange} from "./data_range"
-import type {Renderer, RendererView} from "../renderers/renderer"
+import type {Renderer} from "../renderers/renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import type {Rect} from "core/types"
 import {flat_map} from "core/util/iterator"
@@ -8,18 +8,6 @@ import type * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import type {PlotView} from "../plots/plot"
 import {compute_renderers} from "../util"
-
-export const auto_ranged = Symbol("auto_ranged")
-
-export interface AutoRanged {
-  readonly [auto_ranged]: true
-  bounds(): Rect
-  log_bounds(): Rect
-}
-
-export function is_auto_ranged<T extends RendererView>(r: T): r is T & AutoRanged {
-  return auto_ranged in r
-}
 
 export type Dim = 0 | 1
 export type Bounds = Map<Renderer, Rect>

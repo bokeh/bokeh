@@ -10,7 +10,7 @@
 import numpy as np
 
 from bokeh.core.properties import field
-from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter, LabelSet
+from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter
 from bokeh.plotting import figure, show
 
 x = np.ones(1000)
@@ -21,7 +21,7 @@ source = ColumnDataSource(data=dict(x=x, xn=2*x, xu=3*x, y=y))
 normal = Jitter(width=0.2, distribution="normal")
 uniform = Jitter(width=0.2, distribution="uniform")
 
-p = figure(x_range=(0, 4), y_range=(0,10), toolbar_location=None, x_axis_location="above")
+p = figure(x_range=(0, 4), y_range=(0,10), toolbar_location=None, x_axis_location="above", min_border_bottom=25)
 p.scatter(x='x', y='y', color='firebrick', source=source, size=5, alpha=0.5)
 
 r1 = p.scatter(x='xn', y='y', color='olive', source=source, size=5, alpha=0.5)
@@ -32,15 +32,15 @@ r2 = p.scatter(x='xu', y='y', color='navy', source=source, size=5, alpha=0.5)
 u2 = p.scatter(x=field('xu', uniform), y='y', color='navy', source=source,
                size=5, alpha=0.5, visible=False)
 
-label_data = ColumnDataSource(data=dict(
-    x=[1,2,3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform'],
-))
-label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data,
-                     text_baseline="top", text_align='center')
-p.add_layout(label_set)
+p.text(
+    x=[1, 2, 3], y=[0, 0, 0], y_offset=5,
+    text=["Original", "Normal", "Uniform"],
+    anchor="top_center",
+    level="annotation",
+)
 
-callback = CustomJS(args=dict(r1=r1, n1=n1, r2=r2, u2=u2), code="""
-for (const r of [r1, n1, r2, u2]) {
+callback = CustomJS(args=dict(renderers=[r1, n1, r2, u2]), code="""
+for (const r of renderers) {
     r.visible = !r.visible
 }
 """)

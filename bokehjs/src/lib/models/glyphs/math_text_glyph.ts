@@ -42,7 +42,7 @@ export abstract class MathTextGlyphView extends TextView {
   protected abstract _build_label(text: string): BaseText
 
   protected override async _build_labels(): Promise<void> {
-    const {text} = this.base ?? this
+    const {text} = this.base_glyph ?? this
 
     const labels = Array.from(text, (text_i) => {
       return text_i == null ? null : this._build_label(text_i)
