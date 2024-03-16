@@ -26,6 +26,6 @@ export class ModelResolver {
   }
 
   get names(): string[] {
-    return [...this._known_models.keys()]
+    return [...this._known_models.keys()].sort()
   }
 }
