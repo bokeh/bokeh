@@ -29,10 +29,8 @@ export function parse_delimited_string(text: string): BaseText {
     const re = new RegExp(`${start}([^]*?)${end}`, "gm")
     for (const match of text.matchAll(re)) {
       const {index} = match
-      if (index != null) {
-        const [outer, inner] = match
-        matches.push({index, outer, inner, delim})
-      }
+      const [outer, inner] = match
+      matches.push({index, outer, inner, delim})
     }
   }
   if (matches.length > 0) {
