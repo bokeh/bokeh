@@ -2,7 +2,7 @@ import type {Constructor} from "../class"
 import type {Arrayable, TypedArray} from "../types"
 import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
-import {assert} from "./assert"
+import {AssertionError} from "./assert"
 
 type OffsetArray = Uint8Array | Uint16Array | Uint32Array
 
@@ -56,7 +56,9 @@ export class RaggedArray<ArrayType extends TypedArray = Float64Array> implements
   }
 
   private _check_bounds(i: number): void {
-    assert(0 <= i && i < this.length, `Out of bounds: 0 <= ${i} < ${this.length}`)
+    if (!(0 <= i && i < this.length)) {
+      throw new AssertionError(`Out of bounds: 0 <= ${i} < ${this.length}`)
+    }
   }
 
   get(i: number): ArrayType {

@@ -1,6 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import {logger} from "core/logging"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
@@ -29,14 +29,14 @@ export class GroupFilter extends Filter {
     }))
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: ColumnarDataSource): PackedIndices {
     const column = source.get_column(this.column_name)
     const size = source.get_length() ?? 1
     if (column == null) {
       logger.warn(`${this}: groupby column '${this.column_name}' not found in the data source`)
-      return Indices.all_set(size)
+      return PackedIndices.all_set(size)
     } else {
-      const indices = new Indices(size, 0)
+      const indices = new PackedIndices(size, 0)
       for (let i = 0; i < indices.size; i++) {
         if (column[i] === this.group) {
           indices.set(i)

@@ -28,11 +28,7 @@ export function is_sorted<T>(array: Arrayable<T>): boolean {
 }
 
 export function copy<T>(array: Arrayable<T>): Arrayable<T> {
-  if (Array.isArray(array)) {
-    return array.slice()
-  } else {
-    return new (array.constructor as any)(array)
-  }
+  return array.slice()
 }
 
 export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T> {

@@ -1,6 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace CompositeFilter {
@@ -59,11 +59,11 @@ export abstract class CompositeFilter extends Filter {
     })
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: ColumnarDataSource): PackedIndices {
     const {operands} = this
     if (operands.length == 0) {
       const size = source.get_length() ?? 1
-      return Indices.all_set(size)
+      return PackedIndices.all_set(size)
     } else {
       const [index, ...rest] = operands.map((op) => op.compute_indices(source))
       for (const op of rest) {
@@ -73,5 +73,5 @@ export abstract class CompositeFilter extends Filter {
     }
   }
 
-  protected abstract _inplace_op(index: Indices, op: Indices): void
+  protected abstract _inplace_op(index: PackedIndices, op: PackedIndices): void
 }

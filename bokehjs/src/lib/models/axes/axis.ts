@@ -11,7 +11,7 @@ import type {SerializableState} from "core/view"
 import type {HAlign, VAlign} from "core/enums"
 import {Align, Face, LabelOrientation} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import type {Orient, Normal, Dimension} from "core/layout/side_panel"
 import {SidePanel, SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
@@ -396,7 +396,7 @@ export class AxisView extends GuideRendererView {
     }
 
     const n = labels.length
-    const indices = Indices.all_set(n)
+    const indices = PackedIndices.all_set(n)
 
     const {items} = labels
     const bboxes = items.map((l) => l.bbox())
@@ -414,7 +414,7 @@ export class AxisView extends GuideRendererView {
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
 
-    const ids = [...selected.ones()]
+    const ids = [...selected]
     if (ids.length != 0) {
       const cbox = this.canvas.bbox
 
