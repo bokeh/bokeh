@@ -70,8 +70,7 @@ There are various ways to get in touch with the `Bokeh community`_:
 * If you think you've found a bug, or would like to request a feature, please
   report an issue at `Bokeh's GitHub repository`_.
 
-You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
-`LinkedIn`_.
+You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
 
 
 .. toctree::
@@ -97,7 +96,6 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
-.. _Twitter: https://twitter.com/bokeh
 .. _Medium: https://medium.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/
 .. _gallery: docs/gallery.html
