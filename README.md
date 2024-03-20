@@ -131,13 +131,6 @@
      </a>
   </td>
 
-  <td>
-    <a href="https://twitter.com/bokeh">
-    <img src="https://img.shields.io/badge/follow-%40bokeh-blue?logo=twitter&style=for-the-badge"
-         alt="Follow Bokeh on Twitter" />
-    </a>
-  </td>
-
 </tr>
 
 
