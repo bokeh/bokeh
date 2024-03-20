@@ -187,15 +187,16 @@ plots for display in a browser.
 There are currently three known bindings that expose Bokeh to languages other
 than Python:
 
-* `rbokeh <bokeh_r_>`_ adds support for Bokeh to the R language. It
-  was started by `@hafen <hafen_>`_.
-* `bokeh-scala <bokeh_scala_>`_ exposes Bokeh in the Scala language. The
-  project was created by the Bokeh core dev team member `@mattpap <mattpap_>`_.
 * `Bokeh.jl <Bokeh_jl_>`_ brings Bokeh to Julia users. It was created by community
   member `@cjdoris <cjdoris_>`_.
 * `BokehServer.jl <BokehServer_jl_>`_ also implements Julia bindings to BokehJS,
   including a server for synchronizing plots from Julia. It was authored by community
   member `@poldavezac <poldavezac_>`_.
+* `rbokeh <bokeh_r_>`_ adds support for Bokeh to the R language. It
+  was started by `@hafen <hafen_>`_. (This project is currently archived.)
+* `bokeh-scala <bokeh_scala_>`_ exposes Bokeh in the Scala language. The
+  project was created by the Bokeh core dev team member `@mattpap <mattpap_>`_.
+  (This project is currently archived.)
 
 The low-level object interface in Python mirrors the JSON schema exactly.
 Therefore, the best, most authoritative source of information for anyone
@@ -220,19 +221,6 @@ Report a vulnerability
 
 To report a security vulnerability, please use the `Tidelift security contact`_.
 Tidelift will coordinate the fix and disclosure.
-
-.. _contributor_guide_spread_the_word:
-
-Spread the word
-^^^^^^^^^^^^^^^
-
-Finally, as an open source project, Bokeh relies on word-of-mouth to reach new
-users. If you enjoy using Bokeh or are already contributing to Bokeh, please
-tell your friends and the people you work with about Bokeh.
-
-Bokeh is also on `Twitter`_ and `LinkedIn`_. Please follow those accounts for
-updates and news about Bokeh. And we always appreciate it if you tag Bokeh's
-accounts when you talk about anything that you made with Bokeh!
 
 
 .. _Code of Conduct: https://github.com/bokeh/bokeh/blob/main/docs/CODE_OF_CONDUCT.md
@@ -263,5 +251,4 @@ accounts when you talk about anything that you made with Bokeh!
 .. _bokeh_scala: https://github.com/bokeh/bokeh-scala
 .. _mattpap: https://github.com/mattpap
 .. _Tidelift security contact: https://tidelift.com/security
-.. _Twitter: https://twitter.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/

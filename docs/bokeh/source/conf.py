@@ -143,8 +143,6 @@ napoleon_include_init_with_doc = True
 ogp_site_url = "https://docs.bokeh.org/en/latest/"
 ogp_image = "http://static.bokeh.org/og/logotype-on-hex.png"
 ogp_custom_meta_tags = [
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta property="twitter:site" content="@bokeh" />',
     '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
 ]
 
@@ -194,7 +192,6 @@ html_theme_options = {
         "json_url": "https://docs.bokeh.org/switcher.json",
         "version_match": version,
     },
-    "twitter_url": "https://twitter.com/bokeh",
     "use_edit_page_button": False,
     "header_links_before_dropdown": 8,
 }
