@@ -174,10 +174,6 @@ If you would like to contribute to Bokeh, please review the [Contributor Guide](
 
 *Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.0/docs/CODE_OF_CONDUCT.md).*
 
-## Follow us
-
-Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
-
 ## Support
 
 ### Fiscal Support
