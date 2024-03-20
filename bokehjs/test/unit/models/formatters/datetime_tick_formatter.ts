@@ -226,9 +226,9 @@ describe("DatetimeTickFormatter", () => {
       expect(labels).to.be.equal(["0ms", "5ms", "10ms"])
     })
   })
-  describe("scale_up_boundary", () => {
+  describe("boundary_scaling", () => {
     it("should handle boolean", () => {
-      const formatter = new dttf.DatetimeTickFormatter({scale_up_boundary: false})
+      const formatter = new dttf.DatetimeTickFormatter({boundary_scaling: false})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00h", "01h", "02h"])
     })

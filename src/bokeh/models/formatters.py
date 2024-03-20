@@ -647,7 +647,7 @@ class DatetimeTickFormatter(TickFormatter):
     scale-dependent stripping of leading zeros.
     """)
 
-    scale_up_boundary = Bool(default=True, help="""
+    boundary_scaling = Bool(default=True, help="""
     Whether to scale up ticks that are right at the boundary of the next higher resolution of time.
     E.g. at the hours scale a tick sequence of ["00h", "06h", "12h", 18h", "00h"] will see a scale up of the "00h" ticks
     as they are on boundary of the days scale: ["06/08", "06h", "12h", 18h", "06/09"]

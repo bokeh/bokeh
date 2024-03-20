@@ -124,7 +124,7 @@ export namespace DatetimeTickFormatter {
     months: p.Property<string>
     years: p.Property<string>
     strip_leading_zeros: p.Property<boolean | Arrayable<ResolutionType>>
-    scale_up_boundary: p.Property<boolean>
+    boundary_scaling: p.Property<boolean>
     context: p.Property<string | DatetimeTickFormatter | null>
     context_which: p.Property<ContextWhich>
     context_location: p.Property<Location>
@@ -153,7 +153,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       months: [ Str, "%m/%Y" ],
       years: [ Str, "%Y" ],
       strip_leading_zeros: [ Or(Bool, Arrayable(ResolutionType)), false ],
-      scale_up_boundary: [ Bool, true ],
+      boundary_scaling: [ Bool, true ],
       context: [ Nullable(Or(Str, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
@@ -185,7 +185,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     let final_resolution = resolution
     let s = s0
 
-    if (this.scale_up_boundary) {
+    if (this.boundary_scaling) {
       let hybrid_handled = false
       let next_index = resolution_index
       let next_resolution = resolution
