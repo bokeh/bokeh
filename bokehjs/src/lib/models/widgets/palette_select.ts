@@ -57,7 +57,10 @@ export class PaletteSelectView extends InputWidgetView {
     const [_name, colors] = item
     const {swatch_width, swatch_height} = this.model
 
-    const img = canvas({width: `${swatch_width}`, height: `${swatch_height}`})
+    const width = swatch_width
+    const height = swatch_height == "auto" ? swatch_width : swatch_height
+
+    const img = canvas({width, height})
     const ctx = img.getContext("2d")!
 
     const n = colors.length

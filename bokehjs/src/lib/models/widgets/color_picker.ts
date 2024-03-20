@@ -21,7 +21,7 @@ export class ColorPickerView extends InputWidgetView {
       type: "color",
       class: inputs.input,
       name: this.model.name,
-      value: this.model.color,
+      value: color2hexrgb(this.model.color),
       disabled: this.model.disabled,
     })
   }

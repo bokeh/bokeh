@@ -1,6 +1,6 @@
 import {View} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
-import {createElement, remove, empty, InlineStyleSheet, ClassList} from "./dom"
+import {create_element, remove, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
@@ -56,7 +56,7 @@ export abstract class DOMView extends View {
   }
 
   protected _createElement(): this["el"] {
-    return createElement(this.constructor.tag_name, {class: this.css_classes()})
+    return create_element(this.constructor.tag_name, {class: this.css_classes()})
   }
 
   reposition(_displayed?: boolean): void {}

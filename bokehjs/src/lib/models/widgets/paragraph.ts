@@ -8,7 +8,7 @@ export class ParagraphView extends MarkupView {
   override render(): void {
     super.render()
     // This overrides default user-agent styling and helps layout work
-    const content = paragraph({style: {margin: 0}})
+    const content = paragraph({style: {margin: "0px"}})
 
     if (this.has_math_disabled()) {
       content.textContent = this.model.text
