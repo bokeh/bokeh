@@ -14,23 +14,23 @@ describe("resolution_order", () => {
 describe("tm_index_for_resolution", () => {
   for (const resolution of ["microseconds", "milliseconds", "days", "months", "years"]) {
     it(`should map ${resolution}`, () => {
-      expect(dttf.tm_index_for_resolution.get("milliseconds")).to.be.equal(0)
+      expect(dttf.tm_index_for_resolution.milliseconds).to.be.equal(0)
     })
   }
   it("should map seconds", () => {
-    expect(dttf.tm_index_for_resolution.get("seconds")).to.be.equal(5)
+    expect(dttf.tm_index_for_resolution.seconds).to.be.equal(5)
   })
   it("should map minsec", () => {
-    expect(dttf.tm_index_for_resolution.get("minsec")).to.be.equal(4)
+    expect(dttf.tm_index_for_resolution.minsec).to.be.equal(4)
   })
   it("should map minutes", () => {
-    expect(dttf.tm_index_for_resolution.get("minutes")).to.be.equal(4)
+    expect(dttf.tm_index_for_resolution.minutes).to.be.equal(4)
   })
   it("should map hourmin", () => {
-    expect(dttf.tm_index_for_resolution.get("hourmin")).to.be.equal(3)
+    expect(dttf.tm_index_for_resolution.hourmin).to.be.equal(3)
   })
   it("should map hours", () => {
-    expect(dttf.tm_index_for_resolution.get("hours")).to.be.equal(3)
+    expect(dttf.tm_index_for_resolution.hours).to.be.equal(3)
   })
 })
 

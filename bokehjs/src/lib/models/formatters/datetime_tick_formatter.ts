@@ -16,24 +16,27 @@ export const resolution_order: ResolutionType[] = [
 ]
 
 // This dictionary maps the name of a time resolution (in @resolution_order)
-// to its index in a time.localtime() timetuple.  The default is to map
-// everything to index 0, which is year.  This is not ideal; it might cause
+// to its index in a time.localtime() time tuple. The default is to map
+// everything to index 0, which is year. This is not ideal; it might cause
 // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
 // promoted at certain tick resolutions.
-export const tm_index_for_resolution: Map<ResolutionType, number> = new Map()
-for (const fmt of resolution_order) {
-  tm_index_for_resolution.set(fmt, 0)
+export const tm_index_for_resolution: {[key in ResolutionType]: number} = {
+  microseconds: 0,
+  milliseconds: 0,
+  seconds: 5,
+  minsec: 4,
+  minutes: 4,
+  hourmin: 3,
+  hours: 3,
+  days: 0,
+  months: 0,
+  years: 0,
 }
-tm_index_for_resolution.set("seconds", 5)
-tm_index_for_resolution.set("minsec", 4)
-tm_index_for_resolution.set("minutes", 4)
-tm_index_for_resolution.set("hourmin", 3)
-tm_index_for_resolution.set("hours", 3)
 
 export function _get_resolution(resolution_secs: number, span_secs: number): ResolutionType {
   // Our resolution boundaries should not be round numbers, because we want
   // them to fall between the possible tick intervals (which *are* round
-  // numbers, as we've worked hard to ensure).  Consequently, we adjust the
+  // numbers, as we've worked hard to ensure). Consequently, we adjust the
   // resolution upwards a small amount (less than any possible step in
   // scales) to make the effective boundaries slightly lower.
   const adjusted_ms = resolution_secs * 1.1 * 1000
@@ -190,7 +193,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       // As we format each tick, check to see if we are at a boundary of the
       // next higher unit of time. If so, replace the current format with one
       // from that resolution. This is not the best heuristic but it works.
-      while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
+      while (tm[tm_index_for_resolution[resolution_order[next_index]]] == 0) {
         next_index += 1
 
         if (next_index == resolution_order.length) {
