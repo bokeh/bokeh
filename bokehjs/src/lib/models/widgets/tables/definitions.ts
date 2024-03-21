@@ -1,4 +1,4 @@
-import type {Column} from "@bokeh/slickgrid"
+import type {Column} from "slickgrid"
 import type {CellEditor} from "./cell_editors"
 
 export type Item = {[key: string]: any}
