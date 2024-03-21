@@ -16,24 +16,27 @@ export const resolution_order: ResolutionType[] = [
 ]
 
 // This dictionary maps the name of a time resolution (in @resolution_order)
-// to its index in a time.localtime() timetuple.  The default is to map
-// everything to index 0, which is year.  This is not ideal; it might cause
+// to its index in a time.localtime() time tuple. The default is to map
+// everything to index 0, which is year. This is not ideal; it might cause
 // a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
 // promoted at certain tick resolutions.
-export const tm_index_for_resolution: Map<ResolutionType, number> = new Map()
-for (const fmt of resolution_order) {
-  tm_index_for_resolution.set(fmt, 0)
+export const tm_index_for_resolution: {[key in ResolutionType]: number} = {
+  microseconds: 0,
+  milliseconds: 0,
+  seconds: 5,
+  minsec: 4,
+  minutes: 4,
+  hourmin: 3,
+  hours: 3,
+  days: 0,
+  months: 0,
+  years: 0,
 }
-tm_index_for_resolution.set("seconds", 5)
-tm_index_for_resolution.set("minsec", 4)
-tm_index_for_resolution.set("minutes", 4)
-tm_index_for_resolution.set("hourmin", 3)
-tm_index_for_resolution.set("hours", 3)
 
 export function _get_resolution(resolution_secs: number, span_secs: number): ResolutionType {
   // Our resolution boundaries should not be round numbers, because we want
   // them to fall between the possible tick intervals (which *are* round
-  // numbers, as we've worked hard to ensure).  Consequently, we adjust the
+  // numbers, as we've worked hard to ensure). Consequently, we adjust the
   // resolution upwards a small amount (less than any possible step in
   // scales) to make the effective boundaries slightly lower.
   const adjusted_ms = resolution_secs * 1.1 * 1000
@@ -121,6 +124,7 @@ export namespace DatetimeTickFormatter {
     months: p.Property<string>
     years: p.Property<string>
     strip_leading_zeros: p.Property<boolean | Arrayable<ResolutionType>>
+    boundary_scaling: p.Property<boolean>
     context: p.Property<string | DatetimeTickFormatter | null>
     context_which: p.Property<ContextWhich>
     context_location: p.Property<Location>
@@ -149,6 +153,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       months: [ Str, "%m/%Y" ],
       years: [ Str, "%Y" ],
       strip_leading_zeros: [ Or(Bool, Arrayable(ResolutionType)), false ],
+      boundary_scaling: [ Bool, true ],
       context: [ Nullable(Or(Str, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
@@ -177,41 +182,44 @@ export class DatetimeTickFormatter extends TickFormatter {
     const s0 = _strftime(t, this[resolution])
     const tm = _mktime(t)
     const resolution_index = resolution_order.indexOf(resolution)
-
+    let final_resolution = resolution
     let s = s0
-    let hybrid_handled = false
-    let next_index = resolution_index
-    let next_resolution = resolution
 
-    // As we format each tick, check to see if we are at a boundary of the
-    // next higher unit of time. If so, replace the current format with one
-    // from that resolution. This is not the best heuristic but it works.
-    while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
-      next_index += 1
+    if (this.boundary_scaling) {
+      let hybrid_handled = false
+      let next_index = resolution_index
+      let next_resolution = resolution
 
-      if (next_index == resolution_order.length) {
-        break
-      }
+      // As we format each tick, check to see if we are at a boundary of the
+      // next higher unit of time. If so, replace the current format with one
+      // from that resolution. This is not the best heuristic but it works.
+      while (tm[tm_index_for_resolution[resolution_order[next_index]]] == 0) {
+        next_index += 1
 
-      // The way to check that we are at the boundary of the next unit of
-      // time is by checking that we have 0 units of the resolution, i.e.
-      // we are at zero minutes, so display hours, or we are at zero seconds,
-      // so display minutes (and if that is zero as well, then display hours).
-      if ((resolution == "minsec" || resolution == "hourmin") && !hybrid_handled) {
-        if ((resolution == "minsec" && tm[4] == 0 && tm[5] != 0) || (resolution == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
-          next_resolution = resolution_order[resolution_index-1]
-          s = _strftime(t, this[next_resolution])
+        if (next_index == resolution_order.length) {
           break
-        } else {
-          hybrid_handled = true
         }
-      }
 
-      next_resolution = resolution_order[next_index]
-      s = _strftime(t, this[next_resolution])
+        // The way to check that we are at the boundary of the next unit of
+        // time is by checking that we have 0 units of the resolution, i.e.
+        // we are at zero minutes, so display hours, or we are at zero seconds,
+        // so display minutes (and if that is zero as well, then display hours).
+        if ((resolution == "minsec" || resolution == "hourmin") && !hybrid_handled) {
+          if ((resolution == "minsec" && tm[4] == 0 && tm[5] != 0) || (resolution == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
+            next_resolution = resolution_order[resolution_index-1]
+            s = _strftime(t, this[next_resolution])
+            break
+          } else {
+            hybrid_handled = true
+          }
+        }
+
+        next_resolution = resolution_order[next_index]
+        s = _strftime(t, this[next_resolution])
+      }
+      final_resolution = next_resolution
     }
 
-    const final_resolution = next_resolution
     const {strip_leading_zeros} = this
     if ((isBoolean(strip_leading_zeros) && strip_leading_zeros) ||
         (isArray(strip_leading_zeros) && strip_leading_zeros.includes(final_resolution))) {

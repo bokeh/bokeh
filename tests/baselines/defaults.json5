@@ -2470,6 +2470,7 @@
     months: "%m/%Y",
     years: "%Y",
     strip_leading_zeros: false,
+    boundary_scaling: true,
     context: null,
     context_which: "start",
     context_location: "below",
