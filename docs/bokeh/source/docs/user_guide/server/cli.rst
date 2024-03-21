@@ -2,5 +2,8 @@
 
 Command line options
 ====================
+serve
+~~~~~
 
-See :ref:`bokeh.command` in the |reference guide| for more information.
+.. automodule:: bokeh.command.subcommands.serve
+    :members:
