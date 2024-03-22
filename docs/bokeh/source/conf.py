@@ -124,8 +124,7 @@ bokeh_sampledata_xref_skiplist = [
     "examples/basic/data/ajax_source.py",
     "examples/basic/data/server_sent_events_source.py",
     "examples/basic/layouts/custom_layout.py",
-    "examples/plotting/css_classes.py",
-    "examples/models/donut.py",
+    "examples/styling/dom/css_classes.py",
     "examples/models/widgets.py",
 ]
 
