@@ -21,10 +21,10 @@ module.exports = {
   rules: {
     "@typescript-eslint/ban-types": ["error", {
       types: {
-        "Function": false,
-        "object": false,
+        Function: false,
+        object: false,
         "{}": false,
-      }
+      },
     }],
     "@typescript-eslint/consistent-type-assertions": "error",
     "@typescript-eslint/consistent-type-imports": ["error", {
@@ -32,18 +32,18 @@ module.exports = {
       fixStyle: "separate-type-imports",
     }],
     "@typescript-eslint/member-delimiter-style": ["error", {
-      "multiline": {
-        "delimiter": "none",
-        "requireLast": true,
+      multiline: {
+        delimiter: "none",
+        requireLast: true,
       },
-      "singleline": {
-        "delimiter": "comma",
-        "requireLast": false,
-      }
+      singleline: {
+        delimiter: "comma",
+        requireLast: false,
+      },
     }],
     "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/type-annotation-spacing": ["error"],
-    "@typescript-eslint/no-unnecessary-condition": ["error", {"allowConstantLoopConditions": true}],
+    "@typescript-eslint/no-unnecessary-condition": ["error", {allowConstantLoopConditions: true}],
     "@typescript-eslint/strict-boolean-expressions": ["error", {
       allowAny: true,
       allowString: false,
@@ -73,7 +73,7 @@ module.exports = {
     "comma-spacing": ["error", {before: false, after: true}],
     "dot-notation": "error",
     "eol-last": ["error", "always"],
-    "indent": "off",
+    indent: "off",
     "@typescript-eslint/indent": ["error", 2, {
       SwitchCase: 1,
       outerIIFEBody: 1,
@@ -125,12 +125,12 @@ module.exports = {
       overrides: {},
     }],
     "guard-for-in": ["error"],
-    "quotes": ["error", "double", {
+    quotes: ["error", "double", {
       avoidEscape: true,
       allowTemplateLiterals: false,
     }],
     "brace-style": ["error", "1tbs", {allowSingleLine: true}],
-    "curly": ["error", "all"],
+    curly: ["error", "all"],
     "prefer-template": ["error"],
     "generator-star-spacing": ["error", {
       before: false,
@@ -138,7 +138,7 @@ module.exports = {
       anonymous: {before: false, after: true},
       method: {before: true, after: false},
     }],
-    "yield-star-spacing": ["error", {before: false, after: true}]
+    "yield-star-spacing": ["error", {before: false, after: true}],
   },
   overrides: [
     {
