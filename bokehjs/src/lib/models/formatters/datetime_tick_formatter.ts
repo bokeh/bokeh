@@ -1,6 +1,5 @@
 import {ContextWhich, Location, ResolutionType} from "core/enums"
 import type * as p from "core/properties"
-import {enumerate} from "core/util/iterator"
 import {sprintf} from "core/util/templating"
 import {isString, isArray, isBoolean, is_undefined} from "core/util/types"
 import type {Arrayable} from "core/types"
@@ -125,6 +124,7 @@ export namespace DatetimeTickFormatter {
     years: p.Property<string>
     strip_leading_zeros: p.Property<boolean | Arrayable<ResolutionType>>
     boundary_scaling: p.Property<boolean>
+    hide_repeats: p.Property<boolean>
     context: p.Property<string | DatetimeTickFormatter | null>
     context_which: p.Property<ContextWhich>
     context_location: p.Property<Location>
@@ -154,6 +154,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       years: [ Str, "%Y" ],
       strip_leading_zeros: [ Or(Bool, Arrayable(ResolutionType)), false ],
       boundary_scaling: [ Bool, true ],
+      hide_repeats: [ Bool, false ],
       context: [ Nullable(Or(Str, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
@@ -169,13 +170,21 @@ export class DatetimeTickFormatter extends TickFormatter {
     const r = span / (ticks.length - 1)
     const resolution = is_undefined(_resolution) ? _get_resolution(r, span) : _resolution
 
-    const labels: string[] = []
-    for (const [tick, i] of enumerate(ticks)) {
+    let base_labels: string[] = []
+    for (const tick of ticks) {
       const base_label = this._compute_label(tick, resolution)
-      const full_label = this._add_context(tick, base_label, i, ticks.length, resolution)
-      labels.push(full_label)
+      base_labels.push(base_label)
     }
-    return labels
+    if (this.hide_repeats) {
+      base_labels = this._hide_repeating_labels(base_labels)
+    }
+
+    if (this.context == null) {
+      return base_labels
+    }
+
+    const context_labels = this._compute_context_labels(ticks, resolution)
+    return this._build_full_labels(base_labels, context_labels)
   }
 
   _compute_label(t: number, resolution: ResolutionType): string {
@@ -234,34 +243,81 @@ export class DatetimeTickFormatter extends TickFormatter {
     return s
   }
 
-  _add_context(tick: number, label: string, i: number, N: number, resolution: ResolutionType): string {
-    const loc = this.context_location
+  _compute_context_labels(ticks: number[], resolution: ResolutionType): string[] {
+    const {context} = this
+
+    let context_labels: string[]
+    if (isString(context!)) {
+      context_labels = []
+      for (const tick of ticks) {
+        context_labels.push(_strftime(tick, context))
+      }
+    } else {
+      context_labels = context!.doFormat(ticks, {loc: 0}, resolution)
+    }
+
     const which = this.context_which
-
-    if (this.context == null) {
-      return label
-    }
-
-    if ((which == "start" && i == 0) ||
-        (which == "end" && i == N-1) ||
-        (which == "center" && i == Math.floor(N/2)) ||
-        (which == "all")) {
-
-      const context = isString(this.context) ?
-        _strftime(tick, this.context) : this.context.doFormat([tick], {loc: 0}, resolution)[0]
-
-      if (context == "") {
-        return label
-      }
-
-      switch (loc) {
-        case "above": return `${context}\n${label}`
-        case "below": return `${label}\n${context}`
-        case "left":  return `${context} ${label}`
-        case "right": return `${label} ${context}`
+    const N = context_labels.length
+    for (let i=0; i<context_labels.length; i++) {
+      if ((which == "start" && i != 0) ||
+        (which == "end" && i != N-1) ||
+        (which == "center" && i != Math.floor(N/2))) {
+        context_labels[i] = ""
       }
     }
-    return label
+    return context_labels
   }
 
+  _build_full_labels(base_labels: string[], context_labels: string[]): string[] {
+    const loc = this.context_location
+    const full_labels: string[] = []
+
+    if (context_labels.every(v => v === "")) {
+      return base_labels
+    }
+
+    for (let i=0; i<base_labels.length; i++) {
+      const label = base_labels[i]
+      const context = context_labels[i]
+      let full_label: string
+
+      // In case of above and below blank strings are not trimmed in order to
+      // keep the same visual format across all ticks.
+      switch (loc) {
+        case "above":
+          full_label = `${context}\n${label}`
+          break
+        case "below":
+          full_label = `${label}\n${context}`
+          break
+        case "left":
+          full_label = context == "" ? label : `${context} ${label}`
+          break
+        case "right":
+          full_label = context == "" ? label : `${label} ${context}`
+          break
+      }
+      full_labels.push(full_label)
+    }
+    return full_labels
+  }
+
+  _hide_repeating_labels(labels: string[]): string[] {
+    // For repeating labels only utilize the first entry
+    if (labels.length <= 1) {
+      return labels
+    }
+
+    const labels_h: string[] = [labels[0]]
+    let index_first_entry = 0
+    for (let i=1; i<labels.length; i++) {
+      if (labels[index_first_entry] == labels[i]) {
+        labels_h.push("")
+      } else {
+        labels_h.push(labels[i])
+        index_first_entry = i
+      }
+    }
+    return labels_h
+  }
 }
