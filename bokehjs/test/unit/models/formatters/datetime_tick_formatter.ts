@@ -252,7 +252,7 @@ describe("DatetimeTickFormatter", () => {
         months: "months",
         years: "years",
         hide_repeats: true})
-      const formatter = new dttf.DatetimeTickFormatter({context: context, context_which: "all"})
+      const formatter = new dttf.DatetimeTickFormatter({context, context_which: "all"})
       const labels = formatter.doFormat([t, t+YEAR, t+YEAR*2], {loc: 0})
       expect(labels).to.be.equal(["2022\nyears", "2023\n", "2024\n"])
     })
