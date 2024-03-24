@@ -11,12 +11,7 @@ import {glob} from "@compiler/sys"
 
 async function eslint(dir: string): Promise<void> {
   const {fix} = argv
-  const eslint = new ESLint({
-    cache: true,
-    extensions: [".ts"],
-    overrideConfigFile: "./eslint.js",
-    fix,
-  })
+  const eslint = new ESLint({cache: true, fix})
 
   const {include} = (await import(join(dir, "tsconfig.json"))) as {include: string[]}
   const files = glob(...include.map((pat) => normalize(join(dir, pat))))
