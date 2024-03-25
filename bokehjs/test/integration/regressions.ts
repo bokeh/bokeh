@@ -3744,4 +3744,26 @@ describe("Bug", () => {
       await display(p, [p.width! + left + 50, p.height! + top + 50])
     })
   })
+
+  describe("in issue #13692", () => {
+    describe("doesn't scale webgl antialising by pixel ratio", () => {
+      function plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend})
+        p.line({x: [0, 1], y: [0, 1], line_width: 10})
+        return p
+      }
+
+      it.dpr(1)("with devicePixelRatio == 1", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+
+      it.dpr(2)("with devicePixelRatio == 2", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+
+      it.dpr(3)("with devicePixelRatio == 3", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+    })
+  })
 })
