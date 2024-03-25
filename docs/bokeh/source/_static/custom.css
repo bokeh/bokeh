@@ -39,6 +39,9 @@ img.image-border {
   font-weight: 700;
   font-size: 110%;
 }
+.sd-row{
+    --sd-gutter-y: 1.5em;
+}
 
 /* Tweak sphinx-design cards */
 .bokeh-examples div {
