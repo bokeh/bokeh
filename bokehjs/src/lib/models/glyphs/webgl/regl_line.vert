@@ -27,7 +27,6 @@ attribute float a_dash_scale;
 attribute float a_dash_offset;
 #endif
 
-uniform float u_pixel_ratio;
 uniform vec2 u_canvas_size;
 uniform float u_antialias;
 uniform float u_miter_limit;
@@ -202,7 +201,7 @@ void main()
     }
 
     vec2 pos = xy + 0.5;  // Bokeh's offset.
-    pos /= u_canvas_size / u_pixel_ratio;  // in 0..1
+    pos /= u_canvas_size;  // in 0..1
     gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
 
     bool turn_right_start = sin_turn_angle_start >= 0.0;
