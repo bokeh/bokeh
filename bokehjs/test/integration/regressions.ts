@@ -3746,7 +3746,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13692", () => {
-    describe("doesn't scale webgl antialising by pixel ratio", () => {
+    describe("doesn't scale webgl antialiasing by pixel ratio", () => {
       function plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
         p.line({x: [0, 1], y: [0, 1], line_width: 10})
