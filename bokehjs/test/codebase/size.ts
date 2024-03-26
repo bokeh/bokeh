@@ -10,7 +10,7 @@ const LIMITS = new Map([
   ["js/bokeh-widgets.min.js",         350],
   ["js/bokeh-tables.min.js",          350],
   ["js/bokeh-api.min.js",             150],
-  ["js/bokeh-gl.min.js",              250],
+  ["js/bokeh-gl.min.js",              200],
   ["js/bokeh-mathjax.min.js",        1800],
 ])
 

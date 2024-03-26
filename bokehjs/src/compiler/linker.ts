@@ -989,6 +989,29 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
   }
 }
 
+function minify_glsl(name: string, source: string): string {
+  // Expecting a single GLSL shader per file surrounded by `.
+  const split = source.split("`")
+  const nbackticks = split.length - 1
+  if (nbackticks != 2) {
+    throw new BuildError("linker", `Cannot minify GLSL file ${name} as it contains ${nbackticks} not 2 backticks`)
+  }
+
+  split[1] = split[1].trim()  // Remove leading and trailing whitespace and newlines
+    .replace(/ *\/\/.*/g, "")  // Remove comments
+    .replace(/ *\\ *\n/g, "")  // Remove continuation character followed by newline
+    .replace(/(?<!#.*)\n(?!#)/g, " ")  // Replace newline with space unless before/after a macro
+    .replace(/ +/g, " ")  // Limit whitespace to single character
+    .replace(/(?<=\n) /g, "")  // Remove space after newline
+    .replace(/\n{2,}/g, "\n")  // Limit multiple newlines to one
+    .replace(/ ?([&|+\-\*\/<>={}\(\)\?:,;]+) ?/g, "$1")  // Remove space around operators
+    .replace(/(?<=#define \w+)\(/, " (")  // Macro definition needs space before opening bracket
+    .replace(/\.0(?!\d)/g, ".")  // Remove zero after decimal point
+    .replace(/(?<!\d)0\.(?=\d)/g, ".")  // Remove zero before decimal point
+
+  return split.join("`")
+}
+
 export async function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): Promise<{min_source: string, min_map?: string}> {
   const name = basename(module.file)
   const min_js = rename(name, {ext: ".min.js"})
@@ -1008,6 +1031,10 @@ export async function minify(module: ModuleInfo, source: string, ecma: terser.EC
   }
 
   try {
+    if (name.endsWith(".vert.js") || name.endsWith(".frag.js")) {
+      source = minify_glsl(name, source)
+    }
+
     const {code, map} = await terser.minify(source, minify_opts)
     return {
       min_source: code ?? "",
