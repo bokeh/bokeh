@@ -20,7 +20,6 @@ attribute float a_hatch_weight;
 attribute vec4 a_hatch_color;
 #endif
 
-uniform float u_pixel_ratio;
 uniform vec2 u_canvas_size;
 uniform float u_antialias;
 
@@ -203,6 +202,6 @@ void main()
 #endif
 
   pos += 0.5; // Make up for Bokeh's offset.
-  pos /= u_canvas_size / u_pixel_ratio; // 0 to 1.
+  pos /= u_canvas_size; // 0 to 1.
   gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
 }

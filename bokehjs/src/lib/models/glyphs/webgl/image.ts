@@ -54,7 +54,6 @@ export class ImageGL extends BaseGLGlyph {
         scissor: this.regl_wrapper.scissor,
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
-        pixel_ratio: transform.pixel_ratio,
         bounds: main_gl_glyph._bounds[i]!,
         tex: main_gl_glyph._tex[i]!,
         global_alpha: global_alpha.get(i),

@@ -277,7 +277,6 @@ function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): ReglRend
 
     uniforms: {
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
-      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_tex: regl.prop<Props, "tex">("tex"),
       u_global_alpha: regl.prop<Props, "global_alpha">("global_alpha"),
     },
@@ -367,7 +366,6 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
 
     uniforms: {
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
-      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
       u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
     },
@@ -466,7 +464,6 @@ ${line_fragment_shader}
 
     uniforms: {
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
-      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
       u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
       u_dash_tex: regl.prop<Props, "dash_tex">("dash_tex"),
@@ -568,7 +565,6 @@ ${marker_fragment_shader}
 
     uniforms: {
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
-      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
       u_size_hint: regl.prop<Props, "size_hint">("size_hint"),
       u_border_radius: regl.prop<Props, "border_radius">("border_radius"),

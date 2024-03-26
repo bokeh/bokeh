@@ -15,7 +15,6 @@ type CommonProps = {
   scissor: BoundingBox
   viewport: BoundingBox
   canvas_size: Vec2
-  pixel_ratio: number
 }
 
 type CommonLineProps = CommonProps & {
@@ -87,7 +86,6 @@ export type AccumulateUniforms = {
 
 export type CommonUniforms = {
   u_canvas_size: Vec2
-  u_pixel_ratio: number
 }
 
 export type CommonLineUniforms = CommonUniforms & {
