@@ -656,9 +656,9 @@ class DatetimeTickFormatter(TickFormatter):
 
     hide_repeats = Bool(default=False, help="""
     When activated only the first value of repeating formatted ticks will be shown. E.g. ["06/07", "06/07", "06/07", 
-    "06/08", "06/08"] will become ["06/07", "", "", "06/08", ""]. In order to determine if a tick label is repeated only
-    the base label without context is evaluated. Note: If the context itself is a DatetimeTickFormatter the logic 
-    above can be specifically applied only to the context.
+    "06/08", "06/08"] will become ["06/07", "", "", "06/08", ""]. In order to determine if a repeated tick label should 
+    be hidden, only the base label without context is considered, leaving the context unaffected. Note: If the context 
+    itself is a DatetimeTickFormatter the logic above can be specifically applied only to the context.
     """)
 
     context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
