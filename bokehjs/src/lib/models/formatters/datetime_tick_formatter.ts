@@ -1,5 +1,6 @@
 import {ContextWhich, Location, ResolutionType} from "core/enums"
 import type * as p from "core/properties"
+import {assert} from "core/util/assert"
 import {sprintf} from "core/util/templating"
 import {isString, isArray, isBoolean, is_undefined} from "core/util/types"
 import type {Arrayable} from "core/types"
@@ -245,15 +246,15 @@ export class DatetimeTickFormatter extends TickFormatter {
 
   _compute_context_labels(ticks: number[], resolution: ResolutionType): string[] {
     const {context} = this
+    assert(context != null)
 
-    let context_labels: string[]
-    if (isString(context!)) {
-      context_labels = []
+    const context_labels: string[] = []
+    if (isString(context)) {
       for (const tick of ticks) {
         context_labels.push(_strftime(tick, context))
       }
     } else {
-      context_labels = context!.doFormat(ticks, {loc: 0}, resolution)
+      context_labels.push(...context.doFormat(ticks, {loc: 0}, resolution))
     }
 
     const which = this.context_which
@@ -279,24 +280,17 @@ export class DatetimeTickFormatter extends TickFormatter {
     for (let i=0; i<base_labels.length; i++) {
       const label = base_labels[i]
       const context = context_labels[i]
-      let full_label: string
 
       // In case of above and below blank strings are not trimmed in order to
       // keep the same visual format across all ticks.
-      switch (loc) {
-        case "above":
-          full_label = `${context}\n${label}`
-          break
-        case "below":
-          full_label = `${label}\n${context}`
-          break
-        case "left":
-          full_label = context == "" ? label : `${context} ${label}`
-          break
-        case "right":
-          full_label = context == "" ? label : `${label} ${context}`
-          break
-      }
+      const full_label = (() => {
+        switch (loc) {
+          case "above": return `${context}\n${label}`
+          case "below": return `${label}\n${context}`
+          case "left":  return context == "" ? label : `${context} ${label}`
+          case "right": return context == "" ? label :`${label} ${context}`
+        }
+      })()
       full_labels.push(full_label)
     }
     return full_labels
