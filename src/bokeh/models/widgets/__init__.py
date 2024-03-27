@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 from . import (
     buttons,
     groups,
+    indicators,
     inputs,
     markups,
     pickers,
@@ -30,6 +31,7 @@ from . import (
 )
 from .buttons import *
 from .groups import *
+from .indicators import *
 from .inputs import *
 from .markups import *
 from .pickers import *
@@ -44,6 +46,7 @@ from .widget import *
 __all__ = (
     *buttons.__all__,
     *groups.__all__,
+    *indicators.__all__,
     *inputs.__all__,
     *markups.__all__,
     *pickers.__all__,

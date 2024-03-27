@@ -118,6 +118,16 @@ export namespace Kinds {
     }
   }
 
+  export class Finite extends Float {
+    override valid(value: unknown): value is number {
+      return super.valid(value) && isFinite(value)
+    }
+
+    override toString(): string {
+      return "Finite"
+    }
+  }
+
   export class Int extends Float {
     override valid(value: unknown): value is number {
       return super.valid(value) && tp.isInteger(value)
@@ -625,6 +635,7 @@ export const Any = new Kinds.Any()
 export const Unknown = new Kinds.Unknown()
 export const Bool = new Kinds.Bool()
 export const Float = new Kinds.Float()
+export const Finite = new Kinds.Finite()
 export const Int = new Kinds.Int()
 export const Bytes = new Kinds.Bytes()
 export const Str = new Kinds.Str()

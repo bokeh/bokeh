@@ -78,6 +78,7 @@ ALL = (
     'Enum',
     'Factor',
     'FactorSeq',
+    'FiniteFloat',
     'Float',
     'FontSize',
     'FontSizeSpec',
