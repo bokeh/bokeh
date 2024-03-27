@@ -23,7 +23,6 @@ delete_selected = CustomJS(
     code="""
 export default ({renderer}) => {
     const {entries} = Bokeh.require("core/util/object")
-    const {enumerate} = Bokeh.require("core/util/iterator")
 
     const {data, selected} = renderer.data_source
     const indices = new Set(selected.indices)
