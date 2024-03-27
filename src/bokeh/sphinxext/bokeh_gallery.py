@@ -158,8 +158,8 @@ def config_inited_handler(app, config):
 def get_details(app):
     details = []
     for subdir in app.config.bokeh_example_subdirs:
-        for name in os.listdir(join(_REPO_TOP, "examples", subdir)):
-            path = join("examples", subdir, name)
+        for name in os.listdir(_REPO_TOP / "examples" / subdir):
+            path = PurePath("examples", subdir, name).as_posix()
             if not name.startswith('_') and name.endswith('.py') and path not in app.config.bokeh_sampledata_xref_skiplist:
                 name = name.replace('.py', '')
                 rst_file_path = join(subdir, f'{name}.rst')
