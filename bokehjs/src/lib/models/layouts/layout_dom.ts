@@ -94,8 +94,6 @@ export abstract class LayoutDOMView extends PaneView {
     })
 
     this.on_change([
-      p.css_classes,
-      p.stylesheets,
       p.width, p.height,
       p.min_width, p.min_height,
       p.max_width, p.max_height,

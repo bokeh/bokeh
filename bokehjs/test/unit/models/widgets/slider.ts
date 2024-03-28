@@ -1,9 +1,10 @@
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 import {display} from "../../_util"
 
 import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
+import {pairwise} from "@bokehjs/core/util/array"
 import {build_view} from "@bokehjs/core/build_views"
 
 describe("SliderView", () => {
@@ -12,8 +13,7 @@ describe("SliderView", () => {
     const s = new Slider({start: 0, end: 10, step: 1, value: 0})
     const {view: sv} = await display(s, null)
 
-    /* @ts-ignore */
-    const r = sv._calc_from([5.0])
+    const r = sv.meta.compute(5.0)
     expect(r).to.be.equal(5)
     expect(isInteger(r)).to.be.true
   })
@@ -57,8 +57,11 @@ describe("DateSliderView", () => {
     const slider = new DateSlider({start, end, value, step: 1})
     const {view} = await display(slider, null)
 
-    const [next_step] = view._steps()
-    expect(next_step).to.be.equal([86_400_000, 86_400_000])
+    const {ticks} = view.meta
+    expect_not_null(ticks)
+
+    const steps = pairwise(ticks, (t0, t1) => t1 - t0)
+    expect(steps).to.be.equal([86_400_000, 86_400_000, 86_400_000, 86_400_000])
   })
 })
 
@@ -84,10 +87,11 @@ describe("DateRangeSliderView", () => {
     const slider = new DateRangeSlider({start, end, value: [start, end], step: 1})
     const {view} = await display(slider, null)
 
-    const [next_left_step, next_right_step] = view._steps()
+    const {ticks} = view.meta
+    expect_not_null(ticks)
 
-    expect(next_left_step).to.be.equal([null, 86_400_000])
-    expect(next_right_step).to.be.equal([86_400_000, null])
+    const steps = pairwise(ticks, (t0, t1) => t1 - t0)
+    expect(steps).to.be.equal([86_400_000, 86_400_000, 86_400_000, 86_400_000])
   })
 })
 

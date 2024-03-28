@@ -325,9 +325,15 @@ export function content_size(el: HTMLElement): Size {
   return {width, height}
 }
 
-export function bounding_box(el: Element): BBox {
+export function bounding_box(el: Element, relative_to?: Element): BBox {
   const {x, y, width, height} = el.getBoundingClientRect()
-  return new BBox({x, y, width, height})
+  const bbox = new BBox({x, y, width, height})
+  if (relative_to != null) {
+    const {x, y} = relative_to.getBoundingClientRect()
+    return bbox.translate(-x, -y)
+  } else {
+    return bbox
+  }
 }
 
 export function box_size(el: Element): Size {

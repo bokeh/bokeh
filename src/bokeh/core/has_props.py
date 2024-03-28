@@ -120,19 +120,28 @@ def is_DataModel(cls: type[HasProps]) -> bool:
     from ..model import DataModel
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
+def _overridden_properties(class_dict: dict[str, Any]) -> dict[str, Any]:
+    overridden_properties: dict[str, Any] = {}
+    for name, prop in tuple(class_dict.items()):
+        if isinstance(prop, Override) and prop.property_overridden:
+            overridden_properties[name] = prop.property_
+    return overridden_properties
+
 def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Any]:
     overridden_defaults: dict[str, Any] = {}
     for name, prop in tuple(class_dict.items()):
-        if isinstance(prop, Override):
+        if isinstance(prop, Override) and prop.default_overridden:
             del class_dict[name]
-            if prop.default_overridden:
-                overridden_defaults[name] = prop.default
+            overridden_defaults[name] = prop.default
     return overridden_defaults
 
-def _generators(class_dict: dict[str, Any]):
+def _generators(class_dict: dict[str, Any], overrides: dict[str, Any]):
     generators: dict[str, PropertyDescriptorFactory[Any]] = {}
     for name, generator in tuple(class_dict.items()):
-        if isinstance(generator, PropertyDescriptorFactory):
+        if name in overrides:
+            del class_dict[name]
+            generators[name] = overrides[name]
+        elif isinstance(generator, PropertyDescriptorFactory):
             del class_dict[name]
             generators[name] = generator
     return generators
@@ -182,6 +191,7 @@ class MetaHasProps(type):
     '''
 
     __properties__: dict[str, Property[Any]]
+    __overridden_properties__: dict[str, Property[Any]]
     __overridden_defaults__: dict[str, Any]
     __themed_values__: dict[str, Any]
 
@@ -189,8 +199,9 @@ class MetaHasProps(type):
         '''
 
         '''
+        overridden_properties = _overridden_properties(class_dict)
         overridden_defaults = _overridden_defaults(class_dict)
-        generators = _generators(class_dict)
+        generators = _generators(class_dict, overridden_properties)
 
         properties = {}
 
@@ -204,6 +215,7 @@ class MetaHasProps(type):
                 properties[name] = descriptor.property
 
         class_dict["__properties__"] = properties
+        class_dict["__overridden_properties__"] = overridden_properties
         class_dict["__overridden_defaults__"] = overridden_defaults
 
         return super().__new__(cls, class_name, bases, class_dict)
@@ -218,7 +230,7 @@ class MetaHasProps(type):
         for base in (x for x in bases if issubclass(x, HasProps)):
             base_properties.update(base.properties(_with_props=True))
         own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
-        redeclared = own_properties.keys() & base_properties.keys()
+        redeclared = (own_properties.keys() - cls.__overridden_properties__.keys()) & base_properties.keys()
         if redeclared:
             warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
                  "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
@@ -226,7 +238,7 @@ class MetaHasProps(type):
                  RuntimeWarning)
 
         # Check for no-op Overrides
-        unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
+        unused_overrides = (cls.__overridden_properties__.keys() | cls.__overridden_defaults__.keys()) - cls.properties(_with_props=True).keys()
         if unused_overrides:
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning)
 

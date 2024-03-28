@@ -5,17 +5,21 @@ import type * as p from "core/properties"
 export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
   declare model: NumericalRangeSlider
 
-  protected _calc_to(): SliderSpec<number> {
+  protected _calc_spec(): SliderSpec<number> {
+    const {start, end, step, value} = this.model
     return {
-      range: {
-        min: this.model.start,
-        max: this.model.end,
-      },
-      start: this.model.value,
-      step: this.model.step,
+      min: start,
+      max: end,
+      values: value,
+      step,
+      compute: (value: number) => value,
+      invert: (synthetic: number) => synthetic,
     }
   }
 
+  protected _calc_to(value: number[]): number[] {
+    return value
+  }
   protected _calc_from(values: number[]): number[] {
     return values
   }
@@ -34,7 +38,7 @@ export interface NumericalRangeSlider extends NumericalRangeSlider.Attrs {}
 
 export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   declare properties: NumericalRangeSlider.Props
-  declare declare__view_type__: NumericalRangeSliderView
+  declare __view_type__: NumericalRangeSliderView
 
   declare value: [number, number]
   declare value_throttled: [number, number]
