@@ -52,6 +52,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   abstract pretty(value: number | string): string
 
   protected _meta: SliderMeta<T>
+  get meta(): Readonly<SliderMeta<T>> {
+    return this._meta
+  }
 
   protected _update_state(): void {
     const spec = this._calc_spec()
