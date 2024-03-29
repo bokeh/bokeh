@@ -77,9 +77,9 @@ export class LegendView extends AnnotationView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const rerender = () => this.request_render()
-    this.connect(this.model.change, rerender)
-    this.connect(this.model.item_change, rerender)
+    const repaint = () => this.request_paint()
+    this.connect(this.model.change, repaint)
+    this.connect(this.model.item_change, repaint)
   }
 
   override bbox: BBox = new BBox()
@@ -320,10 +320,10 @@ export class LegendView extends AnnotationView {
     return false
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     // It would be better to update geometry (the internal layout) only when
     // necessary, but conditions for that are not clear, so for now update
-    // at every render.
+    // at every paint.
     this.update_geometry()
     this.compute_geometry()
 

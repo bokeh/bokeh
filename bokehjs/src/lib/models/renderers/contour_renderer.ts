@@ -42,9 +42,9 @@ export class ContourRendererView extends DataRendererView {
     super.remove()
   }
 
-  protected _render(): void {
-    this.fill_view.render()
-    this.line_view.render()
+  protected _paint(): void {
+    this.fill_view.paint()
+    this.line_view.paint()
   }
 
   override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {

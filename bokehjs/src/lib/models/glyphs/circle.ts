@@ -91,7 +91,7 @@ export class CircleView extends XYGlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Circle.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Circle.Data>): void {
     const {sx, sy, sradius} = {...this, ...data}
 
     for (const i of indices) {
@@ -248,7 +248,7 @@ export class CircleView extends XYGlyphView {
     const sradius: number[] = new Array(len)
     sradius[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.2
 
-    this._render(ctx, [index], {sx, sy, sradius})
+    this._paint(ctx, [index], {sx, sy, sradius})
   }
 }
 

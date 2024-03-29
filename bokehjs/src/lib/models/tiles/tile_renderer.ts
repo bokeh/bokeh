@@ -45,8 +45,8 @@ export class TileRendererView extends RendererView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.tile_source.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
+    this.connect(this.model.tile_source.change, () => this.request_paint())
   }
 
   get_extent(): Extent {
@@ -148,7 +148,7 @@ export class TileRendererView extends RendererView {
           tile.finished = true
           this.notify_finished()
         } else {
-          this.request_render()
+          this.request_paint()
         }
       },
       failed() {
@@ -189,7 +189,7 @@ export class TileRendererView extends RendererView {
     return true
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     if (this.map_initialized == null) {
       this._set_data()
       this._map_data()

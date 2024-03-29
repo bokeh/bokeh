@@ -107,7 +107,7 @@ export class HStripView extends GlyphView {
     return [hcenter, (this.sy0[i] + this.sy1[i])/2]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<HStrip.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<HStrip.Data>): void {
     const {sy0, sy1} = {...this, ...data}
     const {left, right, width} = this.renderer.plot_view.frame.bbox
 

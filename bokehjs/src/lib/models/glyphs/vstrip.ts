@@ -107,7 +107,7 @@ export class VStripView extends GlyphView {
     return [(this.sx0[i] + this.sx1[i])/2, vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<VStrip.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<VStrip.Data>): void {
     const {sx0, sx1} = {...this, ...data}
     const {top, bottom, height} = this.renderer.plot_view.frame.bbox
 

@@ -48,7 +48,7 @@ export class WhiskerView extends UpperLowerView {
     this.upper_head?.set_data(source, indices)
   }
 
-  paint(ctx: Context2d): void {
+  _paint_data(ctx: Context2d): void {
     if (this.visuals.line.doit) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {
         ctx.beginPath()
@@ -65,7 +65,7 @@ export class WhiskerView extends UpperLowerView {
         ctx.save()
         ctx.translate(this._lower_sx[i], this._lower_sy[i])
         ctx.rotate(angle + Math.PI)
-        this.lower_head.render(ctx, i)
+        this.lower_head.paint(ctx, i)
         ctx.restore()
       }
     }
@@ -75,7 +75,7 @@ export class WhiskerView extends UpperLowerView {
         ctx.save()
         ctx.translate(this._upper_sx[i], this._upper_sy[i])
         ctx.rotate(angle)
-        this.upper_head.render(ctx, i)
+        this.upper_head.paint(ctx, i)
         ctx.restore()
       }
     }

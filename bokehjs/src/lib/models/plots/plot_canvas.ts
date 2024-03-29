@@ -191,7 +191,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     this._is_paused = Math.max(this._is_paused - 1, 0)
     if (this._is_paused == 0 && !no_render) {
-      this.request_paint("everything")
+      this.request_repaint()
     }
   }
 
@@ -200,36 +200,27 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._needs_notify = true
   }
 
-  // TODO: this needs to be removed
-  request_render(): void {
-    this.request_paint("everything")
+  request_repaint(): void {
+    this.request_paint()
   }
 
-  request_paint(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
-    this.invalidate_painters(to_invalidate)
+  request_paint(...to_invalidate: (Renderer | RendererView)[]): void {
+    this.invalidate_painters(...to_invalidate)
     this.schedule_paint()
   }
 
-  invalidate_painters(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
-    if (to_invalidate == "everything") {
+  invalidate_painters(...to_invalidate: (Renderer | RendererView)[]): void {
+    if (to_invalidate.length == 0) {
       this._invalidate_all = true
-    } else if (isArray(to_invalidate)) {
-      for (const item of to_invalidate) {
-        const view = (() => {
-          if (item instanceof RendererView) {
-            return item
-          } else {
-            return this.renderer_view(item)!
-          }
-        })()
-        this._invalidated_painters.add(view)
-      }
-    } else {
+      return
+    }
+
+    for (const item of to_invalidate) {
       const view = (() => {
-        if (to_invalidate instanceof RendererView) {
-          return to_invalidate
+        if (item instanceof RendererView) {
+          return item
         } else {
-          return this.renderer_view(to_invalidate)!
+          return this.renderer_view(item)!
         }
       })()
       this._invalidated_painters.add(view)
@@ -244,7 +235,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   request_layout(): void {
-    this.request_paint("everything")
+    this.request_repaint()
   }
 
   reset(): void {
@@ -818,16 +809,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
       this.connect(range.change, () => {
-        this.request_paint("everything")
+        this.request_repaint()
       })
     }
     for (const [, range] of y_ranges) {
       this.connect(range.change, () => {
-        this.request_paint("everything")
+        this.request_repaint()
       })
     }
 
-    this.connect(this.model.change, () => this.request_paint("everything"))
+    this.connect(this.model.change, () => this.request_repaint())
     this.connect(this.model.reset, () => this.reset())
 
     const {toolbar_location} = this.model.properties
@@ -981,7 +972,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop()
           }
-          this.request_paint("everything") // TODO: this.schedule_paint()
+          this.request_repaint() // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
       } else {
         document.interactive_stop()
@@ -1078,7 +1069,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
         ctx.clip()
       }
 
-      renderer_view.render()
+      renderer_view.paint()
       ctx.restore()
 
       if (renderer_view.has_webgl) {

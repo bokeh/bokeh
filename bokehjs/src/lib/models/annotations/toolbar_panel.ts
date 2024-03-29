@@ -55,7 +55,7 @@ export class ToolbarPanelView extends AnnotationView {
 
   private _previous_bbox: BBox = new BBox()
 
-  protected _render(): void {
+  protected _paint(): void {
     display(this.el)
 
     // TODO: this should be handled by the layout

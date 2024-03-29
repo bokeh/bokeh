@@ -44,7 +44,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
   }
 
   protected override _rerender(): void {
-    this.render()
+    this.paint()
   }
 
   map_data(): void {
@@ -74,7 +74,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
     })()
   }
 
-  paint(): void {
+  _paint_data(): void {
     const {ctx} = this.layer
 
     for (let i = 0, end = this.text.length; i < end; i++) {
@@ -89,11 +89,11 @@ export class HTMLLabelSetView extends DataAnnotationView {
         continue
       }
 
-      this._paint(ctx, i, text_i, sx_i, sy_i, angle_i)
+      this._paint_text(ctx, i, text_i, sx_i, sy_i, angle_i)
     }
   }
 
-  protected _paint(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
+  protected _paint_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
     assert(i in this.els)
     const el = this.els[i]
 

@@ -30,7 +30,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_paint())
   }
 
   get image_dimension(): number {
@@ -69,7 +69,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<ImageBase.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<ImageBase.Data>): void {
     const {image_data, sx, sy, sdw, sdh} = {...this, ...data}
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 

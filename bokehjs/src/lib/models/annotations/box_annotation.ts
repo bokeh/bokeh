@@ -38,7 +38,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   readonly [auto_ranged] = true
@@ -133,7 +133,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     })
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     if (!this.bbox.is_valid) {
       return
     }

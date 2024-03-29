@@ -11,7 +11,7 @@ import * as p from "@bokehjs/core/properties"
 class SubclassWithNumberSpecView extends DataAnnotationView {
   declare model: SubclassWithNumberSpec
   map_data(): void {}
-  paint(): void {}
+  _paint_data(): void {}
   foo: p.Uniform<number>
 }
 namespace SubclassWithNumberSpec {
@@ -43,7 +43,7 @@ class SubclassWithNumberSpec extends DataAnnotation {
 class SubclassWithDistanceSpecView extends DataAnnotationView {
   declare model: SubclassWithDistanceSpec
   map_data(): void {}
-  paint(): void {}
+  _paint_data(): void {}
   foo: p.Uniform<number>
 }
 namespace SubclassWithDistanceSpec {

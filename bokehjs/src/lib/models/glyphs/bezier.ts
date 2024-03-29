@@ -41,7 +41,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
     if (!this.visuals.line.doit) {
       return
     }

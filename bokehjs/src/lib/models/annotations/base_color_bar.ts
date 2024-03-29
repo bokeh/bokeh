@@ -118,9 +118,6 @@ export abstract class BaseColorBarView extends AnnotationView {
       request_paint() {
         self.parent.request_paint(self)
       },
-      request_render() {
-        self.request_paint()
-      },
       notify_finished_after_paint() {
         self.parent.notify_finished_after_paint()
       },
@@ -173,8 +170,8 @@ export abstract class BaseColorBarView extends AnnotationView {
       this._apply_axis_properties()
       // TODO?: this.plot_view.invalidate_layout()
     })
-    this.connect(this._ticker.change, () => this.request_render())
-    this.connect(this._formatter.change, () => this.request_render())
+    this.connect(this._ticker.change, () => this.request_paint())
+    this.connect(this._formatter.change, () => this.request_paint())
   }
 
   protected _update_frame(): void {
@@ -483,13 +480,13 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   protected abstract _paint_colors(ctx: Context2d, bbox: BBox): void
 
-  protected _render(): void {
+  protected _paint(): void {
     const {ctx} = this.layer
     ctx.save()
     this._paint_bbox(ctx, this._inner_layout.bbox)
     this._paint_colors(ctx, this._inner_layout.center_panel.bbox)
-    this._title_view.render()
-    this._axis_view.render()
+    this._title_view.paint()
+    this._axis_view.paint()
     ctx.restore()
   }
 

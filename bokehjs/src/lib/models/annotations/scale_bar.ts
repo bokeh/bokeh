@@ -116,10 +116,10 @@ export class ScaleBarView extends AnnotationView {
     super.connect_signals()
 
     this.connect(this.model.change, () => {
-      this.request_render()
+      this.request_paint()
     })
     this.connect(this.range.change, () => {
-      this.request_render()
+      this.request_paint()
     })
   }
 
@@ -434,7 +434,7 @@ export class ScaleBarView extends AnnotationView {
   }
 
   protected _draw_axis(_ctx: Context2d): void {
-    this.axis_view.render()
+    this.axis_view.paint()
   }
 
   protected _draw_text(ctx: Context2d, layout: TextLayout, location: Location): void {
@@ -465,7 +465,7 @@ export class ScaleBarView extends AnnotationView {
     this._draw_text(ctx, this.title_layout, this.model.title_location)
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     // It would be better to update geometry (the internal layout) only when
     // necessary, but conditions for that are not clear, so for now update
     // at every render.

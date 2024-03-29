@@ -40,7 +40,7 @@ export class EllipseView extends CenterRotatableView  {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Ellipse.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Ellipse.Data>): void {
     const {sx, sy, swidth, sheight, angle} = {...this, ...data}
 
     for (const i of indices) {
@@ -124,7 +124,7 @@ export class EllipseView extends CenterRotatableView  {
 
     const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
 
-    this._render(ctx, [index], {sx, sy, swidth, sheight, angle})
+    this._paint(ctx, [index], {sx, sy, swidth, sheight, angle})
   }
 }
 

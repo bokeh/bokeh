@@ -29,7 +29,7 @@ export class ArcView extends XYGlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {
     if (!this.visuals.line.doit) {
       return
     }
@@ -77,7 +77,7 @@ export class ArcView extends XYGlyphView {
         ctx.rotate(end_angle)
       }
 
-      decoration.marking.render(ctx, i)
+      decoration.marking.paint(ctx, i)
       ctx.restore()
     }
   }

@@ -35,7 +35,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Segment.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Segment.Data>): void {
     if (!this.visuals.line.doit) {
       return
     }
@@ -77,7 +77,7 @@ export class SegmentView extends GlyphView {
         ctx.rotate(angle)
       }
 
-      decoration.marking.render(ctx, i)
+      decoration.marking.paint(ctx, i)
       ctx.restore()
     }
   }

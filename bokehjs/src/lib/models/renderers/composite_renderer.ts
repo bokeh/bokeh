@@ -89,7 +89,7 @@ export abstract class CompositeRendererView extends RendererView {
 
   private _has_rendered_elements: boolean = false
 
-  override render(): void {
+  override paint(): void {
     if (!this._has_rendered_elements) {
       for (const element_view of this.element_views) {
         element_view.render_to(this.plot_view.shadow_el)
@@ -97,7 +97,7 @@ export abstract class CompositeRendererView extends RendererView {
       this._has_rendered_elements = true
     }
 
-    super.render()
+    super.paint()
 
     const {displayed} = this
     for (const element_view of this.element_views) {

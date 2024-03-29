@@ -36,15 +36,15 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => this.paint())
   }
 
-  override render(): void {
+  override paint(): void {
     if (!this.model.visible) {
       undisplay(this.el)
     }
 
-    super.render()
+    super.paint()
   }
 
   get padding(): LRTB<number> {
@@ -55,7 +55,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     return resolve.border_radius(this.model.border_radius)
   }
 
-  protected _paint(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
+  protected _paint_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     const {el} = this
     undisplay(el)
 

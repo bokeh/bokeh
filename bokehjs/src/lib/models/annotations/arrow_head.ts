@@ -51,7 +51,7 @@ export class OpenHeadView extends ArrowHeadView {
     ctx.lineTo(0.5*size_i, size_i)
   }
 
-  render(ctx: Context2d, i: number): void {
+  paint(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
     ctx.moveTo(0.5*size_i, size_i)
@@ -102,7 +102,7 @@ export class NormalHeadView extends ArrowHeadView {
     ctx.lineTo(0.5*size_i, size_i)
   }
 
-  render(ctx: Context2d, i: number): void {
+  paint(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
     ctx.moveTo(0.5*size_i, size_i)
@@ -161,7 +161,7 @@ export class VeeHeadView extends ArrowHeadView {
     ctx.lineTo(0.5*size_i, size_i)
   }
 
-  render(ctx: Context2d, i: number): void {
+  paint(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
     ctx.moveTo(0.5*size_i, size_i)
@@ -210,7 +210,7 @@ export class TeeHeadView extends ArrowHeadView {
   declare model: TeeHead
   declare visuals: TeeHead.Visuals
 
-  render(ctx: Context2d, i: number): void {
+  paint(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
     ctx.moveTo(0.5*size_i, 0)

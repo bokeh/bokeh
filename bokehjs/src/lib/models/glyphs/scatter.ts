@@ -18,7 +18,7 @@ export class ScatterView extends MarkerView {
     return MultiMarkerGL
   }
 
-  protected override _render(ctx: Context2d, indices: number[], data?: Partial<Scatter.Data>): void {
+  protected override _paint(ctx: Context2d, indices: number[], data?: Partial<Scatter.Data>): void {
     const {sx, sy, size, angle, marker} = {...this, ...data}
 
     for (const i of indices) {
@@ -60,7 +60,7 @@ export class ScatterView extends MarkerView {
       marker: new p.UniformScalar(marker, n),
     }
 
-    this._render(ctx, [index], args)
+    this._paint(ctx, [index], args)
   }
 }
 

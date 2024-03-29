@@ -19,8 +19,8 @@ export abstract class MarkingView extends View implements visuals.Renderable {
     this.visuals = new visuals.Visuals(this)
   }
 
-  request_render(): void {
-    this.parent.request_render()
+  request_paint(): void {
+    this.parent.request_paint()
   }
 
   get canvas() {
@@ -38,7 +38,7 @@ export abstract class MarkingView extends View implements visuals.Renderable {
     }
   }
 
-  abstract render(ctx: Context2d, i: number): void
+  abstract paint(ctx: Context2d, i: number): void
 }
 
 export namespace Marking {

@@ -46,7 +46,7 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
     this.connect(this.model.change, () => this.plot_view.request_paint(this))
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const {location, location_units} = this.model
     if (location == null) {
       return

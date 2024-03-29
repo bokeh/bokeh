@@ -18,7 +18,7 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Marker.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Marker.Data>): void {
     const {sx, sy, size, angle} = {...this, ...data}
 
     for (const i of indices) {
@@ -163,7 +163,7 @@ export abstract class MarkerView extends XYGlyphView {
 
   override draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     const args = this._get_legend_args({x0, x1, y0, y1}, index)
-    this._render(ctx, [index], args)
+    this._paint(ctx, [index], args)
   }
 }
 

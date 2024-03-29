@@ -24,7 +24,7 @@ class SomeModelView extends View implements visuals.Renderable {
     this.visuals = new visuals.Visuals(this) as any
   }
 
-  request_render(): void {}
+  request_paint(): void {}
 
   get canvas() {
     return {

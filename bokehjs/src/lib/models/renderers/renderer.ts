@@ -134,10 +134,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return this.plot_view.canvas_view
   }
 
-  request_render(): void {
-    this.request_paint()
-  }
-
   request_paint(): void {
     this.plot_view.request_paint(this)
   }
@@ -175,18 +171,22 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return this.model.visible
   }
 
-  render(): void {
+  get is_renderable(): boolean {
+    return true
+  }
+
+  paint(): void {
     this.update_geometry()
     this.compute_geometry()
 
-    if (this.displayed) {
-      this._render()
+    if (this.displayed && this.is_renderable) {
+      this._paint()
     }
 
     this._has_finished = true
   }
 
-  protected abstract _render(): void
+  protected abstract _paint(): void
 
   renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
     return undefined
