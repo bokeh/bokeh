@@ -27,7 +27,7 @@ import {Div} from "../dom/elements"
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import type {Renderable} from "core/visuals"
+import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
@@ -64,7 +64,7 @@ import attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
-export class PlotView extends LayoutDOMView implements Renderable {
+export class PlotView extends LayoutDOMView implements Paintable {
   declare model: Plot
   visuals: Plot.Visuals
 

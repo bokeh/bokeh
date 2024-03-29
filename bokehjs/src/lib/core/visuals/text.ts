@@ -1,4 +1,4 @@
-import type {ValuesOf, Renderable} from "./visual"
+import type {ValuesOf, Paintable} from "./visual"
 import {VisualProperties, VisualUniforms} from "./visual"
 import type {uint32} from "../types"
 import type * as p from "../properties"
@@ -7,9 +7,9 @@ import type {FontStyle, TextAlign, TextBaseline} from "../enums"
 import {color2css} from "../util/color"
 import type {Context2d} from "../util/canvas"
 
-const _font_cache: Map<string, WeakSet<Renderable>> = new Map()
+const _font_cache: Map<string, WeakSet<Paintable>> = new Map()
 
-function load_font(font: string, obj: Renderable): void {
+function load_font(font: string, obj: Paintable): void {
   const objs = _font_cache.get(font)
   if (objs == null) {
     const objs = new WeakSet([obj])

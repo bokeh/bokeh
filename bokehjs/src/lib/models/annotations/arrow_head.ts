@@ -4,7 +4,7 @@ import {LineVector, FillVector} from "core/property_mixins"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 
-export abstract class ArrowHeadView extends MarkingView implements visuals.Renderable {
+export abstract class ArrowHeadView extends MarkingView implements visuals.Paintable {
   // This method should not begin or close a path
   abstract clip(ctx: Context2d, i: number): void
 }

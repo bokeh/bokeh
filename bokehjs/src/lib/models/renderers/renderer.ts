@@ -1,5 +1,5 @@
-import type {ViewOf} from "core/view"
-import {View} from "core/view"
+import type {ViewOf, View} from "core/view"
+import {DOMComponentView} from "core/dom_view"
 import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
@@ -40,7 +40,7 @@ export class RendererGroup extends Model {
   }
 }
 
-export abstract class RendererView extends View implements visuals.Renderable {
+export abstract class RendererView extends DOMComponentView implements visuals.Paintable {
   declare model: Renderer
   visuals: Renderer.Visuals
 

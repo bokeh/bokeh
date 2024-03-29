@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import {View} from "core/view"
+import {DOMComponentView} from "core/dom_view"
 import type {Indices} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import * as visuals from "core/visuals"
@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import type {RendererView} from "../renderers/renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export abstract class MarkingView extends View implements visuals.Renderable {
+export abstract class MarkingView extends DOMComponentView implements visuals.Paintable {
   declare model: Marking
   visuals: Marking.Visuals
   declare readonly parent: RendererView

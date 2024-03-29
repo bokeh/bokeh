@@ -6,7 +6,7 @@ import * as uniforms from "core/uniforms"
 import type * as geometry from "core/geometry"
 import {settings} from "core/settings"
 import type {Context2d} from "core/util/canvas"
-import {View} from "core/view"
+import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -38,7 +38,7 @@ type ValueLike = number | uniforms.Uniform<unknown> | Arrayable<unknown> | Ragge
 
 export interface GlyphView extends Glyph.Data {}
 
-export abstract class GlyphView extends View {
+export abstract class GlyphView extends DOMComponentView {
   declare model: Glyph
   visuals: Glyph.Visuals
 

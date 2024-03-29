@@ -3,7 +3,7 @@ import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
-import {div, empty, position, display, undisplay, remove} from "core/dom"
+import {empty, position, display, undisplay} from "core/dom"
 import type {Size, Layoutable} from "core/layout"
 import type {SidePanel} from "core/layout/side_panel"
 import {SideLayout} from "core/layout/side_panel"
@@ -30,7 +30,6 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   toolbar_view: ToolbarView
-  readonly el: HTMLElement = div()
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -49,7 +48,6 @@ export class ToolbarPanelView extends AnnotationView {
 
   override remove(): void {
     this.toolbar_view.remove()
-    remove(this.el)
     super.remove()
   }
 
@@ -78,7 +76,7 @@ export class ToolbarPanelView extends AnnotationView {
 
       this.toolbar_view.render()
       this.plot_view.canvas_view.add_event(this.el)
-      this.el.appendChild(this.toolbar_view.el)
+      this.shadow_el.appendChild(this.toolbar_view.el)
       this.toolbar_view.after_render()
     }
 

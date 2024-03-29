@@ -9,13 +9,13 @@ import type {CircleView} from "@bokehjs/models/glyphs/circle"
 import {Circle} from "@bokehjs/models/glyphs/circle"
 
 import {Model} from "@bokehjs/model"
-import {View} from "@bokehjs/core/view"
+import {DOMComponentView} from "@bokehjs/core/dom_view"
 import {build_view} from "@bokehjs/core/build_views"
 import * as visuals from "@bokehjs/core/visuals"
 import * as mixins from "@bokehjs/core/property_mixins"
 import type * as p from "@bokehjs/core/properties"
 
-class SomeModelView extends View implements visuals.Renderable {
+class SomeModelView extends DOMComponentView implements visuals.Paintable {
   declare model: SomeModel
   visuals: SomeModel.Visuals
 

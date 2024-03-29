@@ -1,11 +1,11 @@
-import type {View} from "../view"
+import type {DOMView} from "../dom_view"
 import type {CanvasLayer} from "../util/canvas"
 import type * as p from "../properties"
 
 export type NameOf<Key extends string> = Key extends `text_${infer Name}` ? Name : never
 export type ValuesOf<T> = {[Key in keyof T & string as NameOf<Key>]: T[Key] extends p.Property<infer V> ? V : never}
 
-export interface Renderable {
+export interface Paintable {
   request_paint(): void
   readonly canvas: {
     create_layer(): CanvasLayer
@@ -23,7 +23,7 @@ export abstract class VisualProperties {
     yield* this._props
   }
 
-  constructor(readonly obj: View & Renderable, readonly prefix: string = "") {
+  constructor(readonly obj: DOMView & Paintable, readonly prefix: string = "") {
     const self = this as any
     this._props = []
     for (const attr of this.attrs) {
@@ -50,7 +50,7 @@ export abstract class VisualUniforms {
     }
   }
 
-  constructor(readonly obj: View & Renderable, readonly prefix: string = "") {
+  constructor(readonly obj: DOMView & Paintable, readonly prefix: string = "") {
     for (const attr of this.attrs) {
       Object.defineProperty(this, attr, {
         get() {

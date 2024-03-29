@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "../annotation"
 import type * as visuals from "core/visuals"
-import {div, display, undisplay, remove} from "core/dom"
+import {display, undisplay} from "core/dom"
 import type * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
@@ -21,17 +21,9 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
-  protected el: HTMLElement
-
   override initialize(): void {
     super.initialize()
-    this.el = div()
     this.plot_view.canvas_view.add_overlay(this.el)
-  }
-
-  override remove(): void {
-    remove(this.el)
-    super.remove()
   }
 
   override connect_signals(): void {
