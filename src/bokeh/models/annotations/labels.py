@@ -259,7 +259,7 @@ def LabelSet(**kwargs: Any) -> GlyphRenderer:
         ``bokeh.glyphs.Text`` model or ``figure.text()`` method.
 
     """
-    deprecated((3, 4, 0), "bokeh.annotations.LabelSet", "bokeh.glyphs.Text or figure.text()")
+    deprecated((3, 5, 0), "bokeh.annotations.LabelSet", "bokeh.glyphs.Text or figure.text()")
 
     if "y_offset" in kwargs:
         kwargs["y_offset"] = -kwargs["y_offset"]
