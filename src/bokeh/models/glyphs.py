@@ -113,7 +113,7 @@ __all__ = (
     'AnnularWedge',
     'Annulus',
     'Arc',
-    #'Band',
+    'BandGlyph',
     'Bezier',
     'Block',
     'Circle',
@@ -154,7 +154,7 @@ __all__ = (
     'VSpan',
     'VStrip',
     'Wedge',
-    #'Whisker',
+    'WhiskerGlyph',
     'XYGlyph',
 )
 
@@ -2015,7 +2015,7 @@ def DEFAULT_HEAD() -> ArrowHead:
     from .annotations import TeeHead  # avoid circular imports
     return TeeHead(size=10)
 
-class Whisker(LineGlyph):
+class WhiskerGlyph(LineGlyph):
     """ Render whiskers along a dimension.
 
     """
@@ -2055,7 +2055,7 @@ class Whisker(LineGlyph):
     The {prop} values for the whisker body.
     """)
 
-class Band(LineGlyph, FillGlyph, HatchGlyph):
+class BandGlyph(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a filled area band along a dimension.
 
     '''

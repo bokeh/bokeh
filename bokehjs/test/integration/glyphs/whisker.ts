@@ -1,6 +1,6 @@
 import {display, fig} from "../_util"
 
-import {Whisker, ColumnDataSource/*, OpenHead*/} from "@bokehjs/models"
+import {WhiskerGlyph as Whisker, ColumnDataSource/*, OpenHead*/} from "@bokehjs/models"
 
 describe("Whisker glyph", () => {
 

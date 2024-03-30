@@ -59,7 +59,7 @@ from bokeh.models.glyphs import ( # isort:skip
     AnnularWedge,
     Annulus,
     Arc,
-    Band,
+    BandGlyph as Band,
     Bezier,
     Block,
     Circle,
@@ -88,7 +88,7 @@ from bokeh.models.glyphs import ( # isort:skip
     VAreaStep,
     VBar,
     Wedge,
-    Whisker,
+    WhiskerGlyph as Whisker,
 )
 
 #-----------------------------------------------------------------------------
