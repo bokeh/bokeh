@@ -618,7 +618,7 @@ def test_legacy_Band() -> None:
     with pytest.warns(BokehDeprecationWarning):
         band = Band(name="band_annotation", source=data_source)
     assert isinstance(band, GlyphRenderer)
-    assert isinstance(band.glyph, glyphs.Band)
+    assert isinstance(band.glyph, glyphs.BandGlyph)
     assert band.data_source == data_source
     assert band.name == "band_annotation"
     assert band.level == "annotation"
@@ -629,7 +629,7 @@ def test_legacy_Whisker() -> None:
     with pytest.warns(BokehDeprecationWarning):
         whisker = Whisker(name="whisker_annotation", source=data_source)
     assert isinstance(whisker, GlyphRenderer)
-    assert isinstance(whisker.glyph, glyphs.Whisker)
+    assert isinstance(whisker.glyph, glyphs.WhiskerGlyph)
     assert whisker.data_source == data_source
     assert whisker.name == "whisker_annotation"
     assert whisker.level == "annotation"

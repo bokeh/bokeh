@@ -507,7 +507,7 @@ def Band(**kwargs: Any) -> GlyphRenderer:
 
     """
     deprecated((3, 4, 0), "bokeh.annotations.Band", "bokeh.glyphs.Band or figure.band()")
-    return build_glyph_renderer(glyphs.Band, kwargs)
+    return build_glyph_renderer(glyphs.BandGlyph, kwargs)
 
 def Whisker(**kwargs: Any) -> GlyphRenderer:
     """ Render whiskers along a dimension.
@@ -518,7 +518,7 @@ def Whisker(**kwargs: Any) -> GlyphRenderer:
 
     """
     deprecated((3, 4, 0), "bokeh.annotations.Whisker", "bokeh.glyphs.Whisker or figure.whisker()")
-    return build_glyph_renderer(glyphs.Whisker, kwargs)
+    return build_glyph_renderer(glyphs.WhiskerGlyph, kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

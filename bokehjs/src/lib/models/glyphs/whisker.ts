@@ -15,11 +15,11 @@ import * as p from "core/properties"
 
 const {PI} = Math
 
-export interface WhiskerView extends Whisker.Data {}
+export interface WhiskerGlyphView extends WhiskerGlyph.Data {}
 
-export class WhiskerView extends GlyphView {
-  declare model: Whisker
-  declare visuals: Whisker.Visuals
+export class WhiskerGlyphView extends GlyphView {
+  declare model: WhiskerGlyph
+  declare visuals: WhiskerGlyph.Visuals
 
   protected lower_head: ArrowHeadView | null = null
   protected upper_head: ArrowHeadView | null = null
@@ -96,14 +96,14 @@ export class WhiskerView extends GlyphView {
     const slower = [this.slower, this.sbase]
     const supper = [this.supper, this.sbase]
 
-    this._define_attr<Whisker.Data>("lower_sx", slower[i])
-    this._define_attr<Whisker.Data>("lower_sy", slower[j])
+    this._define_attr<WhiskerGlyph.Data>("lower_sx", slower[i])
+    this._define_attr<WhiskerGlyph.Data>("lower_sy", slower[j])
 
-    this._define_attr<Whisker.Data>("upper_sx", supper[i])
-    this._define_attr<Whisker.Data>("upper_sy", supper[j])
+    this._define_attr<WhiskerGlyph.Data>("upper_sx", supper[i])
+    this._define_attr<WhiskerGlyph.Data>("upper_sy", supper[j])
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Whisker.Data): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: WhiskerGlyph.Data): void {
     const {lower_sx, upper_sx, lower_sy, upper_sy} = {...this, ...data}
     const {lower_head, upper_head} = this
     const {dimension} = this.model
@@ -174,7 +174,7 @@ export class WhiskerView extends GlyphView {
   }
 }
 
-export namespace Whisker {
+export namespace WhiskerGlyph {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
@@ -198,22 +198,22 @@ export namespace Whisker {
   }
 }
 
-export interface Whisker extends Whisker.Attrs {}
+export interface WhiskerGlyph extends WhiskerGlyph.Attrs {}
 
-export class Whisker extends Glyph {
-  declare properties: Whisker.Props
-  declare __view_type__: WhiskerView
+export class WhiskerGlyph extends Glyph {
+  declare properties: WhiskerGlyph.Props
+  declare __view_type__: WhiskerGlyphView
 
-  constructor(attrs?: Partial<Whisker.Attrs>) {
+  constructor(attrs?: Partial<WhiskerGlyph.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = WhiskerView
+    this.prototype.default_view = WhiskerGlyphView
 
-    this.mixins<Whisker.Mixins>(LineVector)
+    this.mixins<WhiskerGlyph.Mixins>(LineVector)
 
-    this.define<Whisker.Props>(({Ref, Nullable}) => ({
+    this.define<WhiskerGlyph.Props>(({Ref, Nullable}) => ({
       dimension:  [ Dimension, "height" ],
       lower:      [ p.XOrYCoordinateSpec, {field: "lower"} ],
       upper:      [ p.XOrYCoordinateSpec, {field: "upper"} ],

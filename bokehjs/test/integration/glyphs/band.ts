@@ -1,6 +1,6 @@
 import {display, fig} from "../_util"
 
-import {Band, ColumnDataSource, GlyphRenderer} from "@bokehjs/models"
+import {BandGlyph as Band, ColumnDataSource, GlyphRenderer} from "@bokehjs/models"
 
 describe("Band glyph", () => {
 

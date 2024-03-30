@@ -7,7 +7,7 @@ import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_cli
 import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
-  BoxAnnotation, ColorBar, Slope, Span, Whisker,
+  BoxAnnotation, ColorBar, Slope, Span, WhiskerGlyph as Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,

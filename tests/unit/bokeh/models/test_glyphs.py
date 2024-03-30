@@ -59,7 +59,6 @@ from _util_models import (
 # Setup
 #-----------------------------------------------------------------------------
 
-
 # fool linters
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
  AngleUnits, Dimension, Anchor, Location, LegendLocation,
@@ -138,7 +137,7 @@ def test_Arc() -> None:
 
 
 def test_Band() -> None:
-    band = m.Band()
+    band = m.BandGlyph()
     assert band.dimension == "height"
     assert band.lower == field("lower")
     assert band.upper == field("upper")
@@ -723,7 +722,7 @@ def test_Circle_XYGlpyh() -> None:
     assert issubclass(m.Circle, m.XYGlyph)
 
 def test_Whisker() -> None:
-    whisker = m.Whisker()
+    whisker = m.WhiskerGlyph()
     assert whisker.dimension == "height"
     assert whisker.lower == field("lower")
     assert isinstance(whisker.lower_head, ArrowHead)
@@ -744,7 +743,7 @@ def test_Whisker() -> None:
     ], LINE)
 
 def test_Whisker_accept_negative_values() -> None:
-    whisker = m.Whisker(base=-1., lower=-1.5, upper=-0.5)
+    whisker = m.WhiskerGlyph(base=-1., lower=-1.5, upper=-0.5)
     assert whisker.base == -1.
     assert whisker.lower == -1.5
     assert whisker.upper == -0.5

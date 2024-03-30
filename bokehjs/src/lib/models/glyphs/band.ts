@@ -7,11 +7,11 @@ import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as p from "core/properties"
 
-export interface BandView extends Band.Data {}
+export interface BandGlyphView extends BandGlyph.Data {}
 
-export class BandView extends GlyphView {
-  declare model: Band
-  declare visuals: Band.Visuals
+export class BandGlyphView extends GlyphView {
+  declare model: BandGlyph
+  declare visuals: BandGlyph.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
@@ -49,14 +49,14 @@ export class BandView extends GlyphView {
     const slower = [this.slower, this.sbase]
     const supper = [this.supper, this.sbase]
 
-    this._define_attr<Band.Data>("lower_sx", slower[i])
-    this._define_attr<Band.Data>("lower_sy", slower[j])
+    this._define_attr<BandGlyph.Data>("lower_sx", slower[i])
+    this._define_attr<BandGlyph.Data>("lower_sy", slower[j])
 
-    this._define_attr<Band.Data>("upper_sx", supper[i])
-    this._define_attr<Band.Data>("upper_sy", supper[j])
+    this._define_attr<BandGlyph.Data>("upper_sx", supper[i])
+    this._define_attr<BandGlyph.Data>("upper_sy", supper[j])
   }
 
-  protected _paint(ctx: Context2d, _indices: number[], data?: Band.Data): void {
+  protected _paint(ctx: Context2d, _indices: number[], data?: BandGlyph.Data): void {
     const {lower_sx, lower_sy, upper_sx, upper_sy} = {...this, ...data}
 
     const n_lower = lower_sx.length
@@ -96,7 +96,7 @@ export class BandView extends GlyphView {
   }
 }
 
-export namespace Band {
+export namespace BandGlyph {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
@@ -125,29 +125,29 @@ export namespace Band {
   }
 }
 
-export interface Band extends Band.Attrs {}
+export interface BandGlyph extends BandGlyph.Attrs {}
 
-export class Band extends Glyph {
-  declare properties: Band.Props
-  declare __view_type__: BandView
+export class BandGlyph extends Glyph {
+  declare properties: BandGlyph.Props
+  declare __view_type__: BandGlyphView
 
-  constructor(attrs?: Partial<Band.Attrs>) {
+  constructor(attrs?: Partial<BandGlyph.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = BandView
+    this.prototype.default_view = BandGlyphView
 
-    this.mixins<Band.Mixins>([mixins.LineScalar, mixins.FillScalar, mixins.HatchScalar])
+    this.mixins<BandGlyph.Mixins>([mixins.LineScalar, mixins.FillScalar, mixins.HatchScalar])
 
-    this.define<Band.Props>(() => ({
+    this.define<BandGlyph.Props>(() => ({
       dimension: [ Dimension, "height" ],
       lower:     [ p.XOrYCoordinateSpec, {field: "lower"} ],
       upper:     [ p.XOrYCoordinateSpec, {field: "upper"} ],
       base:      [ p.XOrYCrossCoordinateSpec, {field: "base"} ],
     }))
 
-    this.override<Band.Props>({
+    this.override<BandGlyph.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",
