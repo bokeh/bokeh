@@ -649,7 +649,7 @@ class Plot(LayoutDOM):
     Allows to specify which frame edges to align in multiple-plot layouts.
 
     The default is to align all edges, but users can opt-out from alignment
-    of each individual edge or all edges. Note also that other proproperties
+    of each individual edge or all edges. Note also that other properties
     may disable alignment of certain edges, especially when using fixed frame
     size (``frame_width`` and ``frame_height`` properties).
     """)
@@ -823,7 +823,7 @@ class Plot(LayoutDOM):
     """)
 
     reset_policy = Enum(ResetPolicy, default="standard", help="""
-    How a plot should respond to being reset. By deafult, the standard actions
+    How a plot should respond to being reset. By default, the standard actions
     are to clear any tool state history, return plot ranges to their original
     values, undo all selections, and emit a ``Reset`` event. If customization
     is desired, this property may be set to ``"event_only"``, which will
@@ -891,7 +891,7 @@ class GridPlot(LayoutDOM, GridCommon):
         Tuple(Instance(LayoutDOM), Int, Int),
         Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
     A list of subplots with their associated position in the grid, row and column
-    index and optional row and column spans (the defaul span is 1).
+    index and optional row and column spans (the default span is 1).
     """)
 
     @error(REPEATED_LAYOUT_CHILD)
