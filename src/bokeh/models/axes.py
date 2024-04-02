@@ -156,7 +156,7 @@ class Axis(GuideRenderer):
     """)
 
     axis_label_orientation = Either(Enum(LabelOrientation), Float)(default="parallel", help="""
-    What direction the asix label text should be oriented. If a number
+    What direction the axis label text should be oriented. If a number
     is supplied, the angle of the text is measured from horizontal.
     """)
 
