@@ -86,6 +86,10 @@ Examples:
     def arc(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
+    @glyph_method(glyphs.ArrowGlyph)
+    def arrow(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        pass
+
     @marker_method()
     def asterisk(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """

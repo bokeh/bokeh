@@ -12,6 +12,7 @@ import {
   AnnularWedge,
   Annulus,
   Arc,
+  ArrowGlyph as Arrow,
   BandGlyph as Band,
   Bezier,
   Block,
@@ -151,6 +152,7 @@ export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
+export type ArrowArgs         = GlyphArgs<Arrow.Props>         & AuxLine
 export type BandArgs          = GlyphArgs<Band.Props>          & AuxLine & AuxFill & AuxHatch
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
 export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
@@ -232,6 +234,18 @@ export abstract class GlyphAPI {
     args?: Partial<ArcArgs>): GlyphRenderer<Arc>
   arc(...args: unknown[]): GlyphRenderer<Arc> {
     return this._glyph(Arc, "arc", ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  arrow(): GlyphRenderer<Arrow>
+  arrow(args: Partial<ArrowArgs>): GlyphRenderer<Arrow>
+  arrow(
+    x0: ArrowArgs["x0"],
+    y0: ArrowArgs["y0"],
+    x1: ArrowArgs["x1"],
+    y1: ArrowArgs["y1"],
+    args?: Partial<ArrowArgs>): GlyphRenderer<Arrow>
+  arrow(...args: unknown[]): GlyphRenderer<Arrow> {
+    return this._glyph(Arrow, "arrow", ["x0", "y0", "x1", "y1"], args)
   }
 
   band(): GlyphRenderer<Band>

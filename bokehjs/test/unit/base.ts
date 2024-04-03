@@ -32,7 +32,7 @@ describe("default model resolver", () => {
       "AnotherModel",
       "Arc",
       "AreaVisuals",
-      "Arrow",
+      "ArrowGlyph",
       "ArrowHead",
       "Ascii",
       "AutocompleteInput",
