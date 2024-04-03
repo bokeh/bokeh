@@ -25,14 +25,14 @@ kinds = df.kind.unique()
 qs = df.groupby("kind").hwy.quantile([0.25, 0.5, 0.75])
 qs = qs.unstack().reset_index()
 qs.columns = ["kind", "q1", "q2", "q3"]
-df = pd.merge(df, qs, on="kind", how="left")
 
 # compute IQR outlier bounds
-iqr = df.q3 - df.q1
-df["upper"] = df.q3 + 1.5*iqr
-df["lower"] = df.q1 - 1.5*iqr
+iqr = qs.q3 - qs.q1
+qs["upper"] = qs.q3 + 1.5*iqr
+qs["lower"] = qs.q1 - 1.5*iqr
+df = pd.merge(df, qs, on="kind", how="left")
 
-source = ColumnDataSource(df)
+source = ColumnDataSource(qs)
 
 p = figure(x_range=kinds, tools="", toolbar_location=None,
            title="Highway MPG distribution by vehicle class",
