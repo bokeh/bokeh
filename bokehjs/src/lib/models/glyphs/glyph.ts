@@ -99,9 +99,13 @@ export abstract class GlyphView extends DOMComponentView {
     yield* this.decorations.values()
   }
 
+  get computed_decorations(): Decoration[] {
+    return this.model.decorations
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+    await build_views(this.decorations, this.computed_decorations, {parent: this.parent})
 
     const {webgl} = this.canvas
     if (webgl != null && this.load_glglyph != null) {

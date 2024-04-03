@@ -11,7 +11,7 @@ new browser tab for the Wikipedia entry of the sprinter.
 .. _New York Times interactive: http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
 
 ''' # noqa: E501
-from bokeh.models import (Arrow, ColumnDataSource, CustomJS, Label,
+from bokeh.models import (ColumnDataSource, CustomJS, Label,
                           NormalHead, SingleIntervalTicker, TapTool)
 from bokeh.plotting import figure, show
 from bokeh.sampledata.sprint import sprint
@@ -80,9 +80,11 @@ no_olympics_label = Label(x=7.5, y=1942, text="No Olympics in 1940 or 1944",
 plot.add_layout(no_olympics_label)
 
 x = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
-arrow = Arrow(x_start=x, x_end=5, y_start=1900, y_end=1900, line_width=1.5,
-              start=NormalHead(fill_color="black", size=6), end=None)
-plot.add_layout(arrow)
+plot.arrow(
+    x0=x, x1=5, y0=1900, y1=1900,
+    line_color="black", line_width=1.5,
+    start=NormalHead(fill_color="black", size=6), end=None,
+)
 
 meters_back = Label(x=5, x_offset=10, y=1900,
                     text="Meters behind\n2012 Usain Bolt",

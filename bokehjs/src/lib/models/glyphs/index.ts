@@ -1,6 +1,7 @@
 export {AnnularWedge}    from "./annular_wedge"
 export {Annulus}         from "./annulus"
 export {Arc}             from "./arc"
+export {ArrowGlyph}      from "./arrow"
 export {BandGlyph}       from "./band"
 export {Bezier}          from "./bezier"
 export {Block}           from "./block"

@@ -303,31 +303,17 @@ def test_ScaleBar_dimensional() -> None:
 
 
 def test_Arrow() -> None:
-    arrow = Arrow()
-    assert arrow.x_start == field("x_start")
-    assert arrow.y_start == field("y_start")
-    assert arrow.start_units == 'data'
-    assert arrow.start is None
-    assert arrow.x_end == field("x_end")
-    assert arrow.y_end == field("y_end")
-    assert arrow.end_units == 'data'
-    assert isinstance(arrow.end, ArrowHead)
-    assert isinstance(arrow.source, ColumnDataSource)
-    assert arrow.x_range_name == "default"
-    assert arrow.y_range_name == "default"
-    check_line_properties(arrow)
-    check_properties_existence(arrow, [
-        *ANNOTATION,
-        "x_start",
-        "y_start",
-        "start_units",
-        "start",
-        "x_end",
-        "y_end",
-        "end_units",
-        "end",
-        "source",
-    ], LINE)
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        arrow = Arrow(name="arrow_annotation", source=data_source)
+    assert isinstance(arrow, GlyphRenderer)
+    assert isinstance(arrow.glyph, glyphs.ArrowGlyph)
+    assert arrow.data_source == data_source
+    assert arrow.name == "arrow_annotation"
+    assert arrow.level == "annotation"
+    assert arrow.auto_ranging == "none"
+    assert arrow.glyph.start is None
+    assert isinstance(arrow.glyph.end, ArrowHead)
 
 
 def test_BoxAnnotation() -> None:

@@ -191,61 +191,6 @@
       },
     },
   },
-  Arrow: {
-    __extends__: "DataAnnotation",
-    x_start: {
-      type: "field",
-      field: "x_start",
-    },
-    y_start: {
-      type: "field",
-      field: "y_start",
-    },
-    start_units: "data",
-    start: null,
-    x_end: {
-      type: "field",
-      field: "x_end",
-    },
-    y_end: {
-      type: "field",
-      field: "y_end",
-    },
-    end_units: "data",
-    end: {
-      type: "object",
-      name: "OpenHead",
-      attributes: {},
-    },
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: [],
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-  },
   ArrowHead: {
     __extends__: "Marking",
     size: {
@@ -2625,6 +2570,15 @@
     line_dash_offset: {
       type: "value",
       value: 0,
+    },
+  },
+  ArrowGlyph: {
+    __extends__: "Segment",
+    start: null,
+    end: {
+      type: "object",
+      name: "OpenHead",
+      attributes: {},
     },
   },
   BandGlyph: {

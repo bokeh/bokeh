@@ -1,6 +1,5 @@
 export {AreaVisuals}       from "./area_visuals"
 export {Annotation}        from "./annotation"
-export {Arrow}             from "./arrow"
 export {ArrowHead}         from "./arrow_head"
 export {OpenHead}          from "./arrow_head"
 export {NormalHead}        from "./arrow_head"
