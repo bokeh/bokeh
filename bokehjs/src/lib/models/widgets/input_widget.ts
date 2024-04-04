@@ -3,12 +3,12 @@ import type {TooltipView} from "../ui/tooltip"
 import {Tooltip} from "../ui/tooltip"
 import {HTML, HTMLView} from "../dom/html"
 
-import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
 import {div, label} from "core/dom"
+import {View} from "core/view"
 import type * as p from "core/properties"
 
 import inputs_css, * as inputs from "styles/widgets/inputs.css"
@@ -20,7 +20,7 @@ export abstract class InputWidgetView extends ControlView {
   declare model: InputWidget
 
   protected title: HTMLView | string
-  protected description: TooltipView | null = null
+  protected description: TooltipView | string | null = null
 
   protected input_el: HTMLInputElementLike
   protected title_el: HTMLLabelElement
@@ -33,40 +33,44 @@ export abstract class InputWidgetView extends ControlView {
 
   override *children(): IterViews {
     yield* super.children()
-    if (this.title instanceof HTMLView) {
-      yield this.title
+
+    const {title, description} = this
+    if (title instanceof View) {
+      yield title
     }
-    if (this.description != null) {
-      yield this.description
+    if (description instanceof View) {
+      yield description
     }
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const {title, description} = this.model
-    if (title instanceof HTML) {
-      this.title = await build_view(title, {parent: this})
-    } else {
-      this.title = title
-    }
-    if (description instanceof Tooltip) {
-      this.description = await build_view(description, {parent: this})
-    }
+    await this._build_title()
+    await this._build_description()
   }
 
   override remove(): void {
-    if (this.title instanceof HTMLView) {
-      this.title.remove()
+    const {title, description} = this
+    if (title instanceof View) {
+      title.remove()
     }
-    this.description?.remove()
+    if (description instanceof View) {
+      description.remove()
+    }
     super.remove()
   }
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.title.change, () => {
-      this.title_el = this._build_title_el()
+    const {title, description} = this.model.properties
+    this.on_change(title, async () => {
+      await this._build_title()
+      this.render()
+    })
+    this.on_change(description, async () => {
+      await this._build_description()
+      this.render()
     })
   }
 
@@ -79,14 +83,15 @@ export abstract class InputWidgetView extends ControlView {
 
     this.desc_el = this._build_description_el()
     this.title_el = this._build_title_el()
+
     const input_or_container_el = this._render_input()
     this.input_el.id = "input"
     this.group_el = div({class: inputs.input_group}, this.title_el, input_or_container_el)
-    this.shadow_el.appendChild(this.group_el)
+    this.shadow_el.append(this.group_el)
   }
 
   protected _build_description_el(): HTMLElement | null {
-    const {description} = this.model
+    const {description} = this
     if (description == null) {
       return null
     } else {
@@ -96,9 +101,6 @@ export abstract class InputWidgetView extends ControlView {
       if (isString(description)) {
         desc_el.title = description
       } else {
-        const {description} = this
-        assert(description != null)
-
         if (description.model.target == "auto") {
           description.target = desc_el
         }
@@ -146,6 +148,24 @@ export abstract class InputWidgetView extends ControlView {
         })
       }
       return desc_el
+    }
+  }
+
+  protected async _build_title(): Promise<void> {
+    const {title} = this.model
+    if (title instanceof HTML) {
+      this.title = await build_view(title, {parent: this})
+    } else {
+      this.title = title
+    }
+  }
+
+  protected async _build_description(): Promise<void> {
+    const {description} = this.model
+    if (description instanceof Tooltip) {
+      this.description = await build_view(description, {parent: this})
+    } else {
+      this.description = description
     }
   }
 
