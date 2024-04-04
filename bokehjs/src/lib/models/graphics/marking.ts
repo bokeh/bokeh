@@ -36,6 +36,7 @@ export abstract class MarkingView extends DOMComponentView implements visuals.Pa
       const uniform = prop.uniform(source).select(indices)
       self[`${prop.attr}`] = uniform
     }
+    this.mark_finished()
   }
 
   abstract paint(ctx: Context2d, i: number): void

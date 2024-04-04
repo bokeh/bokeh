@@ -141,8 +141,28 @@ export abstract class View implements ISignalable, Equatable {
 
   protected _has_finished: boolean = false
 
-  mark_finished(): void {
+  has_finished(): boolean {
+    if (!this._has_finished) {
+      return false
+    }
+
+    for (const child of this.children_views()) {
+      if (!child.has_finished()) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  mark_finished(recursive: boolean = false): void {
     this._has_finished = true
+
+    if (recursive) {
+      for (const child of this.children_views()) {
+        child.mark_finished(recursive)
+      }
+    }
   }
 
   /**
@@ -150,6 +170,10 @@ export abstract class View implements ISignalable, Equatable {
    */
   force_finished(): void {
     this.mark_finished()
+
+    for (const child of this.children()) {
+      child.force_finished()
+    }
   }
 
   finish(): void {
@@ -189,10 +213,6 @@ export abstract class View implements ISignalable, Equatable {
 
   get is_root(): boolean {
     return this.parent == null
-  }
-
-  has_finished(): boolean {
-    return this._has_finished
   }
 
   get is_idle(): boolean {

@@ -18,6 +18,7 @@ export class CDSViewView extends View {
   override initialize(): void {
     super.initialize()
     this.compute_indices()
+    this.mark_finished()
   }
 
   override connect_signals(): void {
