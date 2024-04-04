@@ -75,6 +75,16 @@ class Glyph(Model):
     """)
 
 @abstract
+class DOMGlyph(Glyph):
+    ''' Glyphs that render using DOM/CSS and not HTML canvas.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+@abstract
 class XYGlyph(Glyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes.
 
@@ -108,7 +118,7 @@ class ConnectedXYGlyph(XYGlyph):
 
 @abstract
 class LineGlyph(Glyph):
-    ''' Glyphs with line properties
+    ''' Glyphs with line properties.
 
     '''
 
@@ -118,7 +128,7 @@ class LineGlyph(Glyph):
 
 @abstract
 class FillGlyph(Glyph):
-    ''' Glyphs with fill properties
+    ''' Glyphs with fill properties.
 
     '''
 
@@ -128,7 +138,7 @@ class FillGlyph(Glyph):
 
 @abstract
 class TextGlyph(Glyph):
-    ''' Glyphs with text properties
+    ''' Glyphs with text properties.
 
     '''
 
@@ -138,7 +148,7 @@ class TextGlyph(Glyph):
 
 @abstract
 class HatchGlyph(Glyph):
-    ''' Glyphs with Hatch properties
+    ''' Glyphs with hatch properties.
 
     '''
 

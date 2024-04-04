@@ -92,6 +92,7 @@ from ..core.property_mixins import (
 )
 from .glyph import (
     ConnectedXYGlyph,
+    DOMGlyph,
     FillGlyph,
     Glyph,
     HatchGlyph,
@@ -126,6 +127,7 @@ __all__ = (
     'HBar',
     'HSpan',
     'HStrip',
+    'HTMLText',
     'HexTile',
     'Image',
     'ImageRGBA',
@@ -1691,6 +1693,19 @@ class Text(XYGlyph, TextGlyph):
     background_hatch_color = Override(default=None)
 
     border_line_color = Override(default=None)
+
+class HTMLText(Text, DOMGlyph):
+    """ Render HTML text labels using visual-based styling.
+
+    .. note::
+        This glyph uses DOM/CSS for rendering and thus will not appear
+        in images genereated by ``SaveTool`` or ``CopyTool``.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 @abstract
 class MathTextGlyph(Text):

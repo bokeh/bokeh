@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ....core.enums import (
     AngleUnits,
@@ -31,31 +34,27 @@ from ....core.enums import (
 from ....core.properties import (
     Alpha,
     Angle,
-    AngleSpec,
     Color,
     CoordinateLike,
     Enum,
     Float,
     Include,
     Nullable,
-    NullStringSpec,
-    NumberSpec,
     Override,
     Required,
     String,
-    field,
 )
 from ....core.property_aliases import BorderRadius, Padding
 from ....core.property_mixins import (
-    FillProps,
-    LineProps,
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
-    TextProps,
 )
-from ..annotation import DataAnnotation
+from ....util.deprecation import deprecated
+from ... import glyphs
+from ...renderers import GlyphRenderer
+from ..common import build_glyph_renderer
 from .html_annotation import HTMLAnnotation
 
 #-----------------------------------------------------------------------------
@@ -183,91 +182,6 @@ class HTMLLabel(HTMLTextAnnotation):
     The {prop} values for the text.
     """)
 
-class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
-    ''' Render multiple text labels as annotations.
-
-    ``HTMLLabelSet`` will render multiple text labels at given ``x`` and ``y``
-    coordinates, which can be in either screen (pixel) space, or data (axis
-    range) space. In this case (as opposed to the single ``Label`` model),
-    ``x`` and ``y`` can also be the name of a column from a
-    :class:`~bokeh.models.sources.ColumnDataSource`, in which case the labels
-    will be "vectorized" using coordinate values from the specified columns.
-
-    The label can also be configured with a screen space offset from ``x`` and
-    ``y``, by using the ``x_offset`` and ``y_offset`` properties. These offsets
-    may be vectorized by giving the name of a data source column.
-
-    Additionally, the label can be rotated with the ``angle`` property (which
-    may also be a column name.)
-
-    There are also standard text, fill, and line properties to control the
-    appearance of the text, its background, as well as the rectangular bounding
-    box border.
-
-    The data source is provided by setting the ``source`` property.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates to locate the text anchors.
-    """)
-
-    x_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the ``xs`` attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates to locate the text anchors.
-    """)
-
-    y_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the ``ys`` attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    text = NullStringSpec(default=field("text"), help="""
-    The text values to render.
-    """)
-
-    angle = AngleSpec(default=0, help="""
-    The angles to rotate the text, as measured from the horizontal.
-    """)
-
-    x_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the x-coordinates.
-
-    This is useful, for instance, if it is desired to "float" text a fixed
-    distance in |screen units| from a given data position.
-    """)
-
-    y_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the y-coordinates.
-
-    This is useful, for instance, if it is desired to "float" text a fixed
-    distance in |screen units| from a given data position.
-    """)
-
-    text_props = Include(TextProps, help="""
-    The {prop} values for the text.
-    """)
-
-    background_props = Include(FillProps, prefix="background", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    background_fill_color = Override(default=None)
-
-    border_props = Include(LineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    border_line_color = Override(default=None)
-
 class HTMLTitle(HTMLTextAnnotation):
     ''' Render a single title box as an annotation.
 
@@ -341,6 +255,41 @@ class HTMLTitle(HTMLTextAnnotation):
     text_alpha = Alpha(help="""
     An alpha value to use to fill text with.
     """)
+
+#-----------------------------------------------------------------------------
+# Legacy API
+#-----------------------------------------------------------------------------
+
+def HTMLLabelSet(**kwargs: Any) -> GlyphRenderer:
+    """ Render multiple text labels as annotations.
+
+    ``HTMLLabelSet`` will render multiple text labels at given ``x`` and ``y``
+    coordinates, which can be in either screen (pixel) space, or data (axis
+    range) space. In this case (as opposed to the single ``Label`` model),
+    ``x`` and ``y`` can also be the name of a column from a
+    :class:`~bokeh.models.sources.ColumnDataSource`, in which case the labels
+    will be "vectorized" using coordinate values from the specified columns.
+
+    The label can also be configured with a screen space offset from ``x`` and
+    ``y``, by using the ``x_offset`` and ``y_offset`` properties. These offsets
+    may be vectorized by giving the name of a data source column.
+
+    Additionally, the label can be rotated with the ``angle`` property (which
+    may also be a column name).
+
+    There are also standard text, fill, and line properties to control the
+    appearance of the text, its background, as well as the rectangular bounding
+    box border.
+
+    The data source is provided by setting the ``source`` property.
+
+    .. note::
+        This is a legacy API and will be removed at some point. Prefer using
+        ``bokeh.glyphs.HTMLText`` model or ``figure.html_text()`` method.
+
+    """
+    deprecated((3, 5, 0), "bokeh.annotations.HTMLLabelSet", "bokeh.glyphs.HTMLText or figure.html_text()")
+    return build_glyph_renderer(glyphs.HTMLText, kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -435,6 +435,10 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.HTMLText)
+    def html_text(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        pass
+
     @glyph_method(glyphs.Ellipse)
     def ellipse(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
