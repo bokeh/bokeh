@@ -124,11 +124,11 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
         warnings.warn()
 
     tag = AUTOLOAD_REQUEST_TAG.render(
-        src_path=src_path,
-        app_path=app_path,
-        elementid=elementid,
-        headers=headers,
-        with_credentials=with_credentials,
+        src_path         = src_path,
+        app_path         = app_path,
+        elementid        = elementid,
+        headers          = headers,
+        with_credentials = with_credentials,
     )
 
     return tag
