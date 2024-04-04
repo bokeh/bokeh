@@ -166,31 +166,6 @@
     __extends__: "CompositeRenderer",
     level: "annotation",
   },
-  DataAnnotation: {
-    __extends__: "Annotation",
-    source: {
-      type: "object",
-      name: "ColumnDataSource",
-      attributes: {
-        selected: {
-          type: "object",
-          name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
-        },
-        selection_policy: {
-          type: "object",
-          name: "UnionRenderers",
-          attributes: {},
-        },
-        data: {
-          type: "map",
-        },
-      },
-    },
-  },
   ArrowHead: {
     __extends__: "Marking",
     size: {
