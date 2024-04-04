@@ -23,6 +23,7 @@ export class DecorationView extends View {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     this.marking = await build_view(this.model.marking, {parent: this.parent})
+    this.mark_finished()
   }
 }
 
