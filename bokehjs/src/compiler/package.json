@@ -13,15 +13,15 @@
     "@types/convert-source-map": "^2.0.3",
     "@types/css": "^0.0.37",
     "@types/less": "^3.0.6",
-    "@types/node": "^20.10.4",
+    "@types/node": "^20.12.4",
     "@types/yargs": "^17.0.32",
     "chalk": "^4.1.2",
     "combine-source-map": "^0.8.0",
     "convert-source-map": "^2.0.0",
     "css": "^3.0.0",
     "less": "^4.2.0",
-    "terser": "^5.26.0",
-    "typescript": "~5.4.2",
+    "terser": "^5.30.3",
+    "typescript": "~5.4.3",
     "yargs": "^17.7.2"
   }
 }

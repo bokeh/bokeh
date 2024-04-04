@@ -7,10 +7,10 @@
   "repository": {},
   "dependencies": {
     "@bokeh/bokehjs": "../../../../../bokehjs/build/dist/bokeh-bokehjs.tgz",
-    "katex": "^0.11.1"
+    "katex": "^0.16.10"
   },
   "devDependencies": {
-    "@types/katex": "^0.10.2"
+    "@types/katex": "^0.16.7"
   },
   "main": "dist/latex_label.js"
 }
