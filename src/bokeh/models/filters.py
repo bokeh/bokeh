@@ -220,17 +220,17 @@ class CustomJSFilter(Filter):
 
     Example:
 
-        .. code-block
+    .. code-block::
 
-            code = '''
-            const indices = []
-            for (let i = 0; i <= source.data['some_column'].length; i++) {
-                if (source.data['some_column'][i] == 'some_value') {
-                    indices.push(i)
-                }
+        code = '''
+        const indices = []
+        for (let i = 0; i <= source.data['some_column'].length; i++) {
+            if (source.data['some_column'][i] == 'some_value') {
+                indices.push(i)
             }
-            return indices
-            '''
+        }
+        return indices
+        '''
 
     """)
 
