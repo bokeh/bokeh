@@ -3766,4 +3766,13 @@ describe("Bug", () => {
       })
     })
   })
+
+  describe("in issue #13804", () => {
+    it("doesn't allow to update InputWidget.title", async () => {
+      const input = new Select({title: "Original title", value: "Value 0", options: ["Value 0", "Value 1"]})
+      const {view} = await display(input, [300, 100])
+      input.title = "New title"
+      await view.ready
+    })
+  })
 })
