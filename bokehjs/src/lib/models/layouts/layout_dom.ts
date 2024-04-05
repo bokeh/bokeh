@@ -125,7 +125,7 @@ export abstract class LayoutDOMView extends PaneView {
     return this.child_views.filter((c): c is LayoutDOMView => c instanceof LayoutDOMView)
   }
 
-  async build_child_views(): Promise<UIElementView[]> {
+  async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>
     const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
 
     for (const view of removed) {
@@ -152,21 +152,23 @@ export abstract class LayoutDOMView extends PaneView {
   protected _update_children(): void {}
 
   async update_children(): Promise<void> {
-    const created_children = new Set(await this.build_child_views())
+    const created = await this.build_child_views()
+    const created_children = new Set(created)
 
-    if (created_children.size != 0) {
-      for (const child_view of this.child_views) {
-        child_view.el.remove()
-      }
+    // First remove and then either reattach existing elements or render and
+    // attach new elements, so that the order of children is consistent, while
+    // avoiding expensive re-rendering of existing views.
+    for (const child_view of this.child_views) {
+      child_view.el.remove()
+    }
 
-      for (const child_view of this.child_views) {
-        const is_new = created_children.has(child_view)
+    for (const child_view of this.child_views) {
+      const is_new = created_children.has(child_view)
 
-        if (is_new) {
-          child_view.render_to(this.shadow_el)
-        } else {
-          this.shadow_el.append(child_view.el)
-        }
+      if (is_new) {
+        child_view.render_to(this.shadow_el)
+      } else {
+        this.shadow_el.append(child_view.el)
       }
     }
 
