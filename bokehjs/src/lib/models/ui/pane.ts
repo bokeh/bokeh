@@ -40,22 +40,20 @@ export class PaneView extends UIElementView {
     const {created} = await this._build_elements()
     const created_elements = new Set(created)
 
-    if (created_elements.size != 0) {
-      // Remove then either reattach existing elements or render and attach
-      // new elements, so that the order of children is consistent. Otherwise
-      // we would be pushing new elements to the end.
-      for (const element_view of this.element_views) {
-        element_view.el.remove()
-      }
+    // First remove and then either reattach existing elements or render and
+    // attach new elements, so that the order of children is consistent, while
+    // avoiding expensive re-rendering of existing views.
+    for (const element_view of this.element_views) {
+      element_view.el.remove()
+    }
 
-      for (const element_view of this.element_views) {
-        const is_new = created_elements.has(element_view)
+    for (const element_view of this.element_views) {
+      const is_new = created_elements.has(element_view)
 
-        if (is_new) {
-          element_view.render_to(this.shadow_el)
-        } else {
-          this.shadow_el.append(element_view.el)
-        }
+      if (is_new) {
+        element_view.render_to(this.shadow_el)
+      } else {
+        this.shadow_el.append(element_view.el)
       }
     }
   }

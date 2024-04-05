@@ -20,7 +20,7 @@ import {
   Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
-  Row, Column,
+  Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
   FixedTicker,
@@ -3772,6 +3772,28 @@ describe("Bug", () => {
       const input = new Select({title: "Original title", value: "Value 0", options: ["Value 0", "Value 1"]})
       const {view} = await display(input, [300, 100])
       input.title = "New title"
+      await view.ready
+    })
+  })
+
+  describe("in issue #13806", () => {
+    it("doesn't allow to change the order of LayoutDOM.children", async () => {
+      const red = new Spacer({width: 50, height: 50, styles: {background_color: "red"}})
+      const green = new Spacer({width: 50, height: 50, styles: {background_color: "green"}})
+      const blue = new Spacer({width: 50, height: 50, styles: {background_color: "blue"}})
+      const layout = new Row({children: [red, green, blue]})
+      const {view} = await display(layout, [200, 100])
+      layout.children = [blue, red, green]
+      await view.ready
+    })
+
+    it("doesn't allow to change the order of Pane.elements", async () => {
+      const red = new Pane({styles: {width: "50px", height: "50px", background_color: "red"}})
+      const green = new Pane({styles: {width: "50px", height: "50px", background_color: "green"}})
+      const blue = new Pane({styles: {width: "50px", height: "50px", background_color: "blue"}})
+      const layout = new Pane({elements: [red, green, blue], styles: {display: "flex", flex_direction: "row"}})
+      const {view} = await display(layout, [200, 100])
+      layout.elements = [blue, red, green]
       await view.ready
     })
   })
