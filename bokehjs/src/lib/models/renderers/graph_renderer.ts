@@ -8,6 +8,7 @@ import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import type * as p from "core/properties"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
+import {logger} from "core/logging"
 import type {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
@@ -50,26 +51,65 @@ export class GraphRendererView extends DataRendererView {
 
   protected apply_coordinates(): void {
     const {edge_renderer, node_renderer} = this.model
-    // TODO: XsYsGlyph or something
-    if (!(edge_renderer.glyph instanceof MultiLine || edge_renderer.glyph instanceof Patches)) {
-      throw new Error(`${this}.edge_renderer.glyph must be a MultiLine glyph`)
-    }
-    if (!(node_renderer.glyph instanceof XYGlyph)) {
-      throw new Error(`${this}.node_renderer.glyph must be a XYGlyph glyph`)
-    }
 
     const edge_coords = this.model.layout_provider.edge_coordinates
     const node_coords = this.model.layout_provider.node_coordinates
 
-    edge_renderer.glyph.properties.xs.internal = true
-    edge_renderer.glyph.properties.ys.internal = true
-    node_renderer.glyph.properties.x.internal = true
-    node_renderer.glyph.properties.y.internal = true
+    const xs = {expr: edge_coords.x}
+    const ys = {expr: edge_coords.y}
 
-    edge_renderer.glyph.xs = {expr: edge_coords.x}
-    edge_renderer.glyph.ys = {expr: edge_coords.y}
-    node_renderer.glyph.x = {expr: node_coords.x}
-    node_renderer.glyph.y = {expr: node_coords.y}
+    const x = {expr: node_coords.x}
+    const y = {expr: node_coords.y}
+
+    const edge_glyphs = [
+      edge_renderer.glyph,
+      edge_renderer.hover_glyph,
+      edge_renderer.muted_glyph,
+      edge_renderer.selection_glyph,
+      edge_renderer.nonselection_glyph,
+    ]
+
+    const node_glyphs = [
+      node_renderer.glyph,
+      node_renderer.hover_glyph,
+      node_renderer.muted_glyph,
+      node_renderer.selection_glyph,
+      node_renderer.nonselection_glyph,
+    ]
+
+    for (const glyph of edge_glyphs) {
+      if (glyph == null || glyph == "auto") {
+        continue
+      }
+
+      if (!(glyph instanceof MultiLine || glyph instanceof Patches)) {
+        logger.warn(`${this}.edge_renderer only supports MultiLine and Patches glyphs`)
+        continue
+      }
+
+      glyph.properties.xs.internal = true
+      glyph.properties.ys.internal = true
+
+      glyph.xs = xs
+      glyph.ys = ys
+    }
+
+    for (const glyph of node_glyphs) {
+      if (glyph == null || glyph == "auto") {
+        continue
+      }
+
+      if (!(glyph instanceof XYGlyph)) {
+        logger.warn(`${this}.node_renderer only supports XY glyphs`)
+        continue
+      }
+
+      glyph.properties.x.internal = true
+      glyph.properties.y.internal = true
+
+      glyph.x = x
+      glyph.y = y
+    }
   }
 
   override remove(): void {
