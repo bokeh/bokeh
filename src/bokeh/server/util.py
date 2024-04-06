@@ -45,7 +45,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def bind_sockets(address: str | None, port: int) -> tuple[list[socket], int]:
+def bind_sockets(address: str | None, port: int, reuse_port: bool = False) -> tuple[list[socket], int]:
     ''' Bind a socket to a port on an address.
 
     Args:
@@ -65,7 +65,7 @@ def bind_sockets(address: str | None, port: int) -> tuple[list[socket], int]:
         (socket, port)
 
     '''
-    ss = netutil.bind_sockets(port=port or 0, address=address)
+    ss = netutil.bind_sockets(port=port or 0, address=address, reuse_port = reuse_port)
     assert len(ss)
     ports = {s.getsockname()[1] for s in ss}
     assert len(ports) == 1, "Multiple ports assigned??"
