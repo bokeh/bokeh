@@ -747,15 +747,18 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         '''
         self.apply_theme(property_values={})
 
-    def clone(self) -> Self:
-        ''' Duplicate a HasProps object.
+    def clone(self, **overrides: Any) -> Self:
+        ''' Duplicate a ``HasProps`` object.
 
-        This creates a shallow clone of the original model, i.e. any
-        mutable containers or child models will not be duplicated.
+        This creates a shallow clone of the original model, i.e. any mutable
+        containers or child models will not be duplicated. Allows to override
+        particular properties while cloning.
 
         '''
         attrs = self.properties_with_values(include_defaults=False, include_undefined=True)
-        return self.__class__(**{key: val for key, val in attrs.items() if val is not Undefined})
+        existing = {key: val for key, val in attrs.items() if val is not Undefined}
+        properties = {**existing, **overrides}
+        return self.__class__(**properties)
 
 KindRef = Any # TODO
 

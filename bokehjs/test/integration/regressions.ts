@@ -13,7 +13,7 @@ import {
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
-  StaticLayoutProvider,
+  StaticLayoutProvider, NodesAndLinkedEdges,
   LinearColorMapper,
   Plot,
   TeX,
@@ -3795,6 +3795,51 @@ describe("Bug", () => {
       const {view} = await display(layout, [200, 100])
       layout.elements = [blue, red, green]
       await view.ready
+    })
+  })
+
+  describe("in issue #13803", () => {
+    it("doesn't allow GraphRenderer to utilize secondary glyphs", async () => {
+      const p = fig([200, 200], {
+        x_range: new DataRange1d({range_padding: 0.2}),
+        y_range: new DataRange1d({range_padding: 0.2}),
+      })
+
+      const layout_provider = new StaticLayoutProvider({
+        graph_layout: new Map([
+          [4, [2, 1]],
+          [5, [2, 2]],
+          [6, [3, 1]],
+          [7, [3, 2]],
+        ]),
+      })
+
+      const node_renderer = new GlyphRenderer({
+        glyph: new Scatter({size: 10, fill_color: "red"}),
+        selection_glyph: new Scatter({size: 20, fill_color: "yellow"}),
+        nonselection_glyph: new Scatter({size: 10, fill_color: "pink"}),
+        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      })
+      const edge_renderer = new GlyphRenderer({
+        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+        selection_glyph: new MultiLine({line_width: 4, line_color: "blue"}),
+        nonselection_glyph: new MultiLine({line_width: 2, line_color: "gray", line_dash: "dashed"}),
+        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      })
+
+      node_renderer.data_source.selected.indices = [0, 3]
+      edge_renderer.data_source.selected.indices = [0, 3]
+
+      const graph = new GraphRenderer({
+        layout_provider,
+        node_renderer,
+        edge_renderer,
+        selection_policy: new NodesAndLinkedEdges(),
+        inspection_policy: new NodesAndLinkedEdges(),
+      })
+      p.add_renderers(graph)
+
+      await display(p)
     })
   })
 })
