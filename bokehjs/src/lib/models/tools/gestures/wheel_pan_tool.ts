@@ -1,4 +1,5 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {Modifiers, satisfies_modifiers} from "./common"
 import type * as p from "core/properties"
 import type {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
@@ -8,7 +9,11 @@ import {update_ranges} from "./pan_tool"
 export class WheelPanToolView extends GestureToolView {
   declare model: WheelPanTool
 
-  override _scroll(ev: ScrollEvent): void {
+  override _scroll(ev: ScrollEvent): boolean {
+    if (!satisfies_modifiers(this.model.modifiers, ev.modifiers)) {
+      return false
+    }
+
     let factor = this.model.speed*ev.delta
 
     // clamp the magnitude of factor, if it is > 1 bad things happen
@@ -19,6 +24,7 @@ export class WheelPanToolView extends GestureToolView {
     }
 
     this._update_ranges(factor)
+    return true
   }
 
   _update_ranges(factor: number): void {
@@ -74,6 +80,7 @@ export namespace WheelPanTool {
 
   export type Props = GestureTool.Props & {
     dimension: p.Property<Dimension>
+    modifiers: p.Property<Modifiers>
     speed: p.Property<number>
   }
 }
@@ -93,6 +100,7 @@ export class WheelPanTool extends GestureTool {
 
     this.define<WheelPanTool.Props>(() => ({
       dimension: [ Dimension, "width" ],
+      modifiers: [ Modifiers, {} ],
     }))
 
     this.internal<WheelPanTool.Props>(({Float}) => ({

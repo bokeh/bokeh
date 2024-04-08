@@ -1,4 +1,5 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {Modifiers, satisfies_modifiers} from "./common"
 import {DataRenderer} from "../../renderers/data_renderer"
 import type {Scale} from "../../scales/scale"
 import {CompositeScale} from "../../scales/composite_scale"
@@ -20,9 +21,13 @@ type Renderers = typeof Renderers["__type__"]
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
 
-  override _scroll(ev: ScrollEvent): void {
+  override _scroll(ev: ScrollEvent): boolean {
+    if (!satisfies_modifiers(this.model.modifiers, ev.modifiers)) {
+      return false
+    }
     const {sx, sy, delta} = ev
     this.zoom(sx, sy, delta)
+    return true
   }
 
   override _pinch(ev: PinchEvent): void {
@@ -194,6 +199,7 @@ export namespace WheelZoomTool {
     zoom_on_axis: p.Property<boolean>
     zoom_together: p.Property<ZoomTogether>
     speed: p.Property<number>
+    modifiers: p.Property<Modifiers>
   }
 }
 
@@ -218,6 +224,7 @@ export class WheelZoomTool extends GestureTool {
       zoom_on_axis:   [ Bool, true ],
       zoom_together:  [ ZoomTogether, "all" ],
       speed:          [ Float, 1/600 ],
+      modifiers:      [ Modifiers, {} ],
     }))
 
     this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: "both"}))
