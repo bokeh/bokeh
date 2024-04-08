@@ -138,7 +138,8 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     return tag
 
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
-        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] = {}) -> str:
+        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] = {},
+        with_credentials: bool = False) -> str:
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -191,6 +192,13 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
+            Mutually exclusive with ``with_credentials``
+
+       with_credentials (bool, optional):
+            Whether cookies should be passed to Bokeh application code (default: False)
+
+            Mutually exclusive with ``headers``
+
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
@@ -216,15 +224,21 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
     src_path += _process_relative_urls(relative_urls, url)
     src_path += _process_resources(resources)
 
-    headers = dict(headers) if headers else {}
+    if headers and with_credentials:
+        raise ValueError("'headers' and 'with_credentials' are mutually exclusive")
+    elif not headers:
+        headers = {}
+    else:
+        headers = dict(headers)
     headers['Bokeh-Session-Id'] = session_id
 
     tag = AUTOLOAD_REQUEST_TAG.render(
-        src_path  = src_path,
-        app_path  = app_path,
-        elementid = elementid,
-        modelid   = modelid,
-        headers   = headers,
+        src_path         = src_path,
+        app_path         = app_path,
+        elementid        = elementid,
+        modelid          = modelid,
+        headers          = headers,
+        with_credentials = with_credentials,
     )
 
     return tag

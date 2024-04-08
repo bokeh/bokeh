@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import json
+
 # External imports
 import bs4
 
@@ -44,6 +47,10 @@ class TestServerDocument:
             bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=123)
         with pytest.raises(ValueError):
             bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="whatever")
+
+    def test_headers_with_credentials_mutual_exclusivity(self):
+        with pytest.raises(ValueError):
+            bes.server_document(url="http://localhost:8081/foo/bar/sliders", headers={"foo": "bar"}, with_credentials=True)
 
     def test_resources_default_is_implicit(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="default")
@@ -111,8 +118,17 @@ class TestServerDocument:
         request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders\", true);"
         assert request in script.string
 
+    @pytest.mark.parametrize("with_credentials", [True, False])
+    def test_with_credentials(self, with_credentials):
+        script = bes.server_document("http://localhost:8081/foo/bar/sliders", with_credentials=with_credentials)
+        assert f"xhr.withCredentials = {json.dumps(with_credentials)};" in script
+
 
 class TestServerSession:
+    def test_headers_with_credentials_mutual_exclusivity(self):
+        with pytest.raises(ValueError):
+            bes.server_document(url="http://localhost:8081/foo/bar/sliders", headers={"foo": "bar"}, with_credentials=True)
+
     def test_return_type(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
         assert isinstance(r, str)
@@ -172,6 +188,12 @@ class TestServerSession:
         request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}\", true);"
         assert request in script.string
         assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
+
+    @pytest.mark.parametrize("with_credentials", [True, False])
+    def test_with_credentials(self, with_credentials):
+        script = bes.server_document("http://localhost:8081/foo/bar/sliders",
+                                     with_credentials=with_credentials)
+        assert f"xhr.withCredentials = {json.dumps(with_credentials)};" in script
 
 #-----------------------------------------------------------------------------
 # Dev API
