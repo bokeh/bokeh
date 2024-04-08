@@ -99,8 +99,12 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
+            Mutually exclusive with ``with_credentials``
+
        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
+
+            Mutually exclusive with ``headers``
 
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
@@ -118,10 +122,10 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     src_path += _process_resources(resources)
     src_path += _process_arguments(arguments)
 
-    headers = headers or {}
-
     if headers and with_credentials:
-        warnings.warn()
+        raise ValueError("'headers' and 'with_credentials' are mutually exclusive")
+    elif not headers:
+        headers = {}
 
     tag = AUTOLOAD_REQUEST_TAG.render(
         src_path         = src_path,
