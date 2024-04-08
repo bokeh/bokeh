@@ -3,9 +3,10 @@ import {Signal} from "./signaling"
 import type {Keys} from "./dom"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
+import type {ViewStorage} from "./build_views"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
-import {isObject} from "./util/types"
+import {isObject, isBoolean} from "./util/types"
 import type {PlotView} from "../models/plots/plot"
 import type {Tool, ToolView} from "../models/tools/tool"
 import type {ToolLike} from "../models/tools/tool_proxy"
@@ -188,78 +189,15 @@ export class UIEventBus {
     document.removeEventListener("keyup", this.on_key_up)
   }
 
+  protected readonly _tools: ViewStorage<ToolLike<Tool>> = new Map()
+
   register_tool(tool_view: ToolView): void {
     const {model: tool} = tool_view
 
-    const handler = <T>(fn: (e: T) => void) => (arg: {tool: ToolLike<Tool> | null, e: T}): void => {
-      if (arg.tool == null || arg.tool == tool) {
-        fn.call(tool_view, arg.e)
-      }
-    }
-
-    if (tool_view._pan_start != null) {
-      tool_view.connect(this.pan_start,    handler(tool_view._pan_start))
-    }
-    if (tool_view._pan != null) {
-      tool_view.connect(this.pan,          handler(tool_view._pan))
-    }
-    if (tool_view._pan_end != null) {
-      tool_view.connect(this.pan_end,      handler(tool_view._pan_end))
-    }
-
-    if (tool_view._pinch_start != null) {
-      tool_view.connect(this.pinch_start,  handler(tool_view._pinch_start))
-    }
-    if (tool_view._pinch != null) {
-      tool_view.connect(this.pinch,        handler(tool_view._pinch))
-    }
-    if (tool_view._pinch_end != null) {
-      tool_view.connect(this.pinch_end,    handler(tool_view._pinch_end))
-    }
-
-    if (tool_view._rotate_start != null) {
-      tool_view.connect(this.rotate_start, handler(tool_view._rotate_start))
-    }
-    if (tool_view._rotate != null) {
-      tool_view.connect(this.rotate,       handler(tool_view._rotate))
-    }
-    if (tool_view._rotate_end != null) {
-      tool_view.connect(this.rotate_end,   handler(tool_view._rotate_end))
-    }
-
-    if (tool_view._move_enter != null) {
-      tool_view.connect(this.move_enter,   handler(tool_view._move_enter))
-    }
-    if (tool_view._move != null) {
-      tool_view.connect(this.move,         handler(tool_view._move))
-    }
-    if (tool_view._move_exit != null) {
-      tool_view.connect(this.move_exit,    handler(tool_view._move_exit))
-    }
-
-    if (tool_view._tap != null) {
-      tool_view.connect(this.tap,          handler(tool_view._tap))
-    }
-    if (tool_view._doubletap != null) {
-      tool_view.connect(this.doubletap,    handler(tool_view._doubletap))
-    }
-    if (tool_view._press != null) {
-      tool_view.connect(this.press,        handler(tool_view._press))
-    }
-    if (tool_view._pressup != null) {
-      tool_view.connect(this.pressup,      handler(tool_view._pressup))
-    }
-
-    if (tool_view._scroll != null) {
-      tool_view.connect(this.scroll,       handler(tool_view._scroll))
-    }
-
-    if (tool_view._keydown != null) {
-      tool_view.connect(this.keydown,      handler(tool_view._keydown))
-    }
-
-    if (tool_view._keyup != null) {
-      tool_view.connect(this.keyup,        handler(tool_view._keyup))
+    if (this._tools.has(tool)) {
+      throw new Error(`${tool} already registered`)
+    } else {
+      this._tools.set(tool, tool_view)
     }
   }
 
@@ -574,27 +512,30 @@ export class UIEventBus {
       case "pinch": {
         const active_gesture = gestures.pinch.active ?? gestures.scroll.active
         if (active_gesture != null) {
-          srcEvent.preventDefault()
-          srcEvent.stopPropagation()
-          this.trigger(signal, e, active_gesture)
+          if (this.trigger(signal, e, active_gesture)) {
+            srcEvent.preventDefault()
+            srcEvent.stopPropagation()
+          }
         }
         break
       }
       case "scroll": {
         const active_gesture = gestures.scroll.active
         if (active_gesture != null) {
-          srcEvent.preventDefault()
-          srcEvent.stopPropagation()
-          this.trigger(signal, e, active_gesture)
+          if (this.trigger(signal, e, active_gesture)) {
+            srcEvent.preventDefault()
+            srcEvent.stopPropagation()
+          }
         }
         break
       }
       case "pan": {
         const active_gesture = gestures.pan.active
         if (active_gesture != null) {
-          srcEvent.preventDefault()
-          srcEvent.stopPropagation()
-          this.trigger(signal, e, active_gesture)
+          if (this.trigger(signal, e, active_gesture)) {
+            srcEvent.preventDefault()
+            srcEvent.stopPropagation()
+          }
         }
 
         /* TODO this requires knowledge of the current interactive
@@ -618,8 +559,58 @@ export class UIEventBus {
     this._trigger_bokeh_event(plot_view, e)
   }
 
-  trigger<E>(signal: UISignal<E>, e: E, tool: ToolLike<Tool> | null = null): void {
-    signal.emit({tool, e})
+  trigger<E extends UIEvent | KeyEvent>(signal: UISignal<E>, e: E, tool: ToolLike<Tool> | null = null): boolean {
+    const emit = (tool: ToolLike<Tool>) => {
+      const tool_view = this._tools.get(tool)
+      if (tool_view == null) {
+        return false
+      }
+      const fn = (() => {
+        switch (signal) {
+          case this.pan_start:    return tool_view._pan_start
+          case this.pan:          return tool_view._pan
+          case this.pan_end:      return tool_view._pan_end
+          case this.pinch_start:  return tool_view._pinch_start
+          case this.pinch:        return tool_view._pinch
+          case this.pinch_end:    return tool_view._pinch_end
+          case this.rotate_start: return tool_view._rotate_start
+          case this.rotate:       return tool_view._rotate
+          case this.rotate_end:   return tool_view._rotate_end
+          case this.move_enter:   return tool_view._move_enter
+          case this.move:         return tool_view._move
+          case this.move_exit:    return tool_view._move_exit
+          case this.tap:          return tool_view._tap
+          case this.doubletap:    return tool_view._doubletap
+          case this.press:        return tool_view._press
+          case this.pressup:      return tool_view._pressup
+          case this.scroll:       return tool_view._scroll
+          case this.keydown:      return tool_view._keydown
+          case this.keyup:        return tool_view._keyup
+          default:                return null
+        }
+      })()
+
+      if (fn == null) {
+        return false
+      }
+
+      const val = fn.bind(tool_view)(e as any)
+      if (isBoolean(val)) {
+        return val
+      } else {
+        return true
+      }
+    }
+
+    if (tool != null) {
+      return emit(tool)
+    } else {
+      let result = false
+      for (const tool of this._tools.keys()) {
+        result ||= emit(tool)
+      }
+      return result
+    }
   }
 
   /*protected*/ _trigger_bokeh_event(plot_view: PlotView, ev: UIEvent): void {
