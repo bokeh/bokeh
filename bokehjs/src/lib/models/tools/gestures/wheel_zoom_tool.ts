@@ -240,4 +240,9 @@ export class WheelZoomTool extends GestureTool {
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
+
+  override supports_auto(): boolean {
+    const {alt, ctrl, shift} = this.modifiers
+    return alt != null || ctrl != null || shift != null
+  }
 }

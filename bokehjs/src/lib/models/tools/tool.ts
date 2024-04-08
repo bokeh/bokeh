@@ -190,6 +190,10 @@ export abstract class Tool extends Model {
     return null
   }
 
+  supports_auto(): boolean {
+    return false
+  }
+
   // utility function to get limits along both dimensions, given
   // optional dimensional constraints
   _get_dim_limits([sx0, sy0]: [number, number], [sx1, sy1]: [number, number],

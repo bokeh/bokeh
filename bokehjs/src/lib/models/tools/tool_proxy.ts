@@ -141,6 +141,10 @@ export class ToolProxy<T extends Tool> extends Model {
     return items
   }
 
+  supports_auto(): boolean {
+    return this.tools[0].supports_auto()
+  }
+
   /* XXX: this.model?
   protected _clicked(): void {
     const {active} = this.model
