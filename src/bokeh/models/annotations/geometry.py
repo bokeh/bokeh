@@ -194,7 +194,7 @@ class BoxAnnotation(Annotation):
     """)
 
     resizable = Enum(Resizable, default="all", help="""
-    If `editable` is set, this property allows to configure which
+    If ``editable`` is set, this property allows to configure which
     combinations of edges are allowed to be moved, thus allows
     restrictions on resizing of the box.
 
@@ -203,7 +203,7 @@ class BoxAnnotation(Annotation):
     """)
 
     movable = Enum(Movable, default="both", help="""
-    If `editable` is set, this property allows to configure in which
+    If ``editable`` is set, this property allows to configure in which
     directions the box can be moved.
 
     .. note::
@@ -215,6 +215,12 @@ class BoxAnnotation(Annotation):
 
     .. note::
         This property is experimental and may change at any point.
+    """)
+
+    inverted = Bool(default=False, help="""
+    Inverts the geometry of the box, i.e. applies fill and hatch visuals
+    to the outside of the box instead of the inside. Visuals are applied
+    between the box and its parent, e.g. the frame.
     """)
 
     line_props = Include(ScalarLineProps, help="""

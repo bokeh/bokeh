@@ -335,4 +335,16 @@ describe("BoxAnnotation annotation", () => {
       await pan(view, xy(3, 2), xy(3, 4))
     })
   })
+
+  it("should support inverted geometry", async () => {
+    const box = new BoxAnnotation({
+      left: 2, right: 4, top: 4, bottom: 2,
+      line_color: "blue",
+      border_radius: 10,
+      inverted: true,
+    })
+
+    const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
+    await display(p)
+  })
 })

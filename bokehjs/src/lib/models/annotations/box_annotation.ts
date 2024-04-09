@@ -138,20 +138,37 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       return
     }
 
-    const {ctx} = this.layer
-    ctx.save()
-
-    ctx.beginPath()
-    round_rect(ctx, this.bbox, this.border_radius)
-
     const {_is_hovered, visuals} = this
     const fill = _is_hovered && visuals.hover_fill.doit ? visuals.hover_fill : visuals.fill
     const hatch = _is_hovered && visuals.hover_hatch.doit ? visuals.hover_hatch : visuals.hatch
     const line = _is_hovered && visuals.hover_line.doit ? visuals.hover_line : visuals.line
 
-    fill.apply(ctx)
-    hatch.apply(ctx)
-    line.apply(ctx)
+    const {ctx} = this.layer
+    ctx.save()
+
+    const {inverted} = this.model
+
+    if (!inverted) {
+      ctx.beginPath()
+      round_rect(ctx, this.bbox, this.border_radius)
+
+      fill.apply(ctx)
+      hatch.apply(ctx)
+      line.apply(ctx)
+    } else {
+      ctx.beginPath()
+      const parent = this.layout ?? this.plot_view.frame
+      const {x, y, width, height} = parent.bbox
+      ctx.rect(x, y, width, height)
+      round_rect(ctx, this.bbox, this.border_radius)
+
+      fill.apply(ctx, "evenodd")
+      hatch.apply(ctx, "evenodd")
+
+      ctx.beginPath()
+      round_rect(ctx, this.bbox, this.border_radius)
+      line.apply(ctx)
+    }
 
     ctx.restore()
   }
@@ -556,6 +573,8 @@ export namespace BoxAnnotation {
     movable: p.Property<Box.Movable>
     symmetric: p.Property<boolean>
 
+    inverted: p.Property<boolean>
+
     tl_cursor: p.Property<string>
     tr_cursor: p.Property<string>
     bl_cursor: p.Property<string>
@@ -628,6 +647,8 @@ export class BoxAnnotation extends Annotation {
       resizable:    [ Box.Resizable, "all" ],
       movable:      [ Box.Movable, "both" ],
       symmetric:    [ Bool, false ],
+
+      inverted:     [ Bool, false ],
     }))
 
     this.internal<BoxAnnotation.Props>(({Str}) => ({
