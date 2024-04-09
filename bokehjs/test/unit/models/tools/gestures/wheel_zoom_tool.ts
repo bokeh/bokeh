@@ -62,6 +62,23 @@ describe("WheelZoomTool", () => {
       const y_tool_custom = new WheelZoomTool({dimensions: "height", description: "My wheel y-zoom tool"})
       expect(y_tool_custom.tooltip).to.be.equal("My wheel y-zoom tool")
     })
+
+    it("should support auto-activation when modifiers are used", () => {
+      const tool0 = new WheelZoomTool({modifiers: {}})
+      expect(tool0.supports_auto()).to.be.false
+
+      const tool1 = new WheelZoomTool({modifiers: {alt: true}})
+      expect(tool1.supports_auto()).to.be.true
+
+      const tool2 = new WheelZoomTool({modifiers: {ctrl: true}})
+      expect(tool2.supports_auto()).to.be.true
+
+      const tool3 = new WheelZoomTool({modifiers: {shift: true}})
+      expect(tool3.supports_auto()).to.be.true
+
+      const tool4 = new WheelZoomTool({modifiers: {ctrl: true, shift: true}})
+      expect(tool4.supports_auto()).to.be.true
+    })
   })
 
   describe("View", () => {
@@ -154,6 +171,46 @@ describe("WheelZoomTool", () => {
       expect(xy_axis(view)).to.be.similar({
         x: [-0.944444, 0.722222],
         y: [-0.722222, 0.944444],
+      })
+    })
+
+    it("should not zoom when modifiers aren't satisfied", async () => {
+      const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      const zoom_event = {
+        type: "wheel" as const,
+        sx: 150,
+        sy: 150,
+        delta: 100,
+        modifiers: {alt: false, ctrl: false, shift: false},
+        native: new WheelEvent("wheel"),
+      }
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-1.0, 1.0],
+        y: [-1.0, 1.0],
+      })
+    })
+
+    it("should not zoom when modifiers are satisfied", async () => {
+      const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      const zoom_event = {
+        type: "wheel" as const,
+        sx: 150,
+        sy: 150,
+        delta: 100,
+        modifiers: {alt: false, ctrl: true, shift: false},
+        native: new WheelEvent("wheel"),
+      }
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-0.833333, 0.833333],
+        y: [-0.833333, 0.833333],
       })
     })
   })
