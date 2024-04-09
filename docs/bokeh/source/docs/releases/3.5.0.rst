@@ -6,3 +6,5 @@
 Bokeh version ``3.5.0`` (May 2024) is a minor milestone of Bokeh project.
 
 * Added support for ``BoxAnnotation.inverted`` property (:bokeh-pull:`13810`)
+* Added support for key modifiers to ``WheelZoomTool`` and ``WheelPanTool`` (:bokeh-pull:`13815`)
+* Allowed auto-activation of tools using wheel/scroll events when modifiers are set (:bokeh-pull:`13815`)
