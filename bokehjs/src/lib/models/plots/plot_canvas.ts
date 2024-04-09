@@ -91,6 +91,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
   protected _attribution: Panel
+  protected _notifications: Panel
 
   get toolbar_panel(): ToolbarPanelView | undefined {
     return this._toolbar != null ? this.renderer_view(this._toolbar) : undefined
@@ -337,10 +338,36 @@ export class PlotView extends LayoutDOMView implements Renderable {
       },
       stylesheets: [attribution_css],
     })
+
+    this._notifications = new Panel({
+      position: new Node({target: this.model, symbol: "top_center"}),
+      anchor: "top_center",
+      elements: [],
+      stylesheets: [`
+        :host {
+          display: flex;
+          flex-direction: column;
+          gap: 1em;
+          width: max-content;
+          max-width: 80%;
+        }
+
+        :host:empty {
+          display: none;
+        }
+
+        :host > div {
+          padding: 0.5em;
+          border: 1px solid gray;
+          border-radius: 0.5em;
+          opacity: 0.8;
+        }
+      `],
+    })
   }
 
   override get elements(): ElementLike[] {
-    return [this._canvas, this._attribution, ...super.elements]
+    return [this._canvas, this._attribution, this._notifications, ...super.elements]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -1189,5 +1216,21 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
     return {x: NaN, y: NaN}
+  }
+
+  protected _messages: Map<string, number> = new Map()
+
+  notify_about(message: string): void {
+    if (this._messages.has(message)) {
+      return
+    }
+    const el = new Div({children: [message]})
+    const timer = setTimeout(() => {
+      this._messages.delete(message)
+      this._notifications.elements = this._notifications.elements.filter((item) => item != el)
+    }, 2000)
+    this._messages.set(message, timer)
+    this._notifications.elements = [...this._notifications.elements, el]
+    logger.info(message)
   }
 }

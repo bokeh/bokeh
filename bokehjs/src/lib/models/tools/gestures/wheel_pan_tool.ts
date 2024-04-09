@@ -1,8 +1,9 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import {Modifiers, satisfies_modifiers} from "./common"
+import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
 import type * as p from "core/properties"
 import type {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
+import {clamp} from "core/util/math"
 import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
@@ -10,20 +11,16 @@ export class WheelPanToolView extends GestureToolView {
   declare model: WheelPanTool
 
   override _scroll(ev: ScrollEvent): boolean {
-    if (!satisfies_modifiers(this.model.modifiers, ev.modifiers)) {
+    const {modifiers} = this.model
+    if (!satisfies_modifiers(modifiers, ev.modifiers)) {
+      this.plot_view.notify_about(`use ${print_modifiers(modifiers)} + scroll to pan`)
       return false
     }
 
-    let factor = this.model.speed*ev.delta
-
     // clamp the magnitude of factor, if it is > 1 bad things happen
-    if (factor > 0.9) {
-      factor = 0.9
-    } else if (factor < -0.9) {
-      factor = -0.9
-    }
-
+    const factor = clamp(this.model.speed*ev.delta, -0.9, 0.9)
     this._update_ranges(factor)
+
     return true
   }
 

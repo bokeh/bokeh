@@ -1,5 +1,5 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import {Modifiers, satisfies_modifiers} from "./common"
+import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
 import {DataRenderer} from "../../renderers/data_renderer"
 import type {Scale} from "../../scales/scale"
 import {CompositeScale} from "../../scales/composite_scale"
@@ -22,7 +22,9 @@ export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
 
   override _scroll(ev: ScrollEvent): boolean {
-    if (!satisfies_modifiers(this.model.modifiers, ev.modifiers)) {
+    const {modifiers} = this.model
+    if (!satisfies_modifiers(modifiers, ev.modifiers)) {
+      this.plot_view.notify_about(`use ${print_modifiers(modifiers)} + scroll to zoom`)
       return false
     }
     const {sx, sy, delta} = ev
