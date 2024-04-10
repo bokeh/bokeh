@@ -189,9 +189,11 @@ export abstract class Property<T = unknown> {
     this._initialized = true
   }
 
-  get_value(): T {
+  get_value(unset_value?: T): T {
     if (this._value !== unset) {
       return this._value
+    } else if (unset_value !== undefined) {
+      return unset_value
     } else {
       throw new UnsetValueError(`${this.obj}.${this.attr} is unset`)
     }

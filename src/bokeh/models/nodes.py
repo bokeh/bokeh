@@ -18,14 +18,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from math import nan
 from typing import Any, ClassVar, Literal
 
 # Bokeh imports
+from ..core.enums import AngleUnits, Direction
+from ..core.has_props import abstract
 from ..core.properties import (
+    Angle,
     Either,
     Enum,
+    Float,
     Instance,
     Int,
+    NonNegative,
     Required,
     String,
 )
@@ -39,6 +45,7 @@ from ..model import Model
 __all__ = (
     "Indexed",
     "Node",
+    "Polar",
     "XY",
 )
 
@@ -121,6 +128,7 @@ class BoxNodes:
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class Coordinate(Model):
     """ A base class for various types of coordinate specifications.
     """
@@ -140,11 +148,11 @@ class XY(Coordinate):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(CoordinateLike, help="""
+    x = Required(CoordinateLike, default=nan, help="""
     The x component.
     """)
 
-    y = Required(CoordinateLike, help="""
+    y = Required(CoordinateLike, default=nan, help="""
     The y component.
     """)
 
@@ -208,6 +216,33 @@ class Node(Coordinate):
     frame: ClassVar[BoxNodes] = BoxNodes("frame")
 
     parent: ClassVar[BoxNodes] = BoxNodes("parent")
+
+class Polar(Coordinate):
+    """
+    Represents a point in a polar coordinate system.
+
+    .. note::
+        This model is experimental and may change at any point.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    origin = Instance(Coordinate, lambda: XY(x=0, y=0), help="""
+    """)
+
+    radius = NonNegative(Float, default=0, help="""
+    """)
+
+    angle = Angle(default=0, help="""
+    """)
+
+    angle_units = Enum(AngleUnits, default="rad", help="""
+    """)
+
+    direction = Enum(Direction, default="anticlock", help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Private API
