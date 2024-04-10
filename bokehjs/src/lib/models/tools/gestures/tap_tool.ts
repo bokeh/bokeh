@@ -1,4 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {Modifiers, satisfies_modifiers} from "./common"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
@@ -6,14 +7,10 @@ import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
-import {PartialStruct, Bool} from "core/kinds"
 import {non_null} from "core/util/types"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
-
-export const Modifiers = PartialStruct({shift: Bool, ctrl: Bool, alt: Bool})
-export type Modifiers = typeof Modifiers["__type__"]
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
@@ -26,27 +23,24 @@ export type TapToolCallback = CallbackLike1<TapTool, {
 export class TapToolView extends SelectToolView {
   declare model: TapTool
 
-  override _tap(ev: TapEvent): void {
-    if (this.model.gesture == "tap") {
+  override _tap(ev: TapEvent): boolean {
+    const is_tap = this.model.gesture == "tap"
+    if (is_tap) {
       this._handle_tap(ev)
     }
+    return is_tap
   }
 
-  override _doubletap(ev: TapEvent): void {
-    if (this.model.gesture == "doubletap") {
+  override _doubletap(ev: TapEvent): boolean {
+    const is_doubletap = this.model.gesture == "doubletap"
+    if (is_doubletap) {
       this._handle_tap(ev)
     }
+    return is_doubletap
   }
 
   _handle_tap(ev: TapEvent): void {
-    const {modifiers} = this.model
-    if (modifiers.shift != null && modifiers.shift != ev.modifiers.shift) {
-      return
-    }
-    if (modifiers.ctrl != null && modifiers.ctrl != ev.modifiers.ctrl) {
-      return
-    }
-    if (modifiers.alt != null && modifiers.alt != ev.modifiers.alt) {
+    if (!satisfies_modifiers(this.model.modifiers, ev.modifiers)) {
       return
     }
 

@@ -92,31 +92,31 @@ export abstract class ToolView extends View {
   // deactivate is triggered by toolbar ui actions
   deactivate(): void {}
 
-  _pan_start?(e: PanEvent): void
-  _pan?(e: PanEvent): void
-  _pan_end?(e: PanEvent): void
+  _pan_start?(e: PanEvent): void | boolean
+  _pan?(e: PanEvent): void | boolean
+  _pan_end?(e: PanEvent): void | boolean
 
-  _pinch_start?(e: PinchEvent): void
-  _pinch?(e: PinchEvent): void
-  _pinch_end?(e: PinchEvent): void
+  _pinch_start?(e: PinchEvent): void | boolean
+  _pinch?(e: PinchEvent): void | boolean
+  _pinch_end?(e: PinchEvent): void | boolean
 
-  _rotate_start?(e: RotateEvent): void
-  _rotate?(e: RotateEvent): void
-  _rotate_end?(e: RotateEvent): void
+  _rotate_start?(e: RotateEvent): void | boolean
+  _rotate?(e: RotateEvent): void | boolean
+  _rotate_end?(e: RotateEvent): void | boolean
 
-  _tap?(e: TapEvent): void
-  _doubletap?(e: TapEvent): void
-  _press?(e: TapEvent): void
-  _pressup?(e: TapEvent): void
+  _tap?(e: TapEvent): void | boolean
+  _doubletap?(e: TapEvent): void | boolean
+  _press?(e: TapEvent): void | boolean
+  _pressup?(e: TapEvent): void | boolean
 
-  _move_enter?(e: MoveEvent): void
-  _move?(e: MoveEvent): void
-  _move_exit?(e: MoveEvent): void
+  _move_enter?(e: MoveEvent): void | boolean
+  _move?(e: MoveEvent): void | boolean
+  _move_exit?(e: MoveEvent): void | boolean
 
-  _scroll?(e: ScrollEvent): void
+  _scroll?(e: ScrollEvent): void | boolean
 
-  _keydown?(e: KeyEvent): void
-  _keyup?(e: KeyEvent): void
+  _keydown?(e: KeyEvent): void | boolean
+  _keyup?(e: KeyEvent): void | boolean
 }
 
 export namespace Tool {
@@ -188,6 +188,10 @@ export abstract class Tool extends Model {
 
   get menu(): MenuItem[] | null {
     return null
+  }
+
+  supports_auto(): boolean {
+    return false
   }
 
   // utility function to get limits along both dimensions, given

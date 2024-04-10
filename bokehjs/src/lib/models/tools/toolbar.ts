@@ -490,8 +490,8 @@ export class Toolbar extends UIElement {
       }
     }
 
-    function _supports_auto(et: string): boolean {
-      return et == "tap" || et == "pan"
+    function _supports_auto(et: string, tool: ToolLike<Tool>): boolean {
+      return et == "tap" || et == "pan" || tool.supports_auto()
     }
 
     for (const [event_role, gesture] of entries(this.gestures)) {
@@ -500,8 +500,11 @@ export class Toolbar extends UIElement {
       if (active_attr != null) {
         const active_tool = this[active_attr]
         if (active_tool == "auto") {
-          if (gesture.tools.length != 0 && _supports_auto(et)) {
-            _activate_gesture(gesture.tools[0])
+          if (gesture.tools.length != 0) {
+            const [tool] = gesture.tools
+            if (_supports_auto(et, tool)) {
+              _activate_gesture(tool)
+            }
           }
         } else if (active_tool != null) {
           // TODO: allow to activate a proxy of tools with any child?

@@ -6373,6 +6373,9 @@
   WheelPanTool: {
     __extends__: "Scroll",
     dimension: "width",
+    modifiers: {
+      type: "map",
+    },
   },
   WheelZoomTool: {
     __extends__: "Scroll",
@@ -6383,6 +6386,9 @@
     zoom_on_axis: true,
     zoom_together: "all",
     speed: 0.0016666666666666668,
+    modifiers: {
+      type: "map",
+    },
   },
   ZoomBaseTool: {
     __extends__: "PlotActionTool",

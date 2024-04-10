@@ -377,7 +377,7 @@ JitterRandomDistributionType = Literal["uniform", "normal"]
 JitterRandomDistribution = enumeration(JitterRandomDistributionType)
 
 #:
-KeyModifier = Literal["shift", "ctrl", "alt"]
+KeyModifierType = Literal["shift", "ctrl", "alt"]
 KeyModifier = enumeration("shift", "ctrl", "alt")
 
 #: Specify how labels are oriented with respect to an axis

@@ -65,4 +65,15 @@ describe("WheelZoomTool", () => {
     await actions2.scroll(xy(5, 1.5 /*B*/), delta)
     await pv2.ready
   })
+
+  it("should notify when modifiers aren't satisfied", async () => {
+    const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
+    const p = fig([200, 200], {tools: [wheel_zoom]})
+    p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20})
+    const {view} = await display(p)
+
+    const actions1 = new PlotActions(view)
+    await actions1.scroll(xy(2, 2), 120)
+    await view.ready
+  })
 })

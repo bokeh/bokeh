@@ -1,24 +1,27 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
 import type * as p from "core/properties"
 import type {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
+import {clamp} from "core/util/math"
 import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
 export class WheelPanToolView extends GestureToolView {
   declare model: WheelPanTool
 
-  override _scroll(ev: ScrollEvent): void {
-    let factor = this.model.speed*ev.delta
-
-    // clamp the magnitude of factor, if it is > 1 bad things happen
-    if (factor > 0.9) {
-      factor = 0.9
-    } else if (factor < -0.9) {
-      factor = -0.9
+  override _scroll(ev: ScrollEvent): boolean {
+    const {modifiers} = this.model
+    if (!satisfies_modifiers(modifiers, ev.modifiers)) {
+      this.plot_view.notify_about(`use ${print_modifiers(modifiers)} + scroll to pan`)
+      return false
     }
 
+    // clamp the magnitude of factor, if it is > 1 bad things happen
+    const factor = clamp(this.model.speed*ev.delta, -0.9, 0.9)
     this._update_ranges(factor)
+
+    return true
   }
 
   _update_ranges(factor: number): void {
@@ -74,6 +77,7 @@ export namespace WheelPanTool {
 
   export type Props = GestureTool.Props & {
     dimension: p.Property<Dimension>
+    modifiers: p.Property<Modifiers>
     speed: p.Property<number>
   }
 }
@@ -93,6 +97,7 @@ export class WheelPanTool extends GestureTool {
 
     this.define<WheelPanTool.Props>(() => ({
       dimension: [ Dimension, "width" ],
+      modifiers: [ Modifiers, {} ],
     }))
 
     this.internal<WheelPanTool.Props>(({Float}) => ({
@@ -110,5 +115,10 @@ export class WheelPanTool extends GestureTool {
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimension)
+  }
+
+  override supports_auto(): boolean {
+    const {alt, ctrl, shift} = this.modifiers
+    return alt != null || ctrl != null || shift != null
   }
 }
