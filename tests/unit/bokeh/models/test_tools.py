@@ -124,6 +124,30 @@ def test_BoxEditTool_renderers() -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
+def test__parse_modifiers() -> None:
+    assert t._parse_modifiers("alt") == dict(alt=True)
+    assert t._parse_modifiers("ctrl") == dict(ctrl=True)
+    assert t._parse_modifiers("shift") == dict(shift=True)
+
+    assert t._parse_modifiers("  alt ") == dict(alt=True)
+    assert t._parse_modifiers("  ctrl ") == dict(ctrl=True)
+    assert t._parse_modifiers("  shift ") == dict(shift=True)
+
+    assert t._parse_modifiers("alt + ctrl") == dict(alt=True, ctrl=True)
+    assert t._parse_modifiers("alt + ctrl + shift") == dict(alt=True, ctrl=True, shift=True)
+
+    assert t._parse_modifiers("alt+ctrl") == dict(alt=True, ctrl=True)
+    assert t._parse_modifiers("alt+ctrl+shift") == dict(alt=True, ctrl=True, shift=True)
+
+    assert t._parse_modifiers("ctrl + alt") == dict(alt=True, ctrl=True)
+    assert t._parse_modifiers("shift + ctrl + alt") == dict(alt=True, ctrl=True, shift=True)
+
+    assert t._parse_modifiers("ctrl+alt") == dict(alt=True, ctrl=True)
+    assert t._parse_modifiers("shift+ctrl+alt") == dict(alt=True, ctrl=True, shift=True)
+
+    with pytest.raises(ValueError):
+        t._parse_modifiers("shift+ctr+alt")
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

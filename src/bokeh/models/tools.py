@@ -50,7 +50,7 @@ from ..core.enums import (
     Anchor,
     Dimension,
     Dimensions,
-    KeyModifier,
+    KeyModifierType,
     SelectionMode,
     ToolIcon,
     TooltipAttachment,
@@ -160,6 +160,22 @@ __all__ = (
 
 # TODO can't clone Struct(), so use a lambda for now
 Modifiers = lambda **kwargs: Struct(shift=Optional(Bool), ctrl=Optional(Bool), alt=Optional(Bool), **kwargs)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _parse_modifiers(value: str) -> dict[KeyModifierType, bool]:
+    keys = [key.strip() for key in value.split("+")]
+    modifiers: dict[KeyModifierType, bool] = {}
+    for key in keys:
+        match key:
+            case "alt":   modifiers["alt"]   = True
+            case "ctrl":  modifiers["ctrl"]  = True
+            case "shift": modifiers["shift"] = True
+            case _:
+                raise ValueError(f"can't parse '{value}' key modifiers; unknown '{key}' key")
+    return modifiers
 
 #-----------------------------------------------------------------------------
 # General API
@@ -538,6 +554,21 @@ class WheelPanTool(Scroll):
     Allows to configure a combination of modifier keys, which need to
     be pressed during the selected gesture for this tool to trigger.
 
+    For example, to pan only when ``Ctrl`` and ``Shift`` keys are
+    pressed, use:
+
+    .. code-block:: python
+
+        tool = WheelPanTool(modifiers=dict(ctrl=True, shift=True))
+        plot.add_tools(tool)
+
+    or alternatively using a concise syntax:
+
+    .. code-block:: python
+
+        tool = WheelPanTool(modifiers="ctrl+shift")
+        plot.add_tools(tool)
+
     .. note::
         Setting modifiers allows this tool to be automatically activated,
         if ``Toolbar.active_scroll`` is set to ``"auto"``.
@@ -546,7 +577,7 @@ class WheelPanTool(Scroll):
         Configuring modifiers is a platform dependent feature and
         can make this tool unusable for example on mobile devices.
 
-    """).accepts(Enum(KeyModifier), lambda key_mod: {key_mod: True})
+    """).accepts(String, _parse_modifiers)
 
 class WheelZoomTool(Scroll):
     ''' *toolbar icon*: |wheel_zoom_icon|
@@ -626,6 +657,21 @@ class WheelZoomTool(Scroll):
     Allows to configure a combination of modifier keys, which need to
     be pressed during the selected gesture for this tool to trigger.
 
+    For example, to zoom only when ``Ctrl`` and ``Shift`` keys are
+    pressed, use:
+
+    .. code-block:: python
+
+        tool = WheelZoomTool(modifiers=dict(ctrl=True, shift=True))
+        plot.add_tools(tool)
+
+    or alternatively using a concise syntax:
+
+    .. code-block:: python
+
+        tool = WheelZoomTool(modifiers="ctrl+shift")
+        plot.add_tools(tool)
+
     .. note::
         Setting modifiers allows this tool to be automatically activated,
         if ``Toolbar.active_scroll`` is set to ``"auto"``.
@@ -634,7 +680,7 @@ class WheelZoomTool(Scroll):
         Configuring modifiers is a platform dependent feature and
         can make this tool unusable for example on mobile devices.
 
-    """).accepts(Enum(KeyModifier), lambda key_mod: {key_mod: True})
+    """).accepts(String, _parse_modifiers)
 
 class CustomAction(ActionTool):
     ''' Execute a custom action, e.g. ``CustomJS`` callback when a toolbar
@@ -763,11 +809,26 @@ class TapTool(Tap, SelectTool):
     Allows to configure a combination of modifier keys, which need to
     be pressed during the selected gesture for this tool to trigger.
 
+    For example, to accept tap events only when ``Ctrl`` and ``Shift``
+    keys are pressed, use:
+
+    .. code-block:: python
+
+        tool = TapTool(modifiers=dict(ctrl=True, shift=True))
+        plot.add_tools(tool)
+
+    or alternatively using a concise syntax:
+
+    .. code-block:: python
+
+        tool = TapTool(modifiers="ctrl+shift")
+        plot.add_tools(tool)
+
     .. warning::
         Configuring modifiers is a platform dependent feature and
         can make this tool unusable for example on mobile devices.
 
-    """).accepts(Enum(KeyModifier), lambda key_mod: {key_mod: True})
+    """).accepts(String, _parse_modifiers)
 
     callback = Nullable(Instance(Callback), help="""
     A callback to execute *whenever a glyph is "hit"* by a mouse click
@@ -1890,10 +1951,6 @@ class LineEditTool(EditTool, Drag, Tap):
 
 #-----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
