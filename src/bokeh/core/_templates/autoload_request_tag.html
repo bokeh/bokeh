@@ -32,6 +32,7 @@ ID is not specified, the entire document will be rendered.
     {% for header, value in headers.items() %}
     xhr.setRequestHeader("{{ header }}", "{{ value }}")
     {% endfor %}
+    xhr.withCredentials = {{ with_credentials | tojson }};
     xhr.onload = function (event) {
       const script = document.createElement('script');
       const src = URL.createObjectURL(event.target.response);

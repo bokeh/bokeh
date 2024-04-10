@@ -54,11 +54,14 @@ class AutoloadJsHandler(SessionHandler):
     '''
 
     def set_default_headers(self):
-        self.set_header("Access-Control-Allow-Headers", "*")
-        self.set_header('Access-Control-Allow-Methods', 'PUT, GET, OPTIONS')
         self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "*")
+        self.set_header("Access-Control-Allow-Credentials", "true")
 
     async def get(self, *args, **kwargs):
+        if self.request.cookies:
+            self.set_header("Access-Control-Allow-Origin", self.request.headers["Origin"])
+
         session = await self.get_session()
 
         element_id = self.get_argument("bokeh-autoload-element", default=None)
@@ -89,6 +92,8 @@ class AutoloadJsHandler(SessionHandler):
 
     async def options(self, *args, **kwargs):
         '''Browsers make OPTIONS requests under the hood before a GET request'''
+        self.set_header('Access-Control-Allow-Methods', 'PUT, GET, OPTIONS')
+        self.set_header("Access-Control-Allow-Origin", self.request.headers["Origin"])
 
 #-----------------------------------------------------------------------------
 # Private API
