@@ -1,6 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace IndexFilter {
@@ -26,13 +26,13 @@ export class IndexFilter extends Filter {
     }))
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: ColumnarDataSource): PackedIndices {
     const size = source.get_length() ?? 1
     const {indices} = this
     if (indices == null) {
-      return Indices.all_set(size)
+      return PackedIndices.all_set(size)
     } else {
-      return Indices.from_indices(size, indices)
+      return PackedIndices.from_indices(size, indices)
     }
   }
 }

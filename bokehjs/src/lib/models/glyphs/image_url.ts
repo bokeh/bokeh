@@ -1,7 +1,8 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {inherit} from "./glyph"
 import type {Arrayable, Rect} from "core/types"
-import {ScreenArray, to_screen, Indices} from "core/types"
+import {ScreenArray, to_screen} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
 import {resize} from "core/util/array"
@@ -27,7 +28,7 @@ export class ImageURLView extends XYGlyphView {
 
   /*protected*/ image: (CanvasImage | null)[] = new Array(0)
   loaders: (ImageLoader | null)[]
-  protected resolved: Indices
+  protected resolved: PackedIndices
 
   override connect_signals(): void {
     super.connect_signals()
@@ -57,7 +58,7 @@ export class ImageURLView extends XYGlyphView {
 
     this.image = resize(this.image, n_url, null)
     this.loaders = new Array(n_url).fill(null)
-    this.resolved = new Indices(n_url)
+    this.resolved = new PackedIndices(n_url)
 
     const {retry_attempts, retry_timeout} = this.model
     const {_set_data_iteration} = this
