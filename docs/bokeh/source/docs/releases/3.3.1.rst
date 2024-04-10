@@ -1,0 +1,22 @@
+.. _release-3-3-1:
+
+3.3.1
+=====
+
+Bokeh version ``3.3.1`` (Nov 2023) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fix spinner precision in some cases (:bokeh-pull:`13078`)
+* Allow to color map non-factors to nan_color (:bokeh-pull:`13420`)
+* Recursively run after_render() when updating children (:bokeh-pull:`13424`)
+* Connect change signal in IconView (:bokeh-pull:`13427`)
+* Resolve tooltip positioning issue with contain: strict (:bokeh-pull:`13431`)
+* Correctly process ImageStack data for hover tooltips (:bokeh-pull:`13454`)
+* Make RangeTool overlay's nodes unique (:bokeh-pull:`13457`)
+* Improve DataRangePicker's calendar click behavior (:bokeh-pull:`13466`)
+* Render WebGL markers that have only one of width and height zero (:bokeh-pull:`13482`)
+* Replace Stamen* tiles with Stadia.Stamen* (:bokeh-pull:`13491`)
+* Handle negative microseconds with %f format (:bokeh-pull:`13495`)
