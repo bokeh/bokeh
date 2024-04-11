@@ -1,3 +1,24 @@
+2024-04-11    3.4.1:
+--------------------
+  * bugfixes:
+    - #13544 [component: docs] Docs build on Windows not working
+    - #13692 [component: bokehjs] [BUG] Blurry plots with WebGL
+    - #13725 [component: bokehjs] [BUG] Enforce `max_interval` / `min_interval` if `{x,y}_range` is not set 
+    - #13795 [component: docs] Example code block for CustomJSFilter is missing
+    - #13803 [component: bokehjs] [BUG] 3.4.0: Selection glyph no longer employs selection_glyph properties
+    - #13804 [component: bokehjs] `InputWidget.title` doesn't update anymore
+    - #13806 [component: bokehjs] [BUG] Switching order of children in layout has no effect
+    - #13793 [component: docs] Fix indentation issue
+    - #13820 [component: docs] fix path and typos related to jupyter.rst
+    - #13821 [component: docs] fix indentation of layout_function param
+
+  * tasks:
+    - #13631 [component: docs] DOC Missing vertical gap between grid items in First Steps guides
+    - #13765 [component: docs] Missing release notes
+    - #13772 [component: docs] Remove twitter icon link from docs and other properties
+    - #13788 Enable RUF001 to lint confusable characters
+    - #13816 Backports for 3.4.1
+
 2024-03-14      3.4:
 --------------------
   * bugfixes:
