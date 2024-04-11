@@ -49,7 +49,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -3840,6 +3840,43 @@ describe("Bug", () => {
       p.add_renderers(graph)
 
       await display(p)
+    })
+  })
+
+  describe("in issue #13725", () => {
+    it("doesn't allow DataRange1d to respect min_interval and max_interval", async () => {
+      const n_points = 3000
+      const x_values = np.linspace(0, 100, n_points)
+      const y_values = cumsum(np.random.default_rng(1).normal(0, 1, n_points))
+
+      const source = new ColumnDataSource({data: {x: x_values, y: y_values}})
+
+      const p = figure({
+        width: 600, height: 300,
+        tools: ["xpan", "xzoom_in", "xzoom_out", "reset"],
+        background_fill_color: "#efefef",
+      })
+      p.yaxis.axis_label = "Value"
+      p.x_range.max_interval = 10
+
+      p.line({x: {field: "x"}, y: {field: "y"}, source})
+
+      const select = figure({
+        width: 600, height: 100,
+        y_range: p.y_range,
+        toolbar_location: null,
+        background_fill_color: "#efefef",
+      })
+      select.ygrid.grid_line_color = null
+
+      select.line({x: {field: "x"}, y: {field: "y"}, source})
+
+      const range_tool = new RangeTool({x_range: p.x_range})
+      range_tool.overlay.fill_color = "navy"
+      range_tool.overlay.fill_alpha = 0.2
+      select.add_tools(range_tool)
+
+      await display(column([p, select]))
     })
   })
 })
