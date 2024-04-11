@@ -1,4 +1,4 @@
-Examples in this directory show off bokeh's capability to integrate with Jupyer widgets
+Examples in this directory show off bokeh's capability to integrate with Jupyter widgets
 outside of JupyterLab or classical Notebook environments. All examples are bokeh server
 examples, so you run them with `bokeh server app_name`, and then you have to navigate
 to `http://localhost:5006/app_name`:
