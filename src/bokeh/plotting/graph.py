@@ -46,12 +46,12 @@ def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[flo
         layout function. Any keyword arguments will be passed to the
         layout function.
 
-        Only two dimensional layouts are supported.
+        Only two-dimensional layouts are supported.
 
         Args:
             graph (networkx.Graph) : a networkx graph to render
             layout_function (function or dict) : a networkx layout function or mapping of node keys to positions.
-            The position is a two element sequence containing the x and y coordinate.
+                The position is a two element sequence containing the x and y coordinate.
 
         Returns:
             instance (GraphRenderer)
