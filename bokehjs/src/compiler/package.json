@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/compiler",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "private": true,
   "description": "Internal package for bokehjs' extensions compiler",
   "license": "BSD-3-Clause",
