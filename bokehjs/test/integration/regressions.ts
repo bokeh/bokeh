@@ -13,14 +13,14 @@ import {
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
-  StaticLayoutProvider,
+  StaticLayoutProvider, NodesAndLinkedEdges,
   LinearColorMapper,
   Plot,
   TeX,
   Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
-  Row, Column,
+  Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
   FixedTicker,
@@ -49,7 +49,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -3742,6 +3742,141 @@ describe("Bug", () => {
       p.renderers.push(box)
 
       await display(p, [p.width! + left + 50, p.height! + top + 50])
+    })
+  })
+
+  describe("in issue #13692", () => {
+    describe("doesn't scale webgl antialiasing by pixel ratio", () => {
+      function plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend})
+        p.line({x: [0, 1], y: [0, 1], line_width: 10})
+        return p
+      }
+
+      it.dpr(1)("with devicePixelRatio == 1", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+
+      it.dpr(2)("with devicePixelRatio == 2", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+
+      it.dpr(3)("with devicePixelRatio == 3", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+    })
+  })
+
+  describe("in issue #13804", () => {
+    it("doesn't allow to update InputWidget.title", async () => {
+      const input = new Select({title: "Original title", value: "Value 0", options: ["Value 0", "Value 1"]})
+      const {view} = await display(input, [300, 100])
+      input.title = "New title"
+      await view.ready
+    })
+  })
+
+  describe("in issue #13806", () => {
+    it("doesn't allow to change the order of LayoutDOM.children", async () => {
+      const red = new Spacer({width: 50, height: 50, styles: {background_color: "red"}})
+      const green = new Spacer({width: 50, height: 50, styles: {background_color: "green"}})
+      const blue = new Spacer({width: 50, height: 50, styles: {background_color: "blue"}})
+      const layout = new Row({children: [red, green, blue]})
+      const {view} = await display(layout, [200, 100])
+      layout.children = [blue, red, green]
+      await view.ready
+    })
+
+    it("doesn't allow to change the order of Pane.elements", async () => {
+      const red = new Pane({styles: {width: "50px", height: "50px", background_color: "red"}})
+      const green = new Pane({styles: {width: "50px", height: "50px", background_color: "green"}})
+      const blue = new Pane({styles: {width: "50px", height: "50px", background_color: "blue"}})
+      const layout = new Pane({elements: [red, green, blue], styles: {display: "flex", flex_direction: "row"}})
+      const {view} = await display(layout, [200, 100])
+      layout.elements = [blue, red, green]
+      await view.ready
+    })
+  })
+
+  describe("in issue #13803", () => {
+    it("doesn't allow GraphRenderer to utilize secondary glyphs", async () => {
+      const p = fig([200, 200], {
+        x_range: new DataRange1d({range_padding: 0.2}),
+        y_range: new DataRange1d({range_padding: 0.2}),
+      })
+
+      const layout_provider = new StaticLayoutProvider({
+        graph_layout: new Map([
+          [4, [2, 1]],
+          [5, [2, 2]],
+          [6, [3, 1]],
+          [7, [3, 2]],
+        ]),
+      })
+
+      const node_renderer = new GlyphRenderer({
+        glyph: new Scatter({size: 10, fill_color: "red"}),
+        selection_glyph: new Scatter({size: 20, fill_color: "yellow"}),
+        nonselection_glyph: new Scatter({size: 10, fill_color: "pink"}),
+        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      })
+      const edge_renderer = new GlyphRenderer({
+        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+        selection_glyph: new MultiLine({line_width: 4, line_color: "blue"}),
+        nonselection_glyph: new MultiLine({line_width: 2, line_color: "gray", line_dash: "dashed"}),
+        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      })
+
+      node_renderer.data_source.selected.indices = [0, 3]
+      edge_renderer.data_source.selected.indices = [0, 3]
+
+      const graph = new GraphRenderer({
+        layout_provider,
+        node_renderer,
+        edge_renderer,
+        selection_policy: new NodesAndLinkedEdges(),
+        inspection_policy: new NodesAndLinkedEdges(),
+      })
+      p.add_renderers(graph)
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #13725", () => {
+    it("doesn't allow DataRange1d to respect min_interval and max_interval", async () => {
+      const n_points = 3000
+      const x_values = np.linspace(0, 100, n_points)
+      const y_values = cumsum(np.random.default_rng(1).normal(0, 1, n_points))
+
+      const source = new ColumnDataSource({data: {x: x_values, y: y_values}})
+
+      const p = figure({
+        width: 600, height: 300,
+        tools: ["xpan", "xzoom_in", "xzoom_out", "reset"],
+        background_fill_color: "#efefef",
+      })
+      p.yaxis.axis_label = "Value"
+      p.x_range.max_interval = 10
+
+      p.line({x: {field: "x"}, y: {field: "y"}, source})
+
+      const select = figure({
+        width: 600, height: 100,
+        y_range: p.y_range,
+        toolbar_location: null,
+        background_fill_color: "#efefef",
+      })
+      select.ygrid.grid_line_color = null
+
+      select.line({x: {field: "x"}, y: {field: "y"}, source})
+
+      const range_tool = new RangeTool({x_range: p.x_range})
+      range_tool.overlay.fill_color = "navy"
+      range_tool.overlay.fill_alpha = 0.2
+      select.add_tools(range_tool)
+
+      await display(column([p, select]))
     })
   })
 })

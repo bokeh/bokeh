@@ -147,7 +147,7 @@ either from the GUI or with the following command:
 JupyterHub for Administrators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are a JupyterHub admin you can make Bokeh work autotomatically with
+If you are a JupyterHub admin you can make Bokeh work automatically with
 unchanged notebooks by setting an environment variable in the notebook
 environment:
 
@@ -410,7 +410,7 @@ is the name of the application (see :ref:`ug_server` for details).
 This application is available at http://localhost:5006/ipy_slider.
 
 You can build on the above to create more complex layouts and include advanced widgets,
-such as `ipyleaflet`_ and `ipyvolume`_. For more examples, see ``examples/howto/ipywidgets``
+such as `ipyleaflet`_ and `ipyvolume`_. For more examples, see :bokeh-tree:`examples/output/jupyter/ipywidgets`
 in the Bokeh repository.
 
 .. _IPyWidgets: https://ipywidgets.readthedocs.io

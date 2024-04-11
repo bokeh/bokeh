@@ -657,6 +657,51 @@ def test_HasProps_abstract() -> None:
     assert hp.is_abstract(Base) is True
     assert hp.is_abstract(Derived) is False
 
+def test_HasProps_clone() -> None:
+    obj0 = Some0HasProps()
+    obj1 = Some1HasProps()
+    obj2 = Some2HasProps(
+        f0=obj0,
+        f1=obj1,
+        f2=2,
+        f3="uvw",
+        f4=[7, 8, 9],
+    )
+
+    obj3 = obj2.clone()
+    assert obj3 is not obj2
+    assert obj3.f0 is obj0
+    assert obj3.f1 is obj1
+    assert obj3.f2 == 2
+    assert obj3.f3 == "uvw"
+    assert obj3.f4 is obj2.f4
+
+def test_HasProps_clone_with_overrides() -> None:
+    obj0 = Some0HasProps()
+    obj1 = Some1HasProps()
+    obj2 = Some2HasProps(
+        f0=obj0,
+        f1=obj1,
+        f2=2,
+        f3="uvw",
+        f4=[7, 8, 9],
+    )
+
+    obj3 = obj2.clone(f2=3)
+    assert obj3 is not obj2
+    assert obj3.f0 is obj0
+    assert obj3.f1 is obj1
+    assert obj3.f2 == 3
+    assert obj3.f3 == "uvw"
+    assert obj3.f4 is obj2.f4
+
+def test_HasProps_clone_with_unset_properties() -> None:
+    obj0 = Some4HasProps(f1=1, f2=2)
+    obj1 = obj0.clone()
+
+    assert obj1 is not obj0
+    assert obj1.properties_with_values(include_defaults=False, include_undefined=True) == dict(f0=Undefined, f1=1, f2=2)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

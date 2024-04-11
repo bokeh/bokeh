@@ -1,0 +1,20 @@
+.. _release-3-3-3:
+
+3.3.3
+=====
+
+Bokeh version ``3.3.3`` (Jan 2024) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fixed support for global/local imported stylesheets (:bokeh-pull:`13559`)
+* Improved emit of ``RangesUpdate`` event for linked plots (:bokeh-pull:`13603`)
+* Fixed handling of arrow keys in ``AutocompleteInput`` widget (:bokeh-pull:`13577`)
+* Improved performance of drawing irregular round rectangles (:bokeh-pull:`13627`)
+* Fixed rendering of rounded rectangles in SVG backend (:bokeh-pull:`13640`)
+* Reduced import time by lazy-loading certain dependencies (:bokeh-pull:`13639`)
+* Added new examples (:bokeh-pull:`13527` and :bokeh-pull:`13596`)
+* Fixed documentation issues (:bokeh-pull:`13549`, :bokeh-pull:`13514` and :bokeh-pull:`13528`)
+* Testing improvements (:bokeh-pull:`13572`, :bokeh-pull:`13602`, :bokeh-pull:`13633` and :bokeh-pull:`13635`)

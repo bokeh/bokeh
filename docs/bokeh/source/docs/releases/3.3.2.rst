@@ -1,0 +1,14 @@
+.. _release-3-3-2:
+
+3.3.2
+=====
+
+Bokeh version ``3.3.2`` (Nov 2023) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fixed performance regression in bokehjs' algorithms library (:bokeh-pull:`13543`)
+* Reverted changes to default values of ``BoxAnnotation.{left,right,top,bottom}`` (:bokeh-pull:`13468`)
+* Upgraded mypy to version 1.7 and fixed type issues (:bokeh-pull:`13534`)

@@ -131,13 +131,6 @@
      </a>
   </td>
 
-  <td>
-    <a href="https://twitter.com/bokeh">
-    <img src="https://img.shields.io/badge/follow-%40bokeh-blue?logo=twitter&style=for-the-badge"
-         alt="Follow Bokeh on Twitter" />
-    </a>
-  </td>
-
 </tr>
 
 
@@ -173,10 +166,6 @@ Community support is available on the [Project Discourse](https://discourse.boke
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
 *Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.0/docs/CODE_OF_CONDUCT.md).*
-
-## Follow us
-
-Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 ## Support
 

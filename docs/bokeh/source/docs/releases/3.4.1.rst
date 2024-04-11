@@ -1,0 +1,21 @@
+.. _release-3-4-1:
+
+3.4.1
+=====
+
+Bokeh version ``3.4.1`` (April 2024) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fixed configuration of secondary glyphs in ``GraphRendererView`` (:bokeh-pull:`13808`)
+* Allowed to update the order of ``LayoutDOM.children`` (:bokeh-pull:`13807`)
+* Allowed to update ``InputWidget.{title,description}`` (:bokeh-pull:`13805`)
+* Allowed ``DataRange1d`` to respect ``min_interval`` and ``max_interval`` (:bokeh-pull:`13819`)
+* Fixed WebGL scaling of anti-aliasing by pixel ratio (:bokeh-pull:`13783`)
+* Enabled RUF001 to lint confusable characters (:bokeh-pull:`13788`)
+* Removed references to Twitter from documentation (:bokeh-pull:`13775`)
+* Enabled documentation build on Windows (:bokeh-pull:`13776`)
+* Various fixes to documentation and docstrings (:bokeh-pull:`13793`, :bokeh-pull:`13798`,
+  :bokeh-pull:`13781`, :bokeh-pull:`13818`, :bokeh-pull:`13820`, :bokeh-pull:`13821`)

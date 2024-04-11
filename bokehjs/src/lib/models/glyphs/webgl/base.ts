@@ -39,10 +39,11 @@ export abstract class BaseGLGlyph {
       return
     }
     const {width, height} = this.glyph.renderer.plot_view.canvas_view.webgl!.canvas
+    const {pixel_ratio} = this.glyph.renderer.plot_view.canvas_view
     const trans = {
-      pixel_ratio: this.glyph.renderer.plot_view.canvas_view.pixel_ratio,  // pass pixel_ratio to webgl
-      width,
-      height,
+      pixel_ratio,  // Needed to scale antialiasing
+      width:  width / pixel_ratio,
+      height: height / pixel_ratio,
     }
     this.draw(indices, mainglyph, trans)
   }

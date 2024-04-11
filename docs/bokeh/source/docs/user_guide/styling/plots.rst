@@ -488,7 +488,7 @@ options:
 .. bokeh-plot:: __REPO__/examples/styling/plots/datetime_tick_context.py
     :source-position: above
 
-It is possible to "chain" multiple ``DatetimeTickFomatter`` instances together,
+It is possible to "chain" multiple ``DatetimeTickFormatter`` instances together,
 for as many levels of context as desired. For example:
 
 .. code-block:: python
