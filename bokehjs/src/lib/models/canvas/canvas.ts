@@ -1,7 +1,7 @@
 import {settings} from "core/settings"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
-import {div, append, px} from "core/dom"
+import {div, px} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {UIEventBus} from "core/ui_events"
 import {load_module} from "core/util/modules"
@@ -141,7 +141,7 @@ export class CanvasView extends UIElementView {
       this.events_el,
     ]
 
-    append(this.shadow_el, ...elements)
+    this.shadow_el.append(...elements)
   }
 
   add_underlay(el: HTMLElement): void {

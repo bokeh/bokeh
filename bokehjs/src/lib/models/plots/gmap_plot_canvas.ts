@@ -1,6 +1,6 @@
 import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
-import {div, remove} from "core/dom"
+import {div} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import type {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
@@ -97,7 +97,7 @@ export class GMapPlotView extends PlotView {
   }
 
   override remove(): void {
-    remove(this.map_el)
+    this.map_el.remove()
     super.remove()
   }
 

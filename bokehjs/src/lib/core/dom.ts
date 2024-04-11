@@ -156,12 +156,14 @@ export function nbsp(): Text {
   return text("\u00a0")
 }
 
+/** @deprecated */
 export function append(element: Node, ...children: Node[]): void {
   for (const child of children) {
     element.appendChild(child)
   }
 }
 
+/** @deprecated */
 export function remove(element: Node): void {
   const parent = element.parentNode
   if (parent != null) {
@@ -169,6 +171,7 @@ export function remove(element: Node): void {
   }
 }
 
+/** @deprecated */
 export function replaceWith(element: Node, replacement: Node): void {
   const parent = element.parentNode
   if (parent != null) {
@@ -495,7 +498,7 @@ export class InlineStyleSheet extends StyleSheet {
   }
 
   remove(): void {
-    remove(this.el)
+    this.el.remove()
   }
 }
 
@@ -520,7 +523,7 @@ export class ImportedStyleSheet extends StyleSheet {
   }
 
   remove(): void {
-    remove(this.el)
+    this.el.remove()
   }
 }
 

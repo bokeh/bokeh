@@ -1,5 +1,5 @@
 import type {StyleSheetLike} from "../dom"
-import {div, empty, remove, InlineStyleSheet, ClassList} from "../dom"
+import {div, empty, InlineStyleSheet, ClassList} from "../dom"
 import type {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isString} from "./types"
@@ -106,7 +106,7 @@ export class ContextMenu { //extends DOMComponentView {
 
   remove(): void {
     this._unlisten()
-    remove(this.el)
+    this.el.remove()
   }
 
   protected _listen(): void {
@@ -228,7 +228,7 @@ export class ContextMenu { //extends DOMComponentView {
     if (this._open) {
       this._open = false
       this._unlisten()
-      remove(this.el)
+      this.el.remove()
     }
   }
 

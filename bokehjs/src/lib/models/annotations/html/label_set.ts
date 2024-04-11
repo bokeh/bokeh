@@ -3,7 +3,7 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
-import {div, display, remove} from "core/dom"
+import {div, display} from "core/dom"
 import * as p from "core/properties"
 import type {FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
@@ -27,7 +27,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
 
-    this.els.forEach((el) => remove(el))
+    this.els.forEach((el) => el.remove())
     this.els = []
 
     for (const _ of this.text) {
@@ -38,7 +38,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
   }
 
   override remove(): void {
-    this.els.forEach((el) => remove(el))
+    this.els.forEach((el) => el.remove())
     this.els = []
     super.remove()
   }

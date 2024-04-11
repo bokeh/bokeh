@@ -1,6 +1,6 @@
 import {View} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
-import {createElement, remove, empty, InlineStyleSheet, ClassList} from "./dom"
+import {createElement, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
@@ -26,7 +26,7 @@ export abstract class DOMView extends View {
   }
 
   override remove(): void {
-    remove(this.el)
+    this.el.remove()
     super.remove()
   }
 
