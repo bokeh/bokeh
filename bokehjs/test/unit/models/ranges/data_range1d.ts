@@ -8,7 +8,7 @@ import {Circle} from "@bokehjs/models/glyphs/circle"
 import type {PaddingUnits} from "@bokehjs/core/enums"
 import {build_view} from "@bokehjs/core/build_views"
 
-describe("datarange1d module", () => {
+describe("DataRange1d", () => {
 
   describe("default creation", () => {
     const r = new DataRange1d()
@@ -261,6 +261,22 @@ describe("datarange1d module", () => {
 
       const r3 = new DataRange1d({range_padding: 0, range_padding_units: "absolute", scale_hint: "log"})
       expect(r3._compute_range(1, 10)).to.be.similar([1, 10])
+    })
+
+    it("should apply min_interval and max_interval", () => {
+      const r0 = new DataRange1d({min_interval: 6, range_padding: 0})
+      expect(r0._compute_range(1, 5)).to.be.equal([0, 6])
+
+      const r1 = new DataRange1d({max_interval: 2, range_padding: 0})
+      expect(r1._compute_range(1, 5)).to.be.equal([2, 4])
+    })
+
+    it("should apply min_interval and max_interval with scale_hint='log'", () => {
+      const r0 = new DataRange1d({min_interval: 4, range_padding: 0, scale_hint: "log"})
+      expect(r0._compute_range(10, 1000)).to.be.equal([1, 10000])
+
+      const r1 = new DataRange1d({max_interval: 1, range_padding: 0, scale_hint: "log"})
+      expect(r1._compute_range(1, 1000)).to.be.equal([10, 100])
     })
   })
 

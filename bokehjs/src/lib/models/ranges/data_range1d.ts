@@ -3,6 +3,7 @@ import type {Renderer, RendererView} from "../renderers/renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import type {Rect} from "core/types"
 import {flat_map} from "core/util/iterator"
+import {clamp} from "core/util/math"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import * as bbox from "core/util/bbox"
@@ -168,7 +169,10 @@ export class DataRange1d extends DataRange {
   }
 
   /*protected*/ _compute_range(min: number, max: number): [number, number] {
-    const range_padding = this.range_padding // XXX: ? 0
+    const {range_padding} = this
+
+    const min_interval = this.min_interval ?? 0
+    const max_interval = this.max_interval ?? Infinity
 
     let start, end: number
 
@@ -214,6 +218,7 @@ export class DataRange1d extends DataRange {
         }
         center = (log_min + log_max) / 2.0
       }
+      span = clamp(span, min_interval, max_interval)
       start = 10**(center - span / 2.0)
       end   = 10**(center + span / 2.0)
     } else {
@@ -227,6 +232,7 @@ export class DataRange1d extends DataRange {
           span = (max - min) + 2*range_padding
         }
       }
+      span = clamp(span, min_interval, max_interval)
       const center = (max + min) / 2.0
       start = center - span / 2.0
       end   = center + span / 2.0
