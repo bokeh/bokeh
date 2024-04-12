@@ -11,7 +11,7 @@ and ``d3`` that provide groups of palettes. The ``bokeh-palette-group``
 directive accepts the name of one of these groups, and generates a visual
 matrix of colors for every palette in the group.
 
-As an example, the following usage of the the directive:
+As an example, the following usage of the directive:
 
 .. code-block:: rest
 
@@ -91,7 +91,7 @@ class bokeh_palette_group(nodes.General, nodes.Element):
         names = sorted(group)
         for name in names:
             palettes = group[name]
-            # arbitrary cutoff here, idea is to not show large (e.g 256 length) palettes
+            # arbitrary cutoff here, idea is to not show large (e.g. 256 length) palettes
             numbers = [x for x in sorted(palettes) if x < 30]
             html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
             visitor.body.append(html)

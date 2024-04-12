@@ -235,7 +235,7 @@ To apply different colors to the bars, use |factor_cmap| for
 
     p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
 
-           # use the palette to colormap based on the the x[1:2] values
+           # use the palette to colormap based on the x[1:2] values
            fill_color=factor_cmap('x', palette=palette, factors=years, start=1, end=2))
 
 

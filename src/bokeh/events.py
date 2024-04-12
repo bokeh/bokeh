@@ -30,8 +30,8 @@ event object that triggered the callback.
 
 Alternatively it is possible to trigger Python code to run when events
 happen, in the context of a Bokeh application running on a Bokeh server.
-This can accomplished by passing an event class, and a callback function
-to the the :func:`~bokeh.model.Model.on_event` method. The callback should
+This can be accomplished by passing an event class, and a callback function
+to the :func:`~bokeh.model.Model.on_event` method. The callback should
 accept a single argument ``event``, which will be passed the concrete
 event object that triggered the callback.
 
@@ -399,7 +399,7 @@ class PointEvent(PlotEvent):
         y (float) : y-coordinate of the event in *data* space
 
     Note that data space coordinates are relative to the default range, not
-    any extra ranges, and the the screen space origin is at the top left of
+    any extra ranges, and the screen space origin is at the top left of
     the HTML canvas.
 
     '''
