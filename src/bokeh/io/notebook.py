@@ -121,7 +121,7 @@ class CommsHandle:
         self._doc = cell_doc
 
         # Our internal copy of the doc is in perpetual "hold". Events from the
-        # originating doc will be triggered and collected it it. Events are
+        # originating doc will be triggered and collected. Events are
         # processed/cleared when push_notebook is called for this comms handle
         self._doc.hold()
 
@@ -143,7 +143,7 @@ class CommsHandle:
     # and Document model changed events. If we find that the event is
     # for a model in our internal copy of the docs, then trigger the
     # internal doc with the event so that it is collected (until a
-    # call to push_notebook processes and clear colleted events)
+    # call to push_notebook processes and clear collected events)
     def _document_model_changed(self, event: ModelChangedEvent) -> None:
         if event.model.id in self.doc.models:
             self.doc.callbacks.trigger_on_change(event)
@@ -221,7 +221,7 @@ def install_notebook_hook(notebook_type: NotebookType, load: Load, show_doc: Sho
 
             If the notebook platform is capable of supporting in-place updates
             to plots then this function may return an opaque notebook handle
-            that can  be used for that purpose. The handle will be returned by
+            that can be used for that purpose. The handle will be returned by
             ``show()``, and can be used by as appropriate to update plots, etc.
             by additional functions in the library that installed the hooks.
 
@@ -259,7 +259,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
 
-    When working the the notebook, the ``show`` function can be passed the
+    When working inside the notebook, the ``show`` function can be passed the
     argument ``notebook_handle=True``, which will cause it to return a
     handle object that can be used to update the Bokeh output later. When
     ``push_notebook`` is called, any property updates (e.g. plot titles or
@@ -347,10 +347,10 @@ def run_notebook_hook(notebook_type: NotebookType, action: Literal["load", "doc"
     ''' Run an installed notebook hook with supplied arguments.
 
     Args:
-        noteboook_type (str) :
+        notebook_type (str) :
             Name of an existing installed notebook hook
 
-        actions (str) :
+        action (str) :
             Name of the hook action to execute, ``'doc'`` or ``'app'``
 
     All other arguments and keyword arguments are passed to the hook action
@@ -700,7 +700,7 @@ def _remote_jupyter_proxy_url(port: int | None) -> str:
 
 def _update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | ProxyUrlFunc:
     """If the environment variable ``JUPYTER_BOKEH_EXTERNAL_URL`` is defined, returns a function which
-    generates URLs which can traverse the JupyterHub proxy.  Otherwise returns ``notebook_url`` unmodified.
+    generates URLs which can traverse the JupyterHub proxy. Otherwise returns ``notebook_url`` unmodified.
 
     A warning is issued if ``notebook_url`` is not the default and
     ``JUPYTER_BOKEH_EXTERNAL_URL`` is also defined since setting the
@@ -713,9 +713,9 @@ def _update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | Pro
 
     Returns:
        str | ProxyUrlFunc
-          Either a URL string or a function that generates a URL string given a port number.  The
+          Either a URL string or a function that generates a URL string given a port number. The
           latter function may be user supplied as the input parameter or defined internally by Bokeh
-          when ``JUPYER_BOKEH_EXTERNAL_URL`` is set.
+          when ``JUPYTER_BOKEH_EXTERNAL_URL`` is set.
 
     """
     if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):

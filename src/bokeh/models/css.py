@@ -54,7 +54,7 @@ class InlineStyleSheet(StyleSheet):
 
     .. note::
         Depending on the context, this stylesheet will be appended either to
-        the the parent shadow root, if used in a component, or otherwise to
+        the parent shadow root, if used in a component, or otherwise to
         the ``<head>`` element. If you want to append globally regardless of
         the context, use ``GlobalInlineStyleSheet`` instead.
     """
@@ -72,7 +72,7 @@ class ImportedStyleSheet(StyleSheet):
 
     .. note::
         Depending on the context, this stylesheet will be appended either to
-        the the parent shadow root, if used in a component, or otherwise to
+        the parent shadow root, if used in a component, or otherwise to
         the ``<head>`` element. If you want to append globally regardless of
         the context, use ``GlobalImportedStyleSheet`` instead.
     """

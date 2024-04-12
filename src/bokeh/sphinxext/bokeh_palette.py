@@ -15,7 +15,7 @@ following:
 
 * An explicit list of colors: ``['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']``
 
-The following usage of the the directive is valid:
+The following usage of the directive is valid:
 
 -----
 
@@ -49,7 +49,7 @@ The following usage of the the directive is valid:
 
 -----
 
-Palette swatches are 20 pixels in height. For palettes short than 20 colors,
+Palette swatches are 20 pixels in height. For palettes shorter than 20 colors,
 the default width for the swatches is 20 pixels. If larger palettes are given,
 the width of the HTML spans is progressively reduced, down to a minimum of one
 pixel. For instance displaying the full Viridis palette with the expression

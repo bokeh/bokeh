@@ -304,7 +304,7 @@ class FactorRange(Range):
     coordinate system called *synthetic coordinates*. In the simplest cases,
     factors are separated by a distance of 1.0 in synthetic coordinates,
     however the exact mapping from factors to synthetic coordinates is
-    affected by he padding properties as well as whether the number of levels
+    affected by the padding properties as well as whether the number of levels
     the factors have.
 
     Users typically do not need to worry about the details of this mapping,
@@ -371,7 +371,7 @@ class FactorRange(Range):
         ])
 
     This property dictates how much padding to add between the three factors
-    in the `['foo', 'A']` group, and between the two factors in the the
+    in the `['foo', 'A']` group, and between the two factors in the
     [`bar`]
     """)
 
