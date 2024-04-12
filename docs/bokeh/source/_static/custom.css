@@ -10,6 +10,11 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
+/* disable the border line for the sidebar search form */
+.bd-search {
+  border: none;
+}
+
 /* make sure the article container uses all available space */
 .bd-article-container {
   max-width: 100% !important;
