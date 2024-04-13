@@ -16,29 +16,7 @@ import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
-
-export namespace RendererGroup {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = Model.Props & {
-    visible: p.Property<boolean>
-  }
-}
-
-export interface RendererGroup extends RendererGroup.Attrs {}
-
-export class RendererGroup extends Model {
-  declare properties: RendererGroup.Props
-
-  constructor(attrs?: Partial<RendererGroup.Attrs>) {
-    super(attrs)
-  }
-
-  static {
-    this.define<RendererGroup.Props>(({Bool}) => ({
-      visible: [ Bool, true ],
-    }))
-  }
-}
+import {RendererGroup} from "./renderer_group"
 
 export abstract class RendererView extends DOMComponentView implements visuals.Paintable {
   declare model: Renderer
