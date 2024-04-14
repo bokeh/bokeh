@@ -5413,7 +5413,7 @@
     level: "guide",
   },
   Renderer: {
-    __extends__: "Model",
+    __extends__: "StyledElement",
     level: "image",
     visible: true,
     coordinates: null,
@@ -6555,9 +6555,8 @@
     closable: false,
     interactive: true,
   },
-  UIElement: {
+  StyledElement: {
     __extends__: "Model",
-    visible: true,
     css_classes: [],
     css_variables: {
       type: "map",
@@ -6566,6 +6565,10 @@
       type: "map",
     },
     stylesheets: [],
+  },
+  UIElement: {
+    __extends__: "StyledElement",
+    visible: true,
     context_menu: null,
   },
   AbstractButton: {

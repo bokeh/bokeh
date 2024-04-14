@@ -1,11 +1,10 @@
 import type {ViewOf, View} from "core/view"
-import {DOMComponentView} from "core/dom_view"
+import {StyledElement, StyledElementView} from "../ui/styled_element"
 import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
 import {isNumber} from "core/util/types"
-import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
@@ -18,7 +17,7 @@ import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
 
-export abstract class RendererView extends DOMComponentView implements visuals.Paintable {
+export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
@@ -217,7 +216,7 @@ export abstract class RendererView extends DOMComponentView implements visuals.P
 export namespace Renderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = StyledElement.Props & {
     group: p.Property<RendererGroup | null>
     level: p.Property<RenderLevel>
     visible: p.Property<boolean>
@@ -233,7 +232,7 @@ export namespace Renderer {
 
 export interface Renderer extends Renderer.Attrs {}
 
-export abstract class Renderer extends Model {
+export abstract class Renderer extends StyledElement {
   declare properties: Renderer.Props
   declare __view_type__: RendererView
 

@@ -75,6 +75,13 @@ from _util_models import (
 # Setup
 #-----------------------------------------------------------------------------
 
+STYLED_ELEMENT = [
+    "css_classes",
+    "css_variables",
+    "styles",
+    "stylesheets",
+]
+
 RENDERER = [
     "visible",
     "level",
@@ -92,6 +99,7 @@ COMPOSITE_RENDERER = [
 ]
 
 ANNOTATION = [
+    *STYLED_ELEMENT,
     *RENDERER,
     *COMPOSITE_RENDERER,
 ]
