@@ -4,6 +4,8 @@ import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
 import type {SelectionManager} from "core/selection_manager"
+import type {Geometry} from "core/geometry"
+import type {HitTestResult} from "core/hittest"
 import type * as p from "core/properties"
 import type {Rect} from "core/types"
 
@@ -30,6 +32,8 @@ export abstract class DataRendererView extends RendererView implements AutoRange
   log_bounds(): Rect {
     return this.glyph_view.log_bounds()
   }
+
+  abstract hit_test(geometry: Geometry): HitTestResult
 }
 
 export namespace DataRenderer {
