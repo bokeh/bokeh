@@ -646,6 +646,14 @@ class WheelZoomTool(Scroll):
     """)
     # }
 
+    hit_test = Nullable(Enum("pointer", "hline", "vline"), default=None, help="""
+    Whether ``renderers`` should be restricted to those under the cursor
+    location and if so, what hit testing geometry to use.
+
+    .. note::
+        This setting only applies when zooming renderers involving sub-coordinates.
+    """)
+
     maintain_focus = Bool(default=True, help="""
     If True, then hitting a range bound in any one dimension will prevent all
     further zooming all dimensions. If False, zooming can continue

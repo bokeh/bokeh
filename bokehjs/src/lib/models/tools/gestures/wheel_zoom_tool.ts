@@ -8,6 +8,7 @@ import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
+import type {Geometry} from "core/geometry"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, List, Ref, Or, Auto} from "core/kinds"
 
@@ -87,7 +88,7 @@ export class WheelZoomToolView extends GestureToolView {
     const x_renderer_scales = new Set<Scale>()
     const y_renderer_scales = new Set<Scale>()
 
-    const {renderers} = this.model
+    const {renderers, hit_test} = this.model
     const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
 
     for (const renderer of data_renderers) {
@@ -96,6 +97,22 @@ export class WheelZoomToolView extends GestureToolView {
       }
 
       const rv = this.plot_view.views.get_one(renderer)
+
+      if (hit_test != null) {
+        const geometry: Geometry = (() => {
+          switch (hit_test) {
+            case "point": return {type: "point", sx, sy}
+            case "hline": return {type: "span",  sx, sy, direction: "v"}
+            case "vline": return {type: "span",  sx, sy, direction: "h"}
+          }
+        })()
+
+        const did_hit = rv.hit_test(geometry)
+        if (did_hit == null || did_hit.is_empty()) {
+          continue
+        }
+      }
+
       const {x_scale, y_scale} = rv.coordinates
 
       if (x_scale instanceof CompositeScale) {
@@ -194,6 +211,7 @@ export namespace WheelZoomTool {
     dimensions: p.Property<Dimensions>
     renderers: p.Property<Renderers>
     level: p.Property<number>
+    hit_test: p.Property<"point" | "hline" | "vline" | null>
     maintain_focus: p.Property<boolean>
     zoom_on_axis: p.Property<boolean>
     zoom_together: p.Property<ZoomTogether>
@@ -215,10 +233,11 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int}) => ({
+    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int, Nullable}) => ({
       dimensions:     [ Dimensions, "both" ],
       renderers:      [ Renderers, "auto" ],
       level:          [ NonNegative(Int), 0 ],
+      hit_test:       [ Nullable(Enum("point", "hline", "vline")), null ],
       maintain_focus: [ Bool, true ],
       zoom_on_axis:   [ Bool, true ],
       zoom_together:  [ ZoomTogether, "all" ],
