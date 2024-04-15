@@ -43,16 +43,18 @@ for i, channel in enumerate(channels):
     renderers.append(line)
 
 level = 1
+hit_test = None
 
-ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, dimensions="height")
-xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, dimensions="width")
+ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, dimensions="height")
+xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, dimensions="width")
 zoom_in = ZoomInTool(renderers=renderers, level=level, dimensions="height")
 zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 
 p.add_tools(ywheel_zoom, xwheel_zoom, zoom_in, zoom_out, hover)
 p.toolbar.active_scroll = ywheel_zoom
 
-on_change = CustomJS(
+level_switch = Switch(active=level == 1)
+level_switch.js_on_change("active", CustomJS(
     args=dict(tools=[ywheel_zoom, zoom_in, zoom_out]),
     code="""
 export default ({tools}, obj) => {
@@ -61,10 +63,21 @@ export default ({tools}, obj) => {
         tool.level = level
     }
 }
-""")
+"""))
 
-label = Div(text="Zoom sub-coordinates:")
-widget = Switch(active=level == 1)
-widget.js_on_change("active", on_change)
+hit_test_switch = Switch(active=hit_test is not None)
+hit_test_switch.js_on_change("active", CustomJS(
+    args=dict(tool=ywheel_zoom),
+    code="""
+export default ({tool}, obj) => {
+    tool.hit_test = obj.active ? "hline" : null
+}
+"""))
 
-show(column(row(label, widget), p))
+layout = column(
+    row(Div(text="Zoom sub-coordinates:"), level_switch),
+    row(Div(text="Zoom hit-tested:"), hit_test_switch),
+    p,
+)
+
+show(layout)
