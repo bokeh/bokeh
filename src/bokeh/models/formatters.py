@@ -654,6 +654,16 @@ class DatetimeTickFormatter(TickFormatter):
     as they are on boundary of the days scale: ["06/08", "06h", "12h", 18h", "06/09"]
     """)
 
+    hide_repeats = Bool(default=False, help="""
+    Whether repeated formatted tick values will be suppressed.
+
+    For example, an initial set of ticks ``["06/07", "06/07", "06/07", "06/08",
+    "06/08"]`` will become ``["06/07", "", "", "06/08", ""]``. Only the base
+    label, without any additional context, is considered when determining
+    repeats. If the context itself is a ``DateTimeTickformatter``, then this
+    property may also be set for the context separately, if desired.
+    """)
+
     context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
     A format for adding context to the tick or ticks specified by ``context_which``.
     Valid values are:

@@ -2472,6 +2472,7 @@
     years: "%Y",
     strip_leading_zeros: false,
     boundary_scaling: true,
+    hide_repeats: false,
     context: null,
     context_which: "start",
     context_location: "below",
