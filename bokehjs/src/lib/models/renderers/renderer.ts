@@ -16,6 +16,8 @@ import {BBox} from "core/util/bbox"
 import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
+import type {StyleSheetLike} from "core/dom"
+import renderer_css from "styles/renderer.css"
 
 export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
@@ -41,6 +43,10 @@ export abstract class RendererView extends StyledElementView implements visuals.
   private _custom_coordinates: CoordinateTransform | null = null
   set coordinates(custom_coordinates: CoordinateTransform | null) {
     this._custom_coordinates = custom_coordinates
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), renderer_css]
   }
 
   override initialize(): void {

@@ -1,4 +1,4 @@
-import type {DOMView} from "../dom_view"
+import type {DOMComponentView} from "../dom_view"
 import type {CanvasLayer} from "../util/canvas"
 import type * as p from "../properties"
 
@@ -23,7 +23,7 @@ export abstract class VisualProperties {
     yield* this._props
   }
 
-  constructor(readonly obj: DOMView & Paintable, readonly prefix: string = "") {
+  constructor(readonly obj: DOMComponentView & Paintable, readonly prefix: string = "") {
     const self = this as any
     this._props = []
     for (const attr of this.attrs) {
@@ -50,7 +50,7 @@ export abstract class VisualUniforms {
     }
   }
 
-  constructor(readonly obj: DOMView & Paintable, readonly prefix: string = "") {
+  constructor(readonly obj: DOMComponentView & Paintable, readonly prefix: string = "") {
     for (const attr of this.attrs) {
       Object.defineProperty(this, attr, {
         get() {
