@@ -23,7 +23,6 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override initialize(): void {
     super.initialize()
-    this.plot_view.canvas_view.add_overlay(this.el)
   }
 
   override connect_signals(): void {
@@ -34,8 +33,10 @@ export abstract class TextAnnotationView extends AnnotationView {
   override paint(): void {
     if (!this.model.visible) {
       undisplay(this.el)
+      return
     }
 
+    this.plot_view.canvas_view.overlays_el.append(this.el)
     super.paint()
   }
 
@@ -51,7 +52,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     const {el} = this
     undisplay(el)
 
-    el.textContent = text
+    this.shadow_el.textContent = text
     this.visuals.text.set_value(ctx)
 
     el.style.position = "absolute"
