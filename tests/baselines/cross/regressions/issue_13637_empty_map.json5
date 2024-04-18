@@ -17,7 +17,6 @@
           type: "set",
         },
         syncable: true,
-        visible: true,
         css_classes: [],
         css_variables: {
           type: "map",
@@ -26,6 +25,7 @@
           type: "map",
         },
         stylesheets: [],
+        visible: true,
         context_menu: null,
         elements: [],
         disabled: false,
@@ -187,6 +187,14 @@
               type: "set",
             },
             syncable: true,
+            css_classes: [],
+            css_variables: {
+              type: "map",
+            },
+            styles: {
+              type: "map",
+            },
+            stylesheets: [],
             level: "annotation",
             visible: true,
             coordinates: null,
@@ -258,6 +266,14 @@
                 type: "set",
               },
               syncable: true,
+              css_classes: [],
+              css_variables: {
+                type: "map",
+              },
+              styles: {
+                type: "map",
+              },
+              stylesheets: [],
               level: "glyph",
               visible: true,
               coordinates: null,
@@ -498,6 +514,14 @@
                 type: "set",
               },
               syncable: true,
+              css_classes: [],
+              css_variables: {
+                type: "map",
+              },
+              styles: {
+                type: "map",
+              },
+              stylesheets: [],
               level: "glyph",
               visible: true,
               coordinates: null,
@@ -702,7 +726,6 @@
               type: "set",
             },
             syncable: true,
-            visible: true,
             css_classes: [],
             css_variables: {
               type: "map",
@@ -711,6 +734,7 @@
               type: "map",
             },
             stylesheets: [],
+            visible: true,
             context_menu: null,
             logo: "normal",
             autohide: false,
