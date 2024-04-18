@@ -30,7 +30,7 @@ const load_google_api = function(api_key: string, api_version: string): void {
   const enc = encodeURIComponent
   const script = document.createElement("script")
   script.type = "text/javascript"
-  script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback&loading=async`
   document.body.appendChild(script)
 }
 
