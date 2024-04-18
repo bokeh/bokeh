@@ -5,7 +5,6 @@ import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Arrayable, Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
-import {inplace} from "core/util/projections"
 import type {Context2d} from "core/util/canvas"
 import {atan2} from "core/util/math"
 import {Glyph, GlyphView} from "./glyph"
@@ -19,8 +18,8 @@ export class SegmentView extends GlyphView {
   declare visuals: Segment.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this.x0, this.y0)
-    inplace.project_xy(this.x1, this.y1)
+    this._project_xy<Segment.Data>("x0", this.x0, "y0", this.y0)
+    this._project_xy<Segment.Data>("x1", this.x1, "y1", this.y1)
   }
 
   protected _index_data(index: SpatialIndex): void {

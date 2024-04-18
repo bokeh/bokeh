@@ -1,5 +1,4 @@
 import type {SpatialIndex} from "core/util/spatial"
-import {inplace} from "core/util/projections"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -28,7 +27,7 @@ export class MultiLineView extends GlyphView {
   }
 
   protected override _project_data(): void {
-    inplace.project_xy(this.xs.data, this.ys.data)
+    this._project_xy<MultiLine.Data>("xs", this.xs.data, "ys", this.ys.data)
   }
 
   protected _index_data(index: SpatialIndex): void {
