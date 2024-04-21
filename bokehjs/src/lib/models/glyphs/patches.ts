@@ -11,7 +11,6 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
-import {inplace} from "core/util/projections"
 
 export interface PatchesView extends Patches.Data {}
 
@@ -20,7 +19,7 @@ export class PatchesView extends GlyphView {
   declare visuals: Patches.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this.xs.data, this.ys.data)
+    this._project_xy<Patches.Data>("xs", this.xs.data, "ys", this.ys.data)
   }
 
   protected _index_data(index: SpatialIndex): void {

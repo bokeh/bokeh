@@ -30,7 +30,7 @@ const load_google_api = function(api_key: string, api_version: string): void {
   const enc = encodeURIComponent
   const script = document.createElement("script")
   script.type = "text/javascript"
-  script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback&loading=async`
   document.body.appendChild(script)
 }
 
@@ -47,7 +47,12 @@ export class GMapPlotView extends PlotView {
 
   protected map_el: HTMLElement
   private map: google.maps.Map
-  protected map_types: any
+  protected map_types: {
+    satellite: google.maps.MapTypeId.SATELLITE
+    terrain: google.maps.MapTypeId.TERRAIN
+    roadmap: google.maps.MapTypeId.ROADMAP
+    hybrid: google.maps.MapTypeId.HYBRID
+  }
 
   protected _api_key: string
 
@@ -124,8 +129,9 @@ export class GMapPlotView extends PlotView {
       const zoom_change = range_info.factor < 0 ?  -1 : 1
 
       const old_map_zoom = this.map.getZoom()
+      const bounds = this.map.getBounds()
 
-      if (old_map_zoom != null) {
+      if (old_map_zoom != null && bounds != null) {
         const new_map_zoom = old_map_zoom + zoom_change
 
         // Zooming out too far causes problems
@@ -133,7 +139,7 @@ export class GMapPlotView extends PlotView {
           this.map.setZoom(new_map_zoom)
 
           // Check we haven't gone out of bounds, and if we have undo the zoom
-          const [proj_xstart, proj_xend] = this._get_projected_bounds()
+          const [proj_xstart, proj_xend] = this._get_projected_bounds(bounds)
           if (proj_xend - proj_xstart < 0) {
             this.map.setZoom(old_map_zoom)
           }
@@ -202,8 +208,7 @@ export class GMapPlotView extends PlotView {
     return super.has_finished() && this._tiles_loaded === true
   }
 
-  protected _get_latlon_bounds(): [number, number, number, number] {
-    const bounds = this.map.getBounds()!
+  protected _get_latlon_bounds(bounds: google.maps.LatLngBounds): [number, number, number, number] {
     const top_right = bounds.getNorthEast()
     const bottom_left = bounds.getSouthWest()
 
@@ -214,17 +219,20 @@ export class GMapPlotView extends PlotView {
     return [xstart, xend, ystart, yend]
   }
 
-  protected _get_projected_bounds(): [number, number, number, number] {
-    const [xstart, xend, ystart, yend] = this._get_latlon_bounds()
+  protected _get_projected_bounds(bounds: google.maps.LatLngBounds): [number, number, number, number] {
+    const [xstart, xend, ystart, yend] = this._get_latlon_bounds(bounds)
     const [proj_xstart, proj_ystart] = wgs84_mercator.compute(xstart, ystart)
     const [proj_xend, proj_yend] = wgs84_mercator.compute(xend, yend)
     return [proj_xstart, proj_xend, proj_ystart, proj_yend]
   }
 
   protected _set_bokeh_ranges(): void {
-    const [proj_xstart, proj_xend, proj_ystart, proj_yend] = this._get_projected_bounds()
-    this.frame.x_range.setv({start: proj_xstart, end: proj_xend})
-    this.frame.y_range.setv({start: proj_ystart, end: proj_yend})
+    const bounds = this.map.getBounds()
+    if (bounds != null) {
+      const [proj_xstart, proj_xend, proj_ystart, proj_yend] = this._get_projected_bounds(bounds)
+      this.frame.x_range.setv({start: proj_xstart, end: proj_xend})
+      this.frame.y_range.setv({start: proj_ystart, end: proj_yend})
+    }
   }
 
   protected _update_center(fld: "lat" | "lng"): void {

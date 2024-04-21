@@ -14,8 +14,10 @@ import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
+import {isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map} from "core/util/arrayable"
+import {inplace, project_xy} from "core/util/projections"
 import {is_equal, EqNotImplemented} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {assert} from "core/util/assert"
@@ -232,6 +234,19 @@ export abstract class GlyphView extends View {
     return new Selection({indices})
   }
 
+  protected _project_xy<Data>(x: keyof Data, xs: Arrayable<number>, y: keyof Data, ys: Arrayable<number>): void {
+    const inherited_x = this._is_inherited(x as string)
+    const inherited_y = this._is_inherited(y as string)
+
+    if (!inherited_x && !inherited_y) {
+      inplace.project_xy(xs, ys)
+    } else if (!inherited_x || !inherited_y) {
+      const [proj_x, proj_y] = project_xy(xs, ys)
+      this._define_attr(x, proj_x)
+      this._define_attr(y, proj_y)
+    }
+  }
+
   protected _project_data(): void {}
 
   private *_iter_visuals(): Generator<p.VectorSpec<unknown> | p.ScalarSpec<unknown>> {
@@ -318,8 +333,9 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected _is_inherited<T>(prop: p.Property<T>): boolean {
-    return this[`inherited_${prop.attr}` as keyof this] as boolean
+  protected _is_inherited<T>(prop: p.Property<T> | string): boolean {
+    const name = isString(prop) ? prop : prop.attr
+    return this[`inherited_${name}` as keyof this] as boolean
   }
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {

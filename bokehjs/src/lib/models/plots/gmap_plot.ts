@@ -39,7 +39,7 @@ export namespace GMapOptions {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MapOptions.Props & {
-    map_type: p.Property<string>
+    map_type: p.Property<MapType>
     scale_control: p.Property<boolean>
     styles: p.Property<string | null>
     tilt: p.Property<number>
