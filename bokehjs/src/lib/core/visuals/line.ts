@@ -68,12 +68,6 @@ export class Line extends VisualProperties {
     ctx.lineDashOffset = this.get_line_dash_offset()
   }
 
-  protected _get_css_value(name: string): string {
-    const style = getComputedStyle(this.obj.el)
-    const prefix = this.prefix.replaceAll("_", "-")
-    return style.getPropertyValue(`--bk-${prefix}${name}`)
-  }
-
   get_line_color(): Color | null {
     const css_color = this._get_css_value("line-color")
     if (css_color != "") {

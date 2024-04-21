@@ -1,9 +1,9 @@
 import type {ValuesOf, Paintable} from "./visual"
 import {VisualProperties, VisualUniforms} from "./visual"
-import type {uint32} from "../types"
+import type {uint32, Color} from "../types"
 import type * as p from "../properties"
 import * as mixins from "../property_mixins"
-import type {FontStyle, TextAlign, TextBaseline} from "../enums"
+import {FontStyle, TextAlign, TextBaseline} from "../enums"
 import {color2css} from "../util/color"
 import type {Context2d} from "../util/canvas"
 
@@ -29,8 +29,8 @@ function load_font(font: string, obj: Paintable): void {
 export interface Text extends Readonly<mixins.Text> {}
 export class Text extends VisualProperties {
   get doit(): boolean {
-    const color = this.text_color.get_value()
-    const alpha = this.text_alpha.get_value()
+    const color = this.get_text_color()
+    const alpha = this.get_text_alpha()
 
     return !(color == null || alpha == 0)
   }
@@ -47,35 +47,113 @@ export class Text extends VisualProperties {
   declare Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
-      color:         this.text_color.get_value(),
-      outline_color: this.text_outline_color.get_value(),
-      alpha:         this.text_alpha.get_value(),
-      font:          this.text_font.get_value(),
-      font_size:     this.text_font_size.get_value(),
-      font_style:    this.text_font_style.get_value(),
-      align:         this.text_align.get_value(),
-      baseline:      this.text_baseline.get_value(),
-      line_height:   this.text_line_height.get_value(),
+      color:         this.get_text_color(),
+      outline_color: this.get_text_outline_color(),
+      alpha:         this.get_text_alpha(),
+      font:          this.get_text_font(),
+      font_size:     this.get_text_font_size(),
+      font_style:    this.get_text_font_style(),
+      align:         this.get_text_align(),
+      baseline:      this.get_text_baseline(),
+      line_height:   this.get_text_line_height(),
     }
   }
 
   set_value(ctx: Context2d): void {
-    const color = this.text_color.get_value()
-    const outline_color = this.text_outline_color.get_value()
-    const alpha = this.text_alpha.get_value()
+    const color = this.get_text_color()
+    const outline_color = this.get_text_outline_color()
+    const alpha = this.get_text_alpha()
 
     ctx.fillStyle    = color2css(color, alpha)
     ctx.strokeStyle  = color2css(outline_color, alpha)
     ctx.font         = this.font_value()
-    ctx.textAlign    = this.text_align.get_value()
-    ctx.textBaseline = this.text_baseline.get_value()
+    ctx.textAlign    = this.get_text_align()
+    ctx.textBaseline = this.get_text_baseline()
   }
 
   font_value(): string {
-    const style = this.text_font_style.get_value()
-    const size = this.text_font_size.get_value()
-    const face = this.text_font.get_value()
+    const style = this.get_text_font_style()
+    const size = this.get_text_font_size()
+    const face = this.get_text_font()
     return `${style} ${size} ${face}`
+  }
+
+  get_text_color(): Color | null {
+    const css_color = this._get_css_value("text-color")
+    if (css_color != "") {
+      return css_color
+    }
+    return this.text_color.get_value()
+  }
+
+  get_text_outline_color(): Color | null {
+    const css_color = this._get_css_value("text-outline-color")
+    if (css_color != "") {
+      return css_color
+    }
+    return this.text_outline_color.get_value()
+  }
+
+  get_text_alpha(): number {
+    const css_alpha = this._get_css_value("text-alpha")
+    if (css_alpha != "") {
+      const alpha = Number(css_alpha)
+      if (isFinite(alpha)) {
+        return alpha
+      }
+    }
+    return this.text_alpha.get_value()
+  }
+
+  get_text_font(): string {
+    const css_font = this._get_css_value("text-font")
+    if (css_font != "") {
+      return css_font
+    }
+    return this.text_font.get_value()
+  }
+
+  get_text_font_size(): string {
+    const css_font_size = this._get_css_value("text-font-size")
+    if (css_font_size != "") {
+      return css_font_size
+    }
+    return this.text_font_size.get_value()
+  }
+
+  get_text_font_style(): FontStyle {
+    const css_font_style = this._get_css_value("text-font-style")
+    if (FontStyle.valid(css_font_style)) {
+      return css_font_style
+    }
+    return this.text_font_style.get_value()
+  }
+
+  get_text_align(): TextAlign {
+    const css_align = this._get_css_value("text-align")
+    if (TextAlign.valid(css_align)) {
+      return css_align
+    }
+    return this.text_align.get_value()
+  }
+
+  get_text_baseline(): TextBaseline {
+    const css_baseline = this._get_css_value("text-baseline")
+    if (TextBaseline.valid(css_baseline)) {
+      return css_baseline
+    }
+    return this.text_baseline.get_value()
+  }
+
+  get_text_line_height(): number {
+    const css_line_height = this._get_css_value("line-height")
+    if (css_line_height != "") {
+      const line_height = Number(css_line_height)
+      if (isFinite(line_height)) {
+        return line_height
+      }
+    }
+    return this.text_line_height.get_value()
   }
 }
 

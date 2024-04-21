@@ -39,12 +39,6 @@ export class Fill extends VisualProperties {
     ctx.fillStyle = color2css(color, alpha)
   }
 
-  protected _get_css_value(name: string): string {
-    const style = getComputedStyle(this.obj.el)
-    const prefix = this.prefix.replaceAll("_", "-")
-    return style.getPropertyValue(`--bk-${prefix}${name}`)
-  }
-
   get_fill_color(): Color | null {
     const css_color = this._get_css_value("fill-color")
     if (css_color != "") {

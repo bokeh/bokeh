@@ -37,6 +37,12 @@ export abstract class VisualProperties {
   abstract get doit(): boolean
 
   update(): void {}
+
+  protected _get_css_value(name: string): string {
+    const style = getComputedStyle(this.obj.el)
+    const prefix = this.prefix.replaceAll("_", "-")
+    return style.getPropertyValue(`--bk-${prefix}${name}`)
+  }
 }
 
 export abstract class VisualUniforms {

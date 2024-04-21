@@ -20,17 +20,17 @@ export class Hatch extends VisualProperties {
       return
     }
 
-    const color = this.hatch_color.get_value()!
-    const alpha = this.hatch_alpha.get_value()
-    const scale = this.hatch_scale.get_value()
-    const pattern = this.hatch_pattern.get_value()!
-    const weight = this.hatch_weight.get_value()
+    const color = this.get_hatch_color()!
+    const alpha = this.get_hatch_alpha()
+    const scale = this.get_hatch_scale()
+    const pattern = this.get_hatch_pattern()!
+    const weight = this.get_hatch_weight()
 
     const finalize = (image: CanvasImageSource) => {
       this._hatch_image = image
     }
 
-    const textures = dict(this.hatch_extra.get_value())
+    const textures = dict(this.get_hatch_extra())
     const texture = textures.get(pattern)
 
     if (texture != null) {
@@ -54,9 +54,9 @@ export class Hatch extends VisualProperties {
   }
 
   get doit(): boolean {
-    const color = this.hatch_color.get_value()
-    const alpha = this.hatch_alpha.get_value()
-    const pattern = this.hatch_pattern.get_value()
+    const color = this.get_hatch_color()
+    const alpha = this.get_hatch_alpha()
+    const pattern = this.get_hatch_pattern()
 
     return !(color == null || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
   }
@@ -85,9 +85,9 @@ export class Hatch extends VisualProperties {
   }
 
   repetition(): CanvasPatternRepetition {
-    const pattern = this.hatch_pattern.get_value()!
+    const pattern = this.get_hatch_pattern()!
 
-    const textures = dict(this.hatch_extra.get_value())
+    const textures = dict(this.get_hatch_extra())
     const texture = textures.get(pattern)
 
     if (texture == null) {
@@ -100,6 +100,63 @@ export class Hatch extends VisualProperties {
         case "no_repeat": return "no-repeat"
       }
     }
+  }
+
+  get_hatch_color(): Color | null {
+    const css_color = this._get_css_value("hatch-color")
+    if (css_color != "") {
+      return css_color
+    }
+    return this.hatch_color.get_value()
+  }
+
+  get_hatch_alpha(): number {
+    const css_alpha = this._get_css_value("hatch-alpha")
+    if (css_alpha != "") {
+      const alpha = Number(css_alpha)
+      if (isFinite(alpha)) {
+        return alpha
+      }
+    }
+    return this.hatch_alpha.get_value()
+  }
+
+  get_hatch_scale(): number {
+    const css_scale = this._get_css_value("hatch-scale")
+    if (css_scale != "") {
+      const scale = Number(css_scale)
+      if (isFinite(scale)) {
+        return scale
+      }
+    }
+    return this.hatch_scale.get_value()
+  }
+
+  get_hatch_pattern(): string | null {
+    const css_pattern = this._get_css_value("hatch-pattern")
+    if (css_pattern != "") {
+      if (css_pattern == "none") {
+        return null
+      } else {
+        return css_pattern
+      }
+    }
+    return this.hatch_pattern.get_value()
+  }
+
+  get_hatch_weight(): number {
+    const css_weight = this._get_css_value("hatch-weight")
+    if (css_weight != "") {
+      const weight = Number(css_weight)
+      if (isFinite(weight)) {
+        return weight
+      }
+    }
+    return this.hatch_weight.get_value()
+  }
+
+  get_hatch_extra(): mixins.HatchExtra {
+    return this.hatch_extra.get_value()
   }
 }
 
