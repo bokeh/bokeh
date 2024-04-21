@@ -23,7 +23,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker,
+  FixedTicker, MercatorTicker, MercatorTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -3877,6 +3877,44 @@ describe("Bug", () => {
       select.add_tools(range_tool)
 
       await display(column([p, select]))
+    })
+  })
+
+  describe("in issue #13771", () => {
+    it("doesn't allow to correctly maintain projections in secondary glyphs", async () => {
+      class MapFigureView extends FigureView {
+        declare model: MapFigure
+      }
+      class MapFigure extends Figure {
+        declare __view_type__: MapFigureView
+        override use_map = true
+        static {
+          this.prototype.default_view = MapFigureView
+        }
+      }
+
+      const xf = new MercatorTickFormatter({dimension: "lon"})
+      const xt = new MercatorTicker({dimension: "lon"})
+      const xa = new LinearAxis({formatter: xf, ticker: xt, axis_label: "Longitude"})
+
+      const yf = new MercatorTickFormatter({dimension: "lat"})
+      const yt = new MercatorTicker({dimension: "lat"})
+      const ya = new LinearAxis({formatter: yf, ticker: yt, axis_label: "Latitude"})
+
+      const plot = new MapFigure({
+        x_axis_type: null,
+        y_axis_type: null,
+        below: [xa],
+        left: [ya],
+        width: 300,
+        height: 300,
+      })
+
+      const lat = [ 30.29,  30.20,  30.29]
+      const lon = [-97.70, -97.74, -97.78]
+      plot.scatter(lon, lat, {size: 15, fill_color: ["red", "green", "blue"], fill_alpha: 0.8})
+
+      await display(plot)
     })
   })
 })

@@ -1,5 +1,4 @@
 import type {SpatialIndex} from "core/util/spatial"
-import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 import {Glyph, GlyphView} from "./glyph"
 
@@ -10,7 +9,7 @@ export abstract class XYGlyphView extends GlyphView {
   declare visuals: XYGlyph.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this.x, this.y)
+    this._project_xy<XYGlyph.Data>("x", this.x, "y", this.y)
   }
 
   protected _index_data(index: SpatialIndex): void {
@@ -52,7 +51,7 @@ export abstract class XYGlyph extends Glyph {
   }
 
   static {
-    this.define<XYGlyph.Props>(({}) => ({
+    this.define<XYGlyph.Props>(() => ({
       x: [ p.XCoordinateSpec, {field: "x"} ],
       y: [ p.YCoordinateSpec, {field: "y"} ],
     }))
