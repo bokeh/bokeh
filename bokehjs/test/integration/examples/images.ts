@@ -110,6 +110,6 @@ describe("Examples", () => {
     origin.properties.value.change.connect(() => r.glyph.origin = origin.value as ImageOrigin)
 
     const layout = new Column({children: [p, anchor, origin]})
-    await display(layout, [700, 700])
+    await display(layout, null)
   })
 })
