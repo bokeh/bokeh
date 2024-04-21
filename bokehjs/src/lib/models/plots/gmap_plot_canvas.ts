@@ -47,7 +47,12 @@ export class GMapPlotView extends PlotView {
 
   protected map_el: HTMLElement
   private map: google.maps.Map
-  protected map_types: any
+  protected map_types: {
+    satellite: google.maps.MapTypeId.SATELLITE
+    terrain: google.maps.MapTypeId.TERRAIN
+    roadmap: google.maps.MapTypeId.ROADMAP
+    hybrid: google.maps.MapTypeId.HYBRID
+  }
 
   protected _api_key: string
 
