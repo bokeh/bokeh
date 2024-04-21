@@ -30,12 +30,18 @@ p.xaxis.stylesheets.append("""
 :host {
     /* x-axis background color */
     --bk-background-fill-color: yellow;
+
+    /* x-axis major label styling */
+    --bk-major-label-text-font-style: bold;
 }
 """)
 p.yaxis.stylesheets.append("""
 :host {
     /* y-axis background color */
     --bk-background-fill-color: pink;
+
+    /* y-axis major label styling */
+    --bk-major-label-text-font-size: 1.25em;
 }
 """)
 
