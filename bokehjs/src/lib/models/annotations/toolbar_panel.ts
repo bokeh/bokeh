@@ -51,9 +51,16 @@ export class ToolbarPanelView extends AnnotationView {
     super.remove()
   }
 
+  override render(): void {
+    super.render()
+    this.toolbar_view.render_to(this.shadow_el)
+  }
+
   private _previous_bbox: BBox = new BBox()
 
   protected _paint(): void {
+    // TODO this shouldn't be necessary
+    this.plot_view.canvas_view.events_el.append(this.el)
     display(this.el)
 
     // TODO: this should be handled by the layout
@@ -73,11 +80,6 @@ export class ToolbarPanelView extends AnnotationView {
         style.width = "unset"
         style.height = "100%"
       }
-
-      this.toolbar_view.render()
-      this.plot_view.canvas_view.add_event(this.el)
-      this.shadow_el.appendChild(this.toolbar_view.el)
-      this.toolbar_view.after_render()
     }
 
     if (!this.model.visible) {
