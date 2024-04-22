@@ -231,6 +231,9 @@ export class UIGestures {
     if (event.isPrimary && event.pointerType == "mouse" && event.buttons != MouseButton.Left) {
       return
     }
+    if (!this.hit_area.isConnected) {
+      return
+    }
     this.pointers.set(event.pointerId, {init: event, last: event})
     this.hit_area.setPointerCapture(event.pointerId)
     switch (this.phase) {
