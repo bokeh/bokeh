@@ -198,8 +198,7 @@ export class ToolbarView extends UIElementView {
     }
 
     for (const [, button_view] of this._tool_button_views) {
-      button_view.render()
-      button_view.after_render()
+      button_view.render_to(this.shadow_el)
     }
 
     const bars = this._tool_buttons.map((group) => group.map((button) => this._tool_button_views.get(button)!.el))
@@ -209,7 +208,7 @@ export class ToolbarView extends UIElementView {
 
     for (const el of join<HTMLElement>(non_empty, divider)) {
       this._items.push(el)
-      this.shadow_el.appendChild(el)
+      this.shadow_el.append(el)
     }
   }
 
