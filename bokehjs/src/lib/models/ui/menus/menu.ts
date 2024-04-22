@@ -12,6 +12,7 @@ import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {isNotNull} from "core/util/types"
+import {execute} from "core/util/callbacks"
 
 import menus_css, * as menus from "styles/menus_.css"
 import icons_css from "styles/icons.css"
@@ -43,7 +44,10 @@ export class MenuView extends UIElementView {
 
   protected _item_click = (item: ActionItem) => {
     if (!item.disabled) {
-      item.action?.execute(this.model, {item})
+      const {action} = item
+      if (action != null) {
+        void execute(action, this.model, {item})
+      }
       this.hide()
     }
   }

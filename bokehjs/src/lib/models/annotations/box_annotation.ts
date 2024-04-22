@@ -682,4 +682,32 @@ export class BoxAnnotation extends Annotation {
   clear(): void {
     this.visible = false
   }
+
+  readonly nodes = (() => {
+    const known = new Map<string, Node>()
+    const node = (symbol: string) => {
+      let node = known.get(symbol)
+      if (node === undefined) {
+        known.set(symbol, node = new Node({target: this, symbol}))
+      }
+      return node
+    }
+    return {
+      get left(): Node          { return node("left") },
+      get right(): Node         { return node("right") },
+      get top(): Node           { return node("top") },
+      get bottom(): Node        { return node("bottom") },
+      get top_left(): Node      { return node("top_left") },
+      get top_center(): Node    { return node("top_center") },
+      get top_right(): Node     { return node("top_right") },
+      get center_left(): Node   { return node("center_left") },
+      get center(): Node        { return node("center") },
+      get center_right(): Node  { return node("center_right") },
+      get bottom_left(): Node   { return node("bottom_left") },
+      get bottom_center(): Node { return node("bottom_center") },
+      get bottom_right(): Node  { return node("bottom_right") },
+      get width(): Node         { return node("width") },
+      get height(): Node        { return node("height") },
+    }
+  })()
 }
