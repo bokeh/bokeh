@@ -16,6 +16,10 @@ export class ToolbarPanelView extends AnnotationView {
   declare panel: SidePanel
   declare layout: Layoutable
 
+  override rendering_target(): HTMLElement {
+    return this.plot_view.canvas_view.events_el
+  }
+
   override update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
@@ -60,7 +64,6 @@ export class ToolbarPanelView extends AnnotationView {
 
   protected _paint(): void {
     // TODO this shouldn't be necessary
-    this.plot_view.canvas_view.events_el.append(this.el)
     display(this.el)
 
     // TODO: this should be handled by the layout

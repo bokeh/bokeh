@@ -25,6 +25,13 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
   declare readonly parent: PlotView
 
+  /**
+   * Define where to render this element, usually a canvas layer.
+   */
+  rendering_target(): HTMLElement {
+    return this.plot_view.canvas_view.underlays_el
+  }
+
   protected _context_menu: ViewOf<Menu> | null = null
   get context_menu(): ViewOf<Menu> | null {
     return this._context_menu

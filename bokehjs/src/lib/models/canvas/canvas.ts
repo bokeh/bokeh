@@ -144,18 +144,6 @@ export class CanvasView extends UIElementView {
     this.shadow_el.append(...elements)
   }
 
-  add_underlay(el: HTMLElement): void {
-    this.underlays_el.appendChild(el)
-  }
-
-  add_overlay(el: HTMLElement): void {
-    this.overlays_el.appendChild(el)
-  }
-
-  add_event(el: HTMLElement): void {
-    this.events_el.appendChild(el)
-  }
-
   get pixel_ratio(): number {
     return this.primary.pixel_ratio // XXX: primary
   }

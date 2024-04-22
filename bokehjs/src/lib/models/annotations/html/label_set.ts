@@ -26,15 +26,9 @@ export class HTMLLabelSetView extends DataAnnotationView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-
     this.els.forEach((el) => el.remove())
-    this.els = []
-
-    for (const _ of this.text) {
-      const el = div({style: {display: "none"}})
-      this.plot_view.canvas_view.add_overlay(el)
-      this.els.push(el)
-    }
+    this.els = [...this.text.map(() => div({style: {display: "none"}}))]
+    this.plot_view.canvas_view.overlays_el.append(...this.els)
   }
 
   override remove(): void {

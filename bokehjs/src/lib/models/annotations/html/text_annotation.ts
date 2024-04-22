@@ -14,6 +14,10 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected text_el: Node
 
+  override rendering_target(): HTMLElement {
+    return this.plot_view.canvas_view.overlays_el
+  }
+
   override update_layout(): void {
     const {panel} = this
     if (panel != null) {
@@ -38,7 +42,6 @@ export abstract class TextAnnotationView extends AnnotationView {
       return
     }
 
-    this.plot_view.canvas_view.overlays_el.append(this.el)
     super.paint()
   }
 

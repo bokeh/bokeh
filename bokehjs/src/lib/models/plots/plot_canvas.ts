@@ -937,7 +937,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     super.render()
 
     for (const rv of this.computed_renderer_views) {
-      rv.render_to(this.canvas_view.underlays_el)
+      rv.render_to(rv.rendering_target())
     }
   }
 
