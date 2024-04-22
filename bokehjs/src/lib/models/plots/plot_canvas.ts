@@ -25,7 +25,7 @@ import {Panel} from "../ui/panel"
 import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
-import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
+import type {ViewStorage, IterViews, ViewOf, BuildResult} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
@@ -763,10 +763,38 @@ export class PlotView extends LayoutDOMView implements Paintable {
     // TODO this._attribution.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
   }
 
-  async build_renderer_views(): Promise<void> {
+  protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
-    await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: this})
     this._update_attribution()
+    return result
+  }
+
+  protected async _update_renderers(): Promise<void> {
+    const {created} = await this._build_renderers()
+    const created_renderers = new Set(created)
+
+    // First remove and then either reattach existing renderers or render and
+    // attach new renderers, so that the order of children is consistent, while
+    // avoiding expensive re-rendering of existing views.
+    for (const renderer_view of this.renderer_views.values()) {
+      renderer_view.el.remove()
+    }
+
+    for (const renderer_view of this.renderer_views.values()) {
+      const is_new = created_renderers.has(renderer_view)
+
+      const target = renderer_view.rendering_target()
+      if (is_new) {
+        renderer_view.render_to(target)
+      } else {
+        target.append(renderer_view.el)
+      }
+    }
+  }
+
+  async build_renderer_views(): Promise<void> {
+    await this._build_renderers()
   }
 
   async build_tool_views(): Promise<void> {
@@ -794,16 +822,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {above, below, left, right, center, renderers} = this.model.properties
     const panels = [above, below, left, right, center]
     this.on_change(renderers, async () => {
-      await this.build_renderer_views()
+      await this._update_renderers()
     })
     this.on_change(panels, async () => {
-      await this.build_renderer_views()
+      await this._update_renderers()
       this.invalidate_layout()
     })
 
     this.connect(this.model.toolbar.properties.tools.change, async () => {
       await this.build_tool_views()
-      await this.build_renderer_views()
+      await this._update_renderers()
     })
 
     const {x_ranges, y_ranges} = this.frame
@@ -829,7 +857,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
           this._toolbar.toolbar.location = toolbar_location
         } else {
           this._toolbar = undefined
-          await this.build_renderer_views()
+          await this._update_renderers()
         }
       } else {
         if (toolbar_location != null) {
@@ -837,7 +865,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
           this._toolbar = new ToolbarPanel({toolbar})
           toolbar.location = toolbar_location
           toolbar.inner = toolbar_inner
-          await this.build_renderer_views()
+          await this._update_renderers()
         }
       }
       this.invalidate_layout()
