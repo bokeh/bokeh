@@ -19,6 +19,7 @@ import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
+import type {At} from "core/util/menus"
 import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
@@ -155,6 +156,19 @@ export class ToolbarView extends UIElementView {
     this._after_render()
   }
 
+  protected _menu_at(): At {
+    switch (this.model.location) {
+      case "right": return {left_of:  this._overflow_el}
+      case "left":  return {right_of: this._overflow_el}
+      case "above": return {below: this._overflow_el}
+      case "below": return {above: this._overflow_el}
+    }
+  }
+
+  toggle_menu(): void {
+    this._overflow_menu.toggle(this._menu_at())
+  }
+
   override render(): void {
     super.render()
 
@@ -165,23 +179,12 @@ export class ToolbarView extends UIElementView {
     const {horizontal} = this.model
 
     this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
-    const toggle_menu = () => {
-      const at = (() => {
-        switch (this.model.location) {
-          case "right": return {left_of:  this._overflow_el}
-          case "left":  return {right_of: this._overflow_el}
-          case "above": return {below: this._overflow_el}
-          case "below": return {above: this._overflow_el}
-        }
-      })()
-      this._overflow_menu.toggle(at)
-    }
-    this._overflow_el.addEventListener("click", () => {
-      toggle_menu()
+    this._overflow_el.addEventListener("click", (_event) => {
+      this.toggle_menu()
     })
     this._overflow_el.addEventListener("keydown", (event) => {
       if (event.key == "Enter") {
-        toggle_menu()
+        this.toggle_menu()
       }
     })
 
@@ -246,6 +249,10 @@ export class ToolbarView extends UIElementView {
           this._overflow_menu.items.push({custom: el, class: overflow_cls})
         }
       }
+    }
+
+    if (this._overflow_menu.is_open) {
+      this._overflow_menu.show(this._menu_at())
     }
   }
 }

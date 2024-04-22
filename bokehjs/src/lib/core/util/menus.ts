@@ -211,17 +211,14 @@ export class ContextMenu { //extends DOMComponentView {
     if (this.items.length == 0) {
       return
     }
-
-    if (!this._open) {
-      this.render()
-      if (this.shadow_el.children.length == 0) {
-        return
-      }
-      (this.target.shadowRoot ?? this.target).appendChild(this.el)
-      this._position(at ?? {left: 0, top: 0})
-      this._listen()
-      this._open = true
+    this.render()
+    if (this.shadow_el.children.length == 0) {
+      return
     }
+    (this.target.shadowRoot ?? this.target).appendChild(this.el)
+    this._position(at ?? {left: 0, top: 0})
+    this._listen()
+    this._open = true
   }
 
   hide(): void {
