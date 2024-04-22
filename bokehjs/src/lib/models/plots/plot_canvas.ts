@@ -141,6 +141,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return view
   }
 
+  get_renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] {
+    const view = this.renderer_view(renderer)
+    if (view != null) {
+      return view
+    } else {
+      throw new Error(`can't find view for ${renderer}`)
+    }
+  }
+
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
     return this.model.renderers.map((r) => this.renderer_view(r)!).filter(is_auto_ranged)
   }

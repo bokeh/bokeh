@@ -96,7 +96,7 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
             xaxis, xaxis.major_label_policy, yaxis, yaxis.major_label_policy,
             xgrid, ygrid,
             renderer, renderer.view, renderer.view.filter, glyph,
-            source, source.selected, source.selection_policy,
+            source, source.selected, source.selection_policy, source.inspection_policy,
             plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
             box_zoom.overlay, box_select.overlay,
             *tickers,
