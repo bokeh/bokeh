@@ -53,9 +53,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+@abstract
 class StyledElement(Model):
-    """
-
+    """ A base class for DOM-based UI elements with configurable styling.
     """
 
     # explicit __init__ to support Init signatures
