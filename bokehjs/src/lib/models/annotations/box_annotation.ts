@@ -2,6 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
+import type {ViewOf, BuildResult} from "core/build_views"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
@@ -14,12 +15,14 @@ import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
+import {values} from "core/util/object"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import {Node} from "../coordinates/node"
 import {Coordinate} from "../coordinates/coordinate"
+import type {Renderer} from "../renderers/renderer"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -34,9 +37,89 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return this._bbox
   }
 
+  protected _handles: {[key in Box.HitTarget]?: BoxAnnotation} = {}
+  protected _handles_views: {[key in Box.HitTarget]?: ViewOf<BoxAnnotation>} = {}
+
+  override initialize(): void {
+    super.initialize()
+    this._update_handles()
+  }
+
+  protected _update_handles(): void {
+    const {editable, handles} = this.model
+    if (editable && handles) {
+      const {left, right, top, bottom} = this.resizable
+      const common: Partial<BoxAnnotation.Attrs> = {
+        visible: true,
+        resizable: "none",
+        left_units: "canvas",
+        right_units: "canvas",
+        top_units: "canvas",
+        bottom_units: "canvas",
+        fill_color: "white",
+        fill_alpha: 1.0,
+        line_color: "black",
+        line_alpha: 1.0,
+        hover_fill_color: "red",
+        hover_fill_alpha: 1.0,
+        level: this.model.level,
+      }
+
+      const {
+        tl_cursor, tr_cursor, bl_cursor, br_cursor,
+        ew_cursor, ns_cursor,
+      } = this.model
+
+      this._handles = {
+        area:         this.movable    ? new BoxAnnotation({...common, movable: this.model.movable}) : undefined,
+        left:         left            ? new BoxAnnotation({...common, in_cursor: ew_cursor}) : undefined,
+        right:        right           ? new BoxAnnotation({...common, in_cursor: ew_cursor}) : undefined,
+        top:          top             ? new BoxAnnotation({...common, in_cursor: ns_cursor}) : undefined,
+        bottom:       bottom          ? new BoxAnnotation({...common, in_cursor: ns_cursor}) : undefined,
+        top_left:     top    && left  ? new BoxAnnotation({...common, in_cursor: tl_cursor}) : undefined,
+        top_right:    top    && right ? new BoxAnnotation({...common, in_cursor: tr_cursor}) : undefined,
+        bottom_left:  bottom && left  ? new BoxAnnotation({...common, in_cursor: bl_cursor}) : undefined,
+        bottom_right: bottom && right ? new BoxAnnotation({...common, in_cursor: br_cursor}) : undefined,
+      }
+    } else {
+      this._handles = {}
+    }
+  }
+
+  override get computed_renderers(): Renderer[] {
+    return [...super.computed_renderers, ...values(this._handles)]
+  }
+
   override connect_signals(): void {
     super.connect_signals()
+    const {editable, handles, resizable, movable} = this.model.properties
+    this.on_change([editable, handles, resizable, movable], async () => {
+      this._update_handles()
+      await this._update_renderers()
+    })
     this.connect(this.model.change, () => this.request_paint())
+  }
+
+  protected override async _build_renderers(): Promise<BuildResult<Renderer>> {
+    const build_result = await super._build_renderers()
+
+    const get = (handle: Renderer | undefined) => {
+      return handle != null ? this._renderer_views.get(handle) as ViewOf<BoxAnnotation> | undefined : undefined
+    }
+
+    this._handles_views = {
+      area:         get(this._handles.area),
+      left:         get(this._handles.left),
+      right:        get(this._handles.right),
+      top:          get(this._handles.top),
+      bottom:       get(this._handles.bottom),
+      top_left:     get(this._handles.top_left),
+      top_right:    get(this._handles.top_right),
+      bottom_left:  get(this._handles.bottom_left),
+      bottom_right: get(this._handles.bottom_right),
+    }
+
+    return build_result
   }
 
   readonly [auto_ranged] = true
@@ -116,19 +199,40 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   override compute_geometry(): void {
     super.compute_geometry()
 
-    const compute = (dim: "x" | "y", value: number | Coordinate, mapper: CoordinateMapper): number => {
-      return value instanceof Coordinate ? this.resolve_as_scalar(value, dim) : mapper.compute(value)
+    const bbox = (() => {
+      const compute = (dim: "x" | "y", value: number | Coordinate, mapper: CoordinateMapper): number => {
+        return value instanceof Coordinate ? this.resolve_as_scalar(value, dim) : mapper.compute(value)
+      }
+
+      const {left, right, top, bottom} = this.model
+      const {mappers} = this
+
+      return BBox.from_lrtb({
+        left:   compute("x", left,   mappers.left),
+        right:  compute("x", right,  mappers.right),
+        top:    compute("y", top,    mappers.top),
+        bottom: compute("y", bottom, mappers.bottom),
+      })
+    })()
+    this._bbox = bbox
+
+    const width = 10
+    const height = 10
+
+    function update(renderer: BoxAnnotation | undefined, bbox: BBox): void {
+      const {left, right, top, bottom} = bbox
+      renderer?.setv({left, right, top, bottom}, {silent: true})
     }
 
-    const {left, right, top, bottom} = this.model
-    const {mappers} = this
-
-    this._bbox = BBox.from_lrtb({
-      left:   compute("x", left,   mappers.left),
-      right:  compute("x", right,  mappers.right),
-      top:    compute("y", top,    mappers.top),
-      bottom: compute("y", bottom, mappers.bottom),
-    })
+    update(this._handles.area, new BBox({...bbox.center, width, height, origin: "center"}))
+    update(this._handles.left, new BBox({...bbox.center_left, width, height, origin: "center"}))
+    update(this._handles.right, new BBox({...bbox.center_right, width, height, origin: "center"}))
+    update(this._handles.top, new BBox({...bbox.top_center, width, height, origin: "center"}))
+    update(this._handles.bottom, new BBox({...bbox.bottom_center, width, height, origin: "center"}))
+    update(this._handles.top_left, new BBox({...bbox.top_left, width, height, origin: "center"}))
+    update(this._handles.top_right, new BBox({...bbox.top_right, width, height, origin: "center"}))
+    update(this._handles.bottom_left, new BBox({...bbox.bottom_left, width, height, origin: "center"}))
+    update(this._handles.bottom_right, new BBox({...bbox.bottom_right, width, height, origin: "center"}))
   }
 
   protected _paint(): void {
@@ -177,7 +281,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    if (!this.model.visible || !this.model.editable) {
+    if (!this.model.visible) {
       return false
     }
     const bbox = this.interactive_bbox()
@@ -193,38 +297,54 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const dt = abs(top - sy)
     const db = abs(bottom - sy)
 
-    const hits_left = dl < tolerance && dl < dr
-    const hits_right = dr < tolerance && dr < dl
-    const hits_top = dt < tolerance && dt < db
-    const hits_bottom = db < tolerance && db < dt
+    const hits = {
+      left:   dl < tolerance && dl < dr,
+      right:  dr < tolerance && dr < dl,
+      top:    dt < tolerance && dt < db,
+      bottom: db < tolerance && db < dt,
+    }
 
-    if (hits_top && hits_left) {
+    const hittable = this._hittable()
+
+    const hits_handle = (hit_target: Box.HitTarget, condition: boolean): boolean => {
+      if (!hittable[hit_target]) {
+        return false
+      }
+      const handle = this._handles_views[hit_target]
+      if (handle != null) {
+        return handle.bbox.contains(sx, sy)
+      } else {
+        return condition
+      }
+    }
+
+    if (hits_handle("top_left", hits.top && hits.left)) {
       return "top_left"
     }
-    if (hits_top && hits_right) {
+    if (hits_handle("top_right", hits.top && hits.right)) {
       return "top_right"
     }
-    if (hits_bottom && hits_left) {
+    if (hits_handle("bottom_left", hits.bottom && hits.left)) {
       return "bottom_left"
     }
-    if (hits_bottom && hits_right) {
+    if (hits_handle("bottom_right", hits.bottom && hits.right)) {
       return "bottom_right"
     }
 
-    if (hits_left) {
+    if (hits_handle("left", hits.left)) {
       return "left"
     }
-    if (hits_right) {
+    if (hits_handle("right", hits.right)) {
       return "right"
     }
-    if (hits_top) {
+    if (hits_handle("top", hits.top)) {
       return "top"
     }
-    if (hits_bottom) {
+    if (hits_handle("bottom", hits.bottom)) {
       return "bottom"
     }
 
-    if (this.bbox.contains(sx, sy)) {
+    if (hits_handle("area", this.bbox.contains(sx, sy))) {
       return "area"
     }
 
@@ -241,6 +361,25 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
   }
 
+  get movable(): boolean {
+    return this.model.movable != "none"
+  }
+
+  private _hittable(): {[key in Box.HitTarget]: boolean} {
+    const {left, right, top, bottom} = this.resizable
+    return {
+      top_left:     top && left,
+      top_right:    top && right,
+      bottom_left:  bottom && left,
+      bottom_right: bottom && right,
+      left,
+      right,
+      top,
+      bottom,
+      area: this.movable,
+    }
+  }
+
   private _can_hit(target: Box.HitTarget): boolean {
     const {left, right, top, bottom} = this.resizable
     switch (target) {
@@ -252,7 +391,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       case "right":        return right
       case "top":          return top
       case "bottom":       return bottom
-      case "area":         return this.model.movable != "none"
+      case "area":         return this.movable
     }
   }
 
@@ -519,21 +658,32 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     if (target == null || !this._can_hit(target)) {
       return null
     }
+
+    const {
+      tl_cursor, tr_cursor, bl_cursor, br_cursor,
+      ew_cursor, ns_cursor,
+      in_cursor,
+    } = this.model
+
     switch (target) {
-      case "top_left":     return this.model.tl_cursor
-      case "top_right":    return this.model.tr_cursor
-      case "bottom_left":  return this.model.bl_cursor
-      case "bottom_right": return this.model.br_cursor
-      case "left":
-      case "right":        return this.model.ew_cursor
-      case "top":
-      case "bottom":       return this.model.ns_cursor
+      case "top_left":     return this._handles.top_left == null     ? tl_cursor : null
+      case "top_right":    return this._handles.top_right == null    ? tr_cursor : null
+      case "bottom_left":  return this._handles.bottom_left == null  ? bl_cursor : null
+      case "bottom_right": return this._handles.bottom_right == null ? br_cursor : null
+      case "left":         return this._handles.left == null         ? ew_cursor : null
+      case "right":        return this._handles.right == null        ? ew_cursor : null
+      case "top":          return this._handles.top == null          ? ns_cursor : null
+      case "bottom":       return this._handles.bottom == null       ? ns_cursor : null
       case "area": {
-        switch (this.model.movable) {
-          case "both": return this.model.in_cursor
-          case "x":    return this.model.ew_cursor
-          case "y":    return this.model.ns_cursor
-          case "none": return null
+        if (this._handles.area == null) {
+          switch (this.model.movable) {
+            case "both": return in_cursor
+            case "x":    return ew_cursor
+            case "y":    return ns_cursor
+            case "none": return null
+          }
+        } else {
+          return null
         }
       }
     }
@@ -569,7 +719,10 @@ export namespace BoxAnnotation {
     editable: p.Property<boolean>
     resizable: p.Property<Box.Resizable>
     movable: p.Property<Box.Movable>
+    rotatable: p.Property<boolean>
     symmetric: p.Property<boolean>
+
+    handles: p.Property<boolean>
 
     inverted: p.Property<boolean>
 
@@ -644,7 +797,14 @@ export class BoxAnnotation extends Annotation {
       editable:     [ Bool, false ],
       resizable:    [ Box.Resizable, "all" ],
       movable:      [ Box.Movable, "both" ],
+      rotatable:    [ Bool, true ],
       symmetric:    [ Bool, false ],
+
+      handles:      [ Bool, false ],
+      // sides; horizontal, vertical; left, right, top, bottom
+      // corners
+      // area
+      // rotation (~)
 
       inverted:     [ Bool, false ],
     }))

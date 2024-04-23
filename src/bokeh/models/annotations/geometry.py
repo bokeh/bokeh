@@ -217,6 +217,16 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
+    handles = Bool(default=False, help="""
+    Whether to show interaction (move, resize, etc.) handles.
+
+    If handles aren't used, then the whole annotation or its borders act
+    as if they were interaction handles.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     inverted = Bool(default=False, help="""
     Inverts the geometry of the box, i.e. applies fill and hatch visuals
     to the outside of the box instead of the inside. Visuals are applied

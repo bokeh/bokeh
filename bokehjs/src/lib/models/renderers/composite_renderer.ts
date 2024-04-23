@@ -35,12 +35,22 @@ export abstract class CompositeRendererView extends RendererView {
     await this._build_elements()
   }
 
+  protected readonly _computed_renderers: Renderer[] = []
+  get computed_renderers(): Renderer[] {
+    return [...this.model.renderers, ...this._computed_renderers]
+  }
+
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
-    return await build_views(this._renderer_views, this.model.renderers, {parent: this.plot_view})
+    return await build_views(this._renderer_views, this.computed_renderers, {parent: this.plot_view})
+  }
+
+  protected readonly _computed_elements: ElementLike[] = []
+  get computed_elements(): ElementLike[] {
+    return [...this.model.elements, ...this._computed_elements]
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.model.elements, {parent: this.plot_view})
+    return await build_views(this._element_views, this.computed_elements, {parent: this.plot_view})
   }
 
   protected async _update_renderers(): Promise<void> {
