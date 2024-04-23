@@ -156,29 +156,6 @@ export function nbsp(): Text {
   return text("\u00a0")
 }
 
-/** @deprecated */
-export function append(element: Node, ...children: Node[]): void {
-  for (const child of children) {
-    element.appendChild(child)
-  }
-}
-
-/** @deprecated */
-export function remove(element: Node): void {
-  const parent = element.parentNode
-  if (parent != null) {
-    parent.removeChild(element)
-  }
-}
-
-/** @deprecated */
-export function replaceWith(element: Node, replacement: Node): void {
-  const parent = element.parentNode
-  if (parent != null) {
-    parent.replaceChild(replacement, element)
-  }
-}
-
 export function prepend(element: Node, ...nodes: Node[]): void {
   const first = element.firstChild
   for (const node of nodes) {
