@@ -2,6 +2,8 @@ import type {DOMComponentView} from "../dom_view"
 import type {CanvasLayer} from "../util/canvas"
 import type * as p from "../properties"
 
+const global_css_prefix = "--bk-"
+
 export type NameOf<Key extends string> = Key extends `text_${infer Name}` ? Name : never
 export type ValuesOf<T> = {[Key in keyof T & string as NameOf<Key>]: T[Key] extends p.Property<infer V> ? V : never}
 
@@ -23,7 +25,10 @@ export abstract class VisualProperties {
     yield* this._props
   }
 
+  readonly css_prefix: string
+
   constructor(readonly obj: DOMComponentView & Paintable, readonly prefix: string = "") {
+    this.css_prefix = `${global_css_prefix}${prefix.replaceAll("_", "-")}`
     const self = this as any
     this._props = []
     for (const attr of this.attrs) {
@@ -40,8 +45,7 @@ export abstract class VisualProperties {
 
   protected _get_css_value(name: string): string {
     const style = getComputedStyle(this.obj.el)
-    const prefix = this.prefix.replaceAll("_", "-")
-    return style.getPropertyValue(`--bk-${prefix}${name}`)
+    return style.getPropertyValue(`${this.css_prefix}${name}`)
   }
 }
 
