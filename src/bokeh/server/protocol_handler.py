@@ -88,9 +88,6 @@ class ProtocolHandler:
         handler = self._handlers.get(message.msgtype)
 
         if handler is None:
-            handler = self._handlers.get(message.msgtype)
-
-        if handler is None:
             raise ProtocolError(f"{message} not expected on server")
 
         try:
