@@ -173,7 +173,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
       this._paint()
     }
 
-    this._has_finished = true
+    this.mark_finished()
   }
 
   protected abstract _paint(): void

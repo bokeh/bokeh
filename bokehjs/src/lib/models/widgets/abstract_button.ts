@@ -97,14 +97,14 @@ export abstract class AbstractButtonView extends ControlView {
   override render(): void {
     super.render()
 
-    this.label_view?.render_to(null)
+    this.label_view?.render()
     this.button_el = this._render_button(this.label_view?.el)
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
       const separator = this.model.label != "" ? nbsp() : text("")
       prepend(this.button_el, this.icon_view.el, separator)
-      this.icon_view.render_to(null)
+      this.icon_view.render()
     }
 
     this.group_el = div({class: buttons.btn_group}, this.button_el)

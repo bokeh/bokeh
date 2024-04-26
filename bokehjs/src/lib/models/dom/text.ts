@@ -14,7 +14,7 @@ export class TextView extends DOMNodeView {
     this.finish()
   }
 
-  protected override _createElement(): globalThis.Text {
+  protected override _create_element(): globalThis.Text {
     return document.createTextNode("")
   }
 }

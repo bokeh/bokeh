@@ -12,6 +12,7 @@ import {CanvasLayer} from "core/util/canvas"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {isNumber} from "core/util/types"
+import {defer} from "core/util/defer"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
 
@@ -158,9 +159,12 @@ export abstract class UIElementView extends StyledElementView {
     super.remove()
   }
 
+  private _resized: boolean = false
+
   protected _after_resize(): void {}
 
   after_resize(): void {
+    this._resized = true
     if (this.update_bbox()) {
       this._after_resize()
     }
@@ -172,19 +176,28 @@ export abstract class UIElementView extends StyledElementView {
     this._apply_visible()
   }
 
-  protected _after_render(): void {}
+  protected _after_render(): void {
+    this.update_style()
+    this.update_bbox()
+  }
 
   override after_render(): void {
     super.after_render()
-
-    this.update_style()
-    this.update_bbox()
-
     this._after_render()
 
-    // If not displayed, then after_resize() will not be called.
-    if (!this.is_displayed) {
-      this.finish()
+    if (!this._has_finished) {
+      // If not displayed, then after_resize() will not be called.
+      if (!this.is_displayed) {
+        this.mark_finished()
+      } else {
+        // In case after_resize() wasn't called (see regression test for issue
+        // #9113), then wait one macro task and consider this view finished.
+        void defer().then(() => {
+          if (!this._resized) {
+            this.finish()
+          }
+        })
+      }
     }
   }
 

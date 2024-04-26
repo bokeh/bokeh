@@ -284,8 +284,6 @@ export class DataCubeView extends DataTableView {
   protected declare data: DataCubeProvider
 
   override _after_render(): void {
-    super._after_render()
-
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
@@ -318,6 +316,8 @@ export class DataCubeView extends DataTableView {
     )
 
     this.grid.onClick.subscribe(handleGridClick)
+
+    super._after_render()
   }
 }
 

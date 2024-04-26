@@ -2,6 +2,7 @@ import {View} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
 import {createElement, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
+import {assert} from "./util/assert"
 import base_css from "styles/base.css"
 
 export interface DOMView extends View {
@@ -22,7 +23,7 @@ export abstract class DOMView extends View {
 
   override initialize(): void {
     super.initialize()
-    this.el = this._createElement()
+    this.el = this._create_element()
   }
 
   override remove(): void {
@@ -40,26 +41,42 @@ export abstract class DOMView extends View {
 
   abstract render(): void
 
-  render_to(target: Node | null): void {
+  render_to(target: Node): void {
     this.render()
-    target?.appendChild(this.el)
-    this.after_render()
+    target.appendChild(this.el)
   }
 
   after_render(): void {
     this.reposition()
   }
 
-  finish(): void {
-    this._has_finished = true
-    this.notify_finished()
+  r_after_render(): void {
+    for (const child_view of this.children()) {
+      if (child_view instanceof DOMView) {
+        child_view.r_after_render()
+      }
+    }
+    this.after_render()
   }
 
-  protected _createElement(): this["el"] {
+  protected _create_element(): this["el"] {
     return createElement(this.constructor.tag_name, {class: this.css_classes()})
   }
 
   reposition(_displayed?: boolean): void {}
+
+  protected _was_built: boolean = false
+
+  /**
+   * Build a top-level DOM view (e.g. during embedding).
+   */
+  build(target: Node): void {
+    assert(this.is_root)
+    this.render_to(target)
+    this.r_after_render()
+    this._was_built = true
+    this.notify_finished()
+  }
 }
 
 export abstract class DOMElementView extends DOMView {

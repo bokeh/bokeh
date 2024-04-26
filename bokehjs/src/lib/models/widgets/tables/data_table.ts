@@ -182,15 +182,13 @@ export class DataTableView extends WidgetView {
     super.connect_signals()
     this.connect(this.model.change, () => {
       this.render()
-      this.after_render()
-      this.invalidate_layout()
+      this.r_after_render()
     })
 
     for (const column of this.model.columns) {
       this.connect(column.change, () => {
         this.render()
-        this.after_render()
-        this.invalidate_layout()
+        this.r_after_render()
       })
     }
 
@@ -324,8 +322,6 @@ export class DataTableView extends WidgetView {
   }
 
   override _after_render(): void {
-    super._after_render()
-
     const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
@@ -451,6 +447,7 @@ export class DataTableView extends WidgetView {
     }
 
     this.updateLayout(initialized, false)
+    super._after_render()
   }
 
   _hide_header(): void {

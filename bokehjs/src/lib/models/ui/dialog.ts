@@ -128,8 +128,8 @@ export class DialogView extends UIElementView {
   override render(): void {
     super.render()
 
-    this._title.render_to(null)
-    this._content.render_to(null)
+    this._title.render()
+    this._content.render()
 
     const inner_el = div({class: dialogs.inner})
     this.shadow_el.append(inner_el)

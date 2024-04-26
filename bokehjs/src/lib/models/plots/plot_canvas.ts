@@ -125,7 +125,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   computed_renderers: Renderer[]
 
   get computed_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
+    return this.computed_renderers.map((r) => this.renderer_views.get(r)).filter(isNotNull) // TODO race condition again
   }
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
@@ -756,7 +756,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _update_attribution(): void {
     const attribution = [
       ...this.model.attribution,
-      ...this.computed_renderer_views.map((rv: RendererView | null) => rv?.attribution), // TODO race condition again
+      ...this.computed_renderer_views.map((rv) => rv.attribution),
     ].filter(isNotNull)
     const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
     this._attribution.elements = elements
