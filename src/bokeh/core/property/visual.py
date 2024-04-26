@@ -153,7 +153,7 @@ class Image(Property):
         import numpy as np
         import PIL.Image
 
-        if isinstance(value, (str, Path, PIL.Image.Image)):
+        if isinstance(value, str | Path | PIL.Image.Image):
             return
 
         if isinstance(value, np.ndarray):
@@ -174,7 +174,7 @@ class Image(Property):
             return value
 
         # tempfile doesn't implement IO interface (https://bugs.python.org/issue33762)
-        if isinstance(value, (Path, BinaryIO, tempfile._TemporaryFileWrapper)):
+        if isinstance(value, Path | BinaryIO | tempfile._TemporaryFileWrapper):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):

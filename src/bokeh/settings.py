@@ -213,7 +213,7 @@ def convert_str_seq(value: list[str] | str) -> list[str]:
         list[str]
 
     '''
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return value
 
     try:

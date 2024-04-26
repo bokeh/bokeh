@@ -517,7 +517,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         needs_length_check = True
 
-        if isinstance(new_data, (pd.Series, pd.DataFrame)):
+        if isinstance(new_data, pd.Series | pd.DataFrame):
             if isinstance(new_data, pd.Series):
                 new_data = new_data.to_frame().T
 
@@ -560,7 +560,7 @@ class ColumnDataSource(ColumnarDataSource):
         # slightly awkward that we have to call convert_datetime_array here ourselves
         # but the downstream code expects things to already be ms-since-epoch
         for key, values in new_data.items():
-            if pd and isinstance(values, (pd.Series, pd.Index)):
+            if pd and isinstance(values, pd.Series | pd.Index):
                 values = values.values
             old_values = self.data[key]
             # Apply the transformation if the new data contains datetimes
@@ -692,7 +692,7 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError("Out-of bounds slice index stop (%d) in patch for column: %s" % (ind.stop, name))
 
                 # multi-index, patch sub-regions of "n-d" column
-                elif isinstance(ind, (list, tuple)):
+                elif isinstance(ind, list | tuple):
                     if len(ind) == 0:
                         raise ValueError("Empty (length zero) patch multi-index")
 
@@ -719,7 +719,7 @@ class ColumnDataSource(ColumnarDataSource):
 
                     # Note: bounds of sub-indices after the first are not checked!
                     for subind in ind[1:]:
-                        if not isinstance(subind, (int, slice)):
+                        if not isinstance(subind, int | slice):
                             raise ValueError(f"Invalid patch sub-index: {subind}")
                         if isinstance(subind, slice):
                             _check_slice(subind)

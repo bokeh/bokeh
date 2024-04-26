@@ -41,7 +41,7 @@ def single_stack(stackers, spec, **kw):
     if spec in kw:
         raise ValueError(f"Stack property '{spec}' cannot appear in keyword args")
 
-    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+    lengths = { len(x) for x in kw.values() if isinstance(x, list | tuple) }
 
     # lengths will be empty if there are no kwargs supplied at all
     if len(lengths) > 0:
@@ -61,7 +61,7 @@ def single_stack(stackers, spec, **kw):
         d[spec] = stack(*s)
 
         for k, v in kw.items():
-            if isinstance(v, (list, tuple)):
+            if isinstance(v, list | tuple):
                 d[k] = v[i]
             else:
                 d[k] = v
@@ -75,7 +75,7 @@ def double_stack(stackers, spec0, spec1, **kw):
         if name in kw:
             raise ValueError(f"Stack property '{name}' cannot appear in keyword args")
 
-    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+    lengths = { len(x) for x in kw.values() if isinstance(x, list | tuple) }
 
     # lengths will be empty if there are no kwargs supplied at all
     if len(lengths) > 0:
@@ -98,7 +98,7 @@ def double_stack(stackers, spec0, spec1, **kw):
         d[spec1] = stack(*s1)
 
         for k, v in kw.items():
-            if isinstance(v, (list, tuple)):
+            if isinstance(v, list | tuple):
                 d[k] = v[i]
             else:
                 d[k] = v

@@ -154,7 +154,7 @@ class ClientConnection:
         def connected_or_closed() -> bool:
             # we should be looking at the same state here as the 'connected' property above, so connected
             # means both connected and that we did our initial message exchange
-            return isinstance(self._state, (CONNECTED_AFTER_ACK, DISCONNECTED))
+            return isinstance(self._state, CONNECTED_AFTER_ACK | DISCONNECTED)
         self._loop_until(connected_or_closed)
 
     def close(self, why: str = "closed") -> None:

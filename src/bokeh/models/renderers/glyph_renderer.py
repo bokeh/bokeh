@@ -217,7 +217,7 @@ class GlyphRenderer(DataRenderer):
                 raise ValueError("expected text_color to be a field with a ColorMapper transform")
             return ColorBar(color_mapper=text_color.transform, **kwargs)
 
-        elif isinstance(self.glyph, (Image, ImageStack)):
+        elif isinstance(self.glyph, Image | ImageStack):
             return ColorBar(color_mapper=self.glyph.color_mapper, **kwargs)
 
         else:

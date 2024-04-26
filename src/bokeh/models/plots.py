@@ -469,14 +469,14 @@ class Plot(LayoutDOM):
 
         if self.x_scale is not None:
             for rng in x_ranges:
-                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.x_scale, LinearScale | LogScale):
                     incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
                     incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
 
         if self.y_scale is not None:
             for rng in y_ranges:
-                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.y_scale, LinearScale | LogScale):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
