@@ -484,14 +484,14 @@ base_serve_args = (
         action  = 'store',
         default = None,
         choices = (*LOGLEVELS, 'None'),
-        help    = "One of: %s" % nice_join(LOGLEVELS),
+        help    = f"One of: {nice_join(LOGLEVELS)}",
     )),
 
     ('--log-format', Argument(
         metavar ='LOG-FORMAT',
         action  = 'store',
         default = DEFAULT_LOG_FORMAT,
-        help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+        help    = f"A standard Python logging format string (default: {DEFAULT_LOG_FORMAT.replace("%", "%%")!r})",
     )),
 
     ('--log-file', Argument(
@@ -653,7 +653,7 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             choices = SESSION_ID_MODES,
-            help    = "One of: %s" % nice_join(SESSION_ID_MODES),
+            help    = f"One of: {nice_join(SESSION_ID_MODES)}",
         )),
 
         ('--auth-module', Argument(
@@ -979,7 +979,7 @@ class Serve(Subcommand):
 
                 for route in sorted(applications.keys()):
                     url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
-                    log.info("Bokeh app running at: %s" % url)
+                    log.info(f"Bokeh app running at: {url}")
 
                 log.info("Starting Bokeh server with process id: %d" % os.getpid())
 

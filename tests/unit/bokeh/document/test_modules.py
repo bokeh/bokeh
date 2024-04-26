@@ -118,7 +118,7 @@ class TestDocumentModuleManager:
 
         with caplog.at_level(logging.ERROR):
             dm.destroy()
-            assert "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" % mod in caplog.text
+            assert f"Module {mod!r} has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" in caplog.text
             assert len(caplog.records) == 1
 
         assert 'FakeMod' not in sys.modules

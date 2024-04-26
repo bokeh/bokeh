@@ -66,7 +66,7 @@ class Test_js_on_change:
         for name in m0.properties():
             m = SomeModel()
             m.js_on_change(name, cb)
-            assert m.js_property_callbacks == {"change:%s" % name: [cb]}
+            assert m.js_property_callbacks == {f"change:{name}": [cb]}
 
     def test_with_non_propname(self) -> None:
         cb = CustomJS(code="")

@@ -394,7 +394,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             raise ValueError(f"{attr!r} is not a property of self ({self!r})")
 
         if not isinstance(other, Model):
-            raise ValueError("'other' is not a Bokeh model: %r" % other)
+            raise ValueError(f"'other' is not a Bokeh model: {other!r}")
 
         other_descriptor = other.lookup(other_attr, raises=False)
         if other_descriptor is None:

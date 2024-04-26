@@ -55,7 +55,7 @@ def mk_modify_doc(colorpicker: ColorPicker):
     return modify_doc
 
 def enter_value_in_color_picker(driver, el, color):
-    driver.execute_script("arguments[0].value = '%s'" % color, el)
+    driver.execute_script(f"arguments[0].value = '{color}'", el)
     driver.execute_script("arguments[0].dispatchEvent(new Event('change'))", el)
 
 

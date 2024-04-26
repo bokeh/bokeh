@@ -53,7 +53,7 @@ amplitude = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1)
 phase = Slider(title="phase", value=0.0, start=0.0, end=2*np.pi)
 freq = Slider(title="frequency", value=1.0, start=0.1, end=5.1, step=0.1)
 logout = Button(label="logout")
-logout.js_on_event("button_click", CustomJS(code="window.location.href='%s'" % curdoc().session_context.logout_url))
+logout.js_on_event("button_click", CustomJS(code=f"window.location.href='{curdoc().session_context.logout_url}'"))
 
 # Set up callbacks
 def update_title(attrname, old, new):

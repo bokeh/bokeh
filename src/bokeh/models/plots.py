@@ -449,7 +449,7 @@ class Plot(LayoutDOM):
         if not self.x_range: missing.append('x_range')
         if not self.y_range: missing.append('y_range')
         if missing:
-            return ", ".join(missing) + " [%s]" % self
+            return ", ".join(missing) + f" [{self}]"
 
     @error(REQUIRED_SCALE)
     def _check_required_scale(self) -> str | None:
@@ -457,7 +457,7 @@ class Plot(LayoutDOM):
         if not self.x_scale: missing.append('x_scale')
         if not self.y_scale: missing.append('y_scale')
         if missing:
-            return ", ".join(missing) + " [%s]" % self
+            return ", ".join(missing) + f" [{self}]"
 
     @error(INCOMPATIBLE_SCALE_AND_RANGE)
     def _check_compatible_scale_and_ranges(self) -> str | None:
@@ -482,7 +482,7 @@ class Plot(LayoutDOM):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
 
         if incompatible:
-            return ", ".join(incompatible) + " [%s]" % self
+            return ", ".join(incompatible) + f" [{self}]"
 
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self) -> str | None:
@@ -920,7 +920,7 @@ class _list_attr_splat(list):
         if attr in dir(list):
             return list.__getattribute__(self, attr)
         if len(self) == 0:
-            raise AttributeError("Trying to access %r attribute on an empty 'splattable' list" % attr)
+            raise AttributeError(f"Trying to access {attr!r} attribute on an empty 'splattable' list")
         if len(self) == 1:
             return getattr(self[0], attr)
         try:

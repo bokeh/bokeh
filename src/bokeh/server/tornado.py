@@ -698,7 +698,7 @@ class BokehTornado(TornadoApplication):
 
         '''
         if app_path not in self._applications:
-            raise ValueError("Application %s does not exist on this server" % app_path)
+            raise ValueError(f"Application {app_path} does not exist on this server")
         return self._applications[app_path].get_session(session_id)
 
     def get_sessions(self, app_path: str) -> list[ServerSession]:
@@ -714,7 +714,7 @@ class BokehTornado(TornadoApplication):
 
         '''
         if app_path not in self._applications:
-            raise ValueError("Application %s does not exist on this server" % app_path)
+            raise ValueError(f"Application {app_path} does not exist on this server")
         return list(self._applications[app_path].sessions)
 
     # Periodic Callbacks ------------------------------------------------------

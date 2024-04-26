@@ -179,7 +179,7 @@ class TestClientServer:
 
         # allow good local origin with random port
         with ManagedServerLoop(application, port=0) as server:
-            await self.check_http_ok_socket_ok(server, origin="http://localhost:%s" % server.port)
+            await self.check_http_ok_socket_ok(server, origin=f"http://localhost:{server.port}")
 
         # allow good origin
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:

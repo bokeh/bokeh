@@ -813,19 +813,19 @@ side of a communications channel while it was being removed on the other end.\
 
         with self.models.freeze():
             while self.roots:
-                r = next(iter(self.roots))
-                self.remove_root(r)
-                roots.append(r)
+                root = next(iter(self.roots))
+                self.remove_root(root)
+                roots.append(root)
 
-        for r in roots:
-            if r.document is not None:
-                raise RuntimeError("Somehow we didn't detach %r" % (r))
+        for root in roots:
+            if root.document is not None:
+                raise RuntimeError(f"Somehow we didn't detach {root!r}")
 
         if len(self.models) != 0:
             raise RuntimeError(f"_all_models still had stuff in it: {self.models!r}")
 
-        for r in roots:
-            dest_doc.add_root(r)
+        for root in roots:
+            dest_doc.add_root(root)
 
         dest_doc.title = self.title
 

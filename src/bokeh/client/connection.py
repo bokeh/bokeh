@@ -352,7 +352,7 @@ class ClientConnection:
             try:
                 message = await self._receiver.consume(fragment)
                 if message is not None:
-                    log.debug("Received message %r" % message)
+                    log.debug(f"Received message {message!r}")
                     return message
             except (MessageError, ProtocolError, ValidationError) as e:
                 log.error("%r", e, exc_info=True)

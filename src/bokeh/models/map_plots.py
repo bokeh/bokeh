@@ -102,9 +102,9 @@ class MapPlot(Plot):
     def _check_incompatible_map_range_type(self):
         from ..models.ranges import Range1d
         if self.x_range is not None and not isinstance(self.x_range, Range1d):
-            return "%s.x_range" % str(self)
+            return f"{self!s}.x_range"
         if self.y_range is not None and not isinstance(self.y_range, Range1d):
-            return "%s.y_range" % str(self)
+            return f"{self!s}.y_range"
 
 class GMapOptions(MapOptions):
     ''' Options for ``GMapPlot`` objects.

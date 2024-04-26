@@ -71,7 +71,7 @@ class GraphRenderer(DataRenderer):
         if "end" not in self.edge_renderer.data_source.column_names:
             missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
         if missing:
-            return " ,".join(missing) + " [%s]" % self
+            return " ,".join(missing) + f" [{self}]"
 
     layout_provider = Instance(LayoutProvider, help="""
     An instance of a ``LayoutProvider`` that supplies the layout of the network
