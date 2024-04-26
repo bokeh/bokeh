@@ -160,6 +160,7 @@ lint.ignore = [
     'B023', # Functions defined inside a loop must not use variables redefined in the loop
     'B028', # No explicit `stacklevel` keyword argument found
     'B904', # Within an except clause, raise exceptions with raise ... from err or raise ... from None to distinguish them from errors in exception handling
+    'B905', # `zip()` without an explicit `strict=` parameter
     'E401', # Multiple imports on one line
     'E402', # Module level import not at top of file
     'E701', # Multiple statements on one line (colon)
