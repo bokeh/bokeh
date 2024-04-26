@@ -174,6 +174,7 @@ class DocumentCallbackManager:
         if doc is None:
             raise RuntimeError("Attempting to add session callback to already-destroyed Document")
 
+        actual_callback: Callback
         if one_shot:
             @wraps(callback)
             def remove_then_invoke() -> None:
