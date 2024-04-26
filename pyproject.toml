@@ -139,14 +139,14 @@ exclude_lines = [
 ]
 
 [tool.ruff]
-allowed-confusables = ["σ"]
-exclude = [
+lint.allowed-confusables = ["σ"]
+lint.exclude = [
     ".git",
     'node_modules',
 ]
-per-file-ignores = {"__init__.py" = ["F403"]}
-select = ["B", "COM", "E", "F", "RUF", "TID", "UP", "W"]
-ignore = [
+lint.per-file-ignores = {"__init__.py" = ["F403"]}
+lint.select = ["B", "COM", "E", "F", "RUF", "TID", "UP", "W"]
+lint.ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
     'B007', # Loop control variable not used within the loop body
