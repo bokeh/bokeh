@@ -214,7 +214,7 @@ class ColumnDataSource(ColumnarDataSource):
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warn(
                     "ColumnDataSource's columns must be of the same length. " +
-                    f"Current lengths: {", ".join(sorted(str((k, len(v))) for k, v in data.items()))}", BokehUserWarning))
+                    f"Current lengths: {', '.join(sorted(str((k, len(v))) for k, v in data.items()))}", BokehUserWarning))
 
     @overload
     def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny) -> None: ...
@@ -672,7 +672,7 @@ class ColumnDataSource(ColumnarDataSource):
         extra = set(patches.keys()) - set(self.data.keys())
 
         if extra:
-            raise ValueError(f"Can only patch existing columns (extra: {", ".join(sorted(extra))})")
+            raise ValueError(f"Can only patch existing columns (extra: {', '.join(sorted(extra))})")
 
         for name, patch in patches.items():
 

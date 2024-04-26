@@ -146,7 +146,7 @@ def test_file_examples(file_example: Example, example: Example, report: list[Exa
     if config.option.verbose:
         print()
     (status, duration, out, err) = _run_example(example)
-    info(f"Example run in {white(f"{duration:.3f}s")}")
+    info(f"Example run in {white(f'{duration:.3f}s')}")
 
     for line in out.split("\n"):
         if len(line) == 0 or line.startswith("Wrote "):

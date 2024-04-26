@@ -491,7 +491,7 @@ base_serve_args = (
         metavar ='LOG-FORMAT',
         action  = 'store',
         default = DEFAULT_LOG_FORMAT,
-        help    = f"A standard Python logging format string (default: {DEFAULT_LOG_FORMAT.replace("%", "%%")!r})",
+        help    = f"A standard Python logging format string (default: {DEFAULT_LOG_FORMAT.replace('%', '%%')!r})",
     )),
 
     ('--log-file', Argument(
