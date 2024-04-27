@@ -19,7 +19,7 @@ dependencies:
   # docs
   - colorcet
   - pandas-datareader
-  - firefox =>96
+  - firefox >=96
   - geckodriver
   - icalendar
   - ipython
