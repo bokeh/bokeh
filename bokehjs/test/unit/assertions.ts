@@ -77,8 +77,17 @@ function compare_attributes(actual: Element, expected: Element) {
       } else {
         throw new ExpectationError(`actual attribute ${attr} missing in the expected element`)
       }
-    } else if (actual_val !== expected_val) {
-      throw new ExpectationError(`expected ${attr}="${expected_val}" to be equal ${attr}="${actual_val}"`)
+    } else {
+      const tag = actual.nodeName
+      if (tag == "image" && attr == "href" && expected_val.startsWith("^") && expected_val.endsWith("$")) {
+        if (actual_val.match(expected_val) == null) {
+          throw new ExpectationError(`expected <${tag} ${attr}="${expected_val}"> to match <${tag} ${attr}="${actual_val}>"`)
+        }
+      } else {
+        if (actual_val !== expected_val) {
+          throw new ExpectationError(`expected <${tag} ${attr}="${expected_val}"> to be equal <${tag} ${attr}="${actual_val}>"`)
+        }
+      }
     }
   }
 }
