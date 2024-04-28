@@ -18,8 +18,8 @@ function npm_pack() {
     throw new BuildError("pack", `failed to run '${npm} pack'`)
   }
 
-  const tgz = stdout.trim()
-  if (!tgz.endsWith(".tgz")) {
+  const tgz = stdout.trim().split("\n").at(-1)?.trim()
+  if (tgz == null || !tgz.endsWith(".tgz")) {
     throw new BuildError("pack", "can't find tgz archive name in the output")
   }
 

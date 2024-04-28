@@ -61,6 +61,12 @@ function count_files(files: string[]): string {
   return n == 1 ? str : `${str}s`
 }
 
+const node_version = process.version
+
+function npm_version(base_dir: Path): string {
+  return cp.execSync("npm --version", {cwd: base_dir}).toString().trim()
+}
+
 function npm_install(base_dir: Path): void {
   const npm = process.platform != "win32" ? "npm" : "npm.cmd"
   const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir})
@@ -68,6 +74,11 @@ function npm_install(base_dir: Path): void {
     print(`${cyan("npm install")} failed with exit code ${red(`${status}`)}.`)
     process.exit(status)
   }
+}
+
+function preamble(base_dir: Path): void {
+  print(`Using nodejs ${magenta(node_version)} and npm ${magenta(npm_version(base_dir))}`)
+  print(`Working directory: ${cyan(base_dir)}`)
 }
 
 type Metadata = {
@@ -109,7 +120,7 @@ export type InitOptions = {
 }
 
 export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitOptions): Promise<boolean> {
-  print(`Working directory: ${cyan(base_dir)}`)
+  preamble(base_dir)
 
   const setup: Required<InitOptions> = {
     interactive: base_setup.interactive ?? false,
@@ -218,7 +229,7 @@ export type BuildOptions = {
 }
 
 export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: BuildOptions): Promise<boolean> {
-  print(`Working directory: ${cyan(base_dir)}`)
+  preamble(base_dir)
 
   const setup: Required<BuildOptions> = {
     verbose: base_setup.verbose ?? false,
