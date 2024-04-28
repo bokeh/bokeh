@@ -40,6 +40,7 @@ import numpy as np
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
+from ..util.dependencies import get_pandas
 from .strings import format_docstring
 
 if TYPE_CHECKING:
@@ -52,13 +53,14 @@ if TYPE_CHECKING:
 
 @lru_cache(None)
 def _compute_datetime_types() -> set[type]:
-    import pandas as pd
+    pd = get_pandas()
 
     result = {dt.time, dt.datetime, np.datetime64}
-    result.add(pd.Timestamp)
-    result.add(pd.Timedelta)
-    result.add(pd.Period)
-    result.add(type(pd.NaT))
+    if pd is not None:
+        result.add(pd.Timestamp)
+        result.add(pd.Timedelta)
+        result.add(pd.Period)
+        result.add(type(pd.NaT))
     return result
 
 def __getattr__(name: str) -> Any:

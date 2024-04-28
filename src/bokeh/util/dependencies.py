@@ -23,7 +23,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from importlib import import_module
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -32,6 +35,7 @@ from typing import Any
 __all__ = (
     'import_optional',
     'import_required',
+    'get_pandas',
     'uses_pandas',
 )
 
@@ -91,6 +95,16 @@ def uses_pandas(obj: Any) -> bool:
     """
     module = type(obj).__module__
     return module is not None and module.startswith("pandas.")
+
+def get_pandas() -> pd | None:
+    """
+    Import pandas (if available, else return None).
+    """
+    try:
+        import pandas
+    except ImportError:
+        return None
+    return pandas
 
 #-----------------------------------------------------------------------------
 # Dev API

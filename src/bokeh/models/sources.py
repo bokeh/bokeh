@@ -49,6 +49,7 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
+from ..util.dependencies import get_pandas
 from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning, warn
@@ -232,11 +233,11 @@ class ColumnDataSource(ColumnarDataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data: DataDict = kwargs.pop("data", {})
 
-        import pandas as pd
+        pd = get_pandas()
         if not isinstance(raw_data, dict):
-            if isinstance(raw_data, pd.DataFrame):
+            if pd is not None and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
-            elif isinstance(raw_data, pd.core.groupby.GroupBy):
+            elif pd is not None and isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError(f"expected a dict or pandas.DataFrame, got {raw_data}")
