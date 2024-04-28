@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history to get proper build version
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -68,13 +68,13 @@ jobs:
         run: bash scripts/ci/verify_conda_install.sh
 
       - name: Upload wheel package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheel-package
           path: dist/bokeh-*-py3-none-any.whl
 
       - name: Upload bokehjs package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bokehjs-package
           path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
@@ -93,7 +93,7 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -172,7 +172,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: examples-report
           path: examples-report
@@ -183,7 +183,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -201,7 +201,7 @@ jobs:
         run: pytest -v --cov=bokeh --cov-report=xml --tb=short --driver chrome --color=yes tests/integration
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: integration
           verbose: true
@@ -221,7 +221,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -249,7 +249,7 @@ jobs:
         run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         if: success() || failure()
         with:
           env_vars: OS,PYTHON
@@ -268,7 +268,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -286,7 +286,7 @@ jobs:
         run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           env_vars: OS
           flags: unit,minimal
@@ -297,7 +297,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -315,7 +315,7 @@ jobs:
         run: bash scripts/ci/build_docs.sh
 
       - name: Upload docs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docs-html
           path: docs/bokeh/docs-html.tgz
@@ -325,7 +325,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -353,11 +353,11 @@ jobs:
       IMAGE_TAG: bokeh/bokeh-dev:branch-3.1
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download wheel package
         id: download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wheel-package
           path: dist/
