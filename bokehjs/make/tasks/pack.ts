@@ -10,8 +10,9 @@ function npm_pack() {
     fs.mkdirSync(dist, {recursive: true})
   }
 
-  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
-  const {status, stdout, stderr} = cp.spawnSync(npm, ["pack", `--pack-destination=${dist}`], {stdio: "pipe", encoding: "utf-8"})
+  const is_windows = process.platform == "win32"
+  const npm = is_windows ? "npm.cmd" : "npm"
+  const {status, stdout, stderr} = cp.spawnSync(npm, ["pack", `--pack-destination=${dist}`], {stdio: "pipe", encoding: "utf-8", shell: is_windows})
   if (status !== 0) {
     console.error(stdout)
     console.error(stderr)

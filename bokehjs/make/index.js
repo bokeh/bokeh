@@ -4,8 +4,9 @@ const fs = require("fs")
 const {join, dirname, basename} = require("path")
 
 function npm_install() {
-  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
-  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit"})
+  const is_windows = process.platform == "win32"
+  const npm = is_windows ? "npm.cmd" : "npm"
+  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", shell: is_windows})
   if (status !== 0) {
     process.exit(status)
   }

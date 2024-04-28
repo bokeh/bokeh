@@ -68,8 +68,9 @@ function npm_version(base_dir: Path): string {
 }
 
 function npm_install(base_dir: Path): void {
-  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
-  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir})
+  const is_windows = process.platform == "win32"
+  const npm = is_windows ? "npm.cmd" : "npm"
+  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir, shell: is_windows})
   if (status != null && status != 0) {
     print(`${cyan("npm install")} failed with exit code ${red(`${status}`)}.`)
     process.exit(status)
