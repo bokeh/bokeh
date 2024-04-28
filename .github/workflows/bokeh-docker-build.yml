@@ -22,7 +22,7 @@ jobs:
           echo "branch_name=$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
 
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: scripts/docker
           load: true
@@ -50,7 +50,7 @@ jobs:
 
       - name: Push image to Docker Hub
         if: ${{ inputs.push_or_save_image }} == "Push to Docker Hub"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: scripts/docker
           push: true
@@ -66,7 +66,7 @@ jobs:
 
       - name: Upload artifact
         if: ${{ inputs.push_to_docker_hub }} == "Save as artifact"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifact
           path: bokeh-dev.tar

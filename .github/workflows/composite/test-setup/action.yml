@@ -20,7 +20,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         miniconda-version: 'latest'
         activate-environment: bk-test
@@ -39,7 +39,7 @@ runs:
 
     - name: Download wheel package
       id: download
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: wheel-package
         path: dist/
@@ -49,7 +49,7 @@ runs:
       run: pip install dist/bokeh-*-py3-none-any.whl
 
     - name: Download bokehjs package
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: bokehjs-package
         path: bokehjs/build/dist/
@@ -61,7 +61,7 @@ runs:
 
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
         key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
@@ -73,7 +73,7 @@ runs:
 
     - name: Cache sampledata
       if: ${{ inputs.sampledata == 'cache' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.bokeh/data
         key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
