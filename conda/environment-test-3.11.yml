@@ -5,11 +5,9 @@ dependencies:
   - python=3.11
 
   # runtime
-  - contourpy >=1.2
+  - contourpy >=1.2.1
   - jinja2 >=2.7
-  - numpy >=1.20.0
   - packaging >=16.8
-  - pandas >=1.2
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
@@ -64,6 +62,8 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
+    - numpy >=1.20.0
+    - pandas ==2.2.1
     - mypy >=1.8
     # docs
     - pydata_sphinx_theme
