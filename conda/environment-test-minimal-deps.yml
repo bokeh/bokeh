@@ -23,7 +23,7 @@ dependencies:
   - colorama
   - colorcet
   - coverage
-  - firefox =>96
+  - firefox >=96
   - geckodriver
   - ipython
   - isort 5.8

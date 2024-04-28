@@ -23,7 +23,7 @@ dependencies:
   - colorama
   - colorcet
   - coverage
-  - firefox =>96
+  - firefox >=96
   - geckodriver
   - ipython
   - isort 5.8
@@ -53,7 +53,6 @@ dependencies:
   - flask >=1.0
   - h5py
   - icalendar
-  - networkx
   - notebook
   - pandas-datareader
   - pyshp
