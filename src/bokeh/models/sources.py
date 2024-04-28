@@ -214,7 +214,7 @@ class ColumnDataSource(ColumnarDataSource):
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warn(
                     "ColumnDataSource's columns must be of the same length. " +
-                    "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
+                    f"Current lengths: {', '.join(sorted(str((k, len(v))) for k, v in data.items()))}", BokehUserWarning))
 
     @overload
     def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny) -> None: ...
@@ -517,7 +517,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         needs_length_check = True
 
-        if isinstance(new_data, (pd.Series, pd.DataFrame)):
+        if isinstance(new_data, pd.Series | pd.DataFrame):
             if isinstance(new_data, pd.Series):
                 new_data = new_data.to_frame().T
 
@@ -560,7 +560,7 @@ class ColumnDataSource(ColumnarDataSource):
         # slightly awkward that we have to call convert_datetime_array here ourselves
         # but the downstream code expects things to already be ms-since-epoch
         for key, values in new_data.items():
-            if pd and isinstance(values, (pd.Series, pd.Index)):
+            if pd and isinstance(values, pd.Series | pd.Index):
                 values = values.values
             old_values = self.data[key]
             # Apply the transformation if the new data contains datetimes
@@ -672,7 +672,7 @@ class ColumnDataSource(ColumnarDataSource):
         extra = set(patches.keys()) - set(self.data.keys())
 
         if extra:
-            raise ValueError("Can only patch existing columns (extra: %s)" % ", ".join(sorted(extra)))
+            raise ValueError(f"Can only patch existing columns (extra: {', '.join(sorted(extra))})")
 
         for name, patch in patches.items():
 
@@ -692,7 +692,7 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError("Out-of bounds slice index stop (%d) in patch for column: %s" % (ind.stop, name))
 
                 # multi-index, patch sub-regions of "n-d" column
-                elif isinstance(ind, (list, tuple)):
+                elif isinstance(ind, list | tuple):
                     if len(ind) == 0:
                         raise ValueError("Empty (length zero) patch multi-index")
 
@@ -701,7 +701,7 @@ class ColumnDataSource(ColumnarDataSource):
 
                     ind_0 = ind[0]
                     if not isinstance(ind_0, int):
-                        raise ValueError("Initial patch sub-index may only be integer, got: %s" % ind_0)
+                        raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
                     if ind_0 > col_len or ind_0 < 0:
                         raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind, name))
@@ -719,13 +719,13 @@ class ColumnDataSource(ColumnarDataSource):
 
                     # Note: bounds of sub-indices after the first are not checked!
                     for subind in ind[1:]:
-                        if not isinstance(subind, (int, slice)):
-                            raise ValueError("Invalid patch sub-index: %s" % subind)
+                        if not isinstance(subind, int | slice):
+                            raise ValueError(f"Invalid patch sub-index: {subind}")
                         if isinstance(subind, slice):
                             _check_slice(subind)
 
                 else:
-                    raise ValueError("Invalid patch index: %s" % ind)
+                    raise ValueError(f"Invalid patch index: {ind}")
 
         self.data._patch(self.document, self, patches, setter)
 
@@ -915,11 +915,11 @@ class AjaxDataSource(WebDataSource):
 
 def _check_slice(s: slice) -> None:
     if (s.start is not None and s.stop is not None and s.start > s.stop):
-        raise ValueError("Patch slices must have start < end, got %s" % s)
+        raise ValueError(f"Patch slices must have start < end, got {s}")
     if (s.start is not None and s.start < 0) or \
        (s.stop  is not None and s.stop < 0) or \
        (s.step  is not None and s.step < 0):
-        raise ValueError("Patch slices must have non-negative (start, stop, step) values, got %s" % s)
+        raise ValueError(f"Patch slices must have non-negative (start, stop, step) values, got {s}")
 
 #-----------------------------------------------------------------------------
 # Code

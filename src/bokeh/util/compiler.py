@@ -525,14 +525,14 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
                 if module.endswith(exts):
                     path = mkpath(module)
                     if not exists(path):
-                        raise RuntimeError("no such module: %s" % module)
+                        raise RuntimeError(f"no such module: {module}")
                 else:
                     for ext in exts:
                         path = mkpath(module, ext)
                         if exists(path):
                             break
                     else:
-                        raise RuntimeError("no such module: %s" % module)
+                        raise RuntimeError(f"no such module: {module}")
 
                 impl = FromFile(path)
                 compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
@@ -555,7 +555,7 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
             else:
                 index = module + ("" if module.endswith("/") else "/") + "index"
                 if index not in known_modules:
-                    raise RuntimeError("no such module: %s" % module)
+                    raise RuntimeError(f"no such module: {module}")
 
         return resolved
 
@@ -578,8 +578,8 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     bare_modules = []
     for i, (module, code, deps) in enumerate(modules):
         for name, ref in deps.items():
-            code = code.replace("""require("%s")""" % name, """require("%s")""" % ref)
-            code = code.replace("""require('%s')""" % name, """require('%s')""" % ref)
+            code = code.replace(f"""require("{name}")""", f"""require("{ref}")""")
+            code = code.replace(f"""require('{name}')""", f"""require('{ref}')""")
         bare_modules.append((module, code))
 
     sep = ",\n"

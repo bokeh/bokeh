@@ -89,7 +89,7 @@ def main(argv: Sequence[str]) -> None:
 
     '''
     if len(argv) == 1:
-        die("ERROR: Must specify subcommand, one of: %s" % nice_join([x.name for x in subcommands.all]))
+        die(f"ERROR: Must specify subcommand, one of: {nice_join(x.name for x in subcommands.all)}")
 
     parser = argparse.ArgumentParser(
         prog=argv[0],

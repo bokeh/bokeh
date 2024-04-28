@@ -310,7 +310,7 @@ class ApplicationContext:
                 to_discard.append(session)
 
         if len(to_discard) > 0:
-            log.debug("Scheduling %s sessions to discard" % len(to_discard))
+            log.debug(f"Scheduling {len(to_discard)} sessions to discard")
         # asynchronously reconsider each session
         for session in to_discard:
             if should_discard_ignoring_block(session) and not session.expiration_blocked:

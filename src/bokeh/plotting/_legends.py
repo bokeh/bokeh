@@ -80,7 +80,7 @@ def _get_or_create_legend(plot):
         return legend
     if len(legends) == 1:
         return legends[0]
-    raise RuntimeError("Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments" % plot)
+    raise RuntimeError(f"Plot {plot} configured with more than one legend renderer, cannot use legend_* convenience arguments")
 
 def _handle_legend_field(label, legend, glyph_renderer):
     if not isinstance(label, str):

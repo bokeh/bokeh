@@ -269,7 +269,7 @@ class ButtonClick(ModelEvent):
 
     def __init__(self, model: AbstractButton | None) -> None:
         from .models.widgets import AbstractButton, ToggleButtonGroup
-        if model is not None and not isinstance(model, (AbstractButton, ToggleButtonGroup)):
+        if model is not None and not isinstance(model, AbstractButton | ToggleButtonGroup):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to button and button group models")
         super().__init__(model=model)

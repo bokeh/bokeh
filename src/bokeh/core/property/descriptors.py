@@ -484,7 +484,7 @@ class PropertyDescriptor(Generic[T]):
     @classmethod
     def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
         from .instance import InstanceDefault
-        return isinstance(value, (FunctionType, InstanceDefault))
+        return isinstance(value, FunctionType | InstanceDefault)
 
     def _get(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for the

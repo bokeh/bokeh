@@ -583,7 +583,7 @@ class ColorSpec(DataSpec):
             True, if the value could be a color tuple
 
         """
-        return isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)
+        return isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, float | int) for v in val)
 
     def prepare_value(self, cls, name, value):
         # Some explanation is in order. We want to accept tuples like

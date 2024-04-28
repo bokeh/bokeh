@@ -131,7 +131,7 @@ def is_timedelta_type(obj: Any) -> TypeGuard[dt.timedelta | np.timedelta64]:
         bool : True if ``obj`` is a timedelta type
 
     '''
-    return isinstance(obj, (dt.timedelta, np.timedelta64))
+    return isinstance(obj, dt.timedelta | np.timedelta64)
 
 def convert_date_to_datetime(obj: dt.date) -> float:
     ''' Convert a date object to a datetime

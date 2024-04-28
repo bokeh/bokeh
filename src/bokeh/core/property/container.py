@@ -112,7 +112,7 @@ class Seq(ContainerProperty[T]):
 
     @classmethod
     def _is_seq_like(cls, value: Any) -> bool:
-        return (isinstance(value, (Container, Sized, Iterable))
+        return (isinstance(value, Container | Sized | Iterable)
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
@@ -291,7 +291,7 @@ class Tuple(ContainerProperty):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        if isinstance(value, (tuple, list)) and len(self.type_params) == len(value):
+        if isinstance(value, tuple | list) and len(self.type_params) == len(value):
             if all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value)):
                 return
 

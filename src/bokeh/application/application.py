@@ -165,7 +165,7 @@ class Application:
         static_paths = {h.static_path() for h in self.handlers}
         static_paths.discard(None)
         if len(static_paths) > 1:
-            raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))
+            raise RuntimeError(f"More than one static path requested for app: {list(static_paths)!r}")
         elif len(static_paths) == 1:
             self._static_path = static_paths.pop()
         else:

@@ -41,9 +41,9 @@ def test_json_encoder():
 [null,true,false,-128,-1,0,1,128,{"type":"number","value":"nan"},{"type":"map","entries":[["key_0",{"type":"bytes","data":"dXZ3"}]]}]\
 """
 
-    assert serialize_json(rep0) == """\
-[null,true,false,-128,-1,0,1,128,{"type":"number","value":"nan"},{"type":"map","entries":[["key_0",{"type":"bytes","data":{"id":"%s"}}]]}]\
-""" % rep0.buffers[0].id
+    assert serialize_json(rep0) == f"""\
+[null,true,false,-128,-1,0,1,128,{{"type":"number","value":"nan"}},{{"type":"map","entries":[["key_0",{{"type":"bytes","data":{{"id":"{rep0.buffers[0].id}"}}}}]]}}]\
+"""
 
     assert serialize_json(rep0.content, pretty=True) == """\
 [
@@ -74,7 +74,7 @@ def test_json_encoder():
 ]\
 """
 
-    assert serialize_json(rep0, pretty=True) == """\
+    assert serialize_json(rep0, pretty=True) == f"""\
 [
   null,
   true,
@@ -84,26 +84,26 @@ def test_json_encoder():
   0,
   1,
   128,
-  {
+  {{
     "type": "number",
     "value": "nan"
-  },
-  {
+  }},
+  {{
     "type": "map",
     "entries": [
       [
         "key_0",
-        {
+        {{
           "type": "bytes",
-          "data": {
-            "id": "%s"
-          }
-        }
+          "data": {{
+            "id": "{rep0.buffers[0].id}"
+          }}
+        }}
       ]
     ]
-  }
+  }}
 ]\
-""" % rep0.buffers[0].id
+"""
 
 def test_json_encoder_dict_no_sort():
     val0 = {nan: 0, "key_1": 1, "abc": 2, "key_0": 3}

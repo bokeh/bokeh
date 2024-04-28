@@ -303,7 +303,7 @@ def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     if isinstance(color, dict):
         return _palette_from_collection(color, n)
 
-    if isinstance(color, Sequence) and not isinstance(color, (bytes, str)) and len(color) != n:
+    if isinstance(color, Sequence) and not isinstance(color, bytes | str) and len(color) != n:
         return interp_palette(color, n)
 
     return color

@@ -88,7 +88,7 @@ def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Seri
         return range_input
     if isinstance(range_input, pd.Series):
         range_input = range_input.values
-    if isinstance(range_input, (Sequence, np.ndarray)):
+    if isinstance(range_input, Sequence | np.ndarray):
         if all(isinstance(x, str) for x in range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
@@ -108,9 +108,9 @@ AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
 Dim: TypeAlias = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
-    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
+    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
         return LinearScale()
-    elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
+    elif isinstance(range_input, DataRange1d | Range1d) and axis_type == "log":
         return LogScale()
     elif isinstance(range_input, FactorRange):
         return CategoricalScale()

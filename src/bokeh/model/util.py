@@ -204,7 +204,7 @@ def visit_value_and_its_immediate_references(obj: Any, visitor: Callable[[Model]
     typ = type(obj)
     if typ in {int, float, str}:  # short circuit on common scalar types
         return
-    if typ is list or issubclass(typ, (list, tuple)):  # check common containers
+    if typ is list or issubclass(typ, list | tuple):  # check common containers
         for item in obj:
             visit_value_and_its_immediate_references(item, visitor)
     elif issubclass(typ, dict):

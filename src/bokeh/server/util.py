@@ -155,12 +155,12 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
             try:
                 int(parts[1])
             except ValueError:
-                raise ValueError("Invalid port in host value: %s" % host)
+                raise ValueError(f"Invalid port in host value: {host}")
             if parts[0] == "":
                 raise ValueError("Empty host value")
             hosts.append(host)
         else:
-            raise ValueError("Invalid host value: %s" % host)
+            raise ValueError(f"Invalid host value: {host}")
     return hosts
 
 def match_host(host: str, pattern: str) -> bool:

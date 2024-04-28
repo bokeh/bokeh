@@ -295,7 +295,7 @@ def gridplot(
                 raise ValueError("Only UIElement and LayoutDOM items can be inserted into a grid")
 
     def merge(cls: type[Tool], group: list[Tool]) -> Tool | ToolProxy | None:
-        if issubclass(cls, (SaveTool, CopyTool, ExamineTool, FullscreenTool)):
+        if issubclass(cls, SaveTool | CopyTool | ExamineTool | FullscreenTool):
             return cls()
         else:
             return None

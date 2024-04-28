@@ -154,7 +154,7 @@ class ClientConnection:
         def connected_or_closed() -> bool:
             # we should be looking at the same state here as the 'connected' property above, so connected
             # means both connected and that we did our initial message exchange
-            return isinstance(self._state, (CONNECTED_AFTER_ACK, DISCONNECTED))
+            return isinstance(self._state, CONNECTED_AFTER_ACK | DISCONNECTED)
         self._loop_until(connected_or_closed)
 
     def close(self, why: str = "closed") -> None:
@@ -352,7 +352,7 @@ class ClientConnection:
             try:
                 message = await self._receiver.consume(fragment)
                 if message is not None:
-                    log.debug("Received message %r" % message)
+                    log.debug(f"Received message {message!r}")
                     return message
             except (MessageError, ProtocolError, ValidationError) as e:
                 log.error("%r", e, exc_info=True)

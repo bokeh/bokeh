@@ -295,26 +295,27 @@ class Test_Image:
         assert prop.transform(image) == image
 
     def test_transform_numpy(self) -> None:
+        image_type = "png"
         data = np.zeros((50, 50, 3), dtype=np.uint8)
         data[:, 30:35] = [255, 0, 0]
         value = PIL.Image.fromarray(data)
         out = BytesIO()
-        value.save(out, "png")
-        expected = "data:image/png;base64," + base64.b64encode(out.getvalue()).decode('ascii')
+        value.save(out, image_type)
+        expected = f"data:image/{image_type};base64," + base64.b64encode(out.getvalue()).decode('ascii')
 
         prop = bcpv.Image()
         assert prop.transform(data) == expected
 
-    @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
-    def test_transform_PIL(self, typ: Literal["png", "gif", "tiff"]) -> None:
+    @pytest.mark.parametrize('image_type', ('png', 'gif', 'tiff'))
+    def test_transform_PIL(self, image_type: Literal["png", "gif", "tiff"]) -> None:
         image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
         out0 = BytesIO()
-        image.save(out0, typ)
+        image.save(out0, image_type)
 
         value = PIL.Image.open(out0)
         out1 = BytesIO()
-        value.save(out1, typ)
-        expected = "data:image/%s;base64," % typ + base64.b64encode(out1.getvalue()).decode('ascii')
+        value.save(out1, image_type)
+        expected = f"data:image/{image_type};base64," + base64.b64encode(out1.getvalue()).decode('ascii')
 
         prop = bcpv.Image()
         assert prop.transform(value) == expected

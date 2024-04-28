@@ -69,7 +69,7 @@ class Object(Property[T]):
     _instance_type: type[T] | Callable[[], type[T]] | str
 
     def __init__(self, instance_type: type[T] | Callable[[], type[T]] | str, default: Init[T] = Undefined, help: str | None = None):
-        if not (isinstance(instance_type, (type, str)) or callable(instance_type)):
+        if not (isinstance(instance_type, type | str) or callable(instance_type)):
             raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
         if isinstance(instance_type, type):

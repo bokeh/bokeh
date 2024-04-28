@@ -39,14 +39,14 @@ __all__ = (
 
 def single_stack(stackers, spec, **kw):
     if spec in kw:
-        raise ValueError("Stack property '%s' cannot appear in keyword args" % spec)
+        raise ValueError(f"Stack property '{spec}' cannot appear in keyword args")
 
-    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+    lengths = { len(x) for x in kw.values() if isinstance(x, list | tuple) }
 
     # lengths will be empty if there are no kwargs supplied at all
     if len(lengths) > 0:
         if len(lengths) != 1:
-            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+            raise ValueError(f"Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: {sorted(list(lengths))!r}")
         if lengths.pop() != len(stackers):
             raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
@@ -61,7 +61,7 @@ def single_stack(stackers, spec, **kw):
         d[spec] = stack(*s)
 
         for k, v in kw.items():
-            if isinstance(v, (list, tuple)):
+            if isinstance(v, list | tuple):
                 d[k] = v[i]
             else:
                 d[k] = v
@@ -73,14 +73,14 @@ def single_stack(stackers, spec, **kw):
 def double_stack(stackers, spec0, spec1, **kw):
     for name in (spec0, spec1):
         if name in kw:
-            raise ValueError("Stack property '%s' cannot appear in keyword args" % name)
+            raise ValueError(f"Stack property '{name}' cannot appear in keyword args")
 
-    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+    lengths = { len(x) for x in kw.values() if isinstance(x, list | tuple) }
 
     # lengths will be empty if there are no kwargs supplied at all
     if len(lengths) > 0:
         if len(lengths) != 1:
-            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+            raise ValueError(f"Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: {sorted(list(lengths))!r}")
         if lengths.pop() != len(stackers):
             raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
@@ -98,7 +98,7 @@ def double_stack(stackers, spec0, spec1, **kw):
         d[spec1] = stack(*s1)
 
         for k, v in kw.items():
-            if isinstance(v, (list, tuple)):
+            if isinstance(v, list | tuple):
                 d[k] = v[i]
             else:
                 d[k] = v

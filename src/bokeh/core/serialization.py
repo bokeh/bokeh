@@ -460,7 +460,7 @@ class Serializer:
         # avoid importing pandas here unless it is actually in use
         if uses_pandas(obj):
             import pandas as pd
-            if isinstance(obj, (pd.Series, pd.Index, pd.api.extensions.ExtensionArray)):
+            if isinstance(obj, pd.Series | pd.Index | pd.api.extensions.ExtensionArray):
                 return self._encode_ndarray(transform_series(obj))
             elif obj is pd.NA:
                 return None

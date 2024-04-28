@@ -202,7 +202,7 @@ def find_element_for(driver: WebDriver, model: Model, selector: str | None = Non
         raise ValueError("not found")
 
 def COUNT(key: str) -> str:
-    return 'Bokeh._testing.count(%r);' % key
+    return f'Bokeh._testing.count({key!r});'
 
 INIT = 'Bokeh._testing.init();'
 
@@ -215,11 +215,11 @@ def RECORD(key: str, value: Any, *, final: bool = True) -> str:
 RESULTS = 'return Bokeh._testing.results'
 
 def SCROLL(amt: float) -> str:
-    return """
+    return f"""
     const elt = Bokeh.index.roots[0].canvas_view.events_el;
-    const event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
+    const event = new WheelEvent('wheel', {{ deltaY: {amt:f}, clientX: 100, clientY: 100}} );
     elt.dispatchEvent(event);
-    """ % amt
+    """
 
 def alt_click(driver: WebDriver, element: WebElement) -> None:
     actions = ActionChains(driver)

@@ -257,9 +257,9 @@ async def get_user_async(handler): return 20
                 bsa.AuthModule(filename)
                 assert str(e) == "When user authentication is enabled, one of login_url or get_login_url must be supplied"
 
-        with_file_contents("""
-def %s(handler): return 10
-    """ % user_func, func, suffix='.py')
+        with_file_contents(f"""
+def {user_func}(handler): return 10
+    """, func, suffix='.py')
 
     def test_both_login(self) -> None:
         def func(filename: str):
@@ -305,10 +305,10 @@ class LoginHandler(object): pass
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler can only be used with a relative login_url"
 
-        with_file_contents("""
+        with_file_contents(f"""
 def get_user(handler): return 10
-login_url = %r
-    """ % login_url, func, suffix='.py')
+login_url = {login_url!r}
+    """, func, suffix='.py')
 
     def test_logout_handler_wrong_type(self) -> None:
         def func(filename: str):
@@ -329,10 +329,10 @@ class LogoutHandler(object): pass
                 bsa.AuthModule(filename)
                 assert str(e) == "LoginHandler can only be used with a relative login_url"
 
-        with_file_contents("""
+        with_file_contents(f"""
 def get_user(handler): return 10
-logout_url = %r
-    """ % logout_url, func, suffix='.py')
+logout_url = {logout_url!r}
+    """, func, suffix='.py')
 
 _source = """
 def get_login_url():

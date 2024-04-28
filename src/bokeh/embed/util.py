@@ -296,10 +296,10 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
     '''
 
     '''
-    if isinstance(models, (Model, Document)):
+    if isinstance(models, Model | Document):
         models = [models]
 
-    if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
+    if not (isinstance(models, Sequence) and all(isinstance(x, Model | Document) for x in models)):
         raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
 
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:

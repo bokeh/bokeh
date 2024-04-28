@@ -85,7 +85,7 @@ class FileOutputSubcommand(Subcommand):
         return ('files', Argument(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
-            help=("The app directories or scripts to generate %s for" % (output_type_name)),
+            help=(f"The app directories or scripts to generate {output_type_name} for"),
             default=None,
         ))
 
