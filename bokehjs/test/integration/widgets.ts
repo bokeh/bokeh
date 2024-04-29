@@ -254,6 +254,11 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  it.allowing(8)("should allow TextAreaInput with resizable=true", async () => {
+    const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4, resizable: true})
+    await display(obj, [500, 100])
+  })
+
   it.allowing(8)("should allow FileInput", async () => {
     const obj = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
     await display(obj, [500, 100])
