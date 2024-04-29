@@ -106,6 +106,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
 
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
@@ -150,6 +152,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
           chromium --version
 
       - name: Start chrome headless
@@ -196,6 +200,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
 
       - name: Run tests
         run: pytest -v --cov=bokeh --cov-report=xml --tb=short --driver chrome --color=yes tests/integration
@@ -237,6 +243,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
 
       - name: Test defaults
         run: pytest tests/test_defaults.py
@@ -281,6 +289,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
 
       - name: Run tests
         run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes tests/unit
@@ -310,6 +320,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
 
       - name: Build docs
         run: bash scripts/ci/build_docs.sh
@@ -341,6 +353,8 @@ jobs:
         run: |
           conda info
           conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
 
       - name: Run tests
         run: bash scripts/ci/run_downstream_tests.sh
