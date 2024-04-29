@@ -59,6 +59,11 @@ runs:
       working-directory: ./bokehjs/build/dist/
       run: ln -s $(ls -t bokeh-bokehjs-*.tgz | head -n 1) bokeh-bokehjs.tgz
 
+    - name: Upgrade npm
+      shell: bash -l {0}
+      run: |
+        npm install --location=global npm
+
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}
       uses: actions/cache@v3
