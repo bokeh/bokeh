@@ -5658,7 +5658,10 @@
   },
   CompositeTicker: {
     __extends__: "ContinuousTicker",
-    tickers: [],
+    tickers: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   ContinuousTicker: {
     __extends__: "Ticker",

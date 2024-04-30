@@ -31,6 +31,7 @@ from ..core.properties import (
     Float,
     Instance,
     Int,
+    NonEmpty,
     Nullable,
     Override,
     Required,
@@ -169,10 +170,12 @@ class CompositeTicker(ContinuousTicker):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    tickers = Seq(Instance(Ticker), default=[], help="""
-    A list of Ticker objects to combine at different scales in order
+    tickers = NonEmpty(Seq(Instance(Ticker)), help="""
+    A list of ``Ticker`` objects to combine at different scales in order
     to generate tick values. The supplied tickers should be in order.
-    Specifically, if S comes before T, then it should be the case that::
+    Specifically, if S comes before T, then it should be the case that:
+
+    .. code-block:: javascript
 
         S.get_max_interval() < T.get_min_interval()
 
