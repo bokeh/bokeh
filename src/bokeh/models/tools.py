@@ -524,6 +524,13 @@ class RangeTool(Tool):
     A shaded annotation drawn to indicate the configured ranges.
     """)
 
+    select_gesture = Enum("pan", "tap", "none", default="none", help="""
+    What kind of gesture is used to make range selection, if any.
+
+    Configuring this property allows to make this tool simultaneously co-exist
+    with another tool that would otherwise share a gesture.
+    """)
+
     @error(NO_RANGE_TOOL_RANGES)
     def _check_no_range_tool_ranges(self):
         if self.x_range is None and self.y_range is None:

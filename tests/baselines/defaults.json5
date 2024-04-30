@@ -6308,6 +6308,7 @@
         fill_alpha: 0.5,
       },
     },
+    select_gesture: "none",
   },
   RedoTool: {
     __extends__: "PlotActionTool",

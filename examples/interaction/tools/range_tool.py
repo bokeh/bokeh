@@ -31,7 +31,7 @@ select = figure(title="Drag the middle and edges of the selection box to change 
                 x_axis_type="datetime", y_axis_type=None,
                 tools="", toolbar_location=None, background_fill_color="#efefef")
 
-range_tool = RangeTool(x_range=p.x_range)
+range_tool = RangeTool(x_range=p.x_range, select_gesture="pan")
 range_tool.overlay.fill_color = "navy"
 range_tool.overlay.fill_alpha = 0.2
 
