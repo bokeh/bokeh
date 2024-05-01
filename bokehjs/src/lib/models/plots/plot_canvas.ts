@@ -122,7 +122,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected throttled_paint: () => void
 
-  computed_renderers: Renderer[]
+  computed_renderers: Renderer[] = []
 
   get computed_renderer_views(): RendererView[] {
     return this.computed_renderers.map((r) => this.renderer_views.get(r)).filter(isNotNull) // TODO race condition again
@@ -142,7 +142,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.model.renderers.map((r) => this.renderer_view(r)!).filter(is_auto_ranged)
+    return this.computed_renderer_views.filter(is_auto_ranged)
   }
 
   get base_font_size(): number | null {
@@ -726,10 +726,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
-  }
-
   protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center, renderers} = this.model
 
@@ -1092,12 +1088,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
-    for (const renderer of this.computed_renderers) {
-      if (renderer.level != level) {
+    for (const renderer_view of this.computed_renderer_views) {
+      if (renderer_view.model.level != level) {
         continue
       }
-
-      const renderer_view = this.renderer_views.get(renderer)!
 
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
@@ -1194,7 +1188,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
-    const renderers = this.get_renderer_views()
+    const renderers = this
+      .computed_renderer_views
       .filter((view) => view.model.syncable) // filters out computed renderers
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
