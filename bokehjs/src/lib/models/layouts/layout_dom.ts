@@ -166,6 +166,7 @@ export abstract class LayoutDOMView extends PaneView {
         this.shadow_el.append(child_view.el)
       }
     }
+    this.r_after_render()
 
     this._update_children()
     this.invalidate_layout()

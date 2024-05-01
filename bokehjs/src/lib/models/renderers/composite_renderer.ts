@@ -68,6 +68,7 @@ export abstract class CompositeRendererView extends RendererView {
         this.plot_view.shadow_el.append(element_view.el)
       }
     }
+    this.r_after_render()
   }
 
   override remove(): void {

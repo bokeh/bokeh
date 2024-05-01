@@ -791,6 +791,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
         target.append(renderer_view.el)
       }
     }
+    this.r_after_render()
   }
 
   async build_renderer_views(): Promise<void> {

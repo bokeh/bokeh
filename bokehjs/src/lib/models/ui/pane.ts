@@ -56,6 +56,7 @@ export class PaneView extends UIElementView {
         this.shadow_el.append(element_view.el)
       }
     }
+    this.r_after_render()
   }
 
   override remove(): void {
