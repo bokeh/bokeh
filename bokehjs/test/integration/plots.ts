@@ -356,11 +356,11 @@ describe("Plot", () => {
       p.hold_render = false
       await view.ready
 
-      // TODO: expect(spy.callCount).to.be.equal(1)
-      //
-      // There should be exactly one paint after all this, but currently
-      // it varies between 2 and 3, due to layout and other factors. It's
-      // sufficient though, to compare images for a complete test.
+      // Two _actual_paint() calls because of how layout is integrated into
+      // the painting pipeline. This doesn't mean that renderers are actually
+      // painted twice, because paint invalidation logic prevents this. It's
+      // still quite confusing and requires a redesign.
+      expect(spy.callCount).to.be.equal(2)
     })
   })
 })

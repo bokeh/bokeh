@@ -114,8 +114,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._range_manager.invalidate_dataranges = value
   }
 
-  protected _is_paused?: number
-
   protected lod_started: boolean
 
   protected _initial_state: StateInfo
@@ -168,29 +166,22 @@ export class PlotView extends LayoutDOMView implements Paintable {
     yield* this.tool_views.values()
   }
 
-  get is_paused(): boolean {
-    return this._is_paused != null && this._is_paused !== 0
-  }
-
   get child_models(): LayoutDOM[] {
     return []
   }
 
+  private _is_paused: number = 0
+  get is_paused(): boolean {
+    return this._is_paused != 0
+  }
+
   pause(): void {
-    if (this._is_paused == null) {
-      this._is_paused = 1
-    } else {
-      this._is_paused += 1
-    }
+    this._is_paused += 1
   }
 
   unpause(no_render: boolean = false): void {
-    if (this._is_paused == null) {
-      throw new Error("wasn't paused")
-    }
-
-    this._is_paused = Math.max(this._is_paused - 1, 0)
-    if (this._is_paused == 0 && !no_render) {
+    this._is_paused = max(this._is_paused - 1, 0)
+    if (!this.is_paused && !no_render) {
       this.request_repaint()
     }
   }
@@ -869,7 +860,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
 
     const {hold_render} = this.model.properties
-    this.on_change(hold_render, () => this._hold_render_changed())
+    this.on_change(hold_render, () => {
+      if (!this.model.hold_render) {
+        this.request_repaint()
+      }
+    })
   }
 
   override has_finished(): boolean {
@@ -972,7 +967,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   paint(): void {
-    if (this.is_paused) {
+    if (this.is_paused || this.model.hold_render) {
       return
     }
 
@@ -1196,14 +1191,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     // TODO: remove this when frame is generalized
     const frame = {type: "CartesianFrame", bbox: this.frame.bbox}
     return {...state, children: [...children ?? [], frame, ...renderers]}
-  }
-
-  protected _hold_render_changed(): void {
-    if (this.model.hold_render) {
-      this.pause()
-    } else {
-      this.unpause()
-    }
   }
 
   override resolve_frame(): View | null {
