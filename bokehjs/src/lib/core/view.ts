@@ -110,6 +110,13 @@ export class View implements ISignalable {
     this._has_finished = true
   }
 
+  /**
+   * Mark as finished even if e.g. external resources were not loaded yet.
+   */
+  force_finished(): void {
+    this.mark_finished()
+  }
+
   finish(): void {
     this.mark_finished()
     this.notify_finished()

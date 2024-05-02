@@ -979,7 +979,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       // so all renderers have to be manually marked as finished, because
       // their `render()` method didn't run.
       for (const renderer_view of this.computed_renderer_views) {
-        renderer_view.mark_finished()
+        renderer_view.force_finished()
       }
     }
 

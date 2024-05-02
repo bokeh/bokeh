@@ -188,7 +188,7 @@ export abstract class UIElementView extends StyledElementView {
     if (!this._has_finished) {
       // If not displayed, then after_resize() will not be called.
       if (!this.is_displayed) {
-        this.mark_finished()
+        this.force_finished()
       } else {
         // In case after_resize() wasn't called (see regression test for issue
         // #9113), then wait one macro task and consider this view finished.
