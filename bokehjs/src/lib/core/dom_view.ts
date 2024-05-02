@@ -57,6 +57,7 @@ export abstract class DOMView extends View {
       }
     }
     this.after_render()
+    this._was_built = true
   }
 
   protected _create_element(): this["el"] {
@@ -74,7 +75,6 @@ export abstract class DOMView extends View {
     assert(this.is_root)
     this.render_to(target)
     this.r_after_render()
-    this._was_built = true
     this.notify_finished()
   }
 }
