@@ -14,7 +14,8 @@ import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import {Coordinate} from "../coordinates/coordinate"
-import {Or, Ref} from "../../core/kinds"
+import {Or, Ref} from "core/kinds"
+import type {SerializableState} from "core/view"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
 import icons_css from "styles/icons.css"
@@ -540,11 +541,11 @@ export class DialogView extends UIElementView {
   protected _toggle(show: boolean) {
     if (show) {
       if (!this._has_rendered) {
-        this.render()
+        this.render_to(document.body)
+        this.r_after_render()
       }
-      if (!this.el.isConnected) {
+      if (!_stacking_order.includes(this)) {
         _stacking_order.push(this)
-        document.body.append(this.el)
       }
       this.bring_to_front()
     } else {
@@ -585,6 +586,14 @@ export class DialogView extends UIElementView {
       dialog_view._stacking.replace(":host", {
         "z-index": `${i}`,
       })
+    }
+  }
+
+  override serializable_state(): SerializableState {
+    const {children, ...state} = super.serializable_state()
+    return {
+      ...state,
+      children: [...children ?? [], ...[...this.children()].map((child) => child.serializable_state())],
     }
   }
 }
