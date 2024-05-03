@@ -37,7 +37,10 @@ export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
   declare visuals: ScaleBar.Visuals
 
-  override bbox: BBox = new BBox()
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
+  }
 
   protected label_layout: TextLayout
   protected title_layout: TextLayout
@@ -421,7 +424,7 @@ export class ScaleBarView extends AnnotationView {
       }
     })()
 
-    this.bbox = new BBox({left: sx, top: sy, width, height})
+    this._bbox = new BBox({left: sx, top: sy, width, height})
   }
 
   protected _draw_box(ctx: Context2d): void {

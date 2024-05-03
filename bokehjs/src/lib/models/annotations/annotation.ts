@@ -11,10 +11,13 @@ export abstract class AnnotationView extends CompositeRendererView {
 
   layout?: Layoutable
   panel?: SidePanel
-  bbox?: BBox
 
   update_layout?(): void
   after_layout?(): void
+
+  override get bbox(): BBox | undefined {
+    return super.bbox ?? this.layout?.bbox
+  }
 
   get_size(): Size {
     if (this.displayed) {

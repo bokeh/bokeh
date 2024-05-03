@@ -72,7 +72,7 @@ export class AxisView extends GuideRendererView {
   /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
 
-  get bbox(): BBox {
+  override get bbox(): BBox {
     // TODO Fixed axes should not participate in layout at all.
     if (this.layout != null && this.model.fixed_location == null) {
       return this.layout.bbox

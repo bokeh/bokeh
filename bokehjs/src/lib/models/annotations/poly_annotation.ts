@@ -110,6 +110,10 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     return {...super.serializable_state(), bbox: this.poly.bbox.round()}
   }
 
+  override get bbox(): BBox {
+    return this.poly.bbox
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_paint())

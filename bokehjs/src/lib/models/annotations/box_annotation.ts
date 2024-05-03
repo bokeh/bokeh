@@ -30,7 +30,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   declare model: BoxAnnotation
   declare visuals: BoxAnnotation.Visuals
 
-  override bbox: BBox = new BBox()
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
+  }
 
   override serializable_state(): SerializableState {
     return {...super.serializable_state(), bbox: this.bbox.round()} // TODO: probably round earlier
@@ -125,7 +128,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const {left, right, top, bottom} = this.model
     const {mappers} = this
 
-    this.bbox = BBox.from_lrtb({
+    this._bbox = BBox.from_lrtb({
       left:   compute("x", left,   mappers.left),
       right:  compute("x", right,  mappers.right),
       top:    compute("y", top,    mappers.top),

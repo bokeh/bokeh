@@ -12,7 +12,6 @@ import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
-import {BBox} from "core/util/bbox"
 import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
@@ -206,11 +205,11 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
   override resolve_symbol(node: Node): XY | number {
     const target = this
-    // There's no common API for bbox handling in Renderer's class hierarchy.
-    if (!("bbox" in target && target.bbox instanceof BBox)) {
+    const {bbox} = target
+    if (bbox == null) {
       return {x: NaN, y: NaN}
     } else {
-      const value = target.bbox.resolve(node.symbol)
+      const value = bbox.resolve(node.symbol)
       const {offset} = node
       if (isNumber(value)) {
         return value + offset

@@ -55,7 +55,7 @@ export abstract class UIElementView extends StyledElementView {
   }
 
   private _bbox: BBox = new BBox()
-  get bbox(): BBox {
+  override get bbox(): BBox {
     return this._bbox
   }
 
