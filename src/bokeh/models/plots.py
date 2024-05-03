@@ -516,17 +516,6 @@ class Plot(LayoutDOM):
     The (default) data range of the vertical dimension of the plot.
     """)
 
-    @classmethod
-    def _scale(cls, scale: Literal["auto", "linear", "log", "categorical"]) -> Scale:
-        if scale in ["auto", "linear"]:
-            return LinearScale()
-        elif scale == "log":
-            return LogScale()
-        if scale == "categorical":
-            return CategoricalScale()
-        else:
-            raise ValueError(f"Unknown mapper_type: {scale}")
-
     x_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
     What kind of scale to use to convert x-coordinates in data space
     into x-coordinates in screen space.
