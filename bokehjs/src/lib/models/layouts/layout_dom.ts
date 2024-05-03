@@ -13,7 +13,6 @@ import {build_views} from "core/build_views"
 import type {DOMElementView} from "core/dom_view"
 import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
-import {defer} from "core/util/defer"
 import {CanvasLayer} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {SerializableState} from "core/view"
@@ -44,16 +43,14 @@ export abstract class LayoutDOMView extends PaneView {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
   }
 
-  private _resized = false
-
   override _after_resize(): void {
-    this._resized = true
     super._after_resize()
 
     if (this.is_layout_root && !this._was_built) {
       // This can happen only in pathological cases primarily in tests.
       logger.warn(`${this} wasn't built properly`)
-      this.render_to(null)
+      this.render()
+      this.r_after_render()
     } else {
       this.compute_layout()
     }
@@ -143,9 +140,7 @@ export abstract class LayoutDOMView extends PaneView {
     super.render()
 
     for (const child_view of this.child_views) {
-      child_view.render()
-      this.shadow_el.appendChild(child_view.el)
-      // No after_render() here. See r_after_render().
+      child_view.render_to(this.shadow_el)
     }
   }
 
@@ -171,6 +166,7 @@ export abstract class LayoutDOMView extends PaneView {
         this.shadow_el.append(child_view.el)
       }
     }
+    this.r_after_render()
 
     this._update_children()
     this.invalidate_layout()
@@ -443,54 +439,13 @@ export abstract class LayoutDOMView extends PaneView {
     for (const child_view of this.layoutable_views) {
       child_view.after_layout()
     }
-
     this._after_layout()
   }
 
-  private _was_built: boolean = false
-  override render_to(target: Node | null): void {
-    if (target != null) {
-      target.appendChild(this.el)
-    }
-    this.render()
-
-    this.r_after_render()
-    this._was_built = true
-
-    this.notify_finished()
-  }
-
-  r_after_render(): void {
-    for (const child_view of this.child_views) {
-      if (child_view instanceof LayoutDOMView) {
-        child_view.r_after_render()
-      } else {
-        child_view.after_render()
-      }
-    }
-
-    this.after_render()
-  }
-
-  override after_render(): void {
-    this._after_render()
-
+  override _after_render(): void {
+    // XXX no super
     if (!this.is_managed) {
       this.invalidate_layout()
-    }
-
-    if (!this._has_finished) {
-      if (!this.is_displayed) {
-        this.finish()
-      } else {
-        // In case after_resize() wasn't called (see regression test for issue
-        // #9113), then wait one macro task and consider this view finished.
-        void defer().then(() => {
-          if (!this._resized) {
-            this.finish()
-          }
-        })
-      }
     }
   }
 

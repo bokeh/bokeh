@@ -24,7 +24,7 @@ export class HAreaView extends AreaView {
     }
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: Partial<HArea.Data>): void {
+  protected _paint(ctx: Context2d, _indices: number[], data?: Partial<HArea.Data>): void {
     const {sx1, sx2, sy} = {...this, ...data}
 
     ctx.beginPath()

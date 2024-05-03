@@ -202,14 +202,11 @@ export class UIEventBus {
   }
 
   hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
-    const views = plot_view.get_renderer_views()
-
-    for (const view of reversed(views)) {
+    for (const view of reversed(plot_view.computed_renderer_views)) {
       if (view.interactive_hit?.(sx, sy) ?? false) {
         return view
       }
     }
-
     return null
   }
 

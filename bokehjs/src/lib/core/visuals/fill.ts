@@ -1,6 +1,6 @@
 import type {ValuesOf} from "./visual"
 import {VisualProperties, VisualUniforms} from "./visual"
-import type {uint32} from "../types"
+import type {uint32, Color} from "../types"
 import type * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {color2css} from "../util/color"
@@ -9,8 +9,8 @@ import type {Context2d} from "../util/canvas"
 export interface Fill extends Readonly<mixins.Fill> {}
 export class Fill extends VisualProperties {
   get doit(): boolean {
-    const color = this.fill_color.get_value()
-    const alpha = this.fill_alpha.get_value()
+    const color = this.get_fill_color()
+    const alpha = this.get_fill_alpha()
 
     return !(color == null || alpha == 0)
   }
@@ -27,16 +27,35 @@ export class Fill extends VisualProperties {
   Values: ValuesOf<mixins.Fill>
   values(): this["Values"] {
     return {
-      color: this.fill_color.get_value(),
-      alpha: this.fill_alpha.get_value(),
+      color: this.get_fill_color(),
+      alpha: this.get_fill_alpha(),
     }
   }
 
   set_value(ctx: Context2d): void {
-    const color = this.fill_color.get_value()
-    const alpha = this.fill_alpha.get_value()
+    const color = this.get_fill_color()
+    const alpha = this.get_fill_alpha()
 
     ctx.fillStyle = color2css(color, alpha)
+  }
+
+  get_fill_color(): Color | null {
+    const css_color = this._get_css_value("fill-color")
+    if (css_color != "") {
+      return css_color
+    }
+    return this.fill_color.get_value()
+  }
+
+  get_fill_alpha(): number {
+    const css_alpha = this._get_css_value("fill-alpha")
+    if (css_alpha != "") {
+      const alpha = Number(css_alpha)
+      if (isFinite(alpha)) {
+        return alpha
+      }
+    }
+    return this.fill_alpha.get_value()
   }
 }
 

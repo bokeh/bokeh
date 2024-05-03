@@ -381,7 +381,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       const progress = new Bar({
-        format: "{bar} {percentage}% | {value} of {total}{failures}{skipped}",
+        format: "{bar} {percentage}% | {value} of {total}{failures}{skipped} | {duration}s",
         stream: process.stdout,
         noTTYOutput: true,
         notTTYSchedule: 1000,

@@ -177,7 +177,7 @@ export class GlyphRendererView extends DataRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const render = () => this.request_render()
+    const render = () => this.request_paint()
     const update = () => this.update_data()
 
     this.connect(this.model.change, render)
@@ -249,7 +249,7 @@ export class GlyphRendererView extends DataRendererView {
 
   async update_data(indices?: number[]): Promise<void> {
     await this.set_data(indices)
-    this.request_render()
+    this.request_paint()
   }
 
   // in case of partial updates like patching, the list of indices that actually
@@ -314,7 +314,7 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const glsupport = this.has_webgl
 
     this.glyph.map_data()
@@ -404,9 +404,9 @@ export class GlyphRendererView extends DataRendererView {
     if (selected_full_indices.length == 0) {
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
+          this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
-          glyph.render(ctx, all_indices)
+          glyph.paint(ctx, all_indices)
         }
       } else if (this.glyph instanceof PatchView ||
                  this.glyph instanceof HAreaView ||
@@ -414,18 +414,18 @@ export class GlyphRendererView extends DataRendererView {
                  this.glyph instanceof VAreaStepView ||
                  this.glyph instanceof HAreaStepView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.render(ctx, all_indices)
+          glyph.paint(ctx, all_indices)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model) {
-              this.hover_glyph.render(ctx, all_indices)
+              this.hover_glyph.paint(ctx, all_indices)
             }
           }
         }
       } else {
-        glyph.render(ctx, indices)
+        glyph.paint(ctx, indices)
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-          this.hover_glyph.render(ctx, inspected_subset_indices)
+          this.hover_glyph.paint(ctx, inspected_subset_indices)
         }
       }
     // Render with selection
@@ -456,13 +456,13 @@ export class GlyphRendererView extends DataRendererView {
         }
       }
 
-      nonselection_glyph.render(ctx, nonselected_subset_indices)
-      selection_glyph.render(ctx, selected_subset_indices)
+      nonselection_glyph.paint(ctx, nonselected_subset_indices)
+      selection_glyph.paint(ctx, selected_subset_indices)
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView) {
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
+          this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
-          this.hover_glyph.render(ctx, inspected_subset_indices)
+          this.hover_glyph.paint(ctx, inspected_subset_indices)
         }
       }
     }

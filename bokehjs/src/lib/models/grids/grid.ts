@@ -12,7 +12,7 @@ export class GridView extends GuideRendererView {
   declare model: Grid
   declare visuals: Grid.Visuals
 
-  protected _render(): void {
+  protected _paint(): void {
     const ctx = this.layer.ctx
     ctx.save()
     this._draw_regions(ctx)
@@ -23,7 +23,7 @@ export class GridView extends GuideRendererView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   protected _draw_regions(ctx: Context2d): void {

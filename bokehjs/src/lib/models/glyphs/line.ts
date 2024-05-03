@@ -24,7 +24,7 @@ export class LineView extends XYGlyphView {
     return LineGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Line.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Line.Data>): void {
     const {sx, sy} = {...this, ...data}
     const nonselection = this.parent.nonselection_glyph == this
 

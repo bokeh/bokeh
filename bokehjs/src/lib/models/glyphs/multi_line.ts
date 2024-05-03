@@ -42,7 +42,7 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<MultiLine.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<MultiLine.Data>): void {
     const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {

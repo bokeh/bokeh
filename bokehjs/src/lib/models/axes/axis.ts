@@ -28,6 +28,7 @@ import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
+import {position} from "core/dom"
 import {parse_delimited_string} from "models/text/utils"
 import {Str, Float, Ref, Or, Dict, Mapping} from "core/kinds"
 
@@ -134,7 +135,10 @@ export class AxisView extends GuideRendererView {
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
-    this.layout.on_resize(() => this._coordinates = undefined)
+    this.layout.on_resize(() => {
+      this._coordinates = undefined
+      position(this.el, this.bbox)
+    })
   }
 
   get_size(): Size {
@@ -148,31 +152,22 @@ export class AxisView extends GuideRendererView {
     }
   }
 
-  get is_renderable(): boolean {
+  override get is_renderable(): boolean {
     const [range, cross_range] = this.ranges
-    return range.is_valid && cross_range.is_valid && range.span > 0 && cross_range.span > 0
+    return super.is_renderable && range.is_valid && cross_range.is_valid && range.span > 0 && cross_range.span > 0
   }
 
-  protected _render(): void {
-    if (!this.is_renderable) {
-      return
-    }
-
+  protected _paint(): void {
     const {tick_coords, extents} = this
-
     const ctx = this.layer.ctx
-    ctx.save()
+
     this._draw_background(ctx, extents)
     this._draw_rule(ctx, extents)
     this._draw_major_ticks(ctx, extents, tick_coords)
     this._draw_minor_ticks(ctx, extents, tick_coords)
     this._draw_major_labels(ctx, extents, tick_coords)
     this._draw_axis_label(ctx, extents, tick_coords)
-    this._paint?.(ctx, extents, tick_coords)
-    ctx.restore()
   }
-
-  protected _paint?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
 
   override connect_signals(): void {
     super.connect_signals()

@@ -6,7 +6,7 @@ import * as uniforms from "core/uniforms"
 import type * as geometry from "core/geometry"
 import {settings} from "core/settings"
 import type {Context2d} from "core/util/canvas"
-import {View} from "core/view"
+import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -38,7 +38,7 @@ type ValueLike = number | uniforms.Uniform<unknown> | Arrayable<unknown> | Ragge
 
 export interface GlyphView extends Glyph.Data {}
 
-export abstract class GlyphView extends View {
+export abstract class GlyphView extends DOMComponentView {
   declare model: Glyph
   visuals: Glyph.Visuals
 
@@ -109,25 +109,25 @@ export abstract class GlyphView extends View {
     }
   }
 
-  request_render(): void {
-    this.parent.request_render()
+  request_paint(): void {
+    this.parent.request_paint()
   }
 
   get canvas() {
     return this.renderer.parent.canvas_view
   }
 
-  render(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
+  paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
     if (this.glglyph != null) {
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
-      this._render(ctx, indices, data)
+      this._paint(ctx, indices, data)
     }
   }
 
-  protected abstract _render(ctx: Context2d, indices: number[], data?: Glyph.Data): void
+  protected abstract _paint(ctx: Context2d, indices: number[], data?: Glyph.Data): void
 
   override has_finished(): boolean {
     return true

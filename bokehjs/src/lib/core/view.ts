@@ -44,14 +44,6 @@ export class View implements ISignalable {
     return this._ready
   }
 
-  public *children(): IterViews {}
-
-  protected _has_finished: boolean
-
-  mark_finished(): void {
-    this._has_finished = true
-  }
-
   /** @internal */
   protected _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
 
@@ -90,9 +82,7 @@ export class View implements ISignalable {
     }
   }
 
-  initialize(): void {
-    this._has_finished = false
-  }
+  initialize(): void {}
 
   async lazy_initialize(): Promise<void> {}
 
@@ -110,6 +100,41 @@ export class View implements ISignalable {
 
   toString(): string {
     return `${this.model.type}View(${this.model.id})`
+  }
+
+  public *children(): IterViews {}
+
+  protected _has_finished: boolean = false
+
+  mark_finished(): void {
+    this._has_finished = true
+  }
+
+  /**
+   * Mark as finished even if e.g. external resources were not loaded yet.
+   */
+  force_finished(): void {
+    this.mark_finished()
+  }
+
+  finish(): void {
+    this.mark_finished()
+    this.notify_finished()
+  }
+
+  private _idle_notified: boolean = false
+  notify_finished(): void {
+    if (!this.is_root) {
+      this.root.notify_finished()
+    } else {
+      if (!this._idle_notified && this.has_finished()) {
+        const {document} = this.model
+        if (document != null) {
+          this._idle_notified = true
+          document.notify_idle(this.model)
+        }
+      }
+    }
   }
 
   serializable_state(): SerializableState {
@@ -174,20 +199,6 @@ export class View implements ISignalable {
   }
 
   on_hit?(sx: number, sy: number): boolean
-
-  private _idle_notified: boolean = false
-  notify_finished(): void {
-    if (!this.is_root) {
-      this.root.notify_finished()
-    } else {
-      if (!this._idle_notified && this.has_finished()) {
-        if (this.model.document != null) {
-          this._idle_notified = true
-          this.model.document.notify_idle(this.model)
-        }
-      }
-    }
-  }
 
   resolve_frame(): View | null {
     return null

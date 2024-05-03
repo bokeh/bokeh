@@ -1,12 +1,14 @@
-import type {View} from "../view"
+import type {DOMComponentView} from "../dom_view"
 import type {CanvasLayer} from "../util/canvas"
 import type * as p from "../properties"
+
+const global_css_prefix = "--bk-"
 
 export type NameOf<Key extends string> = Key extends `text_${infer Name}` ? Name : never
 export type ValuesOf<T> = {[Key in keyof T & string as NameOf<Key>]: T[Key] extends p.Property<infer V> ? V : never}
 
-export interface Renderable {
-  request_render(): void
+export interface Paintable {
+  request_paint(): void
   readonly canvas: {
     create_layer(): CanvasLayer
   }
@@ -23,7 +25,10 @@ export abstract class VisualProperties {
     yield* this._props
   }
 
-  constructor(readonly obj: View & Renderable, readonly prefix: string = "") {
+  readonly css_prefix: string
+
+  constructor(readonly obj: DOMComponentView & Paintable, readonly prefix: string = "") {
+    this.css_prefix = `${global_css_prefix}${prefix.replaceAll("_", "-")}`
     const self = this as any
     this._props = []
     for (const attr of this.attrs) {
@@ -37,6 +42,11 @@ export abstract class VisualProperties {
   abstract get doit(): boolean
 
   update(): void {}
+
+  protected _get_css_value(name: string): string {
+    const style = getComputedStyle(this.obj.el)
+    return style.getPropertyValue(`${this.css_prefix}${name}`)
+  }
 }
 
 export abstract class VisualUniforms {
@@ -50,7 +60,7 @@ export abstract class VisualUniforms {
     }
   }
 
-  constructor(readonly obj: View & Renderable, readonly prefix: string = "") {
+  constructor(readonly obj: DOMComponentView & Paintable, readonly prefix: string = "") {
     for (const attr of this.attrs) {
       Object.defineProperty(this, attr, {
         get() {

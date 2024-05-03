@@ -3,7 +3,7 @@ import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
-import {div, empty, position, display, undisplay, remove} from "core/dom"
+import {empty, position, display, undisplay} from "core/dom"
 import type {Size, Layoutable} from "core/layout"
 import type {SidePanel} from "core/layout/side_panel"
 import {SideLayout} from "core/layout/side_panel"
@@ -16,8 +16,16 @@ export class ToolbarPanelView extends AnnotationView {
   declare panel: SidePanel
   declare layout: Layoutable
 
+  override rendering_target(): HTMLElement {
+    return this.plot_view.canvas_view.events_el
+  }
+
   override update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+  }
+
+  override after_layout(): void {
+    this.toolbar_view.after_render()
   }
 
   override has_finished(): boolean {
@@ -30,7 +38,6 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   toolbar_view: ToolbarView
-  readonly el: HTMLElement = div()
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -49,13 +56,18 @@ export class ToolbarPanelView extends AnnotationView {
 
   override remove(): void {
     this.toolbar_view.remove()
-    remove(this.el)
     super.remove()
+  }
+
+  override render(): void {
+    super.render()
+    this.toolbar_view.render_to(this.shadow_el)
   }
 
   private _previous_bbox: BBox = new BBox()
 
-  protected _render(): void {
+  protected _paint(): void {
+    // TODO this shouldn't be necessary
     display(this.el)
 
     // TODO: this should be handled by the layout
@@ -75,11 +87,6 @@ export class ToolbarPanelView extends AnnotationView {
         style.width = "unset"
         style.height = "100%"
       }
-
-      this.toolbar_view.render()
-      this.plot_view.canvas_view.add_event(this.el)
-      this.el.appendChild(this.toolbar_view.el)
-      this.toolbar_view.after_render()
     }
 
     if (!this.model.visible) {

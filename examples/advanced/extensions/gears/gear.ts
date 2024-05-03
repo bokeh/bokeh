@@ -20,7 +20,7 @@ export class GearView extends XYGlyphView {
     this.smodule = this.sdist(this.renderer.xscale, this.x, this.module, "edge")
   }
 
-  _render(ctx: Context2d, indices: number[], data?: Partial<Gear.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Gear.Data>): void {
     const {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal} = {...this, ...data}
 
     for (const i of indices) {

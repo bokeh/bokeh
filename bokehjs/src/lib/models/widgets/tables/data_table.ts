@@ -10,7 +10,7 @@ import {div} from "core/dom"
 import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import {unique_id} from "core/util/string"
-import {isString, isNumber, is_defined} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
 import {some, range, sort_by, map} from "core/util/array"
 import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
@@ -182,15 +182,13 @@ export class DataTableView extends WidgetView {
     super.connect_signals()
     this.connect(this.model.change, () => {
       this.render()
-      this.after_render()
-      this.invalidate_layout()
+      this.r_after_render()
     })
 
     for (const column of this.model.columns) {
       this.connect(column.change, () => {
         this.render()
-        this.after_render()
-        this.invalidate_layout()
+        this.r_after_render()
       })
     }
 
@@ -323,9 +321,7 @@ export class DataTableView extends WidgetView {
     this.shadow_el.appendChild(this.wrapper_el)
   }
 
-  override _after_render(): void {
-    super._after_render()
-
+  protected _render_table(): void {
     const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
@@ -383,8 +379,6 @@ export class DataTableView extends WidgetView {
       frozenBottom: frozen_bottom,
       explicitInitialization: false,
     }
-
-    const initialized = is_defined(this.grid)
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.wrapper_el, this.data, columns, options)
@@ -449,8 +443,13 @@ export class DataTableView extends WidgetView {
         this._hide_header()
       }
     }
+  }
 
+  override _after_render(): void {
+    const initialized = typeof this.grid !== "undefined"
+    this._render_table()
     this.updateLayout(initialized, false)
+    super._after_render()
   }
 
   _hide_header(): void {

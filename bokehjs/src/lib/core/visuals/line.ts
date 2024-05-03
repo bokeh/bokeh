@@ -1,9 +1,9 @@
 import type {ValuesOf} from "./visual"
 import {VisualProperties, VisualUniforms} from "./visual"
-import type {uint32} from "../types"
+import type {uint32, Color} from "../types"
 import type * as p from "../properties"
 import * as mixins from "../property_mixins"
-import type {LineJoin, LineCap, LineDash} from "../enums"
+import {LineJoin, LineCap, LineDash} from "../enums"
 import {color2css} from "../util/color"
 import type {Context2d} from "../util/canvas"
 import {isArray, isInteger} from "../util/types"
@@ -27,9 +27,9 @@ export function resolve_line_dash(line_dash: LineDash | string | number[]): numb
 export interface Line extends Readonly<mixins.Line> {}
 export class Line extends VisualProperties {
   get doit(): boolean {
-    const color = this.line_color.get_value()
-    const alpha = this.line_alpha.get_value()
-    const width = this.line_width.get_value()
+    const color = this.get_line_color()
+    const alpha = this.get_line_alpha()
+    const width = this.get_line_width()
 
     return !(color == null || alpha == 0 || width == 0)
   }
@@ -46,26 +46,91 @@ export class Line extends VisualProperties {
   declare Values: ValuesOf<mixins.Line>
   values(): this["Values"] {
     return {
-      color:  this.line_color.get_value(),
-      alpha:  this.line_alpha.get_value(),
-      width:  this.line_width.get_value(),
-      join:   this.line_join.get_value(),
-      cap:    this.line_cap.get_value(),
-      dash:   this.line_dash.get_value(),
-      offset: this.line_dash_offset.get_value(),
+      color:  this.get_line_color(),
+      alpha:  this.get_line_alpha(),
+      width:  this.get_line_width(),
+      join:   this.get_line_join(),
+      cap:    this.get_line_cap(),
+      dash:   this.get_line_dash(),
+      offset: this.get_line_dash_offset(),
     }
   }
 
   set_value(ctx: Context2d): void {
-    const color = this.line_color.get_value()
-    const alpha = this.line_alpha.get_value()
+    const color = this.get_line_color()
+    const alpha = this.get_line_alpha()
 
     ctx.strokeStyle    = color2css(color, alpha)
-    ctx.lineWidth      = this.line_width.get_value()
-    ctx.lineJoin       = this.line_join.get_value()
-    ctx.lineCap        = this.line_cap.get_value()
-    ctx.setLineDash(resolve_line_dash(this.line_dash.get_value()))
-    ctx.lineDashOffset = this.line_dash_offset.get_value()
+    ctx.lineWidth      = this.get_line_width()
+    ctx.lineJoin       = this.get_line_join()
+    ctx.lineCap        = this.get_line_cap()
+    ctx.setLineDash(resolve_line_dash(this.get_line_dash()))
+    ctx.lineDashOffset = this.get_line_dash_offset()
+  }
+
+  get_line_color(): Color | null {
+    const css_color = this._get_css_value("line-color")
+    if (css_color != "") {
+      return css_color
+    }
+    return this.line_color.get_value()
+  }
+
+  get_line_alpha(): number {
+    const css_alpha = this._get_css_value("line-alpha")
+    if (css_alpha != "") {
+      const alpha = Number(css_alpha)
+      if (isFinite(alpha)) {
+        return alpha
+      }
+    }
+    return this.line_alpha.get_value()
+  }
+
+  get_line_width(): number {
+    const css_width = this._get_css_value("line-width")
+    if (css_width != "") {
+      const width = Number(css_width)
+      if (isFinite(width)) {
+        return width
+      }
+    }
+    return this.line_width.get_value()
+  }
+
+  get_line_join(): LineJoin {
+    const css_join = this._get_css_value("line-join")
+    if (LineJoin.valid(css_join)) {
+      return css_join
+    }
+    return this.line_join.get_value()
+  }
+
+  get_line_cap(): LineCap {
+    const css_cap = this._get_css_value("line-cap")
+    if (LineCap.valid(css_cap)) {
+      return css_cap
+    }
+    return this.line_cap.get_value()
+  }
+
+  get_line_dash(): LineDash | number[] {
+    const css_dash = this._get_css_value("line-dash")
+    if (LineDash.valid(css_dash)) {
+      return css_dash
+    }
+    return this.line_dash.get_value()
+  }
+
+  get_line_dash_offset(): number {
+    const css_dash_offset = this._get_css_value("line-dash-offset")
+    if (css_dash_offset != "") {
+      const dash_offset = Number(css_dash_offset)
+      if (isFinite(dash_offset)) {
+        return dash_offset
+      }
+    }
+    return this.line_dash_offset.get_value()
   }
 }
 

@@ -1,4 +1,4 @@
-import {select, option, optgroup, empty, append} from "core/dom"
+import {select, option, optgroup, empty} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import {entries} from "core/util/object"
 import type * as p from "core/properties"
@@ -35,7 +35,7 @@ export class SelectView extends InputWidgetView {
     })
     this.on_change(options, () => {
       empty(this.input_el)
-      append(this.input_el, ...this.options_el())
+      this.input_el.append(...this.options_el())
       this._update_value()
     })
   }

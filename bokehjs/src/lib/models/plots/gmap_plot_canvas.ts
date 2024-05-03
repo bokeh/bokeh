@@ -1,6 +1,6 @@
 import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
-import {div, remove} from "core/dom"
+import {div} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import type {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
@@ -80,7 +80,7 @@ export class GMapPlotView extends PlotView {
     await super.lazy_initialize()
 
     this.map_el = div({style: {position: "absolute"}})
-    this.canvas_view.add_underlay(this.map_el)
+    this.canvas_view.underlays_el.append(this.map_el)
 
     if (!has_maps_API()) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
@@ -89,7 +89,7 @@ export class GMapPlotView extends PlotView {
       }
       gmaps_ready.connect(() => {
         this._build_map()
-        this.request_paint("everything")
+        this.request_repaint()
       })
     } else {
       this._build_map()
@@ -97,7 +97,7 @@ export class GMapPlotView extends PlotView {
   }
 
   override remove(): void {
-    remove(this.map_el)
+    this.map_el.remove()
     super.remove()
   }
 

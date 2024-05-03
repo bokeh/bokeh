@@ -8,7 +8,7 @@ export class BandView extends UpperLowerView {
   declare model: Band
   declare visuals: Band.Visuals
 
-  paint(ctx: Context2d): void {
+  _paint_data(ctx: Context2d): void {
     // Draw the band body
     ctx.beginPath()
     ctx.moveTo(this._lower_sx[0], this._lower_sy[0])

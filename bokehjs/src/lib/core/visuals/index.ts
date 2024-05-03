@@ -10,12 +10,14 @@ export {Text, TextScalar, TextVector}
 export {Hatch, HatchScalar, HatchVector}
 export {Image, ImageScalar, ImageVector}
 
-import type {View} from "../view"
+import type {DOMComponentView} from "../dom_view"
 import * as mixins from "../property_mixins"
 
-import type {Renderable} from "./visual"
+import type {Paintable} from "./visual"
+export type {Paintable}
+
 import {VisualProperties, VisualUniforms} from "./visual"
-export {VisualProperties, VisualUniforms, type Renderable}
+export {VisualProperties, VisualUniforms}
 
 export class Visuals {
   *[Symbol.iterator](): Generator<VisualProperties | VisualUniforms, void, undefined> {
@@ -24,7 +26,7 @@ export class Visuals {
 
   protected _visuals: (VisualProperties | VisualUniforms)[] = []
 
-  constructor(view: View & Renderable) {
+  constructor(view: DOMComponentView & Paintable) {
     for (const [prefix, mixin] of view.model._mixins) {
       const visual = (() => {
         switch (mixin) {

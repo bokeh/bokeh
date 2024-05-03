@@ -37,7 +37,7 @@ export class HTMLLabelView extends TextAnnotationView {
     return {width, height}
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const {angle, angle_units} = this.model
     const rotation = compute_angle(angle, angle_units)
 
@@ -71,7 +71,7 @@ export class HTMLLabelView extends TextAnnotationView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    this._paint(this.layer.ctx, this.model.text, sx, sy, rotation)
+    this._paint_text(this.layer.ctx, this.model.text, sx, sy, rotation)
   }
 }
 

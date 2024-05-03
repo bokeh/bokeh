@@ -34,19 +34,21 @@ export class TileRendererView extends RendererView {
   protected initial_extent: Extent
   protected _last_height?: number
   protected _last_width?: number
-  protected map_initialized?: boolean
+  protected map_initialized: boolean = false
   protected render_timer?: number
   protected prefetch_timer?: number
 
-  override mark_finished(): void {
-    super.mark_finished()
-    this._tiles = []
-  }
-
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.tile_source.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
+    this.connect(this.model.tile_source.change, () => this.request_paint())
+  }
+
+  override force_finished(): void {
+    super.force_finished()
+    if (this._tiles == null) {
+      this._tiles = []
+    }
   }
 
   get_extent(): Extent {
@@ -148,7 +150,7 @@ export class TileRendererView extends RendererView {
           tile.finished = true
           this.notify_finished()
         } else {
-          this.request_render()
+          this.request_paint()
         }
       },
       failed() {
@@ -189,8 +191,8 @@ export class TileRendererView extends RendererView {
     return true
   }
 
-  protected _render(): void {
-    if (this.map_initialized == null) {
+  protected _paint(): void {
+    if (!this.map_initialized) {
       this._set_data()
       this._map_data()
       this.map_initialized = true

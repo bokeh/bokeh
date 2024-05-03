@@ -23,7 +23,7 @@ export class StepView extends XYGlyphView {
     return StepGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     const npoints = indices.length
     if (npoints < 2) {
       return

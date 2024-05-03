@@ -151,7 +151,11 @@ export class TooltipView extends UIElementView {
   override render(): void {
     super.render()
 
-    this._element_view?.render_to(null)
+    const {_element_view} = this
+    if (_element_view != null) {
+      _element_view.render()
+      _element_view.r_after_render()
+    }
     this.arrow_el = div({class: [tooltips.arrow]})
     this.content_el = div({class: tooltips.tooltip_content}, this.content)
     this.shadow_el.append(this.arrow_el, this.content_el)

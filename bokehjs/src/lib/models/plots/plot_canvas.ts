@@ -25,9 +25,9 @@ import {Panel} from "../ui/panel"
 import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
-import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
+import type {ViewStorage, IterViews, ViewOf, BuildResult} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import type {Renderable} from "core/visuals"
+import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
@@ -64,7 +64,7 @@ import attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
-export class PlotView extends LayoutDOMView implements Renderable {
+export class PlotView extends LayoutDOMView implements Paintable {
   declare model: Plot
   visuals: Plot.Visuals
 
@@ -114,18 +114,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager.invalidate_dataranges = value
   }
 
-  protected _is_paused?: number
-
   protected lod_started: boolean
 
   protected _initial_state: StateInfo
 
   protected throttled_paint: () => void
 
-  computed_renderers: Renderer[]
+  computed_renderers: Renderer[] = []
 
   get computed_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
+    return this.computed_renderers.map((r) => this.renderer_views.get(r)).filter(isNotNull) // TODO race condition again
   }
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
@@ -142,7 +140,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.model.renderers.map((r) => this.renderer_view(r)!).filter(is_auto_ranged)
+    return this.computed_renderer_views.filter(is_auto_ranged)
   }
 
   get base_font_size(): number | null {
@@ -168,30 +166,23 @@ export class PlotView extends LayoutDOMView implements Renderable {
     yield* this.tool_views.values()
   }
 
-  get is_paused(): boolean {
-    return this._is_paused != null && this._is_paused !== 0
-  }
-
   get child_models(): LayoutDOM[] {
     return []
   }
 
+  private _is_paused: number = 0
+  get is_paused(): boolean {
+    return this._is_paused != 0
+  }
+
   pause(): void {
-    if (this._is_paused == null) {
-      this._is_paused = 1
-    } else {
-      this._is_paused += 1
-    }
+    this._is_paused += 1
   }
 
   unpause(no_render: boolean = false): void {
-    if (this._is_paused == null) {
-      throw new Error("wasn't paused")
-    }
-
-    this._is_paused = Math.max(this._is_paused - 1, 0)
-    if (this._is_paused == 0 && !no_render) {
-      this.request_paint("everything")
+    this._is_paused = max(this._is_paused - 1, 0)
+    if (!this.is_paused && !no_render) {
+      this.request_repaint()
     }
   }
 
@@ -200,36 +191,27 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._needs_notify = true
   }
 
-  // TODO: this needs to be removed
-  request_render(): void {
-    this.request_paint("everything")
+  request_repaint(): void {
+    this.request_paint()
   }
 
-  request_paint(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
-    this.invalidate_painters(to_invalidate)
+  request_paint(...to_invalidate: (Renderer | RendererView)[]): void {
+    this.invalidate_painters(...to_invalidate)
     this.schedule_paint()
   }
 
-  invalidate_painters(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
-    if (to_invalidate == "everything") {
+  invalidate_painters(...to_invalidate: (Renderer | RendererView)[]): void {
+    if (to_invalidate.length == 0) {
       this._invalidate_all = true
-    } else if (isArray(to_invalidate)) {
-      for (const item of to_invalidate) {
-        const view = (() => {
-          if (item instanceof RendererView) {
-            return item
-          } else {
-            return this.renderer_view(item)!
-          }
-        })()
-        this._invalidated_painters.add(view)
-      }
-    } else {
+      return
+    }
+
+    for (const item of to_invalidate) {
       const view = (() => {
-        if (to_invalidate instanceof RendererView) {
-          return to_invalidate
+        if (item instanceof RendererView) {
+          return item
         } else {
-          return this.renderer_view(to_invalidate)!
+          return this.renderer_view(item)!
         }
       })()
       this._invalidated_painters.add(view)
@@ -244,7 +226,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   request_layout(): void {
-    this.request_paint("everything")
+    this.request_repaint()
   }
 
   reset(): void {
@@ -735,10 +717,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
-  }
-
   protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center, renderers} = this.model
 
@@ -765,17 +743,46 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected _update_attribution(): void {
     const attribution = [
       ...this.model.attribution,
-      ...this.computed_renderer_views.map((rv: RendererView | null) => rv?.attribution), // TODO race condition again
+      ...this.computed_renderer_views.map((rv) => rv.attribution),
     ].filter(isNotNull)
     const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
     this._attribution.elements = elements
     // TODO this._attribution.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
   }
 
-  async build_renderer_views(): Promise<void> {
+  protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
-    await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: this})
     this._update_attribution()
+    return result
+  }
+
+  protected async _update_renderers(): Promise<void> {
+    const {created} = await this._build_renderers()
+    const created_renderers = new Set(created)
+
+    // First remove and then either reattach existing renderers or render and
+    // attach new renderers, so that the order of children is consistent, while
+    // avoiding expensive re-rendering of existing views.
+    for (const renderer_view of this.renderer_views.values()) {
+      renderer_view.el.remove()
+    }
+
+    for (const renderer_view of this.renderer_views.values()) {
+      const is_new = created_renderers.has(renderer_view)
+
+      const target = renderer_view.rendering_target()
+      if (is_new) {
+        renderer_view.render_to(target)
+      } else {
+        target.append(renderer_view.el)
+      }
+    }
+    this.r_after_render()
+  }
+
+  async build_renderer_views(): Promise<void> {
+    await this._build_renderers()
   }
 
   async build_tool_views(): Promise<void> {
@@ -803,31 +810,31 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const {above, below, left, right, center, renderers} = this.model.properties
     const panels = [above, below, left, right, center]
     this.on_change(renderers, async () => {
-      await this.build_renderer_views()
+      await this._update_renderers()
     })
     this.on_change(panels, async () => {
-      await this.build_renderer_views()
+      await this._update_renderers()
       this.invalidate_layout()
     })
 
     this.connect(this.model.toolbar.properties.tools.change, async () => {
       await this.build_tool_views()
-      await this.build_renderer_views()
+      await this._update_renderers()
     })
 
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
       this.connect(range.change, () => {
-        this.request_paint("everything")
+        this.request_repaint()
       })
     }
     for (const [, range] of y_ranges) {
       this.connect(range.change, () => {
-        this.request_paint("everything")
+        this.request_repaint()
       })
     }
 
-    this.connect(this.model.change, () => this.request_paint("everything"))
+    this.connect(this.model.change, () => this.request_repaint())
     this.connect(this.model.reset, () => this.reset())
 
     const {toolbar_location} = this.model.properties
@@ -838,7 +845,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
           this._toolbar.toolbar.location = toolbar_location
         } else {
           this._toolbar = undefined
-          await this.build_renderer_views()
+          await this._update_renderers()
         }
       } else {
         if (toolbar_location != null) {
@@ -846,14 +853,18 @@ export class PlotView extends LayoutDOMView implements Renderable {
           this._toolbar = new ToolbarPanel({toolbar})
           toolbar.location = toolbar_location
           toolbar.inner = toolbar_inner
-          await this.build_renderer_views()
+          await this._update_renderers()
         }
       }
       this.invalidate_layout()
     })
 
     const {hold_render} = this.model.properties
-    this.on_change(hold_render, () => this._hold_render_changed())
+    this.on_change(hold_render, () => {
+      if (!this.model.hold_render) {
+        this.request_repaint()
+      }
+    })
   }
 
   override has_finished(): boolean {
@@ -942,13 +953,21 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
+  override render(): void {
+    super.render()
+
+    for (const rv of this.computed_renderer_views) {
+      rv.render_to(rv.rendering_target())
+    }
+  }
+
   repaint(): void {
     this._invalidate_layout_if_needed()
     this.paint()
   }
 
   paint(): void {
-    if (this.is_paused) {
+    if (this.is_paused || this.model.hold_render) {
       return
     }
 
@@ -960,7 +979,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       // so all renderers have to be manually marked as finished, because
       // their `render()` method didn't run.
       for (const renderer_view of this.computed_renderer_views) {
-        renderer_view.mark_finished()
+        renderer_view.force_finished()
       }
     }
 
@@ -981,7 +1000,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop()
           }
-          this.request_paint("everything") // TODO: this.schedule_paint()
+          this.request_repaint() // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
       } else {
         document.interactive_stop()
@@ -1064,12 +1083,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
-    for (const renderer of this.computed_renderers) {
-      if (renderer.level != level) {
+    for (const renderer_view of this.computed_renderer_views) {
+      if (renderer_view.model.level != level) {
         continue
       }
-
-      const renderer_view = this.renderer_views.get(renderer)!
 
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
@@ -1078,7 +1095,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
         ctx.clip()
       }
 
-      renderer_view.render()
+      renderer_view.paint()
       ctx.restore()
 
       if (renderer_view.has_webgl) {
@@ -1166,21 +1183,14 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
-    const renderers = this.get_renderer_views()
+    const renderers = this
+      .computed_renderer_views
       .filter((view) => view.model.syncable) // filters out computed renderers
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
     // TODO: remove this when frame is generalized
     const frame = {type: "CartesianFrame", bbox: this.frame.bbox}
     return {...state, children: [...children ?? [], frame, ...renderers]}
-  }
-
-  protected _hold_render_changed(): void {
-    if (this.model.hold_render) {
-      this.pause()
-    } else {
-      this.unpause()
-    }
   }
 
   override resolve_frame(): View | null {

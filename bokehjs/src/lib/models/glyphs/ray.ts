@@ -41,7 +41,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Ray.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Ray.Data>): void {
     if (!this.visuals.line.doit) {
       return
     }

@@ -156,26 +156,6 @@ export function nbsp(): Text {
   return text("\u00a0")
 }
 
-export function append(element: Node, ...children: Node[]): void {
-  for (const child of children) {
-    element.appendChild(child)
-  }
-}
-
-export function remove(element: Node): void {
-  const parent = element.parentNode
-  if (parent != null) {
-    parent.removeChild(element)
-  }
-}
-
-export function replaceWith(element: Node, replacement: Node): void {
-  const parent = element.parentNode
-  if (parent != null) {
-    parent.replaceChild(replacement, element)
-  }
-}
-
 export function prepend(element: Node, ...nodes: Node[]): void {
   const first = element.firstChild
   for (const node of nodes) {
@@ -495,7 +475,7 @@ export class InlineStyleSheet extends StyleSheet {
   }
 
   remove(): void {
-    remove(this.el)
+    this.el.remove()
   }
 }
 
@@ -520,7 +500,7 @@ export class ImportedStyleSheet extends StyleSheet {
   }
 
   remove(): void {
-    remove(this.el)
+    this.el.remove()
   }
 }
 

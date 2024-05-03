@@ -2,6 +2,7 @@ import * as sinon from "sinon"
 
 import {expect} from "assertions"
 import {display} from "../../../framework"
+import {restorable} from "../../_util"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"
@@ -57,39 +58,39 @@ describe("UIElement", () => {
   })
 
   it("should allow updating 'stylesheets' without re-rendering", async () => {
-    const ui = new UI({stylesheets: [":host { background-color: #f00; }"]})
+    const ui = new UI({stylesheets: [":host { background-color: #f00; }"], visible: false})
     const {view} = await display(ui, [100, 100])
 
-    const render_spy = sinon.spy(view, "render")
-    try {
-      const stylesheets = () => [...view.shadow_el.children]
-        .filter((c) => c instanceof HTMLStyleElement).map((c) => c.textContent)
+    using render_spy = restorable(sinon.spy(view, "render"))
 
-      expect(stylesheets()).to.be.equal([
-        base_css,
-        ":host{position:relative;}",
-        ":host { background-color: #000; }",
-        "", // style
-        "", // _display
-        ":host { background-color: #f00; }",
-      ])
-
-      ui.stylesheets = [...ui.stylesheets, ":host { background-color: #ff0; }"]
-      await view.ready
-
-      expect(stylesheets()).to.be.equal([
-        base_css,
-        ":host{position:relative;}",
-        ":host { background-color: #000; }",
-        "", // style
-        "", // _display
-        ":host { background-color: #f00; }",
-        ":host { background-color: #ff0; }",
-      ])
-      expect(render_spy.callCount).to.be.equal(0)
-    } finally {
-      render_spy.restore()
+    const stylesheets = () => {
+      return [...view.shadow_el.children]
+        .filter((c) => c instanceof HTMLStyleElement)
+        .map((c) => c.textContent)
     }
+
+    expect(stylesheets()).to.be.equal([
+      base_css,
+      ":host{position:relative;}",           // ui.css
+      ":host { background-color: #000; }",   // UIView.stylesheets
+      "",                                    // StyledElement.style
+      ":host { background-color: #f00; }",   // UIElement.stylesheets
+      ":host { display: none !important; }", // UIElementView._display
+    ])
+
+    ui.stylesheets = [...ui.stylesheets, ":host { background-color: #ff0; }"]
+    await view.ready
+
+    expect(stylesheets()).to.be.equal([
+      base_css,
+      ":host{position:relative;}",           // ui.css
+      ":host { background-color: #000; }",   // UIView.stylesheets
+      "", // style                           // StyledElement.style
+      ":host { background-color: #f00; }",   // UIElement.stylesheets
+      ":host { background-color: #ff0; }",   // UIElement.stylesheets
+      ":host { display: none !important; }", // UIElementView._display
+    ])
+    expect(render_spy.callCount).to.be.equal(0)
   })
 
   describe("should detect if the host element is displayed", () => {

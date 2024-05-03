@@ -1,11 +1,10 @@
-import type {ViewOf} from "core/view"
-import {View} from "core/view"
+import type {ViewOf, View} from "core/view"
+import {StyledElement, StyledElementView} from "../ui/styled_element"
 import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
 import {isNumber} from "core/util/types"
-import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
@@ -16,35 +15,22 @@ import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
+import {RendererGroup} from "./renderer_group"
+import type {StyleSheetLike} from "core/dom"
+import renderer_css from "styles/renderer.css"
 
-export namespace RendererGroup {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = Model.Props & {
-    visible: p.Property<boolean>
-  }
-}
-
-export interface RendererGroup extends RendererGroup.Attrs {}
-
-export class RendererGroup extends Model {
-  declare properties: RendererGroup.Props
-
-  constructor(attrs?: Partial<RendererGroup.Attrs>) {
-    super(attrs)
-  }
-
-  static {
-    this.define<RendererGroup.Props>(({Bool}) => ({
-      visible: [ Bool, true ],
-    }))
-  }
-}
-
-export abstract class RendererView extends View implements visuals.Renderable {
+export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
   declare readonly parent: PlotView
+
+  /**
+   * Define where to render this element, usually a canvas layer.
+   */
+  rendering_target(): HTMLElement {
+    return this.plot_view.canvas_view.underlays_el
+  }
 
   protected _context_menu: ViewOf<Menu> | null = null
   get context_menu(): ViewOf<Menu> | null {
@@ -64,6 +50,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
   private _custom_coordinates: CoordinateTransform | null = null
   set coordinates(custom_coordinates: CoordinateTransform | null) {
     this._custom_coordinates = custom_coordinates
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), renderer_css]
   }
 
   override initialize(): void {
@@ -134,10 +124,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return this.plot_view.canvas_view
   }
 
-  request_render(): void {
-    this.request_paint()
-  }
-
   request_paint(): void {
     this.plot_view.request_paint(this)
   }
@@ -175,18 +161,22 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return this.model.visible
   }
 
-  render(): void {
+  get is_renderable(): boolean {
+    return true
+  }
+
+  paint(): void {
     this.update_geometry()
     this.compute_geometry()
 
-    if (this.displayed) {
-      this._render()
+    if (this.displayed && this.is_renderable) {
+      this._paint()
     }
 
-    this._has_finished = true
+    this.mark_finished()
   }
 
-  protected abstract _render(): void
+  protected abstract _paint(): void
 
   renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
     return undefined
@@ -239,7 +229,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
 export namespace Renderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = StyledElement.Props & {
     group: p.Property<RendererGroup | null>
     level: p.Property<RenderLevel>
     visible: p.Property<boolean>
@@ -255,7 +245,7 @@ export namespace Renderer {
 
 export interface Renderer extends Renderer.Attrs {}
 
-export abstract class Renderer extends Model {
+export abstract class Renderer extends StyledElement {
   declare properties: Renderer.Props
   declare __view_type__: RendererView
 

@@ -133,7 +133,7 @@ export class ArrowView extends DataAnnotationView {
     }
   }
 
-  paint(ctx: Context2d): void {
+  _paint_data(ctx: Context2d): void {
     const {start, end} = this
 
     const {_sx_start, _sy_start, _sx_end, _sy_end, _angles} = this
@@ -144,7 +144,7 @@ export class ArrowView extends DataAnnotationView {
         ctx.save()
         ctx.translate(_sx_end[i], _sy_end[i])
         ctx.rotate(_angles[i])
-        end.render(ctx, i)
+        end.paint(ctx, i)
         ctx.restore()
       }
 
@@ -152,7 +152,7 @@ export class ArrowView extends DataAnnotationView {
         ctx.save()
         ctx.translate(_sx_start[i], _sy_start[i])
         ctx.rotate(_angles[i] + Math.PI)
-        start.render(ctx, i)
+        start.paint(ctx, i)
         ctx.restore()
       }
 

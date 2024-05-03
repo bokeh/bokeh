@@ -3,7 +3,7 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
-import {div, display, remove} from "core/dom"
+import {div, display} from "core/dom"
 import * as p from "core/properties"
 import type {FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
@@ -26,25 +26,19 @@ export class HTMLLabelSetView extends DataAnnotationView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-
-    this.els.forEach((el) => remove(el))
-    this.els = []
-
-    for (const _ of this.text) {
-      const el = div({style: {display: "none"}})
-      this.plot_view.canvas_view.add_overlay(el)
-      this.els.push(el)
-    }
+    this.els.forEach((el) => el.remove())
+    this.els = [...this.text.map(() => div({style: {display: "none"}}))]
+    this.plot_view.canvas_view.overlays_el.append(...this.els)
   }
 
   override remove(): void {
-    this.els.forEach((el) => remove(el))
+    this.els.forEach((el) => el.remove())
     this.els = []
     super.remove()
   }
 
   protected override _rerender(): void {
-    this.render()
+    this.paint()
   }
 
   map_data(): void {
@@ -74,7 +68,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
     })()
   }
 
-  paint(): void {
+  _paint_data(): void {
     const {ctx} = this.layer
 
     for (let i = 0, end = this.text.length; i < end; i++) {
@@ -89,11 +83,11 @@ export class HTMLLabelSetView extends DataAnnotationView {
         continue
       }
 
-      this._paint(ctx, i, text_i, sx_i, sy_i, angle_i)
+      this._paint_text(ctx, i, text_i, sx_i, sy_i, angle_i)
     }
   }
 
-  protected _paint(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
+  protected _paint_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
     assert(i in this.els)
     const el = this.els[i]
 

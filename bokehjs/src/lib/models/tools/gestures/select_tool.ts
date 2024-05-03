@@ -65,7 +65,7 @@ export abstract class SelectToolView extends GestureToolView {
     for (const selection_manager of selection_managers) {
       selection_manager.clear()
     }
-    this.plot_view.request_paint(computed_renderers)
+    this.plot_view.request_paint(...computed_renderers)
   }
 
   protected _invert_selection(): void {
@@ -74,7 +74,7 @@ export abstract class SelectToolView extends GestureToolView {
     for (const selection_manager of selection_managers) {
       selection_manager.invert()
     }
-    this.plot_view.request_paint(computed_renderers)
+    this.plot_view.request_paint(...computed_renderers)
   }
 
   protected _select_mode(modifiers: KeyModifiers): SelectionMode {

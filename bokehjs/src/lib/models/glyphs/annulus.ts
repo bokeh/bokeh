@@ -50,7 +50,7 @@ export class AnnulusView extends XYGlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<Annulus.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Annulus.Data>): void {
     const {sx, sy, sinner_radius, souter_radius} = {...this, ...data}
 
     for (const i of indices) {
@@ -127,7 +127,7 @@ export class AnnulusView extends XYGlyphView {
     const souter_radius: number[] = new Array(len)
     souter_radius[index] = r*0.8
 
-    this._render(ctx, [index], {sx, sy, sinner_radius, souter_radius})
+    this._paint(ctx, [index], {sx, sy, sinner_radius, souter_radius})
   }
 }
 

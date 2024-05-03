@@ -29,6 +29,7 @@ import {
   GridPlot,
   Tooltip,
   Node, Indexed,
+  Dialog,
 } from "@bokehjs/models"
 
 import {
@@ -3915,6 +3916,40 @@ describe("Bug", () => {
       plot.scatter(lon, lat, {size: 15, fill_color: ["red", "green", "blue"], fill_alpha: 0.8})
 
       await display(plot)
+    })
+  })
+
+  describe("in issue #13787", () => {
+    it("doesn't allow to render a DataTable in a Dialog", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          col1: ["a", "b", "c", "d"],
+          col2: [1, 2, 3, 4],
+          col3: [10, 20, 30, 40],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "col1", title: "col1"}),
+        new TableColumn({field: "col2", title: "col2"}),
+        new TableColumn({field: "col3", title: "col3"}),
+      ]
+      const data_table = new DataTable({source, columns, sizing_mode: "stretch_both"})
+
+      const dialog = new Dialog({
+        title: "Dialog with a data table",
+        content: data_table,
+        stylesheets: [`
+        :host {
+          position: relative; /* the default is fixed */
+          left: 10px;
+          top: 10px;
+          width: 400px;
+          height: 200px;
+        }
+        `],
+      })
+      await display(dialog, [450, 250])
     })
   })
 })

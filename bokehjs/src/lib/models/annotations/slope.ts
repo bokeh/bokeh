@@ -9,10 +9,10 @@ export class SlopeView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const {gradient, y_intercept} = this.model
     if (gradient == null || y_intercept == null) {
       return

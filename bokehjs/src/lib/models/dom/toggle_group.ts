@@ -1,5 +1,5 @@
 import {Action, ActionView} from "./action"
-import {RendererGroup} from "../renderers/renderer"
+import {RendererGroup} from "../renderers/renderer_group"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Index as DataIndex} from "core/util/templating"
 import {enumerate} from "core/util/iterator"

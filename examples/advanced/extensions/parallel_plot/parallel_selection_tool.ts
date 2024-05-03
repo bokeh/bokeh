@@ -284,7 +284,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
         this.selection_indices.splice(0, nelems)
         this._emit_cds_changes(this.cds_select)
       }
-      this.plot_view.request_render()
+      this.plot_view.request_paint()
     }
   }
 

@@ -112,7 +112,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
   }
 
   readonly [auto_ranged] = true
@@ -154,7 +154,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     }
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const {xs, ys} = this.model
     assert(xs.length == ys.length)
 

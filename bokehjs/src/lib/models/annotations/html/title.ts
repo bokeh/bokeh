@@ -67,7 +67,7 @@ export class HTMLTitleView extends TextAnnotationView {
     return [sx, sy]
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const {text} = this.model
     if (text.length == 0) {
       return
@@ -79,7 +79,7 @@ export class HTMLTitleView extends TextAnnotationView {
     const [sx, sy] = this._get_location()
     const angle = this.panel.get_label_angle_heuristic("parallel")
 
-    this._paint(this.layer.ctx, text, sx, sy, angle)
+    this._paint_text(this.layer.ctx, text, sx, sy, angle)
   }
 
   // XXX: this needs to use CSS computed styles

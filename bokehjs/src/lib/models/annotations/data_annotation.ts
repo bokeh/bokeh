@@ -22,7 +22,7 @@ export abstract class DataAnnotationView extends AnnotationView {
   }
 
   protected _rerender(): void {
-    this.request_render()
+    this.request_paint()
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -57,17 +57,17 @@ export abstract class DataAnnotationView extends AnnotationView {
 
   abstract map_data(): void
 
-  abstract paint(ctx: Context2d): void
+  abstract _paint_data(ctx: Context2d): void
 
   private _initial_set_data = false
 
-  protected _render(): void {
+  protected _paint(): void {
     if (!this._initial_set_data) {
       this.set_data(this.model.source)
       this._initial_set_data = true
     }
     this.map_data()
-    this.paint(this.layer.ctx)
+    this._paint_data(this.layer.ctx)
   }
 }
 

@@ -32,7 +32,7 @@ export class ImageView extends ImageBaseView {
     // Only reset image_data if already initialized
     if (this.image_data != null) {
       this._set_data(null)
-      this.renderer.request_render()
+      this.renderer.request_paint()
     }
   }
 

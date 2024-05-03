@@ -31,7 +31,7 @@ export class ImageURLView extends XYGlyphView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_paint())
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -74,7 +74,7 @@ export class ImageURLView extends XYGlyphView {
             this.resolved.set(i)
             this.image[i] = image_i
             this.loaders[i] = null
-            this.renderer.request_render()
+            this.renderer.request_paint()
           }
         },
         failed: () => {
@@ -84,7 +84,7 @@ export class ImageURLView extends XYGlyphView {
             const image_i = this.image[i]
             if (image_i != null) {
               this.image[i] = null
-              this.renderer.request_render()
+              this.renderer.request_paint()
             }
           }
         },
@@ -168,7 +168,7 @@ export class ImageURLView extends XYGlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {
+  protected _paint(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {
     const {sx, sy, sw, sh, angle, global_alpha} = {...this, ...data}
     const {image, loaders, resolved} = this
 

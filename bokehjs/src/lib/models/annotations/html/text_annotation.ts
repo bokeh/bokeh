@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "../annotation"
 import type * as visuals from "core/visuals"
-import {div, display, undisplay, remove} from "core/dom"
+import {display, undisplay} from "core/dom"
 import type * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
@@ -12,6 +12,12 @@ export abstract class TextAnnotationView extends AnnotationView {
   declare model: TextAnnotation
   declare visuals: TextAnnotation.Visuals
 
+  protected text_el: Node
+
+  override rendering_target(): HTMLElement {
+    return this.plot_view.canvas_view.overlays_el
+  }
+
   override update_layout(): void {
     const {panel} = this
     if (panel != null) {
@@ -21,30 +27,22 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
-  protected el: HTMLElement
-
   override initialize(): void {
     super.initialize()
-    this.el = div()
-    this.plot_view.canvas_view.add_overlay(this.el)
-  }
-
-  override remove(): void {
-    remove(this.el)
-    super.remove()
   }
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => this.paint())
   }
 
-  override render(): void {
+  override paint(): void {
     if (!this.model.visible) {
       undisplay(this.el)
+      return
     }
 
-    super.render()
+    super.paint()
   }
 
   get padding(): LRTB<number> {
@@ -55,55 +53,70 @@ export abstract class TextAnnotationView extends AnnotationView {
     return resolve.border_radius(this.model.border_radius)
   }
 
-  protected _paint(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
+  override render(): void {
+    super.render()
+    this.text_el = document.createTextNode("")
+    this.shadow_el.append(this.text_el)
+  }
+
+  protected _paint_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     const {el} = this
     undisplay(el)
 
-    el.textContent = text
+    this.text_el.textContent = text
     this.visuals.text.set_value(ctx)
 
-    el.style.position = "absolute"
-    el.style.left = `${sx}px`
-    el.style.top = `${sy}px`
-    el.style.color = ctx.fillStyle as string
-    el.style.webkitTextStroke = `1px ${ctx.strokeStyle}`
-    el.style.font = ctx.font
-    el.style.lineHeight = "normal" // needed to prevent ipynb css override
-    el.style.whiteSpace = "pre"
+    const {padding, border_radius} = this
 
-    el.style.padding = (() => {
-      const {left, right, top, bottom} = this.padding
-      return `${top}px ${right}px ${bottom}px ${left}px`
-    })()
+    this.style.replace(`
+    :host {
+      position: absolute;
+      left: ${sx}px;
+      top: ${sy}px;
+      color: ${ctx.fillStyle};
+      -webkit-text-stroke: 1px ${ctx.strokeStyle};
+      font: ${ctx.font};
+      white-space: pre;
 
-    el.style.borderRadius = (() => {
-      const {top_left, top_right, bottom_right, bottom_left} = this.border_radius
-      return `${top_left}px ${top_right}px ${bottom_right}px ${bottom_left}px`
-    })()
+      padding-left: ${padding.left}px;
+      padding-right: ${padding.right}px;
+      padding-top: ${padding.top}px;
+      padding-bottom: ${padding.bottom}px;
+
+      border-top-left-radius: ${border_radius.top_left}px;
+      border-top-right-radius: ${border_radius.top_right}px;
+      border-bottom-right-radius: ${border_radius.bottom_right}px;
+      border-bottom-left-radius: ${border_radius.bottom_left}px;
+    }
+    `)
 
     const [x_anchor, x_t] = (() => {
       switch (this.visuals.text.text_align.get_value()) {
-        case "left": return ["left", "0%"]
+        case "left":   return ["left", "0%"]
         case "center": return ["center", "-50%"]
-        case "right": return ["right", "-100%"]
+        case "right":  return ["right", "-100%"]
       }
     })()
     const [y_anchor, y_t] = (() => {
       switch (this.visuals.text.text_baseline.get_value()) {
-        case "top": return ["top", "0%"]
+        case "top":    return ["top", "0%"]
         case "middle": return ["center", "-50%"]
         case "bottom": return ["bottom", "-100%"]
-        default: return ["center", "-50%"] // "baseline"
+        default:       return ["center", "-50%"]  // "baseline"
       }
     })()
 
     let transform = `translate(${x_t}, ${y_t})`
     if (angle != 0) {
-      transform += `rotate(${angle}rad)`
+      transform += ` rotate(${angle}rad)`
     }
 
-    el.style.transformOrigin = `${x_anchor} ${y_anchor}`
-    el.style.transform = transform
+    this.style.append(`
+    :host {
+      transform-origin: ${x_anchor} ${y_anchor};
+      transform: ${transform};
+    }
+    `)
 
     if (this.layout == null) {
       // const {bbox} = this.plot_view.frame
@@ -113,16 +126,24 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx)
-      el.style.backgroundColor = ctx.fillStyle as string
+      this.style.append(`
+      :host {
+        background-color: ${ctx.fillStyle};
+      }
+      `)
     }
 
     if (this.visuals.border_line.doit) {
       this.visuals.border_line.set_value(ctx)
 
       // attempt to support vector-style ("8 4 8") line dashing for css mode
-      el.style.borderStyle = ctx.getLineDash().length < 2 ? "solid" : "dashed"
-      el.style.borderWidth = `${ctx.lineWidth}px`
-      el.style.borderColor = ctx.strokeStyle as string
+      this.style.append(`
+      :host {
+        border-style: ${ctx.getLineDash().length < 2 ? "solid" : "dashed"};
+        border-width: ${ctx.lineWidth}px;
+        border-color: ${ctx.strokeStyle};
+      }
+      `)
     }
 
     display(el)

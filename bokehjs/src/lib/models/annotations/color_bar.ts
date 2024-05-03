@@ -202,7 +202,7 @@ export class ColorBarView extends BaseColorBarView {
     }
 
     this._set_canvas_image()
-    this.plot_view.request_layout() // this.request_render()
+    this.plot_view.request_layout() // this.request_paint()
   }
 
   override _paint_colors(ctx: Context2d, bbox: BBox): void {

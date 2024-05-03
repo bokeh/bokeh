@@ -41,6 +41,7 @@ from ..nodes import Node
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "StyledElement",
     "UIElement",
 )
 
@@ -53,17 +54,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class UIElement(Model):
-    """ Base class for user interface elements.
+class StyledElement(Model):
+    """ A base class for DOM-based UI elements with configurable styling.
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    visible = Bool(default=True, help="""
-    Whether the component should be displayed on screen.
-    """)
 
     css_classes = List(String, default=[], help="""
     A list of additional CSS classes to add to the underlying DOM element.
@@ -98,6 +95,19 @@ class UIElement(Model):
     Note that all bokeh's components use shadow DOM, thus any included style
     sheets must reflect that, e.g. use ``:host`` CSS pseudo selector to access
     the root DOM element.
+    """)
+
+@abstract
+class UIElement(StyledElement):
+    """ Base class for user interface elements.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    visible = Bool(default=True, help="""
+    Whether the component should be displayed on screen.
     """)
 
     context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""

@@ -59,7 +59,7 @@ export async function add_document_standalone(document: Document, element: Embed
     if (view instanceof DOMView) {
       const i = document.roots().indexOf(model)
       const root_el = roots[i] ?? element
-      view.render_to(root_el)
+      view.build(root_el)
     }
 
     index.add(view)

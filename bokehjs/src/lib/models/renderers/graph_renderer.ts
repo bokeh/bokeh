@@ -45,7 +45,7 @@ export class GraphRendererView extends DataRendererView {
       this.apply_coordinates()
       await this.edge_view.set_data()
       await this.node_view.set_data()
-      this.request_render()
+      this.request_paint()
     })
   }
 
@@ -118,9 +118,9 @@ export class GraphRendererView extends DataRendererView {
     super.remove()
   }
 
-  protected _render(): void {
-    this.edge_view.render()
-    this.node_view.render()
+  protected _paint(): void {
+    this.edge_view.paint()
+    this.node_view.paint()
   }
 
   override get has_webgl(): boolean {

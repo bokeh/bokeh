@@ -140,12 +140,24 @@ export class UIGestures {
   }
 
   protected phase: GesturePhase = "idle"
-  protected pointers: Map<PointerId, Pointer> = new Map()
+  protected readonly pointers: Map<PointerId, Pointer> = new Map()
   protected press_timer: number | null = null
   protected tap_timestamp: number = -Infinity
 
   protected last_scale: number | null = null
   protected last_rotation: number | null = null
+
+  reset(): void {
+    this._cancel_timeout()
+
+    this.phase = "idle"
+    this.pointers.clear()
+    this.press_timer = null
+    this.tap_timestamp = -Infinity
+
+    this.last_scale = null
+    this.last_rotation = null
+  }
 
   static readonly move_threshold: number = 5/*px*/
   static readonly press_threshold: number = 300/*ms*/
@@ -219,6 +231,9 @@ export class UIGestures {
     if (event.isPrimary && event.pointerType == "mouse" && event.buttons != MouseButton.Left) {
       return
     }
+    if (!this.hit_area.isConnected) {
+      return
+    }
     this.pointers.set(event.pointerId, {init: event, last: event})
     this.hit_area.setPointerCapture(event.pointerId)
     switch (this.phase) {
@@ -254,6 +269,7 @@ export class UIGestures {
     pointer.last = event
     switch (this.phase) {
       case "idle": {
+        this.reset()
         unreachable()
       }
       case "started":
@@ -328,6 +344,7 @@ export class UIGestures {
     this._cancel_timeout()
     switch (this.phase) {
       case "idle": {
+        this.reset()
         unreachable()
       }
       case "started": {
@@ -391,6 +408,7 @@ export class UIGestures {
     this._cancel_timeout()
     switch (this.phase) {
       case "idle": {
+        this.reset()
         unreachable()
       }
       case "started":

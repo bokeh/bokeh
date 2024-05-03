@@ -1,34 +1,20 @@
-import {Model} from "../../model"
-import {Node} from "../coordinates/node"
-import {Styles} from "../dom/styles"
+import {StyledElement, StyledElementView} from "./styled_element"
+import type {Node} from "../coordinates/node"
 import type {Menu} from "./menus/menu"
-import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
 import type {ViewOf} from "core/view"
-import {DOMComponentView} from "core/dom_view"
 import type {SerializableState} from "core/view"
 import type {StyleSheet, StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
-import {apply_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
-import {entries} from "core/util/object"
 import {isNumber} from "core/util/types"
+import {defer} from "core/util/defer"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
-import {List, Or, Ref, Str, Dict, Nullable} from "core/kinds"
-
-export const StylesLike = Or(Dict(Nullable(Str)), Ref(Styles)) // TODO: add validation for CSSStyles
-export type StylesLike = typeof StylesLike["__type__"]
-
-export const StyleSheets = List(Or(Ref(BaseStyleSheet), Str, Dict(StylesLike)))
-export type StyleSheets = typeof StyleSheets["__type__"]
-
-export const CSSVariables = Dict(Ref(Node))
-export type CSSVariables = typeof CSSVariables["__type__"]
 
 export type DOMBoxSizing = {
   width_policy: SizingPolicy | "auto"
@@ -42,42 +28,14 @@ export type DOMBoxSizing = {
 
 const {round, floor} = Math
 
-export abstract class UIElementView extends DOMComponentView {
+export abstract class UIElementView extends StyledElementView {
   declare model: UIElement
 
   protected readonly _display = new InlineStyleSheet()
-  readonly style = new InlineStyleSheet()
-
-  protected override *_css_classes(): Iterable<string> {
-    yield* super._css_classes()
-    yield* this.model.css_classes
-  }
-
-  protected override *_css_variables(): Iterable<[string, string]> {
-    yield* super._css_variables()
-    for (const [name, node] of entries(this.model.css_variables)) {
-      const value = this.resolve_coordinate(node)
-      if (isNumber(value)) {
-        yield [name, `${value}px`]
-      }
-    }
-  }
 
   protected override *_stylesheets(): Iterable<StyleSheet> {
     yield* super._stylesheets()
-    yield this.style
     yield this._display
-    yield* this._computed_stylesheets()
-  }
-
-  protected *_computed_stylesheets(): Iterable<StyleSheet> {
-    for (const stylesheet of this.model.stylesheets) {
-      if (stylesheet instanceof BaseStyleSheet) {
-        yield stylesheet.underlying()
-      } else {
-        yield new InlineStyleSheet(stylesheet)
-      }
-    }
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -170,12 +128,8 @@ export abstract class UIElementView extends DOMComponentView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible, styles, css_classes, css_variables, stylesheets} = this.model.properties
+    const {visible} = this.model.properties
     this.on_change(visible, () => this._update_visible())
-    this.on_change(styles, () => this._update_styles())
-    this.on_change(css_classes, () => this._update_css_classes())
-    this.on_transitive_change(css_variables, () => this._update_css_variables())
-    this.on_change(stylesheets, () => this._update_stylesheets())
 
     this.el.addEventListener("contextmenu", (event) => this.show_context_menu(event))
   }
@@ -205,9 +159,12 @@ export abstract class UIElementView extends DOMComponentView {
     super.remove()
   }
 
+  private _resized: boolean = false
+
   protected _after_resize(): void {}
 
   after_resize(): void {
+    this._resized = true
     if (this.update_bbox()) {
       this._after_resize()
     }
@@ -216,23 +173,31 @@ export abstract class UIElementView extends DOMComponentView {
 
   override render(): void {
     super.render()
-    this._apply_styles()
     this._apply_visible()
   }
 
-  protected _after_render(): void {}
+  protected _after_render(): void {
+    this.update_style()
+    this.update_bbox()
+  }
 
   override after_render(): void {
     super.after_render()
-
-    this.update_style()
-    this.update_bbox()
-
     this._after_render()
 
-    // If not displayed, then after_resize() will not be called.
-    if (!this.is_displayed) {
-      this.finish()
+    if (!this._has_finished) {
+      // If not displayed, then after_resize() will not be called.
+      if (!this.is_displayed) {
+        this.force_finished()
+      } else {
+        // In case after_resize() wasn't called (see regression test for issue
+        // #9113), then wait one macro task and consider this view finished.
+        void defer().then(() => {
+          if (!this._resized) {
+            this.finish()
+          }
+        })
+      }
     }
   }
 
@@ -250,17 +215,8 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  protected _apply_styles(): void {
-    apply_styles(this.el.style, this.model.styles)
-  }
-
   protected _update_visible(): void {
     this._apply_visible()
-  }
-
-  protected _update_styles(): void {
-    this.el.removeAttribute("style") // TODO: maintain _applied_styles
-    this._apply_styles()
   }
 
   export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
@@ -290,19 +246,15 @@ export abstract class UIElementView extends DOMComponentView {
 export namespace UIElement {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = StyledElement.Props & {
     visible: p.Property<boolean>
-    css_classes: p.Property<string[]>
-    css_variables: p.Property<CSSVariables>
-    styles: p.Property<StylesLike>
-    stylesheets: p.Property<StyleSheets>
     context_menu: p.Property<Menu | null>
   }
 }
 
 export interface UIElement extends UIElement.Attrs {}
 
-export abstract class UIElement extends Model {
+export abstract class UIElement extends StyledElement {
   declare properties: UIElement.Props
   declare __view_type__: UIElementView
 
@@ -311,12 +263,8 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Bool, List, Str, AnyRef}) => ({
+    this.define<UIElement.Props>(({Bool, AnyRef, Nullable}) => ({
       visible: [ Bool, true ],
-      css_classes: [ List(Str), [] ],
-      css_variables: [ CSSVariables, {} ],
-      styles: [ StylesLike, {} ],
-      stylesheets: [ StyleSheets, [] ],
       context_menu: [ Nullable(AnyRef<Menu>()), null ],
     }))
   }

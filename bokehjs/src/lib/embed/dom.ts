@@ -1,4 +1,4 @@
-import {div, replaceWith, contains} from "../core/dom"
+import {div, contains} from "../core/dom"
 import type {ID} from "../core/types"
 import {isString} from "../core/util/types"
 import type {RenderItem} from "./json"
@@ -18,7 +18,7 @@ function _get_element(target: ID | EmbedTarget): EmbedTarget {
   // If autoload script, replace script tag with div for embedding.
   if (element instanceof HTMLElement && element.tagName == "SCRIPT") {
     const root_el = div()
-    replaceWith(element, root_el)
+    element.replaceWith(root_el)
     element = root_el
   }
 

@@ -27,7 +27,7 @@ export class SplineView extends XYGlyphView {
     this._define_attr<Spline.Data>("syt", syt)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: Partial<Spline.Data>): void {
+  protected _paint(ctx: Context2d, _indices: number[], data?: Partial<Spline.Data>): void {
     const {sxt, syt} = {...this, ...data}
 
     let move = true

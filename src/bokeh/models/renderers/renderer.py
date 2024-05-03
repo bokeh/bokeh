@@ -37,6 +37,7 @@ from ...core.properties import (
 )
 from ...model import Model
 from ..coordinates import CoordinateMapping
+from ..ui.ui_element import StyledElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,7 +73,7 @@ class RendererGroup(Model):
 #-----------------------------------------------------------------------------
 
 @abstract
-class Renderer(Model):
+class Renderer(StyledElement):
     """An abstract base class for renderer types.
 
     """

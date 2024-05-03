@@ -1,5 +1,6 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
-import {UIElement, StylesLike} from "../ui/ui_element"
+import {StylesLike} from "../ui/styled_element"
+import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {isString} from "core/util/types"
