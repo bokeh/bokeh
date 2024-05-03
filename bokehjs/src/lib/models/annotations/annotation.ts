@@ -1,8 +1,6 @@
 import {CompositeRenderer, CompositeRendererView} from "../renderers/composite_renderer"
-
 import type {SidePanel} from "core/layout/side_panel"
 import type {Size, Layoutable} from "core/layout"
-import type {SerializableState} from "core/view"
 import type {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
 
@@ -46,12 +44,6 @@ export abstract class AnnotationView extends CompositeRendererView {
 
   override get needs_clip(): boolean {
     return this.layout == null // TODO: change this, when center layout is fully implemented
-  }
-
-  override serializable_state(): SerializableState {
-    const state = super.serializable_state()
-    const bbox = this.bbox?.round() ?? this.layout?.bbox
-    return bbox == null ? state : {...state, bbox}
   }
 }
 

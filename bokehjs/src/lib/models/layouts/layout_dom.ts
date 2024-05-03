@@ -15,7 +15,6 @@ import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
-import type {SerializableState} from "core/view"
 
 export {type DOMBoxSizing}
 
@@ -576,13 +575,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     return composite
-  }
-
-  override serializable_state(): SerializableState {
-    return {
-      ...super.serializable_state(),
-      children: this.child_views.map((child) => child.serializable_state()),
-    }
   }
 }
 

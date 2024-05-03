@@ -7,7 +7,6 @@ import type {Range} from "../ranges/range"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
-import type {SerializableState} from "core/view"
 import type {HAlign, VAlign} from "core/enums"
 import {Align, Face, LabelOrientation} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
@@ -706,13 +705,6 @@ export class AxisView extends GuideRendererView {
   }
 
   // }}}
-
-  override serializable_state(): SerializableState {
-    return {
-      ...super.serializable_state(),
-      bbox: this.bbox,
-    }
-  }
 
   override remove(): void {
     this._axis_label_view?.remove()

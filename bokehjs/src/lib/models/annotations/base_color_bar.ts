@@ -29,7 +29,6 @@ import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
-import type {SerializableState} from "core/view"
 
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
@@ -520,13 +519,6 @@ export abstract class BaseColorBarView extends AnnotationView {
       ctx.strokeRect(x, y, width, height)
     }
     ctx.restore()
-  }
-
-  override serializable_state(): SerializableState {
-    const {children = [], ...state} = super.serializable_state()
-    children.push(this._title_view.serializable_state())
-    children.push(this._axis_view.serializable_state())
-    return {...state, children}
   }
 }
 

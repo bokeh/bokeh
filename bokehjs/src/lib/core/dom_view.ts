@@ -1,4 +1,5 @@
 import {View} from "./view"
+import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
 import {createElement, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
@@ -20,6 +21,12 @@ export abstract class DOMView extends View {
 
   get bbox(): BBox | undefined {
     return undefined
+  }
+
+  override serializable_state(): SerializableState {
+    const state = super.serializable_state()
+    const {bbox} = this
+    return bbox != null ? {...state, bbox: bbox.round()} : state
   }
 
   get children_el(): Node {

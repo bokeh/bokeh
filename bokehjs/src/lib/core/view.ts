@@ -16,7 +16,7 @@ export type ViewOf<T extends HasProps> = T["__view_type__"]
 export type SerializableState = {
   type: string
   bbox?: BBox
-  children?: SerializableState[]
+  children: SerializableState[]
 }
 
 export namespace View {
@@ -138,7 +138,15 @@ export class View implements ISignalable {
   }
 
   serializable_state(): SerializableState {
-    return {type: this.model.type}
+    const children = [...this.children()]
+      .filter((view) => view.model.is_syncable)
+      .map((view) => view.serializable_state())
+      .filter((item) => item.bbox != null && item.bbox.is_valid && !item.bbox.is_empty)
+
+    return {
+      type: this.model.type,
+      children,
+    }
   }
 
   get is_root(): boolean {

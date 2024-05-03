@@ -4,7 +4,6 @@ import type {Menu} from "./menus/menu"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
 import type {ViewOf} from "core/view"
-import type {SerializableState} from "core/view"
 import type {StyleSheet, StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
 import {InlineStyleSheet} from "core/dom"
@@ -225,10 +224,6 @@ export abstract class UIElementView extends StyledElementView {
     const {width, height} = this.bbox
     canvas.resize(width, height)
     return canvas
-  }
-
-  override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.bbox}
   }
 
   override resolve_symbol(node: Node): XY | number {

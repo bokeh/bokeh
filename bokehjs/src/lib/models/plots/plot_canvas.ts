@@ -33,7 +33,7 @@ import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
-import type {SerializableState, View} from "core/view"
+import type {View} from "core/view"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray, isString, isNotNull} from "core/util/types"
@@ -1198,18 +1198,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
 
     return composite
-  }
-
-  override serializable_state(): SerializableState {
-    const {children, ...state} = super.serializable_state()
-    const renderers = this
-      .computed_renderer_views
-      .filter((view) => view.model.syncable) // filters out computed renderers
-      .map((view) => view.serializable_state())
-      .filter((item) => item.bbox != null)
-    // TODO: remove this when frame is generalized
-    const frame = {type: "CartesianFrame", bbox: this.frame.bbox}
-    return {...state, children: [...children ?? [], frame, ...renderers]}
   }
 
   override resolve_frame(): View | null {

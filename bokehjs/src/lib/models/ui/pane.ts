@@ -3,7 +3,6 @@ import {DOMNode} from "../dom/dom_node"
 import {HTML} from "../dom/html"
 import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import type {SerializableState} from "core/view"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
@@ -92,14 +91,6 @@ export class PaneView extends UIElementView {
     }
 
     return true
-  }
-
-  override serializable_state(): SerializableState {
-    const {children, ...state} = super.serializable_state()
-    return {
-      ...state,
-      children: [...children ?? [], ...this.element_views.map((element) => element.serializable_state())],
-    }
   }
 }
 

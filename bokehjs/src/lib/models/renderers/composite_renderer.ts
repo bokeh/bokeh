@@ -3,7 +3,6 @@ import {UIElement} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
 import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import type {SerializableState} from "core/view"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
@@ -124,18 +123,6 @@ export abstract class CompositeRendererView extends RendererView {
     }
 
     return true
-  }
-
-  override serializable_state(): SerializableState {
-    const {children, ...state} = super.serializable_state()
-    return {
-      ...state,
-      children: [
-        ...children ?? [],
-        ...this.renderer_views.map((renderer) => renderer.serializable_state()),
-        ...this.element_views.map((element) => element.serializable_state()),
-      ],
-    }
   }
 }
 

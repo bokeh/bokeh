@@ -4,7 +4,6 @@ import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import type {Arrayable, Rect} from "core/types"
 import {point_in_poly, dist_to_segment} from "core/hittest"
@@ -105,10 +104,6 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
   declare visuals: PolyAnnotation.Visuals
 
   protected poly: Polygon = new Polygon()
-
-  override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.poly.bbox.round()}
-  }
 
   override get bbox(): BBox {
     return this.poly.bbox
