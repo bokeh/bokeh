@@ -5,53 +5,56 @@ import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {CartesianFrame} from "@bokehjs/models/canvas/cartesian_frame"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Scale} from "@bokehjs/models/scales/scale"
+import {build_view} from "@bokehjs/core/build_views"
+import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("CartesianFrame", () => {
 
-  it("should report default scales", () => {
-    const frame = new CartesianFrame(
-      new LinearScale(),
-      new LinearScale(),
-      new Range1d({start: 0, end: 1}),
-      new Range1d({start: 0, end: 1}))
+  async function build_frame(frame: CartesianFrame) {
+    const frame_view = await build_view(frame, {parent: null})
+    frame_view.set_geometry(new BBox({x: 0, y: 0, width: 100, height: 100}))
+    return frame_view
+  }
 
-    expect(frame.x_scales.get("default")).to.be.instanceof(Scale)
-    expect(frame.y_scales.get("default")).to.be.instanceof(Scale)
+  it("should report default scales", async () => {
+    const frame = new CartesianFrame({
+      x_range: new Range1d({start: 0, end: 1}),
+      y_range: new Range1d({start: 0, end: 1}),
+      x_scale: new LinearScale(),
+      y_scale: new LinearScale(),
+    })
+
+    const frame_view = await build_frame(frame)
+    const {x_scales, y_scales} = frame_view
+
+    expect(x_scales.get("default")).to.be.instanceof(LinearScale)
+    expect(x_scales.get("default")?.source_range).to.be.instanceof(Range1d)
+    expect(x_scales.get("default")?.target_range).to.be.instanceof(Range1d)
+
+    expect(y_scales.get("default")).to.be.instanceof(LinearScale)
+    expect(y_scales.get("default")?.source_range).to.be.instanceof(Range1d)
+    expect(y_scales.get("default")?.target_range).to.be.instanceof(Range1d)
   })
 
-  describe("_get_scales method", () => {
-    let frame: CartesianFrame
-    let frame_range: Range1d
-
-    before_each(() => {
-      frame = new CartesianFrame(
-        new LinearScale(),
-        new LinearScale(),
-        new Range1d(),
-        new Range1d())
-      frame_range = new Range1d({start: 0, end: 100})
+  it("should throw an error for incompatible numeric scale and factor range", async () => {
+    const frame = new CartesianFrame({
+      x_range: new FactorRange({factors: ["x", "y", "z"]}),
+      y_range: new Range1d(),
+      x_scale: new LinearScale(),
+      y_scale: new LinearScale(),
     })
 
-    it("should return scale if defined", () => {
-      // scale = new LinearScale()
-      const ranges = new Map([["default", new Range1d()]])
-      const scales = frame._get_scales(frame.x_scale, {}, ranges, frame_range)
-      expect(scales.get("default")).to.be.instanceof(LinearScale)
-      expect(scales.get("default")?.source_range).to.be.instanceof(Range1d)
-      expect(scales.get("default")?.target_range).to.be.instanceof(Range1d)
+    expect(async () => await build_frame(frame)).to.throw(Error, "'FactorRange' is incompatible 'LinearScale'")
+  })
+
+  it("should throw an error for incompatible factor scale and numeric range", () => {
+    const frame = new CartesianFrame({
+      x_range: new Range1d(),
+      y_range: new Range1d(),
+      x_scale: new CategoricalScale(),
+      y_scale: new LinearScale(),
     })
 
-    it("should throw error for incompatible numeric scale and factor range", () => {
-      const ranges = new Map([["default", new FactorRange()]])
-      const scale = new LinearScale()
-      expect(() => frame._get_scales(scale, {}, ranges, frame_range)).to.throw()
-    })
-
-    it("should throw error for incompatible factor scale and numeric range", () => {
-      const ranges = new Map([["default", new Range1d()]])
-      const scale = new CategoricalScale()
-      expect(() => frame._get_scales(scale, {}, ranges, frame_range)).to.throw()
-    })
+    expect(async () => await build_frame(frame)).to.throw(Error, "'Range1d' is incompatible 'CategoricalScale'")
   })
 })

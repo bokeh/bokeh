@@ -60,6 +60,7 @@ describe("default model resolver", () => {
       "CDSView",
       "Canvas",
       "CanvasTexture",
+      "CartesianFrame",
       "CategoricalAxis",
       "CategoricalColorMapper",
       "CategoricalMarkerMapper",

@@ -209,26 +209,26 @@ describe("Plot module", () => {
       const pv0 = view.owner.get_one(p0)
       const pv1 = view.owner.get_one(p1)
 
-      expect(x_range.plots.has(pv0)).to.be.true
-      expect(y_range.plots.has(pv0)).to.be.true
-      expect(x_range.plots.has(pv1)).to.be.true
-      expect(y_range.plots.has(pv1)).to.be.true
+      expect(x_range.linked_plots.has(pv0)).to.be.true
+      expect(y_range.linked_plots.has(pv0)).to.be.true
+      expect(x_range.linked_plots.has(pv1)).to.be.true
+      expect(y_range.linked_plots.has(pv1)).to.be.true
 
       row.children = [p1]
       await view.ready
 
-      expect(x_range.plots.has(pv0)).to.be.false
-      expect(y_range.plots.has(pv0)).to.be.false
-      expect(x_range.plots.has(pv1)).to.be.true
-      expect(y_range.plots.has(pv1)).to.be.true
+      expect(x_range.linked_plots.has(pv0)).to.be.false
+      expect(y_range.linked_plots.has(pv0)).to.be.false
+      expect(x_range.linked_plots.has(pv1)).to.be.true
+      expect(y_range.linked_plots.has(pv1)).to.be.true
 
       row.children = []
       await view.ready
 
-      expect(x_range.plots.has(pv0)).to.be.false
-      expect(y_range.plots.has(pv0)).to.be.false
-      expect(x_range.plots.has(pv1)).to.be.false
-      expect(y_range.plots.has(pv1)).to.be.false
+      expect(x_range.linked_plots.has(pv0)).to.be.false
+      expect(y_range.linked_plots.has(pv0)).to.be.false
+      expect(x_range.linked_plots.has(pv1)).to.be.false
+      expect(y_range.linked_plots.has(pv1)).to.be.false
     })
   })
 })

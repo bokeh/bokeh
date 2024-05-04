@@ -1,7 +1,9 @@
 import {Model} from "../../model"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {PlotView} from "../plots/plot"
 import type * as p from "core/properties"
 import {Nullable, Or, Tuple, Float, Auto} from "core/kinds"
+import {map} from "core/util/iterator"
 
 const Bounds = Nullable(Or(Tuple(Nullable(Float), Nullable(Float)), Auto))
 type Bounds = typeof Bounds["__type__"]
@@ -65,6 +67,10 @@ export abstract class Range extends Model {
     return Math.abs(this.end - this.start)
   }
 
-  /** internal */
-  readonly plots = new Set<PlotView>()
+  /** @internal */
+  readonly frames = new Set<CartesianFrameView>()
+
+  get linked_plots(): ReadonlySet<PlotView> {
+    return new Set(map(this.frames, (frame) => frame.parent))
+  }
 }

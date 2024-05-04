@@ -86,7 +86,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => delete this._coordinates)
-    this.connect(this.plot_view.frame.change, () => delete this._coordinates)
+    this.connect(this.plot_view.frame.model.change, () => delete this._coordinates)
   }
 
   protected _initialize_coordinates(): CoordinateTransform {

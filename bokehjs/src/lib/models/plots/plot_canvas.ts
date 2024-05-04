@@ -1,4 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CanvasView, FrameBox} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
 import type {Renderer} from "../renderers/renderer"
@@ -70,15 +71,19 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   declare layout: BorderLayout
 
-  frame: CartesianFrame
-
-  private _render_count: number = 0
+  private _frame: CartesianFrame
+  frame_view: CartesianFrameView
+  get frame(): CartesianFrameView {
+    return this.frame_view
+  }
 
   private _canvas: Canvas
   canvas_view: CanvasView
   get canvas(): CanvasView {
     return this.canvas_view
   }
+
+  private _render_count: number = 0
 
   readonly repainted = new Signal0(this, "repainted")
 
@@ -239,13 +244,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   override remove(): void {
-    for (const r of this.frame.ranges.values()) {
-      r.plots.delete(this)
-    }
-
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
-
     super.remove()
   }
 
@@ -272,20 +272,18 @@ export class PlotView extends LayoutDOMView implements Paintable {
       selection: new Map(),               // XXX: initial selection?
     }
 
-    this.frame = new CartesianFrame(
-      this.model.x_scale,
-      this.model.y_scale,
-      this.model.x_range,
-      this.model.y_range,
-      this.model.extra_x_ranges,
-      this.model.extra_y_ranges,
-      this.model.extra_x_scales,
-      this.model.extra_y_scales,
-    )
-
-    for (const r of this.frame.ranges.values()) {
-      r.plots.add(this)
-    }
+    this._frame = new CartesianFrame({
+      x_scale: this.model.x_scale,
+      y_scale: this.model.y_scale,
+      x_range: this.model.x_range,
+      y_range: this.model.y_range,
+      extra_x_ranges: this.model.extra_x_ranges,
+      extra_y_ranges: this.model.extra_y_ranges,
+      extra_x_scales: this.model.extra_x_scales,
+      extra_y_scales: this.model.extra_y_scales,
+      aspect_scale: this.model.aspect_scale,
+      match_aspect: this.model.match_aspect,
+    })
 
     this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
@@ -349,7 +347,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   override get elements(): ElementLike[] {
-    return [this._canvas, this._attribution, this._notifications, ...super.elements]
+    return [this._canvas, this._frame, this._attribution, this._notifications, ...super.elements]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -357,6 +355,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
+
+    this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
 
     await this.build_tool_views()
     await this.build_renderer_views()
@@ -664,7 +664,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {x_ranges, y_ranges} = this._range_manager.ranges()
     const ranges = [...x_ranges, ...y_ranges, ...extra_ranges]
 
-    const linked_plots = new Set(ranges.flatMap((r) => [...r.plots]))
+    const linked_plots = new Set(ranges.flatMap((r) => [...r.linked_plots]))
 
     for (const plot_view of linked_plots) {
       const {x_range, y_range} = plot_view.model
@@ -794,17 +794,36 @@ export class PlotView extends LayoutDOMView implements Paintable {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model.properties
-    this.on_change([extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales], () => {
-      this.frame.x_range = this.model.x_range
-      this.frame.y_range = this.model.y_range
-      this.frame.in_x_scale = this.model.x_scale
-      this.frame.in_y_scale = this.model.y_scale
-      this.frame.extra_x_ranges = this.model.extra_x_ranges
-      this.frame.extra_y_ranges = this.model.extra_y_ranges
-      this.frame.extra_x_scales = this.model.extra_x_scales
-      this.frame.extra_y_scales = this.model.extra_y_scales
-      this.frame.configure_scales()
+    const {
+      x_range, y_range,
+      x_scale, y_scale,
+      extra_x_ranges, extra_y_ranges,
+      extra_x_scales, extra_y_scales,
+      aspect_scale, match_aspect,
+    } = this.model.properties
+
+    this.on_change([
+      x_range, y_range,
+      x_scale, y_scale,
+      extra_x_ranges, extra_y_ranges,
+      extra_x_scales, extra_y_scales,
+      aspect_scale, match_aspect,
+    ], () => {
+      const {
+        x_range, y_range,
+        x_scale, y_scale,
+        extra_x_ranges, extra_y_ranges,
+        extra_x_scales, extra_y_scales,
+        aspect_scale, match_aspect,
+      } = this.model
+
+      this._frame.setv({
+        x_range, y_range,
+        x_scale, y_scale,
+        extra_x_ranges, extra_y_ranges,
+        extra_x_scales, extra_y_scales,
+        aspect_scale, match_aspect,
+      })
     })
 
     const {above, below, left, right, center, renderers} = this.model.properties

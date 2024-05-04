@@ -1,6 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {Axis} from "../axes/axis"
 import {LabelOverrides} from "../axes/axis"
 import {LinearAxis} from "../axes/linear_axis"
@@ -40,6 +41,7 @@ export abstract class BaseColorBarView extends AnnotationView {
   declare layout: Layoutable
 
   protected _frame: CartesianFrame
+  protected _frame_view: CartesianFrameView
 
   protected _axis: Axis
   protected _axis_view: Axis["__view_type__"]
@@ -82,8 +84,13 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._minor_range = new Range1d({start: 0, end: 1})
     this._minor_scale = new LinearScale()
 
-    // configure some frame, update when the layout is know
-    this._frame = new CartesianFrame(this._major_scale, this._minor_scale, this._major_range, this._minor_range)
+    // configure some frame, update when the layout is known
+    this._frame = new CartesianFrame({
+      x_scale: this._major_scale,
+      y_scale: this._minor_scale,
+      x_range: this._major_range,
+      y_range: this._minor_range,
+    })
 
     this._axis = this._create_axis()
     this._apply_axis_properties()
@@ -104,7 +111,10 @@ export abstract class BaseColorBarView extends AnnotationView {
         return self.root
       },
       get frame() {
-        return self._frame
+        return self._frame_view
+      },
+      get frame_view() {
+        return self._frame_view
       },
       get canvas_view() {
         return self.parent.canvas_view
@@ -123,6 +133,7 @@ export abstract class BaseColorBarView extends AnnotationView {
       },
     }
 
+    this._frame_view = await build_view(this._frame, {parent})
     this._axis_view = await build_view(this._axis, {parent})
     this._title_view = await build_view(this._title, {parent})
   }
@@ -182,11 +193,7 @@ export abstract class BaseColorBarView extends AnnotationView {
         return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
       }
     })()
-    this._frame.in_x_scale = x_scale
-    this._frame.in_y_scale = y_scale
-    this._frame.x_range = x_range
-    this._frame.y_range = y_range
-    this._frame.configure_scales()
+    this._frame.setv({x_scale, y_scale, x_range, y_range})
   }
 
   override update_layout(): void {
@@ -255,7 +262,7 @@ export abstract class BaseColorBarView extends AnnotationView {
     left_panel.absolute = true
     right_panel.absolute = true
 
-    center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
+    center_panel.on_resize((bbox) => this._frame_view.set_geometry(bbox))
 
     const layout = new BorderLayout()
     this._inner_layout = layout
