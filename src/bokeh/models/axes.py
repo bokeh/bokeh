@@ -50,6 +50,7 @@ from .formatters import (
     BasicTickFormatter,
     CategoricalTickFormatter,
     DatetimeTickFormatter,
+    DYNAMIC_DATETIME_FORMATTER,
     LogTickFormatter,
     MercatorTickFormatter,
     TickFormatter,
@@ -370,7 +371,7 @@ class DatetimeAxis(LinearAxis):
 
     ticker = Override(default=InstanceDefault(DatetimeTicker))
 
-    formatter = Override(default=InstanceDefault(DatetimeTickFormatter, **_DYNAMIC_DATETIME_KWARGS()))
+    formatter = Override(default=DYNAMIC_DATETIME_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a
