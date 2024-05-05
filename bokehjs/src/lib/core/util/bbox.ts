@@ -218,6 +218,14 @@ export class BBox implements Rect, Equatable {
     })
   }
 
+  static empty(): BBox {
+    return new BBox({x0: 0, y0: 0, x1: 0, y1: 0})
+  }
+
+  static invalid(): BBox {
+    return new BBox({x0: NaN, y0: NaN, x1: NaN, y1: NaN})
+  }
+
   clone(): BBox {
     return new BBox(this)
   }

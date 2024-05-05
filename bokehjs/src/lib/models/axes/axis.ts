@@ -27,7 +27,6 @@ import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
-import {position} from "core/dom"
 import {parse_delimited_string} from "models/text/utils"
 import {Str, Float, Ref, Or, Dict, Mapping} from "core/kinds"
 
@@ -136,7 +135,6 @@ export class AxisView extends GuideRendererView {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
     this.layout.on_resize(() => {
       this._coordinates = undefined
-      position(this.el, this.bbox)
     })
   }
 
