@@ -1,5 +1,6 @@
 Column bbox=[0, 0, 710, 510]
-  Plot bbox=[0, 0, 670, 400]
+  Figure bbox=[0, 0, 670, 400]
+    Canvas bbox=[0, 0, 670, 400]
     CartesianFrame bbox=[69, 27, 596, 323]
     LinearAxis bbox=[69, 350, 596, 50]
     LinearAxis bbox=[0, 27, 69, 323]

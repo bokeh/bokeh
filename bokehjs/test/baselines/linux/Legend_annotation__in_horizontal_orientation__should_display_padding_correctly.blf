@@ -1,4 +1,5 @@
-Plot bbox=[0, 0, 400, 300]
+Figure bbox=[0, 0, 400, 300]
+  Canvas bbox=[0, 0, 400, 300]
   CartesianFrame bbox=[29, 22, 342, 256]
   LinearAxis bbox=[29, 0, 342, 22]
   LinearAxis bbox=[29, 278, 342, 22]

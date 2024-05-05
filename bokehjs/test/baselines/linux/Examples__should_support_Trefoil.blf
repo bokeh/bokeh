@@ -1,3 +1,4 @@
-Plot bbox=[0, 0, 510, 541]
+Figure bbox=[0, 0, 510, 541]
+  Canvas bbox=[0, 0, 510, 541]
   CartesianFrame bbox=[5, 36, 500, 500]
   Title bbox=[5, 0, 500, 36]

@@ -1,2 +1,3 @@
-Plot bbox=[0, 0, 200, 200]
+Figure bbox=[0, 0, 200, 200]
+  Canvas bbox=[0, 0, 200, 200]
   CartesianFrame bbox=[5, 5, 190, 190]
