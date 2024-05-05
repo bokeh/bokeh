@@ -68,11 +68,15 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     const {padding, border_radius} = this
 
-    this.style.replace(`
+    this.position.replace(`
     :host {
-      position: absolute;
       left: ${sx}px;
       top: ${sy}px;
+    }
+    `)
+
+    this.style.replace(`
+    :host {
       color: ${ctx.fillStyle};
       -webkit-text-stroke: 1px ${ctx.strokeStyle};
       font: ${ctx.font};
