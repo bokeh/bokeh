@@ -469,12 +469,6 @@ export class ScaleBarView extends AnnotationView {
   }
 
   protected _paint(): void {
-    // It would be better to update geometry (the internal layout) only when
-    // necessary, but conditions for that are not clear, so for now update
-    // at every render.
-    this.update_geometry()
-    this.compute_geometry()
-
     const {ctx} = this.layer
     const {left, top} = this.bbox
     ctx.translate(left, top)

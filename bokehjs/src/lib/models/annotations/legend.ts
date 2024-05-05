@@ -325,12 +325,6 @@ export class LegendView extends AnnotationView {
   }
 
   protected _paint(): void {
-    // It would be better to update geometry (the internal layout) only when
-    // necessary, but conditions for that are not clear, so for now update
-    // at every paint.
-    this.update_geometry()
-    this.compute_geometry()
-
     if (this.model.items.length == 0) {
       return
     }
