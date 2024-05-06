@@ -21,6 +21,7 @@ import {inplace, project_xy} from "core/util/projections"
 import {is_equal, EqNotImplemented} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {assert} from "core/util/assert"
+import {BBox} from "core/util/bbox"
 import type {Scale} from "../scales/scale"
 import type {Factor} from "../ranges/factor_range"
 import {FactorRange} from "../ranges/factor_range"
@@ -506,6 +507,18 @@ export abstract class GlyphView extends DOMComponentView {
 
   // This is where specs not included in coords are computed, e.g. radius.
   protected _map_data(): void {}
+
+  override get bbox(): BBox | undefined {
+    if (this.base == null) {
+      const {x0, y0, x1, y1} = this.index.bbox
+      const {x_scale, y_scale} = this.renderer.coordinates
+      const [sx0, sx1] = x_scale.r_compute(x0, x1)
+      const [sy0, sy1] = y_scale.r_compute(y0, y1)
+      return BBox.from_rect({x0: sx0, y0: sy0, x1: sx1, y1: sy1})
+    } else {
+      return undefined
+    }
+  }
 }
 
 export namespace Glyph {

@@ -211,10 +211,19 @@ export class BBox implements Rect, Equatable {
 
   static from_lrtb({left, right, top, bottom}: LRTB): BBox {
     return new BBox({
-      x0: Math.min(left, right),
-      y0: Math.min(top, bottom),
-      x1: Math.max(left, right),
-      y1: Math.max(top, bottom),
+      x0: min(left, right),
+      y0: min(top, bottom),
+      x1: max(left, right),
+      y1: max(top, bottom),
+    })
+  }
+
+  static from_rect({x0, y0, x1, y1}: Rect): BBox {
+    return new BBox({
+      x0: min(x0, x1),
+      y0: min(y0, y1),
+      x1: max(x0, x1),
+      y1: max(y0, y1),
     })
   }
 

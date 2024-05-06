@@ -22,6 +22,7 @@ import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
+import type {BBox} from "core/util/bbox"
 import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
@@ -310,19 +311,27 @@ export class GlyphRendererView extends DataRendererView {
     await this.muted_glyph.after_lazy_visuals()
   }
 
-  override get has_webgl(): boolean {
-    return this.glyph.has_webgl
-  }
-
-  protected _paint(): void {
-    const glsupport = this.has_webgl
-
+  map_data(): void {
     this.glyph.map_data()
     this.decimated_glyph.map_data()
     this.selection_glyph.map_data()
     this.nonselection_glyph.map_data()
     this.hover_glyph?.map_data()
     this.muted_glyph.map_data()
+  }
+
+  override get bbox(): BBox {
+    return this.glyph.bbox!
+  }
+
+  override get has_webgl(): boolean {
+    return this.glyph.has_webgl
+  }
+
+  protected _paint(): void {
+    const {has_webgl} = this
+
+    this.map_data()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]
@@ -379,7 +388,7 @@ export class GlyphRendererView extends DataRendererView {
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !glsupport && lod_threshold != null && all_indices.length > lod_threshold) {
+        && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
       indices = [...this.decimated]
       glyph = this.decimated_glyph
