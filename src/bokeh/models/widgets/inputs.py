@@ -191,11 +191,11 @@ class FileInput(InputWidget):
     selection of more than one file at a time should be possible.
     """)
 
-    directory = Bool(False, help="""
+    directory = Bool(default=False, help="""
     Whether to allow selection of directories.
     """)
 
-    _clear_input = Int(0, help="""
+    _clear_input = Int(default=0, help="""
     A private property to clear the file input.
     """)
 
