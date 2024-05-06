@@ -1,3 +1,4 @@
 Plot bbox=[0, 0, 100, 300]
+  Canvas bbox=[0, 0, 100, 300]
   CartesianFrame bbox=[58, 20, 42, 260]
   LogAxis bbox=[0, 20, 58, 260]

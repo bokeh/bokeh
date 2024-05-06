@@ -12,10 +12,10 @@ import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
-import {BBox} from "core/util/bbox"
 import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
+import {InlineStyleSheet} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
 import renderer_css from "styles/renderer.css"
 
@@ -24,6 +24,8 @@ export abstract class RendererView extends StyledElementView implements visuals.
   visuals: Renderer.Visuals
 
   declare readonly parent: PlotView
+
+  readonly position = new InlineStyleSheet()
 
   /**
    * Define where to render this element, usually a canvas layer.
@@ -53,7 +55,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), renderer_css]
+    return [...super.stylesheets(), renderer_css, this.position]
   }
 
   override initialize(): void {
@@ -166,8 +168,12 @@ export abstract class RendererView extends StyledElementView implements visuals.
   }
 
   paint(): void {
+    // It would be better to update geometry (the internal layout) only when
+    // necessary, but conditions for that are not clear, so for now update
+    // at every paint.
     this.update_geometry()
     this.compute_geometry()
+    this.update_position()
 
     if (this.displayed && this.is_renderable) {
       this._paint()
@@ -192,6 +198,29 @@ export abstract class RendererView extends StyledElementView implements visuals.
    */
   compute_geometry(): void {}
 
+  /**
+   * Updates the position of the associated DOM element.
+   */
+  update_position(): void {
+    const {bbox} = this
+    if (bbox != null && bbox.is_valid) {
+      this.position.replace(`
+      :host {
+        left:   ${bbox.left}px;
+        top:    ${bbox.top}px;
+        width:  ${bbox.width}px;
+        height: ${bbox.height}px;
+      }
+      `)
+    } else {
+      this.position.replace(`
+      :host {
+        display: none;
+      }
+      `)
+    }
+  }
+
   override resolve_frame(): View | null {
     return this.plot_view.frame as any // TODO CartesianFrameView (PR #13286)
   }
@@ -206,11 +235,11 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
   override resolve_symbol(node: Node): XY | number {
     const target = this
-    // There's no common API for bbox handling in Renderer's class hierarchy.
-    if (!("bbox" in target && target.bbox instanceof BBox)) {
+    const {bbox} = target
+    if (bbox == null) {
       return {x: NaN, y: NaN}
     } else {
-      const value = target.bbox.resolve(node.symbol)
+      const value = bbox.resolve(node.symbol)
       const {offset} = node
       if (isNumber(value)) {
         return value + offset

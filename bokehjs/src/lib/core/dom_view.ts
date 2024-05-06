@@ -1,8 +1,10 @@
 import {View} from "./view"
+import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
 import {createElement, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
+import type {BBox} from "./util/bbox"
 import base_css from "styles/base.css"
 
 export interface DOMView extends View {
@@ -16,6 +18,16 @@ export abstract class DOMView extends View {
 
   el: ChildNode
   shadow_el?: ShadowRoot
+
+  get bbox(): BBox | undefined {
+    return undefined
+  }
+
+  override serializable_state(): SerializableState {
+    const state = super.serializable_state()
+    const {bbox} = this
+    return bbox != null ? {...state, bbox: bbox.round()} : state
+  }
 
   get children_el(): Node {
     return this.shadow_el ?? this.el

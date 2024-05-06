@@ -82,7 +82,11 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.item_change, repaint)
   }
 
-  override bbox: BBox = new BBox()
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
+  }
+
   protected grid: Grid<LegendEntry>
   protected border_box: Column | Row
   protected title_panel: TextLayout
@@ -205,7 +209,7 @@ export class LegendView extends AnnotationView {
     const height = padding + border_box.bbox.height + padding
 
     // Position will be filled-in in `compute_geometry()`.
-    this.bbox = new BBox({left: 0, top: 0, width, height})
+    this._bbox = new BBox({left: 0, top: 0, width, height})
   }
 
   override compute_geometry(): void {
@@ -268,7 +272,7 @@ export class LegendView extends AnnotationView {
       sy = panel.bbox.yview.compute(vy) - height
     }
 
-    this.bbox = new BBox({left: sx, top: sy, width, height})
+    this._bbox = new BBox({left: sx, top: sy, width, height})
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
@@ -321,12 +325,6 @@ export class LegendView extends AnnotationView {
   }
 
   protected _paint(): void {
-    // It would be better to update geometry (the internal layout) only when
-    // necessary, but conditions for that are not clear, so for now update
-    // at every paint.
-    this.update_geometry()
-    this.compute_geometry()
-
     if (this.model.items.length == 0) {
       return
     }

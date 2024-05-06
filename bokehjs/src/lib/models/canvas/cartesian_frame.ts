@@ -25,7 +25,7 @@ export class CartesianFrameView extends StyledElementView {
   declare parent: PlotView
 
   private _bbox: BBox = new BBox()
-  get bbox(): BBox {
+  override get bbox(): BBox {
     return this._bbox
   }
 

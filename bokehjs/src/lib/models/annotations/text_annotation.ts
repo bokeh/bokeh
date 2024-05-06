@@ -147,8 +147,6 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   protected _paint(): void {
-    this.compute_geometry() // TODO: remove this
-
     const {ctx} = this.layer
 
     const {sx, sy, width, height, angle, anchor, padding, border_radius} = this._rect

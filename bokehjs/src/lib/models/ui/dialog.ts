@@ -15,7 +15,6 @@ import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import {Coordinate} from "../coordinates/coordinate"
 import {Or, Ref} from "core/kinds"
-import type {SerializableState} from "core/view"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
 import icons_css from "styles/icons.css"
@@ -586,14 +585,6 @@ export class DialogView extends UIElementView {
       dialog_view._stacking.replace(":host", {
         "z-index": `${i}`,
       })
-    }
-  }
-
-  override serializable_state(): SerializableState {
-    const {children, ...state} = super.serializable_state()
-    return {
-      ...state,
-      children: [...children ?? [], ...[...this.children()].map((child) => child.serializable_state())],
     }
   }
 }

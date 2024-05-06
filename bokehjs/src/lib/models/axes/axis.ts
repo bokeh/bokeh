@@ -7,7 +7,6 @@ import type {Range} from "../ranges/range"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
-import type {SerializableState} from "core/view"
 import type {HAlign, VAlign} from "core/enums"
 import {Align, Face, LabelOrientation} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
@@ -28,7 +27,6 @@ import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
-import {position} from "core/dom"
 import {parse_delimited_string} from "models/text/utils"
 import {Str, Float, Ref, Or, Dict, Mapping} from "core/kinds"
 
@@ -72,7 +70,7 @@ export class AxisView extends GuideRendererView {
   /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
 
-  get bbox(): BBox {
+  override get bbox(): BBox {
     // TODO Fixed axes should not participate in layout at all.
     if (this.layout != null && this.model.fixed_location == null) {
       return this.layout.bbox
@@ -137,7 +135,6 @@ export class AxisView extends GuideRendererView {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
     this.layout.on_resize(() => {
       this._coordinates = undefined
-      position(this.el, this.bbox)
     })
   }
 
@@ -706,13 +703,6 @@ export class AxisView extends GuideRendererView {
   }
 
   // }}}
-
-  override serializable_state(): SerializableState {
-    return {
-      ...super.serializable_state(),
-      bbox: this.bbox,
-    }
-  }
 
   override remove(): void {
     this._axis_label_view?.remove()
