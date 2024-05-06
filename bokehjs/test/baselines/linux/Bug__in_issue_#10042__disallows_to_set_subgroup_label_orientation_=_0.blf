@@ -1,5 +1,7 @@
 Figure bbox=[0, 0, 200, 300]
   Canvas bbox=[0, 0, 200, 300]
   CartesianFrame bbox=[70, 5, 125, 273]
+  GlyphRenderer bbox=[76, 7, 113, 269]
+    HBar bbox=[76, 7, 113, 269]
   LinearAxis bbox=[70, 278, 125, 22]
   CategoricalAxis bbox=[0, 5, 70, 273]

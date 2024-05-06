@@ -1,5 +1,7 @@
 Figure bbox=[0, 0, 200, 200]
   Canvas bbox=[0, 0, 200, 200]
   CartesianFrame bbox=[31, 5, 164, 173]
+  GlyphRenderer bbox=[38, 13, 150, 157]
+    Scatter bbox=[38, 13, 150, 157]
   LinearAxis bbox=[31, 178, 164, 22]
   LogAxis bbox=[0, 5, 31, 173]

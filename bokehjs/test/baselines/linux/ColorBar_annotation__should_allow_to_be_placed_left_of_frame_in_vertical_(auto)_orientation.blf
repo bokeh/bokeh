@@ -1,6 +1,8 @@
 Figure bbox=[0, 0, 200, 500]
   Canvas bbox=[0, 0, 200, 500]
   CartesianFrame bbox=[110, 5, 85, 473]
+  GlyphRenderer bbox=[114, 27, 77, 429]
+    Circle bbox=[114, 27, 77, 429]
   LinearAxis bbox=[110, 478, 85, 22]
   LinearAxis bbox=[84, 5, 26, 473]
   ColorBar bbox=[0, 5, 84, 473]

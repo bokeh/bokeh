@@ -1,3 +1,7 @@
 Plot bbox=[0, 0, 200, 200]
   Canvas bbox=[0, 0, 200, 200]
   CartesianFrame bbox=[5, 5, 190, 190]
+  GlyphRenderer bbox=[53, 148, 0, 0]
+    Scatter bbox=[53, 148, 0, 0]
+  GlyphRenderer bbox=[100, 53, 48, 47]
+    Quad bbox=[100, 53, 48, 47]

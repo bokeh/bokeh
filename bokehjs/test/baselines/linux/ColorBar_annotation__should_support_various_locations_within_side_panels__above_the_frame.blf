@@ -1,6 +1,8 @@
 Figure bbox=[0, 0, 300, 600]
   Canvas bbox=[0, 0, 300, 600]
   CartesianFrame bbox=[29, 320, 266, 258]
+  GlyphRenderer bbox=[41, 332, 242, 234]
+    Scatter bbox=[41, 332, 242, 234]
   ColorBar bbox=[29, 240, 266, 80]
     LinearAxis bbox=[39, 269, 100, 16]
     Title bbox=[39, 250, 100, 19]

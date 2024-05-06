@@ -1,6 +1,8 @@
 MapFigure bbox=[0, 0, 300, 300]
   Canvas bbox=[0, 0, 300, 300]
   CartesianFrame bbox=[65, 5, 205, 250]
+  GlyphRenderer bbox=[74, 16, 187, 228]
+    Scatter bbox=[74, 16, 187, 228]
   LinearAxis bbox=[65, 255, 205, 45]
   LinearAxis bbox=[0, 5, 65, 250]
   Title bbox=[65, 5, 205, 0]

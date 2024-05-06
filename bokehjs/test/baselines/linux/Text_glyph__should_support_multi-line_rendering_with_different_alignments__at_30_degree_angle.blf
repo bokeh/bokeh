@@ -1,5 +1,7 @@
 Figure bbox=[0, 0, 800, 400]
   Canvas bbox=[0, 0, 800, 400]
   CartesianFrame bbox=[51, 5, 744, 344]
+  GlyphRenderer bbox=[101, 62, 644, 230]
+    Text bbox=[101, 62, 644, 230]
   CategoricalAxis bbox=[51, 349, 744, 51]
   CategoricalAxis bbox=[0, 5, 51, 344]
