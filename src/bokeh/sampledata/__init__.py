@@ -4,37 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' The ``sampledata`` module can be used to download data sets used in Bokeh
-examples.
-
-The simplest way to download the data is to use the execute the command line
-program:
-
-.. code-block:: sh
-
-    bokeh sampledata
-
-Alternatively, the ``download`` function described below may be called
-programmatically.
-
-.. code-block:: python
-
-    >>> import bokeh.sampledata
-    >>> bokeh.sampledata.download()
-
-By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``.
-This directory will be created if it does not already exist.
-
-Bokeh also looks for a YAML configuration file at ``$HOME/.bokeh/config``. The
-YAML key ``sampledata_dir`` can be set to the absolute path of a directory where
-the data should be stored. For example, add the following line to the
-config file:
-
-.. code-block:: sh
-
-    sampledata_dir: /tmp/bokeh_data
-
-This will cause the sample data to be stored in ``/tmp/bokeh_data``.
+'''
 
 '''
 
@@ -50,21 +20,21 @@ log = logging.getLogger(__name__)
 # Import
 #-----------------------------------------------------------------------------
 
-# isort: skip_file
+from typing import Any
+
+from packaging.version import Version
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'download',
-)
+__all__ = ()
+
+SAMPLEDATA_MIN_VERSION = "2024.1"
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-from ..util.sampledata import download
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -74,6 +44,30 @@ from ..util.sampledata import download
 # Private API
 #-----------------------------------------------------------------------------
 
+def _create_sampledata_shim(mod_name: str) -> tuple[Any, Any]:
+    from importlib import import_module
+    mod = import_module(f"bokeh_sampledata.{mod_name.split('.')[-1]}")
+    def __getattr__(name: str) -> Any:
+        return getattr(mod, name)
+    def __dir__() -> list[str]:
+        return dir(mod)
+    return __getattr__, __dir__
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+try:
+    import bokeh_sampledata as _mod
+except ImportError:
+    raise RuntimeError(
+        "The separate bokeh_sampledata is needed in order to use the "
+        "sampledata module. Install with 'pip install bokeh_sampledata'.",
+    )
+
+if Version(_mod.__version__) < Version(SAMPLEDATA_MIN_VERSION):
+    raise RuntimeError(
+        f"The installed bokeh_sampledata version ({_mod.__version__}) is too "
+        f"old. At least version {SAMPLEDATA_MIN_VERSION} is needed to run all "
+        "examples properly. Update with 'pip install -U bokeh_sampledata'.",
+    )

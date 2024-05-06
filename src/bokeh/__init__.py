@@ -50,7 +50,6 @@ import importlib.metadata as importlib_metadata
 __all__ = (
     '__version__',
     'license',
-    'sampledata',
 )
 
 __version__ = importlib_metadata.version("bokeh")
@@ -83,9 +82,6 @@ def license():
 #-----------------------------------------------------------------------------
 
 del importlib_metadata
-
-# expose sample data module
-from . import sampledata # isort:skip
 
 # configure Bokeh logger
 from .util import logconfig # isort:skip

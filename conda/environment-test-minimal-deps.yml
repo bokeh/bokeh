@@ -55,6 +55,7 @@ dependencies:
   - pip:
     - mypy >=1.10
     # docs
+    # omit bokeh_sampledata
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
     - sphinx >= 7.1.0

@@ -57,7 +57,7 @@ completed all of the steps in the :ref:`contributor_guide_setup` section of this
 contributor guide.
 
 Check that :ref:`Bokeh's sampledata <install_sampledata>` is installed and up to
-date by running ``bokeh sampledata``. In case you are not able to install the
+date by running ``pip install bokeh_sampledata``. In case you are not able to install the
 sampledata on your system, you have the option to
 :ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 

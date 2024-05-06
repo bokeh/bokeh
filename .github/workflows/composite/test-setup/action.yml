@@ -12,10 +12,6 @@ inputs:
     # (avoiding booleans: https://github.com/actions/runner/issues/1483)
     description: 'Whether to keep or delete the source tree'
     required: true
-  sampledata:
-    # string: "download", "cached", or "none"
-    description: 'How or if to install sampledata'
-    required: true
 
 runs:
   using: "composite"
@@ -75,18 +71,6 @@ runs:
       if: ${{ inputs.source-tree == 'keep' }}
       shell: bash -l {0}
       run: bash scripts/ci/install_node_modules.sh
-
-    - name: Cache sampledata
-      if: ${{ inputs.sampledata == 'cache' }}
-      uses: actions/cache@v4
-      with:
-        path: ~/.bokeh/data
-        key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
-
-    - name: Install sampledata
-      if: ${{ inputs.sampledata != 'none' }}
-      shell: bash -l {0}
-      run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
     - name: Delete repository source tree
       if: ${{ inputs.source-tree == 'delete' }}

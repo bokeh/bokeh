@@ -4,56 +4,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Route data (including altitude) for a bike race in Eastern Europe.
+from . import _create_sampledata_shim
 
-Sourced from https://bikemaraton.com.pl
-
-This module contains one pandas Dataframe: ``obiszow_mtb_xcm``.
-
-.. rubric:: ``obiszow_mtb_xcm``
-
-:bokeh-dataframe:`bokeh.sampledata.mtb.obiszow_mtb_xcm`
-
-.. bokeh-sampledata-xref:: mtb
-'''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import annotations
-
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Bokeh imports
-from ..util.sampledata import package_csv
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-__all__ = (
-    'obiszow_mtb_xcm',
-)
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
-obiszow_mtb_xcm = package_csv('mtb', 'obiszow_mtb_xcm.csv')
+__getattr__, __dir__ = _create_sampledata_shim(__name__)
