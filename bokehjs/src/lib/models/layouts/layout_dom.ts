@@ -71,13 +71,6 @@ export abstract class LayoutDOMView extends PaneView {
   override connect_signals(): void {
     super.connect_signals()
 
-    this.el.addEventListener("mouseenter", (event) => {
-      this.mouseenter.emit(event)
-    })
-    this.el.addEventListener("mouseleave", (event) => {
-      this.mouseleave.emit(event)
-    })
-
     if (this.parent instanceof LayoutDOMView) {
       this.connect(this.parent.disabled, (disabled) => {
         this.disabled.emit(disabled || this.model.disabled)
@@ -122,16 +115,7 @@ export abstract class LayoutDOMView extends PaneView {
   }
 
   async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>
-    const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
-
-    for (const view of removed) {
-      this._resize_observer.unobserve(view.el)
-    }
-
-    for (const view of created) {
-      this._resize_observer.observe(view.el, {box: "border-box"})
-    }
-
+    const {created} = await build_views(this._child_views, this.child_models, {parent: this})
     return created
   }
 
@@ -141,6 +125,13 @@ export abstract class LayoutDOMView extends PaneView {
     for (const child_view of this.child_views) {
       child_view.render_to(this.shadow_el)
     }
+
+    this.el.addEventListener("mouseenter", (event) => {
+      this.mouseenter.emit(event)
+    })
+    this.el.addEventListener("mouseleave", (event) => {
+      this.mouseleave.emit(event)
+    })
   }
 
   protected _update_children(): void {}
@@ -443,6 +434,12 @@ export abstract class LayoutDOMView extends PaneView {
 
   override _after_render(): void {
     // XXX no super
+    this._resize_observer.disconnect()
+
+    for (const child_view of this.child_views) {
+      this._resize_observer.observe(child_view.el, {box: "border-box"})
+    }
+
     if (!this.is_managed) {
       this.invalidate_layout()
     }

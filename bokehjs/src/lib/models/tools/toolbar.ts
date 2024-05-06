@@ -68,9 +68,7 @@ export class ToolbarView extends UIElementView {
     return true
   }
 
-  override initialize(): void {
-    super.initialize()
-
+  protected _build_overflow_menu(): void {
     const {location} = this.model
     const reversed = location == "left" || location == "above"
     const orientation = this.model.horizontal ? "vertical" : "horizontal"
@@ -113,6 +111,7 @@ export class ToolbarView extends UIElementView {
 
   override remove(): void {
     remove_views(this._tool_button_views)
+    this._overflow_menu.remove()
     super.remove()
   }
 
@@ -171,6 +170,8 @@ export class ToolbarView extends UIElementView {
 
   override render(): void {
     super.render()
+
+    this._build_overflow_menu()
 
     this.el.classList.add(toolbars[this.model.location])
     this.el.classList.toggle(toolbars.inner, this.model.inner)

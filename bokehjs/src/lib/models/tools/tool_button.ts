@@ -23,9 +23,23 @@ export abstract class ToolButtonView extends UIElementView {
   protected _menu: ContextMenu
   protected _ui_gestures: UIGestures
 
-  override initialize(): void {
-    super.initialize()
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
+  }
 
+  override remove(): void {
+    this._ui_gestures.remove()
+    this._menu.remove()
+    super.remove()
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), tool_button_css, icons_css]
+  }
+
+  protected _build_menu(): void {
     const {location} = this.parent.model
     const reverse = location == "left" || location == "above"
     const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
@@ -37,6 +51,12 @@ export abstract class ToolButtonView extends UIElementView {
         return event.composedPath().includes(this.el)
       },
     })
+  }
+
+  override render(): void {
+    super.render()
+
+    this._build_menu()
 
     this._ui_gestures = new UIGestures(this.el, {
       on_tap: (event: TapEvent) => {
@@ -52,6 +72,7 @@ export abstract class ToolButtonView extends UIElementView {
         this._pressed()
       },
     })
+    this._ui_gestures.connect_signals()
 
     this.el.addEventListener("keydown", (event) => {
       switch (event.key as Keys) {
@@ -66,27 +87,6 @@ export abstract class ToolButtonView extends UIElementView {
         default:
       }
     })
-  }
-
-  override connect_signals(): void {
-    super.connect_signals()
-    this._ui_gestures.connect_signals()
-    this.connect(this.model.change, () => this.render())
-    this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
-  }
-
-  override remove(): void {
-    this._ui_gestures.remove()
-    this._menu.remove()
-    super.remove()
-  }
-
-  override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), tool_button_css, icons_css]
-  }
-
-  override render(): void {
-    super.render()
 
     this.class_list.add(tool_button[this.parent.model.location])
     if (this.model.tool.disabled) {

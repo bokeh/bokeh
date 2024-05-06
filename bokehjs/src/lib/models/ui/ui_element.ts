@@ -111,9 +111,7 @@ export abstract class UIElementView extends StyledElementView {
 
   override initialize(): void {
     super.initialize()
-
     this._resize_observer = new ResizeObserver((_entries) => this.after_resize())
-    this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -129,8 +127,6 @@ export abstract class UIElementView extends StyledElementView {
 
     const {visible} = this.model.properties
     this.on_change(visible, () => this._update_visible())
-
-    this.el.addEventListener("contextmenu", (event) => this.show_context_menu(event))
   }
 
   get_context_menu(_xy: XY): ViewOf<Menu> | null {
@@ -172,6 +168,9 @@ export abstract class UIElementView extends StyledElementView {
 
   override render(): void {
     super.render()
+    this._resize_observer.disconnect()
+    this._resize_observer.observe(this.el, {box: "border-box"})
+    this.el.addEventListener("contextmenu", (event) => this.show_context_menu(event))
     this._apply_visible()
   }
 

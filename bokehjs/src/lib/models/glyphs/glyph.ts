@@ -350,10 +350,7 @@ export abstract class GlyphView extends DOMComponentView {
       }
     }
 
-    for (const visual of this.visuals) {
-      visual.update()
-    }
-
+    this.visuals.update()
     this.glglyph?.set_visuals_changed()
   }
 

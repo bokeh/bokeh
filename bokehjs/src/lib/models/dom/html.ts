@@ -2,7 +2,7 @@ import {DOMNode, DOMNodeView} from "./dom_node"
 import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import {empty, span} from "core/dom"
+import {span} from "core/dom"
 import {assert} from "core/util/assert"
 import {isString, isArray} from "core/util/types"
 import type * as p from "core/properties"
@@ -43,8 +43,8 @@ export class HTMLView extends DOMNodeView {
     super.remove()
   }
 
-  render(): void {
-    empty(this.el)
+  override render(): void {
+    super.render()
 
     const html = (() => {
       const {html} = this.model

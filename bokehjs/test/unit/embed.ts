@@ -8,7 +8,8 @@ import {DOMElementView} from "@bokehjs/core/dom_view"
 import {is_equal} from "@bokehjs/core/util/eq"
 
 class SomeView extends DOMElementView {
-  render(): void {
+  override render(): void {
+    super.render()
     this.el.style.width = "100px"
     this.el.style.height = "100px"
     this.el.style.backgroundColor = "red"

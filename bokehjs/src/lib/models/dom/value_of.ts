@@ -1,6 +1,5 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
 import {HasProps} from "core/has_props"
-import {empty} from "core/dom"
 import {to_string} from "core/util/pretty"
 import type * as p from "core/properties"
 
@@ -17,8 +16,8 @@ export class ValueOfView extends DOMNodeView {
     }
   }
 
-  render(): void {
-    empty(this.el)
+  override render(): void {
+    super.render()
     this.el.style.display = "contents"
 
     const text = (() => {

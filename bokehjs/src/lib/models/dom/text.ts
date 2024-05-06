@@ -6,6 +6,7 @@ export class TextView extends DOMNodeView {
   declare el: globalThis.Text
 
   override render(): void {
+    super.render()
     this.el.textContent = this.model.content
   }
 
