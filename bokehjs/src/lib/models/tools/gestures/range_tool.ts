@@ -157,14 +157,14 @@ export class RangeTool extends Tool {
     if (x_range != null && this.x_interaction) {
       assert(isNumber(left) && isNumber(right))
       xrs.set(x_range, {start: left, end: right})
-      for (const plot of x_range.plots) {
+      for (const plot of x_range.linked_plots) {
         affected_plots.add(plot)
       }
     }
     if (y_range != null && this.y_interaction) {
       assert(isNumber(bottom) && isNumber(top))
       yrs.set(y_range, {start: bottom, end: top})
-      for (const plot of y_range.plots) {
+      for (const plot of y_range.linked_plots) {
         affected_plots.add(plot)
       }
     }

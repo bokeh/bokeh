@@ -103,7 +103,7 @@ export class DataRange1d extends DataRange {
   computed_renderers(): Renderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const {renderers} = this
-    const all_renderers = flat_map(this.plots, (plot) => plot.auto_ranged_renderers.map((r) => r.model))
+    const all_renderers = flat_map(this.linked_plots, (plot) => plot.auto_ranged_renderers.map((r) => r.model))
     return compute_renderers(renderers.length == 0 ? "auto" : renderers, [...all_renderers])
   }
 

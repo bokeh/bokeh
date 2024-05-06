@@ -186,11 +186,11 @@ export class ColorBarView extends BaseColorBarView {
       // Update the frame's LinearInterpolationScale and Range1d as they are
       // different objects to this._major_scale and this._major_range.
       const vertical = this.orientation == "vertical"
-      const frame_scale = vertical ? this._frame.y_scale : this._frame.x_scale
+      const frame_scale = vertical ? this._frame_view.y_scale : this._frame_view.x_scale
       if (frame_scale instanceof LinearInterpolationScale) {
         frame_scale.binning = binning
 
-        const frame_range = vertical ? this._frame.y_range : this._frame.x_range
+        const frame_range = vertical ? this._frame_view.y_range : this._frame_view.x_range
         if (frame_range instanceof Range1d) {
           frame_range.start = binning[0]
           frame_range.end = binning[binning.length-1]
