@@ -6,4 +6,4 @@
 #-----------------------------------------------------------------------------
 from . import _create_sampledata_shim
 
-__getattr__, __dir__ = _create_sampledata_shim(__name__)
+__getattr__, __dir__, __doc__ = _create_sampledata_shim(__name__)

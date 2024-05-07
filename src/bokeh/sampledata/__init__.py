@@ -44,14 +44,14 @@ SAMPLEDATA_MIN_VERSION = "2024.2"
 # Private API
 #-----------------------------------------------------------------------------
 
-def _create_sampledata_shim(mod_name: str) -> tuple[Any, Any]:
+def _create_sampledata_shim(mod_name: str) -> tuple[Any, Any, Any]:
     from importlib import import_module
     mod = import_module(f"bokeh_sampledata.{mod_name.split('.')[-1]}")
     def __getattr__(name: str) -> Any:
         return getattr(mod, name)
     def __dir__() -> list[str]:
         return dir(mod)
-    return __getattr__, __dir__
+    return __getattr__, __dir__, mod.__doc__
 
 #-----------------------------------------------------------------------------
 # Code
