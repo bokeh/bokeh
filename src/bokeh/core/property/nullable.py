@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provide ``Nullable`` and ``NonNullable`` properties. """
+""" Provide ``Nullable`` property. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 from typing import Any, TypeVar
 
 # Bokeh imports
-from ...util.deprecation import deprecated
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
     Init,
@@ -30,15 +29,12 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
-from .required import Required
-from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "NonNullable",
     "Nullable",
 )
 
@@ -74,19 +70,6 @@ class Nullable(SingleParameterizedProperty[T | None]):
         msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
         raise ValueError(msg)
 
-class NonNullable(Required[T]):
-    """
-    A property accepting a value of some other type while having undefined default.
-
-    .. deprecated:: 3.0.0
-
-        Use ``bokeh.core.property.required.Required`` instead.
-    """
-
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
-        deprecated((3, 0, 0), "NonNullable(Type)", "Required(Type)")
-        super().__init__(type_param, default=default, help=help)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -100,6 +83,5 @@ class NonNullable(Required[T]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Nullable)
-@register_type_link(NonNullable)
 def _sphinx_type_link(obj: SingleParameterizedProperty[Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.type_param)})"

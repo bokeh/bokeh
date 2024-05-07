@@ -96,12 +96,10 @@ Basic Properties
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
 .. autoclass:: NonNegative
-.. autoclass:: NonNegativeInt
 .. autoclass:: Nothing
 .. autoclass:: Null
 .. autoclass:: Percent
 .. autoclass:: Positive
-.. autoclass:: PositiveInt
 .. autoclass:: RGB
 .. autoclass:: Regex
 .. autoclass:: Size
@@ -152,7 +150,6 @@ Special Properties
 .. autoclass:: InstanceDefault
 .. autoclass:: Include
 .. autoclass:: Nullable
-.. autoclass:: NonNullable
 .. autoclass:: NotSerialized
 .. autoclass:: Object
 .. autoclass:: Override
@@ -253,8 +250,6 @@ __all__ = (
     'MinMaxBounds',
     'NonEmpty',
     'NonNegative',
-    'NonNegativeInt',
-    'NonNullable',
     'NotSerialized',
     'Nothing',
     'Null',
@@ -268,7 +263,6 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'Positive',
-    'PositiveInt',
     'RGB',
     'Readonly',
     'Regex',
@@ -376,17 +370,14 @@ from .property.json import JSON
 
 from .property.nothing import Nothing
 
-from .property.nullable import NonNullable
 from .property.nullable import Nullable
 
 from .property.numeric import Angle
 from .property.numeric import Byte
 from .property.numeric import Interval
 from .property.numeric import NonNegative
-from .property.numeric import NonNegativeInt
 from .property.numeric import Percent
 from .property.numeric import Positive
-from .property.numeric import PositiveInt
 from .property.numeric import Size
 
 from .property.override import Override
