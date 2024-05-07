@@ -200,7 +200,12 @@ html_sidebars = {
     "docs/examples/**": [],
     "docs/gallery": [],
     "index": [],
-    "**": ["search-field.html", "sidebar-nav-bs.html"],
+    "*.rst": ["search-field.html", "sidebar-nav-bs.html"],
+    "dev_guide/**": ["search-field.html", "sidebar-nav-bs.html"],
+    "first_steps/**": ["search-field.html", "sidebar-nav-bs.html"],
+    "reference/**": ["search-field.html", "sidebar-nav-bs.html"],
+    "releases/**": ["search-field.html", "sidebar-nav-bs.html"],
+    "user_guide/**": ["search-field.html", "sidebar-nav-bs.html"],
 }
 
 favicons = [
