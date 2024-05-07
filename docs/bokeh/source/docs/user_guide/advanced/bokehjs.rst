@@ -113,7 +113,7 @@ The JavaScript sample below is very similar to the Python code in
             xx.push(x);
             yy.push(y);
             colors.push(plt.color([50+2*x, 30+2*y, 150]));
-            radii.push(Math.random() * 0.4 + 1.7);
+            radii.push(Math.random() * 5);
         }
     }
     // create a data source
