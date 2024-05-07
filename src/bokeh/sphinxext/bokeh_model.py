@@ -121,7 +121,7 @@ class BokehModelDirective(BokehDirective):
         name_prefix, model_name, arglist, retann = m.groups()
 
         if getenv("BOKEH_SPHINX_QUICK") == "1":
-            return self.parse(f"{model_name}\n{'-'*len(model_name)}\n", "<bokeh-model>")
+            return self.parse(f"{model_name}\n{'-'*len(model_name)}\n", f"<bokeh-model: {model_name}>")
 
         module_name = self.options["module"]
 
@@ -155,7 +155,7 @@ class BokehModelDirective(BokehDirective):
             model_json=model_json,
         )
 
-        return self.parse(rst_text, "<bokeh-model>")
+        return self.parse(rst_text, f"<bokeh-model: {model_name}>")
 
 
 def setup(app):
