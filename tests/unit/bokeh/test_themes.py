@@ -25,8 +25,6 @@ from bokeh.core.properties import Int, String
 from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.document import Document
 from bokeh.model import Model
-from bokeh.plotting import figure
-from bokeh.util.deprecation import BokehDeprecationWarning
 
 # Module under test
 from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL # isort:skip
@@ -317,23 +315,6 @@ class TestThemes:
         with pytest.raises(ValueError):
             doc.theme = 1337
 
-def test_theming_Figure_DEPRECATED() -> None:
-    with pytest.warns(BokehDeprecationWarning):
-        theme = Theme(json={
-            "attrs" : {
-                "Figure" : {
-                    "background_fill_color": "#20262B",
-                },
-            },
-        })
-    obj = figure()
-    changes = dict(calls=[])
-    assert obj.background_fill_color != "#20262B"
-    def record_trigger(attr, old, new_):
-        changes['calls'].append((attr, old, new_))
-    obj.on_change('background_fill_color', record_trigger)
-    theme.apply_to_model(obj)
-    assert obj.background_fill_color == "#20262B"
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -29,7 +29,6 @@ import yaml
 # Bokeh imports
 from ..core.has_props import HasProps
 from ..core.types import PathLike
-from ..util.deprecation import deprecated
 
 if TYPE_CHECKING:
     from ..model import Model
@@ -178,12 +177,6 @@ class Theme:
         for key, value in self._json['attrs'].items():
             if not isinstance(value, dict):
                 raise ValueError(f"theme problem: attrs.{key} should be a dictionary of properties, not {value!r}")
-
-        # Special-case to allow Figure to continue working with a deprecation
-        if "Figure" in self._json['attrs']:
-            self._json['attrs']['figure'] = self._json['attrs']['Figure']
-            del self._json['attrs']['Figure']
-            deprecated((3, 0, 0), "Use of 'Figure' as a key in Theme attributes", "'figure' (lower-case) as a key")
 
         self._line_defaults = self._json.get('line_defaults', _empty_dict)
         self._fill_defaults = self._json.get('fill_defaults', _empty_dict)

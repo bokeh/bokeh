@@ -17,7 +17,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import warnings
 from typing import TYPE_CHECKING
 
 # Bokeh imports
@@ -29,7 +28,6 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
-from bokeh.util.warnings import BokehDeprecationWarning
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
@@ -45,7 +43,6 @@ import bokeh.core.property.nullable as bcpn # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
-    "NonNullable",
     "Nullable",
 )
 
@@ -193,18 +190,6 @@ class Test_Nullable:
         wrapped = prop.wrap([10, 20])
         assert isinstance(wrapped, PropertyValueList)
         assert prop.wrap(wrapped) is wrapped
-
-class Test_NonNullable:
-
-    def _test_deprecation(self) -> None:
-        with pytest.warns(BokehDeprecationWarning):
-            bcpn.NonNullable(List(Int))
-
-    def test_str(self) -> None:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
-            prop = bcpn.NonNullable(List(Int))
-            assert str(prop) == "NonNullable(List(Int))"
 
 #-----------------------------------------------------------------------------
 # Dev API
