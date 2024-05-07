@@ -113,6 +113,7 @@ class Dialog(UIElement):
     Determines the action when closing a dialog.
 
     Options are:
+
     * ``"hide"`` - Removes the dialog from the DOM, but keeps its
         view "alive", so that it can be opened another time.
     * ``"destroy"`` - Destroys the associated view and the state
