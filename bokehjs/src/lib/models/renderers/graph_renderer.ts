@@ -1,7 +1,6 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import type {GlyphRendererView} from "./glyph_renderer"
 import {GlyphRenderer} from "./glyph_renderer"
-import type {Renderer} from "./renderer"
 import type {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
@@ -125,18 +124,6 @@ export class GraphRendererView extends DataRendererView {
 
   override get has_webgl(): boolean {
     return this.edge_view.has_webgl || this.node_view.has_webgl
-  }
-
-  override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    if (renderer instanceof GlyphRenderer) {
-      if (renderer == this.edge_view.model) {
-        return this.edge_view
-      }
-      if (renderer == this.node_view.model) {
-        return this.node_view
-      }
-    }
-    return super.renderer_view(renderer)
   }
 }
 

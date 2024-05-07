@@ -9,7 +9,7 @@ import type {NodeTarget} from "../models/coordinates/node"
 import {Node} from "../models/coordinates/node"
 import {XY as XY_} from "../models/coordinates/xy"
 import {Indexed} from "../models/coordinates/indexed"
-import {ViewManager} from "./view_manager"
+import {ViewManager, ViewQuery} from "./view_manager"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -38,6 +38,8 @@ export class View implements ISignalable {
   readonly root: View
 
   readonly owner: ViewManager
+
+  readonly views: ViewQuery = new ViewQuery(this)
 
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {

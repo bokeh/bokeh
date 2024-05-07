@@ -98,8 +98,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _attribution: Panel
   protected _notifications: Panel
 
-  get toolbar_panel(): ToolbarPanelView | undefined {
-    return this._toolbar != null ? this.renderer_view(this._toolbar) : undefined
+  get toolbar_panel(): ToolbarPanelView | null {
+    return this._toolbar != null ? this.views.find_one(this._toolbar) : null
   }
 
   protected _outer_bbox: BBox = new BBox()
@@ -129,19 +129,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   get computed_renderer_views(): RendererView[] {
     return this.computed_renderers.map((r) => this.renderer_views.get(r)).filter(isNotNull) // TODO race condition again
-  }
-
-  renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    const view = this.renderer_views.get(renderer)
-    if (view == null) {
-      for (const [, renderer_view] of this.renderer_views) {
-        const view = renderer_view.renderer_view(renderer)
-        if (view != null) {
-          return view
-        }
-      }
-    }
-    return view
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
@@ -216,7 +203,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
         if (item instanceof RendererView) {
           return item
         } else {
-          return this.renderer_view(item)!
+          return this.views.get_one(item)
         }
       })()
       this._invalidated_painters.add(view)
@@ -463,7 +450,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
-      const view = this.renderer_view(model)!
+      const view = this.views.get_one(model)
       view.panel = new SidePanel(side)
       view.update_layout?.()
       return view.layout
@@ -545,7 +532,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.model.center.filter((obj): obj is Annotation => {
         return obj instanceof Annotation
       }).map((model) => {
-        const view = this.renderer_view(model)!
+        const view = this.views.get_one(model)
         view.update_layout?.()
         return view.layout
       }).filter((layout): layout is Layoutable => {
@@ -1225,7 +1212,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   override resolve_indexed(coord: Indexed): XY {
     const {index: i, renderer} = coord
-    const rv = this.renderer_view(renderer)
+    const rv = this.views.find_one(renderer)
     if (rv != null && rv.has_finished()) {
       const [sx, sy] = rv.glyph.scenterxy(i, NaN, NaN)
       if (this.frame.bbox.contains(sx, sy)) {

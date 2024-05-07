@@ -52,7 +52,7 @@ export abstract class EditToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy)) {
       return null
     }
-    const renderer_view = this.plot_view.renderer_view(renderer)
+    const renderer_view = this.plot_view.views.find_one(renderer)
     if (renderer_view == null) {
       return null
     }
@@ -181,7 +181,7 @@ export abstract class EditToolView extends GestureToolView {
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager()
       const cds = renderer.data_source
-      const view = this.plot_view.renderer_view(renderer)
+      const view = this.plot_view.views.find_one(renderer)
       if (view != null) {
         const did_hit = sm.select([view], geometry, true, mode)
         if (did_hit) {
