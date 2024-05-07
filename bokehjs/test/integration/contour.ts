@@ -31,7 +31,7 @@ describe("ContourRenderer", () => {
       lower_levels: [-0.5,  1.5],
       upper_levels: [1.5, 3.5],
       fill_color: ["red", "yellow"],
-      hatch_pattern: ["", "/"],
+      hatch_pattern: [" ", "/"],
     }})
     const fill_renderer = new GlyphRenderer({
       glyph: new MultiPolygons({
