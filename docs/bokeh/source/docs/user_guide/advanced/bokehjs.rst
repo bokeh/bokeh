@@ -113,10 +113,9 @@ The JavaScript sample below is very similar to the Python code in
             xx.push(x);
             yy.push(y);
             colors.push(plt.color([50+2*x, 30+2*y, 150]));
-            radii.push(Math.random() * 0.4 + 1.7)
+            radii.push(Math.random() * 0.4 + 1.7);
         }
     }
-
     // create a data source
     const source = new Bokeh.ColumnDataSource({
         data: { x: xx, y: yy, radius: radii, colors: colors }
@@ -127,12 +126,11 @@ The JavaScript sample below is very similar to the Python code in
     const p = plt.figure({ title: "Colorful Scatter", tools: tools });
 
     // call the circle glyph method to add some circle glyphs
-    const circles = p.circle({ field: "x" }, { field: "y" }, {
+    const circles = p.circle({ field: "x" }, { field: "y" }, {field: "radius"}, {
         source: source,
-        radius: radii,
         fill_color: { field: "colors" },
         fill_alpha: 0.6,
-        line_color: null
+        line_color: null,
     });
 
     // show the plot
