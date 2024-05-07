@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Make javascript code blocks also include a live link to codepen.io for instant experiementation.
+""" Make javascript code blocks also include a live link to codepen.io for instant experimentation.
 
 This directive takes a title to use for the codepen example:
 
@@ -26,7 +26,7 @@ include_html: string
     if present, this code block will be emitted as a complete HTML template with
     js inside a script block
 disable_codepen: string
-    if present, this code block will not have a 'try on codepen' button.  Currently
+    if present, this code block will not have a 'try on codepen' button. Currently
     necessary when 'include_html' is turned on.
 
 Examples
@@ -235,7 +235,7 @@ class BokehJSContent(CodeBlock):
             # we only want to inject the CODEPEN_INIT on one
             # bokehjs-content block per page, here we check to see if
             # bjs_seen exists, if not set it to true, and set
-            # node['include_bjs_header'] to true.  This way the
+            # node['include_bjs_header'] to true. This way the
             # CODEPEN_INIT is only injected once per document (html
             # page)
             source_doc.bjs_seen = True
