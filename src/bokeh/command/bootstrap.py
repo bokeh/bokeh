@@ -80,9 +80,11 @@ def main(argv: Sequence[str]) -> None:
     The first item in ``argv`` is typically "bokeh", and the second should
     be the name of one of the available subcommands:
 
+    * :ref:`build <bokeh.command.subcommands.build>`
+    * :ref:`file_output <bokeh.command.subcommands.file_output>`
     * :ref:`info <bokeh.command.subcommands.info>`
+    * :ref:`init <bokeh.command.subcommands.init>`
     * :ref:`json <bokeh.command.subcommands.json>`
-    * :ref:`sampledata <bokeh.command.subcommands.sampledata>`
     * :ref:`secret <bokeh.command.subcommands.secret>`
     * :ref:`serve <bokeh.command.subcommands.serve>`
     * :ref:`static <bokeh.command.subcommands.static>`

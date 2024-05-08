@@ -20,9 +20,6 @@ init
 json
     Create JSON files for one or more applications
 
-sampledata
-    Download the bokeh sample data sets
-
 secret
     Create a Bokeh secret key for use with Bokeh server
 

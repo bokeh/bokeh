@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime
+from pathlib import Path
 
 # External imports
 import numpy as np
@@ -44,6 +45,8 @@ import bokeh.plotting._plot as bpp # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+df= pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -131,11 +134,11 @@ class Test_get_range:
         assert r.end == 10
 
     def test_with_pandas_group(self) -> None:
-        from bokeh.sampledata.iris import flowers
-        g = flowers.groupby('species')
+        df.origin = df.origin.apply(str)
+        g = df.groupby('origin')
         r = bpp.get_range(g)
         assert isinstance(r, FactorRange)
-        assert r.factors == ['setosa', 'versicolor', 'virginica'] # should always be sorted
+        assert r.factors == ['1', '2', '3']
 
 #-----------------------------------------------------------------------------
 # Private API

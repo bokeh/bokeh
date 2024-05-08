@@ -146,18 +146,7 @@ sample data with this command:
 
 .. code-block:: sh
 
-    bokeh sampledata
-
-Alternatively, you can download and install the sample data from within your
-Python code:
-
-.. code-block:: python
-
-    import bokeh.sampledata
-    bokeh.sampledata.download()
-
-If you want to change the location where Bokeh stores the sample data, check
-the |bokeh.sampledata| reference for details.
+    pip install bokeh_sampledata
 
 .. _install_bokehjs:
 
@@ -213,5 +202,3 @@ for version ``3.0.0`` are:
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
-
-.. |bokeh.sampledata| replace:: :ref:`bokeh.sampledata <bokeh.sampledata>`

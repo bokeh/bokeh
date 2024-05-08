@@ -273,11 +273,7 @@ Bokeh, use the following command to download and install the data:
 
 .. code-block:: sh
 
-    bokeh sampledata
-
-You also have the opportunity to configure the download location or to start the
-download programmatically. See the :ref:`install_sampledata` section of the
-first steps guides for more details.
+    pip install bokeh_sampledata
 
 .. _contributor_guide_setup_environment_variables:
 

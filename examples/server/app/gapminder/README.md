@@ -10,7 +10,7 @@ Create an example that reproduces the famous "Gapminder" data visualization from
 This demo requires Bokeh sample data sets to be installed. From the command
 line, execute following command:
 
-    bokeh sampledata
+    pip install bokeh_sampledata
 
 All the necessary data files will be downloaded to a subfolder in your home
 directory.

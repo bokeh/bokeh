@@ -52,9 +52,6 @@ jobs:
           activate-environment: bk-release-build
           environment-file: conda/environment-release-build.yml
 
-      - name: Install sampledata
-        run: python src/bokeh/util/sampledata.py
-
       - name: List installed software
         run: |
           echo "node $(node --version)"

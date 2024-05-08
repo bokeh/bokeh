@@ -11,7 +11,7 @@ Create an interactive query and visualization dashboard for a set of movie data.
 This demo requires Bokeh sample data sets to be installed. From the command
 line, execute following command:
 
-    bokeh sampledata
+    pip install bokeh_sampledata
 
 All the necessary data files will be downloaded to a subfolder in your home
 directory.
