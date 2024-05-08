@@ -1,5 +1,7 @@
 Figure bbox=[0, 0, 300, 300]
   Canvas bbox=[0, 0, 300, 300]
   CartesianFrame bbox=[26, 5, 269, 273]
+  GlyphRenderer bbox=[53, 196, 215, 55]
+    WhiskerGlyph bbox=[53, 196, 215, 55]
   LinearAxis bbox=[26, 278, 269, 22]
   LinearAxis bbox=[0, 5, 26, 273]

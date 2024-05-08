@@ -1,5 +1,7 @@
 Figure bbox=[0, 0, 200, 100]
   Canvas bbox=[0, 0, 200, 100]
   CartesianFrame bbox=[29, 5, 166, 73]
+  GlyphRenderer bbox=[29, 42, 166, 0]
+    ArrowGlyph bbox=[29, 42, 166, 0]
   LinearAxis bbox=[29, 78, 166, 22]
   LinearAxis bbox=[0, 5, 29, 73]
