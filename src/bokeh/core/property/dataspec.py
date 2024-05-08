@@ -106,7 +106,7 @@ class DataSpec(Either):
 
         glyph.x = 10
 
-    Alternatively, maybe the each glyph that gets drawn should have a
+    Alternatively, maybe each glyph that gets drawn should have a
     different location, according to the "pressure" column of a data
     source. In this case we would like to be able to write:
 
@@ -127,7 +127,7 @@ class DataSpec(Either):
 
         glyph.x = "pressure"  # => { 'field': 'pressure' }
 
-    When these underlying dictionary dictionary values are received in
+    When these underlying dictionary values are received in
     the browser, BokehJS knows how to interpret them and take the correct,
     expected action (i.e., draw the glyph at ``x=10``, or draw the glyph
     with ``x`` coordinates from the "pressure" column). In this way, both
@@ -288,8 +288,8 @@ class StringSpec(DataSpec):
 
     Because acceptable fixed values and field names are both strings, it can
     be necessary explicitly to disambiguate these possibilities. By default,
-    string values are interpreted as fields, but the |value| function can be
-    used to specify that a string should interpreted as a value:
+    string values are interpreted as fields, but you can use the |value| function
+    to specify that a string is interpreted as a value:
 
     .. code-block:: python
 
@@ -305,7 +305,7 @@ class FontSizeSpec(DataSpec):
     """ A |DataSpec| property that accepts font-size fixed values.
 
     The ``FontSizeSpec`` property attempts to first interpret string values as
-    font sizes (i.e. valid CSS length values). Otherwise string values are
+    font sizes (i.e. valid CSS length values). Otherwise, string values are
     interpreted as field names. For example:
 
     .. code-block:: python
@@ -363,7 +363,7 @@ class HatchPatternSpec(DataSpec):
     """ A |DataSpec| property that accepts hatch pattern types as fixed values.
 
     The ``HatchPatternSpec`` property attempts to first interpret string values
-    as hatch pattern types. Otherwise string values are interpreted as field
+    as hatch pattern types. Otherwise, string values are interpreted as field
     names. For example:
 
     .. code-block:: python
@@ -383,7 +383,7 @@ class MarkerSpec(DataSpec):
     """ A |DataSpec| property that accepts marker types as fixed values.
 
     The ``MarkerSpec`` property attempts to first interpret string values as
-    marker types. Otherwise string values are interpreted as field names.
+    marker types. Otherwise, string values are interpreted as field names.
     For example:
 
     .. code-block:: python

@@ -71,7 +71,7 @@ class Theme:
     The ``Theme`` class can be constructed either from a YAML file or from a
     JSON dict (but not both). Examples of both formats are shown below.
 
-    The plotting API's defaults override some theme properties. Namely:
+    The plotting API defaults override some theme properties. Namely:
     `fill_alpha`, `fill_color`, `line_alpha`, `line_color`, `text_alpha` and
     `text_color`. Those properties should therefore be set explicitly when
     using the plotting API.
@@ -82,7 +82,7 @@ class Theme:
 
     Raises:
         ValueError
-            If neither ``filename`` or ``json`` is supplied.
+            If neither ``filename`` nor ``json`` is supplied.
 
     Examples:
 
