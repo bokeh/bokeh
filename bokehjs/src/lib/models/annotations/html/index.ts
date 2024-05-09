@@ -1,2 +1,2 @@
-export {HTMLLabel}    from "./label"
-export {HTMLTitle}    from "./title"
+export {HTMLLabel} from "./html_label"
+export {HTMLTitle} from "./html_title"
