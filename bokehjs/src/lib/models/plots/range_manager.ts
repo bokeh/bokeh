@@ -2,7 +2,7 @@ import type {Range} from "../ranges/range"
 import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import type {Dimensions} from "../ranges/auto_ranged"
 import type {PlotView} from "./plot_canvas"
 import type {Interval, Rect} from "core/types"
@@ -60,11 +60,10 @@ export class RangeManager {
     for (const range of this.frame.y_ranges.values()) {
       y_ranges.add(range)
     }
-    for (const renderer of this.parent.model.data_renderers) {
-      const {coordinates} = renderer
-      if (coordinates != null) {
-        x_ranges.add(coordinates.x_source)
-        y_ranges.add(coordinates.y_source)
+    for (const renderer_view of this.parent.data_renderers) {
+      if (renderer_view.is_subcoordinate_renderer) {
+        x_ranges.add(renderer_view.coordinates.x_source)
+        y_ranges.add(renderer_view.coordinates.y_source)
       }
     }
 
@@ -85,7 +84,7 @@ export class RangeManager {
     this.update_dataranges()
   }
 
-  protected _update_dataranges(frame: CartesianFrameView | CoordinateMapping): void {
+  protected _update_dataranges(frame: CartesianFrameView | CoordinateTransform): void {
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
     const log_bounds: Bounds = new Map()
@@ -175,10 +174,10 @@ export class RangeManager {
   update_dataranges(): void {
     this._update_dataranges(this.frame)
 
-    for (const renderer of this.parent.auto_ranged_renderers) {
-      const {coordinates} = renderer.model
+    for (const renderer_view of this.parent.auto_ranged_renderers) {
+      const {coordinates} = renderer_view.model
       if (coordinates != null) {
-        this._update_dataranges(coordinates)
+        this._update_dataranges(renderer_view.coordinates)
       }
     }
 

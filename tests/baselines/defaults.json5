@@ -1573,14 +1573,9 @@
       name: "LinearScale",
       attributes: {},
     },
-    x_target: {
-      type: "symbol",
-      name: "unset",
-    },
-    y_target: {
-      type: "symbol",
-      name: "unset",
-    },
+    x_target: "auto",
+    y_target: "auto",
+    target: "frame",
   },
   GlobalImportedStyleSheet: {
     __extends__: "ImportedStyleSheet",

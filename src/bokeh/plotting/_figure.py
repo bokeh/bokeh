@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import logging # isort:skip
 
@@ -44,6 +44,7 @@ from ..core.properties import (
     TimeDelta,
     Tuple,
 )
+from ..core.property.singletons import Optional, Undefined
 from ..models import (
     ColumnDataSource,
     CoordinateMapping,
@@ -229,12 +230,37 @@ class figure(Plot, GlyphAPI):
 
     def subplot(self,
             *,
-            x_source: Range | None = None, y_source: Range | None = None,
-            x_scale: Scale | None = None, y_scale: Scale | None = None,
-            x_target: Range, y_target: Range,
+            x_source: Optional[Range] = Undefined,
+            y_source: Optional[Range] = Undefined,
+            x_scale: Optional[Scale] = Undefined,
+            y_scale: Optional[Scale] = Undefined,
+            x_target: Range | Literal["auto"] = "auto",
+            y_target: Range | Literal["auto"] = "auto",
         ) -> GlyphAPI:
-        """ Create a new sub-coordinate system and expose a plotting API. """
-        coordinates = CoordinateMapping(x_source=x_source, y_source=y_source, x_target=x_target, y_target=y_target)
+        """
+        Create a new sub-coordinate system and expose the plotting API.
+
+        Example:
+            .. bokeh-plot::
+                :source-position: above
+
+                from bokeh.plotting import figure, show
+
+                p = figure(x_range=[0, 10], y_range=[0, 10])
+                p.subplot(x_target=[0, 1], y_target=p.y_range).circle([0, 1, 2], [0, 1, 2])
+                p.subplot(x_target=[2, 3], y_target=p.y_range).circle([0, 1, 2], [0, 1, 2])
+
+                show(p)
+        """
+        coordinates = CoordinateMapping(
+            x_source=x_source,
+            y_source=y_source,
+            x_scale=x_scale,
+            y_scale=y_scale,
+            x_target=x_target,
+            y_target=y_target,
+            target="frame",
+        )
         return GlyphAPI(self, coordinates)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):

@@ -135,6 +135,7 @@ export class HoverToolView extends InspectToolView {
   override connect_signals(): void {
     super.connect_signals()
 
+    // TODO rebuild when PlotView.computed_renderers change and update HoverToolView.computed_renderers
     const plot_renderers = this.plot_view.model.properties.renderers
     const {renderers, tooltips} = this.model.properties
     this.on_change(tooltips, () => delete this._template_el)
@@ -202,7 +203,7 @@ export class HoverToolView extends InspectToolView {
 
   get computed_renderers(): DataRenderer[] {
     const {renderers} = this.model
-    const all_renderers = this.plot_view.model.data_renderers
+    const all_renderers = this.plot_view.model.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
     return compute_renderers(renderers, all_renderers)
   }
 

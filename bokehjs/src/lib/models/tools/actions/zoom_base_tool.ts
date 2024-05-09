@@ -51,14 +51,12 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
     const x_scales = [...x_frame_scales.values()]
     const y_scales = [...y_frame_scales.values()]
 
-    const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
+    const data_renderers = renderers != "auto" ? this.plot_view.views.collect(renderers) : this.plot_view.data_renderers
 
-    for (const renderer of data_renderers) {
-      if (renderer.coordinates == null) {
+    for (const renderer_view of data_renderers) {
+      if (!renderer_view.is_subcoordinate_renderer) {
         continue
       }
-
-      const rv = this.plot_view.views.get_one(renderer)
 
       const process = (scale: Scale, dim: "x" | "y") => {
         const {level} = this.model
@@ -78,7 +76,7 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
         }
       }
 
-      const {x_scale, y_scale} = rv.coordinates
+      const {x_scale, y_scale} = renderer_view.coordinates
       x_scales.push(process(x_scale, "x"))
       y_scales.push(process(y_scale, "y"))
     }

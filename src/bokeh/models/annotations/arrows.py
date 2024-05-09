@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+from ...core.enums import CoordinateUnitsType
 from ...core.has_props import abstract
 from ...core.properties import Include, NumberSpec, Override
 from ...core.property_mixins import FillProps, LineProps
@@ -149,6 +150,20 @@ def Arrow(**kwargs: Any) -> GlyphRenderer:
         kwargs["x1"] = kwargs.pop("x_end")
     if "y_end" in kwargs:
         kwargs["y1"] = kwargs.pop("y_end")
+
+    if "start_units" in kwargs:
+        start_units: CoordinateUnitsType = kwargs.pop("start_units")
+        match start_units:
+            case "data":
+                pass
+            case "screen":
+                pass
+            case "canvas":
+                pass
+
+
+    if "end_units" in kwargs:
+        kwargs.pop("end_units")
 
     if "line_color" not in kwargs:
         kwargs["line_color"] = "black"

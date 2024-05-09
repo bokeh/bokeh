@@ -47,7 +47,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class GlyphAPI:
-    """ """
+    """ Generalized glyph/plotting API for figures and sub-plots. """
 
     @property
     def plot(self) -> Plot | None:
