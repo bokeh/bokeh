@@ -81,8 +81,6 @@ export class TooltipView extends UIElementView {
     if (content instanceof Model) {
       this._element_view = await build_view(content, {parent: this})
     }
-
-    this.render()
   }
 
   private _scroll_listener?: () => void
@@ -148,6 +146,8 @@ export class TooltipView extends UIElementView {
     }
   }
 
+  private _has_rendered: boolean = false
+
   override render(): void {
     super.render()
 
@@ -170,6 +170,7 @@ export class TooltipView extends UIElementView {
     this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
     this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
 
+    this._has_rendered = true
     this._reposition()
   }
 
@@ -204,20 +205,27 @@ export class TooltipView extends UIElementView {
   }
 
   protected _reposition(): void {
+    // Append to `body` to deal with CSS' `contain` interaction
+    // with `position: fixed`. We assume initial containment
+    // block in this function, but `contain` can introduce a
+    // new containment block and offset tooltip's position.
+    const target = document.body.shadowRoot ?? document.body
+
+    if (!this._has_rendered) {
+      this.render_to(target)
+      this.after_render()
+      return                 // render() calls _reposition()
+    }
+
     const {position, visible} = this.model
     if (position == null || !visible) {
       this.el.remove()
       return
     }
 
-    // Append to `body` to deal with CSS' `contain` interaction
-    // with `position: fixed`. We assume initial containment
-    // block in this function, but `contain` can introduce a
-    // new containment block and offset tooltip's position.
-    (document.body.shadowRoot ?? document.body).append(this.el)
+    target.append(this.el)
 
     const bbox = bounding_box(this.target)
-
     const [sx, sy] = (() => {
       if (isString(position)) {
         const [valign, halign] = this._anchor_to_align(position)
