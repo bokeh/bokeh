@@ -36,6 +36,7 @@ import {
   Range,
   Range1d,
   Tool,
+  ToolProxy,
 } from "./models"
 
 import {Legend} from "../models/annotations/legend"
@@ -303,7 +304,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_drag) && active_drag != "auto") {
       const tool = tool_map.get(active_drag)
-      if (tool != null) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_drag = tool
       }
     } else if (active_drag !== undefined) {
@@ -321,7 +322,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_scroll) && active_scroll != "auto") {
       const tool = tool_map.get(active_scroll)
-      if (tool != null) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_scroll = tool
       }
     } else if (active_scroll !== undefined) {
@@ -330,7 +331,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_tap) && active_tap != "auto") {
       const tool = tool_map.get(active_tap)
-      if (tool != null) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_tap = tool
       }
     } else if (active_tap !== undefined) {
@@ -339,7 +340,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_multi) && active_multi != "auto") {
       const tool = tool_map.get(active_multi)
-      if (tool instanceof GestureTool) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_multi = tool
       }
     } else if (active_multi !== undefined) {
