@@ -5,8 +5,22 @@ import type {Class} from "./class"
 import type {KeyModifiers} from "./ui_gestures"
 import type {Serializable, Serializer} from "./serialization"
 import {serialize} from "./serialization"
+import {Deserializer} from "./serialization/deserializer"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
+import type {InputWidget} from "../models/widgets/input_widget"
+
+Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
+  switch (rep.name) {
+    case "clear_input": {
+      const {model} = deserializer.decode(rep.values) as {model: InputWidget}
+      return new ClearInput(model)
+    }
+    default: {
+      deserializer.error(`deserialization of '${rep.name}' event is not supported`)
+    }
+  }
+})
 
 export type BokehEventType =
   DocumentEventType |
@@ -54,6 +68,7 @@ export type PointEventType =
 
 export type BokehEventMap = {
   document_ready: DocumentReady
+  clear_input: ClearInput
   connection_lost: ConnectionLost
   button_click: ButtonClick
   menu_item_click: MenuItemClick
@@ -174,6 +189,18 @@ export class ValueSubmit extends ModelEvent {
   protected override get event_values(): Attrs {
     const {value} = this
     return {...super.event_values, value}
+  }
+}
+
+@event("clear_input")
+export class ClearInput extends ModelEvent {
+  constructor(readonly model: InputWidget) {
+    super()
+    this.origin = model
+  }
+
+  static {
+    this.prototype.publish = false
   }
 }
 

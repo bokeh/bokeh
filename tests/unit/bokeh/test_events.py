@@ -21,6 +21,7 @@ from bokeh.core.serialization import Deserializer
 from bokeh.models import (
     Button,
     Div,
+    FileInput,
     Plot,
     TextInput,
 )
@@ -62,6 +63,8 @@ def test_common_decode_json() -> None:
             model = Button()
         elif issubclass(event_cls, events.ValueSubmit):
             model = TextInput()
+        elif issubclass(event_cls, events.ClearInput):
+            model = FileInput()
         else:
             model = Plot()
 

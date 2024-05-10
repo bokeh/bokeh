@@ -20,10 +20,12 @@ import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
+import {assert} from "core/util/assert"
 import {Model} from "model"
 import type {ModelDef} from "./defs"
 import {decode_def} from "./defs"
-import type {BokehEvent, BokehEventType, BokehEventMap, ModelEvent} from "core/bokeh_events"
+import type {BokehEvent, BokehEventType, BokehEventMap} from "core/bokeh_events"
+import {ModelEvent} from "core/bokeh_events"
 import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
@@ -120,6 +122,10 @@ export class Document implements Equatable {
     if (options.roots != null) {
       this._add_roots(...options.roots)
     }
+    this.on_message("bokeh_event", (event) => {
+      assert(event instanceof ModelEvent)
+      this.event_manager.trigger(event)
+    })
   }
 
   [equals](that: this, _cmp: Comparator): boolean {

@@ -1,6 +1,7 @@
 import {InputWidget, InputWidgetView} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
 import {input} from "core/dom"
+import {ClearInput} from "core/bokeh_events"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
@@ -9,6 +10,19 @@ import buttons_css from "styles/buttons.css"
 export class FileInputView extends InputWidgetView {
   declare model: FileInput
   declare input_el: HTMLInputElement
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    this.model.on_event(ClearInput, () => {
+      this.model.setv({
+        value:     "", // p.unset,
+        mime_type: "", // p.unset,
+        filename:  "", // p.unset,
+      })
+      this.input_el.value = ""
+    })
+  }
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), buttons_css]

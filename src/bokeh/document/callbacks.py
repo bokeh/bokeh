@@ -40,6 +40,7 @@ from ..models.callbacks import Callback as JSEventCallback
 from ..util.callback_manager import _check_callback
 from .events import (
     DocumentPatchedEvent,
+    MessageSentEvent,
     ModelChangedEvent,
     RootAddedEvent,
     RootRemovedEvent,
@@ -380,6 +381,14 @@ class DocumentCallbackManager:
 
         '''
         return tuple(self._change_callbacks.values())
+
+    def send_event(self, event: Event) -> None:
+        ''' Send a bokeh/model/UI event to the client.
+
+        '''
+        document = self._document()
+        if document is not None:
+            self.trigger_on_change(MessageSentEvent(document, "bokeh_event", event))
 
     def trigger_event(self, event: Event) -> None:
         # This is fairly gorpy, we are not being careful with model vs doc events, etc.
