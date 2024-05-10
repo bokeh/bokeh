@@ -4,7 +4,6 @@ import type {Scale} from "../../scales/scale"
 import {CompositeScale} from "../../scales/composite_scale"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
-import {assert} from "core/util/assert"
 import type * as p from "core/properties"
 import {logger} from "core/logging"
 
@@ -59,8 +58,7 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
         continue
       }
 
-      const rv = this.plot_view.renderer_view(renderer)
-      assert(rv != null)
+      const rv = this.plot_view.views.get_one(renderer)
 
       const process = (scale: Scale, dim: "x" | "y") => {
         const {level} = this.model

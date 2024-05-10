@@ -243,7 +243,7 @@ export class HoverToolView extends InspectToolView {
 
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()
-      const rview = this.plot_view.renderer_view(r)
+      const rview = this.plot_view.views.find_one(r)
       if (rview != null) {
         sm.inspect(rview, geometry)
       }
@@ -264,7 +264,7 @@ export class HoverToolView extends InspectToolView {
     }
 
     const ds = selection_manager.source
-    const renderer_view = this.plot_view.renderer_view(renderer)
+    const renderer_view = this.plot_view.views.find_one(renderer)
     if (renderer_view == null) {
       return
     }
@@ -499,7 +499,7 @@ export class HoverToolView extends InspectToolView {
         continue
       }
 
-      const glyph_renderer_view = this.plot_view.renderer_view(renderer)
+      const glyph_renderer_view = this.plot_view.views.find_one(renderer)
       if (glyph_renderer_view == null) {
         continue
       }

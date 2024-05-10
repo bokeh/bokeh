@@ -9,7 +9,9 @@ import type {NodeTarget} from "../models/coordinates/node"
 import {Node} from "../models/coordinates/node"
 import {XY as XY_} from "../models/coordinates/xy"
 import {Indexed} from "../models/coordinates/indexed"
-import {ViewManager} from "./view_manager"
+import {ViewManager, ViewQuery} from "./view_manager"
+import type {Equatable, Comparator} from "./util/eq"
+import {equals} from "./util/eq"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -29,7 +31,7 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
-export class View implements ISignalable {
+export class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
 
   readonly model: HasProps
@@ -38,6 +40,8 @@ export class View implements ISignalable {
   readonly root: View
 
   readonly owner: ViewManager
+
+  readonly views: ViewQuery = new ViewQuery(this)
 
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -100,6 +104,10 @@ export class View implements ISignalable {
 
   toString(): string {
     return `${this.model.type}View(${this.model.id})`
+  }
+
+  [equals](that: this, _cmp: Comparator): boolean {
+    return Object.is(this, that)
   }
 
   public *children(): IterViews {}

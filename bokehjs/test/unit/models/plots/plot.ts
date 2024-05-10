@@ -90,10 +90,10 @@ describe("Plot module", () => {
       const glyph = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
       const plot = new Plot({renderers: [graph, glyph]})
       const {view: plot_view} = await display(plot)
-      expect(plot_view.renderer_view(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
-      expect(plot_view.renderer_view(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
-      expect(plot_view.renderer_view(graph)).to.be.instanceof(GraphRendererView)
-      expect(plot_view.renderer_view(glyph)).to.be.instanceof(GlyphRendererView)
+      expect(plot_view.views.find_one(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
+      expect(plot_view.views.find_one(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
+      expect(plot_view.views.find_one(graph)).to.be.instanceof(GraphRendererView)
+      expect(plot_view.views.find_one(glyph)).to.be.instanceof(GlyphRendererView)
     })
 
     it("should perform standard reset actions by default", async () => {

@@ -26,7 +26,7 @@ export abstract class RegionSelectToolView extends SelectToolView {
 
       const r_views: DataRendererView[] = []
       for (const r of renderers) {
-        const r_view = this.plot_view.renderer_view(r)
+        const r_view = this.plot_view.views.find_one(r)
         if (r_view != null) {
           r_views.push(r_view)
         }

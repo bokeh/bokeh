@@ -423,7 +423,7 @@ export class LegendView extends AnnotationView {
       const y1 = y0 + glyph_height
 
       for (const renderer of item.renderers) {
-        const view = this.plot_view.renderer_view(renderer)
+        const view = this.plot_view.views.find_one(renderer)
         view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
       }
 

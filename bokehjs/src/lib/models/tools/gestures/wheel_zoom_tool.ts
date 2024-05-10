@@ -8,7 +8,6 @@ import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
-import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, List, Ref, Or, Auto} from "core/kinds"
 
@@ -96,9 +95,7 @@ export class WheelZoomToolView extends GestureToolView {
         continue
       }
 
-      const rv = this.plot_view.renderer_view(renderer)
-      assert(rv != null)
-
+      const rv = this.plot_view.views.get_one(renderer)
       const {x_scale, y_scale} = rv.coordinates
 
       if (x_scale instanceof CompositeScale) {
