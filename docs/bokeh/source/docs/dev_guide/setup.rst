@@ -665,11 +665,13 @@ setting up a development environment:
 
 .. dropdown:: Slow network connections when cloning
 
-    If you are experiencing slow network connections or timeouts when attempting to clone our repository, consider performing a **shallow clone**.
-    This method downloads fewer commits, which speeds up the cloning process and reduces the amount of data transferred.
+    If you are experiencing slow network connections or timeouts when attempting to clone our repository,
+    consider performing a **shallow clone**. This method downloads fewer commits,
+    which speeds up the cloning process and reduces the amount of data transferred.
 
-    Using a shallow clone can be an effective workaround for contributors with limited bandwidth or those experiencing slow cloning speeds.
-    However, be aware of its limitations and know how to convert it back to a full clone if necessary.
+    Using a shallow clone can be an effective workaround for contributors
+    with limited bandwidth or those experiencing slow cloning speeds. However, be aware of its limitations
+    and know how to convert it back to a full clone if necessary.
 
     To create a shallow clone of the repository, run:
 
@@ -729,6 +731,7 @@ setting up a development environment:
 
         - **Limited Git Operations:** Operations that require a full history (e.g., some merging strategies, generating comprehensive logs) will not be possible.
         - **Branch Limitations:** If you have not cloned all branches (`--single-branch` option), switching between branches might not be possible without additional steps.
+        - **Inaccurate Version Information:** The version information retrieved through bokeh.__version__ might display incorrect data, such as a 'dev' label, when the repository is shallowly cloned.
 
     **Converting a Shallow Clone to a Full Clone**
 
