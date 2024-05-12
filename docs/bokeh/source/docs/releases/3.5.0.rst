@@ -9,3 +9,4 @@ Bokeh version ``3.5.0`` (May 2024) is a minor milestone of Bokeh project.
 * Added support for key modifiers to ``WheelZoomTool`` and ``WheelPanTool`` (:bokeh-pull:`13815`)
 * Allowed auto-activation of tools using wheel/scroll events when modifiers are set (:bokeh-pull:`13815`)
 * Added support for CSS variable based styling to plot renderers (:bokeh-pull:`13828`)
+* Added support for outline shapes to text-like glyphs (``Text``, ``TeX`` and ``MathML``) (:bokeh-pull:`13620`)
