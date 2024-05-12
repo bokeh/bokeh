@@ -1573,6 +1573,10 @@ class Text(XYGlyph, TextGlyph):
 
     .. note::
         This property is experimental and may change at any point.
+
+    .. note::
+        Currently hit testing only uses the bounding box of text contents
+        of the glyph, which is equivalent to using box/rectangle shape.
     """)
 
     text_props = Include(TextProps, help="""
