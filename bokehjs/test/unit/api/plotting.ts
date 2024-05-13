@@ -1,11 +1,96 @@
 import {expect} from "assertions"
 
 import {figure} from "@bokehjs/api/plotting"
-import {LinearAxis} from "@bokehjs/models"
+import {ColumnDataSource, LinearAxis} from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
   describe("figure()", () => {
     describe("glyph methods", () => {
+      it("should validate arguments", () => {
+        const source = new ColumnDataSource()
+
+        const gr0 = figure().circle()
+        expect(gr0.glyph.x).to.be.equal({field: "x"})
+        expect(gr0.glyph.y).to.be.equal({field: "y"})
+        expect(gr0.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr0.data_source).to.not.be.equal(source)
+
+        const gr1 = figure().circle({source})
+        expect(gr1.glyph.x).to.be.equal({field: "x"})
+        expect(gr1.glyph.y).to.be.equal({field: "y"})
+        expect(gr1.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr1.data_source).to.be.equal(source)
+
+        const gr2 = figure().circle(5, 10, 0.5)
+        expect(gr2.glyph.x).to.be.equal({value: 5})
+        expect(gr2.glyph.y).to.be.equal({value: 10})
+        expect(gr2.glyph.radius).to.be.equal({value: 0.5})
+        expect(gr2.data_source).to.not.be.equal(source)
+
+        const gr3 = figure().circle(5, 10, 0.5, {source})
+        expect(gr3.glyph.x).to.be.equal({value: 5})
+        expect(gr3.glyph.y).to.be.equal({value: 10})
+        expect(gr3.glyph.radius).to.be.equal({value: 0.5})
+        expect(gr3.data_source).to.be.equal(source)
+
+        const gr4 = figure().circle([1, 2, 3], [4, 5, 6], [7, 8, 9])
+        expect(gr4.glyph.x).to.be.equal({field: "x"})
+        expect(gr4.glyph.y).to.be.equal({field: "y"})
+        expect(gr4.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr4.data_source).to.not.be.equal(source)
+
+        const gr5 = figure().circle([1, 2, 3], [4, 5, 6], [7, 8, 9], {source})
+        expect(gr5.glyph.x).to.be.equal({field: "x"})
+        expect(gr5.glyph.y).to.be.equal({field: "y"})
+        expect(gr5.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr5.data_source).to.be.equal(source)
+
+        const gr6 = figure().circle({field: "X"}, {field: "Y"}, 0.5)
+        expect(gr6.glyph.x).to.be.equal({field: "X"})
+        expect(gr6.glyph.y).to.be.equal({field: "Y"})
+        expect(gr6.glyph.radius).to.be.equal({value: 0.5})
+        expect(gr6.data_source).to.not.be.equal(source)
+
+        const gr7 = figure().circle({field: "X"}, {field: "Y"}, 0.5, {source})
+        expect(gr7.glyph.x).to.be.equal({field: "X"})
+        expect(gr7.glyph.y).to.be.equal({field: "Y"})
+        expect(gr7.glyph.radius).to.be.equal({value: 0.5})
+        expect(gr7.data_source).to.be.equal(source)
+
+        const gr8 = figure().circle({field: "X"}, {field: "Y"}, {field: "R"})
+        expect(gr8.glyph.x).to.be.equal({field: "X"})
+        expect(gr8.glyph.y).to.be.equal({field: "Y"})
+        expect(gr8.glyph.radius).to.be.equal({field: "R"})
+        expect(gr8.data_source).to.not.be.equal(source)
+
+        const gr9 = figure().circle({field: "X"}, {field: "Y"}, {field: "R"}, {source})
+        expect(gr9.glyph.x).to.be.equal({field: "X"})
+        expect(gr9.glyph.y).to.be.equal({field: "Y"})
+        expect(gr9.glyph.radius).to.be.equal({field: "R"})
+        expect(gr9.data_source).to.be.equal(source)
+
+        const gr10 = figure().circle({field: "X"}, {field: "Y"}, {field: "R"}, {x: {field: "X1"}, source})
+        expect(gr10.glyph.x).to.be.equal({field: "X1"})
+        expect(gr10.glyph.y).to.be.equal({field: "Y"})
+        expect(gr10.glyph.radius).to.be.equal({field: "R"})
+        expect(gr10.data_source).to.be.equal(source)
+
+        expect(() => {
+          // @ts-ignore TS2575: No overload expects 2 arguments, (...)
+          figure().circle(5, 10)
+        }).to.throw(Error, /^wrong number of arguments/)
+
+        expect(() => {
+          // @ts-ignore TS2559: Type '0' has no properties in common with type 'Partial<CircleArgs>'
+          figure().circle(5, 10, 0.5, 0)
+        }).to.throw(Error, /^expected optional arguments/)
+
+        expect(() => {
+          // @ts-ignore TS2353: Object literal may only specify known properties, (...)
+          figure().circle(5, 10, {source}, 0)
+        }).to.throw(Error, /^invalid value for 'radius' parameter at position 2/)
+      })
+
       it("should support '_units' auxiliary properties", () => {
         const p = figure()
         const attrs = {x: 0, y: 0, inner_radius: 1, outer_radius: 2}
