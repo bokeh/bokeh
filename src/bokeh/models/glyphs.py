@@ -1560,7 +1560,7 @@ class Text(XYGlyph, TextGlyph):
     """)
 
     outline_shape = DataSpec(Enum(OutlineShapeName), default="box", help="""
-    Allows to override the shape of the outline the text box.
+    Specify the shape of the outline for the text box.
 
     The default outline is of a text box is its bounding box (or rectangle).
     This can be changed to a selection of pre-defined shapes, like circle,
@@ -1568,8 +1568,8 @@ class Text(XYGlyph, TextGlyph):
     the bounding box, so that the contents of a box fit inside those shapes.
 
     This property is in effect only when either border line, background fill
-    and/or background hatch properties are set. To avoid drawing a shape, one
-    can use ``"plain"`` named shape.
+    and/or background hatch properties are set. The user can choose ``"none"``
+    to avoid drawing any shape, even if border or background visuals are set.
 
     .. note::
         This property is experimental and may change at any point.
