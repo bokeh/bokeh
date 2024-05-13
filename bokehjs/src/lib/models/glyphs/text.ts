@@ -126,7 +126,7 @@ export class TextView extends XYGlyphView {
       ctx.rotate(angle_i)
       ctx.translate(-dx_i, -dy_i)
 
-      if (shape_i != "plain" && (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i))) {
+      if (shape_i != "none" && (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i))) {
         const bbox = new BBox({x: 0, y: 0, width: swidth_i, height: sheight_i})
         const visuals = {
           fill: background_fill,
@@ -153,7 +153,7 @@ export class TextView extends XYGlyphView {
   protected _paint_shape(ctx: Context2d, i: number, shape: OutlineShapeName, bbox: BBox, visuals: VectorVisuals, border_radius: Corners<number>): void {
     ctx.beginPath()
     switch (shape) {
-      case "plain": {
+      case "none": {
         break
       }
       case "box":
@@ -195,7 +195,7 @@ export class TextView extends XYGlyphView {
         ctx.ellipse(cx, cy, a, b, 0, 0, 2*PI)
         break
       }
-      case "trapezium": {
+      case "trapezoid": {
         const {left, right, top, bottom, width} = bbox
         const ext = 0.2*width
         ctx.moveTo(left, top)

@@ -470,7 +470,7 @@ OrientationType = Literal["horizontal", "vertical"]
 Orientation = enumeration(OrientationType)
 
 #: Names of pre-defined outline shapes (used in ``Text.outline_shape``)
-OutlineShapeName = Literal["plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "diamond", "triangle"]
+OutlineShapeName = Literal["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"]
 OutlineShapeName = enumeration(OutlineShapeName)
 
 #: Specify an output backend to render a plot area onto

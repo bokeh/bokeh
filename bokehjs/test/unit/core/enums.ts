@@ -158,7 +158,7 @@ describe("enums module", () => {
   })
 
   it("should have OutlineShapeName", () => {
-    expect([...enums.OutlineShapeName]).to.be.equal(["plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "diamond", "triangle"])
+    expect([...enums.OutlineShapeName]).to.be.equal(["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"])
   })
 
   it("should have OutputBackend", () => {
