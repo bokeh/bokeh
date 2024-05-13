@@ -8,18 +8,20 @@ p = figure(
     width=1000, height=400,
     x_axis_type=None, y_axis_type=None,
     toolbar_location=None,
+    background_fill_color="ivory",
 )
 
-x = [10, 20, 30, 40, 50, 60, 70, 80]
+x = [10, 20, 30, 40, 50, 60, 70, 80, 90]
 padding = 5
 
 p.text(
     anchor="center",
     x=x,
     y=5,
-    text=["circle", "square", "ellipse", "box\nrectangle", "trapezoid", "parallelogram", "diamond", "triangle"],
-    outline_shape=["circle", "square", "ellipse", "box", "trapezoid", "parallelogram", "diamond", "triangle"],
-    background_fill_color="white", background_fill_alpha=0.8,
+    text=["none", "circle", "square", "ellipse", "box\nrectangle", "trapezoid", "parallelogram", "diamond", "triangle"],
+    outline_shape=["none", "circle", "square", "ellipse", "box", "trapezoid", "parallelogram", "diamond", "triangle"],
+    background_fill_color="white",
+    background_fill_alpha=1.0,
     padding=padding,
     border_line_color="black",
     text_font_size="1.2em",
@@ -31,6 +33,7 @@ def tex(display: Literal["inline", "block"], y: float, color: str):
         x=x,
         y=y,
         text=[
+            r"\emptyset",
             r"x^{y^z}",
             r"\frac{1}{x^2\cdot y}",
             r"\int_{-\infty}^{\infty} \frac{1}{x} dx",
@@ -40,7 +43,7 @@ def tex(display: Literal["inline", "block"], y: float, color: str):
             r"x^2",
             r"y_{\rho \theta}",
         ],
-        outline_shape=["circle", "square", "ellipse", "box", "trapezoid", "parallelogram", "diamond", "triangle"],
+        outline_shape=["none", "circle", "square", "ellipse", "box", "trapezoid", "parallelogram", "diamond", "triangle"],
         background_fill_color=color,
         background_fill_alpha=0.8,
         padding=padding,
