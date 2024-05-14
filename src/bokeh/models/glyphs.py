@@ -7,8 +7,6 @@
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
-
-
 The full list of glyphs is below:
 
 .. toctree::
@@ -40,6 +38,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import (
     Direction,
     ImageOrigin,
+    OutlineShapeName,
     Palette,
     StepMode,
     enumeration,
@@ -1558,6 +1557,26 @@ class Text(XYGlyph, TextGlyph):
 
     .. note::
         This property is experimental and may change at any point.
+    """)
+
+    outline_shape = DataSpec(Enum(OutlineShapeName), default="box", help="""
+    Specify the shape of the outline for the text box.
+
+    The default outline is of a text box is its bounding box (or rectangle).
+    This can be changed to a selection of pre-defined shapes, like circle,
+    ellipse, diamond, parallelogram, etc. Those shapes are circumscribed onto
+    the bounding box, so that the contents of a box fit inside those shapes.
+
+    This property is in effect only when either border line, background fill
+    and/or background hatch properties are set. The user can choose ``"none"``
+    to avoid drawing any shape, even if border or background visuals are set.
+
+    .. note::
+        This property is experimental and may change at any point.
+
+    .. note::
+        Currently hit testing only uses the bounding box of text contents
+        of the glyph, which is equivalent to using box/rectangle shape.
     """)
 
     text_props = Include(TextProps, help="""

@@ -4248,6 +4248,10 @@
     },
     padding: 0,
     border_radius: 0,
+    outline_shape: {
+      type: "value",
+      value: "box",
+    },
     text_color: {
       type: "value",
       value: "#444444",

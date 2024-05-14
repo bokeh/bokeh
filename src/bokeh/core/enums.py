@@ -128,6 +128,7 @@ __all__ = (
     'NamedColor',
     'NumeralLanguage',
     'Orientation',
+    'OutlineShapeName',
     'OutputBackend',
     'PaddingUnits',
     'Palette',
@@ -467,6 +468,10 @@ NumeralLanguage = enumeration(NumeralLanguageType)
 #: Specify a vertical/horizontal orientation for something
 OrientationType = Literal["horizontal", "vertical"]
 Orientation = enumeration(OrientationType)
+
+#: Names of pre-defined outline shapes (used in ``Text.outline_shape``)
+OutlineShapeName = Literal["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"]
+OutlineShapeName = enumeration(OutlineShapeName)
 
 #: Specify an output backend to render a plot area onto
 OutputBackendType = Literal["canvas", "svg", "webgl"]

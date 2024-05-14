@@ -68,6 +68,7 @@ ALL = (
     'NamedColor',
     'NumeralLanguage',
     'Orientation',
+    'OutlineShapeName',
     'OutputBackend',
     'PaddingUnits',
     'Palette',
@@ -272,6 +273,9 @@ class Test_bce:
 
     def test_Orientation(self) -> None:
         assert tuple(bce.Orientation) == ("horizontal", "vertical")
+
+    def test_OutlineShapeName(self) -> None:
+        assert tuple(bce.OutlineShapeName) == ("none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle")
 
     def test_OutputBackend(self) -> None:
         assert tuple(bce.OutputBackend) == ("canvas", "svg", "webgl")
