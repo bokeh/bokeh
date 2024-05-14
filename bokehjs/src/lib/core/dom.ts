@@ -1,69 +1,97 @@
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
 import {BBox} from "./util/bbox"
-import type {Size, Box, Extents} from "./types"
+import type {Size, Box, Extents, PlainObject} from "./types"
 import type {CSSStyles, CSSStyleSheetDecl} from "./css"
-import {compose_stylesheet} from "./css"
+import {compose_stylesheet, apply_styles} from "./css"
+import {logger} from "./logging"
 
-export type HTMLAttrs = {[name: string]: unknown}
+type Optional<T> = {[P in keyof T]?: T[P] | null | undefined}
+
+type HTMLElementName = keyof HTMLElementTagNameMap
+
+type CSSClass = string
+
+type ElementOurAttrs =  {
+  class?: CSSClass | (CSSClass | null | undefined)[]
+  style?: CSSStyles
+  data?: PlainObject<string | null | undefined>
+}
+
+type ElementCommonAttrs = {
+  title: HTMLElement["title"]
+  tabIndex: HTMLOrSVGElement["tabIndex"]
+}
+
+export type HTMLAttrs<_T extends HTMLElementName, ElementSpecificAttrs> = ElementOurAttrs & Optional<ElementCommonAttrs> & Optional<ElementSpecificAttrs>
+
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]
 
-const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
-  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+const _element = <T extends keyof HTMLElementTagNameMap, ElementSpecificAttrs = {}>(tag: T) => {
+  return (attrs: HTMLAttrs<T, ElementSpecificAttrs> | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
 
     if (!isPlainObject(attrs)) {
       children = [attrs, ...children]
       attrs = {}
+    } else {
+      attrs = {...attrs}
     }
 
-    for (let [attr, value] of entries(attrs)) {
-      if (value == null || isBoolean(value) && !value) {
+    if (attrs.class != null) {
+      const classes = (() => {
+        if (isString(attrs.class)) {
+          return attrs.class.split(/\s+/)
+        } else {
+          return attrs.class
+        }
+      })()
+
+      for (const cls of classes) {
+        if (cls != null) {
+          element.classList.add(cls)
+        }
+      }
+
+      delete attrs.class
+    }
+
+    if (attrs.style != null) {
+      apply_styles(element.style, attrs.style)
+      delete attrs.style
+    }
+
+    if (attrs.data != null) {
+      for (const [key, data] of entries(attrs.data)) {
+        if (data != null) {
+          element.dataset[key] = data
+        }
+      }
+      delete attrs.data
+    }
+
+    for (const [attr, value] of entries<unknown>(attrs)) {
+      if (value == null) {
         continue
+      } else if (isBoolean(value)) {
+        element.toggleAttribute(attr, value)
+      } else if (isNumber(value)) {
+        element.setAttribute(attr, `${value}`)
+      } else if (isString(value)) {
+        element.setAttribute(attr, value)
+      } else {
+        logger.warn(`unable to set attribute: ${attr} = ${value}`)
       }
-
-      if (attr === "class") {
-        if (isString(value)) {
-          value = value.split(/\s+/)
-        }
-
-        if (isArray(value)) {
-          for (const cls of value as (string | null | undefined)[]) {
-            if (cls != null) {
-              element.classList.add(cls)
-            }
-          }
-          continue
-        }
-      }
-
-      if (attr === "style" && isPlainObject(value)) {
-        for (const [prop, data] of entries(value)) {
-          (element.style as any)[prop] = data
-        }
-        continue
-      }
-
-      if (attr === "data" && isPlainObject(value)) {
-        for (const [key, data] of entries(value)) {
-          element.dataset[key] = data as string | undefined // XXX: attrs needs a better type
-        }
-        continue
-      }
-
-      element.setAttribute(attr, value as string)
     }
 
     function append(child: HTMLItem) {
       if (isString(child)) {
-        element.appendChild(document.createTextNode(child))
+        element.append(document.createTextNode(child))
       } else if (child instanceof Node) {
-        element.appendChild(child)
+        element.append(child)
       } else if (child instanceof NodeList || child instanceof HTMLCollection) {
-        for (const el of child) {
-          element.appendChild(el)
-        }
+        element.append(...child)
       } else if (child != null && child !== false) {
         throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
       }
@@ -83,30 +111,156 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   }
 }
 
-export function createElement<T extends keyof HTMLElementTagNameMap>(
-    tag: T, attrs: HTMLAttrs | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
-  return _createElement(tag)(attrs, ...children)
+export function create_element<T extends keyof HTMLElementTagNameMap>(
+    tag: T, attrs: HTMLAttrs<T, {}> | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
+  return _element(tag)(attrs, ...children)
 }
 
-export const
-  div      = _createElement("div"),
-  span     = _createElement("span"),
-  canvas   = _createElement("canvas"),
-  link     = _createElement("link"),
-  style    = _createElement("style"),
-  a        = _createElement("a"),
-  p        = _createElement("p"),
-  i        = _createElement("i"),
-  pre      = _createElement("pre"),
-  button   = _createElement("button"),
-  label    = _createElement("label"),
-  legend   = _createElement("legend"),
-  fieldset = _createElement("fieldset"),
-  input    = _createElement("input"),
-  select   = _createElement("select"),
-  option   = _createElement("option"),
-  optgroup = _createElement("optgroup"),
-  textarea = _createElement("textarea")
+export const a = _element<"a", {
+  href: HTMLAnchorElement["href"]
+  target: HTMLAnchorElement["target"]
+}>("a")
+export const abbr = _element("abbr")
+export const address = _element("address")
+export const area = _element("area")
+export const article = _element("article")
+export const aside = _element("aside")
+export const audio = _element("audio")
+export const b = _element("b")
+export const base = _element("base")
+export const bdi = _element("bdi")
+export const bdo = _element("bdo")
+export const blockquote = _element("blockquote")
+export const body = _element("body")
+export const br = _element("br")
+export const button = _element<"button", {
+  type: "button"
+  disabled: HTMLButtonElement["disabled"]
+}>("button")
+export const canvas = _element<"canvas", {
+  width: HTMLCanvasElement["width"]
+  height: HTMLCanvasElement["height"]
+}>("canvas")
+export const caption = _element("caption")
+export const cite = _element("cite")
+export const code = _element("code")
+export const col = _element("col")
+export const colgroup = _element("colgroup")
+export const data = _element("data")
+export const datalist = _element("datalist")
+export const dd = _element("dd")
+export const del = _element("del")
+export const details = _element("details")
+export const dfn = _element("dfn")
+export const dialog = _element("dialog")
+export const div = _element("div")
+export const dl = _element("dl")
+export const dt = _element("dt")
+export const em = _element("em")
+export const embed = _element("embed")
+export const fieldset = _element("fieldset")
+export const figcaption = _element("figcaption")
+export const figure = _element("figure")
+export const footer = _element("footer")
+export const form = _element("form")
+export const h1 = _element("h1")
+export const h2 = _element("h2")
+export const h3 = _element("h3")
+export const h4 = _element("h4")
+export const h5 = _element("h5")
+export const h6 = _element("h6")
+export const head = _element("head")
+export const header = _element("header")
+export const hgroup = _element("hgroup")
+export const hr = _element("hr")
+export const html = _element("html")
+export const i = _element("i")
+export const iframe = _element("iframe")
+export const img = _element("img")
+export const input = _element<"input", {
+  type: "text" | "checkbox" | "radio" | "file" | "color"
+  name:  HTMLInputElement["name"]
+  multiple: HTMLInputElement["multiple"]
+  disabled: HTMLInputElement["disabled"]
+  checked: HTMLInputElement["checked"]
+  placeholder: HTMLInputElement["placeholder"]
+  accept: HTMLInputElement["accept"]
+  value: HTMLInputElement["value"]
+  readonly: HTMLInputElement["readOnly"]
+}>("input")
+export const ins = _element("ins")
+export const kbd = _element("kbd")
+export const label = _element<"label", {
+  for: HTMLLabelElement["htmlFor"]
+}>("label")
+export const legend = _element("legend")
+export const li = _element("li")
+export const link = _element<"link", {
+  rel: HTMLLinkElement["rel"]
+  href: HTMLLinkElement["href"]
+  disabled: HTMLLinkElement["disabled"]
+}>("link")
+export const main = _element("main")
+export const map = _element("map")
+export const mark = _element("mark")
+export const menu = _element("menu")
+export const meta = _element("meta")
+export const meter = _element("meter")
+export const nav = _element("nav")
+export const noscript = _element("noscript")
+export const object = _element("object")
+export const ol = _element("ol")
+export const optgroup = _element<"optgroup", {
+  disabled: HTMLOptGroupElement["disabled"]
+  label:  HTMLOptGroupElement["label"]
+}>("optgroup")
+export const option = _element<"option", {
+  value: HTMLOptionElement["value"]
+}>("option")
+export const output = _element("output")
+export const p = _element("p")
+export const picture = _element("picture")
+export const pre = _element("pre")
+export const progress = _element("progress")
+export const q = _element("q")
+export const rp = _element("rp")
+export const rt = _element("rt")
+export const ruby = _element("ruby")
+export const s = _element("s")
+export const samp = _element("samp")
+export const script = _element("script")
+export const search = _element("search")
+export const section = _element("section")
+export const select = _element<"select", {
+  name:  HTMLSelectElement["name"]
+  disabled: HTMLSelectElement["disabled"]
+  multiple: HTMLSelectElement["multiple"]
+}>("select")
+export const slot = _element("slot")
+export const small = _element("small")
+export const source = _element("source")
+export const span = _element("span")
+export const strong = _element("strong")
+export const style = _element("style")
+export const sub = _element("sub")
+export const summary = _element("summary")
+export const sup = _element("sup")
+export const table = _element("table")
+export const tbody = _element("tbody")
+export const td = _element("td")
+export const template = _element("template")
+export const textarea = _element("textarea")
+export const tfoot = _element("tfoot")
+export const th = _element("th")
+export const thead = _element("thead")
+export const time = _element("time")
+export const title = _element("title")
+export const tr = _element("tr")
+export const track = _element("track")
+export const u = _element("u")
+export const ul = _element("ul")
+export const video = _element("video")
+export const wbr = _element("wbr")
 
 export type SVGAttrs = {[key: string]: string | false | null | undefined}
 
@@ -431,7 +585,7 @@ export abstract class StyleSheet {
 }
 
 export class InlineStyleSheet extends StyleSheet {
-  protected override readonly el = style({type: "text/css"})
+  protected override readonly el = style()
 
   constructor(css?: string | CSSStyleSheetDecl) {
     super()

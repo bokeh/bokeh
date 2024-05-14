@@ -28,7 +28,6 @@ function groupCellFormatter(_row: number, _cell: number, _value: unknown, _colum
   })
   const titleElement = span({
     class: "slick-group-title",
-    level,
   }, title)
 
   return `${toggle.outerHTML}${titleElement.outerHTML}`

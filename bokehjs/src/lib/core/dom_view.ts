@@ -1,7 +1,7 @@
 import {View} from "./view"
 import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
-import {createElement, empty, InlineStyleSheet, ClassList} from "./dom"
+import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
@@ -73,7 +73,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    return createElement(this.constructor.tag_name, {class: this.css_classes()})
+    return create_element(this.constructor.tag_name, {})
   }
 
   reposition(_displayed?: boolean): void {}
