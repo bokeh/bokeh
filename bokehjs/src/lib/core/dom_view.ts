@@ -73,7 +73,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    return create_element(this.constructor.tag_name, {class: this.css_classes()})
+    return create_element(this.constructor.tag_name, {})
   }
 
   reposition(_displayed?: boolean): void {}
