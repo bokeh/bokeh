@@ -3952,4 +3952,19 @@ describe("Bug", () => {
       await display(dialog, [450, 250])
     })
   })
+
+  describe("in issue #13895", () => {
+    it("allows elements associated with renderers to overflow the canvas", async () => {
+      const box = div({
+        style: {
+          width: "250px",
+          height: "250px",
+          overflow: "scroll",
+        },
+      })
+      const p = fig([200, 200], {x_range: [0, 1], y_range: [0, 1]})
+      p.circle({x: [0, 10], y: [0, 10], radius: 1})
+      await display(p, [300, 300], box)
+    })
+  })
 })
