@@ -169,6 +169,12 @@ html_theme ="pydata_sphinx_theme"
 
 html_title = f"{project} {version} Documentation"
 
+# avoid CORS error on local docs build for the switcher.json file
+if 'dev' in version:
+    json_url = "_static/switcher.json"
+else:
+    json_url = "https://docs.bokeh.org/switcher.json"
+
 # html_logo configured in navbar-logo.html
 
 html_theme_options = {
@@ -189,10 +195,11 @@ html_theme_options = {
     "show_nav_level": 2,
     "show_toc_level": 1,
     "switcher": {
-        "json_url": "https://docs.bokeh.org/switcher.json",
+        "json_url": json_url,
         "version_match": version,
     },
     "use_edit_page_button": False,
+    "show_version_warning_banner": True,
     "header_links_before_dropdown": 8,
 }
 

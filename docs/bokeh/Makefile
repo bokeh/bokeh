@@ -18,7 +18,6 @@ clean:
 	-rm -rf source/docs/gallery/*
 	-rm -rf source/docs/examples/*
 
-# XXX -W was removed due to issue https://github.com/bokeh/bokeh/issues/13156
 html:
 	@start=$$(date +%s) \
 	; sphinx-build -W -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source $(BUILDDIR)/html \
