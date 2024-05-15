@@ -1,0 +1,5 @@
+Figure bbox=[0, 0, 400, 200]
+  Canvas bbox=[0, 0, 400, 200]
+  CartesianFrame bbox=[29, 5, 366, 173]
+  LinearAxis bbox=[29, 178, 366, 22]
+  LinearAxis bbox=[0, 5, 29, 173]
