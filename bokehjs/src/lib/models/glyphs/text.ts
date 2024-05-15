@@ -1,8 +1,6 @@
-import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {TextBase, TextBaseView} from "./text_base"
 import type {PointGeometry} from "core/geometry"
-import * as mixins from "core/property_mixins"
-import type * as visuals from "core/visuals"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {UniformScalar, UniformVector} from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -13,20 +11,16 @@ import type {Rect} from "core/util/affine"
 import {rotate_around, AffineTransform} from "core/util/affine"
 import type {GraphicsBox} from "core/graphics"
 import {TextBox} from "core/graphics"
-import type {TextAnchor} from "../common/kinds"
-import {BorderRadius, Padding} from "../common/kinds"
+import {OutlineShapeSpec} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
 import type {VectorVisuals} from "./defs"
 import {sqrt, PI} from "core/util/math"
 import type {OutlineShapeName} from "core/enums"
 
-class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
-class OutlineShapeSpec extends p.DataSpec<OutlineShapeName> {}
-
 export interface TextView extends Text.Data {}
 
-export class TextView extends XYGlyphView {
+export class TextView extends TextBaseView {
   declare model: Text
   declare visuals: Text.Visuals
 
@@ -340,29 +334,13 @@ export class TextView extends XYGlyphView {
 export namespace Text {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & {
-    text: p.NullStringSpec
-    angle: p.AngleSpec
-    x_offset: p.NumberSpec
-    y_offset: p.NumberSpec
-    anchor: TextAnchorSpec
-    padding: p.Property<Padding>
-    border_radius: p.Property<BorderRadius>
+  export type Props = TextBase.Props & {
     outline_shape: OutlineShapeSpec
   } & Mixins
 
-  export type Mixins =
-    mixins.TextVector &
-    mixins.BorderLineVector &
-    mixins.BackgroundFillVector &
-    mixins.BackgroundHatchVector
+  export type Mixins = TextBase.Mixins
 
-  export type Visuals = XYGlyph.Visuals & {
-    text: visuals.TextVector
-    border_line: visuals.LineVector
-    background_fill: visuals.FillVector
-    background_hatch: visuals.HatchVector
-  }
+  export type Visuals = TextBase.Visuals
 
   export type Data = p.GlyphDataOf<Props> & {
     readonly labels: (GraphicsBox | null)[]
@@ -378,7 +356,7 @@ export namespace Text {
 
 export interface Text extends Text.Attrs {}
 
-export class Text extends XYGlyph {
+export class Text extends TextBase {
   declare properties: Text.Props
   declare __view_type__: TextView
 
@@ -389,28 +367,8 @@ export class Text extends XYGlyph {
   static {
     this.prototype.default_view = TextView
 
-    this.mixins<Text.Mixins>([
-      mixins.TextVector,
-      ["border_",     mixins.LineVector],
-      ["background_", mixins.FillVector],
-      ["background_", mixins.HatchVector],
-    ])
-
     this.define<Text.Props>(() => ({
-      text: [ p.NullStringSpec, {field: "text"} ],
-      angle: [ p.AngleSpec, 0 ],
-      x_offset: [ p.NumberSpec, 0 ],
-      y_offset: [ p.NumberSpec, 0 ],
-      anchor: [ TextAnchorSpec, {value: "auto"} ],
-      padding: [ Padding, 0 ],
-      border_radius: [ BorderRadius, 0 ],
       outline_shape: [ OutlineShapeSpec, "box" ],
     }))
-
-    this.override<Text.Props>({
-      border_line_color: null,
-      background_fill_color: null,
-      background_hatch_color: null,
-    })
   }
 }
