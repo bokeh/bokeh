@@ -3073,7 +3073,7 @@
   },
   HTMLText: {
     __extends__: [
-      "Text",
+      "TextBase",
       "DOMGlyph",
     ],
   },
@@ -4040,9 +4040,16 @@
   },
   Text: {
     __extends__: [
-      "XYGlyph",
+      "TextBase",
       "TextGlyph",
     ],
+    outline_shape: {
+      type: "value",
+      value: "box",
+    },
+  },
+  TextBase: {
+    __extends__: "XYGlyph",
     x: {
       type: "field",
       field: "x",
@@ -4073,10 +4080,6 @@
     },
     padding: 0,
     border_radius: 0,
-    outline_shape: {
-      type: "value",
-      value: "box",
-    },
     text_color: {
       type: "value",
       value: "#444444",

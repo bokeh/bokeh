@@ -1582,16 +1582,15 @@ class Step(XYGlyph, LineGlyph):
     * ``center``: Draw step levels centered on each x-coordinate
     """)
 
-class Text(XYGlyph, TextGlyph):
-    ''' Render text.
+@abstract
+class TextBase(XYGlyph):
+    """ Base class for text like glyphs (e.g. ``Text``, ``TeX``, ``MathML``, ``HTMLText``).
 
-    '''
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    __example__ = "examples/reference/models/Text.py"
 
     _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
 
@@ -1652,26 +1651,6 @@ class Text(XYGlyph, TextGlyph):
         This property is experimental and may change at any point.
     """)
 
-    outline_shape = DataSpec(Enum(OutlineShapeName), default="box", help="""
-    Specify the shape of the outline for the text box.
-
-    The default outline is of a text box is its bounding box (or rectangle).
-    This can be changed to a selection of pre-defined shapes, like circle,
-    ellipse, diamond, parallelogram, etc. Those shapes are circumscribed onto
-    the bounding box, so that the contents of a box fit inside those shapes.
-
-    This property is in effect only when either border line, background fill
-    and/or background hatch properties are set. The user can choose ``"none"``
-    to avoid drawing any shape, even if border or background visuals are set.
-
-    .. note::
-        This property is experimental and may change at any point.
-
-    .. note::
-        Currently hit testing only uses the bounding box of text contents
-        of the glyph, which is equivalent to using box/rectangle shape.
-    """)
-
     text_props = Include(TextProps, help="""
     The {prop} values for the text.
     """)
@@ -1694,18 +1673,54 @@ class Text(XYGlyph, TextGlyph):
 
     border_line_color = Override(default=None)
 
-class HTMLText(Text, DOMGlyph):
+class HTMLText(TextBase, DOMGlyph):
     """ Render HTML text labels using visual-based styling.
 
     .. note::
         This glyph uses DOM/CSS for rendering and thus will not appear
         in images genereated by ``SaveTool`` or ``CopyTool``.
 
+    .. note::
+        This glyph attepts to map visual properties, i.e. HTML5 canvas styles,
+        to CSS styles. This mapping isn't 1-1, thus not every combination of
+        stylyes will work the same as it would for ``Text`` glyph.
+
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+class Text(TextBase, TextGlyph):
+    ''' Render text to the canvas.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/Text.py"
+
+    outline_shape = DataSpec(Enum(OutlineShapeName), default="box", help="""
+    Specify the shape of the outline for the text box.
+
+    The default outline is of a text box is its bounding box (or rectangle).
+    This can be changed to a selection of pre-defined shapes, like circle,
+    ellipse, diamond, parallelogram, etc. Those shapes are circumscribed onto
+    the bounding box, so that the contents of a box fit inside those shapes.
+
+    This property is in effect only when either border line, background fill
+    and/or background hatch properties are set. The user can choose ``"none"``
+    to avoid drawing any shape, even if border or background visuals are set.
+
+    .. note::
+        This property is experimental and may change at any point.
+
+    .. note::
+        Currently hit testing only uses the bounding box of text contents
+        of the glyph, which is equivalent to using box/rectangle shape.
+    """)
 
 @abstract
 class MathTextGlyph(Text):

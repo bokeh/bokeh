@@ -16,6 +16,7 @@ import {
 } from "core/kinds"
 import type {HasProps} from "core/has_props"
 import * as enums from "core/enums"
+import * as p from "core/properties"
 
 export const Length = NonNegative(Int)
 export type Length = typeof Length["__type__"]
@@ -88,3 +89,6 @@ export type TrackSizingLike = typeof TrackSizingLike["__type__"]
 
 export const TracksSizing = Or(TrackSizingLike, List(TrackSizingLike), Mapping(Int, TrackSizingLike))
 export type TracksSizing = typeof TracksSizing["__type__"]
+
+export class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
+export class OutlineShapeSpec extends p.DataSpec<enums.OutlineShapeName> {}
