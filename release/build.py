@@ -69,12 +69,7 @@ def build_conda_packages(config: Config, system: System) -> ActionReturn:
 def build_docs(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("docs/bokeh")
-        system.run(
-            "make clean all SPHINXOPTS=-v",
-            BOKEH_DOCS_CDN=config.version,
-            BOKEH_DOCS_VERSION=config.version,
-            BOKEH_DOCS_RELEASE=config.version,
-        )
+        system.run("make clean all SPHINXOPTS=-v", BOKEH_DOCS_CDN=config.version, BOKEH_DOCS_VERSION=config.version)
         system.cd("../..")
         return PASSED("Docs build succeeded")
     except RuntimeError as e:
