@@ -76,6 +76,8 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from ._plot import RangeLikeType
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -229,14 +231,14 @@ class figure(Plot, GlyphAPI):
         return None
 
     def subplot(self,
-            *,
-            x_source: Optional[Range] = Undefined,
-            y_source: Optional[Range] = Undefined,
-            x_scale: Optional[Scale] = Undefined,
-            y_scale: Optional[Scale] = Undefined,
-            x_target: Range | Literal["auto"] = "auto",
-            y_target: Range | Literal["auto"] = "auto",
-        ) -> GlyphAPI:
+        *,
+        x_source: Optional[RangeLikeType] = Undefined,
+        y_source: Optional[RangeLikeType] = Undefined,
+        x_scale: Optional[Scale] = Undefined,
+        y_scale: Optional[Scale] = Undefined,
+        x_target: RangeLikeType | Literal["auto"] = "auto",
+        y_target: RangeLikeType | Literal["auto"] = "auto",
+    ) -> GlyphAPI:
         """
         Create a new sub-coordinate system and expose the plotting API.
 
@@ -252,6 +254,16 @@ class figure(Plot, GlyphAPI):
 
                 show(p)
         """
+        if x_source is not Undefined:
+            x_source = get_range(x_source)
+        if y_source is not Undefined:
+            y_source = get_range(y_source)
+
+        if x_target != "auto":
+            x_target = get_range(x_target)
+        if y_target != "auto":
+            y_target = get_range(y_target)
+
         coordinates = CoordinateMapping(
             x_source=x_source,
             y_source=y_source,
@@ -261,6 +273,7 @@ class figure(Plot, GlyphAPI):
             y_target=y_target,
             target="frame",
         )
+
         return GlyphAPI(self, coordinates)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
