@@ -115,7 +115,7 @@ source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 

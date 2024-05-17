@@ -93,6 +93,7 @@ __all__ = (
     'AlternationPolicy',
     'Anchor',
     'AngleUnits',
+    'Auto',
     'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
@@ -278,6 +279,10 @@ Anchor = enumeration(AnchorType)
 #: Specify the units for an angle value
 AngleUnitsType = Literal["deg", "rad", "grad", "turn"]
 AngleUnits = enumeration(AngleUnitsType)
+
+#:
+AutoType = Literal["auto"]
+Auto = enumeration(AutoType)
 
 #: Specify autosize mode for DataTable
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
@@ -487,6 +492,10 @@ Palette = enumeration(*palettes.__palettes__)
 #: Placement of a layout element, in particular in border-style layouts
 PlaceType = Literal["above", "below", "left", "right", "center"]
 Place = enumeration(PlaceType)
+
+#: Specify which dimension or dimensions to use when measuring circle radius
+RadiusDimensionType = Literal["x", "y", "max", "min"]
+RadiusDimension = enumeration(RadiusDimensionType)
 
 #: Specify a position in the render order for a renderer
 RenderLevelType = Literal["image", "underlay", "glyph", "guide", "annotation", "overlay"]
