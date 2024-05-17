@@ -170,10 +170,10 @@ html_theme ="pydata_sphinx_theme"
 html_title = f"{project} {version} Documentation"
 
 # avoid CORS error on local docs build for the switcher.json file
-if 'dev' in version:
-    json_url = "_static/switcher.json"
-else:
+if "BOKEH_DOCS_RELEASE" in os.environ:
     json_url = "https://docs.bokeh.org/switcher.json"
+else:
+    json_url = "_static/switcher.json"
 
 # html_logo configured in navbar-logo.html
 
