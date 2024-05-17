@@ -1,0 +1,31 @@
+# Standard library imports
+from dataclasses import dataclass
+from typing import Literal
+
+# Bokeh imports
+from ..core.enums import AutoType as Auto
+from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
+from .axes import Axis
+from .renderers import GuideRenderer
+from .tickers import Ticker
+
+@dataclass
+class Grid(GuideRenderer):
+
+    dimension: Literal[0, 1] = ...
+
+    bounds: Auto | tuple[float, float] = ...
+
+    cross_bounds: Auto | tuple[float, float] = ...
+
+    axis: Axis | None = ...
+
+    ticker: Ticker | None = ...
+
+    grid_props: ScalarLineProps = ...
+
+    minor_grid_props: ScalarLineProps = ...
+
+    band_fill_props: ScalarFillProps = ...
+
+    band_hatch_props: ScalarHatchProps = ...

@@ -137,7 +137,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def id(self) -> ID:
         return self._id
 
-    name: str | None = p.Nullable(p.String, help="""
+    name = p.Nullable(p.String, help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -156,7 +156,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    tags: list[Any] = p.List(p.AnyRef, help="""
+    tags = p.List(p.AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 

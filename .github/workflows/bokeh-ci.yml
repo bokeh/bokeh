@@ -98,7 +98,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: '3.13'
           source-tree: 'keep'
 
       - name: List installed software

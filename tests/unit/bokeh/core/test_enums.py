@@ -33,6 +33,7 @@ ALL = (
     'AlternationPolicy',
     'Anchor',
     'AngleUnits',
+    'Auto',
     'AutosizeMode',
     'BuiltinFormatter',
     'ButtonType',
@@ -75,6 +76,7 @@ ALL = (
     'Palette',
     'PanDirection',
     'Place',
+    'RadiusDimension',
     'RegionSelectionMode',
     'RenderLevel',
     'ResetPolicy',
@@ -162,6 +164,9 @@ class Test_bce:
 
     def test_AngleUnits(self) -> None:
         assert tuple(bce.AngleUnits) == ("deg", "rad", "grad", "turn")
+
+    def test_Auto(self) -> None:
+        assert tuple(bce.Auto) == ("auto",)
 
     def test_ButtonType(self) -> None:
         assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "light")
@@ -309,6 +314,9 @@ class Test_bce:
 
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+    def test_RadiusDimension(self) -> None:
+        assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")
 
     def test_RegionSelectionMode(self) -> None:
         assert tuple(bce.RegionSelectionMode) == ("replace", "append", "intersect", "subtract", "xor")

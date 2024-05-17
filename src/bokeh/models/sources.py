@@ -199,7 +199,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     '''
 
-    data: DataDict = ColumnData(String, Seq(Any), help="""
+    data = ColumnData(String, Seq(Any), help="""
     Mapping of column names to sequences of data. The columns can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
 

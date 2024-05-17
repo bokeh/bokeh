@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
-from typing import Any as any
+from typing import Any as TAny
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -599,7 +599,7 @@ class PaletteSelect(InputWidget):
     The number of columns to split the display of the palettes into.
     """)
 
-def ColorMap(*args: any, **kwargs: any) -> PaletteSelect:
+def ColorMap(*args: TAny, **kwargs: TAny) -> PaletteSelect:
     ''' Color palette select widget.
 
     .. deprecated:: 3.4.0

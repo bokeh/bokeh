@@ -129,7 +129,7 @@ def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
         raise ValueError(f"Got unknown {active_multi!r} for 'active_multi', which was not a string supplied in 'tools' argument")
 
 def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
-        tooltips: str | tuple[str, str] | None = None) -> tuple[list[Tool], dict[str, Tool]]:
+        tooltips: str | list[tuple[str, str]] | None = None) -> tuple[list[Tool], dict[str, Tool]]:
     """ Adds tools to the plot object
 
     Args:
@@ -153,7 +153,7 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
     if tooltips is not None:
         for tool_obj in tool_objs:
             if isinstance(tool_obj, HoverTool):
-                tool_obj.tooltips = tooltips # type: ignore
+                tool_obj.tooltips = tooltips
                 break
         else:
             tool_objs.append(HoverTool(tooltips=tooltips))
