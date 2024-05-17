@@ -6,10 +6,6 @@
     "preferred": true
   },
   {
-    "version": "3.4.0",
-    "url": "https://docs.bokeh.org/en/3.4.0/"
-  },
-  {
     "version": "3.3.0",
     "url": "https://docs.bokeh.org/en/3.3.0/"
   },
