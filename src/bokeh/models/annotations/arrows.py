@@ -30,6 +30,7 @@ from ...core.properties import Include, NumberSpec, Override
 from ...core.property_mixins import FillProps, LineProps
 from ...util.deprecation import deprecated
 from .. import glyphs
+from ..coordinates import CoordinateMapping
 from ..graphics import Marking
 from ..renderers import GlyphRenderer
 from .common import build_glyph_renderer
@@ -151,19 +152,33 @@ def Arrow(**kwargs: Any) -> GlyphRenderer:
     if "y_end" in kwargs:
         kwargs["y1"] = kwargs.pop("y_end")
 
-    if "start_units" in kwargs:
-        start_units: CoordinateUnitsType = kwargs.pop("start_units")
-        match start_units:
-            case "data":
-                pass
-            case "screen":
-                pass
-            case "canvas":
-                pass
+    if "start_units" in kwargs or "end_units" in kwargs:
+        coordinates = CoordinateMapping()
+        if "start_units" in kwargs:
+            start_units: CoordinateUnitsType = kwargs.pop("start_units")
+            if "coordinates" in kwargs:
+                raise ValueError("'start_units' and 'coordinates' are not allowed together")
+            match start_units:
+                case "data":
+                    pass
+                case "screen":
+                    pass
+                case "canvas":
+                    pass
 
+        if "end_units" in kwargs:
+            end_units: CoordinateUnitsType = kwargs.pop("end_units")
+            if "coordinates" in kwargs:
+                raise ValueError("'end_units' and 'coordinates' are not allowed together")
+            match end_units:
+                case "data":
+                    pass
+                case "screen":
+                    pass
+                case "canvas":
+                    pass
 
-    if "end_units" in kwargs:
-        kwargs.pop("end_units")
+        kwargs["coordinates"] = coordinates
 
     if "line_color" not in kwargs:
         kwargs["line_color"] = "black"
