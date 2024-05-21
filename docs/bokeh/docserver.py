@@ -55,9 +55,9 @@ def root():
     return redirect("en/latest/index.html")
 
 
-@app.route("/switcher.json")
+@app.route("/en/switcher.json")
 def switcher():
-    return flask.send_from_directory(SPHINX_TOP / "build" / "html" / "_static", "switcher.json")
+    return flask.send_from_directory(SPHINX_TOP, "switcher.json")
 
 
 @app.route("/en/latest/<path:filename>")
