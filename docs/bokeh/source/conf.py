@@ -173,7 +173,7 @@ html_title = f"{project} {version} Documentation"
 if "BOKEH_DOCS_VERSION" in os.environ:
     json_url = "https://docs.bokeh.org/switcher.json"
 else:
-    json_url = "_static/switcher.json"
+    json_url = "../switcher.json"
 
 # html_logo configured in navbar-logo.html
 
