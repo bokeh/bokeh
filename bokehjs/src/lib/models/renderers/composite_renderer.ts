@@ -118,6 +118,12 @@ export abstract class CompositeRendererView extends RendererView {
 
     super.paint()
 
+    if (this.displayed && this.is_renderable) {
+      for (const renderer of this.computed_renderer_views) {
+        renderer.paint()
+      }
+    }
+
     const {displayed} = this
     for (const element_view of this.element_views) {
       element_view.reposition(displayed)
