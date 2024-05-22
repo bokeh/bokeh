@@ -4,6 +4,7 @@ import type {CanvasView, FrameBox} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
 import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
+import {CompositeRendererView} from "../renderers/composite_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
@@ -129,6 +130,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   get computed_renderer_views(): RendererView[] {
     return this.computed_renderers.map((r) => this.renderer_views.get(r)).filter(isNotNull) // TODO race condition again
+  }
+
+  get all_renderer_views(): RendererView[] {
+    const collected: RendererView[] = []
+    for (const rv of this.computed_renderer_views) {
+      collected.push(rv)
+      if (rv instanceof CompositeRendererView) {
+        collected.push(...rv.computed_renderer_views)
+      }
+    }
+    return collected
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
