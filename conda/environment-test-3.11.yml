@@ -42,7 +42,7 @@ dependencies:
   - pytest-xdist
   - pytest-timeout
   - requests >=1.2.3,!=2.32.* # see https://github.com/bokeh/bokeh/issues/13910
-  - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
+  - urllib3
   - scipy
   - pooch # required in scipy.datasets
   - selenium 4.2
@@ -83,5 +83,4 @@ dependencies:
     - types-pyyaml
     - types-requests
     - types-toml
-    - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
     - vermin
