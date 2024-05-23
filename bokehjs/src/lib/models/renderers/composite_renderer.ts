@@ -61,10 +61,11 @@ export abstract class CompositeRendererView extends RendererView {
     for (const element_view of this.element_views) {
       const is_new = created_elements.has(element_view)
 
+      const target = element_view.rendering_target() ?? this.shadow_el
       if (is_new) {
-        element_view.render_to(this.plot_view.shadow_el)
+        element_view.render_to(target)
       } else {
-        this.plot_view.shadow_el.append(element_view.el)
+        target.append(element_view.el)
       }
     }
     this.r_after_render()
@@ -92,7 +93,8 @@ export abstract class CompositeRendererView extends RendererView {
   override paint(): void {
     if (!this._has_rendered_elements) {
       for (const element_view of this.element_views) {
-        element_view.render_to(this.plot_view.shadow_el)
+        const target = element_view.rendering_target() ?? this.shadow_el
+        element_view.render_to(target)
       }
       this._has_rendered_elements = true
     }

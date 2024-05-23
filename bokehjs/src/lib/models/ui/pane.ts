@@ -49,10 +49,11 @@ export class PaneView extends UIElementView {
     for (const element_view of this.element_views) {
       const is_new = created_elements.has(element_view)
 
+      const target = element_view.rendering_target() ?? this.shadow_el
       if (is_new) {
-        element_view.render_to(this.shadow_el)
+        element_view.render_to(target)
       } else {
-        this.shadow_el.append(element_view.el)
+        target.append(element_view.el)
       }
     }
     this.r_after_render()
@@ -75,7 +76,8 @@ export class PaneView extends UIElementView {
     super.render()
 
     for (const element_view of this.element_views) {
-      element_view.render_to(this.shadow_el)
+      const target = element_view.rendering_target() ?? this.shadow_el
+      element_view.render_to(target)
     }
   }
 

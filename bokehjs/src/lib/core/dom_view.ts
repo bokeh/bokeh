@@ -89,6 +89,16 @@ export abstract class DOMView extends View {
     this.r_after_render()
     this.notify_finished()
   }
+
+  /**
+   * Define where to render this element or let the parent decide.
+   *
+   * This is useful when creating "floating" components or adding
+   * components to canvas' layers.
+   */
+  rendering_target(): HTMLElement | null {
+    return null
+  }
 }
 
 export abstract class DOMElementView extends DOMView {

@@ -139,7 +139,8 @@ export abstract class LayoutDOMView extends PaneView {
     super.render()
 
     for (const child_view of this.child_views) {
-      child_view.render_to(this.shadow_el)
+      const target = child_view.rendering_target() ?? this.shadow_el
+      child_view.render_to(target)
     }
   }
 
@@ -159,10 +160,11 @@ export abstract class LayoutDOMView extends PaneView {
     for (const child_view of this.child_views) {
       const is_new = created_children.has(child_view)
 
+      const target = child_view.rendering_target() ?? this.shadow_el
       if (is_new) {
-        child_view.render_to(this.shadow_el)
+        child_view.render_to(target)
       } else {
-        this.shadow_el.append(child_view.el)
+        target.append(child_view.el)
       }
     }
     this.r_after_render()
