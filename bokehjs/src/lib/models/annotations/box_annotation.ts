@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {BoxVisuals} from "./box_visuals"
 import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
@@ -16,6 +17,7 @@ import type {Rect} from "core/types"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {values} from "core/util/object"
+import {PartialStruct, Struct, And, Ref} from "core/kinds"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
 import {round_rect} from "../common/painting"
@@ -27,6 +29,41 @@ import type {Renderer} from "../renderers/renderer"
 export const EDGE_TOLERANCE = 2.5
 
 const {abs} = Math
+
+const InteractionHandles = And(
+  Struct({
+    all:          Ref(BoxVisuals), // move, resize
+  }),
+  PartialStruct({
+    move:         Ref(BoxVisuals),
+    resize:       Ref(BoxVisuals), // sides, corners
+
+    sides:        Ref(BoxVisuals), // left, right, top, bottom
+    corners:      Ref(BoxVisuals), // top_left, top_right, bottom_left, bottom_right
+
+    left:         Ref(BoxVisuals),
+    right:        Ref(BoxVisuals),
+    top:          Ref(BoxVisuals),
+    bottom:       Ref(BoxVisuals),
+
+    top_left:     Ref(BoxVisuals),
+    top_right:    Ref(BoxVisuals),
+    bottom_left:  Ref(BoxVisuals),
+    bottom_right: Ref(BoxVisuals),
+  }),
+)
+type InteractionHandles = typeof InteractionHandles["__type__"]
+
+const DEFAULT_HANDLE = () => {
+  return new BoxVisuals({
+    fill_color: "white",
+    fill_alpha: 1.0,
+    line_color: "black",
+    line_alpha: 1.0,
+    hover_fill_color: "lightgray",
+    hover_fill_alpha: 1.0,
+  })
+}
 
 export class BoxAnnotationView extends AnnotationView implements Pannable, Pinchable, Moveable, AutoRanged {
   declare model: BoxAnnotation
@@ -46,9 +83,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   protected _update_handles(): void {
-    const {editable, handles} = this.model
-    if (editable && handles) {
-      const {left, right, top, bottom} = this.resizable
+    const {editable, use_handles, handles} = this.model
+    if (editable && use_handles) {
+      const {movable, resizable} = this
+
       const common: Partial<BoxAnnotation.Attrs> = {
         visible: true,
         resizable: "none",
@@ -56,13 +94,31 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         right_units: "canvas",
         top_units: "canvas",
         bottom_units: "canvas",
-        fill_color: "white",
-        fill_alpha: 1.0,
-        line_color: "black",
-        line_alpha: 1.0,
-        hover_fill_color: "red",
-        hover_fill_alpha: 1.0,
         level: this.model.level,
+      }
+
+      function attrs_of(source: BoxVisuals) {
+        return {
+          ...mixins.attrs_of(source, "",       mixins.Line, true),
+          ...mixins.attrs_of(source, "",       mixins.Fill, true),
+          ...mixins.attrs_of(source, "",       mixins.Hatch, true),
+          ...mixins.attrs_of(source, "hover_", mixins.Line, true),
+          ...mixins.attrs_of(source, "hover_", mixins.Fill, true),
+          ...mixins.attrs_of(source, "hover_", mixins.Hatch, true),
+        }
+      }
+
+      const h = handles
+      const attrs = {
+        area:         attrs_of(h.move ?? h.all),
+        left:         attrs_of(h.left ?? h.sides ?? h.resize ?? h.all),
+        right:        attrs_of(h.right ?? h.sides ?? h.resize ?? h.all),
+        top:          attrs_of(h.top ?? h.sides ?? h.resize ?? h.all),
+        bottom:       attrs_of(h.bottom ?? h.sides ?? h.resize ?? h.all),
+        top_left:     attrs_of(h.top_left ?? h.corners ?? h.resize ?? h.all),
+        top_right:    attrs_of(h.top_right ?? h.corners ?? h.resize ?? h.all),
+        bottom_left:  attrs_of(h.bottom_left ?? h.corners ?? h.resize ?? h.all),
+        bottom_right: attrs_of(h.bottom_right ?? h.corners ?? h.resize ?? h.all),
       }
 
       const {
@@ -71,15 +127,15 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       } = this.model
 
       this._handles = {
-        area:         this.movable    ? new BoxAnnotation({...common, movable: this.model.movable}) : undefined,
-        left:         left            ? new BoxAnnotation({...common, in_cursor: ew_cursor}) : undefined,
-        right:        right           ? new BoxAnnotation({...common, in_cursor: ew_cursor}) : undefined,
-        top:          top             ? new BoxAnnotation({...common, in_cursor: ns_cursor}) : undefined,
-        bottom:       bottom          ? new BoxAnnotation({...common, in_cursor: ns_cursor}) : undefined,
-        top_left:     top    && left  ? new BoxAnnotation({...common, in_cursor: tl_cursor}) : undefined,
-        top_right:    top    && right ? new BoxAnnotation({...common, in_cursor: tr_cursor}) : undefined,
-        bottom_left:  bottom && left  ? new BoxAnnotation({...common, in_cursor: bl_cursor}) : undefined,
-        bottom_right: bottom && right ? new BoxAnnotation({...common, in_cursor: br_cursor}) : undefined,
+        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         movable: this.model.movable}) : undefined,
+        left:         resizable.left         ? new BoxAnnotation({...common, ...attrs.left,         in_cursor: ew_cursor}) : undefined,
+        right:        resizable.right        ? new BoxAnnotation({...common, ...attrs.right,        in_cursor: ew_cursor}) : undefined,
+        top:          resizable.top          ? new BoxAnnotation({...common, ...attrs.top,          in_cursor: ns_cursor}) : undefined,
+        bottom:       resizable.bottom       ? new BoxAnnotation({...common, ...attrs.bottom,       in_cursor: ns_cursor}) : undefined,
+        top_left:     resizable.top_left     ? new BoxAnnotation({...common, ...attrs.top_left,     in_cursor: tl_cursor}) : undefined,
+        top_right:    resizable.top_right    ? new BoxAnnotation({...common, ...attrs.top_right,    in_cursor: tr_cursor}) : undefined,
+        bottom_left:  resizable.bottom_left  ? new BoxAnnotation({...common, ...attrs.bottom_left,  in_cursor: bl_cursor}) : undefined,
+        bottom_right: resizable.bottom_right ? new BoxAnnotation({...common, ...attrs.bottom_right, in_cursor: br_cursor}) : undefined,
       }
     } else {
       this._handles = {}
@@ -92,8 +148,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
   override connect_signals(): void {
     super.connect_signals()
-    const {editable, handles, resizable, movable} = this.model.properties
-    this.on_change([editable, handles, resizable, movable], async () => {
+    const {editable, use_handles, handles, resizable, movable} = this.model.properties
+    this.on_change([editable, use_handles, handles, resizable, movable], async () => {
       this._update_handles()
       await this._update_renderers()
     })
@@ -351,13 +407,21 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return null
   }
 
-  get resizable(): LRTB<boolean> {
+  get resizable(): LRTB<boolean> & Corners<boolean> {
     const {resizable} = this.model
+    const left = resizable == "left" || resizable == "x" || resizable == "all"
+    const right = resizable == "right" || resizable == "x" || resizable == "all"
+    const top = resizable == "top" || resizable == "y" || resizable == "all"
+    const bottom = resizable == "bottom" || resizable == "y" || resizable == "all"
     return {
-      left: resizable == "left" || resizable == "x" || resizable == "all",
-      right: resizable == "right" || resizable == "x" || resizable == "all",
-      top: resizable == "top" || resizable == "y" || resizable == "all",
-      bottom: resizable == "bottom" || resizable == "y" || resizable == "all",
+      left,
+      right,
+      top,
+      bottom,
+      top_left:     top    && left,
+      top_right:    top    && right,
+      bottom_left:  bottom && left,
+      bottom_right: bottom && right,
     }
   }
 
@@ -719,10 +783,10 @@ export namespace BoxAnnotation {
     editable: p.Property<boolean>
     resizable: p.Property<Box.Resizable>
     movable: p.Property<Box.Movable>
-    rotatable: p.Property<boolean>
     symmetric: p.Property<boolean>
 
-    handles: p.Property<boolean>
+    use_handles: p.Property<boolean>
+    handles: p.Property<InteractionHandles>
 
     inverted: p.Property<boolean>
 
@@ -797,14 +861,10 @@ export class BoxAnnotation extends Annotation {
       editable:     [ Bool, false ],
       resizable:    [ Box.Resizable, "all" ],
       movable:      [ Box.Movable, "both" ],
-      rotatable:    [ Bool, true ],
       symmetric:    [ Bool, false ],
 
-      handles:      [ Bool, false ],
-      // sides; horizontal, vertical; left, right, top, bottom
-      // corners
-      // area
-      // rotation (~)
+      use_handles:  [ Bool, false ],
+      handles:      [ InteractionHandles, () => ({all: DEFAULT_HANDLE()}) ],
 
       inverted:     [ Bool, false ],
     }))

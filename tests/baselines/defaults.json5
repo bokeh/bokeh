@@ -649,6 +649,23 @@
     resizable: "all",
     movable: "both",
     symmetric: false,
+    use_handles: false,
+    handles: {
+      type: "map",
+      entries: [
+        [
+          "all",
+          {
+            type: "object",
+            name: "BoxVisuals",
+            attributes: {
+              fill_color: "white",
+              hover_fill_color: "lightgray",
+            },
+          },
+        ],
+      ],
+    },
     inverted: false,
     line_color: "#cccccc",
     line_alpha: 0.3,
@@ -676,6 +693,43 @@
     hover_line_dash_offset: 0,
     hover_fill_color: null,
     hover_fill_alpha: 0.4,
+    hover_hatch_color: "black",
+    hover_hatch_alpha: 1.0,
+    hover_hatch_scale: 12.0,
+    hover_hatch_pattern: null,
+    hover_hatch_weight: 1.0,
+    hover_hatch_extra: {
+      type: "map",
+    },
+  },
+  BoxVisuals: {
+    __extends__: "Model",
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+    hover_line_color: "black",
+    hover_line_alpha: 1.0,
+    hover_line_width: 1,
+    hover_line_join: "bevel",
+    hover_line_cap: "butt",
+    hover_line_dash: [],
+    hover_line_dash_offset: 0,
+    hover_fill_color: "gray",
+    hover_fill_alpha: 1.0,
     hover_hatch_color: "black",
     hover_hatch_alpha: 1.0,
     hover_hatch_scale: 12.0,
@@ -6000,6 +6054,22 @@
           value: "nan",
         },
         editable: true,
+        handles: {
+          type: "map",
+          entries: [
+            [
+              "all",
+              {
+                type: "object",
+                name: "BoxVisuals",
+                attributes: {
+                  fill_color: "white",
+                  hover_fill_color: "lightgray",
+                },
+              },
+            ],
+          ],
+        },
         line_color: "black",
         line_alpha: 1.0,
         line_width: 2,
@@ -6043,6 +6113,22 @@
         right_units: "canvas",
         top_units: "canvas",
         bottom_units: "canvas",
+        handles: {
+          type: "map",
+          entries: [
+            [
+              "all",
+              {
+                type: "object",
+                name: "BoxVisuals",
+                attributes: {
+                  fill_color: "white",
+                  hover_fill_color: "lightgray",
+                },
+              },
+            ],
+          ],
+        },
         line_color: "black",
         line_alpha: 1.0,
         line_width: 2,
@@ -6315,6 +6401,22 @@
           },
         },
         editable: true,
+        handles: {
+          type: "map",
+          entries: [
+            [
+              "all",
+              {
+                type: "object",
+                name: "BoxVisuals",
+                attributes: {
+                  fill_color: "white",
+                  hover_fill_color: "lightgray",
+                },
+              },
+            ],
+          ],
+        },
         line_color: "black",
         line_alpha: 1.0,
         line_width: 0.5,

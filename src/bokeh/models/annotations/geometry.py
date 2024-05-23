@@ -44,9 +44,11 @@ from ...core.properties import (
     Override,
     Positive,
     Seq,
+    Struct,
     UnitsSpec,
     field,
 )
+from ...core.property.struct import Optional
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
@@ -54,6 +56,7 @@ from ...core.property_mixins import (
     ScalarHatchProps,
     ScalarLineProps,
 )
+from ...model import Model
 from ..common.properties import Coordinate
 from ..nodes import BoxNodes, Node
 from .annotation import Annotation, DataAnnotation
@@ -75,6 +78,48 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class BoxVisuals(Model):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the box.
+    """)
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the box.
+    """)
+
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the box.
+    """)
+
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_fill_props = Include(ScalarFillProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_hatch_props = Include(ScalarHatchProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+DEFAULT_BOX_ANNOTATION_HANDLES = lambda: dict(
+    all=BoxVisuals(
+        fill_color="white",
+        fill_alpha=1.0,
+        line_color="black",
+        line_alpha=1.0,
+        hover_fill_color="lightgray",
+        hover_fill_alpha=1.0,
+    ),
+)
 
 class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
@@ -217,11 +262,37 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
-    handles = Bool(default=False, help="""
+    use_handles = Bool(default=False, help="""
     Whether to show interaction (move, resize, etc.) handles.
 
-    If handles aren't used, then the whole annotation or its borders act
-    as if they were interaction handles.
+    If handles aren't used, then the whole annotation, its borders and corners
+    act as if they were interaction handles.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    handles = Struct(
+        all          = Instance(BoxVisuals),           # move, resize
+
+        move         = Optional(Instance(BoxVisuals)),
+        resize       = Optional(Instance(BoxVisuals)), # sides, corners
+
+        sides        = Optional(Instance(BoxVisuals)), # left, right, top, bottom
+        corners      = Optional(Instance(BoxVisuals)), # top_left, top_right, bottom_left, bottom_right
+
+        left         = Optional(Instance(BoxVisuals)),
+        right        = Optional(Instance(BoxVisuals)),
+        top          = Optional(Instance(BoxVisuals)),
+        bottom       = Optional(Instance(BoxVisuals)),
+
+        top_left     = Optional(Instance(BoxVisuals)),
+        top_right    = Optional(Instance(BoxVisuals)),
+        bottom_left  = Optional(Instance(BoxVisuals)),
+        bottom_right = Optional(Instance(BoxVisuals)),
+
+        default=DEFAULT_BOX_ANNOTATION_HANDLES, help="""
+    Configure appearance of interaction handles.
 
     .. note::
         This property is experimental and may change at any point.
