@@ -41,7 +41,7 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - pytest-timeout
-  - requests >=1.2.3
+  - requests >=1.2.3,!=2.32.* # see https://github.com/bokeh/bokeh/issues/13910
   - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - scipy
   - pooch # required in scipy.datasets
