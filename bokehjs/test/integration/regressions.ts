@@ -3953,6 +3953,65 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13912", () => {
+    it("doesn't allow stacking Dialog above non-floating UI elements", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          col1: range(0, 10).map((i) => String.fromCodePoint(0x61 + i)),
+          col2: range(0, 10),
+          col3: range(0, 10).map((i) => 1_000_000 + i),
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "col1", title: "col1"}),
+        new TableColumn({field: "col2", title: "col2"}),
+        new TableColumn({field: "col3", title: "col3"}),
+      ]
+      const data_table = new DataTable({source, columns, width: 300, height: 300})
+
+      const plot0 = figure({sizing_mode: "stretch_both", tools: "pan,hover"})
+      plot0.circle({x: 0, y: 0, radius: 1, color: "red"})
+
+      const dialog0 = new Dialog({
+        title: "Dialog #0",
+        content: plot0,
+        stylesheets: [`
+        :host {
+          position: absolute; /* the default is fixed */
+          left: 50px;
+          top: 50px;
+          width: 200px;
+          height: 200px;
+        }
+        `],
+      })
+
+      const plot1 = figure({sizing_mode: "stretch_both", tools: "pan,hover"})
+      plot1.circle({x: 0, y: 0, radius: 1, color: "blue"})
+
+      const dialog1 = new Dialog({
+        title: "Dialog #1",
+        content: plot1,
+        stylesheets: [`
+        :host {
+          position: absolute; /* the default is fixed */
+          left: 70px;
+          top: 70px;
+          width: 200px;
+          height: 200px;
+        }
+        `],
+      })
+
+      const layout = new Column({children: [data_table, dialog0, dialog1]})
+      const {view} = await display(layout, [350, 350])
+
+      const pv1 = view.owner.get_one(plot1)
+      await actions(pv1).hover(xy(0, 0))
+    })
+  })
+
   describe("in issue #13895", () => {
     it("allows elements associated with renderers to overflow the canvas", async () => {
       const box = div({
