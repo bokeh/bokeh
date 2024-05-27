@@ -279,6 +279,10 @@ export class DialogView extends UIElementView {
     })
 
     this._has_rendered = true
+
+    if (this.model.visible) {
+      this.bring_to_front()
+    }
   }
 
   get resizable(): LRTB<boolean> {
@@ -546,9 +550,6 @@ export class DialogView extends UIElementView {
         this.render_to(document.body)
         this.r_after_render()
       }
-      if (!_stacking_order.includes(this)) {
-        _stacking_order.push(this)
-      }
       this.bring_to_front()
     } else {
       remove(_stacking_order, this)
@@ -574,6 +575,9 @@ export class DialogView extends UIElementView {
   }
 
   bring_to_front(): void {
+    if (!_stacking_order.includes(this)) {
+      _stacking_order.push(this)
+    }
     const pinned = find(_stacking_order, (view) => view._pinned)
     if (pinned != null) {
       remove(_stacking_order, pinned)
