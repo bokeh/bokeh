@@ -188,7 +188,7 @@ def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mod
     return _create_grid(_children, sizing_mode, **kwargs)
 
 def gridplot(
-        children: list[list[UIElement | None]], *,
+        children: list[list[UIElement | None] | UIElement | None], *,
         sizing_mode: SizingModeType | None = None,
         toolbar_location: LocationType | None = "above",
         ncols: int | None = None,
@@ -199,11 +199,11 @@ def gridplot(
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
-    grid. ``gridplot`` is designed to layout a set of plots. For general
+    grid. ``gridplot`` is designed to lay out a set of plots. For general
     grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
-        children (list of lists of |Plot|): An array of plots to display in a
+        children (list or list of lists of |Plot|): An array of plots to display in a
             grid, given as a list of lists of Plot objects. To leave a position
             in the grid empty, pass None for that position in the children list.
             OR list of |Plot| if called with ncols.
