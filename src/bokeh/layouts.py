@@ -187,8 +187,40 @@ def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mod
     _children = _parse_children_arg(*args, children=children)
     return _create_grid(_children, sizing_mode, **kwargs)
 
+
+@overload
 def gridplot(
-        children: list[list[UIElement | None] | UIElement | None], *,
+    children: list[UIElement | None],
+    *,
+    sizing_mode: SizingModeType | None = None,
+    toolbar_location: LocationType | None = "above",
+    ncols: int,
+    width: int | None = None,
+    height: int | None = None,
+    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    merge_tools: bool = True,
+) -> GridPlot:
+    ...
+
+
+@overload
+def gridplot(
+    children: list[list[UIElement]],
+    *,
+    sizing_mode: SizingModeType | None = None,
+    toolbar_location: LocationType | None = "above",
+    ncols: None = None,
+    width: int | None = None,
+    height: int | None = None,
+    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    merge_tools: bool = True,
+) -> GridPlot:
+    ...
+
+
+def gridplot(
+        children: list[UIElement | None] | list[list[UIElement | None]],
+        *,
         sizing_mode: SizingModeType | None = None,
         toolbar_location: LocationType | None = "above",
         ncols: int | None = None,

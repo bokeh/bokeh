@@ -39,6 +39,7 @@
 *~
 *$
 *.bak
+.idea
 .project
 .pydevproject
 .*.sw[nop]
