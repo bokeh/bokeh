@@ -19,6 +19,9 @@ import {Or, Ref} from "core/kinds"
 import dialogs_css, * as dialogs from "styles/dialogs.css"
 import icons_css from "styles/icons.css"
 
+// Make sure this at least an order of magnitude lower than --bokeh-top-level.
+const base_z_index = 1000
+
 const UIElementLike = Or(Ref(UIElement), Ref(DOMNode))
 type UIElementLike = typeof UIElementLike["__type__"]
 
@@ -583,7 +586,7 @@ export class DialogView extends UIElementView {
 
     for (const [dialog_view, i] of enumerate(_stacking_order)) {
       dialog_view._stacking.replace(":host", {
-        "z-index": `${i}`,
+        "z-index": `${base_z_index + i}`,
       })
     }
   }
