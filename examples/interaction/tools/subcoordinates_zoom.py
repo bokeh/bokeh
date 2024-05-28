@@ -43,10 +43,10 @@ for i, channel in enumerate(channels):
     renderers.append(line)
 
 level = 1
-hit_test = None
+hit_test = False
 
-ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, dimensions="height")
-xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, dimensions="width")
+ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", dimensions="height")
+xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", dimensions="width")
 zoom_in = ZoomInTool(renderers=renderers, level=level, dimensions="height")
 zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 
@@ -65,12 +65,12 @@ export default ({tools}, obj) => {
 }
 """))
 
-hit_test_switch = Switch(active=hit_test is not None)
+hit_test_switch = Switch(active=hit_test)
 hit_test_switch.js_on_change("active", CustomJS(
     args=dict(tool=ywheel_zoom),
     code="""
 export default ({tool}, obj) => {
-    tool.hit_test = obj.active ? "hline" : null
+    tool.hit_test = obj.active
 }
 """))
 

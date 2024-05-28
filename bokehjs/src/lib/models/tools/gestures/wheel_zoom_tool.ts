@@ -98,9 +98,9 @@ export class WheelZoomToolView extends GestureToolView {
 
       const rv = this.plot_view.views.get_one(renderer)
 
-      if (hit_test != null) {
+      if (hit_test) {
         const geometry: Geometry = (() => {
-          switch (hit_test) {
+          switch (this.model.hit_test_mode) {
             case "point": return {type: "point", sx, sy}
             case "hline": return {type: "span",  sx, sy, direction: "v"}
             case "vline": return {type: "span",  sx, sy, direction: "h"}
@@ -211,7 +211,9 @@ export namespace WheelZoomTool {
     dimensions: p.Property<Dimensions>
     renderers: p.Property<Renderers>
     level: p.Property<number>
-    hit_test: p.Property<"point" | "hline" | "vline" | null>
+    hit_test: p.Property<boolean>
+    hit_test_mode: p.Property<"point" | "hline" | "vline">
+    hit_test_behavior: p.Property<"hit" | "all">
     maintain_focus: p.Property<boolean>
     zoom_on_axis: p.Property<boolean>
     zoom_together: p.Property<ZoomTogether>
@@ -233,11 +235,13 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int, Nullable}) => ({
+    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int}) => ({
       dimensions:     [ Dimensions, "both" ],
       renderers:      [ Renderers, "auto" ],
       level:          [ NonNegative(Int), 0 ],
-      hit_test:       [ Nullable(Enum("point", "hline", "vline")), null ],
+      hit_test:          [ Bool, false ],
+      hit_test_mode:     [ Enum("point", "hline", "vline"), "point" ],
+      hit_test_behavior: [ Enum("hit", "all"), "hit" ],
       maintain_focus: [ Bool, true ],
       zoom_on_axis:   [ Bool, true ],
       zoom_together:  [ ZoomTogether, "all" ],

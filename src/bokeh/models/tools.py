@@ -646,12 +646,38 @@ class WheelZoomTool(Scroll):
     """)
     # }
 
-    hit_test = Nullable(Enum("pointer", "hline", "vline"), default=None, help="""
-    Whether ``renderers`` should be restricted to those under the cursor
-    location and if so, what hit testing geometry to use.
+    hit_test = Bool(default=False, help="""
+    Whether to zoom only those renderer that are being pointed at.
+
+    This setting only applies when zooming renderers that were configured with
+    sub-coordinates, otherwise it has no effect.
+
+    If ``True``, then ``hit_test_mode`` property defines how hit testing
+    is performed and ``hit_test_behavior`` allows to configure other aspects
+    of this setup. See respective properties for details.
 
     .. note::
-        This setting only applies when zooming renderers involving sub-coordinates.
+        This property is experimental and may change at any point
+    """)
+
+    hit_test_mode = Enum("point", "hline", "vline", default="point", help="""
+    Allows to configure what geometry to use when ``hit_test`` is enabled.
+
+    Supported modes are ``"point"`` for single point hit testing, and ``hline``
+    and ``vline`` for either horizontal or vertical span hit testing.
+
+    .. note::
+        This property is experimental and may change at any point
+    """)
+
+    hit_test_behavior = Enum("hit", "all", default="hit", help="""
+    Allows to configure which renderers will be zoomed when ``hit_test`` is enabled.
+
+    By default (``hit``) only actually hit renderers will be zoomed. If set
+    to ``all``, then all renderers will be zoomed.
+
+    .. note::
+        This property is experimental and may change at any point
     """)
 
     maintain_focus = Bool(default=True, help="""
