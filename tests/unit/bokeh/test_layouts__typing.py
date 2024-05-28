@@ -15,9 +15,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.models import GridPlot
 from bokeh.plotting import figure
+
+# Module under test
 
 #-----------------------------------------------------------------------------
 # Setup
