@@ -362,6 +362,8 @@ def _evaluate_source(source: str, filename: str, env):
 def _remove_module_docstring(source, docstring):
     if docstring is None:
         return source
+    # escape backslashes, see https://docs.python.org/3/library/re.html#re.escape
+    docstring = docstring.replace("\\", r"\\")
     return re.sub(rf'(\'\'\'|\"\"\")\s*{re.escape(docstring)}\s*(\'\'\'|\"\"\")', "", source)
 
 # -----------------------------------------------------------------------------
