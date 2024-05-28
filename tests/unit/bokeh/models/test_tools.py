@@ -59,6 +59,8 @@ def test_Tool_from_string() -> None:
     assert isinstance(Tool.from_string("click"), t.TapTool)
     assert isinstance(Tool.from_string("tap"), t.TapTool)
     assert isinstance(Tool.from_string("crosshair"), t.CrosshairTool)
+    assert isinstance(Tool.from_string("xcrosshair"), t.CrosshairTool)
+    assert isinstance(Tool.from_string("ycrosshair"), t.CrosshairTool)
     assert isinstance(Tool.from_string("box_select"), t.BoxSelectTool)
     assert isinstance(Tool.from_string("xbox_select"), t.BoxSelectTool)
     assert isinstance(Tool.from_string("ybox_select"), t.BoxSelectTool)
