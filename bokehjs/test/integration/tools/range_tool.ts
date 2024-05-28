@@ -4,11 +4,11 @@ import {PlotActions, xy} from "../../interactive"
 import {PanTool, RangeTool, Range1d} from "@bokehjs/models"
 
 describe("RangeTool", () => {
-  it("should support select_gesture='none'", async () => {
+  it("should support start_gesture='none'", async () => {
     const x_range = new Range1d({start: 4, end: 8})
 
     const pan_tool = new PanTool()
-    const range_tool = new RangeTool({x_range, select_gesture: "none"})
+    const range_tool = new RangeTool({x_range, start_gesture: "none"})
 
     const p = fig([400, 200], {
       x_range: [0, 10],
@@ -22,11 +22,11 @@ describe("RangeTool", () => {
     await view.ready
   })
 
-  it("should support select_gesture='pan'", async () => {
+  it("should support start_gesture='pan'", async () => {
     const x_range = new Range1d({start: 4, end: 8})
 
     const pan_tool = new PanTool()
-    const range_tool = new RangeTool({x_range, select_gesture: "pan"})
+    const range_tool = new RangeTool({x_range, start_gesture: "pan"})
 
     const p = fig([400, 200], {
       x_range: [0, 10],
@@ -41,11 +41,11 @@ describe("RangeTool", () => {
     await view.ready
   })
 
-  it("should support select_gesture='tap'", async () => {
+  it("should support start_gesture='tap'", async () => {
     const x_range = new Range1d({start: 4, end: 8})
 
     const pan_tool = new PanTool()
-    const range_tool = new RangeTool({x_range, select_gesture: "tap"})
+    const range_tool = new RangeTool({x_range, start_gesture: "tap"})
 
     const p = fig([400, 200], {
       x_range: [0, 10],

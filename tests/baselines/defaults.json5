@@ -6311,7 +6311,7 @@
         fill_alpha: 0.5,
       },
     },
-    select_gesture: "none",
+    start_gesture: "none",
   },
   RedoTool: {
     __extends__: "PlotActionTool",

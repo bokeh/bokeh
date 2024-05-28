@@ -16,8 +16,8 @@ import type {CoordinateUnits} from "core/enums"
 import type {Scale} from "../../scales/scale"
 import {Enum} from "core/kinds"
 
-const SelectGesture = Enum("pan", "tap", "none")
-type SelectGesture = typeof SelectGesture["__type__"]
+const StartGesture = Enum("pan", "tap", "none")
+type StartGesture = typeof StartGesture["__type__"]
 
 export class RangeToolView extends GestureToolView {
   declare model: RangeTool
@@ -126,7 +126,7 @@ export class RangeToolView extends GestureToolView {
   protected _base_point: [number, number] | null
 
   override _tap(ev: TapEvent): void {
-    assert(this.model.select_gesture == "tap")
+    assert(this.model.start_gesture == "tap")
 
     const {sx, sy} = ev
     const {frame} = this.plot_view
@@ -143,14 +143,14 @@ export class RangeToolView extends GestureToolView {
   }
 
   override _move(ev: MoveEvent): void {
-    if (this._base_point != null && this.model.select_gesture == "tap") {
+    if (this._base_point != null && this.model.start_gesture == "tap") {
       const {sx, sy} = ev
       this._update_overlay(sx, sy)
     }
   }
 
   override _pan_start(ev: PanEvent): void {
-    assert(this.model.select_gesture == "pan")
+    assert(this.model.start_gesture == "pan")
     assert(this._base_point == null)
 
     const {sx, sy} = ev
@@ -244,7 +244,7 @@ export namespace RangeTool {
     x_interaction: p.Property<boolean>
     y_interaction: p.Property<boolean>
     overlay: p.Property<BoxAnnotation>
-    select_gesture: p.Property<SelectGesture>
+    start_gesture: p.Property<StartGesture>
   }
 }
 
@@ -267,7 +267,7 @@ export class RangeTool extends GestureTool {
       x_interaction:  [ Bool, true ],
       y_interaction:  [ Bool, true ],
       overlay:        [ Ref(BoxAnnotation), DEFAULT_RANGE_OVERLAY ],
-      select_gesture: [ SelectGesture, "none" ],
+      start_gesture:  [ StartGesture, "none" ],
     }))
 
     this.override<RangeTool.Props>({
@@ -363,7 +363,7 @@ export class RangeTool extends GestureTool {
   override tool_icon = tool_icon_range
 
   get event_type(): EventType | EventType[] {
-    switch (this.select_gesture) {
+    switch (this.start_gesture) {
       case "pan":  return "pan" as "pan"
       case "tap":  return ["tap" as "tap", "move" as "move"]
       case "none": return []

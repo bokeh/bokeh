@@ -524,8 +524,20 @@ class RangeTool(Tool):
     A shaded annotation drawn to indicate the configured ranges.
     """)
 
-    select_gesture = Enum("pan", "tap", "none", default="none", help="""
-    What kind of gesture is used to make range selection, if any.
+    start_gesture = Enum("pan", "tap", "none", default="none", help="""
+    Which gesture will start a range update interaction in a new location.
+
+    When the value is ``"pan"``, a new range starts at the location where
+    a pointer drag operation begins. The range is updated continuously while
+    the drag operation continues. Ending the drag operation sets the final
+    value of the range.
+
+    When the value is ``"tap"``, a new range starts at the location where
+    a single tap is made. The range is updated continuously while the pointer
+    moves. Tapping at another location sets the final value of the range.
+
+    When the value is ``"none"``, only existing range definitions may be
+    updated, by dragging their edges or interiors.
 
     Configuring this property allows to make this tool simultaneously co-exist
     with another tool that would otherwise share a gesture.
