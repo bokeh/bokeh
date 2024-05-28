@@ -25,7 +25,7 @@ hover = HoverTool(tooltips=[
 x_range = Range1d(start=time.min(), end=time.max())
 y_range = FactorRange(factors=channels)
 
-p = figure(x_range=x_range, y_range=y_range, lod_threshold=None, tools="pan,reset")
+p = figure(x_range=x_range, y_range=y_range, lod_threshold=None, tools="pan,reset,xcrosshair")
 
 source = ColumnDataSource(data=dict(time=time))
 renderers = []
@@ -45,8 +45,8 @@ for i, channel in enumerate(channels):
 level = 1
 hit_test = False
 
-ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", dimensions="height")
-xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", dimensions="width")
+ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior="hit", dimensions="height")
+xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior="hit", dimensions="width")
 zoom_in = ZoomInTool(renderers=renderers, level=level, dimensions="height")
 zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 
