@@ -202,11 +202,8 @@ export class RangeToolView extends GestureToolView {
       return
     }
 
-    if (ev.key == "Escape") {
-      if (this._is_selecting) {
-        this._stop()
-        return
-      }
+    if (ev.key == "Escape" && this._is_selecting) {
+      this._stop()
     }
   }
 }
