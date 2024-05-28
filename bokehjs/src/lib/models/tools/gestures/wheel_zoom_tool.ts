@@ -9,6 +9,7 @@ import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
 import type {Geometry} from "core/geometry"
+import {remove_by} from "core/util/array"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, List, Ref, Or, Auto} from "core/kinds"
 
@@ -88,17 +89,20 @@ export class WheelZoomToolView extends GestureToolView {
     const x_renderer_scales = new Set<Scale>()
     const y_renderer_scales = new Set<Scale>()
 
-    const {renderers, hit_test} = this.model
-    const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
+    const {renderers} = this.model
+    const data_renderers = [...renderers != "auto" ? renderers : this.plot_view.model.data_renderers]
 
-    for (const renderer of data_renderers) {
-      if (renderer.coordinates == null) {
-        continue
-      }
+    if (this.model.hit_test) {
+      const hit = new Set()
+      const not_hit = new Set()
 
-      const rv = this.plot_view.views.get_one(renderer)
+      for (const renderer of data_renderers) {
+        if (renderer.coordinates == null) {
+          continue
+        }
 
-      if (hit_test) {
+        const rv = this.plot_view.views.get_one(renderer)
+
         const geometry: Geometry = (() => {
           switch (this.model.hit_test_mode) {
             case "point": return {type: "point", sx, sy}
@@ -108,11 +112,39 @@ export class WheelZoomToolView extends GestureToolView {
         })()
 
         const did_hit = rv.hit_test(geometry)
-        if (did_hit == null || did_hit.is_empty()) {
-          continue
+        if (did_hit != null && !did_hit.is_empty()) {
+          hit.add(rv.model)
+        } else {
+          not_hit.add(rv.model)
         }
       }
 
+      function remove_not_hit() {
+        remove_by(data_renderers, (dr) => not_hit.has(dr))
+      }
+
+      if (hit.size == 0) {
+        remove_not_hit()
+      } else {
+        switch (this.model.hit_test_behavior) {
+          case "hit": {
+            remove_not_hit()
+            break
+          }
+          case "all": {
+            // keep all hit and not hit renderers
+            break
+          }
+        }
+      }
+    }
+
+    for (const renderer of data_renderers) {
+      if (renderer.coordinates == null) {
+        continue
+      }
+
+      const rv = this.plot_view.views.get_one(renderer)
       const {x_scale, y_scale} = rv.coordinates
 
       if (x_scale instanceof CompositeScale) {
