@@ -513,7 +513,7 @@ ScrollbarPolicyType = Literal["auto", "visible", "hidden"]
 ScrollbarPolicy = enumeration(ScrollbarPolicyType)
 
 #: Selection modes
-SelectionModeType = Literal["replace", "append", "intersect", "subtract", "xor"]
+SelectionModeType = Literal["replace", "toggle", "append", "intersect", "subtract", "xor"]
 SelectionMode = enumeration(SelectionModeType)
 
 #: Sizing mode policies

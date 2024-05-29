@@ -302,7 +302,7 @@ class Test_bce:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
     def test_SelectionMode(self) -> None:
-        assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract", "xor")
+        assert tuple(bce.SelectionMode) == ("replace", "toggle", "append", "intersect", "subtract", "xor")
 
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")

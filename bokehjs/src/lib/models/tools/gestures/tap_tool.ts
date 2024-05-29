@@ -8,6 +8,7 @@ import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
 import {non_null} from "core/util/types"
+import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
@@ -139,7 +140,7 @@ export class TapTool extends SelectTool {
     }))
 
     this.override<TapTool.Props>({
-      mode: "xor",
+      mode: "toggle",
     })
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
@@ -151,4 +152,21 @@ export class TapTool extends SelectTool {
   override tool_icon = tool_icon_tap_select
   override event_type = "tap" as "tap"
   override default_order = 10
+
+  override get menu(): MenuItem[] | null {
+    const menu = super.menu
+    if (menu == null) {
+      return null
+    } else {
+      return menu.splice(0, 1, {
+        icon: "bk-tool-icon-replace-mode",
+        tooltip: "Toggle the current selection",
+        active: () => this.mode == "toggle",
+        handler: () => {
+          this.mode = "toggle"
+          this.active = true
+        },
+      })
+    }
+  }
 }

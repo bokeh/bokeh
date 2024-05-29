@@ -878,7 +878,7 @@ class TapTool(Tap, SelectTool):
 
     """)
 
-    mode = Override(default="xor")
+    mode = Override(default="toggle")
 
 class CrosshairTool(InspectTool):
     ''' *toolbar icon*: |crosshair_icon|

@@ -6345,7 +6345,7 @@
       "Tap",
       "SelectTool",
     ],
-    mode: "xor",
+    mode: "toggle",
     behavior: "select",
     gesture: "tap",
     modifiers: {
