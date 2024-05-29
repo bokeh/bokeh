@@ -22,7 +22,7 @@ import pytest
 
 def pytest_collection_modifyitems(items: list[_pytest.nodes.Item]) -> None:
     for item in items:
-        if iscoroutinefunction(item.obj):
+        if iscoroutinefunction(item) or (hasattr(item, "obj") and iscoroutinefunction(item.obj)):
             item.add_marker(pytest.mark.asyncio)
 
 # Unfortunately these seem to all need to be centrally defined at the top level

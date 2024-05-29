@@ -1,0 +1,6 @@
+- case: test_gridplot_expects_list_of_list_not_using_ncols
+  main: |
+    from bokeh.layouts import gridplot
+    from bokeh.plotting import figure
+
+    gridplot([figure()])  # E: List item 0 has incompatible type "figure"; expected "list[Any]"

@@ -248,8 +248,6 @@ module = [
     "bokeh.ext.*",
     "bokeh.io.*",
 
-    "bokeh.layouts.*",
-
     "bokeh.palettes",
     "bokeh.plotting._tools",
     "bokeh.protocol.*",
