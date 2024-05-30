@@ -5658,7 +5658,10 @@
   },
   CompositeTicker: {
     __extends__: "ContinuousTicker",
-    tickers: [],
+    tickers: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   ContinuousTicker: {
     __extends__: "Ticker",
@@ -6308,6 +6311,7 @@
         fill_alpha: 0.5,
       },
     },
+    start_gesture: "none",
   },
   RedoTool: {
     __extends__: "PlotActionTool",
