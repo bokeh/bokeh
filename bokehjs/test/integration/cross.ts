@@ -1,9 +1,14 @@
+import {expect, expect_instanceof} from "../unit/assertions"
 import {display} from "./_util"
+import {actions, xy} from "../interactive"
 
 import json5 from "json5"
 
 import type {DocJson} from "@bokehjs/document"
 import {Document} from "@bokehjs/document"
+import {GlyphRenderer} from "@bokehjs/models"
+import {PlotView} from "@bokehjs/models/plots/plot"
+import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
 
 async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
@@ -45,6 +50,26 @@ describe("Bug", () => {
 
     it.no_image("doesn't allow deserialization of an empty dict as an empty Map", async () => {
       await test("regressions/issue_13637_empty_map.json5")
+    })
+  })
+
+  describe("in issue #8766", () => {
+    it("doesn't allow activation of proxied box zoom tools", async () => {
+      const {views} = await test("regressions/issue_8766.json5")
+
+      const [gp] = views
+      expect_instanceof(gp, GridPlotView)
+      const gb = gp.grid_box_view
+
+      for (const pv of gb.child_views) {
+        expect_instanceof(pv, PlotView)
+
+        await actions(pv).pan(xy(0.5, 0.5), xy(1.5, 1.5))
+        await pv.ready
+
+        const [gr] = pv.model.renderers.filter((r): r is GlyphRenderer => r instanceof GlyphRenderer)
+        expect(gr.data_source.selected.indices).to.be.equal([1])
+      }
     })
   })
 })
