@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
 
-import type {Tool} from "@bokehjs/models/tools/tool"
+import type {GestureTool} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -21,7 +21,7 @@ function xy_axis(plot_view: PlotView) {
 }
 
 // frame dimensions is 300x300, thus zooming at {sx: 150, sy: 150} causes the x/y ranges to zoom equally
-async function make_plot<T extends Tool>(tool: T): Promise<{view: PlotView, tool_view: ViewOf<T>}> {
+async function make_plot<T extends GestureTool>(tool: T): Promise<{view: PlotView, tool_view: ViewOf<T>}> {
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
     y_range: new Range1d({start: -1, end: 1}),

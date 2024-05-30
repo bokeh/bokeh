@@ -259,6 +259,8 @@ export class ToolbarView extends UIElementView {
 import {Struct, Ref, Nullable, List, Or} from "core/kinds"
 
 const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
+type GestureToolLike = GestureTool | ToolProxy<GestureTool>
+
 const GestureEntry = Struct({
   tools: List(GestureToolLike),
   active: Nullable(GestureToolLike),
@@ -280,20 +282,14 @@ type GesturesMap = typeof GesturesMap["__type__"]
 type GestureType = keyof GesturesMap
 
 // XXX: add appropriate base classes to get rid of this
-export type Drag = Tool
-export const Drag = Tool
 export type Inspection = Tool
 export const Inspection = Tool
-export type Scroll = Tool
-export const Scroll = Tool
-export type Tap = Tool
-export const Tap = Tool
 
 type ActiveGestureToolsProps = {
-  active_drag: p.Property<ToolLike<Drag> | "auto" | null>
-  active_scroll: p.Property<ToolLike<Scroll> | "auto" | null>
-  active_tap: p.Property<ToolLike<Tap> | "auto" | null>
-  active_multi: p.Property<ToolLike<GestureTool> | "auto" | null>
+  active_drag: p.Property<GestureToolLike | "auto" | null>
+  active_scroll: p.Property<GestureToolLike | "auto" | null>
+  active_tap: p.Property<GestureToolLike | "auto" | null>
+  active_multi: p.Property<GestureToolLike | "auto" | null>
 }
 
 export namespace Toolbar {
@@ -352,11 +348,11 @@ export class Toolbar extends UIElement {
       tools:          [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
       autohide:       [ Bool, false ],
-      active_drag:    [ Nullable(Or(Ref(Drag), Auto)), "auto" ],
-      active_inspect: [ Nullable(Or(Ref(Inspection), List(Ref(Inspection)), Auto)), "auto" ],
-      active_scroll:  [ Nullable(Or(Ref(Scroll), Auto)), "auto" ],
-      active_tap:     [ Nullable(Or(Ref(Tap), Auto)), "auto" ],
-      active_multi:   [ Nullable(Or(Ref(GestureTool), Auto)), "auto" ],
+      active_drag:    [ Nullable(Or(GestureToolLike, Auto)), "auto" ],
+      active_inspect: [ Nullable(Or(Ref(Inspection), List(Ref(Inspection)), Ref(ToolProxy), Auto)), "auto" ],
+      active_scroll:  [ Nullable(Or(GestureToolLike, Auto)), "auto" ],
+      active_tap:     [ Nullable(Or(GestureToolLike, Auto)), "auto" ],
+      active_multi:   [ Nullable(Or(GestureToolLike, Auto)), "auto" ],
     }))
 
     this.internal<Toolbar.Props>(({List, Bool, Ref, Or, Null, Auto}) => {
@@ -500,6 +496,10 @@ export class Toolbar extends UIElement {
       return et == "tap" || et == "pan" || tool.supports_auto()
     }
 
+    const is_active_gesture = (active_tool: ToolLike<GestureTool>): boolean => {
+      return this.tools.includes(active_tool) || (active_tool instanceof Tool && this.tools.some((tool) => tool instanceof ToolProxy && tool.tools.includes(active_tool)))
+    }
+
     for (const [event_role, gesture] of entries(this.gestures)) {
       const et = event_role as EventRole
       const active_attr = _get_active_attr(et)
@@ -513,9 +513,8 @@ export class Toolbar extends UIElement {
             }
           }
         } else if (active_tool != null) {
-          // TODO: allow to activate a proxy of tools with any child?
-          if (includes(this.tools, active_tool)) {
-            _activate_gesture(active_tool as ToolLike<GestureTool>) // XXX: remove this cast
+          if (is_active_gesture(active_tool)) {
+            _activate_gesture(active_tool)
           } else {
             this[active_attr] = null
           }
