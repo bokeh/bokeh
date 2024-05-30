@@ -17,7 +17,6 @@ import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
 import {InlineStyleSheet} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
-import renderer_css from "styles/renderer.css"
 
 export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
@@ -27,10 +26,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
   readonly position = new InlineStyleSheet()
 
-  /**
-   * Define where to render this element, usually a canvas layer.
-   */
-  rendering_target(): HTMLElement {
+  override rendering_target(): HTMLElement {
     return this.plot_view.canvas_view.underlays_el
   }
 
@@ -55,7 +51,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), renderer_css, this.position]
+    return [...super.stylesheets(), this.position]
   }
 
   override initialize(): void {
@@ -202,18 +198,19 @@ export abstract class RendererView extends StyledElementView implements visuals.
    * Updates the position of the associated DOM element.
    */
   update_position(): void {
-    const {bbox} = this
+    const {bbox, position} = this
     if (bbox != null && bbox.is_valid) {
-      this.position.replace(`
+      position.replace(`
       :host {
-        left:   ${bbox.left}px;
-        top:    ${bbox.top}px;
-        width:  ${bbox.width}px;
-        height: ${bbox.height}px;
+        position: absolute;
+        left:     ${bbox.left}px;
+        top:      ${bbox.top}px;
+        width:    ${bbox.width}px;
+        height:   ${bbox.height}px;
       }
       `)
     } else {
-      this.position.replace(`
+      position.replace(`
       :host {
         display: none;
       }

@@ -70,6 +70,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     this.position.replace(`
     :host {
+      position: absolute;
       left: ${sx}px;
       top: ${sy}px;
     }
