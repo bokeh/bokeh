@@ -1,7 +1,7 @@
 import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
 import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
 import {display, div, empty, span, undisplay} from "core/dom"
-import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, FormatterType} from "core/enums"
+import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import type * as p from "core/properties"
@@ -686,7 +686,7 @@ export class HoverTool extends InspectTool {
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
+      formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],

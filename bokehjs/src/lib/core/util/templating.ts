@@ -5,7 +5,7 @@ import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 import type {Dict} from "../types"
-import type {FormatterType} from "../enums"
+import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
 import {is_NDArray} from "./ndarray"
@@ -13,13 +13,13 @@ import {isArray, isNumber, isString, isTypedArray} from "./types"
 
 const {abs} = Math
 
-export type FormatterSpec = CustomJSHover | FormatterType
+export type FormatterSpec = CustomJSHover | BuiltinFormatter
 export type Formatters = Dict<FormatterSpec>
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
 
-export const DEFAULT_FORMATTERS: {[key in FormatterType]: FormatterFunc} = {
+export const DEFAULT_FORMATTERS: {[key in BuiltinFormatter]: FormatterFunc} = {
   raw:      (value: unknown, _format: string, _special_vars: Vars) => `${value}`,
   basic:    (value: unknown,  format: string,  special_vars: Vars) => basic_formatter(value, format, special_vars),
   numeral:  (value: unknown,  format: string, _special_vars: Vars) => Numbro.format(value, format),

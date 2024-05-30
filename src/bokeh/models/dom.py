@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.enums import FormatterType
+from ..core.enums import BuiltinFormatter
 from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Bool,
@@ -189,7 +189,7 @@ class ValueRef(Placeholder):
     """)
 
     formatter = Either(
-        Enum(FormatterType),
+        Enum(BuiltinFormatter),
         Instance(".models.callbacks.CustomJS"),
         Instance(".models.tools.CustomJSHover"), default="raw", help="""
     Either a named value formatter or an instance of ``CustomJS`` or ``CustomJSHover``.

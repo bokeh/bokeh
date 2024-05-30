@@ -5,10 +5,10 @@ import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Index as DataIndex} from "core/util/templating"
 import type * as p from "core/properties"
 import type {Dict, PlainObject} from "core/types"
-import {FormatterType} from "core/enums"
+import {BuiltinFormatter} from "core/enums"
 import {Or, Ref} from "core/kinds"
 
-export const Formatter = Or(FormatterType, Ref(CustomJS), Ref(CustomJSHover))
+export const Formatter = Or(BuiltinFormatter, Ref(CustomJS), Ref(CustomJSHover))
 export type Formatter = typeof Formatter["__type__"]
 
 export type Formatters = Dict<Formatter>

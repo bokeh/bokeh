@@ -94,6 +94,7 @@ __all__ = (
     'Anchor',
     'AngleUnits',
     'AutosizeMode',
+    'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
     'ContextWhich',
@@ -106,7 +107,6 @@ __all__ = (
     'Direction',
     'FlowMode',
     'FontStyle',
-    'FormatterType',
     'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
@@ -285,6 +285,10 @@ AngleUnits = enumeration(AngleUnitsType)
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
 AutosizeMode = enumeration(AutosizeModeType)
 
+#: Names of built-in value formatters
+BuiltinFormatterType = Literal["raw", "basic", "numeral", "printf", "datetime"]
+BuiltinFormatter = enumeration(BuiltinFormatterType)
+
 #: Specify a style for button widgets
 ButtonTypeType = Literal["default", "primary", "success", "warning", "danger", "light"]
 ButtonType = enumeration(ButtonTypeType)
@@ -338,10 +342,6 @@ FlowMode = enumeration(FlowModeType)
 #: Specify the font style for rendering text
 FontStyleType = Literal["normal", "italic", "bold", "bold italic"]
 FontStyle = enumeration(FontStyleType)
-
-#: Names of built-in value formatters
-FormatterTypeType = Literal["raw", "basic", "numeral", "printf", "datetime"]
-FormatterType = enumeration(FormatterTypeType)
 
 #: Specify one of the built-in patterns for hatching fills
 HatchPatternType = Literal[

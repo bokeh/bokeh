@@ -70,8 +70,8 @@ export const HatchPatternType = Enum(
 )
 export type HatchPatternType = typeof HatchPatternType["__type__"]
 
-export const FormatterType = Enum("raw", "basic", "numeral", "printf", "datetime")
-export type FormatterType = typeof FormatterType["__type__"]
+export const BuiltinFormatter = Enum("raw", "basic", "numeral", "printf", "datetime")
+export type BuiltinFormatter = typeof BuiltinFormatter["__type__"]
 
 export const HTTPMethod = Enum("POST", "GET")
 export type HTTPMethod = typeof HTTPMethod["__type__"]
