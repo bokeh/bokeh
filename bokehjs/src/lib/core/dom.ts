@@ -14,7 +14,7 @@ type CSSClass = string
 
 type ElementOurAttrs =  {
   class?: CSSClass | (CSSClass | null | undefined)[]
-  style?: CSSStyles
+  style?: CSSStyles | string
   data?: PlainObject<string | null | undefined>
 }
 
@@ -59,7 +59,11 @@ const _element = <T extends keyof HTMLElementTagNameMap, ElementSpecificAttrs = 
     }
 
     if (attrs.style != null) {
-      apply_styles(element.style, attrs.style)
+      if (isString(attrs.style)) {
+        element.setAttribute("style", attrs.style)
+      } else {
+        apply_styles(element.style, attrs.style)
+      }
       delete attrs.style
     }
 
