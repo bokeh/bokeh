@@ -19,6 +19,7 @@ type ElementOurAttrs =  {
 }
 
 type ElementCommonAttrs = {
+  id: Element["id"]
   title: HTMLElement["title"]
   tabIndex: HTMLOrSVGElement["tabIndex"]
 }
@@ -212,9 +213,10 @@ export const object = _element("object")
 export const ol = _element("ol")
 export const optgroup = _element<"optgroup", {
   disabled: HTMLOptGroupElement["disabled"]
-  label:  HTMLOptGroupElement["label"]
+  label: HTMLOptGroupElement["label"]
 }>("optgroup")
 export const option = _element<"option", {
+  disabled: HTMLOptionElement["disabled"]
   value: HTMLOptionElement["value"]
 }>("option")
 export const output = _element("output")
