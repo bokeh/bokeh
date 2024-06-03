@@ -12,7 +12,7 @@ import {prepend} from "core/util/arrayable"
 import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
-import {tool_icon_tap_select, tool_icon_replace_mode} from "styles/icons.css"
+import {tool_icon_tap_select, tool_icon_toggle_mode} from "styles/icons.css"
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
@@ -158,7 +158,7 @@ export class TapTool extends SelectTool {
       return null
     } else {
       return prepend(menu, {
-        icon: tool_icon_replace_mode,
+        icon: tool_icon_toggle_mode,
         tooltip: "Toggle the current selection",
         active: () => this.mode == "toggle",
         handler: () => {
