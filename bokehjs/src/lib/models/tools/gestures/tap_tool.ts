@@ -11,7 +11,7 @@ import {non_null} from "core/util/types"
 import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
-import {tool_icon_tap_select} from "styles/icons.css"
+import {tool_icon_tap_select, tool_icon_replace_mode} from "styles/icons.css"
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
@@ -157,7 +157,7 @@ export class TapTool extends SelectTool {
       return null
     } else {
       return menu.splice(0, 1, {
-        icon: "bk-tool-icon-replace-mode",
+        icon: tool_icon_replace_mode,
         tooltip: "Toggle the current selection",
         active: () => this.mode == "toggle",
         handler: () => {

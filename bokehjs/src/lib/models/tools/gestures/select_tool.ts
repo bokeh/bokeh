@@ -13,6 +13,7 @@ import {Signal0} from "core/signaling"
 import type {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
 import {uniq} from "core/util/array"
+import * as icons from "styles/icons.css"
 
 export abstract class SelectToolView extends GestureToolView {
   declare model: SelectTool
@@ -173,7 +174,7 @@ export abstract class SelectTool extends GestureTool {
   override get menu(): MenuItem[] | null {
     return [
       {
-        icon: "bk-tool-icon-replace-mode",
+        icon: icons.tool_icon_replace_mode,
         tooltip: "Replace the current selection",
         active: () => this.mode == "replace",
         handler: () => {
@@ -181,7 +182,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }, {
-        icon: "bk-tool-icon-append-mode",
+        icon: icons.tool_icon_append_mode,
         tooltip: "Append to the current selection (Shift)",
         active: () => this.mode == "append",
         handler: () => {
@@ -189,7 +190,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }, {
-        icon: "bk-tool-icon-intersect-mode",
+        icon: icons.tool_icon_intersect_mode,
         tooltip: "Intersect with the current selection (Ctrl)",
         active: () => this.mode == "intersect",
         handler: () => {
@@ -197,7 +198,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }, {
-        icon: "bk-tool-icon-subtract-mode",
+        icon: icons.tool_icon_subtract_mode,
         tooltip: "Subtract from the current selection (Shift+Ctrl)",
         active: () => this.mode == "subtract",
         handler: () => {
@@ -205,7 +206,7 @@ export abstract class SelectTool extends GestureTool {
           this.active = true
         },
       }, {
-        icon: "bk-tool-icon-xor-mode",
+        icon: icons.tool_icon_xor_mode,
         tooltip: "Symmetric difference with the current selection",
         active: () => this.mode == "xor",
         handler: () => {
@@ -215,13 +216,13 @@ export abstract class SelectTool extends GestureTool {
       },
       null,
       {
-        icon: "bk-tool-icon-invert-selection",
+        icon: icons.tool_icon_invert_selection,
         tooltip: "Invert the current selection",
         handler: () => {
           this.invert.emit()
         },
       }, {
-        icon: "bk-tool-icon-clear-selection",
+        icon: icons.tool_icon_clear_selection,
         tooltip: "Clear the current selection and/or selection overlay (Esc)",
         handler: () => {
           this.clear.emit()
