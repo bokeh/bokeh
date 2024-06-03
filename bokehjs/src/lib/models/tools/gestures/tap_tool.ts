@@ -8,6 +8,7 @@ import type {PointGeometry} from "core/geometry"
 import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
 import {non_null} from "core/util/types"
+import {prepend} from "core/util/arrayable"
 import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
@@ -156,7 +157,7 @@ export class TapTool extends SelectTool {
     if (menu == null) {
       return null
     } else {
-      return menu.splice(0, 1, {
+      return prepend(menu, {
         icon: tool_icon_replace_mode,
         tooltip: "Toggle the current selection",
         active: () => this.mode == "toggle",

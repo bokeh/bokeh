@@ -27,6 +27,9 @@ export function is_sorted<T>(array: Arrayable<T>): boolean {
   return true
 }
 
+export function copy<T>(array: T[]): T[]
+export function copy<T>(array: Arrayable<T>): Arrayable<T>
+
 export function copy<T>(array: Arrayable<T>): Arrayable<T> {
   if (Array.isArray(array)) {
     return array.slice()
@@ -35,7 +38,20 @@ export function copy<T>(array: Arrayable<T>): Arrayable<T> {
   }
 }
 
+export function splice<T>(array: T[], start: number, k?: number, ...items: T[]): T[]
+export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T>
+
 export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T> {
+  if (Array.isArray(array)) {
+    const result = copy(array)
+    if (k === undefined) {
+      result.splice(start)
+    } else {
+      result.splice(start, k, ...items)
+    }
+    return result
+  }
+
   const len = array.length
 
   if (start < 0) {
@@ -74,17 +90,29 @@ export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...ite
   return result
 }
 
+export function head<T>(array: T[], n: number): T[]
+export function head<T>(array: Arrayable<T>, n: number): Arrayable<T>
+
 export function head<T>(array: Arrayable<T>, n: number): Arrayable<T> {
   return splice(array, n, array.length - n)
 }
+
+export function insert<T>(array: T[], item: T, i: number): T[]
+export function insert<T>(array: Arrayable<T>, item: T, i: number): Arrayable<T>
 
 export function insert<T>(array: Arrayable<T>, item: T, i: number): Arrayable<T> {
   return splice(array, i, 0, item)
 }
 
+export function append<T>(array: T[], item: T): T[]
+export function append<T>(array: Arrayable<T>, item: T): Arrayable<T>
+
 export function append<T>(array: Arrayable<T>, item: T): Arrayable<T> {
   return splice(array, array.length, 0, item)
 }
+
+export function prepend<T>(array: T[], item: T): T[]
+export function prepend<T>(array: Arrayable<T>, item: T): Arrayable<T>
 
 export function prepend<T>(array: Arrayable<T>, item: T): Arrayable<T> {
   return splice(array, 0, 0, item)
