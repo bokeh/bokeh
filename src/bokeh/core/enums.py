@@ -133,6 +133,7 @@ __all__ = (
     'PaddingUnits',
     'Palette',
     'Place',
+    'RegionSelectionMode',
     'RenderLevel',
     'ResetPolicy',
     'Resizable',
@@ -512,8 +513,12 @@ RoundingFunction = enumeration(RoundingFunctionType)
 ScrollbarPolicyType = Literal["auto", "visible", "hidden"]
 ScrollbarPolicy = enumeration(ScrollbarPolicyType)
 
+#: Region selection modes
+RegionSelectionModeType = Literal["replace", "append", "intersect", "subtract", "xor"]
+RegionSelectionMode = enumeration(RegionSelectionModeType)
+
 #: Selection modes
-SelectionModeType = Literal["replace", "toggle", "append", "intersect", "subtract", "xor"]
+SelectionModeType = Literal[RegionSelectionModeType, "toggle"]
 SelectionMode = enumeration(SelectionModeType)
 
 #: Sizing mode policies

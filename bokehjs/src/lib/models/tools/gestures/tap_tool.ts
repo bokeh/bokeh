@@ -5,7 +5,7 @@ import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
 import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
-import type {SelectionMode} from "core/enums"
+import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
 import {non_null} from "core/util/types"
 import type {MenuItem} from "core/util/menus"
@@ -112,6 +112,7 @@ export namespace TapTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
+    mode: p.Property<SelectionMode>
     behavior: p.Property<TapBehavior>
     gesture: p.Property<TapGesture>
     modifiers: p.Property<Modifiers>
@@ -133,15 +134,12 @@ export class TapTool extends SelectTool {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>(({Any, Nullable}) => ({
+      mode:      [ SelectionMode, "toggle" ],
       behavior:  [ TapBehavior, "select" ],
       gesture:   [ TapGesture, "tap"],
       modifiers: [ Modifiers, {} ],
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
-
-    this.override<TapTool.Props>({
-      mode: "toggle",
-    })
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
     this.register_alias("tap", () => new TapTool())

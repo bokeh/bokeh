@@ -6,7 +6,7 @@ import type {DataSource} from "../../sources/data_source"
 import {compute_renderers} from "../../util"
 import type * as p from "core/properties"
 import type {KeyEvent, KeyModifiers} from "core/ui_events"
-import {SelectionMode} from "core/enums"
+import type {SelectionMode} from "core/enums"
 import {SelectionGeometry} from "core/bokeh_events"
 import type {Geometry} from "core/geometry"
 import {Signal0} from "core/signaling"
@@ -146,7 +146,6 @@ export namespace SelectTool {
 
   export type Props = GestureTool.Props & {
     renderers: p.Property<DataRenderer[] | "auto">
-    mode: p.Property<SelectionMode>
   }
 }
 
@@ -163,10 +162,11 @@ export abstract class SelectTool extends GestureTool {
     super(attrs)
   }
 
+  declare mode: SelectionMode
+
   static {
     this.define<SelectTool.Props>(({List, Ref, Or, Auto}) => ({
       renderers: [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
-      mode:      [ SelectionMode, "replace" ],
     }))
   }
 
