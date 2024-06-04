@@ -50,9 +50,7 @@ export abstract class DataAnnotationView extends AnnotationView {
       }
     }
 
-    for (const visual of this.visuals) {
-      visual.update()
-    }
+    this.visuals.update()
   }
 
   abstract map_data(): void

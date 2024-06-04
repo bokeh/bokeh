@@ -163,6 +163,11 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return true
   }
 
+  override render(): void {
+    super.render()
+    this.visuals.update()
+  }
+
   paint(): void {
     // It would be better to update geometry (the internal layout) only when
     // necessary, but conditions for that are not clear, so for now update

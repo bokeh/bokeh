@@ -29,15 +29,15 @@ export class TooltipView extends UIElementView {
   protected content_el: HTMLElement
   protected _observer: ResizeObserver
 
-  private _target: Element
+  private _target: Element | null = null
   get target(): Element {
-    return this._target
+    return this._target ?? (this._target = this._get_target())
   }
   set target(el: Element) {
     this._target = el
   }
 
-  protected _init_target(): void {
+  protected _get_target(): Element {
     const {target} = this.model
     const el = (() => {
       if (target instanceof UIElement) {
@@ -53,16 +53,11 @@ export class TooltipView extends UIElementView {
     })()
 
     if (el instanceof Element) {
-      this._target = el
+      return el
     } else {
       logger.warn(`unable to resolve target '${target}' for '${this}'`)
-      this._target = document.body
+      return document.body
     }
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this._init_target()
   }
 
   protected _element_view: ViewOf<DOMNode | UIElement> | null = null
@@ -91,7 +86,7 @@ export class TooltipView extends UIElementView {
     this._observer = new ResizeObserver(() => {
       this._reposition()
     })
-    this._observer.observe(this.target)
+    //this._observer.observe(this.target)
 
     let throttle = false
     document.addEventListener("scroll", this._scroll_listener = () => {
@@ -107,7 +102,7 @@ export class TooltipView extends UIElementView {
 
     const {target, content, closable, interactive, position, attachment, visible} = this.model.properties
     this.on_change(target, () => {
-      this._init_target()
+      this._target = this._get_target()
       this._observer.disconnect()
       this._observer.observe(this.target)
       this.render()

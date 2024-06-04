@@ -49,11 +49,6 @@ export class Visuals {
             throw new Error("unknown visual")
         }
       })()
-
-      if (visual instanceof VisualProperties) {
-        visual.update()
-      }
-
       this._visuals.push(visual)
 
       Object.defineProperty(this, prefix + visual.type, {
@@ -63,6 +58,12 @@ export class Visuals {
         configurable: false,
         enumerable: true,
       })
+    }
+  }
+
+  update(): void {
+    for (const visual of this) {
+      visual.update()
     }
   }
 }

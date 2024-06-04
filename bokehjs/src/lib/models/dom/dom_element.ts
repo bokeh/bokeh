@@ -5,7 +5,6 @@ import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {isString} from "core/util/types"
 import {apply_styles} from "core/css"
-import {empty} from "core/dom"
 import type * as p from "core/properties"
 
 export abstract class DOMElementView extends DOMNodeView {
@@ -31,7 +30,7 @@ export abstract class DOMElementView extends DOMNodeView {
   }
 
   override render(): void {
-    empty(this.el)
+    super.render()
     apply_styles(this.el.style, this.model.style)
 
     for (const child of this.model.children) {

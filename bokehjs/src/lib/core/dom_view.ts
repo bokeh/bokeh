@@ -1,7 +1,7 @@
 import {View} from "./view"
 import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
-import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
+import {create_element, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
@@ -16,7 +16,12 @@ export abstract class DOMView extends View {
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
 
-  el: ChildNode
+  protected _el: ChildNode | null = null
+  get el(): ChildNode {
+    assert(this._el != null, "not rendered")
+    return this._el
+  }
+
   shadow_el?: ShadowRoot
 
   get bbox(): BBox | undefined {
@@ -29,17 +34,8 @@ export abstract class DOMView extends View {
     return bbox != null ? {...state, bbox: bbox.round()} : state
   }
 
-  get children_el(): Node {
-    return this.shadow_el ?? this.el
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.el = this._create_element()
-  }
-
   override remove(): void {
-    this.el.remove()
+    this._el?.remove()
     super.remove()
   }
 
@@ -51,7 +47,13 @@ export abstract class DOMView extends View {
     return []
   }
 
-  abstract render(): void
+  render(): void {
+    const el = this._create_element()
+    if (this._el != null) {
+      this._el.replaceWith(el)
+    }
+    this._el = el
+  }
 
   render_to(target: Node): void {
     this.render()
@@ -102,12 +104,15 @@ export abstract class DOMView extends View {
 }
 
 export abstract class DOMElementView extends DOMView {
-  declare el: HTMLElement
+  declare protected _el: HTMLElement
+  override get el(): HTMLElement {
+    return super.el as HTMLElement
+  }
 
   class_list: ClassList
 
-  override initialize(): void {
-    super.initialize()
+  override render(): void {
+    super.render()
     this.class_list = new ClassList(this.el.classList)
   }
 }
@@ -118,24 +123,15 @@ export abstract class DOMComponentView extends DOMElementView {
 
   declare shadow_el: ShadowRoot
 
-  override initialize(): void {
-    super.initialize()
-    this.shadow_el = this.el.attachShadow({mode: "open"})
-  }
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), base_css]
   }
 
-  empty(): void {
-    empty(this.shadow_el)
-    this.class_list.clear()
+  override render(): void {
+    super.render()
+    this.shadow_el = this.el.attachShadow({mode: "open"})
     this._applied_css_classes = []
     this._applied_stylesheets = []
-  }
-
-  render(): void {
-    this.empty()
     this._update_stylesheets()
     this._update_css_classes()
     this._update_css_variables()

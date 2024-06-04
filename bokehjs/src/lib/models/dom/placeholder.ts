@@ -7,10 +7,6 @@ export abstract class PlaceholderView extends DOMNodeView {
   declare model: Placeholder
   static override tag_name = "span" as const
 
-  override render(): void {
-    // XXX: no implementation?
-  }
-
   abstract update(source: ColumnarDataSource, i: DataIndex | null, vars: object/*, formatters?: Formatters*/): void
 }
 
