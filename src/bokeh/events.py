@@ -81,6 +81,7 @@ from .core.serialization import Deserializer, Serializable, Serializer
 if TYPE_CHECKING:
     from .core.types import GeometryData
     from .model import Model
+    from .models.annotations import Legend, LegendItem
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
     from .models.widgets.inputs import InputWidget, TextInput
@@ -99,6 +100,7 @@ __all__ = (
     'Event',
     'LODEnd',
     'LODStart',
+    'LegendItemClick',
     'MenuItemClick',
     'ModelEvent',
     'MouseEnter',
@@ -286,6 +288,17 @@ class ButtonClick(ModelEvent):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to button and button group models")
         super().__init__(model=model)
+
+class LegendItemClick(ModelEvent):
+    ''' Announce a click event on a Bokeh legend item.
+
+    '''
+    event_name = 'legend_item_click'
+
+    def __init__(self, legend: Legend, item: LegendItem) -> None:
+        self.legend = legend
+        self.item = item
+        super().__init__(model=legend)
 
 class MenuItemClick(ModelEvent):
     ''' Announce a button click event on a Bokeh menu item.

@@ -15,6 +15,7 @@ import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
 import {Column, Row, Grid, ContentLayoutable, Sizeable, TextLayout} from "core/layout"
+import {LegendItemClick} from "core/bokeh_events"
 
 const {max, ceil} = Math
 
@@ -314,8 +315,9 @@ export class LegendView extends AnnotationView {
 
     const target = this._hit_test(sx, sy)
     if (target != null) {
-      const {renderers} = target.entry.item
-      for (const renderer of renderers) {
+      const {item} = target.entry
+      this.model.trigger_event(new LegendItemClick(this.model, item))
+      for (const renderer of item.renderers) {
         fn(renderer)
       }
       return true
