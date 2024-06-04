@@ -18,6 +18,8 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.core.serialization import Deserializer
+from bokeh.document import Document
+from bokeh.document.events import DocumentChangedEvent, MessageSentEvent
 from bokeh.models import (
     Button,
     Div,
@@ -380,6 +382,26 @@ def test_pinch_callbacks() -> None:
     plot._trigger_event(events.Pinch(plot, **payload))
     assert test_callback.event_name == events.Pinch.event_name
     assert test_callback.payload == payload
+
+def test_FileInput_clear() -> None:
+    file_input = FileInput()
+    doc = Document()
+    doc.add_root(file_input)
+
+    collected_events: list[DocumentChangedEvent] = []
+    def on_change(event: DocumentChangedEvent) -> None:
+        collected_events.append(event)
+    doc.on_change(on_change)
+
+    file_input.clear()
+
+    assert len(collected_events) == 1
+    [event] = collected_events
+
+    assert isinstance(event, MessageSentEvent)
+    assert event.msg_type == "bokeh_event"
+    assert isinstance(event.msg_data, events.ClearInput)
+    assert event.msg_data.model == file_input
 
 #-----------------------------------------------------------------------------
 # Dev API
