@@ -24,6 +24,8 @@ from bokeh.models import (
     Button,
     Div,
     FileInput,
+    Legend,
+    LegendItem,
     Plot,
     TextInput,
 )
@@ -61,8 +63,12 @@ def test_common_decode_json() -> None:
         if event_name is None:
             continue # Skip abstract base class
 
+        legend_item = LegendItem()
+
         if issubclass(event_cls, events.ButtonClick):
             model = Button()
+        elif issubclass(event_cls, events.LegendItemClick):
+            model = Legend(items=[legend_item])
         elif issubclass(event_cls, events.ValueSubmit):
             model = TextInput()
         elif issubclass(event_cls, events.ClearInput):
@@ -72,11 +78,13 @@ def test_common_decode_json() -> None:
 
         entries = []
         if issubclass(event_cls, events.ModelEvent):
-            entries.append(["model", dict(id=model.id)])
+            entries.append(["model", model.ref])
+        if issubclass(event_cls, events.LegendItemClick):
+            entries.append(["item", legend_item.ref])
         if issubclass(event_cls, events.ValueSubmit):
             entries.append(["value", ""])
 
-        decoder = Deserializer(references=[model])
+        decoder = Deserializer(references=[model, legend_item])
         event = decoder.decode(dict(
             type="event",
             name=event_cls.event_name,

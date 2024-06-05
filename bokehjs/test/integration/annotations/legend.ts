@@ -1,4 +1,6 @@
 import {display, fig} from "../_util"
+import {PlotActions, xy} from "../../interactive"
+import {expect} from "../../unit/assertions"
 
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
@@ -7,6 +9,8 @@ import type {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
 import type {Orientation} from "@bokehjs/core/enums"
 import {Location} from "@bokehjs/core/enums"
 import {linspace} from "@bokehjs/core/util/array"
+import {LegendItemClick} from "@bokehjs/core/bokeh_events"
+import type {Scatter} from "@bokehjs/models/glyphs"
 
 describe("Legend annotation", () => {
   it("should support various combinations of locations and orientations", async () => {
@@ -350,5 +354,40 @@ describe("Legend annotation", () => {
   describe("in vertical orientation", () => {
     test(plot({orientation: "vertical"}), "vertical")
     test_grid("vertical")
+  })
+
+  it("should support LegendItemClick events", async () => {
+    const p = fig([200, 200], {y_axis_location: "right", min_border: 0})
+
+    const r0 = p.scatter({x: [1, 2, 3], y: [3, 4, 5], size: 10, marker: "circle", color: "red"})
+    const r1 = p.scatter({x: [1, 2, 3], y: [2, 3, 4], size: 15, marker: "circle", color: "blue"})
+    const r2 = p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20, marker: "circle", color: "green"})
+
+    const items = [
+      new LegendItem({label: "Item #0", renderers: [r0]}),
+      new LegendItem({label: "Item #1", renderers: [r1]}),
+      new LegendItem({label: "Item #2", renderers: [r2]}),
+    ]
+
+    const legend = new Legend({items, location: "top_left", margin: 0})
+    p.add_layout(legend)
+
+    const clicked: LegendItem[] = []
+    legend.on_event(LegendItemClick, ({item}) => {
+      clicked.push(item)
+      item.renderers.forEach((r) => (r.glyph as Scatter).marker = {value: "triangle"})
+    })
+
+    const {view: pv} = await display(p)
+
+    const actions = new PlotActions(pv, {units: "screen"})
+    await actions.tap(xy(50, 20))
+    await pv.ready
+    await actions.tap(xy(50, 40))
+    await pv.ready
+    await actions.tap(xy(50, 60))
+    await pv.ready
+
+    expect(clicked).to.be.equal(items)
   })
 })

@@ -8,6 +8,8 @@ import {serialize} from "./serialization"
 import {Deserializer} from "./serialization/deserializer"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
+import type {Legend} from "../models/annotations/legend"
+import type {LegendItem} from "../models/annotations/legend_item"
 import type {InputWidget} from "../models/widgets/input_widget"
 
 Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
@@ -35,6 +37,7 @@ export type ConnectionEventType =
 
 export type ModelEventType =
   "button_click" |
+  "legend_item_click" |
   "menu_item_click" |
   "value_submit" |
   UIEventType
@@ -71,6 +74,7 @@ export type BokehEventMap = {
   clear_input: ClearInput
   connection_lost: ConnectionLost
   button_click: ButtonClick
+  legend_item_click: LegendItemClick
   menu_item_click: MenuItemClick
   value_submit: ValueSubmit
   lodstart: LODStart
@@ -165,6 +169,19 @@ export class ConnectionLost extends ConnectionEvent {
 
 @event("button_click")
 export class ButtonClick extends ModelEvent {}
+
+@event("legend_item_click")
+export class LegendItemClick extends ModelEvent {
+
+  constructor(readonly model: Legend, readonly item: LegendItem) {
+    super()
+  }
+
+  protected override get event_values(): Attrs {
+    const {item} = this
+    return {...super.event_values, item}
+  }
+}
 
 @event("menu_item_click")
 export class MenuItemClick extends ModelEvent {
