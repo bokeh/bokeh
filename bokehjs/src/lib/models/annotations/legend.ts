@@ -10,6 +10,7 @@ import type {Size} from "core/layout"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
+import {dict} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
@@ -295,7 +296,7 @@ export class LegendView extends AnnotationView {
   }
 
   override cursor(sx: number, sy: number): string | null {
-    if (this.model.click_policy == "none") {
+    if (this.model.click_policy == "none" && !dict(this.model.js_event_callbacks).has("legend_item_click")) { // this doesn't cover server callbacks
       return null
     }
     if (this._hit_test(sx, sy) != null) {
