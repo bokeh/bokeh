@@ -19,6 +19,9 @@ import {Or, Ref} from "core/kinds"
 import dialogs_css, * as dialogs from "styles/dialogs.css"
 import icons_css from "styles/icons.css"
 
+// Make sure this at least an order of magnitude lower than --bokeh-top-level.
+const base_z_index = 1000
+
 const UIElementLike = Or(Ref(UIElement), Ref(DOMNode))
 type UIElementLike = typeof UIElementLike["__type__"]
 
@@ -276,6 +279,10 @@ export class DialogView extends UIElementView {
     })
 
     this._has_rendered = true
+
+    if (this.model.visible) {
+      this.bring_to_front()
+    }
   }
 
   get resizable(): LRTB<boolean> {
@@ -543,9 +550,6 @@ export class DialogView extends UIElementView {
         this.render_to(document.body)
         this.r_after_render()
       }
-      if (!_stacking_order.includes(this)) {
-        _stacking_order.push(this)
-      }
       this.bring_to_front()
     } else {
       remove(_stacking_order, this)
@@ -571,6 +575,9 @@ export class DialogView extends UIElementView {
   }
 
   bring_to_front(): void {
+    if (!_stacking_order.includes(this)) {
+      _stacking_order.push(this)
+    }
     const pinned = find(_stacking_order, (view) => view._pinned)
     if (pinned != null) {
       remove(_stacking_order, pinned)
@@ -583,7 +590,7 @@ export class DialogView extends UIElementView {
 
     for (const [dialog_view, i] of enumerate(_stacking_order)) {
       dialog_view._stacking.replace(":host", {
-        "z-index": `${i}`,
+        "z-index": `${base_z_index + i}`,
       })
     }
   }
