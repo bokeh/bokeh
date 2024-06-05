@@ -295,10 +295,9 @@ class LegendItemClick(ModelEvent):
     '''
     event_name = 'legend_item_click'
 
-    def __init__(self, legend: Legend, item: LegendItem) -> None:
-        self.legend = legend
+    def __init__(self, model: Legend, item: LegendItem) -> None:
         self.item = item
-        super().__init__(model=legend)
+        super().__init__(model=model)
 
 class MenuItemClick(ModelEvent):
     ''' Announce a button click event on a Bokeh menu item.

@@ -173,13 +173,13 @@ export class ButtonClick extends ModelEvent {}
 @event("legend_item_click")
 export class LegendItemClick extends ModelEvent {
 
-  constructor(readonly legend: Legend, readonly item: LegendItem) {
+  constructor(readonly model: Legend, readonly item: LegendItem) {
     super()
   }
 
   protected override get event_values(): Attrs {
-    const {legend, item} = this
-    return {...super.event_values, legend, item}
+    const {item} = this
+    return {...super.event_values, item}
   }
 }
 
