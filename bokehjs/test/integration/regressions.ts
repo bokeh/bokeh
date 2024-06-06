@@ -33,7 +33,7 @@ import {
 } from "@bokehjs/models"
 
 import {
-  InlineStyleSheet,
+  InlineStyleSheet, HTML,
 } from "@bokehjs/models/dom"
 
 import {
@@ -4024,6 +4024,23 @@ describe("Bug", () => {
       const p = fig([200, 200], {x_range: [0, 1], y_range: [0, 1]})
       p.circle({x: [0, 10], y: [0, 10], radius: 1})
       await display(p, [300, 300], box)
+    })
+  })
+
+  describe("in issue #13923", () => {
+    it("doesn't allow to rebuild views when Tooltip.contents changes", async () => {
+      const box = div({
+        style: {
+          width: "150px",
+          height: "50px",
+        },
+      })
+      const content = new HTML({html: ["HTML content"]})
+      const tooltip = new Tooltip({content, attachment: "right", target: box, position: "center_left", visible: true})
+      const {view} = await display(tooltip, [200, 100], box)
+
+      tooltip.content = new HTML({html: ["<b>New</b> HTML content"]})
+      await view.ready
     })
   })
 })
