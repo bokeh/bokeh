@@ -5027,6 +5027,19 @@
     color_baseline: null,
     stack_labels: null,
   },
+  GroupBy: {
+    __extends__: "Model",
+  },
+  GroupByModels: {
+    __extends__: "GroupBy",
+    groups: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  GroupByName: {
+    __extends__: "GroupBy",
+  },
   Coordinate: {
     __extends__: "Model",
   },
@@ -6393,7 +6406,7 @@
     level: 0,
     hit_test: false,
     hit_test_mode: "point",
-    hit_test_behavior: "hit",
+    hit_test_behavior: "only_hit",
     maintain_focus: true,
     zoom_on_axis: true,
     zoom_together: "all",

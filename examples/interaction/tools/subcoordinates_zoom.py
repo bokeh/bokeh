@@ -3,8 +3,9 @@ import numpy as np
 from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange, HoverTool,
-                          Range1d, Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
+from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange,
+                          GroupByModels, HoverTool, Range1d, Switch,
+                          WheelZoomTool, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 
@@ -45,8 +46,13 @@ for i, channel in enumerate(channels):
 level = 1
 hit_test = False
 
-ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior="hit", dimensions="height")
-xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior="hit", dimensions="width")
+even_renderers = [ r for i, r in enumerate(renderers) if i % 2 == 0 ]
+odd_renderers = [ r for i, r in enumerate(renderers) if i % 2 == 1 ]
+
+behavior = GroupByModels(groups=[even_renderers, odd_renderers])
+
+ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="height")
+xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="width")
 zoom_in = ZoomInTool(renderers=renderers, level=level, dimensions="height")
 zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 

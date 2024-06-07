@@ -108,6 +108,7 @@ from .glyphs import (
     VStrip,
     XYGlyph,
 )
+from .misc.group_by import GroupBy
 from .nodes import Node
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
@@ -670,11 +671,12 @@ class WheelZoomTool(Scroll):
         This property is experimental and may change at any point
     """)
 
-    hit_test_behavior = Enum("hit", "all", default="hit", help="""
+    hit_test_behavior = Either(Instance(GroupBy), Enum("only_hit"), default="only_hit", help="""
     Allows to configure which renderers will be zoomed when ``hit_test`` is enabled.
 
-    By default (``hit``) only actually hit renderers will be zoomed. If set
-    to ``all``, then all renderers will be zoomed.
+    By default (``hit_only``) only actually hit renderers will be zoomed. An
+    instance of ``GroupBy`` model can be used to tell what other renderers
+    should be zoomed when a given one is hit.
 
     .. note::
         This property is experimental and may change at any point

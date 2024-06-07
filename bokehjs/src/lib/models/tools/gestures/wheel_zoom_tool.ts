@@ -3,13 +3,13 @@ import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
 import {DataRenderer} from "../../renderers/data_renderer"
 import type {Scale} from "../../scales/scale"
 import {CompositeScale} from "../../scales/composite_scale"
+import {GroupBy} from "../../misc/group_by"
 import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
 import type {Geometry} from "core/geometry"
-import {remove_by} from "core/util/array"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, List, Ref, Or, Auto} from "core/kinds"
 
@@ -83,61 +83,63 @@ export class WheelZoomToolView extends GestureToolView {
       }
     })()
 
+    const data_renderers = (() => {
+      const {renderers} = this.model
+      const data_renderers = new Set(renderers != "auto" ? renderers : this.plot_view.model.data_renderers)
+
+      if (!this.model.hit_test) {
+        return data_renderers
+      } else {
+        const collected_renderers = new Set<DataRenderer>()
+        const hit_renderers = new Set<DataRenderer>()
+
+        for (const renderer of data_renderers) {
+          if (renderer.coordinates == null) {
+            collected_renderers.add(renderer)
+            continue
+          }
+
+          const geometry: Geometry = (() => {
+            switch (this.model.hit_test_mode) {
+              case "point": return {type: "point", sx, sy}
+              case "hline": return {type: "span",  sx, sy, direction: "v"}
+              case "vline": return {type: "span",  sx, sy, direction: "h"}
+            }
+          })()
+
+          const rv = this.plot_view.views.get_one(renderer)
+          const did_hit = rv.hit_test(geometry)
+          if (did_hit != null && !did_hit.is_empty()) {
+            hit_renderers.add(rv.model)
+          }
+        }
+
+        if (hit_renderers.size != 0) {
+          const {hit_test_behavior} = this.model
+          if (hit_test_behavior == "only_hit") {
+            for (const hit of hit_renderers) {
+              collected_renderers.add(hit)
+            }
+          } else {
+            for (const group of hit_test_behavior.query_groups(hit_renderers, data_renderers)) {
+              for (const renderer of group) {
+                if (renderer instanceof DataRenderer && data_renderers.has(renderer)) {
+                  collected_renderers.add(renderer)
+                }
+              }
+            }
+          }
+        }
+
+        return [...collected_renderers]
+      }
+    })()
+
     const x_frame_scales = new Set(x_frame_scales_)
     const y_frame_scales = new Set(y_frame_scales_)
 
     const x_renderer_scales = new Set<Scale>()
     const y_renderer_scales = new Set<Scale>()
-
-    const {renderers} = this.model
-    const data_renderers = [...renderers != "auto" ? renderers : this.plot_view.model.data_renderers]
-
-    if (this.model.hit_test) {
-      const hit = new Set()
-      const not_hit = new Set()
-
-      for (const renderer of data_renderers) {
-        if (renderer.coordinates == null) {
-          continue
-        }
-
-        const rv = this.plot_view.views.get_one(renderer)
-
-        const geometry: Geometry = (() => {
-          switch (this.model.hit_test_mode) {
-            case "point": return {type: "point", sx, sy}
-            case "hline": return {type: "span",  sx, sy, direction: "v"}
-            case "vline": return {type: "span",  sx, sy, direction: "h"}
-          }
-        })()
-
-        const did_hit = rv.hit_test(geometry)
-        if (did_hit != null && !did_hit.is_empty()) {
-          hit.add(rv.model)
-        } else {
-          not_hit.add(rv.model)
-        }
-      }
-
-      function remove_not_hit() {
-        remove_by(data_renderers, (dr) => not_hit.has(dr))
-      }
-
-      if (hit.size == 0) {
-        remove_not_hit()
-      } else {
-        switch (this.model.hit_test_behavior) {
-          case "hit": {
-            remove_not_hit()
-            break
-          }
-          case "all": {
-            // keep all hit and not hit renderers
-            break
-          }
-        }
-      }
-    }
 
     for (const renderer of data_renderers) {
       if (renderer.coordinates == null) {
@@ -161,7 +163,7 @@ export class WheelZoomToolView extends GestureToolView {
     }
 
     const [x_all_scales, y_all_scales] = (() => {
-      if (renderers == "auto") {
+      if (this.model.renderers == "auto") {
         return [
           new Set([...x_frame_scales, ...x_renderer_scales]),
           new Set([...y_frame_scales, ...y_renderer_scales]),
@@ -245,7 +247,7 @@ export namespace WheelZoomTool {
     level: p.Property<number>
     hit_test: p.Property<boolean>
     hit_test_mode: p.Property<"point" | "hline" | "vline">
-    hit_test_behavior: p.Property<"hit" | "all">
+    hit_test_behavior: p.Property<GroupBy | "only_hit">
     maintain_focus: p.Property<boolean>
     zoom_on_axis: p.Property<boolean>
     zoom_together: p.Property<ZoomTogether>
@@ -267,13 +269,13 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int}) => ({
+    this.define<WheelZoomTool.Props>(({Bool, Float, NonNegative, Int, Ref, Or}) => ({
       dimensions:     [ Dimensions, "both" ],
       renderers:      [ Renderers, "auto" ],
       level:          [ NonNegative(Int), 0 ],
       hit_test:          [ Bool, false ],
       hit_test_mode:     [ Enum("point", "hline", "vline"), "point" ],
-      hit_test_behavior: [ Enum("hit", "all"), "hit" ],
+      hit_test_behavior: [ Or(Ref(GroupBy), Enum("only_hit")), "only_hit" ],
       maintain_focus: [ Bool, true ],
       zoom_on_axis:   [ Bool, true ],
       zoom_together:  [ ZoomTogether, "all" ],
