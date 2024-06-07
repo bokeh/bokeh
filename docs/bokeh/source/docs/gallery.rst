@@ -53,7 +53,7 @@ code and interact with a live plot.
 
     .. tab-item:: Interaction
 
-        Bokeh has many interative tools and widgets. Only a subset have
+        Bokeh has many interactive tools and widgets. Only a subset have
         thumbnails here. For more information see the :ref:`ug_interaction`
         chapter of the users guide.
 
