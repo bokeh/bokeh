@@ -6686,6 +6686,7 @@
     },
     accept: "",
     multiple: false,
+    directory: false,
   },
   InputWidget: {
     __extends__: "Widget",
