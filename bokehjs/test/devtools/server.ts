@@ -254,7 +254,7 @@ const {host, port} = argv
 const server = app.listen(port, host)
 
 server.on("listening", () => {
-  console.log(`listening on ${host}:${port}`)
+  console.log(`listening on http://${host}:${port}`)
   process.send?.("ready")
 })
 server.on("error", (error) => {
