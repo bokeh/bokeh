@@ -29,7 +29,6 @@ from typing import TYPE_CHECKING, TypeAlias
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
-from ..util.deprecation import deprecated
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -376,10 +375,6 @@ class HSL(Color):
     Alpha values may also optionally be provided. Otherwise, alpha values
     default to 1.
 
-    .. warning::
-        HSL is deprecated as of Bokeh 2.3.1 and will be removed in a future
-        release. Use RGB or named colors instead.
-
     '''
 
     def __init__(self, h: float, s: float, l: float, a: float = 1.0) -> None:
@@ -399,7 +394,6 @@ class HSL(Color):
                 An alpha value for this color in [0, 1] (default: 1.0)
 
         '''
-        deprecated((2, 3, 1), "HSL()", "RGB() or named colors")
         self.h = h
         self.s = s
         self.l = l

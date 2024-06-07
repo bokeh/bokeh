@@ -1,5 +1,6 @@
 Pane bbox=[0, 0, 300, 30]
-  bokeh.models.dom.Text
-  Plot bbox=[85, 0, 50, 30]
+  Figure bbox=[85, 0, 50, 30]
+    Canvas bbox=[0, 0, 50, 30]
     CartesianFrame bbox=[5, 5, 40, 20]
-  bokeh.models.dom.Text
+    GlyphRenderer bbox=[7, 6, 36, 18]
+      VBar bbox=[7, 6, 36, 18]

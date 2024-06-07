@@ -40,7 +40,6 @@ from ..core.properties import (
     Enum,
     Instance,
     Int,
-    List,
     Nullable,
     Seq,
     String,
@@ -48,9 +47,7 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
-from ..util.deprecation import deprecated
 from ..util.strings import format_docstring
-from ..util.warnings import warn
 from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
@@ -63,7 +60,6 @@ __all__ = (
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
     "DatetimeTickFormatter",
-    "FuncTickFormatter",
     "LogTickFormatter",
     "MercatorTickFormatter",
     "NumeralTickFormatter",
@@ -386,18 +382,6 @@ class CustomJSTickFormatter(TickFormatter):
         '''
     """)
 
-def FuncTickFormatter(*args, **kw):
-    from bokeh.util.deprecation import deprecated
-    deprecated((3, 0, 0), "FuncTickFormatter", "CustomJSTickFormatter")
-    return CustomJSTickFormatter(*args, **kw)
-
-def _deprecated_datetime_list_format(fmt: list[str]) -> str:
-    deprecated("Passing lists of formats for DatetimeTickFormatter scales was deprecated in Bokeh 3.0. Configure a single string format for each scale")
-    if len(fmt) == 0:
-        raise ValueError("Datetime format list must contain one element")
-    if len(fmt) > 1:
-        warn(f"DatetimeFormatter scales now only accept a single format. Using the first provided: {fmt[0]!r}")
-    return fmt[0]
 
 class DatetimeTickFormatter(TickFormatter):
     ''' A ``TickFormatter`` for displaying datetime values nicely across a
@@ -609,34 +593,34 @@ class DatetimeTickFormatter(TickFormatter):
         super().__init__(*args, **kwargs)
 
     microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
-                          default="%fus").accepts(List(String), _deprecated_datetime_list_format)
+                          default="%fus")
 
     milliseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
-                          default="%3Nms").accepts(List(String), _deprecated_datetime_list_format)
+                          default="%3Nms")
 
     seconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
-                     default="%Ss").accepts(List(String), _deprecated_datetime_list_format)
+                     default="%Ss")
 
     minsec = String(help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-                    default=":%M:%S").accepts(List(String), _deprecated_datetime_list_format)
+                    default=":%M:%S")
 
     minutes = String(help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
-                     default=":%M").accepts(List(String), _deprecated_datetime_list_format)
+                     default=":%M")
 
     hourmin = String(help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-                     default="%H:%M").accepts(List(String), _deprecated_datetime_list_format)
+                     default="%H:%M")
 
     hours = String(help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
-                   default="%Hh").accepts(List(String), _deprecated_datetime_list_format)
+                   default="%Hh")
 
     days = String(help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
-                  default="%m/%d").accepts(List(String), _deprecated_datetime_list_format)
+                  default="%m/%d")
 
     months = String(help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
-                    default="%m/%Y").accepts(List(String), _deprecated_datetime_list_format)
+                    default="%m/%Y")
 
     years = String(help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
-                   default="%Y").accepts(List(String), _deprecated_datetime_list_format)
+                   default="%Y")
 
     strip_leading_zeros = Either(Bool, Seq(Enum(ResolutionType)), default=False, help="""
     Whether to strip any leading zeros in the formatted ticks.

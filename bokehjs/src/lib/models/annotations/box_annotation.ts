@@ -4,7 +4,6 @@ import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import type * as p from "core/properties"
 import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
@@ -30,10 +29,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   declare model: BoxAnnotation
   declare visuals: BoxAnnotation.Visuals
 
-  override bbox: BBox = new BBox()
-
-  override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.bbox.round()} // TODO: probably round earlier
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
   }
 
   override connect_signals(): void {
@@ -125,7 +123,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const {left, right, top, bottom} = this.model
     const {mappers} = this
 
-    this.bbox = BBox.from_lrtb({
+    this._bbox = BBox.from_lrtb({
       left:   compute("x", left,   mappers.left),
       right:  compute("x", right,  mappers.right),
       top:    compute("y", top,    mappers.top),

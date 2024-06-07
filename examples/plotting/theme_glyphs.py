@@ -8,6 +8,7 @@
 '''
 import numpy as np
 
+from bokeh.core.properties import value
 from bokeh.io import curdoc, show
 from bokeh.models import (BasicTicker, BasicTickFormatter, ColumnDataSource, Ellipse,
                           HBar, Line, LinearAxis, Plot, Scatter, Text, Title)
@@ -31,7 +32,7 @@ theme_json = {
         "TextGlyph": {
             "text_color": "red",
             "text_font_style": "bold",
-            "text_font": "Helvetica",
+            "text_font": value("Helvetica"), # specify this is a Value and not a Field
         },
         "Ellipse": {"fill_color": "green", "line_color": "yellow", "fill_alpha": 0.2},
     },

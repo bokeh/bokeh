@@ -2,6 +2,7 @@ import {expect} from "assertions"
 import {display} from "../../_util"
 
 import {FileInput} from "@bokehjs/models/widgets"
+import type {MessageSent, Patch} from "@bokehjs/document"
 
 // FileList doesn't have a constructor (https://www.w3.org/TR/FileAPI/#filelist-section)
 class _FileList extends Array<File> implements FileList {
@@ -62,5 +63,37 @@ describe("FileInputView", () => {
     expect(model.value).to.be.equal([btoa("foo"), btoa("bar"), btoa("baz")])
     expect(model.filename).to.be.equal(["foo.txt", "bar.txt", "baz.txt"])
     expect(model.mime_type).to.be.equal(["text/plain", "text/plain", "text/plain"])
+  })
+
+  it("should support ClearInput server-sent event", async () => {
+    const file_input = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
+    const {view, doc} = await display(file_input, null)
+
+    const file = new File(["foo bar"], "foo.txt", {type: "text/plain"})
+    const files = new _FileList(file)
+
+    await view.load_files(files)
+    expect(file_input.filename).to.be.equal("foo.txt")
+
+    const msg: MessageSent = {
+      kind: "MessageSent",
+      msg_type: "bokeh_event",
+      msg_data: {
+        type: "event",
+        name: "clear_input",
+        values: {
+          type: "map",
+          entries: [
+            ["model", file_input.ref()],
+          ],
+        },
+      },
+    }
+
+    const patch: Patch = {events: [msg]}
+    doc.apply_json_patch(patch)
+    await view.ready
+
+    expect(file_input.filename).to.be.equal("") // TODO should be `unset`
   })
 })

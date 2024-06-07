@@ -1,6 +1,7 @@
 import {display, fig, row, column} from "../_util"
 
 import {Range1d, HoverTool, ColumnDataSource, Circle, Rect, GlyphRenderer} from "@bokehjs/models"
+import type {DisplayMode} from "@bokehjs/models/glyphs/tex_glyph"
 import type {Direction, OutputBackend} from "@bokehjs/core/enums"
 import type {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
@@ -703,6 +704,64 @@ describe("Glyph models", () => {
         return p
       }
       await display(row([p("canvas"), p("svg")]))
+    })
+  })
+
+  describe("should support Text-like glyphs", () => {
+    it("with outline_shape", async () => {
+      const p = fig([1000, 400], {
+        x_range: [5, 95], y_range: [0, 50],
+        x_axis_type: null, y_axis_type: null,
+        background_fill_color: "ivory",
+      })
+
+      const x = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+      const padding = 5
+
+      p.text({
+        anchor: "center",
+        x,
+        y: 5,
+        text: ["none", "circle", "square", "ellipse", "box\nrectangle", "trapezoid", "parallelogram", "diamond", "triangle"],
+        outline_shape: ["none", "circle", "square", "ellipse", "box", "trapezoid", "parallelogram", "diamond", "triangle"],
+        background_fill_color: "white",
+        background_fill_alpha: 1.0,
+        padding,
+        border_line_color: "black",
+        text_font_size: "0.9em",
+      })
+
+      function tex(display: DisplayMode, y: number, color: Color) {
+        const r = String.raw
+        p.tex({
+          anchor: "center",
+          x,
+          y,
+          text: [
+            r`\emptyset`,
+            r`x^{y^z}`,
+            r`\frac{1}{x^2\cdot y}`,
+            r`\int_{-\infty}^{\infty} \frac{1}{x} dx`,
+            r`F = G \left( \frac{m_1 m_2}{r^2} \right)`,
+            r`\delta`,
+            r`\sqrt[3]{\gamma}`,
+            r`x^2`,
+            r`y_{\rho \theta}`,
+          ],
+          outline_shape: ["none", "circle", "square", "ellipse", "box", "trapezoid", "parallelogram", "diamond", "triangle"],
+          background_fill_color: color,
+          background_fill_alpha: 0.8,
+          padding,
+          border_line_color: "black",
+          text_font_size: "1.0em",
+          display,
+        })
+      }
+
+      tex("inline", 20, "yellow")
+      tex("block", 40, "pink")
+
+      await display(p)
     })
   })
 

@@ -10,11 +10,13 @@ import type {Size} from "core/layout"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
+import {dict} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
 import {Column, Row, Grid, ContentLayoutable, Sizeable, TextLayout} from "core/layout"
+import {LegendItemClick} from "core/bokeh_events"
 
 const {max, ceil} = Math
 
@@ -82,7 +84,11 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.item_change, repaint)
   }
 
-  override bbox: BBox = new BBox()
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
+  }
+
   protected grid: Grid<LegendEntry>
   protected border_box: Column | Row
   protected title_panel: TextLayout
@@ -205,7 +211,7 @@ export class LegendView extends AnnotationView {
     const height = padding + border_box.bbox.height + padding
 
     // Position will be filled-in in `compute_geometry()`.
-    this.bbox = new BBox({left: 0, top: 0, width, height})
+    this._bbox = new BBox({left: 0, top: 0, width, height})
   }
 
   override compute_geometry(): void {
@@ -268,7 +274,7 @@ export class LegendView extends AnnotationView {
       sy = panel.bbox.yview.compute(vy) - height
     }
 
-    this.bbox = new BBox({left: sx, top: sy, width, height})
+    this._bbox = new BBox({left: sx, top: sy, width, height})
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
@@ -290,7 +296,7 @@ export class LegendView extends AnnotationView {
   }
 
   override cursor(sx: number, sy: number): string | null {
-    if (this.model.click_policy == "none") {
+    if (this.model.click_policy == "none" && !dict(this.model.js_event_callbacks).has("legend_item_click")) { // this doesn't cover server callbacks
       return null
     }
     if (this._hit_test(sx, sy) != null) {
@@ -310,8 +316,9 @@ export class LegendView extends AnnotationView {
 
     const target = this._hit_test(sx, sy)
     if (target != null) {
-      const {renderers} = target.entry.item
-      for (const renderer of renderers) {
+      const {item} = target.entry
+      this.model.trigger_event(new LegendItemClick(this.model, item))
+      for (const renderer of item.renderers) {
         fn(renderer)
       }
       return true
@@ -321,12 +328,6 @@ export class LegendView extends AnnotationView {
   }
 
   protected _paint(): void {
-    // It would be better to update geometry (the internal layout) only when
-    // necessary, but conditions for that are not clear, so for now update
-    // at every paint.
-    this.update_geometry()
-    this.compute_geometry()
-
     if (this.model.items.length == 0) {
       return
     }
@@ -425,7 +426,7 @@ export class LegendView extends AnnotationView {
       const y1 = y0 + glyph_height
 
       for (const renderer of item.renderers) {
-        const view = this.plot_view.renderer_view(renderer)
+        const view = this.plot_view.views.find_one(renderer)
         view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
       }
 

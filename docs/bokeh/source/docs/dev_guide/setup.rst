@@ -273,11 +273,7 @@ Bokeh, use the following command to download and install the data:
 
 .. code-block:: sh
 
-    bokeh sampledata
-
-You also have the opportunity to configure the download location or to start the
-download programmatically. See the :ref:`install_sampledata` section of the
-first steps guides for more details.
+    pip install bokeh_sampledata
 
 .. _contributor_guide_setup_environment_variables:
 
@@ -645,8 +641,7 @@ setting up a development environment:
     If there are no tags present, make sure that you follow the steps of
     :ref:`setting the Bokeh repository as an additional upstream <contributor_guide_setup_cloning>`.
 
-.. dropdown:: Git commit fails due to line endings (``test_code_quality.py``, ``File
-    contains carriage returns``)
+.. dropdown:: Git commit fails due to line endings (``test_code_quality.py``, ``File contains carriage returns``)
 
     On Windows systems, you may get a ``File contains carriage returns at end of line:
     <file path>`` error while trying to push your local branch to your remote branch on
@@ -667,6 +662,95 @@ setting up a development environment:
     ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
     and reinstall your development environment, following the steps in this guide
     from :ref:`the beginning <contributor_guide_setup_preliminaries>`.
+
+.. dropdown:: Slow network connections when cloning
+
+    If you are experiencing slow network connections or timeouts when attempting to clone our repository,
+    consider performing a **shallow clone**. This method downloads fewer commits,
+    which speeds up the cloning process and reduces the amount of data transferred.
+
+    Using a shallow clone can be an effective workaround for contributors
+    with limited bandwidth or those experiencing slow cloning speeds. However, be aware of its limitations
+    and know how to convert it back to a full clone if necessary.
+
+    To create a shallow clone of the repository, run:
+
+    .. tab-set::
+
+        .. tab-item:: SSH
+
+            .. code-block:: sh
+
+                git clone --depth <number-of-commits> git@github.com:bokeh/bokeh.git
+
+        .. tab-item:: HTTPS
+
+            .. code-block:: sh
+
+                git clone --depth <number-of-commits> https://github.com/bokeh/bokeh.git
+
+    Replace ``<number-of-commits>`` with the number of commits you wish to clone.
+
+    For example, to clone only the latest commit:
+
+    .. tab-set::
+
+        .. tab-item:: SSH
+
+            .. code-block:: sh
+
+                git clone --depth 1 git@github.com:bokeh/bokeh.git
+
+        .. tab-item:: HTTPS
+
+            .. code-block:: sh
+
+                git clone --depth 1 https://github.com/bokeh/bokeh.git
+
+    If you are only interested in the history of a specific branch,
+    you can combine the --single-branch option with --depth to further limit the clone to a single branch. Run:
+
+    .. tab-set::
+
+        .. tab-item:: SSH
+
+            .. code-block:: sh
+
+                git clone --depth 1 --branch <branch-name> --single-branch git@github.com:bokeh/bokeh.git
+
+        .. tab-item:: HTTPS
+
+            .. code-block:: sh
+
+                git clone --depth 1 --branch <branch-name> --single-branch https://github.com/bokeh/bokeh.git
+
+
+    **Limitations of a Shallow Clone**
+
+    While a shallow clone can be very useful, it comes with certain limitations:
+
+        - **Limited Git Operations:** Operations that require a full history (e.g., some merging strategies, generating comprehensive logs) will not be possible.
+        - **Branch Limitations:** If you have not cloned all branches (`--single-branch` option), switching between branches might not be possible without additional steps.
+        - **Inaccurate Version Information:** The version information retrieved through bokeh.__version__ might display incorrect data, such as a 'dev' label, when the repository is shallowly cloned.
+
+    **Converting a Shallow Clone to a Full Clone**
+
+    If you find that you need access to the full history of the repository for more complex tasks,
+    you can convert your shallow clone to a full clone by fetching the remaining history:
+
+    To deepen the clone by a specific number of commits:
+
+    .. code-block:: sh
+
+        git fetch --deepen=<additional-commits>
+
+    To fully convert your shallow clone into a full clone (fetch all history):
+
+    .. code-block:: sh
+
+        git fetch --unshallow
+
+    This command will download the rest of the repository's history, converting your shallow clone into a regular, full clone.
 
 For more information on running and installing Bokeh, check the
 :ref:`additional resources available to contributors <contributor_guide_resources>`.

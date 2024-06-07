@@ -14,7 +14,7 @@ This script can be run manually:
     python docserver.py
 
 or more commonly via executing ``make serve`` in this directory. It is possible
-to combine this usage with other make targets in a single invovation, e.g.
+to combine this usage with other make targets in a single invocation, e.g.
 
     make clean html serve
 
@@ -34,7 +34,7 @@ import webbrowser
 from pathlib import Path
 
 import flask
-from flask import redirect, url_for
+from flask import redirect
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
@@ -52,10 +52,10 @@ app = flask.Flask(__name__, static_folder="/unused")
 
 @app.route("/")
 def root():
-    return redirect(url_for("en/latest/index.html"))
+    return redirect("en/latest/index.html")
 
 
-@app.route("/switcher.json")
+@app.route("/en/switcher.json")
 def switcher():
     return flask.send_from_directory(SPHINX_TOP, "switcher.json")
 

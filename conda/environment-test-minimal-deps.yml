@@ -40,7 +40,7 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - pytest-timeout
-  - requests >=1.2.3
+  - requests >=1.2.3,!=2.32.* # see https://github.com/bokeh/bokeh/issues/13910
   - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - selenium 4.2
 
@@ -55,6 +55,7 @@ dependencies:
   - pip:
     - mypy >=1.10
     # docs
+    # omit bokeh_sampledata
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
     - sphinx >= 7.1.0

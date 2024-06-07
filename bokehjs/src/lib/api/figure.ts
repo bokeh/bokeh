@@ -1,15 +1,16 @@
 import type {HasProps} from "../core/has_props"
 import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
+import {isVectorized} from "../core/vectorization"
 import type {Property} from "../core/properties"
 import {VectorSpec, UnitsSpec} from "../core/properties"
 import type {Class} from "../core/class"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
-import {includes, uniq} from "../core/util/array"
+import {includes, uniq, zip} from "../core/util/array"
 import {clone, keys, entries, is_empty, dict} from "../core/util/object"
-import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
+import {isNumber, isString, isArray, isArrayOf, isPlainObject} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
 
@@ -35,6 +36,7 @@ import {
   Range,
   Range1d,
   Tool,
+  ToolProxy,
 } from "./models"
 
 import {Legend} from "../models/annotations/legend"
@@ -149,9 +151,9 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, positional: NamesOf<G>, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
     const {coordinates} = this
-    return this.parent._glyph(cls, positional, args, {coordinates, ...overrides})
+    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
   }
 }
 
@@ -302,7 +304,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_drag) && active_drag != "auto") {
       const tool = tool_map.get(active_drag)
-      if (tool != null) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_drag = tool
       }
     } else if (active_drag !== undefined) {
@@ -320,7 +322,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_scroll) && active_scroll != "auto") {
       const tool = tool_map.get(active_scroll)
-      if (tool != null) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_scroll = tool
       }
     } else if (active_scroll !== undefined) {
@@ -329,7 +331,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_tap) && active_tap != "auto") {
       const tool = tool_map.get(active_tap)
-      if (tool != null) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_tap = tool
       }
     } else if (active_tap !== undefined) {
@@ -338,7 +340,7 @@ export class Figure extends BaseFigure {
 
     if (isString(active_multi) && active_multi != "auto") {
       const tool = tool_map.get(active_multi)
-      if (tool instanceof GestureTool) {
+      if (tool instanceof GestureTool || tool instanceof ToolProxy) {
         this.toolbar.active_multi = tool
       }
     } else if (active_multi !== undefined) {
@@ -479,22 +481,41 @@ export class Figure extends BaseFigure {
     return unresolved_attrs
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, positional: NamesOf<G>, args: unknown[], overrides: object = {}): TypedGlyphRenderer<G> {
+  _signature(method: string, positional: string[]): string {
+    return `the method signature is ${method}(${positional.join(", ")}, args?)`
+  }
+
+  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): TypedGlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
-    if (args.length == 0) {
+
+    const n_args = args.length
+    const n_pos = positional.length
+
+    if (n_args == n_pos || n_args == n_pos + 1) {
       attrs = {}
-    } else if (args.length == 1) {
-      attrs = {...args[0] as Attrs}
-    } else {
-      if (args.length == positional.length) {
-        attrs = {}
-      } else {
-        attrs = {...args[args.length - 1] as Attrs}
+
+      for (const [[param, arg], i] of enumerate(zip(positional, args))) {
+        if (isPlainObject(arg) && !isVectorized(arg)) {
+          throw new Error(`invalid value for '${param}' parameter at position ${i}; ${this._signature(method, positional)}`)
+        } else {
+          attrs[param] = arg
+        }
       }
 
-      for (const [param, i] of enumerate(positional)) {
-        attrs[param as string] = args[i]
+      if (n_args == n_pos + 1) {
+        const opts = args[n_args - 1]
+        if (!isPlainObject(opts) || isVectorized(opts)) {
+          throw new Error(`expected optional arguments; ${this._signature(method, positional)}`)
+        } else {
+          attrs = {...attrs, ...args[args.length - 1] as Attrs}
+        }
       }
+    } else if (n_args == 0) {
+      attrs = {}
+    } else if (n_args == 1) {
+      attrs = {...args[0] as Attrs}
+    } else {
+      throw new Error(`wrong number of arguments; ${this._signature(method, positional)}`)
     }
 
     attrs = {...attrs, ...overrides}

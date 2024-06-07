@@ -81,8 +81,6 @@ export class TooltipView extends UIElementView {
     if (content instanceof Model) {
       this._element_view = await build_view(content, {parent: this})
     }
-
-    this.render()
   }
 
   private _scroll_listener?: () => void
@@ -113,9 +111,15 @@ export class TooltipView extends UIElementView {
       this._observer.disconnect()
       this._observer.observe(this.target)
       this.render()
+      this.after_render()
     })
-    this.on_change([content, closable, interactive], () => this.render())
-    this.on_change([position, attachment, visible], () => this._reposition())
+    this.on_change([content, closable, interactive], () => {
+      this.render()
+      this.after_render()
+    })
+    this.on_change([position, attachment, visible], () => {
+      this._reposition()
+    })
   }
 
   override disconnect_signals(): void {
@@ -148,6 +152,8 @@ export class TooltipView extends UIElementView {
     }
   }
 
+  private _has_rendered: boolean = false
+
   override render(): void {
     super.render()
 
@@ -170,66 +176,67 @@ export class TooltipView extends UIElementView {
     this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
     this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
 
+    this._has_rendered = true
+  }
+
+  override _after_render(): void {
+    super._after_render()
     this._reposition()
   }
 
-  private _anchor_to_align(anchor: Anchor): [VAlign, HAlign] {
-    switch (anchor) {
-      case "top_left":
-        return ["top", "left"]
-      case "top":
-      case "top_center":
-        return ["top", "center"]
-      case "top_right":
-        return ["top", "right"]
+  override _after_resize(): void {
+    super._after_resize()
+    this._reposition()
+  }
 
-      case "left":
-      case "center_left":
-        return ["center", "left"]
-      case "center":
-      case "center_center":
-        return ["center", "center"]
-      case "right":
-      case "center_right":
-        return ["center", "right"]
-
-      case "bottom_left":
-        return ["bottom", "left"]
-      case "bottom":
-      case "bottom_center":
-        return ["bottom", "center"]
-      case "bottom_right":
-        return ["bottom", "right"]
-    }
+  private _anchor_to_align(anchor: Anchor): {v: VAlign, h: HAlign} {
+    anchor = (() => {
+      switch (anchor) {
+        case "top":    return "top_center"
+        case "bottom": return "bottom_center"
+        case "left":   return "center_left"
+        case "right":  return "center_right"
+        default:       return anchor
+      }
+    })()
+    const [v, h] = anchor.split("_") as [VAlign, HAlign]
+    return {v, h}
   }
 
   protected _reposition(): void {
+    // Append to `body` to deal with CSS' `contain` interaction
+    // with `position: fixed`. We assume initial containment
+    // block in this function, but `contain` can introduce a
+    // new containment block and offset tooltip's position.
+    const target = document.body.shadowRoot ?? document.body
+
+    if (!this._has_rendered) {
+      this.render_to(target)
+      this.after_render()
+      return                 // render() calls _reposition()
+    }
+
     const {position, visible} = this.model
     if (position == null || !visible) {
       this.el.remove()
       return
     }
 
-    // Append to `body` to deal with CSS' `contain` interaction
-    // with `position: fixed`. We assume initial containment
-    // block in this function, but `contain` can introduce a
-    // new containment block and offset tooltip's position.
-    (document.body.shadowRoot ?? document.body).append(this.el)
+    target.append(this.el)
 
     const bbox = bounding_box(this.target)
-
     const [sx, sy] = (() => {
       if (isString(position)) {
-        const [valign, halign] = this._anchor_to_align(position)
+        const {v: v_align, h: h_align} = this._anchor_to_align(position)
         const sx = (() => {
-          switch (halign) {
+          switch (h_align) {
             case "left": return bbox.left
             case "center": return bbox.hcenter
             case "right": return bbox.right
           }
         })()
         const sy = (() => {
-          switch (valign) {
+          switch (v_align) {
             case "top": return bbox.top
             case "center": return bbox.vcenter
             case "bottom": return bbox.bottom
@@ -260,12 +267,12 @@ export class TooltipView extends UIElementView {
         const {attachment} = this.model
         if (attachment == "auto") {
           if (isString(position)) {
-            const [valign, halign] = this._anchor_to_align(position)
-            if (halign != "center") {
-              return halign == "left" ? "left" : "right"
+            const {v: v_align, h: h_align} = this._anchor_to_align(position)
+            if (h_align != "center") {
+              return h_align == "left" ? "left" : "right"
             }
-            if (valign != "center") {
-              return valign == "top" ? "above" : "below"
+            if (v_align != "center") {
+              return v_align == "top" ? "above" : "below"
             }
           }
           return "horizontal"

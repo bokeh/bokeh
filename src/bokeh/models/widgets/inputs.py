@@ -51,6 +51,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ...events import ClearInput
 from ...util.deprecation import deprecated
 from ..dom import HTML
 from ..formatters import TickFormatter
@@ -117,7 +118,7 @@ class FileInput(InputWidget):
         super().__init__(*args, **kwargs)
 
     value = Readonly(Either(String, List(String)), help='''
-    The base64-enconded contents of the file or files that were loaded.
+    The base64-encoded contents of the file or files that were loaded.
 
     If `multiple` is set to False (default), this value is a single string with the contents
     of the single file that was chosen.
@@ -195,10 +196,14 @@ class FileInput(InputWidget):
     Whether to allow selection of directories.
     """)
 
-    _clear_input = Int(default=0, help="""
-    A private property to clear the file input.
-    """)
 
+    def clear(self) -> None:
+        """ Clear the contents of this file input widget.
+
+        """
+        doc = self.document
+        if doc is not None:
+            doc.callbacks.send_event(ClearInput(self))
 
 class NumericInput(InputWidget):
     ''' Numeric input widget.

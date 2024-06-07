@@ -49,11 +49,10 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
-from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning, warn
 from .callbacks import CustomJS
-from .filters import AllIndices, Filter, IntersectionFilter
+from .filters import AllIndices, Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
@@ -735,9 +734,6 @@ class CDSView(Model):
     '''
 
     def __init__(self, *args: TAny, **kwargs: TAny) -> None:
-        if "source" in kwargs:
-            del kwargs["source"]
-            deprecated("CDSView.source is no longer needed, and is now ignored. In a future release, passing source will result an error.")
         super().__init__(*args, **kwargs)
 
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
@@ -754,27 +750,6 @@ class CDSView(Model):
         # filters everything but indexes 10 and 11
         cds_view.filter &= ~IndexFilter(indices=[10, 11])
     """)
-
-    @property
-    def filters(self) -> list[Filter]:
-        deprecated("CDSView.filters was deprecated in bokeh 3.0. Use CDSView.filter instead.")
-        filter = self.filter
-        if isinstance(filter, IntersectionFilter):
-            return filter.operands
-        elif isinstance(filter, AllIndices):
-            return []
-        else:
-            return [filter]
-
-    @filters.setter
-    def filters(self, filters: list[Filter]) -> None:
-        deprecated("CDSView.filters was deprecated in bokeh 3.0. Use CDSView.filter instead.")
-        if len(filters) == 0:
-            self.filter = AllIndices()
-        elif len(filters) == 1:
-            self.filter = filters[0]
-        else:
-            self.filter = IntersectionFilter(operands=filters)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''

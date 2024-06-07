@@ -1,4 +1,7 @@
-Plot bbox=[0, 0, 200, 200]
+Figure bbox=[0, 0, 200, 200]
+  Canvas bbox=[0, 0, 200, 200]
   CartesianFrame bbox=[29, 5, 166, 168]
+  GlyphRenderer bbox=[104, 13, 16, 152]
+    VBar bbox=[104, 13, 16, 152]
   CategoricalAxis bbox=[29, 173, 166, 27]
   LinearAxis bbox=[0, 5, 29, 168]

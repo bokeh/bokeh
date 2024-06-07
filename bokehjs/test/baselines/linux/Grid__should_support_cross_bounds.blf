@@ -1,4 +1,7 @@
-Plot bbox=[0, 0, 300, 300]
+Figure bbox=[0, 0, 300, 300]
+  Canvas bbox=[0, 0, 300, 300]
   CartesianFrame bbox=[5, 5, 290, 290]
+  GlyphRenderer bbox=[18, 18, 264, 264]
+    Scatter bbox=[18, 18, 264, 264]
   LinearAxis bbox=[18, 216, 132, 22]
   LinearAxis bbox=[55, 18, 29, 264]

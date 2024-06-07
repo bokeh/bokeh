@@ -18,9 +18,14 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.core.serialization import Deserializer
+from bokeh.document import Document
+from bokeh.document.events import DocumentChangedEvent, MessageSentEvent
 from bokeh.models import (
     Button,
     Div,
+    FileInput,
+    Legend,
+    LegendItem,
     Plot,
     TextInput,
 )
@@ -58,20 +63,28 @@ def test_common_decode_json() -> None:
         if event_name is None:
             continue # Skip abstract base class
 
+        legend_item = LegendItem()
+
         if issubclass(event_cls, events.ButtonClick):
             model = Button()
+        elif issubclass(event_cls, events.LegendItemClick):
+            model = Legend(items=[legend_item])
         elif issubclass(event_cls, events.ValueSubmit):
             model = TextInput()
+        elif issubclass(event_cls, events.ClearInput):
+            model = FileInput()
         else:
             model = Plot()
 
         entries = []
         if issubclass(event_cls, events.ModelEvent):
-            entries.append(["model", dict(id=model.id)])
+            entries.append(["model", model.ref])
+        if issubclass(event_cls, events.LegendItemClick):
+            entries.append(["item", legend_item.ref])
         if issubclass(event_cls, events.ValueSubmit):
             entries.append(["value", ""])
 
-        decoder = Deserializer(references=[model])
+        decoder = Deserializer(references=[model, legend_item])
         event = decoder.decode(dict(
             type="event",
             name=event_cls.event_name,
@@ -377,6 +390,26 @@ def test_pinch_callbacks() -> None:
     plot._trigger_event(events.Pinch(plot, **payload))
     assert test_callback.event_name == events.Pinch.event_name
     assert test_callback.payload == payload
+
+def test_FileInput_clear() -> None:
+    file_input = FileInput()
+    doc = Document()
+    doc.add_root(file_input)
+
+    collected_events: list[DocumentChangedEvent] = []
+    def on_change(event: DocumentChangedEvent) -> None:
+        collected_events.append(event)
+    doc.on_change(on_change)
+
+    file_input.clear()
+
+    assert len(collected_events) == 1
+    [event] = collected_events
+
+    assert isinstance(event, MessageSentEvent)
+    assert event.msg_type == "bokeh_event"
+    assert isinstance(event.msg_data, events.ClearInput)
+    assert event.msg_data.model == file_input
 
 #-----------------------------------------------------------------------------
 # Dev API

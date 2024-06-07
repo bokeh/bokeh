@@ -1,3 +1,6 @@
-Plot bbox=[0, 0, 600, 300]
+Figure bbox=[0, 0, 600, 300]
+  Canvas bbox=[0, 0, 600, 300]
   CartesianFrame bbox=[51, 5, 544, 290]
+  GlyphRenderer bbox=[52, 26, 542, 248]
+    Rect bbox=[52, 26, 542, 248]
   CategoricalAxis bbox=[0, 5, 51, 290]

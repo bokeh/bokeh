@@ -26,7 +26,7 @@
   </td>
 
   <td>
-    <a href="https://github.com/bokeh/bokeh/blob/main/LICENSE.txt">
+    <a href="https://github.com/bokeh/bokeh/blob/-/LICENSE.txt">
     <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=ECD078&style=for-the-badge"
          alt="Bokeh license (BSD 3-clause)" />
     </a>

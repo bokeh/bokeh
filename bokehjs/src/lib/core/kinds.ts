@@ -329,6 +329,16 @@ export namespace Kinds {
     }
   }
 
+  export class NonEmptyList<ItemType> extends List<ItemType> {
+    override valid(value: unknown): value is ItemType[] {
+      return super.valid(value) && value.length != 0
+    }
+
+    override toString(): string {
+      return `NonEmptyList(${this.item_type.toString()})`
+    }
+  }
+
   export class Null extends Primitive<null> {
     valid(value: unknown): value is null {
       return value === null
@@ -639,6 +649,7 @@ export const PartialStruct = <T extends {[key: string]: unknown}>(struct_type: K
 export const Iterable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Iterable(item_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const List = <ItemType>(item_type: Kind<ItemType>) => new Kinds.List(item_type)
+export const NonEmptyList = <ItemType>(item_type: Kind<ItemType>) => new Kinds.NonEmptyList(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
 export const Mapping = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Mapping(key_type, item_type)
 export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)

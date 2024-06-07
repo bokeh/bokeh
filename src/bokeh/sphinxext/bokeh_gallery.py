@@ -143,7 +143,7 @@ def config_inited_handler(app, config):
         if detail_file_path in extras:
             extras.remove(detail_file_path)
 
-        # if the gallery detail file is newer than the gallery file, assume it is up to date
+        # if the gallery detail file is newer than the gallery file, assume it is up-to-date
         if exists(detail_file_path) and getmtime(detail_file_path) > gallery_file_mtime:
             continue
 

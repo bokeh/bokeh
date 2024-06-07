@@ -1,4 +1,5 @@
 import {isPlainObject} from "./util/types"
+import {size} from "./util/object"
 import type {Arrayable} from "./types"
 import type {HasProps} from "./has_props"
 import type {Signal0} from "./signaling"
@@ -46,14 +47,35 @@ export type Transformed<T> = {
   transform?: Transform<unknown, T>
 }
 
+function is_of_type(obj: unknown, field: string): boolean {
+  if (!isPlainObject(obj)) {
+    return false
+  }
+  if (!(field in obj)) {
+    return false
+  }
+  let n = size(obj) - 1
+  if ("transform" in obj) {
+    n -= 1
+  }
+  if ("units" in obj) {
+    n -= 1
+  }
+  return n == 0
+}
+
 export function isValue<T>(obj: unknown): obj is Value<T> {
-  return isPlainObject(obj) && "value" in obj
+  return is_of_type(obj, "value")
 }
 
 export function isField(obj: unknown): obj is Field {
-  return isPlainObject(obj) && "field" in obj
+  return is_of_type(obj, "field")
 }
 
 export function isExpr<T>(obj: unknown): obj is Expr<T> {
-  return isPlainObject(obj) && "expr" in obj
+  return is_of_type(obj, "expr")
+}
+
+export function isVectorized<T>(obj: unknown): obj is Vector<T> {
+  return isValue(obj) || isField(obj) || isExpr(obj)
 }

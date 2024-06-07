@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/make",
-  "version": "3.5.0-dev.2",
+  "version": "3.5.0-dev.6",
   "private": true,
   "description": "Internal package for bokehjs' build system",
   "license": "BSD-3-Clause",

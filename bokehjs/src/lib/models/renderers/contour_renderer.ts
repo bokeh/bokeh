@@ -1,7 +1,6 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import type {GlyphRendererView} from "./glyph_renderer"
 import {GlyphRenderer} from "./glyph_renderer"
-import type {Renderer} from "./renderer"
 import type {GlyphView} from "../glyphs/glyph"
 import type * as p from "core/properties"
 import type {IterViews} from "core/build_views"
@@ -45,18 +44,6 @@ export class ContourRendererView extends DataRendererView {
   protected _paint(): void {
     this.fill_view.paint()
     this.line_view.paint()
-  }
-
-  override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    if (renderer instanceof GlyphRenderer) {
-      if (renderer == this.fill_view.model) {
-        return this.fill_view
-      }
-      if (renderer == this.line_view.model) {
-        return this.line_view
-      }
-    }
-    return super.renderer_view(renderer)
   }
 }
 

@@ -50,7 +50,6 @@ import importlib.metadata as importlib_metadata
 __all__ = (
     '__version__',
     'license',
-    'sampledata',
 )
 
 __version__ = importlib_metadata.version("bokeh")
@@ -58,6 +57,16 @@ __version__ = importlib_metadata.version("bokeh")
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+# deprecated, remove at some point
+def download():
+    from warnings import warn
+
+    from .util.warnings import BokehUserWarning
+    warn(
+        "bokeh.download() is no longer used. All sample data is available in "
+        "the 'bokeh_sampledata' package. Use 'pip install bokeh_sampledata' "
+        "or 'conda install bokeh_sampledata' to install it.", BokehUserWarning)
 
 def license():
     ''' Print the Bokeh license to the console.
@@ -83,9 +92,6 @@ def license():
 #-----------------------------------------------------------------------------
 
 del importlib_metadata
-
-# expose sample data module
-from . import sampledata # isort:skip
 
 # configure Bokeh logger
 from .util import logconfig # isort:skip

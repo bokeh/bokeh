@@ -35,7 +35,6 @@ import bokeh as b # isort:skip
 ALL =  (
     '__version__',
     'license',
-    'sampledata',
 )
 
 _LICENSE = """\

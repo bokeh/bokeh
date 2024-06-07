@@ -68,10 +68,12 @@ from bokeh.models.glyphs import ( # isort:skip
     MultiPolygons,
     Patch, Patches,
     Quad, Quadratic, Ray,
+    MathMLGlyph,
     Rect,
     Segment,
     Step,
     Text,
+    TeXGlyph,
     VArea,
     VAreaStep,
     VBar,
@@ -472,6 +474,34 @@ def test_Quadratic() -> None:
     ], LINE, GLYPH)
 
 
+def test_MathMLGlyph() -> None:
+    glyph = MathMLGlyph()
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
+    assert glyph.text == field("text")
+    assert glyph.angle == 0
+    assert glyph.x_offset == 0
+    assert glyph.y_offset == 0
+    assert glyph.anchor == value("auto")
+    assert glyph.padding == 0
+    assert glyph.border_radius == 0
+    assert glyph.outline_shape == "box"
+    check_text_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y",
+        "text",
+        "angle",
+        "angle_units",
+        "x_offset",
+        "y_offset",
+        "anchor",
+        "padding",
+        "border_radius",
+        "outline_shape",
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
+
+
 def test_Ray() -> None:
     glyph = Ray()
     assert glyph.x == field("x")
@@ -554,6 +584,7 @@ def test_Text() -> None:
     assert glyph.anchor == value("auto")
     assert glyph.padding == 0
     assert glyph.border_radius == 0
+    assert glyph.outline_shape == "box"
     check_text_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -566,6 +597,39 @@ def test_Text() -> None:
         "anchor",
         "padding",
         "border_radius",
+        "outline_shape",
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
+
+
+def test_TeXGlyph() -> None:
+    glyph = TeXGlyph()
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
+    assert glyph.text == field("text")
+    assert glyph.angle == 0
+    assert glyph.x_offset == 0
+    assert glyph.y_offset == 0
+    assert glyph.anchor == value("auto")
+    assert glyph.padding == 0
+    assert glyph.border_radius == 0
+    assert glyph.outline_shape == "box"
+    assert glyph.display == "auto"
+    assert glyph.macros == {}
+    check_text_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y",
+        "text",
+        "angle",
+        "angle_units",
+        "x_offset",
+        "y_offset",
+        "anchor",
+        "padding",
+        "border_radius",
+        "outline_shape",
+        "display",
+        "macros",
     ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
 
 

@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 import io
+from pathlib import Path
 
 # External imports
 import numpy as np
@@ -27,7 +28,6 @@ import pandas as pd
 # Bokeh imports
 from bokeh.models import ColumnDataSource, DataTable, Selection
 from bokeh.util.serialization import convert_datetime_array
-from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.models.sources as bms # isort:skip
@@ -36,14 +36,11 @@ import bokeh.models.sources as bms # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+df = pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def test_CDSView_deprecated_source_property() -> None:
-    source = bms.ColumnDataSource()
-    with pytest.warns(BokehDeprecationWarning):
-        bms.CDSView(source=source)
 
 class TestColumnDataSource:
     def test_basic(self) -> None:
@@ -179,7 +176,6 @@ class TestColumnDataSource:
             bms.ColumnDataSource(data=df)
 
     def test_init_groupby_arg(self) -> None:
-        from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource(group)
         s = group.describe()
@@ -191,7 +187,6 @@ class TestColumnDataSource:
             assert list(s[key]) == list(ds.data[k2])
 
     def test_data_accepts_groupby_arg(self) -> None:
-        from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource()
         assert ds.data == {}
@@ -205,7 +200,6 @@ class TestColumnDataSource:
             assert list(s[key]) == list(ds.data[k2])
 
     def test_init_groupby_data_kwarg(self) -> None:
-        from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource(data=group)
         s = group.describe()

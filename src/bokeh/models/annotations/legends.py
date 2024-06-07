@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -70,6 +70,7 @@ from ...core.validation.errors import (
     NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS,
     NON_MATCHING_SCALE_BAR_UNIT,
 )
+from ...events import LegendItemClick
 from ...model import Model
 from ..formatters import TickFormatter
 from ..labeling import LabelingPolicy, NoOverlap
@@ -79,6 +80,10 @@ from ..renderers import GlyphRenderer
 from ..tickers import FixedTicker, Ticker
 from .annotation import Annotation
 from .dimensional import Dimensional, MetricLength
+
+if TYPE_CHECKING:
+    from ...util.callback_manager import EventCallback as PyEventCallback
+    from ..callbacks import Callback as JsEventCallback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -517,6 +522,14 @@ class Legend(Annotation):
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))),
         lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
+
+    def on_click(self, handler: PyEventCallback) -> None:
+        """ Set up a handler for legend item clicks. """
+        self.on_event(LegendItemClick, handler)
+
+    def js_on_click(self, handler: JsEventCallback) -> None:
+        """ Set up a JavaScript handler for legend item clicks. """
+        self.js_on_event(LegendItemClick, handler)
 
 class ScaleBar(Annotation):
     """ Represents a scale bar annotation.

@@ -16,6 +16,8 @@ import {assert} from "core/util/assert"
 import {isNumber} from "core/util/types"
 import type {Dict} from "core/types"
 import type * as p from "core/properties"
+import {InlineStyleSheet} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 
 type Ranges = Dict<Range>
 type Scales = Dict<Scale>
@@ -25,7 +27,7 @@ export class CartesianFrameView extends StyledElementView {
   declare parent: PlotView
 
   private _bbox: BBox = new BBox()
-  get bbox(): BBox {
+  override get bbox(): BBox {
     return this._bbox
   }
 
@@ -145,6 +147,7 @@ export class CartesianFrameView extends StyledElementView {
   set_geometry(bbox: BBox): void {
     this._bbox = bbox
     this._update_scales()
+    this._update_position()
   }
 
   get x_range(): Range {
@@ -207,6 +210,41 @@ export class CartesianFrameView extends StyledElementView {
       return {x: x + offset, y: y + offset}
     }
   }
+
+  readonly position = new InlineStyleSheet()
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), this.position]
+  }
+
+  override rendering_target(): HTMLElement {
+    return this.parent.canvas_view.underlays_el
+  }
+
+  /**
+   * Updates the position of the associated DOM element.
+   */
+  protected _update_position(): void {
+    const {bbox, position} = this
+    if (bbox.is_valid) {
+      position.replace(`
+      :host {
+        position: absolute;
+        left:     ${bbox.left}px;
+        top:      ${bbox.top}px;
+        width:    ${bbox.width}px;
+        height:   ${bbox.height}px;
+      }
+      `)
+    } else {
+      position.replace(`
+      :host {
+        display: none;
+      }
+      `)
+    }
+  }
+
 }
 
 export namespace CartesianFrame {

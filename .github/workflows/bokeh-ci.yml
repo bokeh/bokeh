@@ -100,7 +100,6 @@ jobs:
         with:
           test-env: '3.10'
           source-tree: 'keep'
-          sampledata: 'cache'
 
       - name: List installed software
         run: |
@@ -128,7 +127,6 @@ jobs:
         with:
           test-env: '3.10'
           source-tree: 'delete'
-          sampledata: 'cache'
 
       - name: Install chromium
         run: |
@@ -194,7 +192,6 @@ jobs:
         with:
           test-env: '3.11'
           source-tree: 'delete'
-          sampledata: 'cache'
 
       - name: List installed software
         run: |
@@ -234,7 +231,6 @@ jobs:
         with:
           test-env: ${{ matrix.python-version }}
           source-tree: 'delete'
-          sampledata: 'cache'
 
       - name: Ensure Python version
         run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
@@ -283,7 +279,6 @@ jobs:
         with:
           test-env: 'minimal-deps'
           source-tree: 'delete'
-          sampledata: 'none' # no sampledata for minimal tests
 
       - name: List installed software
         run: |
@@ -314,7 +309,6 @@ jobs:
         with:
           test-env: '3.10'
           source-tree: 'delete'
-          sampledata: 'download' # test at least one real download
 
       - name: List installed software
         run: |
@@ -344,7 +338,6 @@ jobs:
         with:
           test-env: 'downstream'
           source-tree: 'delete'
-          sampledata: 'none'
 
       - name: Install downstream packages
         run: bash scripts/ci/install_downstream_packages.sh

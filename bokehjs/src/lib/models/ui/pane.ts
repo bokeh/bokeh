@@ -3,7 +3,6 @@ import {DOMNode} from "../dom/dom_node"
 import {HTML} from "../dom/html"
 import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import type {SerializableState} from "core/view"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
@@ -50,10 +49,11 @@ export class PaneView extends UIElementView {
     for (const element_view of this.element_views) {
       const is_new = created_elements.has(element_view)
 
+      const target = element_view.rendering_target() ?? this.shadow_el
       if (is_new) {
-        element_view.render_to(this.shadow_el)
+        element_view.render_to(target)
       } else {
-        this.shadow_el.append(element_view.el)
+        target.append(element_view.el)
       }
     }
     this.r_after_render()
@@ -76,7 +76,8 @@ export class PaneView extends UIElementView {
     super.render()
 
     for (const element_view of this.element_views) {
-      element_view.render_to(this.shadow_el)
+      const target = element_view.rendering_target() ?? this.shadow_el
+      element_view.render_to(target)
     }
   }
 
@@ -92,14 +93,6 @@ export class PaneView extends UIElementView {
     }
 
     return true
-  }
-
-  override serializable_state(): SerializableState {
-    const {children, ...state} = super.serializable_state()
-    return {
-      ...state,
-      children: [...children ?? [], ...this.element_views.map((element) => element.serializable_state())],
-    }
   }
 }
 

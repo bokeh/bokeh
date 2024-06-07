@@ -127,6 +127,9 @@ export type MutedPolicy = typeof MutedPolicy["__type__"]
 export const Orientation = Enum("vertical", "horizontal")
 export type Orientation = typeof Orientation["__type__"]
 
+export const OutlineShapeName = Enum("none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle")
+export type OutlineShapeName = typeof OutlineShapeName["__type__"]
+
 export const OutputBackend = Enum("canvas", "svg", "webgl")
 export type OutputBackend = typeof OutputBackend["__type__"]
 

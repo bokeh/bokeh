@@ -9,14 +9,16 @@ import type {NodeTarget} from "../models/coordinates/node"
 import {Node} from "../models/coordinates/node"
 import {XY as XY_} from "../models/coordinates/xy"
 import {Indexed} from "../models/coordinates/indexed"
-import {ViewManager} from "./view_manager"
+import {ViewManager, ViewQuery} from "./view_manager"
+import type {Equatable, Comparator} from "./util/eq"
+import {equals} from "./util/eq"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
 export type SerializableState = {
   type: string
   bbox?: BBox
-  children?: SerializableState[]
+  children: SerializableState[]
 }
 
 export namespace View {
@@ -29,7 +31,7 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
-export class View implements ISignalable {
+export class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
 
   readonly model: HasProps
@@ -38,6 +40,8 @@ export class View implements ISignalable {
   readonly root: View
 
   readonly owner: ViewManager
+
+  readonly views: ViewQuery = new ViewQuery(this)
 
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -102,6 +106,10 @@ export class View implements ISignalable {
     return `${this.model.type}View(${this.model.id})`
   }
 
+  [equals](that: this, _cmp: Comparator): boolean {
+    return Object.is(this, that)
+  }
+
   public *children(): IterViews {}
 
   protected _has_finished: boolean = false
@@ -138,7 +146,15 @@ export class View implements ISignalable {
   }
 
   serializable_state(): SerializableState {
-    return {type: this.model.type}
+    const children = [...this.children()]
+      .filter((view) => view.model.is_syncable)
+      .map((view) => view.serializable_state())
+      .filter((item) => item.bbox != null && item.bbox.is_valid && !item.bbox.is_empty)
+
+    return {
+      type: this.model.type,
+      children,
+    }
   }
 
   get is_root(): boolean {

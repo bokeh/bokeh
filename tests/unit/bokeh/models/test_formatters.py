@@ -18,7 +18,6 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import ColumnDataSource, Toggle
-from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.models.formatters as bmf # isort:skip
@@ -30,11 +29,6 @@ import bokeh.models.formatters as bmf # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def test_deprecated_FuncTickFormatter() -> None:
-    with pytest.warns(BokehDeprecationWarning):
-        formatter = bmf.FuncTickFormatter()
-        assert isinstance(formatter, bmf.CustomJSTickFormatter)
 
 def test_custom_js_tick_formatter() -> None:
     source = ColumnDataSource({

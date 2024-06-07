@@ -9,7 +9,6 @@ pip install dist/bokeh*.whl
 bash scripts/ci/install_node_modules.sh
 
 python -m bokeh info
-bokeh sampledata
 
 # Bokeh Python tests.
 pytest tests/test_defaults.py

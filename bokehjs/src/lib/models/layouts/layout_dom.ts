@@ -15,7 +15,6 @@ import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
-import type {SerializableState} from "core/view"
 
 export {type DOMBoxSizing}
 
@@ -140,7 +139,8 @@ export abstract class LayoutDOMView extends PaneView {
     super.render()
 
     for (const child_view of this.child_views) {
-      child_view.render_to(this.shadow_el)
+      const target = child_view.rendering_target() ?? this.shadow_el
+      child_view.render_to(target)
     }
   }
 
@@ -160,10 +160,11 @@ export abstract class LayoutDOMView extends PaneView {
     for (const child_view of this.child_views) {
       const is_new = created_children.has(child_view)
 
+      const target = child_view.rendering_target() ?? this.shadow_el
       if (is_new) {
-        child_view.render_to(this.shadow_el)
+        child_view.render_to(target)
       } else {
-        this.shadow_el.append(child_view.el)
+        target.append(child_view.el)
       }
     }
     this.r_after_render()
@@ -576,13 +577,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     return composite
-  }
-
-  override serializable_state(): SerializableState {
-    return {
-      ...super.serializable_state(),
-      children: this.child_views.map((child) => child.serializable_state()),
-    }
   }
 }
 

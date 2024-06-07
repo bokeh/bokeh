@@ -1,3 +1,4 @@
 Plot bbox=[0, 0, 300, 50]
+  Canvas bbox=[0, 0, 300, 50]
   CartesianFrame bbox=[20, 0, 260, 23]
   CategoricalAxis bbox=[20, 23, 260, 27]

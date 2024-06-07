@@ -6,8 +6,8 @@ import type {Dict} from "core/types"
 import {Enum, Or, Auto} from "core/kinds"
 import {parse_delimited_string} from "../text/utils"
 
-const DisplayMode = Or(Enum("inline", "block"), Auto)
-type DisplayMode = typeof DisplayMode["__type__"]
+export const DisplayMode = Or(Enum("inline", "block"), Auto)
+export type DisplayMode = typeof DisplayMode["__type__"]
 
 export interface TeXGlyphView extends TeXGlyph.Data {}
 

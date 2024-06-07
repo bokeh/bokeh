@@ -1,8 +1,10 @@
 import {View} from "./view"
+import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./dom"
-import {createElement, empty, InlineStyleSheet, ClassList} from "./dom"
+import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
+import type {BBox} from "./util/bbox"
 import base_css from "styles/base.css"
 
 export interface DOMView extends View {
@@ -16,6 +18,16 @@ export abstract class DOMView extends View {
 
   el: ChildNode
   shadow_el?: ShadowRoot
+
+  get bbox(): BBox | undefined {
+    return undefined
+  }
+
+  override serializable_state(): SerializableState {
+    const state = super.serializable_state()
+    const {bbox} = this
+    return bbox != null ? {...state, bbox: bbox.round()} : state
+  }
 
   get children_el(): Node {
     return this.shadow_el ?? this.el
@@ -61,7 +73,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    return createElement(this.constructor.tag_name, {class: this.css_classes()})
+    return create_element(this.constructor.tag_name, {})
   }
 
   reposition(_displayed?: boolean): void {}
@@ -76,6 +88,16 @@ export abstract class DOMView extends View {
     this.render_to(target)
     this.r_after_render()
     this.notify_finished()
+  }
+
+  /**
+   * Define where to render this element or let the parent decide.
+   *
+   * This is useful when creating "floating" components or adding
+   * components to canvas' layers.
+   */
+  rendering_target(): HTMLElement | null {
+    return null
   }
 }
 

@@ -308,13 +308,20 @@ def gridplot(
     if merge_tools:
         tools = group_tools(tools, merge=merge)
 
+    def map_to_proxy(active_tool: Tool | Literal["auto"] | None) -> ToolProxy | Tool:
+        if isinstance(active_tool, Tool):
+            for tool_or_proxy in tools:
+                if isinstance(tool_or_proxy, ToolProxy) and active_tool in tool_or_proxy.tools:
+                    return tool_or_proxy
+        return active_tool
+
     logos = [ toolbar.logo for toolbar in toolbars ]
     autohides = [ toolbar.autohide for toolbar in toolbars ]
-    active_drags = [ toolbar.active_drag for toolbar in toolbars ]
-    active_inspects = [ toolbar.active_inspect for toolbar in toolbars ]
-    active_scrolls = [ toolbar.active_scroll for toolbar in toolbars ]
-    active_taps = [ toolbar.active_tap for toolbar in toolbars ]
-    active_multis = [ toolbar.active_multi for toolbar in toolbars ]
+    active_drags = [ map_to_proxy(toolbar.active_drag) for toolbar in toolbars ]
+    active_inspects = [ map_to_proxy(toolbar.active_inspect) for toolbar in toolbars ] # TODO list[Tool]
+    active_scrolls = [ map_to_proxy(toolbar.active_scroll) for toolbar in toolbars ]
+    active_taps = [ map_to_proxy(toolbar.active_tap) for toolbar in toolbars ]
+    active_multis = [ map_to_proxy(toolbar.active_multi) for toolbar in toolbars ]
 
     V = TypeVar("V")
     def assert_unique(values: list[V], name: ToolbarOptions) -> V | UndefinedType:

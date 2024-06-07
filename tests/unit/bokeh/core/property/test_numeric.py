@@ -34,10 +34,8 @@ ALL = (
     'Byte',
     'Interval',
     'NonNegative',
-    'NonNegativeInt',
     'Percent',
     'Positive',
-    'PositiveInt',
     'Size',
 )
 
