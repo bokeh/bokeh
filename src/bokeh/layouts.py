@@ -205,7 +205,7 @@ def gridplot(
 
 @overload
 def gridplot(
-    children: list[list[UIElement]],
+    children: list[list[UIElement | None]],
     *,
     sizing_mode: SizingModeType | None = None,
     toolbar_location: LocationType | None = "above",
