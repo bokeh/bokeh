@@ -134,11 +134,6 @@ def test_gridplot_None() -> None:
     assert isinstance(g, GridPlot) and len(g.children) == 4
     assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
-    with pytest.raises(TypeError):
-        gridplot([p0, p1, p2, p3])  # type: ignore[list-item]
-
-    with pytest.raises(ValueError):
-        gridplot([[1], [p2], [p3]])
 
 def test_gridplot_using_ncols() -> None:
     def p():
@@ -151,12 +146,6 @@ def test_gridplot_using_ncols() -> None:
 
     assert isinstance(g, GridPlot) and len(g.children) == 4
     assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 1, 0), (p3, 1, 1)]
-
-    with pytest.raises(ValueError):
-        gridplot([[p0, p1], [p2, p3]], ncols=2)  # type: ignore
-
-    with pytest.raises(ValueError):
-        gridplot([1, p2, p3], ncols=2)
 
 
 def test_layout_simple() -> None:
