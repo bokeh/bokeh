@@ -15,7 +15,7 @@ export {
   is_empty, includes, contains, sort_by,
 } from "./arrayable"
 
-const slice = Array.prototype.slice
+const {slice} = Array.prototype
 
 export function head<T>(array: T[]): T {
   if (array.length != 0) {
