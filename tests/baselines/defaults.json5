@@ -6307,6 +6307,7 @@
   },
   RegionSelectTool: {
     __extends__: "SelectTool",
+    mode: "replace",
     continuous: false,
     persistent: false,
     greedy: false,
@@ -6324,7 +6325,6 @@
   SelectTool: {
     __extends__: "GestureTool",
     renderers: "auto",
-    mode: "replace",
   },
   Tap: {
     __extends__: "GestureTool",
@@ -6334,7 +6334,7 @@
       "Tap",
       "SelectTool",
     ],
-    mode: "xor",
+    mode: "toggle",
     behavior: "select",
     gesture: "tap",
     modifiers: {

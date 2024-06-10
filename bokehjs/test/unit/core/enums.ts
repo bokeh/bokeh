@@ -189,8 +189,12 @@ describe("enums module", () => {
     expect([...enums.RoundingFunction]).to.be.equal(["round", "nearest", "floor", "rounddown", "ceil", "roundup"])
   })
 
+  it("should have RegionSelectionMode", () => {
+    expect([...enums.RegionSelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract", "xor"])
+  })
+
   it("should have SelectionMode", () => {
-    expect([...enums.SelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract", "xor"])
+    expect([...enums.SelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract", "xor", "toggle"])
   })
 
   it("should have Side", () => {
