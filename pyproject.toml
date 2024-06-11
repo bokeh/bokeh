@@ -133,9 +133,9 @@ warn_return_any = false
 warn_unreachable = true
 
 [tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
+exclude_also = [
     "if TYPE_CHECKING:",
+    "@overload"
 ]
 
 [tool.ruff]
