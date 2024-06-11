@@ -79,8 +79,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class BoxVisuals(Model):
-    """ """
+class AreaVisuals(Model):
+    """ Allows to style line, fill and hatch visuals. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -111,7 +111,7 @@ class BoxVisuals(Model):
     """)
 
 DEFAULT_BOX_ANNOTATION_HANDLES = lambda: dict(
-    all=BoxVisuals(
+    all=AreaVisuals(
         fill_color="white",
         fill_alpha=1.0,
         line_color="black",
@@ -121,7 +121,7 @@ DEFAULT_BOX_ANNOTATION_HANDLES = lambda: dict(
     ),
 )
 
-class BoxAnnotation(Annotation):
+class BoxAnnotation(Annotation, AreaVisuals):
     ''' Render a shaded rectangular region as an annotation.
 
     See :ref:`ug_basic_annotations_box_annotations` for information on plotting box annotations.
@@ -273,23 +273,23 @@ class BoxAnnotation(Annotation):
     """)
 
     handles = Struct(
-        all          = Instance(BoxVisuals),           # move, resize
+        all          = Instance(AreaVisuals),           # move, resize
 
-        move         = Optional(Instance(BoxVisuals)),
-        resize       = Optional(Instance(BoxVisuals)), # sides, corners
+        move         = Optional(Instance(AreaVisuals)),
+        resize       = Optional(Instance(AreaVisuals)), # sides, corners
 
-        sides        = Optional(Instance(BoxVisuals)), # left, right, top, bottom
-        corners      = Optional(Instance(BoxVisuals)), # top_left, top_right, bottom_left, bottom_right
+        sides        = Optional(Instance(AreaVisuals)), # left, right, top, bottom
+        corners      = Optional(Instance(AreaVisuals)), # top_left, top_right, bottom_left, bottom_right
 
-        left         = Optional(Instance(BoxVisuals)),
-        right        = Optional(Instance(BoxVisuals)),
-        top          = Optional(Instance(BoxVisuals)),
-        bottom       = Optional(Instance(BoxVisuals)),
+        left         = Optional(Instance(AreaVisuals)),
+        right        = Optional(Instance(AreaVisuals)),
+        top          = Optional(Instance(AreaVisuals)),
+        bottom       = Optional(Instance(AreaVisuals)),
 
-        top_left     = Optional(Instance(BoxVisuals)),
-        top_right    = Optional(Instance(BoxVisuals)),
-        bottom_left  = Optional(Instance(BoxVisuals)),
-        bottom_right = Optional(Instance(BoxVisuals)),
+        top_left     = Optional(Instance(AreaVisuals)),
+        top_right    = Optional(Instance(AreaVisuals)),
+        bottom_left  = Optional(Instance(AreaVisuals)),
+        bottom_right = Optional(Instance(AreaVisuals)),
 
         default=DEFAULT_BOX_ANNOTATION_HANDLES, help="""
     Configure appearance of interaction handles.
@@ -302,30 +302,6 @@ class BoxAnnotation(Annotation):
     Inverts the geometry of the box, i.e. applies fill and hatch visuals
     to the outside of the box instead of the inside. Visuals are applied
     between the box and its parent, e.g. the frame.
-    """)
-
-    line_props = Include(ScalarLineProps, help="""
-    The {prop} values for the box.
-    """)
-
-    fill_props = Include(ScalarFillProps, help="""
-    The {prop} values for the box.
-    """)
-
-    hatch_props = Include(ScalarHatchProps, help="""
-    The {prop} values for the box.
-    """)
-
-    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
-    The {prop} values for the box when hovering over.
-    """)
-
-    hover_fill_props = Include(ScalarFillProps, prefix="hover", help="""
-    The {prop} values for the box when hovering over.
-    """)
-
-    hover_hatch_props = Include(ScalarHatchProps, prefix="hover", help="""
-    The {prop} values for the box when hovering over.
     """)
 
     line_color = Override(default="#cccccc")

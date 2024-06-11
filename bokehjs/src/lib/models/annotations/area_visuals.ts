@@ -2,15 +2,11 @@ import {Model} from "../../model"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
-//import {NonNegative, Int} from "core/kinds"
 
-export namespace BoxVisuals {
+export namespace AreaVisuals {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
-    //width: p.Property<number>
-    //height: p.Property<number>
-  } & Mixins
+  export type Props = Model.Props & {} & Mixins
 
   export type Mixins =
     mixins.Line & mixins.Fill & mixins.Hatch &
@@ -26,17 +22,17 @@ export namespace BoxVisuals {
   }
 }
 
-export interface BoxVisuals extends BoxVisuals.Attrs {}
+export interface AreaVisuals extends AreaVisuals.Attrs {}
 
-export class BoxVisuals extends Model {
-  declare properties: BoxVisuals.Props
+export class AreaVisuals extends Model {
+  declare properties: AreaVisuals.Props
 
-  constructor(attrs?: Partial<BoxVisuals.Attrs>) {
+  constructor(attrs?: Partial<AreaVisuals.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.mixins<BoxVisuals.Mixins>([
+    this.mixins<AreaVisuals.Mixins>([
       mixins.Line,
       mixins.Fill,
       mixins.Hatch,
@@ -44,10 +40,5 @@ export class BoxVisuals extends Model {
       ["hover_", mixins.Fill],
       ["hover_", mixins.Hatch],
     ])
-
-    this.define<BoxVisuals.Props>({
-      //width: [ NonNegative(Int), 10 ],
-      //height: [ NonNegative(Int), 10 ],
-    })
   }
 }

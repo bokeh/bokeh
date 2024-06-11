@@ -1,5 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {BoxVisuals} from "./box_visuals"
+import {AreaVisuals} from "./area_visuals"
 import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
@@ -32,30 +32,30 @@ const {abs} = Math
 
 const InteractionHandles = And(
   Struct({
-    all:          Ref(BoxVisuals), // move, resize
+    all:          Ref(AreaVisuals), // move, resize
   }),
   PartialStruct({
-    move:         Ref(BoxVisuals),
-    resize:       Ref(BoxVisuals), // sides, corners
+    move:         Ref(AreaVisuals),
+    resize:       Ref(AreaVisuals), // sides, corners
 
-    sides:        Ref(BoxVisuals), // left, right, top, bottom
-    corners:      Ref(BoxVisuals), // top_left, top_right, bottom_left, bottom_right
+    sides:        Ref(AreaVisuals), // left, right, top, bottom
+    corners:      Ref(AreaVisuals), // top_left, top_right, bottom_left, bottom_right
 
-    left:         Ref(BoxVisuals),
-    right:        Ref(BoxVisuals),
-    top:          Ref(BoxVisuals),
-    bottom:       Ref(BoxVisuals),
+    left:         Ref(AreaVisuals),
+    right:        Ref(AreaVisuals),
+    top:          Ref(AreaVisuals),
+    bottom:       Ref(AreaVisuals),
 
-    top_left:     Ref(BoxVisuals),
-    top_right:    Ref(BoxVisuals),
-    bottom_left:  Ref(BoxVisuals),
-    bottom_right: Ref(BoxVisuals),
+    top_left:     Ref(AreaVisuals),
+    top_right:    Ref(AreaVisuals),
+    bottom_left:  Ref(AreaVisuals),
+    bottom_right: Ref(AreaVisuals),
   }),
 )
 type InteractionHandles = typeof InteractionHandles["__type__"]
 
 const DEFAULT_HANDLE = () => {
-  return new BoxVisuals({
+  return new AreaVisuals({
     fill_color: "white",
     fill_alpha: 1.0,
     line_color: "black",
@@ -97,7 +97,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         level: this.model.level,
       }
 
-      function attrs_of(source: BoxVisuals) {
+      function attrs_of(source: AreaVisuals) {
         return {
           ...mixins.attrs_of(source, "",       mixins.Line, true),
           ...mixins.attrs_of(source, "",       mixins.Fill, true),
