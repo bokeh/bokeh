@@ -45,11 +45,13 @@ for i, channel in enumerate(channels):
 
 level = 1
 hit_test = False
+only_hit = True
 
 even_renderers = [ r for i, r in enumerate(renderers) if i % 2 == 0 ]
 odd_renderers = [ r for i, r in enumerate(renderers) if i % 2 == 1 ]
 
-behavior = GroupByModels(groups=[even_renderers, odd_renderers])
+group_by = GroupByModels(groups=[even_renderers, odd_renderers])
+behavior = "only_hit" if only_hit else group_by
 
 ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="height")
 xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="width")
@@ -80,9 +82,19 @@ export default ({tool}, obj) => {
 }
 """))
 
+only_hit_switch = Switch(active=only_hit)
+only_hit_switch.js_on_change("active", CustomJS(
+    args=dict(tool=ywheel_zoom, group_by=group_by),
+    code="""
+export default ({tool, group_by}, obj) => {
+    tool.hit_test_behavior = obj.active ? "only_hit" : group_by
+}
+"""))
+
 layout = column(
     row(Div(text="Zoom sub-coordinates:"), level_switch),
     row(Div(text="Zoom hit-tested:"), hit_test_switch),
+    row(Div(text="Zoom only hit renderers:"), only_hit_switch),
     p,
 )
 

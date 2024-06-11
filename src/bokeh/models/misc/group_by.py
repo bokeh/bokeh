@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" """
+""" Models for describing grouping behavior of collections of models. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -38,28 +38,31 @@ __all__ = (
 
 @abstract
 class GroupBy(Model):
-    """ """
+    """ Base class for grouping behaviors. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
 class GroupByModels(GroupBy):
-    """ Group models by  """
+    """ Group models by manually predefined groups. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     groups = Required(List(List(Instance(Model))), help="""
+    Predefined groups of models.
     """)
 
 class GroupByName(GroupBy):
-    """ """
+    """ Group models by their names (``Model.name`` property). """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+# TODO GroupByCustomJS(GroupBy)
 
 #-----------------------------------------------------------------------------
 # Dev API
