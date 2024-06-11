@@ -31,10 +31,10 @@ from bokeh.plotting import figure
 
 
 def test_gridplot_typing_no_ncols() -> None:
-    def p():
-        p = figure()
-        p.scatter([1, 2, 3], [4, 5, 6])
-        return p
+    def p() -> figure:
+        pp = figure()
+        pp.scatter([1, 2, 3], [4, 5, 6])
+        return pp
 
     p0, p1, p2, p3 = p(), p(), p(), p()
 
@@ -46,10 +46,10 @@ def test_gridplot_typing_no_ncols() -> None:
 
 
 def test_gridplot_typing_using_ncols() -> None:
-    def p():
-        p = figure()
-        p.scatter([1, 2, 3], [4, 5, 6])
-        return p
+    def p() -> figure:
+        pp = figure()
+        pp.scatter([1, 2, 3], [4, 5, 6])
+        return pp
 
     p0, p1, p2, p3 = p(), p(), p(), p()
 
