@@ -108,7 +108,7 @@ from .glyphs import (
     VStrip,
     XYGlyph,
 )
-from .misc.group_by import GroupBy
+from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
@@ -680,7 +680,8 @@ class WheelZoomTool(Scroll):
 
     .. note::
         This property is experimental and may change at any point
-    """)
+    """).accepts(Enum("group_by_name"), lambda _: GroupByName()) \
+        .accepts(List(List(Instance(DataRenderer))), lambda groups: GroupByModels(groups=groups))
 
     maintain_focus = Bool(default=True, help="""
     If True, then hitting a range bound in any one dimension will prevent all
