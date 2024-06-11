@@ -135,7 +135,7 @@ warn_unreachable = true
 [tool.coverage.report]
 exclude_also = [
     "if TYPE_CHECKING:",
-    "@overload"
+    "@overload",
 ]
 
 [tool.ruff]
