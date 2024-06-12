@@ -36,6 +36,8 @@ const InteractionHandles = And(
     all:          Ref(AreaVisuals), // move, resize
   }),
   PartialStruct({
+    all:          Ref(AreaVisuals), // move, resize
+
     move:         Ref(AreaVisuals),
     resize:       Ref(AreaVisuals), // sides, corners
 
