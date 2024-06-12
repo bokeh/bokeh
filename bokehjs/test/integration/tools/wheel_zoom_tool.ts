@@ -7,13 +7,13 @@ import {DataRenderer} from "@bokehjs/models/renderers/data_renderer"
 import {enumerate} from "@bokehjs/core/util/iterator"
 import {Category10_10} from "@bokehjs/api/palettes"
 
-const DELTA = 120 // [px] one unit of scroll up; typical -deltaY for deltaMode == DOM_DELTA_PIXEL (WheelEvent) in Chromium
-
 describe("WheelZoomTool", () => {
   it("should support zooming sub-coordinates", async () => {
+    const factors = ["A", "B", "C"]
+
     function plot(title: string) {
       const x_range = new Range1d({start: 0, end: 10})
-      const y_range = new FactorRange({factors: ["A", "B", "C"]})
+      const y_range = new FactorRange({factors})
 
       const p = fig([300, 300], {x_range, y_range, title, tools: ["hover"]})
 
@@ -58,12 +58,12 @@ describe("WheelZoomTool", () => {
 
     const pv1 = view.owner.get_one(p1)
     const actions1 = new PlotActions(pv1)
-    await actions1.scroll(xy(5, 1.5 /*B*/), 5*DELTA)
+    await actions1.scroll_down(xy(5, factors.indexOf("B") + 0.5), 5)
     await pv1.ready
 
     const pv2 = view.owner.get_one(p2)
     const actions2 = new PlotActions(pv2)
-    await actions2.scroll(xy(5, 1.5 /*B*/), 5*DELTA)
+    await actions2.scroll_down(xy(5, factors.indexOf("B") + 0.5), 5)
     await pv2.ready
   })
 
@@ -119,7 +119,7 @@ describe("WheelZoomTool", () => {
           })
 
           const {view: pv} = await display(p)
-          await actions(pv).scroll(xy(5, factors.indexOf("B") + 0.5), -3*DELTA)
+          await actions(pv).scroll_up(xy(5, factors.indexOf("B") + 0.5), 3)
           await pv.ready
         })
 
@@ -136,7 +136,7 @@ describe("WheelZoomTool", () => {
           })
 
           const {view: pv} = await display(p)
-          await actions(pv).scroll(xy(5, factors.indexOf("B") + 0.5), -3*DELTA)
+          await actions(pv).scroll_up(xy(5, factors.indexOf("B") + 0.5), 3)
           await pv.ready
         })
 
@@ -155,7 +155,7 @@ describe("WheelZoomTool", () => {
           })
 
           const {view: pv} = await display(p)
-          await actions(pv).scroll(xy(5, factors.indexOf("B") + 0.5), -3*DELTA)
+          await actions(pv).scroll_up(xy(5, factors.indexOf("B") + 0.5), 3)
           await pv.ready
         })
       })
@@ -169,7 +169,7 @@ describe("WheelZoomTool", () => {
     const {view} = await display(p)
 
     const actions1 = new PlotActions(view)
-    await actions1.scroll(xy(2, 2), 120)
+    await actions1.scroll_down(xy(2, 2), 1)
     await view.ready
   })
 })
