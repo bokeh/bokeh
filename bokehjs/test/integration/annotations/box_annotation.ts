@@ -384,4 +384,53 @@ describe("BoxAnnotation annotation", () => {
     const gp = gridplot(plots, {toolbar_location: null})
     await display(gp)
   })
+
+  it("should support hover over interaction handles", async () => {
+    const box = new BoxAnnotation({
+      left: 1, right: 5, top: 5, bottom: 1,
+      editable: true,
+      use_handles: true,
+      movable: "both",
+      resizable: "all",
+      line_color: "blue",
+      hover_fill_color: "green",
+    })
+
+    box.handles.all.hover_fill_color = "red"
+    box.handles.all.hover_fill_alpha = 0.7
+
+    const p = fig([150, 150], {
+      renderers: [box],
+      x_range: [0, 6], y_range: [0, 6],
+    })
+
+    const {view: pv} = await display(p)
+    await actions(pv).hover(xy(3, 3))
+    await pv.ready
+  })
+
+  it("should support visual overrides in interaction handles", async () => {
+    const box = new BoxAnnotation({
+      left: 1, right: 5, top: 5, bottom: 1,
+      editable: true,
+      use_handles: true,
+      movable: "both",
+      resizable: "all",
+      line_color: "blue",
+    })
+
+    box.handles.all.fill_color = "red"
+    box.handles.all.fill_alpha = 0.7
+
+    box.handles.resize = box.handles.all.clone()
+    box.handles.resize.hatch_color = "blue"
+    box.handles.resize.hatch_pattern = "@"
+
+    const p = fig([150, 150], {
+      renderers: [box],
+      x_range: [0, 6], y_range: [0, 6],
+    })
+
+    await display(p)
+  })
 })
