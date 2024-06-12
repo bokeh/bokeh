@@ -31,6 +31,10 @@ export class AreaVisuals extends Model {
     super(attrs)
   }
 
+  override clone(attrs?: Partial<AreaVisuals.Attrs>): this {
+    return super.clone(attrs)
+  }
+
   static {
     this.mixins<AreaVisuals.Mixins>([
       mixins.Line,

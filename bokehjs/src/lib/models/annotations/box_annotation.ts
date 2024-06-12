@@ -834,6 +834,10 @@ export class BoxAnnotation extends Annotation {
     super(attrs)
   }
 
+  override clone(attrs?: Partial<BoxAnnotation.Attrs>): this {
+    return super.clone(attrs)
+  }
+
   static {
     this.prototype.default_view = BoxAnnotationView
 
