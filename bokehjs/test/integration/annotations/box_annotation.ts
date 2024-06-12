@@ -6,6 +6,8 @@ import {BoxAnnotation, Node} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {paint} from "@bokehjs/core/util/defer"
 import type {PlotView} from "@bokehjs/models/plots/plot"
+import {gridplot} from "@bokehjs/api/gridplot"
+import {entries} from "@bokehjs/core/util/object"
 
 describe("BoxAnnotation annotation", () => {
 
@@ -346,5 +348,40 @@ describe("BoxAnnotation annotation", () => {
 
     const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
     await display(p)
+  })
+
+  it("should support interaction handles", async () => {
+    function plot(attrs: Partial<BoxAnnotation.Attrs>) {
+      const box = new BoxAnnotation({
+        left: 1, right: 5, top: 5, bottom: 1,
+        editable: true,
+        line_color: "blue",
+        use_handles: true,
+        ...attrs,
+      })
+
+      return fig([150, 150], {
+        title: entries(attrs).map(([k, v]) => `${k}=${v}`).join("\n"),
+        renderers: [box],
+        x_range: [0, 6], y_range: [0, 6],
+      })
+    }
+
+    const plots = [[
+      plot({movable: "none", resizable: "none"}),
+      plot({movable: "both", resizable: "none"}),
+      plot({movable: "none", resizable: "all"}),
+      plot({movable: "both", resizable: "all"}),
+      plot({movable: "none", resizable: "x"}),
+    ], [
+      plot({movable: "none", resizable: "y"}),
+      plot({movable: "none", resizable: "left"}),
+      plot({movable: "none", resizable: "right"}),
+      plot({movable: "none", resizable: "top"}),
+      plot({movable: "none", resizable: "bottom"}),
+    ]]
+
+    const gp = gridplot(plots, {toolbar_location: null})
+    await display(gp)
   })
 })
