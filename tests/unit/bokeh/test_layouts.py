@@ -134,6 +134,20 @@ def test_gridplot_None() -> None:
     assert isinstance(g, GridPlot) and len(g.children) == 4
     assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
+
+def test_gridplot_using_ncols() -> None:
+    def p():
+        p = figure()
+        p.scatter([1, 2, 3], [4, 5, 6])
+        return p
+
+    p0, p1, p2, p3 = p(), p(), p(), p()
+    g = gridplot([p0, p1, p2, p3], ncols=2)
+
+    assert isinstance(g, GridPlot) and len(g.children) == 4
+    assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 1, 0), (p3, 1, 1)]
+
+
 def test_layout_simple() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 

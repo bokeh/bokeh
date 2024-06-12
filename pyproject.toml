@@ -133,9 +133,9 @@ warn_return_any = false
 warn_unreachable = true
 
 [tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
+exclude_also = [
     "if TYPE_CHECKING:",
+    "@overload",
 ]
 
 [tool.ruff]
@@ -269,5 +269,6 @@ module = [
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",
     #"tests.unit.bokeh.models._util_models",
+    "tests.unit.bokeh.test_layouts__typing",
 ]
 ignore_errors = false
