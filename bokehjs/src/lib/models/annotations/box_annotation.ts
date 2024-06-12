@@ -17,6 +17,7 @@ import type {Rect} from "core/types"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {values} from "core/util/object"
+import {non_null} from "core/util/types"
 import {PartialStruct, Struct, And, Ref} from "core/kinds"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
@@ -74,7 +75,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return this._bbox
   }
 
-  protected _handles: {[key in Box.HitTarget]?: BoxAnnotation} = {}
+  protected _handles: {[key in Box.HitTarget]: BoxAnnotation | null}
   protected _handles_views: {[key in Box.HitTarget]?: ViewOf<BoxAnnotation>} = {}
 
   override initialize(): void {
@@ -127,23 +128,33 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       } = this.model
 
       this._handles = {
-        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         movable: this.model.movable}) : undefined,
-        left:         resizable.left         ? new BoxAnnotation({...common, ...attrs.left,         in_cursor: ew_cursor}) : undefined,
-        right:        resizable.right        ? new BoxAnnotation({...common, ...attrs.right,        in_cursor: ew_cursor}) : undefined,
-        top:          resizable.top          ? new BoxAnnotation({...common, ...attrs.top,          in_cursor: ns_cursor}) : undefined,
-        bottom:       resizable.bottom       ? new BoxAnnotation({...common, ...attrs.bottom,       in_cursor: ns_cursor}) : undefined,
-        top_left:     resizable.top_left     ? new BoxAnnotation({...common, ...attrs.top_left,     in_cursor: tl_cursor}) : undefined,
-        top_right:    resizable.top_right    ? new BoxAnnotation({...common, ...attrs.top_right,    in_cursor: tr_cursor}) : undefined,
-        bottom_left:  resizable.bottom_left  ? new BoxAnnotation({...common, ...attrs.bottom_left,  in_cursor: bl_cursor}) : undefined,
-        bottom_right: resizable.bottom_right ? new BoxAnnotation({...common, ...attrs.bottom_right, in_cursor: br_cursor}) : undefined,
+        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         movable: this.model.movable}) : null,
+        left:         resizable.left         ? new BoxAnnotation({...common, ...attrs.left,         in_cursor: ew_cursor}) : null,
+        right:        resizable.right        ? new BoxAnnotation({...common, ...attrs.right,        in_cursor: ew_cursor}) : null,
+        top:          resizable.top          ? new BoxAnnotation({...common, ...attrs.top,          in_cursor: ns_cursor}) : null,
+        bottom:       resizable.bottom       ? new BoxAnnotation({...common, ...attrs.bottom,       in_cursor: ns_cursor}) : null,
+        top_left:     resizable.top_left     ? new BoxAnnotation({...common, ...attrs.top_left,     in_cursor: tl_cursor}) : null,
+        top_right:    resizable.top_right    ? new BoxAnnotation({...common, ...attrs.top_right,    in_cursor: tr_cursor}) : null,
+        bottom_left:  resizable.bottom_left  ? new BoxAnnotation({...common, ...attrs.bottom_left,  in_cursor: bl_cursor}) : null,
+        bottom_right: resizable.bottom_right ? new BoxAnnotation({...common, ...attrs.bottom_right, in_cursor: br_cursor}) : null,
       }
     } else {
-      this._handles = {}
+      this._handles = {
+        area:         null,
+        left:         null,
+        right:        null,
+        top:          null,
+        bottom:       null,
+        top_left:     null,
+        top_right:    null,
+        bottom_left:  null,
+        bottom_right: null,
+      }
     }
   }
 
   override get computed_renderers(): Renderer[] {
-    return [...super.computed_renderers, ...values(this._handles).filter((v) => v != null)]
+    return [...super.computed_renderers, ...values(this._handles).filter(non_null)]
   }
 
   override connect_signals(): void {
@@ -159,7 +170,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   protected override async _build_renderers(): Promise<BuildResult<Renderer>> {
     const build_result = await super._build_renderers()
 
-    const get = (handle: Renderer | undefined) => {
+    const get = (handle: Renderer | null) => {
       return handle != null ? this._renderer_views.get(handle) as ViewOf<BoxAnnotation> | undefined : undefined
     }
 
@@ -275,7 +286,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const width = 10
     const height = 10
 
-    function update(renderer: BoxAnnotation | undefined, bbox: BBox): void {
+    function update(renderer: BoxAnnotation | null, bbox: BBox): void {
       const {left, right, top, bottom} = bbox
       renderer?.setv({left, right, top, bottom}, {silent: true})
     }
