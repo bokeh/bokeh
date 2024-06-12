@@ -7,7 +7,7 @@ import {DataRenderer} from "@bokehjs/models/renderers/data_renderer"
 import {enumerate} from "@bokehjs/core/util/iterator"
 import {Category10_10} from "@bokehjs/api/palettes"
 
-const DELTA = 120
+const DELTA = 120 // [px] one unit of scroll up; typical -deltaY for deltaMode == DOM_DELTA_PIXEL (WheelEvent) in Chromium
 
 describe("WheelZoomTool", () => {
   it("should support zooming sub-coordinates", async () => {
