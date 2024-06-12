@@ -143,7 +143,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   override get computed_renderers(): Renderer[] {
-    return [...super.computed_renderers, ...values(this._handles)]
+    return [...super.computed_renderers, ...values(this._handles).filter((v) => v != null)]
   }
 
   override connect_signals(): void {
