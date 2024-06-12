@@ -4,8 +4,8 @@ from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange,
-                          GroupByModels, HoverTool, Range1d, Switch,
-                          WheelZoomTool, ZoomInTool, ZoomOutTool)
+                          GroupByModels, HoverTool, Range1d, Select,
+                          Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 
@@ -47,10 +47,7 @@ level = 1
 hit_test = False
 only_hit = True
 
-even_renderers = [ r for i, r in enumerate(renderers) if i % 2 == 0 ]
-odd_renderers = [ r for i, r in enumerate(renderers) if i % 2 == 1 ]
-
-group_by = GroupByModels(groups=[even_renderers, odd_renderers])
+group_by = GroupByModels(groups=[renderers[0::2], renderers[1::2]])
 behavior = "only_hit" if only_hit else group_by
 
 ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="height")
@@ -62,6 +59,16 @@ p.add_tools(ywheel_zoom, xwheel_zoom, zoom_in, zoom_out, hover)
 p.toolbar.active_scroll = ywheel_zoom
 
 level_switch = Switch(active=level == 1)
+hit_test_switch = Switch(active=hit_test)
+behavior_select = Select(
+    disabled=not hit_test_switch.active,
+    value=behavior,
+    options=[
+        ("only_hit", "Only hit renderers"),
+        (group_by, "Even/Odd groups of renderers"),
+    ],
+)
+
 level_switch.js_on_change("active", CustomJS(
     args=dict(tools=[ywheel_zoom, zoom_in, zoom_out]),
     code="""
@@ -73,28 +80,27 @@ export default ({tools}, obj) => {
 }
 """))
 
-hit_test_switch = Switch(active=hit_test)
 hit_test_switch.js_on_change("active", CustomJS(
-    args=dict(tool=ywheel_zoom),
+    args=dict(tool=ywheel_zoom, select=behavior_select),
     code="""
-export default ({tool}, obj) => {
+export default ({tool, select}, obj) => {
     tool.hit_test = obj.active
+    select.disabled = !obj.active
 }
 """))
 
-only_hit_switch = Switch(active=only_hit)
-only_hit_switch.js_on_change("active", CustomJS(
-    args=dict(tool=ywheel_zoom, group_by=group_by),
+behavior_select.js_on_change("value", CustomJS(
+    args=dict(tool=ywheel_zoom),
     code="""
-export default ({tool, group_by}, obj) => {
-    tool.hit_test_behavior = obj.active ? "only_hit" : group_by
+export default ({tool}, obj) => {
+    tool.hit_test_behavior = obj.value
 }
 """))
 
 layout = column(
     row(Div(text="Zoom sub-coordinates:"), level_switch),
     row(Div(text="Zoom hit-tested:"), hit_test_switch),
-    row(Div(text="Zoom only hit renderers:"), only_hit_switch),
+    row(Div(text="Hit test behavior:"), behavior_select),
     p,
 )
 
