@@ -99,6 +99,7 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
             source, source.selected, source.selection_policy,
             plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
             box_zoom.overlay, box_select.overlay,
+            box_zoom.overlay.handles["all"], box_select.overlay.handles["all"],
             *tickers,
             *tools,
         }
