@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.models import HoverTool, Styles
-from bokeh.models.dom import Div, Index, ValueRef
+from bokeh.models.dom import HTML, Index, ValueRef
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure, show
 
@@ -18,16 +18,22 @@ p = figure(
 
 p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
-grid = Div(
+x_ref = ValueRef(style=dict(background_color="cyan"), field="x")
+y_ref = ValueRef(style=dict(background_color="lime"), field="y")
+
+def span(name: str, color: str):
+    return f"""<span style="background-color: {color};">{name}</span>"""
+
+grid = HTML(
     style=Styles(
         display="grid",
         grid_template_columns="auto auto",
         column_gap="10px",
     ),
-    children=[
-        "index:",  Div(children=["#", Index()]),
-        "(x, y):", Div(children=["(", ValueRef(field="x"), ", ", ValueRef(field="y"), ")"]),
-        "radius:", ValueRef(field="radius", format="%.2f", formatter="printf"),
+    html=[
+        """<div>index:</div><div style="font-weight: bold;">#""", Index(), "</div>",
+        f"<div>({span('x', 'cyan')}, {span('y', 'lime')}):</div><div>(", x_ref, ", ", y_ref, ")</div>",
+        "<div>radius:</div>", ValueRef(field="radius", format="%.2f", formatter="printf"),
     ],
 )
 
