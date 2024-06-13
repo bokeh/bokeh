@@ -98,8 +98,8 @@ export default ({tool}, obj) => {
 """))
 
 layout = column(
-    row(Div(text="Zoom sub-coordinates:"), level_switch),
-    row(Div(text="Zoom hit-tested:"), hit_test_switch),
+    row(Div(text="Enable zooming of sub-coordinates:"), level_switch),
+    row(Div(text="Enable hit-testing based zooming:"), hit_test_switch),
     row(Div(text="Hit test behavior:"), behavior_select),
     p,
 )
