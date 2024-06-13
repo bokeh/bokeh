@@ -2256,7 +2256,7 @@
     __extends__: "bokeh.models.dom.DOMElement",
   },
   "bokeh.models.dom.HTML": {
-    __extends__: "bokeh.models.dom.DOMNode",
+    __extends__: "bokeh.models.dom.DOMElement",
     html: {
       type: "symbol",
       name: "unset",

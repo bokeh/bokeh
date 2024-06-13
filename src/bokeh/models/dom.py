@@ -215,7 +215,7 @@ class ColorRef(ValueRef):
     hex = Bool(default=True)
     swatch = Bool(default=True)
 
-class HTML(DOMNode):
+class HTML(DOMElement):
     """ A parsed HTML fragment with optional references to DOM nodes and UI elements. """
 
     def __init__(self, *html: str | DOMNode | UIElement, **kwargs: Any) -> None:
