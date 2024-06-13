@@ -148,6 +148,8 @@ export class CrosshairTool extends InspectTool {
     }))
 
     this.register_alias("crosshair", () => new CrosshairTool())
+    this.register_alias("xcrosshair", () => new CrosshairTool({dimensions: "width"}))
+    this.register_alias("ycrosshair", () => new CrosshairTool({dimensions: "height"}))
   }
 
   override tool_name = "Crosshair"

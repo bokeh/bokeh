@@ -118,6 +118,15 @@ export function* flat_map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) 
   }
 }
 
+export function* filter<T>(iterable: Iterable<T>, fn: (item: T, i: number) => boolean): Iterable<T> {
+  let i = 0
+  for (const item of iterable) {
+    if (fn(item, i++)) {
+      yield item
+    }
+  }
+}
+
 export function every<T>(iterable: Iterable<T>, predicate: (item: T) => boolean): boolean {
   for (const item of iterable) {
     if (!predicate(item)) {

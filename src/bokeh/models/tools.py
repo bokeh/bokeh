@@ -108,6 +108,7 @@ from .glyphs import (
     VStrip,
     XYGlyph,
 )
+from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
@@ -645,6 +646,42 @@ class WheelZoomTool(Scroll):
     scale top-level (frame) ranges.
     """)
     # }
+
+    hit_test = Bool(default=False, help="""
+    Whether to zoom only those renderer that are being pointed at.
+
+    This setting only applies when zooming renderers that were configured with
+    sub-coordinates, otherwise it has no effect.
+
+    If ``True``, then ``hit_test_mode`` property defines how hit testing
+    is performed and ``hit_test_behavior`` allows to configure other aspects
+    of this setup. See respective properties for details.
+
+    .. note::
+        This property is experimental and may change at any point
+    """)
+
+    hit_test_mode = Enum("point", "hline", "vline", default="point", help="""
+    Allows to configure what geometry to use when ``hit_test`` is enabled.
+
+    Supported modes are ``"point"`` for single point hit testing, and ``hline``
+    and ``vline`` for either horizontal or vertical span hit testing.
+
+    .. note::
+        This property is experimental and may change at any point
+    """)
+
+    hit_test_behavior = Either(Instance(GroupBy), Enum("only_hit"), default="only_hit", help="""
+    Allows to configure which renderers will be zoomed when ``hit_test`` is enabled.
+
+    By default (``hit_only``) only actually hit renderers will be zoomed. An
+    instance of ``GroupBy`` model can be used to tell what other renderers
+    should be zoomed when a given one is hit.
+
+    .. note::
+        This property is experimental and may change at any point
+    """).accepts(Enum("group_by_name"), lambda _: GroupByName()) \
+        .accepts(List(List(Instance(DataRenderer))), lambda groups: GroupByModels(groups=groups))
 
     maintain_focus = Bool(default=True, help="""
     If True, then hitting a range bound in any one dimension will prevent all
@@ -2007,6 +2044,8 @@ Tool.register_alias("click", lambda: TapTool(behavior="inspect"))
 Tool.register_alias("tap", lambda: TapTool())
 Tool.register_alias("doubletap", lambda: TapTool(gesture="doubletap"))
 Tool.register_alias("crosshair", lambda: CrosshairTool())
+Tool.register_alias("xcrosshair", lambda: CrosshairTool(dimensions="width"))
+Tool.register_alias("ycrosshair", lambda: CrosshairTool(dimensions="height"))
 Tool.register_alias("box_select", lambda: BoxSelectTool())
 Tool.register_alias("xbox_select", lambda: BoxSelectTool(dimensions="width"))
 Tool.register_alias("ybox_select", lambda: BoxSelectTool(dimensions="height"))

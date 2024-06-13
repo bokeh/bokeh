@@ -2,6 +2,7 @@ import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
 import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"
+import {assert} from "@bokehjs/core/util/assert"
 import type {KeyModifiers} from "@bokehjs/core/ui_events"
 import {UIGestures} from "@bokehjs/core/ui_gestures"
 
@@ -61,6 +62,8 @@ const _pointer_common: Partial<PointerEventInit> = {
 
 const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
+
+const DELTA = -120 // [px] one unit of scroll up; typical deltaY for deltaMode == DOM_DELTA_PIXEL (WheelEvent) in Chromium
 
 export async function tap(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
@@ -123,6 +126,16 @@ export class PlotActions {
 
   async scroll(xy: Point, delta: number): Promise<void> {
     await this.emit(this._scroll(xy, delta))
+  }
+
+  async scroll_up(xy: Point, count: number = 1): Promise<void> {
+    assert(count >= 1)
+    await this.scroll(xy, count*(+DELTA))
+  }
+
+  async scroll_down(xy: Point, count: number = 1): Promise<void> {
+    assert(count >= 1)
+    await this.scroll(xy, count*(-DELTA))
   }
 
   async hover(xy0: Point, xy1?: Point, n?: number): Promise<void> {

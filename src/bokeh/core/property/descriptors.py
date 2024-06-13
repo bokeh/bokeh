@@ -203,7 +203,7 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
 
     def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
         if obj is not None:
-            # Warn only when accesing descriptor's value, otherwise there would
+            # Warn only when accessing descriptor's value, otherwise there would
             # be a lot of spurious warnings from parameter resolution, etc.
             self._warn()
         return super().__get__(obj, owner)
