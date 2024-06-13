@@ -196,10 +196,14 @@ class ValueRef(Placeholder):
 
     .. note::
         Custom JS formatters can return a value of any type, not necessarily a string.
-        If a non-string value is returned then, if it's an instance of DOM ``Node``
-        (in particular it can be a DOM ``Document`` or a ``DocumentFragment``), then
+        If a non-string value is returned then, if it's an instance of DOM `Node`_
+        (in particular it can be a DOM `Document`_ or a `DocumentFragment`_), then
         it will be added to the DOM tree as-is, otherwise it will be converted to a
         string and added verbatim. No HTML parsing is attempted in any case.
+
+    .. _Node: https://developer.mozilla.org/en-US/docs/Web/API/Node
+    .. _Document: https://developer.mozilla.org/en-US/docs/Web/API/Document
+    .. _DocumentFragment: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
     """)
 
 class ColorRef(ValueRef):
