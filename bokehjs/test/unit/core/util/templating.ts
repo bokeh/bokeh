@@ -10,7 +10,7 @@ describe("templating module", () => {
 
   describe("DEFAULT_FORMATTERS", () => {
 
-    it("should have 3 entries", () => {
+    it("should have 5 entries", () => {
       expect(keys(tmpl.DEFAULT_FORMATTERS).length).to.be.equal(5)
     })
 
