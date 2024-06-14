@@ -96,4 +96,27 @@ describe("FileInputView", () => {
 
     expect(file_input.filename).to.be.equal("") // TODO should be `unset`
   })
+
+  it("should upload a directory", async () => {
+    const model = new FileInput({directory: true})
+    const {view} = await display(model, null)
+
+    const getFileList = () => {
+      const dt = new DataTransfer()
+      for (const filename of ["foo", "bar", "baz"]) {
+        const file = new File([filename], `${filename}.txt`, {type: "text/plain"})
+        // To set the `webkitRelativePath` property as it is a read-only
+        Object.defineProperty(file, "webkitRelativePath", {value: `subdir/${filename}.txt`})
+        dt.items.add(file)
+      }
+      return dt.files
+    }
+
+    const files = getFileList()
+    await view.load_files(files)
+
+    expect(model.value).to.be.equal([btoa("foo"), btoa("bar"), btoa("baz")])
+    expect(model.filename).to.be.equal(["subdir/foo.txt", "subdir/bar.txt", "subdir/baz.txt"])
+    expect(model.mime_type).to.be.equal(["text/plain", "text/plain", "text/plain"])
+  })
 })

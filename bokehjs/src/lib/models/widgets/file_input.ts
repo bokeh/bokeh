@@ -54,7 +54,11 @@ export class FileInputView extends InputWidgetView {
     const values: string[] = []
     const filenames: string[] = []
     const mime_types: string[] = []
-    const {directory, multiple, accept} = this.model
+    const {directory, multiple} = this.model
+    const accept = (() => {
+      const {accept} = this.model
+      return isString(accept) ? accept : accept.join(",")
+    })()
 
     for (const file of files) {
       const data_url = await this._read_file(file)
@@ -62,7 +66,7 @@ export class FileInputView extends InputWidgetView {
 
       if (directory) {
         const ext = file.name.split(".").pop()
-        if ((!is_nullish(accept) && isString(ext)) ? accept.includes(`.${ext}`) : true) {
+        if ((accept.length > 0 && isString(ext)) ? accept.includes(`.${ext}`) : true) {
           filenames.push(file.webkitRelativePath)
           values.push(value)
           mime_types.push(mime_type)
