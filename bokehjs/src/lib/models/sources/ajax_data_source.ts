@@ -5,7 +5,6 @@ import {HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {entries} from "core/util/object"
-import {format_date_rfc7231} from "core/util/date"
 
 export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -67,7 +66,7 @@ export class AjaxDataSource extends WebDataSource {
     xhr.addEventListener("error", () => this.do_error(xhr))
 
     if (if_modified && this.last_fetch_time != null) {
-      xhr.setRequestHeader("If-Modified-Since", format_date_rfc7231(this.last_fetch_time))
+      xhr.setRequestHeader("If-Modified-Since", this.last_fetch_time.toUTCString())
     }
 
     xhr.send()
