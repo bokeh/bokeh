@@ -70,3 +70,21 @@ export function remove_views(view_storage: ViewStorage<HasProps>): void {
     view_storage.delete(model)
   }
 }
+
+export function traverse_views(views: View[], fn: (view: View) => void): void {
+  const visited = new Set<View>()
+  const queue: View[] = [...views]
+
+  while (true) {
+    const view = queue.shift()
+    if (view === undefined) {
+      break
+    }
+    if (visited.has(view)) {
+      continue
+    }
+    visited.add(view)
+    queue.push(...view.children())
+    fn(view)
+  }
+}

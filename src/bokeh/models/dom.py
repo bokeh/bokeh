@@ -24,13 +24,16 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+from ..core.enums import BuiltinFormatter
 from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Bool,
     Dict,
     Either,
+    Enum,
     Instance,
     List,
+    Nullable,
     Required,
     String,
 )
@@ -136,7 +139,7 @@ class ToggleGroup(Action):
     groups = List(Instance(".models.renderers.RendererGroup"))
 
 @abstract
-class Placeholder(DOMNode):
+class Placeholder(DOMElement):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -170,12 +173,38 @@ class Index(Placeholder):
         super().__init__(*args, **kwargs)
 
 class ValueRef(Placeholder):
+    """ Allows to reference a value in a column of a data source.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = Required(String)
+    field = Required(String, help="""
+    The name of the field to reference, which is equivalent to using ``"@{field}``.
+    """)
+
+    format = Nullable(String, default=None, help="""
+    Optional format string, which is equivalent to using ``"@{field}{format}"``.
+    """)
+
+    formatter = Either(
+        Enum(BuiltinFormatter),
+        Instance(".models.callbacks.CustomJS"),
+        Instance(".models.tools.CustomJSHover"), default="raw", help="""
+    Either a named value formatter or an instance of ``CustomJS`` or ``CustomJSHover``.
+
+    .. note::
+        Custom JS formatters can return a value of any type, not necessarily a string.
+        If a non-string value is returned then, if it's an instance of DOM `Node`_
+        (in particular it can be a DOM `Document`_ or a `DocumentFragment`_), then
+        it will be added to the DOM tree as-is, otherwise it will be converted to a
+        string and added verbatim. No HTML parsing is attempted in any case.
+
+    .. _Node: https://developer.mozilla.org/en-US/docs/Web/API/Node
+    .. _Document: https://developer.mozilla.org/en-US/docs/Web/API/Document
+    .. _DocumentFragment: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
+    """)
 
 class ColorRef(ValueRef):
 
@@ -186,7 +215,7 @@ class ColorRef(ValueRef):
     hex = Bool(default=True)
     swatch = Bool(default=True)
 
-class HTML(DOMNode):
+class HTML(DOMElement):
     """ A parsed HTML fragment with optional references to DOM nodes and UI elements. """
 
     def __init__(self, *html: str | DOMNode | UIElement, **kwargs: Any) -> None:

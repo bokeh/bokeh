@@ -5,25 +5,26 @@ import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 import type {Dict} from "../types"
-import {Enum} from "../kinds"
+import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
 import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
 
-export const FormatterType = Enum("numeral", "printf", "datetime")
-export type FormatterType = typeof FormatterType["__type__"]
+const {abs} = Math
 
-export type FormatterSpec = CustomJSHover | FormatterType
+export type FormatterSpec = CustomJSHover | BuiltinFormatter
 export type Formatters = Dict<FormatterSpec>
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
 
-export const DEFAULT_FORMATTERS = {
-  numeral:  (value: unknown, format: string, _special_vars: Vars) => Numbro.format(value, format),
-  datetime: (value: unknown, format: string, _special_vars: Vars) => tz(value, format),
-  printf:   (value: unknown, format: string, _special_vars: Vars) => sprintf(format, value),
+export const DEFAULT_FORMATTERS: {[key in BuiltinFormatter]: FormatterFunc} = {
+  raw:      (value: unknown, _format: string, _special_vars: Vars) => `${value}`,
+  basic:    (value: unknown,  format: string,  special_vars: Vars) => basic_formatter(value, format, special_vars),
+  numeral:  (value: unknown,  format: string, _special_vars: Vars) => Numbro.format(value, format),
+  datetime: (value: unknown,  format: string, _special_vars: Vars) => tz(value, format),
+  printf:   (value: unknown,  format: string, _special_vars: Vars) => sprintf(format, value),
 }
 
 export function sprintf(format: string, ...args: unknown[]): string {
@@ -33,13 +34,12 @@ export function sprintf(format: string, ...args: unknown[]): string {
 export function basic_formatter(value: unknown, _format: string, _special_vars: Vars): string {
   if (isNumber(value)) {
     const format = (() => {
-      switch (false) {
-        case Math.floor(value) != value:
-          return "%d"
-        case !(Math.abs(value) > 0.1) || !(Math.abs(value) < 1000):
-          return "%0.3f"
-        default:
-          return "%0.3e"
+      if (Number.isInteger(value)) {
+        return "%d"
+      } else if (0.1 < abs(value) && abs(value) < 1000) {
+        return "%0.3f"
+      } else {
+        return "%0.3e"
       }
     })()
 
@@ -52,7 +52,7 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
 export function get_formatter(spec: string, format?: string, formatters?: Formatters): FormatterFunc {
   // no format, use default built in formatter
   if (format == null) {
-    return basic_formatter
+    return DEFAULT_FORMATTERS.basic
   }
 
   // format spec in the formatters dict, use that
@@ -77,7 +77,7 @@ export function get_formatter(spec: string, format?: string, formatters?: Format
   return DEFAULT_FORMATTERS.numeral
 }
 
-const MISSING = "???"
+export const MISSING = "???"
 
 function _get_special_value(name: string, special_vars: Vars) {
   if (name in special_vars) {

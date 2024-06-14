@@ -1,7 +1,7 @@
-import type {ViewStorage, IterViews} from "core/build_views"
-import {build_view, build_views, remove_views} from "core/build_views"
+import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
+import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
 import {display, div, empty, span, undisplay} from "core/dom"
-import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment} from "core/enums"
+import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import type * as p from "core/properties"
@@ -13,14 +13,15 @@ import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
-import type {Formatters} from "core/util/templating"
-import {FormatterType, replace_placeholders} from "core/util/templating"
+import type {Formatters, Index} from "core/util/templating"
+import {replace_placeholders} from "core/util/templating"
 import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
-import type {TemplateView} from "../../dom/template"
-import {Template} from "../../dom/template"
+import {DOMElement} from "../../dom/dom_element"
+import {PlaceholderView} from "../../dom/placeholder"
+import {TemplateView} from "../../dom/template"
 import type {GlyphView} from "../../glyphs/glyph"
 import {HAreaView} from "../../glyphs/harea"
 import {HAreaStepView} from "../../glyphs/harea_step"
@@ -104,7 +105,7 @@ export class HoverToolView extends InspectToolView {
 
   protected readonly _ttviews: ViewStorage<Tooltip> = new Map()
   protected _template_el?: HTMLElement
-  protected _template_view?: TemplateView
+  protected _template_view?: ViewOf<DOMElement>
 
   override *children(): IterViews {
     yield* super.children()
@@ -119,7 +120,7 @@ export class HoverToolView extends InspectToolView {
     await this._update_ttmodels()
 
     const {tooltips} = this.model
-    if (tooltips instanceof Template) {
+    if (tooltips instanceof DOMElement) {
       this._template_view = await build_view(tooltips, {parent: this.plot_view.canvas})
       this._template_view.render()
     }
@@ -277,7 +278,7 @@ export class HoverToolView extends InspectToolView {
 
     const {glyph} = renderer_view
 
-    const tooltips: [number, number, HTMLElement | null][] = []
+    const tooltips: [number, number, Node | null][] = []
 
     if (glyph instanceof PatchView) {
       const [snap_sx, snap_sy] = [sx, sy]
@@ -454,7 +455,7 @@ export class HoverToolView extends InspectToolView {
       tooltip.clear()
     } else {
       const {content} = tooltip
-      assert(content instanceof Element)
+      assert(content instanceof Node)
       empty(content)
       for (const [,, node] of in_frame) {
         if (node != null) {
@@ -612,30 +613,39 @@ export class HoverToolView extends InspectToolView {
     return el
   }
 
-  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): HTMLElement | null {
+  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
     const {tooltips} = this.model
     const i = vars.index
 
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div(content)
-    }
-
-    if (isFunction(tooltips)) {
+    } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
-    }
-
-    if (tooltips instanceof Template) {
-      this._template_view!.update(ds, i, vars)
-      return this._template_view!.el
-    }
-
-    if (tooltips != null) {
+    } else if (tooltips instanceof DOMElement) {
+      const {_template_view} = this
+      assert(_template_view != null)
+      this._update_template(_template_view, ds, i, vars)
+      return _template_view.el.cloneNode(true) as HTMLElement
+    } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
       return this._render_template(template, tooltips, ds, vars)
+    } else {
+      return null
     }
+  }
 
-    return null
+  protected _update_template(template_view: ViewOf<DOMElement>, ds: ColumnarDataSource, i: Index | null, vars: TooltipVars): void {
+    const {formatters} = this.model
+    if (template_view instanceof TemplateView) {
+      template_view.update(ds, i, vars, formatters)
+    } else {
+      traverse_views([template_view], (view) => {
+        if (view instanceof PlaceholderView) {
+          view.update(ds, i, vars, formatters)
+        }
+      })
+    }
   }
 }
 
@@ -643,7 +653,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<null | Template | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<DataRenderer[] | "auto">
     mode: p.Property<HoverMode>
@@ -671,12 +681,12 @@ export class HoverTool extends InspectTool {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>(({Any, Bool, Str, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
-      tooltips: [ Nullable(Or(Ref(Template), Str, List(Tuple(Str, Str)), Func<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
+      tooltips: [ Nullable(Or(Ref(DOMElement), Str, List(Tuple(Str, Str)), Func<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
+      formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],
