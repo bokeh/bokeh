@@ -3,7 +3,7 @@ import {display} from "../../_util"
 
 import {FileInput} from "@bokehjs/models/widgets"
 import type {MessageSent, Patch} from "@bokehjs/document"
-import { zip } from "@bokehjs/core/util/array"
+import {zip} from "@bokehjs/core/util/array"
 
 // FileList doesn't have a constructor (https://www.w3.org/TR/FileAPI/#filelist-section)
 class _FileList extends Array<File> implements FileList {
