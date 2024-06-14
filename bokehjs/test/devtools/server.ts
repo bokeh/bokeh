@@ -84,6 +84,11 @@ app.get("/integration/metrics", using_report(({metrics}, _, res) => {
   res.render("test/devtools/metrics.html", {title: "Integration Tests Metrics", metrics, js: js_path})
 }))
 
+app.post("/ajax/dummy_data", async (_req, res) => {
+  res.setHeader("Content-Type", "application/json")
+  res.end(JSON.stringify({x: [0, 1, 2], y: [1, 2, 3], radius: [0.5, 0.7, 1.1], color: ["red", "green", "blue"]}))
+})
+
 app.get("/examples", async (_req, res) => {
   const dir = await fs.promises.opendir("examples")
   const entries = []
