@@ -14,3 +14,4 @@ Bokeh version ``3.5.0`` (May 2024) is a minor milestone of Bokeh project.
 * Added support for server-sent events, in particular for ``ClearInput`` event on input widgets (:bokeh-pull:`13890`)
 * Added support for ``Legend`` item click events and ``Legend.{on_click,js_on_click}()`` APIs (:bokeh-pull:`13922`)
 * Added support for wheel zoom of renderers under the cursor when using sub-coordinates (:bokeh-pull:`13826`)
+* Added support for directory upload for ``FileInput`` (:bokeh-pull:`13873`)
