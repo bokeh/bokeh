@@ -1,7 +1,7 @@
 import {InputWidget, InputWidgetView, ClearInput} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
 import {input} from "core/dom"
-import {isString, is_nullish} from "core/util/types"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 import buttons_css from "styles/buttons.css"
