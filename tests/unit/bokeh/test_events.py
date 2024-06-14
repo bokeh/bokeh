@@ -29,6 +29,7 @@ from bokeh.models import (
     Plot,
     TextInput,
 )
+from bokeh.models.widgets.inputs import ClearInput
 
 # Module under test
 from bokeh import events # isort:skip
@@ -71,7 +72,7 @@ def test_common_decode_json() -> None:
             model = Legend(items=[legend_item])
         elif issubclass(event_cls, events.ValueSubmit):
             model = TextInput()
-        elif issubclass(event_cls, events.ClearInput):
+        elif issubclass(event_cls, ClearInput):
             model = FileInput()
         else:
             model = Plot()
@@ -408,7 +409,7 @@ def test_FileInput_clear() -> None:
 
     assert isinstance(event, MessageSentEvent)
     assert event.msg_type == "bokeh_event"
-    assert isinstance(event.msg_data, events.ClearInput)
+    assert isinstance(event.msg_data, ClearInput)
     assert event.msg_data.model == file_input
 
 #-----------------------------------------------------------------------------

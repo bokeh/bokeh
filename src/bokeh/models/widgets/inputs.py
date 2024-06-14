@@ -51,7 +51,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
-from ...events import ClearInput
+from ...events import ModelEvent
 from ...util.deprecation import deprecated
 from ..dom import HTML
 from ..formatters import TickFormatter
@@ -85,7 +85,6 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-
 @abstract
 class InputWidget(Widget):
     ''' Abstract base class for input widgets.
@@ -107,6 +106,22 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+# TODO mark this as a one way event from server to client
+class ClearInput(ModelEvent):
+    """
+    Notifies the input widget that its input/value needs to be cleared.
+
+    This is specially useful for widgets whose value can't be simply cleared by
+    assigning to ``value`` (or equivalent) property.
+
+    """
+    event_name = "clear_input"
+
+    def __init__(self, model: InputWidget) -> None:
+        if not isinstance(model, InputWidget):
+            raise ValueError(f"{self.__class__.__name__} event only applies to input models, i.e. instances of bokeh.models.widgets.InputWidget")
+        super().__init__(model=model)
 
 class FileInput(InputWidget):
     ''' Present a file-chooser dialog to users and return the contents of the

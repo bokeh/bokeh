@@ -1,7 +1,6 @@
-import {InputWidget, InputWidgetView} from "./input_widget"
+import {InputWidget, InputWidgetView, ClearInput} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
 import {input} from "core/dom"
-import {ClearInput} from "core/bokeh_events"
 import {isString, is_nullish} from "core/util/types"
 import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"

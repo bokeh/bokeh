@@ -163,6 +163,8 @@ describe("default model resolver", () => {
       "GridBox",
       "GridPlot",
       "GroupBox",
+      "GroupByModels",
+      "GroupByName",
       "GroupFilter",
       "GroupingInfo",
       "GuideRenderer",

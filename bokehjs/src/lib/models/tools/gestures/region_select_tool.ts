@@ -2,6 +2,7 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import type {BoxAnnotation} from "../../annotations/box_annotation"
 import type {PolyAnnotation} from "../../annotations/poly_annotation"
 import type {DataRendererView} from "../../renderers/data_renderer"
+import {RegionSelectionMode} from "core/enums"
 import type {SelectionMode} from "core/enums"
 import type {Geometry} from "core/geometry"
 import type {KeyModifiers} from "core/ui_events"
@@ -47,6 +48,7 @@ export namespace RegionSelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
+    mode: p.Property<RegionSelectionMode>
     continuous: p.Property<boolean>
     persistent: p.Property<boolean>
     greedy: p.Property<boolean>
@@ -60,6 +62,7 @@ export abstract class RegionSelectTool extends SelectTool {
   declare __view_type__: RegionSelectToolView
 
   declare overlay: BoxAnnotation | PolyAnnotation
+  declare mode: RegionSelectionMode
 
   constructor(attrs?: Partial<RegionSelectTool.Attrs>) {
     super(attrs)
@@ -67,9 +70,10 @@ export abstract class RegionSelectTool extends SelectTool {
 
   static {
     this.define<RegionSelectTool.Props>(({Bool}) => ({
+      mode:       [ RegionSelectionMode, "replace" ],
       continuous: [ Bool, false ],
       persistent: [ Bool, false ],
-      greedy: [ Bool, false ],
+      greedy:     [ Bool, false ],
     }))
   }
 }

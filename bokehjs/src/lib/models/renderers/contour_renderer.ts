@@ -6,6 +6,8 @@ import type * as p from "core/properties"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {SelectionManager} from "core/selection_manager"
+import type {Geometry} from "core/geometry"
+import type {HitTestResult} from "core/hittest"
 
 export class ContourRendererView extends DataRendererView {
   declare model: ContourRenderer
@@ -44,6 +46,10 @@ export class ContourRendererView extends DataRendererView {
   protected _paint(): void {
     this.fill_view.paint()
     this.line_view.paint()
+  }
+
+  hit_test(geometry: Geometry): HitTestResult {
+    return this.fill_view.hit_test(geometry)
   }
 }
 

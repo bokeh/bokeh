@@ -50,6 +50,8 @@ export type ToolAliases = {
   click:        TapTool
   tap:          TapTool
   crosshair:    CrosshairTool
+  xcrosshair:   CrosshairTool
+  ycrosshair:   CrosshairTool
   box_select:   BoxSelectTool
   xbox_select:  BoxSelectTool
   ybox_select:  BoxSelectTool

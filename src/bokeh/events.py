@@ -84,7 +84,7 @@ if TYPE_CHECKING:
     from .models.annotations import Legend, LegendItem
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
-    from .models.widgets.inputs import InputWidget, TextInput
+    from .models.widgets.inputs import TextInput
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -92,7 +92,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'ButtonClick',
-    'ClearInput',
     'ConnectionLost',
     'DocumentEvent',
     'DocumentReady',
@@ -324,19 +323,6 @@ class ValueSubmit(ModelEvent):
             raise ValueError(f"{clsname} event only applies to text input models")
         super().__init__(model=model)
         self.value = value
-
-# TODO mark this as a one way event from server to client
-class ClearInput(ModelEvent):
-    '''
-
-    '''
-    event_name = 'clear_input'
-
-    def __init__(self, model: InputWidget) -> None:
-        from .models.widgets import InputWidget
-        if not isinstance(model, InputWidget):
-            raise ValueError(f"{self.__class__.__name__} event only applies to input models")
-        super().__init__(model=model)
 
 class PlotEvent(ModelEvent):
     ''' The base class for all events applicable to Plot models.

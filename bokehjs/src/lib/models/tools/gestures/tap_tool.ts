@@ -5,12 +5,14 @@ import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
 import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
-import type {SelectionMode} from "core/enums"
+import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
 import {non_null} from "core/util/types"
+import {prepend} from "core/util/arrayable"
+import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
-import {tool_icon_tap_select} from "styles/icons.css"
+import {tool_icon_tap_select, tool_icon_toggle_mode} from "styles/icons.css"
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
@@ -111,6 +113,7 @@ export namespace TapTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
+    mode: p.Property<SelectionMode>
     behavior: p.Property<TapBehavior>
     gesture: p.Property<TapGesture>
     modifiers: p.Property<Modifiers>
@@ -132,15 +135,12 @@ export class TapTool extends SelectTool {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>(({Any, Nullable}) => ({
+      mode:      [ SelectionMode, "toggle" ],
       behavior:  [ TapBehavior, "select" ],
       gesture:   [ TapGesture, "tap"],
       modifiers: [ Modifiers, {} ],
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
-
-    this.override<TapTool.Props>({
-      mode: "xor",
-    })
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
     this.register_alias("tap", () => new TapTool())
@@ -151,4 +151,21 @@ export class TapTool extends SelectTool {
   override tool_icon = tool_icon_tap_select
   override event_type = "tap" as "tap"
   override default_order = 10
+
+  override get menu(): MenuItem[] | null {
+    const menu = super.menu
+    if (menu == null) {
+      return null
+    } else {
+      return prepend(menu, {
+        icon: tool_icon_toggle_mode,
+        tooltip: "Toggle the current selection",
+        active: () => this.mode == "toggle",
+        handler: () => {
+          this.mode = "toggle"
+          this.active = true
+        },
+      })
+    }
+  }
 }

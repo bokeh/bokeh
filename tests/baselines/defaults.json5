@@ -5027,6 +5027,19 @@
     color_baseline: null,
     stack_labels: null,
   },
+  GroupBy: {
+    __extends__: "Model",
+  },
+  GroupByModels: {
+    __extends__: "GroupBy",
+    groups: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  GroupByName: {
+    __extends__: "GroupBy",
+  },
   Coordinate: {
     __extends__: "Model",
   },
@@ -6318,6 +6331,7 @@
   },
   RegionSelectTool: {
     __extends__: "SelectTool",
+    mode: "replace",
     continuous: false,
     persistent: false,
     greedy: false,
@@ -6335,7 +6349,6 @@
   SelectTool: {
     __extends__: "GestureTool",
     renderers: "auto",
-    mode: "replace",
   },
   Tap: {
     __extends__: "GestureTool",
@@ -6345,7 +6358,7 @@
       "Tap",
       "SelectTool",
     ],
-    mode: "xor",
+    mode: "toggle",
     behavior: "select",
     gesture: "tap",
     modifiers: {
@@ -6391,6 +6404,9 @@
     dimensions: "both",
     renderers: "auto",
     level: 0,
+    hit_test: false,
+    hit_test_mode: "point",
+    hit_test_behavior: "only_hit",
     maintain_focus: true,
     zoom_on_axis: true,
     zoom_together: "all",

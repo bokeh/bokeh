@@ -3,8 +3,9 @@ import numpy as np
 from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange, HoverTool,
-                          Range1d, Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
+from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange,
+                          GroupByModels, HoverTool, Range1d, Select,
+                          Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 
@@ -25,7 +26,7 @@ hover = HoverTool(tooltips=[
 x_range = Range1d(start=time.min(), end=time.max())
 y_range = FactorRange(factors=channels)
 
-p = figure(x_range=x_range, y_range=y_range, lod_threshold=None, tools="pan,reset")
+p = figure(x_range=x_range, y_range=y_range, lod_threshold=None, tools="pan,reset,xcrosshair")
 
 source = ColumnDataSource(data=dict(time=time))
 renderers = []
@@ -43,16 +44,32 @@ for i, channel in enumerate(channels):
     renderers.append(line)
 
 level = 1
+hit_test = False
+only_hit = True
 
-ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, dimensions="height")
-xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, dimensions="width")
+group_by = GroupByModels(groups=[renderers[0::2], renderers[1::2]])
+behavior = "only_hit" if only_hit else group_by
+
+ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="height")
+xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, hit_test=hit_test, hit_test_mode="hline", hit_test_behavior=behavior, dimensions="width")
 zoom_in = ZoomInTool(renderers=renderers, level=level, dimensions="height")
 zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 
 p.add_tools(ywheel_zoom, xwheel_zoom, zoom_in, zoom_out, hover)
 p.toolbar.active_scroll = ywheel_zoom
 
-on_change = CustomJS(
+level_switch = Switch(active=level == 1)
+hit_test_switch = Switch(active=hit_test)
+behavior_select = Select(
+    disabled=not hit_test_switch.active,
+    value=behavior,
+    options=[
+        ("only_hit", "Only hit renderers"),
+        (group_by, "Even/Odd groups of renderers"),
+    ],
+)
+
+level_switch.js_on_change("active", CustomJS(
     args=dict(tools=[ywheel_zoom, zoom_in, zoom_out]),
     code="""
 export default ({tools}, obj) => {
@@ -61,10 +78,30 @@ export default ({tools}, obj) => {
         tool.level = level
     }
 }
-""")
+"""))
 
-label = Div(text="Zoom sub-coordinates:")
-widget = Switch(active=level == 1)
-widget.js_on_change("active", on_change)
+hit_test_switch.js_on_change("active", CustomJS(
+    args=dict(tool=ywheel_zoom, select=behavior_select),
+    code="""
+export default ({tool, select}, obj) => {
+    tool.hit_test = obj.active
+    select.disabled = !obj.active
+}
+"""))
 
-show(column(row(label, widget), p))
+behavior_select.js_on_change("value", CustomJS(
+    args=dict(tool=ywheel_zoom),
+    code="""
+export default ({tool}, obj) => {
+    tool.hit_test_behavior = obj.value
+}
+"""))
+
+layout = column(
+    row(Div(text="Enable zooming of sub-coordinates:"), level_switch),
+    row(Div(text="Enable hit-testing based zooming:"), hit_test_switch),
+    row(Div(text="Hit test behavior:"), behavior_select),
+    p,
+)
+
+show(layout)

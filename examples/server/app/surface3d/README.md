@@ -13,7 +13,7 @@ No additional packages or steps are required to run this example.
 ## Running
 
 To view the app directly from a Bokeh server, navigate to the parent directory
-[`examples/app`](https://github.com/bokeh/bokeh/blob/-/examples/server/app),
+[`examples/server/app`](https://github.com/bokeh/bokeh/blob/-/examples/server/app),
 and execute the command:
 
     bokeh serve --show surface3d

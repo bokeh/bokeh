@@ -1,5 +1,8 @@
+import {Model} from "../model"
 import type {HasProps} from "./has_props"
 import type {Attrs} from "./types"
+import {isPlainObject} from "./util/types"
+import {assert} from "./util/assert"
 import type {GeometryData} from "./geometry"
 import type {Class} from "./class"
 import type {KeyModifiers} from "./ui_gestures"
@@ -10,17 +13,16 @@ import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
 import type {Legend} from "../models/annotations/legend"
 import type {LegendItem} from "../models/annotations/legend_item"
-import type {InputWidget} from "../models/widgets/input_widget"
+import type {ClearInput} from "../models/widgets/input_widget"
 
 Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
-  switch (rep.name) {
-    case "clear_input": {
-      const {model} = deserializer.decode(rep.values) as {model: InputWidget}
-      return new ClearInput(model)
-    }
-    default: {
-      deserializer.error(`deserialization of '${rep.name}' event is not supported`)
-    }
+  const cls = deserializable_events.get(rep.name)
+  if (cls !== undefined && cls.from_values != null) {
+    const values = deserializer.decode(rep.values)
+    assert(isPlainObject(values))
+    return cls.from_values(values)
+  } else {
+    deserializer.error(`deserialization of '${rep.name}' event is not supported`)
   }
 })
 
@@ -69,6 +71,10 @@ export type PointEventType =
   "rotatestart" |
   "rotateend"
 
+/**
+ * Events known to bokeh by name, for type-safety of Model.on_event(event_name, (EventType) => void).
+ * Other events, including user defined events, can be referred to by event's class object.
+ */
 export type BokehEventMap = {
   document_ready: DocumentReady
   clear_input: ClearInput
@@ -113,6 +119,22 @@ function event(event_name: string) {
   }
 }
 
+const deserializable_events: Map<string, typeof BokehEvent> = new Map()
+
+/**
+ * Marks and registers a class as a one way (server -> client) event.
+ */
+export function server_event(event_name: string) {
+  return (cls: Class<BokehEvent>) => {
+    if (deserializable_events.has(event_name)) {
+      throw new Error(`'${event_name}' event is already registered`)
+    }
+    deserializable_events.set(event_name, cls)
+    cls.prototype.event_name = event_name
+    cls.prototype.publish = false
+  }
+}
+
 export abstract class BokehEvent implements Serializable, Equatable {
   declare event_name: string
   declare publish: boolean
@@ -129,6 +151,8 @@ export abstract class BokehEvent implements Serializable, Equatable {
 
   protected abstract get event_values(): Attrs
 
+  static from_values?(values: Attrs): BokehEvent
+
   static {
     this.prototype.publish = true
   }
@@ -139,6 +163,32 @@ export abstract class ModelEvent extends BokehEvent {
 
   protected get event_values(): Attrs {
     return {model: this.origin}
+  }
+}
+
+export abstract class UserEvent extends ModelEvent {
+  constructor(readonly values: Attrs) {
+    super()
+  }
+
+  protected override get event_values(): Attrs {
+    return {...super.event_values, ...this.values}
+  }
+
+  static override from_values(values: Attrs): UserEvent {
+    const origin = (() => {
+      if ("model" in values) {
+        const {model} = values
+        assert(model === null || model instanceof Model)
+        delete values.model
+        return model
+      } else {
+        return null
+      }
+    })()
+    const event = new (this as any)(values)
+    event.origin = origin
+    return event
   }
 }
 
@@ -206,18 +256,6 @@ export class ValueSubmit extends ModelEvent {
   protected override get event_values(): Attrs {
     const {value} = this
     return {...super.event_values, value}
-  }
-}
-
-@event("clear_input")
-export class ClearInput extends ModelEvent {
-  constructor(readonly model: InputWidget) {
-    super()
-    this.origin = model
-  }
-
-  static {
-    this.prototype.publish = false
   }
 }
 

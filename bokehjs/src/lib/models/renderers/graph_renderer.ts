@@ -8,6 +8,8 @@ import type * as p from "core/properties"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {logger} from "core/logging"
+import type {Geometry} from "core/geometry"
+import type {HitTestResult} from "core/hittest"
 import type {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
@@ -124,6 +126,10 @@ export class GraphRendererView extends DataRendererView {
 
   override get has_webgl(): boolean {
     return this.edge_view.has_webgl || this.node_view.has_webgl
+  }
+
+  hit_test(geometry: Geometry): HitTestResult {
+    return this.model.inspection_policy.hit_test(geometry, this)
   }
 }
 
