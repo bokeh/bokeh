@@ -174,6 +174,10 @@ if "BOKEH_DOCS_VERSION" in os.environ:
     json_url = "https://docs.bokeh.org/switcher.json"
 else:
     json_url = "../switcher.json"
+if "dev" in version or "rc" in version:
+    version_match = f"dev-{version[:3]}"
+else:
+    version_match = version
 
 # html_logo configured in navbar-logo.html
 
@@ -196,7 +200,7 @@ html_theme_options = {
     "show_toc_level": 1,
     "switcher": {
         "json_url": json_url,
-        "version_match": version,
+        "version_match": version_match,
     },
     "use_edit_page_button": False,
     "show_version_warning_banner": True,
