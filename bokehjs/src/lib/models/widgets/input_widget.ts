@@ -10,11 +10,25 @@ import type {StyleSheetLike} from "core/dom"
 import {div, label} from "core/dom"
 import {View} from "core/view"
 import type * as p from "core/properties"
+import {server_event, ModelEvent} from "core/bokeh_events"
 
 import inputs_css, * as inputs from "styles/widgets/inputs.css"
 import icons_css from "styles/icons.css"
 
 export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+
+@server_event("clear_input")
+export class ClearInput extends ModelEvent {
+  constructor(readonly model: InputWidget) {
+    super()
+    this.origin = model
+  }
+
+  static override from_values(values: object): ClearInput {
+    const {model} = values as {model: InputWidget}
+    return new ClearInput(model)
+  }
+}
 
 export abstract class InputWidgetView extends ControlView {
   declare model: InputWidget
