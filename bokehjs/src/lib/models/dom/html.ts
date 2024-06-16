@@ -1,20 +1,20 @@
-import {DOMNode, DOMNodeView} from "./dom_node"
+import {DOMElement, DOMElementView} from "./dom_element"
 import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import {empty, span} from "core/dom"
+import {span} from "core/dom"
 import {assert} from "core/util/assert"
 import {isString, isArray} from "core/util/types"
 import type * as p from "core/properties"
 import {Str, Ref, Or} from "core/kinds"
 
-const HTMLRef = Or(Ref(DOMNode), Ref(UIElement))
+const HTMLRef = Or(Ref(DOMElement), Ref(UIElement))
 type HTMLRef = typeof HTMLRef["__type__"]
 
 const HTMLMarkup = Str
 type RawHTML = typeof HTMLMarkup["__type__"]
 
-export class HTMLView extends DOMNodeView {
+export class HTMLView extends DOMElementView {
   declare model: HTML
   declare el: HTMLElement
 
@@ -43,8 +43,8 @@ export class HTMLView extends DOMNodeView {
     super.remove()
   }
 
-  render(): void {
-    empty(this.el)
+  override render(): void {
+    super.render()
 
     const html = (() => {
       const {html} = this.model
@@ -113,7 +113,7 @@ export class HTMLView extends DOMNodeView {
 export namespace HTML {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = DOMNode.Props & {
+  export type Props = DOMElement.Props & {
     html: p.Property<Node | RawHTML | (RawHTML | HTMLRef)[]>
     refs: p.Property<HTMLRef[]>
   }
@@ -121,7 +121,7 @@ export namespace HTML {
 
 export interface HTML extends HTML.Attrs {}
 
-export class HTML extends DOMNode {
+export class HTML extends DOMElement {
   declare properties: HTML.Props
   declare __view_type__: HTMLView
 

@@ -2256,7 +2256,7 @@
     __extends__: "bokeh.models.dom.DOMElement",
   },
   "bokeh.models.dom.HTML": {
-    __extends__: "bokeh.models.dom.DOMNode",
+    __extends__: "bokeh.models.dom.DOMElement",
     html: {
       type: "symbol",
       name: "unset",
@@ -2267,7 +2267,7 @@
     __extends__: "bokeh.models.dom.Placeholder",
   },
   "bokeh.models.dom.Placeholder": {
-    __extends__: "bokeh.models.dom.DOMNode",
+    __extends__: "bokeh.models.dom.DOMElement",
   },
   "bokeh.models.dom.Span": {
     __extends__: "bokeh.models.dom.DOMElement",
@@ -2307,6 +2307,8 @@
       type: "symbol",
       name: "unset",
     },
+    format: null,
+    formatter: "raw",
   },
   CoordinateTransform: {
     __extends__: "Expression",

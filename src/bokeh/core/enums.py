@@ -94,6 +94,7 @@ __all__ = (
     'Anchor',
     'AngleUnits',
     'AutosizeMode',
+    'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
     'ContextWhich',
@@ -283,6 +284,10 @@ AngleUnits = enumeration(AngleUnitsType)
 #: Specify autosize mode for DataTable
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
 AutosizeMode = enumeration(AutosizeModeType)
+
+#: Names of built-in value formatters
+BuiltinFormatterType = Literal["raw", "basic", "numeral", "printf", "datetime"]
+BuiltinFormatter = enumeration(BuiltinFormatterType)
 
 #: Specify a style for button widgets
 ButtonTypeType = Literal["default", "primary", "success", "warning", "danger", "light"]

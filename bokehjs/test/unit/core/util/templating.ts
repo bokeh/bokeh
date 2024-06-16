@@ -10,8 +10,8 @@ describe("templating module", () => {
 
   describe("DEFAULT_FORMATTERS", () => {
 
-    it("should have 3 entries", () => {
-      expect(keys(tmpl.DEFAULT_FORMATTERS).length).to.be.equal(3)
+    it("should have 5 entries", () => {
+      expect(keys(tmpl.DEFAULT_FORMATTERS).length).to.be.equal(5)
     })
 
     it("should have a numeral formatter", () => {
@@ -65,7 +65,7 @@ describe("templating module", () => {
 
     it("should return basic_formatter for null format", () => {
       const f = tmpl.get_formatter("@x")
-      expect(f).to.be.equal(tmpl.basic_formatter)
+      expect(f).to.be.equal(tmpl.DEFAULT_FORMATTERS.basic)
     })
 
     it("should return numeral formatter for specs not in formatters dict", () => {

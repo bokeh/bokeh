@@ -1,12 +1,10 @@
-import {DOMNode, DOMNodeView} from "./dom_node"
+import {DOMElement, DOMElementView} from "./dom_element"
 import {HasProps} from "core/has_props"
-import {empty} from "core/dom"
 import {to_string} from "core/util/pretty"
 import type * as p from "core/properties"
 
-export class ValueOfView extends DOMNodeView {
+export class ValueOfView extends DOMElementView {
   declare model: ValueOf
-  declare el: HTMLElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -17,8 +15,8 @@ export class ValueOfView extends DOMNodeView {
     }
   }
 
-  render(): void {
-    empty(this.el)
+  override render(): void {
+    super.render()
     this.el.style.display = "contents"
 
     const text = (() => {
@@ -37,7 +35,7 @@ export class ValueOfView extends DOMNodeView {
 
 export namespace ValueOf {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = DOMNode.Props & {
+  export type Props = DOMElement.Props & {
     obj: p.Property<HasProps>
     attr: p.Property<string>
   }
@@ -45,7 +43,7 @@ export namespace ValueOf {
 
 export interface ValueOf extends ValueOf.Attrs {}
 
-export class ValueOf extends DOMNode {
+export class ValueOf extends DOMElement {
   declare properties: ValueOf.Props
   declare __view_type__: ValueOfView
 

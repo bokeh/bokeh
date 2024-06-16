@@ -39,6 +39,7 @@ export class AjaxDataSource extends WebDataSource {
 
   protected interval: number | null = null
   protected initialized: boolean = false
+  protected last_fetch_time: Date | null = null
 
   override destroy(): void {
     if (this.interval != null) {
@@ -58,12 +59,15 @@ export class AjaxDataSource extends WebDataSource {
     }
   }
 
-  get_data(mode: UpdateMode, max_size: number | null = null, _if_modified: boolean = false): void {
+  get_data(mode: UpdateMode, max_size: number | null = null, if_modified: boolean = false): void {
     const xhr = this.prepare_request()
 
-    // TODO: if_modified
     xhr.addEventListener("load", () => this.do_load(xhr, mode, max_size ?? undefined))
     xhr.addEventListener("error", () => this.do_error(xhr))
+
+    if (if_modified && this.last_fetch_time != null) {
+      xhr.setRequestHeader("If-Modified-Since", this.last_fetch_time.toUTCString())
+    }
 
     xhr.send()
   }
@@ -84,6 +88,7 @@ export class AjaxDataSource extends WebDataSource {
   async do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size?: number): Promise<void> {
     if (xhr.status == 200) {
       const raw_data = JSON.parse(xhr.responseText)
+      this.last_fetch_time = new Date()
       await this.load_data(raw_data, mode, max_size)
     }
   }
