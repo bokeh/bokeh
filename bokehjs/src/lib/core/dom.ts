@@ -192,6 +192,7 @@ export type InputAttrs = {
   accept: HTMLInputElement["accept"]
   value: HTMLInputElement["value"]
   readonly: HTMLInputElement["readOnly"]
+  webkitdirectory: HTMLInputElement["webkitdirectory"]
 }
 export type InsAttrs = {}
 export type KbdAttrs = {}

@@ -3,6 +3,7 @@ import {display} from "../../_util"
 
 import {FileInput} from "@bokehjs/models/widgets"
 import type {MessageSent, Patch} from "@bokehjs/document"
+import {zip} from "@bokehjs/core/util/array"
 
 // FileList doesn't have a constructor (https://www.w3.org/TR/FileAPI/#filelist-section)
 class _FileList extends Array<File> implements FileList {
@@ -95,5 +96,54 @@ describe("FileInputView", () => {
     await view.ready
 
     expect(file_input.filename).to.be.equal("") // TODO should be `unset`
+  })
+
+  it("should upload a directory", async () => {
+    const model = new FileInput({directory: true})
+    const {view} = await display(model, null)
+
+    const getFileList = () => {
+      const dt = new DataTransfer()
+      const filenames = ["foo", "bar", "baz"]
+      for (const filename of filenames) {
+        const file = new File([filename], `${filename}.txt`, {type: "text/plain"})
+        // To set the `webkitRelativePath` property as it is a read-only
+        Object.defineProperty(file, "webkitRelativePath", {value: `subdir/${filename}.txt`})
+        dt.items.add(file)
+      }
+      return dt.files
+    }
+
+    const files = getFileList()
+    await view.load_files(files)
+
+    expect(model.value).to.be.equal([btoa("foo"), btoa("bar"), btoa("baz")])
+    expect(model.filename).to.be.equal(["subdir/foo.txt", "subdir/bar.txt", "subdir/baz.txt"])
+    expect(model.mime_type).to.be.equal(["text/plain", "text/plain", "text/plain"])
+  })
+
+  it("should upload a directory with accept", async () => {
+    const model = new FileInput({directory: true, accept: ".txt"})
+    const {view} = await display(model, null)
+
+    const getFileList = () => {
+      const dt = new DataTransfer()
+      const filenames = ["foo", "bar", "baz"]
+      const exts = ["txt", "csv", "json"]
+      for (const [ filename, ext ] of zip(filenames, exts)) {
+        const file = new File([filename], `${filename}.${ext}`, {type: "text/plain"})
+        // To set the `webkitRelativePath` property as it is a read-only
+        Object.defineProperty(file, "webkitRelativePath", {value: `subdir/${filename}.${ext}`})
+        dt.items.add(file)
+      }
+      return dt.files
+    }
+
+    const files = getFileList()
+    await view.load_files(files)
+
+    expect(model.value).to.be.equal([btoa("foo")])
+    expect(model.filename).to.be.equal(["subdir/foo.txt"])
+    expect(model.mime_type).to.be.equal(["text/plain"])
   })
 })

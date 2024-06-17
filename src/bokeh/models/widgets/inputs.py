@@ -207,6 +207,23 @@ class FileInput(InputWidget):
     selection of more than one file at a time should be possible.
     """)
 
+    directory = Bool(default=False, help="""
+    Whether to allow selection of directories instead of files.
+
+    The filename will be relative paths to the uploaded directory.
+
+    .. note::
+        When a directory is uploaded it will give add a confirmation pop up.
+        The confirmation pop up cannot be disabled, as this is a security feature
+        in the browser.
+
+    .. note::
+        The `accept` parameter only works with file extension.
+        When using `accept` with `directory`, the number of files
+        reported will be the total amount of files, not the filtered.
+    """)
+
+
     def clear(self) -> None:
         """ Clear the contents of this file input widget.
 
