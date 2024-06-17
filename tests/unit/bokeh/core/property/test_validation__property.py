@@ -131,7 +131,7 @@ class TestValidateDetailDefault:
         p = Bool()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected a value of type bool or bool_, got junk of type str")
+        assert matches(str(e.value), r"expected a value of type bool or bool_?, got junk of type str")
     def test_Complex(self) -> None:
         p = Complex()
         with pytest.raises(ValueError) as e:
