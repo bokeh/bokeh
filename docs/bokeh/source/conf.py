@@ -7,6 +7,7 @@
 
 # Standard library imports
 import os
+import re
 from datetime import date
 
 from sphinx.util import logging
@@ -174,6 +175,10 @@ if "BOKEH_DOCS_VERSION" in os.environ:
     json_url = "https://docs.bokeh.org/switcher.json"
 else:
     json_url = "../switcher.json"
+if "dev" in version or "rc" in version:
+    version_match = "dev-" + re.match(r"\d\.\d+", version).group()
+else:
+    version_match = version
 
 # html_logo configured in navbar-logo.html
 
@@ -196,7 +201,7 @@ html_theme_options = {
     "show_toc_level": 1,
     "switcher": {
         "json_url": json_url,
-        "version_match": version,
+        "version_match": version_match,
     },
     "use_edit_page_button": False,
     "show_version_warning_banner": True,

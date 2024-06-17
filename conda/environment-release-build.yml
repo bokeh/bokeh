@@ -38,7 +38,7 @@ dependencies:
   - pip:
     # docs
     - bokeh_sampledata
-    - pydata_sphinx_theme==0.15.2
+    - pydata_sphinx_theme
     - sphinx >= 7.1.0
     - sphinx-copybutton
     - sphinx-design
