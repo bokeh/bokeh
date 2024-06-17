@@ -7,6 +7,7 @@
 
 # Standard library imports
 import os
+import re
 from datetime import date
 
 from sphinx.util import logging
@@ -175,7 +176,7 @@ if "BOKEH_DOCS_VERSION" in os.environ:
 else:
     json_url = "../switcher.json"
 if "dev" in version or "rc" in version:
-    version_match = f"dev-{version[:3]}"
+    version_match = "dev-" + re.match(r"\d\.\d+", version).group()
 else:
     version_match = version
 
