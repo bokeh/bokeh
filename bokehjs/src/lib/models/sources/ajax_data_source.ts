@@ -37,9 +37,10 @@ export class AjaxDataSource extends WebDataSource {
     }))
   }
 
-  protected interval: number | null = null
-  protected initialized: boolean = false
-  protected last_fetch_time: Date | null = null
+  // TODO don't use initializers until https://github.com/bokeh/bokeh/issues/13732 is fixed
+  protected interval?: number
+  protected initialized?: boolean
+  protected last_fetch_time?: Date
 
   override destroy(): void {
     if (this.interval != null) {
@@ -49,7 +50,7 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   setup(): void {
-    if (!this.initialized) {
+    if (this.initialized !== true) {
       this.initialized = true
       this.get_data(this.mode)
       if (this.polling_interval != null) {
