@@ -204,7 +204,7 @@ function check_matching_defaults(context: string[], name: string, python_default
             const js_d = dict(js_v)
             const py_d = dict(py_v)
 
-            if (!is_equal([...js_d.keys()], [...py_d.keys()])) { // TODO can't compare objects of type [object Generator]
+            if (!is_equal(new Set(js_d.keys()), new Set(py_d.keys()))) { // TODO can't compare objects of type [object Generator]
               equal = false
             } else {
               for (const key of js_d.keys()) {
