@@ -699,22 +699,39 @@
     symmetric: false,
     use_handles: false,
     handles: {
-      type: "map",
-      entries: [
-        [
-          "all",
-          {
-            type: "object",
-            name: "AreaVisuals",
-            attributes: {
-              fill_color: "white",
-              hover_fill_color: "lightgray",
-            },
+      type: "object",
+      name: "BoxInteractionHandles",
+      attributes: {
+        all: {
+          type: "object",
+          name: "AreaVisuals",
+          attributes: {
+            fill_color: "white",
+            hover_fill_color: "lightgray",
           },
-        ],
-      ],
+        },
+      },
     },
     inverted: false,
+  },
+  BoxInteractionHandles: {
+    __extends__: "Model",
+    all: {
+      type: "symbol",
+      name: "unset",
+    },
+    move: null,
+    resize: null,
+    sides: null,
+    corners: null,
+    left: null,
+    right: null,
+    top: null,
+    bottom: null,
+    top_left: null,
+    top_right: null,
+    bottom_left: null,
+    bottom_right: null,
   },
   PolyAnnotation: {
     __extends__: "Annotation",
@@ -6041,20 +6058,18 @@
         },
         editable: true,
         handles: {
-          type: "map",
-          entries: [
-            [
-              "all",
-              {
-                type: "object",
-                name: "AreaVisuals",
-                attributes: {
-                  fill_color: "white",
-                  hover_fill_color: "lightgray",
-                },
+          type: "object",
+          name: "BoxInteractionHandles",
+          attributes: {
+            all: {
+              type: "object",
+              name: "AreaVisuals",
+              attributes: {
+                fill_color: "white",
+                hover_fill_color: "lightgray",
               },
-            ],
-          ],
+            },
+          },
         },
       },
     },
@@ -6100,20 +6115,18 @@
         top_units: "canvas",
         bottom_units: "canvas",
         handles: {
-          type: "map",
-          entries: [
-            [
-              "all",
-              {
-                type: "object",
-                name: "AreaVisuals",
-                attributes: {
-                  fill_color: "white",
-                  hover_fill_color: "lightgray",
-                },
+          type: "object",
+          name: "BoxInteractionHandles",
+          attributes: {
+            all: {
+              type: "object",
+              name: "AreaVisuals",
+              attributes: {
+                fill_color: "white",
+                hover_fill_color: "lightgray",
               },
-            ],
-          ],
+            },
+          },
         },
       },
     },
@@ -6388,20 +6401,18 @@
         },
         editable: true,
         handles: {
-          type: "map",
-          entries: [
-            [
-              "all",
-              {
-                type: "object",
-                name: "AreaVisuals",
-                attributes: {
-                  fill_color: "white",
-                  hover_fill_color: "lightgray",
-                },
+          type: "object",
+          name: "BoxInteractionHandles",
+          attributes: {
+            all: {
+              type: "object",
+              name: "AreaVisuals",
+              attributes: {
+                fill_color: "white",
+                hover_fill_color: "lightgray",
               },
-            ],
-          ],
+            },
+          },
         },
       },
     },

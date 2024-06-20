@@ -1,4 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Model} from "../../model"
 import {AreaVisuals} from "./area_visuals"
 import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
@@ -18,7 +19,6 @@ import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {values} from "core/util/object"
 import {non_null} from "core/util/types"
-import {PartialStruct, Struct, And, Ref} from "core/kinds"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
 import {round_rect} from "../common/painting"
@@ -31,40 +31,73 @@ export const EDGE_TOLERANCE = 2.5
 
 const {abs} = Math
 
-const InteractionHandles = And(
-  Struct({
-    all:          Ref(AreaVisuals), // move, resize
-  }),
-  PartialStruct({
-    all:          Ref(AreaVisuals), // move, resize
+export namespace BoxInteractionHandles {
+  export type Attrs = p.AttrsOf<Props>
 
-    move:         Ref(AreaVisuals),
-    resize:       Ref(AreaVisuals), // sides, corners
+  export type Props = Model.Props & {
+    all:          p.Property<AreaVisuals>        // move, resize
 
-    sides:        Ref(AreaVisuals), // left, right, top, bottom
-    corners:      Ref(AreaVisuals), // top_left, top_right, bottom_left, bottom_right
+    move:         p.Property<AreaVisuals | null>
+    resize:       p.Property<AreaVisuals | null> // sides, corners
 
-    left:         Ref(AreaVisuals),
-    right:        Ref(AreaVisuals),
-    top:          Ref(AreaVisuals),
-    bottom:       Ref(AreaVisuals),
+    sides:        p.Property<AreaVisuals | null> // left, right, top, bottom
+    corners:      p.Property<AreaVisuals | null> // top_left, top_right, bottom_left, bottom_right
 
-    top_left:     Ref(AreaVisuals),
-    top_right:    Ref(AreaVisuals),
-    bottom_left:  Ref(AreaVisuals),
-    bottom_right: Ref(AreaVisuals),
-  }),
-)
-type InteractionHandles = typeof InteractionHandles["__type__"]
+    left:         p.Property<AreaVisuals | null>
+    right:        p.Property<AreaVisuals | null>
+    top:          p.Property<AreaVisuals | null>
+    bottom:       p.Property<AreaVisuals | null>
 
-const DEFAULT_HANDLE = () => {
-  return new AreaVisuals({
-    fill_color: "white",
-    fill_alpha: 1.0,
-    line_color: "black",
-    line_alpha: 1.0,
-    hover_fill_color: "lightgray",
-    hover_fill_alpha: 1.0,
+    top_left:     p.Property<AreaVisuals | null>
+    top_right:    p.Property<AreaVisuals | null>
+    bottom_left:  p.Property<AreaVisuals | null>
+    bottom_right: p.Property<AreaVisuals | null>
+  }
+}
+
+export interface BoxInteractionHandles extends BoxInteractionHandles.Attrs {}
+
+export class BoxInteractionHandles extends Model {
+  declare properties: BoxInteractionHandles.Props
+  declare __view_type__: BoxAnnotationView
+
+  constructor(attrs?: Partial<BoxInteractionHandles.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.define<BoxInteractionHandles.Props>(({Ref, Nullable}) => ({
+      all:          [ Ref(AreaVisuals) ],
+
+      move:         [ Nullable(Ref(AreaVisuals)), null ],
+      resize:       [ Nullable(Ref(AreaVisuals)), null ],
+
+      sides:        [ Nullable(Ref(AreaVisuals)), null ],
+      corners:      [ Nullable(Ref(AreaVisuals)), null ],
+
+      left:         [ Nullable(Ref(AreaVisuals)), null ],
+      right:        [ Nullable(Ref(AreaVisuals)), null ],
+      top:          [ Nullable(Ref(AreaVisuals)), null ],
+      bottom:       [ Nullable(Ref(AreaVisuals)), null ],
+
+      top_left:     [ Nullable(Ref(AreaVisuals)), null ],
+      top_right:    [ Nullable(Ref(AreaVisuals)), null ],
+      bottom_left:  [ Nullable(Ref(AreaVisuals)), null ],
+      bottom_right: [ Nullable(Ref(AreaVisuals)), null ],
+    }))
+  }
+}
+
+const DEFAULT_HANDLES = () => {
+  return new BoxInteractionHandles({
+    all: new AreaVisuals({
+      fill_color: "white",
+      fill_alpha: 1.0,
+      line_color: "black",
+      line_alpha: 1.0,
+      hover_fill_color: "lightgray",
+      hover_fill_alpha: 1.0,
+    }),
   })
 }
 
@@ -799,7 +832,7 @@ export namespace BoxAnnotation {
     symmetric: p.Property<boolean>
 
     use_handles: p.Property<boolean>
-    handles: p.Property<InteractionHandles>
+    handles: p.Property<BoxInteractionHandles>
 
     inverted: p.Property<boolean>
 
@@ -881,7 +914,7 @@ export class BoxAnnotation extends Annotation {
       symmetric:    [ Bool, false ],
 
       use_handles:  [ Bool, false ],
-      handles:      [ InteractionHandles, () => ({all: DEFAULT_HANDLE()}) ],
+      handles:      [ Ref(BoxInteractionHandles), DEFAULT_HANDLES ],
 
       inverted:     [ Bool, false ],
     }))

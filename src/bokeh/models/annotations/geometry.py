@@ -43,12 +43,11 @@ from ...core.properties import (
     Nullable,
     Override,
     Positive,
+    Required,
     Seq,
-    Struct,
     UnitsSpec,
     field,
 )
-from ...core.property.struct import Optional
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
@@ -69,6 +68,7 @@ from .arrows import ArrowHead, TeeHead
 __all__ = (
     "Band",
     "BoxAnnotation",
+    "BoxInteractionHandles",
     "PolyAnnotation",
     "Slope",
     "Span",
@@ -110,16 +110,44 @@ class AreaVisuals(Model):
     The {prop} values for the box when hovering over.
     """)
 
-DEFAULT_BOX_ANNOTATION_HANDLES = lambda: dict(
-    all=AreaVisuals(
-        fill_color="white",
-        fill_alpha=1.0,
-        line_color="black",
-        line_alpha=1.0,
-        hover_fill_color="lightgray",
-        hover_fill_alpha=1.0,
-    ),
-)
+class BoxInteractionHandles(Model):
+    """ Defines interaction handles for box-like annotations.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    all          = Required(Instance(AreaVisuals)) # move, resize
+
+    move         = Nullable(Instance(AreaVisuals))
+    resize       = Nullable(Instance(AreaVisuals)) # sides, corners
+
+    sides        = Nullable(Instance(AreaVisuals)) # left, right, top, bottom
+    corners      = Nullable(Instance(AreaVisuals)) # top_left, top_right, bottom_left, bottom_right
+
+    left         = Nullable(Instance(AreaVisuals))
+    right        = Nullable(Instance(AreaVisuals))
+    top          = Nullable(Instance(AreaVisuals))
+    bottom       = Nullable(Instance(AreaVisuals))
+
+    top_left     = Nullable(Instance(AreaVisuals))
+    top_right    = Nullable(Instance(AreaVisuals))
+    bottom_left  = Nullable(Instance(AreaVisuals))
+    bottom_right = Nullable(Instance(AreaVisuals))
+
+DEFAULT_BOX_ANNOTATION_HANDLES = lambda: \
+    BoxInteractionHandles(
+        all=AreaVisuals(
+            fill_color="white",
+            fill_alpha=1.0,
+            line_color="black",
+            line_alpha=1.0,
+            hover_fill_color="lightgray",
+            hover_fill_alpha=1.0,
+        ),
+    )
 
 class BoxAnnotation(Annotation, AreaVisuals):
     ''' Render a shaded rectangular region as an annotation.
@@ -272,31 +300,20 @@ class BoxAnnotation(Annotation, AreaVisuals):
         This property is experimental and may change at any point.
     """)
 
-    handles = Struct(
-        all          = Instance(AreaVisuals),           # move, resize
-
-        move         = Optional(Instance(AreaVisuals)),
-        resize       = Optional(Instance(AreaVisuals)), # sides, corners
-
-        sides        = Optional(Instance(AreaVisuals)), # left, right, top, bottom
-        corners      = Optional(Instance(AreaVisuals)), # top_left, top_right, bottom_left, bottom_right
-
-        left         = Optional(Instance(AreaVisuals)),
-        right        = Optional(Instance(AreaVisuals)),
-        top          = Optional(Instance(AreaVisuals)),
-        bottom       = Optional(Instance(AreaVisuals)),
-
-        top_left     = Optional(Instance(AreaVisuals)),
-        top_right    = Optional(Instance(AreaVisuals)),
-        bottom_left  = Optional(Instance(AreaVisuals)),
-        bottom_right = Optional(Instance(AreaVisuals)),
-
-        default=DEFAULT_BOX_ANNOTATION_HANDLES, help="""
+    handles = Instance(BoxInteractionHandles, default=DEFAULT_BOX_ANNOTATION_HANDLES, help="""
     Configure appearance of interaction handles.
+
+    Handles can be configured in bulk in an increasing level of specificity,
+    were each level, if defined, overrides the more generic setting:
+
+    - `all`     -> `move`, `resize`
+    - `resize`  -> `sides`, `corners`
+    - `sides`   -> `left`, `right`, `top`, `bottom`
+    - `corners` -> `top_left`, `top_right`, `bottom_left`, `bottom_right`
 
     .. note::
         This property is experimental and may change at any point.
-    """)
+    """).accepts(Instance(AreaVisuals), lambda obj: BoxInteractionHandles(all=obj))
 
     inverted = Bool(default=False, help="""
     Inverts the geometry of the box, i.e. applies fill and hatch visuals

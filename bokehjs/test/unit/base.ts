@@ -50,6 +50,7 @@ describe("default model resolver", () => {
       "BooleanFormatter",
       "BoxAnnotation",
       "BoxEditTool",
+      "BoxInteractionHandles",
       "BoxSelectTool",
       "BoxZoomTool",
       "BuiltinIcon",
