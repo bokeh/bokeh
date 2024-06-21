@@ -405,13 +405,13 @@ export class Toolbar extends UIElement {
       return is
     }
 
-    const new_inspectors = this.tools.filter(t => isa(t, InspectTool)) as ToolLike<InspectTool>[]
+    const new_inspectors = this.tools.filter(t => isa(t, InspectTool))
     this.inspectors = new_inspectors
 
-    const new_help = this.tools.filter(t => isa(t, HelpTool)) as ToolLike<HelpTool>[]
+    const new_help = this.tools.filter(t => isa(t, HelpTool))
     this.help = new_help
 
-    const new_actions = this.tools.filter(t => isa(t, ActionTool)) as ToolLike<ActionTool>[]
+    const new_actions = this.tools.filter(t => isa(t, ActionTool))
     this.actions = new_actions
 
     const new_gestures = create_gesture_map()

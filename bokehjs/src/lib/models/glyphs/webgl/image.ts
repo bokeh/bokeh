@@ -9,8 +9,8 @@ import {assert} from "core/util/assert"
 
 export class ImageGL extends BaseGLGlyph {
   // data properties
-  protected _tex: Array<Texture2D | null> = []
-  protected _bounds: Array<Float32Buffer | null> = []
+  protected _tex: (Texture2D | null)[] = []
+  protected _bounds: (Float32Buffer | null)[] = []
 
   // image_changed is separate from data_changed as it can occur through changed colormapping.
   protected _image_changed: boolean = false
@@ -54,8 +54,8 @@ export class ImageGL extends BaseGLGlyph {
         scissor: this.regl_wrapper.scissor,
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
-        bounds: main_gl_glyph._bounds[i]!,
-        tex: main_gl_glyph._tex[i]!,
+        bounds: main_gl_glyph._bounds[i],
+        tex: main_gl_glyph._tex[i],
         global_alpha: global_alpha.get(i),
       }
       this.regl_wrapper.image()(props)

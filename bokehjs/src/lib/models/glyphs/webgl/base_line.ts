@@ -29,7 +29,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   // visual properties that are only used if line is dashed.
   protected _length_so_far?: Float32Buffer  // Depends on both data and visuals.
-  protected _dash_tex: Array<Texture2D | null> = []
+  protected _dash_tex: (Texture2D | null)[] = []
   protected _dash_tex_info?: Float32Buffer
   protected _dash_scale?: Float32Buffer
   protected _dash_offset?: Float32Buffer
@@ -63,7 +63,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
       const dashed_props: LineDashGlyphProps = {
         ...solid_props,
         length_so_far: main_gl_glyph._length_so_far!,
-        dash_tex: this._dash_tex[line_offset]!,
+        dash_tex: this._dash_tex[line_offset],
         dash_tex_info: this._dash_tex_info!,
         dash_scale: this._dash_scale!,
         dash_offset: this._dash_offset!,
