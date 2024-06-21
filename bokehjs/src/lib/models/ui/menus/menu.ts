@@ -11,7 +11,6 @@ import {ToolIcon} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
-import {isNotNull} from "core/util/types"
 import {execute} from "core/util/callbacks"
 
 import menus_css, * as menus from "styles/menus_.css"
@@ -31,7 +30,7 @@ export class MenuView extends UIElementView {
     await super.lazy_initialize()
     const menus = this.model.items
       .map((item) => item instanceof ActionItem ? item.menu : null)
-      .filter(isNotNull)
+      .filter((item) => item != null)
     await build_views(this._menu_views, menus, {parent: this})
   }
 

@@ -18,7 +18,6 @@ import type {Rect} from "core/types"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {values} from "core/util/object"
-import {non_null} from "core/util/types"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
 import {round_rect} from "../common/painting"
@@ -189,7 +188,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   override get computed_renderers(): Renderer[] {
-    return [...super.computed_renderers, ...values(this._handles).filter(non_null)]
+    return [...super.computed_renderers, ...values(this._handles).filter((handle) => handle != null)]
   }
 
   override connect_signals(): void {

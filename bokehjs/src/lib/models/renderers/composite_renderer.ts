@@ -1,7 +1,6 @@
 import {Renderer, RendererView} from "./renderer"
 import {UIElement} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
-import {non_null} from "core/util/types"
 import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
@@ -41,7 +40,7 @@ export abstract class CompositeRendererView extends RendererView {
     return [...this.model.renderers, ...this._computed_renderers]
   }
   get computed_renderer_views(): ViewOf<Renderer>[] {
-    return this.computed_renderers.map((item) => this._renderer_views.get(item)).filter(non_null)
+    return this.computed_renderers.map((item) => this._renderer_views.get(item)).filter((rv) => rv != null)
   }
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
@@ -53,7 +52,7 @@ export abstract class CompositeRendererView extends RendererView {
     return [...this.model.elements, ...this._computed_elements]
   }
   get computed_element_views(): ViewOf<ElementLike>[] {
-    return this.computed_elements.map((item) => this._element_views.get(item)).filter(non_null)
+    return this.computed_elements.map((item) => this._element_views.get(item)).filter((ev) => ev != null)
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {

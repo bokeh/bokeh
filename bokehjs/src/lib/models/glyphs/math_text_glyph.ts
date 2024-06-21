@@ -5,7 +5,6 @@ import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import {non_null} from "core/util/types"
 import {enumerate} from "core/util/iterator"
 
 export interface MathTextGlyphView extends MathTextGlyph.Data {}
@@ -47,7 +46,7 @@ export abstract class MathTextGlyphView extends TextView {
       return text_i == null ? null : this._build_label(text_i)
     })
 
-    await build_views(this._label_views, labels.filter(non_null), {parent: this.renderer})
+    await build_views(this._label_views, labels.filter((v) => v != null), {parent: this.renderer})
 
     return labels.map((label_i) => {
       return label_i == null ? null : this._label_views.get(label_i)!.graphics()

@@ -161,13 +161,13 @@ export interface Figure extends GlyphAPI {}
 export class Figure extends BaseFigure {
 
   get xaxes(): Axis[] {
-    return [...this.below, ...this.above].filter((r): r is Axis => r instanceof Axis)
+    return [...this.below, ...this.above].filter((r) => r instanceof Axis)
   }
   get yaxes(): Axis[] {
-    return [...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+    return [...this.left, ...this.right].filter((r) => r instanceof Axis)
   }
   get axes(): Axis[] {
-    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r) => r instanceof Axis)
   }
 
   get xaxis(): Proxied<Axis> {
@@ -181,13 +181,13 @@ export class Figure extends BaseFigure {
   }
 
   get xgrids(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
+    return this.center.filter((r) => r instanceof Grid).filter((grid) => grid.dimension == 0)
   }
   get ygrids(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
+    return this.center.filter((r) => r instanceof Grid).filter((grid) => grid.dimension == 1)
   }
   get grids(): Grid[] {
-    return this.center.filter((r): r is Grid => r instanceof Grid)
+    return this.center.filter((r) => r instanceof Grid)
   }
 
   get xgrid(): Proxied<Grid> {
@@ -201,7 +201,7 @@ export class Figure extends BaseFigure {
   }
 
   get legend(): Legend {
-    const legends = this.panels.filter((r): r is Legend => r instanceof Legend)
+    const legends = this.panels.filter((r) => r instanceof Legend)
 
     if (legends.length == 0) {
       const legend = new Legend()

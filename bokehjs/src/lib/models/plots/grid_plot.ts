@@ -79,7 +79,7 @@ export class GridPlotView extends LayoutDOMView {
   private readonly _tool_views: ViewStorage<ActionTool> = new Map()
 
   async build_tool_views(): Promise<void> {
-    const tools = this.model.toolbar.tools.filter((tool): tool is ActionTool => tool instanceof ActionTool)
+    const tools = this.model.toolbar.tools.filter((tool) => tool instanceof ActionTool)
     await build_views(this._tool_views, tools, {parent: this})
   }
 

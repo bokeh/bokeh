@@ -7,7 +7,6 @@ import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
-import {non_null} from "core/util/types"
 import {prepend} from "core/util/arrayable"
 import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
@@ -67,7 +66,7 @@ export class TapToolView extends SelectToolView {
 
     for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
-      const r_views = renderers.map((r) => this.plot_view.views.find_one(r)).filter(non_null)
+      const r_views = renderers.map((r) => this.plot_view.views.find_one(r)).filter((r) => r != null)
       const did_hit = sm.select(r_views, geometry, final, mode)
       if (did_hit) {
         const [rv] = r_views
