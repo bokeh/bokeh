@@ -20,7 +20,7 @@
     "importHelpers": true,
     "experimentalDecorators": true,
     "jsx": "react",
-    "jsxFactory": "DOM.createSVGElement",
+    "jsxFactory": "_DOM.createSVGElement",
     "module": "ES2022",
     "moduleResolution": "node",
     "isolatedModules": true,
