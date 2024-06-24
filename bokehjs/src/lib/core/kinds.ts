@@ -161,6 +161,27 @@ export namespace Kinds {
     }
   }
 
+  export class And<T0, T1> extends Kind<T0 & T1> {
+    readonly types: [Kind<T0>, Kind<T1>]
+
+    constructor(type0: Kind<T0>, type1: Kind<T1>) {
+      super()
+      this.types = [type0, type1]
+    }
+
+    valid(value: unknown): value is T0 & T1 {
+      return this.types.some((type) => type.valid(value)) // TODO not sure if this is correct, probably not
+    }
+
+    override toString(): string {
+      return `And(${this.types.map((type) => type.toString()).join(", ")})`
+    }
+
+    may_have_refs(): boolean {
+      return this.types.some((type) => type.may_have_refs())
+    }
+  }
+
   export class Tuple<T extends [unknown, ...unknown[]]> extends Kind<T> {
     constructor(readonly types: TupleKind<T>) {
       super()
@@ -643,6 +664,7 @@ export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
 export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_type)
 export const Or = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
+export const And = <T0, T1>(type0: Kind<T0>, type1: Kind<T1>) => new Kinds.And(type0, type1)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
 export const Struct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.Struct(struct_type)
 export const PartialStruct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.PartialStruct(struct_type)

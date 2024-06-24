@@ -1,5 +1,6 @@
 import type {Arrayable, Rect, Box, Interval, Size} from "../types"
 import {ScreenArray} from "../types"
+import type {VAlign, HAlign} from "../enums"
 import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
 import type * as affine from "./affine"
@@ -143,14 +144,45 @@ export class BBox implements Rect, Equatable {
         this.y1 = y1
       }
     } else if ("x" in box) {
-      const {x, y, width, height} = box
+      const {x, y, width, height, origin="top_left"} = box
       if (!(width >= 0 && height >= 0)) {
         throw new Error(`invalid bbox {x: ${x}, y: ${y}, width: ${width}, height: ${height}}`)
       }
-      this.x0 = x
-      this.y0 = y
-      this.x1 = x + width
-      this.y1 = y + height
+      const base_origin = (() => {
+        switch (origin) {
+          case "left":   return "center_left"
+          case "right":  return "center_right"
+          case "top":    return "top_center"
+          case "bottom": return "bottom_center"
+          case "center": return "center_center"
+          default:       return origin
+        }
+      })()
+      const [y_align, x_align] = base_origin.split("_", 2) as [VAlign, HAlign]
+      const y_coeff = (() => {
+        switch (y_align) {
+          case "top":    return 0.0
+          case "center": return 0.5
+          case "bottom": return 1.0
+        }
+      })()
+      const x_coeff = (() => {
+        switch (x_align) {
+          case "left":   return 0.0
+          case "center": return 0.5
+          case "right":  return 1.0
+        }
+      })()
+      const d_width = x_coeff*width
+      const d_height = y_coeff*height
+      const x0 = x - d_width
+      const y0 = y - d_height
+      const x1 = x0 + width
+      const y1 = y0 + height
+      this.x0 = x0
+      this.y0 = y0
+      this.x1 = x1
+      this.y1 = y1
     } else {
       let left: number, right: number
       let top: number, bottom: number
@@ -362,19 +394,19 @@ export class BBox implements Rect, Equatable {
 
   resolve(symbol: string): XY | number {
     switch (symbol) {
-      case "top_left":      return {x: this.left, y: this.top}
-      case "top_center":    return {x: this.hcenter, y: this.top}
-      case "top_right":     return {x: this.right, y: this.top}
+      case "top_left":      return this.top_left
+      case "top_center":    return this.top_center
+      case "top_right":     return this.top_right
 
-      case "center_left":   return {x: this.left, y: this.vcenter}
-      case "center_center": return {x: this.hcenter, y: this.vcenter}
-      case "center_right":  return {x: this.right, y: this.vcenter}
+      case "center_left":   return this.center_left
+      case "center_center": return this.center_center
+      case "center_right":  return this.center_right
 
-      case "bottom_left":   return {x: this.left, y: this.bottom}
-      case "bottom_center": return {x: this.hcenter, y: this.bottom}
-      case "bottom_right":  return {x: this.right, y: this.bottom}
+      case "bottom_left":   return this.bottom_left
+      case "bottom_center": return this.bottom_center
+      case "bottom_right":  return this.bottom_right
 
-      case "center":        return {x: this.hcenter, y: this.vcenter}
+      case "center":        return this.center
 
       case "top":           return this.top
       case "left":          return this.left
@@ -386,6 +418,40 @@ export class BBox implements Rect, Equatable {
 
       default:              return {x: NaN, y: NaN}
     }
+  }
+
+  get top_left(): XY {
+    return {x: this.left, y: this.top}
+  }
+  get top_center(): XY {
+    return {x: this.hcenter, y: this.top}
+  }
+  get top_right(): XY {
+    return {x: this.right, y: this.top}
+  }
+
+  get center_left(): XY {
+    return {x: this.left, y: this.vcenter}
+  }
+  get center_center(): XY {
+    return {x: this.hcenter, y: this.vcenter}
+  }
+  get center_right(): XY {
+    return {x: this.right, y: this.vcenter}
+  }
+
+  get bottom_left(): XY {
+    return {x: this.left, y: this.bottom}
+  }
+  get bottom_center(): XY {
+    return {x: this.hcenter, y: this.bottom}
+  }
+  get bottom_right(): XY {
+    return {x: this.right, y: this.bottom}
+  }
+
+  get center(): XY {
+    return {x: this.hcenter, y: this.vcenter}
   }
 
   round(): BBox {

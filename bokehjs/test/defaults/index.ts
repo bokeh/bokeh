@@ -175,33 +175,64 @@ function check_matching_defaults(context: string[], name: string, python_default
       }
 
       if (!is_equal(py_v, js_v)) {
-        // compare arrays of objects
-        if (isArray(js_v) && isArray(py_v)) {
+        function compare_recursively(js_v: unknown, py_v: unknown): boolean {
           let equal = true
 
-          if (js_v.length != py_v.length) {
-            equal = false
-          } else {
-            for (let i = 0; i < js_v.length; i++) {
-              const js_vi = js_v[i]
-              const py_vi = py_v[i]
+          if (isArray(js_v) && isArray(py_v)) {
+            if (js_v.length != py_v.length) {
+              equal = false
+            } else {
+              for (let i = 0; i < js_v.length; i++) {
+                const js_vi = js_v[i]
+                const py_vi = py_v[i]
 
-              if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
-                const py_attrs = {...get_defaults(py_vi.name), ...py_vi.attributes}
-                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_attrs, js_vi.attributes)) {
+                if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
+                  const py_attrs = {...get_defaults(py_vi.name), ...py_vi.attributes}
+                  if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_attrs, js_vi.attributes)) {
+                    equal = false
+                    break
+                  }
+                } else if ((isArray(js_vi) && isArray(py_vi)) || (isPlainObject(js_vi) && isPlainObject(py_vi))) {
+                  equal = compare_recursively(js_vi, py_vi)
+                } else if (!is_equal(js_vi, py_vi)) {
                   equal = false
                   break
                 }
-              } else if (!is_equal(js_vi, py_vi)) {
-                equal = false
-                break
+              }
+            }
+          } else if (isPlainObject(js_v) && isPlainObject(py_v)) {
+            const js_d = dict(js_v)
+            const py_d = dict(py_v)
+
+            if (!is_equal(new Set(js_d.keys()), new Set(py_d.keys()))) { // TODO can't compare objects of type [object Generator]
+              equal = false
+            } else {
+              for (const key of js_d.keys()) {
+                const js_vi = js_v[key]
+                const py_vi = py_v[key]
+
+                if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
+                  const py_attrs = {...get_defaults(py_vi.name), ...py_vi.attributes}
+                  if (!check_matching_defaults([...context, `${name}.${k}[${key}]`], js_vi.name, py_attrs, js_vi.attributes)) {
+                    equal = false
+                    break
+                  }
+                } else if ((isArray(js_vi) && isArray(py_vi)) || (isPlainObject(js_vi) && isPlainObject(py_vi))) {
+                  equal = compare_recursively(js_vi, py_vi)
+                } else if (!is_equal(js_vi, py_vi)) {
+                  equal = false
+                  break
+                }
               }
             }
           }
 
-          if (equal) {
-            continue
-          }
+          return equal
+        }
+
+        const equal = compare_recursively(js_v, py_v)
+        if (equal) {
+          continue
         }
 
         different.push(`${[...context, `${name}.${k}`].join(" -> ")}: bokehjs defaults to ${to_string(js_v)} but python defaults to ${to_string(py_v)}`)

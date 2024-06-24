@@ -1,3 +1,5 @@
+import type {Anchor} from "./enums"
+
 export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function* () {}).constructor
 export const AsyncGeneratorFunction: AsyncGeneratorFunctionConstructor = Object.getPrototypeOf(async function* () {}).constructor
 
@@ -90,6 +92,7 @@ export type Box = {
   y: number
   width: number
   height: number
+  origin?: Anchor
 }
 
 export type Rect = {

@@ -380,6 +380,8 @@ def test_BoxAnnotation() -> None:
         "resizable",
         "movable",
         "symmetric",
+        "use_handles",
+        "handles",
         "inverted",
     ], LINE, FILL, HATCH, HOVER_LINE, HOVER_FILL, HOVER_HATCH)
 
