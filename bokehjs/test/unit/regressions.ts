@@ -1548,4 +1548,56 @@ describe("Bug", () => {
       expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
     })
   })
+
+  describe("in issue #13831", () => {
+    it("allow addition of new indices to selection by default", async () => {
+      const tap_tool = new TapTool()
+      const p = fig([200, 200], {tools: [tap_tool]})
+      const cr = p.circle({x: [0, 1, 2, 3], y: [0, 1, 2, 3], radius: [0.5, 0.75, 1.0, 1.25], color: ["red", "green", "blue", "yellow"], alpha: 0.8})
+      const ds = cr.data_source
+
+      const {view} = await display(p)
+      const pv = actions(view)
+
+      expect(ds.selected.indices).to.be.equal([])
+
+      async function tap_at(x: number, y: number) {
+        await pv.tap(xy(x, y))
+        await view.ready
+      }
+
+      await tap_at(0, 0)     // select red
+      expect(ds.selected.indices).to.be.equal([0])
+
+      await tap_at(0, 0)     // deselect red
+      expect(ds.selected.indices).to.be.equal([])
+
+      await tap_at(0, 0)     // select red
+      expect(ds.selected.indices).to.be.equal([0])
+
+      await tap_at(1, 1)     // select green
+      expect(ds.selected.indices).to.be.equal([1])
+
+      await tap_at(2, 2)     // select blue
+      expect(ds.selected.indices).to.be.equal([2])
+
+      await tap_at(3, 3)     // select yellow
+      expect(ds.selected.indices).to.be.equal([3])
+
+      await tap_at(4, 0)     // deselect
+      expect(ds.selected.indices).to.be.equal([])
+
+      await tap_at(2.5, 2.5) // select blue and yellow
+      expect(ds.selected.indices).to.be.equal([2, 3])
+
+      await tap_at(2.5, 2.5) // deselect blue and yellow
+      expect(ds.selected.indices).to.be.equal([])
+
+      await tap_at(2, 2)     // select blue
+      expect(ds.selected.indices).to.be.equal([2])
+
+      await tap_at(2.5, 2.5) // deselect blue and select yellow
+      expect(ds.selected.indices).to.be.equal([3])
+    })
+  })
 })

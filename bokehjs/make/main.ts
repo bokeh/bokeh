@@ -1,4 +1,8 @@
 import yargs from "yargs"
+import cp from "child_process"
+
+import chalk from "chalk"
+const {magenta} = chalk
 
 export const argv = yargs.help(false).options({
   // paths
@@ -32,7 +36,14 @@ export const argv = yargs.help(false).options({
 import {task, run, log, task_names, show_error, show_failure} from "./task"
 import "./tasks"
 
+const node_version = process.version
+
+function npm_version(): string {
+  return cp.execSync("npm --version").toString().trim()
+}
+
 async function main(): Promise<void> {
+  log(`Using nodejs ${magenta(node_version)} and npm ${magenta(npm_version())}`)
   const {_} = argv
   if (_.length != 0 && _[0] == "help") {
     log(`tasks: ${task_names().filter((name) => !name.includes(":")).join(", ")}`)

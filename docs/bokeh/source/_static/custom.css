@@ -10,6 +10,11 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
+/* disable the border line for the sidebar search form */
+.bd-search {
+  border: none;
+}
+
 /* make sure the article container uses all available space */
 .bd-article-container {
   max-width: 100% !important;
@@ -99,24 +104,6 @@ img.image-border {
 .bd-footer .copyright p {color: #eee;}
 .bd-footer .btn-primary { filter: brightness(90%); background-color: #C02942; border-color: #C02942; }
 .bd-footer .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
-
-/* CSS for our custom version warning banner */
-.version-alert a {
-  text-decoration: underline;
-  color: #ddd;
-}
-
-#banner .version-alert {
-  background-color: #CF462A;
-  padding: 1em;
-  color: #fff;
-  font-weight: 600; font-size: 16px;
-}
-
-.version-alert a {
-  text-decoration: underline;
-  color: #ddd;
-}
 
 /* CSS for our custom gallery */
 div.bk-gallery {

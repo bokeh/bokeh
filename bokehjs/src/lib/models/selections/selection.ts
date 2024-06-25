@@ -75,6 +75,10 @@ export class Selection extends Model {
         this.update_through_replacement(selection)
         break
       }
+      case "toggle": {
+        this.update_through_toggle(selection)
+        break
+      }
       case "append": {
         this.update_through_union(selection)
         break
@@ -170,6 +174,17 @@ export class Selection extends Model {
     this.image_indices = other.image_indices
     this.view = other.view
     this.selected_glyphs = other.selected_glyphs
+  }
+
+  update_through_toggle(other: Selection): void {
+    // note the order of arguments when comparing with update_through_subtraction()
+    this.indices = difference(other.indices, this.indices)
+    // TODO: think through and fix any logic below
+    this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
+    this.line_indices = union(other.line_indices, this.line_indices)
+    this.image_indices = this._union_image_indices(this.image_indices, other.image_indices) // TODO
+    this.view = other.view
+    this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
 
   update_through_union(other: Selection): void {

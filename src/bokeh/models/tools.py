@@ -51,6 +51,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     KeyModifier,
+    RegionSelectionMode,
     SelectionMode,
     ToolIcon,
     TooltipAttachment,
@@ -300,12 +301,6 @@ class SelectTool(GestureTool):
     all renderers on a plot.
     """)
 
-    mode = Enum(SelectionMode, default="replace", help="""
-    Defines what should happen when a new selection is made. The default
-    is to replace the existing selection. Other options are to append to
-    the selection, intersect with it or subtract from it.
-    """)
-
 @abstract
 class RegionSelectTool(SelectTool):
     ''' Base class for region selection tools (e.g. box, polygon, lasso).
@@ -315,6 +310,18 @@ class RegionSelectTool(SelectTool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    mode = Enum(RegionSelectionMode, default="replace", help="""
+    Defines what should happen when a new selection is made. The default
+    is to replace the existing selection. Other options are to append to
+    the selection, intersect with it or subtract from it.
+
+    Defines what should happen when a new selection is made.
+
+    The default is to replace the existing selection. Other options are to
+    append to the selection, intersect with it, subtract from it or compute
+    a symmetric difference with it.
+    """)
 
     continuous = Bool(False, help="""
     Whether a selection computation should happen continuously during selection
@@ -715,6 +722,14 @@ class TapTool(Tap, SelectTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    mode = Enum(SelectionMode, default="toggle", help="""
+    Defines what should happen when a new selection is made.
+
+    The default is to toggle the existing selection. Other options are to
+    replace the selection, append to it, intersect with it, subtract from
+    it or compute a symmetric difference with it.
+    """)
+
     behavior = Enum("select", "inspect", default="select", help="""
     This tool can be configured to either make selections or inspections
     on associated data sources. The difference is that selection changes
@@ -766,8 +781,6 @@ class TapTool(Tap, SelectTool):
         please see :ref:`ug_interaction_js_callbacks_customjs_js_on_event`.
 
     """)
-
-    mode = Override(default="xor")
 
 class CrosshairTool(InspectTool):
     ''' *toolbar icon*: |crosshair_icon|

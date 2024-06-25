@@ -1,0 +1,15 @@
+.. _release-3-4-2:
+
+3.4.2
+=====
+
+Bokeh version ``3.4.2`` (June 2024) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Added `"toggle"` select mode and made it the default in `TapTool` (:bokeh-pull:`13808`)
+* Made projection computations in glyphs aware of inherited properties (:bokeh-pull:`13832`)
+* Improvements to documentation and its infrastructure (:bokeh-pull:`13823`, :bokeh-pull:`13876`, :bokeh-pull:`13901` and :bokeh-pull:`13903`)
+* Robustified bokeh/bokehjs tests and their infrastructure (:bokeh-pull:`13843` and :bokeh-pull:`13851`)

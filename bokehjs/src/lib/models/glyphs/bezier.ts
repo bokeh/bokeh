@@ -5,7 +5,6 @@ import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
-import {inplace} from "core/util/projections"
 import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
@@ -16,8 +15,8 @@ export class BezierView extends GlyphView {
   declare visuals: Bezier.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this.x0, this.y0)
-    inplace.project_xy(this.x1, this.y1)
+    this._project_xy<Bezier.Data>("x0", this.x0, "y0", this.y0)
+    this._project_xy<Bezier.Data>("x1", this.x1, "y1", this.y1)
   }
 
   protected _index_data(index: SpatialIndex): void {

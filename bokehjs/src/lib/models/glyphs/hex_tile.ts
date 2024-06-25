@@ -9,7 +9,6 @@ import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import type * as visuals from "core/visuals"
 import {HexTileOrientation} from "core/enums"
-import {inplace} from "core/util/projections"
 
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
@@ -67,7 +66,7 @@ export class HexTileView extends GlyphView {
   }
 
   protected override _project_data(): void {
-    inplace.project_xy(this.x, this.y)
+    this._project_xy<HexTile.Data>("x", this.x, "y", this.y)
   }
 
   protected _index_data(index: SpatialIndex): void {

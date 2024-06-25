@@ -18,10 +18,9 @@ clean:
 	-rm -rf source/docs/gallery/*
 	-rm -rf source/docs/examples/*
 
-# XXX -W was removed due to issue https://github.com/bokeh/bokeh/issues/13156
 html:
 	@start=$$(date +%s) \
-	; sphinx-build -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source $(BUILDDIR)/html \
+	; sphinx-build -W -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source $(BUILDDIR)/html \
 	&& cp -r source/_images/examples $(BUILDDIR)/html/_images/ \
 	&& (cp -r ../../src/bokeh/server/static $(BUILDDIR)/html/ || true) \
 	&& echo \

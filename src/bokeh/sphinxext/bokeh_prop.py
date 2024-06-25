@@ -137,7 +137,7 @@ class BokehPropDirective(BokehDirective):
             doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 
-        return self.parse(rst_text, "<bokeh-prop>")
+        return self.parse(rst_text, f"<bokeh-prop: {model_name}.{prop_name}>")
 
 
 def setup(app):

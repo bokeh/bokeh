@@ -13,9 +13,11 @@ JavaScript-powered visualizations without writing any JavaScript yourself.
 
 .. raw:: html
 
-    <form class="bd-search align-items-center" action="search.html" method="get">
-      <input type="search" class="form-control search-front-page" name="q" id="search-input" placeholder="&#128269; Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
-    </form>
+    <div>
+        <form class="bd-search align-items-center" action="search.html" method="get">
+          <input type="search" class="form-control search-front-page" name="q" id="search-input" placeholder="&#128269; Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
+        </form>
+    </div>
 
 Finding the right documentation resources
 -----------------------------------------

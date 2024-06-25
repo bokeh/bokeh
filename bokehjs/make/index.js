@@ -4,10 +4,12 @@ const fs = require("fs")
 const {join, dirname, basename} = require("path")
 
 function npm_install() {
-  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
-  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit"})
-  if (status !== 0)
+  const is_windows = process.platform == "win32"
+  const npm = is_windows ? "npm.cmd" : "npm"
+  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", shell: is_windows})
+  if (status !== 0) {
     process.exit(status)
+  }
 }
 
 if (!fs.existsSync("node_modules/")) {
@@ -35,14 +37,16 @@ if (!semver.satisfies(npm_version, engines.npm)) {
 function is_up_to_date(file) {
   const hash_file = join(dirname(file), `.${basename(file)}`)
 
-  if (!fs.existsSync(hash_file))
+  if (!fs.existsSync(hash_file)) {
     return false
+  }
 
   const old_hash = fs.readFileSync(hash_file)
 
-  const new_hash = crypto.createHash("sha256")
-                         .update(fs.readFileSync(file))
-                         .digest("hex")
+  const new_hash = crypto
+    .createHash("sha256")
+    .update(fs.readFileSync(file))
+    .digest("hex")
 
   return old_hash == new_hash
 }
@@ -58,7 +62,7 @@ for (const workspace of ["", ...workspaces]) {
 
 const {register} = require("ts-node")
 
-process.on('uncaughtException', function(err) {
+process.on("uncaughtException", function(err) {
   console.error(err)
   process.exit(1)
 })
@@ -74,5 +78,6 @@ tsconfig_paths.register({
   },
 })
 
-if (require.main != null)
+if (require.main != null) {
   require("./main")
+}
