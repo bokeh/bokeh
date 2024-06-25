@@ -1,3 +1,10 @@
+2024-06-25    3.4.2:
+--------------------
+  * tasks:
+    - #13843 [component: tests] Robustify bokehjs' SVG unit tests
+    - #13876 [component: docs] Restore warning-less sphinx build
+    - #13929 Backports for 3.4.2
+
 2024-04-11    3.4.1:
 --------------------
   * bugfixes:
