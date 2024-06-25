@@ -37,7 +37,7 @@ import {
 } from "@bokehjs/models/dom"
 
 import {
-  Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
+  Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
   Div, TextInput, DatePicker, AutocompleteInput,
 } from "@bokehjs/models/widgets"
 
@@ -4040,6 +4040,19 @@ describe("Bug", () => {
       const {view} = await display(tooltip, [200, 100], box)
 
       tooltip.content = new HTML({html: ["<b>New</b> HTML content"]})
+      await view.ready
+    })
+  })
+
+  describe("in issue #13766", () => {
+    it("doesn't allow to rebuild Dropdown.menu on change", async () => {
+      const dropdown = new Dropdown({menu: ["Action 1", "Action 2"], label: "Click action"})
+      const {view} = await display(dropdown, [150, 200])
+
+      await mouse_click(view.button_el) // TODO make tap(view.el) work
+      await view.ready
+
+      dropdown.menu = ["New Action 1", "New Action 2", "New Action 3"]
       await view.ready
     })
   })
