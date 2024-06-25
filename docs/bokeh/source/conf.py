@@ -26,6 +26,7 @@ copyright = f"©{year} {author}."
 project = "Bokeh"
 
 version = settings.docs_version() or __version__
+release = version
 
 # -- Sphinx configuration -----------------------------------------------------
 
