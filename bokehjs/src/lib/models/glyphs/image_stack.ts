@@ -39,6 +39,11 @@ export class ImageStackView extends ImageBaseView {
     }
   }
 
+  protected override get _can_inherit_image_data(): boolean {
+    return super._can_inherit_image_data &&
+      this._can_inherit_from(this.model.properties.color_mapper, this.base)
+  }
+
   protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
     return cmap.v_compute(img)
