@@ -25,9 +25,6 @@ export abstract class ImageBaseView extends XYGlyphView {
   declare model: ImageBase
   declare visuals: ImageBase.Visuals
 
-  protected _width: Uint32Array
-  protected _height: Uint32Array
-
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_paint())
@@ -107,31 +104,41 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
 
+  protected get _can_inherit_image_data(): boolean {
+    return this.inherited_image
+  }
+
   protected override _set_data(indices: number[] | null): void {
     const n = this.data_size
 
-    if (this.image_data == null || this.image_data.length != n) {
-      this.image_data = new Array(n).fill(null)
-      this._width = new Uint32Array(n)
-      this._height = new Uint32Array(n)
-    }
-
-    const {image_dimension} = this
-
-    for (let i = 0; i < n; i++) {
-      if (indices != null && !indices.includes(i)) {
-        continue
+    if (!this._can_inherit_image_data) {
+      if (typeof this.image_data === "undefined" || this.image_data.length != n) {
+        this._define_attr<ImageBase.Data>("image_data", new Array(n).fill(null))
+        this._define_attr<ImageBase.Data>("_width", new Uint32Array(n))
+        this._define_attr<ImageBase.Data>("_height", new Uint32Array(n))
       }
 
-      const img = this.image.get(i)
-      assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
+      const {image_dimension} = this
 
-      const [width, height] = img.shape
-      this._height[i] = width
-      this._width[i] = height
+      for (let i = 0; i < n; i++) {
+        if (indices != null && !indices.includes(i)) {
+          continue
+        }
 
-      const buf8 = this._flat_img_to_buf8(img)
-      this._set_image_data_from_buffer(i, buf8)
+        const img = this.image.get(i)
+        assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
+
+        const [height, width] = img.shape
+        this._width[i] = width
+        this._height[i] = height
+
+        const buf8 = this._flat_img_to_buf8(img)
+        this._set_image_data_from_buffer(i, buf8)
+      }
+    } else {
+      this._inherit_attr<ImageBase.Data>("image_data")
+      this._inherit_attr<ImageBase.Data>("_width")
+      this._inherit_attr<ImageBase.Data>("_height")
     }
   }
 
@@ -260,7 +267,14 @@ export namespace ImageBase {
   export type Visuals = XYGlyph.Visuals & {image: visuals.ImageVector}
 
   export type Data = p.GlyphDataOf<Props> & {
-    image_data: Arrayable<ImageData> | null
+    image_data: Arrayable<ImageData> | undefined
+    inherited_image_data: boolean
+
+    _width: Uint32Array
+    inherited__width: boolean
+
+    _height: Uint32Array
+    inherited__height: boolean
   }
 }
 

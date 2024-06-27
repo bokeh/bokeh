@@ -317,7 +317,11 @@ export abstract class GlyphView extends DOMComponentView {
     })
   }
 
-  protected _can_inherit_from<T>(prop: p.Property<T>, base: this): boolean {
+  protected _can_inherit_from<T>(prop: p.Property<T>, base: this | null): boolean {
+    if (base == null) {
+      return false
+    }
+
     const base_prop = base.model.property(prop.attr)
 
     const value = prop.get_value()
