@@ -145,7 +145,7 @@ lint.exclude = [
     'node_modules',
 ]
 lint.per-file-ignores = {"__init__.py" = ["F403"]}
-lint.select = ["B", "COM", "E", "F", "RUF", "TID", "UP", "W"]
+lint.select = ["B", "COM", "E", "F", "NPY", "RUF", "TID", "UP", "W"]
 lint.ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
@@ -167,6 +167,7 @@ lint.ignore = [
     'E702', # Multiple statements on one line (semicolon)
     'E731', # Do not assign a lambda expression, use a def
     'E741', # Ambiguous variable name: I
+    'NPY002', # Replace legacy np.random.{method_name} call with np.random.Generator
     'UP035',  # Import from `collections.abc` instead: `Iterator`
     'RUF012', # Mutable class attributes should be annotated with `typing.ClassVar`
     'TID252', # Prefer absolute imports over relative imports from parent modules
