@@ -3,7 +3,7 @@
 3.5.0
 =====
 
-Bokeh version ``3.5.0`` (May 2024) is a minor milestone of Bokeh project.
+Bokeh version ``3.5.0`` (July 2024) is a minor milestone of Bokeh project.
 
 * Added support for ``BoxAnnotation.inverted`` property (:bokeh-pull:`13810`)
 * Added support for key modifiers to ``WheelZoomTool`` and ``WheelPanTool`` (:bokeh-pull:`13815`)
@@ -17,3 +17,4 @@ Bokeh version ``3.5.0`` (May 2024) is a minor milestone of Bokeh project.
 * Added support for directory upload for ``FileInput`` (:bokeh-pull:`13873`)
 * Added support for formatters to ``ValueRef`` model and improved tooltip templating in ``HoverTool`` (:bokeh-pull:`13650`)
 * Added support for interaction handles (move, resize) to ``BoxAnnotation`` (:bokeh-pull:`13906`)
+* Dropped support for Python 3.9 and modernized the codebase (:bokeh-pull:`13634`)
