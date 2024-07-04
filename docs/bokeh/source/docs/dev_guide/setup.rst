@@ -262,22 +262,9 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
     older**, you most likely also need to delete the ``bokehjs/build`` folder in
     your local environment before building and installing a fresh BokehJS.
 
-.. _contributor_guide_setup_sample_data:
-
-7. Download sample data
------------------------
-
-Several tests and examples require Bokeh's sample data to be available on your
-hard drive. After :ref:`installing <contributor_guide_setup_install_locally>`
-Bokeh, use the following command to download and install the data:
-
-.. code-block:: sh
-
-    pip install bokeh_sampledata
-
 .. _contributor_guide_setup_environment_variables:
 
-8. Set environment variables
+7. Set environment variables
 ----------------------------
 
 Bokeh uses :ref:`environment variables <ug_settings>` to control several
@@ -480,7 +467,7 @@ is called.
 
 .. _contributor_guide_setup_test_setup:
 
-9. Test your local setup
+8. Test your local setup
 ------------------------
 
 Run the following tests to check that everything is installed and set up
