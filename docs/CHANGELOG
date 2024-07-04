@@ -1,3 +1,85 @@
+2024-07-04      3.5:
+--------------------
+  * bugfixes:
+    - #8766 [component: bokehjs] box_select not working as active_drag for gridplot
+    - #12638 [component: bokehjs] Make Slider and Image available in BokehJS (JS only)
+    - #13515 [component: tests] CI unit-test on Python 3.9 fails systematically 
+    - #13623 [component: bokehjs] [BUG] TextAreaInput resizable=False doesn't set resize: none
+    - #13720 [component: docs] Explanation is part of the code block in the latex_axis_labels_titles_labels example
+    - #13766 [component: bokehjs] [BUG] Dropdown doesnt update properly when .menu changed in 3.4
+    - #13771 [component: bokehjs] GMap example not showing glyphs
+    - #13787 [component: bokehjs] [BUG] DataTable inside Dialog
+    - #13789 [component: docs] [BUG] JS errors on Bokeh docs page
+    - #13824 [component: docs] activate pydata-sphinx-theme version banner
+    - #13834 [component: build] bokehjs' build fails on Windows with no explanation
+    - #13844 [component: build] [BUG] cannot build environment with pixi due to `firefox =>96` constraint
+    - #13848 Can't build extensions on Windows
+    - #13852 [component: bokehjs] [BUG] <b> and <strong> ignored in tooltips on Firefox
+    - #13878 [component: bokehjs] Bokeh.Plotting.figure.circle in bokehjs can't find `x` and `y` in a ColumnDataSource
+    - #13894 [component: bokehjs] `Tooltip` is initially attached to the DOM when it shouldn't be
+    - #13895 [component: bokehjs] Inner canvas layers need `overflow: hidden` after PR #13863
+    - #13897 [component: docs] [BUG] Typing of layouts.gridplot expects wrong type if ncols given
+    - #13902 Release build fails after PR #13901
+    - #13910 [component: tests] Tests/CI fail due to a regression in requests 2.32.0
+    - #13912 [component: bokehjs] [BUG]  Dialog and Datatable don't get along well
+    - #13919 [component: bokehjs] [BUG] Bokeh 3.5 no longer allow custom properties for HTMLAttr
+    - #13923 [component: bokehjs] `Tooltip.content` doesn't rebuild views on change
+    - #13948 [component: docs] Version banner warns about unknown version on latest docs after 3.4.2 release
+    - #13951 [component: bokehjs] [BUG] Image Glyph causing tons of unnecessary calls to set_data
+    - #13822 [component: docs] remove consecutive "the" and fix typos in touched files
+    - #13879 [component: docs] Fix broken example in user guide advanced bokehjs
+    - #13884 [component: docs] silence warning in `theme_glyphs.py`
+    - #13908 [component: bokehjs] Fix `CartesianFrame`'s position and generalize `rendering_target()`
+    - #13926 [component: docs] Remove `blob/main` and `tree/master` from references
+    - #13927 [component: docs] update path in readme for server examples 
+    - #13939 [component: docs] correct version string to match dev name from switcher.json
+    - #13940 [component: bokehjs] Fix initialization of `AjaxDataSource` and add tests
+
+  * features:
+    - #8289 [component: bokehjs] Permanent labels on Networkx graph
+    - #10439 [component: bokehjs] Activate wheel zoom by default with BokehJS
+    - #12185 [component: bokehjs] [FEATURE] Legend click events
+    - #12759 [component: bokehjs] [FEATURE] Support using CSS Variables in place of colors
+    - #13599 [FEATURE] Support formatters when using Template as HoverTool
+    - #13646 [FEATURE] Support BoxSelectTool-like range-setting for the RangeTool
+    - #13652 [FEATURE] `HTMLLabel` to support `stylesheets` and `css_classes` 
+    - #13673 [FEATURE] Add Carbon Theme
+    - #13728 [FEATURE] Create option for wheel zoom tool to apply only to subplot nearest to the cursor position
+    - #13792 [component: server] [FEATURE] Allow bokeh server embed script to forward credentials
+    - #13861 [FEATURE] Support directory upload and clearing inputs from Python for `FileInput` widget
+    - #13935 [FEATURE] Allow extensions to register server side events
+    - #13936 [component: bokehjs] `AjaxDataSource.if_modified` not implemented
+    - #13467 [component: bokehjs] Add scale up boundary to datetimetickformatter
+    - #13810 Add support for `BoxAnnotation.inverted`
+    - #13890 Add support for server sent bokeh/model/UI events
+    - #13906 Add support for resize and drag handles to `BoxAnnotation`
+
+  * tasks:
+    - #11745 [component: docs] Need examples of callbacks with BokehJS
+    - #13791 [component: docs] [DOC] Boxplot example: some whiskers and vbar are rendered slightly asymmetrically and boldly
+    - #13831 [component: bokehjs] Tap tool default mode should select+unselect, but not append
+    - #13856 [component: build] Move sampledata files to pip/conda installable package
+    - #13634 Drop support for Python 3.9 and modernize the codebase
+    - #13686 [component: examples] added metadata to spans and strips example
+    - #13731 [component: examples] Add metadata to the data_models.py in plotting example
+    - #13735 [component: bokehjs] Improve type safety of DOM elements on `core/dom`
+    - #13747 [component: build] Upgrade to TypeScript 5.4
+    - #13770 [component: bokehjs] Remove legacy font measurement logic
+    - #13778 [component: bokehjs] Simplify eslint's configuration
+    - #13802 [component: build] Update bokehjs' dependencies and clear dependabot alerts
+    - #13839 [component: server] remove unnecessary code from ProtocolHandler.handle
+    - #13840 Upgrade to mypy 1.10.0 and ruff 0.4.2
+    - #13847 Upgrade CI actions to most recent versions
+    - #13860 Remove unused code from `bokeh.models.plots`
+    - #13862 [component: bokehjs] Redesign `CartesianFrame` as an internal model/view
+    - #13863 [component: bokehjs] Generalize bbox handling in UI views (DOM and canvas)
+    - #13877 [component: bokehjs] Replace `PlotView.renderer_view()` with generic `ViewQuery`
+    - #13882 Remove old deprecations
+    - #13889 [component: docs] Repository cloning issues
+    - #13892 Unify definitions of enums in `bokeh.core.enums`
+    - #13925 [component: build] Add `http://` to devtools server
+    - #13961 Final preparations for 3.5.0 release
+
 2024-03-14      3.4:
 --------------------
   * bugfixes:
