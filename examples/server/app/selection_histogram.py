@@ -85,7 +85,7 @@ def update(attr, old, new):
         hhist1, hhist2 = hzeros, hzeros
         vhist1, vhist2 = vzeros, vzeros
     else:
-        neg_inds = np.ones_like(x, dtype=np.bool)
+        neg_inds = np.ones_like(x, dtype=bool)
         neg_inds[inds] = False
         hhist1, _ = np.histogram(x[inds], bins=hedges)
         vhist1, _ = np.histogram(y[inds], bins=vedges)
