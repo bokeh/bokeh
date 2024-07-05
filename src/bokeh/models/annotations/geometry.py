@@ -37,6 +37,7 @@ from ...core.properties import (
     Enum,
     Float,
     Include,
+    Instance,
     NonNegative,
     Null,
     Nullable,
@@ -47,6 +48,7 @@ from ...core.properties import (
 )
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
+from ...model import Model
 from ...util.deprecation import deprecated
 from .. import glyphs
 from ..common.properties import Coordinate
