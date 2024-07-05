@@ -139,7 +139,7 @@ def Arrow(**kwargs: Any) -> GlyphRenderer:
     """ Render a collection of straight arrows between two sets of points.
 
     """
-    deprecated((3, 5, 0), "bokeh.annotations.Arrow", "bokeh.glyphs.ArrowGlyph or figure.arrow()")
+    deprecated((3, 6, 0), "bokeh.annotations.Arrow", "bokeh.glyphs.ArrowGlyph or figure.arrow()")
 
     if "x_start" in kwargs:
         kwargs["x0"] = kwargs.pop("x_start")
