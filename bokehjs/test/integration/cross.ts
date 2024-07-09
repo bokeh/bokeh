@@ -15,7 +15,7 @@ async function test(name: string) {
   const text = await response.text()
   const doc_json = json5.parse<DocJson>(text)
   const doc = Document.from_json(doc_json)
-  return await display(doc)
+  return await display(doc, null)
 }
 
 describe("Bug", () => {
@@ -70,6 +70,12 @@ describe("Bug", () => {
         const [gr] = pv.model.renderers.filter((r): r is GlyphRenderer => r instanceof GlyphRenderer)
         expect(gr.data_source.selected.indices).to.be.equal([1])
       }
+    })
+  })
+
+  describe("in issue #13964", () => {
+    it.no_image("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
+      await test("regressions/issue_13964.json5")
     })
   })
 })
