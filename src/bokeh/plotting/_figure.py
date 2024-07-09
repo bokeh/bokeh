@@ -369,7 +369,7 @@ class figure(Plot, GlyphAPI):
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2016* and *2017*, then the following call to ``harea_stack`` will
+            *2016* and *2017*, then the following call to ``harea_stack``
             will create two ``HArea`` renderers that stack:
 
             .. code-block:: python
@@ -410,7 +410,7 @@ class figure(Plot, GlyphAPI):
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2016* and *2017*, then the following call to ``hbar_stack`` will
+            *2016* and *2017*, then the following call to ``hbar_stack``
             will create two ``HBar`` renderers that stack:
 
             .. code-block:: python
@@ -454,7 +454,7 @@ class figure(Plot, GlyphAPI):
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
             *2016* and *2017*, then the following call to ``line_stack`` with
-            stackers for the y-coordinates will will create two ``Line``
+            stackers for the y-coordinates will create two ``Line``
             renderers that stack:
 
             .. code-block:: python
@@ -510,7 +510,7 @@ class figure(Plot, GlyphAPI):
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
             *2016* and *2017*, then the following call to ``hline_stack`` with
-            stackers for the x-coordinates will will create two ``Line``
+            stackers for the x-coordinates will create two ``Line``
             renderers that stack:
 
             .. code-block:: python
@@ -549,7 +549,7 @@ class figure(Plot, GlyphAPI):
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2016* and *2017*, then the following call to ``varea_stack`` will
+            *2016* and *2017*, then the following call to ``varea_stack``
             will create two ``VArea`` renderers that stack:
 
             .. code-block:: python
@@ -591,7 +591,7 @@ class figure(Plot, GlyphAPI):
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2016* and *2017*, then the following call to ``vbar_stack`` will
+            *2016* and *2017*, then the following call to ``vbar_stack``
             will create two ``VBar`` renderers that stack:
 
             .. code-block:: python
@@ -633,7 +633,7 @@ class figure(Plot, GlyphAPI):
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
             *2016* and *2017*, then the following call to ``vline_stack`` with
-            stackers for the y-coordinates will will create two ``Line``
+            stackers for the y-coordinates will create two ``Line``
             renderers that stack:
 
             .. code-block:: python
@@ -703,7 +703,7 @@ class figure(Plot, GlyphAPI):
 
             z (array-like[float] of shape (ny, nx)) :
                 A 2D NumPy array of gridded values to calculate the contours
-                of.  May be a masked array, and any invalid values (``np.inf``
+                of.  It may be a masked array, and any invalid values (``np.inf``
                 or ``np.nan``) will also be masked out.
 
             levels (array-like[float]) :
