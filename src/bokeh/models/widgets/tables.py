@@ -47,6 +47,7 @@ from ...core.properties import (
 )
 from ...core.property.singletons import Intrinsic
 from ...model import Model
+from ..comparisons import Comparison
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
 
@@ -714,6 +715,9 @@ class TableColumn(Model):
 
     visible = Bool(True, help="""
     Whether this column shold be displayed or not.
+    """)
+
+    sorter = Nullable(Instance(Comparison), help="""
     """)
 
 @abstract
