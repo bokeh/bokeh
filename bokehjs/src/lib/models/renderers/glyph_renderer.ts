@@ -527,34 +527,34 @@ export class GlyphRendererView extends DataRendererView {
 }
 
 export namespace GlyphRenderer {
-  export type Attrs = p.AttrsOf<Props>
+  export type Attrs<GlyphType> = p.AttrsOf<Props<GlyphType>>
 
-  export type Props = DataRenderer.Props & {
+  export type Props<GlyphType> = DataRenderer.Props & {
     data_source: p.Property<ColumnarDataSource>
     view: p.Property<CDSView>
-    glyph: p.Property<Glyph>
-    hover_glyph: p.Property<Glyph | null>
-    nonselection_glyph: p.Property<Glyph | "auto" | null>
-    selection_glyph: p.Property<Glyph | "auto" | null>
-    muted_glyph: p.Property<Glyph | "auto" | null>
+    glyph: p.Property<GlyphType>
+    hover_glyph: p.Property<GlyphType | null>
+    nonselection_glyph: p.Property<GlyphType | "auto" | null>
+    selection_glyph: p.Property<GlyphType | "auto" | null>
+    muted_glyph: p.Property<GlyphType | "auto" | null>
     muted: p.Property<boolean>
   }
 }
 
-export interface GlyphRenderer extends GlyphRenderer.Attrs {}
+export interface GlyphRenderer<GlyphType extends Glyph = Glyph> extends GlyphRenderer.Attrs<GlyphType> {}
 
-export class GlyphRenderer extends DataRenderer {
-  declare properties: GlyphRenderer.Props
+export class GlyphRenderer<GlyphType extends Glyph = Glyph> extends DataRenderer {
+  declare properties: GlyphRenderer.Props<GlyphType>
   declare __view_type__: GlyphRendererView
 
-  constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
+  constructor(attrs?: Partial<GlyphRenderer.Attrs<GlyphType>>) {
     super(attrs)
   }
 
   static {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
+    this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
       view:               [ Ref(CDSView), () => new CDSView() ],
       glyph:              [ Ref(Glyph) ],

@@ -236,7 +236,7 @@ export class Plot extends LayoutDOM {
   }
 
   add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
-      attrs: Partial<GlyphRenderer.Attrs> = {}): GlyphRenderer {
+      attrs: Partial<GlyphRenderer.Attrs<Glyph>> = {}): GlyphRenderer {
     const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
     this.add_renderers(renderer)
     return renderer
