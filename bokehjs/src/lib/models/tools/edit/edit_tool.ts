@@ -1,4 +1,5 @@
 import type * as p from "core/properties"
+import {isField} from "core/vectorization"
 import type {PointGeometry} from "core/geometry"
 import type {UIEvent, MoveEvent} from "core/ui_events"
 import type {Dimensions, SelectionMode} from "core/enums"
@@ -7,14 +8,11 @@ import {includes} from "core/util/array"
 import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
+import type {Glyph} from "../../glyphs/glyph"
 import type {XYGlyph} from "../../glyphs/xy_glyph"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
-
-export type HasXYGlyph = {
-  glyph: XYGlyph
-}
 
 export abstract class EditToolView extends GestureToolView {
   declare model: EditTool
@@ -111,7 +109,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[], dim: Dimensions = "both"): void {
+  _drag_points(ev: UIEvent, renderers: GlyphRenderer<XYGlyph>[], dim: Dimensions = "both"): void {
     if (this._basepoint == null) {
       return
     }
@@ -126,16 +124,17 @@ export abstract class EditToolView extends GestureToolView {
       const [px, py] = basepoint
       const [dx, dy] = [x-px, y-py]
       // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
+      const {glyph} = renderer
       const cds = renderer.data_source
       const data = dict(cds.data)
-      const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+      const xkey = isField(glyph.x) ? glyph.x.field : null
+      const ykey = isField(glyph.y) ? glyph.y.field : null
       for (const index of cds.selected.indices) {
-        if (xkey && (dim == "width" || dim == "both")) {
+        if (xkey != null && (dim == "width" || dim == "both")) {
           const column = (data.get(xkey) ?? []) as number[]
           column[index] += dx
         }
-        if (ykey && (dim == "height" || dim == "both")) {
+        if (ykey != null && (dim == "height" || dim == "both")) {
           const column = (data.get(ykey) ?? []) as number[]
           column[index] += dy
         }
@@ -145,7 +144,7 @@ export abstract class EditToolView extends GestureToolView {
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
+  _pad_empty_columns(cds: ColumnarDataSource, coord_columns: (string | null)[]): void {
     // Pad ColumnDataSource non-coordinate columns with default values
     const {inferred_defaults} = cds
     const default_values = dict(cds.default_values)
@@ -169,7 +168,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _select_event(ev: UIEvent, mode: SelectionMode, renderers: GlyphRenderer[]): GlyphRenderer[] {
+  _select_event<T extends Glyph>(ev: UIEvent, mode: SelectionMode, renderers: GlyphRenderer<T>[]): GlyphRenderer<T>[] {
     // Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_view.frame
     const {sx, sy} = ev

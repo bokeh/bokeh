@@ -1,4 +1,5 @@
 import type {PanEvent, TapEvent} from "core/ui_events"
+import {isField} from "core/vectorization"
 import {Dimensions} from "core/enums"
 import {dict} from "core/util/object"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -14,7 +15,7 @@ export interface HasLineGlyph {
 export class LineEditToolView extends LineToolView {
   declare model: LineEditTool
 
-  _selected_renderer: GlyphRenderer | null
+  _selected_renderer: GlyphRenderer<Line> | null
   _drawing: boolean = false
 
   override _press(ev: TapEvent): void {
@@ -50,11 +51,14 @@ export class LineEditToolView extends LineToolView {
       return
     }
 
-    const cds = this._selected_renderer.data_source
+    const {glyph} = this._selected_renderer
+    if (!isField(glyph.x) || !isField(glyph.y)) {
+      return
+    }
 
-    const glyph: any = this._selected_renderer.glyph
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
 
+    const cds = this._selected_renderer.data_source
     const x = cds.get_array<number>(xkey)
     const y = cds.get_array<number>(ykey)
 
@@ -82,11 +86,12 @@ export class LineEditToolView extends LineToolView {
     if (this._selected_renderer == null) {
       return
     }
-    const point_glyph: any = this.model.intersection_renderer.glyph
+    const point_glyph = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
     const data = dict(point_cds.data)
-    const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
-    if (pxkey && pykey) {
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+    if (pxkey != null && pykey != null) {
       const x = data.get(pxkey)
       const y = data.get(pykey)
       if (x != null) {
@@ -145,7 +150,7 @@ export namespace LineEditTool {
 
   export type Props = LineTool.Props & {
     dimensions: p.Property<Dimensions>
-    renderers: p.Property<(GlyphRenderer & HasLineGlyph)[]>
+    renderers: p.Property<GlyphRenderer<Line>[]>
   }
 }
 
@@ -163,7 +168,7 @@ export class LineEditTool extends LineTool {
     this.prototype.default_view = LineEditToolView
     this.define<LineEditTool.Props>(({List, Ref}) => ({
       dimensions: [ Dimensions, "both" ],
-      renderers:  [ List(Ref<GlyphRenderer & HasLineGlyph>(GlyphRenderer as any)), [] ],
+      renderers:  [ List(Ref(GlyphRenderer<Line>)), [] ],
     }))
   }
 

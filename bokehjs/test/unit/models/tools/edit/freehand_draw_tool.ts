@@ -12,7 +12,6 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import type {HasXYGlyph} from "@bokehjs/models/tools/edit/edit_tool"
 import type {FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 import {FreehandDrawTool} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 
@@ -46,13 +45,13 @@ async function make_testcase(): Promise<FreehandDrawTestCase> {
     ys: {field: "ys"},
   })
 
-  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph_renderer = new GlyphRenderer<Patches>({glyph, data_source})
   const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
   const draw_tool = new FreehandDrawTool({
     active: true,
     default_overrides: {z: "Test"},
-    renderers: [glyph_renderer as GlyphRenderer & HasXYGlyph],
+    renderers: [glyph_renderer],
   })
   plot.add_tools(draw_tool)
   await plot_view.ready

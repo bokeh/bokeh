@@ -1,21 +1,18 @@
 import type {PanEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_events"
+import {isField, isValue} from "core/vectorization"
+import {assert} from "core/util/assert"
 import {isArray} from "core/util/types"
 import {dict} from "core/util/object"
-import type {MultiLine} from "../../glyphs/multi_line"
-import type {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
+import type {XsYsGlyph} from "./common"
 import type * as p from "core/properties"
 import {tool_icon_poly_edit} from "styles/icons.css"
-
-export interface HasPolyGlyph {
-  glyph: MultiLine | Patches
-}
 
 export class PolyEditToolView extends PolyToolView {
   declare model: PolyEditTool
 
-  _selected_renderer: GlyphRenderer | null
+  _selected_renderer: GlyphRenderer<XsYsGlyph> | null
   _drawing: boolean = false
   _cur_index: number | null = null
 
@@ -33,8 +30,9 @@ export class PolyEditToolView extends PolyToolView {
     const vertex_selected = this._select_event(ev, "replace", [this.model.vertex_renderer])
     const point_cds = this.model.vertex_renderer.data_source
     // Type once dataspecs are typed
-    const point_glyph: any = this.model.vertex_renderer.glyph
-    const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
+    const point_glyph = this.model.vertex_renderer.glyph
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
     if (vertex_selected.length != 0 && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
       const index = point_cds.selected.indices[0]
@@ -43,10 +41,10 @@ export class PolyEditToolView extends PolyToolView {
         point_cds.selection_manager.clear()
       } else {
         point_cds.selected.indices = [index+1]
-        if (pxkey) {
+        if (pxkey != null) {
           point_cds.get_array(pxkey).splice(index+1, 0, x)
         }
-        if (pykey) {
+        if (pykey != null) {
           point_cds.get_array(pykey).splice(index+1, 0, y)
         }
         this._drawing = true
@@ -86,39 +84,42 @@ export class PolyEditToolView extends PolyToolView {
     this._update_vertices(renderers[0])
   }
 
-  _update_vertices(renderer: GlyphRenderer): void {
-    const glyph: any = renderer.glyph
+  _update_vertices(renderer: GlyphRenderer<XsYsGlyph>): void {
+    const {glyph} = renderer
+    const xkey = isField(glyph.xs) ? glyph.xs.field : null
+    const ykey = isField(glyph.ys) ? glyph.ys.field : null
     const data = dict(renderer.data_source.data)
     const index = this._cur_index
-    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
     if (this._drawing) {
       return
     }
-    if ((index == null) && (xkey || ykey)) {
+    if (index == null && (xkey != null || ykey != null)) {
       return
     }
 
     let xs: number[]
     let ys: number[]
-    if (xkey && index != null) { // redundant xkey null check to satisfy build-time checks
+    if (xkey != null && index != null) { // redundant xkey null check to satisfy build-time checks
       const column = data.get(xkey) ?? []
       xs = column[index] as number[]
       if (!isArray(xs)) {
         column[index] = xs = Array.from(xs)
       }
     } else {
-      xs = glyph.xs.value
+      assert(isValue(glyph.xs))
+      xs = glyph.xs.value as number[] // TODO this cast is wrong
     }
 
-    if (ykey && index != null) {
+    if (ykey != null && index != null) {
       const column = data.get(ykey) ?? []
       ys = column[index] as number[]
       if (!isArray(ys)) {
         column[index] = ys = Array.from(ys)
       }
     } else {
-      ys = glyph.ys.value
+      assert(isValue(glyph.ys))
+      ys = glyph.ys.value as number[] // TODO this cast is wrong
     }
     this._selected_renderer = renderer
     this._set_vertices(xs, ys)
@@ -132,7 +133,7 @@ export class PolyEditToolView extends PolyToolView {
       }
       const cds = renderer.data_source
       const data = dict(cds.data)
-      const glyph: any = renderer.glyph
+      const {glyph} = renderer
       const point = this._map_drag(ev.sx, ev.sy, renderer)
       if (point == null) {
         return
@@ -141,12 +142,13 @@ export class PolyEditToolView extends PolyToolView {
       const indices = cds.selected.indices
       ;[x, y] = this._snap_to_vertex(ev, x, y)
       cds.selected.indices = indices
-      const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+      const xkey = isField(glyph.x) ? glyph.x.field : null
+      const ykey = isField(glyph.y) ? glyph.y.field : null
       const index = indices[0]
-      if (xkey) {
+      if (xkey != null) {
         data.get(xkey)![index] = x
       }
-      if (ykey) {
+      if (ykey != null) {
         data.get(ykey)![index] = y
       }
       cds.change.emit()
@@ -166,19 +168,20 @@ export class PolyEditToolView extends PolyToolView {
       let [x, y] = point
       const cds = renderer.data_source
       // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
-      const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+      const {glyph} = renderer
+      const xkey = isField(glyph.x) ? glyph.x.field : null
+      const ykey = isField(glyph.y) ? glyph.y.field : null
       const indices = cds.selected.indices
       ;[x, y] = this._snap_to_vertex(ev, x, y)
       const index = indices[0]
       cds.selected.indices = [index+1]
-      if (xkey) {
+      if (xkey != null) {
         const xs = cds.get_array(xkey)
         const nx = xs[index]
         xs[index] = x
         xs.splice(index+1, 0, nx)
       }
-      if (ykey) {
+      if (ykey != null) {
         const ys = cds.get_array(ykey)
         const ny = ys[index]
         ys[index] = y
@@ -201,18 +204,17 @@ export class PolyEditToolView extends PolyToolView {
     if (renderer == null) {
       return
     }
-    const cds = renderer.data_source
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph
-    const index = cds.selected.indices[0]
-    const [xkey, ykey] = [glyph.x.field, glyph.y.field]
-    if (xkey) {
-      cds.get_array(xkey).splice(index, 1)
+    const {glyph, data_source} = renderer
+    const index = data_source.selected.indices[0]
+    const xkey = isField(glyph.x) ? glyph.x.field : null
+    const ykey = isField(glyph.y) ? glyph.y.field : null
+    if (xkey != null) {
+      data_source.get_array(xkey).splice(index, 1)
     }
-    if (ykey) {
-      cds.get_array(ykey).splice(index, 1)
+    if (ykey != null) {
+      data_source.get_array(ykey).splice(index, 1)
     }
-    cds.change.emit()
+    data_source.change.emit()
     this._emit_cds_changes(this._selected_renderer.data_source)
   }
 
@@ -296,7 +298,7 @@ export namespace PolyEditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = PolyTool.Props & {
-    renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
+    renderers: p.Property<GlyphRenderer<XsYsGlyph>[]>
   }
 }
 
@@ -314,7 +316,7 @@ export class PolyEditTool extends PolyTool {
     this.prototype.default_view = PolyEditToolView
 
     this.define<PolyEditTool.Props>(({List, Ref}) => ({
-      renderers: [ List(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
+      renderers: [ List(Ref(GlyphRenderer<XsYsGlyph>)), [] ],
     }))
   }
 

@@ -1,9 +1,10 @@
 import type {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
+import {isField} from "core/vectorization"
 import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
-import type {HasXYGlyph} from "./edit_tool"
 import {EditTool, EditToolView} from "./edit_tool"
+import type {XsYsGlyph} from "./common"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {tool_icon_freehand_draw} from "styles/icons.css"
 
@@ -22,34 +23,34 @@ export class FreehandDrawToolView extends EditToolView {
     }
 
     const [x, y] = point
-    const cds = renderer.data_source
-    const data = dict(cds.data)
-    const glyph: any = renderer.glyph
-    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
+    const {glyph, data_source} = renderer
+    const xkey = isField(glyph.xs) ? glyph.xs.field : null
+    const ykey = isField(glyph.ys) ? glyph.ys.field : null
+    const data = dict(data_source.data)
     if (mode == "new") {
-      this._pop_glyphs(cds, this.model.num_objects)
-      if (xkey) {
-        cds.get_array(xkey).push([x])
+      this._pop_glyphs(data_source, this.model.num_objects)
+      if (xkey != null) {
+        data_source.get_array(xkey).push([x])
       }
-      if (ykey) {
-        cds.get_array(ykey).push([y])
+      if (ykey != null) {
+        data_source.get_array(ykey).push([y])
       }
-      this._pad_empty_columns(cds, [xkey, ykey])
+      this._pad_empty_columns(data_source, [xkey, ykey])
     } else if (mode == "add") {
-      if (xkey) {
+      if (xkey != null) {
         const column = data.get(xkey) ?? []
         const xidx = column.length-1
-        let xs = cds.get_array<number[]>(xkey)[xidx]
+        let xs = data_source.get_array<number[]>(xkey)[xidx]
         if (!isArray(xs)) {
           xs = Array.from(xs)
           column[xidx] = xs
         }
         xs.push(x)
       }
-      if (ykey) {
+      if (ykey != null) {
         const column = data.get(ykey) ?? []
         const yidx = column.length-1
-        let ys = cds.get_array<number[]>(ykey)[yidx]
+        let ys = data_source.get_array<number[]>(ykey)[yidx]
         if (!isArray(ys)) {
           ys = Array.from(ys)
           column[yidx] = ys
@@ -57,7 +58,7 @@ export class FreehandDrawToolView extends EditToolView {
         ys.push(y)
       }
     }
-    this._emit_cds_changes(cds, true, true, emit)
+    this._emit_cds_changes(data_source, true, true, emit)
   }
 
   override _pan_start(ev: PanEvent): void {
@@ -95,7 +96,7 @@ export namespace FreehandDrawTool {
 
   export type Props = EditTool.Props & {
     num_objects: p.Property<number>
-    renderers: p.Property<(GlyphRenderer & HasXYGlyph)[]>
+    renderers: p.Property<GlyphRenderer<XsYsGlyph>[]>
   }
 }
 
@@ -114,7 +115,7 @@ export class FreehandDrawTool extends EditTool {
 
     this.define<FreehandDrawTool.Props>(({Int, List, Ref}) => ({
       num_objects: [ Int, 0 ],
-      renderers:   [ List(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
+      renderers:   [ List(Ref(GlyphRenderer<XsYsGlyph>)), [] ],
     }))
 
     this.register_alias("freehand_draw", () => new FreehandDrawTool())

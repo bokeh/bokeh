@@ -1,31 +1,29 @@
 import type * as p from "core/properties"
+import {isField} from "core/vectorization"
 import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {Line} from "../../glyphs/line"
-import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 
 import {EditTool, EditToolView} from "./edit_tool"
-
-export type HasLineGlyph = {
-  glyph: Line
-}
 
 export abstract class LineToolView extends EditToolView {
   declare model: LineTool
 
   _set_intersection(x: number[] | number, y: number[] | number): void {
-    const point_glyph: any = this.model.intersection_renderer.glyph
+    const point_glyph = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
     const data = dict(point_cds.data)
-    const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
-    if (pxkey) {
+    const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
+    const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
+    if (pxkey != null) {
       if (isArray(x)) {
         data.set(pxkey, x)
       } else {
         point_glyph.x = {value: x}
       }
     }
-    if (pykey) {
+    if (pykey != null) {
       if (isArray(y)) {
         data.set(pykey, y)
       } else {
@@ -44,7 +42,7 @@ export namespace LineTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = EditTool.Props & {
-    intersection_renderer: p.Property<(GlyphRenderer & HasLineGlyph)>
+    intersection_renderer: p.Property<GlyphRenderer<Line>>
   }
 }
 
@@ -59,8 +57,8 @@ export abstract class LineTool extends EditTool {
   }
 
   static {
-    this.define<LineTool.Props>(({AnyRef}) => ({
-      intersection_renderer: [ AnyRef<GlyphRenderer & HasLineGlyph>() ],
+    this.define<LineTool.Props>(({Ref}) => ({
+      intersection_renderer: [ Ref(GlyphRenderer<Line>) ],
     }))
   }
 }
