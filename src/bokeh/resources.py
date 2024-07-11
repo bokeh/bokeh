@@ -340,7 +340,9 @@ class Resources:
         del root_dir
         self.version = settings.cdn_version(version)
         del version
-        self.minified = settings.minified(minified if minified is not None else not self.dev)
+        if minified is None and self.dev:
+            minified = False
+        self.minified = settings.minified(minified)
         del minified
         self.log_level = settings.log_level(log_level)
         del log_level
