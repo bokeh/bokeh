@@ -10,7 +10,7 @@ async function test(name: string) {
   const text = await response.text()
   const doc_json = json5.parse<DocJson>(text)
   const doc = Document.from_json(doc_json)
-  return await display(doc)
+  return await display(doc, null)
 }
 
 describe("Bug", () => {
@@ -45,6 +45,12 @@ describe("Bug", () => {
 
     it.no_image("doesn't allow deserialization of an empty dict as an empty Map", async () => {
       await test("regressions/issue_13637_empty_map.json5")
+    })
+  })
+
+  describe("in issue #13964", () => {
+    it.no_image("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
+      await test("regressions/issue_13964.json5")
     })
   })
 })
