@@ -29,7 +29,7 @@ async function make_testcase(): Promise<{hover_view: HoverToolView, data_source:
   const {view: plot_view} = await display(plot)
 
   const hover_view = plot_view.owner.get_one(hover_tool)
-  const glyph_view = plot_view.owner.get_one(glyph_renderer.glyph) as CircleView
+  const glyph_view = plot_view.owner.get_one(glyph_renderer.glyph)
 
   return {hover_view, data_source, glyph_view}
 }
