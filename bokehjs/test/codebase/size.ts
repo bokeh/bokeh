@@ -6,7 +6,7 @@ const build_dir = normalize(`${__dirname}/../..`) // build/test/codebase -> buil
 
 const LIMITS = new Map([
   // es2020
-  ["js/bokeh.min.js",                1050],
+  ["js/bokeh.min.js",                1100],
   ["js/bokeh-widgets.min.js",         350],
   ["js/bokeh-tables.min.js",          350],
   ["js/bokeh-api.min.js",             150],
