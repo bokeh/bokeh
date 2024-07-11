@@ -1,16 +1,12 @@
 import type {UIEvent, PanEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
+import {isField} from "core/vectorization"
 import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
-import type {MultiLine} from "../../glyphs/multi_line"
-import type {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
+import type {XsYsGlyph} from "./common"
 import {tool_icon_poly_draw} from "styles/icons.css"
-
-export interface HasPolyGlyph {
-  glyph: MultiLine | Patches
-}
 
 export class PolyDrawToolView extends PolyToolView {
   declare model: PolyDrawTool
@@ -41,30 +37,31 @@ export class PolyDrawToolView extends PolyToolView {
 
     const cds = renderer.data_source
     const data = dict(cds.data)
-    const glyph: any = renderer.glyph
-    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
+    const glyph = renderer.glyph
+    const xkey = isField(glyph.xs) ? glyph.xs.field : null
+    const ykey = isField(glyph.ys) ? glyph.ys.field : null
     if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
-      if (xkey) {
+      if (xkey != null) {
         cds.get_array(xkey).push([x, x])
       }
-      if (ykey) {
+      if (ykey != null) {
         cds.get_array(ykey).push([y, y])
       }
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "edit") {
-      if (xkey) {
+      if (xkey != null) {
         const column = data.get(xkey) ?? []
         const xs = column[column.length-1] as number[]
         xs[xs.length-1] = x
       }
-      if (ykey) {
+      if (ykey != null) {
         const column = data.get(ykey) ?? []
         const ys = column[column.length-1] as number[]
         ys[ys.length-1] = y
       }
     } else if (mode == "add") {
-      if (xkey) {
+      if (xkey != null) {
         const column = data.get(xkey) ?? []
         const xidx = column.length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
@@ -76,7 +73,7 @@ export class PolyDrawToolView extends PolyToolView {
         }
         xs.push(nx)
       }
-      if (ykey) {
+      if (ykey != null) {
         const column = data.get(ykey) ?? []
         const yidx = column.length-1
         let ys = cds.get_array<number[]>(ykey)[yidx]
@@ -98,18 +95,18 @@ export class PolyDrawToolView extends PolyToolView {
     }
     const xs: number[] = []
     const ys: number[] = []
-    for (let i=0; i<this.model.renderers.length; i++) {
+    for (let i = 0; i < this.model.renderers.length; i++) {
       const renderer = this.model.renderers[i]
-      const cds = renderer.data_source
-      const glyph: any = renderer.glyph
-      const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-      if (xkey) {
-        for (const array of cds.get_array<number[]>(xkey)) {
+      const {glyph, data_source} = renderer
+      const xkey = isField(glyph.xs) ? glyph.xs.field : null
+      const ykey = isField(glyph.ys) ? glyph.ys.field : null
+      if (xkey != null) {
+        for (const array of data_source.get_array<number[]>(xkey)) {
           xs.push(...array)
         }
       }
-      if (ykey) {
-        for (const array of cds.get_array<number[]>(ykey)) {
+      if (ykey != null) {
+        for (const array of data_source.get_array<number[]>(ykey)) {
           ys.push(...array)
         }
       }
@@ -143,23 +140,23 @@ export class PolyDrawToolView extends PolyToolView {
 
   _remove(): void {
     const renderer = this.model.renderers[0]
-    const cds = renderer.data_source
-    const data = dict(cds.data)
-    const glyph: any = renderer.glyph
-    const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-    if (xkey) {
+    const {glyph, data_source} = renderer
+    const xkey = isField(glyph.xs) ? glyph.xs.field : null
+    const ykey = isField(glyph.ys) ? glyph.ys.field : null
+    const data = dict(data_source.data)
+    if (xkey != null) {
       const column = data.get(xkey) ?? []
       const xidx = column.length-1
-      const xs = cds.get_array<number[]>(xkey)[xidx]
+      const xs = data_source.get_array<number[]>(xkey)[xidx]
       xs.splice(xs.length-1, 1)
     }
-    if (ykey) {
+    if (ykey != null) {
       const column = data.get(ykey) ?? []
       const yidx = column.length-1
-      const ys = cds.get_array<number[]>(ykey)[yidx]
+      const ys = data_source.get_array<number[]>(ykey)[yidx]
       ys.splice(ys.length-1, 1)
     }
-    this._emit_cds_changes(cds)
+    this._emit_cds_changes(data_source)
   }
 
   override _keyup(ev: KeyEvent): void {
@@ -201,10 +198,10 @@ export class PolyDrawToolView extends PolyToolView {
       }
 
       const cds = renderer.data_source
-      // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
-      const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-      if (!xkey && !ykey) {
+      const {glyph} = renderer
+      const xkey = isField(glyph.xs) ? glyph.xs.field : null
+      const ykey = isField(glyph.ys) ? glyph.ys.field : null
+      if (xkey == null && ykey == null) {
         continue
       }
       const [x, y] = point
@@ -213,11 +210,11 @@ export class PolyDrawToolView extends PolyToolView {
       const data = dict(cds.data)
       for (const index of cds.selected.indices) {
         let length, xs: any, ys: any
-        if (xkey) {
+        if (xkey != null) {
           const column = data.get(xkey) ?? []
           xs = column[index]
         }
-        if (ykey) {
+        if (ykey != null) {
           const column = data.get(ykey) ?? []
           ys = column[index]
           length = ys.length
@@ -280,7 +277,7 @@ export namespace PolyDrawTool {
   export type Props = PolyTool.Props & {
     drag: p.Property<boolean>
     num_objects: p.Property<number>
-    renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
+    renderers: p.Property<GlyphRenderer<XsYsGlyph>[]>
   }
 }
 
@@ -300,7 +297,7 @@ export class PolyDrawTool extends PolyTool {
     this.define<PolyDrawTool.Props>(({Bool, Int, List, Ref}) => ({
       drag:        [ Bool, true ],
       num_objects: [ Int, 0 ],
-      renderers:   [ List(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
+      renderers:   [ List(Ref(GlyphRenderer<XsYsGlyph>)), [] ],
     }))
   }
 

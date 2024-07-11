@@ -14,7 +14,6 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import type {HasXYGlyph} from "@bokehjs/models/tools/edit/edit_tool"
 import type {PolyEditToolView} from "@bokehjs/models/tools/edit/poly_edit_tool"
 import {PolyEditTool} from "@bokehjs/models/tools/edit/poly_edit_tool"
 
@@ -25,7 +24,7 @@ export interface PolyEditTestCase {
   data_source: ColumnDataSource
   draw_tool_view: PolyEditToolView
   glyph_view: PatchesView
-  glyph_renderer: GlyphRenderer
+  glyph_renderer: GlyphRenderer<Patches>
   vertex_glyph_view: CircleView
   vertex_source: ColumnDataSource
   vertex_renderer: GlyphRenderer
@@ -67,8 +66,8 @@ async function make_testcase(): Promise<PolyEditTestCase> {
   const draw_tool = new PolyEditTool({
     active: true,
     default_overrides: {z: "Test"},
-    renderers: [glyph_renderer as any],
-    vertex_renderer: vertex_renderer as GlyphRenderer & HasXYGlyph,
+    renderers: [glyph_renderer],
+    vertex_renderer,
   })
   plot.add_tools(draw_tool)
   await plot_view.ready

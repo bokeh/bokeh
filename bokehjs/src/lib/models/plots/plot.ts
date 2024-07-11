@@ -235,8 +235,8 @@ export class Plot extends LayoutDOM {
     this.renderers = [...this.renderers, ...renderers]
   }
 
-  add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
-      attrs: Partial<GlyphRenderer.Attrs> = {}): GlyphRenderer {
+  add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source: ColumnarDataSource = new ColumnDataSource(),
+      attrs: Partial<GlyphRenderer.Attrs<BaseGlyph>> = {}): GlyphRenderer<BaseGlyph> {
     const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
     this.add_renderers(renderer)
     return renderer

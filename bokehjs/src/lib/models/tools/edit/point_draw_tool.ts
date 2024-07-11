@@ -1,7 +1,8 @@
 import type {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
+import {isField} from "core/vectorization"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import type {HasXYGlyph} from "./edit_tool"
+import type {XYGlyph} from "../../glyphs/xy_glyph"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_point_draw} from "styles/icons.css"
 
@@ -20,23 +21,22 @@ export class PointDrawToolView extends EditToolView {
       return
     }
 
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph
-    const cds = renderer.data_source
-    const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+    const {glyph, data_source} = renderer
+    const xkey = isField(glyph.x) ? glyph.x.field : null
+    const ykey = isField(glyph.y) ? glyph.y.field : null
     const [x, y] = point
 
-    this._pop_glyphs(cds, this.model.num_objects)
-    if (xkey) {
-      cds.get_array(xkey).push(x)
+    this._pop_glyphs(data_source, this.model.num_objects)
+    if (xkey != null) {
+      data_source.get_array(xkey).push(x)
     }
-    if (ykey) {
-      cds.get_array(ykey).push(y)
+    if (ykey != null) {
+      data_source.get_array(ykey).push(y)
     }
-    this._pad_empty_columns(cds, [xkey, ykey])
+    this._pad_empty_columns(data_source, [xkey, ykey])
 
-    const {data} = cds
-    cds.setv({data}, {check_eq: false}) // XXX: inplace updates
+    const {data} = data_source
+    data_source.setv({data}, {check_eq: false}) // XXX: inplace updates
   }
 
   override _keyup(ev: KeyEvent): void {
@@ -86,7 +86,7 @@ export namespace PointDrawTool {
     add: p.Property<boolean>
     drag: p.Property<boolean>
     num_objects: p.Property<number>
-    renderers: p.Property<(GlyphRenderer & HasXYGlyph)[]>
+    renderers: p.Property<GlyphRenderer<XYGlyph>[]>
   }
 }
 
@@ -107,7 +107,7 @@ export class PointDrawTool extends EditTool {
       add:         [ Bool, true ],
       drag:        [ Bool, true ],
       num_objects: [ Int, 0 ],
-      renderers:   [ List(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
+      renderers:   [ List(Ref(GlyphRenderer<XYGlyph>)), [] ],
     }))
   }
 

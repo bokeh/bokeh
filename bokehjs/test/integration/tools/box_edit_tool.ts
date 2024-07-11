@@ -3,12 +3,12 @@ import {PlotActions, xy} from "../../interactive"
 
 import type {BoxLikeGlyph} from "@bokehjs/models/tools/edit/box_edit_tool"
 import {BoxEditTool} from "@bokehjs/models/tools/edit/box_edit_tool"
+import type {GlyphRenderer} from "@bokehjs/models"
 import type {Figure} from "@bokehjs/api/figure"
-import type {TypedGlyphRenderer} from "@bokehjs/api/glyph_api"
 
 describe("BoxEditTool", () => {
   describe("should support moving", () => {
-    async function move<T extends BoxLikeGlyph>(glyph: (p: Figure) => TypedGlyphRenderer<T>) {
+    async function move<T extends BoxLikeGlyph>(glyph: (p: Figure) => GlyphRenderer<T>) {
       const box_edit = new BoxEditTool()
       const p = fig([200, 200], {
         x_range: [-1, 2],
