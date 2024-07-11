@@ -16,9 +16,6 @@ export abstract class Comparison extends Model {
     super(attrs)
   }
 
-  override initialize(): void {
-    super.initialize()
-  }
 
-  protected abstract compute(_x: any, _y: any): number
+  protected abstract compute(x: unknown, y: unknown): -1 | 0 | 1
 }
