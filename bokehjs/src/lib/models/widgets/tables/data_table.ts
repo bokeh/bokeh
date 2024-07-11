@@ -110,7 +110,7 @@ export class TableDataProvider implements DataProvider<Item> {
   }
 
   sort(columns: SortColumn<Item>[]): void {
-    let cols = columns.map((column) => [column.sortCol, column.sortAsc ? 1 : -1] as const)
+    let cols = columns.map((column) => [column.sortCol as ColumnType, column.sortAsc ? 1 : -1] as const)
 
     if (cols.length == 0) {
       cols = [[{field: DTINDEX_NAME}, 1]]
@@ -123,8 +123,8 @@ export class TableDataProvider implements DataProvider<Item> {
       for (const [col, sign] of cols) {
         const v0 = records[old_index.indexOf(i0)][col.field!]
         const v1 = records[old_index.indexOf(i1)][col.field!]
-        if ((col as any).sorter != null) {
-          return sign * (col as any).sorter.compute(v0, v1)
+        if (col.sorter != null) {
+          return sign * col.sorter.compute(v0, v1)
         }
         if (v0 === v1) {
           continue

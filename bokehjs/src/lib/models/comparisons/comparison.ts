@@ -16,6 +16,5 @@ export abstract class Comparison extends Model {
     super(attrs)
   }
 
-
-  protected abstract compute(x: unknown, y: unknown): -1 | 0 | 1
+  abstract compute(x: unknown, y: unknown): -1 | 0 | 1
 }
