@@ -61,8 +61,8 @@ describe("GraphHitTestPolicy", () => {
         ys: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
       },
     })
-    const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Circle()}) as GlyphRenderer & {glyph: Circle}
-    const edge_renderer = new GlyphRenderer({data_source: edge_source, glyph: new MultiLine()}) as GlyphRenderer & {glyph: MultiLine}
+    const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Circle()})
+    const edge_renderer = new GlyphRenderer({data_source: edge_source, glyph: new MultiLine()})
 
     gr = new GraphRenderer({
       node_renderer,
