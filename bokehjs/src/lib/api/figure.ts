@@ -45,7 +45,7 @@ import type {ToolAliases} from "../models/tools/tool"
 import {Figure as BaseFigure} from "../models/plots/figure"
 import {GestureTool} from "../models/tools/gestures/gesture_tool"
 
-import type {TypedGlyphRenderer, NamesOf, AuxGlyph} from "./glyph_api"
+import type {NamesOf, AuxGlyph} from "./glyph_api"
 import {GlyphAPI} from "./glyph_api"
 
 export type ToolName = keyof ToolAliases
@@ -151,7 +151,7 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
     const {coordinates} = this
     return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
   }
@@ -485,7 +485,7 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): TypedGlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -621,7 +621,7 @@ export class Figure extends BaseFigure {
     }
 
     this.add_renderers(glyph_renderer)
-    return glyph_renderer as TypedGlyphRenderer<G>
+    return glyph_renderer as GlyphRenderer<G>
   }
 
   static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
