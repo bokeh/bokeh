@@ -130,13 +130,6 @@ root level of your *source checkout* directory to update ``bkdev``:
 
 using the environment file you originally used to create ``bkdev``.
 
-Some of the examples in the documentation require additional sample data. Use
-this command to automatically download and install the necessary package:
-
-.. code-block:: sh
-
-    pip install bokeh_sampledata
-
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

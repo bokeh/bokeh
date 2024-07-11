@@ -5,6 +5,13 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 '''
+The ``bokeh.sampledata`` module exposes datasets that are used in examples and
+documentation. Some datasets require separate installation. To install those
+using ``pip``, execute the command:
+
+.. code-block:: sh
+
+    pip install bokeh_sampledata
 
 '''
 
