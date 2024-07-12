@@ -51,10 +51,10 @@ class Comparison(Model):
 
     JavaScript implementations should implement the following method:
 
-    .. code-block
+    .. code-block:: javascript
 
         compute(x: any, y: any): number {
-            # compare and return -1, 0, or 1
+            //  compare and return -1, 0, or 1
         }
 
     '''
@@ -89,8 +89,8 @@ class CustomJSCompare(Comparison):
 
     code = String(default="", help="""
     A snippet of JavaScript code to execute in the browser. The code is made into
-    the body of a generator function, and all of of the named objects in ``args``
-    are available as parameters that the code can use. Must return -1, 0, or 1
+    the body of a generator function, and all of the named objects in ``args``
+    are available as parameters that the code can use. Must return -1, 0, or 1.
     """)
 
 class NanSorter(Comparison):
@@ -103,8 +103,7 @@ class NanSorter(Comparison):
         super().__init__(*args, **kwargs)
 
     ascending_first = Bool(default=False, help="""
-    Whether NaN values should should appear first or last in an ascending
-    sort.
+    Whether NaN values should appear first or last in an ascending sort.
     """)
 
 #-----------------------------------------------------------------------------
