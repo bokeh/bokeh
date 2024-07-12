@@ -219,15 +219,16 @@ def gridplot(
 
 
 def gridplot(
-        children: list[UIElement | None] | list[list[UIElement | None]],
-        *,
-        sizing_mode: SizingModeType | None = None,
-        toolbar_location: LocationType | None = "above",
-        ncols: int | None = None,
-        width: int | None = None,
-        height: int | None = None,
-        toolbar_options: dict[ToolbarOptions, Any] | None = None,
-        merge_tools: bool = True) -> GridPlot:
+    children: list[UIElement | None] | list[list[UIElement | None]],
+    *,
+    sizing_mode: SizingModeType | None = None,
+    toolbar_location: LocationType | None = "above",
+    ncols: int | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    merge_tools: bool = True,
+) -> GridPlot:
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -636,9 +637,7 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
                     entries.remove(item)
             entries.remove(head)
 
-            if len(group) == 1:
-                computed.append(group[0])
-            elif merge is not None and (tool := merge(cls, group)) is not None:
+            if merge is not None and (tool := merge(cls, group)) is not None:
                 computed.append(tool)
             else:
                 computed.append(ToolProxy(tools=group))
