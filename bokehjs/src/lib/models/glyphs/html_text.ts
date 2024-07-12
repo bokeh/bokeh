@@ -1,6 +1,5 @@
 import {TextBase, TextBaseView} from "./text_base"
 import {div, InlineStyleSheet} from "core/dom"
-import {non_null} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 import type * as p from "core/properties"
@@ -30,7 +29,7 @@ export class HTMLTextView extends TextBaseView {
       }
     })
 
-    this.el.append(...elements.filter(non_null))
+    this.el.append(...elements.filter((ev) => ev != null))
     return elements
   }
 
