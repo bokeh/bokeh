@@ -67,7 +67,7 @@ describe("Bug", () => {
         await actions(pv).pan(xy(0.5, 0.5), xy(1.5, 1.5))
         await pv.ready
 
-        const [gr] = pv.model.renderers.filter((r): r is GlyphRenderer => r instanceof GlyphRenderer)
+        const [gr] = pv.model.renderers.filter((r) => r instanceof GlyphRenderer)
         expect(gr.data_source.selected.indices).to.be.equal([1])
       }
     })

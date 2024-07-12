@@ -228,7 +228,7 @@ export class Plot extends LayoutDOM {
   }
 
   get data_renderers(): DataRenderer[] {
-    return this.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
+    return this.renderers.filter((r) => r instanceof DataRenderer)
   }
 
   add_renderers(...renderers: Renderer[]): void {

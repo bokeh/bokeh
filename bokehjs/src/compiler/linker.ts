@@ -270,8 +270,8 @@ export class Linker {
     this.entries = opts.entries.map((path) => resolve(path))
     this.bases = (opts.bases ?? []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes ?? []).map((path) => resolve(path)))
-    this.external_modules = new Set((opts.externals ?? []).filter((s): s is string => typeof s === "string"))
-    this.external_regex = (opts.externals ?? []).filter((s): s is RegExp => s instanceof RegExp)
+    this.external_modules = new Set((opts.externals ?? []).filter((s) => typeof s === "string"))
+    this.external_regex = (opts.externals ?? []).filter((s) => s instanceof RegExp)
 
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false

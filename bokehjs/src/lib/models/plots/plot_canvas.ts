@@ -37,7 +37,7 @@ import type {Side, RenderLevel} from "core/enums"
 import type {View} from "core/view"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
-import {isBoolean, isArray, isString, isNotNull} from "core/util/types"
+import {isBoolean, isArray, isString} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
@@ -129,7 +129,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
   computed_renderers: Renderer[] = []
 
   get computed_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)).filter(isNotNull) // TODO race condition again
+    return this
+      .computed_renderers
+      .map((r) => this.renderer_views.get(r))
+      .filter((rv) => rv != null) // TODO race condition again
   }
 
   get all_renderer_views(): RendererView[] {
@@ -484,7 +487,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
               item.set_sizing({...item.sizing, [dim]: "min"})
             }
             return item
-          }).filter((item): item is Layoutable => item != null)
+          }).filter((item) => item != null)
 
           let layout: Row | Column
           if (horizontal) {
@@ -541,15 +544,13 @@ export class PlotView extends LayoutDOMView implements Paintable {
     inner_right_panel.absolute = true
 
     center_panel.children =
-      this.model.center.filter((obj): obj is Annotation => {
+      this.model.center.filter((obj) => {
         return obj instanceof Annotation
       }).map((model) => {
         const view = this.views.get_one(model)
         view.update_layout?.()
         return view.layout
-      }).filter((layout): layout is Layoutable => {
-        return layout != null
-      })
+      }).filter((layout) => layout != null)
 
     const {frame_width, frame_height} = this.model
 
@@ -743,7 +744,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const attribution = [
       ...this.model.attribution,
       ...this.computed_renderer_views.map((rv) => rv.attribution),
-    ].filter(isNotNull)
+    ].filter((rv) => rv != null)
     const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
     this._attribution.elements = elements
     // TODO this._attribution.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")

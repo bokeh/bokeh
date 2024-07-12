@@ -3,7 +3,7 @@ import {compare_on_dom} from "../../../framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {Random} from "@bokehjs/core/util/random"
 import {load_image} from "@bokehjs/core/util/image"
-import * as DOM from "@bokehjs/core/dom"
+import * as _DOM from "@bokehjs/core/dom" // used by jsxFactory in tsconfig.json
 
 declare global {
   namespace JSX {

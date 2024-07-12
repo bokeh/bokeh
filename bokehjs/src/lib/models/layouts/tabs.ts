@@ -39,7 +39,7 @@ export class TabsView extends LayoutDOMView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const {tabs} = this.model
-    const tooltips = tabs.map((tab) => tab.tooltip).filter((tt): tt is Tooltip => tt != null)
+    const tooltips = tabs.map((tab) => tab.tooltip).filter((tt) => tt != null)
     await build_views(this.tooltip_views, tooltips, {parent: this})
   }
 

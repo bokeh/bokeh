@@ -43,7 +43,7 @@ describe("WheelZoomTool", () => {
     const p2 = plot("Sub-coordinate zoom level 1")
 
     function data_renderers(p: Plot): DataRenderer[] {
-      return p.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
+      return p.renderers.filter((r) => r instanceof DataRenderer)
     }
 
     const wheel_zoom1 = new WheelZoomTool({renderers: data_renderers(p1), level: 0})

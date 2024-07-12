@@ -15,6 +15,8 @@ import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
 import {Patches} from "../glyphs/patches"
 
+type XsYsGlyph = MultiLine | Patches
+
 export class GraphRendererView extends DataRendererView {
   declare model: GraphRenderer
 
@@ -138,8 +140,8 @@ export namespace GraphRenderer {
 
   export type Props = DataRenderer.Props & {
     layout_provider: p.Property<LayoutProvider>
-    node_renderer: p.Property<GlyphRenderer>
-    edge_renderer: p.Property<GlyphRenderer>
+    node_renderer: p.Property<GlyphRenderer<XYGlyph>>
+    edge_renderer: p.Property<GlyphRenderer<XsYsGlyph>>
     selection_policy: p.Property<GraphHitTestPolicy>
     inspection_policy: p.Property<GraphHitTestPolicy>
   }
@@ -160,8 +162,8 @@ export class GraphRenderer extends DataRenderer {
 
     this.define<GraphRenderer.Props>(({Ref}) => ({
       layout_provider:   [ Ref(LayoutProvider) ],
-      node_renderer:     [ Ref(GlyphRenderer) ],
-      edge_renderer:     [ Ref(GlyphRenderer) ],
+      node_renderer:     [ Ref(GlyphRenderer<XYGlyph>) ],
+      edge_renderer:     [ Ref(GlyphRenderer<XsYsGlyph>) ],
       selection_policy:  [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
       inspection_policy: [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
     }))

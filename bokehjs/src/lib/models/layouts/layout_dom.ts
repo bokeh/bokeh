@@ -5,7 +5,7 @@ import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {px} from "core/dom"
 import type {Display, CSSStyles} from "core/css"
-import {isNumber, isArray, isNotNull} from "core/util/types"
+import {isNumber, isArray} from "core/util/types"
 import type * as p from "core/properties"
 
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -114,11 +114,11 @@ export abstract class LayoutDOMView extends PaneView {
     // TODO In case of a race condition somewhere between layout, resize and children updates,
     // child_models and _child_views may be temporarily inconsistent, resulting in undefined
     // values. Eventually this shouldn't happen and undefined should be treated as a bug.
-    return this.child_models.map((child) => this._child_views.get(child)).filter(isNotNull)
+    return this.child_models.map((child) => this._child_views.get(child)).filter((view) => view != null)
   }
 
   get layoutable_views(): LayoutDOMView[] {
-    return this.child_views.filter((c): c is LayoutDOMView => c instanceof LayoutDOMView)
+    return this.child_views.filter((c) => c instanceof LayoutDOMView)
   }
 
   async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>

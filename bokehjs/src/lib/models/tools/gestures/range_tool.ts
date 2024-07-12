@@ -8,7 +8,7 @@ import type {PanEvent, TapEvent, MoveEvent, KeyEvent, EventType} from "core/ui_e
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {assert, unreachable} from "core/util/assert"
-import {isNumber, non_null} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {tool_icon_range} from "styles/icons.css"
 import {Node} from "../../coordinates/node"
 import type {CoordinateMapper, LRTB} from "core/util/bbox"
@@ -44,7 +44,7 @@ export class RangeToolView extends GestureToolView {
       if (state == "pan") {
         this.model.update_ranges_from_overlay()
       } else if (state == "pan:end") {
-        const ranges = [this.model.x_range, this.model.y_range].filter(non_null)
+        const ranges = [this.model.x_range, this.model.y_range].filter((r) => r != null)
         this.parent.trigger_ranges_update_event(ranges)
       }
     })
