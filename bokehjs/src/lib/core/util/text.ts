@@ -30,8 +30,9 @@ function _font_metrics(font: string): FontMetrics {
   const x_metrics = ctx.measureText("x")
   const metrics = ctx.measureText("ÅŚg|")
 
-  const ascent = metrics.fontBoundingBoxAscent
-  const descent = metrics.fontBoundingBoxDescent
+  // Support Firefox ESR, see https://github.com/bokeh/bokeh/issues/13969.
+  const ascent = typeof metrics.fontBoundingBoxAscent !== "undefined" ? metrics.fontBoundingBoxAscent : metrics.actualBoundingBoxAscent
+  const descent = typeof metrics.fontBoundingBoxDescent !== "undefined" ? metrics.fontBoundingBoxDescent : metrics.actualBoundingBoxDescent
 
   return {
     height: ascent + descent,
