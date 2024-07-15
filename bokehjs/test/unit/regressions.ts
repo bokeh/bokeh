@@ -52,13 +52,14 @@ import {
 
 import {
   Button,
+  CategoricalSlider,
 } from "@bokehjs/models/widgets"
 
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace} from "@bokehjs/core/util/array"
+import {linspace, range} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -1644,6 +1645,23 @@ describe("Bug", () => {
       expect(grv.decimated_glyph.inherited_image_height).to.be.true
       expect(grv.hover_glyph.inherited_image_height).to.be.true
       expect(grv.muted_glyph.inherited_image_height).to.be.true
+    })
+  })
+
+  describe("in issue #13965", () => {
+    it("doesn't allow to correctly index categories in CategoricalSlider", async () => {
+      const categories = range(0, 20).map((i) => `${i}`)
+      const slider = new CategoricalSlider({categories, value: "0"})
+      const {view} = await display(slider, [300, 50])
+
+      const el = view.shadow_el.querySelector(".noUi-handle")
+      expect_not_null(el)
+
+      // The expectation is that no errors accumulate during sliding.
+      for (const _ of categories) {
+        el.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+        await view.ready
+      }
     })
   })
 })

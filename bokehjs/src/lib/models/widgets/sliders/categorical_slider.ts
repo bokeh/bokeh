@@ -33,7 +33,7 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
 
   protected _calc_from([value]: number[]): string {
     const {categories} = this.model
-    return categories[value]
+    return categories[value | 0] // value may not be an integer due to noUiSlider's FP math
   }
 
   pretty(value: number | string): string {
