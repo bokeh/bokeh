@@ -4,8 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Represent array comparisons to be computed on the client (browser) side
-by BokehJS.
+''' Represent comparisons to be computed on the client (browser) side by
+BokehJS. These comparisons may be useful for specifying how DataTable columns
+are sorted.
 
 '''
 
@@ -38,6 +39,7 @@ from ..model import Model
 __all__ = (
     'Comparison',
     'CustomJSCompare',
+    'NanSorter',
 )
 
 #-----------------------------------------------------------------------------
@@ -65,7 +67,8 @@ class Comparison(Model):
 
 
 class CustomJSCompare(Comparison):
-    ''' Evaluate a JavaScript function/generator.
+    ''' A client-side comparison performed by evaluating a user-supplied
+    JavaScript function. This comparison can be useful for DataTable columns.
 
     .. warning::
         The explicit purpose of this Bokeh Model is to embed *raw JavaScript
@@ -94,7 +97,8 @@ class CustomJSCompare(Comparison):
     """)
 
 class NanSorter(Comparison):
-    '''
+    ''' A client-side comparison that can sort NaN values first or last. This
+    comparison can be useful for DataTable columns.
 
     '''
 
