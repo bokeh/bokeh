@@ -53,9 +53,9 @@ class Comparison(Model):
 
     JavaScript implementations should implement the following method:
 
-    .. code-block:: javascript
+    .. code-block:: typescript
 
-        compute(x: any, y: any): number {
+        compute(x: unknown, y: unknown): -1 | 0 | 1 {
             //  compare and return -1, 0, or 1
         }
 

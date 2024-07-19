@@ -41,6 +41,7 @@ export class CustomJSCompare extends Comparison {
     const code = use_strict(this.code)
     return new Function("x", "y", ...this.names, code)
   }
+  
   compute(x: unknown, y: unknown): 0 | 1 | -1 {
     const func = this._make_func()
     return func(x, y, this.values)
