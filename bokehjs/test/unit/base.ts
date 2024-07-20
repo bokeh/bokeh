@@ -249,7 +249,7 @@ describe("default model resolver", () => {
       "MultiSelect",
       "MultipleDatePicker",
       "MultipleDatetimePicker",
-      "NanSorter",
+      "NanCompare",
       "NoOverlap",
       "Node",
       "NodeCoordinates",

@@ -1922,7 +1922,7 @@
     },
     code: "",
   },
-  NanSorter: {
+  NanCompare: {
     __extends__: "Comparison",
     ascending_first: false,
   },

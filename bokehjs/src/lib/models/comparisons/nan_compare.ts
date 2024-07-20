@@ -2,7 +2,7 @@ import {Comparison} from "./comparison"
 import {isNumber} from "core/util/types"
 import type * as p from "core/properties"
 
-export namespace NanSorter {
+export namespace NanCompare {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Comparison.Props & {
@@ -10,17 +10,17 @@ export namespace NanSorter {
   }
 }
 
-export interface NanSorter extends NanSorter.Attrs {}
+export interface NanCompare extends NanCompare.Attrs {}
 
-export class NanSorter extends Comparison {
-  declare properties: NanSorter.Props
+export class NanCompare extends Comparison {
+  declare properties: NanCompare.Props
 
-  constructor(attrs?: Partial<NanSorter.Attrs>) {
+  constructor(attrs?: Partial<NanCompare.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<NanSorter.Props>(({Bool}) => ({
+    this.define<NanCompare.Props>(({Bool}) => ({
       ascending_first: [ Bool, false ],
     }))
   }

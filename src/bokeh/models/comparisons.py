@@ -39,7 +39,7 @@ from ..model import Model
 __all__ = (
     'Comparison',
     'CustomJSCompare',
-    'NanSorter',
+    'NanCompare',
 )
 
 #-----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ class CustomJSCompare(Comparison):
     are available as parameters that the code can use. Must return -1, 0, or 1.
     """)
 
-class NanSorter(Comparison):
+class NanCompare(Comparison):
     ''' A client-side comparison that can sort NaN values first or last. This
     comparison can be useful for DataTable columns.
 
