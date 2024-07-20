@@ -25,7 +25,9 @@ log = logging.getLogger(__name__)
 from ..core.enums import LatLon
 from ..core.has_props import abstract
 from ..core.properties import (
+    AnyRef,
     Auto,
+    Dict,
     Either,
     Enum,
     Float,
@@ -36,6 +38,7 @@ from ..core.properties import (
     Override,
     Required,
     Seq,
+    String,
 )
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
@@ -47,21 +50,22 @@ from .mappers import ScanningColorMapper
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Ticker',
-    'BinnedTicker',
-    'ContinuousTicker',
-    'FixedTicker',
     'AdaptiveTicker',
-    'CompositeTicker',
-    'SingleIntervalTicker',
-    'DaysTicker',
-    'MonthsTicker',
-    'YearsTicker',
     'BasicTicker',
+    'BinnedTicker',
+    'CategoricalTicker',
+    'CompositeTicker',
+    'ContinuousTicker',
+    'CustomJSTicker',
+    'DatetimeTicker',
+    'DaysTicker',
+    'FixedTicker',
     'LogTicker',
     'MercatorTicker',
-    'CategoricalTicker',
-    'DatetimeTicker',
+    'MonthsTicker',
+    'SingleIntervalTicker',
+    'Ticker',
+    'YearsTicker',
 )
 
 #-----------------------------------------------------------------------------
@@ -77,6 +81,78 @@ class Ticker(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+class CustomJSTicker(Ticker):
+    ''' Generate tick locations that are computed by a user-defined function.
+
+    A ``CustomJSTicker`` may be used with either a continuous (numeric) axis,
+    or a categorical axis. However, only basic, non-hierarchical categorical
+    axes (i.e. with a single level of factors) are supported.
+
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the formatter's code snippet as the values of
+    named parameters to the callback.
+    """)
+
+    major_code = String(default="", help="""
+    Callback code to run in the browser to compute minor tick locations for the
+    current viewport.
+
+    The ``cb_data`` parameter that is available to the callback code will contain
+    four specific fields:
+
+    ``start``
+        the computed start coordinate of the axis
+
+    ``end``
+        the computed end of the axis
+
+    ``range``
+        the Range model for this axis
+
+    ``cross_loc``
+        the coordinate that this axis intersects the orthogonal axis
+    """)
+
+    minor_code = String(default="", help="""
+    Callback code to run in the browser to compute minor tick locations for the
+    current viewport.
+
+    .. note::
+        Minor ticks are not used for categorical axes. This property will be
+        ignored when the range is a ``FactorRange``.
+
+    The ``cb_data`` parameter that is available to the callback code will contain
+    four specific fields:
+
+    ``major_ticks``
+        the list of the current computed major tick locations
+
+    ``start``
+        the computed start coordinate of the axis
+
+    ``end``
+        the computed end of the axis
+
+    ``range``
+        the Range model for this axis
+
+    ``cross_loc``
+        the coordinate that this axis intersects the orthogonal axis
+    """)
 
 @abstract
 class ContinuousTicker(Ticker):

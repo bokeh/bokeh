@@ -5731,6 +5731,14 @@
     num_minor_ticks: 5,
     desired_num_ticks: 6,
   },
+  CustomJSTicker: {
+    __extends__: "Ticker",
+    args: {
+      type: "map",
+    },
+    major_code: "",
+    minor_code: "",
+  },
   DatetimeTicker: {
     __extends__: "CompositeTicker",
     num_minor_ticks: 0,
