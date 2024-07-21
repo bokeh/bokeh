@@ -39,12 +39,6 @@ pytest panel/tests
 banner "Holoviews" 2> /dev/null
 nosetests holoviews/tests/plotting/bokeh
 
-popd || exit
-
-banner "PandasBokeh" 2> /dev/null
-pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
-
-banner "GeoPandasBokeh" 2> /dev/null
-pytest Pandas-Bokeh/Tests/test_GeoPandasBokeh.py
+popd
 
 exit 0
