@@ -23,7 +23,7 @@ xticker = CustomJSTicker(
 yticker = CustomJSTicker(major_code="return ['a', 'c', 'e', 'g']")
 
 p = figure(y_range=list("abcdefg"))
-p.scatter([1,2,3,4,5], ["a","d","b","f","c"], size=30)
+p.scatter([1, 2, 3, 4, 5], ["a", "d", "b", "f", "c"], size=30)
 
 p.xaxis.ticker = xticker
 

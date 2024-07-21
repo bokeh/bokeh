@@ -103,7 +103,7 @@ class CustomJSTicker(Ticker):
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
-    These objects are made available to the formatter's code snippet as the values of
+    These objects are made available to the ticker's code snippet as the values of
     named parameters to the callback.
     """)
 
@@ -136,7 +136,7 @@ class CustomJSTicker(Ticker):
         ignored when the range is a ``FactorRange``.
 
     The ``cb_data`` parameter that is available to the callback code will contain
-    four specific fields:
+    five specific fields:
 
     ``major_ticks``
         the list of the current computed major tick locations
