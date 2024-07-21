@@ -51,7 +51,7 @@ class Comparison(Model):
     ''' Base class for ``Comparison`` models that represent a comparison
     to be carried out on the client-side.
 
-    JavaScript implementations should implement the following method:
+    The JavaScript implementation should implement the following method:
 
     .. code-block:: typescript
 
@@ -92,7 +92,7 @@ class CustomJSCompare(Comparison):
 
     code = String(default="", help="""
     A snippet of JavaScript code to execute in the browser. The code is made into
-    the body of a generator function, and all of the named objects in ``args``
+    the body of a generator function and all of the named objects in ``args``
     are available as parameters that the code can use. Must return -1, 0, or 1.
     """)
 
