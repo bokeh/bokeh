@@ -146,7 +146,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             raise ProtocolError("Session expiry has not been provided")
         elif now >= payload['session_expiry']:
             self.close()
-            raise ProtocolError("Token is expired.")
+            raise ProtocolError("Token is expired. Configure the app with a larger value for --session-token-expiration if necessary")
         elif not check_token_signature(token,
                                        signed=self.application.sign_sessions,
                                        secret_key=self.application.secret_key):
