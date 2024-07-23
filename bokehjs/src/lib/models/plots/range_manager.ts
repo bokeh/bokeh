@@ -15,9 +15,9 @@ export type RangeInfo = {
 }
 
 export type RangeOptions = {
-  panning?: boolean
-  scrolling?: boolean
-  maintain_focus?: boolean
+  panning: boolean
+  scrolling: boolean
+  maintain_focus: boolean
 }
 
 export class RangeManager {
@@ -29,7 +29,11 @@ export class RangeManager {
 
   invalidate_dataranges: boolean = true
 
-  update(range_info: RangeInfo, options: RangeOptions = {}): void {
+  update(range_info: RangeInfo, options: Partial<RangeOptions> = {}): void {
+    const panning = options.panning ?? false
+    const scrolling = options.scrolling ?? false
+    const maintain_focus = options.maintain_focus ?? false
+
     const range_state: RangeState = new Map()
     for (const [range, interval] of range_info.xrs) {
       range_state.set(range, interval)
@@ -37,10 +41,11 @@ export class RangeManager {
     for (const [range, interval] of range_info.yrs) {
       range_state.set(range, interval)
     }
-    if (options.scrolling ?? false) {
+
+    if (scrolling && maintain_focus) {
       this._update_ranges_together(range_state)   // apply interval bounds while keeping aspect
     }
-    this._update_ranges_individually(range_state, options)
+    this._update_ranges_individually(range_state, {panning, scrolling, maintain_focus})
   }
 
   ranges(): {x_ranges: Range[], y_ranges: Range[]} {
@@ -216,16 +221,14 @@ export class RangeManager {
     }
   }
 
-  protected _update_ranges_individually(range_state: RangeState, options: RangeOptions = {}): void {
-    const panning = options.panning ?? false
-    const scrolling = options.scrolling ?? false
-    const maintain_focus = options.maintain_focus ?? false
+  protected _update_ranges_individually(range_state: RangeState, options: RangeOptions): void {
+    const {panning, scrolling, maintain_focus} = options
 
     let hit_bound = false
     for (const [rng, range_info] of range_state) {
       // Limit range interval first. Note that for scroll events,
       // the interval has already been limited for all ranges simultaneously
-      if (!scrolling) {
+      if (!scrolling || maintain_focus) {
         const weight = this._get_weight_to_constrain_interval(rng, range_info)
         if (weight < 1) {
           range_info.start = weight*range_info.start + (1 - weight)*rng.start

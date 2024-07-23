@@ -101,7 +101,7 @@ export class GMapPlotView extends PlotView {
     super.remove()
   }
 
-  override update_range(range_info: GMapRangeInfo | null, options?: RangeOptions): void {
+  override update_range(range_info: GMapRangeInfo | null, options?: Partial<RangeOptions>): void {
     // RESET -------------------------
     if (range_info == null) {
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng})

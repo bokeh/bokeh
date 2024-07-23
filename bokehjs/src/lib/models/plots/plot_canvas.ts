@@ -642,7 +642,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return views
   }
 
-  update_range(range_info: RangeInfo, options?: RangeOptions): void {
+  update_range(range_info: RangeInfo, options?: Partial<RangeOptions>): void {
     this.pause()
     this._range_manager.update(range_info, options)
     this.unpause()
