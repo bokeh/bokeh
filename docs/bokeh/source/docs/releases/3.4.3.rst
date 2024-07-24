@@ -1,0 +1,19 @@
+.. _release-3-4-3:
+
+3.4.3
+=====
+
+Bokeh version ``3.4.3`` (July 2024) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fixed performance regression related to inherited image data in ``Image``-like glyphs (:bokeh-pull:`13952`)
+* Fixed spurious warning about unknown bokeh version in the documentation (:bokeh-pull:`13949`)
+* Fixed handling of certain classes of objects in ``HasProps`` internals (:bokeh-pull:`13970`)
+* Restored support for ``BOKEH_MINIFIED=no`` in resources (:bokeh-pull:`13974`)
+* Updated the location of ``*.d.ts`` files in ``package.json`` (:bokeh-pull:`13975`)
+* Improved type hints of ``gridplot()`` (:bokeh-pull:`13914`)
+* Fixed merging of plots in grid plots when only one plot is involved (:bokeh-pull:`13978`)
+* Fixed indexing of categories in ``CategoricalSlider`` widget (:bokeh-pull:`13966`)
