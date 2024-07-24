@@ -179,36 +179,6 @@ jobs:
           name: examples-report
           path: examples-report
 
-  integration-tests:
-    if: ${{ false }}  # disable for now
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Prepare Environment
-        uses: ./.github/workflows/composite/test-setup
-        with:
-          test-env: '3.11'
-          source-tree: 'delete'
-
-      - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
-
-      - name: Run tests
-        run: pytest -v --cov=bokeh --cov-report=xml --tb=short --driver chrome --color=yes tests/integration
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v4
-        with:
-          flags: integration
-          verbose: true
-
   unit-test:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -351,27 +321,3 @@ jobs:
 
       - name: Run tests
         run: bash scripts/ci/run_downstream_tests.sh
-
-  docker_from_wheel:
-    if: ${{ false }}  # temporarily disable
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: bokeh/bokeh-dev:branch-3.1
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download wheel package
-        id: download
-        uses: actions/download-artifact@v4
-        with:
-          name: wheel-package
-          path: dist/
-
-      - name: Start Docker container, install Bokeh from wheel and run Python tests.
-        env:
-          BOKEH_DOCKER_FROM_WHEEL: 1
-          BOKEH_DOCKER_INTERACTIVE: 0
-        run: |
-          scripts/docker/docker_run.sh $IMAGE_TAG
