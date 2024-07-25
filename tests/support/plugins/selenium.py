@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import pathlib
 from shutil import which
 from typing import (
     TYPE_CHECKING,
@@ -34,7 +35,6 @@ from warnings import warn
 import pytest
 
 if TYPE_CHECKING:
-    import py
     from _pytest import config, nodes
     from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -52,7 +52,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def pytest_report_collectionfinish(config: config.Config, startdir: py.path.local, items: Sequence[nodes.Item]) -> list[str]:
+def pytest_report_collectionfinish(config: config.Config, start_path: pathlib.Path, items: Sequence[nodes.Item]) -> list[str]:
     '''
 
     '''

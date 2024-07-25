@@ -134,6 +134,20 @@ def test_gridplot_None() -> None:
     assert isinstance(g, GridPlot) and len(g.children) == 4
     assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
+
+def test_gridplot_using_ncols() -> None:
+    def p():
+        p = figure()
+        p.scatter([1, 2, 3], [4, 5, 6])
+        return p
+
+    p0, p1, p2, p3 = p(), p(), p(), p()
+    g = gridplot([p0, p1, p2, p3], ncols=2)
+
+    assert isinstance(g, GridPlot) and len(g.children) == 4
+    assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 1, 0), (p3, 1, 1)]
+
+
 def test_layout_simple() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
@@ -277,18 +291,18 @@ def test_group_tools() -> None:
 
     assert isinstance(t0, ToolProxy)
     assert isinstance(t1, ToolProxy)
-    assert isinstance(t2, PanTool)
+    assert isinstance(t2, ToolProxy)
     assert isinstance(t3, ToolProxy)
-    assert isinstance(t4, TapTool)
+    assert isinstance(t4, ToolProxy)
     assert isinstance(t5, SaveTool)
     assert isinstance(t6, ToolProxy)
     assert isinstance(t7, ToolProxy)
 
     assert t0.tools == [pan0, pan1]
     assert t1.tools == [pan2, pan4, pan3]
-    assert t2 == pan5
+    assert t2.tools == [pan5]
     assert t3.tools == [tap0, tap1]
-    assert t4 == tap2
+    assert t4.tools == [tap2]
     assert t5 != save0 and t5 != save1 and t5.filename is None
     assert t6.tools == [select0, select1, select2]
     assert t7.tools == [hover0, hover1, hover2]

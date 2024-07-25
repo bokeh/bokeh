@@ -19,6 +19,9 @@ import pytest ; pytest
 # Standard library imports
 import re
 
+# External imports
+import numpy as np
+
 # Bokeh imports
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
@@ -131,7 +134,7 @@ class TestValidateDetailDefault:
         p = Bool()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected a value of type bool or bool_, got junk of type str")
+        assert matches(str(e.value), fr"expected a value of type bool or {np.bool_.__name__}, got junk of type str")
     def test_Complex(self) -> None:
         p = Complex()
         with pytest.raises(ValueError) as e:

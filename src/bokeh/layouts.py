@@ -190,23 +190,56 @@ def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mod
     _children = _parse_children_arg(*args, children=children)
     return _create_grid(_children, sizing_mode, **kwargs)
 
+
+@overload
 def gridplot(
-        children: list[list[UIElement | None]], *,
-        sizing_mode: SizingModeType | None = None,
-        toolbar_location: LocationType | None = "above",
-        ncols: int | None = None,
-        width: int | None = None,
-        height: int | None = None,
-        toolbar_options: dict[ToolbarOptions, Any] | None = None,
-        merge_tools: bool = True) -> GridPlot:
+    children: list[UIElement | None],
+    *,
+    sizing_mode: SizingModeType | None = None,
+    toolbar_location: LocationType | None = "above",
+    ncols: int,
+    width: int | None = None,
+    height: int | None = None,
+    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    merge_tools: bool = True,
+) -> GridPlot:
+    ...
+
+
+@overload
+def gridplot(
+    children: list[list[UIElement | None]],
+    *,
+    sizing_mode: SizingModeType | None = None,
+    toolbar_location: LocationType | None = "above",
+    ncols: None = None,
+    width: int | None = None,
+    height: int | None = None,
+    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    merge_tools: bool = True,
+) -> GridPlot:
+    ...
+
+
+def gridplot(
+    children: list[UIElement | None] | list[list[UIElement | None]],
+    *,
+    sizing_mode: SizingModeType | None = None,
+    toolbar_location: LocationType | None = "above",
+    ncols: int | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    merge_tools: bool = True,
+) -> GridPlot:
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
-    grid. ``gridplot`` is designed to layout a set of plots. For general
+    grid. ``gridplot`` is designed to lay out a set of plots. For general
     grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
-        children (list of lists of |Plot|): An array of plots to display in a
+        children (list or list of lists of |Plot|): An array of plots to display in a
             grid, given as a list of lists of Plot objects. To leave a position
             in the grid empty, pass None for that position in the children list.
             OR list of |Plot| if called with ncols.
@@ -600,9 +633,7 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
                     entries.remove(item)
             entries.remove(head)
 
-            if len(group) == 1:
-                computed.append(group[0])
-            elif merge is not None and (tool := merge(cls, group)) is not None:
+            if merge is not None and (tool := merge(cls, group)) is not None:
                 computed.append(tool)
             else:
                 computed.append(ToolProxy(tools=group))

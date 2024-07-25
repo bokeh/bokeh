@@ -1,0 +1,46 @@
+{
+  roots: [
+    {
+      type: "object",
+      name: "TextInput",
+      id: "p1001",
+      attributes: {
+        js_property_callbacks: {
+          type: "map",
+          entries: [
+            [
+              "change:value",
+              [
+                {
+                  type: "object",
+                  name: "CustomJS",
+                  id: "p1002",
+                  attributes: {
+                    args: {
+                      type: "map",
+                      entries: [
+                        [
+                          "test",
+                          {
+                            type: "map",
+                            entries: [
+                              [
+                                "constructor",
+                                12,
+                              ],
+                            ],
+                          },
+                        ],
+                      ],
+                    },
+                    code: "export default ({test}) => console.log(test)",
+                  },
+                },
+              ],
+            ],
+          ],
+        },
+      },
+    },
+  ],
+}

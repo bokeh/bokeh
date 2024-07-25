@@ -21,7 +21,7 @@ export interface HasRefs {
   readonly [has_refs]: boolean
 }
 
-export function _is_HasRefs(v: object): v is HasRefs {
+function _is_HasRefs(v: object): v is HasRefs {
   return has_refs in v
 }
 
@@ -34,7 +34,7 @@ export function may_have_refs(obj: object): boolean {
     return obj[has_refs]
   }
   const type = obj.constructor
-  if (_is_HasRefs(type)) {
+  if (is_HasRefs(type)) {
     return type[has_refs]
   }
   return true

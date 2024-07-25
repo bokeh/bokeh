@@ -18,8 +18,10 @@ import {
   CopyTool,
   CustomJS,
   DataRange1d,
+  EqHistColorMapper,
   GlyphRenderer,
   HoverTool,
+  Image,
   IndexFilter,
   Legend,
   LegendItem,
@@ -50,13 +52,14 @@ import {
 
 import {
   Button,
+  CategoricalSlider,
 } from "@bokehjs/models/widgets"
 
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace} from "@bokehjs/core/util/array"
+import {linspace, range} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -68,13 +71,14 @@ import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {Spectral11, Viridis256} from "@bokehjs/api/palettes"
+import {Spectral11, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
+import {ImageView} from "@bokehjs/models/glyphs/image"
 import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
 import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_table"
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
@@ -1550,7 +1554,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13831", () => {
-    it("allow addition of new indices to selection by default", async () => {
+    it("allows addition of new indices to selection by default", async () => {
       const tap_tool = new TapTool()
       const p = fig([200, 200], {tools: [tap_tool]})
       const cr = p.circle({x: [0, 1, 2, 3], y: [0, 1, 2, 3], radius: [0.5, 0.75, 1.0, 1.25], color: ["red", "green", "blue", "yellow"], alpha: 0.8})
@@ -1598,6 +1602,66 @@ describe("Bug", () => {
 
       await tap_at(2.5, 2.5) // deselect blue and select yellow
       expect(ds.selected.indices).to.be.equal([3])
+    })
+  })
+
+  describe("in issue #13951", () => {
+    it("doesn't allow inheriting image data in Image-like glyphs", async () => {
+      const p = fig([400, 400])
+
+      const color_mapper = new EqHistColorMapper({palette: Spectral11})
+      const gr = p.image({image: [scalar_image()], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+
+      const nonselection_color_mapper = new EqHistColorMapper({palette: Viridis11})
+      gr.nonselection_glyph = new Image({x: 0, y: 0, dw: 10, dh: 10, color_mapper: nonselection_color_mapper})
+
+      const {view} = await display(p)
+      const grv = view.owner.get_one(gr)
+
+      expect_instanceof(grv.glyph, ImageView)
+      expect_instanceof(grv.selection_glyph, ImageView)
+      expect_instanceof(grv.nonselection_glyph, ImageView)
+      expect_instanceof(grv.decimated_glyph, ImageView)
+      expect_instanceof(grv.hover_glyph, ImageView)
+      expect_instanceof(grv.muted_glyph, ImageView)
+
+      expect(grv.glyph.inherited_image_data).to.be.false
+      expect(grv.selection_glyph.inherited_image_data).to.be.true
+      expect(grv.nonselection_glyph.inherited_image_data).to.be.false
+      expect(grv.decimated_glyph.inherited_image_data).to.be.true
+      expect(grv.hover_glyph.inherited_image_data).to.be.true
+      expect(grv.muted_glyph.inherited_image_data).to.be.true
+
+      expect(grv.glyph.inherited_image_width).to.be.false
+      expect(grv.selection_glyph.inherited_image_width).to.be.true
+      expect(grv.nonselection_glyph.inherited_image_width).to.be.false
+      expect(grv.decimated_glyph.inherited_image_width).to.be.true
+      expect(grv.hover_glyph.inherited_image_width).to.be.true
+      expect(grv.muted_glyph.inherited_image_width).to.be.true
+
+      expect(grv.glyph.inherited_image_height).to.be.false
+      expect(grv.selection_glyph.inherited_image_height).to.be.true
+      expect(grv.nonselection_glyph.inherited_image_height).to.be.false
+      expect(grv.decimated_glyph.inherited_image_height).to.be.true
+      expect(grv.hover_glyph.inherited_image_height).to.be.true
+      expect(grv.muted_glyph.inherited_image_height).to.be.true
+    })
+  })
+
+  describe("in issue #13965", () => {
+    it("doesn't allow to correctly index categories in CategoricalSlider", async () => {
+      const categories = range(0, 20).map((i) => `${i}`)
+      const slider = new CategoricalSlider({categories, value: "0"})
+      const {view} = await display(slider, [300, 50])
+
+      const el = view.shadow_el.querySelector(".noUi-handle")
+      expect_not_null(el)
+
+      // The expectation is that no errors accumulate during sliding.
+      for (const _ of categories) {
+        el.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+        await view.ready
+      }
     })
   })
 })
