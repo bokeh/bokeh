@@ -35,6 +35,7 @@ from . import (
     axes,
     callbacks,
     canvas,
+    comparisons,
     coordinates,
     css,
     expressions,
@@ -69,6 +70,7 @@ from .annotations import *
 from .axes import *
 from .callbacks import *
 from .canvas import *
+from .comparisons import *
 from .coordinates import *
 from .css import *
 from .expressions import *
@@ -109,6 +111,7 @@ __all__ = (
     *axes.__all__,
     *callbacks.__all__,
     *canvas.__all__,
+    *comparisons.__all__,
     *coordinates.__all__,
     *css.__all__,
     *expressions.__all__,

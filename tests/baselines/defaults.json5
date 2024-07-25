@@ -1912,6 +1912,20 @@
     hidpi: true,
     output_backend: "canvas",
   },
+  Comparison: {
+    __extends__: "Model",
+  },
+  CustomJSCompare: {
+    __extends__: "Comparison",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  NanCompare: {
+    __extends__: "Comparison",
+    ascending_first: false,
+  },
   CoordinateMapping: {
     __extends__: "Model",
     x_source: {
@@ -7253,6 +7267,7 @@
     sortable: true,
     default_sort: "ascending",
     visible: true,
+    sorter: null,
   },
   TableWidget: {
     __extends__: "Widget",

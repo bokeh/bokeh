@@ -5,6 +5,7 @@ import type {ColumnType} from "./definitions"
 import type * as p from "core/properties"
 import {unique_id} from "core/util/string"
 import {Sort} from "core/enums"
+import {Comparison} from "../../../models/comparisons"
 import {Model} from "../../../model"
 
 export namespace TableColumn {
@@ -19,6 +20,7 @@ export namespace TableColumn {
     sortable: p.Property<boolean>
     default_sort: p.Property<Sort>
     visible: p.Property<boolean>
+    sorter: p.Property<Comparison | null>
   }
 }
 
@@ -41,6 +43,7 @@ export class TableColumn extends Model {
       sortable:     [ Bool, true ],
       default_sort: [ Sort, "ascending" ],
       visible:      [ Bool, true ],
+      sorter:       [ Nullable(Ref(Comparison)), null ],
     }))
   }
 
@@ -55,6 +58,7 @@ export class TableColumn extends Model {
       editor: this.editor.default_view,
       sortable: this.sortable,
       defaultSortAsc: this.default_sort == "ascending",
+      sorter: this.sorter,
     }
   }
 }
