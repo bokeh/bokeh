@@ -42,12 +42,12 @@ describe("DataTable", () => {
     const foo_col = new TableColumn({field: "foo", title: "Foo", width: 200})
 
     const sorter = new CustomJSCompare({
-        code: `
+      code: `
             const xn = Number(x.split(" ")[1])
             const yn = Number(y.split(" ")[1])
             return xn == yn ? 0 : (xn < yn ? -1 : 1)
          `,
-     })
+    })
     const bar_col = new TableColumn({field: "bar", title: "Bar", width: 200, sorter})
     const columns = [foo_col, bar_col]
 
