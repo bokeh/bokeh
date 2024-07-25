@@ -38,7 +38,7 @@
     "dev-build": "node make dev-build"
   },
   "main": "build/js/lib/bokeh.js",
-  "types": "build/js/types/bokeh.d.ts",
+  "types": "build/js/lib/bokeh.d.ts",
   "dependencies": {
     "@bokeh/numbro": "^1.6.2",
     "@bokeh/slickgrid": "~2.4.4103",

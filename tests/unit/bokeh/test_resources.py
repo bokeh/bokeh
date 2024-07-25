@@ -31,6 +31,7 @@ import bokeh.util.version as buv
 from bokeh.models import Model
 from bokeh.resources import RuntimeMessage, _get_cdn_urls
 from bokeh.settings import LogLevel, settings
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.resources as resources  # isort:skip
@@ -454,6 +455,49 @@ def test_external_js_and_css_resource_ordering() -> None:
     # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
+
+
+@pytest.mark.parametrize("mode", ["cdn", "inline"])
+def test_Resources_with_BOKEH_MINIFIED(mode: resources.ResourcesMode) -> None:
+    with envset(BOKEH_MINIFIED="yes"):
+        r = resources.Resources(mode=mode)
+        assert r.minified is True
+
+    with envset(BOKEH_MINIFIED="no"):
+        r = resources.Resources(mode=mode)
+        assert r.minified is False
+
+    with envset(BOKEH_DEV="yes"):
+        r = resources.Resources(mode=mode, minified=True)
+        assert r.minified is True
+
+    with envset(BOKEH_DEV="yes"):
+        r = resources.Resources(mode=mode, minified=False)
+        assert r.minified is False
+
+    with envset(BOKEH_DEV="no"):
+        r = resources.Resources(mode=mode, minified=True)
+        assert r.minified is True
+
+    with envset(BOKEH_DEV="no"):
+        r = resources.Resources(mode=mode, minified=False)
+        assert r.minified is False
+
+    with envset(BOKEH_MINIFIED="yes", BOKEH_DEV="yes"):
+        r = resources.Resources(mode=mode)
+        assert r.minified is False
+
+    with envset(BOKEH_MINIFIED="yes", BOKEH_DEV="no"):
+        r = resources.Resources(mode=mode)
+        assert r.minified is True
+
+    with envset(BOKEH_MINIFIED="no", BOKEH_DEV="yes"):
+        r = resources.Resources(mode=mode)
+        assert r.minified is False
+
+    with envset(BOKEH_MINIFIED="no", BOKEH_DEV="no"):
+        r = resources.Resources(mode=mode)
+        assert r.minified is False
 
 # -----------------------------------------------------------------------------
 # Dev API
