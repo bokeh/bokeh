@@ -1,3 +1,11 @@
+2024-07-25    3.5.1:
+--------------------
+  * bugfixes:
+    - #13967 [component: docs] Add missing release notes
+
+  * tasks:
+    - #13982 Backports for 3.5.1
+
 2024-07-04      3.5:
 --------------------
   * bugfixes:
