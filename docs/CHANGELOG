@@ -1,3 +1,12 @@
+2024-07-25    3.4.3:
+--------------------
+  * bugfixes:
+    - #13948 [component: docs] Version banner warns about unknown version on latest docs after 3.4.2 release
+
+  * tasks:
+    - #13953 Backports for 3.4.3
+    - #13989 fixes for mypy 1.11
+
 2024-06-25    3.4.2:
 --------------------
   * tasks:
