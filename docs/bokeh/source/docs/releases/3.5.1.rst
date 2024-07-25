@@ -1,0 +1,17 @@
+.. _release-3-5-1:
+
+3.5.1
+=====
+
+Bokeh version ``3.5.1`` (July 2024) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fixed handling of certain classes of objects in ``HasProps`` internals (:bokeh-pull:`13970`)
+* Restored support for ``BOKEH_MINIFIED=no`` in resources (:bokeh-pull:`13974`)
+* Updated the location of ``*.d.ts`` files in ``package.json`` (:bokeh-pull:`13975`)
+* Fixed merging of plots in grid plots when only one plot is involved (:bokeh-pull:`13978`)
+* Restored a bit of legacy font measurement logic for Firefox ESR (:bokeh-pull:`13979`)
+* Fixed indexing of categories in ``CategoricalSlider`` widget (:bokeh-pull:`13966`)
