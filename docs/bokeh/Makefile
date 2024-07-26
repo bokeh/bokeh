@@ -26,5 +26,7 @@ html:
 	&& echo \
 	&& echo "Build finished in $$(($$(date +%s)-start)) seconds. The HTML pages are in $(BUILDDIR)/html."
 
+test-accessibility:
+	python tests/test_docs_accessibility.py
 serve:
 	python docserver.py
