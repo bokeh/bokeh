@@ -59,7 +59,10 @@ class AutoloadJsHandler(SessionHandler):
         self.set_header("Access-Control-Allow-Credentials", "true")
 
     async def get(self, *args, **kwargs):
-        if self.request.cookies:
+        if self.request.cookies and "Origin" in self.request.headers:
+            # If credentials, i.e. cookies, are sent with the request,
+            # we cannot leave the allowed origin as wildcard "*",
+            # but have to make it explicit.
             self.set_header("Access-Control-Allow-Origin", self.request.headers["Origin"])
 
         session = await self.get_session()
