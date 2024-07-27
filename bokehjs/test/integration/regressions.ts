@@ -17,7 +17,8 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool,
+  Toolbar, ToolProxy,
+  PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool, WheelZoomTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
@@ -4054,6 +4055,33 @@ describe("Bug", () => {
 
       dropdown.menu = ["New Action 1", "New Action 2", "New Action 3"]
       await view.ready
+    })
+  })
+
+  describe("in issue #13827", () => {
+    it("doesn't allow to respect maintain_focus=false when zooming", async () => {
+      const p = fig([200, 200], {
+        x_range: new Range1d({bounds: [1, 5], start: 1, end: 2}),
+        y_range: new Range1d({bounds: [2, 7], start: 4, end: 6.5}),
+        tools: "reset,pan",
+      })
+
+      p.line({
+        x: [1, 2, 3, 4, 5],
+        y: [6, 7, 2, 4, 5],
+      })
+
+      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      p.add_tools(wheel_zoom)
+      p.toolbar.active_scroll = wheel_zoom
+
+      const {view} = await display(p)
+      const ac = actions(view, {units: "screen"})
+
+      for (const _ of range(0, 10)) {
+        await ac.scroll_down(xy(100, 100))
+        await view.ready
+      }
     })
   })
 })
