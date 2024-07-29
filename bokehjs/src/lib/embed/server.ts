@@ -8,9 +8,10 @@ import type {EmbedTarget} from "./dom"
 
 // @internal
 export function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {
-  let protocol = "ws:"
-  if (window.location.protocol == "https:") {
-    protocol = "wss:"
+  // if in an `srcdoc` iframe, try to get the absolute URL
+  // from the `data-absolute-url` attribute if not passed explicitly
+  if (absolute_url === undefined && frameElement !== null && (frameElement as HTMLIFrameElement).dataset.absoluteUrl !== undefined) {
+    absolute_url = (frameElement as HTMLIFrameElement).dataset.absoluteUrl
   }
 
   let loc: HTMLAnchorElement | Location
@@ -19,6 +20,11 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
     loc.href = absolute_url
   } else {
     loc = window.location
+  }
+
+  let protocol = "ws:"
+  if (loc.protocol == "https:") {
+    protocol = "wss:"
   }
 
   if (app_path != null) {
