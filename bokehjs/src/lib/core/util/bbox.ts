@@ -551,6 +551,60 @@ export class BBox implements Rect, Equatable {
              that.y1 < this.y0 || that.y0 > this.y1)
   }
 
+  private _x_percent?: CoordinateMapper
+  get x_percent(): CoordinateMapper {
+    const self = this
+    return this._x_percent ?? (this._x_percent = {
+      compute(x: number): number {
+        return self.left + x*self.width
+      },
+      invert(sx: number): number {
+        return (sx - self.left)/self.width
+      },
+      v_compute(xs: Arrayable<number>): ScreenArray {
+        const {left, width} = self
+        return new ScreenArray(map(xs, (x) => left + x*width))
+      },
+      v_invert(sxs: Arrayable<number>): Arrayable<number> {
+        const {left, width} = self
+        return map(sxs, (sx) => (sx - left)/width)
+      },
+      get source_range(): Interval {
+        return self.x_range
+      },
+      get target_range(): Interval {
+        return self.x_range
+      },
+    })
+  }
+
+  private _y_percent?: CoordinateMapper
+  get y_percent(): CoordinateMapper {
+    const self = this
+    return this._y_percent ?? (this._y_percent = {
+      compute(y: number): number {
+        return self.top + y*self.height
+      },
+      invert(sy: number): number {
+        return (sy - self.top)/self.height
+      },
+      v_compute(ys: Arrayable<number>): ScreenArray {
+        const {top, height} = self
+        return new ScreenArray(map(ys, (y) => top + y*height))
+      },
+      v_invert(sys: Arrayable<number>): Arrayable<number> {
+        const {top, height} = self
+        return map(sys, (sy) => (sy - top)/height)
+      },
+      get source_range(): Interval {
+        return self.y_range
+      },
+      get target_range(): Interval {
+        return self.y_range
+      },
+    })
+  }
+
   private _x_screen?: CoordinateMapper
   get x_screen(): CoordinateMapper {
     const self = this

@@ -80,6 +80,15 @@ class Enum(String):
         default = default if default is not Intrinsic else self._enum._default
         super().__init__(default=default, help=help)
 
+    def __call__(self, *, default: Init[str] = Intrinsic, help: str | None = None) -> Enum:
+        """ Clone this property and allow to override ``default`` and ``help``. """
+        default = self._default if default is Intrinsic else default
+        help = self._help if help is None else help
+        prop = self.__class__(self._enum, default=default, help=help)
+        prop.alternatives = list(self.alternatives)
+        prop.assertions = list(self.assertions)
+        return prop
+
     def __str__(self) -> str:
         class_name = self.__class__.__name__
         allowed_values = ", ".join(repr(x) for x in self.allowed_values)

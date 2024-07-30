@@ -1,54 +1,58 @@
-import type {Anchor, TextAnchor, BorderRadius, Padding} from "./kinds"
-import type {TextAlign, TextBaseline} from "core/enums"
+import type {Anchor, AutoAnchor, TextAnchor, HAnchor, VAnchor, BorderRadius, Padding} from "./kinds"
+import type {TextAlign, TextBaseline, HAlign, VAlign} from "core/enums"
 import {isString, isNumber, isPlainObject} from "core/util/types"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 import {unreachable} from "core/util/assert"
 
-export function anchor(anchor: Anchor): XY<number> {
-  if (isString(anchor)) {
-    switch (anchor) {
-      case "top_left":      return {x: 0.0, y: 0.0}
-      case "top":
-      case "top_center":    return {x: 0.5, y: 0.0}
-      case "top_right":     return {x: 1.0, y: 0.0}
-      case "right":
-      case "center_right":  return {x: 1.0, y: 0.5}
-      case "bottom_right":  return {x: 1.0, y: 1.0}
-      case "bottom":
-      case "bottom_center": return {x: 0.5, y: 1.0}
-      case "bottom_left":   return {x: 0.0, y: 1.0}
-      case "left":
-      case "center_left":   return {x: 0.0, y: 0.5}
-      case "center":
-      case "center_center": return {x: 0.5, y: 0.5}
-    }
-  } else {
-    const x_anchor = (() => {
-      const [x_anchor] = anchor
-      switch (x_anchor) {
-        case "start":
-        case "left":   return 0.0
-        case "center": return 0.5
-        case "end":
-        case "right":  return 1.0
-        default:
-          return x_anchor
-      }
-    })()
-    const y_anchor = (() => {
-      const [, y_anchor] = anchor
-      switch (y_anchor) {
-        case "start":
-        case "top":    return 0.0
-        case "center": return 0.5
-        case "end":
-        case "bottom": return 1.0
-        default:
-          return y_anchor
-      }
-    })()
-    return {x: x_anchor, y: y_anchor}
+export function normalized_anchor(anchor: AutoAnchor): {x: HAnchor | "auto", y: VAnchor | "auto"} {
+  if (anchor == "auto") {
+    return {x: "auto", y: "auto"}
   }
+  const normalized = (() => {
+    switch (anchor) {
+      case "top":    return "top_center"
+      case "bottom": return "bottom_center"
+      case "left":   return "center_left"
+      case "center": return "center_center"
+      case "right":  return "center_right"
+      default:       return anchor
+    }
+  })()
+  if (isString(normalized)) {
+    const [y, x] = normalized.split("_") as [VAlign, HAlign]
+    return {x, y}
+  } else {
+    const [x, y] = normalized
+    return {x, y}
+  }
+}
+
+export function anchor(anchor: Anchor): XY<number>
+export function anchor(anchor: AutoAnchor): XY<number | "auto">
+
+export function anchor(anchor: AutoAnchor): XY<number | "auto"> {
+  const {x, y} = normalized_anchor(anchor)
+  const x_anchor = (() => {
+    switch (x) {
+      case "start":
+      case "left":   return 0.0
+      case "center": return 0.5
+      case "end":
+      case "right":  return 1.0
+      default:       return x
+    }
+  })()
+  const y_anchor = (() => {
+    switch (y) {
+      case "start":
+      case "top":    return 0.0
+      case "center": return 0.5
+      case "end":
+      case "bottom": return 1.0
+      default:       return y
+    }
+  })()
+  return {x: x_anchor, y: y_anchor}
 }
 
 export function text_anchor(text_anchor: TextAnchor, align: TextAlign, baseline: TextBaseline): XY<number> {
