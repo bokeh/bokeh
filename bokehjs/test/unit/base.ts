@@ -107,6 +107,7 @@ describe("default model resolver", () => {
       "CustomJSFilter",
       "CustomJSHover",
       "CustomJSTickFormatter",
+      "CustomJSTicker",
       "CustomJSTransform",
       "CustomLabelingPolicy",
       "DataCube",

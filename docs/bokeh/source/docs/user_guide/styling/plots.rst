@@ -364,6 +364,18 @@ As a shortcut, you can also supply the list of ticks directly to an axis'
 .. bokeh-plot:: __REPO__/examples/styling/plots/fixed_ticker.py
     :source-position: above
 
+``CustomJSTicker``
+''''''''''''''''''
+
+To fully customize the location of axis ticks, use the |CustomJSTicker| in
+combination with a JavaScript snippet as its ``major_code`` and ``minor_code``
+properties.
+
+These code snippets should return lists of tick locations:
+
+.. bokeh-plot:: __REPO__/examples/styling/plots/custom_js_ticker.py
+    :source-position: above
+
 Tick lines
 ~~~~~~~~~~
 
@@ -843,6 +855,7 @@ You can see a complete example with output in the section
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+.. |CustomJSTicker| replace:: :class:`~bokeh.models.tickers.CustomJSTicker`
 .. |CustomJSTickFormatter| replace:: :class:`~bokeh.models.formatters.CustomJSTickFormatter`
 .. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
