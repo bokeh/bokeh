@@ -22,11 +22,7 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
     loc = window.location
   }
 
-  let protocol = "ws:"
-  if (loc.protocol == "https:") {
-    protocol = "wss:"
-  }
-
+  const protocol = loc.protocol == "https:" ? "wss:" : "ws:"
   if (app_path != null) {
     if (app_path == "/") {
       app_path = ""
