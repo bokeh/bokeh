@@ -10,21 +10,22 @@ in this directory, and navigate to:
 
 '''
 import atexit
-import json
 import subprocess
 
 from flask import Flask, render_template_string
 
-from bokeh.resources import INLINE
 from bokeh.client import pull_session
 from bokeh.embed.server import server_html_page_for_session
-
+from bokeh.resources import INLINE
 
 app_html = """
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <p>This is an example of cross-origin embedding using an iframe under restrictive Content Security Policy (CSP). Under strict CSP iframe embedding with `src` does not work:</p>
+    <p>
+      This is an example of cross-origin embedding using an iframe under restrictive Content Security Policy (CSP).
+      Under strict CSP iframe embedding with `src` does not work:
+    </p>
     <iframe src="{{ app_url }}" width=100% height=50px></iframe>
     <p>But it is still possible to embed with `srcdoc` attribute and using `data-absolute-url`:</p>
     <iframe id="myiframe" width=100% height=500px></iframe>
@@ -40,7 +41,9 @@ app_html = """
 app = Flask(__name__)
 
 bokeh_process = subprocess.Popen(
-    ['python', '-m', 'bokeh', 'serve', '--port=5151', '--allow-websocket-origin=localhost:5000', '--allow-websocket-origin=127.0.0.1:5000', 'bokeh_server.py'], stdout=subprocess.PIPE)
+    ['python', '-m', 'bokeh', 'serve', '--port=5151', '--allow-websocket-origin=localhost:5000', '--allow-websocket-origin=127.0.0.1:5000', 'bokeh_server.py'],
+    stdout=subprocess.PIPE,
+)
 
 @atexit.register
 def kill_server():
