@@ -25,7 +25,7 @@ app_html = """
 <html lang="en">
   <body>
     <p>This is an example of cross-origin embedding using an iframe under restrictive Content Security Policy (CSP). Under strict CSP iframe embedding with `src` does not work:</p>
-    <iframe src="{{ app_url }}" width=100% height=500px></iframe>
+    <iframe src="{{ app_url }}" width=100% height=50px></iframe>
     <p>But it is still possible to embed with `srcdoc` attribute and using `data-absolute-url`:</p>
     <iframe id="myiframe" width=100% height=500px></iframe>
   <script>
