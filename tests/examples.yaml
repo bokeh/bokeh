@@ -24,6 +24,7 @@
   type: server
   skip: [
     "faces",
+    "iframe_embed",
     "simple_hdf5",
     "spectrogram",
     "stocks",      # Bokeh.index not avaiable, can't compute bbox
