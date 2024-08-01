@@ -1,4 +1,5 @@
 import {assert} from "./assert"
+import {canvas} from "../dom"
 
 export type BoxMetrics = {
   width: number
@@ -16,8 +17,9 @@ export type FontMetrics = {
 }
 
 const _offscreen_context = (() => {
-  const canvas = new OffscreenCanvas(0, 0)
-  const ctx = canvas.getContext("2d")
+  // Support Firefox ESR, etc., see https://github.com/bokeh/bokeh/issues/14006.
+  const canvas_el = typeof OffscreenCanvas !== "undefined" ?  new OffscreenCanvas(0, 0) : canvas({width: 0, height: 0})
+  const ctx = canvas_el.getContext("2d")
   assert(ctx != null, "can't obtain 2d context")
   return ctx
 })()
@@ -30,7 +32,7 @@ function _font_metrics(font: string): FontMetrics {
   const x_metrics = ctx.measureText("x")
   const metrics = ctx.measureText("ÅŚg|")
 
-  // Support Firefox ESR, see https://github.com/bokeh/bokeh/issues/13969.
+  // Support Firefox ESR, etc., see https://github.com/bokeh/bokeh/issues/13969.
   const ascent = typeof metrics.fontBoundingBoxAscent !== "undefined" ? metrics.fontBoundingBoxAscent : metrics.actualBoundingBoxAscent
   const descent = typeof metrics.fontBoundingBoxDescent !== "undefined" ? metrics.fontBoundingBoxDescent : metrics.actualBoundingBoxDescent
 
