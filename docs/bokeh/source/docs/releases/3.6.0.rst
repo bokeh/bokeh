@@ -1,0 +1,8 @@
+.. _release-3-6-0:
+
+3.6.0
+=====
+
+Bokeh version ``3.6.0`` (??? 2024) is a minor milestone of Bokeh project.
+
+* Improved streaming corner cases and added NumPy to ``bokeh info`` (:bokeh-pull:`14007`)
