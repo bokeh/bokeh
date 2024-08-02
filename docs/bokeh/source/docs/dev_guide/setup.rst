@@ -487,14 +487,16 @@ You should see output similar to:
 
 .. code-block:: sh
 
-    Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
-    IPython version     :  7.20.0
-    Tornado version     :  6.1
-    Bokeh version       :  3.0.0dev1+20.g6c394d579
-    BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
-    node.js version     :  v16.12.0
-    npm version         :  7.24.2
-    Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
+    Python version        :  3.12.3 | packaged by conda-forge | (main, Apr 15 2024, 18:38:13) [GCC 12.3.0]
+    IPython version       :  8.19.0
+    Tornado version       :  6.3.3
+    NumPy version         :  2.0.0
+    Bokeh version         :  3.5.1
+    BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
+    node.js version       :  v20.12.2
+    npm version           :  10.8.2
+    jupyter_bokeh version :  (not installed)
+    Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
 Run examples
 ~~~~~~~~~~~~

@@ -66,17 +66,18 @@ def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 10
+    assert len(lines) == 11
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
-    assert lines[3].startswith("Bokeh version")
-    assert lines[4].startswith("BokehJS static")
-    assert lines[5].startswith("node.js version")
-    assert lines[6].startswith("npm version")
-    assert lines[7].startswith("jupyter_bokeh version")
-    assert lines[8].startswith("Operating system")
-    assert lines[9] == ""
+    assert lines[3].startswith("NumPy version")
+    assert lines[4].startswith("Bokeh version")
+    assert lines[5].startswith("BokehJS static")
+    assert lines[6].startswith("node.js version")
+    assert lines[7].startswith("npm version")
+    assert lines[8].startswith("jupyter_bokeh version")
+    assert lines[9].startswith("Operating system")
+    assert lines[10] == ""
     assert err == ""
 
 def test_run_static(capsys: Capture) -> None:

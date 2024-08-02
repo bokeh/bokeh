@@ -17,13 +17,14 @@ This will print general information to standard output, such as Python and Bokeh
 
 .. code-block:: none
 
-    Python version        :  3.11.3 | packaged by conda-forge | (main, Apr  6 2023, 08:57:19) [GCC 11.3.0]
-    IPython version       :  8.13.2
-    Tornado version       :  6.3
-    Bokeh version         :  3.3.0
-    BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.11/site-packages/bokeh/server/static
-    node.js version       :  v18.16.1
-    npm version           :  9.5.1
+    Python version        :  3.12.3 | packaged by conda-forge | (main, Apr 15 2024, 18:38:13) [GCC 12.3.0]
+    IPython version       :  8.19.0
+    Tornado version       :  6.3.3
+    NumPy version         :  2.0.0
+    Bokeh version         :  3.5.1
+    BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
+    node.js version       :  v20.12.2
+    npm version           :  10.8.2
     jupyter_bokeh version :  (not installed)
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
@@ -38,7 +39,7 @@ This will produce output like what is shown below:
 
 .. code-block:: none
 
-    /opt/anaconda/envs/test/lib/python3.11/site-packages/bokeh/server/static
+    /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
 
 '''
 
@@ -126,6 +127,7 @@ class Info(Subcommand):
             print(f"Python version        :  {sys.version.split(newline)[0]}")
             print(f"IPython version       :  {if_installed(_version('IPython', '__version__'))}")
             print(f"Tornado version       :  {if_installed(_version('tornado', 'version'))}")
+            print(f"NumPy version         :  {if_installed(_version('numpy', '__version__'))}")
             print(f"Bokeh version         :  {__version__}")
             print(f"BokehJS static path   :  {settings.bokehjs_path()}")
             print(f"node.js version       :  {if_installed(nodejs_version())}")
