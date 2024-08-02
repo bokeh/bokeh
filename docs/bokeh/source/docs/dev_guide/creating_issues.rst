@@ -74,6 +74,15 @@ Software version info
 
         bokeh info
 
+    or alternatively use:
+
+    .. code-block:: python
+
+        from bokeh.util.info import print_info
+        print_info()
+
+    in your scripts and/or MREs (minimal reproducible examples).
+
     This provides you with a list of the versions of relevant software packages.
     Copy and paste this information into your bug report.
 
