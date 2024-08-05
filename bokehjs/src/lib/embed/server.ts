@@ -8,9 +8,10 @@ import type {EmbedTarget} from "./dom"
 
 // @internal
 export function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {
-  let protocol = "ws:"
-  if (window.location.protocol == "https:") {
-    protocol = "wss:"
+  // if in an `srcdoc` iframe, try to get the absolute URL
+  // from the `data-absolute-url` attribute if not passed explicitly
+  if (absolute_url === undefined && _is_frame_HTMLElement(frameElement) && frameElement.dataset.absoluteUrl !== undefined) {
+    absolute_url = frameElement.dataset.absoluteUrl
   }
 
   let loc: HTMLAnchorElement | Location
@@ -21,6 +22,7 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
     loc = window.location
   }
 
+  const protocol = loc.protocol == "https:" ? "wss:" : "ws:"
   if (app_path != null) {
     if (app_path == "/") {
       app_path = ""
@@ -30,6 +32,21 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
   }
 
   return `${protocol}//${loc.host}${app_path}/ws`
+}
+
+function _is_frame_HTMLElement(frame: Element | null): frame is HTMLIFrameElement {
+  // `frameElement` is a delicate construct; it allows the document inside the frame to access
+  // some (but not all) properties of the parent element in which the frame document is embedded.
+  // Because it lives in a different DOM context than the frame's `window`, we cannot just use
+  // `frameElement instanceof HTMLIFrameElement`; we could use `window.parent.HTMLIFrameElement`
+  // but this can be blocked by CORS policy and throw an exception.
+  if (frame === null) {
+    return false
+  }
+  if (frame.tagName.toUpperCase() === "IFRAME") {
+    return true
+  }
+  return false
 }
 
 type WebSocketURL = string

@@ -16,7 +16,7 @@
 - path: "examples/output/webgl/*"
 
 - path: "examples/output/apis/*"
-  skip: ["autoload_static.py", "autoload_static_flask.py", "components.py", "components_themed.py", "json_item.py", "json_item_themed.py", "server_document", "server_session"]
+  skip: ["autoload_static.py", "autoload_static_flask.py", "components.py", "components_themed.py", "iframe_embed", "json_item.py", "json_item_themed.py", "server_document", "server_session"]
 
 - path: "examples/plotting/*"
 
