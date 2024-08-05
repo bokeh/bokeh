@@ -230,7 +230,10 @@ class TestValidateDetailDefault:
         p = Color()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected an element of either Enum\(.*\), .* or RGB, got 'junk'")
+        assert str(e.value) == (
+            "expected an element of either CSSColor, Tuple(Byte(Int, 0, 255), Byte(Int, 0, 255), Byte(Int, 0, 255)), "
+            "Tuple(Byte(Int, 0, 255), Byte(Int, 0, 255), Byte(Int, 0, 255), Percent) or RGB, got 'junk'"
+        )
     def test_ColumnData(self) -> None:
         p = ColumnData(String, Seq(Float))
         with pytest.raises(ValueError) as e:

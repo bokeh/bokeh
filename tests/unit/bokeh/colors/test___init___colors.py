@@ -32,6 +32,7 @@ ALL = (
     'HSL',
     'RGB',
     'groups',
+    'is_css_color',
     'named',
 )
 

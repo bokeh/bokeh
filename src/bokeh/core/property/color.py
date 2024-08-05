@@ -30,10 +30,9 @@ from .. import enums
 from .bases import Init, Property
 from .container import Tuple
 from .either import Either
-from .enum import Enum
 from .numeric import Byte, Percent
+from .primitive import String
 from .singletons import Undefined
-from .string import Regex
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -83,6 +82,30 @@ class RGB(Property[colors.RGB]):
         msg = "" if not detail else f"expected RGB value, got {value!r}"
         raise ValueError(msg)
 
+class CSSColor(String):
+    """
+    Accepts strings that parse as valid CSS colors.
+
+    Currently supported are CSS4 colors per https://www.w3.org/TR/css-color-4/
+    specification and a subset of CSS5 colors from https://www.w3.org/TR/css-color-5/.
+
+    .. note::
+        This property accepts both normalized and unnormalized inputs and doesn't
+        perform any normalizations, like a web browser would do per CSS color
+        specification.
+
+    """
+
+    def __init__(self, default: Init[str] = "transparent", *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
+
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if isinstance(value, str) and not colors.is_css_color(value):
+            msg = "" if not detail else f"expected a CSS color string, got {value!r} (see https://www.w3.org/TR/css-color-4/#color-syntax or newer for details)"
+            raise ValueError(msg)
 
 class Color(Either):
     """ Accept color values in a variety of ways.
@@ -122,19 +145,12 @@ class Color(Either):
     """
 
     def __init__(self, default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined, *, help: str | None = None) -> None:
-        types = (Enum(enums.NamedColor),
-                 Regex(r"^#[0-9a-fA-F]{3}$"),
-                 Regex(r"^#[0-9a-fA-F]{4}$"),
-                 Regex(r"^#[0-9a-fA-F]{6}$"),
-                 Regex(r"^#[0-9a-fA-F]{8}$"),
-                 Regex(r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*([01]\.?\d*?)\)"),
-                 Regex(r"^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
-                 Tuple(Byte, Byte, Byte),
-                 Tuple(Byte, Byte, Byte, Percent),
-                 RGB)
+        types = (
+            CSSColor,
+            Tuple(Byte, Byte, Byte),
+            Tuple(Byte, Byte, Byte, Percent),
+            RGB,
+        )
         help = f"{help or ''}\n{COLOR_DEFAULT_HELP}"
         super().__init__(*types, default=default, help=help)
 

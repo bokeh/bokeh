@@ -24,8 +24,18 @@ log = logging.getLogger(__name__)
 import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
+from pathlib import Path
 from re import match
 from typing import TYPE_CHECKING, TypeAlias
+
+# External imports
+from lark import (
+    Lark,
+    ParseTree,
+    UnexpectedCharacters,
+    UnexpectedEOF,
+    UnexpectedToken,
+)
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
@@ -501,6 +511,21 @@ ColorLike: TypeAlias = str | Color | RGBTuple
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+with open(Path(__file__).parent / "css4.lark") as f:
+    _css_color_parser = Lark(f)
+
+def parse_css_color(color: str) -> ParseTree:
+    """ Parse CSS color and return a parse tree. """
+    return _css_color_parser.parse(color)
+
+def is_css_color(color: str) -> bool:
+    """ Validate CSS colors. """
+    try:
+        parse_css_color(color)
+        return True
+    except (UnexpectedToken, UnexpectedCharacters, UnexpectedEOF):
+        return False
 
 #-----------------------------------------------------------------------------
 # Private API
