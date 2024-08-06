@@ -60,6 +60,14 @@ functionality.
 .. automodule:: bokeh.util.hex
   :members:
 
+.. _bokeh.util.info:
+
+``bokeh.util.info``
+----------------------
+
+.. automodule:: bokeh.util.info
+  :members:
+
 .. _bokeh.util.logconfig:
 
 ``bokeh.util.logconfig``

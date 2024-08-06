@@ -298,6 +298,24 @@ class TestColumnDataSource:
         with pytest.raises(ValueError, match=r"stream\(...\) only supports 1d sequences, got ndarray with size \(.*"):
             ds.stream(dict(a=[10], b=np.ones((1,1))))
 
+    def test_stream_array_to_empty_list(self) -> None:
+        import numpy as np
+
+        array = np.array([np.datetime64("2024-08-01T08:05:28")])
+        source = ColumnDataSource(data=dict(foo=[]))
+
+        source.stream(dict(foo=array))
+        assert source.data["foo"] is array
+
+    def test_stream_empty_list_to_array(self) -> None:
+        import numpy as np
+
+        array = np.array([np.datetime64("2024-08-01T08:05:28")])
+        source = ColumnDataSource(data=dict(foo=array))
+
+        source.stream(dict(foo=[]))
+        assert source.data["foo"] is array
+
     def test__df_index_name_with_named_index(self) -> None:
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         assert bms.ColumnDataSource._df_index_name(df) == "c"
