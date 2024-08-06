@@ -69,6 +69,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterable,
+    MutableSequence,
+    Sequence,
     TypeVar,
 )
 
@@ -76,6 +78,8 @@ from typing import (
 import numpy as np
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+
     from ...document import Document
     from ...document.events import DocumentPatchedEvent
     from ...models.sources import ColumnarDataSource
@@ -303,7 +307,9 @@ class PropertyValueSet(PropertyValueContainer, set[T]):
     def update(self, *s: Iterable[T]) -> None:
         super().update(*s)
 
-class PropertyValueDict(PropertyValueContainer, dict):
+T_Val = TypeVar("T_Val")
+
+class PropertyValueDict(PropertyValueContainer, dict[str, T_Val]):
     """ A dict property value container that supports change notifications on
     mutating operations.
 
@@ -377,7 +383,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super().update(*args, **kwargs)
 
-class PropertyValueColumnData(PropertyValueDict):
+class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
     """ A property value container for ColumnData that supports change
     notifications on mutating operations.
 
@@ -435,7 +441,7 @@ class PropertyValueColumnData(PropertyValueDict):
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any],
+    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Sequence[Any] | npt.NDArray[Any]],
             rollover: int | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.
@@ -468,17 +474,41 @@ class PropertyValueColumnData(PropertyValueDict):
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
         for k in new_data:
-            if isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray):
-                data = np.append(self[k], new_data[k])
-                if rollover is not None and len(data) > rollover:
-                    data = data[len(data) - rollover:]
+            old_seq = self[k]
+            new_seq = new_data[k]
+
+            if isinstance(old_seq, np.ndarray) or isinstance(new_seq, np.ndarray):
+                # Special case for streaming with empty arrays, to allow this:
+                #
+                # data_source = ColumnDataSource(data={"DateTime": []})
+                # data_source.stream({"DateTime": np.array([np.datetime64("now")]))
+                #
+                # See https://github.com/bokeh/bokeh/issues/14004.
+                if len(old_seq) == 0:
+                    seq = new_seq
+                elif len(new_seq) == 0:
+                    seq = old_seq
+                else:
+                    seq = np.append(old_seq, new_seq)
+
+                if rollover is not None and len(seq) > rollover:
+                    seq = seq[len(seq) - rollover:]
+
                 # call dict.__setitem__ directly, bypass wrapped version on base class
-                dict.__setitem__(self, k, data)
+                dict.__setitem__(self, k, seq)
             else:
-                L = self[k]
-                L.extend(new_data[k])
-                if rollover is not None and len(L) > rollover:
-                    del L[:len(L) - rollover]
+                def apply_rollover(seq: MutableSequence[Any]) -> None:
+                    if rollover is not None and len(seq) > rollover:
+                        del seq[:len(seq) - rollover]
+
+                if isinstance(old_seq, MutableSequence):
+                    seq = old_seq
+                    seq.extend(new_seq)
+                    apply_rollover(seq)
+                else:
+                    seq = [*old_seq, *new_seq]
+                    apply_rollover(seq)
+                    dict.__setitem__(self, k, seq)
 
         from ...document.events import ColumnsStreamedEvent
         self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))

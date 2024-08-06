@@ -17,15 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import join
+from typing import Any
 
 # Bokeh imports
-from bokeh.command.bootstrap import main
-from bokeh.command.subcommand import Argument
 from tests.support.util.types import Capture
 
 # Module under test
-import bokeh.command.subcommands.info as scinfo # isort:skip
+import bokeh.util.info as bui # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -35,34 +33,8 @@ import bokeh.command.subcommands.info as scinfo # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-def test_create() -> None:
-    import argparse
-
-    from bokeh.command.subcommand import Subcommand
-
-    obj = scinfo.Info(parser=argparse.ArgumentParser())
-    assert isinstance(obj, Subcommand)
-
-def test_name() -> None:
-    assert scinfo.Info.name == "info"
-
-def test_help() -> None:
-    assert scinfo.Info.help == "Print information about Bokeh and Bokeh server configuration"
-
-def test_args() -> None:
-    assert scinfo.Info.args == (
-        ('--static', Argument(
-            action='store_true',
-            help="Print the locations of BokehJS static files",
-        )),
-    )
-
-def test_run(capsys: Capture) -> None:
-    main(["bokeh", "info"])
+def test_print_info(capsys: Capture) -> None:
+    bui.print_info()
     out, err = capsys.readouterr()
     lines = out.split("\n")
     assert len(lines) == 11
@@ -79,11 +51,15 @@ def test_run(capsys: Capture) -> None:
     assert lines[10] == ""
     assert err == ""
 
-def test_run_static(capsys: Capture) -> None:
-    main(["bokeh", "info", "--static"])
-    out, err = capsys.readouterr()
-    assert err == ""
-    assert out.endswith(join('bokeh', 'server', 'static') + '\n')
+def test__version_missing(ipython: Any) -> None:
+    assert bui._version('bokeh', '__version__') is not None
+    assert bui._version('IPython', '__version__') is not None
+    assert bui._version('tornado', 'version') is not None
+    assert bui._version('junk', 'whatever') is None
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API
