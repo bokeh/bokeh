@@ -71,6 +71,11 @@ export class StringFormatter extends CellFormatter {
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
     const {font_style, text_align, text_color, background_color} = this
 
+    // unfortunately isNaN("foo") is true
+    if (value == null || (isNumber(value) && isNaN(value))) {
+      value = this.nan_format
+    }
+
     const text = div(value == null ? "" : `${value}`)
 
     // Font style
