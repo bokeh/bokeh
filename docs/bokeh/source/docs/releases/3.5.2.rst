@@ -1,0 +1,17 @@
+.. _release-3-5-2:
+
+3.5.2
+=====
+
+Bokeh version ``3.5.2`` (August 2024) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Fixed a bug in masking indices with secondary ranges in ``Patches`` and ``MultiPolygons`` glyphs (:bokeh-pull:`14016`)
+* Restored support for browsers that don't implement ``OffscreenCanvas`` (:bokeh-pull:`14008`)
+* Improved determination of WebSocket protocol in ``<iframe>`` embedding (:bokeh-pull:`14003`)
+* Fixed a bug in handling of CORS requests (:bokeh-pull:`13999`)
+* Fixed an issue with numpy 2.0 and streaming ndarrays (:bokeh-pull:`14007`)
+* Fixed bad string formatting in various error messages (:bokeh-pull:`14020`, :bokeh-pull:`14022`)
