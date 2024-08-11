@@ -58,7 +58,7 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
             # try converting the source to ColumnDataSource
             node_source = ColumnDataSource(node_source)
         except ValueError as err:
-            msg = f"Failed to auto-convert {type(node_source)} to ColumnDataSource.\n Original error: {err.message}"
+            msg = f"Failed to auto-convert {type(node_source)} to ColumnDataSource.\n Original error: {err}"
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     if not isinstance(edge_source, ColumnarDataSource):
@@ -66,7 +66,7 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
             # try converting the source to ColumnDataSource
             edge_source = ColumnDataSource(edge_source)
         except ValueError as err:
-            msg = f"Failed to auto-convert {type(edge_source)} to ColumnDataSource.\n Original error: {err.message}"
+            msg = f"Failed to auto-convert {type(edge_source)} to ColumnDataSource.\n Original error: {err}"
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     marker = kwargs.pop('node_marker', None)
