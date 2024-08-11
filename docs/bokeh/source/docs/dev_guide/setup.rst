@@ -258,10 +258,6 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
     :ref:`contributor_guide_setup_installing_node_packages` section above before
     rebuilding BokehJS.
 
-    In case you **update from a development environment based on Bokeh 2.3 or
-    older**, you most likely also need to delete the ``bokehjs/build`` folder in
-    your local environment before building and installing a fresh BokehJS.
-
 .. _contributor_guide_setup_environment_variables:
 
 7. Set environment variables

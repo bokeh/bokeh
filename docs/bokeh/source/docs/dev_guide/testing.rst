@@ -181,16 +181,10 @@ Code coverage (Python unit tests)
 .. _contributor_guide_testing_local_python_integration:
 
 Integration tests
-    To run Bokeh's Python-focused integration tests, use this command from the
-    top level of the repository:
-
-    .. code-block:: sh
-
-        pytest tests/integration
-
-    These tests mostly simulate UI interactions. Therefore, they require
-    `Chrome`_ or `Chromium`_ and `Selenium`_ with the `ChromeDriver`_ web
-    driver.
+    The Python-focused integration tests that simulate UI interactions
+    are currently removed until a more maintainable way is found to run
+    them via `Chrome`_ or `Chromium`_ and `Selenium`_ with the
+    `ChromeDriver`_ web driver.
 
 Cross integration tests
     This is a variant of integration tests where on Bokeh's side a Python
