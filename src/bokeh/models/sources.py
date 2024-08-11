@@ -703,7 +703,7 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
                     if ind_0 > col_len or ind_0 < 0:
-                        raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind, name))
+                        raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind_0, name))
 
                     if not isinstance(self.data[name][ind_0], np.ndarray):
                         raise ValueError("Can only sub-patch into columns with NumPy array items")
@@ -714,7 +714,7 @@ class ColumnDataSource(ColumnarDataSource):
                     elif isinstance(ind_0, slice):
                         _check_slice(ind_0)
                         if ind_0.stop is not None and ind_0.stop > col_len:
-                            raise ValueError("Out-of bounds initial slice sub-index stop (%d) in patch for column: %s" % (ind.stop, name))
+                            raise ValueError("Out-of bounds initial slice sub-index stop (%d) in patch for column: %s" % (ind_0.stop, name))
 
                     # Note: bounds of sub-indices after the first are not checked!
                     for subind in ind[1:]:
