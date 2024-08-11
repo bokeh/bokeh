@@ -218,11 +218,10 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
             first element will be considered the default value when used
             to create |Enum| properties.
 
-    Keyword Args:
         case_sensitive (bool, optional) :
             Whether validation should consider case or not (default: True)
 
-        quote (bool, optional):
+        quote (bool, optional) :
             Whether values should be quoted in the string representations
             (default: False)
 

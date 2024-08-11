@@ -350,7 +350,7 @@ class Document:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
-            patch (JSON-data) :
+            patch_json (JSON-data) :
                 The JSON-object containing the patch to apply.
 
             setter (ClientSession or ServerSession or None, optional) :
@@ -496,7 +496,7 @@ side of a communications channel while it was being removed on the other end.\
         hold will be applied according to the hold policy.
 
         Args:
-            hold ('combine' or 'collect', optional)
+            policy ('combine' or 'collect', optional)
                 Whether events collected during a hold should attempt to be
                 combined (default: 'combine')
 
@@ -716,7 +716,7 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
                 name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-                updates (dict) :
+            updates (dict) :
 
         Returns:
             None

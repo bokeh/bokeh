@@ -79,7 +79,7 @@ def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
 
     Args:
         toolbar (Toolbar): instance of a Toolbar object
-        tools_map (dict[str]): tool_map from _process_tools_arg
+        tool_map (dict[str]): tool_map from _process_tools_arg
         active_drag (str, None, "auto" or Tool): the tool to set active for drag
         active_inspect (str, None, "auto", Tool or Tool[]): the tool to set active for inspect
         active_scroll (str, None, "auto" or Tool): the tool to set active for scroll

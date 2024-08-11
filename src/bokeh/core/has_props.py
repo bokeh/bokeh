@@ -424,15 +424,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         ''' Set a property value on this object from JSON.
 
         Args:
-            name: (str) : name of the attribute to set
+            name (str) : name of the attribute to set
 
-            json: (JSON-value) : value to set to the attribute to
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
+            value (JSON-value) : value to set to the attribute to
 
             setter(ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.

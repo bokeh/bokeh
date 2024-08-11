@@ -166,15 +166,6 @@ class PropertyCallbackManager:
     def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         ''' Trigger callbacks for ``attr`` on this object.
-
-        Args:
-            attr (str) :
-            old (object) :
-            new (object) :
-
-        Returns:
-            None
-
         '''
         def invoke() -> None:
             callbacks = self._callbacks.get(attr)
