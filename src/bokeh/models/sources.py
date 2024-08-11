@@ -682,13 +682,13 @@ class ColumnDataSource(ColumnarDataSource):
                 # integer index, patch single value of 1d column
                 if isinstance(ind, int):
                     if ind > col_len or ind < 0:
-                        raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (ind, name))
+                        raise ValueError(f"Out-of bounds index ({ind}) in patch for column: {name}")
 
                 # slice index, patch multiple values of 1d column
                 elif isinstance(ind, slice):
                     _check_slice(ind)
                     if ind.stop is not None and ind.stop > col_len:
-                        raise ValueError("Out-of bounds slice index stop (%d) in patch for column: %s" % (ind.stop, name))
+                        raise ValueError(f"Out-of bounds slice index stop ({ind.stop}) in patch for column: {name}")
 
                 # multi-index, patch sub-regions of "n-d" column
                 elif isinstance(ind, list | tuple):
@@ -703,7 +703,7 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
                     if ind_0 > col_len or ind_0 < 0:
-                        raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind_0, name))
+                        raise ValueError(f"Out-of bounds initial sub-index ({ind_0}) in patch for column: {name}")
 
                     if not isinstance(self.data[name][ind_0], np.ndarray):
                         raise ValueError("Can only sub-patch into columns with NumPy array items")
@@ -714,7 +714,7 @@ class ColumnDataSource(ColumnarDataSource):
                     elif isinstance(ind_0, slice):
                         _check_slice(ind_0)
                         if ind_0.stop is not None and ind_0.stop > col_len:
-                            raise ValueError("Out-of bounds initial slice sub-index stop (%d) in patch for column: %s" % (ind_0.stop, name))
+                            raise ValueError(f"Out-of bounds initial slice sub-index stop ({ind_0.stop}) in patch for column: {name}")
 
                     # Note: bounds of sub-indices after the first are not checked!
                     for subind in ind[1:]:
