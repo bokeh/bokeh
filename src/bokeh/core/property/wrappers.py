@@ -214,7 +214,7 @@ class PropertyValueList(PropertyValueContainer, list[T]):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _saved_copy(self) -> list[T]:
         return list(self)
@@ -274,7 +274,7 @@ class PropertyValueSet(PropertyValueContainer, set[T]):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _saved_copy(self) -> set[T]:
         return set(self)
@@ -348,7 +348,7 @@ class PropertyValueDict(PropertyValueContainer, dict[str, T_Val]):
 
     """
     def __init__(self, *args, **kwargs) -> None:
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _saved_copy(self):
         return dict(self)

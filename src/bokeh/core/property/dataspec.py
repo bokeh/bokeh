@@ -447,7 +447,7 @@ class UnitsSpec(NumberSpec):
         property as well as the associated units property are returned.
 
         Args:
-            name (str) : the name of the property these descriptors are for
+            base_name (str) : the name of the property these descriptors are for
 
         Returns:
             list[PropertyDescriptor]

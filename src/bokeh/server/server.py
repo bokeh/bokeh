@@ -157,7 +157,7 @@ class BaseServer:
         as stops the ``HTTPServer`` that this instance was configured with.
 
         Args:
-            fast (bool):
+            wait (bool):
                 Whether to wait for orderly cleanup (default: True)
 
         Returns:

@@ -145,7 +145,7 @@ def linear(m: float = 1, b: float = 0) -> partial[Callable[[], None]]:
 
     Args:
         m (float) : a slope for the linear driver
-        x (float) : an offset for the linear driver
+        b (float) : an offset for the linear driver
 
     '''
     def f(i: float) -> float:

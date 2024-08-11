@@ -62,7 +62,7 @@ def find(objs: Iterable[Model], selector: SelectorType) -> Iterable[Model]:
     a selector.
 
     Args:
-        obj (Model) : object to test
+        objs (Iterable[Model]) : model objects to test
         selector (JSON-like) : query selector
 
     Yields:

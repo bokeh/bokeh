@@ -208,8 +208,7 @@ class Message(Generic[Content]):
         ''' Associate a buffer header and payload with this message.
 
         Args:
-            buf_header (``JSON``) : a buffer header
-            buf_payload (``JSON`` or bytes) : a buffer payload
+            buffer (Buffer) : a buffer
 
         Returns:
             None

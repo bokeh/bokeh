@@ -45,6 +45,7 @@
 .sw[nop]
 *.tmp
 .vscode
+.idea
 
 # compressed / binary files
 *.bz2

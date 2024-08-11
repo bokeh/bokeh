@@ -398,13 +398,7 @@ class PropertyDescriptor(Generic[T]):
         Args:
             obj: (HasProps) : instance to set the property value on
 
-            json: (JSON-value) : value to set to the attribute to
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
+            value: (JSON-value) : value to set to the attribute to
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -786,9 +780,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
         Args:
             obj (HasProps) :
 
-            json (JSON-dict) :
-
-            models(seq[Model], optional) :
+            value (JSON-dict) :
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
