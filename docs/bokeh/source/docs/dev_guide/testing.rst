@@ -155,24 +155,23 @@ Unit tests
 
 Code coverage (Python unit tests)
     To create a coverage report for Python unit tests, use ``pytest`` with the
-    command-line options ``--cov=bokeh`` and ``--cov-config=tests/.coveragerc``:
+    command-line option ``--cov=bokeh``:
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-config=tests/.coveragerc
+        pytest --cov=bokeh
 
     Coverage with Bokeh's Python unit tests should be around 90%. Coverage
     reports are only relevant for Python unit tests. There are no coverage
     reports for other Python tests or for any of the JavaScript code of BokehJS.
 
-    You also have the option to add
-    ``--cov=bokeh --cov-config=tests/.coveragerc`` when running a specific
+    You also have the option to add ``--cov=bokeh`` when running a specific
     subset of Python unit tests. This adds a coverage report to the test
     results. For example:
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-config=tests/.coveragerc -m "not selenium" tests/unit/bokeh/test_objects.py
+        pytest --cov=bokeh --cov-report=html -m "not selenium" tests/unit/bokeh/test_objects.py
 
     .. seealso::
         Coverage reports use the pytest plugin `pytest-cov`_. For more
