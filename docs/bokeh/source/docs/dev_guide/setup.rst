@@ -283,6 +283,10 @@ You will not see any effects of your local changes to BokehJS unless you
 configure Bokeh to use your local version of BokehJS instead of the default
 version from the CDN.
 
+Note that ``BOKEH_RESOURCES`` should only be set when running examples.
+When you run tests or build the docs, you should not set this variable
+(or unset it if it is already set) or you might get an error.
+
 You have the following three options to use your local version of BokehJS:
 
 Use ``absolute-dev``
