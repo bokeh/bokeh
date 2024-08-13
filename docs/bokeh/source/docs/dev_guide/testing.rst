@@ -124,7 +124,7 @@ when working with Bokeh's pytest-based tests:
 * ``-v``: Run test with more verbose output.
 * ``--driver``: Use a specific web driver for Selenium-based tests
   (``"chrome"``, ``"firefox"``, or ``"safari"``). For example:
-  ``pytest --driver="firefox" tests/integration/``.
+  ``pytest --driver="firefox" tests/unit/``.
 * ``--no-js``: Skip any JavaScript code and only test Python code.
 
 See the `pytest documentation`_ for more options.
@@ -155,24 +155,23 @@ Unit tests
 
 Code coverage (Python unit tests)
     To create a coverage report for Python unit tests, use ``pytest`` with the
-    command-line options ``--cov=bokeh`` and ``--cov-config=tests/.coveragerc``:
+    command-line option ``--cov=bokeh``:
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-config=tests/.coveragerc
+        pytest --cov=bokeh
 
     Coverage with Bokeh's Python unit tests should be around 90%. Coverage
     reports are only relevant for Python unit tests. There are no coverage
     reports for other Python tests or for any of the JavaScript code of BokehJS.
 
-    You also have the option to add
-    ``--cov=bokeh --cov-config=tests/.coveragerc`` when running a specific
+    You also have the option to add ``--cov=bokeh`` when running a specific
     subset of Python unit tests. This adds a coverage report to the test
     results. For example:
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-config=tests/.coveragerc -m "not selenium" tests/unit/bokeh/test_objects.py
+        pytest --cov=bokeh --cov-report=html -m "not selenium" tests/unit/bokeh/test_objects.py
 
     .. seealso::
         Coverage reports use the pytest plugin `pytest-cov`_. For more
@@ -180,20 +179,8 @@ Code coverage (Python unit tests)
 
 .. _contributor_guide_testing_local_python_integration:
 
-Integration tests
-    To run Bokeh's Python-focused integration tests, use this command from the
-    top level of the repository:
-
-    .. code-block:: sh
-
-        pytest tests/integration
-
-    These tests mostly simulate UI interactions. Therefore, they require
-    `Chrome`_ or `Chromium`_ and `Selenium`_ with the `ChromeDriver`_ web
-    driver.
-
 Cross integration tests
-    This is a variant of integration tests where on Bokeh's side a Python
+    There are some Python to JS interface tests where on Bokeh's side a Python
     code sample (a test case) is run, which produces JSON output with the
     serialized document. That JSON is then stored in the repository under
     ``tests/baselines/cross``. When adding a new test case, run:

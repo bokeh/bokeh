@@ -258,10 +258,6 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
     :ref:`contributor_guide_setup_installing_node_packages` section above before
     rebuilding BokehJS.
 
-    In case you **update from a development environment based on Bokeh 2.3 or
-    older**, you most likely also need to delete the ``bokehjs/build`` folder in
-    your local environment before building and installing a fresh BokehJS.
-
 .. _contributor_guide_setup_environment_variables:
 
 7. Set environment variables
@@ -286,6 +282,10 @@ BokehJS locally, you need to change how Bokeh loads those JavaScript resources.
 You will not see any effects of your local changes to BokehJS unless you
 configure Bokeh to use your local version of BokehJS instead of the default
 version from the CDN.
+
+Note that ``BOKEH_RESOURCES`` should only be set when running examples.
+When you run tests or build the docs, you should not set this variable
+(or unset it if it is already set) or you might get an error.
 
 You have the following three options to use your local version of BokehJS:
 
