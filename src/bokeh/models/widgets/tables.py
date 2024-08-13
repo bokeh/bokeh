@@ -151,8 +151,12 @@ class StringFormatter(CellFormatter):
     An optional background color.
     """)
 
-    nan_format = String("-", help="""
-    Formatting to apply to NaN and None values.
+    nan_format = String("NaN", help="""
+    Formatting to apply to NaN and NaT values.
+    """)
+
+    null_format = String("(null)", help="""
+    Formatting to apply to None / null values.
     """)
 
 
@@ -179,6 +183,10 @@ class ScientificFormatter(StringFormatter):
     Limit the use of scientific notation to when::
         log(x) <= power_limit_low
     """)
+
+    nan_format = Override(default="-")
+
+    null_format = Override(default="-")
 
 class NumberFormatter(StringFormatter):
     ''' Number cell formatter.
@@ -272,6 +280,10 @@ class NumberFormatter(StringFormatter):
     rounding = Enum(RoundingFunction, help="""
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)
+
+    nan_format = Override(default="-")
+
+    null_format = Override(default="-")
 
 class BooleanFormatter(CellFormatter):
     ''' Boolean (check mark) cell formatter.
@@ -499,6 +511,10 @@ class DateFormatter(StringFormatter):
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
     """)
+
+    nan_format = Override(default="-")
+
+    null_format = Override(default="-")
 
 
 class HTMLTemplateFormatter(CellFormatter):

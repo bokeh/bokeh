@@ -75,7 +75,7 @@ describe("cell_formatters module", () => {
     })
 
     describe("doFormat method", () => {
-      it("should apply default nan_format to null", () => {
+      it("should apply default null_format to null", () => {
         const df = new DateFormatter()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
@@ -85,8 +85,8 @@ describe("cell_formatters module", () => {
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
-      it("should apply nan_format to null", () => {
-        const df = new DateFormatter({nan_format: "--"})
+      it("should apply null_format to null", () => {
+        const df = new DateFormatter({null_format: "--"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
@@ -105,18 +105,18 @@ describe("cell_formatters module", () => {
   describe("StringFormatter", () => {
 
     describe("doFormat method", () => {
-      it("should apply default nan_format to null", () => {
+      it("should apply default null_format to null", () => {
         const sf = new StringFormatter()
-        expect(sf.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
+        expect(sf.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">(null)</div>')
       })
 
-      it("should apply default nan_format to NaN", () => {
+      it("should apply default nan_format to nan", () => {
         const sf = new StringFormatter()
-        expect(sf.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
+        expect(sf.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">NaN</div>')
       })
 
-      it("should apply nan_format to null", () => {
-        const sf = new StringFormatter({nan_format: "--"})
+      it("should apply null_format to null", () => {
+        const sf = new StringFormatter({null_format: "--"})
         expect(sf.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
@@ -150,18 +150,18 @@ describe("cell_formatters module", () => {
   describe("NumberFormatter", () => {
 
     describe("doFormat method", () => {
-      it("should apply default nan_format to null", () => {
+      it("should apply default null_format to null", () => {
         const df = new NumberFormatter()
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
-      it("should apply default nan_format to NaN", () => {
+      it("should apply default nan_format to nan", () => {
         const df = new NumberFormatter()
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div style="text-align: left;">-</div>')
       })
 
-      it("should apply nan_format to null", () => {
-        const df = new NumberFormatter({nan_format: "--"})
+      it("should apply null_format to null", () => {
+        const df = new NumberFormatter({null_format: "--"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
@@ -186,7 +186,7 @@ describe("cell_formatters module", () => {
       })
 
       it("should apply nan_format to null", () => {
-        const df = new ScientificFormatter({nan_format: "--"})
+        const df = new ScientificFormatter({null_format: "--"})
         expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div style="text-align: left;">--</div>')
       })
 
