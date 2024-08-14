@@ -39,7 +39,12 @@ from .graphics import Decoration
 
 __all__ = (
     'ConnectedXYGlyph',
+    'FillGlyph',
     'Glyph',
+    'HatchGlyph',
+    'LineGlyph',
+    'RadialGlyph',
+    'TextGlyph',
     'XYGlyph',
 )
 
@@ -72,6 +77,17 @@ class Glyph(Model):
 @abstract
 class XYGlyph(Glyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+@abstract
+class RadialGlyph(Glyph):
+    ''' Base class of glyphs with `x` and `y` coordinate attributes and
+    a radius specification.
 
     '''
 

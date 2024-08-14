@@ -91,6 +91,7 @@ from .glyph import (
     Glyph,
     HatchGlyph,
     LineGlyph,
+    RadialGlyph,
     TextGlyph,
     XYGlyph,
 )
@@ -126,6 +127,7 @@ __all__ = (
     'MathTextGlyph',
     'MultiLine',
     'MultiPolygons',
+    'Ngon',
     'Patch',
     'Patches',
     'Quad',
@@ -449,7 +451,7 @@ class Block(LRTBGlyph):
     The {prop} values for the blocks.
     """)
 
-class Circle(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render circle markers. '''
 
     # explicit __init__ to support Init signatures
@@ -461,25 +463,24 @@ class Circle(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     _args = ('x', 'y', 'radius')
 
     x = NumberSpec(default=field("x"), help="""
-    The x-coordinates of the center of the annuli.
+    The x-coordinates of the center of the circles.
     """)
 
     y = NumberSpec(default=field("y"), help="""
-    The y-coordinates of the center of the annuli.
+    The y-coordinates of the center of the circles.
     """)
 
     radius = DistanceSpec(default=field("radius"), help="""
-    The radius values for circle markers (in |data units|, by default).
+    The radius values for circles (in |data units|, by default).
 
     .. warning::
-        Note that ``Circle`` glyphs are always drawn as circles on the screen,
+        Note that circle glyphs are always drawn as circles on the screen,
         even in cases where the data space aspect ratio is not 1-1. In all
         cases where radius values are specified, the "distance" for the radius
         is measured along the dimension specified by ``radius_dimension``. If
         the aspect ratio is very large or small, the drawn circles may appear
         much larger or smaller than expected. See :bokeh-issue:`626` for more
         information.
-
     """)
 
     radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
@@ -494,21 +495,20 @@ class Circle(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     """)
 
     hit_dilation = Size(default=1.0, help="""
-    The factor by which to dilate the hit radius which is responsible for
-    defining the range in which a glyph responds to interactions with the
-    hover and tap tools.
+    The factor by which to dilate the hit radius for hover and tap tools.
+    Making this value larger makes the tools "more sensitive".
     """)
 
     line_props = Include(LineProps, help="""
-    The {prop} values for the markers.
+    The {prop} values for the circles.
     """)
 
     fill_props = Include(FillProps, help="""
-    The {prop} values for the markers.
+    The {prop} values for the circles.
     """)
 
     hatch_props = Include(HatchProps, help="""
-    The {prop} values for the markers.
+    The {prop} values for the circles.
     """)
 
 class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -1069,6 +1069,65 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
 
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the multipolygons.
+    """)
+
+class Ngon(RadialGlyph):
+    ''' Render regular n-sided polygons.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/Ngon.py"
+
+    _args = ('x', 'y', 'radius')
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates of the center of the n-gons.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates of the center of the n-gons.
+    """)
+
+    radius = DistanceSpec(default=field("radius"), help="""
+    The radius values for n-gons (in |data units|, by default). The radius is
+    measured from the center to the vertices of the n-gons.
+    """)
+
+    angle = AngleSpec(default=0, help="""
+    The angles in radians to rotate the n-gons. When the value is zero, a vertex
+    is drawn directly above the center coordinate.
+    """)
+
+    n = NumberSpec(default=field("n"), help="""
+    The number of sides of the n-gons. Values less than three will result in
+    no glyph instance being drawn.
+    """)
+
+    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    What dimension to measure n-gons radii along.
+
+    When the data space aspect ratio is not 1-1, then the size of the drawn
+    n-gons depends on what direction is used to measure the "distance" of
+    the radius. This property allows that direction to be controlled.
+
+    Setting this dimension to 'max' will calculate the radius on both the x
+    and y dimensions and use the maximum of the two, 'min' selects the minimum.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the n-gons.
+    """)
+
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the n-gons.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the n-gons.
     """)
 
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):

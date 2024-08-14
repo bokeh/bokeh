@@ -1,24 +1,15 @@
-import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import {inherit} from "./glyph"
+import {RadialGlyph, RadialGlyphView} from "./radial_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
-import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type * as visuals from "core/visuals"
-import type {Rect, Indices} from "core/types"
-import {to_screen} from "core/types"
-import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
-import * as p from "core/properties"
-import type {SpatialIndex} from "core/util/spatial"
-import {elementwise} from "core/util/array"
+import type * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import type {Range1d} from "../ranges/range1d"
 import type {CircleGL} from "./webgl/circle"
 
 export interface CircleView extends Circle.Data {}
 
-export class CircleView extends XYGlyphView {
+export class CircleView extends RadialGlyphView {
   declare model: Circle
   declare visuals: Circle.Visuals
 
@@ -28,67 +19,6 @@ export class CircleView extends XYGlyphView {
   override async load_glglyph() {
     const {CircleGL} = await import("./webgl/circle")
     return CircleGL
-  }
-
-  protected override _index_data(index: SpatialIndex): void {
-    const {x, y, radius, data_size} = this
-    for (let i = 0; i < data_size; i++) {
-      const x_i = x[i]
-      const y_i = y[i]
-      const r_i = radius.get(i)
-      index.add_rect(x_i - r_i, y_i - r_i, x_i + r_i, y_i + r_i)
-    }
-  }
-
-  protected override _map_data(): void {
-    this._define_or_inherit_attr<Circle.Data>("sradius", () => {
-      if (this.model.properties.radius.units == "data") {
-        const sradius_x = () => this.sdist(this.renderer.xscale, this.x, this.radius)
-        const sradius_y = () => this.sdist(this.renderer.yscale, this.y, this.radius)
-
-        const {radius_dimension} = this.model
-        switch (radius_dimension) {
-          case "x": {
-            return this.inherited_x && this.inherited_radius ? inherit : sradius_x()
-          }
-          case "y": {
-            return this.inherited_y && this.inherited_radius ? inherit : sradius_y()
-          }
-          case "min":
-          case "max": {
-            if (this.inherited_x && this.inherited_y && this.inherited_radius) {
-              return inherit
-            } else {
-              return elementwise(sradius_x(), sradius_y(), Math[radius_dimension])
-            }
-          }
-        }
-      } else {
-        return this.inherited_sradius ? inherit : to_screen(this.radius)
-      }
-    })
-  }
-
-  protected override _mask_data(): Indices {
-    const {frame} = this.renderer.plot_view
-
-    const shr = frame.x_target
-    const svr = frame.y_target
-
-    let hr: Range1d
-    let vr: Range1d
-    if (this.model.properties.radius.units == "data") {
-      hr = shr.map((x) => this.renderer.xscale.invert(x)).widen(this.max_radius)
-      vr = svr.map((y) => this.renderer.yscale.invert(y)).widen(this.max_radius)
-    } else {
-      hr = shr.widen(this.max_radius).map((x) => this.renderer.xscale.invert(x))
-      vr = svr.widen(this.max_radius).map((y) => this.renderer.yscale.invert(y))
-    }
-
-    return this.index.indices({
-      x0: hr.start, x1: hr.end,
-      y0: vr.start, y1: vr.end,
-    })
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Circle.Data>): void {
@@ -232,45 +162,23 @@ export class CircleView extends XYGlyphView {
 
     return new Selection({indices})
   }
-
-  // circle does not inherit from marker (since it also accepts radius) so we
-  // must supply a draw_legend for it  here
-  override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
-    // using objects like this seems a little wonky, since the keys are coerced to
-    // stings, but it works
-    const len = index + 1
-
-    const sx: number[] = new Array(len)
-    sx[index] = (x0 + x1)/2
-    const sy: number[] = new Array(len)
-    sy[index] = (y0 + y1)/2
-
-    const sradius: number[] = new Array(len)
-    sradius[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.2
-
-    this._paint(ctx, [index], {sx, sy, sradius})
-  }
 }
 
 export namespace Circle {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & {
-    radius: p.DistanceSpec
-    radius_dimension: p.Property<RadiusDimension>
+  export type Props = RadialGlyph.Props & {
     hit_dilation: p.Property<number>
-  } & Mixins
+  }
 
-  export type Mixins = LineVector & FillVector & HatchVector
-
-  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+  export type Visuals = RadialGlyph.Visuals
 
   export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Circle extends Circle.Attrs {}
 
-export class Circle extends XYGlyph {
+export class Circle extends RadialGlyph {
   declare properties: Circle.Props
   declare __view_type__: CircleView
 
@@ -281,11 +189,7 @@ export class Circle extends XYGlyph {
   static {
     this.prototype.default_view = CircleView
 
-    this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])
-
     this.define<Circle.Props>(({Float}) => ({
-      radius:           [ p.DistanceSpec, {field: "radius"} ],
-      radius_dimension: [ RadiusDimension, "x" ],
       hit_dilation:     [ Float, 1.0 ],
     }))
   }

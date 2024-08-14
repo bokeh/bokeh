@@ -72,7 +72,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
@@ -93,7 +93,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
@@ -155,7 +155,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.block(x=[1, 2, 3], y=[1,2,3], width=0.5, height=1, , color="#CAB2D6")
@@ -171,7 +171,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.circle_cross(x=[1,2,3], y=[4,5,6], size=20,
@@ -188,7 +188,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.circle_dot(x=[1,2,3], y=[4,5,6], size=20,
@@ -205,7 +205,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -222,7 +222,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.circle_y(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -239,7 +239,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -256,7 +256,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -273,7 +273,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -290,7 +290,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -307,7 +307,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.diamond_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -324,7 +324,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.dot(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#386CB0")
@@ -340,7 +340,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.harea(x1=[0, 0, 0], x2=[1, 4, 2], y=[1, 2, 3],
@@ -357,7 +357,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.harea_step(x1=[1, 2, 3], x2=[0, 0, 0], y=[1, 4, 2],
@@ -374,7 +374,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
@@ -390,7 +390,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300, x_range=(0, 1))
         plot.hspan(y=[1, 2, 3], color="#CAB2D6")
@@ -406,7 +406,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300, x_range=(0, 1))
         plot.hstrip(y0=[1, 2, 5], y1=[3, 4, 8], color="#CAB2D6")
@@ -422,7 +422,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
@@ -439,7 +439,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.hex(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
@@ -455,7 +455,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.hex_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30],
@@ -472,7 +472,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300, match_aspect=True)
         plot.hex_tile(r=[0, 0, 1], q=[1, 2, 2], fill_color="#74ADD1")
@@ -515,7 +515,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.inverted_triangle(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
@@ -531,7 +531,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         p = figure(title="line", width=300, height=300)
         p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
@@ -580,7 +580,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         p = figure(width=300, height=300)
         p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
@@ -601,12 +601,28 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         p = figure(width=300, height=300)
         p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
                         ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
                         color=['red', 'green'])
+        show(p)
+
+"""
+
+    @glyph_method(glyphs.Ngon)
+    def ngon(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        p = figure(width=300, height=300)
+        p.ngon(x=[1, 2, 3, 2], y=[6, 7, 2, 2], radius=1, n=[3, 4, 9, 20], color="#99d8c9")
+
         show(p)
 
 """
@@ -618,7 +634,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         p = figure(width=300, height=300)
         p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
@@ -638,7 +654,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         p = figure(width=300, height=300)
         p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
@@ -655,7 +671,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.plus(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
@@ -671,7 +687,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
@@ -692,7 +708,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=-0.7, color="#FB8072",
@@ -709,7 +725,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
@@ -731,7 +747,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.step(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 2, 5], color="#FB8072")
@@ -747,7 +763,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.segment(x0=[1, 2, 3], y0=[1, 2, 3],
@@ -765,7 +781,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.square(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
@@ -781,7 +797,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -798,7 +814,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.square_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -815,7 +831,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.square_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -832,7 +848,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -849,7 +865,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.star(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -866,7 +882,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.star_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
@@ -908,7 +924,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -925,7 +941,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.triangle_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -942,7 +958,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.triangle_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
@@ -959,7 +975,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.varea(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
@@ -976,7 +992,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.varea_step(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
@@ -993,7 +1009,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.vbar(x=[1, 2, 3], width=0.5, bottom=0, top=[1,2,3], color="#CAB2D6")
@@ -1009,7 +1025,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300, y_range=(0, 1))
         plot.vspan(x=[1, 2, 3], color="#CAB2D6")
@@ -1025,7 +1041,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300, y_range=(0, 1))
         plot.vstrip(x0=[1, 2, 5], x1=[3, 4, 8], color="#CAB2D6")
@@ -1041,7 +1057,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
@@ -1058,7 +1074,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.x(x=[1, 2, 3], y=[1, 2, 3], size=[10, 20, 25], color="#fa9fb5")
@@ -1074,7 +1090,7 @@ Examples:
 
     .. code-block:: python
 
-        from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
         plot.y(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
