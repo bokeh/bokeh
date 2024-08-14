@@ -7178,6 +7178,8 @@
   },
   DateFormatter: {
     __extends__: "StringFormatter",
+    nan_format: "-",
+    null_format: "-",
     format: "ISO-8601",
   },
   GroupingInfo: {
@@ -7206,6 +7208,8 @@
   },
   NumberFormatter: {
     __extends__: "StringFormatter",
+    nan_format: "-",
+    null_format: "-",
     format: "0,0",
     language: "en",
     rounding: "round",
@@ -7219,6 +7223,8 @@
   },
   ScientificFormatter: {
     __extends__: "StringFormatter",
+    nan_format: "-",
+    null_format: "-",
     precision: 10,
     power_limit_high: 5,
     power_limit_low: -3,
@@ -7249,7 +7255,8 @@
       type: "value",
       value: null,
     },
-    nan_format: "-",
+    nan_format: "NaN",
+    null_format: "(null)",
   },
   SumAggregator: {
     __extends__: "RowAggregator",

@@ -46,6 +46,7 @@ export namespace StringFormatter {
     text_color: p.ColorSpec
     background_color: p.ColorSpec
     nan_format: p.Property<string>
+    null_format: p.Property<string>
   }
 }
 
@@ -64,12 +65,19 @@ export class StringFormatter extends CellFormatter {
       text_align: [ p.TextAlignSpec, {value: "left"} ],
       text_color: [ p.ColorSpec, null ],
       background_color: [ p.ColorSpec, null ],
-      nan_format: [ Str, "-"],
+      nan_format: [ Str, "NaN"],
+      null_format: [ Str, "(null)"],
     }))
   }
 
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
     const {font_style, text_align, text_color, background_color} = this
+
+    if (Number.isNaN(value)) {
+      value = this.nan_format
+    } else if (value == null) {
+      value = this.null_format
+    }
 
     const text = div(value == null ? "" : `${value}`)
 
@@ -181,6 +189,11 @@ export class ScientificFormatter extends StringFormatter {
       power_limit_high: [ Float, 5 ],
       power_limit_low:  [ Float, -3 ],
     }))
+
+    this.override<NumberFormatter.Props>({
+      nan_format: "-",
+      null_format: "-",
+    })
   }
 
   get scientific_limit_low(): number {
@@ -200,8 +213,10 @@ export class ScientificFormatter extends StringFormatter {
       precision = 1
     }
 
-    if (value == null || isNaN(value)) {
+    if (Number.isNaN(value)) {
       value = this.nan_format
+    } else if (value == null) {
+      value = this.null_format
     } else if (value == 0) {
       value = to_fixed(value, 1)
     } else if (need_sci) {
@@ -241,10 +256,15 @@ export class NumberFormatter extends StringFormatter {
       rounding:   [ RoundingFunction, "round" ],
 
     }))
+
+    this.override<NumberFormatter.Props>({
+      nan_format: "-",
+      null_format: "-",
+    })
   }
 
   override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
-    const {format, language, nan_format} = this
+    const {format, language, nan_format, null_format} = this
     const rounding = (() => {
       switch (this.rounding) {
         case "round": case "nearest":   return Math.round
@@ -252,8 +272,10 @@ export class NumberFormatter extends StringFormatter {
         case "ceil":  case "roundup":   return Math.ceil
       }
     })()
-    if (value == null || isNaN(value)) {
+    if (Number.isNaN(value)) {
       value = nan_format
+    } else if (value == null) {
+      value = null_format
     } else {
       value = Numbro.format(value, format, language, rounding)
     }
@@ -310,6 +332,11 @@ export class DateFormatter extends StringFormatter {
     this.define<DateFormatter.Props>(({Str}) => ({
       format: [ Str, "ISO-8601" ],
     }))
+
+    this.override<NumberFormatter.Props>({
+      nan_format: "-",
+      null_format: "-",
+    })
   }
 
   getFormat(): string | undefined {
@@ -363,8 +390,10 @@ export class DateFormatter extends StringFormatter {
     const NaT = -9223372036854776.0
 
     const date = (() => {
-      if (epoch == null || isNaN(epoch) || epoch == NaT) {
+      if (Number.isNaN(epoch) || epoch == NaT) {
         return this.nan_format
+      } else if (value == null) {
+        return this.null_format
       } else {
         return tz(epoch, this.getFormat())
       }
