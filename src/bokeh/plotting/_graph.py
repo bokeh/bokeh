@@ -51,11 +51,10 @@ RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSource, **kwargs):
+def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSource, **kwargs) -> dict:
 
     if not isinstance(node_source, ColumnarDataSource):
         try:
-            # try converting the source to ColumnDataSource
             node_source = ColumnDataSource(node_source)
         except ValueError as err:
             msg = f"Failed to auto-convert {type(node_source)} to ColumnDataSource.\n Original error: {err}"
@@ -63,7 +62,6 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
 
     if not isinstance(edge_source, ColumnarDataSource):
         try:
-            # try converting the source to ColumnDataSource
             edge_source = ColumnDataSource(edge_source)
         except ValueError as err:
             msg = f"Failed to auto-convert {type(edge_source)} to ColumnDataSource.\n Original error: {err}"

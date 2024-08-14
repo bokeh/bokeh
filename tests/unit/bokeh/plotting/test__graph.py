@@ -130,6 +130,14 @@ class Test_get_graph_kwargs:
         assert r.muted_glyph.line_alpha == 0.2
         assert r.muted_glyph.line_color == "blue"
 
+    def test_bad_input(self) -> None:
+        msg = "Failed to auto-convert <class 'int'> to ColumnDataSource.\n Original error: expected a dict or pandas.DataFrame, got 42"
+        with pytest.raises(ValueError, match=msg):
+            bpg.get_graph_kwargs(42, {})
+
+        with pytest.raises(ValueError, match=msg):
+            bpg.get_graph_kwargs({}, 42)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
