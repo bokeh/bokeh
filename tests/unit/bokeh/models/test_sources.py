@@ -724,6 +724,20 @@ Lime,Green,99,$0.39
         with pytest.raises(ValueError, match=r"Patch slices must have non-negative \(start, stop, step\) values, got slice\(1, 10, -1\)"):
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
 
+    def test_bad_multi_index(self) -> None:
+        ds = ColumnDataSource(data=dict(foo=[1]))
+        with pytest.raises(ValueError, match=r"Empty \(length zero\) patch multi-index"):
+            ds.patch(dict(foo=[[[], 5]]))
+        with pytest.raises(ValueError, match=r"Patch multi-index must contain more than one subindex"):
+            ds.patch(dict(foo=[[[2], 5]]))
+        with pytest.raises(ValueError, match=r"Initial patch sub-index may only be integer, got: spam"):
+            ds.patch(dict(foo=[[["spam", 3], 5]]))
+        with pytest.raises(ValueError, match=r"Out-of bounds initial sub-index \(-1\) in patch for column: foo"):
+            ds.patch(dict(foo=[[[-1, 3], 5]]))
+        with pytest.raises(ValueError, match=r"Can only sub-patch into columns with NumPy array items"):
+            ds.patch(dict(foo=[[[0, 3], 5]]))
+        with pytest.raises(ValueError, match=r"Invalid patch index: {}"):
+            ds.patch(dict(foo=[[{}, 5]]))
 
     def test_patch_good_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
