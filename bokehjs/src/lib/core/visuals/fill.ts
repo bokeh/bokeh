@@ -24,7 +24,11 @@ export class Fill extends VisualProperties {
     return doit
   }
 
-  Values: ValuesOf<mixins.Fill>
+  declare Values: ValuesOf<mixins.Fill>
+  declare ComputedValues: {
+    color: string
+  }
+
   values(): this["Values"] {
     return {
       color: this.get_fill_color(),
@@ -32,11 +36,17 @@ export class Fill extends VisualProperties {
     }
   }
 
-  set_value(ctx: Context2d): void {
+  computed_values(): this["ComputedValues"] {
     const color = this.get_fill_color()
     const alpha = this.get_fill_alpha()
+    return {
+      color: color2css(color, alpha),
+    }
+  }
 
-    ctx.fillStyle = color2css(color, alpha)
+  set_value(ctx: Context2d): void {
+    const {color} = this.computed_values()
+    ctx.fillStyle = color
   }
 
   get_fill_color(): Color | null {

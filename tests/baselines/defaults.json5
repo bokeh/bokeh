@@ -1379,6 +1379,7 @@
     glyph_width: 20,
     margin: 10,
     padding: 10,
+    border_radius: 0,
     spacing: 3,
     items: [],
   },

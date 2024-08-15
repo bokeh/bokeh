@@ -61,7 +61,7 @@ from ...core.properties import (
     value,
 )
 from ...core.property.vectorization import Field
-from ...core.property_aliases import AutoAnchor
+from ...core.property_aliases import AutoAnchor, BorderRadius, Padding
 from ...core.property_mixins import (
     ScalarFillProps,
     ScalarHatchProps,
@@ -489,9 +489,14 @@ class Legend(Annotation):
     Amount of margin around the legend.
     """)
 
-    padding = Int(10, help="""
-    Amount of padding around the contents of the legend. Only applicable when
-    border is visible, otherwise collapses to 0.
+    padding = Padding(default=10, help="""
+    Amount of padding around the contents of the legend.
+
+    Only applicable when border is visible, otherwise collapses to 0.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners.
     """)
 
     spacing = Int(3, help="""

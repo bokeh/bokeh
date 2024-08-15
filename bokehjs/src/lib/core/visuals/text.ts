@@ -45,6 +45,15 @@ export class Text extends VisualProperties {
   }
 
   declare Values: ValuesOf<mixins.Text>
+  declare ComputedValues: {
+    color:         string
+    outline_color: string
+    font:          string
+    text_align:    TextAlign
+    text_baseline: TextBaseline
+    line_height:   number
+  }
+
   values(): this["Values"] {
     return {
       color:         this.get_text_color(),
@@ -59,16 +68,34 @@ export class Text extends VisualProperties {
     }
   }
 
-  set_value(ctx: Context2d): void {
+  computed_values(): this["ComputedValues"] {
     const color = this.get_text_color()
     const outline_color = this.get_text_outline_color()
     const alpha = this.get_text_alpha()
+    return {
+      color:         color2css(color, alpha),
+      outline_color: color2css(outline_color, alpha),
+      font:          this.font_value(),
+      text_align:    this.get_text_align(),
+      text_baseline: this.get_text_baseline(),
+      line_height:   this.get_text_line_height(),
+    }
+  }
 
-    ctx.fillStyle    = color2css(color, alpha)
-    ctx.strokeStyle  = color2css(outline_color, alpha)
-    ctx.font         = this.font_value()
-    ctx.textAlign    = this.get_text_align()
-    ctx.textBaseline = this.get_text_baseline()
+  set_value(ctx: Context2d): void {
+    const {
+      color,
+      outline_color,
+      font,
+      text_align,
+      text_baseline,
+    } = this.computed_values()
+
+    ctx.fillStyle    = color
+    ctx.strokeStyle  = outline_color
+    ctx.font         = font
+    ctx.textAlign    = text_align
+    ctx.textBaseline = text_baseline
   }
 
   font_value(): string {
