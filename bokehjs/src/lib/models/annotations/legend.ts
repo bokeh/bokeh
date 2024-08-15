@@ -2,6 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
+import type {VAlign, HAlign} from "core/enums"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
@@ -11,46 +12,17 @@ import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
 import {dict} from "core/util/object"
-import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
-import {TextBox} from "core/graphics"
-import {Column, Row, Grid, ContentLayoutable, Sizeable, TextLayout} from "core/layout"
 import {LegendItemClick} from "core/bokeh_events"
+import {div, bounding_box, px} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
+import * as legend_css from "styles/legend.css"
+import {Padding, BorderRadius} from "../common/kinds"
+import * as resolve from "../common/resolve"
+import type {XY, LRTB, Corners} from "core/util/bbox"
 
-const {max, ceil} = Math
-
-type HitTarget = {type: "entry", entry: LegendEntry}
-
-type EntrySettings = {
-  glyph_width: number
-  glyph_height: number
-  label_standoff: number
-  label_width: number
-  label_height: number
-}
-
-class LegendEntry extends ContentLayoutable {
-
-  constructor(readonly item: LegendItem, readonly label: unknown, readonly text: TextBox, readonly settings: EntrySettings) {
-    super()
-  }
-
-  get field(): string | null {
-    return this.item.get_field_from_label_prop()
-  }
-
-  _content_size(): Sizeable {
-    const text = this.text.size()
-
-    const {glyph_width, glyph_height, label_standoff, label_width, label_height} = this.settings
-
-    const width = glyph_width + label_standoff + max(text.width, label_width)
-    const height = max(glyph_height, text.height, label_height)
-
-    return new Sizeable({width, height})
-  }
-}
+const {ceil} = Math
 
 export class LegendView extends AnnotationView {
   declare model: Legend
@@ -89,77 +61,165 @@ export class LegendView extends AnnotationView {
     return this._bbox
   }
 
-  protected grid: Grid<LegendEntry>
-  protected border_box: Column | Row
-  protected title_panel: TextLayout
+  protected grid_el: HTMLElement = div()
+  protected title_el: HTMLElement = div()
 
-  get padding(): number {
-    return this.model.border_line_color != null ? this.model.padding : 0
+  get padding(): LRTB<number> {
+    const padding = this.model.border_line_color != null ? this.model.padding : 0
+    return resolve.padding(padding)
   }
 
-  override update_geometry(): void {
-    super.update_geometry()
+  get border_radius(): Corners<number> {
+    return resolve.border_radius(this.model.border_radius)
+  }
 
-    const {spacing, orientation} = this.model
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), legend_css.default]
+  }
+
+  override render(): void {
+    super.render()
+
+    this.el.classList.toggle(legend_css.interactive, this.is_interactive)
+
+    const {orientation} = this.model
     const vertical = orientation == "vertical"
 
-    const {padding} = this
-    const left = padding
-    const top = padding
+    const label_el = div({class: legend_css.label}, this.model.title)
+    const label_angle = (() => {
+      const panel = new SidePanel(this.model.title_location)
+      return panel.get_label_angle_heuristic("parallel")
+    })()
+    if (label_angle != 0) {
+      this.style.append(`
+      .bk-title .bk-label {
+        rotate: ${label_angle}rad;
+      }
+      `)
+    }
 
-    const {title} = this.model
-    const title_box = new TextBox({text: title ?? ""})
-    title_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
-    title_box.visuals = this.visuals.title_text.values()
-    const _title_panel = new SidePanel(this.model.title_location)
-    title_box.angle = _title_panel.get_label_angle_heuristic("parallel")
+    const title_el = div({class: legend_css.title}, label_el)
+    this.title_el.remove()
+    this.title_el = title_el
 
-    const entries = []
+    const title_styles = this.visuals.title_text.computed_values()
+    this.style.append(`
+    .bk-title .bk-label {
+      font: ${title_styles.font};
+      color: ${title_styles.color};
+      -webkit-text-stroke: 1px ${title_styles.outline_color};
+    }
+    `)
+
+    const label_styles = this.visuals.label_text.computed_values()
+    this.style.append(`
+    .bk-item .bk-label {
+      font: ${label_styles.font};
+      color: ${label_styles.color};
+      -webkit-text-stroke: 1px ${label_styles.outline_color};
+    }
+    `)
+
+    const {anchor} = this
+    this.style.append(`
+    :host {
+      transform: translate(-${anchor.x*100}%, -${anchor.y*100}%);
+    }
+    `)
+
+    this.style.append(`
+    :host {
+      gap: ${this.model.title_standoff}px;
+    }
+    .bk-grid {
+      gap: ${this.model.spacing}px;
+    }
+    .bk-item {
+      gap: ${this.model.label_standoff}px;
+    }
+    .bk-item .bk-glyph {
+      width: ${this.model.glyph_width}px;
+      height: ${this.model.glyph_height}px;
+    }
+    `)
+
+    const entries: {el: HTMLElement, item: LegendItem, i: number, row: number, col: number}[] = []
+    const {click_policy} = this
+    let i = 0
+
     for (const item of this.model.items) {
       // Set a backref on render so that items can later signal item_change
-      // upates on the model to trigger a re-render.
+      // updates on the model to trigger a re-render.
       item.legend = this.model
 
+      const field = item.get_field_from_label_prop()
       const labels = item.get_labels_list_from_label_prop()
+
       for (const label of labels) {
-        const text_box = new TextBox({text: `${label}`}) // XXX: not always string
-        text_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "center"}
-        text_box.visuals = this.visuals.label_text.values()
+        const {glyph_width, glyph_height} = this.model
+        const glyph = this.plot_view.canvas.create_layer()
+        glyph.resize(glyph_width, glyph_height)
+        glyph.el.classList.add(legend_css.glyph)
 
-        const layout = new LegendEntry(item, label, text_box, this.model)
-        layout.set_sizing({visible: item.visible})
+        const glyph_el = glyph.el
+        const label_el = div({class: legend_css.label}, `${label}`)
+        const item_el = div({class: legend_css.item}, glyph_el, label_el)
+        item_el.classList.toggle(legend_css.hidden, !item.visible)
 
-        entries.push({layout, row: 0, col: 0})
+        const x0 = 0
+        const y0 = 0
+        const x1 = glyph_width
+        const y1 = glyph_height
+
+        const {ctx} = glyph
+        for (const renderer of item.renderers) {
+          const view = this.plot_view.views.find_one(renderer)
+          view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
+        }
+
+        item_el.addEventListener("pointerdown", () => {
+          this.model.trigger_event(new LegendItemClick(this.model, item))
+          for (const renderer of item.renderers) {
+            click_policy(renderer)
+          }
+        })
+
+        entries.push({el: item_el, item, i: i++, row: 0, col: 0})
       }
     }
 
-    const {ncols, nrows} = (() => {
-      let {ncols, nrows} = this.model
+    const {nc: ncols, nr: nrows} = (() => {
+      const {ncols, nrows} = this.model
       const n = entries.length
-      if (vertical) {
-        if (nrows != "auto") {
-        } else if (ncols != "auto") {
-          nrows = ceil(n / ncols)
-        } else {
-          nrows = Infinity
-        }
-        ncols = Infinity
+      let nc: number
+      let nr: number
+      if (ncols != "auto" && nrows != "auto") {
+        nc = ncols
+        nr = nrows
+      } else if (ncols != "auto") {
+        nc = ncols
+        nr = ceil(n / ncols)
+      } else if (nrows != "auto") {
+        nc = ceil(n / nrows)
+        nr = nrows
       } else {
-        if (ncols != "auto") {
-        } else if (nrows != "auto") {
-          ncols = ceil(n / nrows)
+        if (vertical) {
+          nc = 1
+          nr = n
         } else {
-          ncols = Infinity
+          nc = n
+          nr = 1
         }
-        nrows = Infinity
       }
-      return {ncols, nrows}
+      return {nc, nr}
     })()
 
     let row = 0
     let col = 0
 
     for (const entry of entries) {
+      entry.el.id = `item_${row}_${col}`
+
       entry.row = row
       entry.col = col
 
@@ -178,153 +238,238 @@ export class LegendView extends AnnotationView {
       }
     }
 
-    const grid = new Grid(entries)
-    this.grid = grid
-
-    grid.spacing = spacing
-    grid.set_sizing()
-
-    const title_panel = new TextLayout(title_box)
-    this.title_panel = title_panel
-    const title_visible = title_box.text != "" && this.visuals.title_text.doit
-    title_panel.set_sizing({visible: title_visible}) // doesn't work
-
-    const border_box = (() => {
-      if (!title_visible) {
-        return new Column([grid])
+    if (this.visuals.item_background_fill.doit) {
+      const {color} = this.visuals.item_background_fill.computed_values()
+      this.style.append(`
+      .${legend_css.item} {
+        --item-background-color: ${color};
       }
+      `)
+
+      for (const {el, i, row, col} of entries) {
+        if (this.has_item_background(i, row, col)) {
+          el.classList.add(legend_css.styled)
+        }
+      }
+    }
+
+    if (this.visuals.item_background_fill.doit) {
+      const {color} = this.visuals.item_background_fill.computed_values()
+      this.style.append(`
+      .${legend_css.item} {
+        --item-background-active-color: ${color};
+      }
+      `)
+
+      const {is_active} = this
+      for (const {el, item} of entries) {
+        if (!is_active(item)) {
+          el.classList.add(legend_css.active)
+        }
+      }
+    }
+
+    const grid_el = div({class: legend_css.grid}, entries.map(({el}) => el))
+    this.grid_el.remove()
+    this.grid_el = grid_el
+
+    this.style.append(`
+    .bk-grid {
+      grid-auto-flow: ${vertical ? "column" : "row"};
+      grid-template-rows: repeat(${nrows}, 1fr);
+      grid-template-columns: repeat(${ncols}, 1fr);
+    }
+    `)
+
+    const legend_layout = (() => {
       switch (this.model.title_location) {
-        case "above": return new Column([title_panel, grid])
-        case "below": return new Column([grid, title_panel])
-        case "left":  return new Row([title_panel, grid])
-        case "right": return new Row([grid, title_panel])
-      }
-    })()
-    this.border_box = border_box
-    border_box.position = {left, top}
-
-    border_box.spacing = this.model.title_standoff
-    border_box.set_sizing()
-    border_box.compute()
-
-    const width  = padding + border_box.bbox.width  + padding
-    const height = padding + border_box.bbox.height + padding
-
-    // Position will be filled-in in `compute_geometry()`.
-    this._bbox = new BBox({left: 0, top: 0, width, height})
-  }
-
-  override compute_geometry(): void {
-    super.compute_geometry()
-
-    const {margin, location} = this.model
-    const {width, height} = this.bbox
-
-    const panel = this.layout != null ? this.layout : this.plot_view.frame
-    const [hr, vr] = panel.bbox.ranges
-
-    let sx: number, sy: number
-    if (isString(location)) {
-      switch (location) {
-        case "top_left":
-          sx = hr.start + margin
-          sy = vr.start + margin
-          break
-        case "top":
-        case "top_center":
-          sx = (hr.end + hr.start)/2 - width/2
-          sy = vr.start + margin
-          break
-        case "top_right":
-          sx = hr.end - margin - width
-          sy = vr.start + margin
-          break
-        case "bottom_right":
-          sx = hr.end - margin - width
-          sy = vr.end - margin - height
-          break
-        case "bottom":
-        case "bottom_center":
-          sx = (hr.end + hr.start)/2 - width/2
-          sy = vr.end - margin - height
-          break
-        case "bottom_left":
-          sx = hr.start + margin
-          sy = vr.end - margin - height
-          break
+        case "above":
+        case "below": return "column"
         case "left":
-        case "center_left":
-          sx = hr.start + margin
-          sy = (vr.end + vr.start)/2 - height/2
-          break
-        case "center":
-        case "center_center":
-          sx = (hr.end + hr.start)/2 - width/2
-          sy = (vr.end + vr.start)/2 - height/2
-          break
-        case "right":
-        case "center_right":
-          sx = hr.end - margin - width
-          sy = (vr.end + vr.start)/2 - height/2
-          break
-      }
-    } else {
-      const [vx, vy] = location
-      sx = panel.bbox.xview.compute(vx)
-      sy = panel.bbox.yview.compute(vy) - height
-    }
-
-    this._bbox = new BBox({left: sx, top: sy, width, height})
-  }
-
-  override interactive_hit(sx: number, sy: number): boolean {
-    return this.bbox.contains(sx, sy)
-  }
-
-  protected _hit_test(sx: number, sy: number): HitTarget | null {
-    const {left, top} = this.bbox
-    sx -= left + this.grid.bbox.left
-    sy -= top + this.grid.bbox.top
-
-    for (const entry of this.grid) {
-      if (entry.bbox.contains(sx, sy)) {
-        return {type: "entry", entry}
-      }
-    }
-
-    return null
-  }
-
-  override cursor(sx: number, sy: number): string | null {
-    if (this.model.click_policy == "none" && !dict(this.model.js_event_callbacks).has("legend_item_click")) { // this doesn't cover server callbacks
-      return null
-    }
-    if (this._hit_test(sx, sy) != null) {
-      return "pointer"
-    }
-    return null
-  }
-
-  override on_hit(sx: number, sy: number): boolean {
-    const fn = (() => {
-      switch (this.model.click_policy) {
-        case "hide": return (r: GlyphRenderer) => r.visible = !r.visible
-        case "mute": return (r: GlyphRenderer) => r.muted = !r.muted
-        case "none": return (_: GlyphRenderer) => {}
+        case "right": return "row"
       }
     })()
-
-    const target = this._hit_test(sx, sy)
-    if (target != null) {
-      const {item} = target.entry
-      this.model.trigger_event(new LegendItemClick(this.model, item))
-      for (const renderer of item.renderers) {
-        fn(renderer)
+    this.style.append(`
+      :host {
+        --legend-layout: ${legend_layout}
       }
-      return true
+    `)
+
+    this.shadow_el.append(...(() => {
+      switch (this.model.title_location) {
+        case "above": return [title_el, grid_el]
+        case "below": return [grid_el, title_el]
+        case "left":  return [title_el, grid_el]
+        case "right": return [grid_el, title_el]
+      }
+    })())
+
+    const {padding, border_radius} = this
+    this.style.append(`
+    :host {
+      padding-left: ${padding.left}px;
+      padding-right: ${padding.right}px;
+      padding-top: ${padding.top}px;
+      padding-bottom: ${padding.bottom}px;
+
+      border-top-left-radius: ${border_radius.top_left}px;
+      border-top-right-radius: ${border_radius.top_right}px;
+      border-bottom-right-radius: ${border_radius.bottom_right}px;
+      border-bottom-left-radius: ${border_radius.bottom_left}px;
+    }
+    `)
+
+    if (this.visuals.background_fill.doit) {
+      const {color} = this.visuals.background_fill.computed_values()
+      this.style.append(`
+      :host {
+        background-color: ${color};
+      }
+      `)
     }
 
-    return false
+    if (this.visuals.border_line.doit) {
+      // TODO use background-image to replicate number[] dash patterns
+      const {color, width, dash} = this.visuals.border_line.computed_values()
+      this.style.append(`
+      :host {
+        border-color: ${color};
+        border-width: ${width}px;
+        border-style: ${isString(dash) ? dash : (dash.length < 2 ? "solid" : "dashed")};
+      }
+      `)
+    }
+  }
+
+  get location(): {x: HAlign | number, y: VAlign | number} {
+    const {location} = this.model
+    if (isString(location)) {
+      const normal_location = (() => {
+        switch (location) {
+          case "top":    return "top_center"
+          case "bottom": return "bottom_center"
+          case "left":   return "center_left"
+          case "center": return "center_center"
+          case "right":  return "center_right"
+          default:       return location
+        }
+      })()
+      const [v_loc, h_loc] = normal_location.split("_") as [VAlign, HAlign]
+      return {x: h_loc, y: v_loc}
+    } else {
+      const [x_loc, y_loc] = location
+      return {x: x_loc, y: y_loc}
+    }
+  }
+
+  get anchor(): XY<number> {
+    const {location} = this
+    const x_anchor = (() => {
+      switch (location.x) {
+        case "left":   return 0.0
+        case "center": return 0.5
+        case "right":  return 1.0
+        default:       return 0.0
+      }
+    })()
+    const y_anchor = (() => {
+      switch (location.y) {
+        case "top":    return 0.0
+        case "center": return 0.5
+        case "bottom": return 1.0
+        default:       return 1.0
+      }
+    })()
+    return {x: x_anchor, y: y_anchor}
+  }
+
+  get css_position(): XY<string> {
+    const {location} = this
+    const {margin} = this.model
+    const panel = this.layout ?? this.plot_view.frame
+    const x_pos = (() => {
+      const {x} = location
+      switch (x) {
+        case "left":   return `calc(0% + ${px(margin)})`
+        case "center": return "50%"
+        case "right":  return `calc(100% - ${px(margin)})`
+        default:       return px(panel.bbox.x_view.compute(x))
+      }
+    })()
+    const y_pos = (() => {
+      const {y} = location
+      switch (y) {
+        case "top":    return `calc(0% + ${px(margin)})`
+        case "center": return "50%"
+        case "bottom": return `calc(100% - ${px(margin)})`
+        default:       return px(panel.bbox.y_view.compute(y))
+      }
+    })()
+    return {x: x_pos, y: y_pos}
+  }
+
+  get is_visible(): boolean {
+    const {visible, items} = this.model
+    return visible && items.length != 0 && some(items, (item) => item.visible)
+  }
+
+  override update_position(): void {
+    if (this.is_visible) {
+      const {x, y} = this.css_position
+      this.position.replace(`
+      :host {
+        left: ${x};
+        top:  ${y};
+      }
+      `)
+    } else {
+      this.position.replace(`
+      :host {
+        display: none;
+      }
+      `)
+    }
+
+    const {left, top, width, height} = bounding_box(this.el)
+    this._bbox = new BBox({left, top, width, height})
+  }
+
+  override rendering_target(): HTMLElement | ShadowRoot {
+    const panel = this.panel ?? this.plot_view.frame
+    return panel.shadow_el
+  }
+
+  get is_interactive(): boolean {
+    // this doesn't cover server callbacks
+    return this.model.click_policy != "none" || dict(this.model.js_event_callbacks).has("legend_item_click")
+  }
+
+  get click_policy(): (r: GlyphRenderer) => void {
+    switch (this.model.click_policy) {
+      case "hide": return (r) => r.visible = !r.visible
+      case "mute": return (r) => r.muted = !r.muted
+      case "none": return (_) => {}
+    }
+  }
+
+  get is_active(): (item: LegendItem) => boolean {
+    switch (this.model.click_policy) {
+      case "none": return (_item) => true
+      case "hide": return (item)  => every(item.renderers, (r) => r.visible)
+      case "mute": return (item)  => every(item.renderers, (r) => !r.muted)
+    }
+  }
+
+  has_item_background(_i: number, row: number, col: number): boolean {
+    if (!this.visuals.item_background_fill.doit) {
+      return false
+    }
+    switch (this.model.item_background_policy) {
+      case "every": return true
+      case "even":  return (row % 2 == 0) == (col % 2 == 0)
+      case "odd":   return (row % 2 == 0) != (col % 2 == 0)
+      case "none":  return false
+    }
   }
 
   protected _paint(): void {
@@ -337,9 +482,9 @@ export class LegendView extends AnnotationView {
 
     const {ctx} = this.layer
     ctx.save()
-    this._draw_legend_box(ctx)
-    this._draw_legend_items(ctx)
-    this._draw_title(ctx)
+    //this._draw_legend_box(ctx)
+    //this._draw_legend_items(ctx)
+    //this._draw_title(ctx)
     ctx.restore()
   }
 
@@ -351,12 +496,13 @@ export class LegendView extends AnnotationView {
     this.visuals.border_line.apply(ctx)
   }
 
-  protected _draw_title(ctx: Context2d): void {
+  protected _draw_title(_ctx: Context2d): void {
     const {title} = this.model
     if (title == null || title.length == 0 || !this.visuals.title_text.doit) {
       return
     }
 
+    /*
     const {left, top} = this.bbox
     ctx.save()
     ctx.translate(left, top)
@@ -379,34 +525,17 @@ export class LegendView extends AnnotationView {
 
     this.title_panel.text.paint(ctx)
     ctx.restore()
+    */
   }
 
-  protected _draw_legend_items(ctx: Context2d): void {
-    const is_active = (() => {
-      switch (this.model.click_policy) {
-        case "none": return (_item: LegendItem) => true
-        case "hide": return (item: LegendItem)  => every(item.renderers, (r) => r.visible)
-        case "mute": return (item: LegendItem)  => every(item.renderers, (r) => !r.muted)
-      }
-    })()
-
-    const has_item_background = (_i: number, row: number, col: number) => {
-      if (!this.visuals.item_background_fill.doit) {
-        return false
-      }
-      switch (this.model.item_background_policy) {
-        case "every": return true
-        case "even":  return (row % 2 == 0) == (col % 2 == 0)
-        case "odd":   return (row % 2 == 0) != (col % 2 == 0)
-        case "none":  return false
-      }
-    }
-
+  protected _draw_legend_items(_ctx: Context2d): void {
+    //const {is_active, has_item_background} = this
+    /*
     const {left, top} = this.bbox
     ctx.translate(left, top)
     ctx.translate(this.grid.bbox.left, this.grid.bbox.top)
 
-    for (const [{layout: entry, row, col}, i] of enumerate(this.grid.items)) {
+    for (const [{layout: entry, row, col}, i] of enumerate(this.items)) {
       const {bbox, text, item, label, field, settings} = entry
       const {glyph_width, glyph_height, label_standoff} = settings
 
@@ -446,6 +575,7 @@ export class LegendView extends AnnotationView {
 
     ctx.translate(-this.grid.bbox.left, -this.grid.bbox.top)
     ctx.translate(-left, -top)
+    */
   }
 }
 
@@ -461,12 +591,13 @@ export namespace Legend {
     title_location: p.Property<Location>
     title_standoff: p.Property<number>
     label_standoff: p.Property<number>
-    glyph_height: p.Property<number>
     glyph_width: p.Property<number>
-    label_height: p.Property<number>
+    glyph_height: p.Property<number>
     label_width: p.Property<number>
+    label_height: p.Property<number>
     margin: p.Property<number>
-    padding: p.Property<number>
+    padding: p.Property<Padding>
+    border_radius: p.Property<BorderRadius>
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
@@ -529,12 +660,13 @@ export class Legend extends Annotation {
       title_location:   [ Location, "above" ],
       title_standoff:   [ Float, 5 ],
       label_standoff:   [ Float, 5 ],
-      glyph_height:     [ Float, 20 ],
       glyph_width:      [ Float, 20 ],
-      label_height:     [ Float, 20 ],
-      label_width:      [ Float, 20 ],
+      glyph_height:     [ Float, 20 ],
+      label_width:      [ Float, 20 ], // TODO deprecate
+      label_height:     [ Float, 20 ], // TODO deprecate
       margin:           [ Float, 10 ],
-      padding:          [ Float, 10 ],
+      padding:          [ Padding, 10 ],
+      border_radius:    [ BorderRadius, 0 ],
       spacing:          [ Float, 3 ],
       items:            [ List(Ref(LegendItem)), [] ],
       click_policy:     [ LegendClickPolicy, "none" ],

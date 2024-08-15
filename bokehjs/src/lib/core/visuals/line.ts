@@ -44,6 +44,15 @@ export class Line extends VisualProperties {
   }
 
   declare Values: ValuesOf<mixins.Line>
+  declare ComputedValues: {
+    color:  string
+    width:  number
+    join:   LineJoin
+    cap:    LineCap
+    dash:   LineDash | number[]
+    offset: number
+  }
+
   values(): this["Values"] {
     return {
       color:  this.get_line_color(),
@@ -56,16 +65,27 @@ export class Line extends VisualProperties {
     }
   }
 
-  set_value(ctx: Context2d): void {
+  computed_values(): this["ComputedValues"] {
     const color = this.get_line_color()
     const alpha = this.get_line_alpha()
+    return {
+      color:  color2css(color, alpha),
+      width:  this.get_line_width(),
+      join:   this.get_line_join(),
+      cap:    this.get_line_cap(),
+      dash:   this.get_line_dash(),
+      offset: this.get_line_dash_offset(),
+    }
+  }
 
-    ctx.strokeStyle    = color2css(color, alpha)
-    ctx.lineWidth      = this.get_line_width()
-    ctx.lineJoin       = this.get_line_join()
-    ctx.lineCap        = this.get_line_cap()
-    ctx.setLineDash(resolve_line_dash(this.get_line_dash()))
-    ctx.lineDashOffset = this.get_line_dash_offset()
+  set_value(ctx: Context2d): void {
+    const {color, width, join, cap, dash, offset} = this.computed_values()
+    ctx.strokeStyle    = color
+    ctx.lineWidth      = width
+    ctx.lineJoin       = join
+    ctx.lineCap        = cap
+    ctx.setLineDash(resolve_line_dash(dash))
+    ctx.lineDashOffset = offset
   }
 
   get_line_color(): Color | null {

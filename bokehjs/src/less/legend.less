@@ -1,0 +1,58 @@
+:host {
+  position: absolute;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: var(--legend-layout);
+  pointer-events: all;
+}
+
+.bk-hidden {
+  display: none;
+}
+
+.bk-title {
+  position: relative;
+
+  &:has(.bk-label:empty) {
+    display: none;
+  }
+}
+
+.bk-label {
+  position: relative;
+  white-space: pre;
+  cursor: auto;
+  width: fit-content;
+  height: fit-content;
+}
+
+.bk-grid {
+  position: relative;
+  display: grid;
+  width: max-content;
+  height: max-content;
+}
+
+.bk-item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.bk-item.bk-styled {
+  background-color: var(--item-background-color);
+}
+
+.bk-item.bk-active {
+  background-color: var(--item-background-active-color);
+}
+
+:host(.bk-interactive) .bk-item {
+  cursor: pointer;
+}
+
+.bk-glyph {
+  position: relative;
+}
