@@ -149,6 +149,7 @@ export class UIGestures {
 
   reset(): void {
     this._cancel_timeout()
+    this._user_select(true)
 
     this.phase = "idle"
     this.pointers.clear()
@@ -157,6 +158,10 @@ export class UIGestures {
 
     this.last_scale = null
     this.last_rotation = null
+  }
+
+  protected _user_select(allow: boolean): void {
+    this.hit_area.style.userSelect = allow ? "" : "none"
   }
 
   static readonly move_threshold: number = 5/*px*/
@@ -236,6 +241,7 @@ export class UIGestures {
     }
     this.pointers.set(event.pointerId, {init: event, last: event})
     this.hit_area.setPointerCapture(event.pointerId)
+    this._user_select(false)
     switch (this.phase) {
       case "idle": {
         this.phase = "started"
@@ -399,6 +405,9 @@ export class UIGestures {
       const [ptr] = this.pointers.values()
       ptr.init = ptr.last
     }
+    if (this.pointers.size == 0) {
+      this._user_select(true)
+    }
   }
 
   protected _pointer_cancel(event: PointerEvent): void {
@@ -445,6 +454,9 @@ export class UIGestures {
     if (this.phase == "transitional") {
       const [ptr] = this.pointers.values()
       ptr.init = ptr.last
+    }
+    if (this.pointers.size == 0) {
+      this._user_select(true)
     }
   }
 
