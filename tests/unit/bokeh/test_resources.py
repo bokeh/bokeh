@@ -49,7 +49,7 @@ LOG_LEVELS: list[LogLevel] = ["trace", "debug", "info", "warn", "error", "fatal"
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
 def teardown_module() -> None:
-    Model._clear_extensions()
+    Model.clear_extensions()
 
 # -----------------------------------------------------------------------------
 # General API

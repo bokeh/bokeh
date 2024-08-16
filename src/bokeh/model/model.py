@@ -234,6 +234,18 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     # Public methods ----------------------------------------------------------
 
     @classmethod
+    def clear_extensions(cls) -> None:
+        """ Clear any currently defined custom extensions.
+
+        Serialization calls will result in any currently defined custom
+        extensions being included with the generated Document, whether or not
+        there are utlized. This method can be used to clear out all existing
+        custom extension definitions.
+
+        """
+        _default_resolver.clear_extensions()
+
+    @classmethod
     @without_property_validation
     def parameters(cls: type[Model]) -> list[Parameter]:
         ''' Generate Python ``Parameter`` values suitable for functions that are
@@ -586,10 +598,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         doc.theme.apply_to_model(self)
         self.document = doc
         self._update_event_callbacks()
-
-    @classmethod
-    def _clear_extensions(cls) -> None:
-        _default_resolver.clear_extensions()
 
     def _detach_document(self) -> None:
         ''' Detach a model from a Bokeh |Document|.
