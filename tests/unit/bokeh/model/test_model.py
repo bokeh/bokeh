@@ -279,6 +279,43 @@ def test_args_pass_through():
     with pytest.raises(ValueError, match=r"positional arguments are not allowed"):
         SomeModel(1, b="a")
 
+class Test_clear_extensions:
+    def test_ext_with___css__(self):
+        assert not any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+        class Custom(Model):
+            __css__ = "stuff"
+
+        assert any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+        Model.clear_extensions()
+
+        assert not any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+    def test_ext_with___implementation__(self):
+        assert not any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+        class Custom(Model):
+            __implementation__ = "stuff"
+
+        assert any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+        Model.clear_extensions()
+
+        assert not any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+    def test_ext_with___javascript__(self):
+        assert not any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+        class Custom(Model):
+            __javascript__ = "stuff"
+
+        assert any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
+        Model.clear_extensions()
+
+        assert not any(x.endswith(".Custom") for x in Model.model_class_reverse_map)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
