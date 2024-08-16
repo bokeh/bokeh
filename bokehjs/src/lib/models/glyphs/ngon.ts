@@ -1,8 +1,9 @@
 import {RadialGlyph, RadialGlyphView} from "./radial_glyph"
 import type {PointGeometry, PolyGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import {minmax2} from "core/util/arrayable"
-import * as hittest from "core/hittest"
+import {check_2_segments_intersect, point_in_poly} from "core/hittest"
 import * as p from "core/properties"
+import type {Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
@@ -12,12 +13,38 @@ function ngon(x: number, y: number, r: number, n: number, angle: number) {
   const xs = new Float32Array(n)
   const ys = new Float32Array(n)
   const alpha_i = 2*Math.PI / n
-  for (let i = 0; i <= n; i++) {
+  for (let i = 0; i < n; i++) {
     const alpha = i * alpha_i + angle
     xs[i] = x + r * Math.sin(alpha)
     ys[i] = y + r * -Math.cos(alpha)
   }
   return [xs, ys]
+}
+
+function vertex_overlap(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
+  // need to check "both directions" to handle total inclusion cases
+  for (let i = 0; i < x0.length; i++) {
+    if (point_in_poly(x0[i], y0[i], x1, y1)) {
+      return true
+    }
+  }
+  for (let i = 0; i < x1.length; i++) {
+    if (point_in_poly(x1[i], y1[i], x0, y0)) {
+      return true
+    }
+  }
+  return false
+}
+
+function edge_intersection(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
+  for (let i = 0; i < x0.length-1; i++) {
+    for (let j = 0; j < x1.length-1; j++) {
+      if (check_2_segments_intersect(x0[i], y0[i], x0[i+1], y0[i+1], x1[j], y1[j], x1[j+1], y1[j+1]).hit) {
+        return true
+      }
+    }
+  }
+  return false
 }
 
 export class NgonView extends RadialGlyphView {
@@ -71,7 +98,7 @@ export class NgonView extends RadialGlyphView {
     const indices = []
     for (const index of candidates) {
       const [sxs, sys] = this._ngon(index)
-      if (hittest.point_in_poly(geometry.sx, geometry.sy, sxs, sys)) {
+      if (point_in_poly(geometry.sx, geometry.sy, sxs, sys)) {
         indices.push(index)
       }
     }
@@ -122,13 +149,16 @@ export class NgonView extends RadialGlyphView {
     const indices = []
     for (const index of candidates) {
       const [sxs, sys] = this._ngon(index)
-      for (let i = 0; i < sxs.length; i++) {
-        if (hittest.point_in_poly(sxs[i], sys[i], gsx, gsy)) {
-          indices.push(index)
-          break
-        }
+      if (vertex_overlap(sxs, sys, gsx, gsy)) {
+        indices.push(index)
+        continue
+      }
+      if (edge_intersection(sxs, sys, gsx, gsy)) {
+        indices.push(index)
+        continue
       }
     }
+
     return new Selection({indices})
   }
 
