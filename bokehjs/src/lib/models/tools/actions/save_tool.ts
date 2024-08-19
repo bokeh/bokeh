@@ -1,19 +1,23 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import type * as p from "core/properties"
-import {tool_icon_save} from "styles/icons.css"
+import * as icons from "styles/icons.css"
 import type {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
   declare model: SaveTool
 
+  protected async _export(): Promise<Blob> {
+    return this.parent.export().to_blob()
+  }
+
   async copy(): Promise<void> {
-    const blob = await this.parent.export().to_blob()
+    const blob = await this._export()
     const item = new ClipboardItem({[blob.type]: blob})
     await navigator.clipboard.write([item])
   }
 
   async save(name: string): Promise<void> {
-    const blob = await this.parent.export().to_blob()
+    const blob = await this._export()
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
     link.download = name // + ".png" | "svg" (inferred from MIME type)
@@ -21,7 +25,13 @@ export class SaveToolView extends ActionToolView {
     link.dispatchEvent(new MouseEvent("click"))
   }
 
-  doit(action: "save" | "copy" = "save"): void {
+  async open(): Promise<void> {
+    const blob = await this._export()
+    const url = URL.createObjectURL(blob)
+    open(url)
+  }
+
+  doit(action: "save" | "copy" | "open" = "save"): void {
     switch (action) {
       case "save": {
         const filename = this.model.filename ?? prompt("Enter filename", "bokeh_plot")
@@ -32,6 +42,10 @@ export class SaveToolView extends ActionToolView {
       }
       case "copy": {
         void this.copy()
+        break
+      }
+      case "open": {
+        void this.open()
         break
       }
     }
@@ -67,16 +81,23 @@ export class SaveTool extends ActionTool {
   }
 
   override tool_name = "Save"
-  override tool_icon = tool_icon_save
+  override tool_icon = icons.tool_icon_save
 
   override get menu(): MenuItem[] | null {
     return [
       {
-        icon: "bk-tool-icon-copy",
+        icon: icons.tool_icon_copy,
         tooltip: "Copy image to clipboard",
         if: () => typeof ClipboardItem !== "undefined",
         handler: () => {
           this.do.emit("copy")
+        },
+      },
+      {
+        icon: icons.tool_icon_open,
+        tooltip: "Open image in a new tab",
+        handler: () => {
+          this.do.emit("open")
         },
       },
     ]
