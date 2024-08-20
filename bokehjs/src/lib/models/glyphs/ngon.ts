@@ -9,7 +9,7 @@ import {Selection} from "../selections/selection"
 
 export interface NgonView extends Ngon.Data {}
 
-function ngon(x: number, y: number, r: number, n: number, angle: number) {
+function ngon(x: number, y: number, r: number, n: number, angle: number): [Arrayable<number>, Arrayable<number>]  {
   const xs = new Float32Array(n)
   const ys = new Float32Array(n)
   const alpha_i = 2*Math.PI / n
