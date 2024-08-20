@@ -6241,6 +6241,14 @@
     match_aspect: false,
     origin: "corner",
   },
+  ClickPanTool: {
+    __extends__: "PlotActionTool",
+    direction: {
+      type: "symbol",
+      name: "unset",
+    },
+    factor: 0.1,
+  },
   CopyTool: {
     __extends__: "ActionTool",
   },

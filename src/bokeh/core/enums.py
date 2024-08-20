@@ -133,6 +133,7 @@ __all__ = (
     'OutputBackend',
     'PaddingUnits',
     'Palette',
+    'PanDirection',
     'Place',
     'RegionSelectionMode',
     'RenderLevel',
@@ -485,6 +486,10 @@ OutputBackend = enumeration(OutputBackendType)
 #: Whether range padding should be interpreted a percentage or and absolute quantity
 PaddingUnitsType = Literal["percent", "absolute"]
 PaddingUnits = enumeration(PaddingUnitsType)
+
+#: Which direction click pan tool acts on.
+PanDirection = Literal["left", "right", "up", "down", "west", "east", "north", "south"]
+PanDirection = enumeration(PanDirection)
 
 #: Specify the name of a palette from :ref:`bokeh.palettes`
 Palette = enumeration(*palettes.__palettes__)
