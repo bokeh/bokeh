@@ -1,7 +1,7 @@
 import {RadialGlyph, RadialGlyphView} from "./radial_glyph"
 import type {PointGeometry, PolyGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import {minmax2} from "core/util/arrayable"
-import {check_2_segments_intersect, point_in_poly} from "core/hittest"
+import {edge_intersection, point_in_poly, vertex_overlap} from "core/hittest"
 import * as p from "core/properties"
 import type {Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
@@ -19,32 +19,6 @@ function ngon(x: number, y: number, r: number, n: number, angle: number): [Array
     ys[i] = y + r * -Math.cos(alpha)
   }
   return [xs, ys]
-}
-
-function vertex_overlap(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
-  // need to check "both directions" to handle total inclusion cases
-  for (let i = 0; i < x0.length; i++) {
-    if (point_in_poly(x0[i], y0[i], x1, y1)) {
-      return true
-    }
-  }
-  for (let i = 0; i < x1.length; i++) {
-    if (point_in_poly(x1[i], y1[i], x0, y0)) {
-      return true
-    }
-  }
-  return false
-}
-
-function edge_intersection(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
-  for (let i = 0; i < x0.length-1; i++) {
-    for (let j = 0; j < x1.length-1; j++) {
-      if (check_2_segments_intersect(x0[i], y0[i], x0[i+1], y0[i+1], x1[j], y1[j], x1[j+1], y1[j+1]).hit) {
-        return true
-      }
-    }
-  }
-  return false
 }
 
 export class NgonView extends RadialGlyphView {

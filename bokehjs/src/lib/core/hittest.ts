@@ -94,3 +94,29 @@ export function check_2_segments_intersect(
     return {hit: (a > 0 && a < 1) && (b > 0 && b < 1), x, y}
   }
 }
+
+export function vertex_overlap(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
+  // need to check "both directions" to handle total inclusion cases
+  for (let i = 0; i < x0.length; i++) {
+    if (point_in_poly(x0[i], y0[i], x1, y1)) {
+      return true
+    }
+  }
+  for (let i = 0; i < x1.length; i++) {
+    if (point_in_poly(x1[i], y1[i], x0, y0)) {
+      return true
+    }
+  }
+  return false
+}
+
+export function edge_intersection(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
+  for (let i = 0; i < x0.length-1; i++) {
+    for (let j = 0; j < x1.length-1; j++) {
+      if (check_2_segments_intersect(x0[i], y0[i], x0[i+1], y0[i+1], x1[j], y1[j], x1[j+1], y1[j+1]).hit) {
+        return true
+      }
+    }
+  }
+  return false
+}
