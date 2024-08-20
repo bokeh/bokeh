@@ -17,8 +17,6 @@ export abstract class RadialGlyphView extends XYGlyphView {
   declare model: RadialGlyph
   declare visuals: RadialGlyph.Visuals
 
-  /** @internal */
-
   protected override _index_data(index: SpatialIndex): void {
     const {x, y, radius, data_size} = this
     for (let i = 0; i < data_size; i++) {
