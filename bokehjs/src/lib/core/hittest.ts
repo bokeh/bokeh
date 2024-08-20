@@ -95,6 +95,7 @@ export function check_2_segments_intersect(
   }
 }
 
+// Given two polygons, is any vertex of one inside the other
 export function vertex_overlap(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
   // need to check "both directions" to handle total inclusion cases
   for (let i = 0; i < x0.length; i++) {
@@ -110,6 +111,7 @@ export function vertex_overlap(x0: Arrayable<number>, y0: Arrayable<number>, x1:
   return false
 }
 
+// Given two polygons, do any pair of edges intersect
 export function edge_intersection(x0: Arrayable<number>, y0: Arrayable<number>, x1: Arrayable<number>, y1: Arrayable<number>): boolean {
   for (let i = 0; i < x0.length-1; i++) {
     for (let j = 0; j < x1.length-1; j++) {
@@ -117,6 +119,15 @@ export function edge_intersection(x0: Arrayable<number>, y0: Arrayable<number>, 
         return true
       }
     }
+    // consider x1, y1 "closing" segment
+    if (check_2_segments_intersect(x0[i], y0[i], x0[i+1], y0[i+1], x1[x1.length-1], y1[x1.length-1], x1[0], y1[0]).hit) {
+      return true
+    }
   }
+  // consider x0, y0, "closing" segment
+  if (check_2_segments_intersect(x0[x0.length-1], y0[x0.length-1], x0[0], y0[0], x1[x1.length-1], y1[x1.length-1], x1[0], y1[0]).hit) {
+    return true
+  }
+
   return false
 }
