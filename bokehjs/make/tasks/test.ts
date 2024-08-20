@@ -46,6 +46,14 @@ task("test:codebase", ["test:codebase:compile"], async () => {
   await node(["./build/test/codebase/index.js"])
 })
 
+task("test:playwright:compile", async () => {
+  compile_typescript("./test/playwright/tsconfig.json")
+})
+
+task("test:playwright", ["test:playwright:compile"], async () => {
+  await node(["./build/test/playwright/index.js"])
+})
+
 function sys_path(): string {
   const path = [process.env.PATH]
 

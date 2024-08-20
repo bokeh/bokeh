@@ -57,5 +57,8 @@
     "timezone": "^1.0.23",
     "tslib": "^2.6.3",
     "underscore.template": "^0.1.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.46.1"
   }
 }
