@@ -251,6 +251,7 @@ describe("default model resolver", () => {
       "MultipleDatePicker",
       "MultipleDatetimePicker",
       "NanCompare",
+      "Ngon",
       "NoOverlap",
       "Node",
       "NodeCoordinates",

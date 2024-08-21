@@ -134,6 +134,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.line`
         * :func:`~bokeh.plotting.figure.multi_line`
         * :func:`~bokeh.plotting.figure.multi_polygons`
+        * :func:`~bokeh.plotting.figure.ngon`
         * :func:`~bokeh.plotting.figure.patch`
         * :func:`~bokeh.plotting.figure.patches`
         * :func:`~bokeh.plotting.figure.plus`
