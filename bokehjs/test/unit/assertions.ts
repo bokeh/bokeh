@@ -1,5 +1,5 @@
 import {isNumber, isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
-import {is_equal, is_structurally_equal, is_similar} from "@bokehjs/core/util/eq"
+import {is_equal, is_structurally_equal, is_almost_equal, MAX_ULPS} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import type {Class} from "@bokehjs/core/class"
 
@@ -140,11 +140,11 @@ class Asserts implements Assertions<unknown> {
     }
   }
 
-  similar(expected: unknown, tolerance: number = 1e-4): void {
+  similar(expected: unknown, ulps: number = MAX_ULPS): void {
     const {value} = this
-    if (!is_similar(this.value, expected, tolerance) == !this.negated) {
+    if (!is_almost_equal(this.value, expected, ulps) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${to_string(value)} to ${be} similar to ${to_string(expected)} with ${to_string(tolerance)} tolerance`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} almost equal to ${to_string(expected)} (with ${ulps} ULPs)`)
     }
   }
 

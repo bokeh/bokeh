@@ -1,9 +1,44 @@
 // Based on Underscore.js 1.8.3 (http://underscorejs.org)
 
 import type {PlainObject} from "../types"
-import {isObject} from "./types"
+import {isObject, isNumber} from "./types"
 
 const {hasOwnProperty} = Object.prototype
+const {abs, sign} = Math
+
+const _ulps_buffer = new ArrayBuffer(8)
+const _ulps_view = new DataView(_ulps_buffer)
+const _epsilon = Number.EPSILON
+
+function to_bits(a: number): bigint {
+  _ulps_view.setFloat64(0, a)
+  return _ulps_view.getBigUint64(0)
+}
+
+export const MAX_ULPS = 4
+
+function ulps_eq(a: number, b: number, max_ulps: number = MAX_ULPS): boolean {
+  /**
+   * Units in the Last Place (ULP) approximate floating point equality.
+   *
+   * References:
+   *  https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+   *  https://github.com/brendanzab/approx
+   */
+  if (abs(a - b) <= _epsilon) {
+    return true
+  }
+
+  if (sign(a) != sign(b)) {
+    return false
+  }
+
+  const a_u64 = to_bits(a)
+  const b_u64 = to_bits(b)
+
+  const diff = a_u64 <= b_u64 ? b_u64 - a_u64 : a_u64 - b_u64
+  return diff <= max_ulps
+}
 
 export const equals = Symbol("equals")
 
@@ -26,9 +61,16 @@ export class Comparator {
   private readonly b_stack: unknown[] = []
 
   readonly structural: boolean
+  readonly ulps?: number
 
-  constructor(options?: {structural?: boolean}) {
-    this.structural = options?.structural ?? false
+  constructor(options: {structural?: boolean, ulps?: boolean | number} = {}) {
+    const {structural, ulps} = options
+    this.structural = structural ?? false
+    if (isNumber(ulps)) {
+      this.ulps = ulps
+    } else if (ulps === true) {
+      this.ulps = MAX_ULPS
+    }
   }
 
   eq(a: any, b: any): boolean {
@@ -127,7 +169,13 @@ export class Comparator {
   }
 
   numbers(a: number, b: number): boolean {
-    return Object.is(a, b)
+    if (Object.is(a, b)) {
+      return true
+    } else if (this.ulps != null) {
+      return ulps_eq(a, b, this.ulps)
+    } else {
+      return false
+    }
   }
 
   arrays(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
@@ -239,18 +287,6 @@ export class Comparator {
   }
 }
 
-const {abs} = Math
-
-export class SimilarComparator extends Comparator {
-  constructor(readonly tolerance: number = 1e-4) {
-    super()
-  }
-
-  override numbers(a: number, b: number): boolean {
-    return super.numbers(a, b) || abs(a - b) < this.tolerance
-  }
-}
-
 export function is_equal(a: unknown, b: unknown): boolean {
   const comparator = new Comparator()
   return comparator.eq(a, b)
@@ -261,7 +297,7 @@ export function is_structurally_equal(a: unknown, b: unknown): boolean {
   return comparator.eq(a, b)
 }
 
-export function is_similar(a: unknown, b: unknown, tolerance?: number): boolean {
-  const comparator = new SimilarComparator(tolerance)
+export function is_almost_equal(a: unknown, b: unknown, ulps?: number): boolean {
+  const comparator = new Comparator({ulps: ulps ?? true})
   return comparator.eq(a, b)
 }
