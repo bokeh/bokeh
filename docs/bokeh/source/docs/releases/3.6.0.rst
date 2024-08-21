@@ -7,3 +7,4 @@ Bokeh version ``3.6.0`` (??? 2024) is a minor milestone of Bokeh project.
 
 * Improved streaming corner cases and added NumPy to ``bokeh info`` (:bokeh-pull:`14007`)
 * Added support for "open in a new tab" mode to ``SaveTool`` (:bokeh-pull:`14031`)
+* Allowed values of any type in ``GroupFilter.group`` and improved equality checking (:bokeh-pull:`14034`)

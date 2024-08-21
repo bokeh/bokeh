@@ -2,6 +2,7 @@ import {Filter} from "./filter"
 import type * as p from "core/properties"
 import {Indices} from "core/types"
 import {logger} from "core/logging"
+import {Comparator} from "core/util/eq"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace GroupFilter {
@@ -9,7 +10,7 @@ export namespace GroupFilter {
 
   export type Props = Filter.Props & {
     column_name: p.Property<string>
-    group: p.Property<string>
+    group: p.Property<unknown>
   }
 }
 
@@ -23,9 +24,9 @@ export class GroupFilter extends Filter {
   }
 
   static {
-    this.define<GroupFilter.Props>(({Str}) => ({
+    this.define<GroupFilter.Props>(({Str, Unknown}) => ({
       column_name: [ Str ],
-      group:       [ Str ],
+      group:       [ Unknown ],
     }))
   }
 
@@ -37,8 +38,9 @@ export class GroupFilter extends Filter {
       return Indices.all_set(size)
     } else {
       const indices = new Indices(size, 0)
+      const cmp = new Comparator()
       for (let i = 0; i < indices.size; i++) {
-        if (column[i] === this.group) {
+        if (cmp.eq(column[i], this.group)) {
           indices.set(i)
         }
       }

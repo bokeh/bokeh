@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
+    Any,
     AnyRef,
     Bool,
     Instance,
@@ -168,15 +169,15 @@ class BooleanFilter(Filter):
         super().__init__(**kwargs)
 
 class GroupFilter(Filter):
-    ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the values of the categorical
-    column column_name match the group variable.
+    ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the
+    values of the column indicated by ``column_name`` match the ``group`` variable.
     '''
 
     column_name = Required(String, help="""
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = Required(String, help="""
+    group = Required(Any, help="""
     The value of the column indicating the rows of data to keep.
     """)
 
