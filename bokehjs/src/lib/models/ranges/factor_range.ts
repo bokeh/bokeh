@@ -41,27 +41,36 @@ export type L3Mapping = Map<string, {value: number, mapping: L2Mapping}>
 
 export type Mapping = L1Mapping | L2Mapping | L3Mapping
 
-export function map_one_level(factors: L1Factor[], padding: number, offset: number = 0): [L1Mapping, number] {
+export type MappingSpec = {mapping: Mapping, tops: L1Factor[] | null, mids: L2Factor[] | null, inner_padding: number}
+
+export type MappingEntry = {value: number, mapping?: L1Mapping | L2Mapping}
+
+export function map_one_level(
+    factors: L1Factor[],
+    padding: number,
+    offset: number = 0): MappingSpec {
   const mapping: L1Mapping = new Map()
 
   for (let i = 0; i < factors.length; i++) {
     const factor = factors[i]
-    if (!mapping.has(factor)) {
-      mapping.set(factor, {value: 0.5 + i*(1 + padding) + offset})
-    } else {
+    if (mapping.has(factor)) {
       throw new Error(`duplicate factor or subfactor: ${factor}`)
     }
+    mapping.set(factor, {value: 0.5 + i*(1 + padding) + offset})
   }
 
-  return [mapping, (factors.length - 1)*padding]
+  const inner_padding = (factors.length - 1)*padding
+  return {mapping, tops: null, mids: null, inner_padding}
 }
 
-export function map_two_levels(factors: L2Factor[],
-                               outer_pad: number, factor_pad: number,
-                               offset: number = 0): [L2Mapping, number] {
+export function map_two_levels(
+    factors: L2Factor[],
+    outer_pad: number,
+    factor_pad: number,
+    offset: number = 0): MappingSpec {
   const mapping: L2Mapping = new Map()
 
-  const tops: Map<string, string[]> = new Map()
+  const tops: Map<string, L1Factor[]> = new Map()
   for (const [f0, f1] of factors) {
     const top = tops.get(f0) ?? []
     tops.set(f0, [...top, f1])
@@ -71,23 +80,26 @@ export function map_two_levels(factors: L2Factor[],
   let total_subpad = 0
   for (const [f0, top] of tops) {
     const n = top.length
-    const [submap, subpad] = map_one_level(top, factor_pad, suboffset)
-    total_subpad += subpad
-    const subtot = sum(top.map((f1) => submap.get(f1)!.value))
-    mapping.set(f0, {value: subtot/n, mapping: submap})
-    suboffset += n + outer_pad + subpad
+    const sub = map_one_level(top, factor_pad, suboffset)
+    total_subpad += sub.inner_padding
+    const subtot = sum(top.map((f1) => sub.mapping.get(f1)!.value))
+    mapping.set(f0, {value: subtot/n, mapping: sub.mapping})
+    suboffset += n + outer_pad + sub.inner_padding
   }
 
-  return [mapping, (tops.size - 1)*outer_pad + total_subpad]
+  const inner_padding = (tops.size - 1)*outer_pad + total_subpad
+  return {mapping, tops: [...mapping.keys()], mids: null, inner_padding}
 }
 
 export function map_three_levels(
     factors: L3Factor[],
-    outer_pad: number, inner_pad: number, factor_pad: number,
-    offset: number = 0): [L3Mapping, number] {
+    outer_pad: number,
+    inner_pad: number,
+    factor_pad: number,
+    offset: number = 0): MappingSpec {
   const mapping: L3Mapping = new Map()
 
-  const tops: Map<string, [string, string][]> = new Map()
+  const tops: Map<L1Factor, L2Factor[]> = new Map()
   for (const [f0, f1, f2] of factors) {
     const top = tops.get(f0) ?? []
     tops.set(f0, [...top, [f1, f2]])
@@ -97,14 +109,54 @@ export function map_three_levels(
   let total_subpad = 0
   for (const [f0, top] of tops) {
     const n = top.length
-    const [submap, subpad] = map_two_levels(top, inner_pad, factor_pad, suboffset)
-    total_subpad += subpad
-    const subtot = sum(top.map(([f1]) => submap.get(f1)!.value))
-    mapping.set(f0, {value: subtot/n, mapping: submap})
-    suboffset += n + outer_pad + subpad
+    const sub = map_two_levels(top, inner_pad, factor_pad, suboffset)
+    total_subpad += sub.inner_padding
+    const subtot = sum(top.map(([f1]) => sub.mapping.get(f1)!.value))
+    mapping.set(f0, {value: subtot/n, mapping: sub.mapping as L2Mapping})
+    suboffset += n + outer_pad + sub.inner_padding
   }
 
-  return [mapping, (tops.size - 1)*outer_pad + total_subpad]
+  const mids: L2Factor[] = []
+  for (const [f0, L2] of mapping) {
+    for (const f1 of L2.mapping.keys()) {
+      mids.push([f0, f1])
+    }
+  }
+
+  const inner_padding = (tops.size - 1)*outer_pad + total_subpad
+  return {mapping, tops: [...mapping.keys()], mids, inner_padding}
+}
+
+const is_l1 = isString
+const is_l2 = (x: any) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1])
+const is_l3 = (x: any) => isArray(x) && x.length == 3 && isString(x[0]) && isString(x[1]) && isString(x[2])
+
+export function compute_levels(factors: Factor[]): 1 | 2 | 3 {
+  if (every(factors, is_l1)) {
+    return 1
+  }
+  if (every(factors, is_l2)) {
+    return 2
+  }
+  if (every(factors, is_l3)) {
+    return 3
+  }
+  unreachable()
+}
+
+export function map_l1(x: [string], mapping: Mapping): MappingEntry | null {
+  const [f0] = x
+  return mapping.get(f0) ?? null
+}
+
+export function map_l2(x: L2Factor, mapping: L2Mapping | L3Mapping): MappingEntry | null {
+  const [f0, f1] = x
+  return mapping.get(f0)?.mapping.get(f1) ?? null
+}
+
+export function map_l3(x: L3Factor, mapping: L3Mapping): MappingEntry | null {
+  const [f0, f1, f2] = x
+  return mapping.get(f0)?.mapping.get(f1)?.mapping.get(f2) ?? null
 }
 
 export namespace FactorRange {
@@ -147,14 +199,14 @@ export class FactorRange extends Range {
       end:                 [ Float, p.unset, {readonly: true} ],
     }))
 
-    this.internal<FactorRange.Props>(({Float, Str, List, Tuple, Nullable}) => ({
-      levels: [ Float ], // how many levels of
+    this.internal<FactorRange.Props>(({Int, Str, List, Tuple, Nullable}) => ({
+      levels: [ Int ], // how many levels of nesting
       mids:   [ Nullable(List(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
       tops:   [ Nullable(List(Str)), null ], // top level factors (whether 2 or 3 total levels)
     }))
   }
 
-  protected _mapping: Mapping
+  protected mapping: Mapping
 
   get min(): number {
     return this.start
@@ -171,6 +223,7 @@ export class FactorRange extends Range {
 
   override connect_signals(): void {
     super.connect_signals()
+
     this.connect(this.properties.factors.change, () => this.reset())
     this.connect(this.properties.factor_padding.change, () => this.reset())
     this.connect(this.properties.group_padding.change, () => this.reset())
@@ -186,119 +239,99 @@ export class FactorRange extends Range {
     this.invalidate_synthetic.emit()
   }
 
-  protected _lookup(x: BoxedFactor): number {
+  protected _lookup_entry(x: BoxedFactor): MappingEntry | null {
     switch (x.length) {
       case 1: {
-        const [f0] = x
-        const mapping = this._mapping as L1Mapping
-        const y0 = mapping.get(f0)
-        return y0 != null ? y0.value : NaN
+        return map_l1(x, this.mapping as L1Mapping)
       }
       case 2: {
-        const [f0, f1] = x
-        const mapping = this._mapping as L2Mapping
-        const y0 = mapping.get(f0)
-        if (y0 != null) {
-          const y1 = y0.mapping.get(f1)
-          if (y1 != null) {
-            return y1.value
-          }
-        }
-        return NaN
+        return map_l2(x, this.mapping as L2Mapping)
       }
       case 3: {
-        const [f0, f1, f2] = x
-        const mapping = this._mapping as L3Mapping
-        const y0 = mapping.get(f0)
-        if (y0 != null) {
-          const y1 = y0.mapping.get(f1)
-          if (y1 != null) {
-            const y2 = y1.mapping.get(f2)
-            if (y2 != null) {
-              return y2.value
-            }
-          }
-        }
-        return NaN
+        return map_l3(x, this.mapping as L3Mapping)
       }
     }
   }
 
-  // convert a string factor into a synthetic coordinate
+  protected _lookup_value(x: BoxedFactor): number {
+    return this._lookup_entry(x)?.value ?? NaN
+  }
+
+  // convert a categorical factor into a synthetic coordinate
   synthetic(x: FactorLike): number {
     if (isNumber(x)) {
       return x
     }
 
     if (isString(x)) {
-      return this._lookup([x])
+      return this._lookup_value([x])
     }
 
-    let offset = 0
-    const off = x[x.length-1]
-    if (isNumber(off)) {
-      offset = off
-      x = x.slice(0, -1) as BoxedFactor
+    const offset = x.at(-1)
+    if (isNumber(offset)) {
+      return this._lookup_value(x.slice(0, -1) as BoxedFactor) + offset
     }
 
-    return this._lookup(x as BoxedFactor) + offset
+    return this._lookup_value(x as BoxedFactor)
   }
 
-  // convert an array of string factors into synthetic coordinates
+  // convert an array of categorical factors into synthetic coordinates
   v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): ScreenArray {
-    const n = xs.length
-    const array = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      array[i] = this.synthetic(xs[i])
+    return ScreenArray.from(xs, (x) => this.synthetic(x))
+  }
+
+  // convert a synthetic coordinate into a categorical factor
+  factor(x: number): Factor | null {
+    for (const f of this.factors) {
+      const v = this.synthetic(f)
+      if (x >= (v-0.5) && x < (v+0.5)) {
+        return f
+      }
     }
-    return array
+    return null
+  }
+
+  protected _compute_bounds(inner_padding: number): [number, number] {
+    const interval = this.factors.length + inner_padding
+    const padding = (() => {
+      switch (this.range_padding_units) {
+        case "percent": {
+          return interval * this.range_padding / 2
+        }
+        case "absolute": {
+          return this.range_padding
+        }
+      }
+    })()
+    // XXX "0 - padding" is a workaround for an assertions bug
+    return [0 - padding, interval + padding]
   }
 
   protected _init(): void {
-    const {levels, mapping, tops, mids, inside_padding} = (() => {
-      if (every(this.factors, isString)) {
-        const factors = this.factors as string[]
-        const [mapping, inside_padding] = map_one_level(factors, this.factor_padding)
-        const tops = null
-        const mids = null
-        return {levels: 1, mapping, tops, mids, inside_padding}
-      } else if (every(this.factors, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
-        const factors = this.factors as [string, string][]
-        const [mapping, inside_padding] = map_two_levels(factors, this.group_padding, this.factor_padding)
-        const tops = [...mapping.keys()]
-        const mids = null
-        return {levels: 2, mapping, tops, mids, inside_padding}
-      } else if (every(this.factors, (x) => isArray(x) && x.length == 3 && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
-        const factors = this.factors as [string, string, string][]
-        const [mapping, inside_padding] = map_three_levels(factors, this.group_padding, this.subgroup_padding, this.factor_padding)
-        const tops = [...mapping.keys()]
-        const mids: [string, string][] = []
-        for (const [f0, L2] of mapping) {
-          for (const f1 of L2.mapping.keys()) {
-            mids.push([f0, f1])
-          }
+
+    const levels = compute_levels(this.factors)
+    const {mapping, tops, mids, inner_padding} = (() => {
+      switch (levels) {
+        case 1: {
+          const factors = this.factors as L1Factor[]
+          return map_one_level(factors, this.factor_padding)
         }
-        return {levels: 3, mapping, tops, mids, inside_padding}
-      } else {
-        unreachable()
+        case 2: {
+          const factors = this.factors as L2Factor[]
+          return map_two_levels(factors, this.group_padding, this.factor_padding)
+        }
+        case 3: {
+          const factors = this.factors as L3Factor[]
+          return map_three_levels(factors, this.group_padding, this.subgroup_padding, this.factor_padding)
+        }
       }
     })()
 
-    this._mapping = mapping
+    this.mapping = mapping
     this.tops = tops
     this.mids = mids
 
-    let start = 0
-    let end = this.factors.length + inside_padding
-
-    if (this.range_padding_units == "percent") {
-      const half_span = (end - start) * this.range_padding / 2
-      start -= half_span
-      end += half_span
-    } else {
-      start -= this.range_padding
-      end += this.range_padding
-    }
+    const [start, end] = this._compute_bounds(inner_padding)
 
     this.setv({start, end, levels}, {silent: true})
 

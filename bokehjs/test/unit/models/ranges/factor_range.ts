@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 
 import type {L1OffsetFactor, L2OffsetFactor, L3OffsetFactor} from "@bokehjs/models/ranges/factor_range"
-import {FactorRange, map_one_level, map_two_levels} from "@bokehjs/models/ranges/factor_range"
+import {FactorRange, map_one_level, map_two_levels, compute_levels} from "@bokehjs/models/ranges/factor_range"
 
 describe("factor_range module", () => {
 
@@ -21,11 +21,23 @@ describe("factor_range module", () => {
     })
   })
 
-  describe("reset method", () => {
+  describe("compute_levels function", () => {
 
-  })
+    describe("for L1 factors", () => {
+      expect(compute_levels(["A", "B"])).to.be.equal(1)
+    })
 
-  describe("changing model attribute", () => {
+    describe("for L2 factors", () => {
+      expect(compute_levels([["A", "1"], ["B", "2"]])).to.be.equal(2)
+    })
+
+    describe("for L3 factors", () => {
+      expect(compute_levels([["A", "1", "foo"], ["B", "2", "foo"]])).to.be.equal(3)
+    })
+
+    describe("to throw for inconsistenr factors", () => {
+      expect(() => compute_levels(["A", ["B", "2"]])).to.throw()
+    })
 
   })
 
@@ -34,77 +46,109 @@ describe("factor_range module", () => {
     describe("with zero padding", () => {
 
       it("should evenly map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const [m0, p0] = map_one_level(["a"], 0)
-        expect(m0).to.be.equal(new Map([["a", {value: 0.5}]]))
-        expect(p0).to.be.equal(0)
+        const m0 = map_one_level(["a"], 0)
+        expect(m0.mapping).to.be.equal(new Map([["a", {value: 0.5}]]))
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.null
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_one_level(["a", "b"], 0)
-        expect(m1).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}]]))
-        expect(p1).to.be.equal(0)
+        const m1 = map_one_level(["a", "b"], 0)
+        expect(m1.mapping).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}]]))
+        expect(m1.inner_padding).to.be.equal(0)
+        expect(m1.tops).to.be.null
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_one_level(["a", "b", "c"], 0)
-        expect(m2).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}], ["c", {value: 2.5}]]))
-        expect(p2).to.be.equal(0)
+        const m2 = map_one_level(["a", "b", "c"], 0)
+        expect(m2.mapping).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}], ["c", {value: 2.5}]]))
+        expect(m2.inner_padding).to.be.equal(0)
+        expect(m2.tops).to.be.null
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_one_level(["a", "b", "c", "d"], 0)
-        expect(m3).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}], ["c", {value: 2.5}], ["d", {value: 3.5}]]))
-        expect(p3).to.be.equal(0)
+        const m3 = map_one_level(["a", "b", "c", "d"], 0)
+        expect(m3.mapping).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}], ["c", {value: 2.5}], ["d", {value: 3.5}]]))
+        expect(m3.inner_padding).to.be.equal(0)
+        expect(m3.tops).to.be.null
+        expect(m3.mids).to.be.null
       })
 
       it("should also apply an offset if provided", () => {
-        const [m0, p0] = map_one_level(["a"], 0, 1)
-        expect(m0).to.be.equal(new Map([["a", {value: 1.5}]]))
-        expect(p0).to.be.equal(0)
+        const m0 = map_one_level(["a"], 0, 1)
+        expect(m0.mapping).to.be.equal(new Map([["a", {value: 1.5}]]))
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.null
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_one_level(["a", "b"], 0, 1)
-        expect(m1).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}]]))
-        expect(p1).to.be.equal(0)
+        const m1 = map_one_level(["a", "b"], 0, 1)
+        expect(m1.mapping).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}]]))
+        expect(m1.inner_padding).to.be.equal(0)
+        expect(m1.tops).to.be.null
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_one_level(["a", "b", "c"], 0, 1)
-        expect(m2).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}], ["c", {value: 3.5}]]))
-        expect(p2).to.be.equal(0)
+        const m2 = map_one_level(["a", "b", "c"], 0, 1)
+        expect(m2.mapping).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}], ["c", {value: 3.5}]]))
+        expect(m2.inner_padding).to.be.equal(0)
+        expect(m2.tops).to.be.null
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_one_level(["a", "b", "c", "d"], 0, 1)
-        expect(m3).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}], ["c", {value: 3.5}], ["d", {value: 4.5}]]))
-        expect(p3).to.be.equal(0)
+        const m3 = map_one_level(["a", "b", "c", "d"], 0, 1)
+        expect(m3.mapping).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}], ["c", {value: 3.5}], ["d", {value: 4.5}]]))
+        expect(m3.inner_padding).to.be.equal(0)
+        expect(m3.tops).to.be.null
+        expect(m3.mids).to.be.null
       })
 
       describe("with positive padding", () => {
 
         it("should evenly map a list of factors, padded, starting at 0.5 (with no offset by default)", () => {
-          const [m0, p0] = map_one_level(["a"], 0.5)
-          expect(m0).to.be.equal(new Map([["a", {value: 0.5}]]))
-          expect(p0).to.be.equal(0)
+          const m0 = map_one_level(["a"], 0.5)
+          expect(m0.mapping).to.be.equal(new Map([["a", {value: 0.5}]]))
+          expect(m0.inner_padding).to.be.equal(0)
+          expect(m0.tops).to.be.null
+          expect(m0.mids).to.be.null
 
-          const [m1, p1] = map_one_level(["a", "b"], 0.5)
-          expect(m1).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}]]))
-          expect(p1).to.be.equal(0.5)
+          const m1 = map_one_level(["a", "b"], 0.5)
+          expect(m1.mapping).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}]]))
+          expect(m1.inner_padding).to.be.equal(0.5)
+          expect(m1.tops).to.be.null
+          expect(m1.mids).to.be.null
 
-          const [m2, p2] = map_one_level(["a", "b", "c"], 0.5)
-          expect(m2).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}], ["c", {value: 3.5}]]))
-          expect(p2).to.be.equal(1)
+          const m2 = map_one_level(["a", "b", "c"], 0.5)
+          expect(m2.mapping).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}], ["c", {value: 3.5}]]))
+          expect(m2.inner_padding).to.be.equal(1)
+          expect(m2.tops).to.be.null
+          expect(m2.mids).to.be.null
 
-          const [m3, p3] = map_one_level(["a", "b", "c", "d"], 0.5)
-          expect(m3).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}], ["c", {value: 3.5}], ["d", {value: 5}]]))
-          expect(p3).to.be.equal(1.5)
+          const m3 = map_one_level(["a", "b", "c", "d"], 0.5)
+          expect(m3.mapping).to.be.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}], ["c", {value: 3.5}], ["d", {value: 5}]]))
+          expect(m3.inner_padding).to.be.equal(1.5)
+          expect(m3.tops).to.be.null
+          expect(m3.mids).to.be.null
         })
 
         it("should also apply an offset if provided", () => {
-          const [m0, p0] = map_one_level(["a"], 0.5, 1)
-          expect(m0).to.be.equal(new Map([["a", {value: 1.5}]]))
-          expect(p0).to.be.equal(0)
+          const m0 = map_one_level(["a"], 0.5, 1)
+          expect(m0.mapping).to.be.equal(new Map([["a", {value: 1.5}]]))
+          expect(m0.inner_padding).to.be.equal(0)
+          expect(m0.tops).to.be.null
+          expect(m0.mids).to.be.null
 
-          const [m1, p1] = map_one_level(["a", "b"], 0.5, 1)
-          expect(m1).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}]]))
-          expect(p1).to.be.equal(0.5)
+          const m1 = map_one_level(["a", "b"], 0.5, 1)
+          expect(m1.mapping).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}]]))
+          expect(m1.inner_padding).to.be.equal(0.5)
+          expect(m1.tops).to.be.null
+          expect(m1.mids).to.be.null
 
-          const [m2, p2] = map_one_level(["a", "b", "c"], 0.5, 1)
-          expect(m2).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}], ["c", {value: 4.5}]]))
-          expect(p2).to.be.equal(1)
+          const m2 = map_one_level(["a", "b", "c"], 0.5, 1)
+          expect(m2.mapping).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}], ["c", {value: 4.5}]]))
+          expect(m2.inner_padding).to.be.equal(1)
+          expect(m2.tops).to.be.null
+          expect(m2.mids).to.be.null
 
-          const [m3, p3] = map_one_level(["a", "b", "c", "d"], 0.5, 1)
-          expect(m3).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}], ["c", {value: 4.5}], ["d", {value: 6}]]))
-          expect(p3).to.be.equal(1.5)
+          const m3 = map_one_level(["a", "b", "c", "d"], 0.5, 1)
+          expect(m3.mapping).to.be.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}], ["c", {value: 4.5}], ["d", {value: 6}]]))
+          expect(m3.inner_padding).to.be.equal(1.5)
+          expect(m3.tops).to.be.null
+          expect(m3.mids).to.be.null
         })
       })
     })
@@ -115,348 +159,444 @@ describe("factor_range module", () => {
     describe("with zero outer_padding and zero factor_padding", () => {
 
       it("should evenly map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 0, 0)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 0, 0)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 0, 0)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 0, 0)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 1, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}]])}],
         ]))
-        expect(p1).to.be.equal(0)
+        expect(m1.inner_padding).to.be.equal(0)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 0)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 0)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
         ]))
-        expect(p2).to.be.equal(0)
+        expect(m2.inner_padding).to.be.equal(0)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 0)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 0)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
           ["b", {value: 3.5, mapping: new Map([["1", {value: 3.5}]])}],
         ]))
-        expect(p3).to.be.equal(0)
+        expect(m3.inner_padding).to.be.equal(0)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 0)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 0)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
           ["b", {value: 4,   mapping: new Map([["1", {value: 3.5}], ["4", {value: 4.5}]])}],
         ]))
-        expect(p4).to.be.equal(0)
+        expect(m4.inner_padding).to.be.equal(0)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 0)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 0)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
           ["b", {value: 4,   mapping: new Map([["1", {value: 3.5}], ["4", {value: 4.5}]])}],
           ["c", {value: 5.5, mapping: new Map([["0", {value: 5.5}]])}],
         ]))
-        expect(p5).to.be.equal(0)
+        expect(m5.inner_padding).to.be.equal(0)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
 
       it("should also apply an offset if provided", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 0, 0, 1)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 0, 0, 1)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 0, 0, 1)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 0, 0, 1)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 2, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}]])}],
         ]))
-        expect(p1).to.be.equal(0)
+        expect(m1.inner_padding).to.be.equal(0)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 0, 1)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 0, 1)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
         ]))
-        expect(p2).to.be.equal(0)
+        expect(m2.inner_padding).to.be.equal(0)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 0, 1)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 0, 1)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
           ["b", {value: 4.5, mapping: new Map([["1", {value: 4.5}]])}],
         ]))
-        expect(p3).to.be.equal(0)
+        expect(m3.inner_padding).to.be.equal(0)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 0, 1)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 0, 1)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
           ["b", {value: 5, mapping: new Map([["1", {value: 4.5}], ["4", {value: 5.5}]])}],
         ]))
-        expect(p4).to.be.equal(0)
+        expect(m4.inner_padding).to.be.equal(0)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 0, 1)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 0, 1)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
           ["b", {value: 5, mapping: new Map([["1", {value: 4.5}], ["4", {value: 5.5}]])}],
           ["c", {value: 6.5, mapping: new Map([["0", {value: 6.5}]])}],
         ]))
-        expect(p5).to.be.equal(0)
+        expect(m5.inner_padding).to.be.equal(0)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
     })
 
     describe("with nonzero outer_padding and zero factor_padding", () => {
 
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 2, 0)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 2, 0)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 2, 0)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 2, 0)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 1, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}]])}],
         ]))
-        expect(p1).to.be.equal(0)
+        expect(m1.inner_padding).to.be.equal(0)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 0)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 0)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
         ]))
-        expect(p2).to.be.equal(0)
+        expect(m2.inner_padding).to.be.equal(0)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 0)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 0)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
           ["b", {value: 5.5, mapping: new Map([["1", {value: 5.5}]])}],
         ]))
-        expect(p3).to.be.equal(2)
+        expect(m3.inner_padding).to.be.equal(2)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 0)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 0)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
           ["b", {value: 6,   mapping: new Map([["1", {value: 5.5}], ["4", {value: 6.5}]])}],
         ]))
-        expect(p4).to.be.equal(2)
+        expect(m4.inner_padding).to.be.equal(2)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 0)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 0)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
           ["b", {value: 6,   mapping: new Map([["1", {value: 5.5}], ["4", {value: 6.5}]])}],
           ["c", {value: 9.5, mapping: new Map([["0", {value: 9.5}]])}],
         ]))
-        expect(p5).to.be.equal(4)
+        expect(m5.inner_padding).to.be.equal(4)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
 
       it("should also apply an offset if provided", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 2, 0, 1)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 2, 0, 1)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 2, 0, 1)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 2, 0, 1)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 2, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}]])}],
         ]))
-        expect(p1).to.be.equal(0)
+        expect(m1.inner_padding).to.be.equal(0)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 0, 1)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 0, 1)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
         ]))
-        expect(p2).to.be.equal(0)
+        expect(m2.inner_padding).to.be.equal(0)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 0, 1)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 0, 1)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
           ["b", {value: 6.5, mapping: new Map([["1", {value: 6.5}]])}],
         ]))
-        expect(p3).to.be.equal(2)
+        expect(m3.inner_padding).to.be.equal(2)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 0, 1)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 0, 1)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
           ["b", {value: 7, mapping: new Map([["1", {value: 6.5}], ["4", {value: 7.5}]])}],
         ]))
-        expect(p4).to.be.equal(2)
+        expect(m4.inner_padding).to.be.equal(2)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 0, 1)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 0, 1)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value:  1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
           ["b", {value: 7, mapping: new Map([["1", {value:  6.5}], ["4", {value: 7.5}]])}],
           ["c", {value: 10.5, mapping: new Map([["0", {value: 10.5}]])}],
         ]))
-        expect(p5).to.be.equal(4)
+        expect(m5.inner_padding).to.be.equal(4)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
     })
 
     describe("with zero outer_padding and nonzero factor_padding", () => {
 
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 0, 1)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 0, 1)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 0, 1)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 0, 1)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}]])}],
         ]))
-        expect(p1).to.be.equal(1)
+        expect(m1.inner_padding).to.be.equal(1)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 1)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 1)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
         ]))
-        expect(p2).to.be.equal(2)
+        expect(m2.inner_padding).to.be.equal(2)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 1)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 1)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
           ["b", {value: 5.5, mapping: new Map([["1", {value: 5.5}]])}],
         ]))
-        expect(p3).to.be.equal(2)
+        expect(m3.inner_padding).to.be.equal(2)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 1)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 1)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
           ["b", {value: 6.5, mapping: new Map([["1", {value: 5.5}], ["4", {value: 7.5}]])}],
         ]))
-        expect(p4).to.be.equal(3)
+        expect(m4.inner_padding).to.be.equal(3)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 1)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 1)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
           ["b", {value: 6.5, mapping: new Map([["1", {value: 5.5}], ["4", {value: 7.5}]])}],
           ["c", {value: 8.5, mapping: new Map([["0", {value: 8.5}]])}],
         ]))
-        expect(p5).to.be.equal(3)
+        expect(m5.inner_padding).to.be.equal(3)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
 
       it("should also apply an offset if provided", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 0, 1, 1)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 0, 1, 1)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 0, 1, 1)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 0, 1, 1)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}]])}],
         ]))
-        expect(p1).to.be.equal(1)
+        expect(m1.inner_padding).to.be.equal(1)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 1, 1)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 0, 1, 1)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
         ]))
-        expect(p2).to.be.equal(2)
+        expect(m2.inner_padding).to.be.equal(2)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 1, 1)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 0, 1, 1)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
           ["b", {value: 6.5, mapping: new Map([["1", {value: 6.5}]])}],
         ]))
-        expect(p3).to.be.equal(2)
+        expect(m3.inner_padding).to.be.equal(2)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 1, 1)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 0, 1, 1)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
           ["b", {value: 7.5, mapping: new Map([["1", {value: 6.5}], ["4", {value: 8.5}]])}],
         ]))
-        expect(p4).to.be.equal(3)
+        expect(m4.inner_padding).to.be.equal(3)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 1, 1)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 0, 1, 1)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
           ["b", {value: 7.5, mapping: new Map([["1", {value: 6.5}], ["4", {value: 8.5}]])}],
           ["c", {value: 9.5, mapping: new Map([["0", {value: 9.5}]])}],
         ]))
-        expect(p5).to.be.equal(3)
+        expect(m5.inner_padding).to.be.equal(3)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
     })
 
     describe("with nonzero outer_padding and nonzero factor_padding", () => {
 
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 2, 1)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 2, 1)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 2, 1)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 2, 1)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}]])}],
         ]))
-        expect(p1).to.be.equal(1)
+        expect(m1.inner_padding).to.be.equal(1)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 1)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 1)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
         ]))
-        expect(p2).to.be.equal(2)
+        expect(m2.inner_padding).to.be.equal(2)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 1)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 1)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
           ["b", {value: 7.5, mapping: new Map([["1", {value: 7.5}]])}],
         ]))
-        expect(p3).to.be.equal(4)
+        expect(m3.inner_padding).to.be.equal(4)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 1)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 1)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
           ["b", {value: 8.5, mapping: new Map([["1", {value: 7.5}], ["4", {value: 9.5}]])}],
         ]))
-        expect(p4).to.be.equal(5)
+        expect(m4.inner_padding).to.be.equal(5)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 1)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 1)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
           ["b", {value: 8.5, mapping: new Map([["1", {value: 7.5}], ["4", {value: 9.5}]])}],
           ["c", {value: 12.5, mapping: new Map([["0", {value: 12.5}]])}],
         ]))
-        expect(p5).to.be.equal(7)
+        expect(m5.inner_padding).to.be.equal(7)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
 
       it("should also apply an offset if provided", () => {
-        const [m0, p0] = map_two_levels([["a", "1"]], 2, 1, 1)
-        expect(m0).to.be.equal(new Map([
+        const m0 = map_two_levels([["a", "1"]], 2, 1, 1)
+        expect(m0.mapping).to.be.equal(new Map([
           ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
         ]))
-        expect(p0).to.be.equal(0)
+        expect(m0.inner_padding).to.be.equal(0)
+        expect(m0.tops).to.be.equal(["a"])
+        expect(m0.mids).to.be.null
 
-        const [m1, p1] = map_two_levels([["a", "1"], ["a", "2"]], 2, 1, 1)
-        expect(m1).to.be.equal(new Map([
+        const m1 = map_two_levels([["a", "1"], ["a", "2"]], 2, 1, 1)
+        expect(m1.mapping).to.be.equal(new Map([
           ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}]])}],
         ]))
-        expect(p1).to.be.equal(1)
+        expect(m1.inner_padding).to.be.equal(1)
+        expect(m1.tops).to.be.equal(["a"])
+        expect(m1.mids).to.be.null
 
-        const [m2, p2] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 1, 1)
-        expect(m2).to.be.equal(new Map([
+        const m2 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"]], 2, 1, 1)
+        expect(m2.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
         ]))
-        expect(p2).to.be.equal(2)
+        expect(m2.inner_padding).to.be.equal(2)
+        expect(m2.tops).to.be.equal(["a"])
+        expect(m2.mids).to.be.null
 
-        const [m3, p3] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 1, 1)
-        expect(m3).to.be.equal(new Map([
+        const m3 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"]], 2, 1, 1)
+        expect(m3.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
           ["b", {value: 8.5, mapping: new Map([["1", {value: 8.5}]])}],
         ]))
-        expect(p3).to.be.equal(4)
+        expect(m3.inner_padding).to.be.equal(4)
+        expect(m3.tops).to.be.equal(["a", "b"])
+        expect(m3.mids).to.be.null
 
-        const [m4, p4] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 1, 1)
-        expect(m4).to.be.equal(new Map([
+        const m4 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"]], 2, 1, 1)
+        expect(m4.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
           ["b", {value: 9.5, mapping: new Map([["1", {value: 8.5}], ["4", {value: 10.5}]])}],
         ]))
-        expect(p4).to.be.equal(5)
+        expect(m4.inner_padding).to.be.equal(5)
+        expect(m4.tops).to.be.equal(["a", "b"])
+        expect(m4.mids).to.be.null
 
-        const [m5, p5] = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 1, 1)
-        expect(m5).to.be.equal(new Map([
+        const m5 = map_two_levels([["a", "1"], ["a", "2"], ["a", "3"], ["b", "1"], ["b", "4"], ["c", "0"]], 2, 1, 1)
+        expect(m5.mapping).to.be.equal(new Map([
           ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
           ["b", {value: 9.5, mapping: new Map([["1", {value: 8.5}], ["4", {value: 10.5}]])}],
           ["c", {value: 13.5, mapping: new Map([["0", {value: 13.5}]])}],
         ]))
-        expect(p5).to.be.equal(7)
+        expect(m5.inner_padding).to.be.equal(7)
+        expect(m5.tops).to.be.equal(["a", "b", "c"])
+        expect(m5.mids).to.be.null
       })
     })
   })
@@ -471,13 +611,11 @@ describe("factor_range module", () => {
         expect(() => new FactorRange({factors: ["a", "a"]})).to.throw()
       })
 
-      /* XXX: null
       it("should throw an error on null factors", () => {
-        expect(() => new FactorRange({factors: [null]})).to.throw()
-        expect(() => new FactorRange({factors: ['a', null]})).to.throw()
-        expect(() => new FactorRange({factors: [null, 'a']})).to.throw()
+        expect(() => new FactorRange({factors: [null] as any})).to.throw()
+        expect(() => new FactorRange({factors: ["a", null] as any})).to.throw()
+        expect(() => new FactorRange({factors: [null, "a"] as any})).to.throw()
       })
-      */
     })
 
     describe("levels internal property", () => {
@@ -699,6 +837,80 @@ describe("factor_range module", () => {
     })
   })
 
+  describe("factor method", () => {
+
+    it("should map numbers to L1 factors", () => {
+      const r = new FactorRange({factors: ["A", "B", "C"]})
+      expect(r.factor(0.0)).to.be.equal("A")
+      expect(r.factor(0.5)).to.be.equal("A")
+      expect(r.factor(0.999)).to.be.equal("A")
+
+      expect(r.factor(1.0)).to.be.equal("B")
+      expect(r.factor(1.5)).to.be.equal("B")
+      expect(r.factor(1.999)).to.be.equal("B")
+
+      expect(r.factor(2.0)).to.be.equal("C")
+      expect(r.factor(2.5)).to.be.equal("C")
+      expect(r.factor(2.999)).to.be.equal("C")
+    })
+
+    it("should map numbers to L2 factors", () => {
+      const r = new FactorRange({factors: [["a", "1"], ["a", "2"], ["b", "1"], ["b", "4"], ["c", "0"]]})
+      expect(r.factor(0.0)).to.be.equal(["a", "1"])
+      expect(r.factor(0.5)).to.be.equal(["a", "1"])
+      expect(r.factor(0.999)).to.be.equal(["a", "1"])
+
+      expect(r.factor(1.0)).to.be.equal(["a", "2"])
+      expect(r.factor(1.5)).to.be.equal(["a", "2"])
+      expect(r.factor(1.999)).to.be.equal(["a", "2"])
+
+      let offset = r.group_padding
+
+      expect(r.factor(2.0 + offset)).to.be.equal(["b", "1"])
+      expect(r.factor(2.5 + offset)).to.be.equal(["b", "1"])
+      expect(r.factor(2.999 + offset)).to.be.equal(["b", "1"])
+
+      expect(r.factor(3.0 + offset)).to.be.equal(["b", "4"])
+      expect(r.factor(3.5 + offset)).to.be.equal(["b", "4"])
+      expect(r.factor(3.999 + offset)).to.be.equal(["b", "4"])
+
+      offset += r.group_padding
+
+      expect(r.factor(4.0 + offset)).to.be.equal(["c", "0"])
+      expect(r.factor(4.5 + offset)).to.be.equal(["c", "0"])
+      expect(r.factor(4.999 + offset)).to.be.equal(["c", "0"])
+    })
+
+    it("should map numbers to L3 factors", () => {
+      const r = new FactorRange({factors: [["a", "1", "foo"], ["a", "1", "bar"], ["a", "2", "foo"], ["b", "4", "baz"]]})
+      expect(r.factor(0.0)).to.be.equal(["a", "1", "foo"])
+      expect(r.factor(0.5)).to.be.equal(["a", "1", "foo"])
+      expect(r.factor(0.999)).to.be.equal(["a", "1", "foo"])
+
+      expect(r.factor(1.0)).to.be.equal(["a", "1", "bar"])
+      expect(r.factor(1.5)).to.be.equal(["a", "1", "bar"])
+      expect(r.factor(1.999)).to.be.equal(["a", "1", "bar"])
+
+      let offset = r.subgroup_padding
+
+      expect(r.factor(2.0 + offset)).to.be.equal(["a", "2", "foo"])
+      expect(r.factor(2.5 + offset)).to.be.equal(["a", "2", "foo"])
+      expect(r.factor(2.999 + offset)).to.be.equal(["a", "2", "foo"])
+
+      offset += r.group_padding
+
+      expect(r.factor(3.0 + offset)).to.be.equal(["b", "4", "baz"])
+      expect(r.factor(3.5 + offset)).to.be.equal(["b", "4", "baz"])
+      expect(r.factor(3.999 + offset)).to.be.equal(["b", "4", "baz"])
+    })
+
+    it("should return null for unknown synthetic coords", () => {
+      const r = new FactorRange({factors: ["A", "B", "C"]})
+      expect(r.factor(-1)).to.be.null
+      expect(r.factor(10)).to.be.null
+    })
+  })
+
   describe("tuple list of double factors", () => {
 
     describe("validation", () => {
@@ -707,13 +919,11 @@ describe("factor_range module", () => {
         expect(() => new FactorRange({factors: [["a", "1"], ["a", "1"]]})).to.throw()
       })
 
-      /* XXX: null
       it("should throw an error on null factors", () => {
-        expect(() => new FactorRange({factors: [[null, 'a'], ['b', 'c']]})).to.throw()
-        expect(() => new FactorRange({factors: [['a', null], ['b', 'c']]})).to.throw()
-        expect(() => new FactorRange({factors: [[null, null], ['b', 'c']]})).to.throw()
+        expect(() => new FactorRange({factors: [[null, "a"], ["b", "c"]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [["a", null], ["b", "c"]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [[null, null], ["b", "c"]] as any})).to.throw()
       })
-      */
 
       it("should allow sub-factors repeated on different levels", () => {
         expect(() => new FactorRange({factors: [["a", "foo"], ["a", "bar"]]})).to.not.throw()
@@ -1018,17 +1228,15 @@ describe("factor_range module", () => {
         expect(() => new FactorRange({factors: [["a", "1", "foo"], ["a", "1", "foo"]]})).to.throw()
       })
 
-      /* XXX: null
       it("should throw an error on null factors", () => {
-        expect(() => new FactorRange({factors: [['foo', null, null]]})).to.throw()
-        expect(() => new FactorRange({factors: [[null, 'foo', null]]})).to.throw()
-        expect(() => new FactorRange({factors: [[null, null, 'a']]})).to.throw()
-        expect(() => new FactorRange({factors: [['a', 'foo', null]]})).to.throw()
-        expect(() => new FactorRange({factors: [['foo', null, 'a']]})).to.throw()
-        expect(() => new FactorRange({factors: [[null, 'foo', 'a']]})).to.throw()
-        expect(() => new FactorRange({factors: [[null, null, null]]})).to.throw()
+        expect(() => new FactorRange({factors: [["foo", null, null]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [[null, "foo", null]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [[null, null, "a"]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [["a", "foo", null]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [["foo", null, "a"]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [[null, "foo", "a"]] as any})).to.throw()
+        expect(() => new FactorRange({factors: [[null, null, null]] as any})).to.throw()
       })
-      */
 
       it("should allow sub-factors repeated on different levels", () => {
         expect(() => new FactorRange({factors: [["a", "foo", "1"], ["a", "bar", "1"]]})).to.not.throw()
