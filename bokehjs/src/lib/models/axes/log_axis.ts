@@ -5,6 +5,21 @@ import type * as p from "core/properties"
 
 export class LogAxisView extends ContinuousAxisView {
   declare model: LogAxis
+  protected override _hit_value(sx: number, sy: number): any | null {
+    const [range] = this.ranges
+    const {start, end} = range
+    const {log10} = Math
+    switch (this.dimension) {
+      case 0: {
+        const {x0, width} = this.bbox
+        return log10(end/start) * (sx - x0) / width + log10(start)
+      }
+      case 1: {
+        const {y0, height} = this.bbox
+        return log10(end) - log10(end/start) * (sy - y0) / height
+      }
+    }
+  }
 }
 
 export namespace LogAxis {

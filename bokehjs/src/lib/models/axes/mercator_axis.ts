@@ -1,10 +1,9 @@
-import {AxisView} from "./axis"
-import {LinearAxis} from "./linear_axis"
+import {LinearAxis, LinearAxisView} from "./linear_axis"
 import {MercatorTickFormatter} from "../formatters/mercator_tick_formatter"
 import {MercatorTicker} from "../tickers/mercator_ticker"
 import type * as p from "core/properties"
 
-export class MercatorAxisView extends AxisView {
+export class MercatorAxisView extends LinearAxisView {
   declare model: MercatorAxis
 }
 

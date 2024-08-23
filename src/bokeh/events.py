@@ -79,9 +79,10 @@ from typing import (
 from .core.serialization import Deserializer, Serializable, Serializer
 
 if TYPE_CHECKING:
-    from .core.types import GeometryData
+    from .core.types import FactorType, GeometryData
     from .model import Model
     from .models.annotations import Legend, LegendItem
+    from .models.axes import Axis
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
     from .models.widgets.inputs import TextInput
@@ -91,6 +92,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'AxisClick',
     'ButtonClick',
     'ConnectionLost',
     'DocumentEvent',
@@ -274,6 +276,22 @@ class ModelEvent(Event):
 
     def event_values(self) -> dict[str, Any]:
         return dict(**super().event_values(), model=self.model)
+
+class AxisClick(ModelEvent):
+    ''' Announce a location where an axis was clicked.
+
+    '''
+    event_name = 'axis_click'
+
+    value: float | FactorType | None
+
+    def __init__(self, model: Axis | None, value: float | FactorType | None = None) -> None:
+        from .models import Axis
+        if model is not None and not isinstance(model, Axis):
+            clsname = self.__class__.__name__
+            raise ValueError(f"{clsname} event only applies to axis models")
+        super().__init__(model=model)
+        self.value = value
 
 class ButtonClick(ModelEvent):
     ''' Announce a button click event on a Bokeh button widget.

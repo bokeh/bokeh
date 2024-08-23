@@ -26,6 +26,21 @@ export class CategoricalAxisView extends AxisView {
 
   declare readonly RangeType: FactorRange
 
+  protected  _hit_value(sx: number, sy: number): any | null {
+    const [range] = this.ranges as [FactorRange, FactorRange]
+    const {start, end, span} = range
+    switch (this.dimension) {
+      case 0: {
+        const {x0, width} = this.bbox
+        return range.factor(span * (sx - x0) / width + start)
+      }
+      case 1: {
+        const {y0, height} = this.bbox
+        return range.factor(end - span * (sy - y0) / height)
+      }
+    }
+  }
+
   protected override _paint(): void {
     const {tick_coords, extents} = this
     const ctx = this.layer.ctx
