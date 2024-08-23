@@ -1,3 +1,17 @@
+2024-08-23    3.5.2:
+--------------------
+  * bugfixes:
+    - #13987 [BUG] If Origin is missing from cookie, autoload js handler fails with Tornado KeyError: 'Origin'
+    - #14002 [component: bokehjs] [BUG] Embedded server websocket cannot be used in `srcdoc` iframe
+    - #14013 [component: bokehjs] [BUG] Glyphs should correctly use configured ranges
+    - #14020 Fix ValueError check in ColumnDataSource.patch
+    - #14022 Fix ValueError in get_graph_kwargs
+
+  * tasks:
+    - #14004 [BUG] `Numpy.datetime64` does not work when streaming
+    - #14006 [component: bokehjs] [BUG] Example program range_tool.py fails to run: "unexpected attribute 'start_gesture' to RangeTool"
+    - #14018 Backports for 3.5.2
+
 2024-07-25    3.5.1:
 --------------------
   * bugfixes:
