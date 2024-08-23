@@ -139,6 +139,12 @@ export type OutputBackend = typeof OutputBackend["__type__"]
 export const PaddingUnits = Enum("percent", "absolute")
 export type PaddingUnits = typeof PaddingUnits["__type__"]
 
+export const PanDirection = Enum(
+  "left", "right", "up", "down",
+  "west", "east", "north", "south",
+)
+export type PanDirection = typeof PanDirection["__type__"]
+
 export const Place = Enum("above", "below", "left", "right", "center")
 export type Place = typeof Place["__type__"]
 

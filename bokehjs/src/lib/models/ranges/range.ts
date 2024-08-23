@@ -63,6 +63,10 @@ export abstract class Range extends Model {
     return isFinite(this.min) && isFinite(this.max)
   }
 
+  get interval(): [number, number] {
+    return [this.start, this.end]
+  }
+
   get span(): number {
     return Math.abs(this.end - this.start)
   }

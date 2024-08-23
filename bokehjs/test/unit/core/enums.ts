@@ -169,6 +169,10 @@ describe("enums module", () => {
     expect([...enums.PaddingUnits]).to.be.equal(["percent", "absolute"])
   })
 
+  it("should have PanDirection", () => {
+    expect([...enums.PanDirection]).to.be.equal(["left", "right", "up", "down", "west", "east", "north", "south"])
+  })
+
   it("should have Place", () => {
     expect([...enums.Place]).to.be.equal(["above", "below", "left", "right", "center"])
   })
