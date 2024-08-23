@@ -46,9 +46,10 @@ export type MappingSpec = {mapping: Mapping, tops: L1Factor[] | null, mids: L2Fa
 export type MappingEntry = {value: number, mapping?: L1Mapping | L2Mapping}
 
 export function map_one_level(
-    factors: L1Factor[],
-    padding: number,
-    offset: number = 0): MappingSpec {
+  factors: L1Factor[],
+  padding: number,
+  offset: number = 0
+): MappingSpec {
   const mapping: L1Mapping = new Map()
 
   for (let i = 0; i < factors.length; i++) {
@@ -64,10 +65,11 @@ export function map_one_level(
 }
 
 export function map_two_levels(
-    factors: L2Factor[],
-    outer_pad: number,
-    factor_pad: number,
-    offset: number = 0): MappingSpec {
+  factors: L2Factor[],
+  outer_pad: number,
+  factor_pad: number,
+  offset: number = 0
+): MappingSpec {
   const mapping: L2Mapping = new Map()
 
   const tops: Map<string, L1Factor[]> = new Map()
@@ -92,11 +94,12 @@ export function map_two_levels(
 }
 
 export function map_three_levels(
-    factors: L3Factor[],
-    outer_pad: number,
-    inner_pad: number,
-    factor_pad: number,
-    offset: number = 0): MappingSpec {
+  factors: L3Factor[],
+  outer_pad: number,
+  inner_pad: number,
+  factor_pad: number,
+  offset: number = 0
+): MappingSpec {
   const mapping: L3Mapping = new Map()
 
   const tops: Map<L1Factor, L2Factor[]> = new Map()
