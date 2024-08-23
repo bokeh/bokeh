@@ -73,6 +73,7 @@ ALL = (
     'OutputBackend',
     'PaddingUnits',
     'Palette',
+    'PanDirection',
     'Place',
     'RegionSelectionMode',
     'RenderLevel',
@@ -290,6 +291,9 @@ class Test_bce:
 
     def test_Palette(self) -> None:
         assert tuple(bce.Palette) == tuple(__palettes__)
+
+    def test_PanDirection(self) -> None:
+        assert tuple(bce.PanDirection) == ("left", "right", "up", "down", "west", "east", "north", "south")
 
     def test_RenderLevel(self) -> None:
         assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")

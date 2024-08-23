@@ -51,6 +51,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     KeyModifierType,
+    PanDirection,
     RegionSelectionMode,
     SelectionMode,
     ToolIcon,
@@ -83,6 +84,7 @@ from ..core.properties import (
     Override,
     Percent,
     Regex,
+    Required,
     Seq,
     String,
     Struct,
@@ -123,6 +125,7 @@ __all__ = (
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
+    'ClickPanTool',
     'CopyTool',
     'CrosshairTool',
     'CustomAction',
@@ -450,6 +453,26 @@ class PanTool(Drag):
     the pan tool will pan in any dimension, but can be configured to only
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
+    """)
+
+class ClickPanTool(PlotActionTool):
+    ''' A tool that allows to pan a plot by a fixed amount by clicking a button.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    direction = Required(Enum(PanDirection), help="""
+    The direction in which to pan the plot.
+
+    Accepted values are ``"left"``, ``"right"``, ``"up"`` or ``"down"``, or
+    their respective aliases ``"west"``, ``"east"``, ``"north"``, ``"south"``.
+    """)
+
+    factor = Percent(default=0.1, help="""
+    Percentage of the range to pan for each usage of the tool.
     """)
 
 # TODO InstanceDefault() doesn't allow for lazy argument evaluation
@@ -2029,17 +2052,32 @@ class LineEditTool(EditTool, Drag, Tap):
 Tool.register_alias("pan", lambda: PanTool(dimensions="both"))
 Tool.register_alias("xpan", lambda: PanTool(dimensions="width"))
 Tool.register_alias("ypan", lambda: PanTool(dimensions="height"))
+
+Tool.register_alias("pan_left", lambda: ClickPanTool(direction="left"))
+Tool.register_alias("pan_right", lambda: ClickPanTool(direction="right"))
+Tool.register_alias("pan_up", lambda: ClickPanTool(direction="up"))
+Tool.register_alias("pan_down", lambda: ClickPanTool(direction="down"))
+
+Tool.register_alias("pan_west", lambda: ClickPanTool(direction="west"))
+Tool.register_alias("pan_east", lambda: ClickPanTool(direction="east"))
+Tool.register_alias("pan_north", lambda: ClickPanTool(direction="north"))
+Tool.register_alias("pan_south", lambda: ClickPanTool(direction="south"))
+
 Tool.register_alias("xwheel_pan", lambda: WheelPanTool(dimension="width"))
 Tool.register_alias("ywheel_pan", lambda: WheelPanTool(dimension="height"))
+
 Tool.register_alias("wheel_zoom", lambda: WheelZoomTool(dimensions="both"))
 Tool.register_alias("xwheel_zoom", lambda: WheelZoomTool(dimensions="width"))
 Tool.register_alias("ywheel_zoom", lambda: WheelZoomTool(dimensions="height"))
+
 Tool.register_alias("zoom_in", lambda: ZoomInTool(dimensions="both"))
 Tool.register_alias("xzoom_in", lambda: ZoomInTool(dimensions="width"))
 Tool.register_alias("yzoom_in", lambda: ZoomInTool(dimensions="height"))
+
 Tool.register_alias("zoom_out", lambda: ZoomOutTool(dimensions="both"))
 Tool.register_alias("xzoom_out", lambda: ZoomOutTool(dimensions="width"))
 Tool.register_alias("yzoom_out", lambda: ZoomOutTool(dimensions="height"))
+
 Tool.register_alias("click", lambda: TapTool(behavior="inspect"))
 Tool.register_alias("tap", lambda: TapTool())
 Tool.register_alias("doubletap", lambda: TapTool(gesture="doubletap"))

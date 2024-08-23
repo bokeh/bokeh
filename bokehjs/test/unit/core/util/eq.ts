@@ -34,8 +34,8 @@ describe("core/util/eq module", () => {
   describe("implements is_equal() function", () => {
     it("that supports number type", () => {
       expect(is_equal(0, 0)).to.be.true
-      expect(is_equal(0, -0)).to.be.false
-      expect(is_equal(-0, 0)).to.be.false
+      expect(is_equal(0, -0)).to.be.true
+      expect(is_equal(-0, 0)).to.be.true
       expect(is_equal(-0, -0)).to.be.true
       expect(is_equal(0, 1)).to.be.false
       expect(is_equal(1, 0)).to.be.false

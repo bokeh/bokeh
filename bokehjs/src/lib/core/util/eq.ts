@@ -32,7 +32,7 @@ export class Comparator {
   }
 
   eq(a: any, b: any): boolean {
-    if (Object.is(a, b)) {
+    if (a === b || Object.is(a, b)) {
       return true
     }
 
@@ -127,7 +127,7 @@ export class Comparator {
   }
 
   numbers(a: number, b: number): boolean {
-    return Object.is(a, b)
+    return a === b || Object.is(a, b)
   }
 
   arrays(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {

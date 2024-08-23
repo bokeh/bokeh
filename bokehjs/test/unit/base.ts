@@ -80,6 +80,7 @@ describe("default model resolver", () => {
       "CheckboxGroup",
       "Circle",
       "ClickButton",
+      "ClickPanTool",
       "CloseDialog",
       "ColorBar",
       "ColorMapper",
