@@ -48,7 +48,7 @@ export type MappingEntry = {value: number, mapping?: L1Mapping | L2Mapping}
 export function map_one_level(
   factors: L1Factor[],
   padding: number,
-  offset: number = 0
+  offset: number = 0,
 ): MappingSpec {
   const mapping: L1Mapping = new Map()
 
@@ -68,7 +68,7 @@ export function map_two_levels(
   factors: L2Factor[],
   outer_pad: number,
   factor_pad: number,
-  offset: number = 0
+  offset: number = 0,
 ): MappingSpec {
   const mapping: L2Mapping = new Map()
 
@@ -98,7 +98,7 @@ export function map_three_levels(
   outer_pad: number,
   inner_pad: number,
   factor_pad: number,
-  offset: number = 0
+  offset: number = 0,
 ): MappingSpec {
   const mapping: L3Mapping = new Map()
 
@@ -174,16 +174,16 @@ export namespace FactorRange {
     range_padding_units: p.Property<PaddingUnits>
     start: p.Property<number>
     end: p.Property<number>
-
-    levels: p.Property<number>
-    mids: p.Property<[string, string][] | null>
-    tops: p.Property<string[] | null>
   }
 }
 
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
+  levels: number
+  mids: L2Factor[] | null
+  tops: L1Factor[] | null
+
   declare properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
@@ -200,12 +200,6 @@ export class FactorRange extends Range {
       range_padding_units: [ PaddingUnits, "percent" ],
       start:               [ Float, p.unset, {readonly: true} ],
       end:                 [ Float, p.unset, {readonly: true} ],
-    }))
-
-    this.internal<FactorRange.Props>(({Int, Str, List, Tuple, Nullable}) => ({
-      levels: [ Int ], // how many levels of nesting
-      mids:   [ Nullable(List(Tuple(Str, Str))), null ], // mid level factors (if 3 total levels)
-      tops:   [ Nullable(List(Str)), null ], // top level factors (whether 2 or 3 total levels)
     }))
   }
 
