@@ -260,7 +260,7 @@ export class FactorRange extends Range {
     return this._lookup_entry(x)?.value ?? NaN
   }
 
-  // convert a categorical factor into a synthetic coordinate
+  /** Convert a categorical factor into a synthetic coordinate. */
   synthetic(x: FactorLike): number {
     if (isNumber(x)) {
       return x
@@ -278,12 +278,12 @@ export class FactorRange extends Range {
     return this._lookup_value(x as BoxedFactor)
   }
 
-  // convert an array of categorical factors into synthetic coordinates
+  /** Convert an array of categorical factors into synthetic coordinates. */
   v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): ScreenArray {
     return ScreenArray.from(xs, (x) => this.synthetic(x))
   }
 
-  // convert a synthetic coordinate into a categorical factor
+  /** Convert a synthetic coordinate into a categorical factor. */
   factor(x: number): Factor | null {
     for (const f of this.factors) {
       const v = this.synthetic(f)
