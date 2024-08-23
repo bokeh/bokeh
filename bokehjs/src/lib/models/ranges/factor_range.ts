@@ -131,8 +131,8 @@ export function map_three_levels(
 }
 
 const is_l1 = isString
-const is_l2 = (x: any) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1])
-const is_l3 = (x: any) => isArray(x) && x.length == 3 && isString(x[0]) && isString(x[1]) && isString(x[2])
+const is_l2 = (x: unknown) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1])
+const is_l3 = (x: unknown) => isArray(x) && x.length == 3 && isString(x[0]) && isString(x[1]) && isString(x[2])
 
 export function compute_levels(factors: Factor[]): 1 | 2 | 3 {
   if (every(factors, is_l1)) {
