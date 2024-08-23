@@ -109,22 +109,29 @@ export class CategoricalAxisView extends AxisView {
       return map(this.model.formatter.doFormat(ticks, this))
     }
 
-    if (range.levels == 1) {
-      const major = ticks.major as L1Factor[]
-      const labels = format(major)
-      info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-    } else if (range.levels == 2) {
-      const major = (ticks.major as L2Factor[]).map((x) => x[1])
-      const labels = format(major)
-      info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
-    } else if (range.levels == 3) {
-      const major = (ticks.major as L3Factor[]).map((x) => x[2])
-      const labels = format(major)
-      const mid_labels = ticks.mids.map((x) => x[1])
-      info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([map(mid_labels), coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
-      info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+    switch (range.levels) {
+      case 1: {
+        const major = ticks.major as L1Factor[]
+        const labels = format(major)
+        info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
+        break
+      }
+      case 2: {
+        const major = (ticks.major as L2Factor[]).map((x) => x[1])
+        const labels = format(major)
+        info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
+        info.push([map(ticks.tops as L1Factor[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+        break
+      }
+      case 3: {
+        const major = (ticks.major as L3Factor[]).map((x) => x[2])
+        const labels = format(major)
+        const mid_labels = ticks.mids.map((x) => x[1])
+        info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
+        info.push([map(mid_labels), coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
+        info.push([map(ticks.tops as L1Factor[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+        break
+      }
     }
 
     return info
