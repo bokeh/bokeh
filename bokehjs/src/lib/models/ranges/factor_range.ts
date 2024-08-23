@@ -180,7 +180,7 @@ export namespace FactorRange {
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-  levels: number
+  levels: 1 | 2 | 3
   mids: L2Factor[] | null
   tops: L1Factor[] | null
 
@@ -305,9 +305,10 @@ export class FactorRange extends Range {
 
   protected _init(): void {
 
-    const levels = compute_levels(this.factors)
+    this.levels = compute_levels(this.factors)
+
     const {mapping, tops, mids, inner_padding} = (() => {
-      switch (levels) {
+      switch (this.levels) {
         case 1: {
           const factors = this.factors as L1Factor[]
           return map_one_level(factors, this.factor_padding)
@@ -329,7 +330,7 @@ export class FactorRange extends Range {
 
     const [start, end] = this._compute_bounds(inner_padding)
 
-    this.setv({start, end, levels}, {silent: true})
+    this.setv({start, end}, {silent: true})
 
     if (this.bounds == "auto") {
       this._computed_bounds = [start, end]
