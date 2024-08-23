@@ -303,7 +303,6 @@ export class FactorRange extends Range {
         }
       }
     })()
-    // XXX "0 - padding" is a workaround for an assertions bug
     return [0 - padding, interval + padding]
   }
 
