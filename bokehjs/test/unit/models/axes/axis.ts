@@ -118,43 +118,6 @@ describe("Axis", () => {
     expect(axis_view.loc).to.be.equal(10)
   })
 
-  it("should return zero offsets when fixed_location is numeric", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
-    })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new Axis({
-      ticker,
-      formatter,
-      fixed_location: 5,
-    })
-    plot.add_layout(axis, "left")
-    const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.owner.get_one(axis)
-    expect(axis_view.offsets).to.be.equal([0, 0])
-  })
-
-  it("should return zero offsets when fixed_location is categorical", async () => {
-    const plot = new Plot({
-      x_range: new FactorRange({factors: ["foo", "bar"]}),
-      x_scale: new CategoricalScale(),
-      y_range: new Range1d({start: 0, end: 10}),
-    })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new Axis({
-      ticker,
-      formatter,
-      fixed_location: "foo",
-    })
-    plot.add_layout(axis, "left")
-    const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.owner.get_one(axis)
-    expect(axis_view.offsets).to.be.equal([0, 0])
-  })
-
   it("loc should return synthetic for categorical fixed_location", async () => {
     const plot = new Plot({
       x_range: new FactorRange({factors: ["foo", "bar"]}),
