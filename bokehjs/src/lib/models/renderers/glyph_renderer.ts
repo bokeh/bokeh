@@ -14,7 +14,7 @@ import type {Color} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
-import {extend, clone, keys} from "core/util/object"
+import {extend, clone} from "core/util/object"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
@@ -118,22 +118,7 @@ export class GlyphRendererView extends DataRendererView {
 
     function glyph_from_mode(defaults: Defaults, glyph?: Glyph | "auto" | null): typeof base_glyph {
       if (glyph instanceof Glyph) {
-        const attrs: any = clone(glyph_attrs)
-        const attrs_keys: any = keys(attrs)
-        const extra_glyph_attrs: any = clone({...glyph.attributes})
-        const extra_glyph_keys: any = keys(extra_glyph_attrs)
-        const default_glyph_attrs: any = clone({...new (glyph.constructor as any)().attributes})
-        for (const key of attrs_keys) {
-          if (key in extra_glyph_attrs === false) {
-            delete attrs[key]
-          }
-        }
-        for (const key of extra_glyph_keys) {
-          if (JSON.stringify(extra_glyph_attrs[key]) === JSON.stringify(default_glyph_attrs[key])) {
-            delete extra_glyph_attrs[key]
-          }
-        }
-        return new (glyph.constructor as any)({...attrs, ...extra_glyph_attrs})
+        return glyph
       } else if (glyph == "auto") {
         return mk_glyph(defaults)
       }
