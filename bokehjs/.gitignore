@@ -6,4 +6,4 @@
 /test/baselines/*/report.out
 !/test/baselines/*/*.png
 !*.html
-/test-results
+/test/test-results

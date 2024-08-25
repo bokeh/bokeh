@@ -59,6 +59,7 @@
     "underscore.template": "^0.1.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.46.1"
   }
 }
