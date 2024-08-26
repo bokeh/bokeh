@@ -183,18 +183,19 @@ export class Serializer {
 
     const dtype = (() => {
       switch (obj.constructor) {
-        case Uint8Array: return "uint8"
-        case Int8Array: return "int8"
-        case Uint16Array: return "uint16"
-        case Int16Array: return "int16"
-        case Uint32Array: return "uint32"
-        case Int32Array: return "int32"
-        // case BigUint64Array: return "uint64"
-        // case BigInt64Array: return "int64"
-        case Float32Array: return "float32"
-        case Float64Array: return "float64"
-        default:
+        case Uint8Array:     return "uint8"
+        case Int8Array:      return "int8"
+        case Uint16Array:    return "uint16"
+        case Int16Array:     return "int16"
+        case Uint32Array:    return "uint32"
+        case Int32Array:     return "int32"
+        case BigUint64Array: return "uint64"
+        case BigInt64Array:  return "int64"
+        case Float32Array:   return "float32"
+        case Float64Array:   return "float64"
+        default: {
           this.error(`can't serialize typed array of type '${obj[Symbol.toStringTag]}'`)
+        }
       }
     })()
 

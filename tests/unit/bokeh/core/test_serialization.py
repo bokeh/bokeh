@@ -468,20 +468,18 @@ class TestSerializer:
 
         assert rep7 == NDArrayRep(
             type="ndarray",
-            array=BytesRep(type="bytes", data=Buffer(encoder.buffers[7].id, encoder.buffers[5].data)), # encoder.buffers[7]),
+            array=BytesRep(type="bytes", data=encoder.buffers[7]),
             order=sys.byteorder,
             shape=[2, 3],
-            dtype="uint32",
-            #dtype="uint64",
+            dtype="uint64",
         )
 
         assert rep8 == NDArrayRep(
             type="ndarray",
-            array=BytesRep(type="bytes", data=Buffer(encoder.buffers[8].id, encoder.buffers[6].data)), # encoder.buffers[8]),
+            array=BytesRep(type="bytes", data=encoder.buffers[8]),
             order=sys.byteorder,
             shape=[2, 3],
-            dtype="int32",
-            #dtype="int64",
+            dtype="int64",
         )
 
         assert rep9 == NDArrayRep(
@@ -549,15 +547,15 @@ class TestSerializer:
         rep2 = encoder.encode(val2)
         rep3 = encoder.encode(val3)
 
-        assert len(encoder.buffers) == 2
-        [buf0, buf1] = encoder.buffers
+        assert len(encoder.buffers) == 4
+        [buf0, buf1, buf2, buf3] = encoder.buffers
 
         assert rep0 == NDArrayRep(
             type="ndarray",
             array=BytesRep(type="bytes", data=buf0),
             order=sys.byteorder,
             shape=[1],
-            dtype="int32",
+            dtype="int64",
         )
 
         assert rep1 == NDArrayRep(
@@ -565,23 +563,23 @@ class TestSerializer:
             array=BytesRep(type="bytes", data=buf1),
             order=sys.byteorder,
             shape=[1],
-            dtype="uint32",
+            dtype="uint64",
         )
 
         assert rep2 == NDArrayRep(
             type="ndarray",
-            array=[-2**36],
+            array=BytesRep(type="bytes", data=buf2),
             order=sys.byteorder,
             shape=[1],
-            dtype="object",
+            dtype="int64",
         )
 
         assert rep3 == NDArrayRep(
             type="ndarray",
-            array=[2**36],
+            array=BytesRep(type="bytes", data=buf3),
             order=sys.byteorder,
             shape=[1],
-            dtype="object",
+            dtype="uint64",
         )
 
     def test_ndarray_zero_dimensional(self):

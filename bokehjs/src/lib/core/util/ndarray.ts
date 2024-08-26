@@ -235,6 +235,64 @@ export class Int32NDArray extends Int32Array implements NDArrayType<number> {
   }
 }
 
+export class Uint64NDArray extends BigUint64Array implements NDArrayType<bigint> {
+  readonly [__ndarray__] = true
+  readonly dtype: "uint64" = "uint64"
+  readonly shape: number[]
+  readonly dimension: number
+
+  constructor(init: Init<bigint>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
+    this.dimension = this.shape.length
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
+  }
+
+  [clone](cloner: Cloner): this {
+    return new Uint64NDArray(this, cloner.clone(this.shape)) as this
+  }
+
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
+  }
+
+  get(i: number): bigint {
+    return this[i]
+  }
+}
+
+export class Int64NDArray extends BigInt64Array implements NDArrayType<bigint> {
+  readonly [__ndarray__] = true
+  readonly dtype: "int64" = "int64"
+  readonly shape: number[]
+  readonly dimension: number
+
+  constructor(init: Init<bigint>, shape?: number[]) {
+    super(init as any) // XXX: typescript bug?
+    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
+    this.dimension = this.shape.length
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
+  }
+
+  [clone](cloner: Cloner): this {
+    return new Int64NDArray(this, cloner.clone(this.shape)) as this
+  }
+
+  [serialize](serializer: Serializer): unknown {
+    return encode_NDArray(this, serializer)
+  }
+
+  get(i: number): bigint {
+    return this[i]
+  }
+}
+
 export class Float32NDArray extends Float32Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "float32" = "float32"
@@ -344,6 +402,7 @@ export type NDArray =
   Uint8NDArray   | Int8NDArray    |
   Uint16NDArray  | Int16NDArray   |
   Uint32NDArray  | Int32NDArray   |
+  Uint64NDArray  | Int64NDArray   |
   Float32NDArray | Float64NDArray |
   ObjectNDArray
 
@@ -352,16 +411,18 @@ export function is_NDArray(v: unknown): v is NDArray {
 }
 
 export type NDArrayTypes = {
-  bool:    {array: Uint8Array,   ndarray: BoolNDArray}
-  uint8:   {array: Uint8Array,   ndarray: Uint8NDArray}
-  int8:    {array: Int8Array,    ndarray: Int8NDArray}
-  uint16:  {array: Uint16Array,  ndarray: Uint16NDArray}
-  int16:   {array: Int16Array,   ndarray: Int16NDArray}
-  uint32:  {array: Uint32Array,  ndarray: Uint32NDArray}
-  int32:   {array: Int32Array,   ndarray: Int32NDArray}
-  float32: {array: Float32Array, ndarray: Float32NDArray}
-  float64: {array: Float64Array, ndarray: Float64NDArray}
-  object:  {array: unknown[],    ndarray: ObjectNDArray}
+  bool:    {array: Uint8Array,     ndarray: BoolNDArray}
+  uint8:   {array: Uint8Array,     ndarray: Uint8NDArray}
+  int8:    {array: Int8Array,      ndarray: Int8NDArray}
+  uint16:  {array: Uint16Array,    ndarray: Uint16NDArray}
+  int16:   {array: Int16Array,     ndarray: Int16NDArray}
+  uint32:  {array: Uint32Array,    ndarray: Uint32NDArray}
+  int32:   {array: Int32Array,     ndarray: Int32NDArray}
+  uint64:  {array: BigUint64Array, ndarray: Uint64NDArray}
+  int64:   {array: BigInt64Array,  ndarray: Int64NDArray}
+  float32: {array: Float32Array,   ndarray: Float32NDArray}
+  float64: {array: Float64Array,   ndarray: Float64NDArray}
+  object:  {array: unknown[],      ndarray: ObjectNDArray}
 }
 
 type ArrayNd<S extends number[]> = {dimension: S["length"], shape: S}
@@ -390,6 +451,8 @@ export function ndarray(init: number | ArrayBuffer | ArrayLike<unknown>, {dtype,
         case init instanceof Int16Array:   return "int16"
         case init instanceof Uint32Array:  return "uint32"
         case init instanceof Int32Array:   return "int32"
+        case init instanceof Uint32Array:  return "uint32"
+        case init instanceof Int32Array:   return "int32"
         case init instanceof Float32Array: return "float32"
         case init instanceof ArrayBuffer:
         case init instanceof Float64Array: return "float64"
@@ -406,6 +469,8 @@ export function ndarray(init: number | ArrayBuffer | ArrayLike<unknown>, {dtype,
     case "int16":   return new Int16NDArray(init as Init<number>, shape)
     case "uint32":  return new Uint32NDArray(init as Init<number>, shape)
     case "int32":   return new Int32NDArray(init as Init<number>, shape)
+    case "uint64":  return new Uint64NDArray(init as Init<bigint>, shape)
+    case "int64":   return new Int64NDArray(init as Init<bigint>, shape)
     case "float32": return new Float32NDArray(init as Init<number>, shape)
     case "float64": return new Float64NDArray(init as Init<number>, shape)
     case "object":  return new ObjectNDArray(init, shape)

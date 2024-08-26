@@ -74,8 +74,8 @@ BINARY_ARRAY_TYPES = {
     np.dtype(np.int16),
     np.dtype(np.uint32),
     np.dtype(np.int32),
-    #np.dtype(np.uint64),
-    #np.dtype(np.int64),
+    np.dtype(np.uint64),
+    np.dtype(np.int64),
     np.dtype(np.float32),
     np.dtype(np.float64),
 }
@@ -346,11 +346,6 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
             return array
         else:
             return array.astype(dtype, casting="unsafe")
-
-    if array.dtype == np.dtype(np.int64):
-        array = _cast_if_can(array, np.int32)
-    elif array.dtype == np.dtype(np.uint64):
-        array = _cast_if_can(array, np.uint32)
 
     if isinstance(array, np.ma.MaskedArray):
         array = array.filled(np.nan)  # type: ignore # filled is untyped

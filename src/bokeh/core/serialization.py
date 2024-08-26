@@ -146,7 +146,7 @@ ModelRep = ObjectRefRep
 
 ByteOrder: TypeAlias = Literal["little", "big"]
 
-DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
+DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "uint64", "int64", "float32", "float64"]
 NDDataType: TypeAlias = Literal["bool"] | DataType | Literal["object"]
 
 class TypedArrayRep(TypedDict):
@@ -402,13 +402,13 @@ class Serializer:
                         case 1: return "uint8"
                         case 2: return "uint16"
                         case 4: return "uint32"
-                        #case 8: return "uint64"
+                        case 8: return "uint64"
                 case "b" | "h" | "i" | "l" | "q":
                     match obj.itemsize:
                         case 1: return "int8"
                         case 2: return "int16"
                         case 4: return "int32"
-                        #case 8: return "int64"
+                        case 8: return "int64"
             self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
         return TypedArrayRep(
@@ -637,8 +637,8 @@ class Deserializer:
             int16="h",
             uint32="I",
             int32="i",
-            #uint64="Q",
-            #int64="q",
+            uint64="Q",
+            int64="q",
             float32="f",
             float64="d",
         )

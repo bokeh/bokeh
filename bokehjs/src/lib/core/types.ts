@@ -6,6 +6,7 @@ export const AsyncGeneratorFunction: AsyncGeneratorFunctionConstructor = Object.
 export type uint8  = number
 export type uint16 = number
 export type uint32 = number
+export type uint64 = bigint
 
 export type ByteOrder = "little" | "big"
 
@@ -19,14 +20,15 @@ export const ColorArray = Uint32Array
 export type RGBAArray = Uint8ClampedArray
 export const RGBAArray = Uint8ClampedArray
 
-export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" /*"uint64" | "int64"*/ | "float32" | "float64"
+export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "uint64" | "int64" | "float32" | "float64"
 export type NDDataType = "bool" | DataType | "object"
 
 export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
+  Uint8Array     | Int8Array     |
+  Uint16Array    | Int16Array    |
+  Uint32Array    | Int32Array    |
+  BigUint64Array | BigInt64Array |
+  Float32Array   | Float64Array
 
 export type FloatArray = Float32Array | Float64Array
 export type FloatArrayConstructor = Float32ArrayConstructor | Float64ArrayConstructor

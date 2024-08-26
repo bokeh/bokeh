@@ -272,12 +272,13 @@ export class Deserializer {
       case "int16":   return new Int16Array(buffer)
       case "uint32":  return new Uint32Array(buffer)
       case "int32":   return new Int32Array(buffer)
-      // case "uint64": return new BigInt64Array(buffer)
-      // case "int64":  return new BigInt64Array(buffer)
+      case "uint64":  return new BigUint64Array(buffer)
+      case "int64":   return new BigInt64Array(buffer)
       case "float32": return new Float32Array(buffer)
       case "float64": return new Float64Array(buffer)
-      default:
+      default: {
         this.error(`unsupported dtype '${dtype}'`)
+      }
     }
   }
 

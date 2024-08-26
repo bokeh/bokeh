@@ -84,8 +84,8 @@ def test_binary_array_types() -> None:
         np.dtype(np.int16),
         np.dtype(np.uint32),
         np.dtype(np.int32),
-        #np.dtype(np.uint64),
-        #np.dtype(np.int64),
+        np.dtype(np.uint64),
+        np.dtype(np.int64),
         np.dtype(np.float32),
         np.dtype(np.float64),
     ]
