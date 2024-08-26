@@ -7,7 +7,8 @@ import {ScreenArray} from "core/types"
 import {Signal0} from "core/signaling"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
-import {unreachable} from "core/util/assert"
+
+export type FactorLevel = 1 | 2 | 3
 
 export type L1Factor = string
 export type L2Factor = [string, string]
@@ -19,21 +20,13 @@ export type FactorSeq = L1Factor[] | L2Factor[] | L3Factor[]
 export const Factor = Or(Str, Tuple(Str, Str), Tuple(Str, Str, Str))
 export const FactorSeq = Or(List(Str), List(Tuple(Str, Str)), List(Tuple(Str, Str, Str)))
 
-export type BoxedFactor = [string] | L2Factor | L3Factor
-
-export type L1Factors = Arrayable<L1Factor>
-export type L2Factors = Arrayable<L2Factor>
-export type L3Factors = Arrayable<L3Factor>
-
-export type Factors = L1Factors | L2Factors | L3Factors
-
 export type L1OffsetFactor = [string, number]
 export type L2OffsetFactor = [string, string, number]
 export type L3OffsetFactor = [string, string, string, number]
 
 export type OffsetFactor = L1OffsetFactor | L2OffsetFactor | L3OffsetFactor
 
-export type FactorLike = number | Factor | BoxedFactor | OffsetFactor
+export type FactorLike = number | Factor | OffsetFactor
 
 export type L1Mapping = Map<string, {value: number}>
 export type L2Mapping = Map<string, {value: number, mapping: L1Mapping}>
@@ -41,15 +34,29 @@ export type L3Mapping = Map<string, {value: number, mapping: L2Mapping}>
 
 export type Mapping = L1Mapping | L2Mapping | L3Mapping
 
-export type MappingSpec = {mapping: Mapping, tops: L1Factor[] | null, mids: L2Factor[] | null, inner_padding: number}
+export type L1MappingSpec = {mapping: L1Mapping, inner_padding: number}
+export type L2MappingSpec = {mapping: L2Mapping, tops: L1Factor[], inner_padding: number}
+export type L3MappingSpec = {mapping: L3Mapping, tops: L1Factor[], mids: L2Factor[], inner_padding: number}
 
 export type MappingEntry = {value: number, mapping?: L1Mapping | L2Mapping}
+
+type MappingFor<T>
+  = T extends L1Factor ? L1Mapping
+  : T extends L2Factor ? L2Mapping
+  : T extends L3Factor ? L3Mapping
+  : never
+
+type MappingAtMost<T>
+  = T extends L1Factor ? [L1Factor]
+  : T extends L2Factor ? [L1Factor] | L2Factor
+  : T extends L3Factor ? [L1Factor] | L2Factor | L3Factor
+: never
 
 export function map_one_level(
   factors: L1Factor[],
   padding: number,
   offset: number = 0,
-): MappingSpec {
+): L1MappingSpec {
   const mapping: L1Mapping = new Map()
 
   for (let i = 0; i < factors.length; i++) {
@@ -61,7 +68,7 @@ export function map_one_level(
   }
 
   const inner_padding = (factors.length - 1)*padding
-  return {mapping, tops: null, mids: null, inner_padding}
+  return {mapping, inner_padding}
 }
 
 export function map_two_levels(
@@ -69,7 +76,7 @@ export function map_two_levels(
   outer_pad: number,
   factor_pad: number,
   offset: number = 0,
-): MappingSpec {
+): L2MappingSpec {
   const mapping: L2Mapping = new Map()
 
   const tops: Map<string, L1Factor[]> = new Map()
@@ -90,7 +97,7 @@ export function map_two_levels(
   }
 
   const inner_padding = (tops.size - 1)*outer_pad + total_subpad
-  return {mapping, tops: [...mapping.keys()], mids: null, inner_padding}
+  return {mapping, tops: [...mapping.keys()], inner_padding}
 }
 
 export function map_three_levels(
@@ -99,7 +106,7 @@ export function map_three_levels(
   inner_pad: number,
   factor_pad: number,
   offset: number = 0,
-): MappingSpec {
+): L3MappingSpec {
   const mapping: L3Mapping = new Map()
 
   const tops: Map<L1Factor, L2Factor[]> = new Map()
@@ -115,7 +122,7 @@ export function map_three_levels(
     const sub = map_two_levels(top, inner_pad, factor_pad, suboffset)
     total_subpad += sub.inner_padding
     const subtot = sum(top.map(([f1]) => sub.mapping.get(f1)!.value))
-    mapping.set(f0, {value: subtot/n, mapping: sub.mapping as L2Mapping})
+    mapping.set(f0, {value: subtot/n, mapping: sub.mapping})
     suboffset += n + outer_pad + sub.inner_padding
   }
 
@@ -130,36 +137,142 @@ export function map_three_levels(
   return {mapping, tops: [...mapping.keys()], mids, inner_padding}
 }
 
-const is_l1 = isString
+const is_l1 = (x: unknown) => isString(x)
 const is_l2 = (x: unknown) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1])
 const is_l3 = (x: unknown) => isArray(x) && x.length == 3 && isString(x[0]) && isString(x[1]) && isString(x[2])
 
-export function compute_levels(factors: Factor[]): 1 | 2 | 3 {
-  if (every(factors, is_l1)) {
-    return 1
+export abstract class FactorMapper<FactorType> {
+  readonly levels: FactorLevel
+  readonly mids: L2Factor[] | null
+  readonly tops: L1Factor[] | null
+  readonly inner_padding: number
+
+  protected readonly mapping: MappingFor<FactorType>
+
+  constructor(
+    {levels, mapping, tops = null, mids = null, inner_padding}: {
+      levels: FactorLevel
+      mapping: MappingFor<FactorType>
+      tops?: L1Factor[] | null
+      mids?: L2Factor[] | null
+      inner_padding: number
+    },
+  ) {
+    this.levels = levels
+    this.mapping = mapping
+    this.tops = tops
+    this.mids = mids
+    this.inner_padding = inner_padding
   }
-  if (every(factors, is_l2)) {
-    return 2
+
+  static compute_levels(factors: Factor[]): FactorLevel {
+    if (every(factors, is_l1)) {
+      return 1
+    }
+    if (every(factors, is_l2)) {
+      return 2
+    }
+    if (every(factors, is_l3)) {
+      return 3
+    }
+    throw TypeError("factor levels are not consistent")
   }
-  if (every(factors, is_l3)) {
-    return 3
+
+  static for(range: FactorRange): L1FactorMapper | L2FactorMapper | L3FactorMapper {
+    switch (this.compute_levels(range.factors)) {
+      case 1: {
+        return new L1FactorMapper(range)
+      }
+      case 2: {
+        return new L2FactorMapper(range)
+      }
+      case 3: {
+        return new L3FactorMapper(range)
+      }
+    }
   }
-  unreachable()
+
+  map(x: FactorLike): number {
+    if (isNumber(x)) {
+      return x
+    }
+
+    const [boxed, offset] = (() => {
+      if (isString(x)) {
+        return [[x], 0]
+      }
+      const last = x.at(-1)
+      if (isNumber(last)) {
+        return [x.slice(0, -1), last]
+      }
+      return [x, 0]
+    })()
+
+    if (boxed.length > this.levels) {
+      throw TypeError("Attempted to map too many levels of factors")
+    }
+
+    return this.lookup_value(boxed as MappingAtMost<FactorType>) + offset
+  }
+
+  protected abstract lookup_entry(x: MappingAtMost<FactorType>): MappingEntry | null
+
+  private lookup_value(x: MappingAtMost<FactorType>): number {
+    return this.lookup_entry(x)?.value ?? NaN
+  }
+
 }
 
-export function map_l1(x: [string], mapping: Mapping): MappingEntry | null {
-  const [f0] = x
-  return mapping.get(f0) ?? null
+class L1FactorMapper extends FactorMapper<L1Factor> {
+  constructor(range: FactorRange) {
+    const {factors, factor_padding} = range
+    const spec = map_one_level(factors as L1Factor[], factor_padding)
+    super({levels: 1, ...spec})
+  }
+
+  protected lookup_entry(x: MappingAtMost<L1Factor>): MappingEntry | null {
+    const [f0] = x
+    return this.mapping.get(f0) ?? null
+  }
 }
 
-export function map_l2(x: L2Factor, mapping: L2Mapping | L3Mapping): MappingEntry | null {
-  const [f0, f1] = x
-  return mapping.get(f0)?.mapping.get(f1) ?? null
+class L2FactorMapper extends FactorMapper<L2Factor> {
+  constructor(range: FactorRange) {
+    const {factors, group_padding, factor_padding} = range
+    const spec = map_two_levels(factors as L2Factor[], group_padding, factor_padding)
+    super({levels: 2, ...spec})
+  }
+
+  protected lookup_entry(x: MappingAtMost<L2Factor>): MappingEntry | null {
+    if (x.length == 1) {
+      const [f0] = x
+      return this.mapping.get(f0) ?? null
+    } else {
+      const [f0, f1] = x
+      return this.mapping.get(f0)?.mapping.get(f1) ?? null
+    }
+  }
 }
 
-export function map_l3(x: L3Factor, mapping: L3Mapping): MappingEntry | null {
-  const [f0, f1, f2] = x
-  return mapping.get(f0)?.mapping.get(f1)?.mapping.get(f2) ?? null
+class L3FactorMapper extends FactorMapper<L3Factor> {
+  constructor(range: FactorRange) {
+    const {factors, group_padding, subgroup_padding, factor_padding} = range
+    const spec = map_three_levels(factors as L3Factor[], group_padding, subgroup_padding, factor_padding)
+    super({levels: 3, ...spec})
+  }
+
+  protected lookup_entry(x: MappingAtMost<L3Factor>): MappingEntry | null {
+    if (x.length == 1) {
+      const [f0] = x
+      return this.mapping.get(f0) ?? null
+    } else if (x.length == 2) {
+      const [f0, f1] = x
+      return this.mapping.get(f0)?.mapping.get(f1) ?? null
+    } else {
+      const [f0, f1, f2] = x
+      return this.mapping.get(f0)?.mapping.get(f1)?.mapping.get(f2) ?? null
+    }
+  }
 }
 
 export namespace FactorRange {
@@ -180,9 +293,7 @@ export namespace FactorRange {
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-  levels: 1 | 2 | 3
-  mids: L2Factor[] | null
-  tops: L1Factor[] | null
+  mapper: L1FactorMapper | L2FactorMapper | L3FactorMapper
 
   declare properties: FactorRange.Props
 
@@ -220,7 +331,6 @@ export class FactorRange extends Range {
 
   override connect_signals(): void {
     super.connect_signals()
-
     this.connect(this.properties.factors.change, () => this.reset())
     this.connect(this.properties.factor_padding.change, () => this.reset())
     this.connect(this.properties.group_padding.change, () => this.reset())
@@ -236,44 +346,13 @@ export class FactorRange extends Range {
     this.invalidate_synthetic.emit()
   }
 
-  protected _lookup_entry(x: BoxedFactor): MappingEntry | null {
-    switch (x.length) {
-      case 1: {
-        return map_l1(x, this.mapping as L1Mapping)
-      }
-      case 2: {
-        return map_l2(x, this.mapping as L2Mapping)
-      }
-      case 3: {
-        return map_l3(x, this.mapping as L3Mapping)
-      }
-    }
-  }
-
-  protected _lookup_value(x: BoxedFactor): number {
-    return this._lookup_entry(x)?.value ?? NaN
-  }
-
   /** Convert a categorical factor into a synthetic coordinate. */
   synthetic(x: FactorLike): number {
-    if (isNumber(x)) {
-      return x
-    }
-
-    if (isString(x)) {
-      return this._lookup_value([x])
-    }
-
-    const offset = x.at(-1)
-    if (isNumber(offset)) {
-      return this._lookup_value(x.slice(0, -1) as BoxedFactor) + offset
-    }
-
-    return this._lookup_value(x as BoxedFactor)
+    return this.mapper.map(x)
   }
 
   /** Convert an array of categorical factors into synthetic coordinates. */
-  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): ScreenArray {
+  v_synthetic(xs: Arrayable<FactorLike>): ScreenArray {
     return ScreenArray.from(xs, (x) => this.synthetic(x))
   }
 
@@ -300,35 +379,13 @@ export class FactorRange extends Range {
         }
       }
     })()
-    return [0 - padding, interval + padding]
+    return [-padding, interval + padding]
   }
 
   protected _init(): void {
+    this.mapper = FactorMapper.for(this)
 
-    this.levels = compute_levels(this.factors)
-
-    const {mapping, tops, mids, inner_padding} = (() => {
-      switch (this.levels) {
-        case 1: {
-          const factors = this.factors as L1Factor[]
-          return map_one_level(factors, this.factor_padding)
-        }
-        case 2: {
-          const factors = this.factors as L2Factor[]
-          return map_two_levels(factors, this.group_padding, this.factor_padding)
-        }
-        case 3: {
-          const factors = this.factors as L3Factor[]
-          return map_three_levels(factors, this.group_padding, this.subgroup_padding, this.factor_padding)
-        }
-      }
-    })()
-
-    this.mapping = mapping
-    this.tops = tops
-    this.mids = mids
-
-    const [start, end] = this._compute_bounds(inner_padding)
+    const [start, end] = this._compute_bounds(this.mapper.inner_padding)
 
     this.setv({start, end}, {silent: true})
 

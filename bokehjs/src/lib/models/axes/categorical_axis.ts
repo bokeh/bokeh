@@ -36,7 +36,9 @@ export class CategoricalAxisView extends AxisView {
     const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    if (range.tops == null || range.tops.length < 2 || !this.visuals.separator_line.doit) {
+    const {factors} = range
+    const {tops} = range.mapper
+    if (tops == null || tops.length < 2 || !this.visuals.separator_line.doit) {
       return
     }
 
@@ -46,12 +48,12 @@ export class CategoricalAxisView extends AxisView {
     const coords: Coords = [[], []]
 
     let ind = 0
-    for (let i = 0; i < range.tops.length - 1; i++) {
+    for (let i = 0; i < tops.length - 1; i++) {
       let first: Factor, last: Factor
 
-      for (let j = ind; j < range.factors.length; j++) {
-        if (range.factors[j][0] == range.tops[i+1]) {
-          [first, last] = [range.factors[j-1], range.factors[j]]
+      for (let j = ind; j < factors.length; j++) {
+        if (factors[j][0] == tops[i+1]) {
+          [first, last] = [factors[j-1], factors[j]]
           ind = j
           break
         }
@@ -109,7 +111,7 @@ export class CategoricalAxisView extends AxisView {
       return map(this.model.formatter.doFormat(ticks, this))
     }
 
-    switch (range.levels) {
+    switch (range.mapper.levels) {
       case 1: {
         const major = ticks.major as L1Factor[]
         const labels = format(major)
@@ -155,12 +157,13 @@ export class CategoricalAxisView extends AxisView {
     coords.major[i] = ticks.major as any
     coords.major[j] = ticks.major.map(() => this.loc)
 
-    if (range.levels == 3) {
+    const {levels} = range.mapper
+    if (levels == 3) {
       coords.mids[i] = ticks.mids as any
       coords.mids[j] = ticks.mids.map(() => this.loc)
     }
 
-    if (range.levels > 1) {
+    if (levels > 1) {
       coords.tops[i] = ticks.tops as any
       coords.tops[j] = ticks.tops.map(() => this.loc)
     }
