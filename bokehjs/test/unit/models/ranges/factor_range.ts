@@ -7,42 +7,41 @@ describe("factor_range module", () => {
 
   describe("FactorMapper class", () => {
     describe("compute_levels method", () => {
-      describe("should return 1 for L1 factors", () => {
+      it("should return 1 for L1 factors", () => {
         expect(FactorMapper.compute_levels(["A", "B"])).to.be.equal(1)
       })
 
-      describe("should return 2 for L2 factors", () => {
+      it("should return 2 for L2 factors", () => {
         expect(FactorMapper.compute_levels([["A", "1"], ["B", "2"]])).to.be.equal(2)
       })
 
-      describe("should return 3 for L3 factors", () => {
+      it("should return 3 for L3 factors", () => {
         expect(FactorMapper.compute_levels([["A", "1", "foo"], ["B", "2", "foo"]])).to.be.equal(3)
       })
 
-      describe("should throw for inconsistent factors", () => {
+      it("should throw for inconsistent factors", () => {
         expect(() => FactorMapper.compute_levels(["A", ["B", "2"]])).to.throw(TypeError)
       })
     })
 
-    describe("factory conctructor for", () => {
-      describe("should configure L1FactorMapper for range of L1 Factors", () => {
+    describe("factory constructor for", () => {
+      it("should configure L1FactorMapper for range of L1 Factors", () => {
         const mapper = FactorMapper.for(new FactorRange({factors: ["A", "B"]}))
         expect(mapper.levels).to.be.equal(1)
         expect(mapper.tops).to.be.null
         expect(mapper.mids).to.be.null
       })
-      describe("should configure L2FactorMapper for range of L2 Factors", () => {
+      it("should configure L2FactorMapper for range of L2 Factors", () => {
         const mapper = FactorMapper.for(new FactorRange({factors: [["A", "1"], ["B", "2"]]}))
         expect(mapper.levels).to.be.equal(2)
         expect(mapper.tops).to.be.equal(["A", "B"])
         expect(mapper.mids).to.be.null
       })
-      describe("should configure L3FactorMapper for range of L3 Factors", () => {
+      it("should configure L3FactorMapper for range of L3 Factors", () => {
         const mapper = FactorMapper.for(new FactorRange({factors: [["A", "1", "foo"], ["B", "2", "foo"]]}))
         expect(mapper.levels).to.be.equal(3)
         expect(mapper.tops).to.be.equal(["A", "B"])
-        // uncommenting this crashes the test
-        // expect(mapper.mids).to.be.equal([["1", "foo"], ["2", "foo"]])
+        expect(mapper.mids).to.be.equal([["A", "1"], ["B", "2"]])
       })
     })
   })
