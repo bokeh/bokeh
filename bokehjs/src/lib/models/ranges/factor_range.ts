@@ -1,10 +1,10 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
-import * as p from "core/properties"
 import {Or, Str, List, Tuple} from "core/kinds"
+import * as p from "core/properties"
+import {Signal0} from "core/signaling"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
-import {Signal0} from "core/signaling"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 
@@ -46,7 +46,7 @@ type MappingFor<T>
   : T extends L3Factor ? L3Mapping
   : never
 
-type MappingAtMost<T>
+type BoxedAtMost<T>
   = T extends L1Factor ? [L1Factor]
   : T extends L2Factor ? [L1Factor] | L2Factor
   : T extends L3Factor ? [L1Factor] | L2Factor | L3Factor
@@ -175,7 +175,7 @@ export abstract class FactorMapper<FactorType> {
     if (every(factors, is_l3)) {
       return 3
     }
-    throw TypeError("factor levels are not consistent")
+    throw TypeError("factor levels are inconsistent")
   }
 
   static for(range: FactorRange): L1FactorMapper | L2FactorMapper | L3FactorMapper {
@@ -209,18 +209,17 @@ export abstract class FactorMapper<FactorType> {
     })()
 
     if (boxed.length > this.levels) {
-      throw TypeError("Attempted to map too many levels of factors")
+      throw TypeError(`Attempted to map ${boxed.length} levels of factors with an L${this.levels}FactorMap`)
     }
 
-    return this.lookup_value(boxed as MappingAtMost<FactorType>) + offset
+    return this.lookup_value(boxed as BoxedAtMost<FactorType>) + offset
   }
 
-  protected abstract lookup_entry(x: MappingAtMost<FactorType>): MappingEntry | null
-
-  private lookup_value(x: MappingAtMost<FactorType>): number {
+  private lookup_value(x: BoxedAtMost<FactorType>): number {
     return this.lookup_entry(x)?.value ?? NaN
   }
 
+  protected abstract lookup_entry(x: BoxedAtMost<FactorType>): MappingEntry | null
 }
 
 class L1FactorMapper extends FactorMapper<L1Factor> {
@@ -230,7 +229,7 @@ class L1FactorMapper extends FactorMapper<L1Factor> {
     super({levels: 1, ...spec})
   }
 
-  protected lookup_entry(x: MappingAtMost<L1Factor>): MappingEntry | null {
+  protected lookup_entry(x: BoxedAtMost<L1Factor>): MappingEntry | null {
     const [f0] = x
     return this.mapping.get(f0) ?? null
   }
@@ -243,7 +242,7 @@ class L2FactorMapper extends FactorMapper<L2Factor> {
     super({levels: 2, ...spec})
   }
 
-  protected lookup_entry(x: MappingAtMost<L2Factor>): MappingEntry | null {
+  protected lookup_entry(x: BoxedAtMost<L2Factor>): MappingEntry | null {
     if (x.length == 1) {
       const [f0] = x
       return this.mapping.get(f0) ?? null
@@ -261,7 +260,7 @@ class L3FactorMapper extends FactorMapper<L3Factor> {
     super({levels: 3, ...spec})
   }
 
-  protected lookup_entry(x: MappingAtMost<L3Factor>): MappingEntry | null {
+  protected lookup_entry(x: BoxedAtMost<L3Factor>): MappingEntry | null {
     if (x.length == 1) {
       const [f0] = x
       return this.mapping.get(f0) ?? null
@@ -293,8 +292,6 @@ export namespace FactorRange {
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-  mapper: L1FactorMapper | L2FactorMapper | L3FactorMapper
-
   declare properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
@@ -314,7 +311,7 @@ export class FactorRange extends Range {
     }))
   }
 
-  protected mapping: Mapping
+  mapper: L1FactorMapper | L2FactorMapper | L3FactorMapper
 
   get min(): number {
     return this.start
@@ -326,7 +323,7 @@ export class FactorRange extends Range {
 
   override initialize(): void {
     super.initialize()
-    this._init()
+    this.configure()
   }
 
   override connect_signals(): void {
@@ -342,7 +339,7 @@ export class FactorRange extends Range {
   readonly invalidate_synthetic = new Signal0(this, "invalidate_synthetic")
 
   reset(): void {
-    this._init()
+    this.configure()
     this.invalidate_synthetic.emit()
   }
 
@@ -359,7 +356,7 @@ export class FactorRange extends Range {
   /** Convert a synthetic coordinate into a categorical factor. */
   factor(x: number): Factor | null {
     for (const f of this.factors) {
-      const v = this.synthetic(f)
+      const v = this.mapper.map(f)
       if (x >= (v-0.5) && x < (v+0.5)) {
         return f
       }
@@ -367,7 +364,7 @@ export class FactorRange extends Range {
     return null
   }
 
-  protected _compute_bounds(inner_padding: number): [number, number] {
+  private compute_bounds(inner_padding: number): [number, number] {
     const interval = this.factors.length + inner_padding
     const padding = (() => {
       switch (this.range_padding_units) {
@@ -382,10 +379,10 @@ export class FactorRange extends Range {
     return [-padding, interval + padding]
   }
 
-  protected _init(): void {
+  private configure(): void {
     this.mapper = FactorMapper.for(this)
 
-    const [start, end] = this._compute_bounds(this.mapper.inner_padding)
+    const [start, end] = this.compute_bounds(this.mapper.inner_padding)
 
     this.setv({start, end}, {silent: true})
 
