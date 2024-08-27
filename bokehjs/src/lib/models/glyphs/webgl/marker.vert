@@ -50,8 +50,12 @@ varying float v_start_angle;
 varying float v_end_angle;
 #endif
 
-#ifdef USE_CIRCLE
+#if defined(USE_CIRCLE) || defined(USE_NGON)
 varying float v_radius;
+#endif
+
+#ifdef USE_NGON
+varying float v_n;
 #endif
 
 varying float v_linewidth;
@@ -125,7 +129,15 @@ void main()
   v_size = vec2(a_width, a_width);
 #endif
 
-  if (a_show < 0.5 || v_size.x < 0.0 || v_size.y < 0.0 || (v_size.x == 0.0 && v_size.y == 0.0)) {
+#ifdef USE_NGON
+  v_n = a_aux;
+#endif
+
+  if (a_show < 0.5 || v_size.x < 0.0 || v_size.y < 0.0 || (v_size.x == 0.0 && v_size.y == 0.0)
+#ifdef USE_NGON
+      || v_n < 3.0
+#endif
+  ) {
     // Do not show this marker.
     gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
     return;
@@ -149,7 +161,7 @@ void main()
   v_end_angle = a_aux;
 #endif
 
-#ifdef USE_CIRCLE
+#if defined(USE_CIRCLE) || defined(USE_NGON)
   v_radius = 0.5*a_width;
 #endif
 
