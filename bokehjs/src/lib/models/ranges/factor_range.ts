@@ -201,7 +201,7 @@ export abstract class FactorMapper<FactorType> {
       if (isString(x)) {
         return [[x], 0]
       }
-      const last = x.at(-1)
+      const last = x[x.length-1]
       if (isNumber(last)) {
         return [x.slice(0, -1), last]
       }
