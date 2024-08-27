@@ -26,15 +26,10 @@ export class CategoricalTicker extends Ticker {
   get_ticks(start: number, end: number, range: FactorRange, _cross_loc: number): FactorTickSpec {
     const majors = this._collect(range.factors, range, start, end)
 
-    const tops = this._collect(range.tops ?? [], range, start, end)
-    const mids = this._collect(range.mids ?? [], range, start, end)
+    const tops = this._collect(range.mapper.tops ?? [], range, start, end)
+    const mids = this._collect(range.mapper.mids ?? [], range, start, end)
 
-    return {
-      major: majors,
-      minor: [],
-      tops,
-      mids,
-    }
+    return {major: majors, minor: [], tops, mids}
   }
 
   private _collect(factors: Factor[], range: FactorRange, start: number, end: number): Factor[] {

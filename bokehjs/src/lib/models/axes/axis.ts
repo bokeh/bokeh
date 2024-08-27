@@ -332,10 +332,9 @@ export class AxisView extends GuideRendererView {
 
     const [sxs, sys]   = this.scoords(coords)
     const [nx, ny]     = this.normals
-    const [xoff, yoff] = this.offsets
 
-    const [nxin,  nyin]  = [nx * (xoff-tin),  ny * (yoff-tin)]
-    const [nxout, nyout] = [nx * (xoff+tout), ny * (yoff+tout)]
+    const [nxin,  nyin]  = [nx * -tin, ny * -tin]
+    const [nxout, nyout] = [nx * tout, ny * tout]
 
     visuals.set_value(ctx)
 
@@ -360,12 +359,11 @@ export class AxisView extends GuideRendererView {
     }
 
     const [sxs, sys] = this.scoords(coords)
-    const [xoff, yoff] = this.offsets
 
     const [nx, ny] = this.normals
 
-    const nxd = nx*(xoff + standoff)
-    const nyd = ny*(yoff + standoff)
+    const nxd = nx*standoff
+    const nyd = ny*standoff
 
     const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
     const angle = this.panel.get_label_angle_heuristic(orient)
@@ -555,11 +553,6 @@ export class AxisView extends GuideRendererView {
         return [[...sxs], repeat(sy, sys.length)]
       }
     }
-  }
-
-  // TODO Remove this.
-  get offsets(): [number, number] {
-    return [0, 0]
   }
 
   get ranges(): [Range, Range] {
