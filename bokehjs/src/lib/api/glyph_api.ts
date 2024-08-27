@@ -445,7 +445,7 @@ export abstract class GlyphAPI {
     y: NgonArgs["y"],
     radius: NgonArgs["radius"],
     args?: Partial<NgonArgs>): GlyphRenderer<Ngon>
-    ngon(...args: unknown[]): GlyphRenderer<Ngon> {
+  ngon(...args: unknown[]): GlyphRenderer<Ngon> {
     return this._glyph(Ngon, "ngon", ["x", "y", "radius"], args)
   }
 
