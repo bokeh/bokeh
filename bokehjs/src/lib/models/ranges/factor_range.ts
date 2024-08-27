@@ -209,7 +209,7 @@ export abstract class FactorMapper<FactorType> {
     })()
 
     if (boxed.length > this.levels) {
-      throw TypeError(`Attempted to map ${boxed.length} levels of factors with an L${this.levels}FactorMap`)
+      throw new Error(`Attempted to map ${boxed.length} levels of factors with an L${this.levels}FactorMap`)
     }
 
     return this.lookup_value(boxed as BoxedAtMost<FactorType>) + offset
