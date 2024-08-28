@@ -54,8 +54,12 @@ varying float v_start_angle;
 varying float v_end_angle;
 #endif
 
-#ifdef USE_CIRCLE
+#if defined(USE_CIRCLE) || defined(USE_NGON)
 varying float v_radius;
+#endif
+
+#ifdef USE_NGON
+varying float v_n;
 #endif
 
 #ifdef USE_ROUND_RECT
@@ -414,6 +418,31 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
     unit_normal = normalize(unit_normal + vec2(0.0, 1.0));  // At (rx/2, h) corner.
     dist = max(dist, line_join_distance_no_miter(
       p, vec2(0.5*rx, h), unit_normal, 0.5*v_linewidth*unit_normal.y, line_join));
+  }
+  return dist;
+}
+#endif
+
+#ifdef USE_NGON
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  float side_angle = 2.0*PI / v_n;  // Angle subtended by 1 side of ngon at center.
+
+  // Use symmetry to transform p around center into first half of first side of ngon.
+  p.y = -p.y;
+  float angle = mod(atan(p.x, p.y), side_angle);
+  angle = min(angle, side_angle - angle);
+  p = length(p)*vec2(sin(angle), cos(angle));
+
+  float half_angle = 0.5*side_angle;
+  float cos_half_angle = cos(half_angle);
+  vec2 unit_normal = vec2(sin(half_angle), cos_half_angle);
+  vec2 corner = vec2(0.0, v_size.y/2.0);
+  float dist = dot(p - corner, unit_normal);
+
+  if (line_join != miter_join) {
+    dist = max(dist, line_join_distance_no_miter(
+      p, corner, vec2(0.0, 1.0), 0.5*v_linewidth*cos_half_angle, line_join));
   }
   return dist;
 }

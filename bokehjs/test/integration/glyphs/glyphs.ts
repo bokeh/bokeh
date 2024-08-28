@@ -357,6 +357,28 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
+  it("should support Ngon", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.ngon({
+        x: [1, 2, 3], y,
+        radius: 1,
+        n: 3,
+        fill_color, alpha: 0.8,
+        line_width: 10, line_join: ["round", "miter", "bevel"],
+        angle: [0, 45, 90], angle_units: "deg",
+      })
+      p.ngon({
+        x: [3, 4, 5], y,
+        radius: [1, 0.6, 0.9],
+        n: [4, 5, 6],
+        fill_color, alpha: 0.6, hatch_pattern,
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
   it("should support Rect", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})

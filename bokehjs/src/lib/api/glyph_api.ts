@@ -30,6 +30,7 @@ import {
   MathMLGlyph as MathML,
   MultiLine,
   MultiPolygons,
+  Ngon,
   Patch,
   Patches,
   Quad,
@@ -167,6 +168,7 @@ export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFi
 export type MathMLArgs        = GlyphArgs<MathML.Props>                                       & AuxText
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
 export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill & AuxHatch
+export type NgonArgs          = GlyphArgs<Ngon.Props>          & AuxLine & AuxFill & AuxHatch
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill & AuxHatch
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill & AuxHatch
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill & AuxHatch
@@ -434,6 +436,17 @@ export abstract class GlyphAPI {
     args?: Partial<MultiPolygonsArgs>): GlyphRenderer<MultiPolygons>
   multi_polygons(...args: unknown[]): GlyphRenderer<MultiPolygons> {
     return this._glyph(MultiPolygons, "multi_polygons", ["xs", "ys"], args)
+  }
+
+  ngon(): GlyphRenderer<Ngon>
+  ngon(args: Partial<NgonArgs>): GlyphRenderer<Ngon>
+  ngon(
+    x: NgonArgs["x"],
+    y: NgonArgs["y"],
+    radius: NgonArgs["radius"],
+    args?: Partial<NgonArgs>): GlyphRenderer<Ngon>
+  ngon(...args: unknown[]): GlyphRenderer<Ngon> {
+    return this._glyph(Ngon, "ngon", ["x", "y", "radius"], args)
   }
 
   patch(): GlyphRenderer<Patch>

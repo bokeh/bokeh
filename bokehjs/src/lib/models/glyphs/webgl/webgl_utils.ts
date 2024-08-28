@@ -64,6 +64,7 @@ export function marker_type_to_size_hint(marker_type: GLMarkerType): number {
     case "square_pin":
       return 5
     case "inverted_triangle":
+    case "ngon":
     case "triangle":
     case "triangle_dot":
       return 6
