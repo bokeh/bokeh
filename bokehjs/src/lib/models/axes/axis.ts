@@ -53,7 +53,7 @@ export type TickCoords = {
   minor: Coords
 }
 
-export class AxisView extends GuideRendererView {
+export abstract class AxisView extends GuideRendererView {
   declare model: Axis
   declare visuals: Axis.Visuals
 
@@ -772,7 +772,7 @@ export namespace Axis {
 
 export interface Axis extends Axis.Attrs {}
 
-export class Axis extends GuideRenderer {
+export abstract class Axis extends GuideRenderer {
   declare properties: Axis.Props
   declare __view_type__: AxisView
 
@@ -781,8 +781,6 @@ export class Axis extends GuideRenderer {
   }
 
   static {
-    this.prototype.default_view = AxisView
-
     this.mixins<Axis.Mixins>([
       ["axis_",        mixins.Line],
       ["major_tick_",  mixins.Line],
