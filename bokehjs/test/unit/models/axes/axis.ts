@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 import {display} from "../../_util"
 
-import {Axis} from "@bokehjs/models/axes/axis"
+import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -21,7 +21,7 @@ describe("Axis", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({
+    const axis = new LinearAxis({
       ticker,
       formatter,
       major_label_overrides: new Map([[0, "zero"], [4, "four"], [10, "ten"]]),
@@ -41,7 +41,7 @@ describe("Axis", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({
+    const axis = new LinearAxis({
       ticker,
       formatter,
       major_label_overrides: new Map<number, string | TeX>([[0, "zero"], [4, new TeX({text: "\\pi"})], [10, "$$ten$$"]]),
@@ -59,7 +59,7 @@ describe("Axis", () => {
   it("should convert mathstrings on axis labels to TeX", async () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({
+    const axis = new LinearAxis({
       ticker,
       formatter,
       axis_label: "$$\\sin(x)$$",
@@ -80,7 +80,7 @@ describe("Axis", () => {
   it("should convert mathstrings with line breaks in between delimiters on axis labels to TeX", async () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({
+    const axis = new LinearAxis({
       ticker,
       formatter,
       axis_label: `$$
@@ -107,7 +107,7 @@ describe("Axis", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({
+    const axis = new LinearAxis({
       ticker,
       formatter,
       fixed_location: 10,
@@ -126,7 +126,7 @@ describe("Axis", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({
+    const axis = new LinearAxis({
       ticker,
       formatter,
       fixed_location: "foo",
@@ -140,11 +140,11 @@ describe("Axis", () => {
 
 describe("AxisView", () => {
 
-  async function build(axis_attrs: Partial<Axis.Attrs> = {}) {
+  async function build(axis_attrs: Partial<LinearAxis.Attrs> = {}) {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
 
-    const axis = new Axis({
+    const axis = new LinearAxis({
       major_label_standoff: 11,
       major_tick_out: 12,
       ticker,
