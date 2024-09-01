@@ -12,8 +12,8 @@ defaults:
     shell: bash -l {0}
 
 env:
-  CHROME_VER: "118.0.5993.88"
-  CHROME_REV: "chromium_2670"
+  CHROME_VER: "128.0.6613.84"
+  CHROME_REV: "chromium_2934"
 
 jobs:
   build:
