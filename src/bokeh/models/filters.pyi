@@ -7,7 +7,12 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Any, Sequence, Unpack
+from typing import (
+    Any,
+    Sequence,
+    Unpack,
+    overload,
+)
 
 # Bokeh imports
 from ..model.model import Model, _ModelInit
@@ -91,12 +96,17 @@ class BooleanFilter(Filter):
 class _GroupFilterInit(_FilterInit, total=False):
     column_name: str
     group: Any
+    multiple: bool
 
 class GroupFilter(Filter):
+    @overload
+    def __init__(self, column_name: str, group: Any, /, **kwargs: Unpack[_GroupFilterInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_GroupFilterInit]) -> None: ...
 
     column_name: str = ...
     group: Any = ...
+    multiple: bool = ...
 
 class _CustomJSFilterInit(_FilterInit, total=False):
     args: dict[str, Any]
