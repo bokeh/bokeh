@@ -6246,6 +6246,9 @@
     match_aspect: false,
     origin: "corner",
   },
+  ClickButton: {
+    __extends__: "ToolButton",
+  },
   ClickPanTool: {
     __extends__: "PlotActionTool",
     direction: {
@@ -6253,9 +6256,6 @@
       name: "unset",
     },
     factor: 0.1,
-  },
-  ClickButton: {
-    __extends__: "ToolButton",
   },
   CopyTool: {
     __extends__: "ActionTool",
@@ -6279,6 +6279,9 @@
       type: "map",
     },
     code: "",
+  },
+  Divider: {
+    __extends__: "UIElement",
   },
   Drag: {
     __extends__: "GestureTool",

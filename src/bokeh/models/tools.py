@@ -416,6 +416,13 @@ class OnOffButton(ToolButton):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+class Divider(UIElement):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
 
