@@ -3,6 +3,7 @@ import type * as p from "core/properties"
 import {Indices} from "core/types"
 import {logger} from "core/logging"
 import {Comparator} from "core/util/eq"
+import {isArray} from "core/util/types"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace GroupFilter {
@@ -11,6 +12,7 @@ export namespace GroupFilter {
   export type Props = Filter.Props & {
     column_name: p.Property<string>
     group: p.Property<unknown>
+    multiple: p.Property<boolean>
   }
 }
 
@@ -24,9 +26,10 @@ export class GroupFilter extends Filter {
   }
 
   static {
-    this.define<GroupFilter.Props>(({Str, Unknown}) => ({
+    this.define<GroupFilter.Props>(({Bool, Str, Unknown}) => ({
       column_name: [ Str ],
       group:       [ Unknown ],
+      multiple:    [ Bool, false ],
     }))
   }
 
@@ -39,8 +42,16 @@ export class GroupFilter extends Filter {
     } else {
       const indices = new Indices(size, 0)
       const cmp = new Comparator()
+      const {group, multiple} = this
+      const query = (() => {
+        if (multiple && isArray(group)) {
+          return (value: unknown) => group.some((item) => cmp.eq(value, item))
+        } else {
+          return (value: unknown) => cmp.eq(value, group)
+        }
+      })()
       for (let i = 0; i < indices.size; i++) {
-        if (cmp.eq(column[i], this.group)) {
+        if (query(column[i])) {
           indices.set(i)
         }
       }

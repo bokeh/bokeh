@@ -17,7 +17,7 @@ from bokeh.models.tools import ClickButton, OnOffButton
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
-view = CDSView(filter=GroupFilter(column_name="fill_color", group=Spectral11))
+view = CDSView(filter=GroupFilter(column_name="fill_color", group=Spectral11, multiple=True))
 
 select = PaletteSelect(
     value="(unfiltered)",

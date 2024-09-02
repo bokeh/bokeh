@@ -2484,6 +2484,7 @@
       type: "symbol",
       name: "unset",
     },
+    multiple: false,
   },
   IndexFilter: {
     __extends__: "Filter",

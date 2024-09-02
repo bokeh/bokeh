@@ -181,6 +181,11 @@ class GroupFilter(Filter):
     The value of the column indicating the rows of data to keep.
     """)
 
+    multiple = Bool(default=False, help="""
+    If set to ``True`` and ``group`` is an array of values, then group filter will
+    act like a union filter grouping over each item of ``group``.
+    """)
+
     def __init__(self, *args, **kwargs) -> None:
         if len(args) == 2 and "column_name" not in kwargs and "group" not in kwargs:
             kwargs["column_name"] = args[0]
