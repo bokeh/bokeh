@@ -2,7 +2,7 @@ import {expect} from "assertions"
 import {fig, display} from "../../_util"
 import {mouse_enter, mouse_leave} from "../../../interactive"
 
-import {Toolbar} from "@bokehjs/models/tools/toolbar"
+import {Toolbar} from "@bokehjs/models/ui/toolbars/toolbar"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"

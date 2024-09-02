@@ -1,5 +1,5 @@
 import {Tool, ToolView} from "../tool"
-import {OnOffButton} from "../on_off_button"
+import {OnOffButton} from "../../ui/toolbars/on_off_button"
 import type {PlotView} from "../../plots/plot"
 import type {EventType} from "core/ui_events"
 import type * as p from "core/properties"

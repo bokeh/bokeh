@@ -1,4 +1,4 @@
-import {UIElement, UIElementView} from "../ui/ui_element"
+import {UIElement, UIElementView} from "../ui_element"
 import type {ToolbarView} from "./toolbar"
 import type {StyleSheetLike} from "core/dom"
 import * as divider_css from "styles/divider.css"

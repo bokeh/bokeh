@@ -1,4 +1,4 @@
-import {UIElement, UIElementView} from "../ui/ui_element"
+import {UIElement, UIElementView} from "../ui_element"
 import type {ToolbarView} from "./toolbar"
 import {LogoStyle as LogoStyle} from "core/enums"
 import type {StyleSheetLike} from "core/dom"

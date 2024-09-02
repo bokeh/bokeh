@@ -1,5 +1,5 @@
 import {Tool, ToolView} from "../tool"
-import {ClickButton} from "../click_button"
+import {ClickButton} from "../../ui/toolbars/click_button"
 import type {LayoutDOMView} from "../../layouts/layout_dom"
 import {Signal} from "core/signaling"
 import type * as p from "core/properties"

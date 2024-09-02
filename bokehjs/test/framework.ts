@@ -430,7 +430,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 import {sum} from "@bokehjs/core/util/array"
 import type {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
-import {Toolbar} from "@bokehjs/models/tools/toolbar"
+import {Toolbar} from "@bokehjs/models/ui/toolbars/toolbar"
 import {GridPlot} from "@bokehjs/models/plots"
 import {Button, Div} from "@bokehjs/models/widgets"
 

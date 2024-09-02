@@ -1,5 +1,5 @@
 import {ToolButton, ToolButtonView} from "./tool_button"
-import type {ActionTool} from "./actions/action_tool"
+import type {ActionTool} from "models/tools/actions/action_tool"
 import type * as p from "core/properties"
 
 export class ClickButtonView extends ToolButtonView {
