@@ -32,7 +32,7 @@ export namespace Model {
 
 export interface Model extends Model.Attrs {}
 
-export class Model extends HasProps {
+export abstract class Model extends HasProps {
   declare properties: Model.Props
 
   private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>

@@ -31,7 +31,7 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
-export class View implements ISignalable, Equatable {
+export abstract class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
 
   readonly model: HasProps

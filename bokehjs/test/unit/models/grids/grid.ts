@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 import {display} from "../../_util"
 
-import {Axis} from "@bokehjs/models/axes/axis"
+import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {FixedTicker} from "@bokehjs/models/tickers/fixed_ticker"
@@ -18,7 +18,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter, bounds: [2, 8]})
+    const axis = new LinearAxis({ticker, formatter, bounds: [2, 8]})
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
@@ -35,7 +35,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter, bounds: [2, 8]})
+    const axis = new LinearAxis({ticker, formatter, bounds: [2, 8]})
     plot.add_layout(axis, "left")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
@@ -52,7 +52,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter, bounds: [2, 8]})
+    const axis = new LinearAxis({ticker, formatter, bounds: [2, 8]})
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker, bounds: [1, 9]})
     plot.add_layout(grid, "center")
@@ -69,7 +69,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter})
+    const axis = new LinearAxis({ticker, formatter})
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
@@ -89,7 +89,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter})
+    const axis = new LinearAxis({ticker, formatter})
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
@@ -109,7 +109,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter})
+    const axis = new LinearAxis({ticker, formatter})
     plot.add_layout(axis, "below")
     const grid = new Grid({axis})
     plot.add_layout(grid, "center")
@@ -130,7 +130,7 @@ describe("Grid", () => {
 
     const axis_ticker = new FixedTicker({ticks: [1, 2, 3, 4]})
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker: axis_ticker, formatter})
+    const axis = new LinearAxis({ticker: axis_ticker, formatter})
 
     plot.add_layout(axis, "below")
     const ticker = new BasicTicker()
