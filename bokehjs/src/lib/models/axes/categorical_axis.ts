@@ -26,7 +26,7 @@ export class CategoricalAxisView extends AxisView {
 
   declare readonly RangeType: FactorRange
 
-  protected  _hit_value(sx: number, sy: number): any | null {
+  protected _hit_value(sx: number, sy: number): Factor | null {
     const [range] = this.ranges as [FactorRange, FactorRange]
     const {start, end, span} = range
     switch (this.dimension) {

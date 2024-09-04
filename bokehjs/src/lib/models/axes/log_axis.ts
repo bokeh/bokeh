@@ -5,7 +5,8 @@ import type * as p from "core/properties"
 
 export class LogAxisView extends ContinuousAxisView {
   declare model: LogAxis
-  protected override _hit_value(sx: number, sy: number): any | null {
+
+  protected override _hit_value(sx: number, sy: number): number | null {
     const [range] = this.ranges
     const {start, end} = range
     const {log10} = Math

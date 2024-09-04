@@ -4,7 +4,7 @@ import type * as p from "core/properties"
 export abstract class ContinuousAxisView extends AxisView {
   declare model: ContinuousAxis
 
-  protected  _hit_value(sx: number, sy: number): any | null {
+  protected _hit_value(sx: number, sy: number): number | null {
     const [range] = this.ranges
     const {start, end, span} = range
     switch (this.dimension) {

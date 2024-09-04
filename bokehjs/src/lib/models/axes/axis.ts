@@ -157,15 +157,15 @@ export abstract class AxisView extends GuideRendererView {
     return super.is_renderable && range.is_valid && cross_range.is_valid && range.span > 0 && cross_range.span > 0
   }
 
-  protected abstract _hit_value(sx: number, sy: number): any | null
+  protected abstract _hit_value(sx: number, sy: number): number | Factor | null
 
   override interactive_hit(sx: number, sy: number): boolean {
     return this.bbox.contains(sx, sy)
   }
 
   override on_hit(sx: number, sy: number): boolean {
-
     const value = this._hit_value(sx, sy)
+
     if (value != null) {
       this.model.trigger_event(new AxisClick(this.model, value))
       return true
