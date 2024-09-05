@@ -53,6 +53,7 @@ items1 = [
 color_map0 = PaletteSelect(title="Choose palette:", value="Turbo", items=items0)
 color_map1 = PaletteSelect(title="Choose palette (grid):", value="PuBu", items=items1, ncols=3)
 color_map2 = PaletteSelect(title="Choose palette (disabled):", value="PuBu", items=items1, disabled=True)
+color_map3 = PaletteSelect(title="Choose palette (large swatch):", value="PuBu", items=items1, ncols=3, swatch_height=50)
 
-layout = column(color_map0, color_map1, color_map2)
+layout = column(color_map0, color_map1, color_map2, color_map3)
 show(layout)
