@@ -57,6 +57,8 @@ export abstract class AxisView extends GuideRendererView {
   declare model: Axis
   declare visuals: Axis.Visuals
 
+  declare readonly RangeType: Range
+
   layout?: Layoutable
 
   private _panel: SidePanel
@@ -555,7 +557,7 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
-  get ranges(): [Range, Range] {
+  get ranges(): [typeof this["RangeType"], typeof this["RangeType"]] {
     const i = this.dimension
     const j = 1 - i
     const {ranges} = this.coordinates
