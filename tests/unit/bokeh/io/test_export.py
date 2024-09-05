@@ -22,6 +22,9 @@ import re
 import sys
 from typing import TYPE_CHECKING
 
+# External imports
+import PIL.Image
+
 ## External imports
 if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
@@ -67,6 +70,13 @@ def webdriver_with_scale_factor(request: pytest.FixtureRequest):
         yield driver
     finally:
         webdriver_control.terminate(driver)
+
+@pytest.fixture(scope="module", autouse=True)
+def disable_max_image_pixels():
+    max_image_pixels = PIL.Image.MAX_IMAGE_PIXELS
+    PIL.Image.MAX_IMAGE_PIXELS = None
+    yield
+    PIL.Image.MAX_IMAGE_PIXELS = max_image_pixels
 
 #-----------------------------------------------------------------------------
 # General API
