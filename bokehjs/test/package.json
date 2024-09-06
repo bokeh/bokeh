@@ -8,6 +8,10 @@
     "type": "git",
     "url": "https://github.com/bokeh/bokeh.git"
   },
+  "scripts": {
+    "preplaywright": "tsc --incremental -p playwright/tsconfig.json",
+    "playwright": "playwright test -c ../build/test/playwright"
+  },
   "workspaces": [
     "./src/lib"
   ],

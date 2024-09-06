@@ -33,7 +33,7 @@
     "paths": {
       "@bokehjs/*": ["../../build/js/lib/*"]
     },
-    "outDir": "../../build/test"
+    "outDir": "../../build/test/playwright"
   },
   "include": [
     "../*.d.ts",
