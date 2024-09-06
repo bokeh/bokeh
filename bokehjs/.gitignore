@@ -6,4 +6,6 @@
 /test/baselines/*/report.out
 !/test/baselines/*/*.png
 !*.html
-/test/test-results
+
+# Ignore playwright output
+**/test-results
