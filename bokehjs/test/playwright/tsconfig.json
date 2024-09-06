@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": false,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "importHelpers": true,
+    "experimentalDecorators": true,
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "lib": ["esnext"],
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@bokehjs/*": ["../../build/js/lib/*"]
+    },
+    "outDir": "../../build/test"
+  },
+  "include": [
+    "../*.d.ts",
+    "./**/*.ts"
+  ]
+}
