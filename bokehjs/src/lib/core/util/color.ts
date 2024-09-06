@@ -59,12 +59,17 @@ function hex(v: uint8): string {
 }
 
 export function rgba2css([r, g, b, a]: RGBA): string {
-  return `rgba(${r}, ${g}, ${b}, ${a/255})`
+  const alpha = a == 255 ? "" : ` / ${a/255}`
+  return `rgb(${r} ${g} ${b}${alpha})`
 }
 
 export function color2css(color: Color | null, alpha?: number): string {
-  const [r, g, b, a] = color2rgba(color, alpha)
-  return rgba2css([r, g, b, a])
+  if (isString(color) && (alpha == null || alpha == 1.0)) {
+    return color // passthrough to persist color in its original form
+  } else {
+    const [r, g, b, a] = color2rgba(color, alpha)
+    return rgba2css([r, g, b, a])
+  }
 }
 
 export function color2hex(color: Color | null, alpha?: number): string {

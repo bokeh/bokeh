@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {color2rgba, css4_parse, brightness, luminance} from "@bokehjs/core/util/color"
+import {color2rgba, color2css, css4_parse, brightness, luminance} from "@bokehjs/core/util/color"
 
 describe("core/util/color module", () => {
   const halfgray = color2rgba("rgb(128, 128, 128)")
@@ -128,6 +128,18 @@ describe("core/util/color module", () => {
     it("which should clamp alpha between 0 and 1", () => {
       expect(color2rgba("rgb(128, 128, 128)", 1.1)).to.be.equal([128, 128, 128, 255])
       expect(color2rgba("rgb(128, 128, 128)", -0.1)).to.be.equal([128, 128, 128, 0])
+    })
+  })
+
+  describe("implements color2css() function", () => {
+
+    it("which should support CSS colors and maintain their original form", () => {
+      expect(color2css("#00A1FF")).to.be.equal("#00A1FF")
+      expect(color2css("green")).to.be.equal("green")
+      expect(color2css("green", 0.2)).to.be.equal("rgb(0 128 0 / 0.2)")
+      expect(color2css(null)).to.be.equal("rgb(0 0 0 / 0)")
+      expect(color2css([255, 128, 0])).to.be.equal("rgb(255 128 0)")
+      expect(color2css([255, 128, 0, 0.2])).to.be.equal("rgb(255 128 0 / 0.2)")
     })
   })
 

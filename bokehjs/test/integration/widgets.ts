@@ -139,6 +139,22 @@ describe("Widgets", () => {
       await view.ready
     })
 
+    it("with swatch_width=20px", async () => {
+      const obj = new PaletteSelect({value: "Magma", items, ncols: 3, swatch_width: 20})
+      const {view} = await display(obj, [500, 200])
+
+      await tap(view.input_el)
+      await view.ready
+    })
+
+    it("with swatch_height=50px", async () => {
+      const obj = new PaletteSelect({value: "Magma", items, ncols: 3, swatch_height: 50})
+      const {view} = await display(obj, [500, 400])
+
+      await tap(view.input_el)
+      await view.ready
+    })
+
     it("with disabled=true", async () => {
       const obj = new PaletteSelect({value: "Accent", items, disabled: true})
       const {view} = await display(obj, [250, 50])

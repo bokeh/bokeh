@@ -22,6 +22,9 @@ import re
 import sys
 from typing import TYPE_CHECKING
 
+# External imports
+import PIL.Image
+
 ## External imports
 if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
@@ -67,6 +70,13 @@ def webdriver_with_scale_factor(request: pytest.FixtureRequest):
         yield driver
     finally:
         webdriver_control.terminate(driver)
+
+@pytest.fixture(scope="module", autouse=True)
+def disable_max_image_pixels():
+    max_image_pixels = PIL.Image.MAX_IMAGE_PIXELS
+    PIL.Image.MAX_IMAGE_PIXELS = None
+    yield
+    PIL.Image.MAX_IMAGE_PIXELS = max_image_pixels
 
 #-----------------------------------------------------------------------------
 # General API
@@ -232,9 +242,9 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" height="20">'
             '<defs/>'
             '<path fill="rgb(0,0,0)" stroke="none" paint-order="stroke" d="M 0 0 L 40 0 L 40 20 L 0 20 L 0 0 Z" fill-opacity="0"/>'
-            '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z" fill-opacity="1"/>'
+            '<path fill="red" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z"/>'
             '<g transform="matrix(1, 0, 0, 1, 20, 0)">'
-                '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z" fill-opacity="1"/>'
+                '<path fill="blue" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z"/>'
             '</g>'
         '</svg>',
     ]
@@ -266,7 +276,7 @@ def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
             return plot
 
         [svg] = bie.get_svg(row([p("red"), p("blue")]), driver=webdriver)
-        assert len(re.findall(r'fill="rgb\(47,63,79\)"', svg)) == 2
+        assert len(re.findall(r'fill="#2f3f4f"', svg)) == 2
     finally:
         state.reset()
 
@@ -298,11 +308,11 @@ def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
             '<defs/>'
-            '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z" fill-opacity="1"/>'
+            '<path fill="red" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z"/>'
         '</svg>',
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
             '<defs/>'
-            '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z" fill-opacity="1"/>'
+            '<path fill="blue" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5 Z"/>'
         '</svg>',
     ]
 
