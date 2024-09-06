@@ -112,5 +112,5 @@ export const urls = [
   "https://demo.bokeh.org/gapminder",
   "https://demo.bokeh.org/stocks",
   "https://demo.bokeh.org/surface3d",
-  "https://demo.bokeh.org/export_csv"
+  "https://demo.bokeh.org/export_csv",
 ]
