@@ -1,8 +1,9 @@
+import type {Page} from "@playwright/test"
 import {test, expect} from "@playwright/test"
 import {AxeBuilder} from "@axe-core/playwright"
 import {urls} from "./urls"
 
-const runA11yTest = async ({page, url}) => {
+const runA11yTest = async ({page, url}: {page: Page, url: string}) => {
   await page.goto(url)
 
   await page.locator("article").waitFor() // Note: This will fail for the demo examples
@@ -19,7 +20,7 @@ test("has title", async ({page}) => {
   await expect(page).toHaveTitle(/Bokeh/)
 })
 
-urls.forEach((url, index) => {
+urls.forEach((url) => {
   test(`Doc example test from url ${url}`, async ({page}) => {
     await runA11yTest({page, url})
   })
