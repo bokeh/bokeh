@@ -28,7 +28,7 @@ p.add_glyph(
     source,
     quad,
     selection_glyph=quad.clone(fill_color='blue'),
-    nonselection_glyph=quad.clone(fill_color='gray')
+    nonselection_glyph=quad.clone(fill_color='gray'),
 )
 
 p.js_on_event(SelectionGeometry, callback)

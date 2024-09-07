@@ -1,4 +1,3 @@
-from bokeh.models import Scatter
 from bokeh.plotting import figure, show
 
 plot = figure(width=400, height=400, tools="tap", title="Select a circle")

@@ -58,7 +58,7 @@ plot_3.title.text = "Random Layout (EdgesAndLinkedNodes inspection policy)"
 plot_3.add_tools(HoverTool(tooltips=None))
 
 plot_4 = create_graph(
-    nx.fruchterman_reingold_layout, selection_policy=EdgesAndLinkedNodes(), scale=2, center=(0, 0), dim=2
+    nx.fruchterman_reingold_layout, selection_policy=EdgesAndLinkedNodes(), scale=2, center=(0, 0), dim=2,
 )
 plot_4.title.text = "FR Layout (EdgesAndLinkedNodes selection policy)"
 plot_4.add_tools(TapTool())
@@ -68,7 +68,7 @@ plot_5.title.text = "Circular Layout (NodesAndAdjacentNodes inspection policy)"
 plot_5.add_tools(HoverTool(tooltips=None))
 
 plot_6 = create_graph(
-    nx.fruchterman_reingold_layout, selection_policy=NodesAndAdjacentNodes(), scale=2, center=(0, 0), dim=2
+    nx.fruchterman_reingold_layout, selection_policy=NodesAndAdjacentNodes(), scale=2, center=(0, 0), dim=2,
 )
 plot_6.title.text = "FR Layout (NodesAndAdjacentNodes selection policy)"
 plot_6.add_tools(TapTool())
