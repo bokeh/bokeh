@@ -8,6 +8,7 @@ information on each dot.
 .. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 '''
+import numpy as np
 import pandas as pd
 
 from bokeh.layouts import column, row
@@ -32,6 +33,7 @@ columns = sorted(df.columns)
 discrete = [x for x in columns if df[x].dtype == object]
 continuous = [x for x in columns if x not in discrete]
 
+
 def create_figure():
     xs = df[x.value].values
     ys = df[y.value].values
@@ -50,7 +52,7 @@ def create_figure():
     p.yaxis.axis_label = y_title
 
     if x.value in discrete:
-        p.xaxis.major_label_orientation = pd.np.pi / 4
+        p.xaxis.major_label_orientation = np.pi / 4
 
     sz = 9
     if size.value != 'None':

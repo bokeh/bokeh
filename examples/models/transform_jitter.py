@@ -1,4 +1,4 @@
-''' This example demonstrates how to us a jitter transform on coordinate data.
+''' This example demonstrates how to use a jitter transform on coordinate data.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.Circle, bokeh.models.Jitter
@@ -21,7 +21,7 @@ source = ColumnDataSource(data=dict(x=x, xn=2*x, xu=3*x, y=y))
 normal = Jitter(width=0.2, distribution="normal")
 uniform = Jitter(width=0.2, distribution="uniform")
 
-p = figure(x_range=(0, 4), y_range=(0,10), toolbar_location=None, x_axis_location="above")
+p = figure(x_range=(0, 4), y_range=(0, 10), toolbar_location=None, x_axis_location="above")
 p.scatter(x='x', y='y', color='firebrick', source=source, size=5, alpha=0.5)
 
 r1 = p.scatter(x='xn', y='y', color='olive', source=source, size=5, alpha=0.5)
@@ -33,7 +33,7 @@ u2 = p.scatter(x=field('xu', uniform), y='y', color='navy', source=source,
                size=5, alpha=0.5, visible=False)
 
 label_data = ColumnDataSource(data=dict(
-    x=[1,2,3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform'],
+    x=[1, 2, 3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform'],
 ))
 label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data,
                      text_baseline="top", text_align='center')

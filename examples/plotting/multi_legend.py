@@ -1,5 +1,5 @@
 '''This example shows a graph with multiple legend. This can be used to depict
-a comparision between two datasets. This graph uses stocks dataset.
+a comparison between two datasets. This graph uses stocks dataset.
 
 .. bokeh-example-metadata::
     :sampledata: stocks
@@ -16,6 +16,7 @@ from bokeh.sampledata.stocks import AAPL, MSFT
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)
+
 
 p = figure(background_fill_color="#fafafa", x_axis_type="datetime",
            width=800, height=350)

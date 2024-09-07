@@ -1,4 +1,4 @@
-''' An plot of two interactive sliders. The values are updated
+''' A plot of two interactive sliders. The values are updated
 simultaneously as the slider bars are dragged to different values.
 This example demonstrates how ``CustomJS`` callbacks react to user
 interaction events.
