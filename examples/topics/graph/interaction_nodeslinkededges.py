@@ -15,13 +15,15 @@ plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 
 graph_renderer = from_networkx(G, nx.circular_layout, scale=1, center=(0,0))
 
-graph_renderer.node_renderer.glyph = Scatter(size=15, fill_color=Spectral4[0])
-graph_renderer.node_renderer.selection_glyph = Scatter(size=15, fill_color=Spectral4[2])
-graph_renderer.node_renderer.hover_glyph = Scatter(size=15, fill_color=Spectral4[1])
+scatter_glyph = Scatter(size=15, fill_color=Spectral4[0])
+graph_renderer.node_renderer.glyph = scatter_glyph
+graph_renderer.node_renderer.selection_glyph = scatter_glyph.clone(fill_color=Spectral4[2])
+graph_renderer.node_renderer.hover_glyph = scatter_glyph.clone(fill_color=Spectral4[1])
 
-graph_renderer.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=5)
-graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=5)
-graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=5)
+ml_glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=5)
+graph_renderer.edge_renderer.glyph = ml_glyph
+graph_renderer.edge_renderer.selection_glyph = ml_glyph.clone(line_color=Spectral4[2], line_alpha=1)
+graph_renderer.edge_renderer.hover_glyph = ml_glyph.clone(line_color=Spectral4[1], line_width=1)
 
 graph_renderer.selection_policy = NodesAndLinkedEdges()
 graph_renderer.inspection_policy = NodesAndLinkedEdges()
