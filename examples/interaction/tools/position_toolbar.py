@@ -2,7 +2,7 @@
 positioned below the plot, outside the axes, titles, etc.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.toolbar_location, bokeh.plotting.figure.toolbar_sticky, bokeh.plotting.figure.scatter, bokeh.plotting.show  # noqa: E501
+    :apis: bokeh.plotting.figure.toolbar_location, bokeh.plotting.figure.toolbar_sticky, bokeh.plotting.figure.scatter, bokeh.plotting.show
     :refs: :ref:`ug_interaction_tools_toolbar`
     :keywords: position, location, sticky, toolbar
 '''
