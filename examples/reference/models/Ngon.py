@@ -7,7 +7,7 @@ N = 9
 x = np.linspace(-2, 2, N)
 y = x**2
 radii = np.linspace(0.1, 0.3, N)
-n = np.arange(1, N) + 2
+n = np.arange(3, N+3)
 
 source = ColumnDataSource(dict(x=x, y=y, radii=radii, n=n))
 
