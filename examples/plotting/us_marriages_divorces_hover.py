@@ -1,5 +1,5 @@
 '''This example shows the number of marriages and divorces in the USA from 1867 to 2011
-as a basic line plot. Furthermore a custom tooltip is defined using the Arial font.
+as a basic line plot. Furthermore, a custom tooltip is defined using the Arial font.
 
 .. bokeh-example-metadata::
     :sampledata: us_marriages_divorces

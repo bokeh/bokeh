@@ -28,12 +28,12 @@ def scatter():
     colormap = {'Adelie': 'red', 'Chinstrap': 'green', 'Gentoo': 'blue'}
     penguins["colors"] = penguins["species"].map(colormap)
     source = ColumnDataSource(penguins)
-    s = figure(title = "Penguin size")
+    s = figure(title="Penguin size")
     s.xaxis.axis_label = "Flipper Length (mm)"
     s.yaxis.axis_label = "Body Mass (g)"
     s.scatter("flipper_length_mm", "body_mass_g", color="colors", source=source,
               fill_alpha=0.2, size=10, legend_group="species")
-    # Lets move the legend off-canvas!
+    # Let's move the legend off-canvas!
     legend = s.legend[0]
     legend.border_line_color = None
     legend.orientation = 'horizontal'
@@ -53,6 +53,7 @@ def hover_plot():
     p.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
     return p
 
+
 def intro():
     return Div(text="""
         <h3>Welcome to Layout!</h3>
@@ -67,6 +68,7 @@ def intro():
         <h4>I want to stress that this was all written in python. There is no templating or
         use of <code>bokeh.embed</code>.</h4>
     """)
+
 
 show(
     layout([

@@ -1,4 +1,4 @@
-''' An scatter plot showing `Bokeh image logo`_ as marker.
+''' A scatter plot showing `Bokeh image logo`_ as marker.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.image_url

@@ -16,8 +16,9 @@ from bokeh.sampledata.airports import data as airports
 
 title = "US Airports: Field Elevation > 1500m"
 
+
 def plot(tile_source: TileSource):
-    # set to roughly extent of points
+    # set to rough extents of points
     x_range = Range1d(start=airports['x'].min() - 10000, end=airports['x'].max() + 10000, bounds=None)
     y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 10000, bounds=None)
 
@@ -32,10 +33,11 @@ def plot(tile_source: TileSource):
     p.scatter(x='x', y='y', size=10, fill_color="#F46B42", line_color="white", line_width=2, source=airports)
     return p
 
+
 # create a tile source
 mq_tile_source = WMTSTileSource(
     url="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
-    extra_url_vars=dict(r=""), # or "@2x" for 2x scaled (Retina) images
+    extra_url_vars=dict(r=""),  # or "@2x" for 2x scaled (Retina) images
     attribution="""
 &copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>
 &copy; <a href="https://stamen.com/" target="_blank">Stamen Design</a>
