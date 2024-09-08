@@ -18,7 +18,7 @@ title = "US Airports: Field Elevation > 1500m"
 
 
 def plot(tile_source: TileSource):
-    # set to roughly extend of points
+    # set to rough extents of points
     x_range = Range1d(start=airports['x'].min() - 10000, end=airports['x'].max() + 10000, bounds=None)
     y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 10000, bounds=None)
 
