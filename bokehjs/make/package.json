@@ -24,7 +24,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript-eslint": "^7.16.0",
-    "typescript": "~5.5.3",
+    "typescript": "~5.6.2",
     "which": "^3.0.1",
     "yargs": "^17.7.2"
   }
