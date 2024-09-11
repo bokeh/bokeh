@@ -19,7 +19,7 @@ p = figure(tools=["hover", "box_select"], active_drag="box_select")
 cr = p.circle(
     x, y, radius=radii,
     fill_color=colors, fill_alpha=0.8, line_color=None,
-    hover_fill_alpha=0.5, # mix `hover_` attributes with manual setup below
+    hover_fill_alpha=0.5,  # mix `hover_` attributes with manual setup below
 )
 
 # there is no `hover_radius` so we have set things manually
