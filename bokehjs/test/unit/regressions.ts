@@ -74,6 +74,7 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
+import type {ToolName} from "@bokehjs/api/figure"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
@@ -1662,6 +1663,27 @@ describe("Bug", () => {
         el.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
         await view.ready
       }
+    })
+  })
+
+  describe("in issue #14058", () => {
+    it("doesn't allow emitting UI events for all but the first tool", async () => {
+      async function test(tools: ToolName[], active_drag: ToolName) {
+        const p = fig([200, 200], {tools, active_drag})
+        const gr = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+        gr.data_source.selected.indices = [1]
+        const {view} = await display(p)
+        expect(gr.data_source.selected.indices).to.be.equal([1])
+        const ev = new KeyboardEvent("keyup", {key: "Escape"})
+        document.dispatchEvent(ev)
+        await view.ready
+        expect(gr.data_source.selected.indices).to.be.equal([])
+      }
+
+      await test(["box_select", "lasso_select"], "box_select")
+      await test(["box_select", "lasso_select"], "lasso_select")
+      await test(["lasso_select", "box_select"], "box_select")
+      await test(["lasso_select", "box_select"], "lasso_select")
     })
   })
 })
