@@ -634,7 +634,9 @@ export class UIEventBus {
     } else {
       let result = false
       for (const tool of this._tools.keys()) {
-        result ||= emit(tool)
+        // don't conflate these lines because of short circuiting nature of ||= operator
+        const emitted = emit(tool)
+        result ||= emitted
       }
       return result
     }
