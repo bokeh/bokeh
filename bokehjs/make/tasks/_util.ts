@@ -85,3 +85,47 @@ export async function keep_alive(): Promise<void> {
     process.on("SIGINT", () => resolve(undefined))
   })
 }
+
+// Based on https://underscorejs.org/docs/modules/debounce.html
+type DebouncedFn<Args extends unknown[]> = {
+  (...args: Args): Promise<void>
+  stop(): void
+}
+
+export function debounce<Args extends unknown[]>(func: (...args: Args) => Promise<void>, wait: number, immediate: boolean = false): DebouncedFn<Args> {
+  let timeout: NodeJS.Timeout | null = null
+  let previous: number
+  let args: Args
+
+  const later = async () => {
+    const passed = Date.now() - previous
+    if (wait > passed) {
+      timeout = setTimeout(later, wait - passed)
+    } else {
+      timeout = null
+      if (!immediate) {
+        await func(...args)
+      }
+    }
+  }
+
+  const debounced = async (...in_args: Args) => {
+    previous = Date.now()
+    args = in_args
+    if (timeout == null) {
+      timeout = setTimeout(later, wait)
+      if (immediate) {
+        await func(...args)
+      }
+    }
+  }
+
+  debounced.stop = function() {
+    if (timeout != null) {
+      clearTimeout(timeout)
+      timeout = null
+    }
+  }
+
+  return debounced
+}
