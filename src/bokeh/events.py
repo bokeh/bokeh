@@ -280,6 +280,13 @@ class ModelEvent(Event):
 class AxisClick(ModelEvent):
     ''' Announce a location where an axis was clicked.
 
+    For continuous numerical axes, the value will be a number. For log axes,
+    this number is the log decade.
+
+    For categorical axes, the value will be a categorical factor, i.e. a string
+    or a list of strings, representing the closest categorical factor that was
+    clicked.
+
     '''
     event_name = 'axis_click'
 
