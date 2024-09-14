@@ -218,7 +218,7 @@ export class CartesianFrameView extends StyledElementView {
   }
 
   override rendering_target(): HTMLElement {
-    return this.parent.canvas_view.underlays_el
+    return this.parent.canvas_view.events_el
   }
 
   /**
@@ -234,6 +234,8 @@ export class CartesianFrameView extends StyledElementView {
         top:      ${bbox.top}px;
         width:    ${bbox.width}px;
         height:   ${bbox.height}px;
+        overflow: hidden;
+        pointer-events: none;
       }
       `)
     } else {
