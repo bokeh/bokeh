@@ -26,7 +26,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
   readonly position = new InlineStyleSheet()
 
-  override rendering_target(): HTMLElement {
+  override rendering_target(): HTMLElement | ShadowRoot {
     return this.plot_view.canvas_view.underlays_el
   }
 
