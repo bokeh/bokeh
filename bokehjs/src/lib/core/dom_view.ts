@@ -96,7 +96,7 @@ export abstract class DOMView extends View {
    * This is useful when creating "floating" components or adding
    * components to canvas' layers.
    */
-  rendering_target(): HTMLElement | null {
+  rendering_target(): HTMLElement | ShadowRoot | null {
     return null
   }
 }
