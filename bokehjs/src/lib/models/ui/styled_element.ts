@@ -36,6 +36,7 @@ export abstract class StyledElementView extends DOMComponentView {
   }
 
   override render(): void {
+    this.style.clear()
     super.render()
     this._apply_styles()
   }
