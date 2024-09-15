@@ -51,15 +51,10 @@ export class LegendView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-
-    const rerender = () => {
-      this.render()
-      this.update_position()
-    }
-    this.connect(this.model.change, rerender)
+    this.connect(this.model.change, () => this.rerender())
 
     const {items} = this.model.properties
-    this.on_transitive_change(items, rerender, {recursive: true})
+    this.on_transitive_change(items, () => this.rerender(), {recursive: true})
   }
 
   protected _bbox: BBox = new BBox()
@@ -341,6 +336,11 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
+  }
+
+  override after_render(): void {
+    super.after_render()
+    this.update_position()
   }
 
   get location(): {x: HAlign | number, y: VAlign | number} {
