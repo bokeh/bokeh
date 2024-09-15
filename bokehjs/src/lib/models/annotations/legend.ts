@@ -280,8 +280,8 @@ export class LegendView extends AnnotationView {
     this.style.append(`
     .bk-grid {
       grid-auto-flow: ${vertical ? "column" : "row"};
-      grid-template-rows: repeat(${nrows}, 1fr);
-      grid-template-columns: repeat(${ncols}, 1fr);
+      grid-template-rows: repeat(${nrows}, max-content);
+      grid-template-columns: repeat(${ncols}, max-content);
     }
     `)
 
