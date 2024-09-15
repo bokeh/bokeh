@@ -16,7 +16,6 @@ import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
 import {InlineStyleSheet} from "core/dom"
-import type {StyleSheetLike} from "core/dom"
 
 export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
@@ -25,6 +24,10 @@ export abstract class RendererView extends StyledElementView implements visuals.
   declare readonly parent: PlotView
 
   readonly position = new InlineStyleSheet()
+
+  override computed_stylesheets(): InlineStyleSheet[] {
+    return [...super.computed_stylesheets(), this.position]
+  }
 
   override rendering_target(): HTMLElement | ShadowRoot {
     return this.plot_view.canvas_view.underlays_el
@@ -48,10 +51,6 @@ export abstract class RendererView extends StyledElementView implements visuals.
   private _custom_coordinates: CoordinateTransform | null = null
   set coordinates(custom_coordinates: CoordinateTransform | null) {
     this._custom_coordinates = custom_coordinates
-  }
-
-  override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), this.position]
   }
 
   override initialize(): void {

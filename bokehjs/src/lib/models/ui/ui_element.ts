@@ -4,7 +4,7 @@ import type {Menu} from "./menus/menu"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
 import type {ViewOf} from "core/view"
-import type {StyleSheet, StyleSheetLike} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
@@ -30,11 +30,10 @@ const {round, floor} = Math
 export abstract class UIElementView extends StyledElementView {
   declare model: UIElement
 
-  protected readonly _display = new InlineStyleSheet()
+  protected readonly display = new InlineStyleSheet()
 
-  protected override *_stylesheets(): Iterable<StyleSheet> {
-    yield* super._stylesheets()
-    yield this._display
+  override computed_stylesheets(): InlineStyleSheet[] {
+    return [...super.computed_stylesheets(), this.display]
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -207,10 +206,9 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _apply_visible(): void {
     if (this.model.visible) {
-      this._display.clear()
+      this.display.clear()
     } else {
-      // in case `display` element style was set, use `!important` to work around this
-      this._display.replace(":host { display: none !important; }")
+      this.display.replace(":host { display: none; }")
     }
   }
 
