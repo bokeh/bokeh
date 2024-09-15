@@ -181,10 +181,10 @@ export abstract class View implements ISignalable, Equatable {
     }
   }
 
-  on_transitive_change<T>(property: Property<T>, fn: () => void): void {
+  on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false}: {recursive?: boolean} = {}): void {
     const collect = () => {
       const value = property.is_unset ? [] : property.get_value()
-      return HasProps.references(value, {recursive: false})
+      return HasProps.references(value, {recursive})
     }
 
     const connect = (models: Iterable<HasProps>) => {
