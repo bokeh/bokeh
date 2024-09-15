@@ -168,11 +168,12 @@ export class LegendView extends AnnotationView {
         const x1 = glyph_width
         const y1 = glyph_height
 
-        const {ctx} = glyph
+        const ctx = glyph.prepare()
         for (const renderer of item.renderers) {
           const view = this.plot_view.views.find_one(renderer)
           view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
         }
+        glyph.finish()
 
         item_el.addEventListener("pointerdown", () => {
           this.model.trigger_event(new LegendItemClick(this.model, item))
