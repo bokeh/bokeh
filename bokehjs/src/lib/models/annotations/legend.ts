@@ -6,7 +6,6 @@ import type {VAlign, HAlign} from "core/enums"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
-import {Signal0} from "core/signaling"
 import type {Size} from "core/layout"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
@@ -51,9 +50,14 @@ export class LegendView extends AnnotationView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const repaint = () => this.request_paint()
-    this.connect(this.model.change, repaint)
-    this.connect(this.model.item_change, repaint)
+    const rerender = () => {
+      this.render()
+      this.update_position()
+    }
+    this.connect(this.model.change, rerender)
+
+    const {items} = this.model.properties
+    this.on_transitive_change(items, rerender, {recursive: true})
   }
 
   protected _bbox: BBox = new BBox()
@@ -148,10 +152,6 @@ export class LegendView extends AnnotationView {
     let i = 0
 
     for (const item of this.model.items) {
-      // Set a backref on render so that items can later signal item_change
-      // updates on the model to trigger a re-render.
-      item.legend = this.model
-
       const field = item.get_field_from_label_prop()
       const labels = item.get_labels_list_from_label_prop()
 
@@ -628,15 +628,8 @@ export class Legend extends Annotation {
   declare properties: Legend.Props
   declare __view_type__: LegendView
 
-  item_change: Signal0<this>
-
   constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.item_change = new Signal0(this, "item_change")
   }
 
   static {
