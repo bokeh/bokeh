@@ -1,4 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CanvasView, FrameBox} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
@@ -71,6 +72,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
   visuals: Plot.Visuals
 
   declare layout: BorderLayout
+
+  private _top_panel: CanvasPanel
+  private _bottom_panel: CanvasPanel
+  private _left_panel: CanvasPanel
+  private _right_panel: CanvasPanel
+
+  top_panel: ViewOf<CanvasPanel>
+  bottom_panel: ViewOf<CanvasPanel>
+  left_panel: ViewOf<CanvasPanel>
+  right_panel: ViewOf<CanvasPanel>
 
   private _frame: CartesianFrame
   frame_view: CartesianFrameView
@@ -274,6 +285,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
       selection: new Map(),               // XXX: initial selection?
     }
 
+    this._top_panel = new CanvasPanel()
+    this._bottom_panel = new CanvasPanel()
+    this._left_panel = new CanvasPanel()
+    this._right_panel = new CanvasPanel()
+
     this._frame = new CartesianFrame({
       x_scale: this.model.x_scale,
       y_scale: this.model.y_scale,
@@ -349,7 +365,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   override get elements(): ElementLike[] {
-    return [this._canvas, this._frame, this._attribution, this._notifications, ...super.elements]
+    return [
+      this._canvas,
+      this._frame,
+      this._top_panel,
+      this._bottom_panel,
+      this._left_panel,
+      this._right_panel,
+      this._attribution,
+      this._notifications,
+      ...super.elements,
+    ]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -359,6 +385,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.canvas_view.plot_views = [this]
 
     this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
+
+    this.top_panel = this._element_views.get(this._top_panel)! as ViewOf<CanvasPanel>
+    this.bottom_panel = this._element_views.get(this._bottom_panel)! as ViewOf<CanvasPanel>
+    this.left_panel = this._element_views.get(this._left_panel)! as ViewOf<CanvasPanel>
+    this.right_panel = this._element_views.get(this._right_panel)! as ViewOf<CanvasPanel>
 
     await this.build_tool_views()
     await this.build_renderer_views()
@@ -560,6 +591,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     })
     center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
+
+    top_panel.on_resize((bbox) => this.top_panel.set_geometry(bbox))
+    bottom_panel.on_resize((bbox) => this.bottom_panel.set_geometry(bbox))
+    left_panel.on_resize((bbox) => this.left_panel.set_geometry(bbox))
+    right_panel.on_resize((bbox) => this.right_panel.set_geometry(bbox))
 
     top_panel.children    = reversed(set_layouts("above", outer_above))
     bottom_panel.children =          set_layouts("below", outer_below)
