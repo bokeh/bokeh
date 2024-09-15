@@ -30,6 +30,7 @@ export class CanvasPanelView extends StyledElementView {
   set_geometry(bbox: BBox): void {
     this._bbox = bbox
     this._update_position()
+    this.mark_finished()
   }
 
   /**
