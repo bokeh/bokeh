@@ -87,7 +87,7 @@ export class CanvasLayer {
     }
   }
 
-  prepare(): void {
+  prepare(): Context2d {
     const {ctx, hidpi, pixel_ratio} = this
     ctx.save()
     if (hidpi) {
@@ -95,6 +95,7 @@ export class CanvasLayer {
       ctx.translate(0.5, 0.5)
     }
     this.clear()
+    return ctx
   }
 
   clear(): void {
