@@ -469,7 +469,7 @@ class Legend(Annotation):
     The distance (in pixels) to separate the label from its associated glyph.
     """)
 
-    label_height = Int(20, help="""
+    label_height = Either(Auto, Int)(default="auto", help="""
     The minimum height (in pixels) of the area that legend labels should occupy.
     """)
 

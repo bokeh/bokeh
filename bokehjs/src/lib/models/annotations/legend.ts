@@ -136,17 +136,21 @@ export class LegendView extends AnnotationView {
 
     this.style.append(`
     :host {
-      gap: ${this.model.title_standoff}px;
+      gap: ${px(this.model.title_standoff)};
     }
     .bk-grid {
-      gap: ${this.model.spacing}px;
+      gap: ${px(this.model.spacing)};
     }
     .bk-item {
-      gap: ${this.model.label_standoff}px;
+      gap: ${px(this.model.label_standoff)};
     }
     .bk-item .bk-glyph {
-      width: ${this.model.glyph_width}px;
-      height: ${this.model.glyph_height}px;
+      width: ${px(this.model.glyph_width)};
+      height: ${px(this.model.glyph_height)};
+    }
+    .bk-item .bk-label {
+      min-width: ${px(this.model.label_width)};
+      min-height: ${px(this.model.label_height)};
     }
     `)
 
@@ -614,7 +618,7 @@ export namespace Legend {
     glyph_width: p.Property<number>
     glyph_height: p.Property<number>
     label_width: p.Property<number>
-    label_height: p.Property<number>
+    label_height: p.Property<number | "auto">
     margin: p.Property<number>
     padding: p.Property<Padding>
     border_radius: p.Property<BorderRadius>
@@ -675,8 +679,8 @@ export class Legend extends Annotation {
       label_standoff:   [ Float, 5 ],
       glyph_width:      [ Float, 20 ],
       glyph_height:     [ Float, 20 ],
-      label_width:      [ Float, 20 ], // TODO deprecate
-      label_height:     [ Float, 20 ], // TODO deprecate
+      label_width:      [ Float, 20 ],
+      label_height:     [ Or(Float, Auto), "auto" ],
       margin:           [ Float, 10 ],
       padding:          [ Padding, 10 ],
       border_radius:    [ BorderRadius, 0 ],

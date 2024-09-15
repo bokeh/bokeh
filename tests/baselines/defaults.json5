@@ -1373,7 +1373,7 @@
     label_text_baseline: "middle",
     label_text_line_height: 1.2,
     label_standoff: 5,
-    label_height: 20,
+    label_height: "auto",
     label_width: 20,
     glyph_height: 20,
     glyph_width: 20,
