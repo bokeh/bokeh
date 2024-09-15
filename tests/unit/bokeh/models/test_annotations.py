@@ -118,10 +118,10 @@ def test_Legend() -> None:
     assert legend.title_location == "above"
     assert legend.title_standoff == 5
     assert legend.label_standoff == 5
-    assert legend.label_height == 20
     assert legend.label_width == 20
-    assert legend.glyph_height == 20
+    assert legend.label_height == "auto"
     assert legend.glyph_width == 20
+    assert legend.glyph_height == 20
     assert legend.padding == 10
     assert legend.spacing == 3
     assert legend.margin == 10
@@ -149,6 +149,7 @@ def test_Legend() -> None:
         "margin",
         "padding",
         "spacing",
+        "border_radius",
         "items",
         "click_policy",
         "item_background_policy",
