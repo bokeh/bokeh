@@ -87,17 +87,23 @@ export class LegendView extends AnnotationView {
     const vertical = orientation == "vertical"
 
     const label_el = div({class: legend_css.label}, this.model.title)
-    const label_angle = (() => {
-      const panel = new SidePanel(this.model.title_location)
-      return panel.get_label_angle_heuristic("parallel")
-    })()
-    if (label_angle != 0) {
-      this.style.append(`
-      .bk-title .bk-label {
-        rotate: ${label_angle}rad;
+
+    // can't simply use `rotate`, because rotation doesn't affect layout
+    const {writing_mode, rotate} = (() => {
+      const label_panel = new SidePanel(this.model.title_location)
+      switch (label_panel.face_adjusted_side) {
+        case "above": return {writing_mode: "horizontal-tb", rotate: 0}
+        case "below": return {writing_mode: "horizontal-tb", rotate: 0}
+        case "left":  return {writing_mode: "vertical-rl",   rotate: 180}
+        case "right": return {writing_mode: "vertical-rl",   rotate: 0}
       }
-      `)
+    })()
+    this.style.append(`
+    .bk-title .bk-label {
+      writing-mode: ${writing_mode};
+      rotate: ${rotate}deg;
     }
+    `)
 
     const title_el = div({class: legend_css.title}, label_el)
     this.title_el.remove()
