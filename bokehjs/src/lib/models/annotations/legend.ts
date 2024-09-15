@@ -402,7 +402,7 @@ export class LegendView extends AnnotationView {
         case "left":   return `calc(0% + ${px(margin)})`
         case "center": return "50%"
         case "right":  return `calc(100% - ${px(margin)})`
-        default:       return px(panel.bbox.x_view.compute(x))
+        default:       return px(panel.bbox.relative().x_view.compute(x))
       }
     })()
     const y_pos = (() => {
@@ -411,7 +411,7 @@ export class LegendView extends AnnotationView {
         case "top":    return `calc(0% + ${px(margin)})`
         case "center": return "50%"
         case "bottom": return `calc(100% - ${px(margin)})`
-        default:       return px(panel.bbox.y_view.compute(y))
+        default:       return px(panel.bbox.relative().y_view.compute(y))
       }
     })()
     return {x: x_pos, y: y_pos}
