@@ -1,5 +1,5 @@
 import {display, fig} from "../_util"
-import {PlotActions, xy} from "../../interactive"
+import {tap} from "../../interactive"
 import {expect} from "../../unit/assertions"
 
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
@@ -380,13 +380,11 @@ describe("Legend annotation", () => {
 
     const {view: pv} = await display(p)
 
-    const actions = new PlotActions(pv, {units: "screen"})
-    await actions.tap(xy(50, 20))
-    await pv.ready
-    await actions.tap(xy(50, 40))
-    await pv.ready
-    await actions.tap(xy(50, 60))
-    await pv.ready
+    const lv = pv.views.get_one(legend)
+    for (const item_el of lv.shadow_el.querySelectorAll(".bk-item")) {
+      await tap(item_el)
+      await pv.ready
+    }
 
     expect(clicked).to.be.equal(items)
   })
