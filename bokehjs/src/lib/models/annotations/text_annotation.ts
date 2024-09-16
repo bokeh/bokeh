@@ -13,6 +13,7 @@ import {Padding, BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {BBox} from "core/util/bbox"
 import type {LRTB, XY, SXY, Corners} from "core/util/bbox"
+import type {Context2d} from "core/util/canvas"
 import type {Size} from "core/layout"
 import {round_rect} from "../common/painting"
 import * as mixins from "core/property_mixins"
@@ -146,9 +147,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     this._rect = {sx, sy, width, height, angle, anchor, padding, border_radius}
   }
 
-  protected _paint(): void {
-    const {ctx} = this.layer
-
+  protected _paint(ctx: Context2d): void {
     const {sx, sy, width, height, angle, anchor, padding, border_radius} = this._rect
     const label = this._text_box
 

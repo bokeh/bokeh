@@ -1,7 +1,7 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {CanvasView, FrameBox} from "../canvas/canvas"
+import type {CanvasView} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
 import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
@@ -1090,36 +1090,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._invalidated_painters.clear()
     this._invalidate_all = false
 
-    const frame_box: FrameBox = [
-      this.frame.bbox.left,
-      this.frame.bbox.top,
-      this.frame.bbox.width,
-      this.frame.bbox.height,
-    ]
-
-    const {primary, overlays} = this.canvas_view
-
     if (do_primary) {
-      primary.prepare()
-      this.canvas_view.prepare_webgl(frame_box)
-
-      this._paint_empty(primary.ctx, frame_box)
-      this._paint_outline(primary.ctx, frame_box)
-
-      this._paint_levels(primary.ctx, "image", frame_box, true)
-      this._paint_levels(primary.ctx, "underlay", frame_box, true)
-      this._paint_levels(primary.ctx, "glyph", frame_box, true)
-      this._paint_levels(primary.ctx, "guide", frame_box, false)
-      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      const {primary} = this.canvas_view
+      const ctx = primary.prepare()
+      this._paint_primary(ctx)
       primary.finish()
     }
 
     if (do_overlays || settings.wireframe) {
-      overlays.prepare()
-      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
-      if (settings.wireframe) {
-        this.paint_layout(overlays.ctx, this.layout)
-      }
+      const {overlays} = this.canvas_view
+      const ctx = overlays.prepare()
+      this._paint_overlays(ctx)
       overlays.finish()
     }
 
@@ -1138,7 +1119,29 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._render_count++
   }
 
-  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+  protected _paint_primary(ctx: Context2d): void {
+    const frame_box = this.frame.bbox
+    this.canvas_view.prepare_webgl(frame_box)
+
+    this._paint_empty(ctx, frame_box)
+    this._paint_outline(ctx, frame_box)
+
+    this._paint_levels(ctx, "image", frame_box, true)
+    this._paint_levels(ctx, "underlay", frame_box, true)
+    this._paint_levels(ctx, "glyph", frame_box, true)
+    this._paint_levels(ctx, "guide", frame_box, false)
+    this._paint_levels(ctx, "annotation", frame_box, false)
+  }
+
+  protected _paint_overlays(ctx: Context2d): void {
+    const frame_box = this.frame.bbox
+    this._paint_levels(ctx, "overlay", frame_box, false)
+    if (settings.wireframe) {
+      this.paint_layout(ctx, this.layout)
+    }
+  }
+
+  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_box: BBox, global_clip: boolean): void {
     for (const renderer_view of this.computed_renderer_views) {
       if (renderer_view.model.level != level) {
         continue
@@ -1147,11 +1150,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
         ctx.beginPath()
-        ctx.rect(...clip_region)
+        ctx.rect(...clip_box.args)
         ctx.clip()
       }
 
-      renderer_view.paint()
+      renderer_view.paint(ctx)
       ctx.restore()
 
       if (renderer_view.has_webgl) {
@@ -1174,9 +1177,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.bbox.width, this.bbox.height]
-    const [fx, fy, fw, fh] = frame_box
+  protected _paint_empty(ctx: Context2d, frame_box: BBox): void {
+    const canvas_box = this.bbox.relative()
+
+    const [cx, cy, cw, ch] = canvas_box.args
+    const [fx, fy, fw, fh] = frame_box.args
 
     if (this.visuals.border_fill.doit) {
       ctx.save()
@@ -1197,11 +1202,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  protected _paint_outline(ctx: Context2d, frame_box: FrameBox): void {
+  protected _paint_outline(ctx: Context2d, frame_box: BBox): void {
     if (this.visuals.outline_line.doit) {
       ctx.save()
       this.visuals.outline_line.set_value(ctx)
-      let [x0, y0, w, h] = frame_box
+      let [x0, y0, w, h] = frame_box.args
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
       if (x0 + w == this.bbox.width) {
@@ -1238,7 +1243,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   override resolve_frame(): View | null {
-    return this.frame as any // TODO CartesianFrameView (PR #13286)
+    return this.frame
   }
 
   override resolve_canvas(): View | null {

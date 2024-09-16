@@ -9,6 +9,7 @@ import {Signal} from "core/signaling"
 import type * as p from "core/properties"
 import type {CoordinateMapper} from "core/util/bbox"
 import {assert} from "core/util/assert"
+import type {Context2d} from "core/util/canvas"
 
 const EDGE_TOLERANCE = 2.5
 
@@ -46,7 +47,7 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
     this.connect(this.model.change, () => this.plot_view.request_paint(this))
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     const {location, location_units} = this.model
     if (location == null) {
       return
@@ -84,7 +85,6 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
     const {_is_hovered, visuals} = this
     const line = _is_hovered && visuals.hover_line.doit ? visuals.hover_line : visuals.line
 
-    const {ctx} = this.layer
     ctx.save()
 
     ctx.beginPath()

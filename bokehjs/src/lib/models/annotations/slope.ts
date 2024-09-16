@@ -2,6 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
+import type {Context2d} from "core/util/canvas"
 
 export class SlopeView extends AnnotationView {
   declare model: Slope
@@ -12,7 +13,7 @@ export class SlopeView extends AnnotationView {
     this.connect(this.model.change, () => this.request_paint())
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     const {gradient, y_intercept} = this.model
     if (gradient == null || y_intercept == null) {
       return
@@ -52,7 +53,6 @@ export class SlopeView extends AnnotationView {
       }
     })()
 
-    const {ctx} = this.layer
     ctx.save()
 
     if (this.visuals.above_fill.doit || this.visuals.above_hatch.doit) {

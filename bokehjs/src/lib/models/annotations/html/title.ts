@@ -3,6 +3,7 @@ import {VerticalAlign, TextAlign} from "core/enums"
 import {TextBox} from "core/graphics"
 import type {Size, Layoutable} from "core/layout"
 import type {SidePanel} from "core/layout/side_panel"
+import type {Context2d} from "core/util/canvas"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 
@@ -67,7 +68,7 @@ export class HTMLTitleView extends TextAnnotationView {
     return [sx, sy]
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     const {text} = this.model
     if (text.length == 0) {
       return
@@ -79,7 +80,7 @@ export class HTMLTitleView extends TextAnnotationView {
     const [sx, sy] = this._get_location()
     const angle = this.panel.get_label_angle_heuristic("parallel")
 
-    this._paint_text(this.layer.ctx, text, sx, sy, angle)
+    this._paint_text(ctx, text, sx, sy, angle)
   }
 
   // XXX: this needs to use CSS computed styles
