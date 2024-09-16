@@ -1235,8 +1235,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     composite.resize(width, height)
 
     if (width != 0 && height != 0) {
-      const {canvas} = this.canvas_view.compose()
-      composite.ctx.drawImage(canvas, 0, 0)
+      const ctx = composite.prepare()
+      this._paint_primary(ctx)
+      this._paint_overlays(ctx)
+      composite.finish()
     }
 
     return composite
