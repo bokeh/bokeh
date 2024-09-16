@@ -27,22 +27,18 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
-  override initialize(): void {
-    super.initialize()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.paint())
+    this.connect(this.model.change, () => this.paint(this.layer.ctx))
   }
 
-  override paint(): void {
+  override paint(ctx: Context2d): void {
     if (!this.model.visible) {
       undisplay(this.el)
       return
     }
 
-    super.paint()
+    super.paint(ctx)
   }
 
   get padding(): LRTB<number> {

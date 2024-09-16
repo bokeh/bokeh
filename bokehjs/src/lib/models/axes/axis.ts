@@ -174,10 +174,8 @@ export abstract class AxisView extends GuideRendererView {
     return false
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     const {tick_coords, extents} = this
-    const ctx = this.layer.ctx
-
     this._draw_background(ctx, extents)
     this._draw_rule(ctx, extents)
     this._draw_major_ticks(ctx, extents, tick_coords)

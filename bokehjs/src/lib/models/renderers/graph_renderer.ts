@@ -10,6 +10,7 @@ import {build_view} from "core/build_views"
 import {logger} from "core/logging"
 import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
+import type {Context2d} from "core/util/canvas"
 import type {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
@@ -121,9 +122,9 @@ export class GraphRendererView extends DataRendererView {
     super.remove()
   }
 
-  protected _paint(): void {
-    this.edge_view.paint()
-    this.node_view.paint()
+  protected _paint(ctx: Context2d): void {
+    this.edge_view.paint(ctx)
+    this.node_view.paint(ctx)
   }
 
   override get has_webgl(): boolean {

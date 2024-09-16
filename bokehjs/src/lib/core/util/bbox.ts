@@ -352,6 +352,11 @@ export class BBox implements Rect, Equatable {
     return {left, right, top, bottom}
   }
 
+  get args(): [x: number, y: number, w: number, h: number] {
+    const {x, y, width, height} = this
+    return [x, y, width, height]
+  }
+
   get x_range(): Interval {
     return {start: this.x0, end: this.x1}
   }

@@ -7,6 +7,7 @@ import {UIEventBus} from "core/ui_events"
 import {load_module} from "core/util/modules"
 import type {Context2d} from "core/util/canvas"
 import {CanvasLayer} from "core/util/canvas"
+import type {BBox} from "core/util/bbox"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import type {PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
@@ -14,8 +15,6 @@ import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet} from "core/dom"
 import * as canvas_css from "styles/canvas.css"
 import icons_css from "styles/icons.css"
-
-export type FrameBox = [number, number, number, number]
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -191,7 +190,7 @@ export class CanvasView extends UIElementView {
     this._after_resize()
   }
 
-  prepare_webgl(frame_box: FrameBox): void {
+  prepare_webgl(frame_box: BBox): void {
     // Prepare WebGL for a drawing pass
     const {webgl} = this
     if (webgl != null) {
@@ -199,7 +198,7 @@ export class CanvasView extends UIElementView {
       const {width, height} = this.bbox
       webgl.canvas.width = this.pixel_ratio*width
       webgl.canvas.height = this.pixel_ratio*height
-      const [sx, sy, w, h] = frame_box
+      const {x: sx, y: sy, width: w, height: h} = frame_box
       const {xview, yview} = this.bbox
       const vx = xview.compute(sx)
       const vy = yview.compute(sy + h)
