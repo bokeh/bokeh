@@ -9,6 +9,7 @@ from __future__ import annotations
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
+from .enums import VersionType
 from .system import System
 
 __all__ = (
@@ -38,9 +39,10 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
     version = config.version
     path = f"deployment-{version}/bokeh-{version}-py_0.tar.bz2"
     token = config.secrets["ANACONDA_TOKEN"]
-    main_channel = "" if config.prerelease else "-l main"
+    main_label = "" if config.prerelease else "-l main"
+    rc_label = "-l rc" if config.version_type in (VersionType.RC, VersionType.FULL) else ""
     try:
-        system.run(f"anaconda -t {token} upload -u bokeh {path} {main_channel} -l dev --force --no-progress")
+        system.run(f"anaconda -t {token} upload -u bokeh {path} {main_label} {rc_label} -l dev --force --no-progress")
         return PASSED("Publish to anaconda.org succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to anaconda.org", details=e.args)
