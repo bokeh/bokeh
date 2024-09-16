@@ -41,11 +41,9 @@ export class CategoricalAxisView extends AxisView {
     }
   }
 
-  protected override _paint(): void {
+  protected override _paint(ctx: Context2d): void {
     const {tick_coords, extents} = this
-    const ctx = this.layer.ctx
-
-    super._paint()
+    super._paint(ctx)
     this._draw_group_separators(ctx, extents, tick_coords)
   }
 

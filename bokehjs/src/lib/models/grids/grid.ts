@@ -12,8 +12,7 @@ export class GridView extends GuideRendererView {
   declare model: Grid
   declare visuals: Grid.Visuals
 
-  protected _paint(): void {
-    const ctx = this.layer.ctx
+  protected _paint(ctx: Context2d): void {
     ctx.save()
     this._draw_regions(ctx)
     this._draw_minor_grids(ctx)

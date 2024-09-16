@@ -496,15 +496,11 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  protected _paint(): void {
-    if (this.model.items.length == 0) {
-      return
-    }
-    if (!some(this.model.items, (item) => item.visible)) {
+  protected _paint(ctx: Context2d): void {
+    if (!this.is_visible) {
       return
     }
 
-    const {ctx} = this.layer
     ctx.save()
     //this._draw_legend_box(ctx)
     //this._draw_legend_items(ctx)

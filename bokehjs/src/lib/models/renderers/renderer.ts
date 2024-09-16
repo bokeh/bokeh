@@ -5,7 +5,7 @@ import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
 import {isNumber} from "core/util/types"
-import type {CanvasLayer} from "core/util/canvas"
+import type {CanvasLayer, Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
@@ -162,7 +162,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return true
   }
 
-  paint(): void {
+  paint(ctx: Context2d): void {
     // It would be better to update geometry (the internal layout) only when
     // necessary, but conditions for that are not clear, so for now update
     // at every paint.
@@ -171,13 +171,13 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this.update_position()
 
     if (this.displayed && this.is_renderable) {
-      this._paint()
+      this._paint(ctx)
     }
 
     this.mark_finished()
   }
 
-  protected abstract _paint(): void
+  protected abstract _paint(ctx: Context2d): void
 
   renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
     return undefined

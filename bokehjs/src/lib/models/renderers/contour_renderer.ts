@@ -8,6 +8,7 @@ import {build_view} from "core/build_views"
 import type {SelectionManager} from "core/selection_manager"
 import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
+import type {Context2d} from "core/util/canvas"
 
 export class ContourRendererView extends DataRendererView {
   declare model: ContourRenderer
@@ -43,9 +44,9 @@ export class ContourRendererView extends DataRendererView {
     super.remove()
   }
 
-  protected _paint(): void {
-    this.fill_view.paint()
-    this.line_view.paint()
+  protected _paint(ctx: Context2d): void {
+    this.fill_view.paint(ctx)
+    this.line_view.paint(ctx)
   }
 
   hit_test(geometry: Geometry): HitTestResult {
