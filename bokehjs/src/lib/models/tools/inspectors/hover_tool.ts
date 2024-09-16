@@ -96,6 +96,9 @@ export function _line_hit(
   return [[xs[i], ys[i]], i]
 }
 
+const COLOR_RE = /\$color(\[.*\])?:(\w*)/
+const SWATCH_RE = /\$swatch:(\w*)/
+
 export class HoverToolView extends InspectToolView {
   declare model: HoverTool
 
@@ -543,21 +546,15 @@ export class HoverToolView extends InspectToolView {
     return rows
   }
 
-  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, vars: TooltipVars): HTMLElement {
+  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: Index | null, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
-
-    // if we have an image_index, that is what replace_placeholders needs
-    const i = is_undefined(vars.image_index) ? vars.index : vars.image_index
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
 
-    const color_re = /\$color(\[.*\])?:(\w*)/
-    const swatch_re = /\$swatch:(\w*)/
-
     for (const [[, value], j] of enumerate(tooltips)) {
-      const swatch_match = value.match(swatch_re)
-      const color_match = value.match(color_re)
+      const swatch_match = value.match(SWATCH_RE)
+      const color_match = value.match(COLOR_RE)
 
       if (swatch_match == null && color_match == null) {
         const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
@@ -615,7 +612,9 @@ export class HoverToolView extends InspectToolView {
 
   _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
     const {tooltips} = this.model
-    const i = vars.index
+
+    // if we have an image_index, that is what replace_placeholders needs
+    const i = is_undefined(vars.image_index) ? vars.index : vars.image_index
 
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
@@ -629,7 +628,7 @@ export class HoverToolView extends InspectToolView {
       return _template_view.el.cloneNode(true) as HTMLElement
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
-      return this._render_template(template, tooltips, ds, vars)
+      return this._render_template(template, tooltips, ds, i, vars)
     } else {
       return null
     }
