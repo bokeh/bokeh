@@ -99,7 +99,7 @@ export class LegendView extends AnnotationView {
       }
     })()
     this.style.append(`
-    .bk-title .bk-label {
+    .${legend_css.title} .${legend_css.label} {
       writing-mode: ${writing_mode};
       rotate: ${rotate}deg;
     }
@@ -111,7 +111,7 @@ export class LegendView extends AnnotationView {
 
     const title_styles = this.visuals.title_text.computed_values()
     this.style.append(`
-    .bk-title .bk-label {
+    .${legend_css.title} .${legend_css.label} {
       font: ${title_styles.font};
       color: ${title_styles.color};
       -webkit-text-stroke: 1px ${title_styles.outline_color};
@@ -120,7 +120,7 @@ export class LegendView extends AnnotationView {
 
     const label_styles = this.visuals.label_text.computed_values()
     this.style.append(`
-    .bk-item .bk-label {
+    .${legend_css.item} .${legend_css.label} {
       font: ${label_styles.font};
       color: ${label_styles.color};
       -webkit-text-stroke: 1px ${label_styles.outline_color};
@@ -138,17 +138,17 @@ export class LegendView extends AnnotationView {
     :host {
       gap: ${px(this.model.title_standoff)};
     }
-    .bk-grid {
+    .${legend_css.grid} {
       gap: ${px(this.model.spacing)};
     }
-    .bk-item {
+    .${legend_css.item} {
       gap: ${px(this.model.label_standoff)};
     }
-    .bk-item .bk-glyph {
+    .${legend_css.item} .${legend_css.glyph} {
       width: ${px(this.model.glyph_width)};
       height: ${px(this.model.glyph_height)};
     }
-    .bk-item .bk-label {
+    .${legend_css.item} .${legend_css.label} {
       min-width: ${px(this.model.label_width)};
       min-height: ${px(this.model.label_height)};
     }
@@ -282,7 +282,7 @@ export class LegendView extends AnnotationView {
     this.grid_el = grid_el
 
     this.style.append(`
-    .bk-grid {
+    .${legend_css.grid} {
       grid-auto-flow: ${vertical ? "column" : "row"};
       grid-template-rows: repeat(${nrows}, max-content);
       grid-template-columns: repeat(${ncols}, max-content);
