@@ -16,12 +16,24 @@ import type {Context2d} from "core/util/canvas"
 import {LegendItemClick} from "core/bokeh_events"
 import {div, bounding_box, px} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
+import {TextBox} from "core/graphics"
 import * as legend_css from "styles/legend.css"
 import {Padding, BorderRadius} from "../common/kinds"
+import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 
 const {ceil} = Math
+
+type Entry = {
+  el: HTMLElement
+  glyph_el: HTMLCanvasElement
+  label_el: HTMLElement
+  item: LegendItem
+  i: number
+  row: number
+  col: number
+}
 
 export class LegendView extends AnnotationView {
   declare model: Legend
@@ -64,6 +76,8 @@ export class LegendView extends AnnotationView {
 
   protected grid_el: HTMLElement = div()
   protected title_el: HTMLElement = div()
+
+  protected entries: Entry[] = []
 
   get padding(): LRTB<number> {
     const padding = this.model.border_line_color != null ? this.model.padding : 0
@@ -154,7 +168,9 @@ export class LegendView extends AnnotationView {
     }
     `)
 
-    const entries: {el: HTMLElement, item: LegendItem, i: number, row: number, col: number}[] = []
+    const entries: Entry[] = []
+    this.entries = entries
+
     const {click_policy} = this
     let i = 0
 
@@ -168,7 +184,7 @@ export class LegendView extends AnnotationView {
         glyph.resize(glyph_width, glyph_height)
         glyph.el.classList.add(legend_css.glyph)
 
-        const glyph_el = glyph.el
+        const glyph_el = glyph.canvas
         const label_el = div({class: legend_css.label}, `${label}`)
         const item_el = div({class: legend_css.item}, glyph_el, label_el)
         item_el.classList.toggle(legend_css.hidden, !item.visible)
@@ -192,7 +208,7 @@ export class LegendView extends AnnotationView {
           }
         })
 
-        entries.push({el: item_el, item, i: i++, row: 0, col: 0})
+        entries.push({el: item_el, glyph_el, label_el, item, i: i++, row: 0, col: 0})
       }
     }
 
@@ -502,100 +518,73 @@ export class LegendView extends AnnotationView {
     }
 
     ctx.save()
-    //this._draw_legend_box(ctx)
-    //this._draw_legend_items(ctx)
-    //this._draw_title(ctx)
+    const canvas_bbox = bounding_box(this.plot_view.canvas.el)
+    this._draw_legend_box(ctx, canvas_bbox)
+    this._draw_title(ctx, canvas_bbox)
+    this._draw_legend_items(ctx, canvas_bbox)
     ctx.restore()
   }
 
-  protected _draw_legend_box(ctx: Context2d): void {
-    const {x, y, width, height} = this.bbox
+  protected _draw_legend_box(ctx: Context2d, canvas_bbox: BBox): void {
     ctx.beginPath()
-    ctx.rect(x, y, width, height)
+    const bbox = bounding_box(this.el).relative_to(canvas_bbox)
+    round_rect(ctx, bbox, this.border_radius)
+
     this.visuals.background_fill.apply(ctx)
     this.visuals.border_line.apply(ctx)
   }
 
-  protected _draw_title(_ctx: Context2d): void {
+  protected _draw_title(ctx: Context2d, canvas_bbox: BBox): void {
     const {title} = this.model
     if (title == null || title.length == 0 || !this.visuals.title_text.doit) {
       return
     }
 
-    /*
-    const {left, top} = this.bbox
-    ctx.save()
-    ctx.translate(left, top)
-    ctx.translate(this.title_panel.bbox.left, this.title_panel.bbox.top)
-
-    switch (this.model.title_location) {
-      case "left": {
-        ctx.translate(0, this.title_panel.bbox.height)
-        break
-      }
-      case "right": {
-        ctx.translate(this.title_panel.bbox.width, 0)
-        break
-      }
-      case "above":
-      case "below": {
-        break
-      }
+    const text = this.title_el.textContent
+    if (text != null) {
+      const text_box = new TextBox({text})
+      const title_bbox = bounding_box(this.title_el).relative_to(canvas_bbox)
+      const {x: sx, y: sy} = title_bbox
+      text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
+      text_box.visuals = this.visuals.title_text.values()
+      const panel = new SidePanel(this.model.title_location)
+      text_box.angle = panel.get_label_angle_heuristic("parallel")
+      text_box.paint(ctx)
     }
-
-    this.title_panel.text.paint(ctx)
-    ctx.restore()
-    */
   }
 
-  protected _draw_legend_items(_ctx: Context2d): void {
-    //const {is_active, has_item_background} = this
-    /*
-    const {left, top} = this.bbox
-    ctx.translate(left, top)
-    ctx.translate(this.grid.bbox.left, this.grid.bbox.top)
+  protected _draw_legend_items(ctx: Context2d, canvas_bbox: BBox): void {
+    const {is_active} = this
 
-    for (const [{layout: entry, row, col}, i] of enumerate(this.items)) {
-      const {bbox, text, item, label, field, settings} = entry
-      const {glyph_width, glyph_height, label_standoff} = settings
+    for (const {el: item_el, glyph_el, label_el, item, i, row, col} of this.entries) {
+      const item_bbox = bounding_box(item_el).relative_to(canvas_bbox)
 
-      const {left, top, width, height} = bbox
-      ctx.translate(left, top)
-
-      if (has_item_background(i, row, col)) {
+      if (this.has_item_background(i, row, col)) {
         ctx.beginPath()
-        ctx.rect(0, 0, width, height)
+        ctx.rect_bbox(item_bbox)
         this.visuals.item_background_fill.apply(ctx)
       }
 
-      const vcenter = height/2
-      const x0 = 0
-      const y0 = vcenter - glyph_height/2
-      const x1 = x0 + glyph_width
-      const y1 = y0 + glyph_height
+      ctx.layer.undo_transform(() => {
+        const glyph_bbox = bounding_box(glyph_el).relative_to(canvas_bbox)
+        ctx.drawImage(glyph_el, glyph_bbox.x, glyph_bbox.y)
+      })
 
-      for (const renderer of item.renderers) {
-        const view = this.plot_view.views.find_one(renderer)
-        view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
+      const text = label_el.textContent
+      if (text != null) {
+        const text_box = new TextBox({text})
+        const {x: sx, y: sy} = bounding_box(label_el).relative_to(canvas_bbox)
+        text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
+        text_box.visuals = this.visuals.label_text.values()
+        text_box.paint(ctx)
       }
-
-      ctx.translate(x1 + label_standoff, vcenter)
-      text.paint(ctx)
-      ctx.translate(-x1 - label_standoff, -vcenter)
 
       if (!is_active(item)) {
         ctx.beginPath()
-        ctx.rect(0, 0, width, height)
-        this.visuals.inactive_fill.set_value(ctx)
-        ctx.fill()
+        ctx.rect_bbox(item_bbox)
+        this.visuals.inactive_fill.apply(ctx)
       }
-
-      ctx.translate(-left, -top)
     }
-
-    ctx.translate(-this.grid.bbox.left, -this.grid.bbox.top)
-    ctx.translate(-left, -top)
-    */
   }
 }
 

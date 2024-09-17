@@ -96,6 +96,16 @@ describe("bbox module", () => {
       expect(bbox.shrink_by(2)).to.be.equal(new BBox({left: -1, right: 2, top: 0, bottom: 10}))
     })
 
+    it("should support relative_to() method", () => {
+      const bbox = new BBox({left: 10, top: 30, width: 100, height: 80})
+
+      const to0 = new BBox({left: 10, top: 30, width: 100, height: 80})
+      expect(bbox.relative_to(to0)).to.be.equal(new BBox({left: 0, top: 0, width: 100, height: 80}))
+
+      const to1 = new BBox({left: 0, top: 10, width: 120, height: 110})
+      expect(bbox.relative_to(to1)).to.be.equal(new BBox({left: 10, top: 20, width: 100, height: 80}))
+    })
+
     it("should support percent coordinate mapping", () => {
       const bbox = new BBox({x: 100, y: 200, width: 300, height: 400})
 
