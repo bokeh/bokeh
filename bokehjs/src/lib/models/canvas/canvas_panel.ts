@@ -7,6 +7,7 @@ import type {StyleSheetLike} from "core/dom"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {isNumber} from "core/util/types"
+import * as css from "styles/canvas_panel.css"
 
 export class CanvasPanelView extends StyledElementView {
   declare model: CanvasPanel
@@ -20,7 +21,7 @@ export class CanvasPanelView extends StyledElementView {
   readonly position = new InlineStyleSheet()
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), this.position]
+    return [...super.stylesheets(), css.default, this.position]
   }
 
   override rendering_target(): HTMLElement {
@@ -41,13 +42,10 @@ export class CanvasPanelView extends StyledElementView {
     if (bbox.is_valid) {
       position.replace(`
       :host {
-        position: absolute;
-        left:     ${bbox.left}px;
-        top:      ${bbox.top}px;
-        width:    ${bbox.width}px;
-        height:   ${bbox.height}px;
-        overflow: hidden;
-        pointer-events: none;
+        left:   ${bbox.left}px;
+        top:    ${bbox.top}px;
+        width:  ${bbox.width}px;
+        height: ${bbox.height}px;
       }
       `)
     } else {
