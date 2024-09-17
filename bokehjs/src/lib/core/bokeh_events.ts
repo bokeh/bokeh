@@ -12,7 +12,9 @@ import {Deserializer} from "./serialization/deserializer"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
 import type {Legend} from "../models/annotations/legend"
+import type {Axis} from "../models/axes/axis"
 import type {LegendItem} from "../models/annotations/legend_item"
+import type {Factor} from "../models/ranges/factor_range"
 import type {ClearInput} from "../models/widgets/input_widget"
 
 Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
@@ -38,6 +40,7 @@ export type ConnectionEventType =
   "connection_lost"
 
 export type ModelEventType =
+  "axis_click" |
   "button_click" |
   "legend_item_click" |
   "menu_item_click" |
@@ -76,35 +79,36 @@ export type PointEventType =
  * Other events, including user defined events, can be referred to by event's class object.
  */
 export type BokehEventMap = {
-  document_ready: DocumentReady
+  axis_click: AxisClick
+  button_click: ButtonClick
   clear_input: ClearInput
   connection_lost: ConnectionLost
-  button_click: ButtonClick
+  document_ready: DocumentReady
+  doubletap: DoubleTap
   legend_item_click: LegendItemClick
-  menu_item_click: MenuItemClick
-  value_submit: ValueSubmit
-  lodstart: LODStart
   lodend: LODEnd
-  rangesupdate: RangesUpdate
-  selectiongeometry: SelectionGeometry
-  reset: Reset
-  pan: Pan
-  pinch: Pinch
-  rotate: Rotate
-  wheel: MouseWheel
-  mousemove: MouseMove
+  lodstart: LODStart
+  menu_item_click: MenuItemClick
   mouseenter: MouseEnter
   mouseleave: MouseLeave
-  tap: Tap
-  doubletap: DoubleTap
+  mousemove: MouseMove
+  pan: Pan
+  panend: PanEnd
+  panstart: PanStart
+  pinch: Pinch
+  pinchend: PinchEnd
+  pinchstart: PinchStart
   press: Press
   pressup: PressUp
-  panstart: PanStart
-  panend: PanEnd
-  pinchstart: PinchStart
-  pinchend: PinchEnd
-  rotatestart: RotateStart
+  rangesupdate: RangesUpdate
+  reset: Reset
+  rotate: Rotate
   rotateend: RotateEnd
+  rotatestart: RotateStart
+  selectiongeometry: SelectionGeometry
+  tap: Tap
+  value_submit: ValueSubmit
+  wheel: MouseWheel
 }
 
 export type BokehEventRep = {
@@ -214,6 +218,19 @@ export class ConnectionLost extends ConnectionEvent {
   static {
     this.prototype.event_name = "connection_lost"
     this.prototype.publish = false
+  }
+}
+
+@event("axis_click")
+export class AxisClick extends ModelEvent {
+
+  constructor(readonly model: Axis, readonly value: number | Factor) {
+    super()
+  }
+
+  protected override get event_values(): Attrs {
+    const {value} = this
+    return {...super.event_values, value}
   }
 }
 

@@ -26,6 +26,7 @@ from bokeh.models import (
     FileInput,
     Legend,
     LegendItem,
+    LinearAxis,
     Plot,
     TextInput,
 )
@@ -68,6 +69,8 @@ def test_common_decode_json() -> None:
 
         if issubclass(event_cls, events.ButtonClick):
             model = Button()
+        elif issubclass(event_cls, events.AxisClick):
+            model = LinearAxis()
         elif issubclass(event_cls, events.LegendItemClick):
             model = Legend(items=[legend_item])
         elif issubclass(event_cls, events.ValueSubmit):

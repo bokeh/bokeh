@@ -19,10 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import typing as tp
-from typing import TypeAlias
 
 # Bokeh imports
+from ..types import FactorSeqType, FactorType
 from .bases import Init, SingleParameterizedProperty
 from .container import Seq, Tuple
 from .either import Either
@@ -45,9 +44,6 @@ __all__ = (
 L1Factor = String
 L2Factor = Tuple(String, String)
 L3Factor = Tuple(String, String, String)
-
-FactorType: TypeAlias = str | tuple[str, str] | tuple[str, str]
-FactorSeqType: TypeAlias = tp.Sequence[str] | tp.Sequence[tuple[str, str]] | tp.Sequence[tuple[str, str]]
 
 class Factor(SingleParameterizedProperty[FactorType]):
     """ Represents a single categorical factor. """

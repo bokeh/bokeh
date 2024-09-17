@@ -51,6 +51,10 @@ ID = NewType("ID", str)
 
 PathLike: TypeAlias = str | os.PathLike[str]
 
+FactorType: TypeAlias = str | tuple[str, str] | tuple[str, str, str]
+FactorSeqType: TypeAlias = Sequence[str] | Sequence[tuple[str, str]] | Sequence[tuple[str, str, str]]
+
+
 # TODO: move this to types/geometry.py
 class PointGeometry(TypedDict):
     type: Literal["point"]
