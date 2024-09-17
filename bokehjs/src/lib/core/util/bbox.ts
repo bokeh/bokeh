@@ -473,6 +473,11 @@ export class BBox implements Rect, Equatable {
     return new BBox({x: 0, y: 0, width, height})
   }
 
+  relative_to(to: BBox): BBox {
+    const {x, y, width, height} = this
+    return new BBox({x: x - to.x, y: y - to.y, width, height})
+  }
+
   translate(tx: number, ty: number): BBox {
     const {x, y, width, height} = this
     return new BBox({x: tx + x, y: ty + y, width, height})
