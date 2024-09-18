@@ -601,6 +601,10 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this.__applyStyleState(attributes)
   }
 
+  isContextLost(): boolean {
+    return false
+  }
+
   reset(): void {
     this.__setDefaultStyles()
     this.__stack = []

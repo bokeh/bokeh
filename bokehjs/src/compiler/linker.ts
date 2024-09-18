@@ -857,8 +857,9 @@ export ${export_type} yaml;
           after: [],
         }
 
-        // XXX: .json extension will cause an internal error
-        const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
+        // XXX: .json or .mjs extension will cause an internal error
+        const adjusted_file = type == "json" ? `${file}.ts` : (file.endsWith(".mjs") ? file.replace(/\.mjs$/, ".js") : file)
+        const {output, error} = transpile(adjusted_file, source, target, transform)
         if (error != null) {
           throw new BuildError("linker", error)
         } else {
