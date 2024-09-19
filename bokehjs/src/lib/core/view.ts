@@ -145,11 +145,14 @@ export abstract class View implements ISignalable, Equatable {
     }
   }
 
+  serializable_children(): View[] {
+    return [...this.children()].filter((view) => view.model.is_syncable)
+  }
+
   serializable_state(): SerializableState {
-    const children = [...this.children()]
-      .filter((view) => view.model.is_syncable)
+    const children = this.serializable_children()
       .map((view) => view.serializable_state())
-      .filter((item) => item.bbox != null && item.bbox.is_valid && !item.bbox.is_empty)
+      .filter((item) => item.bbox != null && item.bbox.is_valid && !item.bbox.is_empty) // TODO move this to a common base class for UI views
 
     return {
       type: this.model.type,

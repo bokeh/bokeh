@@ -1294,4 +1294,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._notifications.elements = [...this._notifications.elements, el]
     logger.info(message)
   }
+
+  override serializable_children(): View[] {
+    // TODO temporarily remove CanvasPanel views to reduce baseline noise
+    return super.serializable_children().filter((view) => view.model instanceof CartesianFrame || !(view.model instanceof CanvasPanel))
+  }
 }
