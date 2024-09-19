@@ -9,7 +9,7 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
-    "@types/node": "^20.12.4",
+    "@types/node": "^22.5.5",
     "@types/ws": "^8.5.10",
     "@types/yargs": "^17.0.32",
     "chalk": "^4.1.2",
