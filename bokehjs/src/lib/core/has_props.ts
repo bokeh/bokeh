@@ -468,7 +468,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return changed
   }
 
-  setv(changed_attrs: Attrs, options: HasProps.SetOptions = {}): void {
+  setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
     const changes = entries(changed_attrs)
 
     if (changes.length == 0) {

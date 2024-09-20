@@ -4122,4 +4122,37 @@ describe("Bug", () => {
       await test((p) => p.multi_polygons([[[xs]]], [[[ys]]]))
     })
   })
+
+  describe("in issue #14068", () => {
+    it("doesn't allow update of GridPlot.children", async () => {
+      const p0 = fig([200, 200])
+      p0.scatter({x: 1, y: 1, size: 10, color: "red"})
+      const p1 = fig([200, 200])
+      p1.scatter({x: 1, y: 1, size: 20, color: "green"})
+      const p2 = fig([200, 200])
+      p2.scatter({x: 1, y: 1, size: 30, color: "blue"})
+      const p3 = fig([200, 200])
+      p3.scatter({x: 1, y: 1, size: 40, color: "yellow"})
+      const p4 = fig([200, 200])
+      p4.scatter({x: 1, y: 1, size: 50, color: "purple"})
+
+      const gp = new GridPlot({
+        children: [
+          [p0, 0, 0],
+          [p1, 0, 1],
+          [p2, 1, 0],
+          [p3, 1, 1],
+        ],
+        toolbar_location: null,
+      })
+      const {view} = await display(gp, [600, 600])
+
+      gp.children = [
+        [p0, 0, 0],
+        [p3, 1, 1],
+        [p4, 2, 2],
+      ]
+      await view.ready
+    })
+  })
 })
