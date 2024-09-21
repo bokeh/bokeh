@@ -15,6 +15,7 @@ describe("ScaleBar annotation", () => {
         x_range: new Range1d({start: 0, end: 1}),
         y_range: new Range1d({start: 0, end: 1}),
         center: [scale_bar],
+        toolbar_location: null,
       })
     }
 
@@ -182,6 +183,7 @@ describe("ScaleBar annotation", () => {
         x_range: new Range1d({start: 0, end: 1}),
         y_range: new Range1d({start: 0, end: 1}),
         center: [scale_bar],
+        toolbar_location: null,
       })
     }
 
