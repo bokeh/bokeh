@@ -563,45 +563,45 @@ export namespace ScaleBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    range: p.Property<Range | "auto">
-    unit: p.Property<string>
-    dimensional: p.Property<Dimensional>
-    orientation: p.Property<Orientation>
+    anchor: p.Property<AutoAnchor>
     bar_length: p.Property<number>
     bar_length_units: p.Property<LengthUnits>
-    length_sizing: p.Property<LengthSizing>
-    location: p.Property<Position>
-    x_units: p.Property<PositionUnits>
-    y_units: p.Property<PositionUnits>
-    anchor: p.Property<AutoAnchor>
+    dimensional: p.Property<Dimensional>
     label: p.Property<string>
     label_align: p.Property<Align>
     label_location: p.Property<Location>
     label_standoff: p.Property<number>
+    length_sizing: p.Property<LengthSizing>
+    location: p.Property<Position>
+    margin: p.Property<number>
+    orientation: p.Property<Orientation>
+    padding: p.Property<number>
+    range: p.Property<Range | "auto">
+    ticker: p.Property<Ticker>
     title: p.Property<string>
     title_align: p.Property<Align>
     title_location: p.Property<Location>
     title_standoff: p.Property<number>
-    margin: p.Property<number>
-    padding: p.Property<number>
-    ticker: p.Property<Ticker>
+    unit: p.Property<string>
+    x_units: p.Property<PositionUnits>
+    y_units: p.Property<PositionUnits>
   } & Mixins
 
   export type Mixins =
-    mixins.BarLine         &
-    mixins.LabelText       &
-    mixins.TitleText       &
-    mixins.BorderLine      &
     mixins.BackgroundFill  &
-    mixins.BackgroundHatch
+    mixins.BackgroundHatch &
+    mixins.BarLine         &
+    mixins.BorderLine      &
+    mixins.LabelText       &
+    mixins.TitleText
 
   export type Visuals = Annotation.Visuals & {
-    bar_line: visuals.Line
-    label_text: visuals.Text
-    title_text: visuals.Text
-    border_line: visuals.Line
     background_fill: visuals.Fill
     background_hatch: visuals.Hatch
+    bar_line: visuals.Line
+    border_line: visuals.Line
+    label_text: visuals.Text
+    title_text: visuals.Text
   }
 }
 
@@ -619,48 +619,48 @@ export class ScaleBar extends Annotation {
     this.prototype.default_view = ScaleBarView
 
     this.mixins<ScaleBar.Mixins>([
-      ["bar_",        mixins.Line],
-      ["label_",      mixins.Text],
-      ["title_",      mixins.Text],
-      ["border_",     mixins.Line],
       ["background_", mixins.Fill],
       ["background_", mixins.Hatch],
+      ["bar_",        mixins.Line],
+      ["border_",     mixins.Line],
+      ["label_",      mixins.Text],
+      ["title_",      mixins.Text],
     ])
 
     this.define<ScaleBar.Props>(({NonNegative, Float, Str, Ref, Or, Auto}) => ({
-      range:            [ Or(Ref(Range), Auto), "auto" ],
-      unit:             [ Str, "m" ],
-      dimensional:      [ Ref(Dimensional), () => new MetricLength() ],
-      orientation:      [ Orientation, "horizontal" ],
+      anchor:           [ AutoAnchor, "auto" ],
       bar_length:       [ NonNegative(Float), 0.2 ],
       bar_length_units: [ LengthUnits, "screen" ],
-      length_sizing:    [ LengthSizing, "adaptive" ],
-      location:         [ Position, "top_right" ],
-      x_units:          [ PositionUnits, "data" ],
-      y_units:          [ PositionUnits, "data" ],
-      anchor:           [ AutoAnchor, "auto" ],
+      dimensional:      [ Ref(Dimensional), () => new MetricLength() ],
       label:            [ Str, "@{value} @{unit}" ],
       label_align:      [ Align, "center" ],
       label_location:   [ Location, "below" ],
       label_standoff:   [ Float, 5 ],
+      length_sizing:    [ LengthSizing, "adaptive" ],
+      location:         [ Position, "top_right" ],
+      margin:           [ Float, 10 ],
+      orientation:      [ Orientation, "horizontal" ],
+      padding:          [ Float, 10 ],
+      range:            [ Or(Ref(Range), Auto), "auto" ],
+      ticker:           [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
       title:            [ Str, "" ],
       title_align:      [ Align, "center" ],
       title_location:   [ Location, "above" ],
       title_standoff:   [ Float, 5 ],
-      margin:           [ Float, 10 ],
-      padding:          [ Float, 10 ],
-      ticker:           [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
+      unit:             [ Str, "m" ],
+      x_units:          [ PositionUnits, "data" ],
+      y_units:          [ PositionUnits, "data" ],
     }))
 
     this.override<ScaleBar.Props>({
-      bar_line_width: 2,
-      border_line_color: "#e5e5e5",
-      border_line_alpha: 0.5,
-      border_line_width: 1,
-      background_fill_color: "#ffffff",
       background_fill_alpha: 0.95,
-      label_text_font_size: "13px",
+      background_fill_color: "#ffffff",
+      bar_line_width: 2,
+      border_line_alpha: 0.5,
+      border_line_color: "#e5e5e5",
+      border_line_width: 1,
       label_text_baseline: "middle",
+      label_text_font_size: "13px",
       title_text_font_size: "13px",
       title_text_font_style: "italic",
     })
