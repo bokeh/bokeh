@@ -95,5 +95,50 @@ describe("bbox module", () => {
       const bbox = new BBox({left: -3, right: 4, top: -2, bottom: 12})
       expect(bbox.shrink_by(2)).to.be.equal(new BBox({left: -1, right: 2, top: 0, bottom: 10}))
     })
+
+    it("should support percent coordinate mapping", () => {
+      const bbox = new BBox({x: 100, y: 200, width: 300, height: 400})
+
+      expect(bbox.x_percent.compute(0.0)).to.be.equal(100)
+      expect(bbox.y_percent.compute(0.0)).to.be.equal(200)
+      expect(bbox.x_percent.compute(1.0)).to.be.equal(400)
+      expect(bbox.y_percent.compute(1.0)).to.be.equal(600)
+
+      expect([...bbox.x_percent.v_compute([0.0, 1.0])]).to.be.equal([100, 400])
+      expect([...bbox.y_percent.v_compute([0.0, 1.0])]).to.be.equal([200, 600])
+
+      expect(bbox.x_percent).to.be.identical(bbox.x_percent)
+      expect(bbox.y_percent).to.be.identical(bbox.y_percent)
+    })
+
+    it("should support screen coordinate mapping", () => {
+      const bbox = new BBox({x: 100, y: 200, width: 300, height: 400})
+
+      expect(bbox.x_screen.compute(0)).to.be.equal(100)
+      expect(bbox.y_screen.compute(0)).to.be.equal(200)
+      expect(bbox.x_screen.compute(300)).to.be.equal(400)
+      expect(bbox.y_screen.compute(400)).to.be.equal(600)
+
+      expect([...bbox.x_screen.v_compute([0, 300])]).to.be.equal([100, 400])
+      expect([...bbox.y_screen.v_compute([0, 400])]).to.be.equal([200, 600])
+
+      expect(bbox.x_screen).to.be.identical(bbox.x_screen)
+      expect(bbox.y_screen).to.be.identical(bbox.y_screen)
+    })
+
+    it("should support view coordinate mapping", () => {
+      const bbox = new BBox({x: 100, y: 200, width: 300, height: 400})
+
+      expect(bbox.x_view.compute(0)).to.be.equal(100)
+      expect(bbox.y_view.compute(0)).to.be.equal(600)
+      expect(bbox.x_view.compute(300)).to.be.equal(400)
+      expect(bbox.y_view.compute(400)).to.be.equal(200)
+
+      expect([...bbox.x_view.v_compute([0, 300])]).to.be.equal([100, 400])
+      expect([...bbox.y_view.v_compute([0, 400])]).to.be.equal([600, 200])
+
+      expect(bbox.x_view).to.be.identical(bbox.x_view)
+      expect(bbox.y_view).to.be.identical(bbox.y_view)
+    })
   })
 })
