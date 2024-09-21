@@ -116,6 +116,59 @@ describe("ScaleBar annotation", () => {
         })
       })
     }
+
+    describe("with bar_length_units", () => {
+      const location = "top_center"
+      const length_sizing = "exact"
+
+      it("screen and bar_length 0..1 range", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 0.5,
+          bar_length_units: "screen",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+
+      it("screen and an integer bar_length", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 200,
+          bar_length_units: "screen",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+
+      it("data", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 0.3,
+          bar_length_units: "data",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+
+      it("percent", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 0.5,
+          bar_length_units: "screen",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+    })
   })
 
   describe("should support vertical orientation", () => {
@@ -193,6 +246,59 @@ describe("ScaleBar annotation", () => {
         })
       })
     }
+
+    describe("with bar_length_units", () => {
+      const location = "top_center"
+      const length_sizing = "exact"
+
+      it("screen and bar_length 0..1 range", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 0.5,
+          bar_length_units: "screen",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+
+      it("screen and an integer bar_length", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 200,
+          bar_length_units: "screen",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+
+      it("data", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 0.3,
+          bar_length_units: "data",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+
+      it("percent", async () => {
+        const scale_bar = new ScaleBar({
+          range: new Range1d({start: 0, end: 1}),
+          bar_length: 0.5,
+          bar_length_units: "screen",
+          length_sizing,
+          orientation,
+          location,
+        })
+        await display(plot(scale_bar))
+      })
+    })
   })
 
   it("should support custom units of measurement", async () => {
