@@ -1,6 +1,6 @@
 import {display} from "../_util"
 
-import {ScaleBar, Plot, Range1d, Metric} from "@bokehjs/models"
+import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
 
 describe("ScaleBar annotation", () => {
@@ -324,5 +324,80 @@ describe("ScaleBar annotation", () => {
     })
 
     await display(plot)
+  })
+
+  describe("should support positioning", () => {
+    function plot(scale_bar: ScaleBar, attrs: Partial<Plot.Attrs> = {}) {
+      return new Plot({
+        width: 300,
+        height: 300,
+        min_border: 0,
+        x_range: new Range1d({start: 0, end: 1}),
+        y_range: new FactorRange({factors: ["a", "b", "c", "d"]}),
+        x_scale: new LinearScale(),
+        y_scale: new CategoricalScale(),
+        center: [scale_bar],
+        toolbar_location: null,
+        ...attrs,
+      })
+    }
+    function scale_bar(attrs: Partial<ScaleBar.Attrs>) {
+      return new ScaleBar({
+        range: new Range1d({start: 0, end: 1}),
+        bar_length: 0.2,
+        bar_length_units: "percent",
+        length_sizing: "exact",
+        orientation: "horizontal",
+        ...attrs,
+      })
+    }
+
+    describe("with tuple location", () => {
+      it("using alignment", async () => {
+        const bar = scale_bar({
+          location: ["left", "top"],
+        })
+        await display(plot(bar))
+      })
+      it("with 'data' units", async () => {
+        const bar = scale_bar({
+          location: [0.3, "c"],
+          x_units: "data",
+          y_units: "data",
+          anchor: "center",
+        })
+        await display(plot(bar))
+      })
+
+      it("with 'percent' units", async () => {
+        const bar = scale_bar({
+          location: [0.3, 0.7],
+          x_units: "percent",
+          y_units: "percent",
+          anchor: "center",
+        })
+        await display(plot(bar))
+      })
+
+      it("with 'screen' units", async () => {
+        const bar = scale_bar({
+          location: [100, 200],
+          x_units: "screen",
+          y_units: "screen",
+          anchor: "center",
+        })
+        await display(plot(bar))
+      })
+
+      it("with 'view' units", async () => {
+        const bar = scale_bar({
+          location: [100, 200],
+          x_units: "view",
+          y_units: "view",
+          anchor: "center",
+        })
+        await display(plot(bar))
+      })
+    })
   })
 })
