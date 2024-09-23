@@ -254,7 +254,7 @@ add. To display your visualization in a browser, in most cases, all you need to
 do is call the output function |show|.
 
 With the *bokeh.plotting* interface, you have many more possibilities to
-create an customize your visualization. For example:
+create and customize your visualization. For example:
 
 * saving the plot to an HTML file instead of showing it
 * styling and removing axes, grids, annotations, and interactive elements
