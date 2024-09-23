@@ -257,11 +257,11 @@ AlignType = Literal["start", "center", "end"]
 Align = enumeration(AlignType)
 
 #: Horizontal alignment of a child item
-HAlignType = Literal["top", "center", "bottom"]
+HAlignType = Literal["left", "center", "right"]
 HAlign = enumeration(HAlignType)
 
 #: Vertical alignment of a child item
-VAlignType = Literal["left", "center", "right"]
+VAlignType = Literal["top", "center", "bottom"]
 VAlign = enumeration(VAlignType)
 
 #: Specify to which items apply styling in a container (e.g. in a legend)

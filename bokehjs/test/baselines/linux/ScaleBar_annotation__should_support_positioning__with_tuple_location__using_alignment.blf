@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 300, 300]
+  Canvas bbox=[0, 0, 300, 300]
+  CartesianFrame bbox=[0, 0, 300, 300]
+  ScaleBar bbox=[10, 10, 82, 42]
+  Title bbox=[0, 0, 300, 0]

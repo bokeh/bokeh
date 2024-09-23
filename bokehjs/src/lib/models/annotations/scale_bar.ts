@@ -2,7 +2,8 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Dimensional, MetricLength} from "./dimensional"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {Align, Anchor, Orientation, Location} from "core/enums"
+import {Align, Orientation, Location, HAlign, VAlign} from "core/enums"
+import * as enums from "core/enums"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
@@ -20,15 +21,29 @@ import {Ticker} from "../tickers/ticker"
 import {FixedTicker} from "../tickers/fixed_ticker"
 import type {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
+import {CategoricalScale} from "../scales/categorical_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {enumerate} from "core/util/iterator"
+import {isString} from "core/util/types"
 import {process_placeholders, sprintf} from "core/util/templating"
-import {Enum} from "core/kinds"
+import {Enum, Or, Tuple, Float} from "core/kinds"
+import {AutoAnchor} from "../common/kinds"
+import * as resolve from "../common/resolve"
+import {Factor} from "../ranges/factor_range"
 
 const {round} = Math
+
+const Position = Or(enums.Anchor, Tuple(Or(Float, Factor, HAlign), Or(Float, Factor, VAlign)))
+type Position = typeof Position["__type__"]
+
+const PositionUnits = Enum("data", "screen", "view", "percent")
+type PositionUnits = typeof PositionUnits["__type__"]
+
+const LengthUnits = Enum("screen", "data", "percent")
+type LengthUnits = typeof LengthUnits["__type__"]
 
 const LengthSizing = Enum("adaptive", "exact")
 type LengthSizing = typeof LengthSizing["__type__"]
@@ -195,7 +210,7 @@ export class ScaleBarView extends AnnotationView {
   override compute_geometry(): void {
     super.compute_geometry()
 
-    const {orientation, bar_length, length_sizing, padding, margin, location} = this.model
+    const {orientation, length_sizing, padding, margin} = this.model
     const {border_line, bar_line} = this.visuals
 
     const bar_width = bar_line.line_width.get_value()
@@ -205,10 +220,25 @@ export class ScaleBarView extends AnnotationView {
     const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
 
     const bar_length_percent = (() => {
-      if (0.0 <= bar_length && bar_length <= 1.0) {
-        return bar_length
-      } else {
-        return clamp(bar_length/frame_span, 0.0, 1.0)
+      const {bar_length, bar_length_units} = this.model
+      switch (bar_length_units) {
+        case "screen": {
+          if (0.0 <= bar_length && bar_length <= 1.0) {
+            return bar_length
+          } else {
+            return clamp(bar_length/frame_span, 0.0, 1.0)
+          }
+        }
+        case "data": {
+          const scale = orientation == "horizontal" ? this.coordinates.x_scale : this.coordinates.y_scale
+          assert(scale instanceof LinearScale || scale instanceof CategoricalScale)
+          const [sv0, sv1] = scale.r_compute(0, bar_length)
+          const sdist = Math.abs(sv1 - sv0)
+          return sdist/frame_span
+        }
+        case "percent": {
+          return clamp(bar_length, 0.0, 1.0)
+        }
       }
     })()
 
@@ -363,66 +393,108 @@ export class ScaleBarView extends AnnotationView {
     this.cross_scale.source_range.end = 1.0
     this.cross_scale.target_range.setv(cross_range)
 
+    const position = (() => {
+      const {location: position} = this.model
+      if (isString(position)) {
+        const normalized = (() => {
+          switch (position) {
+            case "top":    return "top_center"
+            case "bottom": return "bottom_center"
+            case "left":   return "center_left"
+            case "center": return "center_center"
+            case "right":  return "center_right"
+            default:       return position
+          }
+        })()
+        const [v_loc, h_loc] = normalized.split("_") as [VAlign, HAlign]
+        return {x: h_loc, y: v_loc}
+      } else {
+        const [x_loc, y_loc] = position
+        return {x: x_loc, y: y_loc}
+      }
+    })()
+
+    const {x, y} = (() => {
+      const panel = this.layout ?? this.plot_view.frame
+      const inset = panel.bbox.shrink_by(margin)
+
+      const x_pos = (() => {
+        const {x} = position
+        switch (x) {
+          case "left":   return inset.left
+          case "center": return inset.x_center
+          case "right":  return inset.right
+        }
+        const x_mapper = (() => {
+          switch (this.model.x_units) {
+            case "data":    return this.coordinates.x_scale
+            case "screen":  return panel.bbox.x_screen
+            case "view":    return panel.bbox.x_view
+            case "percent": return panel.bbox.x_percent
+          }
+        })()
+        return x_mapper.compute(
+          // @ts-ignore(TS2345): Argument of type 'number | ...' is not assignable to parameter of type 'number'.
+          x,
+        )
+      })()
+      const y_pos = (() => {
+        const {y} = position
+        switch (y) {
+          case "top":    return inset.top
+          case "center": return inset.y_center
+          case "bottom": return inset.right
+        }
+        const y_mapper = (() => {
+          switch (this.model.y_units) {
+            case "data":    return this.coordinates.y_scale
+            case "screen":  return panel.bbox.y_screen
+            case "view":    return panel.bbox.y_view
+            case "percent": return panel.bbox.y_percent
+          }
+        })()
+        return y_mapper.compute(
+          // @ts-ignore(TS2345): Argument of type 'number | ...' is not assignable to parameter of type 'number'.
+          y,
+        )
+      })()
+      return {x: x_pos, y: y_pos}
+    })()
+
+    const anchor = (() => {
+      const anchor = resolve.anchor(this.model.anchor)
+      const x_anchor = (() => {
+        if (anchor.x == "auto") {
+          switch (position.x) {
+            case "left":   return 0.0
+            case "center": return 0.5
+            case "right":  return 1.0
+            default:       return 0.5
+          }
+        } else {
+          return anchor.x
+        }
+      })()
+      const y_anchor = (() => {
+        if (anchor.y == "auto") {
+          switch (position.y) {
+            case "top":    return 0.0
+            case "center": return 0.5
+            case "bottom": return 1.0
+            default:       return 0.5
+          }
+        } else {
+          return anchor.y
+        }
+      })()
+      return {x: x_anchor, y: y_anchor}
+    })()
+
     const width  = border_width + padding + box_layout.bbox.width  + padding + border_width
     const height = border_width + padding + box_layout.bbox.height + padding + border_width
 
-    const panel = this.layout != null ? this.layout : this.plot_view.frame
-    const [hr, vr] = panel.bbox.ranges
-
-    const {sx, sy} = (() => {
-      switch (location) {
-        case "top_left":
-          return {
-            sx: hr.start + margin,
-            sy: vr.start + margin,
-          }
-        case "top":
-        case "top_center":
-          return {
-            sx: (hr.end + hr.start)/2 - width/2,
-            sy: vr.start + margin,
-          }
-        case "top_right":
-          return {
-            sx: hr.end - margin - width,
-            sy: vr.start + margin,
-          }
-        case "bottom_right":
-          return {
-            sx: hr.end - margin - width,
-            sy: vr.end - margin - height,
-          }
-        case "bottom":
-        case "bottom_center":
-          return {
-            sx: (hr.end + hr.start)/2 - width/2,
-            sy: vr.end - margin - height,
-          }
-        case "bottom_left":
-          return {
-            sx: hr.start + margin,
-            sy: vr.end - margin - height,
-          }
-        case "left":
-        case "center_left":
-          return {
-            sx: hr.start + margin,
-            sy: (vr.end + vr.start)/2 - height/2,
-          }
-        case "center":
-        case "center_center":
-          return {
-            sx: (hr.end + hr.start)/2 - width/2,
-            sy: (vr.end + vr.start)/2 - height/2,
-          }
-        case "right":
-        case "center_right":
-          return {
-            sx: hr.end - margin - width,
-            sy: (vr.end + vr.start)/2 - height/2,
-          }
-      }
-    })()
+    const sx = x - anchor.x*width
+    const sy = y - anchor.y*height
 
     this._bbox = new BBox({left: sx, top: sy, width, height})
   }
@@ -492,41 +564,45 @@ export namespace ScaleBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    range: p.Property<Range | "auto">
-    unit: p.Property<string>
-    dimensional: p.Property<Dimensional>
-    orientation: p.Property<Orientation>
+    anchor: p.Property<AutoAnchor>
     bar_length: p.Property<number>
-    length_sizing: p.Property<LengthSizing>
-    location: p.Property<Anchor>
+    bar_length_units: p.Property<LengthUnits>
+    dimensional: p.Property<Dimensional>
     label: p.Property<string>
     label_align: p.Property<Align>
     label_location: p.Property<Location>
     label_standoff: p.Property<number>
+    length_sizing: p.Property<LengthSizing>
+    location: p.Property<Position>
+    margin: p.Property<number>
+    orientation: p.Property<Orientation>
+    padding: p.Property<number>
+    range: p.Property<Range | "auto">
+    ticker: p.Property<Ticker>
     title: p.Property<string>
     title_align: p.Property<Align>
     title_location: p.Property<Location>
     title_standoff: p.Property<number>
-    margin: p.Property<number>
-    padding: p.Property<number>
-    ticker: p.Property<Ticker>
+    unit: p.Property<string>
+    x_units: p.Property<PositionUnits>
+    y_units: p.Property<PositionUnits>
   } & Mixins
 
   export type Mixins =
-    mixins.BarLine         &
-    mixins.LabelText       &
-    mixins.TitleText       &
-    mixins.BorderLine      &
     mixins.BackgroundFill  &
-    mixins.BackgroundHatch
+    mixins.BackgroundHatch &
+    mixins.BarLine         &
+    mixins.BorderLine      &
+    mixins.LabelText       &
+    mixins.TitleText
 
   export type Visuals = Annotation.Visuals & {
-    bar_line: visuals.Line
-    label_text: visuals.Text
-    title_text: visuals.Text
-    border_line: visuals.Line
     background_fill: visuals.Fill
     background_hatch: visuals.Hatch
+    bar_line: visuals.Line
+    border_line: visuals.Line
+    label_text: visuals.Text
+    title_text: visuals.Text
   }
 }
 
@@ -544,44 +620,48 @@ export class ScaleBar extends Annotation {
     this.prototype.default_view = ScaleBarView
 
     this.mixins<ScaleBar.Mixins>([
-      ["bar_",        mixins.Line],
-      ["label_",      mixins.Text],
-      ["title_",      mixins.Text],
-      ["border_",     mixins.Line],
       ["background_", mixins.Fill],
       ["background_", mixins.Hatch],
+      ["bar_",        mixins.Line],
+      ["border_",     mixins.Line],
+      ["label_",      mixins.Text],
+      ["title_",      mixins.Text],
     ])
 
     this.define<ScaleBar.Props>(({NonNegative, Float, Str, Ref, Or, Auto}) => ({
-      range:          [ Or(Ref(Range), Auto), "auto" ],
-      unit:           [ Str, "m" ],
-      dimensional:    [ Ref(Dimensional), () => new MetricLength() ],
-      orientation:    [ Orientation, "horizontal" ],
-      bar_length:     [ NonNegative(Float), 0.2 ],
-      length_sizing:  [ LengthSizing, "adaptive" ],
-      location:       [ Anchor, "top_right" ],
-      label:          [ Str, "@{value} @{unit}" ],
-      label_align:    [ Align, "center" ],
-      label_location: [ Location, "below" ],
-      label_standoff: [ Float, 5 ],
-      title:          [ Str, "" ],
-      title_align:    [ Align, "center" ],
-      title_location: [ Location, "above" ],
-      title_standoff: [ Float, 5 ],
-      margin:         [ Float, 10 ],
-      padding:        [ Float, 10 ],
-      ticker:         [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
+      anchor:           [ AutoAnchor, "auto" ],
+      bar_length:       [ NonNegative(Float), 0.2 ],
+      bar_length_units: [ LengthUnits, "screen" ],
+      dimensional:      [ Ref(Dimensional), () => new MetricLength() ],
+      label:            [ Str, "@{value} @{unit}" ],
+      label_align:      [ Align, "center" ],
+      label_location:   [ Location, "below" ],
+      label_standoff:   [ Float, 5 ],
+      length_sizing:    [ LengthSizing, "adaptive" ],
+      location:         [ Position, "top_right" ],
+      margin:           [ Float, 10 ],
+      orientation:      [ Orientation, "horizontal" ],
+      padding:          [ Float, 10 ],
+      range:            [ Or(Ref(Range), Auto), "auto" ],
+      ticker:           [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
+      title:            [ Str, "" ],
+      title_align:      [ Align, "center" ],
+      title_location:   [ Location, "above" ],
+      title_standoff:   [ Float, 5 ],
+      unit:             [ Str, "m" ],
+      x_units:          [ PositionUnits, "data" ],
+      y_units:          [ PositionUnits, "data" ],
     }))
 
     this.override<ScaleBar.Props>({
-      bar_line_width: 2,
-      border_line_color: "#e5e5e5",
-      border_line_alpha: 0.5,
-      border_line_width: 1,
-      background_fill_color: "#ffffff",
       background_fill_alpha: 0.95,
-      label_text_font_size: "13px",
+      background_fill_color: "#ffffff",
+      bar_line_width: 2,
+      border_line_alpha: 0.5,
+      border_line_color: "#e5e5e5",
+      border_line_width: 1,
       label_text_baseline: "middle",
+      label_text_font_size: "13px",
       title_text_font_size: "13px",
       title_text_font_style: "italic",
     })

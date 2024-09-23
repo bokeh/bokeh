@@ -239,8 +239,10 @@ def test_ScaleBar() -> None:
     assert isinstance(scale_bar.dimensional, MetricLength)
     assert scale_bar.orientation == "horizontal"
     assert scale_bar.location == "top_right"
+    assert scale_bar.anchor == "auto"
     assert scale_bar.length_sizing == "adaptive"
     assert scale_bar.bar_length == 0.2
+    assert scale_bar.bar_length_units == "screen"
     assert scale_bar.margin == 10
     assert scale_bar.padding == 10
     assert scale_bar.label == "@{value} @{unit}"
@@ -259,8 +261,12 @@ def test_ScaleBar() -> None:
         "dimensional",
         "orientation",
         "location",
+        "x_units",
+        "y_units",
+        "anchor",
         "length_sizing",
         "bar_length",
+        "bar_length_units",
         "margin",
         "padding",
         "label",

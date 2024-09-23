@@ -37,7 +37,6 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-
 class Test_Enum:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
@@ -48,6 +47,15 @@ class Test_Enum:
 
         with pytest.raises(ValueError):
             bcpe.Enum("red", "green", "red")
+
+    def test___call__(self) -> None:
+        prop1 = bcpe.Enum("red", "green", "blue")
+        assert prop1.allowed_values == ["red", "green", "blue"]
+        assert prop1.default == "red"
+
+        prop2 = prop1(default="green")
+        assert prop2.allowed_values == ["red", "green", "blue"]
+        assert prop2.default == "green"
 
     def test_from_values_valid(self) -> None:
         prop = bcpe.Enum("red", "green", "blue")

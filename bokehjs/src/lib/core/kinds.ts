@@ -694,6 +694,8 @@ export const FontSize = Str
 export const Font = Str
 export const Angle = Float
 
+export type Float = typeof Float["__type__"]
+
 // backwards compatibility aliases (these collide with built-in types)
 /** @deprecated */
 export const Boolean = Bool

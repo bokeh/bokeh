@@ -36,6 +36,7 @@ from .property.struct import Optional, Struct
 
 __all__ = (
     "Anchor",
+    "AutoAnchor",
     "BorderRadius",
     "GridSpacing",
     "Padding",
@@ -50,13 +51,22 @@ __all__ = (
 
 Pixels = NonNegative(Int)
 
+
+HAnchor = Either(Enum(enums.Align), Enum(enums.HAlign), Percent)
+VAnchor = Either(Enum(enums.Align), Enum(enums.VAlign), Percent)
+
 Anchor = (
     Either(
         Enum(enums.Anchor),
-        Tuple(
-            Either(Enum(enums.Align), Enum(enums.HAlign), Percent),
-            Either(Enum(enums.Align), Enum(enums.VAlign), Percent),
-        ),
+        Tuple(HAnchor, VAnchor),
+    )
+)
+
+AutoAnchor = (
+    Either(
+        Auto,
+        Enum(enums.Anchor),
+        Tuple(Either(Auto, HAnchor), Either(Auto, VAnchor)),
     )
 )
 

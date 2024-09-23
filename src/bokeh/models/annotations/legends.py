@@ -27,16 +27,19 @@ from typing import TYPE_CHECKING, Any
 from ...core.enums import (
     Align,
     AlternationPolicy,
-    Anchor,
+    Anchor as HVAlign,
+    HAlign,
     LegendClickPolicy,
     LegendLocation,
     Location,
     Orientation,
+    VAlign,
 )
 from ...core.has_props import abstract
 from ...core.properties import (
     Auto,
     Bool,
+    CoordinateLike,
     Dict,
     Either,
     Enum,
@@ -58,6 +61,7 @@ from ...core.properties import (
     value,
 )
 from ...core.property.vectorization import Field
+from ...core.property_aliases import AutoAnchor
 from ...core.property_mixins import (
     ScalarFillProps,
     ScalarHatchProps,
@@ -111,7 +115,7 @@ class BaseColorBar(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    location = Either(Enum(Anchor), Tuple(Float, Float), default="top_right", help="""
+    location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
     ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
@@ -531,6 +535,12 @@ class Legend(Annotation):
         """ Set up a JavaScript handler for legend item clicks. """
         self.js_on_event(LegendItemClick, handler)
 
+X = Either(Enum(HAlign), Float, CoordinateLike)
+Y = Either(Enum(VAlign), Float, CoordinateLike)
+
+Position = Either(Enum(HVAlign), Tuple(X, Y))
+PositionUnits = Enum("data", "screen", "view", "percent")
+
 class ScaleBar(Annotation):
     """ Represents a scale bar annotation.
     """
@@ -564,8 +574,23 @@ class ScaleBar(Annotation):
     Whether the scale bar should be oriented horizontally or vertically.
     """)
 
-    location = Enum(Anchor, default="top_right", help="""
-    Location anchor for positioning scale bar.
+    location = Position(default="top_right", help="""
+    Position of the scale bar within the parent container (usually cartesian frame).
+    """)
+
+    x_units = PositionUnits(default="data", help="""
+    The interpretation of x coordinate values provided in ``position`` property.
+    """)
+
+    y_units = PositionUnits(default="data", help="""
+    The interpretation of y coordinate values provided in ``position`` property.
+    """)
+
+    anchor = AutoAnchor(default="auto", help="""
+    The origin for scale bar positioning.
+
+    If ``"auto"`` in any or both dimensions, then the anchor in these dimensions
+    will be determined based on the position, so that the scale bar looks good.
     """)
 
     length_sizing = Enum("adaptive", "exact", help="""
@@ -581,7 +606,28 @@ class ScaleBar(Annotation):
     """)
 
     bar_length = NonNegative(Either(Float, Int))(default=0.2, help="""
-    The length of the bar, either a fraction of the frame or a number of pixels.
+    The length of the bar.
+
+    This is either a fraction of the frame, a number of pixels or
+    distance in the data space, depending on the configuration of
+    ``bar_length_units``.
+    """)
+
+    bar_length_units = Enum("screen", "data", "percent", default="screen", help="""
+    Defines how to interpret ``bar_length``.
+
+    Supported values are:
+
+    * ``"screen"`` - the length is provided in pixels or as a percentage of
+      the parent container (e.g. the frame) if the value provided is in
+      ``[0, 1]`` range
+    * ``"data"`` - the length is provided in data space units
+    * ``"percent"`` - the length is a percentage of the parent container (e.g. the frame)
+
+    .. note::
+        ``"data"`` units assume a linear scale or a linear like scale (e.g.
+        categorical scale) is used. Otherwise the length of the bar would
+        be position dependent.
     """)
 
     bar_line = Include(ScalarLineProps, prefix="bar", help="""
