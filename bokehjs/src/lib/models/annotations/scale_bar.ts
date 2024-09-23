@@ -21,6 +21,7 @@ import {Ticker} from "../tickers/ticker"
 import {FixedTicker} from "../tickers/fixed_ticker"
 import type {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
+import {CategoricalScale} from "../scales/categorical_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
 import {clamp} from "core/util/math"
@@ -230,7 +231,7 @@ export class ScaleBarView extends AnnotationView {
         }
         case "data": {
           const scale = orientation == "horizontal" ? this.coordinates.x_scale : this.coordinates.y_scale
-          assert(scale instanceof LinearScale)
+          assert(scale instanceof LinearScale || scale instanceof CategoricalScale)
           const [sv0, sv1] = scale.r_compute(0, bar_length)
           const sdist = Math.abs(sv1 - sv0)
           return sdist/frame_span

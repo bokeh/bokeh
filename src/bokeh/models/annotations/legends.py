@@ -625,8 +625,9 @@ class ScaleBar(Annotation):
     * ``"percent"`` - the length is a percentage of the parent container (e.g. the frame)
 
     .. note::
-        ``"data"`` units assume a linear scale is used. Otherwise the length
-        of the bar would be position dependent.
+        ``"data"`` units assume a linear scale or a linear like scale (e.g.
+        categorical scale) is used. Otherwise the length of the bar would
+        be position dependent.
     """)
 
     bar_line = Include(ScalarLineProps, prefix="bar", help="""
