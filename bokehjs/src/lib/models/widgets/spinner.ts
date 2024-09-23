@@ -1,6 +1,7 @@
 import {NumericInputView, NumericInput} from "./numeric_input"
 
 import * as p from "core/properties"
+import type {Keys} from "core/dom"
 import {button, div, toggle_attribute} from "core/dom"
 
 const {min, max} = Math
@@ -116,7 +117,7 @@ export class SpinnerView extends NumericInputView {
     const increment_with_increasing_rate = (step: number) => {
       this._counter += 1
       if (this._counter % 5 == 0) {
-        const quotient  = Math.floor(this._counter / 5)
+        const quotient = Math.floor(this._counter / 5)
         if (quotient < 10) {
           clearInterval(this._handles.interval)
           this._handles.interval = setInterval(() => increment_with_increasing_rate(step), this._interval/(quotient+1))
@@ -138,10 +139,10 @@ export class SpinnerView extends NumericInputView {
     this.model.value_throttled = this.model.value
   }
 
-  _btn_mouse_down(evt: MouseEvent): void {
-    evt.preventDefault()
-    const sign = evt.currentTarget === (this.btn_up_el)? 1 : -1
-    this.increment(sign * this.model.step)
+  _btn_mouse_down(event: MouseEvent): void {
+    event.preventDefault()
+    const sign = event.currentTarget === this.btn_up_el ? 1 : -1
+    this.increment(sign*this.model.step)
     this.input_el.focus()
     //while mouse is down we increment at a certain rate
     this._handles.timeout = setTimeout(() => this._start_incrementation(sign), this._interval)
@@ -155,32 +156,28 @@ export class SpinnerView extends NumericInputView {
     this._stop_incrementation()
   }
 
-  _input_mouse_wheel(evt: WheelEvent): void {
-    if (document.activeElement === this.input_el) {
-      evt.preventDefault()
-      const sign = (evt.deltaY>0)? -1 : 1
-      this.increment(sign * this.model.step)
+  _input_mouse_wheel(event: WheelEvent): void {
+    if (this.shadow_el.activeElement === this.input_el) {
+      event.preventDefault()
+      const sign = event.deltaY > 0 ? -1 : 1
+      this.increment(sign*this.model.step)
     }
   }
 
-  _input_key_down(evt: KeyboardEvent) {
-    switch (evt.key) {
-      case "ArrowUp": {
-        evt.preventDefault()
-        return this.increment(this.model.step)
+  _input_key_down(event: KeyboardEvent): void {
+    const step = (() => {
+      const {step, page_step_multiplier} = this.model
+      switch (event.key as Keys) {
+        case "ArrowUp":   return step
+        case "ArrowDown": return -step
+        case "PageUp":    return page_step_multiplier*step
+        case "PageDown":  return -page_step_multiplier*step
+        default:          return null
       }
-      case "ArrowDown": {
-        evt.preventDefault()
-        return this.increment(-this.model.step)
-      }
-      case "PageUp": {
-        evt.preventDefault()
-        return this.increment(this.model.page_step_multiplier * this.model.step)
-      }
-      case "PageDown": {
-        evt.preventDefault()
-        return this.increment(-this.model.page_step_multiplier * this.model.step)
-      }
+    })()
+    if (step != null) {
+      event.preventDefault()
+      this.increment(step)
     }
   }
 
@@ -188,9 +185,9 @@ export class SpinnerView extends NumericInputView {
     const {low, high} = this.model
     if (this.model.value == null) {
       if (step > 0) {
-        this.model.value = (low!=null)? low : (high!=null)? min(0, high) : 0
+        this.model.value = low != null ? low : (high != null ? min(0, high) : 0)
       } else if (step < 0) {
-        this.model.value = (high!=null)? high : (low!=null)? max(low, 0) : 0
+        this.model.value = high != null ? high : (low != null ? max(low, 0) : 0)
       }
     } else {
       this.model.value = this.bound_value(this.model.value + step)
