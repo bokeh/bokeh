@@ -157,7 +157,7 @@ export class SpinnerView extends NumericInputView {
   }
 
   _input_mouse_wheel(event: WheelEvent): void {
-    if (document.activeElement === this.input_el) {
+    if (this.shadow_el.activeElement === this.input_el) {
       event.preventDefault()
       const sign = event.deltaY > 0 ? -1 : 1
       this.increment(sign*this.model.step)
