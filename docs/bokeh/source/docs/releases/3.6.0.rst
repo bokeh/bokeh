@@ -3,9 +3,25 @@
 3.6.0
 =====
 
-Bokeh version ``3.6.0`` (??? 2024) is a minor milestone of Bokeh project.
+Bokeh version ``3.6.0`` (September 2024) is a minor milestone of Bokeh project.
 
-* Improved streaming corner cases and added NumPy to ``bokeh info`` (:bokeh-pull:`14007`)
+* Added support for n-gon glyph, including WebGL rendering (:bokeh-pull:`14027`, :bokeh-pull:`14044`)
+* Added support for axis click events (:bokeh-pull:`14050`, :bokeh-pull:`14037`)
 * Added support for "open in a new tab" mode to ``SaveTool`` (:bokeh-pull:`14031`)
-* Allowed values of any type in ``GroupFilter.group`` and improved equality checking (:bokeh-pull:`14034`)
 * Added support for click-style pan tools (:bokeh-pull:`14033`)
+* Added support for data space positioning and sizing to ``ScaleBar`` annotation (:bokeh-pull:`14005`)
+* Added support for ``CustomJSTicker`` callback (:bokeh-pull:`13988`)
+* Added support for per-column custom comparators to ``DataTable`` widget (:bokeh-pull:`13973`)
+* Added new ``rc`` conda channel for bokeh's release candidate packages (:bokeh-pull:`14060`)
+* Allowed values of any type in ``GroupFilter.group`` and improved equality checking (:bokeh-pull:`14034`)
+* Improved respect for ``maintain_focus = True`` when zooming (:bokeh-pull:`14000`)
+* Improved stylesheet management in ``PaletteSelect`` widget (:bokeh-pull:`14052`)
+* Improved session expiry error message (:bokeh-pull:`13991`)
+* Improvements to bokehjs' build system (:bokeh-pull:`14067`, :bokeh-pull:`14065`, :bokeh-pull:`14064`, :bokeh-pull:`14056`, :bokeh-pull:`13946`)
+* Various improvements to bokehjs' codebase (:bokeh-pull:`14051`, :bokeh-pull:`14048`, :bokeh-pull:`13997`)
+* Various improvements to bokeh's documentation (:bokeh-pull:`14023`, :bokeh-pull:`14024`, :bokeh-pull:`14055`,
+  :bokeh-pull:`14071`, :bokeh-pull:`13968`, :bokeh-pull:`13962`, :bokeh-pull:`14019`)
+* Fixed a bug in handling of mouse wheel events in ``Spinner`` widget (:bokeh-pull:`14073`)
+* Fixed a bug when updating children of a ``GridPlot`` (:bokeh-pull:`14070`)
+* Fixed a logic error in the code that dispatches UI events (:bokeh-pull:`14059`)
+* Fixed a regression related to handling of ``size`` property in ``Scatter`` glyph (:bokeh-pull:`13958`)
