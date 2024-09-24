@@ -546,7 +546,7 @@ export class HoverToolView extends InspectToolView {
     return rows
   }
 
-  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: Index | null, vars: TooltipVars): HTMLElement {
+  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): HTMLElement {
     const el = template.cloneNode(true) as HTMLElement
 
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
@@ -557,7 +557,7 @@ export class HoverToolView extends InspectToolView {
       const color_match = value.match(COLOR_RE)
 
       if (swatch_match == null && color_match == null) {
-        const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
+        const content = replace_placeholders(value.replace("$~", "$data_"), ds, index, this.model.formatters, vars)
         if (isString(content)) {
           value_els[j].textContent = content
         } else {
@@ -575,7 +575,7 @@ export class HoverToolView extends InspectToolView {
         if (column == null) {
           value_els[j].textContent = `${colname} unknown`
         } else {
-          const color = isNumber(i) ? column[i] : null
+          const color = isNumber(index) ? column[index] : null
 
           if (color != null) {
             swatch_els[j].style.backgroundColor = color2css(color)
@@ -593,7 +593,7 @@ export class HoverToolView extends InspectToolView {
         }
         const hex = opts.indexOf("hex") >= 0
         const swatch = opts.indexOf("swatch") >= 0
-        const color: Color | null = isNumber(i) ? column[i] : null
+        const color: Color | null = isNumber(index) ? column[index] : null
         if (color == null) {
           value_els[j].textContent = "(null)"
           continue
