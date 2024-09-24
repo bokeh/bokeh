@@ -6,8 +6,8 @@ import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_cli
 
 import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
-  Arrow, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
+  ArrowGlyph, NormalHead, OpenHead,
+  BoxAnnotation, ColorBar, Slope, Span, WhiskerGlyph as Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -136,16 +136,16 @@ describe("Bug", () => {
 
   describe("in issue #9522", () => {
     it("disallows arrow to be positioned correctly in stacked layouts", async () => {
-      const horz = (end?: ArrowHead) => new Arrow({x_start: 1, x_end: 5, y_start: 0, y_end:  0, end})
-      const vert = (end?: ArrowHead) => new Arrow({x_start: 2, x_end: 2, y_start: 1, y_end: -2, end})
+      const horz = (end?: ArrowHead) => new ArrowGlyph({x0: 1, x1: 5, y0: 0, y1:  0, end})
+      const vert = (end?: ArrowHead) => new ArrowGlyph({x0: 2, x1: 2, y0: 1, y1: -2, end})
 
       const p1 = fig([200, 200], {x_range: [0, 6], y_range: [-3, 2]})
-      p1.add_layout(horz(new NormalHead({fill_color: "blue"})))
-      p1.add_layout(vert())
+      p1.add_glyph(horz(new NormalHead({fill_color: "blue"})))
+      p1.add_glyph(vert())
 
       const p2 = fig([200, 200], {x_range: [0, 6], y_range: [-3, 2]})
-      p2.add_layout(horz())
-      p2.add_layout(vert(new NormalHead({fill_color: "green"})))
+      p2.add_glyph(horz())
+      p2.add_glyph(vert(new NormalHead({fill_color: "green"})))
 
       await display(row([p1, p2]))
     })
@@ -354,12 +354,12 @@ describe("Bug", () => {
       const lower = y.map((yi) => yi - random.float())
 
       const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "height", base: {field: "x"}})
+      const whisker = new Whisker({dimension: "height", base: {field: "x"}})
 
       const x_range = new FactorRange({factors})
       const p = fig([400, 200], {x_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.add_glyph(whisker, source)
 
       await display(p)
     })
@@ -373,12 +373,12 @@ describe("Bug", () => {
       const lower = x.map((xi) => xi - random.float())
 
       const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "width", base: {field: "y"}})
+      const whisker = new Whisker({dimension: "width", base: {field: "y"}})
 
       const y_range = new FactorRange({factors})
       const p = fig([200, 400], {y_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.add_glyph(whisker, source)
 
       await display(p)
     })
@@ -575,59 +575,37 @@ describe("Bug", () => {
   })
 
   describe("in issue #10454", () => {
-    it("disallows using categorical coordinates with LabelSet annotation", async () => {
-      const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
-      p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
-
-      const labels0 = new LabelSet({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
-      p.add_layout(labels0)
-
-      const labels1 = new LabelSet({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
-      p.add_layout(labels1)
-
-      const source = new ColumnDataSource({data: {
-        x: ["X1", "X2", "X3"],
-        y: ["Y1", "Y2", "Y3"],
-        text: ["L20", "L21", "L22"],
-      }})
-      const labels2 = new LabelSet({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
-      p.add_layout(labels2)
-
-      await display(p)
-    })
-
     it("disallows using categorical coordinates with Arrow annotation", async () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
-      const arrow0 = new Arrow({
-        x_start: {value: "X1"}, y_start: {value: "Y1"},
-        x_end: {value: "X3"}, y_end: {value: "Y3"},
+      const arrow0 = new ArrowGlyph({
+        x0: {value: "X1"}, y0: {value: "Y1"},
+        x1: {value: "X3"}, y1: {value: "Y3"},
         line_color: "red",
       })
-      p.add_layout(arrow0)
-      const arrow1 = new Arrow({
-        x_start: {value: "X3"}, y_start: {value: "Y1"},
-        x_end: {value: "X1"}, y_end: {value: "Y3"},
+      p.add_glyph(arrow0)
+      const arrow1 = new ArrowGlyph({
+        x0: {value: "X3"}, y0: {value: "Y1"},
+        x1: {value: "X1"}, y1: {value: "Y3"},
         line_color: "green",
       })
-      p.add_layout(arrow1)
+      p.add_glyph(arrow1)
 
       const source = new ColumnDataSource({data: {
-        x_start: ["X2", "X2", "X2", "X2"],
-        y_start: ["Y2", "Y2", "Y2", "Y2"],
-        x_end: ["X3", "X2", "X1", "X2"],
-        y_end: ["Y2", "Y3", "Y2", "Y1"],
+        x0: ["X2", "X2", "X2", "X2"],
+        y0: ["Y2", "Y2", "Y2", "Y2"],
+        x1: ["X3", "X2", "X1", "X2"],
+        y1: ["Y2", "Y3", "Y2", "Y1"],
       }})
-      const labels2 = new Arrow({
-        x_start: {field: "x_start"},
-        y_start: {field: "y_start"},
-        x_end: {field: "x_end"},
-        y_end: {field: "y_end"},
-        source,
+      const labels2 = new ArrowGlyph({
+        x0: {field: "x0"},
+        y0: {field: "y0"},
+        x1: {field: "x1"},
+        y1: {field: "y1"},
         line_color: "blue",
       })
-      p.add_layout(labels2)
+      p.add_glyph(labels2, source)
 
       await display(p)
     })
@@ -638,19 +616,18 @@ describe("Bug", () => {
       const p = fig([200, 100], {x_range: [0, 3], y_range: [0, 2]})
 
       const source = new ColumnDataSource({data: {
-        x_end: [1, 2, 3],
+        x1: [1, 2, 3],
       }})
       const head = new OpenHead({size: 30, line_width: 3})
-      const arrow = new Arrow({
+      const arrow = new ArrowGlyph({
         end: head,
-        x_start: {value: 0},
-        y_start: {value: 1},
-        x_end: {field: "x_end"},
-        y_end: {value: 1},
+        x0: {value: 0},
+        y0: {value: 1},
+        x1: {field: "x1"},
+        y1: {value: 1},
         line_width: 3,
-        source,
       })
-      p.add_layout(arrow)
+      p.add_glyph(arrow, source)
 
       await display(p)
     })
@@ -1925,32 +1902,6 @@ describe("Bug", () => {
         p.add_layout(new LinearAxis({y_range_name: name}), "right")
         await view.ready
       }
-    })
-  })
-
-  describe("in issue #12127", () => {
-    it("prevents displaying non-text labels in LabelSet", async () => {
-      const p = fig([200, 200], {
-        x_range: new Range1d({start: -1, end: 2}),
-        y_range: new Range1d({start: -1, end: 2}),
-      })
-
-      const source = new ColumnDataSource({data: {
-        a: [0, 0, 1, 1],
-        b: [0, 1, 0, 1],
-        c: [6, 7, 8, 9],
-      }})
-
-      const labels = new LabelSet({
-        x: {field: "a"},
-        y: {field: "b"},
-        text: {field: "c"},
-        source,
-      })
-
-      p.add_layout(labels)
-
-      await display(p)
     })
   })
 

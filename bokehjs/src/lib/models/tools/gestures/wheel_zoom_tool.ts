@@ -5,6 +5,7 @@ import type {Scale} from "../../scales/scale"
 import {CompositeScale} from "../../scales/composite_scale"
 import {GroupBy} from "../../misc/group_by"
 import {scale_range} from "core/util/zoom"
+import {map} from "core/util/iterator"
 import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
@@ -83,19 +84,20 @@ export class WheelZoomToolView extends GestureToolView {
       }
     })()
 
-    const data_renderers = (() => {
+    const data_renderer_views = (() => {
       const {renderers} = this.model
-      const data_renderers = new Set(renderers != "auto" ? renderers : this.plot_view.model.data_renderers)
+      const data_renderer_views = renderers == "auto" ? this.plot_view.data_renderers : this.plot_view.views.collect(renderers)
+      const data_renderers = new Set(map(data_renderer_views, (v) => v.model))
 
       if (!this.model.hit_test) {
-        return data_renderers
+        return data_renderer_views
       } else {
         const collected_renderers = new Set<DataRenderer>()
         const hit_renderers = new Set<DataRenderer>()
 
-        for (const renderer of data_renderers) {
-          if (renderer.coordinates == null) {
-            collected_renderers.add(renderer)
+        for (const renderer_view of data_renderer_views) {
+          if (renderer_view.model.coordinates == null) {
+            collected_renderers.add(renderer_view.model)
             continue
           }
 
@@ -107,10 +109,9 @@ export class WheelZoomToolView extends GestureToolView {
             }
           })()
 
-          const rv = this.plot_view.views.get_one(renderer)
-          const did_hit = rv.hit_test(geometry)
+          const did_hit = renderer_view.hit_test(geometry)
           if (did_hit != null && !did_hit.is_empty()) {
-            hit_renderers.add(rv.model)
+            hit_renderers.add(renderer_view.model)
           }
         }
 
@@ -131,7 +132,7 @@ export class WheelZoomToolView extends GestureToolView {
           }
         }
 
-        return [...collected_renderers]
+        return this.plot_view.views.collect([...collected_renderers])
       }
     })()
 
@@ -141,13 +142,12 @@ export class WheelZoomToolView extends GestureToolView {
     const x_renderer_scales = new Set<Scale>()
     const y_renderer_scales = new Set<Scale>()
 
-    for (const renderer of data_renderers) {
-      if (renderer.coordinates == null) {
+    for (const renderer_view of data_renderer_views) {
+      if (!renderer_view.is_subcoordinate_renderer) {
         continue
       }
 
-      const rv = this.plot_view.views.get_one(renderer)
-      const {x_scale, y_scale} = rv.coordinates
+      const {x_scale, y_scale} = renderer_view.coordinates
 
       if (x_scale instanceof CompositeScale) {
         if (x_frame_scales.has(x_scale.target_scale)) {

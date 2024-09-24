@@ -47,7 +47,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class GlyphAPI:
-    """ """
+    """ Generalized glyph/plotting API for figures and sub-plots. """
 
     @property
     def plot(self) -> Plot | None:
@@ -86,6 +86,10 @@ Examples:
     def arc(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
+    @glyph_method(glyphs.ArrowGlyph)
+    def arrow(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        pass
+
     @marker_method()
     def asterisk(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
@@ -97,6 +101,22 @@ Examples:
 
         plot = figure(width=300, height=300)
         plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.BandGlyph)
+    def band(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.band(dimension="height", base=[1, 2, 3], lower=[10, 9, 15], upper=[11, 12, 19])
 
         show(plot)
 
@@ -414,6 +434,10 @@ Examples:
         show(plot)
 
 """
+
+    @glyph_method(glyphs.HTMLText)
+    def html_text(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        pass
 
     @glyph_method(glyphs.Ellipse)
     def ellipse(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
@@ -1062,6 +1086,22 @@ Examples:
         plot = figure(width=300, height=300)
         plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
                    end_angle=4.1, radius_units="screen", color="#2b8cbe")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.WhiskerGlyph)
+    def whisker(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.whisker(dimension="height", base=[1, 2, 3], lower=[10, 9, 15], upper=[11, 12, 19])
 
         show(plot)
 

@@ -12,6 +12,8 @@ import {
   AnnularWedge,
   Annulus,
   Arc,
+  ArrowGlyph as Arrow,
+  BandGlyph as Band,
   Bezier,
   Block,
   Circle,
@@ -21,6 +23,7 @@ import {
   HBar,
   HSpan,
   HStrip,
+  HTMLText,
   HexTile,
   Image,
   ImageRGBA,
@@ -49,6 +52,7 @@ import {
   VSpan,
   VStrip,
   Wedge,
+  WhiskerGlyph as Whisker,
 } from "../models/glyphs"
 
 import type {Marker} from "../models/glyphs/marker"
@@ -149,6 +153,8 @@ export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
+export type ArrowArgs         = GlyphArgs<Arrow.Props>         & AuxLine
+export type BandArgs          = GlyphArgs<Band.Props>          & AuxLine & AuxFill & AuxHatch
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
 export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
 export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill & AuxHatch
@@ -158,6 +164,7 @@ export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFi
 export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill & AuxHatch
 export type HSpanArgs         = GlyphArgs<HSpan.Props>         & AuxLine
 export type HStripArgs        = GlyphArgs<HStrip.Props>        & AuxLine & AuxFill & AuxHatch
+export type HTMLTextArgs      = GlyphArgs<HTMLText.Props>                                      & AuxText
 export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill & AuxHatch
 export type ImageArgs         = GlyphArgs<Image.Props>
 export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
@@ -187,6 +194,7 @@ export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFi
 export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
 export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFill & AuxHatch
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
+export type WhiskerArgs       = GlyphArgs<Whisker.Props>       & AuxLine
 
 export abstract class GlyphAPI {
   abstract _glyph<G extends Glyph>(cls: Class<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
@@ -228,6 +236,30 @@ export abstract class GlyphAPI {
     args?: Partial<ArcArgs>): GlyphRenderer<Arc>
   arc(...args: unknown[]): GlyphRenderer<Arc> {
     return this._glyph(Arc, "arc", ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  arrow(): GlyphRenderer<Arrow>
+  arrow(args: Partial<ArrowArgs>): GlyphRenderer<Arrow>
+  arrow(
+    x0: ArrowArgs["x0"],
+    y0: ArrowArgs["y0"],
+    x1: ArrowArgs["x1"],
+    y1: ArrowArgs["y1"],
+    args?: Partial<ArrowArgs>): GlyphRenderer<Arrow>
+  arrow(...args: unknown[]): GlyphRenderer<Arrow> {
+    return this._glyph(Arrow, "arrow", ["x0", "y0", "x1", "y1"], args)
+  }
+
+  band(): GlyphRenderer<Band>
+  band(args: Partial<BandArgs>): GlyphRenderer<Band>
+  band(
+    dimension: BandArgs["dimension"],
+    base: BandArgs["base"],
+    lower: BandArgs["lower"],
+    upper: BandArgs["upper"],
+    args?: Partial<BandArgs>): GlyphRenderer<Band>
+  band(...args: unknown[]): GlyphRenderer<Band> {
+    return this._glyph(Band, "band", ["dimension", "base", "lower", "upper"], args)
   }
 
   bezier(): GlyphRenderer<Bezier>
@@ -333,6 +365,17 @@ export abstract class GlyphAPI {
     args?: Partial<HStripArgs>): GlyphRenderer<HStrip>
   hstrip(...args: unknown[]): GlyphRenderer<HStrip> {
     return this._glyph(HStrip, "hstrip", ["y0", "y1"], args)
+  }
+
+  html_text(): GlyphRenderer<HTMLText>
+  html_text(args: Partial<HTMLTextArgs>): GlyphRenderer<HTMLText>
+  html_text(
+    x: HTMLTextArgs["x"],
+    y: HTMLTextArgs["y"],
+    text: HTMLTextArgs["text"],
+    args?: Partial<HTMLTextArgs>): GlyphRenderer<HTMLText>
+  html_text(...args: unknown[]): GlyphRenderer<HTMLText> {
+    return this._glyph(HTMLText, "html_text", ["x", "y", "text"], args)
   }
 
   hex_tile(): GlyphRenderer<HexTile>
@@ -638,6 +681,18 @@ export abstract class GlyphAPI {
     args?: Partial<WedgeArgs>): GlyphRenderer<Wedge>
   wedge(...args: unknown[]): GlyphRenderer<Wedge> {
     return this._glyph(Wedge, "wedge", ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  whisker(): GlyphRenderer<Whisker>
+  whisker(args: Partial<WhiskerArgs>): GlyphRenderer<Whisker>
+  whisker(
+    dimension: WhiskerArgs["dimension"],
+    base: WhiskerArgs["base"],
+    lower: WhiskerArgs["lower"],
+    upper: WhiskerArgs["upper"],
+    args?: Partial<WhiskerArgs>): GlyphRenderer<Whisker>
+  whisker(...args: unknown[]): GlyphRenderer<Whisker> {
+    return this._glyph(Whisker, "whisker", ["dimension", "base", "lower", "upper"], args)
   }
 
   private _scatter(args: unknown[], marker?: MarkerType): GlyphRenderer<Scatter> {

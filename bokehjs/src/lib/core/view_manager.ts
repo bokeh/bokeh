@@ -89,6 +89,10 @@ abstract class AbstractViewQuery {
   find_all_by_id(id: string): View[] {
     return [...this.find_by_id(id)]
   }
+
+  collect<T extends HasProps>(models: T[]): ViewOf<T>[] {
+    return models.map((model) => this.get_one(model))
+  }
 }
 
 export class ViewQuery extends AbstractViewQuery {

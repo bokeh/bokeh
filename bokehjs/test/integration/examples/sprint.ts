@@ -6,7 +6,7 @@ import {assert} from "@bokehjs/core/util/assert"
 import {zip, min, max} from "@bokehjs/core/util/array"
 
 import {
-  Title, Label, Arrow, NormalHead,
+  Title, Label, NormalHead,
   FixedTicker, SingleIntervalTicker,
   TapTool, HoverTool,
   ColumnDataSource,
@@ -147,13 +147,12 @@ describe("Examples", () => {
     plot.add_layout(no_olympics_label)
 
     const x = min(sprint.MetersBack.filter((_, i) => sprint.Year[i] == 1900)) - 0.5
-    const arrow = new Arrow({
-      x_start: x, x_end: 5,
-      y_start: 1900, y_end: 1900,
-      line_width: 1.5,
+    plot.arrow({
+      x0: x, x1: 5,
+      y0: 1900, y1: 1900,
+      line_color: "black", line_width: 1.5,
       start: new NormalHead({fill_color: "black", size: 6}), end: null,
     })
-    plot.add_layout(arrow)
 
     const meters_back = new Label({
       x: 5, y: 1900,

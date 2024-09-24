@@ -143,11 +143,11 @@ export class GlyphRendererView extends DataRendererView {
     const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
-    this.selection_glyph.set_base(this.glyph)
-    this.nonselection_glyph.set_base(this.glyph)
-    this.hover_glyph?.set_base(this.glyph)
-    this.muted_glyph.set_base(this.glyph)
-    this.decimated_glyph.set_base(this.glyph)
+    this.selection_glyph.set_base_glyph(this.glyph)
+    this.nonselection_glyph.set_base_glyph(this.glyph)
+    this.hover_glyph?.set_base_glyph(this.glyph)
+    this.muted_glyph.set_base_glyph(this.glyph)
+    this.decimated_glyph.set_base_glyph(this.glyph)
 
     await this.set_data()
   }

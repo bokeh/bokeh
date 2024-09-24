@@ -20,22 +20,20 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from ...core.enums import CoordinateUnits
+from ...core.enums import CoordinateUnitsType
 from ...core.has_props import abstract
-from ...core.properties import (
-    Enum,
-    Include,
-    Instance,
-    InstanceDefault,
-    Nullable,
-    NumberSpec,
-    Override,
-    field,
-)
+from ...core.properties import Include, NumberSpec, Override
 from ...core.property_mixins import FillProps, LineProps
+from ...util.deprecation import deprecated
+from .. import glyphs
+from ..coordinates import CoordinateMapping
 from ..graphics import Marking
-from .annotation import DataAnnotation
+from ..renderers import GlyphRenderer
+from .common import build_glyph_renderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -135,54 +133,57 @@ class VeeHead(ArrowHead):
 
     fill_color = Override(default="black")
 
-class Arrow(DataAnnotation):
-    ''' Render arrows as an annotation.
+#-----------------------------------------------------------------------------
+# Legacy API
+#-----------------------------------------------------------------------------
 
-    See :ref:`ug_basic_annotations_arrows` for information on plotting arrows.
+def Arrow(**kwargs: Any) -> GlyphRenderer:
+    """ Render a collection of straight arrows between two sets of points.
 
-    '''
+    """
+    deprecated((3, 6, 0), "bokeh.annotations.Arrow", "bokeh.glyphs.ArrowGlyph or figure.arrow()")
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    if "x_start" in kwargs:
+        kwargs["x0"] = kwargs.pop("x_start")
+    if "y_start" in kwargs:
+        kwargs["y0"] = kwargs.pop("y_start")
+    if "x_end" in kwargs:
+        kwargs["x1"] = kwargs.pop("x_end")
+    if "y_end" in kwargs:
+        kwargs["y1"] = kwargs.pop("y_end")
 
-    x_start = NumberSpec(default=field("x_start"), help="""
-    The x-coordinates to locate the start of the arrows.
-    """)
+    if "start_units" in kwargs or "end_units" in kwargs:
+        coordinates = CoordinateMapping()
+        if "start_units" in kwargs:
+            start_units: CoordinateUnitsType = kwargs.pop("start_units")
+            if "coordinates" in kwargs:
+                raise ValueError("'start_units' and 'coordinates' are not allowed together")
+            match start_units:
+                case "data":
+                    pass
+                case "screen":
+                    pass
+                case "canvas":
+                    pass
 
-    y_start = NumberSpec(default=field("y_start"), help="""
-    The y-coordinates to locate the start of the arrows.
-    """)
+        if "end_units" in kwargs:
+            end_units: CoordinateUnitsType = kwargs.pop("end_units")
+            if "coordinates" in kwargs:
+                raise ValueError("'end_units' and 'coordinates' are not allowed together")
+            match end_units:
+                case "data":
+                    pass
+                case "screen":
+                    pass
+                case "canvas":
+                    pass
 
-    start_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the start_x and start_y attributes. Interpreted as "data
-    space" units by default.
-    """)
+        kwargs["coordinates"] = coordinates
 
-    start = Nullable(Instance(ArrowHead), help="""
-    Instance of ``ArrowHead``.
-    """)
+    if "line_color" not in kwargs:
+        kwargs["line_color"] = "black"
 
-    x_end = NumberSpec(default=field("x_end"), help="""
-    The x-coordinates to locate the end of the arrows.
-    """)
-
-    y_end = NumberSpec(default=field("y_end"), help="""
-    The y-coordinates to locate the end of the arrows.
-    """)
-
-    end_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the end_x and end_y attributes. Interpreted as "data
-    space" units by default.
-    """)
-
-    end = Nullable(Instance(ArrowHead), default=InstanceDefault(OpenHead), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    body_props = Include(LineProps, help="""
-    The {prop} values for the arrow body.
-    """)
+    return build_glyph_renderer(glyphs.ArrowGlyph, kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

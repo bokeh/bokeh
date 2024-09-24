@@ -46,14 +46,15 @@ from bokeh.models import (
     Span,
     Title,
     Whisker,
+    glyphs,
 )
 from bokeh.models.annotations.dimensional import CustomDimensional, Metric
 from bokeh.util.serialization import convert_datetime_type
+from bokeh.util.warnings import BokehDeprecationWarning
 
 from _util_models import (
     ABOVE_FILL,
     ABOVE_HATCH,
-    ANGLE,
     BELOW_FILL,
     BELOW_HATCH,
     FILL,
@@ -308,31 +309,17 @@ def test_ScaleBar_dimensional() -> None:
 
 
 def test_Arrow() -> None:
-    arrow = Arrow()
-    assert arrow.x_start == field("x_start")
-    assert arrow.y_start == field("y_start")
-    assert arrow.start_units == 'data'
-    assert arrow.start is None
-    assert arrow.x_end == field("x_end")
-    assert arrow.y_end == field("y_end")
-    assert arrow.end_units == 'data'
-    assert isinstance(arrow.end, ArrowHead)
-    assert isinstance(arrow.source, ColumnDataSource)
-    assert arrow.x_range_name == "default"
-    assert arrow.y_range_name == "default"
-    check_line_properties(arrow)
-    check_properties_existence(arrow, [
-        *ANNOTATION,
-        "x_start",
-        "y_start",
-        "start_units",
-        "start",
-        "x_end",
-        "y_end",
-        "end_units",
-        "end",
-        "source",
-    ], LINE)
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        arrow = Arrow(name="arrow_annotation", source=data_source)
+    assert isinstance(arrow, GlyphRenderer)
+    assert isinstance(arrow.glyph, glyphs.ArrowGlyph)
+    assert arrow.data_source == data_source
+    assert arrow.name == "arrow_annotation"
+    assert arrow.level == "annotation"
+    assert arrow.auto_ranging == "none"
+    assert arrow.glyph.start is None
+    assert isinstance(arrow.glyph.end, ArrowHead)
 
 
 def test_BoxAnnotation() -> None:
@@ -407,32 +394,6 @@ def test_BoxAnnotation_accepts_datetime() -> None:
     assert convert_datetime_type(obj.top) == 1533600000000.0
     assert convert_datetime_type(obj.bottom) == 1533600000000.0
 
-def test_Band() -> None:
-    band = Band()
-    assert band.level == 'annotation'
-    assert band.lower == field("lower")
-    assert band.lower_units == 'data'
-    assert band.upper == field("upper")
-    assert band.upper_units == 'data'
-    assert band.base == field("base")
-    assert band.dimension == 'height'
-    assert isinstance(band.source, ColumnDataSource)
-    assert band.x_range_name == 'default'
-    assert band.y_range_name == 'default'
-    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
-    check_fill_properties(band, "", "#fff9ba", 0.4)
-    check_properties_existence(band, [
-        *ANNOTATION,
-        "lower",
-        "lower_units",
-        "upper",
-        "upper_units",
-        "base",
-        "base_units",
-        "dimension",
-        "source",
-    ], LINE, FILL)
-
 
 def test_Label() -> None:
     label = Label(x=11, y=12)
@@ -483,44 +444,6 @@ def test_Label_accepts_datetime_xy() -> None:
     assert isinstance(obj.y, datetime)
     assert convert_datetime_type(obj.x) == 1533600000000.0
     assert convert_datetime_type(obj.y) == 1533600000000.0
-
-def test_LabelSet() -> None:
-    label_set = LabelSet()
-    assert label_set.level == 'annotation'
-    assert label_set.x == field("x")
-    assert label_set.y == field("y")
-    assert label_set.x_units == 'data'
-    assert label_set.y_units == 'data'
-    assert label_set.text == field("text")
-    assert label_set.angle == 0
-    assert label_set.angle_units == 'rad'
-    assert label_set.x_offset == 0
-    assert label_set.y_offset == 0
-    assert label_set.x_range_name == 'default'
-    assert label_set.y_range_name == 'default'
-    assert isinstance(label_set.source, ColumnDataSource)
-    assert label_set.source.data == {}
-    check_text_properties(label_set)
-    check_fill_properties(label_set, "background_", None, 1.0)
-    check_line_properties(label_set, "border_", None, 1.0, 1.0)
-    check_properties_existence(label_set, [
-        *ANNOTATION,
-        "x",
-        "y",
-        "x_units",
-        "y_units",
-        "text",
-        "angle",
-        "angle_units",
-        "x_offset",
-        "y_offset",
-        "source",
-    ],
-        TEXT,
-        ANGLE,
-        prefix('border_', LINE),
-        prefix('background_', FILL),
-    )
 
 def test_PolyAnnotation() -> None:
     poly = PolyAnnotation()
@@ -630,47 +553,6 @@ def test_Title() -> None:
         prefix('background_', HATCH),
     )
 
-def test_Whisker() -> None:
-    whisker = Whisker()
-    assert whisker.level == 'underlay'
-    assert whisker.lower == field("lower")
-    assert whisker.lower_units == 'data'
-    assert isinstance(whisker.lower_head, ArrowHead)
-    assert whisker.lower_head.size == 10
-    assert whisker.upper == field("upper")
-    assert whisker.upper_units == 'data'
-    assert isinstance(whisker.upper_head, ArrowHead)
-    assert whisker.upper_head.size == 10
-    assert whisker.base == field("base")
-    assert whisker.dimension == 'height'
-    assert isinstance(whisker.source, ColumnDataSource)
-    assert whisker.x_range_name == 'default'
-    assert whisker.y_range_name == 'default'
-    check_line_properties(whisker, "")
-    check_properties_existence(whisker, [
-        *ANNOTATION,
-        "lower",
-        "lower_units",
-        "lower_head",
-        "upper",
-        "upper_units",
-        "upper_head",
-        "base",
-        "base_units",
-        "dimension",
-        "source",
-    ], LINE)
-
-def test_Whisker_and_Band_accept_negative_values() -> None:
-    whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
-    assert whisker.base == -1.
-    assert whisker.lower == -1.5
-    assert whisker.upper == -0.5
-    band = Band(base=-1., lower=-1.5, upper=-0.5)
-    assert band.base == -1.
-    assert band.lower == -1.5
-    assert band.upper == -0.5
-
 def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()
     gr_1 = GlyphRenderer(data_source=ColumnDataSource())
@@ -715,6 +597,41 @@ def test_legend_item_with_field_label_raises_error_if_field_not_in_cds() -> None
         issues = check_integrity([legend_item])
         process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
+
+def test_legacy_Band() -> None:
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        band = Band(name="band_annotation", source=data_source)
+    assert isinstance(band, GlyphRenderer)
+    assert isinstance(band.glyph, glyphs.BandGlyph)
+    assert band.data_source == data_source
+    assert band.name == "band_annotation"
+    assert band.level == "annotation"
+    assert band.auto_ranging == "none"
+
+def test_legacy_Whisker() -> None:
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        whisker = Whisker(name="whisker_annotation", source=data_source)
+    assert isinstance(whisker, GlyphRenderer)
+    assert isinstance(whisker.glyph, glyphs.WhiskerGlyph)
+    assert whisker.data_source == data_source
+    assert whisker.name == "whisker_annotation"
+    assert whisker.level == "annotation"
+    assert whisker.auto_ranging == "none"
+
+def test_legacy_LabelSet() -> None:
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        label_set = LabelSet(name="label_set_annotation", source=data_source, x_offset=10, y_offset=20)
+    assert isinstance(label_set, GlyphRenderer)
+    assert isinstance(label_set.glyph, glyphs.Text)
+    assert label_set.data_source == data_source
+    assert label_set.name == "label_set_annotation"
+    assert label_set.level == "annotation"
+    assert label_set.auto_ranging == "none"
+    assert label_set.glyph.x_offset == 10
+    assert label_set.glyph.y_offset == -20
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -46,6 +46,12 @@ def test_arc() -> None:
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Arc)
 
+def test_band() -> None:
+    p = figure()
+    gr = p.band()
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.BandGlyph)
+
 def test_bezier() -> None:
     p = figure()
     gr = p.bezier()
@@ -237,6 +243,12 @@ def test_wedge() -> None:
     gr = p.wedge()
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Wedge)
+
+def test_whisker() -> None:
+    p = figure()
+    gr = p.whisker()
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.WhiskerGlyph)
 
 #-----------------------------------------------------------------------------
 # Dev API

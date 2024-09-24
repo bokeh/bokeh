@@ -1,5 +1,7 @@
 import {Enum} from "./kinds"
 
+export {Auto} from "./kinds"
+
 export const Align = Enum("start", "center", "end")
 export type Align = typeof Align["__type__"]
 

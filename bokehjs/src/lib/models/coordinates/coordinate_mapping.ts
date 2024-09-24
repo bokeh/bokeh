@@ -8,26 +8,42 @@ import {CompositeScale} from "../scales/composite_scale"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import type {CartesianFrameView} from "../canvas/cartesian_frame"
+import {assert} from "core/util/assert"
+import type {Auto} from "core/enums"
 import type * as p from "core/properties"
 
-export class CoordinateTransform {
-  readonly x_scale: Scale
-  readonly y_scale: Scale
+export type CoordinateSource = {
+  x_scale: Scale
+  y_scale: Scale
+}
 
+export class CoordinateTransform {
   readonly x_source: Range
   readonly y_source: Range
 
+  readonly x_scale: Scale
+  readonly y_scale: Scale
+
+  readonly x_target: Range
+  readonly y_target: Range
+
   readonly ranges: readonly [Range, Range]
   readonly scales: readonly [Scale, Scale]
+
+  readonly x_ranges: Map<string, Range>
+  readonly y_ranges: Map<string, Range>
 
   constructor(x_scale: Scale, y_scale: Scale) {
     this.x_scale = x_scale
     this.y_scale = y_scale
     this.x_source = this.x_scale.source_range
     this.y_source = this.y_scale.source_range
+    this.x_target = this.x_scale.target_range
+    this.y_target = this.y_scale.target_range
     this.ranges = [this.x_source, this.y_source]
     this.scales = [this.x_scale, this.y_scale]
+    this.x_ranges = new Map([["default", this.x_source]])
+    this.y_ranges = new Map([["default", this.y_source]])
   }
 
   map_to_screen(xs: Arrayable<number>, ys: Arrayable<number>): [ScreenArray, ScreenArray] {
@@ -41,6 +57,18 @@ export class CoordinateTransform {
     const ys = this.y_scale.v_invert(sys)
     return [xs, ys]
   }
+
+  compose(onto: CoordinateSource): CoordinateTransform {
+    const x_scale = new CompositeScale({
+      source_scale: this.x_scale, source_range: this.x_scale.source_range,
+      target_scale: onto.x_scale, target_range: onto.x_scale.target_range,
+    })
+    const y_scale = new CompositeScale({
+      source_scale: this.y_scale, source_range: this.y_scale.source_range,
+      target_scale: onto.y_scale, target_range: onto.y_scale.target_range,
+    })
+    return new CoordinateTransform(x_scale, y_scale)
+  }
 }
 
 export namespace CoordinateMapping {
@@ -51,8 +79,9 @@ export namespace CoordinateMapping {
     y_source: p.Property<Range>
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
-    x_target: p.Property<Range>
-    y_target: p.Property<Range>
+    x_target: p.Property<Range | Auto>
+    y_target: p.Property<Range | Auto>
+    target: p.Property</*CoordinateSource |*/ "frame" | null>
   }
 }
 
@@ -66,22 +95,15 @@ export class CoordinateMapping extends Model {
   }
 
   static {
-    this.define<CoordinateMapping.Props>(({Ref}) => ({
+    this.define<CoordinateMapping.Props>(({Auto, Enum, Ref, Or, Nullable}) => ({
       x_source: [ Ref(Range), () => new DataRange1d() ],
       y_source: [ Ref(Range), () => new DataRange1d() ],
       x_scale: [ Ref(Scale), () => new LinearScale() ],
       y_scale: [ Ref(Scale), () => new LinearScale() ],
-      x_target: [ Ref(Range) ],
-      y_target: [ Ref(Range) ],
+      x_target: [ Or(Ref(Range), Auto), "auto" ],
+      y_target: [ Or(Ref(Range), Auto), "auto" ],
+      target: [ Nullable(Enum("frame")), "frame" ],
     }))
-  }
-
-  get x_ranges(): Map<string, Range> {
-    return new Map([["default", this.x_source]])
-  }
-
-  get y_ranges(): Map<string, Range> {
-    return new Map([["default", this.y_source]])
   }
 
   private _get_scale(range: Range, scale: Scale, target: Range): Scale {
@@ -101,22 +123,24 @@ export class CoordinateMapping extends Model {
     return derived_scale
   }
 
-  get_transform(frame: CartesianFrameView): CoordinateTransform {
-    const {x_source, x_scale, x_target} = this
-    const x_source_scale = this._get_scale(x_source, x_scale, x_target)
+  get_transform(target?: CoordinateSource): CoordinateTransform {
+    const {x_source, y_source} = this
+    const {x_scale: in_x_scale, y_scale: in_y_scale} = this
+    let {x_target, y_target} = this
 
-    const {y_source, y_scale, y_target} = this
-    const y_source_scale = this._get_scale(y_source, y_scale, y_target)
+    if (x_target == "auto") {
+      assert(target != null)
+      x_target = target.x_scale.target_range
+    }
+    if (y_target == "auto") {
+      assert(target != null)
+      y_target = target.y_scale.target_range
+    }
 
-    const xscale = new CompositeScale({
-      source_scale: x_source_scale, source_range: x_source_scale.source_range,
-      target_scale: frame.x_scale, target_range: frame.x_target,
-    })
-    const yscale = new CompositeScale({
-      source_scale: y_source_scale, source_range: y_source_scale.source_range,
-      target_scale: frame.y_scale, target_range: frame.y_target,
-    })
+    const x_scale = this._get_scale(x_source, in_x_scale, x_target)
+    const y_scale = this._get_scale(y_source, in_y_scale, y_target)
 
-    return new CoordinateTransform(xscale, yscale)
+    const transform = new CoordinateTransform(x_scale, y_scale)
+    return target != null ? transform.compose(target) : transform
   }
 }

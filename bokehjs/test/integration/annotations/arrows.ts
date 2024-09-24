@@ -1,6 +1,6 @@
 import {display, fig, row, column} from "../_util"
 
-import {Arrow, NormalHead, OpenHead, TeeHead, VeeHead, Range1d} from "@bokehjs/models"
+import {ArrowGlyph, NormalHead, OpenHead, TeeHead, VeeHead, Range1d} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("Arrow annotation", () => {
@@ -50,13 +50,13 @@ describe("Arrow annotation", () => {
         output_backend, title: output_backend,
       })
 
-      const x_start = 1.3
-      const x_end = 6.7
+      const x0 = 1.3
+      const x1 = 6.7
       const width = 2
 
       let y = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(new Arrow({x_start, y_start: ++y, x_end, y_end: y, line_width: width, start, end}))
+        p.add_glyph(new ArrowGlyph({x0, y0: ++y, x1, y1: y, line_width: width, start, end}))
       }
 
       return p
@@ -80,13 +80,13 @@ describe("Arrow annotation", () => {
         output_backend, title: output_backend,
       })
 
-      const y_start = 1.3
-      const y_end = 6.7
+      const y0 = 1.3
+      const y1 = 6.7
       const width = 2
 
       let x = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(new Arrow({y_start, x_start: ++x, y_end, x_end: x, line_width: width, start, end}))
+        p.add_glyph(new ArrowGlyph({y0, x0: ++x, y1, x1: x, line_width: width, start, end}))
       }
 
       return p

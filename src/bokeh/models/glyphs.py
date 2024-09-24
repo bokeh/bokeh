@@ -34,8 +34,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
 from ..core.enums import (
+    Dimension,
     Direction,
     ImageOrigin,
     OutlineShapeName,
@@ -58,6 +62,7 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     MarkerSpec,
+    Nullable,
     NullDistanceSpec,
     NumberSpec,
     Override,
@@ -87,6 +92,7 @@ from ..core.property_mixins import (
 )
 from .glyph import (
     ConnectedXYGlyph,
+    DOMGlyph,
     FillGlyph,
     Glyph,
     HatchGlyph,
@@ -97,6 +103,9 @@ from .glyph import (
 )
 from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
 
+if TYPE_CHECKING:
+    from .annotations.arrows import ArrowHead
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -105,6 +114,8 @@ __all__ = (
     'AnnularWedge',
     'Annulus',
     'Arc',
+    'ArrowGlyph',
+    'BandGlyph',
     'Bezier',
     'Block',
     'Circle',
@@ -116,6 +127,7 @@ __all__ = (
     'HBar',
     'HSpan',
     'HStrip',
+    'HTMLText',
     'HexTile',
     'Image',
     'ImageRGBA',
@@ -145,6 +157,7 @@ __all__ = (
     'VSpan',
     'VStrip',
     'Wedge',
+    'WhiskerGlyph',
     'XYGlyph',
 )
 
@@ -1508,6 +1521,27 @@ class Segment(LineGlyph):
     The {prop} values for the segments.
     """)
 
+def ARROW_DEFAULT_HEAD() -> ArrowHead:
+    from .annotations import OpenHead  # avoid circular imports
+    return OpenHead()
+
+class ArrowGlyph(Segment):
+    ''' Render a segment with start/end arrow head markings.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    start = Nullable(Instance(".models.annotations.ArrowHead"), default=None, help="""
+    The arrow head at the start of a segment.
+    """)
+
+    end = Nullable(Instance(".models.annotations.ArrowHead"), default=ARROW_DEFAULT_HEAD, help="""
+    The arrow head at the end of a segment.
+    """)
+
 class Step(XYGlyph, LineGlyph):
     ''' Render step lines.
 
@@ -1548,16 +1582,15 @@ class Step(XYGlyph, LineGlyph):
     * ``center``: Draw step levels centered on each x-coordinate
     """)
 
-class Text(XYGlyph, TextGlyph):
-    ''' Render text.
+@abstract
+class TextBase(XYGlyph):
+    """ Base class for text like glyphs (e.g. ``Text``, ``TeX``, ``MathML``, ``HTMLText``).
 
-    '''
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    __example__ = "examples/reference/models/Text.py"
 
     _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
 
@@ -1618,26 +1651,6 @@ class Text(XYGlyph, TextGlyph):
         This property is experimental and may change at any point.
     """)
 
-    outline_shape = DataSpec(Enum(OutlineShapeName), default="box", help="""
-    Specify the shape of the outline for the text box.
-
-    The default outline is of a text box is its bounding box (or rectangle).
-    This can be changed to a selection of pre-defined shapes, like circle,
-    ellipse, diamond, parallelogram, etc. Those shapes are circumscribed onto
-    the bounding box, so that the contents of a box fit inside those shapes.
-
-    This property is in effect only when either border line, background fill
-    and/or background hatch properties are set. The user can choose ``"none"``
-    to avoid drawing any shape, even if border or background visuals are set.
-
-    .. note::
-        This property is experimental and may change at any point.
-
-    .. note::
-        Currently hit testing only uses the bounding box of text contents
-        of the glyph, which is equivalent to using box/rectangle shape.
-    """)
-
     text_props = Include(TextProps, help="""
     The {prop} values for the text.
     """)
@@ -1659,6 +1672,55 @@ class Text(XYGlyph, TextGlyph):
     background_hatch_color = Override(default=None)
 
     border_line_color = Override(default=None)
+
+class HTMLText(TextBase, DOMGlyph):
+    """ Render HTML text labels using visual-based styling.
+
+    .. note::
+        This glyph uses DOM/CSS for rendering and thus will not appear
+        in images genereated by ``SaveTool`` or ``CopyTool``.
+
+    .. note::
+        This glyph attepts to map visual properties, i.e. HTML5 canvas styles,
+        to CSS styles. This mapping isn't 1-1, thus not every combination of
+        stylyes will work the same as it would for ``Text`` glyph.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class Text(TextBase, TextGlyph):
+    ''' Render text to the canvas.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/Text.py"
+
+    outline_shape = DataSpec(Enum(OutlineShapeName), default="box", help="""
+    Specify the shape of the outline for the text box.
+
+    The default outline is of a text box is its bounding box (or rectangle).
+    This can be changed to a selection of pre-defined shapes, like circle,
+    ellipse, diamond, parallelogram, etc. Those shapes are circumscribed onto
+    the bounding box, so that the contents of a box fit inside those shapes.
+
+    This property is in effect only when either border line, background fill
+    and/or background hatch properties are set. The user can choose ``"none"``
+    to avoid drawing any shape, even if border or background visuals are set.
+
+    .. note::
+        This property is experimental and may change at any point.
+
+    .. note::
+        Currently hit testing only uses the bounding box of text contents
+        of the glyph, which is equivalent to using box/rectangle shape.
+    """)
 
 @abstract
 class MathTextGlyph(Text):
@@ -2000,6 +2062,102 @@ class VStrip(LineGlyph, FillGlyph, HatchGlyph):
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the strips.
     """)
+
+def WHISKER_DEFAULT_HEAD() -> ArrowHead:
+    from .annotations import TeeHead  # avoid circular imports
+    return TeeHead(size=10)
+
+class WhiskerGlyph(LineGlyph):
+    """ Render whiskers along a dimension.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the whisker can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper end of the whiskers.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    lower_head = Nullable(Instance(".models.annotations.ArrowHead"), default=WHISKER_DEFAULT_HEAD, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    upper_head = Nullable(Instance(".models.annotations.ArrowHead"), default=WHISKER_DEFAULT_HEAD, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the whisker body.
+    """)
+
+class BandGlyph(LineGlyph, FillGlyph, HatchGlyph):
+    ''' Render a filled area band along a dimension.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the band can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper portion of the filled area band.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 #-----------------------------------------------------------------------------
 # Dev API

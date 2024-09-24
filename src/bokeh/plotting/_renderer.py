@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 # External imports
 import numpy as np
@@ -29,6 +30,9 @@ from ..core.properties import ColorSpec
 from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
 from ..util.strings import nice_join
 from ._legends import pop_legend_kwarg, update_legend
+
+if TYPE_CHECKING:
+    from ..models import Glyph, Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,11 +47,13 @@ __all__ = (
 RENDERER_ARGS = ['name', 'coordinates', 'x_range_name', 'y_range_name',
                  'level', 'view', 'visible', 'muted']
 
+Attrs: TypeAlias = dict[str, Any]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def get_default_color(plot=None):
+def get_default_color(plot: Plot | None = None) -> str:
     colors = [
         "#1f77b4",
         "#ff7f0e", "#ffbb78",
@@ -62,8 +68,8 @@ def get_default_color(plot=None):
     ]
     if plot:
         renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
-        num_renderers = len(renderers)
+        glyph_renderers = [r for r in renderers if isinstance(r, GlyphRenderer)]
+        num_renderers = len(glyph_renderers)
         return colors[num_renderers]
     else:
         return colors[0]
@@ -72,8 +78,7 @@ def get_default_color(plot=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-
-def create_renderer(glyphclass, plot, **kwargs):
+def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> GlyphRenderer:
     # convert data source, if necessary
     is_user_source = _convert_data_source(kwargs)
 
@@ -86,7 +91,7 @@ def create_renderer(glyphclass, plot, **kwargs):
 
     # handle the main glyph, need to process literals
     glyph_visuals = pop_visuals(glyphclass, kwargs)
-    incompatible_literal_spec_values = []
+    incompatible_literal_spec_values: list[str] = []
     incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
     incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_visuals, source, is_user_source)
     if incompatible_literal_spec_values:
@@ -134,14 +139,14 @@ def create_renderer(glyphclass, plot, **kwargs):
 
     return glyph_renderer
 
-def make_glyph(glyphclass, kws, extra):
+def make_glyph(glyphclass: type[Glyph], kws: Attrs, extra: Attrs | None) -> Glyph | None:
     if extra is None:
         return None
     kws = kws.copy()
     kws.update(extra)
     return glyphclass(**kws)
 
-def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={}):
+def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defaults: Attrs = {}, override_defaults: Attrs = {}) -> Attrs:
     """
     Applies basic cascading logic to deduce properties for a glyph.
 
@@ -165,15 +170,15 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         prefix (str) :
             Prefix used when accessing `props`. Ex: 'selection_'
 
-        override_defaults (dict) :
-            Explicitly provided fallback based on '{trait}', in case property
-            not set in `props`.
-            Ex. 'width' here may be used for 'selection_line_width'.
-
         defaults (dict) :
             Property fallback, in case prefixed property not in `props` or
             `override_defaults`.
             Ex. 'line_width' here may be used for 'selection_line_width'.
+
+        override_defaults (dict) :
+            Explicitly provided fallback based on '{trait}', in case property
+            not set in `props`.
+            Ex. 'width' here may be used for 'selection_line_width'.
 
     Returns:
         result (dict) :
@@ -183,18 +188,19 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         Feature trait 'text_color', as well as traits 'color' and 'alpha', have
         ultimate defaults in case those can't be deduced.
     """
-
     defaults = defaults.copy()
     defaults.setdefault('text_color', 'black')
     defaults.setdefault('hatch_color', 'black')
 
-    trait_defaults = {}
+    trait_defaults: Attrs = {}
     trait_defaults.setdefault('color', get_default_color())
     trait_defaults.setdefault('alpha', 1.0)
 
-    result, traits = dict(), set()
+    result: Attrs = {}
+    traits: set[str] = set()
     prop_names = set(glyphclass.properties())
-    for name in filter(_is_visual, prop_names):
+    visual_props = filter(_is_visual, prop_names)
+    for name in visual_props:
         _, trait = _split_feature_trait(name)
 
         # e.g. "line_color", "selection_fill_alpha"
@@ -205,20 +211,23 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         elif trait not in prop_names and prefix+trait in props:
             result[name] = props[prefix+trait]
 
-        # e.g. an alpha to use for nonselection if none is provided
+        # e.g. an alpha to use for non-selection if none is provided
         elif trait in override_defaults:
             result[name] = override_defaults[trait]
 
-        # e.g use values off the main glyph
+        # e.g. use values off the main glyph
         elif name in defaults:
             result[name] = defaults[name]
 
-        # e.g. not specificed anywhere else
+        #elif name
+
+        # e.g. not specified anywhere else
         elif trait in trait_defaults:
             result[name] = trait_defaults[trait]
 
         if trait not in prop_names:
             traits.add(trait)
+
     for trait in traits:
         props.pop(prefix+trait, None)
 
@@ -228,7 +237,7 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
 # Private API
 #-----------------------------------------------------------------------------
 
-def _convert_data_source(kwargs):
+def _convert_data_source(kwargs: Attrs) -> bool:
     is_user_source = kwargs.get('source', None) is not None
     if is_user_source:
         source = kwargs['source']
@@ -245,18 +254,16 @@ def _convert_data_source(kwargs):
 
     return is_user_source
 
-def _pop_renderer_args(kwargs):
-    result = {attr: kwargs.pop(attr)
-              for attr in RENDERER_ARGS
-              if attr in kwargs}
+def _pop_renderer_args(kwargs: Attrs) -> Attrs:
+    result = {attr: kwargs.pop(attr) for attr in RENDERER_ARGS if attr in kwargs}
     result['data_source'] = kwargs.pop('source', ColumnDataSource())
     return result
 
-def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
-    incompatible_literal_spec_values = []
+def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:
+    incompatible_literal_spec_values: list[str] = []
     dataspecs = glyphclass.dataspecs()
-    for var, val in kwargs.items():
 
+    for var, val in kwargs.items():
         # ignore things that are not iterable
         if not isinstance(val, Iterable):
             continue
@@ -301,12 +308,12 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
 
     return incompatible_literal_spec_values
 
-def _split_feature_trait(ft):
+def _split_feature_trait(ft: str) -> tuple[str, str | None]:
     """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
-    ft = ft.split('_', 1)
-    return ft if len(ft)==2 else [*ft, None]
+    parts = ft.split("_", 1)
+    return tuple(parts) if len(parts) == 2 else (ft[0], None)
 
-def _is_visual(ft):
+def _is_visual(ft: str) -> bool:
     """Whether a feature trait name is visual"""
     feature, trait = _split_feature_trait(ft)
     return feature in ('line', 'fill', 'hatch', 'text', 'global') and trait is not None

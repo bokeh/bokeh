@@ -87,18 +87,29 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this.connect(this.plot_view.frame.model.change, () => delete this._coordinates)
   }
 
+  get is_frame_renderer(): boolean {
+    const {coordinates} = this.model
+    return coordinates == null || coordinates.target == "frame"
+  }
+
+  get is_subcoordinate_renderer(): boolean {
+    const {coordinates} = this.model
+    return coordinates != null && coordinates.target == "frame"
+  }
+
   protected _initialize_coordinates(): CoordinateTransform {
     if (this._custom_coordinates != null) {
       return this._custom_coordinates
     }
     const {coordinates} = this.model
-    const {frame} = this.plot_view
+    const {frame_view} = this.plot_view
     if (coordinates != null) {
-      return coordinates.get_transform(frame)
+      const target = coordinates.target == "frame" ? frame_view : undefined
+      return coordinates.get_transform(target)
     } else {
       const {x_range_name, y_range_name} = this.model
-      const x_scale = frame.x_scales.get(x_range_name)
-      const y_scale = frame.y_scales.get(y_range_name)
+      const x_scale = frame_view.x_scales.get(x_range_name)
+      const y_scale = frame_view.y_scales.get(y_range_name)
       assert(x_scale != null, `missing '${x_range_name}' range`)
       assert(y_scale != null, `missing '${y_range_name}' range`)
       return new CoordinateTransform(x_scale, y_scale)

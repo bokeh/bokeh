@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import datetime
 from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
@@ -76,7 +77,22 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Series[Any] | GroupBy | None) -> Range:
+if TYPE_CHECKING:
+    DateTime: TypeAlias = datetime.date | datetime.datetime
+    TimeDelta: TypeAlias = datetime.timedelta
+
+    RangeLikeType: TypeAlias = (
+        Range |
+        tuple[float, float] |
+        tuple[DateTime, DateTime] |
+        tuple[TimeDelta, TimeDelta] |
+        Sequence[str] |
+        pd.Series[Any] |
+        GroupBy[Any] |
+        None
+    )
+
+def get_range(range_input: RangeLikeType) -> Range:
     import pandas as pd
     from pandas.core.groupby import GroupBy
 

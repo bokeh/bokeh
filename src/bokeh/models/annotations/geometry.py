@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+from typing import Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -37,7 +38,6 @@ from ...core.properties import (
     Float,
     Include,
     Instance,
-    InstanceDefault,
     NonNegative,
     Null,
     Nullable,
@@ -45,21 +45,17 @@ from ...core.properties import (
     Positive,
     Required,
     Seq,
-    UnitsSpec,
-    field,
 )
 from ...core.property_aliases import BorderRadius
-from ...core.property_mixins import (
-    LineProps,
-    ScalarFillProps,
-    ScalarHatchProps,
-    ScalarLineProps,
-)
+from ...core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ...model import Model
+from ...util.deprecation import deprecated
+from .. import glyphs
 from ..common.properties import Coordinate
 from ..nodes import BoxNodes, Node
-from .annotation import Annotation, DataAnnotation
-from .arrows import ArrowHead, TeeHead
+from ..renderers import GlyphRenderer
+from .annotation import Annotation
+from .common import build_glyph_renderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -337,51 +333,6 @@ class BoxAnnotation(Annotation, AreaVisuals):
     def nodes(self) -> BoxNodes:
         return BoxNodes(self)
 
-class Band(DataAnnotation):
-    ''' Render a filled area band along a dimension.
-
-    See :ref:`ug_basic_annotations_bands` for information on plotting bands.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
-    The coordinates of the lower portion of the filled area band.
-    """)
-
-    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
-    The coordinates of the upper portion of the filled area band.
-    """)
-
-    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
-    The orthogonal coordinates of the upper and lower values.
-    """)
-
-    dimension = Enum(Dimension, default='height', help="""
-    The direction of the band can be specified by setting this property
-    to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    line_props = Include(ScalarLineProps, help="""
-    The {prop} values for the band.
-    """)
-
-    line_alpha = Override(default=0.3)
-
-    line_color = Override(default="#cccccc")
-
-    fill_props = Include(ScalarFillProps, help="""
-    The {prop} values for the band.
-    """)
-
-    fill_alpha = Override(default=0.4)
-
-    fill_color = Override(default="#fff9ba")
-
-
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
 
@@ -543,47 +494,31 @@ class Span(Annotation):
     hover_line_color = Override(default=None)
     hover_line_alpha = Override(default=0.3)
 
-class Whisker(DataAnnotation):
-    ''' Render a whisker along a dimension.
+#-----------------------------------------------------------------------------
+# Legacy API
+#-----------------------------------------------------------------------------
 
-    See :ref:`ug_basic_annotations_whiskers` for information on plotting whiskers.
+def Band(**kwargs: Any) -> GlyphRenderer:
+    """ Render a filled area band along a dimension.
 
-    '''
+    .. note::
+        This is a legacy API and will be removed at some point. Prefer using
+        ``bokeh.glyphs.Band`` model or ``figure.band()`` method.
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    """
+    deprecated((3, 6, 0), "bokeh.annotations.Band", "bokeh.glyphs.Band or figure.band()")
+    return build_glyph_renderer(glyphs.BandGlyph, kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
-    The coordinates of the lower end of the whiskers.
-    """)
+def Whisker(**kwargs: Any) -> GlyphRenderer:
+    """ Render whiskers along a dimension.
 
-    lower_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
-    Instance of ``ArrowHead``.
-    """)
+    .. note::
+        This is a legacy API and will be removed at some point. Prefer using
+        ``bokeh.glyphs.Whisker`` model or ``figure.whisker()`` method.
 
-    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
-    The coordinates of the upper end of the whiskers.
-    """)
-
-    upper_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
-    The orthogonal coordinates of the upper and lower values.
-    """)
-
-    dimension = Enum(Dimension, default='height', help="""
-    The direction of the whisker can be specified by setting this property
-    to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the whisker body.
-    """)
-
-    level = Override(default="underlay")
+    """
+    deprecated((3, 6, 0), "bokeh.annotations.Whisker", "bokeh.glyphs.Whisker or figure.whisker()")
+    return build_glyph_renderer(glyphs.WhiskerGlyph, kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -26,7 +26,6 @@ import type {Glyph} from "../glyphs/glyph"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {Renderer} from "../renderers/renderer"
-import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
@@ -225,10 +224,6 @@ export class Plot extends LayoutDOM {
     del(this.above)
     del(this.below)
     del(this.center)
-  }
-
-  get data_renderers(): DataRenderer[] {
-    return this.renderers.filter((r) => r instanceof DataRenderer)
   }
 
   add_renderers(...renderers: Renderer[]): void {

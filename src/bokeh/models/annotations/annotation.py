@@ -22,9 +22,8 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Instance, InstanceDefault, Override
+from ...core.properties import Override
 from ..renderers.renderer import CompositeRenderer
-from ..sources import ColumnDataSource, DataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,20 +48,6 @@ class Annotation(CompositeRenderer):
         super().__init__(*args, **kwargs)
 
     level = Override(default="annotation")
-
-@abstract
-class DataAnnotation(Annotation):
-    ''' Base class for annotations that utilize a data source.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
-    Local data source to use when rendering annotations on the plot.
-    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

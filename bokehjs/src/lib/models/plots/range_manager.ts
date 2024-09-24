@@ -2,9 +2,11 @@ import type {Range} from "../ranges/range"
 import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
+import type {Dimensions} from "../ranges/auto_ranged"
 import type {PlotView} from "./plot_canvas"
-import type {Interval} from "core/types"
+import type {Interval, Rect} from "core/types"
+import * as bbox from "core/util/bbox"
 import {logger} from "core/logging"
 
 export type RangeState = Map<Range, Interval>
@@ -58,11 +60,10 @@ export class RangeManager {
     for (const range of this.frame.y_ranges.values()) {
       y_ranges.add(range)
     }
-    for (const renderer of this.parent.model.data_renderers) {
-      const {coordinates} = renderer
-      if (coordinates != null) {
-        x_ranges.add(coordinates.x_source)
-        y_ranges.add(coordinates.y_source)
+    for (const renderer_view of this.parent.data_renderers) {
+      if (renderer_view.is_subcoordinate_renderer) {
+        x_ranges.add(renderer_view.coordinates.x_source)
+        y_ranges.add(renderer_view.coordinates.y_source)
       }
     }
 
@@ -83,7 +84,7 @@ export class RangeManager {
     this.update_dataranges()
   }
 
-  protected _update_dataranges(frame: CartesianFrameView | CoordinateMapping): void {
+  protected _update_dataranges(frame: CartesianFrameView | CoordinateTransform): void {
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
     const log_bounds: Bounds = new Map()
@@ -100,12 +101,23 @@ export class RangeManager {
       }
     }
 
+    function restrict(bounds: Rect, dimensions: Dimensions): Rect {
+      switch (dimensions) {
+        case "both": return bounds
+        case "x":    return bbox.x_only(bounds.x0, bounds.x1)
+        case "y":    return bbox.y_only(bounds.y0, bounds.y1)
+        case "none": return bbox.empty()
+      }
+    }
+
     for (const renderer of this.parent.auto_ranged_renderers) {
-      const bds = renderer.bounds()
+      const dimensions = renderer.bounds_dimensions?.() ?? "both"
+
+      const bds = restrict(renderer.bounds(), dimensions)
       bounds.set(renderer.model, bds)
 
       if (calculate_log_bounds) {
-        const log_bds = renderer.log_bounds()
+        const log_bds = restrict(renderer.log_bounds?.() ?? bbox.empty(), dimensions)
         log_bounds.set(renderer.model, log_bds)
       }
     }
@@ -162,10 +174,10 @@ export class RangeManager {
   update_dataranges(): void {
     this._update_dataranges(this.frame)
 
-    for (const renderer of this.parent.auto_ranged_renderers) {
-      const {coordinates} = renderer.model
+    for (const renderer_view of this.parent.auto_ranged_renderers) {
+      const {coordinates} = renderer_view.model
       if (coordinates != null) {
-        this._update_dataranges(coordinates)
+        this._update_dataranges(renderer_view.coordinates)
       }
     }
 

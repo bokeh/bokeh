@@ -36,6 +36,7 @@ from bokeh.core.enums import (
     TextBaseline,
 )
 from bokeh.core.property.vectorization import field, value
+from bokeh.models import ArrowHead
 
 from _util_models import (
     BACKGROUND_FILL,
@@ -55,29 +56,40 @@ from _util_models import (
 
 # Module under test
 from bokeh.models.glyphs import ( # isort:skip
-    AnnularWedge, Annulus, Arc,
+    AnnularWedge,
+    Annulus,
+    Arc,
+    BandGlyph as Band,
     Bezier,
     Block,
     Circle,
     HArea,
     HAreaStep,
     HBar,
-    Image, ImageRGBA, ImageStack, ImageURL,
+    Image,
+    ImageRGBA,
+    ImageStack,
+    ImageURL,
     Line,
+    MathMLGlyph,
     MultiLine,
     MultiPolygons,
-    Patch, Patches,
-    Quad, Quadratic, Ray,
-    MathMLGlyph,
+    Patch,
+    Patches,
+    Quad,
+    Quadratic,
+    Ray,
     Rect,
     Segment,
     Step,
-    Text,
     TeXGlyph,
+    Text,
     VArea,
     VAreaStep,
     VBar,
-    Wedge)
+    Wedge,
+    WhiskerGlyph as Whisker,
+)
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -159,6 +171,23 @@ def test_Arc() -> None:
         "end_angle_units",
         "direction",
     ], LINE, GLYPH)
+
+
+def test_Band() -> None:
+    band = Band()
+    assert band.dimension == "height"
+    assert band.lower == field("lower")
+    assert band.upper == field("upper")
+    assert band.base == field("base")
+    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
+    check_fill_properties(band, "", "#fff9ba", 0.4)
+    check_properties_existence(band, [
+        *GLYPH,
+        "dimension",
+        "lower",
+        "upper",
+        "base",
+    ], LINE, FILL, HATCH)
 
 
 def test_Bezier() -> None:
@@ -723,6 +752,33 @@ def test_Circle() -> None:
         "radius_dimension",
         "hit_dilation",
     ], LINE, FILL, HATCH, GLYPH)
+
+def test_Whisker() -> None:
+    whisker = Whisker()
+    assert whisker.dimension == "height"
+    assert whisker.lower == field("lower")
+    assert isinstance(whisker.lower_head, ArrowHead)
+    assert whisker.lower_head.size == 10
+    assert whisker.upper == field("upper")
+    assert isinstance(whisker.upper_head, ArrowHead)
+    assert whisker.upper_head.size == 10
+    assert whisker.base == field("base")
+    check_line_properties(whisker, "")
+    check_properties_existence(whisker, [
+        *GLYPH,
+        "dimension",
+        "lower",
+        "upper",
+        "base",
+        "lower_head",
+        "upper_head",
+    ], LINE)
+
+def test_Whisker_accept_negative_values() -> None:
+    whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
+    assert whisker.base == -1.
+    assert whisker.lower == -1.5
+    assert whisker.upper == -0.5
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -166,86 +166,6 @@
     __extends__: "CompositeRenderer",
     level: "annotation",
   },
-  DataAnnotation: {
-    __extends__: "Annotation",
-    source: {
-      type: "object",
-      name: "ColumnDataSource",
-      attributes: {
-        selected: {
-          type: "object",
-          name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
-        },
-        selection_policy: {
-          type: "object",
-          name: "UnionRenderers",
-          attributes: {},
-        },
-        data: {
-          type: "map",
-        },
-      },
-    },
-  },
-  Arrow: {
-    __extends__: "DataAnnotation",
-    x_start: {
-      type: "field",
-      field: "x_start",
-    },
-    y_start: {
-      type: "field",
-      field: "y_start",
-    },
-    start_units: "data",
-    start: null,
-    x_end: {
-      type: "field",
-      field: "x_end",
-    },
-    y_end: {
-      type: "field",
-      field: "y_end",
-    },
-    end_units: "data",
-    end: {
-      type: "object",
-      name: "OpenHead",
-      attributes: {},
-    },
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: [],
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-  },
   ArrowHead: {
     __extends__: "Marking",
     size: {
@@ -604,31 +524,6 @@
       type: "map",
     },
   },
-  Band: {
-    __extends__: "DataAnnotation",
-    lower: {
-      type: "field",
-      field: "lower",
-    },
-    upper: {
-      type: "field",
-      field: "upper",
-    },
-    base: {
-      type: "field",
-      field: "base",
-    },
-    dimension: "height",
-    line_color: "#cccccc",
-    line_alpha: 0.3,
-    line_width: 1,
-    line_join: "bevel",
-    line_cap: "butt",
-    line_dash: [],
-    line_dash_offset: 0,
-    fill_color: "#fff9ba",
-    fill_alpha: 0.4,
-  },
   BoxAnnotation: {
     __extends__: [
       "Annotation",
@@ -828,71 +723,6 @@
     hover_line_dash: [],
     hover_line_dash_offset: 0,
   },
-  Whisker: {
-    __extends__: "DataAnnotation",
-    level: "underlay",
-    lower: {
-      type: "field",
-      field: "lower",
-    },
-    lower_head: {
-      type: "object",
-      name: "TeeHead",
-      attributes: {
-        size: {
-          type: "value",
-          value: 10,
-        },
-      },
-    },
-    upper: {
-      type: "field",
-      field: "upper",
-    },
-    upper_head: {
-      type: "object",
-      name: "TeeHead",
-      attributes: {
-        size: {
-          type: "value",
-          value: 10,
-        },
-      },
-    },
-    base: {
-      type: "field",
-      field: "base",
-    },
-    dimension: "height",
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: [],
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-  },
   HTMLAnnotation: {
     __extends__: "Annotation",
   },
@@ -922,110 +752,6 @@
     text_align: "left",
     text_baseline: "bottom",
     text_line_height: 1.2,
-  },
-  HTMLLabelSet: {
-    __extends__: [
-      "HTMLAnnotation",
-      "DataAnnotation",
-    ],
-    x: {
-      type: "field",
-      field: "x",
-    },
-    x_units: "data",
-    y: {
-      type: "field",
-      field: "y",
-    },
-    y_units: "data",
-    text: {
-      type: "field",
-      field: "text",
-    },
-    angle: {
-      type: "value",
-      value: 0,
-    },
-    x_offset: {
-      type: "value",
-      value: 0,
-    },
-    y_offset: {
-      type: "value",
-      value: 0,
-    },
-    text_color: {
-      type: "value",
-      value: "#444444",
-    },
-    text_outline_color: {
-      type: "value",
-      value: null,
-    },
-    text_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    text_font: {
-      type: "value",
-      value: "helvetica",
-    },
-    text_font_size: {
-      type: "value",
-      value: "16px",
-    },
-    text_font_style: {
-      type: "value",
-      value: "normal",
-    },
-    text_align: {
-      type: "value",
-      value: "left",
-    },
-    text_baseline: {
-      type: "value",
-      value: "bottom",
-    },
-    text_line_height: {
-      type: "value",
-      value: 1.2,
-    },
-    background_fill_color: {
-      type: "value",
-      value: null,
-    },
-    background_fill_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_color: {
-      type: "value",
-      value: null,
-    },
-    border_line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_width: {
-      type: "value",
-      value: 1,
-    },
-    border_line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    border_line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    border_line_dash: {
-      type: "value",
-      value: [],
-    },
-    border_line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
   },
   HTMLTextAnnotation: {
     __extends__: "HTMLAnnotation",
@@ -1090,107 +816,6 @@
     angle_units: "rad",
     direction: "anticlock",
     editable: false,
-  },
-  LabelSet: {
-    __extends__: "DataAnnotation",
-    x: {
-      type: "field",
-      field: "x",
-    },
-    x_units: "data",
-    y: {
-      type: "field",
-      field: "y",
-    },
-    y_units: "data",
-    text: {
-      type: "field",
-      field: "text",
-    },
-    angle: {
-      type: "value",
-      value: 0,
-    },
-    x_offset: {
-      type: "value",
-      value: 0,
-    },
-    y_offset: {
-      type: "value",
-      value: 0,
-    },
-    text_color: {
-      type: "value",
-      value: "#444444",
-    },
-    text_outline_color: {
-      type: "value",
-      value: null,
-    },
-    text_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    text_font: {
-      type: "value",
-      value: "helvetica",
-    },
-    text_font_size: {
-      type: "value",
-      value: "16px",
-    },
-    text_font_style: {
-      type: "value",
-      value: "normal",
-    },
-    text_align: {
-      type: "value",
-      value: "left",
-    },
-    text_baseline: {
-      type: "value",
-      value: "bottom",
-    },
-    text_line_height: {
-      type: "value",
-      value: 1.2,
-    },
-    background_fill_color: {
-      type: "value",
-      value: null,
-    },
-    background_fill_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_color: {
-      type: "value",
-      value: null,
-    },
-    border_line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_width: {
-      type: "value",
-      value: 1,
-    },
-    border_line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    border_line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    border_line_dash: {
-      type: "value",
-      value: [],
-    },
-    border_line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
   },
   TextAnnotation: {
     __extends__: "Annotation",
@@ -1952,14 +1577,9 @@
       name: "LinearScale",
       attributes: {},
     },
-    x_target: {
-      type: "symbol",
-      name: "unset",
-    },
-    y_target: {
-      type: "symbol",
-      name: "unset",
-    },
+    x_target: "auto",
+    y_target: "auto",
+    target: "frame",
   },
   GlobalImportedStyleSheet: {
     __extends__: "ImportedStyleSheet",
@@ -2570,6 +2190,9 @@
   ConnectedXYGlyph: {
     __extends__: "XYGlyph",
   },
+  DOMGlyph: {
+    __extends__: "Glyph",
+  },
   FillGlyph: {
     __extends__: "Glyph",
   },
@@ -2821,6 +2444,52 @@
       type: "value",
       value: 0,
     },
+  },
+  ArrowGlyph: {
+    __extends__: "Segment",
+    start: null,
+    end: {
+      type: "object",
+      name: "OpenHead",
+      attributes: {},
+    },
+  },
+  BandGlyph: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    fill_color: "#fff9ba",
+    fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+    line_color: "#cccccc",
+    line_alpha: 0.3,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
   },
   Bezier: {
     __extends__: "LineGlyph",
@@ -3405,6 +3074,12 @@
     hatch_extra: {
       type: "map",
     },
+  },
+  HTMLText: {
+    __extends__: [
+      "TextBase",
+      "DOMGlyph",
+    ],
   },
   HexTile: {
     __extends__: [
@@ -4369,9 +4044,16 @@
   },
   Text: {
     __extends__: [
-      "XYGlyph",
+      "TextBase",
       "TextGlyph",
     ],
+    outline_shape: {
+      type: "value",
+      value: "box",
+    },
+  },
+  TextBase: {
+    __extends__: "XYGlyph",
     x: {
       type: "field",
       field: "x",
@@ -4402,10 +4084,6 @@
     },
     padding: 0,
     border_radius: 0,
-    outline_shape: {
-      type: "value",
-      value: "box",
-    },
     text_color: {
       type: "value",
       value: "#444444",
@@ -4862,6 +4540,70 @@
     },
     hatch_extra: {
       type: "map",
+    },
+  },
+  WhiskerGlyph: {
+    __extends__: "LineGlyph",
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    lower_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    upper_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
     },
   },
   Decoration: {
@@ -5578,6 +5320,7 @@
   DataRenderer: {
     __extends__: "Renderer",
     level: "glyph",
+    auto_ranging: "both",
   },
   GuideRenderer: {
     __extends__: "Renderer",
