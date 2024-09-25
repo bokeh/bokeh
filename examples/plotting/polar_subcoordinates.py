@@ -1,3 +1,22 @@
+''' This Python script leverages Bokeh to create a visual representation of rose curves arranged in a polar grid. The script imports key libraries like fractions.Fraction to handle rational numbers, 
+numpy for mathematical calculations, and Bokeh for rendering the plots. The main function, rose, takes a subplot object (xy), a rational fraction (k), and an optional amplitude (A) to generate the curves. 
+The rose curves are calculated by determining the angle and radius for each point based on the fraction's numerator and denominator. The script determines the number of petals for each curve depending on 
+whether the numerator and denominator produce even or odd multiples.
+
+Each rose curve is drawn on a polar subplot, and the script assigns a unique dark color to each curve, chosen from a set of predefined colors. If a fraction has already been used, the corresponding color is 
+retrieved from the color_map; otherwise, a new color is selected. The layout consists of a 9x9 grid of plots, where each subplot represents a different rational fraction (n/d). Each subplot's axes are mapped
+to a specific portion of the grid, allowing for a clean, organized display of the rose curves. The plot is then displayed using Bokeh’s show function, creating a grid of intricate rose patterns with unique 
+colors and geometries based on the fractional values.
+
+.. bokeh-example-metadata:
+    :sampledata: rose
+    :apis: bokeh.plotting.Figure.scatter, bokeh.transform.linear_cmap, bokeh.transform.factor_mark
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
+    :keywords: rose, polar, polartransform, transform
+
+.. _Palmer penguin dataset: https://github.com/allisonhorst/palmerpenguins
+'''
+
 from fractions import Fraction
 from math import pi
 
