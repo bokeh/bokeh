@@ -135,6 +135,7 @@ describe("default model resolver", () => {
       "Div",
       "DividerItem",
       "Dodge",
+      "Drawer",
       "Dropdown",
       "EdgeCoordinates",
       "EdgesAndLinkedNodes",

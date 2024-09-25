@@ -4,8 +4,8 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various UI elements such as buttons, menus, and tooltips.
-"""
+""" Floating UI elements. """
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -19,46 +19,44 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import (
-    dialogs,
-    examiner,
-    floating,
-    icons,
-    menus,
-    panels,
-    panes,
-    tooltips,
-    ui_element,
-)
-from .dialogs import *
-from .examiner import *
-from .floating import *
-from .icons import *
-from .menus import *
-from .panels import *
-from .panes import *
-from .tooltips import *
-from .ui_element import *
+from ...core.enums import Location
+from ...core.properties import Bool, Enum, Required
+from .panes import Pane
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    *dialogs.__all__,
-    *icons.__all__,
-    *examiner.__all__,
-    *floating.__all__,
-    *menus.__all__,
-    *panels.__all__,
-    *panes.__all__,
-    *tooltips.__all__,
-    *ui_element.__all__,
+    "Drawer",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class Drawer(Pane):
+    """ A floating panel attachable to an edge of the viewport or a component.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    location = Required(Enum(Location))(help="""
+    The attachment edge of the viewport or a component.
+
+    To attach a ``Drawer`` to the viewport, add it as a document root.
+    Otherwise add it to another UI component's ``elements`` property.
+    """)
+
+    open = Bool(default=False, help="""
+    Initial or actual state of the component.
+    """)
+
+    resizable = Bool(default=False, help="""
+    Whether the component is resizable by dragging its interactive edge.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

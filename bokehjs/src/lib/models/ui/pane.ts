@@ -35,6 +35,10 @@ export class PaneView extends UIElementView {
     return await build_views(this._element_views, this.elements, {parent: this})
   }
 
+  get self_target(): HTMLElement | ShadowRoot {
+    return this.shadow_el
+  }
+
   protected async _update_elements(): Promise<void> {
     const {created} = await this._build_elements()
     const created_elements = new Set(created)
@@ -49,7 +53,7 @@ export class PaneView extends UIElementView {
     for (const element_view of this.element_views) {
       const is_new = created_elements.has(element_view)
 
-      const target = element_view.rendering_target() ?? this.shadow_el
+      const target = element_view.rendering_target() ?? this.self_target
       if (is_new) {
         element_view.render_to(target)
       } else {
@@ -76,7 +80,7 @@ export class PaneView extends UIElementView {
     super.render()
 
     for (const element_view of this.element_views) {
-      const target = element_view.rendering_target() ?? this.shadow_el
+      const target = element_view.rendering_target() ?? this.self_target
       element_view.render_to(target)
     }
   }
