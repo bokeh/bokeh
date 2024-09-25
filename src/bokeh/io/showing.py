@@ -21,7 +21,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, TypeGuard
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Sequence,
+    TypeGuard,
+)
 
 # Bokeh imports
 from ..models.ui import UIElement
@@ -49,16 +54,21 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
-         notebook_handle: bool = False, notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
-         **kwargs: Any) -> CommsHandle | None:
+def show(
+    obj: UIElement | Sequence[UIElement] | Application | ModifyDoc,
+    browser: str | None = None,
+    new: BrowserTarget = "tab",
+    notebook_handle: bool = False,
+    notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+    **kwargs: Any,
+) -> CommsHandle | None:
     '''Immediately display a Bokeh object or application.
 
     :func:`show` may be called multiple times in a single Jupyter notebook
     cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (UIElement or Application or callable) :
+        obj (UIElement or UIElement[] or Application or callable) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -143,7 +153,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
     '''
     state = curstate()
 
-    if isinstance(obj, UIElement):
+    if isinstance(obj, UIElement) or isinstance(obj, Sequence):
         return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
     def is_application(obj: Any) -> TypeGuard[Application]:
@@ -172,14 +182,14 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: UIElement, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file_with_state(obj: UIElement | Sequence[UIElement], state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj: UIElement, state: State, browser: str | None,
+def _show_with_state(obj: UIElement | Sequence[UIElement], state: State, browser: str | None,
         new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
