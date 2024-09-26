@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/server",
-  "version": "3.6.0-rc.2",
+  "version": "3.6.0",
   "private": true,
   "description": "Internal package for bokehjs' server",
   "license": "BSD-3-Clause",
