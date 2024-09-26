@@ -139,7 +139,7 @@ class Test_DirectoryHandler:
         assert len(doc.roots) == 2
 
     def test_directory_empty_mainipynb(self) -> None:
-        import nbformat
+        nbformat = pytest.importorskip("nbformat")  # Python 3.13
 
         doc = Document()
         source = nbformat.v4.new_notebook()
@@ -159,7 +159,7 @@ class Test_DirectoryHandler:
         assert not doc.roots
 
     def test_directory_mainipynb_adds_roots(self) -> None:
-        import nbformat
+        nbformat = pytest.importorskip("nbformat")  # Python 3.13
 
         doc = Document()
         source = nbformat.v4.new_notebook()
@@ -189,7 +189,7 @@ class Test_DirectoryHandler:
             if handler.failed:
                 raise RuntimeError(handler.error)
 
-        import nbformat
+        nbformat = pytest.importorskip("nbformat")  # Python 3.13
         source = nbformat.v4.new_notebook()
 
         with_directory_contents({

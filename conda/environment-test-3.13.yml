@@ -1,0 +1,90 @@
+name: bk-test
+channels:
+  - conda-forge/label/python_rc
+  - conda-forge
+dependencies:
+  - python=3.13
+
+  # runtime
+  - contourpy >=1.2
+  - jinja2 >=2.7
+  - numpy >=1.20.0
+  - packaging >=16.8
+  - pandas >=1.2
+  - pillow >=4.0
+  - python-dateutil >=2.1
+  - pyyaml >=3.10
+  - tornado >=6.2
+  - xyzservices>=2021.09.1
+
+  # tests
+  - beautifulsoup4
+  # - channels  # Not yet available for Python 3.13
+  - click
+  - colorama
+  - colorcet
+  - coverage
+  - firefox >=96
+  - geckodriver
+  - ipython
+  - isort 5.8
+  - json5
+  # - nbconvert >=5.4 # Not yet available for Python 3.13
+  - networkx
+  - nodejs 20.*
+  - pre-commit
+  - psutil
+  - pygments
+  - pygraphviz
+  - pytest >=7.0
+  - pytest-asyncio ==0.21.1 # https://github.com/bokeh/bokeh/issues/13578
+  - pytest-cov >=1.8.1
+  - pytest-html
+  - pytest-xdist
+  - pytest-timeout
+  - requests >=1.2.3,!=2.32.* # see https://github.com/bokeh/bokeh/issues/13910
+  - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
+  - scipy
+  - pooch # required in scipy.datasets
+  - selenium 4.2
+  - toml
+  - typing_extensions >=4.0.0
+
+  # examples
+  - flask >=1.0
+  # - h5py # Not yet available for Python 3.13
+  - icalendar
+  # - notebook # Not yet available for Python 3.13
+  - pandas-datareader
+  - pyshp
+  - scikit-learn
+  #- squarify
+  - sympy
+
+  # pip dependencies
+  - pip
+  - pip:
+    - mypy >=1.11
+    # docs
+    - bokeh_sampledata
+    - pydata_sphinx_theme
+    - requests-unixsocket >= 0.3.0
+    - sphinx >= 7.1.0
+    - sphinx-copybutton
+    - sphinx-design
+    - sphinx-favicon
+    - sphinxext-opengraph
+    # tests
+    - pandas-stubs >=2.2
+    - ruff ==0.4.2
+    - types-boto
+    - types-colorama
+    - types-mock
+    - types-pillow
+    - types-pyyaml
+    - types-requests
+    - types-toml
+    - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
+    - vermin
+    # move the following back to conda sections above when python 3.12 conda-forge packages available
+    - squarify
