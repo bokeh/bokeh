@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/test",
-  "version": "3.6.0",
+  "version": "3.7.0-dev.1",
   "private": true,
   "description": "Internal package for bokehjs' testing framework and tests",
   "license": "BSD-3-Clause",
