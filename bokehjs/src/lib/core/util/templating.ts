@@ -202,7 +202,7 @@ const regex = /((?:[$@][\p{Letter}\p{Number}_]+)|(?:[$@]\{(?:[^{}]+)\}))(?:\{([^
 type PlaceholderReplacer = (type: PlaceholderType, name: string, format: string | undefined, i: number, spec: string) => string | null | undefined
 
 export function process_placeholders(text: string, fn: PlaceholderReplacer): string {
-  let i = 0
+  let i = 0 // this var is used for testing purposes
   return text.replace(regex, (_match, spec: string, format: string | undefined) => {
     const type = spec[0] as "@" | "$"
     const name = spec.substring(1).replace(/^{/, "").replace(/}$/, "").trim()
