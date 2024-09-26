@@ -1,3 +1,61 @@
+2024-09-26      3.6:
+--------------------
+  * bugfixes:
+    - #4951 ModelExtensions - all resources from a whole module are loaded
+    - #7524 GroupFilter only accepts strings
+    - #13827 [component: bokehjs] [BUG] Lack of range expansion when there remains unbounded directions, even when `maintain_focus=False`
+    - #13886 [component: bokehjs] [BUG] NPM package has types (*.d.ts) in incorrect location
+    - #13957 [component: bokehjs] Explicit selection glyph example broken
+    - #13959 [BUG] Reset Tool Error in Bokeh Gridplot with Single Plot
+    - #13964 [component: bokehjs] [BUG] page won't render if CustomJS args has a dict with key "constructor"
+    - #13965 [component: bokehjs] [BUG] CategoricalSlider shows ‘undefined’ value and skip that value
+    - #13972 BOKEH_MINIFIED not working
+    - #13984 [component: tests] [BUG] Deprecation warning treated as error in pytest hook
+    - #14014 [component: bokehjs] [BUG] StringFormatter `nan_format` seems broken 
+    - #14054 [component: bokehjs] [BUG] Custom hover tooltip on image plot shows all the image data.
+    - #14058 [component: bokehjs] [BUG] Clearing selection with ESC only works on first selection tool
+    - #14068 [component: bokehjs] [BUG] Unable to change figures displayed by altering children attribute of gridplot (or other layout classes) in JS callback
+    - #14072 [component: bokehjs] [BUG] Spinner input not responding to wheel event
+    - #13968 [component: docs] fix indentation in `offset` parameter for `Title`
+    - #14038 [component: bokehjs] Allow `is_equal(0, -0)` to be true to match `===`
+    - #14055 [component: docs] fix some typos
+    - #14065 [component: build] Generate correct `*.d.ts` files for CSS modules
+
+  * features:
+    - #601 [component: bokehjs] Add support for click events on categorical axes
+    - #11104 [component: bokehjs] [FEATURE] Option for DataTable column sorting to place NaNs last
+    - #13130 [component: bokehjs] Add CustomJSTicker
+    - #13893 [component: bokehjs] [FEATURE] Custom sorting of columns in a table
+    - #13905 [component: bokehjs] [FEATURE] triangle relative size by data units
+    - #13921 [FEATURE] Attach ScaleBar to subplot range
+    - #14035 [component: bokehjs] Add WebGL implementation for Ngon glyph
+    - #14031 [component: bokehjs] Add "open image in a new tab" mode to save tool
+    - #14033 Add support for click-style pan tools
+
+  * tasks:
+    - #12303 [FEATURE] Improved error message on token expiry
+    - #13835 [FEATURE] NumPy 2.0 support
+    - #13960 [component: docs] Remove sampledata download in contributing guide
+    - #13963 [FEATURE] Add a conda channel for rc releases 
+    - #13969 [component: bokehjs] [BUG] Plots fail in Firefox 115.12.0esr (64-bit)
+    - #13946 [component: build] Upgrade to TypeScript 5.5
+    - #13977 [component: bokehjs] Make `GlyphRenderer` generic in glyph type and remove a lot of `any` types
+    - #13992 Remove docker and old integration tests cruft
+    - #14019 [component: docs] Python docstring argument fixes
+    - #14021 [component: docs] Fix HTML/CSS warning for palette group detail
+    - #14023 [component: docs] Remove outdated known issues list from BokehJS docs
+    - #14024 [component: docs] Update setup and testing docs dev guide
+    - #14037 [component: bokehjs] Clean up factor range and add factor method
+    - #14048 [component: bokehjs] Add missing `abstract` modifier to classes
+    - #14051 [component: bokehjs] Use pseudo type members to avoid casting
+    - #14052 [component: bokehjs] Make `PaletteSelect` use stylehseets instead of inline styles
+    - #14056 [component: bokehjs] Upgrade to TypeScript 5.6
+    - #14064 [component: build] Add `script:watch` task for incremental builds
+    - #14067 [component: build] Upgrade `@types/node` and fix npm audit's concerns
+    - #14071 [component: docs] fix a typo
+    - #14074 [component: docs] Bring 3.5.x point release notes to 3.6.0
+    - #14075 [component: docs] Add release notes for bokeh 3.6.0
+
 2024-07-04      3.5:
 --------------------
   * bugfixes:
