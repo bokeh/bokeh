@@ -2584,7 +2584,7 @@
     __extends__: "Glyph",
   },
   RadialGlyph: {
-    __extends__: "Glyph",
+    __extends__: "XYGlyph",
   },
   TextGlyph: {
     __extends__: "Glyph",

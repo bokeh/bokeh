@@ -55,19 +55,27 @@ from _util_models import (
 
 # Module under test
 from bokeh.models.glyphs import ( # isort:skip
-    AnnularWedge, Annulus, Arc,
+    AnnularWedge,
+    Annulus,
+    Arc,
     Bezier,
     Block,
     Circle,
     HArea,
     HAreaStep,
     HBar,
-    Image, ImageRGBA, ImageStack, ImageURL,
+    Image,
+    ImageRGBA,
+    ImageStack,
+    ImageURL,
     Line,
     MultiLine,
     MultiPolygons,
-    Patch, Patches,
-    Quad, Quadratic, Ray,
+    Patch,
+    Patches,
+    Quad,
+    Quadratic,
+    Ray,
     MathMLGlyph,
     Rect,
     Segment,
@@ -77,7 +85,9 @@ from bokeh.models.glyphs import ( # isort:skip
     VArea,
     VAreaStep,
     VBar,
-    Wedge)
+    Wedge,
+    XYGlyph,
+)
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -723,6 +733,10 @@ def test_Circle() -> None:
         "radius_dimension",
         "hit_dilation",
     ], LINE, FILL, HATCH, GLYPH)
+
+# regression: https://github.com/bokeh/bokeh/issues/14082
+def test_Circle_XYGlpyh() -> None:
+    assert issubclass(Circle, XYGlyph)
 
 #-----------------------------------------------------------------------------
 # Dev API

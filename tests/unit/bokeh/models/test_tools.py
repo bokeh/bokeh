@@ -25,6 +25,7 @@ import bokeh.models.tools as t # isort:skip
 from bokeh.core.validation.check import ValidationIssues, check_integrity
 from bokeh.models import (
     Block,
+    Circle,
     ColumnDataSource,
     GlyphRenderer,
     HBar,
@@ -117,6 +118,11 @@ def test_BoxEditTool_renderers() -> None:
 
     t4 = t.BoxEditTool(renderers=[GlyphRenderer(glyph=VBar(), data_source=ColumnDataSource())])
     assert check_integrity([t4]) == ValidationIssues(error=[], warning=[])
+
+# regression: https://github.com/bokeh/bokeh/issues/14082
+def test_PointDrawTool_with_Circle() -> None:
+    c = GlyphRenderer(glyph=Circle(), data_source=ColumnDataSource())
+    t.PointDrawTool(renderers=[c])
 
 #-----------------------------------------------------------------------------
 # Dev API
