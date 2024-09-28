@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+import bokeh.models.glyphs as m  # module under test
 from bokeh.core.enums import (
     Anchor,
     AngleUnits,
@@ -53,32 +54,6 @@ from _util_models import (
     check_text_properties,
 )
 
-# Module under test
-from bokeh.models.glyphs import ( # isort:skip
-    AnnularWedge, Annulus, Arc,
-    Bezier,
-    Block,
-    Circle,
-    HArea,
-    HAreaStep,
-    HBar,
-    Image, ImageRGBA, ImageStack, ImageURL,
-    Line,
-    MultiLine,
-    MultiPolygons,
-    Patch, Patches,
-    Quad, Quadratic, Ray,
-    MathMLGlyph,
-    Rect,
-    Segment,
-    Step,
-    Text,
-    TeXGlyph,
-    VArea,
-    VAreaStep,
-    VBar,
-    Wedge)
-
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
@@ -94,7 +69,7 @@ from bokeh.models.glyphs import ( # isort:skip
 #-----------------------------------------------------------------------------
 
 def test_AnnularWedge() -> None:
-    glyph = AnnularWedge()
+    glyph = m.AnnularWedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.inner_radius == field("inner_radius")
@@ -121,7 +96,7 @@ def test_AnnularWedge() -> None:
 
 
 def test_Annulus() -> None:
-    glyph = Annulus()
+    glyph = m.Annulus()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.inner_radius == field("inner_radius")
@@ -140,7 +115,7 @@ def test_Annulus() -> None:
 
 
 def test_Arc() -> None:
-    glyph = Arc()
+    glyph = m.Arc()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.radius == field("radius")
@@ -162,7 +137,7 @@ def test_Arc() -> None:
 
 
 def test_Bezier() -> None:
-    glyph = Bezier()
+    glyph = m.Bezier()
     assert glyph.x0 == field("x0")
     assert glyph.y0 == field("y0")
     assert glyph.x1 == field("x1")
@@ -185,7 +160,7 @@ def test_Bezier() -> None:
 
 
 def test_Block() -> None:
-    glyph = Block()
+    glyph = m.Block()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.width == 1
@@ -206,7 +181,7 @@ def test_Block() -> None:
 
 
 def test_HArea() -> None:
-    glyph = HArea()
+    glyph = m.HArea()
     assert glyph.y == field("y")
     assert glyph.x1 == field("x1")
     assert glyph.x2 == field("x2")
@@ -220,7 +195,7 @@ def test_HArea() -> None:
 
 
 def test_HAreaStep() -> None:
-    glyph = HAreaStep()
+    glyph = m.HAreaStep()
     assert glyph.x1 == field("x1")
     assert glyph.x2 == field("x2")
     assert glyph.y == field("y")
@@ -236,7 +211,7 @@ def test_HAreaStep() -> None:
 
 
 def test_HBar() -> None:
-    glyph = HBar()
+    glyph = m.HBar()
     assert glyph.y == field("y")
     assert glyph.height == 1
     assert glyph.left == 0
@@ -256,7 +231,7 @@ def test_HBar() -> None:
 
 
 def test_Image() -> None:
-    glyph = Image()
+    glyph = m.Image()
     assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
@@ -279,7 +254,7 @@ def test_Image() -> None:
     ], GLYPH)
 
 def test_Image_kwargs() -> None:
-    glyph = Image(x=0, y=0, dw=10, dh=10)
+    glyph = m.Image(x=0, y=0, dw=10, dh=10)
     assert glyph.image == field("image")
     assert glyph.x == 0
     assert glyph.y == 0
@@ -289,7 +264,7 @@ def test_Image_kwargs() -> None:
 
 
 def test_ImageRGBA() -> None:
-    glyph = ImageRGBA()
+    glyph = m.ImageRGBA()
     assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
@@ -312,7 +287,7 @@ def test_ImageRGBA() -> None:
 
 
 def test_ImageStack() -> None:
-    glyph = ImageStack()
+    glyph = m.ImageStack()
     assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
@@ -335,7 +310,7 @@ def test_ImageStack() -> None:
     ], GLYPH)
 
 def test_ImageStack_kwargs() -> None:
-    glyph = Image(x=0, y=0, dw=10, dh=10)
+    glyph = m.Image(x=0, y=0, dw=10, dh=10)
     assert glyph.image == field("image")
     assert glyph.x == 0
     assert glyph.y == 0
@@ -345,7 +320,7 @@ def test_ImageStack_kwargs() -> None:
 
 
 def test_ImageURL() -> None:
-    glyph = ImageURL()
+    glyph = m.ImageURL()
     assert glyph.url == field("url")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
@@ -376,7 +351,7 @@ def test_ImageURL() -> None:
 
 
 def test_Line() -> None:
-    glyph = Line()
+    glyph = m.Line()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     check_line_properties(glyph)
@@ -387,7 +362,7 @@ def test_Line() -> None:
 
 
 def test_MultiLine() -> None:
-    glyph = MultiLine()
+    glyph = m.MultiLine()
     assert glyph.xs == field("xs")
     assert glyph.ys == field("ys")
     check_line_properties(glyph)
@@ -398,7 +373,7 @@ def test_MultiLine() -> None:
 
 
 def test_MultiPolygons() -> None:
-    glyph = MultiPolygons()
+    glyph = m.MultiPolygons()
     assert glyph.xs == field("xs")
     assert glyph.ys == field("ys")
     check_line_properties(glyph)
@@ -411,7 +386,7 @@ def test_MultiPolygons() -> None:
 
 
 def test_Patch() -> None:
-    glyph = Patch()
+    glyph = m.Patch()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     check_line_properties(glyph)
@@ -424,7 +399,7 @@ def test_Patch() -> None:
 
 
 def test_Patches() -> None:
-    glyph = Patches()
+    glyph = m.Patches()
     assert glyph.xs == field("xs")
     assert glyph.ys == field("ys")
     check_line_properties(glyph)
@@ -437,7 +412,7 @@ def test_Patches() -> None:
 
 
 def test_Quad() -> None:
-    glyph = Quad()
+    glyph = m.Quad()
     assert glyph.left == field("left")
     assert glyph.right == field("right")
     assert glyph.bottom == field("bottom")
@@ -456,7 +431,7 @@ def test_Quad() -> None:
 
 
 def test_Quadratic() -> None:
-    glyph = Quadratic()
+    glyph = m.Quadratic()
     assert glyph.x0 == field("x0")
     assert glyph.y0 == field("y0")
     assert glyph.x1 == field("x1")
@@ -475,7 +450,7 @@ def test_Quadratic() -> None:
 
 
 def test_MathMLGlyph() -> None:
-    glyph = MathMLGlyph()
+    glyph = m.MathMLGlyph()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.text == field("text")
@@ -503,7 +478,7 @@ def test_MathMLGlyph() -> None:
 
 
 def test_Ray() -> None:
-    glyph = Ray()
+    glyph = m.Ray()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.angle == 0
@@ -520,7 +495,7 @@ def test_Ray() -> None:
 
 
 def test_Rect() -> None:
-    glyph = Rect()
+    glyph = m.Rect()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.width == field("width")
@@ -546,7 +521,7 @@ def test_Rect() -> None:
 
 
 def test_Segment() -> None:
-    glyph = Segment()
+    glyph = m.Segment()
     assert glyph.x0 == field("x0")
     assert glyph.y0 == field("y0")
     assert glyph.x1 == field("x1")
@@ -561,7 +536,7 @@ def test_Segment() -> None:
 
 
 def test_Step() -> None:
-    glyph = Step()
+    glyph = m.Step()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.mode == "before"
@@ -574,7 +549,7 @@ def test_Step() -> None:
 
 
 def test_Text() -> None:
-    glyph = Text()
+    glyph = m.Text()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.text == field("text")
@@ -602,7 +577,7 @@ def test_Text() -> None:
 
 
 def test_TeXGlyph() -> None:
-    glyph = TeXGlyph()
+    glyph = m.TeXGlyph()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.text == field("text")
@@ -634,7 +609,7 @@ def test_TeXGlyph() -> None:
 
 
 def test_VArea() -> None:
-    glyph = VArea()
+    glyph = m.VArea()
     assert glyph.x == field("x")
     assert glyph.y1 == field("y1")
     assert glyph.y2 == field("y2")
@@ -648,7 +623,7 @@ def test_VArea() -> None:
 
 
 def test_VAreaStep() -> None:
-    glyph = VAreaStep()
+    glyph = m.VAreaStep()
     assert glyph.x == field("x")
     assert glyph.y1 == field("y1")
     assert glyph.y2 == field("y2")
@@ -664,7 +639,7 @@ def test_VAreaStep() -> None:
 
 
 def test_VBar() -> None:
-    glyph = VBar()
+    glyph = m.VBar()
     assert glyph.x == field("x")
     assert glyph.width == 1
     assert glyph.top == field("top")
@@ -684,7 +659,7 @@ def test_VBar() -> None:
 
 
 def test_Wedge() -> None:
-    glyph = Wedge()
+    glyph = m.Wedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.radius == field("radius")
@@ -708,7 +683,7 @@ def test_Wedge() -> None:
 
 
 def test_Circle() -> None:
-    glyph = Circle()
+    glyph = m.Circle()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.radius == field("radius")
@@ -723,6 +698,10 @@ def test_Circle() -> None:
         "radius_dimension",
         "hit_dilation",
     ], LINE, FILL, HATCH, GLYPH)
+
+# regression: https://github.com/bokeh/bokeh/issues/14082
+def test_Circle_XYGlpyh() -> None:
+    assert issubclass(m.Circle, m.XYGlyph)
 
 #-----------------------------------------------------------------------------
 # Dev API

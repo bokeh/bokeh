@@ -85,7 +85,7 @@ class XYGlyph(Glyph):
         super().__init__(*args, **kwargs)
 
 @abstract
-class RadialGlyph(Glyph):
+class RadialGlyph(XYGlyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes and
     a radius specification.
 
