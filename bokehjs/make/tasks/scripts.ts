@@ -1,8 +1,7 @@
 import {join, relative} from "path"
 import fs from "fs"
 
-import {task, run, log, passthrough, BuildError} from "../task"
-import {keep_alive, debounce} from "./_util"
+import {task, passthrough, BuildError} from "../task"
 
 import {rename, read, write, scan} from "@compiler/sys"
 import {wrap_css_modules} from "@compiler/styles"
@@ -15,9 +14,6 @@ import {argv} from "../main"
 import * as paths from "../paths"
 
 import pkg from "../../package.json"
-
-import chokidar from "chokidar"
-import chalk from "chalk"
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
@@ -135,23 +131,7 @@ exports.VERSION = "0.0.0";
 
 task("lib:build", ["scripts:bundle"])
 
-const build = task("scripts:build", ["lib:build"])
-
-task("scripts:watch", [], async () => {
-  const watched_paths = [paths.src_dir.lib, paths.src_dir.less]
-  log("Watching paths:")
-  for (const path of watched_paths) {
-    log(`  ${chalk.magenta(path)}`)
-  }
-
-  const watcher = chokidar.watch(watched_paths, {persistent: true})
-  watcher.on("change", debounce(async () => {
-    log("Changes detected. Rebuilding.")
-    await run(build)
-  }, 100))
-
-  await keep_alive()
-})
+export const build_scripts = task("scripts:build", ["lib:build"])
 
 task("packages:prepare", ["scripts:bundle"], async () => {
   const bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"]

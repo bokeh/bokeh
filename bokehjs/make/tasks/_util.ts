@@ -92,10 +92,14 @@ type DebouncedFn<Args extends unknown[]> = {
   stop(): void
 }
 
-export function debounce<Args extends unknown[]>(func: (...args: Args) => Promise<void>, wait: number, immediate: boolean = false): DebouncedFn<Args> {
+export function clear(array: unknown[]): void {
+  array.splice(0, array.length)
+}
+
+export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise<void>, wait: number, immediate: boolean = false): DebouncedFn<Args> {
   let timeout: NodeJS.Timeout | null = null
   let previous: number
-  let args: Args
+  const collected: Args[] = []
 
   const later = async () => {
     const passed = Date.now() - previous
@@ -104,18 +108,20 @@ export function debounce<Args extends unknown[]>(func: (...args: Args) => Promis
     } else {
       timeout = null
       if (!immediate) {
-        await func(...args)
+        await func(collected)
+        clear(collected)
       }
     }
   }
 
-  const debounced = async (...in_args: Args) => {
+  const debounced = async (...args: Args) => {
     previous = Date.now()
-    args = in_args
+    collected.push(args)
     if (timeout == null) {
       timeout = setTimeout(later, wait)
       if (immediate) {
-        await func(...args)
+        await func(collected)
+        clear(collected)
       }
     }
   }
