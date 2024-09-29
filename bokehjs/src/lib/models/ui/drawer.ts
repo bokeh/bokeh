@@ -1,16 +1,21 @@
 import {Pane, PaneView} from "../ui/pane"
 import type {View} from "core/view"
 import type {StyleSheetLike} from "core/dom"
-import {div, InlineStyleSheet} from "core/dom"
+import {div, px, InlineStyleSheet} from "core/dom"
 import {Location} from "core/enums"
 import type {PanEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
 import type * as p from "core/properties"
+import {Or, Float, CSSLength} from "core/kinds"
 import {assert} from "core/util/assert"
+import {isNumber} from "core/util/types"
 import * as drawers_css from "styles/drawers.css"
 import * as icons_css from "styles/icons.css"
 
 const {max} = Math
+
+const CSSSize = Or(Float, CSSLength)
+type CSSSize = typeof CSSSize["__type__"]
 
 export class DrawerView extends PaneView {
   declare model: Drawer
@@ -61,7 +66,7 @@ export class DrawerView extends PaneView {
 
   override render(): void {
     super.render()
-    const {location, open, resizable} = this.model
+    const {location, open, size, resizable} = this.model
 
     this.class_list.add(drawers_css[location])
     this.class_list.toggle(drawers_css.open, open)
@@ -74,6 +79,12 @@ export class DrawerView extends PaneView {
     this.toggle_el.addEventListener("click", () => this.toggle())
 
     this.shadow_el.append(this.contents_el, this.toggle_el, this.handle_el)
+
+    this.sizing.replace(`
+      :host {
+        --drawer-size: ${isNumber(size) ? px(size) : size};
+      }
+    `)
   }
 
   toggle(open?: boolean): void {
@@ -129,6 +140,7 @@ export namespace Drawer {
   export type Props = Pane.Props & {
     location: p.Property<Location>
     open: p.Property<boolean>
+    size: p.Property<CSSSize>
     resizable: p.Property<boolean>
   }
 }
@@ -149,6 +161,7 @@ export class Drawer extends Pane {
     this.define<Drawer.Props>(({Bool}) => ({
       location: [ Location ],
       open: [ Bool, false ],
+      size: [ CSSSize, 300 ],
       resizable: [ Bool, false ],
     }))
   }

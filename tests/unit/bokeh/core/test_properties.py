@@ -60,6 +60,7 @@ ALL = (
     'Bool',
     'Byte',
     'Bytes',
+    'CSSLength',
     'Color',
     'ColorHex',
     'ColorSpec',

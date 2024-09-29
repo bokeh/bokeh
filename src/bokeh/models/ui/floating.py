@@ -20,7 +20,14 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import Location
-from ...core.properties import Bool, Enum, Required
+from ...core.properties import (
+    Bool,
+    CSSLength,
+    Either,
+    Enum,
+    Float,
+    Required,
+)
 from .panes import Pane
 
 #-----------------------------------------------------------------------------
@@ -52,6 +59,13 @@ class Drawer(Pane):
 
     open = Bool(default=False, help="""
     Initial or actual state of the component.
+    """)
+
+    size = Either(Float, CSSLength)(default=300, help="""
+    The initial or actual size (width or height) of the component.
+
+    This can either be a CSS length value (``20px``, ``1.5em``, ``30vw``, etc.)
+    or a number of pixels (equivalent to CSS ``px`` units).
     """)
 
     resizable = Bool(default=False, help="""

@@ -43,6 +43,7 @@ import bokeh.core.property.visual as bcpv # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'CSSLength',
     'DashPattern',
     'FontSize',
     'HatchPatternType',

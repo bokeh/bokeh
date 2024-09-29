@@ -6716,6 +6716,7 @@
       name: "unset",
     },
     open: false,
+    size: 300,
     resizable: false,
   },
   BuiltinIcon: {
