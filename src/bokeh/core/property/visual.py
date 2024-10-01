@@ -48,6 +48,7 @@ from .string import Regex
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'CSSLength',
     'DashPattern',
     'FontSize',
     'HatchPatternType',
@@ -104,9 +105,18 @@ class DashPattern(Either):
         else:
             return value
 
-class FontSize(String):
+CSS_LENGTH_RE = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
-    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+class CSSLength(String):
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if not (isinstance(value, str) and CSS_LENGTH_RE.match(value)):
+            msg = "" if not detail else f"{value!r} is not a valid CSS length"
+            raise ValueError(msg)
+
+class FontSize(String):
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -115,7 +125,7 @@ class FontSize(String):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
-            elif not self._font_size_re.match(value):
+            elif not CSS_LENGTH_RE.match(value):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 

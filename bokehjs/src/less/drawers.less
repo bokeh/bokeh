@@ -1,0 +1,210 @@
+@import "./_mixins.less";
+
+:host {
+  --drawer-size: 300px;
+}
+
+:host {
+  position: absolute;
+  background-color: white;
+  opacity: 90%;
+}
+
+:host(.bk-left), :host(.bk-right) {
+  --toggle-width: 20px;
+  --toggle-height: 50px;
+  max-width: calc(100% - var(--toggle-width));
+}
+
+:host(.bk-above), :host(.bk-below) {
+  --toggle-width: 50px;
+  --toggle-height: 20px;
+  max-height: calc(100% - var(--toggle-height));
+}
+
+:host(:not(.bk-open)) {
+  .bk-handle {
+    display: none;
+  }
+}
+
+:host(.bk-left) {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+}
+:host(.bk-right) {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+}
+:host(.bk-above) {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+}
+:host(.bk-below) {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+}
+
+.bk-contents {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+:host(:not(.bk-resizing)) {
+  transition: width 200ms,
+              height 200ms;
+}
+
+:host(.bk-left.bk-open) {
+  width: var(--drawer-size);
+  border-right: 1px solid lightgray;
+}
+:host(.bk-right.bk-open) {
+  width: var(--drawer-size);
+  border-left: 1px solid lightgray;
+}
+:host(.bk-above.bk-open) {
+  height: var(--drawer-size);
+  border-bottom: 1px solid lightgray;
+}
+:host(.bk-below.bk-open) {
+  height: var(--drawer-size);
+  border-top: 1px solid lightgray;
+}
+
+.bk-toggle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  cursor: pointer;
+  background-color: white;
+  border: 1px solid lightgray;
+}
+
+:host(.bk-left) .bk-toggle {
+  flex-direction: row;
+  transform: translate(0, -50%);
+  top: 50%;
+  left: 100%;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  box-shadow: inset 1px 0px 5px 0px lightgray;
+}
+
+:host(.bk-right) .bk-toggle {
+  flex-direction: row;
+  transform: translate(0, -50%);
+  top: 50%;
+  right: 100%;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  box-shadow: inset -1px 0px 5px 0px lightgray;
+}
+
+:host(.bk-above) .bk-toggle {
+  flex-direction: column;
+  transform: translate(-50%, 0);
+  left: 50%;
+  top: 100%;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  box-shadow: inset 0px 1px 5px 0px lightgray;
+}
+
+:host(.bk-below) .bk-toggle {
+  flex-direction: column;
+  transform: translate(-50%, 0);
+  left: 50%;
+  bottom: 100%;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  box-shadow: inset 0px -1px 5px 0px lightgray;
+}
+
+.bk-chevron {
+  width: 1.5em;
+  height: 1.5em;
+  .icon-mask(var(--bokeh-icon-chevron-left))
+}
+
+:host(.bk-left) .bk-chevron {
+  rotate: 0.5turn;
+}
+:host(.bk-left.bk-open) .bk-chevron {
+  rotate: 0.0turn;
+}
+
+:host(.bk-right) .bk-chevron {
+  rotate: 0.0turn;
+}
+:host(.bk-right.bk-open) .bk-chevron {
+  rotate: 0.5turn;
+}
+
+:host(.bk-above) .bk-chevron {
+  rotate: -0.25turn;
+}
+:host(.bk-above.bk-open) .bk-chevron {
+  rotate: 0.25turn;
+}
+
+:host(.bk-below) .bk-chevron {
+  rotate: 0.25turn;
+}
+:host(.bk-below.bk-open) .bk-chevron {
+  rotate: -0.25turn;
+}
+
+.bk-handle {
+  position: absolute;
+  --handle-depth: 6px;
+}
+
+:host(:not(.bk-resizable)) .bk-handle {
+  display: none;
+}
+
+:host(.bk-left) .bk-handle {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--handle-depth);
+  transform: translate(50%, 0);
+  cursor: ew-resize;
+}
+:host(.bk-right) .bk-handle {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--handle-depth);
+  transform: translate(-50%, 0);
+  cursor: ew-resize;
+}
+:host(.bk-above) .bk-handle {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--handle-depth);
+  transform: translate(0, 50%);
+  cursor: ns-resize;
+}
+:host(.bk-below) .bk-handle {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--handle-depth);
+  transform: translate(0, -50%);
+  cursor: ns-resize;
+}

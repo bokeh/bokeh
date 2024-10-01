@@ -334,7 +334,7 @@ async function bundle(name: string): Promise<void> {
 }
 
 task("test:compile:unit", async () => compile("unit", {auto_index: true}))
-const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
+export const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
 task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
@@ -342,7 +342,7 @@ task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, 
 })
 
 task("test:compile:integration", async () => compile("integration", {auto_index: true}))
-const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
+export const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
 task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
   const baselines_root = (() => {
@@ -366,7 +366,7 @@ async function copy_defaults() {
 }
 
 task("test:defaults:compile", async () => compile("defaults"))
-const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => {
+export const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => {
   await copy_defaults()
   await bundle("defaults")
 })

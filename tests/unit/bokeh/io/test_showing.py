@@ -72,7 +72,7 @@ def test_show_with_app(mock_run_notebook_hook: MagicMock, ipython) -> None:
     assert mock_run_notebook_hook.call_args[1] == {}
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_doesn_not_adds_obj_to_curdoc(m) -> None:
+def test_show_does_not_adds_obj_to_curdoc(m) -> None:
     curstate().reset()
     assert curstate().document.roots == []
     p = Plot()
@@ -81,6 +81,14 @@ def test_show_doesn_not_adds_obj_to_curdoc(m) -> None:
     p = Plot()
     bis.show(p)
     assert curstate().document.roots == []
+
+@patch('bokeh.io.showing._show_with_state')
+def test_show_with_multiple_objects(m) -> None:
+    obj0 = Plot()
+    obj1 = Plot()
+    bis.show([])
+    bis.show([obj0])
+    bis.show([obj0, obj1])
 
 @pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer(data_source=ColumnDataSource())])
 def test_show_with_bad_object(obj) -> None:

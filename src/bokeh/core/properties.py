@@ -79,6 +79,7 @@ Basic Properties
 .. autoclass:: Bool
 .. autoclass:: Byte
 .. autoclass:: Bytes
+.. autoclass:: CSSLength
 .. autoclass:: Color
 .. autoclass:: Complex
 .. autoclass:: CoordinateLike
@@ -208,6 +209,7 @@ __all__ = (
     'Bool',
     'Byte',
     'Bytes',
+    'CSSLength',
     'Color',
     'ColorHex',
     'ColorSpec',
@@ -410,6 +412,7 @@ from .property.vectorization import expr
 from .property.vectorization import field
 from .property.vectorization import value
 
+from .property.visual import CSSLength
 from .property.visual import DashPattern
 from .property.visual import FontSize
 from .property.visual import HatchPatternType

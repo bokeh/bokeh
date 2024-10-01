@@ -29,6 +29,12 @@ export const src_dir = {
   examples: join(base_dir, "examples"),
 }
 
+export const test_dir = {
+  defaults: join(base_dir, "test", "defaults"),
+  unit: join(base_dir, "test", "unit"),
+  integration: join(base_dir, "test", "integration"),
+}
+
 export const lib = {
   bokehjs: {
     main: join(build_dir.lib, "main.js"),

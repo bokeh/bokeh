@@ -6709,6 +6709,16 @@
     __extends__: "UIElement",
     target: null,
   },
+  Drawer: {
+    __extends__: "Pane",
+    location: {
+      type: "symbol",
+      name: "unset",
+    },
+    open: false,
+    size: 300,
+    resizable: false,
+  },
   BuiltinIcon: {
     __extends__: "Icon",
     icon_name: {

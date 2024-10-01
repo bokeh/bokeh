@@ -52,6 +52,7 @@ from .vectorization import (
     Vectorized,
 )
 from .visual import (
+    CSS_LENGTH_RE,
     DashPattern,
     FontSize,
     HatchPatternType,
@@ -331,7 +332,7 @@ class FontSizeSpec(DataSpec):
         super().validate(value, detail)
 
         if isinstance(value, str):
-            if len(value) == 0 or value[0].isdigit() and not FontSize._font_size_re.match(value):
+            if len(value) == 0 or value[0].isdigit() and not CSS_LENGTH_RE.match(value):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 

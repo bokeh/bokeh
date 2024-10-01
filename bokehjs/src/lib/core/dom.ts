@@ -647,14 +647,8 @@ export class ClassList {
     return this
   }
 
-  toggle(cls: string, activate?: boolean): this {
-    const add = activate != null ? activate : !this.has(cls)
-    if (add) {
-      this.add(cls)
-    } else {
-      this.remove(cls)
-    }
-    return this
+  toggle(cls: string, activate?: boolean): boolean {
+    return this.class_list.toggle(cls, activate)
   }
 }
 
