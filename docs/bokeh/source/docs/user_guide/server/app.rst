@@ -446,7 +446,7 @@ To allow all threads access to the same document, save a local copy of
             doc.add_next_tick_callback(partial(update, x=x, y=y))
 
     p = figure(x_range=[0, 1], y_range=[0,1])
-    l = p.circle(x='x', y='y', source=source)
+    l = p.circle(x='x', y='y', radius=0.02, source=source)
 
     doc.add_root(p)
 
