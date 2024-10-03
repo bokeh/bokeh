@@ -110,11 +110,12 @@ export class BoxZoomToolView extends GestureToolView {
         const dx = Math.abs(bx - cx)
         const dy = Math.abs(by - cy)
 
-        const tol = 5
+        const tol_d = 15
+        const tol_aspect_ratio = 3
 
-        if (dx < tol && dy > tol) {
+        if (dx < tol_d && dy > tol_d && dy > tol_aspect_ratio*dx) {
           return "height"
-        } else if (dx > tol && dy < tol) {
+        } else if (dx > tol_d && dy < tol_d && dx > tol_aspect_ratio*dy) {
           return "width"
         } else {
           return "both"
@@ -253,7 +254,7 @@ export class BoxZoomTool extends GestureTool {
     this.prototype.default_view = BoxZoomToolView
 
     this.define<BoxZoomTool.Props>(({Bool, Ref, Or, Auto}) => ({
-      dimensions:   [ Or(Dimensions, Auto), "both" ],
+      dimensions:   [ Or(Dimensions, Auto), "auto" ],
       overlay:      [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
       match_aspect: [ Bool, false ],
       origin:       [ BoxOrigin, "corner" ],
