@@ -10,7 +10,7 @@ import {argv} from "../main"
 import chokidar from "chokidar"
 import chalk from "chalk"
 
-task("scripts:watch", [], async () => {
+task("watch", [], async () => {
   const watched_paths = new Map([
     [paths.src_dir.less, build_scripts], // build_styles
     [paths.src_dir.lib, build_scripts],
