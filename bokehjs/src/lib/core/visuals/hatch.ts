@@ -61,7 +61,7 @@ export class Hatch extends VisualProperties {
     return !(color == null || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
   }
 
-  apply(ctx: Context2d, rule?: CanvasFillRule): boolean {
+  apply(ctx: Context2d, rule: CanvasFillRule = "nonzero"): boolean {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
@@ -230,7 +230,7 @@ export class HatchScalar extends VisualUniforms {
     return this._static_doit
   }
 
-  apply(ctx: Context2d, rule?: CanvasFillRule): boolean {
+  apply(ctx: Context2d, rule: CanvasFillRule = "nonzero"): boolean {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
@@ -395,7 +395,7 @@ export class HatchVector extends VisualUniforms {
     return true
   }
 
-  apply(ctx: Context2d, i: number, rule?: CanvasFillRule): boolean {
+  apply(ctx: Context2d, i: number, rule: CanvasFillRule = "nonzero"): boolean {
     const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
