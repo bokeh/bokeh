@@ -1080,7 +1080,7 @@ class BoxZoomTool(Drag):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dimensions = Either(Enum(Dimensions), Auto, default="both", help="""
+    dimensions = Either(Enum(Dimensions), Auto, default="auto", help="""
     Which dimensions the zoom box is to be free in. By default, users may
     freely draw zoom boxes with any dimensions. If only "width" is supplied,
     the box will be constrained to span the entire vertical space of the plot,
