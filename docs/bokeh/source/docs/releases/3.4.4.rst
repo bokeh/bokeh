@@ -1,0 +1,8 @@
+.. _release-3-4-4:
+
+3.4.4
+=====
+
+Bokeh version ``3.4.4`` (October 2024) is a hotfix release of Bokeh project.
+
+* Add workaround for Chrome 130 regression (:bokeh-pull:`14093`)
