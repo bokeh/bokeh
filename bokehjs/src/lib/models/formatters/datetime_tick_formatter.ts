@@ -90,7 +90,6 @@ export function _strftime(t: number, format: string): string {
     const str_padding_matched = match.match(/%([1-9])N/)
     if (str_padding_matched != null) {
       const padding_parsed = parseInt(str_padding_matched[1], 10)
-      console.log("padding_parsed", padding_parsed)
       if (!Number.isNaN(padding_parsed)) {
         padding = padding_parsed
       }
@@ -127,11 +126,9 @@ export function _us(t: number): number {
 }
 
 export function _ns(t: number): number {
-  let ns = Math.round(((t / 1000) % 1) * 1000000000)
-  if (t < 0.0) {
-    ns = (1000000000 + ns) % 1000000000
-  }
-  return ns
+  // Use rounded microsecond result as a baseline as the precision is not sufficient
+  // for the sub microsecond range anyway.
+  return _us(t)*1000
 }
 
 export namespace DatetimeTickFormatter {
