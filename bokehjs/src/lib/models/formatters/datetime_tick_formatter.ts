@@ -83,6 +83,23 @@ export function _strftime(t: number, format: string): string {
   // Use a regular expression to replace %f directive with microseconds.
   const microsecond_replacement_string = sprintf("$1%06d", _us(t))
   format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
+  format = format.replace(/((^|[^%])(%%)*)%[0-9]*N/, match => {
+    // By default use 9 digits for nanoseconds, this is applied not only in case of no padding
+    // (%N) but also for padding out of range (i.e. %0N, %15N)
+    let padding = 9
+    const str_padding_matched = match.match(/%([1-9])N/)
+    if (str_padding_matched != null) {
+      const padding_parsed = parseInt(str_padding_matched[1], 10)
+      console.log("padding_parsed", padding_parsed)
+      if (!Number.isNaN(padding_parsed)) {
+        padding = padding_parsed
+      }
+    }
+
+    const ns = _ns(t)
+    const nanosecond_replacement_string = sprintf("%09d", ns).substring(0, padding)
+    return match.replace(/%[0-9]*N/, nanosecond_replacement_string)
+  })
 
   // timezone seems to ignore any strings without any formatting directives,
   // and just return the time argument back instead of the string argument.
@@ -107,6 +124,14 @@ export function _us(t: number): number {
     us = (1000000 + us) % 1000000
   }
   return us
+}
+
+export function _ns(t: number): number {
+  let ns = Math.round(((t / 1000) % 1) * 1000000000)
+  if (t < 0.0) {
+    ns = (1000000000 + ns) % 1000000000
+  }
+  return ns
 }
 
 export namespace DatetimeTickFormatter {
