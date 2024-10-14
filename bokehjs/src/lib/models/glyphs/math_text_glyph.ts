@@ -25,20 +25,6 @@ export abstract class MathTextGlyphView extends TextView {
     yield* this._label_views.values()
   }
 
-  override has_finished(): boolean {
-    if (!super.has_finished()) {
-      return false
-    }
-
-    for (const view of this._label_views.values()) {
-      if (!view.has_finished()) {
-        return false
-      }
-    }
-
-    return true
-  }
-
   protected abstract _build_label(text: string): BaseText
 
   protected override async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {

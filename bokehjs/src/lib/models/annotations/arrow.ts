@@ -194,6 +194,9 @@ export class ArrowView extends DataAnnotationView {
 
       ctx.restore()
     }
+
+    this.start?.mark_finished()
+    this.end?.mark_finished()
   }
 }
 

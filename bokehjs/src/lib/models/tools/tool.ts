@@ -73,6 +73,11 @@ export type EventRole = EventType | "multi"
 export abstract class ToolView extends View {
   declare model: Tool
 
+  override initialize(): void {
+    super.initialize()
+    this._has_finished = true
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => {

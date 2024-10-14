@@ -467,21 +467,7 @@ export abstract class LayoutDOMView extends PaneView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished()) {
-      return false
-    }
-
-    if (this.is_layout_root && !this._layout_computed) {
-      return false
-    }
-
-    for (const child_view of this.child_views) {
-      if (!child_view.has_finished()) {
-        return false
-      }
-    }
-
-    return true
+    return super.has_finished() && (!this.is_layout_root || this._layout_computed)
   }
 
   override box_sizing(): DOMBoxSizing {

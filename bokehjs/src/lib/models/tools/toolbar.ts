@@ -54,20 +54,6 @@ export class ToolbarView extends UIElementView {
     yield* this._tool_button_views.values()
   }
 
-  override has_finished(): boolean {
-    if (!super.has_finished()) {
-      return false
-    }
-
-    for (const child_view of this._tool_button_views.values()) {
-      if (!child_view.has_finished()) {
-        return false
-      }
-    }
-
-    return true
-  }
-
   override initialize(): void {
     super.initialize()
 

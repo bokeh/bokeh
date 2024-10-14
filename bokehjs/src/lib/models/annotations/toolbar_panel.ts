@@ -28,10 +28,6 @@ export class ToolbarPanelView extends AnnotationView {
     this.toolbar_view.after_render()
   }
 
-  override has_finished(): boolean {
-    return super.has_finished() && this.toolbar_view.has_finished()
-  }
-
   override *children(): IterViews {
     yield* super.children()
     yield this.toolbar_view

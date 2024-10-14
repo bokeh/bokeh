@@ -76,6 +76,7 @@ export class ContourColorBarView extends BaseColorBarView {
       }
       ctx.restore()
     }
+    this._fill_view.force_finished() // MultiPolygonsView.paint() wasn't called
 
     const multi_line = this._line_view.glyph as MultiLineView
     const nline = multi_line.data_size
@@ -96,6 +97,7 @@ export class ContourColorBarView extends BaseColorBarView {
       }
       ctx.restore()
     }
+    this._line_view.force_finished() // MultiLineView.paint() wasn't called
   }
 }
 
