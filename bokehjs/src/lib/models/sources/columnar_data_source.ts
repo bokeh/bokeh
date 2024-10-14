@@ -49,8 +49,8 @@ export abstract class ColumnarDataSource extends DataSource {
     return column as T[]
   }
 
-  _select: Signal0<this>
-  inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this>
+  readonly _select: Signal0<this> = new Signal0(this, "select")
+  readonly inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this> = new Signal(this, "inspect")
 
   readonly selection_manager = new SelectionManager(this)
 
@@ -67,13 +67,6 @@ export abstract class ColumnarDataSource extends DataSource {
     this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
       inspected:         [ AnyRef(), () => new Selection() ],
     }))
-  }
-
-  override initialize(): void {
-    super.initialize()
-
-    this._select = new Signal0(this, "select")
-    this.inspect = new Signal(this, "inspect")
   }
 
   get inferred_defaults(): Map<string, unknown> {

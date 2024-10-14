@@ -18,12 +18,7 @@ export abstract class Expression<T = Arrayable> extends Model {
     super(attrs)
   }
 
-  protected _result: Map<ColumnarDataSource, T>
-
-  override initialize(): void {
-    super.initialize()
-    this._result = new Map()
-  }
+  protected readonly _result: Map<ColumnarDataSource, T> = new Map()
 
   protected abstract _v_compute(source: ColumnarDataSource): T
 
@@ -52,12 +47,7 @@ export abstract class ScalarExpression<T> extends Model {
     super(attrs)
   }
 
-  protected _result: Map<ColumnarDataSource, T>
-
-  override initialize(): void {
-    super.initialize()
-    this._result = new Map()
-  }
+  protected readonly _result: Map<ColumnarDataSource, T> = new Map()
 
   protected abstract _compute(source: ColumnarDataSource): T
 

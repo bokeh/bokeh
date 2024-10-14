@@ -23,7 +23,7 @@ export interface LegendItem extends LegendItem.Attrs {}
 export class LegendItem extends Model {
   declare properties: LegendItem.Props
 
-  legend: Legend | null
+  legend: Legend | null = null
 
   constructor(attrs?: Partial<LegendItem.Attrs>) {
     super(attrs)
@@ -70,8 +70,6 @@ export class LegendItem extends Model {
 
   override initialize(): void {
     super.initialize()
-    this.legend = null
-    this.connect(this.change, () => this.legend?.item_change.emit())
 
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers()
@@ -84,6 +82,11 @@ export class LegendItem extends Model {
     if (!field_validation) {
       logger.error(`Bad column name on label: ${this.label}`)
     }
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.change, () => this.legend?.item_change.emit())
   }
 
   get_field_from_label_prop(): string | null {

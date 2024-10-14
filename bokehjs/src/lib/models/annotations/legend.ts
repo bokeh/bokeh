@@ -497,15 +497,10 @@ export class Legend extends Annotation {
   declare properties: Legend.Props
   declare __view_type__: LegendView
 
-  item_change: Signal0<this>
+  readonly item_change = new Signal0(this, "item_change")
 
   constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.item_change = new Signal0(this, "item_change")
   }
 
   static {
