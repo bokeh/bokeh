@@ -25,52 +25,14 @@
   transition: visibility 0.3s linear, opacity 0.3s linear;
 }
 
-.bk-logo {
-  flex-shrink: 0;
-}
-
 :host(.bk-above), :host(.bk-below) {
   flex-direction: row;
   justify-content: flex-end;
-
-  .bk-logo {
-    order: 1;
-    margin-left: 5px;
-    margin-right: 0px;
-  }
 }
 
 :host(.bk-left), :host(.bk-right) {
   flex-direction: column;
   justify-content: flex-start;
-
-  .bk-logo {
-    order: 0;
-    margin-bottom: 5px;
-    margin-top: 0px;
-  }
-}
-
-/// Dividier
-
-.bk-divider {
-  content: " ";
-  display: inline-block;
-  background-color: var(--button-color);
-}
-
-:host(.bk-above), :host(.bk-below) {
-  .bk-divider {
-    height: 10px;
-    width: 1px;
-  }
-}
-
-:host(.bk-left), :host(.bk-right) {
-  .bk-divider {
-    height: 1px;
-    width: 10px;
-  }
 }
 
 /// Overflow button

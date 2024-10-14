@@ -377,6 +377,52 @@ class InspectTool(GestureTool):
 
     toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
+@abstract
+class ToolButton(UIElement):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    tool = Required(Either(Instance(Tool), Instance(ToolProxy)), help="""
+    """)
+
+    icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^--"), Regex(r"^\."), Regex(r"^data:image")), default=None, help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as well known tool icon name, a CSS class selector,
+    a data URI with an ``image/*`` MIME, a path to an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array. If ``None``, then the intrinsic icon
+    will be used (may depend on tool's configuration).
+    """)
+
+    tooltip = Nullable(String, default=None, help="""
+    A string describing the purpose of this tool button. If not defined, an
+    auto-generated tooltip will be used based on the tool's description.
+    """)
+
+class ClickButton(ToolButton):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class OnOffButton(ToolButton):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class Divider(UIElement):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
 
@@ -394,6 +440,15 @@ class Toolbar(UIElement):
     autohide = Bool(default=False, help="""
     Whether the toolbar will be hidden by default. Default: False.
     If True, hides toolbar when cursor is not in canvas.
+    """)
+
+    children = Either(Auto, List(Nullable(Instance(UIElement))), default="auto", help="""
+    The layout of tool buttons and other UI elements in this toolbar.
+
+    If ``"auto"``, then the layout will be automatically determined based on
+    ``tools`` property, tools' pre-defined grouping and priority. Otherwise
+    the user can specify the layout of tool buttons, separators and other
+    tool unrelated UI elements, like select widgets, etc.
     """)
 
     tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
