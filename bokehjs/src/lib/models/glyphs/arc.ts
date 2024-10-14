@@ -8,6 +8,7 @@ import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import {to_cartesian, PI} from "core/util/math"
 
 export interface ArcView extends Arc.Data {}
 
@@ -48,33 +49,40 @@ export class ArcView extends XYGlyphView {
         continue
       }
 
-      this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
-
       ctx.beginPath()
       ctx.arc(sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
-
       this.visuals.line.apply(ctx, i)
+
+      this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
     }
   }
 
   protected _render_decorations(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
       start_angle: number, end_angle: number, _anticlock: boolean): void {
 
-    const {sin, cos, PI} = Math
-
     for (const decoration of this.decorations.values()) {
       ctx.save()
 
-      if (decoration.model.node == "start") {
-        const x = sradius*cos(start_angle) + sx
-        const y = sradius*sin(start_angle) + sy
-        ctx.translate(x, y)
-        ctx.rotate(start_angle + PI)
-      } else if (decoration.model.node == "end") {
-        const x = sradius*Math.cos(end_angle) + sx
-        const y = sradius*Math.sin(end_angle) + sy
-        ctx.translate(x, y)
-        ctx.rotate(end_angle)
+      switch (decoration.model.node) {
+        case "start": {
+          const {x, y} = to_cartesian(sradius, start_angle)
+          ctx.translate(sx + x, sy + y)
+          ctx.rotate(start_angle + PI)
+          break
+        }
+        case "middle": {
+          const angle = (start_angle + end_angle)/2
+          const {x, y} = to_cartesian(sradius, angle)
+          ctx.translate(sx + x, sy + y)
+          ctx.rotate(angle)
+          break
+        }
+        case "end": {
+          const {x, y} = to_cartesian(sradius, end_angle)
+          ctx.translate(sx + x, sy + y)
+          ctx.rotate(end_angle)
+          break
+        }
       }
 
       decoration.marking.paint(ctx, i)

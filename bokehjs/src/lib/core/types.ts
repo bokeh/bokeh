@@ -3,6 +3,8 @@ import type {Anchor} from "./enums"
 export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function* () {}).constructor
 export const AsyncGeneratorFunction: AsyncGeneratorFunctionConstructor = Object.getPrototypeOf(async function* () {}).constructor
 
+export type int = number
+
 export type uint8  = number
 export type uint16 = number
 export type uint32 = number

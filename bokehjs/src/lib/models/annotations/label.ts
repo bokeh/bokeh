@@ -1,5 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {compute_angle, invert_angle, atan2} from "core/util/math"
+import {compute_angle, invert_angle, slope} from "core/util/math"
 import type {CoordinateMapper} from "core/util/bbox"
 import {CoordinateUnits, AngleUnits, Direction} from "core/enums"
 import type * as p from "core/properties"
@@ -124,8 +124,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
     const {angle, base} = this._pan_state
     const {origin} = this
 
-    const angle0 = atan2([origin.sx, origin.sy], [base.sx, base.sy])
-    const angle1 = atan2([origin.sx, origin.sy], [base.sx + dx, base.sy + dy])
+    const angle0 = slope([origin.sx, origin.sy], [base.sx, base.sy])
+    const angle1 = slope([origin.sx, origin.sy], [base.sx + dx, base.sy + dy])
 
     const da = angle1 - angle0
     const na = angle + da
