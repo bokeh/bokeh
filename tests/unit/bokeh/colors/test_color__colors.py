@@ -374,6 +374,47 @@ class Test_RGB:
 # Dev API
 #-----------------------------------------------------------------------------
 
+def test_is_css4_color() -> None:
+    # named
+    assert bcc.is_css_color("red") is True
+    assert bcc.is_css_color("grEEn") is True
+    assert bcc.is_css_color("BLUE") is True
+
+    assert bcc.is_css_color("spring_green") is False
+
+    # hex
+    assert bcc.is_css_color("#a1E") is True
+    assert bcc.is_css_color("#a1E2") is True
+    assert bcc.is_css_color("#a1E2Fe") is True
+    assert bcc.is_css_color("#a1E2Fe04") is True
+
+    assert bcc.is_css_color("#a") is False
+    assert bcc.is_css_color("#a1") is False
+    assert bcc.is_css_color("# a1E") is False
+
+    # modern rgb()
+    assert bcc.is_css_color("rgb(255 -0.1 255.5346364)") is True
+    assert bcc.is_css_color("rgb(255 -0.1 255.5346364 / 50.1%)") is True
+    assert bcc.is_css_color("rgb(255 -0.1 255.5346364 / 0.51%)") is True
+
+    assert bcc.is_css_color("rgb(255, -0.1 255.5346364 / 0.51%)") is False
+    assert bcc.is_css_color("rgb(255 -0.1 255.5346364 0.51%)") is False
+
+    # legacy rgb[a]()
+    assert bcc.is_css_color("rgba(255, -0.1, 255.5346364)") is True
+    assert bcc.is_css_color("rgba(255, -0.1, 255.5346364, 50.1%)") is True
+    assert bcc.is_css_color("rgba(255, -0.1, 255.5346364, 0.51)") is True
+
+    # modern hsl()
+    assert bcc.is_css_color("hsl(240.1deg -0.1 255.5346364)") is True
+    assert bcc.is_css_color("hsl(240.1deg -0.1 255.5346364 / 50.1%)") is True
+    assert bcc.is_css_color("hsl(240.1deg -0.1 255.5346364 / 0.51)") is True
+
+    # legacy hsl[a]()
+    assert bcc.is_css_color("hsl(240.1deg, -0.1%, 255.5346364%)") is True
+    assert bcc.is_css_color("hsla(240.1deg, -0.1%, 255.5346364%)") is True
+    assert bcc.is_css_color("hsla(240.1deg, -0.1%, 255.5346364%, 0.51)") is True
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
