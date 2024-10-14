@@ -2,7 +2,7 @@
   cursor: pointer;
 }
 
-:host(.disabled) {
+:host(.bk-disabled) {
   cursor: default;
 }
 
@@ -11,12 +11,12 @@
   --bar-height: 10px;
 }
 
-.body {
+.bk-body {
   width: 100%;
   height: var(--switch-size);
 }
 
-.bar {
+.bk-bar {
   position: relative;
   top: calc(50% - var(--bar-height)/2);
   height: var(--bar-height);
@@ -25,7 +25,7 @@
   transition-property: background-color;
 }
 
-.knob {
+.bk-knob {
   position: absolute;
   top: 0;
   left: 0;
@@ -36,11 +36,11 @@
   transition-property: left, background-color;
 }
 
-:host(.active) .bar {
+:host(.bk-active) .bk-bar {
   background-color: #c2d5f7;
 }
 
-:host(.active) .knob {
+:host(.bk-active) .bk-knob {
   left: calc(100% - var(--switch-size));
   background-color: #3b80f0;
 }
