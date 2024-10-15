@@ -225,6 +225,8 @@ function check_matching_defaults(context: string[], name: string, python_default
                 }
               }
             }
+          } else {
+            equal = false
           }
 
           return equal
