@@ -6189,7 +6189,7 @@
   },
   BoxZoomTool: {
     __extends__: "Drag",
-    dimensions: "both",
+    dimensions: "auto",
     overlay: {
       type: "object",
       name: "BoxAnnotation",

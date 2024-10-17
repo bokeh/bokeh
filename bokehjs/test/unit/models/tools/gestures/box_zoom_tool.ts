@@ -14,7 +14,7 @@ describe("BoxZoomTool", () => {
 
     it("should create proper tooltip", () => {
       const tool = new BoxZoomTool()
-      expect(tool.tooltip).to.be.equal("Box Zoom")
+      expect(tool.tooltip).to.be.equal("Box Zoom (either x, y or both dimensions)")
 
       const x_tool = new BoxZoomTool({dimensions: "width"})
       expect(x_tool.tooltip).to.be.equal("Box Zoom (x-axis)")
