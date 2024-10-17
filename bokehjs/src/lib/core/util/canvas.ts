@@ -9,6 +9,7 @@ export type Context2d = {
   // override because stdlib has a weak type for 'repetition'
   createPattern(image: CanvasImageSource, repetition: CanvasPatternRepetition | null): CanvasPattern | null
   readonly layer: CanvasLayer
+  rect_bbox(bbox: BBox): void
 } & CanvasRenderingContext2D
 
 export class CanvasLayer {
@@ -57,7 +58,13 @@ export class CanvasLayer {
       }
     }
 
-    (this._ctx as any).layer = this
+    Object.assign(this._ctx, {
+      layer: this,
+      rect_bbox(this: CanvasRenderingContext2D, bbox: BBox): void {
+        const {x, y, width, height} = bbox
+        this.rect(x, y, width, height)
+      },
+    })
   }
 
   resize(width: number, height: number): void {
@@ -87,7 +94,7 @@ export class CanvasLayer {
     }
   }
 
-  prepare(): void {
+  prepare(): Context2d {
     const {ctx, hidpi, pixel_ratio} = this
     ctx.save()
     if (hidpi) {
@@ -95,6 +102,7 @@ export class CanvasLayer {
       ctx.translate(0.5, 0.5)
     }
     this.clear()
+    return ctx
   }
 
   clear(): void {

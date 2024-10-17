@@ -486,13 +486,12 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   protected abstract _paint_colors(ctx: Context2d, bbox: BBox): void
 
-  protected _paint(): void {
-    const {ctx} = this.layer
+  protected _paint(ctx: Context2d): void {
     ctx.save()
     this._paint_bbox(ctx, this._inner_layout.bbox)
     this._paint_colors(ctx, this._inner_layout.center_panel.bbox)
-    this._title_view.paint()
-    this._axis_view.paint()
+    this._title_view.paint(ctx)
+    this._axis_view.paint(ctx)
     ctx.restore()
   }
 

@@ -12,6 +12,7 @@ import type * as p from "core/properties"
 import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
 import {min as amin} from "core/util/array"
 import {BBox, empty} from "core/util/bbox"
+import type {Context2d} from "core/util/canvas"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
@@ -336,7 +337,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     update(this._handles.bottom_right, new BBox({...bbox.bottom_right, width, height, origin: "center"}))
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     if (!this.bbox.is_valid) {
       return
     }
@@ -346,12 +347,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     const hatch = _is_hovered && visuals.hover_hatch.doit ? visuals.hover_hatch : visuals.hatch
     const line = _is_hovered && visuals.hover_line.doit ? visuals.hover_line : visuals.line
 
-    const {ctx} = this.layer
     ctx.save()
 
-    const {inverted} = this.model
-
-    if (!inverted) {
+    if (!this.model.inverted) {
       ctx.beginPath()
       round_rect(ctx, this.bbox, this.border_radius)
 

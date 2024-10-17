@@ -508,8 +508,8 @@ export class ScaleBarView extends AnnotationView {
     this.visuals.border_line.apply(ctx)
   }
 
-  protected _draw_axis(_ctx: Context2d): void {
-    this.axis_view.paint()
+  protected _draw_axis(ctx: Context2d): void {
+    this.axis_view.paint(ctx)
   }
 
   protected _draw_text(ctx: Context2d, layout: TextLayout, location: Location): void {
@@ -540,8 +540,7 @@ export class ScaleBarView extends AnnotationView {
     this._draw_text(ctx, this.title_layout, this.model.title_location)
   }
 
-  protected _paint(): void {
-    const {ctx} = this.layer
+  protected _paint(ctx: Context2d): void {
     const {left, top} = this.bbox
     ctx.translate(left, top)
     if (this.box_layout.visible) {

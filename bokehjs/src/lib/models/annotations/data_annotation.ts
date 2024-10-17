@@ -61,13 +61,13 @@ export abstract class DataAnnotationView extends AnnotationView {
 
   private _initial_set_data = false
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     if (!this._initial_set_data) {
       this.set_data(this.model.source)
       this._initial_set_data = true
     }
     this.map_data()
-    this._paint_data(this.layer.ctx)
+    this._paint_data(ctx)
   }
 }
 
