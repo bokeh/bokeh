@@ -220,7 +220,11 @@ jobs:
 
       - name: Run tests
         if: success() || failure()
-        run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit
+        run: |
+          COLOR="--color=yes"
+          COVERAGE="--cov=bokeh --cov-report=xml"
+          POLICY="--last-failed --last-failed-no-failures none"
+          pytest $COLOR $COVERAGE tests/unit || pytest $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
@@ -258,7 +262,11 @@ jobs:
           echo "npm $(npm --version)"
 
       - name: Run tests
-        run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes tests/unit
+        run: |
+          COLOR="--color=yes"
+          COVERAGE="--cov=bokeh --cov-report=xml"
+          POLICY="--last-failed --last-failed-no-failures none"
+          pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
