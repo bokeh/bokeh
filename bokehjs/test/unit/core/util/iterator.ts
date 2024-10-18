@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {
   range, reverse, enumerate, take, skip, tail, join, zip,
-  interleave, map, flat_map, every, some, combinations, subsets,
+  interleave, map, flat_map, no_repeated, every, some, combinations, subsets,
 } from "@bokehjs/core/util/iterator"
 
 import {AssertionError} from "@bokehjs/core/util/assert"
@@ -108,6 +108,11 @@ describe("core/util/iterator module", () => {
       yield* Array(k).fill(k)
     })
     expect([...r1]).to.be.equal([1, 2, 2, 3, 3, 3])
+  })
+
+  it("implements no_repeated() function", () => {
+    expect([...no_repeated([])]).to.be.equal([])
+    expect([...no_repeated([1, 1, 2, 2, 2, 1, 3, 3, 1, 1, 1, 3, 3, 4])]).to.be.equal([1, 2, 1, 3, 1, 3, 4])
   })
 
   it("implements some() function", () => {

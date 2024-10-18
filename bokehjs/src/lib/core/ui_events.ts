@@ -331,6 +331,8 @@ export class UIEventBus {
     }
   }
 
+  private _current_interactive_tool_view: ToolView | null = null
+
   private _current_pan_view: (RendererView & Pannable) | null = null
   private _current_pinch_view: (RendererView & Pinchable) | null = null
   private _current_rotate_view: (RendererView & Rotatable) | null = null
@@ -471,6 +473,7 @@ export class UIEventBus {
 
         const cursor = (() => {
           const current_view =
+            this._current_interactive_tool_view ??
             this._current_pan_view ??
             this._current_pinch_view ??
             this._current_rotate_view ??
@@ -558,21 +561,27 @@ export class UIEventBus {
       }
       case "pan": {
         const active_gesture = gestures.pan.active
-        if (active_gesture != null) {
+        const active_pan_view = get_tool_view(active_gesture)
+        if (active_pan_view != null) {
+          switch (event_type) {
+            case "pan:start": {
+              this._current_interactive_tool_view = active_pan_view
+              break
+            }
+            case "pan:end": {
+              this._current_interactive_tool_view = null
+              break
+            }
+          }
+
           if (this.trigger(signal, e, active_gesture)) {
             srcEvent.preventDefault()
             srcEvent.stopPropagation()
           }
-        }
 
-        /* TODO this requires knowledge of the current interactive
-                tool (similar to _current_pan_view, etc.)
-        const active_pan_view = get_tool_view(active_gesture)
-        if (active_pan_view != null) {
           const cursor = active_pan_view.cursor(e.sx, e.sy)
           this.set_cursor(cursor)
         }
-        */
         break
       }
       default: {
