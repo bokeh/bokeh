@@ -2,7 +2,9 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
+import {assert} from "core/util/assert"
 import {Dimensions} from "core/enums"
+import type {SXY} from "core/util/bbox"
 import type {MenuItem} from "core/util/menus"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
@@ -19,71 +21,89 @@ export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number
 export class PanToolView extends GestureToolView {
   declare model: PanTool
 
-  protected last_dx: number
-  protected last_dy: number
-
-  protected v_axis_only: boolean
-  protected h_axis_only: boolean
-
   protected pan_info?: RangeInfo & {
     sdx: number
     sdy: number
   }
 
+  protected state: {last_dx: number, last_dy: number, dims: Dimensions} | null = null
+
   override cursor(sx: number, sy: number): string | null {
-    const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
+    if (this.state != null) {
+      const {dims} = this.state
+      switch (dims == "both" ? this.model.dimensions : dims) {
+        case "both":   return "move"
+        case "width":  return "ew-resize"
+        case "height": return "ns-resize"
+      }
+    }
+    return super.cursor(sx, sy)
+  }
+
+  protected _interactive_dims({sx, sy}: SXY): Dimensions | null {
+    const {dimensions} = this.model
+    const {plot_view} = this
+    const axis_view = plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
     if (axis_view != null) {
       switch (axis_view.dimension) {
-        case 0: return "ew-resize"
-        case 1: return "ns-resize"
+        case 0: {
+          if (dimensions == "width" || dimensions == "both") {
+            return "width"
+          }
+          break
+        }
+        case 1: {
+          if (dimensions == "height" || dimensions == "both") {
+            return "height"
+          }
+          break
+        }
       }
-    } else if (this.plot_view.frame.bbox.contains(sx, sy)) {
-      return "move"
-    } else {
-      return super.cursor(sx, sy)
+    } else if (plot_view.frame.bbox.contains(sx, sy)) {
+      return "both"
     }
+
+    return null
   }
 
   override _pan_start(ev: PanEvent): void {
-    this.last_dx = 0
-    this.last_dy = 0
-    const {sx, sy} = ev
-    const bbox = this.plot_view.frame.bbox
-    if (!bbox.contains(sx, sy)) {
-      const hr = bbox.h_range
-      const vr = bbox.v_range
-      if (sx < hr.start || sx > hr.end) {
-        this.v_axis_only = true
-      }
-      if (sy < vr.start || sy > vr.end) {
-        this.h_axis_only = true
-      }
-    }
+    assert(this.state == null)
 
-    this.model.document?.interactive_start(this.plot_view.model)
+    const {sx, sy} = ev
+    const dims = this._interactive_dims({sx, sy})
+    if (dims != null) {
+      this.state = {last_dx: 0, last_dy: 0, dims}
+      this.model.document?.interactive_start(this.plot_view.model)
+    }
   }
 
   override _pan(ev: PanEvent): void {
-    this._update(ev.dx, ev.dy)
-    this.model.document?.interactive_start(this.plot_view.model)
+    if (this.state != null) {
+      this._update(ev.dx, ev.dy)
+      this.model.document?.interactive_start(this.plot_view.model)
+    }
   }
 
   override _pan_end(_e: PanEvent): void {
-    this.h_axis_only = false
-    this.v_axis_only = false
+    if (this.state != null) {
+      this.state = null
 
-    if (this.pan_info != null) {
-      this.plot_view.state.push("pan", {range: this.pan_info})
+      if (this.pan_info != null) {
+        this.plot_view.state.push("pan", {range: this.pan_info})
+      }
+
+      this.plot_view.trigger_ranges_update_event()
     }
-
-    this.plot_view.trigger_ranges_update_event()
   }
 
   _update(dx: number, dy: number): void {
+    const {state} = this
+    assert(state != null)
+
     const frame = this.plot_view.frame
 
-    const new_dx = dx - this.last_dx
-    const new_dy = dy - this.last_dy
+    const new_dx = dx - state.last_dx
+    const new_dy = dy - state.last_dy
 
     const hr = frame.bbox.h_range
     const sx_low  = hr.start - new_dx
@@ -95,10 +115,13 @@ export class PanToolView extends GestureToolView {
 
     const dims = this.model.dimensions
 
+    const x_axis_only = state.dims == "width"
+    const y_axis_only = state.dims == "height"
+
     let sx0: number
     let sx1: number
     let sdx: number
-    if ((dims == "width" || dims == "both") && !this.v_axis_only) {
+    if ((dims == "width" || dims == "both") && !y_axis_only) {
       sx0 = sx_low
       sx1 = sx_high
       sdx = -new_dx
@@ -111,7 +134,7 @@ export class PanToolView extends GestureToolView {
     let sy0: number
     let sy1: number
     let sdy: number
-    if ((dims == "height" || dims == "both") && !this.h_axis_only) {
+    if ((dims == "height" || dims == "both") && !x_axis_only) {
       sy0 = sy_low
       sy1 = sy_high
       sdy = -new_dy
@@ -121,8 +144,8 @@ export class PanToolView extends GestureToolView {
       sdy = 0
     }
 
-    this.last_dx = dx
-    this.last_dy = dy
+    state.last_dx = dx
+    state.last_dy = dy
 
     const {x_scales, y_scales} = frame
     const xrs = update_ranges(x_scales, sx0, sx1)

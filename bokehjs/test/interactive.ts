@@ -7,6 +7,7 @@ import type {KeyModifiers} from "@bokehjs/core/ui_events"
 import {UIGestures} from "@bokehjs/core/ui_gestures"
 
 export type Point = {x: number, y: number}
+export type XY = Point
 
 export function xy(x: number, y: number): Point {
   return {x, y}
@@ -192,10 +193,18 @@ export class PlotActions {
     }
   }
 
-  protected async emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): Promise<void> {
+  async emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): Promise<void> {
     for await (const ev of events) {
       this.el.dispatchEvent(ev)
       await delay(this.options.pause)
+    }
+  }
+
+  async *_emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): AsyncGenerator<void> {
+    for await (const ev of events) {
+      this.el.dispatchEvent(ev)
+      await delay(this.options.pause)
+      yield
     }
   }
 
@@ -281,7 +290,7 @@ export class PlotActions {
     yield* this._move(path, MOVE_PRESSURE, MouseButton.None, keys)
   }
 
-  protected *_pan(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
+  *_pan(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
     const [xy0, xy1] = this._bounds(path)
     yield new PointerEvent("pointerdown", {..._pointer_common, ...this.screen(xy0), pressure: HOLD_PRESSURE, ...keys, buttons: MouseButton.Left})
     yield* this._move(path, HOLD_PRESSURE, MouseButton.Left, keys)
