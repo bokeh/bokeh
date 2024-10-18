@@ -781,7 +781,7 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
 }
 
 type Version = [number, number, number, number]
-const supported_chromium_version: Version = [118, 0, 5993, 88]
+const supported_chromium_version: Version = get_version_tuple("128.0.6613.84")!
 
 function get_version_tuple(version: string): Version | null {
   const match = version.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)/)

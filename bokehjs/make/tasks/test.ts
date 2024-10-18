@@ -69,16 +69,16 @@ function sys_path(): string {
 }
 
 // Keep in sync with:
-//   https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#browsers-and-drivers
+//   https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md#browsers-and-drivers
 //
 // Also update:
 // - bokehjs/test/devtools/devtools.ts
 // - .github/workflows/bokehjs-ci.yml
 // - .github/workflows/bokeh-ci.yml
-const supported_chromium_revision = "r2670" // 118.0.5993.88
+const supported_chromium_revision = "r2934" // 128.0.6613.84
 
 function chrome(): string {
-  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
+  const names = [`chromium_${argv.revision ?? supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
   const path = sys_path()
 
   for (const name of names) {

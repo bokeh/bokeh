@@ -31,6 +31,7 @@ export const argv = yargs.help(false).options({
   seed: {type: "number"},
   pedantic: {type: "boolean"},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
+  revision: {type: "string"},
 }).parseSync()
 
 import {task, run, log, task_names, show_error, show_failure} from "./task"
