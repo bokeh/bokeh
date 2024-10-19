@@ -127,6 +127,18 @@ export function* filter<T>(iterable: Iterable<T>, fn: (item: T, i: number) => bo
   }
 }
 
+const nothing = Symbol("nothing")
+
+export function* no_repeated<T>(iterable: Iterable<T>): Iterable<T> {
+  let last: T | typeof nothing = nothing
+  for (const item of iterable) {
+    if (item !== last) {
+      yield item
+    }
+    last = item
+  }
+}
+
 export function every<T>(iterable: Iterable<T>, predicate: (item: T) => boolean): boolean {
   for (const item of iterable) {
     if (!predicate(item)) {

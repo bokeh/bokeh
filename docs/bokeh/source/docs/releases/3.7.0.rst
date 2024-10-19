@@ -1,0 +1,8 @@
+.. _release-3-7-0:
+
+3.7.0
+=====
+
+Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
+
+* Improved ``PanTool``'s cursor and state management handling (:bokeh-pull:`14106`)
