@@ -86,7 +86,9 @@ export class CanvasView extends UIElementView {
 
   ui_event_bus: UIEventBus
 
-  protected _size = new InlineStyleSheet()
+  protected readonly _size = new InlineStyleSheet()
+
+  readonly touch_action = new InlineStyleSheet()
 
   override initialize(): void {
     super.initialize()
@@ -127,7 +129,7 @@ export class CanvasView extends UIElementView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), canvas_css.default, icons_css, this._size]
+    return [...super.stylesheets(), canvas_css.default, icons_css, this._size, this.touch_action]
   }
 
   override render(): void {
