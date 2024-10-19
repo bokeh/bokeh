@@ -6891,6 +6891,20 @@
     __extends__: "AbstractGroup",
     inline: false,
   },
+  IndicatorWidget: {
+    __extends__: "Widget",
+  },
+  Progress: {
+    __extends__: "IndicatorWidget",
+    value: 0,
+    min: 0,
+    max: 100,
+    reversed: false,
+    orientation: "horizontal",
+    label: "@{progress}%",
+    label_location: "none",
+    label_align: "center",
+  },
   AutocompleteInput: {
     __extends__: "TextInput",
     completions: [],

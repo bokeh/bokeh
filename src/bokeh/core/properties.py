@@ -88,6 +88,7 @@ Basic Properties
 .. autoclass:: Datetime
 .. autoclass:: Either
 .. autoclass:: Enum
+.. autoclass:: FiniteFloat
 .. autoclass:: Float
 .. autoclass:: FontSize
 .. autoclass:: Image
@@ -228,6 +229,7 @@ __all__ = (
     'Enum',
     'Factor',
     'FactorSeq',
+    'FiniteFloat',
     'Float',
     'FontSize',
     'FontSizeSpec',
@@ -390,8 +392,9 @@ from .property.pd import PandasGroupBy
 from .property.primitive import Bool
 from .property.primitive import Bytes
 from .property.primitive import Complex
-from .property.primitive import Int
+from .property.primitive import FiniteFloat
 from .property.primitive import Float
+from .property.primitive import Int
 from .property.primitive import Null
 from .property.primitive import String
 

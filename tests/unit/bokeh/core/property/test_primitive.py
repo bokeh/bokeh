@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from math import inf, nan
 from typing import TYPE_CHECKING
 
 # External imports
@@ -41,8 +42,9 @@ ALL = (
     'Bool',
     'Bytes',
     'Complex',
-    'Int',
+    'FiniteFloat',
     'Float',
+    'Int',
     'Null',
     'String',
 )
@@ -183,6 +185,10 @@ class Test_Float:
     def test_valid(self) -> None:
         prop = bcpp.Float()
 
+        assert prop.is_valid(nan)
+        assert prop.is_valid(inf)
+        assert prop.is_valid(-inf)
+
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
@@ -242,6 +248,16 @@ class Test_Float:
         prop = bcpp.Float()
         assert str(prop) == "Float"
 
+class Test_FiniteFloat:
+    def test_invalid(self) -> None:
+        prop = bcpp.FiniteFloat()
+        assert not prop.is_valid(nan)
+        assert not prop.is_valid(inf)
+        assert not prop.is_valid(-inf)
+
+    def test_str(self) -> None:
+        prop = bcpp.FiniteFloat()
+        assert str(prop) == "FiniteFloat"
 
 class Test_Int:
 
