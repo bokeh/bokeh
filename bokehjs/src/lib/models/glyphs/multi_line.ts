@@ -2,7 +2,7 @@ import type {SpatialIndex} from "core/util/spatial"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, RaggedArray, FloatArray} from "core/types"
+import type {Rect, RaggedArray, FloatArray, Arrayable, int} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
@@ -11,6 +11,7 @@ import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 import type {MultiLineGL} from "./webgl/multi_line"
+import {slope, PI} from "core/util/math"
 
 export interface MultiLineView extends MultiLine.Data {}
 
@@ -54,6 +55,9 @@ export class MultiLineView extends GlyphView {
       let move = true
       ctx.beginPath()
 
+      let start: int | null = null
+      let end: int | null = null
+
       for (let j = 0; j < n; j++) {
         const sx_j = sx[j]
         const sy_j = sy[j]
@@ -62,9 +66,11 @@ export class MultiLineView extends GlyphView {
           move = true
         } else {
           if (move) {
+            start = j
             ctx.moveTo(sx_j, sy_j)
             move = false
           } else {
+            end = j
             ctx.lineTo(sx_j, sy_j)
           }
         }
@@ -72,6 +78,55 @@ export class MultiLineView extends GlyphView {
 
       this.visuals.line.set_vectorize(ctx, i)
       ctx.stroke()
+
+      if (start != null && end != null && start != end) {
+        this._render_decorations(ctx, i, sx, sy, start, end)
+      }
+    }
+  }
+
+  protected _render_decorations(ctx: Context2d, i: number, xs: Arrayable<number>, ys: Arrayable<number>, start: int, end: int): void {
+    for (const decoration of this.decorations.values()) {
+      const parameters = (() => {
+        switch (decoration.model.node) {
+          case "start": {
+            const sx0 = xs[start]
+            const sy0 = ys[start]
+            const sx1 = xs[start + 1]
+            const sy1 = ys[start + 1]
+            if (!isFinite(sx0 + sy0 + sx1 + sy1)) {
+              return null
+            }
+            const angle = slope([sx0, sy0], [sx1, sy1]) + PI/2 + PI
+            return {sx: sx0, sy: sy0, angle}
+          }
+          case "middle": {
+            return null // TODO
+          }
+          case "end": {
+            const sx0 = xs[end-1]
+            const sy0 = ys[end-1]
+            const sx1 = xs[end]
+            const sy1 = ys[end]
+            if (!isFinite(sx0 + sy0 + sx1 + sy1)) {
+              return null
+            }
+            const angle = slope([sx0, sy0], [sx1, sy1]) + PI/2
+            return {sx: sx1, sy: sy1, angle}
+          }
+        }
+      })()
+
+      if (parameters == null) {
+        continue
+      }
+
+      const {sx, sy, angle} = parameters
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      decoration.marking.paint(ctx, i)
+      ctx.rotate(-angle)
+      ctx.translate(-sx, -sy)
     }
   }
 
