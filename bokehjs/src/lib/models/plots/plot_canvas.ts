@@ -786,7 +786,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   async build_tool_views(): Promise<void> {
-    const tool_models = flat_map(this.model.toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
+    const tool_models = flat_map(this.model.toolbar.computed_tools, (item) => item instanceof ToolProxy ? item.tools : [item])
     const {created} = await build_views(this.tool_views, [...tool_models], {parent: this})
     created.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }

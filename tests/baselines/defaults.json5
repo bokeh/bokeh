@@ -2488,6 +2488,7 @@
       type: "symbol",
       name: "unset",
     },
+    multiple: false,
   },
   IndexFilter: {
     __extends__: "Filter",
@@ -5239,7 +5240,9 @@
     toolbar: {
       type: "object",
       name: "Toolbar",
-      attributes: {},
+      attributes: {
+        children: "auto",
+      },
     },
     toolbar_location: "above",
     children: [],
@@ -5298,7 +5301,9 @@
     toolbar: {
       type: "object",
       name: "Toolbar",
-      attributes: {},
+      attributes: {
+        children: "auto",
+      },
     },
     toolbar_location: "right",
     toolbar_sticky: true,
@@ -6245,6 +6250,9 @@
     match_aspect: false,
     origin: "corner",
   },
+  ClickButton: {
+    __extends__: "ToolButton",
+  },
   ClickPanTool: {
     __extends__: "PlotActionTool",
     direction: {
@@ -6275,6 +6283,9 @@
       type: "map",
     },
     code: "",
+  },
+  Divider: {
+    __extends__: "UIElement",
   },
   Drag: {
     __extends__: "GestureTool",
@@ -6381,6 +6392,9 @@
       name: "unset",
     },
     dimensions: "both",
+  },
+  OnOffButton: {
+    __extends__: "ToolButton",
   },
   PanTool: {
     __extends__: "Drag",
@@ -6584,6 +6598,15 @@
     description: null,
     visible: true,
   },
+  ToolButton: {
+    __extends__: "UIElement",
+    tool: {
+      type: "symbol",
+      name: "unset",
+    },
+    icon: null,
+    tooltip: null,
+  },
   ToolProxy: {
     __extends__: "Model",
     tools: [],
@@ -6594,6 +6617,7 @@
     __extends__: "UIElement",
     logo: "normal",
     autohide: false,
+    children: "auto",
     tools: [],
     active_drag: "auto",
     active_inspect: "auto",

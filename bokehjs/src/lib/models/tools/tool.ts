@@ -1,4 +1,5 @@
 import type * as p from "core/properties"
+import type {ViewOf} from "core/view"
 import {View} from "core/view"
 import type {Class} from "core/class"
 import type {Dimensions} from "core/enums"
@@ -10,7 +11,7 @@ import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
-import type {ToolButton} from "./tool_button"
+import type {ToolButton} from "../ui/toolbars/tool_button"
 
 import type {PanTool} from "./gestures/pan_tool"
 import type {WheelPanTool} from "./gestures/wheel_pan_tool"
@@ -29,8 +30,6 @@ import type {UndoTool} from "./actions/undo_tool"
 import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
-
-import type {ToolButtonView} from "./tool_button"
 
 export type ToolAliases = {
   pan:          PanTool
@@ -175,7 +174,7 @@ export abstract class Tool extends Model {
   }
   // }}}
 
-  button_view: Class<ToolButtonView>
+  button_view: Class<ViewOf<ToolButton>>
 
   abstract tool_button(): ToolButton
 

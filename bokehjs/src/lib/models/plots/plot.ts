@@ -17,7 +17,7 @@ import type {GuideRenderer} from "../renderers/guide_renderer"
 import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
-import {Toolbar} from "../tools/toolbar"
+import {Toolbar} from "../ui/toolbars/toolbar"
 import {HTML} from "../dom/html"
 
 import {Range} from "../ranges/range"

@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
-import type {ToolbarView} from "../tools/toolbar"
-import {Toolbar} from "../tools/toolbar"
+import type {ToolbarView} from "../ui/toolbars/toolbar"
+import {Toolbar} from "../ui/toolbars/toolbar"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {empty, position, display, undisplay} from "core/dom"
@@ -80,7 +80,7 @@ export class ToolbarPanelView extends AnnotationView {
       this.el.style.position = "absolute"
 
       const {style} = this.toolbar_view.el
-      if (this.toolbar_view.model.horizontal) {
+      if (this.toolbar_view.horizontal) {
         style.width = "100%"
         style.height = "unset"
       } else {
