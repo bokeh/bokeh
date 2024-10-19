@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import gc
 import os
-from pprint import pformat
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -49,6 +48,7 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
+from ..util.terminal import pprint as pp
 from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
@@ -247,6 +247,8 @@ class BokehTornado(TornadoApplication):
 
     _clients: set[ServerConnection]
 
+    _refresh_stats: bool
+    _stats_job: PeriodicCallback
     _mem_job: PeriodicCallback | None
     _ping_job: PeriodicCallback | None
 
@@ -390,7 +392,7 @@ class BokehTornado(TornadoApplication):
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
-        log.debug(f"These host origins can connect to the websocket: {list(self._websocket_origins)!r}")
+        log.debug(f"These host origins can connect to the websocket: {pp.print(list(self._websocket_origins))}")
 
         # Wrap applications in ApplicationContext
         self._applications = {}
@@ -440,12 +442,12 @@ class BokehTornado(TornadoApplication):
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
                 if use_index:
-                    data = {
-                        "applications": self._applications,
-                        "prefix": self._prefix,
-                        "index": self._index,
-                        "use_redirect": redirect_root,
-                    }
+                    data = dict(
+                        applications=self._applications,
+                        prefix=self._prefix,
+                        index=self._index,
+                        use_redirect=redirect_root,
+                    )
                     prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
                     all_patterns.append(prefixed_pat) # type: ignore[arg-type] # TODO: easy to fix types, but also easy to break logic
             else:
@@ -453,8 +455,8 @@ class BokehTornado(TornadoApplication):
                 all_patterns.append(prefixed_pat) # type: ignore[arg-type] # TODO: easy to fix types, but also easy to break logic
 
         log.debug("Patterns are:")
-        for line in pformat(all_patterns, width=60).split("\n"):
-            log.debug("  " + line)
+        for path, handler, *_ in all_patterns:
+            log.debug(f"  {pp.str(path)} -> {pp.cls(handler)}")
 
         super().__init__(all_patterns, # type: ignore[arg-type] # TODO: this may be another bug in mypy (not sure; but looks suspicious)
             websocket_max_message_size=websocket_max_message_size_bytes,
@@ -471,6 +473,7 @@ class BokehTornado(TornadoApplication):
 
         self._clients = set()
 
+        self._refresh_stats = True
         self._stats_job = PeriodicCallback(self._log_stats,
                                            self._stats_log_frequency_milliseconds)
 
@@ -671,15 +674,18 @@ class BokehTornado(TornadoApplication):
             self._ping_job.stop()
 
         self._clients.clear()
+        self._refresh_stats = True
 
     def new_connection(self, protocol: Protocol, socket: WSHandler,
             application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
         connection = ServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
+        self._refresh_stats = True
         return connection
 
     def client_lost(self, connection: ServerConnection) -> None:
         self._clients.discard(connection)
+        self._refresh_stats = True
         connection.detach_session()
 
     def get_session(self, app_path: str, session_id: ID) -> ServerSession:
@@ -732,7 +738,11 @@ class BokehTornado(TornadoApplication):
             # avoid the work below if we aren't going to log anything
             return
 
-        log.debug("[pid %d] %d clients connected", PID, len(self._clients))
+        if not self._refresh_stats:
+            return
+        self._refresh_stats = False
+
+        log.debug(f"[pid {pp.num(PID)}] {pp.num(len(self._clients))} clients connected")
         for app_path, app in self._applications.items():
             sessions = list(app.sessions)
             unused_count = 0
