@@ -14,6 +14,8 @@ on:
           - "candidate"
           - "edge"
         default: "beta"
+  schedule:
+    cron: '0 15 * * WED' # two hours before weekly meeting
 
 jobs:
   test:
@@ -44,7 +46,7 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          CHANNEL="latest/${{ github.event.inputs.version }}"
+          CHANNEL="latest/${{ github.event.inputs.version || "beta" }}"
           sudo snap install --channel=CHANNEL chromium
 
       - name: Install dependencies
