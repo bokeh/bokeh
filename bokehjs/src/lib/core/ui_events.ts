@@ -1,5 +1,5 @@
 import {UIGestures} from "./ui_gestures"
-import {Signal} from "./signaling"
+import {Signal, Signal0} from "./signaling"
 import type {Keys} from "./dom"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
@@ -122,19 +122,22 @@ export class UIEventBus {
   readonly rotate:       UISignal<RotateEvent> = new Signal(this, "rotate")
   readonly rotate_end:   UISignal<RotateEvent> = new Signal(this, "rotate:end")
 
-  readonly tap:          UISignal<TapEvent>     = new Signal(this, "tap")
-  readonly doubletap:    UISignal<TapEvent>     = new Signal(this, "doubletap")
-  readonly press:        UISignal<TapEvent>     = new Signal(this, "press")
-  readonly pressup:      UISignal<TapEvent>     = new Signal(this, "pressup")
+  readonly tap:          UISignal<TapEvent>    = new Signal(this, "tap")
+  readonly doubletap:    UISignal<TapEvent>    = new Signal(this, "doubletap")
+  readonly press:        UISignal<TapEvent>    = new Signal(this, "press")
+  readonly pressup:      UISignal<TapEvent>    = new Signal(this, "pressup")
 
-  readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, "move:enter")
-  readonly move:         UISignal<MoveEvent>    = new Signal(this, "move")
-  readonly move_exit:    UISignal<MoveEvent>    = new Signal(this, "move:exit")
+  readonly move_enter:   UISignal<MoveEvent>   = new Signal(this, "move:enter")
+  readonly move:         UISignal<MoveEvent>   = new Signal(this, "move")
+  readonly move_exit:    UISignal<MoveEvent>   = new Signal(this, "move:exit")
 
-  readonly scroll:       UISignal<ScrollEvent>  = new Signal(this, "scroll")
+  readonly scroll:       UISignal<ScrollEvent> = new Signal(this, "scroll")
 
-  readonly keydown:      UISignal<KeyEvent>     = new Signal(this, "keydown")
-  readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
+  readonly keydown:      UISignal<KeyEvent>    = new Signal(this, "keydown")
+  readonly keyup:        UISignal<KeyEvent>    = new Signal(this, "keyup")
+
+  readonly focus:        Signal0<this>         = new Signal0(this, "focus")
+  readonly blur:         Signal0<this>         = new Signal0(this, "blur")
 
   readonly hit_area: HTMLElement
   readonly ui_gestures: UIGestures
@@ -163,20 +166,26 @@ export class UIEventBus {
     this.on_rotate = this.on_rotate.bind(this)
     this.on_rotate_end = this.on_rotate_end.bind(this)
 
-    this.ui_gestures = new UIGestures(this.hit_area, this, {must_be_target: true})
-    this.ui_gestures.connect_signals()
-
     this.on_context_menu = this.on_context_menu.bind(this)
     this.on_mouse_wheel = this.on_mouse_wheel.bind(this)
 
     this.on_key_down = this.on_key_down.bind(this)
     this.on_key_up = this.on_key_up.bind(this)
 
+    this.on_focus = this.on_focus.bind(this)
+    this.on_blur = this.on_blur.bind(this)
+
+    this.ui_gestures = new UIGestures(this.hit_area, this, {must_be_target: true})
+    this.ui_gestures.connect_signals()
+
     this.hit_area.addEventListener("contextmenu", this.on_context_menu)
     this.hit_area.addEventListener("wheel", this.on_mouse_wheel)
 
-    document.addEventListener("keydown", this.on_key_down)
-    document.addEventListener("keyup", this.on_key_up)
+    this.hit_area.addEventListener("focus", this.on_focus)
+    this.hit_area.addEventListener("blur", this.on_blur)
+
+    this.hit_area.addEventListener("keydown", this.on_key_down)
+    this.hit_area.addEventListener("keyup", this.on_key_up)
   }
 
   remove(): void {
@@ -800,5 +809,13 @@ export class UIEventBus {
   on_key_up(event: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
     this.trigger(this.keyup, this._key_event(event))
+  }
+
+  on_focus(): void {
+    this.focus.emit()
+  }
+
+  on_blur(): void {
+    this.blur.emit()
   }
 }
