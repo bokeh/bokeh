@@ -13,6 +13,7 @@ import type {CoordinateMapper} from "core/util/bbox"
 import {BBox, empty} from "core/util/bbox"
 import {minmax2} from "core/util/arrayable"
 import {assert} from "core/util/assert"
+import type {Context2d} from "core/util/canvas"
 import type * as p from "core/properties"
 
 export type Node = {
@@ -153,7 +154,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     }
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     const {xs, ys} = this.model
     assert(xs.length == ys.length)
 
@@ -162,7 +163,6 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
       return new Polygon(x.v_compute(xs), y.v_compute(ys))
     })()
 
-    const {ctx} = this.layer
     ctx.beginPath()
     for (const [sx, sy] of this.poly) {
       ctx.lineTo(sx, sy)

@@ -29,10 +29,6 @@ export abstract class MarkupView extends WidgetView {
     return this.model.disable_math || !this.contains_tex_string(this.model.text)
   }
 
-  protected rerender() {
-    this.render()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => {

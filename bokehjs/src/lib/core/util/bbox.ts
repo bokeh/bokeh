@@ -352,6 +352,11 @@ export class BBox implements Rect, Equatable {
     return {left, right, top, bottom}
   }
 
+  get args(): [x: number, y: number, w: number, h: number] {
+    const {x, y, width, height} = this
+    return [x, y, width, height]
+  }
+
   get x_range(): Interval {
     return {start: this.x0, end: this.x1}
   }
@@ -466,6 +471,11 @@ export class BBox implements Rect, Equatable {
   relative(): BBox {
     const {width, height} = this
     return new BBox({x: 0, y: 0, width, height})
+  }
+
+  relative_to(to: BBox): BBox {
+    const {x, y, width, height} = this
+    return new BBox({x: x - to.x, y: y - to.y, width, height})
   }
 
   translate(tx: number, ty: number): BBox {

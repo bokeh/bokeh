@@ -284,6 +284,7 @@ function diff<T>(a: Set<T>, b: Set<T>): Set<T> {
 describe("Defaults", () => {
   const internal_models = new Set([
     "Canvas",
+    "CanvasPanel",
     "CartesianFrame",
     "CenterRotatable",
     "ClickButton",

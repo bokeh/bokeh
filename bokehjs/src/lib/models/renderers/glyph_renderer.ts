@@ -328,7 +328,7 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl
   }
 
-  protected _paint(): void {
+  protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
     this.map_data()
@@ -336,9 +336,6 @@ export class GlyphRendererView extends DataRendererView {
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]
     let indices = [...this._update_masked_indices()]
-
-    const {ctx} = this.layer
-    ctx.save()
 
     // selected is in full set space
     const {selected} = this.model.data_source
@@ -408,6 +405,8 @@ export class GlyphRendererView extends DataRendererView {
       }
       indices = [...set]
     }
+
+    ctx.save()
 
     // Render with no selection
     if (selected_full_indices.length == 0) {
