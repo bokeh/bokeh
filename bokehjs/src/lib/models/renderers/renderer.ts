@@ -162,6 +162,10 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return true
   }
 
+  get is_dual_renderer(): boolean {
+    return false
+  }
+
   paint(ctx: Context2d): void {
     // It would be better to update geometry (the internal layout) only when
     // necessary, but conditions for that are not clear, so for now update
@@ -170,7 +174,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this.compute_geometry()
     this.update_position()
 
-    if (this.displayed && this.is_renderable) {
+    if (this.displayed && this.is_renderable && (!this.is_dual_renderer || this.parent.is_forcing_paint)) {
       this._paint(ctx)
     }
 

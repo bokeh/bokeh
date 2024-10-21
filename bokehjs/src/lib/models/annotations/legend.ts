@@ -39,6 +39,10 @@ export class LegendView extends AnnotationView {
   declare model: Legend
   declare visuals: Legend.Visuals
 
+  override get is_dual_renderer(): boolean {
+    return true
+  }
+
   protected override _get_size(): Size {
     const {width, height} = this.bbox
     const {margin} = this.model

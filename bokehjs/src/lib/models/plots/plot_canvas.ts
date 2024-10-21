@@ -1220,6 +1220,20 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
+  private _force_paint: boolean = false
+  get is_forcing_paint(): boolean {
+    return this._force_paint
+  }
+
+  force_paint(fn: () => void): void {
+    try {
+      this._force_paint = true
+      fn()
+    } finally {
+      this._force_paint = false
+    }
+  }
+
   override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
     const output_backend = (() => {
       switch (type) {
@@ -1235,10 +1249,12 @@ export class PlotView extends LayoutDOMView implements Paintable {
     composite.resize(width, height)
 
     if (width != 0 && height != 0) {
-      const ctx = composite.prepare()
-      this._paint_primary(ctx)
-      this._paint_overlays(ctx)
-      composite.finish()
+      this.force_paint(() => {
+        const ctx = composite.prepare()
+        this._paint_primary(ctx)
+        this._paint_overlays(ctx)
+        composite.finish()
+      })
     }
 
     return composite
