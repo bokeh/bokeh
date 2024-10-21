@@ -15,7 +15,7 @@ on:
           - "edge"
         default: "beta"
   schedule:
-    cron: '0 15 * * WED' # two hours before weekly meeting
+    - cron: '0 15 * * WED' # two hours before weekly meeting
 
 jobs:
   test:
