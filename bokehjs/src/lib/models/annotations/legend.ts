@@ -104,7 +104,9 @@ export class LegendView extends AnnotationView {
     const {orientation} = this.model
     const vertical = orientation == "vertical"
 
-    const label_el = div({class: legend_css.label}, this.model.title)
+    const title_el = div({class: legend_css.title}, this.model.title)
+    this.title_el.remove()
+    this.title_el = title_el
 
     // can't simply use `rotate`, because rotation doesn't affect layout
     const {writing_mode, rotate} = (() => {
@@ -116,23 +118,15 @@ export class LegendView extends AnnotationView {
         case "right": return {writing_mode: "vertical-rl",   rotate: 0}
       }
     })()
-    this.style.append(`
-    .${legend_css.title} .${legend_css.label} {
-      writing-mode: ${writing_mode};
-      rotate: ${rotate}deg;
-    }
-    `)
-
-    const title_el = div({class: legend_css.title}, label_el)
-    this.title_el.remove()
-    this.title_el = title_el
 
     const title_styles = this.visuals.title_text.computed_values()
     this.style.append(`
-    .${legend_css.title} .${legend_css.label} {
+    .${legend_css.title} {
       font: ${title_styles.font};
       color: ${title_styles.color};
       -webkit-text-stroke: 1px ${title_styles.outline_color};
+      writing-mode: ${writing_mode};
+      rotate: ${rotate}deg;
     }
     `)
 
@@ -309,17 +303,17 @@ export class LegendView extends AnnotationView {
     }
     `)
 
-    const legend_layout = (() => {
+    const grid_auto_flow = (() => {
       switch (this.model.title_location) {
         case "above":
-        case "below": return "column"
+        case "below": return "row"
         case "left":
-        case "right": return "row"
+        case "right": return "column"
       }
     })()
     this.style.append(`
       :host {
-        --legend-layout: ${legend_layout}
+        grid-auto-flow: ${grid_auto_flow};
       }
     `)
 

@@ -1,8 +1,8 @@
 :host {
   position: absolute;
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: var(--legend-layout);
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: auto;
   pointer-events: all;
 }
 
@@ -12,10 +12,11 @@
 
 .bk-title {
   position: relative;
-
-  &:has(.bk-label:empty) {
-    display: none;
-  }
+  white-space: pre;
+  cursor: auto;
+}
+.bk-title:empty {
+  display: none;
 }
 
 .bk-label {
