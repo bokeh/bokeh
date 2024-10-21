@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to build a release for (e.g. 3.0.0, 2.4.0.dev8)"
+        description: "Version to build a release for (e.g. 3.7.0, 3.6.0.dev3)"
         required: true
 
 defaults:

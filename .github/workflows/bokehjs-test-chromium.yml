@@ -1,0 +1,118 @@
+name: BokehJS - Test Chromium
+run-name: BokehJS - Test Chromium ${{ github.event.inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Chromium version to test"
+        required: true
+        type: choice
+        options:
+          - "stable"
+          - "beta"
+          - "candidate"
+          - "edge"
+        default: "beta"
+  schedule:
+    cron: '0 15 * * WED' # two hours before weekly meeting
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-24.04]
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Install node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Upgrade npm
+        shell: bash
+        run: |
+          npm install --location=global npm
+
+      - name: Install chromium
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          CHANNEL="latest/${{ github.event.inputs.version || "beta" }}"
+          sudo snap install --channel=CHANNEL chromium
+
+      - name: Install dependencies
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          npm ci --no-progress
+
+      - name: List installed software
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+          chromium --version
+
+      - name: Build bokehjs
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make build
+
+      - name: Run tests
+        if: success() || failure()
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make test --screenshot=save # screenshots will almost always fail
+
+      - name: Lint codebase
+        if: success() || failure()
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make lint
+
+      - name: Check repository status
+        if: success() || failure()
+        shell: bash
+        run: |
+          OUTPUT=$(git status --short bokehjs -- ':!bokehjs/test/baselines')
+          if [[ ! -z "$OUTPUT" ]]; then echo $OUTPUT; exit 1; fi
+
+      - name: Collect results
+        if: runner.os == 'Linux' && (success() || failure())
+        shell: bash
+        run: |
+          SRC="bokehjs/test/baselines/linux"
+          DST="bokehjs-report/${SRC}"
+          mkdir -p ${DST}
+          if [[ -e ${SRC}/report.json ]];
+          then
+            CHANGED=$(git status --short ${SRC}/\*.blf ${SRC}/\*.png | cut -c4-)
+            cp ${SRC}/report.{json,out} ${CHANGED} ${DST}
+          fi
+
+      - name: Upload package
+        if: runner.os == 'Linux' && (success() || failure())
+        uses: actions/upload-artifact@v4
+        with:
+          name: bokehjs-package
+          path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
+
+      - name: Upload report
+        if: runner.os == 'Linux' && (success() || failure())
+        uses: actions/upload-artifact@v4
+        with:
+          name: bokehjs-report
+          path: bokehjs-report
