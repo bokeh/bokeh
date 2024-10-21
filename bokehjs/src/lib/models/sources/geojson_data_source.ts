@@ -61,7 +61,8 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.properties.geojson.change, () => this._update_data())
+    const {geojson} = this.properties
+    this.on_change(geojson, () => this._update_data())
   }
 
   protected _update_data(): void {

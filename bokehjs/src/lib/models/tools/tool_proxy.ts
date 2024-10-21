@@ -39,10 +39,9 @@ export class ToolProxy<T extends Tool> extends Model {
     }))
   }
 
-  do: Signal0<this>
+  readonly do = new Signal0(this, "do")
 
   // Operates all the tools given only one button
-
   get underlying(): Tool {
     return this.tools[0]
   }
@@ -89,11 +88,6 @@ export class ToolProxy<T extends Tool> extends Model {
   get visible(): boolean {
     const tool = this.tools[0] as Tool
     return tool.visible
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.do = new Signal0(this, "do")
   }
 
   override connect_signals(): void {
