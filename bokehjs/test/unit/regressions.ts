@@ -28,6 +28,7 @@ import {
   Line,
   LinearColorMapper,
   Node,
+  PanTool,
   Pane,
   Plot,
   Range1d,
@@ -41,6 +42,7 @@ import {
   Title,
   Toolbar,
   WMTSTileSource,
+  WheelZoomTool,
 } from "@bokehjs/models"
 
 import {
@@ -1712,6 +1714,34 @@ describe("Bug", () => {
       await scroll_down(view.input_el)
       await view.ready
       expect(spinner.value).to.be.equal(1)
+    })
+  })
+
+  describe("in issue #14107", () => {
+    it("doesn't allow for default browser touch actions when no tools are enabled", async () => {
+      const p0 = fig([200, 200], {tools: [], toolbar_location: "right"})
+      p0.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+      const {view: pv0} = await display(p0)
+      expect(getComputedStyle(pv0.canvas.events_el).touchAction).to.be.equal("auto")
+
+      const pan1 = new PanTool()
+      const p1 = fig([200, 200], {tools: [pan1], active_drag: pan1, toolbar_location: "right"})
+      p1.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+      const {view: pv1} = await display(p1)
+      expect(getComputedStyle(pv1.canvas.events_el).touchAction).to.be.equal("pinch-zoom")
+
+      const zoom2 = new WheelZoomTool()
+      const p2 = fig([200, 200], {tools: [zoom2], active_scroll: zoom2, toolbar_location: "right"})
+      p2.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+      const {view: pv2} = await display(p2)
+      expect(getComputedStyle(pv2.canvas.events_el).touchAction).to.be.equal("pan-x pan-y")
+
+      const pan3 = new PanTool()
+      const zoom3 = new WheelZoomTool()
+      const p3 = fig([200, 200], {tools: [pan3, zoom3], active_drag: pan3, active_scroll: zoom3, toolbar_location: "right"})
+      p3.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+      const {view: pv3} = await display(p3)
+      expect(getComputedStyle(pv3.canvas.events_el).touchAction).to.be.equal("none")
     })
   })
 })

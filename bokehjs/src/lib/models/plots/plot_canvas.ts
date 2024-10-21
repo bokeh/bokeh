@@ -61,8 +61,9 @@ import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
 
-import plots_css from "styles/plots.css"
-import attribution_css from "styles/attribution.css"
+import * as plots_css from "styles/plots.css"
+import * as canvas_css from "styles/canvas.css"
+import * as attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
@@ -88,10 +89,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   readonly repainted = new Signal0(this, "repainted")
 
-  protected _computed_style = new InlineStyleSheet()
+  protected readonly _computed_style = new InlineStyleSheet()
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), plots_css, this._computed_style]
+    return [...super.stylesheets(), plots_css.default, this._computed_style]
   }
 
   protected _title?: Title
@@ -318,7 +319,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       css_variables: {
         "--max-width": new Node({target: "frame", symbol: "width"}),
       },
-      stylesheets: [attribution_css],
+      stylesheets: [attribution_css.default],
     })
 
     this._notifications = new Panel({
@@ -364,6 +365,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     await this.build_renderer_views()
 
     this._range_manager.update_dataranges()
+    this._update_touch_action() // active_changed emits too early, so update manually the first time
   }
 
   override box_sizing(): DOMBoxSizing {
@@ -884,6 +886,44 @@ export class PlotView extends LayoutDOMView implements Paintable {
         this.request_repaint()
       }
     })
+
+    this.model.toolbar.active_changed.connect(() => this._update_touch_action())
+  }
+
+  protected _update_touch_action(): void {
+    const {toolbar} = this.model
+    let has_pan = false
+    let has_scroll = false
+    for (const tool of toolbar.tools) {
+      if (tool.active) {
+        const {event_types} = tool
+        if (event_types.includes("pan")) {
+          has_pan = true
+        }
+        if (event_types.includes("scroll")) {
+          has_scroll = true
+        }
+        if (has_pan && has_scroll) {
+          break
+        }
+      }
+    }
+    const touch_action = (() => {
+      if (!has_pan && !has_scroll) {
+        return "auto"
+      } else if (!has_pan) {
+        return "pan-x pan-y"
+      } else if (!has_scroll) {
+        return "pinch-zoom" // scroll implies pinch where applicable
+      } else {
+        return "none"
+      }
+    })()
+    this.canvas.touch_action.replace(`
+      .${canvas_css.events} {
+        touch-action: ${touch_action};
+      }
+    `)
   }
 
   override has_finished(): boolean {

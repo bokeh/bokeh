@@ -21,6 +21,7 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import type {At} from "core/util/menus"
 import {ContextMenu} from "core/util/menus"
+import {Signal0} from "core/signaling"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
 import logos_css, * as logos from "styles/logo.css"
@@ -369,6 +370,8 @@ export class Toolbar extends UIElement {
     })
   }
 
+  active_changed: Signal0<this>
+
   get horizontal(): boolean {
     return this.location == "above" || this.location == "below"
   }
@@ -389,6 +392,7 @@ export class Toolbar extends UIElement {
 
   override initialize(): void {
     super.initialize()
+    this.active_changed  = new Signal0(this, "active_changed")
     this._init_tools()
     this._activate_tools()
   }
@@ -477,7 +481,10 @@ export class Toolbar extends UIElement {
     for (const gesture of values(this.gestures)) {
       for (const tool of gesture.tools) {
         // XXX: connect once
-        this.connect(tool.properties.active.change, () => this._active_change(tool))
+        this.connect(tool.properties.active.change, () => {
+          this._active_change(tool)
+          this.active_changed.emit()
+        })
       }
     }
 
@@ -526,6 +533,8 @@ export class Toolbar extends UIElement {
         }
       }
     }
+
+    this.active_changed.emit()
   }
 
   _active_change(tool: ToolLike<GestureTool>): void {
