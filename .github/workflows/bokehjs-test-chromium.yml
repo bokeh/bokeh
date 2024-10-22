@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           CHANNEL="latest/${{ github.event.inputs.version || 'beta' }}"
-          sudo snap install --channel=CHANNEL chromium
+          sudo snap install --channel=$CHANNEL chromium
 
       - name: Install dependencies
         working-directory: ./bokehjs
