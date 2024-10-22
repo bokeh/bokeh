@@ -63,6 +63,19 @@ export class LegendView extends AnnotationView {
     }
   }
 
+  protected _resize_observer: ResizeObserver
+
+  override initialize(): void {
+    super.initialize()
+    this._resize_observer = new ResizeObserver((_entries) => this.request_layout())
+    this._resize_observer.observe(this.el, {box: "border-box"})
+  }
+
+  override remove(): void {
+    this._resize_observer.disconnect()
+    super.remove()
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.rerender())

@@ -31,6 +31,7 @@ import {
   Tooltip,
   Node, Indexed,
   Dialog,
+  Legend, LegendItem,
 } from "@bokehjs/models"
 
 import {
@@ -4152,6 +4153,25 @@ describe("Bug", () => {
         [p3, 1, 1],
         [p4, 2, 2],
       ]
+      await view.ready
+    })
+  })
+
+  describe("in issue #13566", () => {
+    it("doesn't allot to recompute the layout when dimensions of Legend change", async () => {
+      const p = fig([400, 200])
+      const scatter = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
+
+      const legend = new Legend({
+        items: [
+          new LegendItem({label: "Short label", renderers: [scatter]}),
+        ],
+      })
+      p.add_layout(legend, "left")
+
+      const {view} = await display(p)
+
+      legend.items[0].label = "Long ....... label"
       await view.ready
     })
   })
