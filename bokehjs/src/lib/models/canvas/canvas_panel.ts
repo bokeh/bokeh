@@ -39,16 +39,7 @@ export class CanvasPanelView extends StyledElementView {
    */
   protected _update_position(): void {
     const {bbox, position} = this
-    if (bbox.is_valid) {
-      position.replace(`
-      :host {
-        left:   ${bbox.left}px;
-        top:    ${bbox.top}px;
-        width:  ${bbox.width}px;
-        height: ${bbox.height}px;
-      }
-      `)
-    } else {
+    if (!bbox.is_valid) {
       position.replace(`
       :host {
         display: none;

@@ -5,7 +5,6 @@ import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {empty, position, display, undisplay} from "core/dom"
 import type {Size, Layoutable} from "core/layout"
-import type {SidePanel} from "core/layout/side_panel"
 import {SideLayout} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
@@ -13,7 +12,6 @@ import type * as p from "core/properties"
 export class ToolbarPanelView extends AnnotationView {
   declare model: ToolbarPanel
 
-  declare panel: SidePanel
   declare layout: Layoutable
 
   override rendering_target(): HTMLElement {
@@ -21,7 +19,7 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   override update_layout(): void {
-    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+    this.layout = new SideLayout(this.panel!, () => this.get_size(), true)
   }
 
   override after_layout(): void {

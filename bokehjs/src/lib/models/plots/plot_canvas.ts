@@ -285,12 +285,13 @@ export class PlotView extends LayoutDOMView implements Paintable {
       selection: new Map(),               // XXX: initial selection?
     }
 
-    this._top_panel = new CanvasPanel()
-    this._bottom_panel = new CanvasPanel()
-    this._left_panel = new CanvasPanel()
-    this._right_panel = new CanvasPanel()
+    this._top_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: row; grid-area: above; }"]})
+    this._bottom_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: row; grid-area: below; }"]})
+    this._left_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: column; grid-area: left; }"]})
+    this._right_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: column; grid-area: right; }"]})
 
     this._frame = new CartesianFrame({
+      stylesheets: [":host { grid-area: center; }"],
       x_scale: this.model.x_scale,
       y_scale: this.model.y_scale,
       x_range: this.model.x_range,
@@ -638,6 +639,20 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
 
     this.layout = layout
+
+    const above_els = this.views.select(this.model.above).map((view) => view.el)
+    const below_els = this.views.select(this.model.below).map((view) => view.el)
+    const left_els = this.views.select(this.model.left).map((view) => view.el)
+    const right_els = this.views.select(this.model.right).map((view) => view.el)
+    const center_els = this.views.select(this.model.center).map((view) => view.el)
+    const renderer_els = this.views.select(this.model.renderers).map((view) => view.el)
+
+    this.top_panel.shadow_el.append(...reversed(above_els))
+    this.bottom_panel.shadow_el.append(...below_els)
+    this.left_panel.shadow_el.append(...reversed(left_els))
+    this.right_panel.shadow_el.append(...right_els)
+
+    this.frame.shadow_el.append(...renderer_els, ...center_els)
   }
 
   protected override _measure_layout(): void {

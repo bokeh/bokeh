@@ -1,14 +1,10 @@
 import {CompositeRenderer, CompositeRendererView} from "../renderers/composite_renderer"
-import type {SidePanel} from "core/layout/side_panel"
-import type {Size, Layoutable} from "core/layout"
+import type {Size} from "core/layout"
 import type {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
 
 export abstract class AnnotationView extends CompositeRendererView {
   declare model: Annotation
-
-  layout?: Layoutable
-  panel?: SidePanel
 
   update_layout?(): void
   after_layout?(): void
