@@ -46,7 +46,7 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          CHANNEL="latest/${{ github.event.inputs.version || "beta" }}"
+          CHANNEL="latest/${{ github.event.inputs.version || 'beta' }}"
           sudo snap install --channel=CHANNEL chromium
 
       - name: Install dependencies
