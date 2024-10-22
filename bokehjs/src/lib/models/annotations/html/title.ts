@@ -2,7 +2,6 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
 import {TextBox} from "core/graphics"
 import type {Size, Layoutable} from "core/layout"
-import type {SidePanel} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
@@ -11,7 +10,6 @@ export class HTMLTitleView extends TextAnnotationView {
   declare model: HTMLTitle
   declare visuals: HTMLTitle.Visuals
   declare layout: Layoutable
-  declare panel: SidePanel
 
   protected _get_location(): [number, number] {
     const hmargin = this.model.offset
@@ -19,7 +17,7 @@ export class HTMLTitleView extends TextAnnotationView {
 
     let sx: number, sy: number
     const {bbox} = this.layout
-    switch (this.panel.side) {
+    switch (this.panel!.side) {
       case "above":
       case "below": {
         switch (this.model.vertical_align) {
@@ -78,7 +76,7 @@ export class HTMLTitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.panel.get_label_angle_heuristic("parallel")
+    const angle = this.panel!.get_label_angle_heuristic("parallel")
 
     this._paint_text(ctx, text, sx, sy, angle)
   }

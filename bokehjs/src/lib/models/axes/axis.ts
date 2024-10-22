@@ -10,7 +10,7 @@ import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {HAlign, VAlign} from "core/enums"
 import {Align, Face, LabelOrientation} from "core/enums"
-import type {Size, Layoutable} from "core/layout"
+import type {Size} from "core/layout"
 import {Indices} from "core/types"
 import type {Orient, Normal, Dimension} from "core/layout/side_panel"
 import {SidePanel, SideLayout} from "core/layout/side_panel"
@@ -60,13 +60,10 @@ export abstract class AxisView extends GuideRendererView {
 
   declare readonly RangeType: Range
 
-  layout?: Layoutable
-
-  private _panel: SidePanel
-  get panel(): SidePanel {
-    return this._panel
+  override get panel(): SidePanel {
+    return this._panel!
   }
-  set panel(panel: SidePanel) {
+  override set panel(panel: SidePanel) {
     this._panel = new SidePanel(panel.side, this.model.face)
   }
 

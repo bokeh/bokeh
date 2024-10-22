@@ -61,8 +61,6 @@ export class LegendView extends AnnotationView {
     } else {
       this.layout = undefined
     }
-
-    this.rendering_target().append(this.el)
   }
 
   override connect_signals(): void {
@@ -445,6 +443,7 @@ export class LegendView extends AnnotationView {
       const {x, y} = this.css_position
       this.position.replace(`
       :host {
+        position: ${this.layout != null ? "relative" : "absolute"};
         left: ${x};
         top:  ${y};
       }
@@ -459,22 +458,6 @@ export class LegendView extends AnnotationView {
 
     const {left, top, width, height} = bounding_box(this.el)
     this._bbox = new BBox({left, top, width, height})
-  }
-
-  override rendering_target(): HTMLElement | ShadowRoot {
-    const panel = (() => {
-      if (this.panel != null) {
-        switch (this.panel.side) {
-          case "above": return this.plot_view.top_panel
-          case "below" :return this.plot_view.bottom_panel
-          case "left":  return this.plot_view.left_panel
-          case "right": return this.plot_view.right_panel
-        }
-      } else {
-        return this.plot_view.frame
-      }
-    })()
-    return panel.shadow_el
   }
 
   get is_interactive(): boolean {

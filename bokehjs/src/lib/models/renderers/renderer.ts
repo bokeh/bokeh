@@ -16,12 +16,24 @@ import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
 import {InlineStyleSheet} from "core/dom"
+import type {SidePanel} from "core/layout/side_panel"
+import type {Layoutable} from "core/layout"
 
 export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
   declare readonly parent: PlotView
+
+  layout?: Layoutable
+
+  protected _panel: SidePanel | null = null
+  get panel(): SidePanel | null {
+    return this._panel
+  }
+  set panel(panel: SidePanel) {
+    this._panel = panel
+  }
 
   readonly position = new InlineStyleSheet()
 
@@ -203,15 +215,25 @@ export abstract class RendererView extends StyledElementView implements visuals.
   update_position(): void {
     const {bbox, position} = this
     if (bbox != null && bbox.is_valid) {
-      position.replace(`
-      :host {
-        position: absolute;
-        left:     ${bbox.left}px;
-        top:      ${bbox.top}px;
-        width:    ${bbox.width}px;
-        height:   ${bbox.height}px;
+      if (this.panel != null) {
+        position.replace(`
+        :host {
+          position: relative;
+          width:    ${bbox.width}px;
+          height:   ${bbox.height}px;
+        }
+        `)
+      } else {
+        position.replace(`
+        :host {
+          position: absolute;
+          left:     ${bbox.left}px;
+          top:      ${bbox.top}px;
+          width:    ${bbox.width}px;
+          height:   ${bbox.height}px;
+        }
+        `)
       }
-      `)
     } else {
       position.replace(`
       :host {
