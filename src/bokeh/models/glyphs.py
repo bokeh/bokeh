@@ -40,6 +40,7 @@ from ..core.enums import (
     ImageOrigin,
     OutlineShapeName,
     Palette,
+    RadiusDimension,
     StepMode,
     enumeration,
 )
@@ -483,7 +484,7 @@ class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
         information.
     """)
 
-    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    radius_dimension = Enum(RadiusDimension, help="""
     What dimension to measure circle radii along.
 
     When the data space aspect ratio is not 1-1, then the size of the drawn
