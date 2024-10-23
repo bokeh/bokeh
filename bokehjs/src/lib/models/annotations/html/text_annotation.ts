@@ -64,16 +64,30 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     const {padding, border_radius} = this
 
-    this.position.replace(`
-    :host {
-      position: absolute;
-      left: ${sx}px;
-      top: ${sy}px;
+    if (this.layout != null) {
+      this.position.replace(`
+      :host {
+        position: relative;
+      }
+      `)
+    } else {
+      const panel = this.plot_view.frame
+      const [rsx, rsy] = panel.bbox.relativize(sx, sy)
+
+      this.position.replace(`
+      :host {
+        position: absolute;
+        left: ${rsx}px;
+        top: ${rsy}px;
+      }
+      `)
     }
-    `)
 
     this.style.replace(`
     :host {
+      width: max-content;
+      height: max-content;
+
       color: ${ctx.fillStyle};
       -webkit-text-stroke: 1px ${ctx.strokeStyle};
       font: ${ctx.font};
@@ -91,38 +105,39 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
     `)
 
-    const [x_anchor, x_t] = (() => {
-      switch (this.visuals.text.text_align.get_value()) {
-        case "left":   return ["left", "0%"]
-        case "center": return ["center", "-50%"]
-        case "right":  return ["right", "-100%"]
-      }
-    })()
-    const [y_anchor, y_t] = (() => {
-      switch (this.visuals.text.text_baseline.get_value()) {
-        case "top":    return ["top", "0%"]
-        case "middle": return ["center", "-50%"]
-        case "bottom": return ["bottom", "-100%"]
-        default:       return ["center", "-50%"]  // "baseline"
-      }
-    })()
-
-    let transform = `translate(${x_t}, ${y_t})`
     if (angle != 0) {
-      transform += ` rotate(${angle}rad)`
+      this.style.append(`
+      :host {
+        rotate: ${angle}rad;
+      }
+      `)
     }
-
-    this.style.append(`
-    :host {
-      transform-origin: ${x_anchor} ${y_anchor};
-      transform: ${transform};
-    }
-    `)
 
     if (this.layout == null) {
-      // const {bbox} = this.plot_view.frame
-      // const {left, right, top, bottom} = bbox
-      // el.style.clipPath = ???
+      const [x_anchor, x_t] = (() => {
+        switch (this.visuals.text.text_align.get_value()) {
+          case "left":   return ["left", "0%"]
+          case "center": return ["center", "-50%"]
+          case "right":  return ["right", "-100%"]
+        }
+      })()
+      const [y_anchor, y_t] = (() => {
+        switch (this.visuals.text.text_baseline.get_value()) {
+          case "top":    return ["top", "0%"]
+          case "middle": return ["center", "-50%"]
+          case "bottom": return ["bottom", "-100%"]
+          default:       return ["center", "-50%"]  // "baseline"
+        }
+      })()
+
+      const transform = `translate(${x_t}, ${y_t})`
+
+      this.style.append(`
+      :host {
+        transform-origin: ${x_anchor} ${y_anchor};
+        transform: ${transform};
+      }
+      `)
     }
 
     if (this.visuals.background_fill.doit) {
