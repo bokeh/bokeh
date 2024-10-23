@@ -17,7 +17,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import base64
 import re
 import sys
 from typing import TYPE_CHECKING
@@ -198,9 +197,13 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> 
 def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     layout = Plot(
         x_range=Range1d(), y_range=Range1d(),
-        height=20, width=20, toolbar_location=None,
-        outline_line_color=None, border_fill_color=None,
-        background_fill_color="red", output_backend="canvas",
+        toolbar_location=None,
+        height=20, width=20,
+        min_border=0,
+        outline_line_color=None,
+        border_fill_color=None,
+        background_fill_color="red",
+        output_backend="canvas",
     )
 
     with silenced(MISSING_RENDERERS):
@@ -209,18 +212,12 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     assert isinstance(svgs, list) and len(svgs) == 1
     [svg] = svgs
 
-    pattern = re.compile(
+    assert svg == (
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
             '<defs/>'
-            '<image width="20" height="20" preserveAspectRatio="none" href="data:image/png;base64,([^"]*)"/>'
-        '</svg>',
+            '<path fill="red" stroke="none" paint-order="stroke" d="M 0.5 0.5 L 20.5 0.5 L 20.5 20.5 L 0.5 20.5 L 0.5 0.5 Z"/>'
+        '</svg>'
     )
-
-    result = pattern.match(svg)
-    assert result is not None
-
-    (data,) = result.groups()
-    assert base64.b64decode(data).startswith(b"\x89PNG\r\n")
 
 @pytest.mark.selenium
 def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
