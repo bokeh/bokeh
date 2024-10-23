@@ -144,6 +144,12 @@ export abstract class LayoutDOMView extends PaneView {
     }
   }
 
+  override rerender(): void {
+    super.rerender()
+    this.update_layout()
+    this.compute_layout()
+  }
+
   protected _update_children(): void {}
 
   async update_children(): Promise<void> {

@@ -80,11 +80,11 @@ export abstract class InputWidgetView extends ControlView {
     const {title, description} = this.model.properties
     this.on_change(title, async () => {
       await this._build_title()
-      this.render()
+      this.rerender()
     })
     this.on_change(description, async () => {
       await this._build_description()
-      this.render()
+      this.rerender()
     })
   }
 

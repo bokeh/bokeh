@@ -14,7 +14,7 @@ export class TextInputView extends TextLikeInputView {
   override connect_signals(): void {
     super.connect_signals()
     const {prefix, suffix} = this.model.properties
-    this.on_change([prefix, suffix], () => this.render())
+    this.on_change([prefix, suffix], () => this.rerender())
   }
 
   protected _render_input(): HTMLElement {

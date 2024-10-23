@@ -38,7 +38,7 @@ export class PaletteSelectView extends InputWidgetView {
   override connect_signals(): void {
     super.connect_signals()
     const {value, items, ncols, swatch_width, swatch_height} = this.model.properties
-    this.on_change([items, swatch_width, swatch_height], () => this.render())
+    this.on_change([items, swatch_width, swatch_height], () => this.rerender())
     this.on_change(value, () => this._update_value())
     this.on_change(ncols, () => this._update_ncols())
   }

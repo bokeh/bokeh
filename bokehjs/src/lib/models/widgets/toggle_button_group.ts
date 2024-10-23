@@ -19,8 +19,8 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
     super.connect_signals()
 
     const p = this.model.properties
-    this.on_change(p.button_type, () => this.render())
-    this.on_change(p.labels,      () => this.render())
+    this.on_change(p.button_type, () => this.rerender())
+    this.on_change(p.labels,      () => this.rerender())
     this.on_change(p.active,      () => this._update_active())
   }
 

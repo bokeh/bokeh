@@ -57,14 +57,14 @@ export class MultiChoiceView extends InputWidgetView {
     this.connect(this.model.properties.disabled.change, () => this.set_disabled())
 
     const {value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title} = this.model.properties
-    this.on_change([max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.render())
+    this.on_change([max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.rerender())
     this.on_change(value, () => {
       // Detects if value change originated in UI or elsewhere. Choices.js automatically
       // updates itself, so we don't have to do anything, and in fact we shouldn't do
       // anything, because the component is finicky and hard to update without breaking
       // something, loosing focus, etc.
       if (!is_equal(this.model.value, this._current_values)) {
-        this.render()
+        this.rerender()
       }
     })
   }

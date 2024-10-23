@@ -65,14 +65,14 @@ export abstract class AbstractButtonView extends ControlView {
     const {label, icon, button_type, disabled} = this.model.properties
     this.on_transitive_change(label, async () => {
       await this._rebuild_label()
-      this.render()
+      this.rerender()
     })
     this.on_transitive_change(icon, async () => {
       await this._rebuild_icon()
-      this.render()
+      this.rerender()
     })
     this.on_change([button_type, disabled], () => {
-      this.render()
+      this.rerender()
     })
   }
 
