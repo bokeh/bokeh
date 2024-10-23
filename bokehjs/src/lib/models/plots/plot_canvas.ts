@@ -886,22 +886,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
   }
 
-  override has_finished(): boolean {
-    if (!super.has_finished()) {
-      return false
-    }
-
-    if (this.model.visible) {
-      for (const [, renderer_view] of this.renderer_views) {
-        if (!renderer_view.has_finished()) {
-          return false
-        }
-      }
-    }
-
-    return true
-  }
-
   override _after_layout(): void {
     super._after_layout()
     this.unpause(true)

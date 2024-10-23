@@ -108,6 +108,8 @@ export abstract class GlyphView extends DOMComponentView {
       const cls = await this.load_glglyph() as BaseGLGlyphConstructor
       this.glglyph = new cls(webgl.regl_wrapper, this)
     }
+
+    this.mark_finished()
   }
 
   request_paint(): void {
@@ -129,14 +131,6 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   protected abstract _paint(ctx: Context2d, indices: number[], data?: Glyph.Data): void
-
-  override has_finished(): boolean {
-    return true
-  }
-
-  override notify_finished(): void {
-    this.renderer.notify_finished()
-  }
 
   protected _bounds(bounds: Rect): Rect {
     return bounds

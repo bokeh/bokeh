@@ -47,6 +47,7 @@ export class ImageURLView extends XYGlyphView {
 
   protected override _set_data(): void {
     if (this.inherited_url) {
+      this._images_rendered = true
       return
     }
 

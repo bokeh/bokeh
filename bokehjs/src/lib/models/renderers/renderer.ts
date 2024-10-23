@@ -130,10 +130,6 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this.plot_view.request_layout()
   }
 
-  override notify_finished(): void {
-    this.plot_view.notify_finished()
-  }
-
   notify_finished_after_paint(): void {
     this.plot_view.notify_finished_after_paint()
   }
