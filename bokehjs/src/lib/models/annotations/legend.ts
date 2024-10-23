@@ -12,9 +12,10 @@ import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
 import {dict} from "core/util/object"
 import {isString} from "core/util/types"
-import type {Context2d} from "core/util/canvas"
+import {zip} from "core/util/iterator"
+import type {Context2d, CanvasLayer} from "core/util/canvas"
 import {LegendItemClick} from "core/bokeh_events"
-import {div, bounding_box, px} from "core/dom"
+import {div, bounding_box, px, empty} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
 import {TextBox} from "core/graphics"
 import * as legend_css from "styles/legend.css"
@@ -27,9 +28,10 @@ const {ceil} = Math
 
 type Entry = {
   el: HTMLElement
-  glyph_el: HTMLCanvasElement
+  glyph: CanvasLayer
   label_el: HTMLElement
   item: LegendItem
+  label: string
   i: number
   row: number
   col: number
@@ -81,7 +83,7 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.change, () => this.rerender())
 
     const {items} = this.model.properties
-    this.on_transitive_change(items, () => this.rerender(), {recursive: true})
+    this.on_transitive_change(items, () => this._render_items())
   }
 
   protected _bbox: BBox = new BBox()
@@ -89,7 +91,7 @@ export class LegendView extends AnnotationView {
     return this._bbox
   }
 
-  protected grid_el: HTMLElement = div()
+  protected readonly grid_el: HTMLElement = div({class: legend_css.grid})
   protected title_el: HTMLElement = div()
 
   protected entries: Entry[] = []
@@ -107,13 +109,161 @@ export class LegendView extends AnnotationView {
     return [...super.stylesheets(), legend_css.default]
   }
 
+  protected _paint_glyphs(): void {
+    const {glyph_width, glyph_height} = this.model
+
+    const x0 = 0
+    const y0 = 0
+    const x1 = glyph_width
+    const y1 = glyph_height
+
+    for (const {glyph, item, label} of this.entries) {
+      const field = item.get_field_from_label_prop()
+      glyph.resize(glyph_width, glyph_height)
+
+      const ctx = glyph.prepare()
+      for (const renderer of item.renderers) {
+        const view = this.plot_view.views.find_one(renderer)
+        view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
+      }
+      glyph.finish()
+    }
+  }
+
+  get labels(): {item: LegendItem, label: string}[] {
+    const collected = []
+    for (const item of this.model.items) {
+      const labels = item.get_labels_list_from_label_prop()
+      for (const label of labels) {
+        collected.push({item, label})
+      }
+    }
+    return collected
+  }
+
+  protected get _should_rerender_items(): boolean {
+    const {entries, labels} = this
+    if (entries.length != labels.length) {
+      return true
+    }
+    for (const [entry, {item, label}] of zip(entries, labels)) {
+      if (entry.item != item || entry.label != label) {
+        return true
+      }
+    }
+    return false
+  }
+
+  protected _render_items(): void {
+    this.entries = []
+
+    const {click_policy} = this
+    let i = 0
+
+    for (const item of this.model.items) {
+      const labels = item.get_labels_list_from_label_prop()
+
+      for (const label of labels) {
+        const glyph = this.plot_view.canvas.create_layer()
+        glyph.el.classList.add(legend_css.glyph)
+
+        const glyph_el = glyph.canvas
+        const label_el = div({class: legend_css.label}, `${label}`)
+        const item_el = div({class: legend_css.item}, glyph_el, label_el)
+        item_el.classList.toggle(legend_css.hidden, !item.visible)
+
+        item_el.addEventListener("pointerdown", () => {
+          this.model.trigger_event(new LegendItemClick(this.model, item))
+          for (const renderer of item.renderers) {
+            click_policy(renderer)
+          }
+        })
+
+        this.entries.push({el: item_el, glyph, label_el, item, label, i: i++, row: 0, col: 0})
+      }
+    }
+
+    const vertical = this.model.orientation == "vertical"
+
+    const {nc: ncols, nr: nrows} = (() => {
+      const {ncols, nrows} = this.model
+      const n = this.entries.length
+      let nc: number
+      let nr: number
+      if (ncols != "auto" && nrows != "auto") {
+        nc = ncols
+        nr = nrows
+      } else if (ncols != "auto") {
+        nc = ncols
+        nr = ceil(n / ncols)
+      } else if (nrows != "auto") {
+        nc = ceil(n / nrows)
+        nr = nrows
+      } else {
+        if (vertical) {
+          nc = 1
+          nr = n
+        } else {
+          nc = n
+          nr = 1
+        }
+      }
+      return {nc, nr}
+    })()
+
+    let row = 0
+    let col = 0
+
+    for (const entry of this.entries) {
+      entry.el.id = `item_${row}_${col}`
+
+      entry.row = row
+      entry.col = col
+
+      if (vertical) {
+        row += 1
+        if (row >= nrows) {
+          row = 0
+          col += 1
+        }
+      } else {
+        col += 1
+        if (col >= ncols) {
+          col = 0
+          row += 1
+        }
+      }
+    }
+
+    const {is_active} = this
+    for (const {el, item} of this.entries) {
+      if (!is_active(item)) {
+        el.classList.add(legend_css.active)
+      }
+    }
+
+    for (const {el, i, row, col} of this.entries) {
+      if (this.has_item_background(i, row, col)) {
+        el.classList.add(legend_css.styled)
+      }
+    }
+
+    this._paint_glyphs()
+
+    empty(this.grid_el)
+    this.grid_el.style.setProperty("--ncols", `${ncols}`)
+    this.grid_el.style.setProperty("--nrows", `${nrows}`)
+    this.grid_el.append(...this.entries.map(({el}) => el))
+  }
+
   override render(): void {
     super.render()
 
-    this.el.classList.toggle(legend_css.interactive, this.is_interactive)
-
     const {orientation} = this.model
     const vertical = orientation == "vertical"
+
+    this.el.classList.toggle(legend_css.interactive, this.is_interactive)
+    this.el.classList.toggle(legend_css.vertical, vertical)
 
     const title_el = div({class: legend_css.title}, this.model.title)
     this.title_el.remove()
@@ -177,100 +327,6 @@ export class LegendView extends AnnotationView {
     }
     `)
 
-    const entries: Entry[] = []
-    this.entries = entries
-
-    const {click_policy} = this
-    let i = 0
-
-    for (const item of this.model.items) {
-      const field = item.get_field_from_label_prop()
-      const labels = item.get_labels_list_from_label_prop()
-
-      for (const label of labels) {
-        const {glyph_width, glyph_height} = this.model
-        const glyph = this.plot_view.canvas.create_layer()
-        glyph.resize(glyph_width, glyph_height)
-        glyph.el.classList.add(legend_css.glyph)
-
-        const glyph_el = glyph.canvas
-        const label_el = div({class: legend_css.label}, `${label}`)
-        const item_el = div({class: legend_css.item}, glyph_el, label_el)
-        item_el.classList.toggle(legend_css.hidden, !item.visible)
-
-        const x0 = 0
-        const y0 = 0
-        const x1 = glyph_width
-        const y1 = glyph_height
-
-        const ctx = glyph.prepare()
-        for (const renderer of item.renderers) {
-          const view = this.plot_view.views.find_one(renderer)
-          view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
-        }
-        glyph.finish()
-
-        item_el.addEventListener("pointerdown", () => {
-          this.model.trigger_event(new LegendItemClick(this.model, item))
-          for (const renderer of item.renderers) {
-            click_policy(renderer)
-          }
-        })
-
-        entries.push({el: item_el, glyph_el, label_el, item, i: i++, row: 0, col: 0})
-      }
-    }
-
-    const {nc: ncols, nr: nrows} = (() => {
-      const {ncols, nrows} = this.model
-      const n = entries.length
-      let nc: number
-      let nr: number
-      if (ncols != "auto" && nrows != "auto") {
-        nc = ncols
-        nr = nrows
-      } else if (ncols != "auto") {
-        nc = ncols
-        nr = ceil(n / ncols)
-      } else if (nrows != "auto") {
-        nc = ceil(n / nrows)
-        nr = nrows
-      } else {
-        if (vertical) {
-          nc = 1
-          nr = n
-        } else {
-          nc = n
-          nr = 1
-        }
-      }
-      return {nc, nr}
-    })()
-
-    let row = 0
-    let col = 0
-
-    for (const entry of entries) {
-      entry.el.id = `item_${row}_${col}`
-
-      entry.row = row
-      entry.col = col
-
-      if (vertical) {
-        row += 1
-        if (row >= nrows) {
-          row = 0
-          col += 1
-        }
-      } else {
-        col += 1
-        if (col >= ncols) {
-          col = 0
-          row += 1
-        }
-      }
-    }
-
     if (this.visuals.item_background_fill.doit) {
       const {color} = this.visuals.item_background_fill.computed_values()
       this.style.append(`
@@ -278,12 +334,6 @@ export class LegendView extends AnnotationView {
         --item-background-color: ${color};
       }
       `)
-
-      for (const {el, i, row, col} of entries) {
-        if (this.has_item_background(i, row, col)) {
-          el.classList.add(legend_css.styled)
-        }
-      }
     }
 
     if (this.visuals.item_background_fill.doit) {
@@ -293,26 +343,7 @@ export class LegendView extends AnnotationView {
         --item-background-active-color: ${color};
       }
       `)
-
-      const {is_active} = this
-      for (const {el, item} of entries) {
-        if (!is_active(item)) {
-          el.classList.add(legend_css.active)
-        }
-      }
     }
-
-    const grid_el = div({class: legend_css.grid}, entries.map(({el}) => el))
-    this.grid_el.remove()
-    this.grid_el = grid_el
-
-    this.style.append(`
-    .${legend_css.grid} {
-      grid-auto-flow: ${vertical ? "column" : "row"};
-      grid-template-rows: repeat(${nrows}, max-content);
-      grid-template-columns: repeat(${ncols}, max-content);
-    }
-    `)
 
     const grid_auto_flow = (() => {
       switch (this.model.title_location) {
@@ -330,10 +361,10 @@ export class LegendView extends AnnotationView {
 
     this.shadow_el.append(...(() => {
       switch (this.model.title_location) {
-        case "above": return [title_el, grid_el]
-        case "below": return [grid_el, title_el]
-        case "left":  return [title_el, grid_el]
-        case "right": return [grid_el, title_el]
+        case "above": return [title_el, this.grid_el]
+        case "below": return [this.grid_el, title_el]
+        case "left":  return [title_el, this.grid_el]
+        case "right": return [this.grid_el, title_el]
       }
     })())
 
@@ -372,6 +403,8 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
+
+    this._render_items()
   }
 
   override after_render(): void {
@@ -511,12 +544,20 @@ export class LegendView extends AnnotationView {
       return
     }
 
-    ctx.save()
-    const canvas_bbox = bounding_box(this.plot_view.canvas.el)
-    this._draw_legend_box(ctx, canvas_bbox)
-    this._draw_title(ctx, canvas_bbox)
-    this._draw_legend_items(ctx, canvas_bbox)
-    ctx.restore()
+    if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
+      if (this._should_rerender_items) {
+        this._render_items()
+      } else {
+        this._paint_glyphs()
+      }
+    } else {
+      ctx.save()
+      const canvas_bbox = bounding_box(this.plot_view.canvas.el)
+      this._draw_legend_box(ctx, canvas_bbox)
+      this._draw_title(ctx, canvas_bbox)
+      this._draw_legend_items(ctx, canvas_bbox)
+      ctx.restore()
+    }
   }
 
   protected _draw_legend_box(ctx: Context2d, canvas_bbox: BBox): void {
@@ -550,7 +591,7 @@ export class LegendView extends AnnotationView {
   protected _draw_legend_items(ctx: Context2d, canvas_bbox: BBox): void {
     const {is_active} = this
 
-    for (const {el: item_el, glyph_el, label_el, item, i, row, col} of this.entries) {
+    for (const {el: item_el, glyph, label_el, item, i, row, col} of this.entries) {
       const item_bbox = bounding_box(item_el).relative_to(canvas_bbox)
 
       if (this.has_item_background(i, row, col)) {
@@ -560,6 +601,7 @@ export class LegendView extends AnnotationView {
       }
 
       ctx.layer.undo_transform(() => {
+        const glyph_el = glyph.canvas
         const glyph_bbox = bounding_box(glyph_el).relative_to(canvas_bbox)
         ctx.drawImage(glyph_el, glyph_bbox.x, glyph_bbox.y)
       })
