@@ -132,15 +132,24 @@ export abstract class DOMComponentView extends DOMElementView {
     return [...super.stylesheets(), base_css]
   }
 
+  /**
+   * Baseline stylesheets, e.g. imported CSS modules.
+   */
   static_stylesheets(): StyleSheetLike[] {
     return this.stylesheets()
   }
 
-  dynamic_stylesheets(): StyleSheetLike[] {
+  /**
+   * Stylesheets computed by the component.
+   */
+  computed_stylesheets(): InlineStyleSheet[] {
     return []
   }
 
-  computed_stylesheets(): InlineStyleSheet[] {
+  /**
+   * Other stylesheets, e.g. provided by user.
+   */
+  user_stylesheets(): StyleSheetLike[] {
     return []
   }
 
@@ -167,8 +176,8 @@ export abstract class DOMComponentView extends DOMElementView {
 
   protected *_stylesheets(): Iterable<StyleSheetLike> {
     yield* this.static_stylesheets()
-    yield* this.dynamic_stylesheets()
     yield* this.computed_stylesheets()
+    yield* this.user_stylesheets()
   }
 
   protected *_css_classes(): Iterable<string> {
