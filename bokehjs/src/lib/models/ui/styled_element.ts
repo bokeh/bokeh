@@ -59,8 +59,8 @@ export abstract class StyledElementView extends DOMComponentView {
     }
   }
 
-  override dynamic_stylesheets(): StyleSheetLike[] {
-    return [...super.dynamic_stylesheets(), ...this._user_stylesheets()]
+  override user_stylesheets(): StyleSheetLike[] {
+    return [...super.user_stylesheets(), ...this._user_stylesheets()]
   }
 
   protected *_user_stylesheets(): Iterable<StyleSheet> {
