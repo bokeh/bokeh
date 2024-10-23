@@ -16,7 +16,7 @@ export abstract class ToggleInputGroupView extends ControlView {
     super.connect_signals()
 
     const {labels, inline} = this.model.properties
-    this.on_change([labels, inline], () => this.render())
+    this.on_change([labels, inline], () => this.rerender())
   }
 
   override stylesheets(): StyleSheetLike[] {

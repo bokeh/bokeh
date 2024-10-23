@@ -13,11 +13,11 @@ export class MultiSelectView extends InputWidgetView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.value.change, () => this.render_selection())
-    this.connect(this.model.properties.options.change, () => this.render())
-    this.connect(this.model.properties.name.change, () => this.render())
-    this.connect(this.model.properties.title.change, () => this.render())
-    this.connect(this.model.properties.size.change, () => this.render())
-    this.connect(this.model.properties.disabled.change, () => this.render())
+    this.connect(this.model.properties.options.change, () => this.rerender())
+    this.connect(this.model.properties.name.change, () => this.rerender())
+    this.connect(this.model.properties.title.change, () => this.rerender())
+    this.connect(this.model.properties.size.change, () => this.rerender())
+    this.connect(this.model.properties.disabled.change, () => this.rerender())
   }
 
   protected _render_input(): HTMLElement {

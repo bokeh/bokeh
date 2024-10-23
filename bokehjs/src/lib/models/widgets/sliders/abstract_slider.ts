@@ -57,7 +57,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     super.connect_signals()
 
     const {direction, orientation, tooltips} = this.model.properties
-    this.on_change([direction, orientation, tooltips], () => this.render())
+    this.on_change([direction, orientation, tooltips], () => this.rerender())
 
     const {bar_color} = this.model.properties
     this.on_change(bar_color, () => {

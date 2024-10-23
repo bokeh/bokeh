@@ -1,0 +1,71 @@
+:host {
+  position: relative;
+  width: max-content;
+  height: max-content;
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: auto;
+  pointer-events: all;
+}
+
+.bk-hidden {
+  display: none;
+}
+
+.bk-title {
+  position: relative;
+  white-space: pre;
+  cursor: auto;
+}
+.bk-title:empty {
+  display: none;
+}
+
+.bk-label {
+  position: relative;
+  white-space: pre;
+  cursor: auto;
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+.bk-grid {
+  position: relative;
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-rows: repeat(var(--nrows), max-content);
+  grid-template-columns: repeat(var(--ncols), max-content);
+  width: max-content;
+  height: max-content;
+}
+:host(.bk-vertical) {
+  .bk-grid {
+    grid-auto-flow: column;
+  }
+}
+
+.bk-item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.bk-item.bk-styled {
+  background-color: var(--item-background-color);
+}
+
+.bk-item.bk-active {
+  background-color: var(--item-background-active-color);
+}
+
+:host(.bk-interactive) .bk-item {
+  cursor: pointer;
+}
+
+.bk-glyph {
+  position: relative;
+}

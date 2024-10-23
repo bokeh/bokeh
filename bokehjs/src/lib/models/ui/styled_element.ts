@@ -3,7 +3,7 @@ import {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import {DOMComponentView} from "core/dom_view"
-import type {StyleSheet} from "core/dom"
+import type {StyleSheet, StyleSheetLike} from "core/dom"
 import {apply_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {entries} from "core/util/object"
@@ -24,6 +24,10 @@ export abstract class StyledElementView extends DOMComponentView {
   declare model: StyledElement
 
   readonly style = new InlineStyleSheet()
+
+  override computed_stylesheets(): InlineStyleSheet[] {
+    return [...super.computed_stylesheets(), this.style]
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -55,13 +59,11 @@ export abstract class StyledElementView extends DOMComponentView {
     }
   }
 
-  protected override *_stylesheets(): Iterable<StyleSheet> {
-    yield* super._stylesheets()
-    yield this.style
-    yield* this._computed_stylesheets()
+  override user_stylesheets(): StyleSheetLike[] {
+    return [...super.user_stylesheets(), ...this._user_stylesheets()]
   }
 
-  protected *_computed_stylesheets(): Iterable<StyleSheet> {
+  protected *_user_stylesheets(): Iterable<StyleSheet> {
     for (const stylesheet of this.model.stylesheets) {
       if (stylesheet instanceof BaseStyleSheet) {
         yield stylesheet.underlying()

@@ -5,6 +5,7 @@ import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
+import type {Context2d} from "core/util/canvas"
 
 // TODO UIElement needs to inherit from DOMNode
 const ElementLike = Or(Ref(UIElement), Ref(DOMNode))
@@ -106,7 +107,7 @@ export abstract class CompositeRendererView extends RendererView {
 
   private _has_rendered_elements: boolean = false
 
-  override paint(): void {
+  override paint(ctx: Context2d): void {
     if (!this._has_rendered_elements) {
       for (const element_view of this.element_views) {
         const target = element_view.rendering_target() ?? this.shadow_el
@@ -115,11 +116,11 @@ export abstract class CompositeRendererView extends RendererView {
       this._has_rendered_elements = true
     }
 
-    super.paint()
+    super.paint(ctx)
 
     if (this.displayed && this.is_renderable) {
       for (const renderer of this.computed_renderer_views) {
-        renderer.paint()
+        renderer.paint(ctx)
       }
     }
 

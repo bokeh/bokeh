@@ -1,6 +1,7 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {CanvasView, FrameBox} from "../canvas/canvas"
+import type {CanvasView} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
 import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
@@ -71,6 +72,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
   visuals: Plot.Visuals
 
   declare layout: BorderLayout
+
+  private _top_panel: CanvasPanel
+  private _bottom_panel: CanvasPanel
+  private _left_panel: CanvasPanel
+  private _right_panel: CanvasPanel
+
+  top_panel: ViewOf<CanvasPanel>
+  bottom_panel: ViewOf<CanvasPanel>
+  left_panel: ViewOf<CanvasPanel>
+  right_panel: ViewOf<CanvasPanel>
 
   private _frame: CartesianFrame
   frame_view: CartesianFrameView
@@ -274,7 +285,13 @@ export class PlotView extends LayoutDOMView implements Paintable {
       selection: new Map(),               // XXX: initial selection?
     }
 
+    this._top_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: row; grid-area: above; }"]})
+    this._bottom_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: row; grid-area: below; }"]})
+    this._left_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: column; grid-area: left; }"]})
+    this._right_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: column; grid-area: right; }"]})
+
     this._frame = new CartesianFrame({
+      stylesheets: [":host { grid-area: center; }"],
       x_scale: this.model.x_scale,
       y_scale: this.model.y_scale,
       x_range: this.model.x_range,
@@ -349,7 +366,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   override get elements(): ElementLike[] {
-    return [this._canvas, this._frame, this._attribution, this._notifications, ...super.elements]
+    return [
+      this._canvas,
+      this._frame,
+      this._top_panel,
+      this._bottom_panel,
+      this._left_panel,
+      this._right_panel,
+      this._attribution,
+      this._notifications,
+      ...super.elements,
+    ]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -359,6 +386,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.canvas_view.plot_views = [this]
 
     this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
+
+    this.top_panel = this._element_views.get(this._top_panel)! as ViewOf<CanvasPanel>
+    this.bottom_panel = this._element_views.get(this._bottom_panel)! as ViewOf<CanvasPanel>
+    this.left_panel = this._element_views.get(this._left_panel)! as ViewOf<CanvasPanel>
+    this.right_panel = this._element_views.get(this._right_panel)! as ViewOf<CanvasPanel>
 
     await this.build_tool_views()
     await this.build_renderer_views()
@@ -561,6 +593,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
     center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
 
+    top_panel.on_resize((bbox) => this.top_panel.set_geometry(bbox))
+    bottom_panel.on_resize((bbox) => this.bottom_panel.set_geometry(bbox))
+    left_panel.on_resize((bbox) => this.left_panel.set_geometry(bbox))
+    right_panel.on_resize((bbox) => this.right_panel.set_geometry(bbox))
+
     top_panel.children    = reversed(set_layouts("above", outer_above))
     bottom_panel.children =          set_layouts("below", outer_below)
     left_panel.children   = reversed(set_layouts("left",  outer_left))
@@ -602,6 +639,20 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
 
     this.layout = layout
+
+    const above_els = this.views.select(this.model.above).map((view) => view.el)
+    const below_els = this.views.select(this.model.below).map((view) => view.el)
+    const left_els = this.views.select(this.model.left).map((view) => view.el)
+    const right_els = this.views.select(this.model.right).map((view) => view.el)
+    const center_els = this.views.select(this.model.center).map((view) => view.el)
+    const renderer_els = this.views.select(this.model.renderers).map((view) => view.el)
+
+    this.top_panel.shadow_el.append(...reversed(above_els))
+    this.bottom_panel.shadow_el.append(...below_els)
+    this.left_panel.shadow_el.append(...reversed(left_els))
+    this.right_panel.shadow_el.append(...right_els)
+
+    this.frame.shadow_el.append(...renderer_els, ...center_els)
   }
 
   protected override _measure_layout(): void {
@@ -1054,36 +1105,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._invalidated_painters.clear()
     this._invalidate_all = false
 
-    const frame_box: FrameBox = [
-      this.frame.bbox.left,
-      this.frame.bbox.top,
-      this.frame.bbox.width,
-      this.frame.bbox.height,
-    ]
-
-    const {primary, overlays} = this.canvas_view
-
     if (do_primary) {
-      primary.prepare()
-      this.canvas_view.prepare_webgl(frame_box)
-
-      this._paint_empty(primary.ctx, frame_box)
-      this._paint_outline(primary.ctx, frame_box)
-
-      this._paint_levels(primary.ctx, "image", frame_box, true)
-      this._paint_levels(primary.ctx, "underlay", frame_box, true)
-      this._paint_levels(primary.ctx, "glyph", frame_box, true)
-      this._paint_levels(primary.ctx, "guide", frame_box, false)
-      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      const {primary} = this.canvas_view
+      const ctx = primary.prepare()
+      this._paint_primary(ctx)
       primary.finish()
     }
 
     if (do_overlays || settings.wireframe) {
-      overlays.prepare()
-      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
-      if (settings.wireframe) {
-        this.paint_layout(overlays.ctx, this.layout)
-      }
+      const {overlays} = this.canvas_view
+      const ctx = overlays.prepare()
+      this._paint_overlays(ctx)
       overlays.finish()
     }
 
@@ -1102,7 +1134,29 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._render_count++
   }
 
-  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+  protected _paint_primary(ctx: Context2d): void {
+    const frame_box = this.frame.bbox
+    this.canvas_view.prepare_webgl(frame_box)
+
+    this._paint_empty(ctx, frame_box)
+    this._paint_outline(ctx, frame_box)
+
+    this._paint_levels(ctx, "image", frame_box, true)
+    this._paint_levels(ctx, "underlay", frame_box, true)
+    this._paint_levels(ctx, "glyph", frame_box, true)
+    this._paint_levels(ctx, "guide", frame_box, false)
+    this._paint_levels(ctx, "annotation", frame_box, false)
+  }
+
+  protected _paint_overlays(ctx: Context2d): void {
+    const frame_box = this.frame.bbox
+    this._paint_levels(ctx, "overlay", frame_box, false)
+    if (settings.wireframe) {
+      this.paint_layout(ctx, this.layout)
+    }
+  }
+
+  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_box: BBox, global_clip: boolean): void {
     for (const renderer_view of this.computed_renderer_views) {
       if (renderer_view.model.level != level) {
         continue
@@ -1111,11 +1165,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
         ctx.beginPath()
-        ctx.rect(...clip_region)
+        ctx.rect(...clip_box.args)
         ctx.clip()
       }
 
-      renderer_view.paint()
+      renderer_view.paint(ctx)
       ctx.restore()
 
       if (renderer_view.has_webgl) {
@@ -1138,9 +1192,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.bbox.width, this.bbox.height]
-    const [fx, fy, fw, fh] = frame_box
+  protected _paint_empty(ctx: Context2d, frame_box: BBox): void {
+    const canvas_box = this.bbox.relative()
+
+    const [cx, cy, cw, ch] = canvas_box.args
+    const [fx, fy, fw, fh] = frame_box.args
 
     if (this.visuals.border_fill.doit) {
       ctx.save()
@@ -1161,11 +1217,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  protected _paint_outline(ctx: Context2d, frame_box: FrameBox): void {
+  protected _paint_outline(ctx: Context2d, frame_box: BBox): void {
     if (this.visuals.outline_line.doit) {
       ctx.save()
       this.visuals.outline_line.set_value(ctx)
-      let [x0, y0, w, h] = frame_box
+      let [x0, y0, w, h] = frame_box.args
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
       if (x0 + w == this.bbox.width) {
@@ -1176,6 +1232,20 @@ export class PlotView extends LayoutDOMView implements Paintable {
       }
       ctx.strokeRect(x0, y0, w, h)
       ctx.restore()
+    }
+  }
+
+  private _force_paint: boolean = false
+  get is_forcing_paint(): boolean {
+    return this._force_paint
+  }
+
+  force_paint(fn: () => void): void {
+    try {
+      this._force_paint = true
+      fn()
+    } finally {
+      this._force_paint = false
     }
   }
 
@@ -1194,15 +1264,19 @@ export class PlotView extends LayoutDOMView implements Paintable {
     composite.resize(width, height)
 
     if (width != 0 && height != 0) {
-      const {canvas} = this.canvas_view.compose()
-      composite.ctx.drawImage(canvas, 0, 0)
+      this.force_paint(() => {
+        const ctx = composite.prepare()
+        this._paint_primary(ctx)
+        this._paint_overlays(ctx)
+        composite.finish()
+      })
     }
 
     return composite
   }
 
   override resolve_frame(): View | null {
-    return this.frame as any // TODO CartesianFrameView (PR #13286)
+    return this.frame
   }
 
   override resolve_canvas(): View | null {
@@ -1250,5 +1324,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._messages.set(message, timer)
     this._notifications.elements = [...this._notifications.elements, el]
     logger.info(message)
+  }
+
+  override serializable_children(): View[] {
+    // TODO temporarily remove CanvasPanel views to reduce baseline noise
+    return super.serializable_children().filter((view) => view.model instanceof CartesianFrame || !(view.model instanceof CanvasPanel))
   }
 }

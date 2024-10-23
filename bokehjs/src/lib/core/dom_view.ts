@@ -53,6 +53,11 @@ export abstract class DOMView extends View {
 
   abstract render(): void
 
+  rerender(): void {
+    this.render()
+    this.r_after_render()
+  }
+
   render_to(target: Node): void {
     this.render()
     target.appendChild(this.el)
@@ -96,7 +101,7 @@ export abstract class DOMView extends View {
    * This is useful when creating "floating" components or adding
    * components to canvas' layers.
    */
-  rendering_target(): HTMLElement | null {
+  rendering_target(): HTMLElement | ShadowRoot | null {
     return null
   }
 }
@@ -127,11 +132,35 @@ export abstract class DOMComponentView extends DOMElementView {
     return [...super.stylesheets(), base_css]
   }
 
+  /**
+   * Baseline stylesheets, e.g. imported CSS modules.
+   */
+  static_stylesheets(): StyleSheetLike[] {
+    return this.stylesheets()
+  }
+
+  /**
+   * Stylesheets computed by the component.
+   */
+  computed_stylesheets(): InlineStyleSheet[] {
+    return []
+  }
+
+  /**
+   * Other stylesheets, e.g. provided by user.
+   */
+  user_stylesheets(): StyleSheetLike[] {
+    return []
+  }
+
   empty(): void {
     empty(this.shadow_el)
     this.class_list.clear()
     this._applied_css_classes = []
     this._applied_stylesheets = []
+    for (const stylesheet of this.computed_stylesheets()) {
+      stylesheet.clear()
+    }
   }
 
   render(): void {
@@ -145,10 +174,10 @@ export abstract class DOMComponentView extends DOMElementView {
     this._update_css_variables() // TODO remove this when node invalidation is implemented
   }
 
-  protected *_stylesheets(): Iterable<StyleSheet> {
-    for (const style of this.stylesheets()) {
-      yield isString(style) ? new InlineStyleSheet(style) : style
-    }
+  protected *_stylesheets(): Iterable<StyleSheetLike> {
+    yield* this.static_stylesheets()
+    yield* this.computed_stylesheets()
+    yield* this.user_stylesheets()
   }
 
   protected *_css_classes(): Iterable<string> {
@@ -159,9 +188,10 @@ export abstract class DOMComponentView extends DOMElementView {
   protected *_css_variables(): Iterable<[string, string]> {}
 
   protected _applied_stylesheets: StyleSheet[] = []
-  protected _apply_stylesheets(stylesheets: StyleSheet[]): void {
-    this._applied_stylesheets.push(...stylesheets)
-    stylesheets.forEach((stylesheet) => stylesheet.install(this.shadow_el))
+  protected _apply_stylesheets(stylesheets: StyleSheetLike[]): void {
+    const resolved_stylesheets = stylesheets.map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+    this._applied_stylesheets.push(...resolved_stylesheets)
+    resolved_stylesheets.forEach((stylesheet) => stylesheet.install(this.shadow_el))
   }
 
   protected _applied_css_classes: string[] = []
