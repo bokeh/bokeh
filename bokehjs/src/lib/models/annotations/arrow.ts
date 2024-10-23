@@ -12,7 +12,7 @@ import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {Indices} from "core/types"
 import * as p from "core/properties"
-import {atan2} from "core/util/math"
+import {slope} from "core/util/math"
 
 export class ArrowView extends DataAnnotationView {
   declare model: Arrow
@@ -129,7 +129,7 @@ export class ArrowView extends DataAnnotationView {
 
     for (let i = 0; i < n; i++) {
       // arrow head runs orthogonal to arrow body (???)
-      angles[i] = Math.PI/2 + atan2([sx_start[i], sy_start[i]], [sx_end[i], sy_end[i]])
+      angles[i] = Math.PI/2 + slope([sx_start[i], sy_start[i]], [sx_end[i], sy_end[i]])
     }
   }
 

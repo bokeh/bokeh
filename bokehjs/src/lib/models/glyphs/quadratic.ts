@@ -5,8 +5,9 @@ import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
-import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
+import {PI} from "core/util/math"
+import {QuadraticBezier} from "core/util/curves"
 
 export interface QuadraticView extends Quadratic.Data {}
 
@@ -33,17 +34,14 @@ export class QuadraticView extends GlyphView {
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i)) {
         index.add_empty()
       } else {
-        const {x0, y0, x1, y1} = qbb(x0_i, y0_i, cx_i, cy_i, x1_i, y1_i)
+        const curve = new QuadraticBezier(x0_i, y0_i, x1_i, y1_i, cx_i, cy_i)
+        const {x0, y0, x1, y1} = curve.bounding_box()
         index.add_rect(x0, y0, x1, y1)
       }
     }
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Quadratic.Data>): void {
-    if (!this.visuals.line.doit) {
-      return
-    }
-
     const {sx0, sy0, sx1, sy1, scx, scy} = {...this, ...data}
 
     for (const i of indices) {
@@ -58,11 +56,47 @@ export class QuadraticView extends GlyphView {
         continue
       }
 
-      ctx.beginPath()
-      ctx.moveTo(sx0_i, sy0_i)
-      ctx.quadraticCurveTo(scx_i, scy_i, sx1_i, sy1_i)
+      if (this.visuals.line.doit) {
+        ctx.beginPath()
+        ctx.moveTo(sx0_i, sy0_i)
+        ctx.quadraticCurveTo(scx_i, scy_i, sx1_i, sy1_i)
+        this.visuals.line.apply(ctx, i)
+      }
 
-      this.visuals.line.apply(ctx, i)
+      if (this.has_decorations) {
+        const curve = new QuadraticBezier(sx0_i, sy0_i, sx1_i, sy1_i, scx_i, scy_i)
+        this._render_decorations(ctx, i, curve)
+      }
+    }
+  }
+
+  protected _render_decorations(ctx: Context2d, i: number, curve: QuadraticBezier): void {
+    for (const decoration of this.decorations.values()) {
+      const {sx, sy, angle} = (() => {
+        switch (decoration.model.node) {
+          case "start": {
+            const {x0: sx, y0: sy} = curve
+            const angle = curve.tangent(0.0) + PI/2 + PI
+            return {sx, sy, angle}
+          }
+          case "middle": {
+            const [sx, sy] = curve.evaluate(0.5)
+            const angle = curve.tangent(0.5) + PI/2
+            return {sx, sy, angle}
+          }
+          case "end": {
+            const {x1: sx, y1: sy} = curve
+            const angle = curve.tangent(1.0) + PI/2
+            return {sx, sy, angle}
+          }
+        }
+      })()
+
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      decoration.marking.paint(ctx, i)
+      ctx.rotate(-angle)
+      ctx.translate(-sx, -sy)
     }
   }
 
@@ -70,8 +104,15 @@ export class QuadraticView extends GlyphView {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterxy(): [number, number] {
-    throw new Error(`${this}.scenterxy() is not implemented`)
+  scenterxy(i: number): [number, number] {
+    const sx0_i = this.sx0[i]
+    const sy0_i = this.sy0[i]
+    const sx1_i = this.sx1[i]
+    const sy1_i = this.sy1[i]
+    const scx_i = this.scx[i]
+    const scy_i = this.scy[i]
+    const curve = new QuadraticBezier(sx0_i, sy0_i, sx1_i, sy1_i, scx_i, scy_i)
+    return curve.evaluate(0.5)
   }
 }
 
