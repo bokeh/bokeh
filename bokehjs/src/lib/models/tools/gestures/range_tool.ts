@@ -1,5 +1,5 @@
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
-import {OnOffButton} from "../on_off_button"
+import {OnOffButton} from "../../ui/toolbars/on_off_button"
 import type {PlotView} from "../../plots/plot"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"

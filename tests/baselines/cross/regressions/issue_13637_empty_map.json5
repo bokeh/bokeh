@@ -738,6 +738,7 @@
             context_menu: null,
             logo: "normal",
             autohide: false,
+            children: "auto",
             tools: [],
             active_drag: "auto",
             active_inspect: "auto",

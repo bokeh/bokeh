@@ -286,15 +286,12 @@ describe("Defaults", () => {
     "Canvas",
     "CartesianFrame",
     "CenterRotatable",
-    "ClickButton",
     "Figure",
     "GMap",
     "LinearInterpolationScale",
-    "OnOffButton",
     "ParkMillerLCG",
     "ScanningColorMapper",
     "Spline",
-    "ToolButton",
     "ToolProxy",
   ])
 

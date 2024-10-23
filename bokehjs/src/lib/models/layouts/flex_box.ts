@@ -70,7 +70,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
 
       view.style.append(":host", {flex, align_self})
 
-      // undo `width/height: 100%` and let `align-self: strech` do the work
+      // undo `width/height: 100%` and let `align-self: stretch` do the work
       if (this._direction == "row") {
         if (sizing.height_policy == "max") {
           view.style.append(":host", {height: "auto"})

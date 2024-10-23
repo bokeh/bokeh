@@ -4,12 +4,12 @@ import {Signal0} from "core/signaling"
 import {Model} from "../../model"
 import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
-import type {ToolButton} from "./tool_button"
+import type {ToolButton} from "../ui/toolbars/tool_button"
 import type {InspectTool} from "./inspectors/inspect_tool"
 import type {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
 
-export type ToolLike<T extends Tool> = T | ToolProxy<T>
+export type ToolLike<T extends Tool = Tool> = T | ToolProxy<T>
 
 export namespace ToolProxy {
   export type Attrs<T extends Tool> = p.AttrsOf<Props<T>>

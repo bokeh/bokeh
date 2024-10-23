@@ -8,7 +8,7 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
-import {Toolbar} from "@bokehjs/models/tools/toolbar"
+import {Toolbar} from "@bokehjs/models/ui/toolbars/toolbar"
 import type {TextBox} from "@bokehjs/core/graphics"
 import {TeXView, TeX} from "@bokehjs/models/text/math_text"
 
