@@ -183,16 +183,10 @@ export class DataTableView extends WidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => {
-      this.render()
-      this.r_after_render()
-    })
+    this.connect(this.model.change, () => this.rerender())
 
     for (const column of this.model.columns) {
-      this.connect(column.change, () => {
-        this.render()
-        this.r_after_render()
-      })
+      this.connect(column.change, () => this.rerender())
     }
 
     // changes to the source trigger the callback below via
