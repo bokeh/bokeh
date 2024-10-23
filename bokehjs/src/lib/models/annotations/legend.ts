@@ -248,8 +248,6 @@ export class LegendView extends AnnotationView {
       }
     }
 
-    this._paint_glyphs()
-
     empty(this.grid_el)
     this.grid_el.style.setProperty("--ncols", `${ncols}`)
     this.grid_el.style.setProperty("--nrows", `${nrows}`)
@@ -547,9 +545,8 @@ export class LegendView extends AnnotationView {
     if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
       if (this._should_rerender_items) {
         this._render_items()
-      } else {
-        this._paint_glyphs()
       }
+      this._paint_glyphs()
     } else {
       ctx.save()
       const canvas_bbox = bounding_box(this.plot_view.canvas.el)
