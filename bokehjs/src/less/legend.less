@@ -34,8 +34,16 @@
 .bk-grid {
   position: relative;
   display: grid;
+  grid-auto-flow: row;
+  grid-template-rows: repeat(var(--nrows), max-content);
+  grid-template-columns: repeat(var(--ncols), max-content);
   width: max-content;
   height: max-content;
+}
+:host(.bk-vertical) {
+  .bk-grid {
+    grid-auto-flow: column;
+  }
 }
 
 .bk-item {

@@ -186,7 +186,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this.compute_geometry()
     this.update_position()
 
-    if (this.displayed && this.is_renderable && (!this.is_dual_renderer || this.parent.is_forcing_paint)) {
+    if (this.displayed && this.is_renderable) {
       this._paint(ctx)
     }
 
