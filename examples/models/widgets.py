@@ -14,8 +14,8 @@ from datetime import date, datetime, time
 from bokeh import palettes
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, Dialog,
-                          Examiner, GroupBox, Menu, Row, SetValue, SVGIcon,
+from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, CustomJS,
+                          Dialog, Examiner, GroupBox, Menu, Row, SetValue, SVGIcon,
                           TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
@@ -211,6 +211,26 @@ This is an <b>on</b> or <b>off</b> style of widget.
 Right click on the widget to display the context menu.
 """), position="right"))
 
+progress = w.Progress(value=0, min=0, max=100, width_policy="max")
+indeterminate_progress = w.Progress(value=None, min=0, max=100, width_policy="max")
+
+start_computation = w.Button(label="Start computation")
+start_computation.js_on_click(CustomJS(
+    args=dict(progress=progress, indeterminate_progress=indeterminate_progress),
+    code="""
+export default async ({progress, indeterminate_progress}) => {
+    function delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms))
+    }
+
+    while (!progress.finished) {
+        const ms = Math.random()*1000
+        await delay(ms)
+        progress.increment(10)
+    }
+}
+"""))
+
 group_box = GroupBox(
     title="Head offset:",
     checkable=True,
@@ -312,6 +332,8 @@ widgets = Column(children=[
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),
+            start_computation,
+            progress, indeterminate_progress,
             group_box,
             paragraph, div, pre_text,
         ]),

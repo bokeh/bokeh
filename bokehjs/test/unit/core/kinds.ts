@@ -36,8 +36,25 @@ describe("core/kinds module", () => {
   it("should support Float kind", () => {
     const tp = k.Float
     expect(`${tp}`).to.be.equal("Float")
+    expect(tp.valid(NaN)).to.be.true
+    expect(tp.valid(Infinity)).to.be.true
+    expect(tp.valid(-Infinity)).to.be.true
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(0.1)).to.be.true
+    expect(tp.valid(-0.1)).to.be.true
+    expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+  })
+
+  it("should support Finite kind", () => {
+    const tp = k.Finite
+    expect(`${tp}`).to.be.equal("Finite")
+    expect(tp.valid(NaN)).to.be.false
+    expect(tp.valid(Infinity)).to.be.false
+    expect(tp.valid(-Infinity)).to.be.false
+    expect(tp.valid(0)).to.be.true
+    expect(tp.valid(0.1)).to.be.true
+    expect(tp.valid(-0.1)).to.be.true
     expect(tp.valid("a")).to.be.false
     expect(tp.may_have_refs()).to.be.equal(false)
   })

@@ -1,0 +1,82 @@
+.bk-bar {
+  position: relative;
+  background-color: #c2d5f7;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bk-value {
+  position: relative;
+  background-color: #3b80f0;
+}
+
+:host(:not(.bk-vertical)) {
+  .bk-bar {
+    width: 100%;
+    height: max-content;
+    min-width: 3em;
+  }
+
+  .bk-value {
+    left: 0;
+    right: unset;
+    width: var(--progress);
+    min-height: 0.5em;
+  }
+}
+
+:host(.bk-vertical) {
+  .bk-bar {
+    width: max-content;
+    height: 100%;
+    min-height: 3em;
+  }
+
+  .bk-value {
+    top: 0;
+    bottom: unset;
+    height: var(--progress);
+    min-width: 0.5em;
+  }
+}
+
+:host(:not(.bk-vertical).bk-reversed) {
+  .bk-value {
+    left: unset;
+    right: 0;
+  }
+}
+
+:host(.bk-vertical.bk-reversed) {
+  .bk-value {
+    top: unset;
+    bottom: 0;
+  }
+}
+
+:host(.bk-indeterminate) {
+  --indeterminate-width: 20%;
+
+  .bk-label {
+    visibility: hidden;
+  }
+
+  .bk-value {
+    width: var(--indeterminate-width);
+    animation-duration: 1.5s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-name: bk-progress-animation;
+  }
+}
+
+@keyframes bk-progress-animation {
+  from {
+    left: calc(-1 * var(--indeterminate-width));
+  }
+  to {
+    left: 100%;
+  }
+}
