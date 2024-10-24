@@ -106,11 +106,21 @@ export abstract class TextAnnotationView extends AnnotationView {
     `)
 
     if (angle != 0) {
-      this.style.append(`
-      :host {
-        rotate: ${angle}rad;
+      if (this.layout != null) {
+        this.style.append(`
+        :host {
+          writing-mode: vertical-rl;
+          rotate: 180deg;
+          align-self: end;
+        }
+        `)
+      } else {
+        this.style.append(`
+        :host {
+          rotate: ${angle}rad;
+        }
+        `)
       }
-      `)
     }
 
     if (this.layout == null) {
