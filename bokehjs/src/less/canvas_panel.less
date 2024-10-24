@@ -1,8 +1,38 @@
 :host {
   position: relative;
-  overflow: hidden;
   pointer-events: none;
+}
+
+:host(.bk-above), :host(.bk-below) {
   display: grid;
+  grid-auto-flow: row;
   grid-template-rows: auto;
+  grid-template-columns: 100%;
+}
+
+:host(.bk-left), :host(.bk-right) {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: 100%;
   grid-template-columns: auto;
+}
+
+:host(.bk-above) {
+  grid-area: above;
+}
+:host(.bk-below) {
+  grid-area: below;
+}
+:host(.bk-left) {
+  grid-area: left;
+}
+:host(.bk-right) {
+  grid-area: right;
+}
+:host(.bk-center) {
+  grid-area: center;
+}
+
+:host(.bk-center) {
+  overflow: hidden;
 }

@@ -6,6 +6,7 @@ import {InlineStyleSheet} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
+import {Place} from "core/enums"
 import {isNumber} from "core/util/types"
 import * as css from "styles/canvas_panel.css"
 
@@ -26,6 +27,11 @@ export class CanvasPanelView extends StyledElementView {
 
   override rendering_target(): HTMLElement {
     return this.parent.canvas_view.events_el
+  }
+
+  override render(): void {
+    super.render()
+    this.class_list.add(css[this.model.place])
   }
 
   set_geometry(bbox: BBox): void {
@@ -64,7 +70,9 @@ export class CanvasPanelView extends StyledElementView {
 
 export namespace CanvasPanel {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = StyledElement.Props
+  export type Props = StyledElement.Props & {
+    place: p.Property<Place>
+  }
 }
 
 export interface CanvasPanel extends CanvasPanel.Attrs {}
@@ -79,5 +87,9 @@ export class CanvasPanel extends StyledElement {
 
   static {
     this.prototype.default_view = CanvasPanelView
+
+    this.define<CanvasPanel.Props>({
+      place: [ Place ],
+    })
   }
 }

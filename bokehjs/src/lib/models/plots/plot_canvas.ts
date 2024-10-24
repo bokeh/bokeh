@@ -283,16 +283,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.visuals = new Visuals(this) as Plot.Visuals
 
     this._initial_state = {
-      selection: new Map(),               // XXX: initial selection?
+      selection: new Map(), // XXX: initial selection?
     }
 
-    this._top_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: row; grid-area: above; }"]})
-    this._bottom_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: row; grid-area: below; }"]})
-    this._left_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: column; grid-area: left; }"]})
-    this._right_panel = new CanvasPanel({stylesheets: [":host { grid-auto-flow: column; grid-area: right; }"]})
+    this._top_panel = new CanvasPanel({place: "above"})
+    this._bottom_panel = new CanvasPanel({place: "below"})
+    this._left_panel = new CanvasPanel({place: "left"})
+    this._right_panel = new CanvasPanel({place: "right"})
 
     this._frame = new CartesianFrame({
-      stylesheets: [":host { grid-area: center; }"],
+      place: "center",
       x_scale: this.model.x_scale,
       y_scale: this.model.y_scale,
       x_range: this.model.x_range,
