@@ -500,8 +500,9 @@ export class LegendView extends AnnotationView {
       `)
     }
 
-    const {left, top, width, height} = bounding_box(this.el)
-    this._bbox = new BBox({left, top, width, height})
+    const legend_bbox = bounding_box(this.el)
+    const canvas_bbox = bounding_box(this.plot_view.canvas.el)
+    this._bbox = legend_bbox.relative_to(canvas_bbox)
   }
 
   get is_interactive(): boolean {
