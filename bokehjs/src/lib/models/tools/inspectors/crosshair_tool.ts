@@ -75,13 +75,24 @@ export class CrosshairToolView extends InspectToolView {
       return
     }
 
-    const {sx, sy} = ev
+    const {sx, sy} = (() => {
+      const {sx, sy} = ev
+      if (this.plot_view.frame.bbox.contains(sx, sy)) {
+        return {sx, sy}
+      }
 
-    if (!this.plot_view.frame.bbox.contains(sx, sy)) {
-      this._update_spans(NaN, NaN)
-    } else {
-      this._update_spans(sx, sy)
-    }
+      const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
+      if (axis_view != null) {
+        switch (axis_view.dimension) {
+          case 0: return {sx, sy: NaN}
+          case 1: return {sx: NaN, sy}
+        }
+      }
+
+      return {sx: NaN, sy: NaN}
+    })()
+
+    this._update_spans(sx, sy)
   }
 
   override _move_exit(_e: MoveEvent): void {

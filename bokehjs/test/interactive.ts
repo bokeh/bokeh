@@ -5,6 +5,7 @@ import {delay} from "@bokehjs/core/util/defer"
 import {assert} from "@bokehjs/core/util/assert"
 import type {KeyModifiers} from "@bokehjs/core/ui_events"
 import {UIGestures} from "@bokehjs/core/ui_gestures"
+import {isString} from "@bokehjs/core/util/types"
 
 export type Point = {x: number, y: number}
 export type XY = Point
@@ -117,9 +118,11 @@ export function line(xy0: Point, xy1: Point, n?: number): Line {
 
 type Path = Line | Poly | Circle
 
+type Units = "data" | "screen"
+
 export type Options = {
   pause: number
-  units: "data" | "screen"
+  units: Units | {x?: Units, y?: Units}
 }
 
 type EventKeys = {
@@ -210,10 +213,24 @@ export class PlotActions {
 
   protected screen({x, y}: Point): {clientX: number, clientY: number} {
     const {x_scale, y_scale} = this.target.frame
+    const {x_screen, y_screen} = this.target.canvas.bbox
     const {left, top} = offset_bbox(this.el)
     const {units} = this.options
-    const sx = left + (units == "data" ? x_scale.compute(x) : x)
-    const sy = top + (units == "data" ? y_scale.compute(y) : y)
+    const scale = (() => {
+      if (isString(units)) {
+        return {
+          x: units == "data" ? x_scale : x_screen,
+          y: units == "data" ? y_scale : y_screen,
+        }
+      } else {
+        return {
+          x: (units.x ?? "data") == "data" ? x_scale : x_screen,
+          y: (units.y ?? "data") == "data" ? y_scale : y_screen,
+        }
+      }
+    })()
+    const sx = left + scale.x.compute(x)
+    const sy = top + scale.y.compute(y)
     return {
       clientX: sx,
       clientY: sy,

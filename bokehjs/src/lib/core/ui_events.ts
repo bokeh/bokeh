@@ -497,11 +497,6 @@ export class UIEventBus {
         })()
         this.set_cursor(cursor)
 
-        if (top_view != null && !top_view.model.propagate_hover && !is_empty(active_inspectors)) {
-          // override event_type to cause inspectors to clear overlays
-          signal = this.move_exit as any // XXX
-        }
-
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector))
         break
       }
