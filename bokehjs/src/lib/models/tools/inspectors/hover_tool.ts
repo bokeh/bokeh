@@ -96,13 +96,15 @@ export function _line_hit(
   return [[xs[i], ys[i]], i]
 }
 
+type InspectDims = "xy" | "x" | "y"
+
 const COLOR_RE = /\$color(\[.*\])?:(\w*)/
 const SWATCH_RE = /\$swatch:(\w*)/
 
 export class HoverToolView extends InspectToolView {
   declare model: HoverTool
 
-  protected _current_sxy: [number, number] | null = null
+  protected _current_sxy: [number, number, InspectDims] | null = null
 
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
@@ -145,8 +147,8 @@ export class HoverToolView extends InspectToolView {
 
     this.connect(this.plot_view.repainted, () => {
       if (this.model.active && this._current_sxy != null) {
-        const [sx, sy] = this._current_sxy
-        this._inspect(sx, sy)
+        const [sx, sy, dims] = this._current_sxy
+        this._inspect(sx, sy, dims)
       }
     })
   }
@@ -210,7 +212,7 @@ export class HoverToolView extends InspectToolView {
   }
 
   _clear(): void {
-    this._inspect(Infinity, Infinity)
+    this._inspect(Infinity, Infinity, "xy")
 
     for (const [, tooltip] of this.ttmodels) {
       tooltip.clear()
@@ -221,12 +223,29 @@ export class HoverToolView extends InspectToolView {
     if (!this.model.active) {
       return
     }
+
     const {sx, sy} = ev
-    if (!this.plot_view.frame.bbox.contains(sx, sy)) {
-      this._clear()
+    const dims = (() => {
+      if (this.plot_view.frame.bbox.contains(sx, sy)) {
+        return "xy"
+      }
+
+      const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
+      if (axis_view != null) {
+        switch (axis_view.dimension) {
+          case 0: return "x"
+          case 1: return "y"
+        }
+      }
+
+      return null
+    })()
+
+    if (dims != null) {
+      this._current_sxy = [sx, sy, dims]
+      this._inspect(sx, sy, dims)
     } else {
-      this._current_sxy = [sx, sy]
-      this._inspect(sx, sy)
+      this._clear()
     }
   }
 
@@ -235,7 +254,7 @@ export class HoverToolView extends InspectToolView {
     this._clear()
   }
 
-  _inspect(sx: number, sy: number): void {
+  _inspect(sx: number, sy: number, dims: InspectDims): void {
     const geometry: PointGeometry | SpanGeometry = (() => {
       if (this.model.mode == "mouse") {
         return {type: "point", sx, sy}
@@ -244,6 +263,27 @@ export class HoverToolView extends InspectToolView {
         return {type: "span", direction, sx, sy}
       }
     })()
+
+    if (isFinite(sx + sy)) {
+      switch (geometry.type) {
+        case "point": {
+          if (dims != "xy") {
+            return
+          }
+          break
+        }
+        case "span": {
+          if ((dims == "x" || dims == "xy") && geometry.direction == "h") {
+            break
+          }
+          if ((dims == "y" || dims == "xy") && geometry.direction == "v") {
+            break
+          }
+          this._clear()
+          return
+        }
+      }
+    }
 
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()
