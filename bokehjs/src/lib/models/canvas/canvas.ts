@@ -96,7 +96,7 @@ export class CanvasView extends UIElementView {
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
     this.overlays_el = div({class: canvas_css.layer})
-    this.events_el = div({class: [canvas_css.layer, canvas_css.events]})
+    this.events_el = div({class: [canvas_css.layer, canvas_css.events], tabIndex: 0})
 
     this.ui_event_bus = new UIEventBus(this)
   }
