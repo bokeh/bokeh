@@ -49,23 +49,17 @@ export class HTMLLabelView extends TextAnnotationView {
 
     let sx = (() => {
       switch (this.model.x_units) {
-        case "canvas":
-          return this.model.x
-        case "screen":
-          return panel.bbox.xview.compute(this.model.x)
-        case "data":
-          return xscale.compute(this.model.x)
+        case "canvas": return this.model.x
+        case "screen": return panel.bbox.xview.compute(this.model.x)
+        case "data":   return xscale.compute(this.model.x)
       }
     })()
 
     let sy = (() => {
       switch (this.model.y_units) {
-        case "canvas":
-          return this.model.y
-        case "screen":
-          return panel.bbox.yview.compute(this.model.y)
-        case "data":
-          return yscale.compute(this.model.y)
+        case "canvas": return this.model.y
+        case "screen": return panel.bbox.yview.compute(this.model.y)
+        case "data":   return yscale.compute(this.model.y)
       }
     })()
 

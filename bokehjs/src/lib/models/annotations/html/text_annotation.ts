@@ -105,8 +105,8 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
     `)
 
-    if (angle != 0) {
-      if (this.layout != null) {
+    if (this.layout != null) {
+      if (angle != 0) {
         this.style.append(`
         :host {
           writing-mode: vertical-rl;
@@ -114,38 +114,28 @@ export abstract class TextAnnotationView extends AnnotationView {
           align-self: end;
         }
         `)
-      } else {
-        this.style.append(`
-        :host {
-          rotate: ${angle}rad;
-        }
-        `)
       }
-    }
-
-    if (this.layout == null) {
-      const [x_anchor, x_t] = (() => {
+    } else {
+      const x_anchor = (() => {
         switch (this.visuals.text.text_align.get_value()) {
-          case "left":   return ["left", "0%"]
-          case "center": return ["center", "-50%"]
-          case "right":  return ["right", "-100%"]
+          case "left":   return "0%"
+          case "center": return "50%"
+          case "right":  return "100%"
         }
       })()
-      const [y_anchor, y_t] = (() => {
+      const y_anchor = (() => {
         switch (this.visuals.text.text_baseline.get_value()) {
-          case "top":    return ["top", "0%"]
-          case "middle": return ["center", "-50%"]
-          case "bottom": return ["bottom", "-100%"]
-          default:       return ["center", "-50%"]  // "baseline"
+          case "top":    return "0%"
+          case "middle": return "50%"
+          case "bottom": return "100%"
+          default:       return "50%"  // "baseline"
         }
       })()
-
-      const transform = `translate(${x_t}, ${y_t})`
 
       this.style.append(`
       :host {
         transform-origin: ${x_anchor} ${y_anchor};
-        transform: ${transform};
+        transform: translate(-${x_anchor}, -${y_anchor}) rotate(${angle}rad);
       }
       `)
     }
