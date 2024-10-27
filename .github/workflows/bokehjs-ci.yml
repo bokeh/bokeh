@@ -66,17 +66,7 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            chromium --version
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            # TODO: this hangs; version is reported in tests
-            # c:/Program\ Files/Google/Chrome/Application/chrome.EXE --version
-            echo "Chromium ??? (see tests)"
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
-          fi
+          node make test:info
           npm list
 
       - name: Build bokehjs

@@ -230,6 +230,12 @@ function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
   })
 }
 
+task("test:info", async () => {
+  const proc = await headless(9222)
+  await devtools_info(9222)
+  proc.kill()
+})
+
 task("test:run:headless", async () => {
   const proc = await headless(9222)
   await devtools_info(9222)
