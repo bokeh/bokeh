@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig, row} from "../_util"
 import {tap} from "../../interactive"
 import {expect} from "../../unit/assertions"
 
@@ -11,6 +11,27 @@ import {Location} from "@bokehjs/core/enums"
 import {linspace} from "@bokehjs/core/util/array"
 import {LegendItemClick} from "@bokehjs/core/bokeh_events"
 import type {Scatter} from "@bokehjs/models/glyphs"
+import {HTML} from "@bokehjs/models/dom"
+import {Pane} from "@bokehjs/models"
+import {type Plot} from "@bokehjs/models"
+import {canvas} from "@bokehjs/core/dom"
+
+async function show_with_exported(plot: Plot) {
+  const width = plot.width!
+  const height = plot.height!
+
+  const canvas_el = canvas({width, height})
+  const ctx = canvas_el.getContext("2d")!
+
+  const html = new HTML({html: canvas_el, style: {width: `${width}`, height: `${height}px`}}) // remove ~5px; where is this coming from?
+  const layout = row([plot, new Pane({elements: [html]})])
+  const result = await display(layout, [2*width + 50, height + 50])
+
+  const plot_view = result.view.views.get_one(plot)
+  ctx.drawImage(plot_view.export().canvas, 0, 0)
+
+  return result
+}
 
 describe("Legend annotation", () => {
   it("should support various combinations of locations and orientations", async () => {
@@ -58,7 +79,7 @@ describe("Legend annotation", () => {
     p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "even", title: "even"}), "left")
     p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "odd", title: "odd"}), "right")
 
-    await display(p)
+    await show_with_exported(p)
   })
 
   type PlotFn = ({
@@ -85,7 +106,8 @@ describe("Legend annotation", () => {
       figure_dimensions,
       legends,
     }) => {
-      const p = fig(figure_dimensions ?? (orientation == "horizontal" ? [300, 200] : [200, 300]))
+      const [width, height] = figure_dimensions ?? (orientation == "horizontal" ? [300, 200] : [200, 300])
+      const p = fig([width, height])
 
       p.add_layout(new LinearAxis(), "above")
       p.add_layout(new LinearAxis(), "right")
@@ -139,7 +161,7 @@ describe("Legend annotation", () => {
         }))
       })
 
-      await display(p)
+      await show_with_exported(p)
     }
   }
 
@@ -326,22 +348,22 @@ describe("Legend annotation", () => {
     describe("should support grid layout", () => {
       it("with nrows=2 and ncols=auto", async () => {
         const p = plot({nrows: 2, ncols: "auto"})
-        await display(p)
+        await show_with_exported(p)
       })
 
       it("with nrows=3 and ncols=auto", async () => {
         const p = plot({nrows: 3, ncols: "auto"})
-        await display(p)
+        await show_with_exported(p)
       })
 
       it("with nrows=auto and ncols=2", async () => {
         const p = plot({nrows: "auto", ncols: 2})
-        await display(p)
+        await show_with_exported(p)
       })
 
       it("with nrows=auto and ncols=3", async () => {
         const p = plot({nrows: "auto", ncols: 3})
-        await display(p)
+        await show_with_exported(p)
       })
     })
   }

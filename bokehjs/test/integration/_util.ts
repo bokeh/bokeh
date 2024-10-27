@@ -3,7 +3,7 @@ import sinon from "sinon"
 export {describe, it, display, fig} from "../framework"
 
 import {Matrix} from "@bokehjs/core/util/matrix"
-import type {LayoutDOM} from "@bokehjs/models/layouts/index"
+import type {UIElement} from "@bokehjs/models/ui/ui_element"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
 import {delay} from "@bokehjs/core/util/defer"
@@ -11,16 +11,16 @@ import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
 import {MathTextView} from "@bokehjs/models/text/math_text"
 
-export function grid(items: Matrix<LayoutDOM> | LayoutDOM[][], opts?: Partial<GridBox.Attrs>): GridBox {
+export function grid(items: Matrix<UIElement> | UIElement[][], opts?: Partial<GridBox.Attrs>): GridBox {
   const children = Matrix.from(items).to_sparse()
   return new GridBox({...opts, children})
 }
 
-export function row(children: LayoutDOM[], opts?: Partial<Row.Attrs>): Row {
+export function row(children: UIElement[], opts?: Partial<Row.Attrs>): Row {
   return new Row({...opts, children})
 }
 
-export function column(children: LayoutDOM[], opts?: Partial<Column.Attrs>): Column {
+export function column(children: UIElement[], opts?: Partial<Column.Attrs>): Column {
   return new Column({...opts, children})
 }
 

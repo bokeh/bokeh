@@ -5,12 +5,17 @@ import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {isString} from "core/util/types"
 import {apply_styles} from "core/css"
-import {empty} from "core/dom"
+import {empty, bounding_box} from "core/dom"
+import type {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
 
 export abstract class DOMElementView extends DOMNodeView {
   declare model: DOMElement
   declare el: HTMLElement
+
+  override get bbox(): BBox {
+    return bounding_box(this.el).relative()
+  }
 
   readonly child_views: ViewStorage<DOMNode | UIElement> = new Map()
 
