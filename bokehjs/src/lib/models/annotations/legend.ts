@@ -577,7 +577,18 @@ export class LegendView extends AnnotationView {
     if (text != null) {
       const text_box = new TextBox({text})
       const title_bbox = bounding_box(this.title_el).relative_to(canvas_bbox)
-      const {x: sx, y: sy} = title_bbox
+      let {x: sx, y: sy} = title_bbox
+      switch (this.model.title_location) {
+        case "left": {
+          sy += title_bbox.height
+          break
+        }
+        case "right": {
+          sx += title_bbox.width
+          break
+        }
+        default:
+      }
       text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
       text_box.visuals = this.visuals.title_text.values()
       const panel = new SidePanel(this.model.title_location)
