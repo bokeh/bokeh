@@ -1753,9 +1753,10 @@ describe("Bug", () => {
         const gr = p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
         gr.data_source.selected.indices = [1]
         const {view} = await display(p)
+        view.canvas_view.events_el.focus()
         expect(gr.data_source.selected.indices).to.be.equal([1])
         const ev = new KeyboardEvent("keyup", {key: "Escape"})
-        document.dispatchEvent(ev)
+        view.canvas_view.events_el.dispatchEvent(ev)
         await view.ready
         expect(gr.data_source.selected.indices).to.be.equal([])
       }
