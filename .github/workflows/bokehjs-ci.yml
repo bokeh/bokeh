@@ -86,7 +86,8 @@ jobs:
           node make build
 
       - name: Run tests
-        if: success() || failure()
+        # restore Windows and OSX support when https://github.com/bokeh/bokeh/issues/14117 is fixed
+        if: runner.os == 'Linux' && (success() || failure())
         working-directory: ./bokehjs
         shell: bash
         run: |
