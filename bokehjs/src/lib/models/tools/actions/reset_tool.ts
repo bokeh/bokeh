@@ -1,4 +1,5 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
+import type {KeyBinding} from "../tool"
 import type * as p from "core/properties"
 import {tool_icon_reset} from "styles/icons.css"
 
@@ -8,6 +9,13 @@ export class ResetToolView extends PlotActionToolView {
   doit(): void {
     // reset() issues the RangesUpdate event
     this.plot_view.reset()
+  }
+
+  override key_bindings(): KeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      {keys: ["R"], cmd: "reset", action: () => this.doit()},
+    ]
   }
 }
 

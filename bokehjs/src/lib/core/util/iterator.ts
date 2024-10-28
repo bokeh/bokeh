@@ -117,6 +117,12 @@ export function* map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) => U)
   }
 }
 
+export function* flatten<T>(iterable: Iterable<Iterable<T>>): Iterable<T> {
+  for (const items of iterable) {
+    yield* items
+  }
+}
+
 export function* flat_map<T, U>(iterable: Iterable<T>, fn: (item: T, i: number) => Iterable<U>): Iterable<U> {
   let i = 0
   for (const item of iterable) {
