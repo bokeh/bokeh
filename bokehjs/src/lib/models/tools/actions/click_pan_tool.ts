@@ -1,5 +1,4 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
-import {update_ranges} from "../gestures/pan_tool"
 import type {IconLike} from "../../common/kinds"
 import {Float} from "core/kinds"
 import {PanDirection} from "core/enums"
@@ -10,34 +9,8 @@ export class ClickPanToolView extends PlotActionToolView {
   declare model: ClickPanTool
 
   doit(): void {
-    const direction = (() => {
-      switch (this.model.direction) {
-        case "left":
-        case "west":
-          return {x: -1, y: 0}
-        case "right":
-        case "east":
-          return {x: +1, y: 0}
-        case "up":
-        case "north":
-          return {x: 0, y: -1}
-        case "down":
-        case "south":
-          return {x: 0, y: +1}
-      }
-    })()
-
-    const {frame} = this.plot_view
-    const {factor} = this.model
-
-    const x_offset = direction.x*factor*frame.bbox.width
-    const y_offset = direction.y*factor*frame.bbox.height
-
-    const bbox = frame.bbox.translate(x_offset, y_offset)
-
-    const xrs = update_ranges(frame.x_scales, bbox.x0, bbox.x1)
-    const yrs = update_ranges(frame.y_scales, bbox.y0, bbox.y1)
-    this.plot_view.update_range({xrs, yrs}, {panning: true})
+    const {direction, factor} = this.model
+    this.plot_view.pan_by(direction, factor)
   }
 }
 
