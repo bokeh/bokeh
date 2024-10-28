@@ -63,10 +63,10 @@ disjointed lines with gaps for ``NaN`` values.
 .. _ug_basic_lines_stacked:
 
 Be aware of the usage of ``NaN`` as a number, which can be imported from
-``math`` or ``numpy``. Do not use the native python ``None`` object,
-because this will be evaluated as 0 in the created figure and therefor
+``math`` or ``numpy``. Do not use the native Python ``None`` object,
+because this will be evaluated as 0 in the created figure and therefore
 drawn. ``None`` will not lead to gaps in the line and can have implicit
-effects one the figure, e.g. the ranges of the figure.
+effects on the figure, e.g. the ranges of the figure.
 
 Stacked lines
 -------------
