@@ -62,6 +62,12 @@ disjointed lines with gaps for ``NaN`` values.
 
 .. _ug_basic_lines_stacked:
 
+Be aware of the usage of ``NaN`` as a number, which can be imported from
+``math`` or ``numpy``. Do not use the native Python ``None`` object,
+because this will be evaluated as 0 in the created figure and therefore
+drawn. ``None`` will not lead to gaps in the line and can have implicit
+effects on the figure, e.g. the ranges of the figure.
+
 Stacked lines
 -------------
 
@@ -127,7 +133,7 @@ edge of the plot, set ``length`` to ``0``.
 Spans
 ~~~~~
 
-To draw multiple horizontal or vertical spans (lines of inifinite width or
+To draw multiple horizontal or vertical spans (lines of infinite width or
 height respectively), use the |hspan| or |vspan| glyph methods. These methods
 accept either ``y`` or ``x`` coordinate components respectively. Note that
 these glyphs can only compute bounds in one axis, thus may require explicit
