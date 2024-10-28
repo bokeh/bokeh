@@ -1,4 +1,5 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import type {KeyBinding} from "../tool"
 import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
@@ -7,6 +8,7 @@ import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
 import {assert} from "core/util/assert"
 import {Dimensions} from "core/enums"
+import type {PanDirection} from "core/enums"
 import type {SXY} from "core/util/bbox"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
@@ -150,6 +152,45 @@ export class PanToolView extends GestureToolView {
 
     this.pan_info = {xrs, yrs, sdx, sdy}
     this.plot_view.update_range(this.pan_info, {panning: true})
+  }
+
+  protected _pan_by(direction: PanDirection) {
+    const {dimensions} = this.model
+    const do_pan = (() => {
+      switch (direction) {
+        case "west":
+        case "east":
+        case "left":
+        case "right":
+          return dimensions == "width" || dimensions == "both"
+        case "north":
+        case "south":
+        case "up":
+        case "down": {
+          return dimensions == "height" || dimensions == "both"
+        }
+      }
+    })()
+
+    if (do_pan) {
+      this.plot_view.pan_by(direction)
+    }
+  }
+
+  override key_bindings(): KeyBinding[] {
+    return [
+      ...super.key_bindings(),
+
+      {keys: ["ArrowLeft"],  cmd: "pan_left",  if: () => this.model.active, action: () => this._pan_by("left")},
+      {keys: ["ArrowRight"], cmd: "pan_right", if: () => this.model.active, action: () => this._pan_by("right")},
+      {keys: ["ArrowUp"],    cmd: "pan_up",    if: () => this.model.active, action: () => this._pan_by("up")},
+      {keys: ["ArrowDown"],  cmd: "pan_down",  if: () => this.model.active, action: () => this._pan_by("down")},
+
+      {keys: ["p", "l"], if: () => this.model.active, action: () => this._pan_by("left")},
+      {keys: ["p", "r"], if: () => this.model.active, action: () => this._pan_by("right")},
+      {keys: ["p", "u"], if: () => this.model.active, action: () => this._pan_by("up")},
+      {keys: ["p", "d"], if: () => this.model.active, action: () => this._pan_by("down")},
+    ]
   }
 }
 

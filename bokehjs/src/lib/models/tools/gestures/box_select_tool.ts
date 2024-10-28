@@ -1,4 +1,5 @@
 import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
+import type {KeyBinding} from "../tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Coordinate} from "../../coordinates/coordinate"
 import type {Scale} from "../../scales/scale"
@@ -7,7 +8,7 @@ import type {FactorLike} from "../../ranges/factor_range"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
-import type {PanEvent, KeyEvent} from "core/ui_events"
+import type {PanEvent} from "core/ui_events"
 import type {HitTestRect} from "core/geometry"
 import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
@@ -150,24 +151,18 @@ export class BoxSelectToolView extends RegionSelectToolView {
     this._base_point = null
   }
 
-  override _keyup(ev: KeyEvent): void {
-    if (!this.model.active) {
+  protected _stop_or_clear_selection(): void {
+    if (this._is_selecting) {
+      this._stop()
       return
     }
 
-    if (ev.key == "Escape") {
-      if (this._is_selecting) {
-        this._stop()
-        return
-      }
-
-      if (this.model.overlay.visible) {
-        this._clear_overlay()
-        return
-      }
+    if (this.model.overlay.visible) {
+      this._clear_overlay()
+      return
     }
 
-    super._keyup(ev)
+    this._clear_selection()
   }
 
   override _clear_selection(): void {
@@ -182,6 +177,22 @@ export class BoxSelectToolView extends RegionSelectToolView {
     const {greedy} = this.model
     const geometry: HitTestRect = {type: "rect", sx0, sx1, sy0, sy1, greedy}
     this._select(geometry, final, mode)
+  }
+
+  override key_bindings(): KeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      {keys: ["s", "b"], cmd: "select_box", action: () => {}},
+      /*
+      {keys: ["ArrowUp"], action: () => {}},
+      {keys: ["ArrowDown"], action: () => {}},
+      {keys: ["ArrowLeft"], action: () => {}},
+      {keys: ["ArrowRight"], action: () => {}},
+      {keys: ["Enter"], action: () => select_and_clear_annotation},
+      {keys: ["Shift+Enter"], action: () => select_and_persist_annotation},
+      */
+      {keys: ["Escape"], action: () => this._stop_or_clear_selection()},
+    ]
   }
 }
 

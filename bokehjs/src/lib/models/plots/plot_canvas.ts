@@ -11,6 +11,7 @@ import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
+import {update_ranges} from "../tools/gestures/pan_tool"
 import type {Selection} from "../selections/selection"
 import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -35,7 +36,7 @@ import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
-import type {Side, RenderLevel} from "core/enums"
+import type {Side, RenderLevel, PanDirection} from "core/enums"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray, isString} from "core/util/types"
@@ -1501,5 +1502,36 @@ export class PlotView extends LayoutDOMView implements Paintable {
   override serializable_children(): View[] {
     // TODO temporarily remove CanvasPanel views to reduce baseline noise
     return super.serializable_children().filter((view) => view.model instanceof CartesianFrame || !(view.model instanceof CanvasPanel))
+  }
+
+  pan_by(direction: PanDirection, factor: number = 0.1): void {
+    const {x, y} = (() => {
+      switch (direction) {
+        case "left":
+        case "west":
+          return {x: -1, y: 0}
+        case "right":
+        case "east":
+          return {x: +1, y: 0}
+        case "up":
+        case "north":
+          return {x: 0, y: -1}
+        case "down":
+        case "south":
+          return {x: 0, y: +1}
+      }
+    })()
+
+    const {frame} = this
+
+    const x_offset = x*factor*frame.bbox.width
+    const y_offset = y*factor*frame.bbox.height
+
+    const bbox = frame.bbox.translate(x_offset, y_offset)
+
+    const xrs = update_ranges(frame.x_scales, bbox.x0, bbox.x1)
+    const yrs = update_ranges(frame.y_scales, bbox.y0, bbox.y1)
+
+    this.update_range({xrs, yrs}, {panning: true})
   }
 }
