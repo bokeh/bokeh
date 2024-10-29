@@ -618,8 +618,8 @@ export class LegendView extends AnnotationView {
       const text = label_el.textContent
       if (text != null) {
         const text_box = new TextBox({text})
-        const {x: sx, y: sy} = bounding_box(label_el).relative_to(canvas_bbox)
-        text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
+        const {x: sx, vcenter: sy} = bounding_box(label_el).relative_to(canvas_bbox)
+        text_box.position = {sx, sy, x_anchor: "left", y_anchor: "center"}
         text_box.visuals = this.visuals.label_text.values()
         text_box.paint(ctx)
       }
