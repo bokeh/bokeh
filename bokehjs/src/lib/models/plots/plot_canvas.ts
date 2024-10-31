@@ -939,6 +939,14 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
 
     this.model.toolbar.active_changed.connect(() => this._update_touch_action())
+
+    if (visualViewport != null) {
+      visualViewport.addEventListener("resize", () => {
+        if (this.canvas.resize()) {
+          this.request_repaint()
+        }
+      })
+    }
   }
 
   protected _update_touch_action(): void {

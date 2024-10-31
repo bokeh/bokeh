@@ -28,7 +28,10 @@ export class CanvasLayer {
     return this._el
   }
 
-  readonly pixel_ratio: number = 1
+  private _pixel_ratio: number = 1
+  get pixel_ratio(): number {
+    return this._pixel_ratio
+  }
 
   bbox: BBox = new BBox()
 
@@ -43,7 +46,7 @@ export class CanvasLayer {
         }
         this._ctx = ctx
         if (hidpi) {
-          this.pixel_ratio = devicePixelRatio
+          this._pixel_ratio = devicePixelRatio
         }
         break
       }
@@ -67,9 +70,24 @@ export class CanvasLayer {
     })
   }
 
+  get pixel_ratio_changed(): boolean {
+    if (this.hidpi && (this.backend == "canvas" || this.backend == "webgl")) {
+      return this.pixel_ratio != devicePixelRatio
+    } else {
+      return false
+    }
+  }
+
   resize(width: number, height: number): void {
-    if (this.bbox.width == width && this.bbox.height == height) {
+    const size_changed = this.bbox.width != width || this.bbox.height != height
+    const {pixel_ratio_changed} = this
+
+    if (!size_changed && !pixel_ratio_changed) {
       return
+    }
+
+    if (pixel_ratio_changed) {
+      this._pixel_ratio = devicePixelRatio
     }
 
     this.bbox = new BBox({left: 0, top: 0, width, height})

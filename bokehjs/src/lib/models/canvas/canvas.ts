@@ -146,11 +146,15 @@ export class CanvasView extends UIElementView {
   }
 
   get pixel_ratio(): number {
-    return this.primary.pixel_ratio // XXX: primary
+    return this.primary.pixel_ratio
+  }
+
+  get pixel_ratio_changed(): boolean {
+    return this.primary.pixel_ratio_changed
   }
 
   override _update_bbox(): boolean {
-    const changed = super._update_bbox()
+    const changed = super._update_bbox() || this.pixel_ratio_changed
 
     if (changed) {
       const {width, height} = this.bbox
@@ -185,9 +189,10 @@ export class CanvasView extends UIElementView {
     this.overlays.resize(width, height)
   }
 
-  resize(): void {
-    this._update_bbox()
+  resize(): boolean {
+    const changed = this._update_bbox()
     this._after_resize()
+    return changed
   }
 
   prepare_webgl(frame_box: BBox): void {
