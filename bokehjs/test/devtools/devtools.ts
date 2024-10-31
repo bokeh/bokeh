@@ -346,7 +346,10 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
       const test_suite = all_tests.filter(([, test]) => test.omit !== true)
 
-      if (test_suite.length == 0) {
+      const num_all_tests = all_tests.length
+      const num_test_suite = test_suite.length
+
+      if (num_test_suite == 0) {
         fail("nothing to test")
       }
 
@@ -755,6 +758,11 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       if (failures != 0) {
+        if (num_test_suite == num_all_tests) {
+          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_test_suite)} tests ${chalk.red("failed")}`)
+        } else {
+          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_test_suite)} selected tests ${chalk.red("failed")} (out of ${chalk.cyan(num_all_tests)} total tests)`)
+        }
         throw new Exit(1)
       }
     } finally {
