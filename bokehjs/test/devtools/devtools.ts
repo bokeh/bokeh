@@ -121,7 +121,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, threshold?: number, retries?: number, dpr?: number, no_image?: boolean}
+type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, no_image?: boolean}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -296,9 +296,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         existing_png?: Buffer
       }
 
-      type TestItem = [Suite[], Test, Status]
+      type TestCase = [Suite[], Test, Status]
 
-      function* iter({suites, tests}: Suite, parents: Suite[] = []): Iterable<TestItem> {
+      function* iter({suites, tests}: Suite, parents: Suite[] = []): Iterable<TestCase> {
         for (const suite of suites) {
           yield* iter(suite, parents.concat(suite))
         }
@@ -317,40 +317,37 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       const all_tests = [...iter(top_level)]
-      const test_suite = all_tests
 
       if (randomize) {
         const random = new Random(seed)
         console.log(`randomizing with seed ${seed}`)
-        shuffle(test_suite, random)
+        shuffle(all_tests, random)
       }
 
       if (keyword != null || grep != null) {
         if (keyword != null) {
           const keywords = keyword
-          for (const [suites, test] of test_suite) {
+          for (const [suites, test] of all_tests) {
             if (!keywords.some((keyword) => description(suites, test).includes(keyword))) {
-              test.skip = true
+              test.omit = true
             }
           }
         }
 
         if (grep != null) {
           const regexes = grep.map((re) => new RegExp(re))
-          for (const [suites, test] of test_suite) {
+          for (const [suites, test] of all_tests) {
             if (!regexes.some((regex) => description(suites, test).match(regex) != null)) {
-              test.skip = true
+              test.omit = true
             }
           }
         }
       }
 
+      const test_suite = all_tests.filter(([, test]) => test.omit !== true)
+
       if (test_suite.length == 0) {
         fail("nothing to test")
-      }
-
-      if (!test_suite.some(([, test]) => !test.skip)) {
-        fail("nothing to test because all tests were skipped")
       }
 
       const baselines_root = argv["baselines-root"]
@@ -464,7 +461,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       })()
 
-      function format_output(test_case: TestItem): string | null {
+      function format_output(test_case: TestCase): string | null {
         const [suites, test, status] = test_case
 
         if ((status.failure ?? false) || (status.timeout ?? false)) {
@@ -488,7 +485,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       }
 
-      function append_report_out(test_case: TestItem): void {
+      function append_report_out(test_case: TestCase): void {
         if (out_stream != null) {
           const output = format_output(test_case)
           if (output != null) {
@@ -499,6 +496,20 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       }
 
+      for (const test_case of all_tests) {
+        const [suites, test, status] = test_case
+
+        const baseline_name = encode(description(suites, test, "__"))
+        status.baseline_name = baseline_name
+
+        if (baseline_names.has(baseline_name)) {
+          status.errors.push("duplicated description")
+          status.failure = true
+        } else {
+          baseline_names.add(baseline_name)
+        }
+      }
+
       try {
         for (const test_case of test_suite) {
           const [suites, test, status] = test_case
@@ -506,15 +517,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           entries = []
           exceptions = []
 
-          const baseline_name = encode(description(suites, test, "__"))
-          status.baseline_name = baseline_name
-
-          if (baseline_names.has(baseline_name)) {
-            status.errors.push("duplicated description")
-            status.failure = true
-          } else {
-            baseline_names.add(baseline_name)
-          }
+          const baseline_name = status.baseline_name!
 
           if (test.skip) {
             status.skipped = true
