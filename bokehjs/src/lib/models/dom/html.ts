@@ -28,6 +28,10 @@ export class HTMLView extends DOMElementView {
     ]
   }
 
+  protected async _update_refs(): Promise<void> {
+    await build_views(this._refs, this.refs)
+  }
+
   override *children(): IterViews {
     yield* super.children()
     yield* this._refs.values()
@@ -35,12 +39,22 @@ export class HTMLView extends DOMElementView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this._refs, this.refs)
+    await this._update_refs()
   }
 
   override remove(): void {
     remove_views(this._refs)
     super.remove()
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {refs, html} = this.model.properties
+    this.on_change([refs, html], async () => {
+      await this._update_refs()
+      this.render()
+    })
   }
 
   override render(): void {

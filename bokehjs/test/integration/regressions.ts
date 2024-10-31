@@ -35,7 +35,7 @@ import {
 } from "@bokehjs/models"
 
 import {
-  InlineStyleSheet, HTML,
+  InlineStyleSheet, HTML, ValueOf,
 } from "@bokehjs/models/dom"
 
 import {
@@ -65,6 +65,7 @@ import {div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
+import type * as p from "@bokehjs/core/properties"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
@@ -74,6 +75,7 @@ import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
 import {open_picker} from "./widgets"
+import {Model} from "@bokehjs/model"
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -4208,6 +4210,42 @@ describe("Bug", () => {
       })
 
       await display(p)
+    })
+  })
+
+  describe("in issue #14120", () => {
+    type FooAttrs = p.AttrsOf<FooProps>
+
+    type FooProps = Model.Props & {
+      value: p.Property<number>
+    }
+
+    interface Foo extends FooAttrs {}
+
+    class Foo extends Model {
+      declare properties: FooProps
+
+      constructor(attrs?: Partial<FooAttrs>) {
+        super(attrs)
+      }
+
+      static {
+        this.define<FooProps>(({Float}) => ({
+          value: [ Float ],
+        }))
+      }
+    }
+
+    it("doesn't allow updates when properties of ValueOf change", async () => {
+      const obj = new Foo({value: 127})
+      const val = new ValueOf({obj, attr: "value"})
+
+      const html = new HTML({html: ["Value of <tt>Foo.value</tt> is <b>", val, "<b/>"]})
+      const pane = new Pane({elements: [html]})
+      const {view} = await display(pane, [200, 50])
+
+      obj.value = 128
+      await view.ready
     })
   })
 })

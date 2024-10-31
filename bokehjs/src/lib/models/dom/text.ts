@@ -5,6 +5,13 @@ export class TextView extends DOMNodeView {
   declare model: Text
   declare el: globalThis.Text
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {content} = this.model.properties
+    this.on_change(content, () => this.render())
+  }
+
   override render(): void {
     this.el.textContent = this.model.content
   }

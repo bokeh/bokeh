@@ -7,6 +7,8 @@ import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
 import base_css from "styles/base.css"
 
+export type RenderingTarget = HTMLElement | ShadowRoot
+
 export interface DOMView extends View {
   constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
 }
@@ -101,7 +103,7 @@ export abstract class DOMView extends View {
    * This is useful when creating "floating" components or adding
    * components to canvas' layers.
    */
-  rendering_target(): HTMLElement | ShadowRoot | null {
+  rendering_target(): RenderingTarget | null {
     return null
   }
 }
@@ -115,6 +117,10 @@ export abstract class DOMElementView extends DOMView {
     super.initialize()
     this.class_list = new ClassList(this.el.classList)
   }
+
+  get self_target(): RenderingTarget {
+    return this.el
+  }
 }
 
 export abstract class DOMComponentView extends DOMElementView {
@@ -122,6 +128,10 @@ export abstract class DOMComponentView extends DOMElementView {
   declare readonly root: DOMComponentView
 
   declare shadow_el: ShadowRoot
+
+  override get self_target(): RenderingTarget {
+    return this.shadow_el
+  }
 
   override initialize(): void {
     super.initialize()

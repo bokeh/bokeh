@@ -9,10 +9,27 @@ export class ValueOfView extends DOMElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {obj, attr} = this.model
-    if (attr in obj.properties) {
-      this.on_change(obj.properties[attr], () => this.render())
+    const fn = () => this.render()
+    let prop: p.Property<unknown> | null = null
+
+    const reconnect = () => {
+      if (prop != null) {
+        this.disconnect(prop.change, fn)
+      }
+
+      const {obj, attr} = this.model
+      if (attr in obj.properties) {
+        prop = obj.properties[attr]
+        this.connect(prop.change, fn)
+      } else {
+        prop = null
+      }
     }
+
+    reconnect()
+
+    const {obj, attr} = this.model.properties
+    this.on_change([obj, attr], () => reconnect())
   }
 
   override render(): void {

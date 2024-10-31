@@ -36,7 +36,7 @@ export abstract class StyledElementView extends DOMComponentView {
     this.on_change(styles, () => this._update_styles())
     this.on_change(css_classes, () => this._update_css_classes())
     this.on_transitive_change(css_variables, () => this._update_css_variables())
-    this.on_change(stylesheets, () => this._update_stylesheets())
+    this.on_transitive_change(stylesheets, () => this._update_stylesheets())
   }
 
   override render(): void {
