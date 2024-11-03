@@ -99,7 +99,7 @@ class Color(Either):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class ColorModel(HasProps):
             ...     prop = Color()

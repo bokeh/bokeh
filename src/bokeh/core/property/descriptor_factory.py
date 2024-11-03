@@ -100,7 +100,7 @@ class PropertyDescriptorFactory(Generic[T]):
 
     Then we can observe the following:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> m = SomeModel()
 

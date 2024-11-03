@@ -83,7 +83,7 @@ def silence(warning: Warning, silence: bool = True) -> set[Warning]:
     is referred to when running ``check_integrity``. If a warning
     is added to the silencers - then it will never be raised.
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT
         >>> bokeh.core.validation.silence(EMPTY_LAYOUT, True)
@@ -92,7 +92,7 @@ def silence(warning: Warning, silence: bool = True) -> set[Warning]:
     To turn a warning back on use the same method but with the silence
     argument set to false
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> bokeh.core.validation.silence(EMPTY_LAYOUT, False)
         set()
@@ -139,7 +139,7 @@ def check_integrity(models: Iterable[Model]) -> ValidationIssues:
     warning conditions that are detected. For example, layouts without
     any children will add a warning to the collection:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> empty_row = Row()
 
@@ -187,7 +187,7 @@ def process_validation_issues(issues: ValidationIssues) -> None:
     warning conditions in the dictionary. For example, a dictionary
     containing a warning for empty layout will trigger a warning:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> process_validation_issues(validations)
         W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)

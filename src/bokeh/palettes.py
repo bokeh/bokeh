@@ -264,7 +264,7 @@ following notable attributes in the ``bokeh.palettes`` module:
 
     For example, the first eight palette names are:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> bp.__palettes__[:8]
         ('Accent3', 'Accent4', 'Accent5', 'Accent6', 'Accent7', 'Accent8', 'Blues3', 'Blues4')
@@ -1694,7 +1694,7 @@ def magma(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> magma(6)
         ('#000003', '#3B0F6F', '#8C2980', '#DD4968', '#FD9F6C', '#FBFCBF')
@@ -1723,7 +1723,7 @@ def inferno(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> inferno(6)
         ('#000003', '#410967', '#932567', '#DC5039', '#FBA40A', '#FCFEA4')
@@ -1752,7 +1752,7 @@ def plasma(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> plasma(6)
         ('#0C0786', '#6A00A7', '#B02A8F', '#E06461', '#FCA635', '#EFF821')
@@ -1781,7 +1781,7 @@ def viridis(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> viridis(6)
         ('#440154', '#404387', '#29788E', '#22A784', '#79D151', '#FDE724')
@@ -1810,7 +1810,7 @@ def cividis(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> cividis(6)
         ('#00204C', '#31446B', '#666870', '#958F78', '#CAB969', '#FFE945')
@@ -1843,7 +1843,7 @@ def turbo(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> turbo(6)
         ('#00204C', '#31446B', '#666870', '#958F78', '#CAB969', '#FFE945')
@@ -1872,7 +1872,7 @@ def grey(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> grey(6)
         ('#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff')
@@ -1904,7 +1904,7 @@ def gray(n: int) -> Palette:
 
     Examples:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> gray(6)
         ('#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff')

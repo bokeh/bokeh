@@ -59,7 +59,7 @@ class Any(Property[typing.Any]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class AnyModel(HasProps):
             ...     prop = Any()

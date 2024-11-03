@@ -28,7 +28,7 @@ is the case for EMPTY_LAYOUT for instance. Since warnings don't necessarily
 indicate misuse, they are configurable. To silence a warning, use the silence
 function provided.
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> from bokeh.core.validation import silence
     >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT

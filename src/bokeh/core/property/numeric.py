@@ -94,7 +94,7 @@ class Interval(SingleParameterizedProperty[T]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class RangeModel(HasProps):
             ...     prop = Range(Float, 10, 20)
@@ -139,7 +139,7 @@ class Byte(Interval[int]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class ByteModel(HasProps):
             ...     prop = Byte(default=0)
@@ -172,7 +172,7 @@ class Size(Float):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class SizeModel(HasProps):
             ...     prop = Size()
@@ -213,7 +213,7 @@ class Percent(Float):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class PercentModel(HasProps):
             ...     prop = Percent()

@@ -76,7 +76,7 @@ class Bool(PrimitiveProperty[bool]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class BoolModel(HasProps):
             ...     prop = Bool(default=False)
@@ -130,7 +130,7 @@ class Int(PrimitiveProperty[int]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class IntModel(HasProps):
             ...     prop = Int()
@@ -165,7 +165,7 @@ class Float(PrimitiveProperty[float]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class FloatModel(HasProps):
             ...     prop = Float()
@@ -211,7 +211,7 @@ class String(PrimitiveProperty[str]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class StringModel(HasProps):
             ...     prop = String()

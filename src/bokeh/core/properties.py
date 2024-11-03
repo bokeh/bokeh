@@ -53,7 +53,7 @@ But also by setting the attributes on an instance:
 Attempts to set a property to a value of the wrong type will
 result in a ``ValueError`` exception:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> m.foo = 2.3
     Traceback (most recent call last):

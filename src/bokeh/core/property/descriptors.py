@@ -261,7 +261,7 @@ class PropertyDescriptor(Generic[T]):
 
         Examples:
 
-            .. code-block:: python
+            .. code-block:: python-console
 
                 >>> from bokeh.models import Range1d
 

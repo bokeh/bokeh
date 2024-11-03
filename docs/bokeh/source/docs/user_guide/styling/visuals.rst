@@ -138,7 +138,7 @@ module.
 When you import ``"Spectral6"``, for example, Bokeh gives you access to a list that
 contains six RGB(A) hex strings from the Brewer ``"Spectral"`` color map:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> from bokeh.palettes import Spectral6
     >>> Spectral6

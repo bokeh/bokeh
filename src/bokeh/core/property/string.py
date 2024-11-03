@@ -58,7 +58,7 @@ class Regex(String):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class RegexModel(HasProps):
             ...     prop = Regex("foo[0-9]+bar")

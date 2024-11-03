@@ -45,7 +45,7 @@ class Auto(Enum):
         This property is often most useful in conjunction with the
         :class:`~bokeh.core.properties.Either` property.
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class AutoModel(HasProps):
             ...     prop = Either(Float, Auto)

@@ -125,7 +125,7 @@ def match(obj: Model, selector: SelectorType) -> bool:
 
     For example:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> from bokeh.plotting import figure
         >>> p = figure(width=400)
@@ -139,7 +139,7 @@ def match(obj: Model, selector: SelectorType) -> bool:
     There are two selector keys that are handled especially. The first
     is 'type', which will do an isinstance check:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> from bokeh.plotting import figure
         >>> from bokeh.models import Axis
@@ -156,7 +156,7 @@ def match(obj: Model, selector: SelectorType) -> bool:
     used to query against this list of tags. An object matches if any of the
     tags in the selector match any of the tags on the object:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> from bokeh.plotting import figure
         >>> p = figure(tags = ["my plot", 10])

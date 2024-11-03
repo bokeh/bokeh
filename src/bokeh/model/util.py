@@ -153,7 +153,7 @@ def get_class(view_model_name: str) -> type[Model]:
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> from bokeh.model import get_class
             >>> get_class("Range1d")

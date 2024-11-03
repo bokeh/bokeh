@@ -31,7 +31,7 @@ Typically, enumerations are used to define |Enum| properties:
 
 Enumerations have a defined order and support iteration:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> for loc in MyEnum:
     ...     print(loc)
@@ -41,7 +41,7 @@ Enumerations have a defined order and support iteration:
 
 as well as containment tests:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> "port" in MyEnum
     True

@@ -80,7 +80,7 @@ class Override(Generic[T]):
         to specify that the default value for the ``foo`` property should be
         20 on instances of the child class:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> p = Parent()
             >>> p.foo

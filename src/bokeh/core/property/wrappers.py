@@ -184,7 +184,7 @@ class PropertyValueList(PropertyValueContainer, list[T]):
     Instances of ``PropertyValueList`` can be explicitly created by passing
     any object that the standard list initializer accepts, for example:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> PropertyValueList([10, 20])
         [10, 20]
@@ -322,7 +322,7 @@ class PropertyValueDict(PropertyValueContainer, dict[str, T_Val]):
     Instances of ``PropertyValueDict`` can be eplicitly created by passing
     any object that the standard dict initializer accepts, for example:
 
-    .. code-block:: python
+    .. code-block:: python-console
 
         >>> PropertyValueDict(dict(a=10, b=20))
         {'a': 10, 'b': 20}

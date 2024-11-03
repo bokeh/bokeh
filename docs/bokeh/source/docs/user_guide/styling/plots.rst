@@ -21,14 +21,14 @@ examples.
 To query for any Bokeh plot object, use the |select| method on |Plot|. For
 example, to find all `PanTool` objects in a plot:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> p.select(type=PanTool)
     [<bokeh.models.tools.PanTool at 0x106608b90>]
 
 You can also use the |select| method to query on other attributes as well:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> p.circle(0, 0, radius=1, name="mycircle")
     <bokeh.plotting.figure at 0x106608810>
@@ -163,7 +163,7 @@ To style the fill, line, or text properties of a glyph, you first need to
 identify which ``GlyphRenderer`` you want to customize. If you are using the
 |bokeh.plotting| interface, the glyph functions return the renderer:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> r = p.circle([1,2,3,4,5], [2,5,8,2,7], radius=1)
     >>> r
@@ -172,7 +172,7 @@ identify which ``GlyphRenderer`` you want to customize. If you are using the
 Next, obtain the glyph itself from the ``.glyph`` attribute of a
 ``GlyphRenderer``:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> r.glyph
     <bokeh.models.glyphs.Circle at 0x10799ba10>
@@ -276,7 +276,7 @@ This section focuses on changing various visual properties of Bokeh plot axes.
 To set style attributes on Axis objects, use the |xaxis|, |yaxis|, and
 |axis| methods on |Plot| to first obtain a plot's Axis objects. For example:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> p.xaxis
     [<bokeh.models.axes.LinearAxis at 0x106fa2390>]
@@ -538,7 +538,7 @@ lines and grid bands on Bokeh plots.
 To obtain a plot's Grid objects, use the |xgrid|, |ygrid|, and |grid| methods on
 |Plot|. This works similar to the convenience methods for axes:
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> p.grid
     [<bokeh.models.grids.Grid at 0x106fa2278>,
@@ -637,7 +637,7 @@ obtain a plot's |Legend| objects:
 
 bokeh.models.plots.Plot.legend
 
-.. code-block:: python
+.. code-block:: python-console
 
     >>> p.legend
     [<bokeh.models.annotations.Legend at 0x106fa2278>]

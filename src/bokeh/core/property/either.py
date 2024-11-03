@@ -56,7 +56,7 @@ class Either(ParameterizedProperty[Any]):
 
     Example:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> class EitherModel(HasProps):
             ...     prop = Either(Bool, Int, Auto)

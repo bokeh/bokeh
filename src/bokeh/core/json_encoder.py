@@ -102,7 +102,7 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
 
     Examples:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> import numpy as np
 
@@ -140,7 +140,7 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
         this function and ``dumps()`` is handling of memory buffers. Use the
         following setup:
 
-        .. code-block:: python
+        .. code-block:: python-console
 
             >>> s = Serializer(deferred=False)
 
