@@ -1,17 +1,25 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import type {CallbackLike0} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
+import {isBoolean} from "core/util/types"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
 export class CustomActionView extends ActionToolView {
   declare model: CustomAction
 
-  doit(): void {
+  async _execute(): Promise<void> {
     const {callback} = this.model
     if (callback != null) {
-      void execute(callback, this.model)
+      const active = await execute(callback, this.model)
+      if (isBoolean(active)) {
+        this.model.active = active
+      }
     }
+  }
+
+  doit(): void {
+    void this._execute()
   }
 }
 
