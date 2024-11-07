@@ -1,4 +1,5 @@
 import {Tool, ToolView} from "../tool"
+import type {ToolButton} from "../tool_button"
 import {ClickButton} from "../click_button"
 import type {LayoutDOMView} from "../../layouts/layout_dom"
 import {Signal} from "core/signaling"
@@ -33,7 +34,7 @@ export abstract class ActionTool extends Tool {
 
   do = new Signal<string | undefined, this>(this, "do")
 
-  override tool_button(): ClickButton {
+  override tool_button(): ToolButton {
     return new ClickButton({tool: this})
   }
 }
