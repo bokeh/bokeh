@@ -37,8 +37,13 @@ export class ExamineToolView extends ActionToolView {
     this._dialog = await build_view(dialog, {parent: this.parent})
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    this._dialog.displayed.connect((visible) => this.model.active = visible)
+  }
+
   doit(): void {
-    this._dialog.open()
+    this._dialog.toggle()
   }
 }
 

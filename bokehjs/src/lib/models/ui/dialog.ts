@@ -1,6 +1,7 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {Text} from "../dom/text"
+import {Signal} from "core/signaling"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {InlineStyleSheet, px, div, bounding_box, dom_ready} from "core/dom"
 import {isString} from "core/util/types"
@@ -546,9 +547,13 @@ export class DialogView extends UIElementView {
 
   protected _toggle(show: boolean) {
     if (show) {
+      const target = document.body
       if (!this._has_rendered) {
-        this.render_to(document.body)
+        this.render_to(target)
         this.r_after_render()
+      }
+      if (!this.el.isConnected) {
+        target.append(this.el)
       }
       this.bring_to_front()
     } else {
@@ -557,14 +562,26 @@ export class DialogView extends UIElementView {
     }
   }
 
+  readonly displayed = new Signal<boolean, this>(this, "displayed")
+
+  get is_open(): boolean {
+    return this.model.visible
+  }
+
+  toggle(force?: boolean): void {
+    const visible = force ?? !this.model.visible
+    this.model.setv({visible}, {check_eq: false})
+    this.displayed.emit(visible)
+  }
+
   open(): void {
-    this.model.setv({visible: true}, {check_eq: false})
+    this.toggle(true)
   }
 
   close(): void {
     switch (this.model.close_action) {
       case "hide": {
-        this.model.visible = false
+        this.toggle(false)
         break
       }
       case "destroy": {
