@@ -365,6 +365,7 @@ export class UIEventBus {
           this._current_pan_view.on_pan(event)
         } else if (event_type == "pan:end") {
           this._current_pan_view.on_pan_end(event)
+          this.set_cursor(this._current_pan_view.cursor(event.sx, event.sy));
           this._current_pan_view = null
         }
         srcEvent.preventDefault()

@@ -163,7 +163,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       } = this.model
 
       this._handles = {
-        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         movable: this.model.movable}) : null,
+        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         in_cursor: "move", movable: this.model.movable}) : null,
         left:         resizable.left         ? new BoxAnnotation({...common, ...attrs.left,         in_cursor: ew_cursor}) : null,
         right:        resizable.right        ? new BoxAnnotation({...common, ...attrs.right,        in_cursor: ew_cursor}) : null,
         top:          resizable.top          ? new BoxAnnotation({...common, ...attrs.top,          in_cursor: ns_cursor}) : null,
@@ -783,6 +783,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       case "bottom":       return this._handles.bottom == null       ? ns_cursor : null
       case "area": {
         if (this._handles.area == null) {
+          if (this._pan_state && in_cursor === "grab") {
+            return "grabbing";
+          } else {
+            return in_cursor;
+          }
           switch (this.model.movable) {
             case "both": return in_cursor
             case "x":    return ew_cursor
@@ -923,7 +928,7 @@ export class BoxAnnotation extends Annotation {
       br_cursor: [ Str, "nwse-resize" ],
       ew_cursor: [ Str, "ew-resize" ],
       ns_cursor: [ Str, "ns-resize" ],
-      in_cursor: [ Str, "move" ],
+      in_cursor: [ Str, "grab" ],
     }))
 
     this.override<BoxAnnotation.Props>({
