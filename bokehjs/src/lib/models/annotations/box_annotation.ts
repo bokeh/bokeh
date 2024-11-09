@@ -773,29 +773,23 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     } = this.model
 
     switch (target) {
-      case "top_left":     return this._handles.top_left == null     ? tl_cursor : null
-      case "top_right":    return this._handles.top_right == null    ? tr_cursor : null
-      case "bottom_left":  return this._handles.bottom_left == null  ? bl_cursor : null
-      case "bottom_right": return this._handles.bottom_right == null ? br_cursor : null
-      case "left":         return this._handles.left == null         ? ew_cursor : null
-      case "right":        return this._handles.right == null        ? ew_cursor : null
-      case "top":          return this._handles.top == null          ? ns_cursor : null
-      case "bottom":       return this._handles.bottom == null       ? ns_cursor : null
+      case "top_left":     return this._handles.top_left == null     ? tl_cursor : this._handles.top_left.tl_cursor
+      case "top_right":    return this._handles.top_right == null    ? tr_cursor : this._handles.top_right.tr_cursor
+      case "bottom_left":  return this._handles.bottom_left == null  ? bl_cursor : this._handles.bottom_left.bl_cursor
+      case "bottom_right": return this._handles.bottom_right == null ? br_cursor : this._handles.bottom_right.br_cursor
+      case "left":         return this._handles.left == null         ? ew_cursor : this._handles.left.ew_cursor
+      case "right":        return this._handles.right == null        ? ew_cursor : this._handles.right.ew_cursor
+      case "top":          return this._handles.top == null          ? ns_cursor : this._handles.top.ns_cursor
+      case "bottom":       return this._handles.bottom == null       ? ns_cursor : this._handles.bottom.ns_cursor
       case "area": {
         if (this._handles.area == null) {
-          if (this._pan_state && in_cursor === "grab") {
-            return "grabbing";
+          if (this._pan_state != null && in_cursor === "grab") {
+            return "grabbing"
           } else {
-            return in_cursor;
-          }
-          switch (this.model.movable) {
-            case "both": return in_cursor
-            case "x":    return ew_cursor
-            case "y":    return ns_cursor
-            case "none": return null
+            return in_cursor
           }
         } else {
-          return null
+          return this._handles.area.in_cursor
         }
       }
     }
