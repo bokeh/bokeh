@@ -193,9 +193,10 @@ class BaseColorBar(Annotation):
     Amount of margin (in pixels) around the outside of the color bar.
     """)
 
-    padding = Int(10, help="""
+    padding = Either(Int, Tuple(Int, Int, Int, Int), default=10, help="""
     Amount of padding (in pixels) between the color scale and color bar border.
-    """)
+    This can also be specified as a tuple in the form (padding_top, padding_right,
+    padding_bottom, padding_left) to set individual padding values for each side.
 
     major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
     The {prop} of the major tick labels.
