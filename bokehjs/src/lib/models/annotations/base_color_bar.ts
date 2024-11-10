@@ -15,7 +15,7 @@ import {LinearScale} from "../scales"
 import type {Range} from "../ranges"
 import {Range1d} from "../ranges"
 import {BaseText} from "../text/base_text"
-import {Anchor, Orientation} from "core/enums"
+import {Anchor, Location, Orientation, Side} from "core/enums"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
@@ -65,6 +65,16 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   override children_views(): ChildView[] {
     return [...super.children_views(), this._axis_view, this._title_view]
+  }
+
+  private _title_location: Location
+  get title_location(): Location {
+    return this._title_location
+  }
+
+  private _title_orientation: string
+  get title_orientation(): string {
+    return this._title_orientation
   }
 
   override initialize(): void {
@@ -239,6 +249,28 @@ export abstract class BaseColorBarView extends AnnotationView {
       }
     })()
 
+    const title_location = this._title_location = (() => {
+      const {title_location} = this.model
+      if (title_location == "auto") {
+        return orientation == "horizontal" ? "above" : "left"
+      } else {
+        return title_location
+      }
+    })()
+
+    const title_orientation = this._title_orientation = (() => {
+      const {title_orientation} = this.model
+      if (title_orientation == "auto") {
+        if (orientation == "horizontal" || title_location == "above" || title_location == "below") {
+          return "horizontal"
+        } else {
+          return title_location == "left" ? "upward": "downward"
+        }
+      } else {
+        return title_orientation
+      }
+    })()
+
     this._update_frame()
 
     const center_panel = new NodeLayout()
@@ -393,17 +425,6 @@ export abstract class BaseColorBarView extends AnnotationView {
     left_panel.set_sizing({width_policy: "min", height_policy: "fit"})
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
-    const {_title_view} = this
-    if (orientation == "horizontal") {
-      _title_view.panel = new SidePanel("above")
-      _title_view.update_layout()
-      top_panel.children.push(_title_view.layout)
-    } else {
-      _title_view.panel = new SidePanel("left")
-      _title_view.update_layout()
-      left_panel.children.push(_title_view.layout)
-    }
-
     const {panel} = this
     const side = (() => {
       if (panel != null && orientation == panel.orientation) {
@@ -431,6 +452,29 @@ export abstract class BaseColorBarView extends AnnotationView {
     _axis_view.update_layout()
     if (_axis_view.layout != null) {
       stack.children.push(_axis_view.layout)
+    }
+
+    let title_direction: Side
+    if (title_orientation == "upward") {
+      title_direction = "left"
+    } else if (title_orientation == "downward") {
+      title_direction = "right"
+    } else {
+      title_direction = "above"
+    }
+
+    const {_title_view} = this
+    _title_view.panel = new SidePanel(title_direction)
+    _title_view.update_layout()
+
+    if (title_location == "above") {
+      top_panel.children.push(_title_view.layout)
+    } else if (title_location == "below") {
+      bottom_panel.children.push(_title_view.layout)
+    } else if (title_location == "left") {
+      left_panel.children.push(_title_view.layout)
+    } else {
+      right_panel.children.push(_title_view.layout)
     }
 
     if (this.panel != null) {
@@ -518,6 +562,8 @@ export namespace BaseColorBar {
     orientation: p.Property<Orientation | "auto">
     title: p.Property<string | BaseText | null>
     title_standoff: p.Property<number>
+    title_location: p.Property<Location | "auto">
+    title_orientation: p.Property<string>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
     ticker: p.Property<Ticker | "auto">
@@ -582,6 +628,8 @@ export abstract class BaseColorBar extends Annotation {
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(Or(Str, Ref(BaseText))), null ],
       title_standoff:        [ Float, 2 ],
+      title_location:        [ Or(Location, Auto), "auto" ],
+      title_orientation:     [ Str, "auto" ],
       width:                 [ Or(Float, Auto), "auto" ],
       height:                [ Or(Float, Auto), "auto" ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
