@@ -15,7 +15,7 @@ import {LinearScale} from "../scales"
 import type {Range} from "../ranges"
 import {Range1d} from "../ranges"
 import {BaseText} from "../text/base_text"
-import {Anchor, Location, Orientation, Side} from "core/enums"
+import {Anchor, Location, Orientation, Side, TextAlign, VerticalAlign} from "core/enums"
 import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
@@ -169,6 +169,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     const attrs: Partial<Title.Attrs> = {
       text: this.model.title ?? "",
       standoff: this.model.title_standoff,
+      align: this.model.title_text_halign,
+      vertical_align: this.model.title_text_valign,
       // TODO: this needs strict typing
       ...mixins.attrs_of(this.model, "title_", mixins.Text, false),
     }
@@ -564,6 +566,8 @@ export namespace BaseColorBar {
     title_standoff: p.Property<number>
     title_location: p.Property<Location | "auto">
     title_orientation: p.Property<string>
+    title_text_halign: p.Property<TextAlign>
+    title_text_valign: p.Property<VerticalAlign>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
     ticker: p.Property<Ticker | "auto">
@@ -630,6 +634,8 @@ export abstract class BaseColorBar extends Annotation {
       title_standoff:        [ Float, 2 ],
       title_location:        [ Or(Location, Auto), "auto" ],
       title_orientation:     [ Str, "auto" ],
+      title_text_halign:     [ TextAlign, "left" ],
+      title_text_valign:     [ VerticalAlign, "bottom" ],
       width:                 [ Or(Float, Auto), "auto" ],
       height:                [ Or(Float, Auto), "auto" ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
