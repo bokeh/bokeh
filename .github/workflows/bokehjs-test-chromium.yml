@@ -1,5 +1,5 @@
 name: BokehJS - Test Chromium
-run-name: BokehJS - Test Chromium ${{ github.event.inputs.version }}
+run-name: BokehJS - Test Chromium ${{ github.event.inputs.version || 'beta' }}
 
 on:
   workflow_dispatch:
