@@ -142,6 +142,15 @@ class BaseColorBar(Annotation):
     The title text to render.
     """)
 
+    title_orientation = String("auto", help="""
+    Wheter the color bar's title should be oriented upward,
+    downward or horizontal.
+    """)
+
+    title_location = Either(Enum(Location), Auto, default="auto", help="""
+    Specifies on which side of the color bar the title will be located.
+    """)
+
     title_props = Include(ScalarTextProps, prefix="title", help="""
     The {prop} values for the title text.
     """)
