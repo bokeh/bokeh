@@ -28,7 +28,7 @@ import {SidePanel} from "core/layout/side_panel"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
-import {isString} from "core/util/types"
+import {isNumber, isString} from "core/util/types"
 
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
@@ -299,7 +299,14 @@ export abstract class BaseColorBarView extends AnnotationView {
     layout.left_panel   = left_panel
     layout.right_panel  = right_panel
 
-    const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
+    const padding_box = (() => {
+      if (isNumber(padding)) {
+        return {top: padding, right: padding, bottom: padding, left: padding}
+      } else {
+        return {top: padding[0], right: padding[1], bottom: padding[2], left: padding[3]}
+      }
+    })()
+
     const margin_box = (() => {
       if (this.panel == null) {
         if (isString(location)) {
@@ -576,7 +583,7 @@ export namespace BaseColorBar {
     major_label_policy: p.Property<LabelingPolicy>
     label_standoff: p.Property<number>
     margin: p.Property<number>
-    padding: p.Property<number>
+    padding: p.Property<number | [number, number, number, number]>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
     minor_tick_in: p.Property<number>
@@ -644,7 +651,7 @@ export abstract class BaseColorBar extends Annotation {
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       label_standoff:        [ Float, 5 ],
       margin:                [ Float, 30 ],
-      padding:               [ Float, 10 ],
+      padding:               [ Or(Float, Tuple(Float, Float, Float, Float)), 10 ],
       major_tick_in:         [ Float, 5 ],
       major_tick_out:        [ Float, 0 ],
       minor_tick_in:         [ Float, 0 ],
