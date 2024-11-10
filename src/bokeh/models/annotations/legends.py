@@ -34,6 +34,7 @@ from ...core.enums import (
     Location,
     Orientation,
     VAlign,
+    VerticalAlign,
 )
 from ...core.has_props import abstract
 from ...core.property.aliases import CoordinateLike
@@ -158,6 +159,14 @@ class BaseColorBar(Annotation):
     title_text_font_size = Override(default="13px")
 
     title_text_font_style = Override(default="italic")
+
+    title_text_halign = Enum(HAlign, default="left", help="""
+    Specifies where to align color bar's title horizontally.
+    """)
+
+    title_text_valign = Enum(VerticalAlign, default="bottom", help="""
+    Specifies where to align color bar's title vertically.
+    """)
 
     title_standoff = Int(2, help="""
     The distance (in pixels) to separate the title from the color bar.
