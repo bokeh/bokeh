@@ -197,6 +197,7 @@ class BaseColorBar(Annotation):
     Amount of padding (in pixels) between the color scale and color bar border.
     This can also be specified as a tuple in the form (padding_top, padding_right,
     padding_bottom, padding_left) to set individual padding values for each side.
+    """)
 
     major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
     The {prop} of the major tick labels.
