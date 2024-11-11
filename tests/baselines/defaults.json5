@@ -6272,6 +6272,7 @@
     __extends__: "ActionTool",
     description: "Perform a Custom Action",
     callback: null,
+    active_callback: null,
   },
   CustomJSHover: {
     __extends__: "Model",

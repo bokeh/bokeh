@@ -8,12 +8,29 @@ import * as icons from "styles/icons.css"
 export class CustomActionView extends ActionToolView {
   declare model: CustomAction
 
+  protected async _update_active(): Promise<void> {
+    const {active_callback} = this.model
+    if (active_callback != null) {
+      const active = await execute(active_callback, this.model)
+      if (isBoolean(active)) {
+        this.model.active = active
+      }
+    }
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._update_active()
+  }
+
   async _execute(): Promise<void> {
     const {callback} = this.model
     if (callback != null) {
       const active = await execute(callback, this.model)
       if (isBoolean(active)) {
         this.model.active = active
+      } else {
+        await this._update_active()
       }
     }
   }
@@ -28,6 +45,7 @@ export namespace CustomAction {
 
   export type Props = ActionTool.Props & {
     callback: p.Property<CallbackLike0<CustomAction> | null>
+    active_callback: p.Property<CallbackLike0<CustomAction> | null>
   }
 }
 
@@ -46,6 +64,7 @@ export class CustomAction extends ActionTool {
 
     this.define<CustomAction.Props>(({Any, Nullable}) => ({
       callback: [ Nullable(Any /*TODO*/), null ],
+      active_callback: [ Nullable(Any /*TODO*/), null ],
     }))
 
     this.override<CustomAction.Props>({

@@ -34,14 +34,24 @@ p2.legend.title = "Lines"
 toggle_legend = CustomAction(
     icon=".bk-tool-icon-list",
     description="Toggle legend",
-    callback=CustomJS(args=dict(legends=p1.legend + p2.legend), code="""
-export default ({legends}) => {
-    for (const legend of legends) {
-        legend.visible = !legend.visible
-    }
-    return legends.every((legend) => legend.visible)
-}
-"""),
+    callback=CustomJS(
+        args=dict(legends=p1.legend + p2.legend),
+        code="""
+        export default ({legends}) => {
+            for (const legend of legends) {
+                legend.visible = !legend.visible
+            }
+        }
+        """,
+    ),
+    active_callback=CustomJS(
+        args=dict(legends=p1.legend + p2.legend),
+        code="""
+        export default ({legends}) => {
+            return legends.every((legend) => legend.visible)
+        }
+        """,
+    ),
 )
 
 gp = gridplot([p1, p2], ncols=2, width=400, height=400)
