@@ -800,6 +800,12 @@ class CustomAction(ActionTool):
 
     active_callback = Nullable(Instance(Callback), help="""
     A callback that allows to determine the (initial) state of the tool.
+
+    This callback must return a boolean value. A value of any other type
+    will be disregarded.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
 class SaveTool(ActionTool):
