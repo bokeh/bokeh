@@ -1,5 +1,6 @@
 import {expect} from "assertions"
-import {display} from "../../../_util"
+import {fig, display} from "../../../_util"
+import {PlotActions, xy} from "../../../../interactive"
 
 import type {GestureTool} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
@@ -253,5 +254,33 @@ describe("WheelZoomTool", () => {
         y: [-0.833333, 0.833333],
       })
     })
+  })
+
+  it("should support auto-activation when active_scroll='auto' and plot has focus", async () => {
+    const wheel_zoom = new WheelZoomTool()
+    const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 10], tools: [wheel_zoom], active_scroll: "auto"})
+    p.scatter([1, 5, 9], [1, 5, 9], {size: 20})
+
+    const {view} = await display(p)
+    const actions = new PlotActions(view)
+
+    expect(xy_axis(view)).to.be.equal({x: [0, 10], y: [0, 10]})
+    await actions.scroll_up(xy(5, 5))
+    await view.ready
+    expect(xy_axis(view)).to.be.equal({x: [0, 10], y: [0, 10]})
+
+    view.canvas_view.events_el.focus()
+    await view.ready
+
+    await actions.scroll_up(xy(5, 5), 2)
+    await view.ready
+    expect(xy_axis(view)).to.be.similar({x: [1.988165680473373, 7.988165680473373], y: [2.011560693641619, 8.011560693641618]})
+
+    view.canvas_view.events_el.blur()
+    await view.ready
+
+    await actions.scroll_up(xy(5, 5), 2)
+    await view.ready
+    expect(xy_axis(view)).to.be.similar({x: [1.988165680473373, 7.988165680473373], y: [2.011560693641619, 8.011560693641618]})
   })
 })
