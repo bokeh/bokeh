@@ -381,14 +381,14 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       const progress = new Bar({
-        format: "{bar} {percentage}% | {value} of {total}{failures}{skipped} | {duration}s",
+        format: "{bar} {percentage}% | {value} of {total}{failed}{skipped} | {duration}s",
         stream: process.stdout,
         noTTYOutput: true,
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
 
       let skipped = 0
-      let failures = 0
+      let failed = 0
 
       function to_seq(suites: Suite[], test: Test): [number[], number] {
         let current = top_level
@@ -412,7 +412,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           }
         }
         return {
-          failures: format(failures, "failure", "failures"),
+          failed: format(failed, "failed"),
           skipped: format(skipped, "skipped"),
         }
       }
@@ -705,7 +705,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
             skipped++
           }
           if ((status.failure ?? false) || (status.timeout ?? false)) {
-            failures++
+            failed++
           }
 
           append_report_out(test_case)
@@ -717,7 +717,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
       if (out_stream != null) {
         out_stream.write("\n")
-        out_stream.write(`Tests finished on ${new Date().toISOString()} with ${failures} failures.\n`)
+        out_stream.write(`Tests finished on ${new Date().toISOString()} with ${failed} failures.\n`)
         out_stream.end()
       }
 
@@ -757,13 +757,19 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       }
 
-      if (failures != 0) {
-        if (num_selected_tests == num_all_tests) {
-          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_selected_tests)} tests ${chalk.red("failed")}`)
-        } else {
-          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_selected_tests)} selected tests ${chalk.red("failed")} (out of ${chalk.cyan(num_all_tests)} total tests)`)
-        }
-        throw new Exit(1)
+      const passed = num_selected_tests - failed - skipped
+      const deselected = num_all_tests - num_selected_tests
+      const parts = {
+        failed: chalk.red(`${failed} failed`),
+        passed: chalk.green(`${passed} passed`),
+        skipped: chalk.yellow(`${skipped} skipped`),
+        deselected: chalk.magenta(`${deselected} deselected`),
+      }
+      const successful = `${parts.passed}, ${parts.skipped}, ${parts.deselected} of total ${num_all_tests} tests`
+      if (failed != 0) {
+        fail(`\n${parts.failed}, ${successful}`)
+      } else {
+        console.log(successful)
       }
     } finally {
       await Runtime.discardConsoleEntries()
