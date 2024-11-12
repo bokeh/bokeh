@@ -10,3 +10,4 @@ Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
 * Allowed ``CrosshairTool`` and ``HoverTool`` to trigger from axes (:bokeh-pull:`14124`)
 * Added support for dual canvas and DOM rendering to ``Legend`` annotation (:bokeh-pull:`14028`)
 * Added support for custom marker definitions to ``Scatter`` glyph (:bokeh-pull:`14165`)
+* Added support for stateful action tools, especially ``CustomAction`` (:bokeh-pull:`14143`)
