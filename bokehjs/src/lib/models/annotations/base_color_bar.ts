@@ -444,26 +444,6 @@ export abstract class BaseColorBarView extends AnnotationView {
       }
     })()
 
-    const stack = (() => {
-      switch (side) {
-        case "above":
-          return top_panel
-        case "below":
-          return bottom_panel
-        case "left":
-          return left_panel
-        case "right":
-          return right_panel
-      }
-    })()
-
-    const {_axis_view} = this
-    _axis_view.panel = new SidePanel(side)
-    _axis_view.update_layout()
-    if (_axis_view.layout != null) {
-      stack.children.push(_axis_view.layout)
-    }
-
     let title_direction: Side
     if (title_orientation == "upward") {
       title_direction = "left"
@@ -485,6 +465,30 @@ export abstract class BaseColorBarView extends AnnotationView {
       left_panel.children.push(_title_view.layout)
     } else {
       right_panel.children.push(_title_view.layout)
+    }
+
+    const stack = (() => {
+      switch (side) {
+        case "above":
+          return top_panel
+        case "below":
+          return bottom_panel
+        case "left":
+          return left_panel
+        case "right":
+          return right_panel
+      }
+    })()
+
+    const {_axis_view} = this
+    _axis_view.panel = new SidePanel(side)
+    _axis_view.update_layout()
+    if (_axis_view.layout != null) {
+      if (title_location == side && (side == "right" || side == "below")) {
+        stack.children.unshift(_axis_view.layout)
+      } else {
+        stack.children.push(_axis_view.layout)
+      }
     }
 
     if (this.panel != null) {
