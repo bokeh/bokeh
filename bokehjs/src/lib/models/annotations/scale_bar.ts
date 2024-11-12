@@ -415,8 +415,8 @@ export class ScaleBarView extends AnnotationView {
     })()
 
     const {x, y} = (() => {
-      const panel = this.layout ?? this.plot_view.frame
-      const inset = panel.bbox.shrink_by(margin)
+      const {bbox} = this.layout ?? this.plot_view.frame
+      const inset = bbox.shrink_by(margin)
 
       const x_pos = (() => {
         const {x} = position
@@ -428,9 +428,9 @@ export class ScaleBarView extends AnnotationView {
         const x_mapper = (() => {
           switch (this.model.x_units) {
             case "data":    return this.coordinates.x_scale
-            case "screen":  return panel.bbox.x_screen
-            case "view":    return panel.bbox.x_view
-            case "percent": return panel.bbox.x_percent
+            case "screen":  return bbox.x_screen
+            case "view":    return bbox.x_view
+            case "percent": return bbox.x_percent
           }
         })()
         return x_mapper.compute(
@@ -443,14 +443,14 @@ export class ScaleBarView extends AnnotationView {
         switch (y) {
           case "top":    return inset.top
           case "center": return inset.y_center
-          case "bottom": return inset.right
+          case "bottom": return inset.bottom
         }
         const y_mapper = (() => {
           switch (this.model.y_units) {
             case "data":    return this.coordinates.y_scale
-            case "screen":  return panel.bbox.y_screen
-            case "view":    return panel.bbox.y_view
-            case "percent": return panel.bbox.y_percent
+            case "screen":  return bbox.y_screen
+            case "view":    return bbox.y_view
+            case "percent": return bbox.y_percent
           }
         })()
         return y_mapper.compute(
