@@ -344,12 +344,12 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       }
 
-      const test_suite = all_tests.filter(([, test]) => test.omit !== true)
+      const selected_tests = all_tests.filter(([, test]) => test.omit !== true)
 
       const num_all_tests = all_tests.length
-      const num_test_suite = test_suite.length
+      const num_selected_tests = selected_tests.length
 
-      if (num_test_suite == 0) {
+      if (num_selected_tests == 0) {
         fail("nothing to test")
       }
 
@@ -359,7 +359,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       if (baselines_root != null) {
         const baseline_paths = []
 
-        for (const test_case of test_suite) {
+        for (const test_case of selected_tests) {
           const [suites, test, _status] = test_case
           const baseline_name = encode(description(suites, test, "__"))
           const baseline_path = path.join(baselines_root, platform, baseline_name)
@@ -369,7 +369,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         const baselines = await load_baselines(baseline_paths, ref)
 
         for (let i = 0; i < baselines.length; i++) {
-          const [,, status] = test_suite[i]
+          const [,, status] = selected_tests[i]
           const baseline = baselines[i]
           if (baseline.blf != null) {
             status.existing_blf = baseline.blf
@@ -417,7 +417,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
       }
 
-      progress.start(test_suite.length, 0, state())
+      progress.start(selected_tests.length, 0, state())
 
       type MetricKeys = "JSEventListeners" | "Nodes" | "Resources" | "LayoutCount" | "RecalcStyleCount" | "JSHeapUsedSize" | "JSHeapTotalSize"
       const metrics: {[key in MetricKeys]: number[]} = {
@@ -514,7 +514,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       try {
-        for (const test_case of test_suite) {
+        for (const test_case of selected_tests) {
           const [suites, test, status] = test_case
 
           entries = []
@@ -721,7 +721,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         out_stream.end()
       }
 
-      for (const test_case of test_suite) {
+      for (const test_case of selected_tests) {
         const output = format_output(test_case)
         if (output != null) {
           console.log("")
@@ -730,7 +730,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       if (baselines_root != null) {
-        const results = test_suite.map(([suites, test, status]) => {
+        const results = selected_tests.map(([suites, test, status]) => {
           const {failure, image, image_diff, reference} = status
           return [descriptions(suites, test), {failure, image, image_diff, reference}]
         })
@@ -758,10 +758,10 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       if (failures != 0) {
-        if (num_test_suite == num_all_tests) {
-          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_test_suite)} tests ${chalk.red("failed")}`)
+        if (num_selected_tests == num_all_tests) {
+          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_selected_tests)} tests ${chalk.red("failed")}`)
         } else {
-          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_test_suite)} selected tests ${chalk.red("failed")} (out of ${chalk.cyan(num_all_tests)} total tests)`)
+          fail(`\n${chalk.cyan(failures)} of ${chalk.cyan(num_selected_tests)} selected tests ${chalk.red("failed")} (out of ${chalk.cyan(num_all_tests)} total tests)`)
         }
         throw new Exit(1)
       }
