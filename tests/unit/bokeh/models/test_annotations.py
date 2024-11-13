@@ -189,10 +189,10 @@ def test_ColorBar() -> None:
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_orientation == "auto"
-    assert colot_bar.title_location == "auto"
+    assert color_bar.title_location == "auto"
     assert color_bar.title_standoff == 2
     assert color_bar.title_text_halign == "left"
-    assert colot_bar.title_text_valign == "bottom"
+    assert color_bar.title_text_valign == "bottom"
     assert color_bar.ticker == "auto"
     assert color_bar.formatter == "auto"
     assert color_bar.color_mapper == color_mapper
