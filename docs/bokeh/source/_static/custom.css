@@ -10,6 +10,9 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
+/* activate the search box on the start page if the search button on the top banner is clicked */
+.bd-search {}
+
 /* make sure the article container uses all available space */
 .bd-article-container {
   max-width: 100% !important;
