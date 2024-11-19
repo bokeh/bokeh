@@ -131,6 +131,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         top_units: "canvas",
         bottom_units: "canvas",
         level: this.model.level,
+        is_handle: true,
       }
 
       function attrs_of(source: AreaVisuals) {
@@ -469,7 +470,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   get movable(): boolean {
-    return this.model.movable != "none"
+    const movable = this.model.movable != "none"
+    return this.model.is_handle ? movable : this.model.editable && movable
   }
 
   private _hittable(): {[key in Box.HitTarget]: boolean} {
@@ -829,6 +831,7 @@ export namespace BoxAnnotation {
 
     use_handles: p.Property<boolean>
     handles: p.Property<BoxInteractionHandles>
+    is_handle: p.Property<boolean>
 
     inverted: p.Property<boolean>
 
@@ -911,6 +914,7 @@ export class BoxAnnotation extends Annotation {
 
       use_handles:  [ Bool, false ],
       handles:      [ Ref(BoxInteractionHandles), DEFAULT_HANDLES ],
+      is_handle:    [ Bool, false ],
 
       inverted:     [ Bool, false ],
     }))
