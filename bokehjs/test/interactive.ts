@@ -303,7 +303,7 @@ export class PlotActions {
     }
   }
 
-  protected *_hover(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
+  *_hover(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
     yield* this._move(path, MOVE_PRESSURE, MouseButton.None, keys)
   }
 

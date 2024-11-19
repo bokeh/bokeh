@@ -784,7 +784,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       case "top":          return this._handles.top == null          ? ns_cursor : this._handles.top.ns_cursor
       case "bottom":       return this._handles.bottom == null       ? ns_cursor : this._handles.bottom.ns_cursor
       case "area": {
-        if (this._handles.area == null) {
+        if (!this.movable) {
+          return null
+        } else if (this._handles.area == null) {
           if (this._pan_state != null && in_cursor === "grab") {
             return "grabbing"
           } else {
