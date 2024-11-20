@@ -916,12 +916,11 @@ export class BoxAnnotation extends Annotation {
 
       use_handles:  [ Bool, false ],
       handles:      [ Ref(BoxInteractionHandles), DEFAULT_HANDLES ],
-      is_handle:    [ Bool, false ],
 
       inverted:     [ Bool, false ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({Str}) => ({
+    this.internal<BoxAnnotation.Props>(({Str, Bool}) => ({
       tl_cursor: [ Str, "nwse-resize" ],
       tr_cursor: [ Str, "nesw-resize" ],
       bl_cursor: [ Str, "nesw-resize" ],
@@ -929,6 +928,9 @@ export class BoxAnnotation extends Annotation {
       ew_cursor: [ Str, "ew-resize" ],
       ns_cursor: [ Str, "ns-resize" ],
       in_cursor: [ Str, "grab" ],
+
+      // Is this BoxAnnotation functioning as a handle for another BoxAnnotation?
+      is_handle: [ Bool, false ],
     }))
 
     this.override<BoxAnnotation.Props>({
