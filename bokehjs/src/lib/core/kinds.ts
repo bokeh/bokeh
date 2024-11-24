@@ -1,7 +1,7 @@
 import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys, values, typed_values, typed_entries, is_empty, PlainObjectProxy} from "./util/object"
+import {keys, values, entries, typed_values, typed_entries, is_empty, PlainObjectProxy} from "./util/object"
 import {has_refs} from "./util/refs"
 
 type ESMap<K, V> = globalThis.Map<K, V>
@@ -430,6 +430,20 @@ export namespace Kinds {
     }
   }
 
+  export class PrefixedStr<P extends string> extends Primitive<`${P}${string}`> {
+    constructor(readonly prefix: P) {
+      super()
+    }
+
+    valid(value: unknown): value is this["__type__"] {
+      return tp.isString(value) && value.startsWith(this.prefix)
+    }
+
+    override toString(): string {
+      return `PrefixedStr('${this.prefix}')`
+    }
+  }
+
   export class Regex extends Str {
     constructor(readonly regex: RegExp) {
       super()
@@ -491,6 +505,35 @@ export namespace Kinds {
 
     may_have_refs(): boolean {
       return this.item_type.may_have_refs()
+    }
+  }
+
+  export class KeyVal<KeyType extends string, ItemType> extends Kind<types.KeyVal<KeyType, ItemType>> {
+
+    constructor(readonly key_type: Kind<KeyType>, readonly item_type: Kind<ItemType>) {
+      super()
+    }
+
+    valid(value: unknown): value is this["__type__"] {
+      if (!(value instanceof ESMap || tp.isPlainObject(value))) {
+        return false
+      }
+
+      for (const [key, item] of entries(value)) {
+        if (!this.key_type.valid(key) || !this.item_type.valid(item)) {
+          return false
+        }
+      }
+
+      return true
+    }
+
+    override toString(): string {
+      return `KeyVal(${this.key_type.toString()}, ${this.item_type.toString()})`
+    }
+
+    may_have_refs(): boolean {
+      return this.key_type.may_have_refs() || this.item_type.may_have_refs()
     }
   }
 
@@ -659,6 +702,7 @@ export const Float = new Kinds.Float()
 export const Int = new Kinds.Int()
 export const Bytes = new Kinds.Bytes()
 export const Str = new Kinds.Str()
+export const PrefixedStr = <Prefix extends string>(prefix: Prefix) => new Kinds.PrefixedStr(prefix)
 export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
@@ -673,6 +717,7 @@ export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arra
 export const List = <ItemType>(item_type: Kind<ItemType>) => new Kinds.List(item_type)
 export const NonEmptyList = <ItemType>(item_type: Kind<ItemType>) => new Kinds.NonEmptyList(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
+export const KeyVal = <K extends string, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.KeyVal(key_type, item_type)
 export const Mapping = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Mapping(key_type, item_type)
 export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)
 export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)

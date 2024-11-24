@@ -363,8 +363,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       ctx.rect(x, y, width, height)
       round_rect(ctx, this.bbox, this.border_radius)
 
-      fill.apply(ctx, "evenodd")
-      hatch.apply(ctx, "evenodd")
+      fill.apply(ctx, undefined, "evenodd")
+      hatch.apply(ctx, undefined, "evenodd")
 
       ctx.beginPath()
       round_rect(ctx, this.bbox, this.border_radius)

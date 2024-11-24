@@ -4291,6 +4291,9 @@
       type: "value",
       value: "circle",
     },
+    defs: {
+      type: "map",
+    },
   },
   Segment: {
     __extends__: "LineGlyph",

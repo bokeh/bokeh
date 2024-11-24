@@ -34,11 +34,15 @@ export class Line extends VisualProperties {
     return !(color == null || alpha == 0 || width == 0)
   }
 
-  apply(ctx: Context2d): boolean {
+  apply(ctx: Context2d, path?: Path2D): boolean {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.stroke()
+      if (path != null) {
+        ctx.stroke(path)
+      } else {
+        ctx.stroke()
+      }
     }
     return doit
   }
@@ -171,11 +175,15 @@ export class LineScalar extends VisualUniforms {
     return !(color == 0 || alpha == 0 || width == 0)
   }
 
-  apply(ctx: Context2d): boolean {
+  apply(ctx: Context2d, path?: Path2D): boolean {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.stroke()
+      if (path != null) {
+        ctx.stroke(path)
+      } else {
+        ctx.stroke()
+      }
     }
     return doit
   }
@@ -244,11 +252,15 @@ export class LineVector extends VisualUniforms {
     return true
   }
 
-  apply(ctx: Context2d, i: number): boolean {
+  apply(ctx: Context2d, i: number, path?: Path2D): boolean {
     const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
-      ctx.stroke()
+      if (path != null) {
+        ctx.stroke(path)
+      } else {
+        ctx.stroke()
+      }
     }
     return doit
   }

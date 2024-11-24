@@ -85,7 +85,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._widths.set_from_prop(this.glyph.size)
     this._angles.set_from_prop(this.glyph.angle)
 
-    this._marker_types = this.glyph.marker
+    this._marker_types = this.glyph.marker as any // TODO
     this._unique_marker_types = [...new Set(this._marker_types)]
   }
 

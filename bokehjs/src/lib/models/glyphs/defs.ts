@@ -242,7 +242,7 @@ function square_pin(ctx: Context2d, i: number, r: number, visuals: VectorVisuals
   ctx.quadraticCurveTo( a,  0,  r,  r)
   ctx.quadraticCurveTo( 0,  a, -r,  r)
   ctx.quadraticCurveTo(-a,  0, -r, -r)
-  /* eslint-ensable space-in-parens */
+  /* eslint-enable space-in-parens */
 
   ctx.closePath()
 

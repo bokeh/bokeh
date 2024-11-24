@@ -61,6 +61,7 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
+    Regex,
     Size,
     SizeSpec,
     String,
@@ -85,6 +86,7 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
+from .callbacks import CustomJS
 from .glyph import (
     ConnectedXYGlyph,
     FillGlyph,
@@ -1473,6 +1475,42 @@ class Scatter(Marker):
     marker = MarkerSpec(default="circle", help="""
     Which marker to render. This can be the name of any built in marker,
     e.g. "circle", or a reference to a data column containing such names.
+    """)
+
+    defs = Dict(Regex("^@.*$"), Instance(CustomJS))(default={}, help="""
+    A collection of custom marker definitions.
+
+    There are two ways to define a custom marker:
+
+    * construct and return an instance of ``Path2D``:
+
+    .. code:: python
+
+        CustomJS(code='''
+            export default (args, obj, {ctx, i, r, visuals}) => {
+                const path = new Path2D()
+                path.arc(0, 0, r, 0, 2*Math.PI, false)
+                return path
+            }
+        ''')
+
+    * paint directly to an instance of ``Context2d``:
+
+    .. code:: python
+
+        CustomJS(code='''
+            export default (args, obj, {ctx, i, r, visuals}) => {
+                ctx.arc(0, 0, r, 0, 2*Math.PI, false)
+                visuals.fill.apply(ctx, i)
+                visuals.hatch.apply(ctx, i)
+                visuals.line.apply(ctx, i)
+            }
+        ''')
+
+    .. note::
+
+        Custom marker's names must start with `"@"` prefix, e.g. `"@my_marker"`.
+
     """)
 
 class Segment(LineGlyph):

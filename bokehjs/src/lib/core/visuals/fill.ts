@@ -15,11 +15,15 @@ export class Fill extends VisualProperties {
     return !(color == null || alpha == 0)
   }
 
-  apply(ctx: Context2d, rule: CanvasFillRule = "nonzero"): boolean {
+  apply(ctx: Context2d, path?: Path2D, rule: CanvasFillRule = "nonzero"): boolean {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.fill(rule)
+      if (path != null) {
+        ctx.fill(path, rule)
+      } else {
+        ctx.fill(rule)
+      }
     }
     return doit
   }
@@ -80,11 +84,15 @@ export class FillScalar extends VisualUniforms {
     return !(color == 0 || alpha == 0)
   }
 
-  apply(ctx: Context2d, rule: CanvasFillRule = "nonzero"): boolean {
+  apply(ctx: Context2d, path?: Path2D, rule: CanvasFillRule = "nonzero"): boolean {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.fill(rule)
+      if (path != null) {
+        ctx.fill(path, rule)
+      } else {
+        ctx.fill(rule)
+      }
     }
     return doit
   }
@@ -131,11 +139,15 @@ export class FillVector extends VisualUniforms {
     return true
   }
 
-  apply(ctx: Context2d, i: number, rule: CanvasFillRule = "nonzero"): boolean {
+  apply(ctx: Context2d, i: number, path?: Path2D, rule: CanvasFillRule = "nonzero"): boolean {
     const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
-      ctx.fill(rule)
+      if (path != null) {
+        ctx.fill(path, rule)
+      } else {
+        ctx.fill(rule)
+      }
     }
     return doit
   }

@@ -151,8 +151,8 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
 
-      this.visuals.fill.apply(ctx, i, "evenodd")
-      this.visuals.hatch.apply(ctx, i, "evenodd")
+      this.visuals.fill.apply(ctx, i, undefined, "evenodd")
+      this.visuals.hatch.apply(ctx, i, undefined, "evenodd")
       this.visuals.line.apply(ctx, i)
     }
   }

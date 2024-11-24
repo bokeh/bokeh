@@ -44,6 +44,7 @@ from .primitive import (
 )
 from .serialized import NotSerialized
 from .singletons import Undefined
+from .string import Regex
 from .struct import Optional, Struct
 from .vectorization import (
     Expr,
@@ -398,7 +399,7 @@ class MarkerSpec(DataSpec):
     """
 
     def __init__(self, default, *, help: str | None = None) -> None:
-        super().__init__(MarkerType, default=default, help=help)
+        super().__init__(Either(MarkerType, Regex("^@.*$")), default=default, help=help)
 
 class UnitsSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
