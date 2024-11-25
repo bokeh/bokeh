@@ -109,3 +109,8 @@ export function isIterable(obj: unknown): obj is Iterable<unknown> {
 export function isArrayable(obj: unknown): obj is Arrayable<unknown> {
   return isIterable(obj) && "length" in obj
 }
+
+export function is_ArrayBufferLike(obj: unknown): obj is ArrayBufferLike {
+  // SharedArrayBuffer is only available in cross origin isolated environments, otherwise it's undefined
+  return obj instanceof ArrayBuffer || (typeof SharedArrayBuffer !== "undefined" && obj instanceof SharedArrayBuffer)
+}

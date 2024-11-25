@@ -1,5 +1,5 @@
 import type {NDDataType, Arrayable} from "../types"
-import {isObject, isNumber} from "./types"
+import {isObject, isNumber, is_ArrayBufferLike} from "./types"
 import {BYTE_ORDER} from "./platform"
 import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
@@ -30,7 +30,7 @@ export interface NDArrayType<T, U=T> extends Arrayable<U>, Equatable, Cloneable,
   [i: number]: U
 }
 
-type Init<T> = number | ArrayBuffer | ArrayLike<T>
+type Init<T> = number | ArrayBufferLike | ArrayLike<T>
 
 export class BoolNDArray extends Uint8Array implements NDArrayType<boolean, number> {
   readonly [__ndarray__] = true
@@ -308,7 +308,7 @@ export class ObjectNDArray<T=unknown> extends Array<T> implements NDArrayType<T>
   }
 
   constructor(init_: Init<T>, shape?: number[]) {
-    const init = init_ instanceof ArrayBuffer ? new Float64Array(init_) : init_
+    const init = is_ArrayBufferLike(init_) ? new Float64Array(init_) : init_
     const size = isNumber(init) ? init : init.length
 
     super(size)
@@ -376,11 +376,11 @@ export type Float32Array2d = Float32NDArray & Array2d
 export type Float64Array2d = Float64NDArray & Array2d
 export type FloatArray2d   = Float32Array2d | Float64Array2d
 
-export function ndarray<S extends number[]>(init: number | ArrayBuffer | ArrayLike<unknown>, options?: {shape?: S}): NDArrayTypes["object"]["ndarray"] & ArrayNd<S>
-export function ndarray<K extends NDDataType, S extends number[]>(init: number | ArrayBuffer | ArrayLike<number>, options?: {dtype: K, shape?: S}): NDArrayTypes[K]["ndarray"] & ArrayNd<S>
+export function ndarray<S extends number[]>(init: number | ArrayBufferLike | ArrayLike<unknown>, options?: {shape?: S}): NDArrayTypes["object"]["ndarray"] & ArrayNd<S>
+export function ndarray<K extends NDDataType, S extends number[]>(init: number | ArrayBufferLike | ArrayLike<number>, options?: {dtype: K, shape?: S}): NDArrayTypes[K]["ndarray"] & ArrayNd<S>
 export function ndarray<S extends number[]>(init: ArrayLike<unknown>, options?: {dtype: "object", shape?: S}): NDArrayTypes["object"]["ndarray"] & ArrayNd<S>
 
-export function ndarray(init: number | ArrayBuffer | ArrayLike<unknown>, {dtype, shape}: {dtype?: NDDataType, shape?: number[]} = {}): NDArray {
+export function ndarray(init: number | ArrayBufferLike | ArrayLike<unknown>, {dtype, shape}: {dtype?: NDDataType, shape?: number[]} = {}): NDArray {
   if (dtype == null) {
     dtype = (() => {
       switch (true) {
@@ -391,9 +391,14 @@ export function ndarray(init: number | ArrayBuffer | ArrayLike<unknown>, {dtype,
         case init instanceof Uint32Array:  return "uint32"
         case init instanceof Int32Array:   return "int32"
         case init instanceof Float32Array: return "float32"
-        case init instanceof ArrayBuffer:
         case init instanceof Float64Array: return "float64"
-        default:                           return "object"
+        default: {
+          if (is_ArrayBufferLike(init)) {
+            return "float64"
+          } else {
+            return "object"
+          }
+        }
       }
     })()
   }
