@@ -118,6 +118,18 @@ function svg_image() {
 `)
 }
 
+const osm_source = new WMTSTileSource({
+  // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
+  url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
+  attribution: "&copy; (0) OSM source attribution",
+})
+
+const esri_source = new WMTSTileSource({
+  // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
+  url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
+  attribution: "&copy; (1) Esri source attribution",
+})
+
 describe("Bug", () => {
   describe("in issue #9879", () => {
     it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
@@ -1282,21 +1294,9 @@ describe("Bug", () => {
   })
 
   describe("in issue #11413", () => {
-    const osm_source = new WMTSTileSource({
-      // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
-      url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
-      attribution: "&copy; (0) OSM source attribution",
-    })
-
-    const esri_source = new WMTSTileSource({
-      // url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg",
-      url: "/assets/tiles/esri/{Z}_{Y}_{X}.jpg",
-      attribution: "&copy; (1) Esri source attribution",
-    })
-
     it("doesn't allow to remove an annotation element associated with a tile renderer", async () => {
-      const osm = new TileRenderer({tile_source: osm_source})
-      const esri = new TileRenderer({tile_source: esri_source})
+      const osm = new TileRenderer({tile_source: osm_source.clone()})
+      const esri = new TileRenderer({tile_source: esri_source.clone()})
 
       const p0 = fig([300, 200], {
         x_range: [-2000000, 6000000],
@@ -4189,6 +4189,23 @@ describe("Bug", () => {
         location: "bottom_right",
       })
       p.add_layout(scale_bar)
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #14168", () => {
+    it("doesn't allow to add multiple TileRenderer instances to a plot", async () => {
+      const osm = new TileRenderer({tile_source: osm_source.clone()})
+      const esri = new TileRenderer({tile_source: esri_source.clone(), alpha: 0.4})
+
+      const p = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [osm, esri],
+      })
 
       await display(p)
     })

@@ -18,7 +18,7 @@ export class PaneView extends UIElementView {
     return this.model.elements
   }
   get element_views(): ViewOf<ElementLike>[] {
-    return this.elements.map((element) => this._element_views.get(element)!)
+    return this.elements.map((element) => this._element_views.get(element)).filter((view) => view != null)
   }
 
   override *children(): IterViews {
