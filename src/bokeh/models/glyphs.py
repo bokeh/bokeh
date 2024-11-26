@@ -1511,6 +1511,10 @@ class Scatter(Marker):
 
         Custom marker's names must start with `"@"` prefix, e.g. `"@my_marker"`.
 
+    .. note::
+
+        Custom markers are only supported with ``"canvas"`` and ``"svg"`` backends.
+
     """)
 
 class Segment(LineGlyph):

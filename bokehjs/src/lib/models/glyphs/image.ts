@@ -25,7 +25,7 @@ export class ImageView extends ImageBaseView {
   }
 
   protected _update_image(): void {
-    if (this.glglyph != null) {
+    if (this.has_webgl()) {
       this.glglyph.set_image_changed()
     }
 

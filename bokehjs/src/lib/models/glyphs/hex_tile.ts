@@ -101,7 +101,9 @@ export class HexTileView extends GlyphView {
     this._define_attr<HexTile.Data>("svy", svy)
 
     // From overridden GlyphView.map_data()
-    this.glglyph?.set_data_mapped()
+    if (this.has_webgl()) {
+      this.glglyph.set_data_mapped()
+    }
   }
 
   protected _get_unscaled_vertices(): [Vertices, Vertices] {

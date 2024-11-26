@@ -109,3 +109,11 @@ export function min(u: Uniform<number>): number {
 export function max(u: Uniform<number>): number {
   return u.is_Scalar() ? u.value : arrayable.max((u as UniformVector<number>).array)
 }
+
+export function some<T>(u: Uniform<T>, predicate: (item: T) => boolean): boolean {
+  return u.is_Scalar() ? predicate(u.value) : arrayable.some((u as UniformVector<T>).array, predicate)
+}
+
+export function every<T>(u: Uniform<T>, predicate: (item: T) => boolean): boolean {
+  return u.is_Scalar() ? predicate(u.value) : arrayable.every((u as UniformVector<T>).array, predicate)
+}

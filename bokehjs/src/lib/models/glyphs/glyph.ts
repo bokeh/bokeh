@@ -54,8 +54,13 @@ export abstract class GlyphView extends DOMComponentView {
 
   async load_glglyph?(): Promise<typeof BaseGLGlyph>
 
-  get has_webgl(): boolean {
-    return this.glglyph != null
+  has_webgl(): this is {glglyph: BaseGLGlyph} {
+    return this.glglyph != null && this._can_use_webgl
+  }
+
+  private _can_use_webgl: boolean = false
+  protected _compute_can_use_webgl(): boolean {
+    return true
   }
 
   private _index: SpatialIndex | null = null
@@ -119,7 +124,7 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
-    if (this.glglyph != null) {
+    if (this.has_webgl()) {
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
@@ -358,7 +363,9 @@ export abstract class GlyphView extends DOMComponentView {
       visual.update()
     }
 
-    this.glglyph?.set_visuals_changed()
+    if (this.has_webgl()) {
+      this.glglyph.set_visuals_changed()
+    }
   }
 
   protected _transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
@@ -439,7 +446,13 @@ export abstract class GlyphView extends DOMComponentView {
       decoration.marking.set_data(source, indices)
     }
 
-    this.glglyph?.set_data_changed()
+    if (this.glglyph != null) {
+      this._can_use_webgl = this._compute_can_use_webgl()
+    }
+
+    if (this.has_webgl()) {
+      this.glglyph.set_data_changed()
+    }
 
     if (base == null) {
       this.index_data()
@@ -506,7 +519,9 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     this._map_data()
-    this.glglyph?.set_data_mapped()
+    if (this.has_webgl()) {
+      this.glglyph.set_data_mapped()
+    }
   }
 
   // This is where specs not included in coords are computed, e.g. radius.

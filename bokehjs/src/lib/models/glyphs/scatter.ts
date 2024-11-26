@@ -4,14 +4,15 @@ import {marker_funcs} from "./defs"
 import type {VectorVisuals} from "./defs"
 import type {Rect, KeyVal} from "core/types"
 import * as p from "core/properties"
+import * as u from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import type {MultiMarkerGL} from "./webgl/multi_marker"
 import {CustomJS} from "../callbacks/customjs"
 import {execute_sync} from "core/util/callbacks"
 import type {SyncExecutableLike} from "core/util/callbacks"
-import {dict} from "core/util/object"
+import {dict, is_empty} from "core/util/object"
 
-function is_MarkerType(type: string): type is MarkerType {
+function is_MarkerType(type: string | null): type is MarkerType {
   return MarkerType.valid(type)
 }
 
@@ -26,6 +27,10 @@ export class ScatterView extends MarkerView {
   override async load_glglyph() {
     const {MultiMarkerGL} = await import("./webgl/multi_marker")
     return MultiMarkerGL
+  }
+
+  protected override _compute_can_use_webgl(): boolean {
+    return is_empty(this.model.defs) || u.every(this.marker, is_MarkerType)
   }
 
   protected async _update_defs(): Promise<void> {

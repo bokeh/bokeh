@@ -325,7 +325,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   override get has_webgl(): boolean {
-    return this.glyph.has_webgl
+    return this.glyph.has_webgl()
   }
 
   protected _paint(ctx: Context2d): void {

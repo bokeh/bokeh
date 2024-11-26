@@ -4,13 +4,14 @@ import {BaseMarkerGL} from "./base_marker"
 import type {ReglWrapper} from "./regl_wrap"
 import {interleave} from "./webgl_utils"
 import type {ScatterView} from "../scatter"
-import type {MarkerType} from "core/enums"
+import {MarkerType} from "core/enums"
 import type {Uniform} from "core/uniforms"
+import type {ExtMarkerType} from "core/properties"
 
 export class MultiMarkerGL extends BaseMarkerGL {
 
   // data properties, either all or none are set.
-  protected _marker_types?: Uniform<MarkerType | null>
+  protected _marker_types?: Uniform<MarkerType | ExtMarkerType | null>
   protected _unique_marker_types: (MarkerType | null)[]
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: ScatterView) {
@@ -85,8 +86,8 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._widths.set_from_prop(this.glyph.size)
     this._angles.set_from_prop(this.glyph.angle)
 
-    this._marker_types = this.glyph.marker as any // TODO
-    this._unique_marker_types = [...new Set(this._marker_types)]
+    this._marker_types = this.glyph.marker
+    this._unique_marker_types = [...new Set(this._marker_types)].filter((marker) => MarkerType.valid(marker))
   }
 
   protected override _set_once(): void {
