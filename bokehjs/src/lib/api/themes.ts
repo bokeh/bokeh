@@ -209,7 +209,7 @@ export const caliber = new Theme([
   }),
 ])
 
-export const constrast = new Theme([
+export const contrast = new Theme([
   themed(Plot, {
     background_fill_color: "#000000",
     border_fill_color: "#ffffff",

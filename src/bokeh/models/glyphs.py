@@ -836,7 +836,7 @@ class Image(ImageBase):
     into RGBA values for display.
 
     The name of a palette from ``bokeh.palettes`` may also be set, in which
-    case a ``LinearColorMapper`` configured with the named palette wil be used.
+    case a ``LinearColorMapper`` configured with the named palette will be used.
 
     .. note::
         The color mapping step happens on the client.

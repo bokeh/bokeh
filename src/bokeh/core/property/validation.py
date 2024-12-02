@@ -86,7 +86,7 @@ def without_property_validation(input_function):
                 # do things without validation
 
     See Also:
-        :class:`~bokeh.core.properties.validate`: context mangager for more fine-grained control
+        :class:`~bokeh.core.properties.validate`: context manager for more fine-grained control
 
     """
     @wraps(input_function)

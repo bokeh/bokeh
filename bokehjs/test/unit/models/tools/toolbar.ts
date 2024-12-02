@@ -45,7 +45,7 @@ describe("Toolbar", () => {
       expect(toolbar.gestures.pan.active).to.be.null
     })
 
-    it("should correctly active tool and deactive currently active one", () => {
+    it("should correctly activate tool and deactivate currently active one", () => {
       // activate the tool as setup
       pan_1.active = true
       toolbar._active_change(pan_1)

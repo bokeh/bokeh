@@ -166,7 +166,7 @@ export class ClientConnection {
 
           this.session = new ClientSession(this, document)
 
-          // Send back change events that happend during model initialization.
+          // Send back change events that happened during model initialization.
           for (const event of events) {
             document._trigger_on_change(event)
           }

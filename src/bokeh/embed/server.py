@@ -149,7 +149,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
     .. note::
-        Typically you will not want to save or re-use the output of this
+        Typically you will not want to save or reuse the output of this
         function for different or multiple page loads.
 
     Args:
@@ -203,7 +203,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
         .. warning::
-            It is typically a bad idea to re-use the same ``session_id`` for
+            It is typically a bad idea to reuse the same ``session_id`` for
             every page load. This is likely to create scalability and security
             problems, and will cause "shared Google doc" behavior, which is
             probably not desired.

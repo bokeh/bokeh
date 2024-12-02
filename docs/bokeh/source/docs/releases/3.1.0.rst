@@ -16,6 +16,6 @@ Changes
 * Multi-line legend items (:bokeh-issue:`12331`)
 * Gridded legends via ``nrows`` and ``ncols`` (:bokeh-issue:`3880`)
 * New properties Text glyph properties: background, border, border_radius, padding, etc. (:bokeh-issue:`12529`)
-* Add rounded corners for rectangular glpyhs ``Rect``, ``Block``, etc. (:bokeh-issue:`11348`)
+* Add rounded corners for rectangular glyphs ``Rect``, ``Block``, etc. (:bokeh-issue:`11348`)
 * Fill properties for slope annotations (:bokeh-issue:`9194`)
 * Editable annotations and persistent selection overlays (:bokeh-issue:`12468`)

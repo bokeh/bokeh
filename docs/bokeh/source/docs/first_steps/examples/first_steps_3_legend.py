@@ -25,7 +25,7 @@ circle = p.scatter(
 p.legend.location = "top_left"
 
 # add a title to your legend
-p.legend.title = "Obervations"
+p.legend.title = "Observations"
 
 # change appearance of legend text
 p.legend.label_text_font = "times"

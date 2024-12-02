@@ -57,7 +57,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 # TODO (bev) the situation with no-argument Button callbacks is a mess. We
-# should migrate to all callbacks receving the event as the param, even if that
+# should migrate to all callbacks receiving the event as the param, even if that
 # means auto-magically wrapping user-supplied callbacks for awhile.
 EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
 EventCallbackWithoutEvent: TypeAlias = Callable[[], None]

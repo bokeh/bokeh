@@ -102,7 +102,7 @@ export abstract class LRTBView extends GlyphView {
   }
 
   // We need to clamp the endpoints inside the viewport, because various browser canvas
-  // implementations have issues drawing rects with enpoints far outside the viewport
+  // implementations have issues drawing rects with endpoints far outside the viewport
   protected _clamp_to_viewport(): void {
     const {min, max} = Math
     const {h_range, v_range} = this.renderer.plot_view.frame.bbox

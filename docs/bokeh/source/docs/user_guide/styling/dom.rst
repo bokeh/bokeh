@@ -23,7 +23,7 @@ inline style attribute of DOM elements directly:
 Stylesheets
 -----------
 
-It is also possible to define and inlude stylesheets in generated output.
+It is also possible to define and include stylesheets in generated output.
 Bokeh provides a few different variations that can be used to apply CSS rules
 to DOM objects in Bokeh output:
 

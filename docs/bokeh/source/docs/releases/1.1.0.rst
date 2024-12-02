@@ -10,7 +10,7 @@ release included:
 
 * Hover tool fixes and features :bokeh-issue:`8742`, :bokeh-issue:`8668`, :bokeh-issue:`7991`
 * Widget improvements :bokeh-issue:`7665`, :bokeh-issue:`8717`, :bokeh-issue:`6822`, :bokeh-issue:`6333`
-* Sphinx extensions more generally useable :bokeh-issue:`5955`
+* Sphinx extensions more generally usable :bokeh-issue:`5955`
 * Notebook integration work :bokeh-issue:`8583`, :bokeh-issue:`8681`, :bokeh-issue:`8681`, :bokeh-issue:`8733`
 * Live BokehJS examples added to docs :bokeh-issue:`8692`
 * Improved DataTable performance :bokeh-issue:`8227`

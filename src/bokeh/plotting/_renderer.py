@@ -213,7 +213,7 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         elif name in defaults:
             result[name] = defaults[name]
 
-        # e.g. not specificed anywhere else
+        # e.g. not specified anywhere else
         elif trait in trait_defaults:
             result[name] = trait_defaults[trait]
 

@@ -512,7 +512,7 @@ class PropertyDescriptor(Generic[T]):
         """ Internal implementation of instance attribute access for default
         values.
 
-        Handles bookeeping around ``PropertyContainer`` value, etc.
+        Handles bookkeeping around ``PropertyContainer`` value, etc.
 
         """
         if self.name in obj._property_values:

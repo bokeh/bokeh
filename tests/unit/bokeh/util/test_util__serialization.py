@@ -234,7 +234,7 @@ def test_transform_series() -> None:
     out = bus.transform_series(arr)
     assert isinstance(out, np.ndarray)
 
-    # timdelta array
+    # timedelta array
     arr = pd.array([datetime.timedelta(seconds=1), pd.Timedelta(0, unit='s')])
     assert isinstance(arr, pd.arrays.TimedeltaArray)
     out = bus.transform_series(arr)

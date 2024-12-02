@@ -1274,7 +1274,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         return
       }
     } else {
-      throw new Error(`Inavlid number of arguments passed to drawImage: ${arguments.length}`)
+      throw new Error(`Invalid number of arguments passed to drawImage: ${arguments.length}`)
     }
 
     // parent, svg, defs, group, currentElement, svgImage, canvas, context, id

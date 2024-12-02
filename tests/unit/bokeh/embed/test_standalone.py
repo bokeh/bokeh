@@ -217,7 +217,7 @@ class Test_components:
         assert isinstance(divs2, dict)
         assert all(isinstance(x, str) for x in divs2.keys())
 
-        # explict test for OrderedDict (don't replace with dict)
+        # explicit test for OrderedDict (don't replace with dict)
         _, divs3 = bes.components(OrderedDict([("Plot 1", plot1), ("Plot 2", plot2)]))
         assert isinstance(divs3, OrderedDict)
         assert all(isinstance(x, str) for x in divs3.keys())

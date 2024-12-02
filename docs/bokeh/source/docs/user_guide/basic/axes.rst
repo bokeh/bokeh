@@ -119,7 +119,7 @@ adding new glyph methods as well as when adding new axis objects with the
 Fixed location axis
 -------------------
 
-By defatult Bokeh places axes on the sides of plots, but it is possible to
+By default Bokeh places axes on the sides of plots, but it is possible to
 locate axes anywhere along a range by setting their ``fixed_location``
 property:
 

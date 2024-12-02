@@ -95,7 +95,7 @@ describe("CustomJS", () => {
       expect(module).to.be.equal(true)
     })
 
-    it("should support ES module bad deafult export", async () => {
+    it("should support ES module bad default export", async () => {
       const cb = new CustomJS({code: "const some = 10;\nexport default some"})
       const logger_spy = sinon.spy(logger, "warn")
       try {

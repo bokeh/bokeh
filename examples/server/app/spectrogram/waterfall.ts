@@ -91,7 +91,7 @@ export class WaterfallRendererView extends RendererView {
       this.x[this.tile] = -this.model.tile_width
     }
 
-    // apply the lastest column to the current tile image
+    // apply the latest column to the current tile image
     const buf32 = new Uint32Array(this.cmap.rgba_mapper.v_compute(this.model.latest).buffer)
     for (let i = 0; i < this.model.gram_length; i++)
       this.images[this.tile][i*this.model.tile_width+this.col] = buf32[i]

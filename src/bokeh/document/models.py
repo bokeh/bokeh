@@ -191,7 +191,7 @@ class DocumentModelManager:
             None
 
         '''
-        if self._freeze_count == 0:  # only recompute when competely unfrozen
+        if self._freeze_count == 0:  # only recompute when completely unfrozen
             self.recompute()
 
     def recompute(self) -> None:

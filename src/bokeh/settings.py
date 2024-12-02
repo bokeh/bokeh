@@ -361,7 +361,7 @@ class PrioritizedSetting(Generic[T]):
     The optional ``default`` argument specified an implicit default value for
     the setting that is returned if no other methods provide a value.
 
-    A ``convert`` agument may be provided to convert values before they are
+    A ``convert`` argument may be provided to convert values before they are
     returned. For instance to concert log levels in environment variables
     to ``logging`` module values.
     '''
@@ -389,7 +389,7 @@ class PrioritizedSetting(Generic[T]):
                 be converted, then returned.
 
             default (any, optional):
-                An optional default value that only takes precendence over
+                An optional default value that only takes precedence over
                 implicit default values specified on the property itself.
 
         Returns:
@@ -715,7 +715,7 @@ class Settings:
 
     serialize_include_defaults: PrioritizedSetting[bool] = \
         PrioritizedSetting("serialize_include_defaults", "BOKEH_SERIALIZE_INCLUDE_DEFAULTS", default=False, help="""
-    Wether to include default values when serializing ``HasProps`` instances.
+    Whether to include default values when serializing ``HasProps`` instances.
 
     This is primarily useful for testing, debugging serialization/protocol and other internal purpose.
     """)

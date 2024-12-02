@@ -822,7 +822,7 @@ class SaveTool(ActionTool):
 class CopyTool(ActionTool):
     ''' *toolbar icon*: |copy_icon|
 
-    The copy tool is an action tool, that allows copying the rendererd contents of
+    The copy tool is an action tool, that allows copying the rendered contents of
     a plot or a collection of plots to system's clipboard. This tools is browser
     dependent and may not function in certain browsers, or require additional
     permissions to be granted to the web page.

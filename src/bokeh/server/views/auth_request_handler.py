@@ -47,7 +47,7 @@ class AuthRequestHandler(RequestHandler):
     * prepare
 
     All of these delegate to the a :class:`~bokeh.serve.auth_provider.AuthProvider`
-    confiured on the Bokeh tornado application.
+    configured on the Bokeh tornado application.
 
     '''
 

@@ -25,7 +25,7 @@ describe("core/util/bitset module", () => {
     const bs0 = BitSet.from_indices(39, [0, 1, 15, 16, 31, 32, 33, 38])
     const bs1 = BitSet.from_indices(39, [1, 6, 15, 31, 32, 34, 35, 38])
 
-    it("should suppport get() method", () => {
+    it("should support get() method", () => {
       expect(bs0.get(0)).to.be.equal(true)
       expect(bs0.get(1)).to.be.equal(true)
       expect(bs0.get(2)).to.be.equal(false)
@@ -48,7 +48,7 @@ describe("core/util/bitset module", () => {
       expect(() => bs0.get(39)).to.throw()
     })
 
-    it("should suppport iterator protocol", () => {
+    it("should support iterator protocol", () => {
       expect([...bs0]).to.be.equal([0, 1, 15, 16, 31, 32, 33, 38])
       expect([...bs0.ones()]).to.be.equal([0, 1, 15, 16, 31, 32, 33, 38])
       expect([...bs0.zeros()]).to.be.equal([
@@ -57,12 +57,12 @@ describe("core/util/bitset module", () => {
       ])
     })
 
-    it("should suppport count getter", () => {
+    it("should support count getter", () => {
       expect(bs0.count).to.be.equal(8)
       expect(bs1.count).to.be.equal(8)
     })
 
-    it("should suppport ~a", () => {
+    it("should support ~a", () => {
       const bs = bs0.inversion()
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
@@ -73,7 +73,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(31)
     })
 
-    it("should suppport a | b operation", () => {
+    it("should support a | b operation", () => {
       const bs = bs0.union(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
@@ -81,7 +81,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(11)
     })
 
-    it("should suppport a & b operation", () => {
+    it("should support a & b operation", () => {
       const bs = bs0.intersection(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
@@ -89,7 +89,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(5)
     })
 
-    it("should suppport a - b operation", () => {
+    it("should support a - b operation", () => {
       const bs = bs0.difference(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
@@ -97,7 +97,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(3)
     })
 
-    it("should suppport a ^ b operation", () => {
+    it("should support a ^ b operation", () => {
       const bs = bs0.symmetric_difference(bs1)
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
@@ -105,7 +105,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(6)
     })
 
-    it("should suppport inplace ~a", () => {
+    it("should support inplace ~a", () => {
       const bs = bs0.clone()
       bs.invert()
       expect(bs).to.be.instanceof(BitSet)
@@ -117,7 +117,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(31)
     })
 
-    it("should suppport inplace a | b operation", () => {
+    it("should support inplace a | b operation", () => {
       const bs = bs0.clone()
       bs.add(bs1)
       expect(bs.size).to.be.equal(39)
@@ -125,7 +125,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(11)
     })
 
-    it("should suppport inplace a & b operation", () => {
+    it("should support inplace a & b operation", () => {
       const bs = bs0.clone()
       bs.intersect(bs1)
       expect(bs.size).to.be.equal(39)
@@ -133,7 +133,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(5)
     })
 
-    it("should suppport inplace a - b operation", () => {
+    it("should support inplace a - b operation", () => {
       const bs = bs0.clone()
       bs.subtract(bs1)
       expect(bs.size).to.be.equal(39)
@@ -141,7 +141,7 @@ describe("core/util/bitset module", () => {
       expect(bs.count).to.be.equal(3)
     })
 
-    it("should suppport inplace a ^ b operation", () => {
+    it("should support inplace a ^ b operation", () => {
       const bs = bs0.clone()
       bs.symmetric_subtract(bs1)
       expect(bs.size).to.be.equal(39)

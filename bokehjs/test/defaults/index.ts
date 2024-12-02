@@ -123,7 +123,7 @@ function check_matching_defaults(context: string[], name: string, python_default
   for (const [k, js_v] of entries(bokehjs_defaults)) {
     console.log(`${context.join(" -> ")} ${name}.${k}`)
 
-    // node_renderer/edge_renderer are configured dynamicaly in bokehjs
+    // node_renderer/edge_renderer are configured dynamically in bokehjs
     if (name == "GraphRenderer" && (k == "node_renderer" || k == "edge_renderer")) {
       continue
     }

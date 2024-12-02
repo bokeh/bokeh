@@ -239,7 +239,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         Serialization calls will result in any currently defined custom
         extensions being included with the generated Document, whether or not
-        there are utlized. This method can be used to clear out all existing
+        there are utilized. This method can be used to clear out all existing
         custom extension definitions.
 
         """

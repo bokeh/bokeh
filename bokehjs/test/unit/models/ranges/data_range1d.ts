@@ -341,7 +341,7 @@ describe("DataRange1d", () => {
       expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
 
-    it("should use invisble renderers by default", () => {
+    it("should use invisible renderers by default", () => {
       const r = new DataRange1d()
 
       const g1 = new GlyphRenderer({visible: false})
@@ -358,7 +358,7 @@ describe("DataRange1d", () => {
       expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
 
-    it("should skip invisble renderers if only_visible=false", () => {
+    it("should skip invisible renderers if only_visible=false", () => {
       const r = new DataRange1d({only_visible: true})
 
       const g1 = new GlyphRenderer()

@@ -961,7 +961,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11045", () => {
-    it("prevents correct paint of glyphs using hatch patters in SVG backend after pan", async () => {
+    it("prevents correct paint of glyphs using hatch patterns in SVG backend after pan", async () => {
       const p = fig([200, 200], {x_range: [-1, 1], y_range: [-1, 1], output_backend: "svg"})
       p.circle({x: 0, y: 0, radius: 1, fill_color: "orange", alpha: 0.6, hatch_pattern: "@"})
       const {view} = await display(p)
@@ -2084,7 +2084,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11339", () => {
-    it.allowing(2*8)("collapses layout after toggling visiblity", async () => {
+    it.allowing(2*8)("collapses layout after toggling visibility", async () => {
       const toggle = new Toggle({label: "Click", active: true})
       const select1 = new Select({title: "Select 1:", options: ["1", "2"], value: "1"})
       const select2 = new Select({title: "Select 2:", options: ["1", "2"], value: "1"})
@@ -2195,7 +2195,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9992", () => {
-    it("doesn't correctly display layout when visiblity changes", async () => {
+    it("doesn't correctly display layout when visibility changes", async () => {
       function create_figure(x: Arrayable<number>, y: Arrayable<number>, log_scale: boolean = false) {
         const plot = figure({width: 300, height: 300, y_axis_type: log_scale ? "log" : "linear"})
         plot.line(x, y, {line_width: 3, line_alpha: 0.6})
@@ -2290,7 +2290,7 @@ describe("Bug", () => {
       await display(layout, [100, 50])
     })
 
-    it("doesn't correctly display layout when visiblity changes", async () => {
+    it("doesn't correctly display layout when visibility changes", async () => {
       const {layout, button} = make()
 
       const {view} = await display(layout, [550, 350])

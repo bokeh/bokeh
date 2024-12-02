@@ -284,10 +284,10 @@ def test_group_tools() -> None:
         save1, select0, hover0, hover1, select1, select2, hover2,
     ]
 
-    groupped = group_tools(tools, merge=lambda cls, tools: SaveTool() if issubclass(cls, SaveTool) else None)
+    grouped = group_tools(tools, merge=lambda cls, tools: SaveTool() if issubclass(cls, SaveTool) else None)
 
-    assert len(groupped) == 8
-    t0, t1, t2, t3, t4, t5, t6, t7 = groupped
+    assert len(grouped) == 8
+    t0, t1, t2, t3, t4, t5, t6, t7 = grouped
 
     assert isinstance(t0, ToolProxy)
     assert isinstance(t1, ToolProxy)

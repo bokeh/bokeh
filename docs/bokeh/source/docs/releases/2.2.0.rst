@@ -12,5 +12,5 @@ substantial improvements to performance, SVG export, and DataTable.
 * Fixes for properties not triggering updates (:bokeh-issue:`9436`, :bokeh-issue:`10147`, :bokeh-issue:`10215`, :bokeh-issue:`10247`)
 * Fix over-quoting problem with ``components`` API (:bokeh-issue:`10271`)
 * Support save to clipboard on supported browsers (:bokeh-issue:`10066`)
-* Ensure auth hooks apply to Websocket updgrade in addition to HTTPS connection (:bokeh-issue:`10316`)
+* Ensure auth hooks apply to Websocket upgrade in addition to HTTPS connection (:bokeh-issue:`10316`)
 * Add a new ``DocumentReady`` event usable in Bokeh server apps (:bokeh-issue:`10265`)

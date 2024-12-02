@@ -475,7 +475,7 @@ multi-line label.
 
 .. code-block:: python
 
-    Label(x=100, y=5, text='A very long label\nwith mutiple lines')
+    Label(x=100, y=5, text='A very long label\nwith multiple lines')
 
 To create several labels at once, use the |LabelSet| annotation. To configure
 the labels of a label set, use a data source that contains columns with data for

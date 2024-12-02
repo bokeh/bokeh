@@ -112,7 +112,7 @@ export namespace Burtin {
     angles.map((angle) => -big_angle+angle+2*small_angle),
     {color: drug_color.Neomycin})
 
-  // circular axes and lables
+  // circular axes and labels
   const labels = range(-3, 4).map((v) => 10**v)
   const radii = labels.map((label) => a * Math.sqrt(Math.log(label * 1E4)) + b)
 

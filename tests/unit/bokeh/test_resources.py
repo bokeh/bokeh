@@ -87,7 +87,7 @@ class TestSRIHashes:
         if v <= "0.2.0":
             return
 
-        # other early versions omitted trailing .0 in filnames
+        # other early versions omitted trailing .0 in filenames
         v = v.rstrip(".0")
         assert f"bokeh-{v}.js" in h
         assert f"bokeh-{v}.min.js" in h

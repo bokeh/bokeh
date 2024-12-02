@@ -1,5 +1,5 @@
 ''' A reproduction of `Will Burtin's historical visualization`_ of antibiotic
-efficacies with some minimal changes to improve readibility.
+efficacies with some minimal changes to improve readability.
 
 .. note::
     This chart is reproduced as a demonstration of Bokeh's versatile graphics

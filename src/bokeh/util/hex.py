@@ -99,7 +99,7 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
     return (x, y)
 
 def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
-    ''' Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
+    ''' Map Cartesian *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
 
     This function was adapted from:

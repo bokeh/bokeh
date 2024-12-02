@@ -8,7 +8,7 @@ import {infer_type} from "@bokehjs/core/types"
 import {AbstractRandom, MAX_INT32} from "@bokehjs/core/util/random"
 import {RandomGenerator} from "@bokehjs/models/random/random_generator"
 
-// This is based on the orignal sinon-based tests.
+// This is based on the original sinon-based tests.
 class FakeGenerator extends RandomGenerator {
   generator() {
     return new class extends AbstractRandom {

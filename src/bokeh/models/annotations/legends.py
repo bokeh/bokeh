@@ -383,14 +383,14 @@ class Legend(Annotation):
     ncols = Either(Positive(Int), Auto, default="auto", help="""
     The number of columns in the legend's layout. By default it's either
     one column if the orientation is vertical or the number of items in
-    the legend otherwise. ``ncols`` takes precendence over ``nrows`` for
-    horizonal orientation.
+    the legend otherwise. ``ncols`` takes precedence over ``nrows`` for
+    horizontal orientation.
     """)
 
     nrows = Either(Positive(Int), Auto, default="auto", help="""
     The number of rows in the legend's layout. By default it's either
-    one row if the orientation is horizonal or the number of items in
-    the legend otherwise. ``nrows`` takes precendence over ``ncols``
+    one row if the orientation is horizontal or the number of items in
+    the legend otherwise. ``nrows`` takes precedence over ``ncols``
     for vertical orientation.
     """)
 

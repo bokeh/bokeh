@@ -500,23 +500,23 @@ export class MathMLView extends MathTextView {
 
   override get styled_text(): string {
     let styled = this.text.trim()
-    let matchs = styled.match(/<math(.*?[^?])?>/s)
-    if (matchs == null) {
+    let matches = styled.match(/<math(.*?[^?])?>/s)
+    if (matches == null) {
       return this.text.trim()
     }
 
     styled = insert_text_on_position(
       styled,
-      styled.indexOf(matchs[0]) + matchs[0].length,
+      styled.indexOf(matches[0]) + matches[0].length,
       `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`,
     )
 
-    matchs = styled.match(/<\/[^>]*?math.*?>/s)
-    if (matchs == null) {
+    matches = styled.match(/<\/[^>]*?math.*?>/s)
+    if (matches == null) {
       return this.text.trim()
     }
 
-    return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")
+    return insert_text_on_position(styled, styled.indexOf(matches[0]), "</mstyle>")
   }
 
   protected _process_text(): HTMLElement | undefined {

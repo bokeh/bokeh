@@ -20,7 +20,7 @@ improvements:
 * Support for computed transforms (e.g. Jitter) on data columns
 * Documentation improvements:
 
-  - re-done user gude sections for layout
+  - re-done user guide sections for layout
   - new user guide sections for JS APIs
   - new user guide sections for custom extensions
 

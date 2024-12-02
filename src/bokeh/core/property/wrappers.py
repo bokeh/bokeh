@@ -319,7 +319,7 @@ class PropertyValueDict(PropertyValueContainer, dict[str, T_Val]):
     ``foo = Dict(Str, Str)`` then attempting to set ``x.foo['bar'] = 10`` will
     raise an error.
 
-    Instances of ``PropertyValueDict`` can be eplicitly created by passing
+    Instances of ``PropertyValueDict`` can be explicitly created by passing
     any object that the standard dict initializer accepts, for example:
 
     .. code-block:: python

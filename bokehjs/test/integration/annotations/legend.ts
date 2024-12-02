@@ -264,7 +264,7 @@ describe("Legend annotation", () => {
       const legend_items = [
         {label: "A label with one line", renderers: [0]},
         {label: "A label with\ntwo lines", renderers: [1, 2]},
-        {label: "A label with\nthree lines\n(thrid line)", renderers: [3]},
+        {label: "A label with\nthree lines\n(third line)", renderers: [3]},
       ]
       await plot({
         legend_items,

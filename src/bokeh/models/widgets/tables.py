@@ -730,7 +730,7 @@ class TableColumn(Model):
     """)
 
     visible = Bool(True, help="""
-    Whether this column shold be displayed or not.
+    Whether this column should be displayed or not.
     """)
 
     sorter = Nullable(Instance(Comparison), help="""

@@ -203,7 +203,7 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     function css_display(display: FullDisplay): Display {
-      // Convert to legacy values due to limitted browser support.
+      // Convert to legacy values due to limited browser support.
       const {inner, outer} = display
       switch (`${inner} ${outer}`) {
         case "block flow": return "block"

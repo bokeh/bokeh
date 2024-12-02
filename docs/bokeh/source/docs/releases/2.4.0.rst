@@ -23,7 +23,7 @@ Other work in this cycle includes:
     - WebGL backend rewritten using ReGL :bokeh-issue:`10861`
     - Dashed line styles fixed :bokeh-issue:`10876`
     - Hatch patterns supported :bokeh-issue:`11159`
-    - Markers and rects re-use buffers efficiently :bokeh-issue:`11343`
+    - Markers and rects reuse buffers efficiently :bokeh-issue:`11343`
     - Implemented all marker types :bokeh-issue:`11098`
 
 * SVG fixes and improvements

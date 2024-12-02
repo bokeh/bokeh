@@ -305,7 +305,7 @@ ContextWhich = enumeration(ContextWhichType)
 CoordinateUnitsType = Literal["canvas", "screen", "data"]
 CoordinateUnits = enumeration(CoordinateUnitsType)
 
-#: Specify a named dashing patter for stroking lines
+#: Specify a named dashing pattern for stroking lines
 DashPatternType = Literal["solid", "dashed", "dotted", "dotdash", "dashdot"]
 DashPattern = enumeration(DashPatternType)
 

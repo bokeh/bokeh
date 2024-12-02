@@ -118,7 +118,7 @@ class TestValidationControl:
 
 
 class TestValidateDetailDefault:
-    # test_Any unecessary (no validation)
+    # test_Any unnecessary (no validation)
 
     # TODO (bev) test_Image
 
@@ -302,7 +302,7 @@ class TestValidateDetailDefault:
 
 @pytest.mark.parametrize('detail', [True, False])
 class TestValidateDetailExplicit:
-    # test_Any unecessary (no validation)
+    # test_Any unnecessary (no validation)
 
     # TODO (bev) test_Image
 

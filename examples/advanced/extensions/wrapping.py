@@ -142,7 +142,7 @@ export class Surface3d extends LayoutDOM {
     // The @define block adds corresponding "properties" to the JS model. These
     // should basically line up 1-1 with the Python model class. Most property
     // types have counterparts, e.g. ``bokeh.core.properties.String`` will be
-    // ``String`` in the JS implementatin. Where the JS type system is not yet
+    // ``String`` in the JS implementation. Where the JS type system is not yet
     // as rich, you can use ``p.Any`` as a "wildcard" property type.
     this.define<Surface3d.Props>(({Str, Ref}) => ({
       x:            [ Str ],

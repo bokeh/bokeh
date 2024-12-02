@@ -95,7 +95,7 @@ class TimeCommon(HasProps):
     """)
 
     seconds = Bool(default=False, help="""
-    Allows to select seconds. By default only hours and minuts are
+    Allows to select seconds. By default only hours and minutes are
     selectable, and AM/PM depending on ``clock`` option.
     """)
 
@@ -148,7 +148,7 @@ class DateCommon(HasProps):
 
     disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
     A list of dates of ``(start, end)`` date ranges to make unavailable for
-    selection. All other dates will be avalable.
+    selection. All other dates will be available.
 
     .. note::
         Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.

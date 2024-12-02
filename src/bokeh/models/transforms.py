@@ -228,7 +228,7 @@ class Interpolator(Transform):
     """)
 
     y = Required(Either(String, Seq(Float)), help="""
-    Dependant coordinate denoting the value of a point at a location.
+    Dependent coordinate denoting the value of a point at a location.
     """)
 
     data = Nullable(Instance(ColumnarDataSource), help="""

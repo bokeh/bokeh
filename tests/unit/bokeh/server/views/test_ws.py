@@ -52,7 +52,7 @@ async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
         # TODO: assert len(caplog.records) == 1
         # TODO: assert caplog.text.endswith("Failed sending message as connection was closed\n")
         # XXX: caplog collects stray messages from previously unawaited async function calls,
-        # resulting in varing number of messages, depeding on the tests run and thier order
+        # resulting in varying number of messages, depending on the tests run and their order
         assert len([msg for msg in caplog.messages if "Failed sending message as connection was closed" in msg]) == 1
 
 def test_uses_auth_request_handler() -> None:

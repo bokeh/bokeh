@@ -6,7 +6,7 @@
 Bokeh Version ``3.2.0`` (June 2023) is a minor milestone of Bokeh project.
 
 * Official support for Python 3.8 was removed (:bokeh-pull:`12720`)
-* Added suport for ``Axis.axis_label_orientation`` property (:bokeh-pull:`13044`)
+* Added support for ``Axis.axis_label_orientation`` property (:bokeh-pull:`13044`)
 * Correctly resolve custom host and port with server resources (:bokeh-pull:`13041`)
 * Added support for ``HSpan``, ``VSpan``, ``HStrip`` and ``VStrip`` glyphs (:bokeh-pull:`12677`)
 * Added support for WebGL rendering of ``Annulus``, ``Wedge`` and ``AnnularWedge`` (:bokeh-pull:`12704`)

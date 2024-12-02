@@ -10,6 +10,6 @@ Changes
 -------
 
 * Ability to log render statistics (:bokeh-pull:`13503`)
-* Let client ping faillure clean up sessiosn (:bokeh-pull:`13655`)
+* Let client ping failure clean up sessiosn (:bokeh-pull:`13655`)
 * Support missing iterable kinds for BooleanFilter (:bokeh-pull:`13661`)
 * Fix docs issues (:bokeh-pull:`13588`, :bokeh-pull:`13647`, :bokeh-pull:`13659`)

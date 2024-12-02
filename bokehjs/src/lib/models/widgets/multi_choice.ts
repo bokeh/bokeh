@@ -62,7 +62,7 @@ export class MultiChoiceView extends InputWidgetView {
       // Detects if value change originated in UI or elsewhere. Choices.js automatically
       // updates itself, so we don't have to do anything, and in fact we shouldn't do
       // anything, because the component is finicky and hard to update without breaking
-      // something, loosing focus, etc.
+      // something, losing focus, etc.
       if (!is_equal(this.model.value, this._current_values)) {
         this.rerender()
       }

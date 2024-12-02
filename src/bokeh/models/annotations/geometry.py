@@ -225,7 +225,7 @@ class BoxAnnotation(Annotation, AreaVisuals):
     """)
 
     min_width = NonNegative(Float, default=0, help="""
-    Allows to set the minium width of the box.
+    Allows to set the minimum width of the box.
 
     .. note::
         This property is experimental and may change at any point.
@@ -239,7 +239,7 @@ class BoxAnnotation(Annotation, AreaVisuals):
     """)
 
     max_width = Positive(Float, default=inf, help="""
-    Allows to set the minium height of the box.
+    Allows to set the minimum height of the box.
 
     .. note::
         This property is experimental and may change at any point.

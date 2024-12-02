@@ -20,7 +20,7 @@ behaviors in response to property changes and other events in the browser.
 There are mainly three **options for generating a JavaScript callback**:
 
 * Use the ``js_link`` Python convenience method. This method helps you link
-  properties of different models together. Whith this method, Bokeh creates
+  properties of different models together. With this method, Bokeh creates
   the necessary JavaScript code for you automatically. See
   :ref:`ug_interaction_linked` for details.
 * Use the ``SetValue`` Python object to dynamically set the property of one
@@ -265,7 +265,7 @@ user interacts with it:
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/js_on_event.py
     :source-position: above
 
-JS callbacks for document events can be registred with ``Document.js_on_event()``
+JS callbacks for document events can be registered with ``Document.js_on_event()``
 method. In the case of the standalone embedding mode, one will use the current
 document via ``curdoc()`` to set up such callbacks. For example:
 
@@ -281,7 +281,7 @@ document via ``curdoc()`` to set up such callbacks. For example:
     curdoc().js_on_event("document_ready", callback)
     show(div)
 
-Similarily to model-level JS events, one can also use event classes in place of
+Similarly to model-level JS events, one can also use event classes in place of
 event names, to register document event callbacks:
 
 .. code:: python

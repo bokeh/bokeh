@@ -9,7 +9,7 @@ compatibility layer was updated.
 * Several nan-related fixes including the slow rendering of plots
 * Removed some unused dependencies
 * Fixes in our automated release process
-* Fixed the patchs vanishing on selection
+* Fixed the patches vanishing on selection
 * More control over ticks and gridlines
 * MPL compatibility updated
 * Several examples updated

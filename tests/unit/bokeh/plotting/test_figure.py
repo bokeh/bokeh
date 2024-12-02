@@ -394,7 +394,7 @@ class Test_vbar_stack:
         assert renderers[1].name == "2016"
         assert renderers[2].name == "2017"
 
-def Test_figure_legends_DEPRECATED(obejct):
+def Test_figure_legends_DEPRECATED(object):
 
     def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(self, p, source) -> None:
         p.scatter(x='x', y='y', legend='label', source=source)
@@ -480,7 +480,7 @@ def Test_figure_legends_DEPRECATED(obejct):
         assert legends[0].items[0].label == {'field': 'label'}
 
 
-def Test_figure_legends(obejct):
+def Test_figure_legends(object):
 
     def test_glyph_legend_field(self, p, source) -> None:
         p.scatter(x='x', y='y', legend_field='label', source=source)

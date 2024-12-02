@@ -21,7 +21,7 @@ i.e.,
 
     http://localhost:{DEFAULT_PORT}/app_script
 
-It is also possible to run the same commmand with jupyter notebooks:
+It is also possible to run the same command with jupyter notebooks:
 
 .. code-block:: sh
 

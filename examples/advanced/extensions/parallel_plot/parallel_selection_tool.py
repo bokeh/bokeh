@@ -6,7 +6,7 @@ class ParallelSelectionTool(BoxSelectTool):
     """ Selection tool for parallel plot
     To create a selection box, drag the selection around an axe
     When hovering a selection the box can be dragged upside-down
-    Doubleclick on a selection to remove it
+    Double-click on a selection to remove it
     Escape key remove all selections
     """
 

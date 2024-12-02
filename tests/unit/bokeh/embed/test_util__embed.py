@@ -253,7 +253,7 @@ class Test_OutputDocumentFor_default_apply_theme:
         assert d.theme is orig_theme
 
     def test_list_of_models_different_docs(self) -> None:
-        # should use new temp doc for eveything inside with-block
+        # should use new temp doc for everything inside with-block
         d = Document()
         orig_theme = d.theme
         p1 = SomeModel()
@@ -364,7 +364,7 @@ class Test_OutputDocumentFor_custom_apply_theme:
         assert d.theme is orig_theme
 
     def test_list_of_models_different_docs(self) -> None:
-        # should use new temp doc for eveything inside with-block
+        # should use new temp doc for everything inside with-block
         d = Document()
         orig_theme = d.theme
         p1 = SomeModel()
@@ -483,7 +483,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme:
         assert d.theme is orig_theme
 
     def test_list_of_models_different_docs(self) -> None:
-        # should use new temp doc for eveything inside with-block
+        # should use new temp doc for everything inside with-block
         d = Document()
         orig_theme = d.theme
         p1 = SomeModel()

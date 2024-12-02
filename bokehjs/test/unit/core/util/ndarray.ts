@@ -418,7 +418,7 @@ describe("core/util/ndarray module", () => {
     expect(nd3.shape).to.not.be.identical(nd2.shape)
   })
 
-  it("should support ndarray() function widthout dtype", () => {
+  it("should support ndarray() function without dtype", () => {
     const nd0 = ndarray([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(nd0)).to.be.true
     expect(nd0.dtype).to.be.equal("object")

@@ -20,7 +20,7 @@ happens when a user calls a Document API or sets a property resulting in a
     user invokes Document API
         -> Document API triggers event objects
         -> registered callbacks are executed
-        -> Sesssion callback generates JSON message from event object
+        -> Session callback generates JSON message from event object
         -> Session sends JSON message over websocket
 
 But events may also be triggered from the client, and arrive as JSON messages
@@ -29,7 +29,7 @@ be separated. Consider the alternative sequence of events:
 
 .. code-block::
 
-    Session recieves JSON message over websocket
+    Session receives JSON message over websocket
         -> Document calls event.handle_json
         -> handle_json invokes appropriate Document API
         -> Document API triggers event objects

@@ -164,7 +164,7 @@ Other Parameters:
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
             should be supplied.
 
-    muted (bool, optionall) :
+    muted (bool, optional) :
         Whether the glyph should be rendered as muted (default: False)
 
         For this to be useful, an ``muted_glyph`` must be configured on the
@@ -179,7 +179,7 @@ Other Parameters:
         searching a Bokeh document to find a specific model.
 
     source (ColumnDataSource, optional) :
-        A user-supplied data source. (defatult: None)
+        A user-supplied data source. (default: None)
 
         If not supplied, Bokeh will automatically construct an internal
         ``ColumnDataSource`` with default column names from the coordinates and

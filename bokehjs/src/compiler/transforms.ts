@@ -272,7 +272,7 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
   }
 }
 
-// XXX: this is pretty naive, but affects very litte code
+// XXX: this is pretty naive, but affects very little code
 export function rename_exports() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context

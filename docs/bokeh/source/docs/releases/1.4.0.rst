@@ -13,6 +13,6 @@ This release includes several important fixes and features:
 * Complete new site design for documentation, including search  :bokeh-issue:`8209`
 * Jupyterlab ipywidgets integrations  :bokeh-issue:`9137`
 * Security related improvements to the Bokeh server   :bokeh-issue:`9139`, :bokeh-issue:`9140`
-* New integration added fot Django Channels   :bokeh-issue:`9009`
+* New integration added for Django Channels   :bokeh-issue:`9009`
 * Precompiled Bokeh extensions   :bokeh-issue:`9196`
 * Legend improvements  :bokeh-issue:`9135`,  :bokeh-issue:`9144`

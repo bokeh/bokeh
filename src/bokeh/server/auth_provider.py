@@ -85,14 +85,14 @@ class AuthProvider:
 
     @property
     def get_login_url(self) -> Callable[[HTTPServerRequest], str] | None:
-        ''' A function that computes a URL to redirect unathenticated users
+        ''' A function that computes a URL to redirect unauthenticated users
         to for login.
 
         This property may return None, if a ``login_url`` is supplied
         instead.
 
         If a function is returned, it should accept a ``RequestHandler``
-        and return a login URL for unathenticated users.
+        and return a login URL for unauthenticated users.
 
         '''
         pass
@@ -140,7 +140,7 @@ class AuthProvider:
     def login_url(self) -> str | None:
         ''' A URL to redirect unauthenticated users to for login.
 
-        This proprty may return None, if a ``get_login_url`` function is
+        This property may return None, if a ``get_login_url`` function is
         supplied instead.
 
         '''
@@ -162,7 +162,7 @@ class AuthProvider:
     def logout_url(self) -> str | None:
         ''' A URL to redirect authenticated users to for logout.
 
-        This proprty may return None.
+        This property may return None.
 
         '''
         pass

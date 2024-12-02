@@ -21,7 +21,7 @@ calls.
 Now you have learned how to link panning between multiple plots with the
 |bokeh.plotting| interface.
 
-A more sophisicated example of a linked scatterplot matric can be found in
+A more sophisticated example of a linked scatterplot matrix can be found in
 the :ref:`ug_topics_stats_splom` section of the :ref:`ug_topics_stats`
 chapter.
 
