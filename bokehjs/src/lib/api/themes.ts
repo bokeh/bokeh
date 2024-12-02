@@ -274,6 +274,9 @@ export const contrast = new Theme([
   }),
 ])
 
+/** @deprecated */
+export const constrast = contrast
+
 export const night_sky = new Theme([
   themed(Plot, {
     background_fill_color: "#2C001e",
