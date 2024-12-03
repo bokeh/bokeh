@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import {CustomJS} from "models/callbacks/customjs"
 import type {CallbackLike0} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import {isBoolean} from "core/util/types"
@@ -44,8 +45,8 @@ export namespace CustomAction {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ActionTool.Props & {
-    callback: p.Property<CallbackLike0<CustomAction> | null>
-    active_callback: p.Property<CallbackLike0<CustomAction> | null>
+    callback: p.Property<CustomJS | CallbackLike0<CustomAction> | null>
+    active_callback: p.Property<CustomJS | CallbackLike0<CustomAction> | null>
   }
 }
 
@@ -62,9 +63,9 @@ export class CustomAction extends ActionTool {
   static {
     this.prototype.default_view = CustomActionView
 
-    this.define<CustomAction.Props>(({Any, Nullable}) => ({
-      callback: [ Nullable(Any /*TODO*/), null ],
-      active_callback: [ Nullable(Any /*TODO*/), null ],
+    this.define<CustomAction.Props>(({Func, Nullable, Ref, Or}) => ({
+      callback: [ Nullable(Or(Ref(CustomJS), Func())), null ],
+      active_callback: [ Nullable(Or(Ref(CustomJS), Func())), null ],
     }))
 
     this.override<CustomAction.Props>({
