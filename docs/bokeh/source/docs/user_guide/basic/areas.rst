@@ -28,7 +28,7 @@ Blocks
 ~~~~~~
 
 To draw *axis aligned* rectangles by specifying the ``x`` and ``y``
-coordinates for a corner, and a ``width`` and ``height``, use the |block|
+coordinates for a lower-left corner, and a ``width`` and ``height``, use the |block|
 glyph function:
 
 .. bokeh-plot:: __REPO__/examples/basic/areas/block.py

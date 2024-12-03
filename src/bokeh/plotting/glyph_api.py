@@ -158,7 +158,7 @@ Examples:
         from bokeh.plotting import figure, show
 
         plot = figure(width=300, height=300)
-        plot.block(x=[1, 2, 3], y=[1,2,3], width=0.5, height=1, , color="#CAB2D6")
+        plot.block(x=[1, 2, 3], y=[1,2,3], width=0.5, height=1, color="#CAB2D6")
 
         show(plot)
 
