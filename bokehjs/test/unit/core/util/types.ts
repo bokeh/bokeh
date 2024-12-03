@@ -110,11 +110,13 @@ describe("core/util/types module", () => {
   })
 
   it("should support isArrayOf() function", () => {
+    expect(isArrayOf(new Set([0, 1, 2]), isNumber)).to.be.false
     expect(isArrayOf([0, 1, 2], isNumber)).to.be.true
     expect(isArrayOf([0, 1, "2"], isNumber)).to.be.false
   })
 
   it("should support isArrayableOf() function", () => {
+    expect(isArrayableOf(new Set([0, 1, 2]), isNumber)).to.be.false
     expect(isArrayableOf([0, 1, 2], isNumber)).to.be.true
     expect(isArrayableOf([0, 1, "2"], isNumber)).to.be.false
   })

@@ -60,6 +60,24 @@ describe("api/gridplot module", () => {
   })
 
   describe("implements gridplot() function", () => {
+    it("that supports flat arrays and ncols", async () => {
+      const p0 = figure()
+      const p1 = figure()
+      const p2 = figure()
+      const p3 = figure()
+
+      p0.scatter([0, 1, 2], [0, 1, 2], {size: 10, color: "red"})
+      p1.scatter([0, 1, 2], [0, 1, 2], {size: 20, color: "green"})
+      p2.scatter([0, 1, 2], [0, 1, 2], {size: 30, color: "blue"})
+      p3.scatter([0, 1, 2], [0, 1, 2], {size: 40, color: "yellow"})
+
+      const gp = gridplot([p0, p1, p2, p3], {ncols: 2})
+      expect(gp.children).to.be.equal([
+        [p0, 0, 0], [p1, 0, 1],
+        [p2, 1, 0], [p3, 1, 1],
+      ])
+    })
+
     it("that allows to merge toolbars' active_* and other properties (issue #13265)", () => {
       const p1 = figure({active_inspect: null})
       const p2 = figure({active_inspect: null})

@@ -1,11 +1,11 @@
 import type {FullDisplay} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {UIElement} from "../ui/ui_element"
 import type {GridBoxView} from "../layouts/grid_box"
 import {GridBox} from "../layouts/grid_box"
 import {TracksSizing, GridChild, GridSpacing} from "../common/kinds"
 import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
-import type {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
@@ -124,7 +124,7 @@ export namespace GridPlot {
   export type Props = LayoutDOM.Props & {
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
-    children: p.Property<[LayoutDOM, number, number, number?, number?][]>
+    children: p.Property<[UIElement, number, number, number?, number?][]>
     rows: p.Property<TracksSizing | null>
     cols: p.Property<TracksSizing | null>
     spacing: p.Property<number | [number, number]>
@@ -147,7 +147,7 @@ export class GridPlot extends LayoutDOM {
     this.define<GridPlot.Props>(({List, Ref, Nullable}) => ({
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
-      children: [ List(GridChild(LayoutDOM)), [] ],
+      children: [ List(GridChild(UIElement)), [] ],
       rows: [ Nullable(TracksSizing), null ],
       cols: [ Nullable(TracksSizing), null ],
       spacing: [ GridSpacing, 0 ],

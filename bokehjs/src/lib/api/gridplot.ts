@@ -7,12 +7,14 @@ import {CopyTool} from "../models/tools/actions/copy_tool"
 import {ExamineTool} from "../models/tools/actions/examine_tool"
 import {FullscreenTool} from "../models/tools/actions/fullscreen_tool"
 import {Toolbar} from "../models/tools/toolbar"
-import type {LayoutDOM} from "../models/layouts/layout_dom"
+import {UIElement} from "../models/ui/ui_element"
+import {LayoutDOM} from "../models/layouts/layout_dom"
 import type {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
 import {is_equal} from "../core/util/eq"
 import {last} from "../core/util/array"
 import type {Attrs} from "../core/types"
+import {isArrayOf} from "../core/util/types"
 
 export type GridPlotOpts = {
   toolbar_location?: Location | null
@@ -85,14 +87,28 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
   return computed
 }
 
-export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | null>, options: GridPlotOpts = {}): GridPlot {
+export function gridplot(children: (UIElement | null)[], options: GridPlotOpts & {ncols: number}): GridPlot
+export function gridplot(children: (UIElement | null)[][], options?: GridPlotOpts): GridPlot
+
+export function gridplot(children: (UIElement | null)[] | (UIElement | null)[][] | Matrix<UIElement | null>, options: GridPlotOpts & {ncols?: number} = {}): GridPlot {
   const toolbar_location = options.toolbar_location
   const merge_tools      = options.merge_tools ?? true
   const sizing_mode      = options.sizing_mode
+  const ncols            = options.ncols
 
-  const matrix = Matrix.from(children)
+  const matrix = (() => {
+    const has_array = isArrayOf(children, (c) => c == null || c instanceof UIElement)
+    const has_ncols = ncols != null
+    if (has_array && has_ncols) {
+      return Matrix.from(children, ncols)
+    } else if (!has_array && !has_ncols) {
+      return Matrix.from(children)
+    } else {
+      throw new Error("gridplot() expects an array of UIElement | null when ncols is set")
+    }
+  })()
 
-  const items: [LayoutDOM, number, number][] = []
+  const items: [UIElement, number, number][] = []
   const toolbars: Toolbar[] = []
 
   for (const [item, row, col] of matrix) {
@@ -107,11 +123,13 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
       }
     }
 
-    if (options.width != null) {
-      item.width = options.width
-    }
-    if (options.height != null) {
-      item.height = options.height
+    if (item instanceof LayoutDOM) {
+      if (options.width != null) {
+        item.width = options.width
+      }
+      if (options.height != null) {
+        item.height = options.height
+      }
     }
 
     items.push([item, row, col])
