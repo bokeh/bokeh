@@ -14,11 +14,11 @@ import pretty_css from "styles/pretty.css"
 export class ExamineToolView extends ActionToolView {
   declare model: ExamineTool
 
-  protected _dialog: DialogView
+  dialog: DialogView
 
   override *children(): IterViews {
     yield* super.children()
-    yield this._dialog
+    yield this.dialog
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -34,16 +34,16 @@ export class ExamineToolView extends ActionToolView {
       visible: false,
       close_action: "hide",
     })
-    this._dialog = await build_view(dialog, {parent: this.parent})
+    this.dialog = await build_view(dialog, {parent: this.parent})
   }
 
   override connect_signals(): void {
     super.connect_signals()
-    this._dialog.displayed.connect((visible) => this.model.active = visible)
+    this.dialog.displayed.connect((visible) => this.model.active = visible)
   }
 
   doit(): void {
-    this._dialog.toggle()
+    this.dialog.toggle()
   }
 }
 

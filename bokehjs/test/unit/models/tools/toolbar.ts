@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 import {fig, display} from "../../_util"
-import {mouse_enter, mouse_leave} from "../../../interactive"
+import {mouse_enter, mouse_leave, tap} from "../../../interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
@@ -9,6 +9,7 @@ import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
+import {ExamineTool, Plot, CustomAction, Legend, LegendItem, CustomJS} from "@bokehjs/models"
 
 describe("Toolbar", () => {
 
@@ -197,6 +198,132 @@ describe("ToolbarView", () => {
       tbv.set_visibility(false)
       expect(tbv.model.autohide).to.be.true
       expect(tbv.visible).to.be.false
+    })
+  })
+
+  describe("should allow activation and deactivation", () => {
+    it("of ExamineTool", async () => {
+      const tool = new ExamineTool()
+      const toolbar = new Toolbar({tools: [tool]})
+      const plot = new Plot({toolbar})
+      const {view} = await display(plot)
+      const toolbar_view = view.owner.get_one(toolbar)
+      const tool_view = view.owner.get_one(tool)
+      const tool_button_view = toolbar_view.tool_button_views[0]
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(tool_view.dialog.model.visible).to.be.false
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.true
+      expect(tool_view.dialog.model.visible).to.be.true
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(tool_view.dialog.model.visible).to.be.false
+    })
+
+    it("of CustomAction with JS callback returning a boolean", async () => {
+      const legend = new Legend({
+        visible: false, // must be initially false in this case
+        items: [
+          new LegendItem({label: "Label"}),
+        ],
+      })
+      const tool = new CustomAction({
+        callback: () => {
+          legend.visible = !legend.visible
+          return legend.visible
+        },
+      })
+      const toolbar = new Toolbar({tools: [tool]})
+      const plot = new Plot({toolbar, center: [legend]})
+      const {view} = await display(plot)
+      const toolbar_view = view.owner.get_one(toolbar)
+      const tool_button_view = toolbar_view.tool_button_views[0]
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(legend.visible).to.be.false
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.true
+      expect(legend.visible).to.be.true
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(legend.visible).to.be.false
+    })
+
+    it("of CustomAction with JS callbacks", async () => {
+      const legend = new Legend({
+        visible: true,
+        items: [
+          new LegendItem({label: "Label"}),
+        ],
+      })
+      const tool = new CustomAction({
+        callback: () => {
+          legend.visible = !legend.visible
+        },
+        active_callback: () => {
+          return legend.visible
+        },
+      })
+      const toolbar = new Toolbar({tools: [tool]})
+      const plot = new Plot({toolbar, center: [legend]})
+      const {view} = await display(plot)
+      const toolbar_view = view.owner.get_one(toolbar)
+      const tool_button_view = toolbar_view.tool_button_views[0]
+      expect(tool_button_view.model.tool.active).to.be.true
+      expect(legend.visible).to.be.true
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(legend.visible).to.be.false
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.true
+      expect(legend.visible).to.be.true
+    })
+
+    it("of CustomAction with CustomJS callbacks", async () => {
+      const legend = new Legend({
+        visible: false,
+        items: [
+          new LegendItem({label: "Label"}),
+        ],
+      })
+      const tool = new CustomAction({
+        callback: new CustomJS({
+          args: {legend},
+          code: `
+          export default ({legend}) => {
+            legend.visible = !legend.visible
+          }
+          `,
+        }),
+        active_callback: new CustomJS({
+          args: {legend},
+          code: `
+          export default ({legend}) => {
+            return legend.visible
+          }
+          `,
+        }),
+      })
+      const toolbar = new Toolbar({tools: [tool]})
+      const plot = new Plot({toolbar, center: [legend]})
+      const {view} = await display(plot)
+      const toolbar_view = view.owner.get_one(toolbar)
+      const tool_button_view = toolbar_view.tool_button_views[0]
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(legend.visible).to.be.false
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.true
+      expect(legend.visible).to.be.true
+      await tap(tool_button_view.el)
+      await view.ready
+      expect(tool_button_view.model.tool.active).to.be.false
+      expect(legend.visible).to.be.false
     })
   })
 

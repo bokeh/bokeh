@@ -1,7 +1,7 @@
 import {logger} from "core/logging"
 import type {StyleSheetLike} from "core/dom"
 import {div, a} from "core/dom"
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
@@ -37,6 +37,9 @@ export class ToolbarView extends UIElementView {
 
   get tool_buttons(): ToolButton[] {
     return this._tool_buttons.flat()
+  }
+  get tool_button_views(): ViewOf<ToolButton>[] {
+    return this.tool_buttons.map((tb) => this._tool_button_views.get(tb)).filter((view) => view != null)
   }
 
   protected _overflow_menu: ContextMenu
