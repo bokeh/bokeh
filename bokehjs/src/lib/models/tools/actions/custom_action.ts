@@ -5,6 +5,7 @@ import {execute} from "core/util/callbacks"
 import {isBoolean} from "core/util/types"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
+import {logger} from "core/logging"
 
 export class CustomActionView extends ActionToolView {
   declare model: CustomAction
@@ -15,6 +16,8 @@ export class CustomActionView extends ActionToolView {
       const active = await execute(active_callback, this.model)
       if (isBoolean(active)) {
         this.model.active = active
+      } else {
+        logger.warn(`${this.model}.active_callback (${active_callback}) did not return a boolean value`)
       }
     }
   }
