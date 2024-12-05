@@ -34,16 +34,15 @@ export class CustomActionView extends ActionToolView {
   }
 
   async _execute(): Promise<void> {
-    const {callback} = this.model
+    const {callback, active_callback} = this.model
     if (callback != null) {
-      const active = await execute(callback, this.model)
-      if (isBoolean(active)) {
-        this.model.active = active
-      } else {
-        if (active !== undefined) {
-          logger.warn(`${this.model}.callback (${callback}) must return a boolean value or void, got ${typeof active}`)
-        }
+      const result = await execute(callback, this.model)
+      if (active_callback != null) {
         await this._update_active()
+      } else if (isBoolean(result)) {
+        this.model.active = result
+      } else if (result !== undefined) {
+        logger.warn(`${this.model}.callback (${callback}) must return a boolean value or void, got ${typeof result}`)
       }
     }
   }

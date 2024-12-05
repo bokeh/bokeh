@@ -800,10 +800,8 @@ class CustomAction(ActionTool):
     callback = Nullable(Instance(Callback), help="""
     A Bokeh callback to execute when the custom action icon is activated.
 
-    .. note::
-        This callback can return a boolean value to indicate the state of
-        the tool. This value will take precedence over ``active_callback``
-        even if provided.
+    This callback can return a boolean value to indicate the state of
+    the tool. This is only applicable if ``active_callback`` is ``None``.
     """)
 
     active_callback = Nullable(Either(Instance(Callback), Auto), default=None, help="""
