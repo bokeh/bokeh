@@ -51,6 +51,10 @@ describe("Examples", () => {
       active_callback() {
         return legends.every((legend) => legend.visible)
       },
+      // or alternatively use:
+      //
+      // active_callback: "auto",
+      // active: p1.legend.visible && p2.legend.visible,
     })
 
     const gp = gridplot([p1, p2], {ncols: 2, width: 400, height: 400})

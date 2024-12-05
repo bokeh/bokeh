@@ -52,6 +52,10 @@ toggle_legend = CustomAction(
         }
         """,
     ),
+    # or alternatively use:
+    #
+    # active_callback="auto",
+    # active=p1.legend.visible and p2.legend.visible,
 )
 
 gp = gridplot([p1, p2], ncols=2, width=400, height=400)
