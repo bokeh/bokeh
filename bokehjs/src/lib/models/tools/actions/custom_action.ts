@@ -12,19 +12,25 @@ export class CustomActionView extends ActionToolView {
 
   protected async _update_active(): Promise<void> {
     const {active_callback} = this.model
-    if (active_callback != null) {
+    if (active_callback == "auto") {
+      this.model.active = !this.model.active
+    } else if (active_callback != null) {
       const active = await execute(active_callback, this.model)
       if (isBoolean(active)) {
         this.model.active = active
       } else {
-        logger.warn(`${this.model}.active_callback (${active_callback}) did not return a boolean value`)
+        logger.warn(`${this.model}.active_callback (${active_callback}) must return a boolean value, got ${typeof active}`)
       }
     }
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await this._update_active()
+
+    const {active_callback} = this.model
+    if (!(active_callback == "auto" || active_callback == null)) {
+      await this._update_active()
+    }
   }
 
   async _execute(): Promise<void> {
@@ -34,6 +40,9 @@ export class CustomActionView extends ActionToolView {
       if (isBoolean(active)) {
         this.model.active = active
       } else {
+        if (active !== undefined) {
+          logger.warn(`${this.model}.callback (${callback}) must return a boolean value or void, got ${typeof active}`)
+        }
         await this._update_active()
       }
     }
@@ -48,8 +57,8 @@ export namespace CustomAction {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ActionTool.Props & {
-    callback: p.Property<CustomJS | CallbackLike0<CustomAction> | null>
-    active_callback: p.Property<CustomJS | CallbackLike0<CustomAction> | null>
+    callback: p.Property<CustomJS | CallbackLike0<CustomAction, unknown> | null>
+    active_callback: p.Property<CustomJS | CallbackLike0<CustomAction, unknown> | "auto" | null>
   }
 }
 
@@ -66,9 +75,13 @@ export class CustomAction extends ActionTool {
   static {
     this.prototype.default_view = CustomActionView
 
-    this.define<CustomAction.Props>(({Func, Nullable, Ref, Or}) => ({
+    // `active` and `disabled` are defined in `Tool` model as internal properties
+    this.prototype._props.active.options.internal = false
+    this.prototype._props.disabled.options.internal = false
+
+    this.define<CustomAction.Props>(({Func, Nullable, Ref, Or, Auto}) => ({
       callback: [ Nullable(Or(Ref(CustomJS), Func())), null ],
-      active_callback: [ Nullable(Or(Ref(CustomJS), Func())), null ],
+      active_callback: [ Nullable(Or(Ref(CustomJS), Func(), Auto)), null ],
     }))
 
     this.override<CustomAction.Props>({

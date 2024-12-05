@@ -6271,6 +6271,8 @@
   CustomAction: {
     __extends__: "ActionTool",
     description: "Perform a Custom Action",
+    active: false,
+    disabled: false,
     callback: null,
     active_callback: null,
   },

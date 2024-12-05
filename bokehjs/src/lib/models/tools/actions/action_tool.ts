@@ -32,7 +32,7 @@ export abstract class ActionTool extends Tool {
     super(attrs)
   }
 
-  do = new Signal<string | undefined, this>(this, "do")
+  readonly do = new Signal<string | undefined, this>(this, "do")
 
   override tool_button(): ToolButton {
     return new ClickButton({tool: this})

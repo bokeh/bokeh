@@ -787,6 +787,14 @@ class CustomAction(ActionTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    active = Bool(default=False, help="""
+    If ``True`, the tool is currently engaged for its activity.
+    """)
+
+    disabled = Bool(default=False, help="""
+    If ``True``, users can't interact with the tool in any way.
+    """)
+
     description = Override(default="Perform a Custom Action")
 
     callback = Nullable(Instance(Callback), help="""
@@ -798,11 +806,17 @@ class CustomAction(ActionTool):
         even if provided.
     """)
 
-    active_callback = Nullable(Instance(Callback), help="""
-    A callback that allows to determine the (initial) state of the tool.
+    active_callback = Nullable(Either(Instance(Callback), Auto), default=None, help="""
+    A callback that allows to determine the state of the tool.
 
-    This callback must return a boolean value. A value of any other type
+    This callback is used to establish the initial and any subsequent state
+    of the tool. it must return a boolean value. A value of any other type
     will be disregarded.
+
+    If ``"auto"`` value is used, then any click of the button will toggle
+    state. The initial state can be provided using ``active`` property.
+
+    If ``None`` value is used, then the tool isn't stateful.
 
     .. note::
         This property is experimental and may change at any point.
