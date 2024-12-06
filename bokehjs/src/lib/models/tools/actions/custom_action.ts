@@ -74,10 +74,6 @@ export class CustomAction extends ActionTool {
   static {
     this.prototype.default_view = CustomActionView
 
-    // `active` and `disabled` are defined in `Tool` model as internal properties
-    this.prototype._props.active.options.internal = false
-    this.prototype._props.disabled.options.internal = false
-
     this.define<CustomAction.Props>(({Func, Nullable, Ref, Or, Auto}) => ({
       callback: [ Nullable(Or(Ref(CustomJS), Func())), null ],
       active_callback: [ Nullable(Or(Ref(CustomJS), Func(), Auto)), null ],
@@ -85,6 +81,12 @@ export class CustomAction extends ActionTool {
 
     this.override<CustomAction.Props>({
       description: "Perform a Custom Action",
+    })
+
+    // `active` and `disabled` are defined in `Tool` model as internal properties
+    this.override_options<CustomAction.Props>({
+      active: {internal: false},
+      disabled: {internal: false},
     })
   }
 

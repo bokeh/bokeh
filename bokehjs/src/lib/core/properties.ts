@@ -111,6 +111,10 @@ export type DefaultsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
 }
 
+export type OptionsOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? PropertyOptions<T> : never
+}
+
 type DefaultFn<T> = (obj: HasProps) => T
 
 export type PropertyOptions<T> = {

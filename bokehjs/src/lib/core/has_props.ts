@@ -209,6 +209,20 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  static override_options<T>(obj: Partial<p.OptionsOf<T>>): void {
+    for (const [name, options] of entries(obj)) {
+      if (!(name in this.prototype._props)) {
+        throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
+      }
+      const current = this.prototype._props[name]
+      const props = {
+        ...this.prototype._props,
+        [name]: {...current, options: {...current.options, ...options as any}},
+      }
+      this.prototype._props = props
+    }
+  }
+
   static override toString(): string {
     return this.__qualified__
   }
