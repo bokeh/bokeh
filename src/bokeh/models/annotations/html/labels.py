@@ -288,7 +288,7 @@ def HTMLLabelSet(**kwargs: Any) -> GlyphRenderer:
         ``bokeh.glyphs.HTMLText`` model or ``figure.html_text()`` method.
 
     """
-    deprecated((3, 6, 0), "bokeh.annotations.HTMLLabelSet", "bokeh.glyphs.HTMLText or figure.html_text()")
+    deprecated((3, 7, 0), "bokeh.annotations.HTMLLabelSet", "bokeh.glyphs.HTMLText or figure.html_text()")
 
     if "y_offset" in kwargs:
         kwargs["y_offset"] = -kwargs["y_offset"]

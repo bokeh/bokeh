@@ -506,7 +506,7 @@ def Band(**kwargs: Any) -> GlyphRenderer:
         ``bokeh.glyphs.Band`` model or ``figure.band()`` method.
 
     """
-    deprecated((3, 6, 0), "bokeh.annotations.Band", "bokeh.glyphs.Band or figure.band()")
+    deprecated((3, 7, 0), "bokeh.annotations.Band", "bokeh.glyphs.Band or figure.band()")
     return build_glyph_renderer(glyphs.BandGlyph, kwargs)
 
 def Whisker(**kwargs: Any) -> GlyphRenderer:
@@ -517,7 +517,7 @@ def Whisker(**kwargs: Any) -> GlyphRenderer:
         ``bokeh.glyphs.Whisker`` model or ``figure.whisker()`` method.
 
     """
-    deprecated((3, 6, 0), "bokeh.annotations.Whisker", "bokeh.glyphs.Whisker or figure.whisker()")
+    deprecated((3, 7, 0), "bokeh.annotations.Whisker", "bokeh.glyphs.Whisker or figure.whisker()")
     return build_glyph_renderer(glyphs.WhiskerGlyph, kwargs)
 
 #-----------------------------------------------------------------------------
