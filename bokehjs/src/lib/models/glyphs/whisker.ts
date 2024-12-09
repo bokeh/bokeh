@@ -36,16 +36,47 @@ export class WhiskerGlyphView extends GlyphView {
     }
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {lower_head, upper_head} = this.model
+  protected async _build_lower_head(): Promise<void> {
+    const {lower_head} = this.model
+    if (this.lower_head != null) {
+      this.lower_head.remove()
+      this.lower_head = null
+    }
     if (lower_head != null) {
       this.lower_head = await build_view(lower_head, {parent: this.parent})
+    }
+  }
+
+  protected async _build_upper_head(): Promise<void> {
+    const {upper_head} = this.model
+    if (this.upper_head != null) {
+      this.upper_head.remove()
+      this.upper_head = null
     }
     if (upper_head != null) {
       this.upper_head = await build_view(upper_head, {parent: this.parent})
     }
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    await this._build_lower_head()
+    await this._build_upper_head()
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {lower_head, upper_head} = this.model.properties
+    this.on_transitive_change(lower_head, async () => {
+      await this._build_lower_head()
+      this.request_paint()
+    })
+    this.on_transitive_change(upper_head, async () => {
+      await this._build_upper_head()
+      this.request_paint()
+    })
   }
 
   override remove(): void {
