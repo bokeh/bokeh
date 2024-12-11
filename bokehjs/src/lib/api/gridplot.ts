@@ -87,10 +87,12 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
   return computed
 }
 
-export function gridplot(children: (UIElement | null)[], options: GridPlotOpts & {ncols: number}): GridPlot
-export function gridplot(children: (UIElement | null)[][], options?: GridPlotOpts): GridPlot
+export type GridPlotItem = UIElement | null | undefined
 
-export function gridplot(children: (UIElement | null)[] | (UIElement | null)[][] | Matrix<UIElement | null>, options: GridPlotOpts & {ncols?: number} = {}): GridPlot {
+export function gridplot(children: GridPlotItem[], options: GridPlotOpts & {ncols: number}): GridPlot
+export function gridplot(children: GridPlotItem[][], options?: GridPlotOpts): GridPlot
+
+export function gridplot(children: GridPlotItem[] | GridPlotItem[][] | Matrix<GridPlotItem>, options: GridPlotOpts & {ncols?: number} = {}): GridPlot {
   const toolbar_location = options.toolbar_location
   const merge_tools      = options.merge_tools ?? true
   const sizing_mode      = options.sizing_mode

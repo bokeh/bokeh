@@ -71,10 +71,11 @@ describe("api/gridplot module", () => {
       p2.scatter([0, 1, 2], [0, 1, 2], {size: 30, color: "blue"})
       p3.scatter([0, 1, 2], [0, 1, 2], {size: 40, color: "yellow"})
 
-      const gp = gridplot([p0, p1, p2, p3], {ncols: 2})
+      const gp = gridplot([p0, null, p1, p2, undefined, p3], {ncols: 2})
       expect(gp.children).to.be.equal([
-        [p0, 0, 0], [p1, 0, 1],
-        [p2, 1, 0], [p3, 1, 1],
+        [p0, 0, 0],
+        [p1, 1, 0], [p2, 1, 1],
+        [p3, 2, 1],
       ])
     })
 
