@@ -788,7 +788,7 @@ class CustomAction(ActionTool):
         super().__init__(*args, **kwargs)
 
     active = Bool(default=False, help="""
-    If ``True`, the tool is currently engaged for its activity.
+    If ``True``, the tool is currently engaged for its activity.
     """)
 
     disabled = Bool(default=False, help="""
