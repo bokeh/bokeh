@@ -25,12 +25,13 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 
 if TYPE_CHECKING:
+    import numpy as np
     from typing_extensions import Self
 
 #-----------------------------------------------------------------------------
@@ -207,7 +208,12 @@ class RGB(Color):
 
     '''
 
-    def __init__(self, r: int, g: int, b: int, a: float = 1.0) -> None:
+    r: int
+    g: int
+    b: int
+    a: float
+
+    def __init__(self, r: int | np.integer, g: int | np.integer, b: int | np.integer, a: float | np.floating = 1.0) -> None:
         '''
 
         Args:
@@ -224,10 +230,10 @@ class RGB(Color):
                 An alpha value for this color in [0, 1] (default: 1.0)
 
         '''
-        self.r = r
-        self.g = g
-        self.b = b
-        self.a = a
+        self.r = cast(int, r)
+        self.g = cast(int, g)
+        self.b = cast(int, b)
+        self.a = cast(float, a)
 
     def copy(self) -> RGB:
         ''' Return a copy of this color value.

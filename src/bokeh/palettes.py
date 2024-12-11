@@ -1602,7 +1602,7 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
         seq[str] : a sequence of hex RGBA color strings
 
     Raises:
-        ValueError if ``color`` is not recognisable as a string name or hex
+        ValueError if ``color`` is not recognizable as a string name or hex
             RGB(A) string, or if ``start_alpha`` or ``end_alpha`` are outside
             the range 0 to 255 inclusive.
 
