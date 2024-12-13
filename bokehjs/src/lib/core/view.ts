@@ -43,9 +43,16 @@ export abstract class View implements ISignalable, Equatable {
 
   readonly views: ViewQuery = new ViewQuery(this)
 
-  protected _ready: Promise<void> = Promise.resolve(undefined)
+  private _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
     return this._ready
+  }
+
+  protected _await_ready(promise: Promise<void>): void {
+    this._ready = this._ready.then(() => promise)
+    if (this.root != this) {
+      this.root._ready = this.root._ready.then(() => this._ready)
+    }
   }
 
   /** @internal */
@@ -55,11 +62,7 @@ export abstract class View implements ISignalable, Equatable {
     let new_slot = this._slots.get(slot)
     if (new_slot == null) {
       new_slot = (args: Args, sender: Sender): void => {
-        const promise = Promise.resolve(slot.call(this, args, sender))
-        this._ready = this._ready.then(() => promise)
-        if (this.root != this) {
-          this.root._ready = this.root._ready.then(() => this._ready)
-        }
+        this._await_ready(Promise.resolve(slot.call(this, args, sender)))
       }
       this._slots.set(slot, new_slot)
     }

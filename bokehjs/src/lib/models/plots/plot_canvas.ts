@@ -136,7 +136,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected _initial_state: StateInfo
 
-  protected throttled_paint: () => void
+  protected throttled_paint: () => Promise<void>
 
   computed_renderers: Renderer[] = []
 
@@ -239,8 +239,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   schedule_paint(): void {
     if (!this.is_paused) {
-      const promise = this.throttled_paint()
-      this._ready = this._ready.then(() => promise)
+      this._await_ready(this.throttled_paint())
     }
   }
 
