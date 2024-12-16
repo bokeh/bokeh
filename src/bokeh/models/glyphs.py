@@ -1450,6 +1450,8 @@ class Scatter(Marker):
           glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
           plot.add_glyph(source, glyph)
 
+    It is also possible to define a custom marker. See :attr:`bokeh.models.Scatter.defs`.
+
     .. note::
         When you draw ``circle`` markers with ``Scatter``, you can only assign a
         size in |screen units| (by passing a number of pixels to the ``size``

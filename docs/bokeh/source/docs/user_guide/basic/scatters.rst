@@ -9,14 +9,14 @@ Scatter markers
 ---------------
 
 Bokeh includes a large variety of markers for creating scatter plots. For
-example, to render circle scatter markers on a plot, use the |circle|
-method of |figure|:
+example, to render circle scatter markers on a plot, use the |scatter|
+method of |figure| with the default marker "circle".
 
 .. bokeh-plot:: __REPO__/examples/basic/scatters/scatter_circle.py
     :source-position: above
 
-Similarly, use the :func:`~bokeh.plotting.figure.square` method of |figure| to
-scatter square markers on a plot:
+Similarly, use the |scatter| method of |figure| with the marker "square"
+to scatter square markers on a plot.
 
 .. bokeh-plot:: __REPO__/examples/basic/scatters/scatter_square.py
     :source-position: above
@@ -28,6 +28,14 @@ overview of all available scatter markers:
 .. bokeh-plot:: __REPO__/examples/basic/scatters/markertypes.py
     :source-position: none
 
+Bokeh also offers the opportunity to define custom markers. See
+:attr:`bokeh.models.Scatter.defs` for an introduction.
+
+.. bokeh-plot:: __REPO__/examples/basic/scatters/custom_markers.py
+    :source-position: none
+
+All the supported makers are available as individual methods of |figure|, too.
+But it is recommended to use the |scatter| method as best practice.
 To see details and example plots for any of the available scatter markers, click
 on the corresponding glyph method in the following list:
 
@@ -66,7 +74,8 @@ on the corresponding glyph method in the following list:
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
 |screen units|), and ``angle`` (in radians by default). The |circle| marker is
 an exception: this method accepts an additional ``radius`` property that you can
-use with |data units|.
+use with |data units|. This exception is not available when using "circle" as a
+maker in a |scatter| call.
 
 .. _ug_basic_scatters_urls:
 
@@ -89,3 +98,4 @@ point.
 
 .. |circle|    replace:: :func:`~bokeh.plotting.figure.circle`
 .. |image_url| replace:: :func:`~bokeh.plotting.figure.image_url`
+.. |scatter|   replace:: :func:`~bokeh.plotting.figure.scatter`
