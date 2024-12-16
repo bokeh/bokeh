@@ -257,6 +257,15 @@ describe("WheelZoomTool", () => {
   })
 
   it("should support auto-activation when active_scroll='auto' and plot has focus", async () => {
+    function has_focus(el: Element): boolean {
+      const root = el.getRootNode()
+      if (root instanceof ShadowRoot || root instanceof Document) {
+        return root.activeElement === el
+      } else {
+        return false
+      }
+    }
+
     const wheel_zoom = new WheelZoomTool()
     const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 10], tools: [wheel_zoom], active_scroll: "auto"})
     p.scatter([1, 5, 9], [1, 5, 9], {size: 20})
@@ -264,13 +273,19 @@ describe("WheelZoomTool", () => {
     const {view} = await display(p)
     const actions = new PlotActions(view)
 
+    expect(has_focus(view.canvas_view.events_el)).to.be.false
+    expect(wheel_zoom.active).to.be.false
+
     expect(xy_axis(view)).to.be.equal({x: [0, 10], y: [0, 10]})
+
     await actions.scroll_up(xy(5, 5))
     await view.ready
     expect(xy_axis(view)).to.be.equal({x: [0, 10], y: [0, 10]})
 
     view.canvas_view.events_el.focus()
     await view.ready
+    expect(has_focus(view.canvas_view.events_el)).to.be.true
+    expect(wheel_zoom.active).to.be.true
 
     await actions.scroll_up(xy(5, 5), 2)
     await view.ready
@@ -278,6 +293,8 @@ describe("WheelZoomTool", () => {
 
     view.canvas_view.events_el.blur()
     await view.ready
+    expect(has_focus(view.canvas_view.events_el)).to.be.false
+    expect(wheel_zoom.active).to.be.false
 
     await actions.scroll_up(xy(5, 5), 2)
     await view.ready
