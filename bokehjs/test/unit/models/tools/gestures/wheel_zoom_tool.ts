@@ -9,6 +9,7 @@ import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import type {ViewOf} from "@bokehjs/core/view"
+import {has_focus} from "@bokehjs/core/dom"
 
 const modifiers = {ctrl: false, shift: false, alt: false}
 
@@ -257,15 +258,6 @@ describe("WheelZoomTool", () => {
   })
 
   it("should support auto-activation when active_scroll='auto' and plot has focus", async () => {
-    function has_focus(el: Element): boolean {
-      const root = el.getRootNode()
-      if (root instanceof ShadowRoot || root instanceof Document) {
-        return root.activeElement === el
-      } else {
-        return false
-      }
-    }
-
     const wheel_zoom = new WheelZoomTool()
     const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 10], tools: [wheel_zoom], active_scroll: "auto"})
     p.scatter([1, 5, 9], [1, 5, 9], {size: 20})

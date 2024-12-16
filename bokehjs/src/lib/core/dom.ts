@@ -794,3 +794,12 @@ export function px(value: number | string): string {
 }
 
 export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
+
+export function has_focus(el: Element): boolean {
+  const root = el.getRootNode()
+  if (root instanceof ShadowRoot || root instanceof Document) {
+    return root.activeElement === el
+  } else {
+    return false
+  }
+}
