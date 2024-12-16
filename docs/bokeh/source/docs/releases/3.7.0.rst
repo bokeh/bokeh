@@ -24,6 +24,7 @@ Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
 * Added support for determinate and indeterminate ``Progress`` widgets (:bokeh-pull:`13546`)
 * Improved cursor handling in editable/movable ``BoxAnnotation`` (:bokeh-pull:`14151`)
 * Changed type of ``ImageURLTexture.url`` from ``String`` to ``Image`` (:bokeh-pull:`14371`)
+* Added support for automatic activation of ``WheelZoomTool`` on focus (:bokeh-pull:`14112`)
 
 Deprecations
 ------------
