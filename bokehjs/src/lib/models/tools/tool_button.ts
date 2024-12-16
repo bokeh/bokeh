@@ -45,22 +45,22 @@ export abstract class ToolButtonView extends UIElementView {
           return
         }
         if (event.native.composedPath().includes(this.el)) {
-          this._clicked()
+          this.tap()
         }
       },
       on_press: () => {
-        this._pressed()
+        this.press()
       },
     })
 
     this.el.addEventListener("keydown", (event) => {
       switch (event.key as Keys) {
         case "Enter": {
-          this._clicked()
+          this.tap()
           break
         }
         case " ": {
-          this._pressed()
+          this.press()
           break
         }
         default:
@@ -123,9 +123,9 @@ export abstract class ToolButtonView extends UIElementView {
     this.el.tabIndex = 0
   }
 
-  protected abstract _clicked(): void
+  abstract tap(): void
 
-  protected _pressed(): void {
+  press(): void {
     const at = (() => {
       switch (this.parent.model.location) {
         case "right": return {left_of:  this.el}

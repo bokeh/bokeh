@@ -22,7 +22,7 @@ export class OnOffButtonView extends ToolButtonView {
     this._toggle_active()
   }
 
-  protected _clicked(): void {
+  tap(): void {
     const {active} = this.model.tool
     this.model.tool.active = !active
   }

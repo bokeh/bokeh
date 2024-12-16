@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 import {fig, display} from "../../_util"
-import {mouse_enter, mouse_leave, tap} from "../../../interactive"
+import {mouse_enter, mouse_leave} from "../../../interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
@@ -212,11 +212,11 @@ describe("ToolbarView", () => {
       const tool_button_view = toolbar_view.tool_button_views[0]
       expect(tool_button_view.model.tool.active).to.be.false
       expect(tool_view.dialog.model.visible).to.be.false
-      await tap(tool_button_view.el)
+      tool_button_view.tap()
       await view.ready
       expect(tool_button_view.model.tool.active).to.be.true
       expect(tool_view.dialog.model.visible).to.be.true
-      await tap(tool_button_view.el)
+      tool_button_view.tap()
       await view.ready
       expect(tool_button_view.model.tool.active).to.be.false
       expect(tool_view.dialog.model.visible).to.be.false
@@ -249,11 +249,16 @@ describe("ToolbarView", () => {
         const tool_button_view = toolbar_view.tool_button_views[0]
         expect(tool_button_view.model.tool.active).to.be.equal(initial)
         expect(legend.visible).to.be.equal(initial)
-        await tap(tool_button_view.el)
+        /**
+          Alternatively `await tap(tool_button_view.el)`, but it's slow
+          and unreliable (sometimes doesn't trigger, maybe due to page
+          scrolling or something like that).
+         */
+        tool_button_view.tap()
         await view.ready
         expect(tool_button_view.model.tool.active).to.be.equal(!initial)
         expect(legend.visible).to.be.equal(!initial)
-        await tap(tool_button_view.el)
+        tool_button_view.tap()
         await view.ready
         expect(tool_button_view.model.tool.active).to.be.equal(initial)
         expect(legend.visible).to.be.equal(initial)

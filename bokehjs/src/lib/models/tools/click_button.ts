@@ -5,7 +5,7 @@ import type * as p from "core/properties"
 export class ClickButtonView extends OnOffButtonView {
   declare model: ClickButton
 
-  protected override _clicked(): void {
+  override tap(): void {
     this.model.tool.do.emit(undefined)
   }
 }
