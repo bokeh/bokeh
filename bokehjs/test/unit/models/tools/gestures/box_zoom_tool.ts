@@ -1,12 +1,10 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
-import {tap} from "../../../../interactive"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {BoxZoomTool, PanTool, Toolbar} from "@bokehjs/models"
-import {defer} from "@bokehjs/core/util/defer"
 
 describe("BoxZoomTool", () => {
 
@@ -62,8 +60,7 @@ describe("BoxZoomTool", () => {
     })
 
     it("can_be_selected_and_deselected", async () => {
-      const {buttons} = await mkplot(new BoxZoomTool(), new PanTool())
-      await defer()
+      const {buttons, plot_view} = await mkplot(new BoxZoomTool(), new PanTool())
       const [zoom, pan] = buttons
 
       // Check is not active
@@ -71,14 +68,22 @@ describe("BoxZoomTool", () => {
       expect(pan.class_list.has("bk-active")).to.be.true
 
       // Click and check is active
-      await tap(zoom.el)
-      await defer()
+      zoom.tap()
+      await plot_view.ready
+
+      expect(zoom.model.tool.active).to.be.true
+      expect(pan.model.tool.active).to.be.false
+
       expect(zoom.class_list.has("bk-active")).to.be.true
       expect(pan.class_list.has("bk-active")).to.be.false
 
       // Click again and check is not active
-      await tap(zoom.el)
-      await defer()
+      zoom.tap()
+      await plot_view.ready
+
+      expect(zoom.model.tool.active).to.be.false
+      expect(pan.model.tool.active).to.be.false
+
       expect(zoom.class_list.has("bk-active")).to.be.false
       expect(pan.class_list.has("bk-active")).to.be.false
     })
