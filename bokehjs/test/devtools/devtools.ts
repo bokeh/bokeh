@@ -134,7 +134,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
   let failure = false
   try {
     client = await CDP({port, host})
-    const {Emulation, Network, Browser, Page, Runtime, Log, Performance} = client
+    const {Emulation, Network, Browser, Page, DOM, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -230,6 +230,8 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       await Page.enable()
       await Page.navigate({url: "about:blank"})
 
+      await DOM.enable({})
+
       await Runtime.enable()
       await Log.enable()
       await Performance.enable({timeDomain: "timeTicks"})
@@ -244,6 +246,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       await override_metrics()
+      await Emulation.setFocusEmulationEnabled({enabled: true})
 
       await Browser.grantPermissions({
         permissions: ["clipboardReadWrite"],
