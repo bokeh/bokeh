@@ -295,7 +295,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
             output_notebook()
 
             plot = figure()
-            plot.circle([1,2,3], [4,6,5])
+            plot.scatter([1,2,3], [4,6,5])
 
             handle = show(plot, notebook_handle=True)
 

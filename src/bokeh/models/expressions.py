@@ -12,7 +12,7 @@ the array values be computed in the browser:
 
 .. code-block:: python
 
-    p.circle(x={'expr': some_expression}, ...)
+    p.scatter(x={'expr': some_expression}, ...)
 
 or using the ``expr`` convenience function:
 
@@ -20,7 +20,7 @@ or using the ``expr`` convenience function:
 
     from bokeh.core.properties import expr
 
-    p.circle(x=expr(some_expression), ...)
+    p.scatter(x=expr(some_expression), ...)
 
 In this case, the values of the ``x`` coordinates will be computed in the
 browser by the JavaScript implementation of ``some_expression`` using a
@@ -84,7 +84,7 @@ class Expression(Model):
     ''' Base class for ``Expression`` models that represent a computation
     to be carried out on the client-side.
 
-    JavaScript implementations should implement the following methods:
+    JavaScripts implementations should implement the following methods:
 
     .. code-block
 
@@ -198,7 +198,7 @@ class Stack(Expression):
 
 @abstract
 class ScalarExpression(Model):
-    """ Base class for for scalar expressions. """
+    """ Base class for scalar expressions. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:

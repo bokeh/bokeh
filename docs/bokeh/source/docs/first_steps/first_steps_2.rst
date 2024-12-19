@@ -129,7 +129,7 @@ red color by passing the argument ``fill_color="red"``.
 
 To change the color of your circles from red to blue, you first need to assign
 a variable name (such as ``scatter``) to the new object when you call the
-:func:`~bokeh.plotting.figure.circle` function.
+:func:`~bokeh.plotting.figure.scatter` function.
 
 .. code-block:: python
 
