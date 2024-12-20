@@ -555,7 +555,7 @@ export class TeXView extends MathTextView {
   override get styled_text(): string {
     const [r, g, b] = color2rgba(this.color)
 
-    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\pmb{${this.text}}` : this.text}`
+    return `\\color[RGB]{${r}, ${g}, ${b}} ${this.font.includes("bold") ? `\\boldsymbol{${this.text}}` : this.text}`
   }
 
   protected _process_text(): HTMLElement | undefined {
