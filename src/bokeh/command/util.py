@@ -209,13 +209,23 @@ def report_server_init_errors(address: str | None = None, port: int | None = Non
     try:
         yield
     except OSError as e:
-        if e.errno == errno.EADDRINUSE:
-            log.critical("Cannot start Bokeh server, port %s is already in use", port)
-        elif e.errno == errno.EADDRNOTAVAIL:
-            log.critical("Cannot start Bokeh server, address '%s' not available", address)
-        else:
-            codename = errno.errorcode[e.errno]
-            log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
+        match e.errno:
+            case errno.EADDRINUSE:
+                log.critical(f"Cannot start Bokeh server, port {port} is already in use")
+            case errno.EADDRNOTAVAIL:
+                log.critical(f"Cannot start Bokeh server, address '{address}' not available")
+            case _:
+                message = "Cannot start Bokeh server"
+
+                if e.errno is not None:
+                    codename = errno.errorcode[e.errno]
+                    message += f" [{codename}]"
+
+                if e.strerror is not None:
+                    message += f": {e.strerror}"
+                else:
+                    message += f": {e}"
+                log.critical(message)
         sys.exit(1)
 
 #-----------------------------------------------------------------------------
