@@ -106,7 +106,7 @@ colors = [spectral[i] for i in y]
 # set up plot (styling in theme.yaml)
 plot = figure(toolbar_location=None, title=algorithm)
 source = ColumnDataSource(data=dict(x=X[:, 0], y=X[:, 1], colors=colors))
-plot.circle('x', 'y', fill_color='colors', line_color=None, source=source)
+plot.scatter('x', 'y', fill_color='colors', line_color=None, source=source)
 
 # set up widgets
 clustering_algorithms= [

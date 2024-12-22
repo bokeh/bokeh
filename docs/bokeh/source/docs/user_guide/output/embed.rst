@@ -46,7 +46,7 @@ data and are fully portable while still providing interactive tools
     from bokeh.embed import file_html
 
     plot = figure()
-    plot.circle([1,2], [3,4])
+    plot.scatter([1,2], [3,4])
 
     html = file_html(plot, CDN, "my plot")
 
@@ -75,7 +75,7 @@ Bokeh model (for example, a plot) and an optional ID of the target ``<div>``.
 .. code-block:: python
 
         p = figure()
-        p.circle(x, y)
+        p.scatter(x, y)
 
         item_text = json.dumps(json_item(p, "myplot"))
 
@@ -94,7 +94,7 @@ You can also omit the target ID when calling |json_item|:
 .. code-block:: python
 
         p = figure()
-        p.circle(x, y)
+        p.scatter(x, y)
 
         item_text = json.dumps(json_item(p)) # no target ID given
 
@@ -154,7 +154,7 @@ documents however you like.
     from bokeh.embed import components
 
     plot = figure()
-    plot.circle([1,2], [3,4])
+    plot.scatter([1,2], [3,4])
 
     script, div = components(plot)
 
@@ -425,7 +425,7 @@ Here is how you might use |autoload_static| with a simple plot:
     from bokeh.embed import autoload_static
 
     plot = figure()
-    plot.circle([1,2], [3,4])
+    plot.scatter([1,2], [3,4])
 
     js, tag = autoload_static(plot, CDN, "some/path")
 
