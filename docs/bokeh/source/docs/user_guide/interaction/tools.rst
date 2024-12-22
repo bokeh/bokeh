@@ -939,7 +939,7 @@ you must pass the renderers to be edited as a list:
 
 .. code-block:: python
 
-    c1 = p.circle('x', 'y', 'width', 'height', source=source)
+    c1 = p.scatter('x', 'y', 'size', source=source)
     r1 = p.rect('x', 'y', 0.1, 0.1, source=source2)
     tool = PointDrawTool(renderers=[c1, r1])
 

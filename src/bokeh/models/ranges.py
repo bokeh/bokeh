@@ -187,7 +187,7 @@ class DataRange(NumericalRange):
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.
 
-    By default the ``start`` and ``end`` of the range automatically
+    By default, the ``start`` and ``end`` of the range automatically
     assume min and max values of the data for associated renderers.
 
     '''
@@ -298,7 +298,7 @@ class FactorRange(Range):
 
     .. code-block:: python
 
-        p.circle(x=["foo", "bar"], ...)
+        p.scatter(x=["foo", "bar"], ...)
 
     BokehJS will create a mapping from ``"foo"`` and ``"bar"`` to a numerical
     coordinate system called *synthetic coordinates*. In the simplest cases,
@@ -315,7 +315,7 @@ class FactorRange(Range):
 
     .. code-block:: python
 
-        p.circle(x=[("foo", 0.3), ...], ...)
+        p.scatter(x=[("foo", 0.3), ...], ...)
 
     will position the first circle at an ``x`` position that is offset by
     adding 0.3 to the synthetic coordinate for ``"foo"``.

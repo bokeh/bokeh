@@ -28,7 +28,7 @@ to the :func:`~bokeh.plotting.figure.circle` function (see
     y_values = [6, 7, 2, 3, 6]
 
     p = figure()
-    p.circle(x=x_values, y=y_values)
+    p.scatter(x=x_values, y=y_values)
 
 .. _ug_basic_data_numpy:
 
@@ -48,7 +48,7 @@ structures in Bokeh:
     cosine = np.cos(x)
 
     p = figure()
-    p.circle(x=x, y=random)
+    p.scatter(x=x, y=random)
     p.line(x=x, y=cosine)
 
 .. _ug_basic_data_cds:
@@ -126,7 +126,7 @@ For example:
 
     # create a plot using the ColumnDataSource's two columns
     p = figure()
-    p.circle(x='x_values', y='y_values', source=source)
+    p.scatter(x='x_values', y='y_values', source=source)
 
 Modifying a ColumnDataSource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -428,7 +428,7 @@ A |CDSView| has one property, ``filter``:
 
 In this example, you create a |CDSView| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and an intersection of two filters, ``filter1``
-and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.circle`
+and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.scatter`
 renderer function:
 
 .. code-block:: python
@@ -443,7 +443,7 @@ renderer function:
     view = CDSView(filter=filter1 & filter2)
 
     p = figure()
-    p.circle(x="x", y="y", source=source, view=view)
+    p.scatter(x="x", y="y", source=source, view=view)
 
 .. _ug_basic_data_filtering_index:
 

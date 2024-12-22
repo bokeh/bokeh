@@ -322,12 +322,12 @@ For instance, as an example:
 
     source = ColumnDataSource(data=dict(x=a_list, y=an_array))
 
-    p.circle(x='x', y='y', source=source, ...) # pass column names and a source
+    p.scatter(x='x', y='y', source=source, ...) # pass column names and a source
 
 Alternatively, *all* data sequences may be provided as literals as long as a
 source is *not* provided:
 
-    p.circle(x=a_list, y=an_array, ...)  # pass actual sequences and no source
+    p.scatter(x=a_list, y=an_array, ...)  # pass actual sequences and no source
 
 """
 

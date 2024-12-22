@@ -3,7 +3,7 @@ demonstrates using a log axis on a Bokeh plot. Various line styles and glyph
 combinations are automatically added to a legend.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line
+    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_lines_with_markers`
     :keywords: lines, legend, log scale, scatter
 
