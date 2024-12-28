@@ -78,6 +78,14 @@ function sys_path(): string {
 const supported_chromium_revision = "r2670" // 118.0.5993.88
 
 function chrome(): string {
+  const bokeh_chrome = process.env.BOKEH_CHROME
+  if (bokeh_chrome !== undefined) {
+    if (fs.existsSync(bokeh_chrome)) {
+      return bokeh_chrome
+    } else {
+      throw new BuildError("headless", `can't find BOKEH_CHROME=${bokeh_chrome}`)
+    }
+  }
   const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
   const path = sys_path()
 
