@@ -254,7 +254,9 @@ Run JavaScript tests
 Most of the JavaScript-based tests for :term:`BokehJS` use a custom-made testing
 framework. This framework **requires Google Chrome or Chromium**. You need a
 recent version of one of these browsers available on your system to run those
-tests locally.
+tests locally. Bokeh will try to find Google Chrome or Chromium in your
+``PATH``, but you can set the environment variable ``BOKEH_CHROME`` to point to
+the executable if desired.
 
 .. _contributor_guide_testing_local_javascript_all:
 
