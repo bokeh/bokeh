@@ -6,12 +6,6 @@ import type {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
 import type {RangeInfo, RangeOptions} from "./range_manager"
 
-type GMapRangeInfo = RangeInfo & {
-  sdx?: number
-  sdy?: number
-  factor?: number
-}
-
 declare global {
   interface Window {
     _bokeh_gmaps_callback: () => void
@@ -101,7 +95,7 @@ export class GMapPlotView extends PlotView {
     super.remove()
   }
 
-  override update_range(range_info: GMapRangeInfo | null, options?: Partial<RangeOptions>): void {
+  override update_range(range_info: RangeInfo | null, options?: Partial<RangeOptions>): void {
     // RESET -------------------------
     if (range_info == null) {
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng})
