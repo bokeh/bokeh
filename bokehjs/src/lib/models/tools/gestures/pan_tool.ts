@@ -25,10 +25,7 @@ export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number
 export class PanToolView extends GestureToolView {
   declare model: PanTool
 
-  protected pan_info?: RangeInfo & {
-    sdx: number
-    sdy: number
-  }
+  protected pan_info?: RangeInfo
 
   protected state: {last_dx: number, last_dy: number, dims: Dimensions} | null = null
 

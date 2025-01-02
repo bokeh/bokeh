@@ -13,6 +13,9 @@ export type RangeState = Map<Range, Interval>
 export type RangeInfo = {
   xrs: RangeState
   yrs: RangeState
+  sdx?: number
+  sdy?: number
+  factor?: number
 }
 
 export type RangeOptions = {
