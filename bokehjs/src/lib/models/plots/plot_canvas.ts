@@ -1524,14 +1524,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     const {frame} = this
 
-    const x_offset = x*factor*frame.bbox.width
-    const y_offset = y*factor*frame.bbox.height
+    const sdx = x*factor*frame.bbox.width
+    const sdy = y*factor*frame.bbox.height
 
-    const bbox = frame.bbox.translate(x_offset, y_offset)
+    const bbox = frame.bbox.translate(sdx, sdy)
 
     const xrs = update_ranges(frame.x_scales, bbox.x0, bbox.x1)
     const yrs = update_ranges(frame.y_scales, bbox.y0, bbox.y1)
 
-    this.update_range({xrs, yrs}, {panning: true})
+    this.update_range({xrs, yrs, sdx, sdy}, {panning: true})
+    this.state.push("pan", {range: {xrs, yrs}})
+    this.trigger_ranges_update_event()
   }
 }
