@@ -7,6 +7,31 @@ import type {Geometry} from "@bokehjs/core/geometry"
 describe("Glyph (using AnnularWedge as a concrete Glyph)", () => {
 
   describe("GlyphView", () => {
+
+    it("should calculate bounds based on data", async () => {
+      const data = {
+        x: [1, 10, 5, 30],
+        y: [10, 60, 30, 80],
+        r: [1, 2, 3, 4],
+        start_angle: [-0.25*Math.PI, 0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI],
+        end_angle: [0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI, 1.75*Math.PI],
+      }
+      const glyph = new AnnularWedge({
+        x: {field: "x"},
+        y: {field: "y"},
+        inner_radius: {value: 2},
+        outer_radius: {field: "r"},
+        start_angle: {field: "start_angle"},
+        end_angle: {field: "end_angle"},
+      })
+
+      const glyph_renderer = await create_glyph_renderer_view(glyph, data, {axis_type: "linear"})
+      const glyph_view = glyph_renderer.glyph
+      const bounds = glyph_view.bounds()
+
+      expect(bounds).to.be.equal({x0: 0, y0: 9, x1: 34, y1: 84})
+    })
+
     it("should hit test annular wedges against an index", async () => {
       const data = {
         start_angle: [-0.25*Math.PI, 0.25*Math.PI, 0.75*Math.PI, 1.25*Math.PI],
