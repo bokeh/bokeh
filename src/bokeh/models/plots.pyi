@@ -55,6 +55,7 @@ from .scales import Scale
 from .sources import ColumnarDataSource
 from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar
+from .ui.other import KeyBinding
 from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
@@ -114,6 +115,7 @@ class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _Bord
     reset_policy: ResetPolicy
     hold_render: bool
     attribution: list[HTML | str]
+    key_bindings: list[KeyBinding]
 
 class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, BorderHatch, OutlineLine):
     def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...
@@ -164,6 +166,7 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     reset_policy: ResetPolicy = ...
     hold_render: bool = ...
     attribution: list[HTML | str] = ...
+    key_bindings: list[KeyBinding] = ...
 
     @property
     def inner_width(self) -> int: ...
