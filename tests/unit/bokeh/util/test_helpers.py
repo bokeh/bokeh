@@ -4,37 +4,24 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various functions missing from the standard library.
-
-"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-
-# Standard library imports
-from functools import reduce
-from typing import Callable, Iterable, TypeVar
+# Module under test
+import bokeh.util.helpers as buh # isort:skip
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
-
-__all__ = (
-    "flatten",
-)
-
-T = TypeVar("T")
-U = TypeVar("U")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -44,15 +31,12 @@ U = TypeVar("U")
 # Dev API
 #-----------------------------------------------------------------------------
 
-def flatten(array: Iterable[list[T]]) -> list[T]:
-    """ Combine a list of lists into a single list.
-    """
-    return reduce(list.__add__, array, [])
+def test_flatten() -> None:
+    assert buh.flatten([]) == []
+    assert buh.flatten([[1, 2, 3], [4, 5], [6], []]) == [1, 2, 3, 4, 5, 6]
 
-def flat_map(fn: Callable[[T], list[U]], array: list[T]) -> list[U]:
-    """ Combine results of a list producing function into a single list.
-    """
-    return flatten(map(fn, array))
+def test_flat_map() -> None:
+    assert buh.flat_map(lambda n: ["a"]*n, [1, 2, 3]) == ["a", "a", "a", "a", "a", "a"]
 
 #-----------------------------------------------------------------------------
 # Private API
