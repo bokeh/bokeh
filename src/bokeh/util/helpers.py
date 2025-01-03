@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import reduce
-from typing import Callable
+from typing import Callable, Iterable
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,15 +41,15 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def flatten[T](array: list[list[T]]) -> list[T]:
+def flatten[T](array: Iterable[list[T]]) -> list[T]:
     """ Combine a list of lists into a single list.
     """
-    return reduce(list.__add__, array)
+    return reduce(list.__add__, array, [])
 
-def flat_map[T, U](array: list[T], fn: Callable[[T], list[U]]) -> list[U]:
+def flat_map[T, U](fn: Callable[[T], list[U]], array: list[T]) -> list[U]:
     """ Combine results of a list producing function into a single list.
     """
-    return flatten(map(array, fn))
+    return flatten(map(fn, array))
 
 #-----------------------------------------------------------------------------
 # Private API
