@@ -78,4 +78,6 @@ export class ExamineTool extends ActionTool {
 
   override tool_name = "Examine"
   override tool_icon = icons.tool_icon_settings // TODO: better icon
+
+  override toggle_key = "E" as const
 }

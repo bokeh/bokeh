@@ -178,15 +178,15 @@ export class PanToolView extends GestureToolView {
     return [
       ...super.key_bindings(),
 
-      {keys: ["ArrowLeft"],  cmd: "pan_left",  if: () => this.model.active, action: () => this._pan_by("left")},
-      {keys: ["ArrowRight"], cmd: "pan_right", if: () => this.model.active, action: () => this._pan_by("right")},
-      {keys: ["ArrowUp"],    cmd: "pan_up",    if: () => this.model.active, action: () => this._pan_by("up")},
-      {keys: ["ArrowDown"],  cmd: "pan_down",  if: () => this.model.active, action: () => this._pan_by("down")},
+      {keys: ["ArrowLeft"],  cmd: "pan_left",  action: () => this._pan_by("left")},
+      {keys: ["ArrowRight"], cmd: "pan_right", action: () => this._pan_by("right")},
+      {keys: ["ArrowUp"],    cmd: "pan_up",    action: () => this._pan_by("up")},
+      {keys: ["ArrowDown"],  cmd: "pan_down",  action: () => this._pan_by("down")},
 
-      {keys: ["p", "l"], if: () => this.model.active, action: () => this._pan_by("left")},
-      {keys: ["p", "r"], if: () => this.model.active, action: () => this._pan_by("right")},
-      {keys: ["p", "u"], if: () => this.model.active, action: () => this._pan_by("up")},
-      {keys: ["p", "d"], if: () => this.model.active, action: () => this._pan_by("down")},
+      {keys: ["p", "l"], action: () => this._pan_by("left")},
+      {keys: ["p", "r"], action: () => this._pan_by("right")},
+      {keys: ["p", "u"], action: () => this._pan_by("up")},
+      {keys: ["p", "d"], action: () => this._pan_by("down")},
     ]
   }
 }
@@ -276,4 +276,6 @@ export class PanTool extends GestureTool {
       }),
     ]
   }
+
+  override toggle_key = "p" as const
 }
