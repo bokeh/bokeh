@@ -77,4 +77,6 @@ export class ExamineTool extends ActionTool {
   override get checkable(): boolean {
     return true
   }
+
+  override toggle_key = "E" as const
 }

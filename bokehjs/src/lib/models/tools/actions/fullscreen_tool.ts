@@ -60,4 +60,6 @@ export class FullscreenTool extends ActionTool {
   override get checkable(): boolean {
     return true
   }
+
+  override toggle_key = "F" as const
 }
