@@ -89,7 +89,7 @@ from .scales import (
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
-from .ui import StyledElement
+from .ui import KeyBinding, StyledElement
 
 if TYPE_CHECKING:
     import xyzservices
@@ -910,6 +910,13 @@ class Plot(LayoutDOM):
     This can be in either HTML or plain text forms. Renderers, like
     tile renderers, can provide additional attributions which will
     be added after attributions provided here.
+
+    .. note::
+        This feature is experimental and may change in the short term.
+    """)
+
+    key_bindings = List(Instance(KeyBinding), default=[], help="""
+    Allows to define custom key bindings.
 
     .. note::
         This feature is experimental and may change in the short term.

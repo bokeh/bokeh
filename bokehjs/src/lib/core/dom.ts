@@ -680,7 +680,7 @@ type PrintableKey =
   "{" | "}" | "|" | ":" | "\""| "<" | ">" | "?" |
   "[" | "]" | "\\"| ";" | "'" | "," | "." | "/"
 
-type WhitespaceKey = "Enter" | "Tab" | " "
+type WhitespaceKey = "Enter" | "Tab" | "Space" | " "
 
 type UIKey = "Escape"
 
@@ -694,16 +694,23 @@ type ModifierKey = "Ctrl" | "Control" | "Ctl" | "Shift" | "Alt" | "Meta"
 
 export type Keys = Key // deprecated
 
-export type Key = PrintableKey | WhitespaceKey | UIKey | NavigationKey | EditingKey | FunctionKey | ModifierKey
+export type Key = PrintableKey | WhitespaceKey | UIKey | NavigationKey | EditingKey | FunctionKey
+export type AnyKey = Key | ModifierKey
+
 export type KeyCombination =
   | Key
   | `Ctrl+${Key}`
   | `Shift+${Key}`
   | `Alt+${Key}`
+  | `Meta+${Key}`
   | `Ctrl+Shift+${Key}`
   | `Ctrl+Alt+${Key}`
+  | `Ctrl+Meta+${Key}`
   | `Ctrl+Shift+Alt+${Key}`
+  | `Ctrl+Shift+Meta+${Key}`
   | `Shift+Alt+${Key}`
+  | `Shift+Meta+${Key}`
+  | `Alt+Meta+${Key}`
 
 export enum MouseButton {
   None = 0b0,

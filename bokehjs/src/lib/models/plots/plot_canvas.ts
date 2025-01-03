@@ -64,6 +64,7 @@ import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
 import type {StyledElement} from "../ui/styled_element"
+import type {KeyBinding} from "../tools/tool"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"
@@ -422,6 +423,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
+    this.canvas_view.ui_event_bus.add_key_bindings(this.key_bindings())
 
     this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
 
@@ -1535,5 +1537,18 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.update_range({xrs, yrs, sdx, sdy}, {panning: true})
     this.state.push("pan", {range: {xrs, yrs}})
     this.trigger_ranges_update_event()
+  }
+
+  key_bindings(): KeyBinding[] {
+    const bindings: KeyBinding[] = []
+    for (const {key, when, action, priority} of this.model.key_bindings) {
+      bindings.push({
+        keys: isArray(key) ? key : [key],
+        when: when ?? undefined,
+        action,
+        priority,
+      })
+    }
+    return bindings
   }
 }

@@ -34,12 +34,13 @@ import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
 import type {KeyCombination} from "core/dom"
+import type {ExecutableLike, SyncExecutableLike} from "core/util/callbacks"
 
 export type KeyBinding = {
   keys: KeyCombination[]
   cmd?: string
-  if?: () => boolean
-  action: () => void | Promise<void>
+  when?: SyncExecutableLike<Model, [], boolean>
+  action: ExecutableLike<Model, [], void>
   priority?: number
 }
 

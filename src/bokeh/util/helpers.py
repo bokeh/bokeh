@@ -4,8 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various UI elements such as buttons, menus, and tooltips.
+""" Various functions missing from the standard library.
+
 """
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -18,46 +20,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from . import (
-    dialogs,
-    examiner,
-    floating,
-    icons,
-    menus,
-    other,
-    panels,
-    panes,
-    tooltips,
-    ui_element,
-)
-from .dialogs import *
-from .examiner import *
-from .floating import *
-from .icons import *
-from .menus import *
-from .other import *
-from .panels import *
-from .panes import *
-from .tooltips import *
-from .ui_element import *
+
+# Standard library imports
+from functools import reduce
+from typing import Callable, TypeVar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    *dialogs.__all__,
-    *icons.__all__,
-    *examiner.__all__,
-    *floating.__all__,
-    *menus.__all__,
-    *other.__all__,
-    *panels.__all__,
-    *panes.__all__,
-    *tooltips.__all__,
-    *ui_element.__all__,
+    "flatten",
 )
+
+T = TypeVar("T")
+U = TypeVar("U")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -66,6 +43,16 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def flatten(array: list[list[T]]) -> list[T]:
+    """ Combine a list of lists into a single list.
+    """
+    return reduce(list.__add__, array)
+
+def flat_map(array: list[T], fn: Callable[[T], list[U]]) -> list[U]:
+    """ Combine results of a list producing function into a single list.
+    """
+    return flatten(map(array, fn))
 
 #-----------------------------------------------------------------------------
 # Private API
