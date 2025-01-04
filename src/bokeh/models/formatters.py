@@ -684,6 +684,7 @@ def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
     )
 def DYNAMIC_DATETIME_FORMATTER() -> DatetimeTickFormatter:
     return DatetimeTickFormatter(**_DYNAMIC_DATETIME_KWARGS())
+    
 def _DYNAMIC_DATETIME_KWARGS() -> dict:
     return {
         "microseconds": "%fus",
