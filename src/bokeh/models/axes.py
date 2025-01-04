@@ -46,9 +46,9 @@ from ..core.properties import (
 )
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
 from .formatters import (
+    DYNAMIC_DATETIME_FORMATTER,
     BasicTickFormatter,
     CategoricalTickFormatter,
-    DYNAMIC_DATETIME_FORMATTER,
     LogTickFormatter,
     MercatorTickFormatter,
     TickFormatter,
