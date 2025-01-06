@@ -147,7 +147,7 @@ To install Bokeh and its required dependencies using `pip`, enter the following 
 pip install bokeh
 ```
 
-To install `conda`, enter the following command at a Bash or Windows command prompt:
+To install using `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
@@ -165,7 +165,7 @@ Community support is available on the [Project Discourse](https://discourse.boke
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.0/docs/CODE_OF_CONDUCT.md).*
+*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.7/docs/CODE_OF_CONDUCT.md).*
 
 ## Support
 
