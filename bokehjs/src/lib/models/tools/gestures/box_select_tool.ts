@@ -151,18 +151,13 @@ export class BoxSelectToolView extends RegionSelectToolView {
     this._base_point = null
   }
 
-  protected _stop_or_clear_selection(): void {
+  protected override _stop_or_clear_selection(): void {
     if (this._is_selecting) {
       this._stop()
       return
     }
 
-    if (this.model.overlay.visible) {
-      this._clear_overlay()
-      return
-    }
-
-    this._clear_selection()
+    super._stop_or_clear_selection()
   }
 
   override _clear_selection(): void {
@@ -191,7 +186,6 @@ export class BoxSelectToolView extends RegionSelectToolView {
       {keys: ["Enter"], action: () => select_and_clear_annotation},
       {keys: ["Shift+Enter"], action: () => select_and_persist_annotation},
       */
-      {keys: ["Escape"], action: () => this._stop_or_clear_selection()},
     ]
   }
 }
