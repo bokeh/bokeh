@@ -3,7 +3,7 @@
   <img src="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-black-text-no-padding.svg" alt="Bokeh logo -- text is white in dark theme and black in light theme" height=60/>
 </picture>
 
-----
+---
 
 [Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics and affords high-performance interactivity across large or streaming datasets. Bokeh can help anyone who wants to create interactive plots, dashboards, and data applications quickly and easily.
 
@@ -133,16 +133,16 @@
 
 </tr>
 
-
 </table>
 
-*Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development.*
+_Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development._
 
 ![4x9 image grid of Bokeh plots](https://user-images.githubusercontent.com/1078448/190840954-dc243c99-9295-44de-88e9-fafd0f4f7f8a.jpg)
 
 ## Installation
 
 To install Bokeh and its required dependencies using `pip`, enter the following command at a Bash or Windows command prompt:
+
 ```
 pip install bokeh
 ```
@@ -165,7 +165,7 @@ Community support is available on the [Project Discourse](https://discourse.boke
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.7/docs/CODE_OF_CONDUCT.md).*
+_Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/HEAD/docs/CODE_OF_CONDUCT.md)._
 
 ## Support
 
@@ -233,19 +233,19 @@ The Bokeh project is grateful for [individual contributions](https://opencollect
 
 If your company uses Bokeh and is able to sponsor the project, please contact <a href="info@bokeh.org">info@bokeh.org</a>
 
-*Bokeh is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit charity in the United States. NumFOCUS provides Bokeh with fiscal, legal, and administrative support to help ensure the health and sustainability of the project. Visit [numfocus.org](https://numfocus.org) for more information.*
+_Bokeh is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit charity in the United States. NumFOCUS provides Bokeh with fiscal, legal, and administrative support to help ensure the health and sustainability of the project. Visit [numfocus.org](https://numfocus.org) for more information._
 
-*Donations to Bokeh are managed by NumFOCUS. For donors in the United States, your gift is tax-deductible to the extent provided by law. As with any donation, you should consult with your tax adviser about your particular tax situation.*
+_Donations to Bokeh are managed by NumFOCUS. For donors in the United States, your gift is tax-deductible to the extent provided by law. As with any donation, you should consult with your tax adviser about your particular tax situation._
 
 ### In-kind Support
 
 Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management. The Bokeh project is grateful to the following companies for their donation of services:
 
-* [Amazon Web Services](https://aws.amazon.com/)
-* [GitGuardian](https://gitguardian.com/)
-* [GitHub](https://github.com/)
-* [makepath](https://makepath.com/)
-* [Pingdom](https://www.pingdom.com/website-monitoring)
-* [Slack](https://slack.com)
-* [QuestionScout](https://www.questionscout.com/)
-* [1Password](https://1password.com/)
+- [Amazon Web Services](https://aws.amazon.com/)
+- [GitGuardian](https://gitguardian.com/)
+- [GitHub](https://github.com/)
+- [makepath](https://makepath.com/)
+- [Pingdom](https://www.pingdom.com/website-monitoring)
+- [Slack](https://slack.com)
+- [QuestionScout](https://www.questionscout.com/)
+- [1Password](https://1password.com/)
