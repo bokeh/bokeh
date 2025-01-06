@@ -1,4 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import type {KeyBinding} from "../tool"
 import type {BoxAnnotation} from "../../annotations/box_annotation"
 import type {PolyAnnotation} from "../../annotations/poly_annotation"
 import type {DataRendererView} from "../../renderers/data_renderer"
@@ -41,6 +42,22 @@ export abstract class RegionSelectToolView extends SelectToolView {
   protected override _clear_overlay(): void {
     super._clear_overlay()
     this.model.overlay.clear()
+  }
+
+  protected _stop_or_clear_selection(): void {
+    if (this.model.overlay.visible) {
+      this._clear_overlay()
+      return
+    }
+
+    this._clear_selection()
+  }
+
+  override key_bindings(): KeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      {keys: ["Escape"], action: () => this._stop_or_clear_selection()},
+    ]
   }
 }
 
