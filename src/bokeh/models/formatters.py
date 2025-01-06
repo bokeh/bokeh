@@ -684,24 +684,21 @@ def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
     )
 
 def DYNAMIC_DATETIME_FORMATTER() -> DatetimeTickFormatter:
-    return DatetimeTickFormatter(**_DYNAMIC_DATETIME_KWARGS())
-
-def _DYNAMIC_DATETIME_KWARGS() -> dict:
-    return {
-        "microseconds": "%fus",
-        "milliseconds": "%3Nms",
-        "seconds": "%T",
-        "minsec": "%T",
-        "minutes": "%H:%M",
-        "hourmin": "%H:%M",
-        "hours": "%H:%M",
-        "days": "%b %d",
-        "months": "%b %Y",
-        "years": "%Y",
-        "strip_leading_zeros": ["microseconds", "milliseconds", "seconds"],
-        "boundary_scaling": False,
-        "context_which": "all",
-        "context": DatetimeTickFormatter(
+    return DatetimeTickFormatter(
+        microseconds = "%fus",
+        milliseconds = "%3Nms",
+        seconds = "%T",
+        minsec = "%T",
+        minutes = "%H:%M",
+        hourmin = "%H:%M",
+        hours = "%H:%M",
+        days = "%b %d",
+        months = "%b %Y",
+        years = "%Y",
+        strip_leading_zeros = ["microseconds", "milliseconds", "seconds"],
+        boundary_scaling = False,
+        context_which = "all",
+        context = DatetimeTickFormatter(
             microseconds="%T",
             milliseconds="%T",
             seconds="%b %d, %Y",
@@ -731,7 +728,7 @@ def _DYNAMIC_DATETIME_KWARGS() -> dict:
                 context=None,
             ),
         ),
-    }
+    )
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
