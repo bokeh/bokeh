@@ -1135,6 +1135,10 @@ class BoxZoomTool(Drag):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
+    zoom_out_gesture = Nullable(Enum("double_tap"), default="double_tap", help="""
+    Allows to configure what gesture, if any, is used to zoom out the plot.
+    """)
+
 @abstract
 class ZoomBaseTool(PlotActionTool):
     """ Abstract base class for zoom action tools. """

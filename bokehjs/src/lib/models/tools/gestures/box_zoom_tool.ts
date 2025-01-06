@@ -8,6 +8,10 @@ import type {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import type {MenuItem} from "core/util/menus"
 import * as icons from "styles/icons.css"
+import {Enum} from "core/kinds"
+
+const ZoomOutGesture = Enum("double_tap")
+type ZoomOutGesture = typeof ZoomOutGesture["__type__"]
 
 type Point = [number, number]
 
@@ -170,6 +174,13 @@ export class BoxZoomToolView extends GestureToolView {
   }
 
   override _doubletap(_ev: TapEvent): void {
+    if (!this.model.active) {
+      return
+    }
+    if (this.model.zoom_out_gesture != "double_tap") {
+      return
+    }
+
     const {state} = this.plot_view
     if (state.peek()?.type == "box_zoom") {
       state.undo()
@@ -237,6 +248,7 @@ export namespace BoxZoomTool {
     overlay: p.Property<BoxAnnotation>
     match_aspect: p.Property<boolean>
     origin: p.Property<BoxOrigin>
+    zoom_out_gesture: p.Property<ZoomOutGesture | null>
   }
 }
 
@@ -253,11 +265,12 @@ export class BoxZoomTool extends GestureTool {
   static {
     this.prototype.default_view = BoxZoomToolView
 
-    this.define<BoxZoomTool.Props>(({Bool, Ref, Or, Auto}) => ({
-      dimensions:   [ Or(Dimensions, Auto), "auto" ],
-      overlay:      [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
-      match_aspect: [ Bool, false ],
-      origin:       [ BoxOrigin, "corner" ],
+    this.define<BoxZoomTool.Props>(({Bool, Ref, Or, Auto, Nullable}) => ({
+      dimensions:       [ Or(Dimensions, Auto), "auto" ],
+      overlay:          [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
+      match_aspect:     [ Bool, false ],
+      origin:           [ BoxOrigin, "corner" ],
+      zoom_out_gesture: [ Nullable(ZoomOutGesture), "double_tap"],
     }))
 
     this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: "both"}))

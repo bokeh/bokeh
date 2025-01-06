@@ -6248,6 +6248,7 @@
     },
     match_aspect: false,
     origin: "corner",
+    zoom_out_gesture: "double_tap",
   },
   ClickPanTool: {
     __extends__: "PlotActionTool",
