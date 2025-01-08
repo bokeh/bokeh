@@ -683,7 +683,7 @@ def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
         years = "",
     )
 
-def DYNAMIC_DATETIME_FORMATTER() -> DatetimeTickFormatter:
+def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
     return DatetimeTickFormatter(
         microseconds = "%fus",
         milliseconds = "%3Nms",

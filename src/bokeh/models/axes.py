@@ -46,7 +46,7 @@ from ..core.properties import (
 )
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
 from .formatters import (
-    DYNAMIC_DATETIME_FORMATTER,
+    CONTEXTUAL_DATETIME_FORMATTER,
     BasicTickFormatter,
     CategoricalTickFormatter,
     LogTickFormatter,
@@ -369,7 +369,7 @@ class DatetimeAxis(LinearAxis):
 
     ticker = Override(default=InstanceDefault(DatetimeTicker))
 
-    formatter = Override(default=DYNAMIC_DATETIME_FORMATTER)
+    formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a
