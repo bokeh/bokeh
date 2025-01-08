@@ -881,7 +881,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10498", () => {
-    it("prevents GridBox from rebuilding when rows or cols properties are modified", async () => {
+    it("prevents GridBox from rebuilding when cols properties are modified", async () => {
       const p1 = fig([300, 300])
       const p2 = fig([300, 300])
       p1.scatter({x: [0, 1], y: [0, 1], color: "red"})
@@ -893,6 +893,21 @@ describe("Bug", () => {
       })
       const {view} = await display(box, [600, 300])
       box.cols = ["100px", "500px"]
+      await view.ready
+    })
+
+    it("prevents GridBox from rebuilding when rows properties are modified", async () => {
+      const p1 = fig([300, 300])
+      const p2 = fig([300, 300])
+      p1.scatter({x: [0, 1], y: [0, 1], color: "red"})
+      p2.scatter({x: [1, 0], y: [0, 1], color: "green"})
+      const box = new GridBox({
+        children: [[p1, 0, 0], [p2, 1, 0]],
+        rows: ["300px", "300px"],
+        sizing_mode: "fixed",
+      })
+      const {view} = await display(box, [300, 600])
+      box.rows = ["100px", "500px"]
       await view.ready
     })
   })
