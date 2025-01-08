@@ -137,6 +137,9 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     styles.grid_template_rows = rows_template.map(({size}) => size ?? default_size).join(" ")
     styles.grid_template_columns = cols_template.map(({size}) => size ?? default_size).join(" ")
 
+    styles.alignContent = "start"
+    styles.justifyContent = "start"
+
     this.style.append(":host", styles)
 
     if (layoutable.size != 0) {

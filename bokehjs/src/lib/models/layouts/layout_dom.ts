@@ -335,6 +335,8 @@ export abstract class LayoutDOMView extends PaneView {
 
       if (max_height != null) {
         styles.max_height = `min(${to_css(max_height)}, 100%)`
+      } else if (height_policy != "fixed") {
+        styles.max_height = "100%"
       }
     }
 
