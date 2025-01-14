@@ -29,7 +29,7 @@ declare namespace vis {
 }
 
 // This defines some default options for the Graph3d feature of vis.js
-// See: http://visjs.org/graph3d_examples.html for more details.
+// See: https://visjs.github.io/vis-graph3d/examples/ for more details.
 const OPTIONS = {
   width: '600px',
   height: '600px',
