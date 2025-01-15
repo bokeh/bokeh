@@ -36,6 +36,7 @@ export abstract class ToolButtonView extends UIElementView {
       prevent_hide: (event) => {
         return event.composedPath().includes(this.el)
       },
+      labels: false,
     })
 
     this._ui_gestures = new UIGestures(this.el, {

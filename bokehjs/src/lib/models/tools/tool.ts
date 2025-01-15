@@ -4,11 +4,12 @@ import type {Class} from "core/class"
 import type {Dimensions} from "core/enums"
 import {ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
-import type {MenuItem} from "core/util/menus"
+import type {MenuItem as CoreMenuItem} from "core/util/menus"
 import {isString} from "core/util/types"
 import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
+import {ActionItem, DividerItem, Menu} from "../ui/menus"
 import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import type {ToolButton} from "./tool_button"
 
@@ -179,6 +180,40 @@ export abstract class Tool extends Model {
 
   abstract tool_button(): ToolButton
 
+  menu_item(): ActionItem {
+    const item = new ActionItem({
+      icon: this.computed_icon,
+      label: this.tool_name,
+      tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
+      checked: () => this.active,
+      disabled: () => this.disabled,
+      action: () => this.active = !this.active,
+    })
+
+    //this.on_change(this.properties.active, () => item.checked = this.active)
+    //this.on_change(this.properties.disabled, () => item.disabled = this.disabled)
+
+    const submenu = this.menu
+    if (submenu != null) {
+      const items = submenu.map((item) => {
+        if (item == null) {
+          return new DividerItem()
+        } else {
+          return new ActionItem({
+            icon: `.${item.icon}`,
+            label: item.label,
+            tooltip: item.tooltip,
+            checked: item.active,
+            // disabled: item.disabled,
+            action: () => item.handler?.(),
+          })
+        }
+      })
+      item.menu = new Menu({items})
+    }
+    return item
+  }
+
   get tooltip(): string {
     return this.description ?? this.tool_name
   }
@@ -188,7 +223,7 @@ export abstract class Tool extends Model {
     return icon ?? (tool_icon != null ? `.${tool_icon}` : undefined)
   }
 
-  get menu(): MenuItem[] | null {
+  get menu(): CoreMenuItem[] | null {
     return null
   }
 

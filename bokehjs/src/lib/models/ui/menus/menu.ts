@@ -1,10 +1,10 @@
 import {UIElement, UIElementView} from "../ui_element"
 import {MenuItem} from "./menu_item"
 import {ActionItem} from "./action_item"
-import {CheckableItem} from "./checkable_item"
 import {DividerItem} from "./divider_item"
 import type * as p from "core/properties"
 import type {XY} from "core/util/bbox"
+import {isFunction} from "core/util/types"
 import type {StyleSheetLike} from "core/dom"
 import {div, px} from "core/dom"
 import {ToolIcon} from "core/enums"
@@ -16,6 +16,10 @@ import {execute} from "core/util/callbacks"
 import menus_css, * as menus from "styles/menus_.css"
 import icons_css from "styles/icons.css"
 
+function to_val<T>(val: T | (() => T)): T {
+  return isFunction(val) ? val() : val
+}
+
 export class MenuView extends UIElementView {
   declare model: Menu
 
@@ -26,12 +30,40 @@ export class MenuView extends UIElementView {
     yield* this._menu_views.values()
   }
 
+  private _menu_items: MenuItem[] = []
+  get menu_items(): MenuItem[] {
+    const items = this._menu_items
+    const {reversed} = this.model
+    return reversed ? reverse(items) : items
+  }
+  protected _compute_menu_items(): MenuItem[] {
+    return this.model.items
+  }
+
+  get is_empty(): boolean {
+    return this.menu_items.length == 0
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._menu_items = this._compute_menu_items()
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    const menus = this.model.items
+    const menus = this.menu_items
       .map((item) => item instanceof ActionItem ? item.menu : null)
       .filter((item) => item != null)
     await build_views(this._menu_views, menus, {parent: this})
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {items} = this.model.properties
+    this.on_change(items, () => {
+      this._menu_items = this._compute_menu_items()
+    })
   }
 
   prevent_hide?: (event: MouseEvent) => boolean
@@ -42,7 +74,7 @@ export class MenuView extends UIElementView {
   }
 
   protected _item_click = (item: ActionItem) => {
-    if (!item.disabled) {
+    if (!to_val(item.disabled)) {
       const {action} = item
       if (action != null) {
         void execute(action, this.model, {item})
@@ -96,11 +128,7 @@ export class MenuView extends UIElementView {
   override render(): void {
     super.render()
 
-    const items = (() => {
-      const {reversed, items} = this.model
-      return reversed ? reverse(items) : items
-    })()
-    for (const item of items) {
+    for (const item of this.menu_items) {
       if (item instanceof DividerItem) {
         const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
@@ -133,15 +161,24 @@ export class MenuView extends UIElementView {
         )
 
         item_el.classList.toggle(menus.menu, item.menu != null)
-        item_el.classList.toggle(menus.disabled, item.disabled)
+        item_el.classList.toggle(menus.disabled, to_val(item.disabled))
 
-        if (item instanceof CheckableItem) {
+        if (item.checked != null) {
           item_el.classList.add(menus.checkable)
-          item_el.classList.toggle(menus.checked, item.checked)
+          item_el.classList.toggle(menus.checked, to_val(item.checked))
         }
 
-        item_el.addEventListener("click", () => {
-          this._item_click(item)
+        function is_target(event: Event): boolean {
+          const {currentTarget, target} = event
+          return currentTarget instanceof Node && target instanceof Node && currentTarget.contains(target)
+        }
+
+        item_el.addEventListener("click", (event) => {
+          if (is_target(event)) {
+            this._item_click(item)
+          } else {
+            this.hide()
+          }
         })
         item_el.addEventListener("keydown", (event) => {
           if (event.key == "Enter") {
@@ -165,7 +202,7 @@ export class MenuView extends UIElementView {
   }
 
   protected _show_submenu(target: HTMLElement): void {
-    if (this.model.items.length == 0) {
+    if (this.is_empty) {
       this.hide()
       return
     }
@@ -179,7 +216,7 @@ export class MenuView extends UIElementView {
   }
 
   show(at: XY): void {
-    if (this.model.items.length == 0) {
+    if (this.is_empty) {
       this.hide()
       return
     }

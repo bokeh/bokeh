@@ -35,6 +35,7 @@ export type MenuOptions = {
   target: HTMLElement
   orientation?: Orientation
   reversed?: boolean
+  labels?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
   extra_styles?: StyleSheetLike[]
   entry_handler?: (entry: MenuEntry, i: number) => void
@@ -59,6 +60,7 @@ export class ContextMenu { //extends DOMComponentView {
   readonly target: HTMLElement
   readonly orientation: Orientation
   readonly reversed: boolean
+  readonly labels: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
   readonly extra_styles: StyleSheetLike[]
   readonly entry_handler?: (entry: MenuEntry, i: number) => void
@@ -68,6 +70,7 @@ export class ContextMenu { //extends DOMComponentView {
     this.target = options.target
     this.orientation = options.orientation ?? "vertical"
     this.reversed = options.reversed ?? false
+    this.labels = options.labels ?? true
     this.prevent_hide = options.prevent_hide
     this.extra_styles = options.extra_styles ?? []
     this.entry_handler = options.entry_handler
@@ -192,7 +195,8 @@ export class ContextMenu { //extends DOMComponentView {
       } else {
         const icon = item.icon != null ? div({class: [menus.menu_icon, item.icon]}) : null
         const classes = [item.active?.() ?? false ? menus.active: null, item.class]
-        el = div({class: classes, title: item.tooltip, tabIndex: 0}, icon, item.label, item.content)
+        const label = this.labels ? item.label : null
+        el = div({class: classes, title: item.tooltip, tabIndex: 0}, icon, label, item.content)
         el.addEventListener("click", () => {
           this._item_click(item, i)
         })

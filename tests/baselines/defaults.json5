@@ -6661,6 +6661,13 @@
     description: null,
     visible: true,
   },
+  ToolMenu: {
+    __extends__: "Menu",
+    toolbar: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   ToolProxy: {
     __extends__: "Model",
     tools: [],
@@ -6824,6 +6831,7 @@
   },
   ActionItem: {
     __extends__: "MenuItem",
+    checked: null,
     icon: null,
     label: {
       type: "symbol",
@@ -6837,7 +6845,6 @@
   },
   CheckableItem: {
     __extends__: "ActionItem",
-    checked: false,
   },
   DividerItem: {
     __extends__: "MenuItem",

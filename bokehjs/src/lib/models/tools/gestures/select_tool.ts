@@ -175,6 +175,7 @@ export abstract class SelectTool extends GestureTool {
     return [
       {
         icon: icons.tool_icon_replace_mode,
+        label: "Replace mode",
         tooltip: "Replace the current selection",
         active: () => this.mode == "replace",
         handler: () => {
@@ -183,6 +184,7 @@ export abstract class SelectTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_append_mode,
+        label: "Append mode",
         tooltip: "Append to the current selection (Shift)",
         active: () => this.mode == "append",
         handler: () => {
@@ -191,6 +193,7 @@ export abstract class SelectTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_intersect_mode,
+        label: "Intersection mode",
         tooltip: "Intersect with the current selection (Ctrl)",
         active: () => this.mode == "intersect",
         handler: () => {
@@ -199,6 +202,7 @@ export abstract class SelectTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_subtract_mode,
+        label: "Subtraction mode",
         tooltip: "Subtract from the current selection (Shift+Ctrl)",
         active: () => this.mode == "subtract",
         handler: () => {
@@ -207,6 +211,7 @@ export abstract class SelectTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_xor_mode,
+        label: "XOR mode",
         tooltip: "Symmetric difference with the current selection",
         active: () => this.mode == "xor",
         handler: () => {
@@ -217,12 +222,14 @@ export abstract class SelectTool extends GestureTool {
       null,
       {
         icon: icons.tool_icon_invert_selection,
+        label: "Invert selection",
         tooltip: "Invert the current selection",
         handler: () => {
           this.invert.emit()
         },
       }, {
         icon: icons.tool_icon_clear_selection,
+        label: "Clear selection",
         tooltip: "Clear the current selection and/or selection overlay (Esc)",
         handler: () => {
           this.clear.emit()

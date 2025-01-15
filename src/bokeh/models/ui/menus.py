@@ -34,6 +34,7 @@ from ...core.properties import (
     String,
 )
 from ...model import Model
+from ...util.deprecation import deprecated
 from ..callbacks import Callback
 from .ui_element import UIElement
 
@@ -47,6 +48,12 @@ __all__ = (
     "DividerItem",
     "Menu",
 )
+
+CSSVariable = Regex(r"^--")
+
+CSSClass = Regex(r"^\.")
+
+IconLike = Either(Image, Enum(ToolIcon), CSSVariable, CSSClass)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -70,7 +77,17 @@ class ActionItem(MenuItem):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^--"), Regex(r"^\.")), help="""
+    checked = Nullable(Bool, default=None, help="""
+    Whether an item is marked as checked/active.
+
+    Checked item is represented with a tick mark on the left hand side
+    of an item. Unchecked item is represented with an empty space.
+
+    The menu will allocate a column for check marks for all its items if
+    at least one item has set a boolean value for ``checked`` property.
+    """)
+
+    icon = Nullable(IconLike, help="""
     An optional icon to display left of the label.
     """)
 
@@ -107,16 +124,8 @@ class CheckableItem(ActionItem):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
+        deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
         super().__init__(*args, **kwargs)
-
-    checked = Bool(default=False, help="""
-    The state of the checkable item.
-
-    Checked item is represented with a tick mark on the left hand side
-    of an item. Unchecked item is represented with an empty space.
-    """)
-
-    # TODO group = Either(Instance(MenuGroup), Auto)
 
 class DividerItem(MenuItem):
     """ A dividing line between two groups of menu items. """

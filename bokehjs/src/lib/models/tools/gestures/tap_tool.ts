@@ -158,6 +158,7 @@ export class TapTool extends SelectTool {
     } else {
       return prepend(menu, {
         icon: tool_icon_toggle_mode,
+        label: "Toggle mode",
         tooltip: "Toggle the current selection",
         active: () => this.mode == "toggle",
         handler: () => {

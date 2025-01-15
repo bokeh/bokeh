@@ -6,7 +6,8 @@ import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolButton} from "./tool_button"
 import type {InspectTool} from "./inspectors/inspect_tool"
-import type {MenuItem} from "core/util/menus"
+import type {MenuItem as CoreMenuItem} from "core/util/menus"
+import type {MenuItem} from "../ui/menus/menu_item"
 import {enumerate, some} from "core/util/iterator"
 
 export type ToolLike<T extends Tool> = T | ToolProxy<T>
@@ -51,6 +52,10 @@ export class ToolProxy<T extends Tool> extends Model {
     const button = this.tools[0].tool_button()
     button.tool = this
     return button
+  }
+
+  menu_item(): MenuItem {
+    return this.tools[0].menu_item()
   }
 
   get event_type(): EventType | EventType[] | undefined {
@@ -119,7 +124,7 @@ export class ToolProxy<T extends Tool> extends Model {
     }
   }
 
-  get menu(): MenuItem[] | null {
+  get menu(): CoreMenuItem[] | null {
     const {menu} = this.tools[0]
     if (menu == null) {
       return null

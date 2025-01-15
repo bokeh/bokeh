@@ -211,6 +211,7 @@ export class PanTool extends GestureTool {
     return [
       {
         icon: icons.tool_icon_pan,
+        label: "XY mode",
         tooltip: "Pan in both dimensions",
         active: () => this.dimensions == "both",
         handler: () => {
@@ -219,6 +220,7 @@ export class PanTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_x_pan,
+        label: "X-only",
         tooltip: "Pan in x-dimension",
         active: () => this.dimensions == "width",
         handler: () => {
@@ -227,6 +229,7 @@ export class PanTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_y_pan,
+        label: "Y-only",
         tooltip: "Pan in y-dimension",
         active: () => this.dimensions == "height",
         handler: () => {

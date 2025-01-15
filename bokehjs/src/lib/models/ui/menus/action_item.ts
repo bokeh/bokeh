@@ -15,12 +15,13 @@ export namespace ActionItem {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MenuItem.Props & {
+    checked: p.Property<(() => boolean) | boolean | null>
     icon: p.Property<IconLike | null>
     label: p.Property<string>
     tooltip: p.Property<string | null>
     shortcut: p.Property<string | null>
     menu: p.Property<Menu | null>
-    disabled: p.Property<boolean>
+    disabled: p.Property<(() => boolean) | boolean>
     action: p.Property<ActionCallback | null>
   }
 }
@@ -35,14 +36,15 @@ export class ActionItem extends MenuItem {
   }
 
   static {
-    this.define<ActionItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func}) => ({
+    this.define<ActionItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func, Func0}) => ({
+      checked: [ Nullable(Or(Bool, Func0(Bool))), null ],
       icon: [ Nullable(IconLike), null ],
       label: [ Str ],
       tooltip: [ Nullable(Str), null ],
       shortcut: [ Nullable(Str), null ],
       menu: [ Nullable(AnyRef<Menu>()), null ],
-      disabled: [ Bool, false ],
-      action: [ Nullable<ActionCallback>(Or(Ref(Callback), Func())), null ],
+      disabled: [ Or(Bool, Func0(Bool)), false ],
+      action: [ Nullable(Or(Ref(Callback), Func())), null ],
     }))
   }
 }

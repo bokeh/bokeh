@@ -631,12 +631,19 @@ export namespace Kinds {
   }
 
   export class Func<Args extends unknown[], Ret> extends Kind<(...args: Args) => Ret> {
+    constructor(readonly args_types?: TupleKind<Args>, readonly ret_type?: Kind<Ret>) {
+      super()
+    }
+
     valid(value: unknown): value is this["__type__"] {
       return tp.isFunction(value)
     }
 
     override toString(): string {
-      return "Func(...)"
+      const {args_types, ret_type} = this
+      const args = args_types == null ? "?" : args_types.map((type) => type.toString()).join(", ")
+      const ret = ret_type == null ? "?" : ret_type.toString()
+      return `Func((${args}), ${ret})`
     }
 
     may_have_refs(): boolean {
@@ -723,7 +730,8 @@ export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)
 export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
 export const AnyRef = <ObjType extends object>() => new Kinds.AnyRef<ObjType>()
-export const Func = <Args extends unknown[], Ret>() => new Kinds.Func<Args, Ret>()
+export const Func = <Args extends unknown[], Ret>(args_types?: Kinds.TupleKind<Args>, ret_type?: Kind<Ret>) => new Kinds.Func<Args, Ret>(args_types, ret_type)
+export const Func0 = <Ret>(ret_type: Kind<Ret>) => new Kinds.Func<[], Ret>([], ret_type)
 export const Node = new Kinds.Node()
 
 export const NonNegative = <BaseType extends number>(base_type: Kind<BaseType>) => new Kinds.NonNegative(base_type)

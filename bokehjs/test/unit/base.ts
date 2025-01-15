@@ -372,6 +372,7 @@ describe("default model resolver", () => {
       "ToggleVisibility",
       "Tool",
       "ToolButton",
+      "ToolMenu",
       "ToolProxy",
       "Toolbar",
       "ToolbarPanel",

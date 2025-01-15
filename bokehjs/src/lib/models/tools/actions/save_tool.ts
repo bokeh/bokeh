@@ -86,7 +86,16 @@ export class SaveTool extends ActionTool {
   override get menu(): MenuItem[] | null {
     return [
       {
+        icon: icons.tool_icon_save,
+        label: "Save",
+        tooltip: "Save image as a local file",
+        handler: () => {
+          this.do.emit("save")
+        },
+      },
+      {
         icon: icons.tool_icon_copy,
+        label: "Copy",
         tooltip: "Copy image to clipboard",
         if: () => typeof ClipboardItem !== "undefined",
         handler: () => {
@@ -95,6 +104,7 @@ export class SaveTool extends ActionTool {
       },
       {
         icon: icons.tool_icon_open,
+        label: "Open",
         tooltip: "Open image in a new tab",
         handler: () => {
           this.do.emit("open")

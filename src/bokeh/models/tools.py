@@ -113,7 +113,7 @@ from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
-from .ui import UIElement
+from .ui import Menu, UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -153,6 +153,7 @@ __all__ = (
     'Tap',
     'TapTool',
     'Tool',
+    'ToolMenu',
     'ToolProxy',
     'Toolbar',
     'UndoTool',
@@ -424,6 +425,18 @@ class Toolbar(UIElement):
     tools as appropriate. For example, if a pan tool is set as the active drag,
     and this property is set to a ``BoxEditTool`` instance, the pan tool will
     be deactivated (i.e. the multi-gesture tool will take precedence).
+    """)
+
+class ToolMenu(Menu):
+    """ Toolbar represented in a menu or context menu form.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    toolbar = Required(Instance(Toolbar), help="""
+    Reference to a toolbar.
     """)
 
 class PanTool(Drag):

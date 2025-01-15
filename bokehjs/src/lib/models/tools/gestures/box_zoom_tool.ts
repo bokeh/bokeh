@@ -295,6 +295,7 @@ export class BoxZoomTool extends GestureTool {
     return [
       {
         icon: icons.tool_icon_box_zoom,
+        label: "XY mode",
         tooltip: "Box zoom in both dimensions",
         active: () => this.dimensions == "both",
         handler: () => {
@@ -303,6 +304,7 @@ export class BoxZoomTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_x_box_zoom,
+        label: "X-only",
         tooltip: "Box zoom in x-dimension",
         active: () => this.dimensions == "width",
         handler: () => {
@@ -311,6 +313,7 @@ export class BoxZoomTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_y_box_zoom,
+        label: "Y-only",
         tooltip: "Box zoom in y-dimension",
         active: () => this.dimensions == "height",
         handler: () => {
@@ -319,6 +322,7 @@ export class BoxZoomTool extends GestureTool {
         },
       }, {
         icon: icons.tool_icon_auto_box_zoom,
+        label: "Auto mode",
         tooltip: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)",
         active: () => this.dimensions == "auto",
         handler: () => {
