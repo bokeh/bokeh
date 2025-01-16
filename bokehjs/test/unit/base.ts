@@ -236,6 +236,7 @@ describe("default model resolver", () => {
       "MaxAggregator",
       "Maximum",
       "Menu",
+      "MenuItem",
       "MercatorAxis",
       "MercatorTickFormatter",
       "MercatorTicker",

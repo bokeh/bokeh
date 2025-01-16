@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import ToolIcon
-from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     Either,
@@ -47,6 +46,7 @@ __all__ = (
     "CheckableItem",
     "DividerItem",
     "Menu",
+    "MenuItem",
 )
 
 CSSVariable = Regex(r"^--")
@@ -59,15 +59,7 @@ IconLike = Either(Image, Enum(ToolIcon), CSSVariable, CSSClass)
 # General API
 #-----------------------------------------------------------------------------
 
-@abstract
 class MenuItem(Model):
-    """ Base class for various kinds of menu items. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-class ActionItem(MenuItem):
     """ A basic menu item with an icon, label, shortcut, sub-menu and an associated action.
 
     Only label is required. All other properties are optional.
@@ -119,7 +111,14 @@ class ActionItem(MenuItem):
     An optional action (callback) associated with this item.
     """)
 
-class CheckableItem(ActionItem):
+class ActionItem(MenuItem):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        deprecated((3, 7, 0), "ActionItem", "MenuItem")
+        super().__init__(*args, **kwargs)
+
+class CheckableItem(MenuItem):
     """ A two state checkable menu item. """
 
     # explicit __init__ to support Init signatures
@@ -127,7 +126,7 @@ class CheckableItem(ActionItem):
         deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
         super().__init__(*args, **kwargs)
 
-class DividerItem(MenuItem):
+class DividerItem(Model):
     """ A dividing line between two groups of menu items. """
 
     # explicit __init__ to support Init signatures
@@ -144,7 +143,7 @@ class Menu(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    items = List(Instance(MenuItem), default=[], help="""
+    items = List(Either(Instance(MenuItem), Instance(DividerItem)), default=[], help="""
     A collection of menu items representing
     """)
 

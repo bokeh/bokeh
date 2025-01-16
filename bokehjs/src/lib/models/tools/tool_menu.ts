@@ -1,12 +1,12 @@
 import {Menu, MenuView} from "../ui/menus/menu"
-import type {MenuItem} from "../ui/menus/menu_item"
+import type {MenuItemLike} from "../ui/menus/menu"
 import {Toolbar} from "./toolbar"
 import type * as p from "core/properties"
 
 export class ToolMenuView extends MenuView {
   declare model: ToolMenu
 
-  protected override _compute_menu_items(): MenuItem[] {
+  protected override _compute_menu_items(): MenuItemLike[] {
     const {items} = this.model.toolbar.to_menu()
     return items
   }

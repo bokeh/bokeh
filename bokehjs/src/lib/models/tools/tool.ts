@@ -9,7 +9,7 @@ import {isString} from "core/util/types"
 import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import {ActionItem, DividerItem, Menu} from "../ui/menus"
+import {MenuItem, DividerItem, Menu} from "../ui/menus"
 import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import type {ToolButton} from "./tool_button"
 
@@ -180,8 +180,8 @@ export abstract class Tool extends Model {
 
   abstract tool_button(): ToolButton
 
-  menu_item(): ActionItem {
-    const item = new ActionItem({
+  menu_item(): MenuItem {
+    const item = new MenuItem({
       icon: this.computed_icon,
       label: this.tool_name,
       tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
@@ -199,7 +199,7 @@ export abstract class Tool extends Model {
         if (item == null) {
           return new DividerItem()
         } else {
-          return new ActionItem({
+          return new MenuItem({
             icon: `.${item.icon}`,
             label: item.label,
             tooltip: item.tooltip,

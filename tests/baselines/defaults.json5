@@ -6831,6 +6831,20 @@
   },
   ActionItem: {
     __extends__: "MenuItem",
+  },
+  CheckableItem: {
+    __extends__: "MenuItem",
+  },
+  DividerItem: {
+    __extends__: "Model",
+  },
+  Menu: {
+    __extends__: "UIElement",
+    items: [],
+    reversed: false,
+  },
+  MenuItem: {
+    __extends__: "Model",
     checked: null,
     icon: null,
     label: {
@@ -6842,20 +6856,6 @@
     tooltip: null,
     disabled: false,
     action: null,
-  },
-  CheckableItem: {
-    __extends__: "ActionItem",
-  },
-  DividerItem: {
-    __extends__: "MenuItem",
-  },
-  Menu: {
-    __extends__: "UIElement",
-    items: [],
-    reversed: false,
-  },
-  MenuItem: {
-    __extends__: "Model",
   },
   Panel: {
     __extends__: "Pane",

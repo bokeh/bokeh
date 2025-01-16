@@ -1,6 +1,5 @@
 import {UIElement, UIElementView} from "../ui_element"
 import {MenuItem} from "./menu_item"
-import {ActionItem} from "./action_item"
 import {DividerItem} from "./divider_item"
 import type * as p from "core/properties"
 import type {XY} from "core/util/bbox"
@@ -8,6 +7,7 @@ import {isFunction} from "core/util/types"
 import type {StyleSheetLike} from "core/dom"
 import {div, px} from "core/dom"
 import {ToolIcon} from "core/enums"
+import {Or, Ref} from "core/kinds"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
@@ -20,6 +20,9 @@ function to_val<T>(val: T | (() => T)): T {
   return isFunction(val) ? val() : val
 }
 
+export const MenuItemLike = Or(Ref(MenuItem), Ref(DividerItem))
+export type MenuItemLike = typeof MenuItemLike["__type__"]
+
 export class MenuView extends UIElementView {
   declare model: Menu
 
@@ -30,13 +33,13 @@ export class MenuView extends UIElementView {
     yield* this._menu_views.values()
   }
 
-  private _menu_items: MenuItem[] = []
-  get menu_items(): MenuItem[] {
+  private _menu_items: MenuItemLike[] = []
+  get menu_items(): MenuItemLike[] {
     const items = this._menu_items
     const {reversed} = this.model
     return reversed ? reverse(items) : items
   }
-  protected _compute_menu_items(): MenuItem[] {
+  protected _compute_menu_items(): MenuItemLike[] {
     return this.model.items
   }
 
@@ -52,7 +55,7 @@ export class MenuView extends UIElementView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const menus = this.menu_items
-      .map((item) => item instanceof ActionItem ? item.menu : null)
+      .map((item) => item instanceof MenuItem ? item.menu : null)
       .filter((item) => item != null)
     await build_views(this._menu_views, menus, {parent: this})
   }
@@ -73,7 +76,7 @@ export class MenuView extends UIElementView {
     return this._open
   }
 
-  protected _item_click = (item: ActionItem) => {
+  protected _item_click = (item: MenuItem) => {
     if (!to_val(item.disabled)) {
       const {action} = item
       if (action != null) {
@@ -132,7 +135,7 @@ export class MenuView extends UIElementView {
       if (item instanceof DividerItem) {
         const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
-      } else if (item instanceof ActionItem) {
+      } else if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
         const icon_el = div({class: menus.icon})
         const label_el = div({class: menus.label}, item.label)
@@ -249,7 +252,7 @@ export namespace Menu {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    items: p.Property<MenuItem[]>
+    items: p.Property<MenuItemLike[]>
     reversed: p.Property<boolean>
   }
 }
@@ -267,8 +270,8 @@ export class Menu extends UIElement {
   static {
     this.prototype.default_view = MenuView
 
-    this.define<Menu.Props>(({Bool, List, Ref}) => ({
-      items: [ List(Ref(MenuItem)), [] ],
+    this.define<Menu.Props>(({Bool, List}) => ({
+      items: [ List(MenuItemLike), [] ],
       reversed: [ Bool, false ],
     }))
   }
