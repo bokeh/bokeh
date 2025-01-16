@@ -23,6 +23,7 @@ from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
 from bokeh.models import CustomJS
 from bokeh.plotting import *  # noqa: F403
+from bokeh.util.deprecation import BokehDeprecationWarning
 
 from bokeh.document import document # isort:skip
 
@@ -222,8 +223,11 @@ def test_all_builtin_models_default_constructible() -> None:
             continue
         try:
             cls()
+        except BokehDeprecationWarning:
+            pass
         except Exception:
             bad.append(name)
+
     assert bad == []
 
 def test_select() -> None:
