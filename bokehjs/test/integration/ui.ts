@@ -1,7 +1,7 @@
 import {display} from "./_util"
 import {actions, xy} from "../interactive"
 
-import {Dialog, Drawer, Pane, Menu, MenuItem, DividerItem, CustomJS, BoxSelectTool} from "@bokehjs/models"
+import {Dialog, Drawer, Pane, Menu, MenuItem, CustomJS, BoxSelectTool} from "@bokehjs/models"
 import type {Figure} from "@bokehjs/api/plotting"
 import {figure} from "@bokehjs/api/plotting"
 import {Random} from "@bokehjs/core/util/random"
@@ -78,7 +78,7 @@ describe("UI elements", () => {
             icon: "delete",
             action: new CustomJS({code: "console.log('delete not implemented')"}),
           }),
-          new DividerItem(),
+          null,
           new MenuItem({
             label: "Choose color",
             menu: new Menu({
@@ -95,13 +95,13 @@ describe("UI elements", () => {
               }),
             }),
           }),
-          new DividerItem(),
+          null,
           new MenuItem({
             label: "Continuous selection",
             checked: box_select.continuous,
             action: new CustomJS({code: "console.log('continuous not implemented')"}),
           }),
-          new DividerItem(),
+          null,
           new MenuItem({
             icon: "invert_selection",
             label: "Invert selection",

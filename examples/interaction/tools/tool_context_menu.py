@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import CustomJS, DividerItem, Menu, MenuItem, ToolMenu
+from bokeh.models import CustomJS, Menu, MenuItem, ToolMenu
 from bokeh.plotting import figure, show
 
 N = 4000
@@ -20,7 +20,7 @@ p.circle(x, y, radius=radii,
 p.context_menu = Menu(
     items=[
         MenuItem(label="Do something", action=CustomJS(code="alert('did something')")),
-        DividerItem(),
+        None,
         MenuItem(label="Tools", menu=ToolMenu(toolbar=p.toolbar)),
     ],
 )

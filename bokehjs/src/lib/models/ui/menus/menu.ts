@@ -7,7 +7,7 @@ import {isFunction} from "core/util/types"
 import type {StyleSheetLike} from "core/dom"
 import {div, px} from "core/dom"
 import {ToolIcon} from "core/enums"
-import {Or, Ref} from "core/kinds"
+import {Or, Ref, Null} from "core/kinds"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
@@ -20,7 +20,7 @@ function to_val<T>(val: T | (() => T)): T {
   return isFunction(val) ? val() : val
 }
 
-export const MenuItemLike = Or(Ref(MenuItem), Ref(DividerItem))
+export const MenuItemLike = Or(Ref(MenuItem), Ref(DividerItem), Null)
 export type MenuItemLike = typeof MenuItemLike["__type__"]
 
 export class MenuView extends UIElementView {
@@ -132,10 +132,7 @@ export class MenuView extends UIElementView {
     super.render()
 
     for (const item of this.menu_items) {
-      if (item instanceof DividerItem) {
-        const item_el = div({class: menus.divider})
-        this.shadow_el.append(item_el)
-      } else if (item instanceof MenuItem) {
+      if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
         const icon_el = div({class: menus.icon})
         const label_el = div({class: menus.label}, item.label)
@@ -199,6 +196,9 @@ export class MenuView extends UIElementView {
             menu_view.hide()
           })
         }
+        this.shadow_el.append(item_el)
+      } else {
+        const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
       }
     }

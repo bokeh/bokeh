@@ -8,7 +8,7 @@ import {entries} from "@bokehjs/core/util/object"
 import {Random} from "@bokehjs/core/util/random"
 import {color2hex} from "@bokehjs/core/util/color"
 import {filter} from "@bokehjs/core/util/arrayable"
-import {BoxSelectTool, DividerItem, Menu, MenuItem} from "@bokehjs/models"
+import {BoxSelectTool, Menu, MenuItem} from "@bokehjs/models"
 
 const Spectral11 = Palette.map(color2hex)
 
@@ -81,7 +81,7 @@ describe("Examples", () => {
           icon: "delete",
           action: delete_selected,
         }),
-        new DividerItem(),
+        null,
         new MenuItem({
           label: "Choose color",
           menu: new Menu({
@@ -98,13 +98,13 @@ describe("Examples", () => {
             }),
           }),
         }),
-        new DividerItem(),
+        null,
         new MenuItem({
           label: "Continuous selection",
           checked: box_select.continuous,
           action: change_continuous,
         }),
-        new DividerItem(),
+        null,
         new MenuItem({
           icon: "invert_selection",
           label: "Invert selection",

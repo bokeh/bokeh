@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.io import show
-from bokeh.models import BoxSelectTool, CustomJS, DividerItem, Menu, MenuItem
+from bokeh.models import BoxSelectTool, CustomJS, Menu, MenuItem
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
@@ -97,7 +97,7 @@ menu = Menu(
             icon="delete",
             action=delete_selected,
         ),
-        DividerItem(),
+        None,
         MenuItem(
             label="Choose color",
             menu=Menu(
@@ -114,13 +114,13 @@ menu = Menu(
                 ],
             ),
         ),
-        DividerItem(),
+        None,
         MenuItem(
             label="Continuous selection",
             checked=box_select.continuous,
             action=change_continuous,
         ),
-        DividerItem(),
+        None,
         MenuItem(
             icon="invert_selection",
             label="Invert selection",

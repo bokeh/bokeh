@@ -27,6 +27,7 @@ from ...core.properties import (
     Image,
     Instance,
     List,
+    Null,
     Nullable,
     Regex,
     Required,
@@ -143,8 +144,8 @@ class Menu(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    items = List(Either(Instance(MenuItem), Instance(DividerItem)), default=[], help="""
-    A collection of menu items representing
+    items = List(Either(Instance(MenuItem), Instance(DividerItem), Null), default=[], help="""
+    A collection of menu items representing the contents of this menu.
     """)
 
     reversed = Bool(default=False, help="""

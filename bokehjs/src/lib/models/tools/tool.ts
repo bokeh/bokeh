@@ -205,7 +205,7 @@ export abstract class Tool extends Model {
             tooltip: item.tooltip,
             checked: item.active,
             // disabled: item.disabled,
-            action: () => item.handler?.(),
+            action: item.handler,
           })
         }
       })
