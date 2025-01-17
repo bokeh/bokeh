@@ -94,7 +94,7 @@ with a :ref:`classic notebook <ug_output_jupyter_notebook_inline_plots>`.
     :alt: Screenshot of Jupyterlab with a Bokeh ridgeplot displayed inline.
 
 .. _jupyter_bokeh: https://github.com/bokeh/jupyter_bokeh
-.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Anaconda: https://www.anaconda.com/download/
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _README: https://github.com/bokeh/jupyter_bokeh/blob/main/README.md
 
@@ -217,7 +217,7 @@ Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
 
 Depending on the version of the notebook you are using, you may have to
-`trust the notebook <https://jupyter-notebook.readthedocs.io/en/4.x/security.html#explicit-trust>`_
+`trust the notebook <https://jupyter-server.readthedocs.io/en/stable/operators/security.html#explicit-trust>`_
 for Bokeh plots to re-render when the notebook is closed and re-
 opened. The **Trust Notebook** option is typically located under the
 **File** menu:
@@ -407,7 +407,7 @@ logs its adjustments to the console:
 
 To run the app, enter ``bokeh serve ipy_slider.py``, where ``ipy_slider.py``
 is the name of the application (see :ref:`ug_server` for details).
-This application is available at http://localhost:5006/ipy_slider.
+This application is available at ``http://localhost:5006/ipy_slider``.
 
 You can build on the above to create more complex layouts and include advanced widgets,
 such as `ipyleaflet`_ and `ipyvolume`_. For more examples, see :bokeh-tree:`examples/output/jupyter/ipywidgets`
