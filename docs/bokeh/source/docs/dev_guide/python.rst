@@ -73,7 +73,7 @@ folders containing Python code:
   * :bokeh-tree:`src/bokeh/io` contains code for Bokeh's IO functions, such as
     :ref:`file export <ug_output_export>` and :ref:`notebook output
     <ug_output_jupyter>`
-  * :bokeh-tree:`src/bokeh/palettes` contains code for Bokeh's :ref:`palettes
+  * :bokeh-tree:`src/bokeh/palettes.py` contains code for Bokeh's :ref:`palettes
     <bokeh.palettes>`
   * :bokeh-tree:`src/bokeh/sphinxext` contains code for custom Sphinx extension
     used in :ref:`Bokeh's documentation <contributor_guide_documentation>`
