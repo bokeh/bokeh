@@ -75,7 +75,7 @@ class DashPattern(Either):
     To indicate that dashing is turned off (solid lines), specify the empty
     list [].
 
-    .. _HTML5 Canvas dash specification style: https://www.w3.org/2015/04/2dcontext-lc-sample.html#dash-list
+    .. _HTML5 Canvas dash specification style: https://html.spec.whatwg.org/#dash-list
 
     """
 
@@ -101,7 +101,7 @@ class DashPattern(Either):
             try:
                 return self._dash_patterns[value]
             except KeyError:
-                return [int(x) for x in  value.split()]
+                return [int(x) for x in value.split()]
         else:
             return value
 
@@ -145,7 +145,7 @@ class HatchPatternType(Either):
         return self.__class__.__name__
 
 class Image(Property):
-    """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
+    """ Accept image file types, e.g. PNG, JPEG, TIFF, etc.
 
     This property can be configured with:
 
