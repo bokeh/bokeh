@@ -1,4 +1,4 @@
-export {Menu} from "./menu"
+export {Menu, MenuItemLike} from "./menu"
 export {MenuItem} from "./menu_item"
 export {ActionItem} from "./action_item"
 export {CheckableItem} from "./checkable_item"

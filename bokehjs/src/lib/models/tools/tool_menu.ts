@@ -14,8 +14,8 @@ export class ToolMenuView extends MenuView {
   override connect_signals(): void {
     super.connect_signals()
 
-    //const {toolbar} = this.model.properties
-    //this.on_transitive_change(toolbar, () => this._update_menu_items())
+    const {toolbar} = this.model.properties
+    this.on_transitive_change(toolbar, () => this._update_menu_items())
   }
 }
 

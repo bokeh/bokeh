@@ -1,5 +1,6 @@
-import type {Anchor, AutoAnchor, TextAnchor, HAnchor, VAnchor, BorderRadius, Padding} from "./kinds"
+import type {Anchor, AutoAnchor, TextAnchor, HAnchor, VAnchor, BorderRadius, Padding, IconLike} from "./kinds"
 import type {TextAlign, TextBaseline, HAlign, VAlign} from "core/enums"
+import {ToolIcon} from "core/enums"
 import {isString, isNumber, isPlainObject} from "core/util/types"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 import {unreachable} from "core/util/assert"
@@ -123,5 +124,20 @@ export function border_radius(border_radius: BorderRadius): Corners<number> {
   } else {
     const [top_left=0, top_right=0, bottom_right=0, bottom_left=0] = border_radius
     return {top_left, top_right, bottom_right, bottom_left}
+  }
+}
+
+export function apply_icon(el: HTMLElement, icon: IconLike): void {
+  if (icon.startsWith("data:image")) {
+    const url = `url("${encodeURI(icon)}")`
+    el.style.backgroundImage = url
+  } else if (icon.startsWith("--")) {
+    el.style.backgroundImage = `var(${icon})`
+  } else if (icon.startsWith(".")) {
+    const cls = icon.substring(1)
+    el.classList.add(cls)
+  } else if (ToolIcon.valid(icon)) {
+    const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
+    el.classList.add(cls)
   }
 }

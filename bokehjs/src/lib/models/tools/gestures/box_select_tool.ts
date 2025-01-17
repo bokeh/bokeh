@@ -2,6 +2,7 @@ import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Coordinate} from "../../coordinates/coordinate"
 import type {Scale} from "../../scales/scale"
+import type {IconLike} from "../../common/kinds"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
@@ -261,7 +262,7 @@ export class BoxSelectTool extends RegionSelectTool {
   override event_type = "pan" as "pan"
   override default_order = 30
 
-  override get computed_icon(): string {
+  override get computed_icon(): IconLike {
     const icon = super.computed_icon
     if (icon != null) {
       return icon

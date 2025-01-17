@@ -1,13 +1,9 @@
 import {Model} from "../../../model"
 import type {Menu} from "./menu"
+import {IconLike} from "../../common/kinds"
 import {Callback} from "models/callbacks/callback"
 import type {CallbackLike1} from "core/util/callbacks"
 import type * as p from "core/properties"
-import {ToolIcon} from "core/enums"
-import {Or, Regex} from "core/kinds"
-
-const IconLike = Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))
-type IconLike = typeof IconLike["__type__"]
 
 type ActionCallback = CallbackLike1<Menu, {item: MenuItem}>
 
@@ -36,7 +32,7 @@ export class MenuItem extends Model {
   }
 
   static {
-    this.define<MenuItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func, Func0}) => ({
+    this.define<MenuItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func, Func0, Or}) => ({
       checked: [ Nullable(Or(Bool, Func0(Bool))), null ],
       icon: [ Nullable(IconLike), null ],
       label: [ Str ],

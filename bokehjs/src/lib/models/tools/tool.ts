@@ -2,14 +2,13 @@ import type * as p from "core/properties"
 import {View} from "core/view"
 import type {Class} from "core/class"
 import type {Dimensions} from "core/enums"
-import {ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
-import type {MenuItem as CoreMenuItem} from "core/util/menus"
 import {isString} from "core/util/types"
 import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import {MenuItem, DividerItem, Menu} from "../ui/menus"
+import {MenuItem, Menu} from "../ui/menus"
+import type {MenuItemLike} from "../ui/menus/menu"
 import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import type {ToolButton} from "./tool_button"
 
@@ -32,6 +31,7 @@ import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
 import type {ToolButtonView} from "./tool_button"
+import {IconLike} from "../common/kinds"
 
 export type ToolAliases = {
   pan:          PanTool
@@ -126,7 +126,7 @@ export namespace Tool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    icon: p.Property<ToolIcon | string | null>
+    icon: p.Property<IconLike | null>
     description: p.Property<string | null>
     visible: p.Property<boolean>
     active: p.Property<boolean>
@@ -147,8 +147,8 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({Bool, Str, Regex, Nullable, Or}) => ({
-      icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
+    this.define<Tool.Props>(({Bool, Str, Nullable}) => ({
+      icon: [ Nullable(IconLike), null ],
       description: [ Nullable(Str), null ],
       visible: [ Bool, true ],
     }))
@@ -160,7 +160,7 @@ export abstract class Tool extends Model {
   }
 
   readonly tool_name: string
-  readonly tool_icon?: string
+  readonly tool_icon?: string // CSS class (no dot)
 
   // GestureTool {{{
   readonly event_type?: EventType | EventType[]
@@ -190,26 +190,9 @@ export abstract class Tool extends Model {
       action: () => this.active = !this.active,
     })
 
-    //this.on_change(this.properties.active, () => item.checked = this.active)
-    //this.on_change(this.properties.disabled, () => item.disabled = this.disabled)
-
     const submenu = this.menu
     if (submenu != null) {
-      const items = submenu.map((item) => {
-        if (item == null) {
-          return new DividerItem()
-        } else {
-          return new MenuItem({
-            icon: `.${item.icon}`,
-            label: item.label,
-            tooltip: item.tooltip,
-            checked: item.active,
-            // disabled: item.disabled,
-            action: item.handler,
-          })
-        }
-      })
-      item.menu = new Menu({items})
+      item.menu = new Menu({items: submenu})
     }
     return item
   }
@@ -218,12 +201,12 @@ export abstract class Tool extends Model {
     return this.description ?? this.tool_name
   }
 
-  get computed_icon(): string | undefined {
+  get computed_icon(): IconLike | undefined {
     const {icon, tool_icon} = this
     return icon ?? (tool_icon != null ? `.${tool_icon}` : undefined)
   }
 
-  get menu(): CoreMenuItem[] | null {
+  get menu(): MenuItemLike[] | null {
     return null
   }
 

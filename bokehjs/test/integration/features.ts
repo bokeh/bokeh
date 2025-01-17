@@ -5,8 +5,10 @@ import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane, Slope, GridP
 import {paint} from "@bokehjs/core/util/defer"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
+import type {IconLike} from "@bokehjs/models/common/kinds"
+import {figure} from "@bokehjs/api/figure"
 
-function svg_data_url(svg: string): string {
+function svg_data_url(svg: string): IconLike {
   return `data:image/svg+xml;utf-8,${svg}`
 }
 

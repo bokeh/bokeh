@@ -1,12 +1,12 @@
 import {UIElement, UIElementView} from "../ui_element"
 import {MenuItem} from "./menu_item"
 import {DividerItem} from "./divider_item"
+import {apply_icon} from "../../common/resolve"
 import type * as p from "core/properties"
 import type {XY} from "core/util/bbox"
 import {isFunction} from "core/util/types"
 import type {StyleSheetLike} from "core/dom"
 import {div, px} from "core/dom"
-import {ToolIcon} from "core/enums"
 import {Or, Ref, Null} from "core/kinds"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
@@ -42,6 +42,9 @@ export class MenuView extends UIElementView {
   protected _compute_menu_items(): MenuItemLike[] {
     return this.model.items
   }
+  protected _update_menu_items(): void {
+    this._menu_items = this._compute_menu_items()
+  }
 
   get is_empty(): boolean {
     return this.menu_items.length == 0
@@ -49,7 +52,7 @@ export class MenuView extends UIElementView {
 
   override initialize(): void {
     super.initialize()
-    this._menu_items = this._compute_menu_items()
+    this._update_menu_items()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -64,9 +67,7 @@ export class MenuView extends UIElementView {
     super.connect_signals()
 
     const {items} = this.model.properties
-    this.on_change(items, () => {
-      this._menu_items = this._compute_menu_items()
-    })
+    this.on_change(items, () => this._update_menu_items())
   }
 
   prevent_hide?: (event: MouseEvent) => boolean
@@ -141,18 +142,7 @@ export class MenuView extends UIElementView {
 
         const {icon} = item
         if (icon != null) {
-          if (icon.startsWith("data:image")) {
-            const url = `url("${encodeURI(icon)}")`
-            icon_el.style.backgroundImage = url
-          } else if (icon.startsWith("--")) {
-            icon_el.style.backgroundImage = `var(${icon})`
-          } else if (icon.startsWith(".")) {
-            const cls = icon.substring(1)
-            icon_el.classList.add(cls)
-          } else if (ToolIcon.valid(icon)) {
-            const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
-            icon_el.classList.add(cls)
-          }
+          apply_icon(icon_el, icon)
         }
 
         const item_el = div(
@@ -160,7 +150,8 @@ export class MenuView extends UIElementView {
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 
-        item_el.classList.toggle(menus.menu, item.menu != null)
+        const has_menu = item.menu != null && !this._menu_views.get(item.menu)!.is_empty
+        item_el.classList.toggle(menus.menu, has_menu)
         item_el.classList.toggle(menus.disabled, to_val(item.disabled))
 
         if (item.checked != null) {
