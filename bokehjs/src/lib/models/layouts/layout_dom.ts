@@ -315,8 +315,12 @@ export abstract class LayoutDOMView extends PaneView {
     const {min_width, max_width} = this.model
     const {min_height, max_height} = this.model
 
-    styles.min_width = min_width == null ? "0px" : to_css(min_width)
-    styles.min_height = min_height == null ? "0px" : to_css(min_height)
+    if (min_width != null) {
+      styles.min_width = to_css(min_width)
+    }
+    if (min_height != null) {
+      styles.min_height = to_css(min_height)
+    }
 
     if (this.is_layout_root) {
       if (max_width != null) {
