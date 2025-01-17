@@ -189,4 +189,23 @@ describe("Feature", () => {
       await display(gp)
     })
   })
+
+  describe("in issue #14225", () => {
+    it("should allow default context tool menu in figure()", async () => {
+      const p = figure({
+        width: 300,
+        height: 300,
+        tools: ["pan", "box_select", "undo", "redo", "zoom_in", "zoom_out", "reset", "help"],
+        toolbar_location: null,
+      })
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
+
+      const {view} = await display(p)
+
+      // can't simply dispatchEvent() because if browser security
+      const {left, top} = view.el.getBoundingClientRect()
+      const event = new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50})
+      view.show_context_menu(event)
+    })
+  })
 })
