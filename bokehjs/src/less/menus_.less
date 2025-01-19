@@ -16,10 +16,10 @@
   z-index: var(--bokeh-top-level);
 
   font-size: var(--font-size);
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  box-shadow: var(--box-shadow);
 }
 
 .bk-item, .bk-divider {
@@ -48,7 +48,7 @@
 .bk-divider {
   cursor: default;
   overflow: hidden;
-  background-color: #e5e5e5;
+  background-color: var(--divider-color);
   height: 1px;
   margin: 1px 5px;
 }
@@ -57,10 +57,10 @@
   padding: 0.5em;
 
   &:hover {
-    background-color: #f9f9f9;
+    background-color: var(--hover-color);
   }
   &:focus, &:focus-visible {
-    outline: 1px dotted var(--active-tool-highlight);
+    outline: 1px dotted var(--highlight-color);
     outline-offset: -1px;
   }
   &::-moz-focus-inner {
@@ -68,11 +68,11 @@
   }
 
   &.bk-disabled {
-    color: gray;
+    color: var(--disabled-color);
     cursor: not-allowed;
 
     .bk-icon {
-      color: var(--bokeh-icon-color-disabled);
+      color: var(--icon-color-disabled);
     }
   }
 
@@ -93,15 +93,8 @@
   width: 16px;
   height: 16px;
 
-  .mask-size(100% 100%);
-  .mask-position(center center);
-  .mask-repeat(no-repeat);
-
-  /* for PNG icons; remove when dropped */
-  background-size: 100% 100%;
-  background-origin: border-box;
-  background-position: center center;
-  background-repeat: no-repeat;
+  .icon-mask-base();
+  .icon-mask-base-png();
 }
 
 .bk-label {
@@ -111,7 +104,7 @@
 .bk-shortcut {
   text-align: right;
   font-size: 90%;
-  color: gray;
+  color: var(--shortcut-color);
 }
 
 .bk-chevron {
