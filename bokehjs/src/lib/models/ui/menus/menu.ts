@@ -5,7 +5,7 @@ import {apply_icon} from "../../common/resolve"
 import type * as p from "core/properties"
 import type {XY} from "core/util/bbox"
 import {isFunction} from "core/util/types"
-import type {StyleSheetLike} from "core/dom"
+import type {StyleSheetLike, Keys} from "core/dom"
 import {div, px} from "core/dom"
 import {Or, Ref, Null} from "core/kinds"
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -98,8 +98,12 @@ export class MenuView extends UIElementView {
   }
 
   protected _on_keydown = (event: KeyboardEvent) => {
-    if (event.key == "Escape") {
-      this.hide()
+    switch (event.key as Keys) {
+      case "Escape": {
+        this.hide()
+        break
+      }
+      default:
     }
   }
 
@@ -132,7 +136,14 @@ export class MenuView extends UIElementView {
   override render(): void {
     super.render()
 
-    for (const item of this.menu_items) {
+    const items = this.menu_items
+    const entries: {item: MenuItem, el: HTMLElement}[] = []
+
+    if (items.length == 0) {
+      return
+    }
+
+    for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
         const icon_el = div({class: menus.icon})
@@ -159,6 +170,19 @@ export class MenuView extends UIElementView {
           item_el.classList.toggle(menus.checked, to_val(item.checked))
         }
 
+        const show_submenu = (item: MenuItem): void => {
+          if (item.menu != null) {
+            const menu_view = this._menu_views.get(item.menu)!
+            menu_view._show_submenu(item_el)
+          }
+        }
+        const hide_submenu = (item: MenuItem): void => {
+          if (item.menu != null) {
+            const menu_view = this._menu_views.get(item.menu)!
+            menu_view.hide()
+          }
+        }
+
         function is_target(event: Event): boolean {
           const {currentTarget, target} = event
           return currentTarget instanceof Node && target instanceof Node && currentTarget.contains(target)
@@ -172,22 +196,38 @@ export class MenuView extends UIElementView {
           }
         })
         item_el.addEventListener("keydown", (event) => {
-          if (event.key == "Enter") {
-            this._item_click(item)
+          // TODO https://github.com/bokeh/bokeh/issues/14241
+          switch (event.key as Keys) {
+            case "Enter": {
+              this._item_click(item)
+              break
+            }
+            case "ArrowDown": {
+              break
+            }
+            case "ArrowUp": {
+              break
+            }
+            case "ArrowLeft": {
+              break
+            }
+            case "ArrowRight": {
+              break
+            }
+            default:
           }
         })
         const {menu} = item
         if (menu != null) {
           item_el.addEventListener("pointerenter", () => {
-            const menu_view = this._menu_views.get(menu)!
-            menu_view._show_submenu(item_el)
+            show_submenu(item)
           })
           item_el.addEventListener("pointerleave", () => {
-            const menu_view = this._menu_views.get(menu)!
-            menu_view.hide()
+            hide_submenu(item)
           })
         }
         this.shadow_el.append(item_el)
+        entries.push({item, el: item_el})
       } else {
         const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
