@@ -9,15 +9,17 @@ a customized tile source configured for OpenStreetMap.
     :keywords: tile, map, field, elevation, geo
 
 '''
+from xyzservices import providers
+
 from bokeh.layouts import column, gridplot
-from bokeh.models import Div, Range1d, TileSource
+from bokeh.models import Div, Range1d
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airports import data as airports
 
 title = "US Airports: Field Elevation > 1500m"
 
 
-def plot(tile_source: str | TileSource):
+def plot(tile_source):
     # set to rough extents of points
     x_range = Range1d(start=airports['x'].min() - 10000, end=airports['x'].max() + 10000, bounds=None)
     y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 10000, bounds=None)
@@ -35,7 +37,7 @@ def plot(tile_source: str | TileSource):
 
 
 carto = plot("CartoDB Positron")
-mq = plot("OpenTopoMap")
+mq = plot(providers["OpenTopoMap"])
 
 # link panning
 mq.x_range = carto.x_range
