@@ -10,14 +10,14 @@ a customized tile source configured for OpenStreetMap.
 
 '''
 from bokeh.layouts import column, gridplot
-from bokeh.models import Div, Range1d, TileSource, WMTSTileSource
+from bokeh.models import Div, Range1d, TileSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airports import data as airports
 
 title = "US Airports: Field Elevation > 1500m"
 
 
-def plot(tile_source: TileSource):
+def plot(tile_source: str | TileSource):
     # set to rough extents of points
     x_range = Range1d(start=airports['x'].min() - 10000, end=airports['x'].max() + 10000, bounds=None)
     y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 10000, bounds=None)
@@ -34,20 +34,8 @@ def plot(tile_source: TileSource):
     return p
 
 
-# create a tile source
-mq_tile_source = WMTSTileSource(
-    url="https://tile.opentopomap.org/{z}/{x}/{y}.png",
-    attribution="""
-Map data:
-&copy; <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap contributors</a>,
-SRTM | Map style:
-&copy; <a href="https://opentopomap.org/" target="_blank">OpenTopoMap</a>
-(<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA</a>)
-""",
-)
-
 carto = plot("CartoDB Positron")
-mq = plot(mq_tile_source)
+mq = plot("OpenTopoMap")
 
 # link panning
 mq.x_range = carto.x_range
