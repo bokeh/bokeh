@@ -36,13 +36,13 @@ def plot(tile_source: TileSource):
 
 # create a tile source
 mq_tile_source = WMTSTileSource(
-    url="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
-    extra_url_vars=dict(r=""),  # or "@2x" for 2x scaled (Retina) images
+    url="https://tile.opentopomap.org/{z}/{x}/{y}.png",
     attribution="""
-&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>
-&copy; <a href="https://stamen.com/" target="_blank">Stamen Design</a>
-&copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a>
-&copy; <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap contributors</a>
+Map data:
+&copy; <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap contributors</a>,
+SRTM | Map style:
+&copy; <a href="https://opentopomap.org/" target="_blank">OpenTopoMap</a>
+(<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA</a>)
 """,
 )
 
