@@ -9,7 +9,7 @@ a customized tile source configured for OpenStreetMap.
     :keywords: tile, map, field, elevation, geo
 
 '''
-from xyzservices import providers
+import xyzservices.providers as xyz
 
 from bokeh.layouts import column, gridplot
 from bokeh.models import Div, Range1d
@@ -37,7 +37,7 @@ def plot(tile_source):
 
 
 carto = plot("CartoDB Positron")
-mq = plot(providers["OpenTopoMap"])
+mq = plot(xyz.OpenTopoMap)
 
 # link panning
 mq.x_range = carto.x_range
