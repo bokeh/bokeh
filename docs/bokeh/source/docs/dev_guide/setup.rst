@@ -748,7 +748,7 @@ Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
 .. _Selenium: https://www.selenium.dev/
-.. _Anaconda: https://www.anaconda.com/distribution/
+.. _Anaconda: https://www.anaconda.com/download/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _conda package manager: https://docs.conda.io/projects/conda/en/latest/
 .. _Installation: https://conda.io/projects/conda/en/latest/user-guide/install/index.html

@@ -188,7 +188,7 @@ html_theme_options = {
         "plausible_analytics_url": "https://plausible.io/js/script.js",
     },
     "external_links": [
-        {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/tutorial/main?filepath=notebooks%2F01_introduction.ipynb"},
+        {"name": "Tutorial",  "url": "https://github.com/bokeh/tutorial/"},
         {"name": "Community", "url": "https://discourse.bokeh.org"},
     ],
     "github_url": "https://github.com/bokeh/bokeh",

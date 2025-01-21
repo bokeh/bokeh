@@ -94,7 +94,7 @@ with a :ref:`classic notebook <ug_output_jupyter_notebook_inline_plots>`.
     :alt: Screenshot of Jupyterlab with a Bokeh ridgeplot displayed inline.
 
 .. _jupyter_bokeh: https://github.com/bokeh/jupyter_bokeh
-.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Anaconda: https://www.anaconda.com/download/
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _README: https://github.com/bokeh/jupyter_bokeh/blob/main/README.md
 
@@ -217,7 +217,7 @@ Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
 
 Depending on the version of the notebook you are using, you may have to
-`trust the notebook <https://jupyter-notebook.readthedocs.io/en/stable/security.html#explicit-trust>`_
+`trust the notebook <https://jupyter-server.readthedocs.io/en/stable/operators/security.html#explicit-trust>`_
 for Bokeh plots to re-render when the notebook is closed and re-
 opened. The **Trust Notebook** option is typically located under the
 **File** menu:
@@ -327,17 +327,15 @@ notebook below:
 More example notebooks
 ~~~~~~~~~~~~~~~~~~~~~~
 
-You can find many more examples of notebook use in the `bokeh-notebook`_ repository:
+You can find many more examples of notebook use in the `bokeh-tutorial`_ repository:
 
 1. Clone the repository locally:
 
    .. code:: sh
 
-    git clone https://github.com/bokeh/bokeh-notebooks.git
+    git clone https://github.com/bokeh/tutorial.git
 
 2. Launch the Jupyter notebooks in your web browser.
-
-Alternatively, `Binder`_ hosts live notebooks that you can run online.
 
 The main `Bokeh`_ repository also includes some notebook comms examples:
 
@@ -346,8 +344,7 @@ The main `Bokeh`_ repository also includes some notebook comms examples:
 * :bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb`
 * :bokeh-tree:`examples/output/jupyter/push_notebook/Numba Image Example.ipynb`
 
-.. _bokeh-notebook: https://github.com/bokeh/bokeh-notebooks
-.. _Binder: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.iynb
+.. _bokeh-tutorial: https://github.com/bokeh/tutorial/
 .. _Bokeh: https://github.com/bokeh/bokeh
 
 .. _ug_output_jupyter_ipywidgets:
@@ -407,7 +404,7 @@ logs its adjustments to the console:
 
 To run the app, enter ``bokeh serve ipy_slider.py``, where ``ipy_slider.py``
 is the name of the application (see :ref:`ug_server` for details).
-This application is available at http://localhost:5006/ipy_slider.
+This application is available at ``http://localhost:5006/ipy_slider``.
 
 You can build on the above to create more complex layouts and include advanced widgets,
 such as `ipyleaflet`_ and `ipyvolume`_. For more examples, see :bokeh-tree:`examples/output/jupyter/ipywidgets`

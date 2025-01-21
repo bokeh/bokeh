@@ -509,10 +509,10 @@
       "desc": "A reproduction of the famous Gapminder demo, with embedded video added using a custom page template. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/-/examples/server/app/gapminder'>source code</a>)</em>"
     },
     {
-      "name": "stocks",
-      "url": "https://demo.bokeh.org/stocks",
-      "alt": "Thumbnail image of linked plots, summary statistics, and correlations for market data. Contains two drop down selections for different investment options. Left features a scatterplot of option one's returns vs option two's returns. Below features a line plot of each individual option. Right shows basic statistics of each option and each option's returns.",
-      "desc": "Linked plots, summary statistics, and correlations for market data. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/-/examples/server/app/stocks'>source code</a>)</em>"
+      "name": "population",
+      "url": "https://demo.bokeh.org/population.py",
+      "alt": "Thumbnail image of linked plots, population data of the UN. Contains two drop down selections for different data options. Upper features a horizontal bar plot of population of at a given year and region. Below features a line plot of known and forecasted data.",
+      "desc": "Linked plots of population data. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/-/examples/server/app/population'>source code</a>)</em>"
     },
     {
       "name": "surface3d",

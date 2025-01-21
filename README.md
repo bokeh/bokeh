@@ -159,7 +159,7 @@ Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/
 
 Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [checkout the Bokeh tutorial repository](https://github.com/bokeh/tutorial/) to learn about Bokeh in live Jupyter Notebooks.
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
