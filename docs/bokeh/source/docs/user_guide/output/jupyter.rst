@@ -327,13 +327,13 @@ notebook below:
 More example notebooks
 ~~~~~~~~~~~~~~~~~~~~~~
 
-You can find many more examples of notebook use in the `bokeh-notebook`_ repository:
+You can find many more examples of notebook use in the `bokeh-tutorial`_ repository:
 
 1. Clone the repository locally:
 
    .. code:: sh
 
-    git clone https://github.com/bokeh/bokeh-notebooks.git
+    git clone https://github.com/bokeh/tutorial.git
 
 2. Launch the Jupyter notebooks in your web browser.
 
@@ -346,7 +346,7 @@ The main `Bokeh`_ repository also includes some notebook comms examples:
 * :bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb`
 * :bokeh-tree:`examples/output/jupyter/push_notebook/Numba Image Example.ipynb`
 
-.. _bokeh-notebook: https://github.com/bokeh/bokeh-notebooks
+.. _bokeh-tutorial: https://github.com/bokeh/tutorial/
 .. _Binder: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.iynb
 .. _Bokeh: https://github.com/bokeh/bokeh
 

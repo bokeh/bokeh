@@ -93,7 +93,7 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
     :target: `gallery`_
 
 
-.. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb
+.. _Interactive tutorial notebooks: https://github.com/bokeh/tutorial/
 .. _Bokeh community: https://bokeh.org/community/
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
