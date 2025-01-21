@@ -337,8 +337,6 @@ You can find many more examples of notebook use in the `bokeh-tutorial`_ reposit
 
 2. Launch the Jupyter notebooks in your web browser.
 
-Alternatively, `Binder`_ hosts live notebooks that you can run online.
-
 The main `Bokeh`_ repository also includes some notebook comms examples:
 
 * :bokeh-tree:`examples/output/jupyter/push_notebook/Basic Usage.ipynb`
@@ -347,7 +345,6 @@ The main `Bokeh`_ repository also includes some notebook comms examples:
 * :bokeh-tree:`examples/output/jupyter/push_notebook/Numba Image Example.ipynb`
 
 .. _bokeh-tutorial: https://github.com/bokeh/tutorial/
-.. _Binder: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.iynb
 .. _Bokeh: https://github.com/bokeh/bokeh
 
 .. _ug_output_jupyter_ipywidgets:
