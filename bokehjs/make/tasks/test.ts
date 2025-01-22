@@ -86,7 +86,7 @@ function chrome(): string {
       throw new BuildError("headless", `can't find BOKEH_CHROME=${bokeh_chrome}`)
     }
   }
-  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
+  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome for Testing", "Google Chrome"]
   const path = sys_path()
 
   for (const name of names) {
