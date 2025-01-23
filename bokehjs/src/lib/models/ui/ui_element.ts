@@ -144,9 +144,10 @@ export abstract class UIElementView extends StyledElementView {
 
       const context_menu = this.get_context_menu({x, y})
       if (context_menu != null) {
-        event.stopPropagation()
-        event.preventDefault()
-        context_menu.show({x, y})
+        if (context_menu.show({x, y})) {
+          event.stopPropagation()
+          event.preventDefault()
+        }
       }
     }
   }

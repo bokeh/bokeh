@@ -249,16 +249,16 @@ export class MenuView extends UIElementView {
     this._open = true
   }
 
-  show(at: XY): void {
+  show(at: XY): boolean {
     if (this.is_empty) {
       this.hide()
-      return
+      return false
     }
     const {parent} = this
     if (parent == null) {
       // TODO position: fixed
       this.hide()
-      return
+      return false
     }
     this.render()
     const target = parent.el.shadowRoot ?? parent.el
@@ -268,6 +268,7 @@ export class MenuView extends UIElementView {
     style.top = px(at.y)
     this._listen()
     this._open = true
+    return true
   }
 
   hide(): void {
