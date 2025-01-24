@@ -4,13 +4,18 @@ from typing import Literal
 
 # Bokeh imports
 from ..core.enums import AutoType as Auto
-from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
+from ..core.property_mixins import (
+    ScalarBandFillProps,
+    ScalarBandHatchProps,
+    ScalarGridLineProps,
+    ScalarMinorGridLineProps,
+)
 from .axes import Axis
 from .renderers import GuideRenderer
 from .tickers import Ticker
 
 @dataclass
-class Grid(GuideRenderer):
+class Grid(GuideRenderer, ScalarGridLineProps, ScalarMinorGridLineProps, ScalarBandFillProps, ScalarBandHatchProps):
 
     dimension: Literal[0, 1] = ...
 
@@ -21,11 +26,3 @@ class Grid(GuideRenderer):
     axis: Axis | None = ...
 
     ticker: Ticker | None = ...
-
-    grid_props: ScalarLineProps = ...
-
-    minor_grid_props: ScalarLineProps = ...
-
-    band_fill_props: ScalarFillProps = ...
-
-    band_hatch_props: ScalarHatchProps = ...

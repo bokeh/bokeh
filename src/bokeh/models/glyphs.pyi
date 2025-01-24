@@ -7,20 +7,12 @@ from .._types import (
     AngleSpec,
     DataSpec,
     DistanceSpec,
-    FillProps,
-    HatchProps,
-    ImageProps,
-    LineProps,
     MarkerSpec,
     NonNegative,
     NullDistanceSpec,
     NumberSpec,
-    ScalarFillProps,
-    ScalarHatchProps,
-    ScalarLineProps,
     SizeSpec,
     StringSpec,
-    TextProps,
 )
 from ..core.enums import (
     DirectionType as Direction,
@@ -37,21 +29,31 @@ from ..core.property_aliases import (
     Padding,
     TextAnchor,
 )
+from ..core.property_mixins import (
+    BackgroundFillProps,
+    BackgroundHatchProps,
+    BorderLineProps,
+    FillProps,
+    HatchProps,
+    ImageProps,
+    LineProps,
+    ScalarFillProps,
+    ScalarHatchProps,
+    ScalarLineProps,
+    TextProps,
+)
 from .callbacks import CustomJS
 from .glyph import (
     ConnectedXYGlyph,
-    FillGlyph,
-    HatchGlyph,
-    LineGlyph,
+    Glyph,
     RadialGlyph,
-    TextGlyph,
     XYGlyph,
 )
 from .mappers import ColorMapper, StackColorMapper
 
 @abstract
 @dataclass(init=False)
-class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Marker(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -63,20 +65,14 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     angle: AngleSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @abstract
 @dataclass(init=False)
-class LRTBGlyph(LineGlyph, FillGlyph, HatchGlyph):
+class LRTBGlyph(Glyph, LineProps, FillProps, HatchProps):
 
     border_radius: BorderRadius = ...
 
 @dataclass
-class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class AnnularWedge(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -92,14 +88,8 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     direction: Direction = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Annulus(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -109,14 +99,8 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     outer_radius: DistanceSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Arc(XYGlyph, LineGlyph):
+class Arc(XYGlyph, LineProps):
 
     x: NumberSpec = ...
 
@@ -130,10 +114,8 @@ class Arc(XYGlyph, LineGlyph):
 
     direction: Direction = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class Bezier(LineGlyph):
+class Bezier(Glyph, LineProps):
 
     x0: NumberSpec = ...
 
@@ -151,8 +133,6 @@ class Bezier(LineGlyph):
 
     cy1: NumberSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
 class Block(LRTBGlyph):
 
@@ -164,14 +144,8 @@ class Block(LRTBGlyph):
 
     height: DistanceSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Circle(RadialGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -183,14 +157,8 @@ class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     hit_dilation: NonNegative[float] = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Ellipse(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -202,14 +170,8 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     angle: AngleSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class HArea(LineGlyph, FillGlyph, HatchGlyph):
+class HArea(Glyph, ScalarFillProps, HatchProps):
 
     x1: NumberSpec = ...
 
@@ -217,12 +179,8 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
 
     y: NumberSpec = ...
 
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class HAreaStep(FillGlyph, HatchGlyph):
+class HAreaStep(Glyph, ScalarFillProps, HatchProps):
 
     x1: NumberSpec = ...
 
@@ -231,10 +189,6 @@ class HAreaStep(FillGlyph, HatchGlyph):
     y: NumberSpec = ...
 
     step_mode: StepMode = ...
-
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: HatchProps = ...
 
 @dataclass
 class HBar(LRTBGlyph):
@@ -247,14 +201,8 @@ class HBar(LRTBGlyph):
 
     right: NumberSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class HexTile(LineGlyph, FillGlyph, HatchGlyph):
+class HexTile(Glyph, LineProps, FillProps, HatchProps):
 
     size: float = ...
 
@@ -268,15 +216,9 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
 
     orientation: str = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @abstract
 @dataclass(init=False)
-class ImageBase(XYGlyph):
+class ImageBase(XYGlyph, ImageProps):
 
     x: NumberSpec = ...
 
@@ -285,8 +227,6 @@ class ImageBase(XYGlyph):
     dw: DistanceSpec = ...
 
     dh: DistanceSpec = ...
-
-    image_props: ImageProps = ...
 
     dilate: bool = ...
 
@@ -339,38 +279,28 @@ class ImageURL(XYGlyph):
     retry_timeout: int = ...
 
 @dataclass
-class Line(ConnectedXYGlyph, LineGlyph):
+class Line(ConnectedXYGlyph, ScalarLineProps):
 
     x: NumberSpec = ...
 
     y: NumberSpec = ...
 
-    line_props: ScalarLineProps = ...
-
 @dataclass
-class MultiLine(LineGlyph):
+class MultiLine(Glyph, LineProps):
 
     xs: NumberSpec = ...
 
     ys: NumberSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
+class MultiPolygons(Glyph, LineProps, FillProps, HatchProps):
 
     xs: NumberSpec = ...
 
     ys: NumberSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Ngon(RadialGlyph):
+class Ngon(RadialGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -384,37 +314,19 @@ class Ngon(RadialGlyph):
 
     radius_dimension: RadiusDimension = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Patch(ConnectedXYGlyph, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
 
     x: NumberSpec = ...
 
     y: NumberSpec = ...
 
-    line_props: ScalarLineProps = ...
-
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: ScalarHatchProps = ...
-
 @dataclass
-class Patches(LineGlyph, FillGlyph, HatchGlyph):
+class Patches(Glyph, LineProps, FillProps, HatchProps):
 
     xs: NumberSpec = ...
 
     ys: NumberSpec = ...
-
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
 
 @dataclass
 class Quad(LRTBGlyph):
@@ -427,14 +339,8 @@ class Quad(LRTBGlyph):
 
     top: NumberSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Quadratic(LineGlyph):
+class Quadratic(Glyph, LineProps):
 
     x0: NumberSpec = ...
 
@@ -448,10 +354,8 @@ class Quadratic(LineGlyph):
 
     cy: NumberSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class Ray(XYGlyph, LineGlyph):
+class Ray(XYGlyph, LineProps):
 
     x: NumberSpec = ...
 
@@ -461,10 +365,8 @@ class Ray(XYGlyph, LineGlyph):
 
     length: DistanceSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Rect(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -480,12 +382,6 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     dilate: bool = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
 class Scatter(Marker):
 
@@ -494,7 +390,7 @@ class Scatter(Marker):
     defs: dict[str, CustomJS] = ...
 
 @dataclass
-class Segment(LineGlyph):
+class Segment(Glyph, LineProps):
 
     x0: NumberSpec = ...
 
@@ -504,21 +400,17 @@ class Segment(LineGlyph):
 
     y1: NumberSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class Step(XYGlyph, LineGlyph):
+class Step(XYGlyph, ScalarLineProps):
 
     x: NumberSpec = ...
 
     y: NumberSpec = ...
 
-    line_props: ScalarLineProps = ...
-
     mode: StepMode = ...
 
 @dataclass
-class Text(XYGlyph, TextGlyph):
+class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
 
     x: NumberSpec = ...
 
@@ -540,14 +432,6 @@ class Text(XYGlyph, TextGlyph):
 
     outline_shape: DataSpec[OutlineShapeName] = ...
 
-    text_props: TextProps = ...
-
-    background_fill_props: FillProps = ...
-
-    background_hatch_props: HatchProps = ...
-
-    border_line_props: LineProps = ...
-
 @abstract
 @dataclass(init=False)
 class MathTextGlyph(Text):
@@ -565,7 +449,7 @@ class TeXGlyph(MathTextGlyph):
     display: Literal["inline", "block", "auto"] = ...
 
 @dataclass
-class VArea(FillGlyph, HatchGlyph):
+class VArea(Glyph, ScalarFillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -573,12 +457,8 @@ class VArea(FillGlyph, HatchGlyph):
 
     y2: NumberSpec = ...
 
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class VAreaStep(FillGlyph, HatchGlyph):
+class VAreaStep(Glyph, ScalarFillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -587,10 +467,6 @@ class VAreaStep(FillGlyph, HatchGlyph):
     y2: NumberSpec = ...
 
     step_mode: StepMode = ...
-
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: HatchProps = ...
 
 @dataclass
 class VBar(LRTBGlyph):
@@ -603,14 +479,8 @@ class VBar(LRTBGlyph):
 
     top: NumberSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+class Wedge(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
 
@@ -624,48 +494,26 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     direction: Direction = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class HSpan(LineGlyph):
+class HSpan(Glyph, LineProps):
 
     y: NumberSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class VSpan(LineGlyph):
+class VSpan(Glyph, LineProps):
 
     x: NumberSpec = ...
 
-    line_props: LineProps = ...
-
 @dataclass
-class HStrip(LineGlyph, FillGlyph, HatchGlyph):
+class HStrip(Glyph, LineProps, FillProps, HatchProps):
 
     y0: NumberSpec = ...
 
     y1: NumberSpec = ...
 
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...
-
 @dataclass
-class VStrip(LineGlyph, FillGlyph, HatchGlyph):
+class VStrip(Glyph, LineProps, FillProps, HatchProps):
 
     x0: NumberSpec = ...
 
     x1: NumberSpec = ...
-
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
-
-    hatch_props: HatchProps = ...

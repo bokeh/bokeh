@@ -20,31 +20,25 @@ from ....core.enums import (
 )
 from ....core.property_aliases import BorderRadius, Padding
 from ....core.property_mixins import (
-    FillProps,
-    LineProps,
-    ScalarFillProps,
-    ScalarHatchProps,
-    ScalarLineProps,
+    BackgroundFillProps,
+    BorderLineProps,
+    ScalarBackgroundFillProps,
+    ScalarBackgroundHatchProps,
+    ScalarBorderLineProps,
     ScalarTextProps,
 )
 from ..annotation import DataAnnotation
 from .html_annotation import HTMLAnnotation
 
 @dataclass
-class HTMLTextAnnotation(HTMLAnnotation):
+class HTMLTextAnnotation(HTMLAnnotation, ScalarBackgroundFillProps, ScalarBackgroundHatchProps, ScalarBorderLineProps):
 
     padding: Padding = ...
 
     border_radius: BorderRadius = ...
 
-    background_props: ScalarFillProps = ...
-
-    background_hatch_props: ScalarHatchProps = ...
-
-    border_props: ScalarLineProps = ...
-
 @dataclass
-class HTMLLabel(HTMLTextAnnotation):
+class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
 
     x: CoordinateLike = ...
 
@@ -64,10 +58,8 @@ class HTMLLabel(HTMLTextAnnotation):
 
     y_offset: float = ...
 
-    text_props: ScalarTextProps = ...
-
 @dataclass
-class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
+class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLineProps):
 
     x: NumberSpec = ...
 
@@ -84,10 +76,6 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     x_offset: NumberSpec = ...
 
     y_offset: NumberSpec = ...
-
-    background_props: FillProps = ...
-
-    border_props: LineProps = ...
 
 @dataclass
 class HTMLTitle(HTMLTextAnnotation):

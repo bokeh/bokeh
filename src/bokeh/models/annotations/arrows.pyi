@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ..._types import NumberSpec
 from ...core.enums import CoordinateUnitsType as CoordinateUnits
 from ...core.has_props import abstract
-from ...core.property_mixins import FillProps, LineProps
+from ...core.property_mixins import BodyLineProps, FillProps, LineProps
 from ..graphics import Marking
 from .annotation import DataAnnotation
 
@@ -16,31 +16,23 @@ class ArrowHead(Marking):
     size: NumberSpec = ...
 
 @dataclass
-class OpenHead(ArrowHead):
-
-    line_props: LineProps = ...
-
-@dataclass
-class NormalHead(ArrowHead):
-
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
+class OpenHead(ArrowHead, LineProps):
+    ...
 
 @dataclass
-class TeeHead(ArrowHead):
-
-    line_props: LineProps = ...
-
-@dataclass
-class VeeHead(ArrowHead):
-
-    line_props: LineProps = ...
-
-    fill_props: FillProps = ...
+class NormalHead(ArrowHead, LineProps, FillProps):
+    ...
 
 @dataclass
-class Arrow(DataAnnotation):
+class TeeHead(ArrowHead, LineProps):
+    ...
+
+@dataclass
+class VeeHead(ArrowHead, LineProps, FillProps):
+    ...
+
+@dataclass
+class Arrow(DataAnnotation, BodyLineProps):
 
     x_start: NumberSpec = ...
 
@@ -57,5 +49,3 @@ class Arrow(DataAnnotation):
     end_units: CoordinateUnits = ...
 
     end: ArrowHead | None = ...
-
-    body_props: LineProps = ...

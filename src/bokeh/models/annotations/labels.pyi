@@ -20,11 +20,11 @@ from ...core.enums import (
 from ...core.has_props import abstract
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
-    FillProps,
-    LineProps,
-    ScalarFillProps,
-    ScalarHatchProps,
-    ScalarLineProps,
+    BackgroundFillProps,
+    BorderLineProps,
+    ScalarBackgroundFillProps,
+    ScalarBackgroundHatchProps,
+    ScalarBorderLineProps,
     ScalarTextProps,
     TextProps,
 )
@@ -32,21 +32,13 @@ from .annotation import Annotation, DataAnnotation
 
 @abstract
 @dataclass(init=False)
-class TextAnnotation(Annotation):
+class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps, ScalarBackgroundHatchProps, ScalarBorderLineProps):
 
     text: TextLike = ...
 
     padding: Padding = ...
 
     border_radius: BorderRadius = ...
-
-    text_props: ScalarTextProps = ...
-
-    background_fill_props: ScalarFillProps = ...
-
-    background_hatch_props: ScalarHatchProps = ...
-
-    border_props: ScalarLineProps = ...
 
 @dataclass
 class Label(TextAnnotation):
@@ -74,7 +66,7 @@ class Label(TextAnnotation):
     editable: bool = ...
 
 @dataclass
-class LabelSet(DataAnnotation):
+class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BorderLineProps):
 
     x: NumberSpec = ...
 
@@ -91,12 +83,6 @@ class LabelSet(DataAnnotation):
     x_offset: NumberSpec = ...
 
     y_offset: NumberSpec = ...
-
-    text_props: TextProps = ...
-
-    background_props: FillProps = ...
-
-    border_props: LineProps = ...
 
 @dataclass
 class Title(TextAnnotation):

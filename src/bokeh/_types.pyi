@@ -118,19 +118,6 @@ type AngleSpec = UnitsSpec[float, AngleUnits]
 type DistanceSpec = UnitsSpec[NonNegative[float] | Datetime | TimeDelta, SpatialUnits]
 type NullDistanceSpec = UnitsSpec[NonNegative[float] | Datetime | TimeDelta | None, SpatialUnits]
 
-### TODO remove this
-type TextProps = Any
-type LineProps = Any
-type FillProps = Any
-type HatchProps = Any
-type ImageProps = Any
-
-type ScalarTextProps = Any
-type ScalarLineProps = Any
-type ScalarFillProps = Any
-type ScalarHatchProps = Any
-###
-
 type Bytes = bytes
 type JSON = str
 

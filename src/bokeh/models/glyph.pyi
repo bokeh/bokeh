@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 
 # Bokeh imports
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..model import Model
 from .graphics import Decoration
 
@@ -29,22 +29,22 @@ class ConnectedXYGlyph(XYGlyph):
 
 @abstract
 @dataclass(init=False)
-class LineGlyph(Glyph):
+class LineGlyph(HasProps):
     ...
 
 @abstract
 @dataclass(init=False)
-class FillGlyph(Glyph):
+class FillGlyph(HasProps):
     ...
 
 @abstract
 @dataclass(init=False)
-class TextGlyph(Glyph):
+class TextGlyph(HasProps):
     ...
 
 @abstract
 @dataclass(init=False)
-class HatchGlyph(Glyph):
+class HatchGlyph(HasProps):
     ...
 
 #-----------------------------------------------------------------------------

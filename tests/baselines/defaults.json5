@@ -2622,25 +2622,17 @@
   ConnectedXYGlyph: {
     __extends__: "XYGlyph",
   },
-  FillGlyph: {
-    __extends__: "Glyph",
-  },
+  FillGlyph: {},
   Glyph: {
     __extends__: "Model",
     decorations: [],
   },
-  HatchGlyph: {
-    __extends__: "Glyph",
-  },
-  LineGlyph: {
-    __extends__: "Glyph",
-  },
+  HatchGlyph: {},
+  LineGlyph: {},
   RadialGlyph: {
     __extends__: "XYGlyph",
   },
-  TextGlyph: {
-    __extends__: "Glyph",
-  },
+  TextGlyph: {},
   XYGlyph: {
     __extends__: "Glyph",
   },
@@ -2875,7 +2867,10 @@
     },
   },
   Bezier: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x0: {
       type: "field",
       field: "x0",
@@ -3185,7 +3180,7 @@
   },
   HArea: {
     __extends__: [
-      "LineGlyph",
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -3229,6 +3224,7 @@
   },
   HAreaStep: {
     __extends__: [
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -3350,7 +3346,10 @@
     },
   },
   HSpan: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     y: {
       type: "field",
       field: "y",
@@ -3386,6 +3385,7 @@
   },
   HStrip: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3460,6 +3460,7 @@
   },
   HexTile: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3644,6 +3645,7 @@
   },
   LRTBGlyph: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3762,7 +3764,10 @@
     __extends__: "Text",
   },
   MultiLine: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     xs: {
       type: "field",
       field: "xs",
@@ -3802,6 +3807,7 @@
   },
   MultiPolygons: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3992,6 +3998,7 @@
   },
   Patches: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -4143,7 +4150,10 @@
     },
   },
   Quadratic: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x0: {
       type: "field",
       field: "x0",
@@ -4347,7 +4357,10 @@
     },
   },
   Segment: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x0: {
       type: "field",
       field: "x0",
@@ -4559,6 +4572,7 @@
   },
   VArea: {
     __extends__: [
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -4602,6 +4616,7 @@
   },
   VAreaStep: {
     __extends__: [
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -4723,7 +4738,10 @@
     },
   },
   VSpan: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x: {
       type: "field",
       field: "x",
@@ -4759,6 +4777,7 @@
   },
   VStrip: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",

@@ -12,7 +12,7 @@ from typing import (
 import xyzservices
 
 # Bokeh imports
-from .._types import Readonly, ScalarFillProps, ScalarLineProps
+from .._types import Readonly
 from ..core.enums import (
     LocationType as Location,
     OutputBackendType as OutputBackend,
@@ -20,6 +20,11 @@ from ..core.enums import (
     ResetPolicyType as ResetPolicy,
 )
 from ..core.property_aliases import LRTB
+from ..core.property_mixins import (
+    ScalarBackgroundFillProps,
+    ScalarBorderLineProps,
+    ScalarOutlineLineProps,
+)
 from ..model import Model
 from .annotations import Legend, Title
 from .axes import Axis
@@ -35,7 +40,7 @@ from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar
 
 @dataclass
-class Plot(LayoutDOM):
+class Plot(LayoutDOM, ScalarBackgroundFillProps, ScalarBorderLineProps, ScalarOutlineLineProps):
 
     x_range: Range = ...
 
@@ -58,8 +63,6 @@ class Plot(LayoutDOM):
     title: Title | None = ...
 
     title_location: Location | None = ...
-
-    outline_props: ScalarLineProps = ...
 
     renderers: list[Renderer] = ...
 
@@ -98,10 +101,6 @@ class Plot(LayoutDOM):
     outer_width: Readonly[int] = ...
 
     outer_height: Readonly[int] = ...
-
-    background_props: ScalarFillProps = ...
-
-    border_props: ScalarFillProps = ...
 
     min_border_top: int | None = ...
 

@@ -19,8 +19,15 @@ from ...core.enums import (
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
+    ScalarAboveFillProps,
+    ScalarAboveHatchProps,
+    ScalarBelowFillProps,
+    ScalarBelowHatchProps,
     ScalarFillProps,
     ScalarHatchProps,
+    ScalarHoverFillProps,
+    ScalarHoverHatchProps,
+    ScalarHoverLineProps,
     ScalarLineProps,
 )
 from ...model import Model
@@ -29,19 +36,9 @@ from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead
 
 @dataclass
-class AreaVisuals(Model):
-
-    line_props: ScalarLineProps = ...
-
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: ScalarHatchProps = ...
-
-    hover_line_props: ScalarLineProps = ...
-
-    hover_fill_props: ScalarFillProps = ...
-
-    hover_hatch_props: ScalarHatchProps = ...
+class AreaVisuals(Model, ScalarLineProps, ScalarFillProps, ScalarHatchProps,
+                  ScalarHoverLineProps, ScalarHoverFillProps, ScalarHoverHatchProps):
+    ...
 
 @dataclass
 class BoxInteractionHandles(Model):
@@ -119,7 +116,7 @@ class BoxAnnotation(Annotation, AreaVisuals):
     def nodes(self) -> BoxNodes: ...
 
 @dataclass
-class Band(DataAnnotation):
+class Band(DataAnnotation, ScalarLineProps, ScalarFillProps):
 
     lower: CoordinateSpec = ...
 
@@ -129,12 +126,9 @@ class Band(DataAnnotation):
 
     dimension: Dimension = ...
 
-    line_props: ScalarLineProps = ...
-
-    fill_props: ScalarFillProps = ...
-
 @dataclass
-class PolyAnnotation(Annotation):
+class PolyAnnotation(Annotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps,
+                     ScalarHoverLineProps, ScalarHoverFillProps, ScalarHoverHatchProps):
 
     xs: Sequence[CoordinateLike] = ...
 
@@ -146,37 +140,15 @@ class PolyAnnotation(Annotation):
 
     editable: bool = ...
 
-    line_props: ScalarLineProps = ...
-
-    fill_props: ScalarFillProps = ...
-
-    hatch_props: ScalarHatchProps = ...
-
-    hover_line_props: ScalarLineProps = ...
-
-    hover_fill_props: ScalarFillProps = ...
-
-    hover_hatch_props: ScalarHatchProps = ...
-
 @dataclass
-class Slope(Annotation):
+class Slope(Annotation, ScalarLineProps, ScalarAboveFillProps, ScalarAboveHatchProps, ScalarBelowFillProps, ScalarBelowHatchProps):
 
     gradient: float | None = ...
 
     y_intercept: float | None = ...
 
-    line_props: ScalarLineProps = ...
-
-    above_fill_props: ScalarFillProps = ...
-
-    above_hatch_props: ScalarHatchProps = ...
-
-    below_fill_props: ScalarFillProps = ...
-
-    below_hatch_props: ScalarHatchProps = ...
-
 @dataclass
-class Span(Annotation):
+class Span(Annotation, ScalarLineProps, ScalarHoverLineProps):
 
     location: CoordinateLike | None = ...
 
@@ -186,12 +158,8 @@ class Span(Annotation):
 
     editable: bool = ...
 
-    line_props: ScalarLineProps = ...
-
-    hover_line_props: ScalarLineProps = ...
-
 @dataclass
-class Whisker(DataAnnotation):
+class Whisker(DataAnnotation, LineProps ):
 
     lower: CoordinateSpec = ...
 
@@ -204,5 +172,3 @@ class Whisker(DataAnnotation):
     base: CoordinateSpec = ...
 
     dimension: Dimension = ...
-
-    line_props: LineProps = ...

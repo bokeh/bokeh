@@ -10,7 +10,17 @@ from ..core.enums import (
     LabelOrientationType as LabelOrientation,
 )
 from ..core.has_props import abstract
-from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
+from ..core.property_mixins import (
+    ScalarAxisLabelTextProps,
+    ScalarAxisLineProps,
+    ScalarBackgroundFillProps,
+    ScalarGroupTextProps,
+    ScalarMajorLabelTextProps,
+    ScalarMajorTickLineProps,
+    ScalarMinorTickLineProps,
+    ScalarSeparatorLineProps,
+    ScalarSubgroupTextProps,
+)
 from .formatters import (
     BasicTickFormatter,
     CategoricalTickFormatter,
@@ -33,7 +43,8 @@ from .tickers import (
 
 @abstract
 @dataclass(init=False)
-class Axis(GuideRenderer):
+class Axis(GuideRenderer, ScalarAxisLabelTextProps, ScalarMajorLabelTextProps, ScalarAxisLineProps,
+           ScalarMajorTickLineProps, ScalarMinorTickLineProps, ScalarBackgroundFillProps):
 
     dimension: Auto | Literal[0, 1] = ...
 
@@ -53,8 +64,6 @@ class Axis(GuideRenderer):
 
     axis_label_align: Align = ...
 
-    axis_label_props: ScalarTextProps = ...
-
     major_label_standoff: int = ...
 
     major_label_orientation: LabelOrientation | float = ...
@@ -63,25 +72,15 @@ class Axis(GuideRenderer):
 
     major_label_policy: LabelingPolicy = ...
 
-    major_label_props: ScalarTextProps = ...
-
-    axis_props: ScalarLineProps = ...
-
-    major_tick_props: ScalarLineProps = ...
-
     major_tick_in: int = ...
 
     major_tick_out: int = ...
-
-    minor_tick_props: ScalarLineProps = ...
 
     minor_tick_in: int = ...
 
     minor_tick_out: int = ...
 
     fixed_location: None | float | Factor = ...
-
-    background_props: ScalarFillProps = ...
 
 @abstract
 @dataclass(init=False)
@@ -90,7 +89,6 @@ class ContinuousAxis(Axis):
 
 @dataclass
 class LinearAxis(ContinuousAxis):
-    ...
 
     ticker: BasicTicker = ...
 
@@ -98,32 +96,24 @@ class LinearAxis(ContinuousAxis):
 
 @dataclass
 class LogAxis(ContinuousAxis):
-    ...
 
     ticker: LogTicker = ...
 
     formatter: LogTickFormatter = ...
 
 @dataclass
-class CategoricalAxis(Axis):
+class CategoricalAxis(Axis, ScalarSeparatorLineProps, ScalarGroupTextProps, ScalarSubgroupTextProps):
 
     ticker: CategoricalTicker = ...
 
     formatter: CategoricalTickFormatter = ...
 
-    separator_props: ScalarLineProps = ...
-
-    group_props: ScalarTextProps = ...
-
     group_label_orientation: LabelOrientation | float = ...
-
-    subgroup_props: ScalarTextProps = ...
 
     subgroup_label_orientation: LabelOrientation | float = ...
 
 @dataclass
 class DatetimeAxis(LinearAxis):
-    ...
 
     ticker: DatetimeTicker = ...
 
@@ -131,7 +121,6 @@ class DatetimeAxis(LinearAxis):
 
 @dataclass
 class MercatorAxis(LinearAxis):
-    ...
 
     ticker: MercatorTicker = ...
 
