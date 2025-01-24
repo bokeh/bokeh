@@ -12,6 +12,7 @@ Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
 * Added support for custom marker definitions to ``Scatter`` glyph (:bokeh-pull:`14165`)
 * Added support for stateful action tools, especially ``CustomAction`` (:bokeh-pull:`14143`)
 * Enhanced default ``DatetimeTickFormatter`` by providing additional context (:bokeh-pull:`13854`)
+* Added preliminary support for type declaration files (``*.pyi``) in ``bokeh.models`` (:bokeh-pull:`13900`)
 
 API and breaking changes
 ------------------------
