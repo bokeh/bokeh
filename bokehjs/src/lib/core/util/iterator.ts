@@ -10,7 +10,7 @@ export function* range(start: number, stop?: number, step: number = 1): Iterable
   }
 
   const delta = start <= stop ? step : -step
-  const length = max(ceil(abs(stop - start) / step), 0)
+  const length = max(ceil(abs(stop - start) / abs(step)), 0)
 
   for (let i = 0; i < length; i++, start += delta) {
     yield start
@@ -165,7 +165,7 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   yield indices.map((i) => seq[i])
   while (true) {
     let k: number | undefined
-    for (const i of reverse([...range(r)])) {
+    for (const i of range(r - 1, -1)) {
       if (indices[i] != i + n - r) {
         k = i
         break
