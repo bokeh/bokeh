@@ -206,6 +206,7 @@ export class Plot extends LayoutDOM {
       outline_line_color: "#e5e5e5",
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
+      context_menu: "auto",
     })
   }
 

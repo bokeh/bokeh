@@ -26,7 +26,7 @@
         },
         stylesheets: [],
         visible: true,
-        context_menu: null,
+        context_menu: "auto",
         elements: [],
         disabled: false,
         width: 600,
