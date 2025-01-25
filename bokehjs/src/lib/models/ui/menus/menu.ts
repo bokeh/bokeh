@@ -13,7 +13,7 @@ import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
 
-import menus_css, * as menus from "styles/menus_.css"
+import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
 
 function to_val<T>(val: T | (() => T)): T {

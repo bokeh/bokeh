@@ -5,7 +5,7 @@ import {reversed} from "./array"
 import {isBoolean, isString, isPlainObject} from "./types"
 import {execute} from "./callbacks"
 
-import menus_css, * as menus from "styles/menus.css"
+import menus_css, * as menus from "styles/legacy_menus.css"
 import icons_css from "styles/icons.css"
 import base_css from "styles/base.css"
 
