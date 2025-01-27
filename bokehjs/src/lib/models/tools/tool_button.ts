@@ -93,9 +93,9 @@ export abstract class ToolButtonView extends UIElementView {
 
     const {tool} = this.model
     this.class_list.add(tool_button[this.parent.model.location])
-    if (tool.disabled) {
-      this.class_list.add(tool_button.disabled)
-    }
+
+    this.class_list.toggle(tool_button.hidden, !tool.visible)
+    this.class_list.toggle(tool_button.disabled, tool.disabled)
 
     const icon_el = div({class: tool_button.tool_icon})
     this.shadow_el.append(icon_el)
