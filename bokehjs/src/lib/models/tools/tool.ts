@@ -1,9 +1,12 @@
 import type * as p from "core/properties"
 import {View} from "core/view"
+import type {HasProps} from "core/has_props"
 import type {Class} from "core/class"
-import type {Dimensions} from "core/enums"
+import type {Dimensions, ToolName} from "core/enums"
 import {min, max} from "core/util/array"
+import {entries} from "core/util/object"
 import {isString} from "core/util/types"
+import {Comparator} from "core/util/eq"
 import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
@@ -32,6 +35,7 @@ import type {HelpTool} from "./actions/help_tool"
 
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
+import type {ToolLike} from "./tool_proxy"
 
 export type ToolAliases = {
   pan:          PanTool
@@ -131,6 +135,7 @@ export namespace Tool {
     visible: p.Property<boolean>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
+    group: p.Property<string | boolean>
   }
 }
 
@@ -147,10 +152,11 @@ export abstract class Tool extends Model {
   static {
     this.prototype._known_aliases = new Map()
 
-    this.define<Tool.Props>(({Bool, Str, Nullable}) => ({
+    this.define<Tool.Props>(({Bool, Or, Str, Nullable}) => ({
       icon: [ Nullable(IconLike), null ],
       description: [ Nullable(Str), null ],
       visible: [ Bool, true ],
+      group: [ Or(Str, Bool), true ],
     }))
 
     this.internal<Tool.Props>(({Bool}) => ({
@@ -256,22 +262,53 @@ export abstract class Tool extends Model {
   }
 
   /** @prototype */
-  private _known_aliases: Map<string, () => Tool>
+  private _known_aliases: Map<string, {fn: () => Tool, query: (obj: HasProps) => boolean}>
 
-  static register_alias(name: string, fn: () => Tool): void {
-    this.prototype._known_aliases.set(name, fn)
+  static register_alias(name: ToolName, fn: () => Tool): void {
+    const tool = fn()
+    const attrs = tool.dirty_attributes
+    const cmp = new Comparator()
+
+    const query = (obj: HasProps) => {
+      if (!(obj instanceof tool.constructor)) {
+        return false
+      }
+      for (const [attr, value] of entries(attrs)) {
+        if (!cmp.eq(value, obj.property(attr).get_value())) {
+          return false
+        }
+      }
+      return true
+    }
+
+    this.prototype._known_aliases.set(name, {fn, query})
+  }
+
+  /**
+   * Is the given tool member of the given tool family.
+   */
+  static is_alias_of(tool: ToolLike<Tool>, name: ToolName): boolean {
+    const spec = this.prototype._known_aliases.get(name)
+    return spec?.query(tool.underlying) ?? false
   }
 
   static from_string<K extends keyof ToolAliases>(name: K): ToolAliases[K]
   static from_string(name: string): Tool
 
   static from_string(name: string): Tool {
-    const fn = this.prototype._known_aliases.get(name)
-    if (fn != null) {
-      return fn()
+    const spec = this.prototype._known_aliases.get(name)
+    if (spec != null) {
+      return spec.fn()
     } else {
       const names = [...this.prototype._known_aliases.keys()]
       throw new Error(`unexpected tool name '${name}', possible tools are ${names.join(", ")}`)
     }
+  }
+
+  /**
+   * Unifying API with ProxyTool.
+   */
+  get underlying(): this {
+    return this
   }
 }

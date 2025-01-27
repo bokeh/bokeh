@@ -53,6 +53,7 @@ from ..core.enums import (
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
+    ToolName,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
@@ -215,6 +216,14 @@ class Tool(Model):
 
     visible = Bool(default=True, help="""
     Whether a tool button associated with this tool should appear in the toolbar.
+    """)
+
+    group = Either(String, Bool, default=True, help="""
+    The name of the group this tool belongs to.
+
+    By default set to ``True``, indicating the default group. If set to
+    ``False``, it will prevent the tool from being grouped altogether
+    (regardless of ``Toolbar.group`` setting).
     """)
 
     _known_aliases: ClassVar[dict[str, Callable[[], Tool]]] = {}
@@ -383,6 +392,10 @@ class Toolbar(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
+    A list of tools to add to the plot.
+    """)
+
     logo = Nullable(Enum("normal", "grey"), default="normal", help="""
     What version of the Bokeh logo to display on the toolbar. If
     set to None, no logo will be displayed.
@@ -393,8 +406,12 @@ class Toolbar(UIElement):
     If True, hides toolbar when cursor is not in canvas.
     """)
 
-    tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
-    A list of tools to add to the plot.
+    group = Bool(default=True, help="""
+    Whether to group common tools.
+    """)
+
+    group_types = List(Enum(ToolName), default=["hover"], help="""
+    Only group tools of the given types.
     """)
 
     active_drag = Either(Null, Auto, Instance(Drag), Instance(ToolProxy), default="auto", help="""

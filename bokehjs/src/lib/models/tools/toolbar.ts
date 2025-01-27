@@ -5,15 +5,16 @@ import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
-import {Logo, Location} from "core/enums"
+import {Logo, Location, ToolName} from "core/enums"
 import {every, sort_by, includes, intersection, split, clear} from "core/util/array"
-import {join} from "core/util/iterator"
+import {join, enumerate} from "core/util/iterator"
 import {typed_keys, values, entries} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolLike} from "./tool_proxy"
 import {ToolProxy} from "./tool_proxy"
+import {ToolGroup} from "./tool_group"
 import {ToolButton} from "./tool_button"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
@@ -98,8 +99,8 @@ export class ToolbarView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {buttons, tools, location, autohide} = this.model.properties
-    this.on_change([buttons, tools], async () => {
+    const {buttons, tools, location, autohide, group, group_types} = this.model.properties
+    this.on_change([buttons, tools, group, group_types], async () => {
       await this._build_tool_button_views()
       this.render()
     })
@@ -119,25 +120,74 @@ export class ToolbarView extends UIElementView {
 
   override remove(): void {
     remove_views(this._tool_button_views)
+    this._destroy_proxies()
     super.remove()
   }
 
+  // Manually keep track of view constructed ToolProxy models, because models don't
+  // have any sensible life cycle management (at least from views' perspective).
+  private readonly _our_proxies: ToolProxy<Tool>[] = []
+
+  private _destroy_proxies(): void {
+    for (const proxy of this._our_proxies) {
+      proxy.destroy()
+    }
+    clear(this._our_proxies)
+  }
+
+  /**
+   * Group similar tools into tool proxies.
+   */
+  private _group_tools(tools: ToolLike<Tool>[]): ToolLike<Tool>[] {
+    const {group_types} = this.model
+    const grouped: Map<string, ToolLike<Tool>[]> = new Map()
+    for (const [tool, i] of enumerate(tools)) {
+      const group_type = group_types.find((type) => Tool.is_alias_of(tool, type))
+      if (group_type != null && tool.group !== false) {
+        const key = tool.group === true ? tool.type : `${tool.type}_${tool.group}`
+        const group = grouped.get(key)
+        if (group != null) {
+          group.push(tool)
+        } else {
+          grouped.set(key, [tool])
+        }
+      } else {
+        // The key doesn't matter, just use something unique.
+        grouped.set(`${i}`, [tool])
+      }
+    }
+    return Array.from(grouped.values(), (group) => {
+      if (group.length > 1) {
+        const proxy = new ToolGroup({tools: group})
+        this._our_proxies.push(proxy)
+        return proxy
+      } else {
+        return group[0]
+      }
+    })
+  }
+
   protected async _build_tool_button_views(): Promise<void> {
+    this._destroy_proxies()
+
     this._tool_buttons = (() => {
       const {buttons} = this.model
       if (buttons == "auto") {
-        const groups = [
+        const tool_bars: ToolLike<Tool>[][] = [
           ...values(this.model.gestures).map((gesture) => gesture.tools),
           this.model.actions,
           this.model.inspectors,
           this.model.auxiliaries,
         ]
-        const buttons = groups.map((group) => {
-          return group
+
+        const {group} = this.model
+        const button_bars = tool_bars.map((bar) => {
+          const grouped = group ? this._group_tools(bar) : bar
+          return grouped
             .filter((tool) => tool.visible)
             .map((tool) => tool.tool_button())
         })
-        return buttons
+        return button_bars
       } else {
         return split(buttons, null)
       }
@@ -305,6 +355,8 @@ export namespace Toolbar {
     tools: p.Property<(Tool | ToolProxy<Tool>)[]>
     logo: p.Property<Logo | null>
     autohide: p.Property<boolean>
+    group: p.Property<boolean>
+    group_types: p.Property<ToolName[]>
 
     // internal
     buttons: p.Property<(ToolButton | null)[] | "auto">
@@ -354,6 +406,8 @@ export class Toolbar extends UIElement {
       tools:          [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
       autohide:       [ Bool, false ],
+      group:          [ Bool, true ],
+      group_types:    [ List(ToolName), ["hover"] ],
       active_drag:    [ Nullable(Or(GestureToolLike, Auto)), "auto" ],
       active_inspect: [ Nullable(Or(Ref(Inspection), List(Ref(Inspection)), Ref(ToolProxy), Auto)), "auto" ],
       active_scroll:  [ Nullable(Or(GestureToolLike, Auto)), "auto" ],
@@ -407,7 +461,7 @@ export class Toolbar extends UIElement {
 
     const visited = new Set<ToolLike<Tool>>()
     function isa<A extends Tool>(tool: ToolLike<Tool>, type: AbstractConstructor<A>): tool is ToolLike<A> {
-      const is = (tool instanceof ToolProxy ? tool.underlying : tool) instanceof type
+      const is = tool.underlying instanceof type
       if (is) {
         visited.add(tool)
       }

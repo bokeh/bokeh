@@ -48,6 +48,23 @@
   }
 }
 
+.bk-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  --height: 1.1em;
+  height: var(--height);
+  line-height: var(--height); // needed for vertical alignment
+  text-align: center;
+  aspect-ratio: 1 / 1;
+  font-size: 80%;
+  border-radius: 50%;
+
+  color: white;
+  background-color: var(--icon-color);
+}
+
 .bk-tool-chevron {
   position: absolute;
   visibility: hidden;

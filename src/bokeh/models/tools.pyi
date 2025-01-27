@@ -34,6 +34,7 @@ from ..core.enums import (
     PanDirectionType as PanDirection,
     RegionSelectionModeType as RegionSelectionMode,
     SelectionModeType as SelectionMode,
+    ToolNameType as ToolName,
     TooltipAttachmentType as TooltipAttachment,
     TooltipFieldFormatterType as TooltipFieldFormatter,
 )
@@ -72,6 +73,8 @@ class Tool(Model):
     description: str | None = ...
 
     visible: bool = ...
+
+    group: str | bool = ...
 
     _known_aliases: ClassVar[dict[str, Callable[[], Tool]]]
 
@@ -149,11 +152,15 @@ class InspectTool(GestureTool):
 @dataclass
 class Toolbar(UIElement):
 
+    tools: list[Tool | ToolProxy] = ...
+
     logo: Literal["normal", "grey"] | None = ...
 
     autohide: bool = ...
 
-    tools: list[Tool | ToolProxy] = ...
+    group: bool = ...
+
+    group_types: list[ToolName] = ...
 
     active_drag: Auto | Drag | ToolProxy | None = ...
 

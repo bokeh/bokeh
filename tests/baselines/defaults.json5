@@ -6661,6 +6661,7 @@
     icon: null,
     description: null,
     visible: true,
+    group: true,
   },
   ToolMenu: {
     __extends__: "Menu",
@@ -6677,9 +6678,13 @@
   },
   Toolbar: {
     __extends__: "UIElement",
+    tools: [],
     logo: "normal",
     autohide: false,
-    tools: [],
+    group: true,
+    group_types: [
+      "hover",
+    ],
     active_drag: "auto",
     active_inspect: "auto",
     active_scroll: "auto",

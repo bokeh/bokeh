@@ -250,10 +250,26 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /**
+   * Gets values of all set properties.
+   */
   get attributes(): Attrs {
     const attrs: Attrs = {}
     for (const prop of this) {
       if (!prop.is_unset) {
+        attrs[prop.attr] = prop.get_value()
+      }
+    }
+    return attrs
+  }
+
+  /**
+   * Gets values of all set and dirty (modified) properties.
+   */
+  get dirty_attributes(): Attrs {
+    const attrs: Attrs = {}
+    for (const prop of this) {
+      if (!prop.is_unset && prop.dirty) {
         attrs[prop.attr] = prop.get_value()
       }
     }

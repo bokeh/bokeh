@@ -3,6 +3,7 @@ import {IconLike} from "../common/kinds"
 import {apply_icon} from "../common/resolve"
 import {Tool} from "./tool"
 import {ToolProxy} from "./tool_proxy"
+import {ToolGroup} from "./tool_group"
 import type {TapEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
 import type {StyleSheetLike, Keys} from "core/dom"
@@ -90,25 +91,31 @@ export abstract class ToolButtonView extends UIElementView {
   override render(): void {
     super.render()
 
+    const {tool} = this.model
     this.class_list.add(tool_button[this.parent.model.location])
-    if (this.model.tool.disabled) {
+    if (tool.disabled) {
       this.class_list.add(tool_button.disabled)
     }
 
     const icon_el = div({class: tool_button.tool_icon})
-    this.shadow_el.appendChild(icon_el)
+    this.shadow_el.append(icon_el)
 
-    const icon = this.model.icon ?? this.model.tool.computed_icon
+    const icon = this.model.icon ?? tool.computed_icon
     if (icon != null) {
       apply_icon(icon_el, icon)
     }
 
-    if (this.model.tool.menu != null) {
+    if (tool.menu != null) {
       const chevron_el = div({class: tool_button.tool_chevron})
-      this.shadow_el.appendChild(chevron_el)
+      this.shadow_el.append(chevron_el)
     }
 
-    const tooltip = this.model.tooltip ?? this.model.tool.tooltip
+    if (tool instanceof ToolGroup && tool.show_count) {
+      const count_el = div({class: tool_button.count}, `${tool.tools.length}`)
+      this.shadow_el.append(count_el)
+    }
+
+    const tooltip = this.model.tooltip ?? tool.tooltip
     this.el.title = tooltip
 
     this.el.tabIndex = 0

@@ -209,7 +209,7 @@ class SetValue(Callback):
     """ Allows to update a property of an object. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, value: Init[any] = Intrinsic, **kwargs) -> None:
+    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, value: Init[Any] = Intrinsic, **kwargs: Any) -> None:
         super().__init__(obj=obj, attr=attr, value=value, **kwargs)
 
     obj: HasProps = Required(Instance(HasProps), help="""

@@ -18,7 +18,7 @@ export namespace ToolProxy {
   export type Attrs<T extends Tool> = p.AttrsOf<Props<T>>
 
   export type Props<T extends Tool> = Model.Props & {
-    tools: p.Property<T[]>
+    tools: p.Property<ToolLike<T>[]>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
   }
@@ -35,8 +35,8 @@ export class ToolProxy<T extends Tool> extends Model {
   }
 
   static {
-    this.define<ToolProxy.Props<Tool>>(({Bool, List, Ref}) => ({
-      tools:    [ List(Ref(Tool)), [] ],
+    this.define<ToolProxy.Props<Tool>>(({Bool, List, Ref, Or}) => ({
+      tools:    [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       active:   [ Bool, (self) => some((self as ToolProxy<Tool>).tools, (tool) => tool.active) ],
       disabled: [ Bool, false ],
     }))
@@ -46,8 +46,12 @@ export class ToolProxy<T extends Tool> extends Model {
 
   // Operates all the tools given only one button
 
-  get underlying(): Tool {
-    return this.tools[0]
+  /**
+   * Returns the first real tool this proxy maintains.
+   */
+  get underlying(): T {
+    const tool = this.tools[0]
+    return tool instanceof ToolProxy ? tool.underlying : tool
   }
 
   tool_button(): ToolButton {
@@ -96,6 +100,11 @@ export class ToolProxy<T extends Tool> extends Model {
   get visible(): boolean {
     const tool = this.tools[0] as Tool
     return tool.visible
+  }
+
+  get group(): string | boolean {
+    const tool = this.tools[0] as Tool
+    return tool.group
   }
 
   override initialize(): void {

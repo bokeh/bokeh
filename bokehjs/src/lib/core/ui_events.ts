@@ -10,7 +10,6 @@ import {isObject, isBoolean} from "./util/types"
 import type {PlotView} from "../models/plots/plot"
 import type {Tool, ToolView} from "../models/tools/tool"
 import type {ToolLike} from "../models/tools/tool_proxy"
-import {ToolProxy} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 
@@ -453,8 +452,7 @@ export class UIEventBus {
 
     function get_tool_view(tool_like: ToolLike<Tool> | null): ToolView | null {
       if (tool_like != null) {
-        const tool = tool_like instanceof ToolProxy ? tool_like.tools[0] : tool_like
-        return plot_view.tool_views.get(tool) ?? null
+        return plot_view.tool_views.get(tool_like.underlying) ?? null
       } else {
         return null
       }
