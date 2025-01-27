@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import wraps
-from inspect import Parameter, Signature
+from inspect import Parameter, Signature, signature
 
 # Bokeh imports
 from ..util.deprecation import deprecated
@@ -63,7 +63,7 @@ def marker_method():
             kwargs["marker"] = marker_type
             return create_renderer(Scatter, self, **kwargs)
 
-        wrapped.__signature__ = Signature(parameters=sigparams)
+        wrapped.__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
         wrapped.__name__ = func.__name__
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
@@ -88,7 +88,7 @@ def glyph_method(glyphclass):
                 kwargs.setdefault("coordinates", self.coordinates)
             return create_renderer(glyphclass, self.plot, **kwargs)
 
-        wrapped.__signature__ = Signature(parameters=sigparams)
+        wrapped.__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
         wrapped.__name__ = func.__name__
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
