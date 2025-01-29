@@ -118,7 +118,7 @@ export class TableDataProvider implements DataProvider<Item> {
 
     const records = this.getRecords()
 
-    const lookup: { [key: number]: number} = {}
+    const lookup: {[key: number]: number} = {}
     this.index.forEach((v, i) => lookup[v] = i)
 
     this.index.sort((i0, i1) => {
