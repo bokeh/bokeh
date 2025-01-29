@@ -150,6 +150,15 @@ export function argmax(array: number[]): number {
   return max_by(range(array.length), (i) => array[i])
 }
 
+/**
+ * Return the permutation indices for sorting an array.
+ */
+export function argsort(array: number[]): number[] {
+  const indices = Array.from(array.keys())
+  indices.sort((a, b) => array[a] - array[b])
+  return indices
+}
+
 export function uniq<T>(array: Arrayable<T>): T[] {
   const result = new Set<T>()
   for (const value of array) {

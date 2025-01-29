@@ -117,12 +117,15 @@ export class TableDataProvider implements DataProvider<Item> {
     }
 
     const records = this.getRecords()
-    const old_index = this.index.slice()
+
+    const lookup: {[key: number]: number} = {}
+    this.index.forEach((v, i) => lookup[v] = i)
 
     this.index.sort((i0, i1) => {
       for (const [col, sign] of cols) {
-        const v0 = records[old_index.indexOf(i0)][col.field!]
-        const v1 = records[old_index.indexOf(i1)][col.field!]
+        const field = col.field!
+        const v0 = records[lookup[i0]][field]
+        const v1 = records[lookup[i1]][field]
         if (col.sorter != null) {
           return sign * col.sorter.compute(v0, v1)
         }
