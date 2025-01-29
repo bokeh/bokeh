@@ -64,7 +64,6 @@ def marker_method():
             return create_renderer(Scatter, self, **kwargs)
 
         wrapped.__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
-        wrapped.__name__ = func.__name__
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 
@@ -89,7 +88,6 @@ def glyph_method(glyphclass):
             return create_renderer(glyphclass, self.plot, **kwargs)
 
         wrapped.__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
-        wrapped.__name__ = func.__name__
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 
