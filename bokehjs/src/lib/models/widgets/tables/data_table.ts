@@ -11,7 +11,7 @@ import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import {unique_id} from "core/util/string"
 import {isString, isNumber} from "core/util/types"
-import {some, range, sort_by, map} from "core/util/array"
+import {argsort, some, range, sort_by, map} from "core/util/array"
 import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
 import {logger} from "core/logging"
@@ -117,12 +117,14 @@ export class TableDataProvider implements DataProvider<Item> {
     }
 
     const records = this.getRecords()
-    const old_index = this.index.slice()
+
+    const sorted_indices = argsort(this.index)
 
     this.index.sort((i0, i1) => {
       for (const [col, sign] of cols) {
-        const v0 = records[old_index.indexOf(i0)][col.field!]
-        const v1 = records[old_index.indexOf(i1)][col.field!]
+        const field = col.field!
+        const v0 = records[sorted_indices[i0]][field]
+        const v1 = records[sorted_indices[i1]][field]
         if (col.sorter != null) {
           return sign * col.sorter.compute(v0, v1)
         }
