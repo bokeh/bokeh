@@ -28,12 +28,6 @@ overview of all available scatter markers:
 .. bokeh-plot:: __REPO__/examples/basic/scatters/markertypes.py
     :source-position: none
 
-Bokeh also offers the opportunity to define custom markers. See
-:attr:`bokeh.models.Scatter.defs` for an introduction.
-
-.. bokeh-plot:: __REPO__/examples/basic/scatters/custom_markers.py
-    :source-position: none
-
 All the supported makers are available as individual methods of |figure|, too.
 But it is recommended to use the |scatter| method as best practice.
 To see details and example plots for any of the available scatter markers, click
