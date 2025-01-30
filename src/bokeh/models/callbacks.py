@@ -22,12 +22,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import pathlib
-from typing import TYPE_CHECKING, Any as any
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.properties import (
-    Any,
     AnyRef,
     Auto,
     Bool,
@@ -94,6 +93,7 @@ class OpenURL(Callback):
     dependent.
     """)
 
+@abstract
 class CustomCode(Callback):
     """ """
 
@@ -176,7 +176,7 @@ class CustomJS(CustomCode):
     """)
 
     @classmethod
-    def from_file(cls, path: PathLike, **args: any) -> CustomJS:
+    def from_file(cls, path: PathLike, **args: Any) -> CustomJS:
         """
         Construct a ``CustomJS`` instance from a ``*.js`` or ``*.mjs`` file.
 
@@ -220,7 +220,7 @@ class SetValue(Callback):
     The property to modify.
     """)
 
-    value = Required(Any, help="""
+    value = Required(AnyRef, help="""
     The value to set.
     """)
 

@@ -41,9 +41,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-import typing as tp
 from math import nan
-from typing import Literal
+from typing import Callable, ClassVar
 
 # Bokeh imports
 from ..core.enums import (
@@ -114,7 +113,7 @@ from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
-from .ui import UIElement
+from .ui import Menu, UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -154,6 +153,7 @@ __all__ = (
     'Tap',
     'TapTool',
     'Tool',
+    'ToolMenu',
     'ToolProxy',
     'Toolbar',
     'UndoTool',
@@ -188,7 +188,7 @@ def _parse_modifiers(value: str) -> dict[KeyModifierType, bool]:
 
 def GlyphRendererOf(*types: type[Model]):
     """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """
-    return TypeOfAttr(Instance(GlyphRenderer), "glyph", Either(*(Instance(tp) for tp in types)))
+    return TypeOfAttr(Instance(GlyphRenderer), "glyph", Either(*(Instance(type) for type in types)))
 
 @abstract
 class Tool(Model):
@@ -220,7 +220,7 @@ class Tool(Model):
     Whether a tool button associated with this tool should appear in the toolbar.
     """)
 
-    _known_aliases: tp.ClassVar[dict[str, tp.Callable[[], Tool]]] = {}
+    _known_aliases: ClassVar[dict[str, Callable[[], Tool]]] = {}
 
     @classmethod
     def from_string(cls, name: str) -> Tool:
@@ -236,7 +236,7 @@ class Tool(Model):
             raise ValueError(f"unexpected tool name '{name}', {text} tools are {nice_join(matches)}")
 
     @classmethod
-    def register_alias(cls, name: str, constructor: tp.Callable[[], Tool]) -> None:
+    def register_alias(cls, name: str, constructor: Callable[[], Tool]) -> None:
         cls._known_aliases[name] = constructor
 
 class ToolProxy(Model):
@@ -400,25 +400,24 @@ class Toolbar(UIElement):
     A list of tools to add to the plot.
     """)
 
-    active_drag: Literal["auto"] | Drag | ToolProxy | None = Either(Null, Auto, Instance(Drag), Instance(ToolProxy), default="auto", help="""
+    active_drag = Either(Null, Auto, Instance(Drag), Instance(ToolProxy), default="auto", help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect: Literal["auto"] | InspectTool | ToolProxy | tp.Sequence[InspectTool] | None = \
-        Either(Null, Auto, Instance(InspectTool), Instance(ToolProxy), Seq(Instance(InspectTool)), default="auto", help="""
+    active_inspect = Either(Null, Auto, Instance(InspectTool), Instance(ToolProxy), Seq(Instance(InspectTool)), default="auto", help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll: Literal["auto"] | Scroll | ToolProxy | None = Either(Null, Auto, Instance(Scroll), Instance(ToolProxy), default="auto", help="""
+    active_scroll = Either(Null, Auto, Instance(Scroll), Instance(ToolProxy), default="auto", help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap: Literal["auto"] | Tap | ToolProxy | None = Either(Null, Auto, Instance(Tap), Instance(ToolProxy), default="auto", help="""
+    active_tap = Either(Null, Auto, Instance(Tap), Instance(ToolProxy), default="auto", help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: Literal["auto"] | GestureTool | ToolProxy | None = Either(Null, Auto, Instance(GestureTool), Instance(ToolProxy), default="auto", help="""
+    active_multi = Either(Null, Auto, Instance(GestureTool), Instance(ToolProxy), default="auto", help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -426,6 +425,18 @@ class Toolbar(UIElement):
     tools as appropriate. For example, if a pan tool is set as the active drag,
     and this property is set to a ``BoxEditTool`` instance, the pan tool will
     be deactivated (i.e. the multi-gesture tool will take precedence).
+    """)
+
+class ToolMenu(Menu):
+    """ Toolbar represented in a menu or context menu form.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    toolbar = Required(Instance(Toolbar), help="""
+    Reference to a toolbar.
     """)
 
 class PanTool(Drag):

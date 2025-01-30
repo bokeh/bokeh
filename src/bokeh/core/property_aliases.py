@@ -51,7 +51,6 @@ __all__ = (
 
 Pixels = NonNegative(Int)
 
-
 HAnchor = Either(Enum(enums.Align), Enum(enums.HAlign), Percent)
 VAnchor = Either(Enum(enums.Align), Enum(enums.VAlign), Percent)
 

@@ -19,6 +19,7 @@ import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
+import {Menu, DividerItem} from "../ui/menus"
 import type {At} from "core/util/menus"
 import {ContextMenu} from "core/util/menus"
 import {Signal0} from "core/signaling"
@@ -557,5 +558,21 @@ export class Toolbar extends UIElement {
         this.gestures[et].active = null
       }
     }
+  }
+
+  to_menu(): Menu {
+    const groups = [
+      ...values(this.gestures).map((gesture) => gesture.tools),
+      this.actions,
+      this.inspectors,
+      this.auxiliaries,
+    ]
+
+    const entries = groups
+      .filter((group) => group.length != 0)
+      .map((group) => group.map((tool) => tool.menu_item()))
+
+    const items = [...join(entries, () => new DividerItem())]
+    return new Menu({items})
   }
 }

@@ -1,20 +1,27 @@
 import {UIElement, UIElementView} from "../ui_element"
 import {MenuItem} from "./menu_item"
-import {ActionItem} from "./action_item"
-import {CheckableItem} from "./checkable_item"
 import {DividerItem} from "./divider_item"
+import {apply_icon} from "../../common/resolve"
 import type * as p from "core/properties"
 import type {XY} from "core/util/bbox"
-import type {StyleSheetLike} from "core/dom"
+import {isFunction} from "core/util/types"
+import type {StyleSheetLike, Keys} from "core/dom"
 import {div, px} from "core/dom"
-import {ToolIcon} from "core/enums"
+import {Or, Ref, Null} from "core/kinds"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
 
-import menus_css, * as menus from "styles/menus_.css"
+import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
+
+function to_val<T>(val: T | (() => T)): T {
+  return isFunction(val) ? val() : val
+}
+
+export const MenuItemLike = Or(Ref(MenuItem), Ref(DividerItem), Null)
+export type MenuItemLike = typeof MenuItemLike["__type__"]
 
 export class MenuView extends UIElementView {
   declare model: Menu
@@ -26,12 +33,41 @@ export class MenuView extends UIElementView {
     yield* this._menu_views.values()
   }
 
+  private _menu_items: MenuItemLike[] = []
+  get menu_items(): MenuItemLike[] {
+    const items = this._menu_items
+    const {reversed} = this.model
+    return reversed ? reverse(items) : items
+  }
+  protected _compute_menu_items(): MenuItemLike[] {
+    return this.model.items
+  }
+  protected _update_menu_items(): void {
+    this._menu_items = this._compute_menu_items()
+  }
+
+  get is_empty(): boolean {
+    return this.menu_items.length == 0
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._update_menu_items()
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    const menus = this.model.items
-      .map((item) => item instanceof ActionItem ? item.menu : null)
+    const menus = this.menu_items
+      .map((item) => item instanceof MenuItem ? item.menu : null)
       .filter((item) => item != null)
     await build_views(this._menu_views, menus, {parent: this})
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {items} = this.model.properties
+    this.on_change(items, () => this._update_menu_items())
   }
 
   prevent_hide?: (event: MouseEvent) => boolean
@@ -41,8 +77,8 @@ export class MenuView extends UIElementView {
     return this._open
   }
 
-  protected _item_click = (item: ActionItem) => {
-    if (!item.disabled) {
+  protected _item_click = (item: MenuItem) => {
+    if (!to_val(item.disabled)) {
       const {action} = item
       if (action != null) {
         void execute(action, this.model, {item})
@@ -62,8 +98,12 @@ export class MenuView extends UIElementView {
   }
 
   protected _on_keydown = (event: KeyboardEvent) => {
-    if (event.key == "Escape") {
-      this.hide()
+    switch (event.key as Keys) {
+      case "Escape": {
+        this.hide()
+        break
+      }
+      default:
     }
   }
 
@@ -96,76 +136,112 @@ export class MenuView extends UIElementView {
   override render(): void {
     super.render()
 
-    const items = (() => {
-      const {reversed, items} = this.model
-      return reversed ? reverse(items) : items
-    })()
+    const items = this.menu_items
+    const entries: {item: MenuItem, el: HTMLElement}[] = []
+
+    if (items.length == 0) {
+      return
+    }
+
     for (const item of items) {
-      if (item instanceof DividerItem) {
-        const item_el = div({class: menus.divider})
-        this.shadow_el.append(item_el)
-      } else if (item instanceof ActionItem) {
+      if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
-        const icon_el = div({class: menus.icon})
         const label_el = div({class: menus.label}, item.label)
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
 
-        const {icon} = item
-        if (icon != null) {
-          if (icon.startsWith("data:image")) {
-            const url = `url("${encodeURI(icon)}")`
-            icon_el.style.backgroundImage = url
-          } else if (icon.startsWith("--")) {
-            icon_el.style.backgroundImage = `var(${icon})`
-          } else if (icon.startsWith(".")) {
-            const cls = icon.substring(1)
-            icon_el.classList.add(cls)
-          } else if (ToolIcon.valid(icon)) {
-            const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
-            icon_el.classList.add(cls)
+        const icon_el = (() => {
+          const {icon} = item
+          if (icon != null) {
+            const icon_el = div({class: menus.icon})
+            apply_icon(icon_el, icon)
+            return icon_el
+          } else {
+            return null
           }
-        }
+        })()
 
         const item_el = div(
           {class: menus.item, title: item.tooltip, tabIndex: 0},
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 
-        item_el.classList.toggle(menus.menu, item.menu != null)
-        item_el.classList.toggle(menus.disabled, item.disabled)
+        const has_menu = item.menu != null && !this._menu_views.get(item.menu)!.is_empty
+        item_el.classList.toggle(menus.menu, has_menu)
+        item_el.classList.toggle(menus.disabled, to_val(item.disabled))
 
-        if (item instanceof CheckableItem) {
+        if (item.checked != null) {
           item_el.classList.add(menus.checkable)
-          item_el.classList.toggle(menus.checked, item.checked)
+          item_el.classList.toggle(menus.checked, to_val(item.checked))
         }
 
-        item_el.addEventListener("click", () => {
-          this._item_click(item)
+        const show_submenu = (item: MenuItem): void => {
+          if (item.menu != null) {
+            const menu_view = this._menu_views.get(item.menu)!
+            menu_view._show_submenu(item_el)
+          }
+        }
+        const hide_submenu = (item: MenuItem): void => {
+          if (item.menu != null) {
+            const menu_view = this._menu_views.get(item.menu)!
+            menu_view.hide()
+          }
+        }
+
+        function is_target(event: Event): boolean {
+          const {currentTarget, target} = event
+          return currentTarget instanceof Node && target instanceof Node && currentTarget.contains(target)
+        }
+
+        item_el.addEventListener("click", (event) => {
+          if (is_target(event)) {
+            this._item_click(item)
+          } else {
+            this.hide()
+          }
         })
         item_el.addEventListener("keydown", (event) => {
-          if (event.key == "Enter") {
-            this._item_click(item)
+          // TODO https://github.com/bokeh/bokeh/issues/14241
+          switch (event.key as Keys) {
+            case "Enter": {
+              this._item_click(item)
+              break
+            }
+            case "ArrowDown": {
+              break
+            }
+            case "ArrowUp": {
+              break
+            }
+            case "ArrowLeft": {
+              break
+            }
+            case "ArrowRight": {
+              break
+            }
+            default:
           }
         })
         const {menu} = item
         if (menu != null) {
           item_el.addEventListener("pointerenter", () => {
-            const menu_view = this._menu_views.get(menu)!
-            menu_view._show_submenu(item_el)
+            show_submenu(item)
           })
           item_el.addEventListener("pointerleave", () => {
-            const menu_view = this._menu_views.get(menu)!
-            menu_view.hide()
+            hide_submenu(item)
           })
         }
+        this.shadow_el.append(item_el)
+        entries.push({item, el: item_el})
+      } else {
+        const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
       }
     }
   }
 
   protected _show_submenu(target: HTMLElement): void {
-    if (this.model.items.length == 0) {
+    if (this.is_empty) {
       this.hide()
       return
     }
@@ -178,16 +254,16 @@ export class MenuView extends UIElementView {
     this._open = true
   }
 
-  show(at: XY): void {
-    if (this.model.items.length == 0) {
+  show(at: XY): boolean {
+    if (this.is_empty) {
       this.hide()
-      return
+      return false
     }
     const {parent} = this
     if (parent == null) {
       // TODO position: fixed
       this.hide()
-      return
+      return false
     }
     this.render()
     const target = parent.el.shadowRoot ?? parent.el
@@ -197,6 +273,7 @@ export class MenuView extends UIElementView {
     style.top = px(at.y)
     this._listen()
     this._open = true
+    return true
   }
 
   hide(): void {
@@ -212,7 +289,7 @@ export namespace Menu {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    items: p.Property<MenuItem[]>
+    items: p.Property<MenuItemLike[]>
     reversed: p.Property<boolean>
   }
 }
@@ -230,8 +307,8 @@ export class Menu extends UIElement {
   static {
     this.prototype.default_view = MenuView
 
-    this.define<Menu.Props>(({Bool, List, Ref}) => ({
-      items: [ List(Ref(MenuItem)), [] ],
+    this.define<Menu.Props>(({Bool, List}) => ({
+      items: [ List(MenuItemLike), [] ],
       reversed: [ Bool, false ],
     }))
   }

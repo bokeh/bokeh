@@ -1,7 +1,4 @@
-import {range as arange} from "./array"
 import {assert} from "./assert"
-
-export {min, max} from "./arrayable"
 
 export function* range(start: number, stop?: number, step: number = 1): Iterable<number> {
   assert(step > 0)
@@ -13,7 +10,7 @@ export function* range(start: number, stop?: number, step: number = 1): Iterable
   }
 
   const delta = start <= stop ? step : -step
-  const length = max(ceil(abs(stop - start) / step), 0)
+  const length = max(ceil(abs(stop - start) / abs(step)), 0)
 
   for (let i = 0; i < length; i++, start += delta) {
     yield start
@@ -163,12 +160,12 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   if (r > n) {
     return
   }
-  const indices = arange(r)
+  const indices = [...range(r)]
 
   yield indices.map((i) => seq[i])
   while (true) {
     let k: number | undefined
-    for (const i of reverse(arange(r))) {
+    for (const i of range(r - 1, -1)) {
       if (indices[i] != i + n - r) {
         k = i
         break
@@ -178,7 +175,7 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
       return
     }
     indices[k] += 1
-    for (const j of arange(k + 1, r)) {
+    for (const j of range(k + 1, r)) {
       indices[j] = indices[j-1] + 1
     }
     yield indices.map((i) => seq[i])
@@ -186,7 +183,49 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
 }
 
 export function* subsets<T>(seq: T[]): Iterable<T[]> {
-  for (const k of arange(seq.length + 1)) {
+  for (const k of range(seq.length + 1)) {
     yield* combinations(seq, k)
   }
+}
+
+export function min(iterable: Iterable<number>): number {
+  let result = Infinity
+
+  for (const value of iterable) {
+    if (!isNaN(value) && value < result) {
+      result = value
+    }
+  }
+
+  return result
+}
+
+export function max(iterable: Iterable<number>): number {
+  let result = -Infinity
+
+  for (const value of iterable) {
+    if (!isNaN(value) && value > result) {
+      result = value
+    }
+  }
+
+  return result
+}
+
+export function minmax(iterable: Iterable<number>): [number, number] {
+  let min = +Infinity
+  let max = -Infinity
+
+  for (const value of iterable) {
+    if (!isNaN(value)) {
+      if (value < min) {
+        min = value
+      }
+      if (value > max) {
+        max = value
+      }
+    }
+  }
+
+  return [min, max]
 }

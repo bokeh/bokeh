@@ -93,6 +93,7 @@ __all__ = (
     'AlternationPolicy',
     'Anchor',
     'AngleUnits',
+    'Auto',
     'AutosizeMode',
     'BuiltinFormatter',
     'ButtonType',
@@ -135,6 +136,7 @@ __all__ = (
     'Palette',
     'PanDirection',
     'Place',
+    'RadiusDimension',
     'RegionSelectionMode',
     'RenderLevel',
     'ResetPolicy',
@@ -280,6 +282,10 @@ Anchor = enumeration(AnchorType)
 #: Specify the units for an angle value
 AngleUnitsType = Literal["deg", "rad", "grad", "turn"]
 AngleUnits = enumeration(AngleUnitsType)
+
+#:
+AutoType = Literal["auto"]
+Auto = enumeration(AutoType)
 
 #: Specify autosize mode for DataTable
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
@@ -476,8 +482,8 @@ OrientationType = Literal["horizontal", "vertical"]
 Orientation = enumeration(OrientationType)
 
 #: Names of pre-defined outline shapes (used in ``Text.outline_shape``)
-OutlineShapeName = Literal["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"]
-OutlineShapeName = enumeration(OutlineShapeName)
+OutlineShapeNameType = Literal["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"]
+OutlineShapeName = enumeration(OutlineShapeNameType)
 
 #: Specify an output backend to render a plot area onto
 OutputBackendType = Literal["canvas", "svg", "webgl"]
@@ -488,15 +494,20 @@ PaddingUnitsType = Literal["percent", "absolute"]
 PaddingUnits = enumeration(PaddingUnitsType)
 
 #: Which direction click pan tool acts on.
-PanDirection = Literal["left", "right", "up", "down", "west", "east", "north", "south"]
-PanDirection = enumeration(PanDirection)
+PanDirectionType = Literal["left", "right", "up", "down", "west", "east", "north", "south"]
+PanDirection = enumeration(PanDirectionType)
 
 #: Specify the name of a palette from :ref:`bokeh.palettes`
+PaletteType = str # TODO
 Palette = enumeration(*palettes.__palettes__)
 
 #: Placement of a layout element, in particular in border-style layouts
 PlaceType = Literal["above", "below", "left", "right", "center"]
 Place = enumeration(PlaceType)
+
+#: Specify which dimension or dimensions to use when measuring circle radius
+RadiusDimensionType = Literal["x", "y", "max", "min"]
+RadiusDimension = enumeration(RadiusDimensionType)
 
 #: Specify a position in the render order for a renderer
 RenderLevelType = Literal["image", "underlay", "glyph", "guide", "annotation", "overlay"]

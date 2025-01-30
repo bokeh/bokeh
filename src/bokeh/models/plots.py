@@ -857,6 +857,8 @@ class Plot(LayoutDOM):
         This feature is experimental and may change in the short term.
     """)
 
+    context_menu = Override(default="auto")
+
 class GridPlot(LayoutDOM, GridCommon):
     """ Collection of plots and other layoutables on arranged on a rectangular grid.
 

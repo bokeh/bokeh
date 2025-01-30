@@ -286,8 +286,8 @@ describe("core/kinds module", () => {
   })
 
   it("should support Func kind", () => {
-    const tp = k.Func()
-    expect(`${tp}`).to.be.equal("Func(...)")
+    const tp = k.Func([k.Int, k.List(k.Float)], k.Bool)
+    expect(`${tp}`).to.be.equal("Func((Int, List(Float)), Bool)")
     expect(tp.valid(() => 1)).to.be.true
     expect(tp.valid(async () => 1)).to.be.true
     expect(tp.valid(function() { return 1 })).to.be.true
@@ -374,7 +374,7 @@ describe("core/kinds module", () => {
     const tp4 = k.Map(k.Number, k.Boolean)
     expect(`${tp4}`).to.be.equal("Mapping(Float, Bool)")
 
-    const tp5 = k.Function()
-    expect(`${tp5}`).to.be.equal("Func(...)")
+    const tp5 = k.Function([], k.Unknown)
+    expect(`${tp5}`).to.be.equal("Func((), Unknown)")
   })
 })

@@ -10,6 +10,7 @@ import {
   Or,
   PartialStruct,
   Percent,
+  PrefixedStr,
   Ref,
   Str,
   Tuple,
@@ -89,3 +90,6 @@ export type TrackSizingLike = typeof TrackSizingLike["__type__"]
 
 export const TracksSizing = Or(TrackSizingLike, List(TrackSizingLike), Mapping(Int, TrackSizingLike))
 export type TracksSizing = typeof TracksSizing["__type__"]
+
+export const IconLike = Or(enums.ToolIcon, PrefixedStr("--"), PrefixedStr("."), PrefixedStr("data:image"))
+export type IconLike = typeof IconLike["__type__"]

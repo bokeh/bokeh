@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import ToolIcon
-from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     Either,
@@ -28,12 +27,14 @@ from ...core.properties import (
     Image,
     Instance,
     List,
+    Null,
     Nullable,
     Regex,
     Required,
     String,
 )
 from ...model import Model
+from ...util.deprecation import deprecated
 from ..callbacks import Callback
 from .ui_element import UIElement
 
@@ -46,21 +47,20 @@ __all__ = (
     "CheckableItem",
     "DividerItem",
     "Menu",
+    "MenuItem",
 )
+
+CSSVariable = Regex(r"^--")
+
+CSSClass = Regex(r"^\.")
+
+IconLike = Either(Image, Enum(ToolIcon), CSSVariable, CSSClass)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-@abstract
 class MenuItem(Model):
-    """ Base class for various kinds of menu items. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-class ActionItem(MenuItem):
     """ A basic menu item with an icon, label, shortcut, sub-menu and an associated action.
 
     Only label is required. All other properties are optional.
@@ -70,7 +70,17 @@ class ActionItem(MenuItem):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^--"), Regex(r"^\.")), help="""
+    checked = Nullable(Bool, default=None, help="""
+    Whether an item is marked as checked/active.
+
+    Checked item is represented with a tick mark on the left hand side
+    of an item. Unchecked item is represented with an empty space.
+
+    The menu will allocate a column for check marks for all its items if
+    at least one item has set a boolean value for ``checked`` property.
+    """)
+
+    icon = Nullable(IconLike, help="""
     An optional icon to display left of the label.
     """)
 
@@ -102,23 +112,22 @@ class ActionItem(MenuItem):
     An optional action (callback) associated with this item.
     """)
 
-class CheckableItem(ActionItem):
+class ActionItem(MenuItem):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        deprecated((3, 7, 0), "ActionItem", "MenuItem")
+        super().__init__(*args, **kwargs)
+
+class CheckableItem(MenuItem):
     """ A two state checkable menu item. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
+        deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
         super().__init__(*args, **kwargs)
 
-    checked = Bool(default=False, help="""
-    The state of the checkable item.
-
-    Checked item is represented with a tick mark on the left hand side
-    of an item. Unchecked item is represented with an empty space.
-    """)
-
-    # TODO group = Either(Instance(MenuGroup), Auto)
-
-class DividerItem(MenuItem):
+class DividerItem(Model):
     """ A dividing line between two groups of menu items. """
 
     # explicit __init__ to support Init signatures
@@ -135,8 +144,8 @@ class Menu(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    items = List(Instance(MenuItem), default=[], help="""
-    A collection of menu items representing
+    items = List(Either(Instance(MenuItem), Instance(DividerItem), Null), default=[], help="""
+    A collection of menu items representing the contents of this menu.
     """)
 
     reversed = Bool(default=False, help="""

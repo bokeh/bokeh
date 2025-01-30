@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 from typing import Any, ClassVar, Literal
 
 # Bokeh imports
+from ..core.has_props import abstract
 from ..core.properties import (
     Either,
     Enum,
@@ -121,6 +122,7 @@ class BoxNodes:
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class Coordinate(Model):
     """ A base class for various types of coordinate specifications.
     """

@@ -176,9 +176,9 @@ An example of a more realistic model might look like this:
 See :ref:`bokeh.core.properties` for more details.
 
 .. warning::
-    The class :class:`~bokeh.core.properties.Any` is the super-type of all other
-    types and will accept any type of value. Since this circumvents all type
-    validation, make sure to use it sparingly, if at all.
+    The class :class:`~bokeh.core.properties.Any` is the super-type of all
+    other types and will accept any type of value. Since this circumvents
+    all type validation, make sure to use it sparingly, if at all.
 
 .. _contributor_guide_python_typing:
 

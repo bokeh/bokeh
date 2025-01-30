@@ -173,6 +173,14 @@ describe("core/util/array module", () => {
     expect(array.argmax([4, 3, 2, 1])).to.be.equal(0)
   })
 
+  it("argsort should return the permutation indices for sorting an array", () => {
+    expect(array.argsort([])).to.be.equal([])
+    expect(array.argsort([2])).to.be.equal([0])
+    expect(array.argsort([1, 2, 3, 4])).to.be.equal([0, 1, 2, 3])
+    expect(array.argsort([4, 3, 2, 1])).to.be.equal([3, 2, 1, 0])
+    expect(array.argsort([2, 4, 1, 3])).to.be.equal([2, 0, 3, 1])
+  })
+
   it("should support resize() function", () => {
     expect(array.resize([1, 2, 3], 0, 0)).to.be.equal([])
     expect(array.resize([1, 2, 3], 1, 0)).to.be.equal([1])

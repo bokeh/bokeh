@@ -1,7 +1,8 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import {MenuItem} from "../../ui/menus"
+import type {MenuItemLike} from "../../ui/menus"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
-import type {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
   declare model: SaveTool
@@ -83,23 +84,33 @@ export class SaveTool extends ActionTool {
   override tool_name = "Save"
   override tool_icon = icons.tool_icon_save
 
-  override get menu(): MenuItem[] | null {
+  override get menu(): MenuItemLike[] {
     return [
-      {
-        icon: icons.tool_icon_copy,
+      new MenuItem({
+        icon: `.${icons.tool_icon_save}`,
+        label: "Save",
+        tooltip: "Save image as a local file",
+        action: () => {
+          this.do.emit("save")
+        },
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_copy}`,
+        label: "Copy",
         tooltip: "Copy image to clipboard",
-        if: () => typeof ClipboardItem !== "undefined",
-        handler: () => {
+        disabled: () => typeof ClipboardItem === "undefined",
+        action: () => {
           this.do.emit("copy")
         },
-      },
-      {
-        icon: icons.tool_icon_open,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_open}`,
+        label: "Open",
         tooltip: "Open image in a new tab",
-        handler: () => {
+        action: () => {
           this.do.emit("open")
         },
-      },
+      }),
     ]
   }
 }

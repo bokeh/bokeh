@@ -1,0 +1,97 @@
+@import "./_mixins.less";
+
+.bk-menu-icon {
+  width: 28px;
+  height: 28px;
+
+  mask-size: 60% 60%;
+  mask-position: center center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 60% 60%;
+  -webkit-mask-position: center center;
+  -webkit-mask-repeat: no-repeat;
+
+  background-size: 60%;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+:host {
+  position: absolute;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  .no-user-select();
+
+  width: auto;
+  height: auto;
+
+  z-index: var(--bokeh-top-level);
+
+  cursor: pointer;
+  font-size: var(--font-size);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+}
+
+:host(.bk-horizontal) {
+  flex-direction: row;
+}
+:host(.bk-vertical) {
+  flex-direction: column;
+}
+
+.bk-divider {
+  cursor: default;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+:host(.bk-horizontal) > .bk-divider {
+  width: 1px;
+  margin: 5px 0;
+}
+:host(.bk-vertical) > .bk-divider {
+  height: 1px;
+  margin: 0 5px;
+}
+
+:host > :not(.bk-divider) {
+  border: 1px solid transparent;
+
+  &.bk-active {
+    border-color: var(--highlight-color);
+  }
+  &:hover {
+    background-color: #f9f9f9;
+  }
+  &:focus, &:focus-visible {
+    outline: 1px dotted var(--highlight-color);
+    outline-offset: -1px;
+  }
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
+
+:host(.bk-horizontal) > :not(.bk-divider) {
+  &:first-child {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+  }
+  &:last-child {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+  }
+}
+:host(.bk-vertical) > :not(.bk-divider) {
+  &:first-child {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+  &:last-child {
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+  }
+}

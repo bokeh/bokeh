@@ -3,10 +3,12 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import type {CartesianFrameView} from "../../canvas/cartesian_frame"
 import type {RangeState} from "../../plots/range_manager"
+import {MenuItem} from "../../ui/menus"
+import type {MenuItemLike} from "../../ui/menus"
+import type {IconLike} from "../../common/kinds"
 import type * as p from "core/properties"
 import type {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
-import type {MenuItem} from "core/util/menus"
 import * as icons from "styles/icons.css"
 
 type Point = [number, number]
@@ -273,7 +275,7 @@ export class BoxZoomTool extends GestureTool {
   }
   override default_order = 20
 
-  override get computed_icon(): string {
+  override get computed_icon(): IconLike {
     const icon = super.computed_icon
     if (icon != null) {
       return icon
@@ -291,41 +293,48 @@ export class BoxZoomTool extends GestureTool {
     return this._get_dim_tooltip(this.dimensions)
   }
 
-  override get menu(): MenuItem[] | null {
+  override get menu(): MenuItemLike[] {
     return [
-      {
-        icon: icons.tool_icon_box_zoom,
+      new MenuItem({
+        icon: `.${icons.tool_icon_box_zoom}`,
+        label: "XY mode",
         tooltip: "Box zoom in both dimensions",
-        active: () => this.dimensions == "both",
-        handler: () => {
+        checked: () => this.dimensions == "both",
+        action: () => {
           this.dimensions = "both"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_x_box_zoom,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_x_box_zoom}`,
+        label: "X-only",
         tooltip: "Box zoom in x-dimension",
-        active: () => this.dimensions == "width",
-        handler: () => {
+        checked: () => this.dimensions == "width",
+        action: () => {
           this.dimensions = "width"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_y_box_zoom,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_y_box_zoom}`,
+        label: "Y-only",
         tooltip: "Box zoom in y-dimension",
-        active: () => this.dimensions == "height",
-        handler: () => {
+        checked: () => this.dimensions == "height",
+        action: () => {
           this.dimensions = "height"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_auto_box_zoom,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_auto_box_zoom}`,
+        label: "Auto mode",
         tooltip: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)",
-        active: () => this.dimensions == "auto",
-        handler: () => {
+        checked: () => this.dimensions == "auto",
+        action: () => {
           this.dimensions = "auto"
           this.active = true
         },
-      },
+      }),
     ]
   }
 }

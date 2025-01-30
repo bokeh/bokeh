@@ -36,6 +36,7 @@ import {
   Range,
   Range1d,
   Tool,
+  ToolMenu,
   ToolProxy,
 } from "./models"
 
@@ -345,6 +346,10 @@ export class Figure extends BaseFigure {
       }
     } else if (active_multi !== undefined) {
       this.toolbar.active_multi = active_multi
+    }
+
+    if (this.context_menu == null) {
+      this.context_menu = new ToolMenu({toolbar: this.toolbar})
     }
   }
 

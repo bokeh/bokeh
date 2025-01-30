@@ -40,8 +40,8 @@ from ..core.enums import (
     ImageOrigin,
     OutlineShapeName,
     Palette,
+    RadiusDimension,
     StepMode,
-    enumeration,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -210,7 +210,7 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     """)
 
 @abstract
-class LRTBGlyph(LineGlyph, FillGlyph, HatchGlyph):
+class LRTBGlyph(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     """ Base class for axis-aligned rectangles. """
 
     # explicit __init__ to support Init signatures
@@ -359,7 +359,7 @@ class Arc(XYGlyph, LineGlyph):
     The {prop} values for the arcs.
     """)
 
-class Bezier(LineGlyph):
+class Bezier(Glyph, LineGlyph):
     ''' Render Bezier curves.
 
     For more information consult the `Wikipedia article for Bezier curve`_.
@@ -485,7 +485,7 @@ class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
         information.
     """)
 
-    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    radius_dimension = Enum(RadiusDimension, help="""
     What dimension to measure circle radii along.
 
     When the data space aspect ratio is not 1-1, then the size of the drawn
@@ -558,7 +558,7 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the ellipses.
     """)
 
-class HArea(LineGlyph, FillGlyph, HatchGlyph):
+class HArea(Glyph, FillGlyph, HatchGlyph):
     ''' Render a horizontally directed area between two equal length sequences
     of x-coordinates with the same y-coordinates.
 
@@ -592,7 +592,7 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-class HAreaStep(FillGlyph, HatchGlyph):
+class HAreaStep(Glyph, FillGlyph, HatchGlyph):
     ''' Render a horizontally directed area between two equal length sequences
     of x-coordinates with the same y-coordinates using step lines.
 
@@ -677,7 +677,7 @@ class HBar(LRTBGlyph):
     The {prop} values for the horizontal bars.
     """)
 
-class HexTile(LineGlyph, FillGlyph, HatchGlyph):
+class HexTile(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render horizontal tiles on a regular hexagonal grid.
 
     '''
@@ -995,7 +995,7 @@ class Line(ConnectedXYGlyph, LineGlyph):
     The {prop} values for the line.
     """)
 
-class MultiLine(LineGlyph):
+class MultiLine(Glyph, LineGlyph):
     ''' Render several lines.
 
     The data for the ``MultiLine`` glyph is different in that the vector of
@@ -1023,7 +1023,7 @@ class MultiLine(LineGlyph):
     The {prop} values for the lines.
     """)
 
-class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
+class MultiPolygons(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render several MultiPolygon.
 
     Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
@@ -1109,7 +1109,7 @@ class Ngon(RadialGlyph):
     no glyph instance being drawn.
     """)
 
-    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    radius_dimension = Enum(RadiusDimension, help="""
     What dimension to measure n-gons radii along.
 
     When the data space aspect ratio is not 1-1, then the size of the drawn
@@ -1178,7 +1178,7 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the patch.
     """)
 
-class Patches(LineGlyph, FillGlyph, HatchGlyph):
+class Patches(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render several patches.
 
     The data for the ``Patches`` glyph is different in that the vector of
@@ -1268,7 +1268,7 @@ class Quad(LRTBGlyph):
     The {prop} values for the quads.
     """)
 
-class Quadratic(LineGlyph):
+class Quadratic(Glyph, LineGlyph):
     ''' Render parabolas.
 
     '''
@@ -1519,7 +1519,7 @@ class Scatter(Marker):
 
     """)
 
-class Segment(LineGlyph):
+class Segment(Glyph, LineGlyph):
     ''' Render segments.
 
     '''
@@ -1762,7 +1762,7 @@ class TeXGlyph(MathTextGlyph):
 
     """)
 
-    display = Either(Enum("inline", "block", "auto"), default="auto", help="""
+    display = Enum("inline", "block", "auto", default="auto", help="""
     Defines how the text is interpreted and what TeX display mode to use.
 
     The following values are allowed:
@@ -1778,7 +1778,7 @@ class TeXGlyph(MathTextGlyph):
       The text is taken verbatim and TeX's inline mode is used.
     """)
 
-class VArea(FillGlyph, HatchGlyph):
+class VArea(Glyph, FillGlyph, HatchGlyph):
     ''' Render a vertically directed area between two equal length sequences
     of y-coordinates with the same x-coordinates.
 
@@ -1812,7 +1812,7 @@ class VArea(FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-class VAreaStep(FillGlyph, HatchGlyph):
+class VAreaStep(Glyph, FillGlyph, HatchGlyph):
     ''' Render a vertically directed area between two equal length sequences
     of y-coordinates with the same x-coordinates using step lines.
 
@@ -1945,7 +1945,7 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the wedges.
     """)
 
-class HSpan(LineGlyph):
+class HSpan(Glyph, LineGlyph):
     """ Horizontal lines of infinite width. """
 
     # explicit __init__ to support Init signatures
@@ -1964,7 +1964,7 @@ class HSpan(LineGlyph):
     The {prop} values for the spans.
     """)
 
-class VSpan(LineGlyph):
+class VSpan(Glyph, LineGlyph):
     """ Vertical lines of infinite height. """
 
     # explicit __init__ to support Init signatures
@@ -1983,7 +1983,7 @@ class VSpan(LineGlyph):
     The {prop} values for the spans.
     """)
 
-class HStrip(LineGlyph, FillGlyph, HatchGlyph):
+class HStrip(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     """ Horizontal strips of infinite width. """
 
     # explicit __init__ to support Init signatures
@@ -2014,7 +2014,7 @@ class HStrip(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the strips.
     """)
 
-class VStrip(LineGlyph, FillGlyph, HatchGlyph):
+class VStrip(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     """ Vertical strips of infinite height. """
 
     # explicit __init__ to support Init signatures

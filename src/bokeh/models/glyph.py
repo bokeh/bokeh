@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.properties import Instance, List
 from ..model import Model
 from .graphics import Decoration
@@ -107,7 +107,7 @@ class ConnectedXYGlyph(XYGlyph):
         super().__init__(*args, **kwargs)
 
 @abstract
-class LineGlyph(Glyph):
+class LineGlyph(HasProps):
     ''' Glyphs with line properties
 
     '''
@@ -117,7 +117,7 @@ class LineGlyph(Glyph):
         super().__init__(*args, **kwargs)
 
 @abstract
-class FillGlyph(Glyph):
+class FillGlyph(HasProps):
     ''' Glyphs with fill properties
 
     '''
@@ -127,7 +127,7 @@ class FillGlyph(Glyph):
         super().__init__(*args, **kwargs)
 
 @abstract
-class TextGlyph(Glyph):
+class TextGlyph(HasProps):
     ''' Glyphs with text properties
 
     '''
@@ -137,7 +137,7 @@ class TextGlyph(Glyph):
         super().__init__(*args, **kwargs)
 
 @abstract
-class HatchGlyph(Glyph):
+class HatchGlyph(HasProps):
     ''' Glyphs with Hatch properties
 
     '''

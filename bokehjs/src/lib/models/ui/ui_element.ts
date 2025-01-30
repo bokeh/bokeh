@@ -108,6 +108,13 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _context_menu: ViewOf<Menu> | null = null
 
+  /**
+   * Allows to provide a context dependent menu when `UIElement.context_menu` is `"auto"`.
+   */
+  protected _provide_context_menu(): Menu | null {
+    return null
+  }
+
   override initialize(): void {
     super.initialize()
 
@@ -117,9 +124,16 @@ export abstract class UIElementView extends StyledElementView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    const {context_menu} = this.model
-    if (context_menu != null) {
-      this._context_menu = await build_view(context_menu, {parent: this})
+    const menu = (() => {
+      const {context_menu} = this.model
+      if (context_menu == "auto") {
+        return this._provide_context_menu()
+      } else {
+        return context_menu
+      }
+    })()
+    if (menu != null) {
+      this._context_menu = await build_view(menu, {parent: this})
     }
   }
 
@@ -144,9 +158,10 @@ export abstract class UIElementView extends StyledElementView {
 
       const context_menu = this.get_context_menu({x, y})
       if (context_menu != null) {
-        event.stopPropagation()
-        event.preventDefault()
-        context_menu.show({x, y})
+        if (context_menu.show({x, y})) {
+          event.stopPropagation()
+          event.preventDefault()
+        }
       }
     }
   }
@@ -241,7 +256,7 @@ export namespace UIElement {
 
   export type Props = StyledElement.Props & {
     visible: p.Property<boolean>
-    context_menu: p.Property<Menu | null>
+    context_menu: p.Property<Menu | "auto" | null>
   }
 }
 
@@ -256,9 +271,9 @@ export abstract class UIElement extends StyledElement {
   }
 
   static {
-    this.define<UIElement.Props>(({Bool, AnyRef, Nullable}) => ({
+    this.define<UIElement.Props>(({Bool, AnyRef, Nullable, Or, Auto}) => ({
       visible: [ Bool, true ],
-      context_menu: [ Nullable(AnyRef<Menu>()), null ],
+      context_menu: [ Nullable(Or(AnyRef<Menu>(), Auto)), null ],
     }))
   }
 }

@@ -1,13 +1,16 @@
 import type * as p from "core/properties"
 import type {EventType} from "core/ui_events"
 import {Signal0} from "core/signaling"
+import type {IconLike} from "../common/kinds"
 import {Model} from "../../model"
+import {Menu, MenuItem} from "../ui/menus"
+import type {MenuItemLike} from "../ui/menus"
 import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolButton} from "./tool_button"
 import type {InspectTool} from "./inspectors/inspect_tool"
-import type {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
+import {execute} from "core/util/callbacks"
 
 export type ToolLike<T extends Tool> = T | ToolProxy<T>
 
@@ -53,6 +56,10 @@ export class ToolProxy<T extends Tool> extends Model {
     return button
   }
 
+  menu_item(): MenuItem {
+    return this.tools[0].menu_item()
+  }
+
   get event_type(): EventType | EventType[] | undefined {
     return this.tools[0].event_type
   }
@@ -77,7 +84,7 @@ export class ToolProxy<T extends Tool> extends Model {
     return this.tools[0].tool_name
   }
 
-  get computed_icon(): string | undefined {
+  get computed_icon(): IconLike | undefined {
     return this.tools[0].computed_icon
   }
 
@@ -119,23 +126,30 @@ export class ToolProxy<T extends Tool> extends Model {
     }
   }
 
-  get menu(): MenuItem[] | null {
+  get menu(): MenuItemLike[] | null {
     const {menu} = this.tools[0]
     if (menu == null) {
       return null
     }
 
-    const items = []
+    const items: MenuItemLike[] = []
     for (const [item, i] of enumerate(menu)) {
       if (item == null) {
         items.push(null)
       } else {
-        const handler = () => {
+        const action = () => {
           for (const tool of this.tools) {
-            tool.menu?.[i]?.handler?.()
+            const {menu} = tool
+            if (menu == null) {
+              continue
+            }
+            const item = menu[i]
+            if (item instanceof MenuItem && item.action != null) {
+              void execute(item.action, new Menu(), {item})
+            }
           }
         }
-        items.push({...item, handler})
+        items.push(item.clone({action}))
       }
     }
     return items

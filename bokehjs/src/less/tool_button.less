@@ -6,7 +6,6 @@
   --button-color: lightgray;
   --button-border: 2px;
 
-  --active-tool-highlight: #26aae1;
   --active-tool-border: var(--button-border) solid transparent;
 }
 
@@ -44,7 +43,7 @@
 
 :host(.bk-disabled) {
   .bk-tool-icon {
-    background-color: var(--bokeh-icon-color-disabled);
+    background-color: var(--icon-color-disabled);
     cursor: not-allowed;
   }
 }
@@ -97,7 +96,7 @@
 }
 
 :host(:focus), :host(:focus-visible) {
-  outline: 1px dotted var(--active-tool-highlight);
+  outline: 1px dotted var(--highlight-color);
   outline-offset: -1px;
 }
 
@@ -110,7 +109,7 @@
 }
 
 .tool-button-border-active(@side) {
-  border-@{side}-color: var(--active-tool-highlight);
+  border-@{side}-color: var(--highlight-color);
 }
 
 :host(.bk-above) {

@@ -26,6 +26,7 @@ from ...core.properties import (
     Bool,
     Dict,
     Either,
+    Enum,
     Instance,
     List,
     Nullable,
@@ -110,8 +111,12 @@ class UIElement(StyledElement):
     Whether the component should be displayed on screen.
     """)
 
-    context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""
+    context_menu = Nullable(Either(Instance(".models.ui.Menu"), Enum("auto")), default=None, help="""
     A menu to display when user right clicks on the component.
+
+    If set to ``"auto"``, the component may provide a dynamically generated
+    menu. For example, ``Plot`` and related models provide a ``ToolMenu``
+    instance for easy access to their tools.
 
     .. note::
         Use shift key when right clicking to display the native context menu.

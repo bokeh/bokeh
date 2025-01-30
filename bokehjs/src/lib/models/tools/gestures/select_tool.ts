@@ -4,13 +4,14 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import type {DataSource} from "../../sources/data_source"
 import {compute_renderers} from "../../util"
+import {MenuItem} from "../../ui/menus"
+import type {MenuItemLike} from "../../ui/menus"
 import type * as p from "core/properties"
 import type {KeyEvent, KeyModifiers} from "core/ui_events"
 import type {SelectionMode} from "core/enums"
 import {SelectionGeometry} from "core/bokeh_events"
 import type {Geometry} from "core/geometry"
 import {Signal0} from "core/signaling"
-import type {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
 import {uniq} from "core/util/array"
 import * as icons from "styles/icons.css"
@@ -171,63 +172,75 @@ export abstract class SelectTool extends GestureTool {
     }))
   }
 
-  override get menu(): MenuItem[] | null {
+  override get menu(): MenuItemLike[] {
     return [
-      {
-        icon: icons.tool_icon_replace_mode,
+      new MenuItem({
+        icon: `.${icons.tool_icon_replace_mode}`,
+        label: "Replace mode",
         tooltip: "Replace the current selection",
-        active: () => this.mode == "replace",
-        handler: () => {
+        checked: () => this.mode == "replace",
+        action: () => {
           this.mode = "replace"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_append_mode,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_append_mode}`,
+        label: "Append mode",
         tooltip: "Append to the current selection (Shift)",
-        active: () => this.mode == "append",
-        handler: () => {
+        checked: () => this.mode == "append",
+        action: () => {
           this.mode = "append"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_intersect_mode,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_intersect_mode}`,
+        label: "Intersection mode",
         tooltip: "Intersect with the current selection (Ctrl)",
-        active: () => this.mode == "intersect",
-        handler: () => {
+        checked: () => this.mode == "intersect",
+        action: () => {
           this.mode = "intersect"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_subtract_mode,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_subtract_mode}`,
+        label: "Subtraction mode",
         tooltip: "Subtract from the current selection (Shift+Ctrl)",
-        active: () => this.mode == "subtract",
-        handler: () => {
+        checked: () => this.mode == "subtract",
+        action: () => {
           this.mode = "subtract"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_xor_mode,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_xor_mode}`,
+        label: "XOR mode",
         tooltip: "Symmetric difference with the current selection",
-        active: () => this.mode == "xor",
-        handler: () => {
+        checked: () => this.mode == "xor",
+        action: () => {
           this.mode = "xor"
           this.active = true
         },
-      },
+      }),
       null,
-      {
-        icon: icons.tool_icon_invert_selection,
+      new MenuItem({
+        icon: `.${icons.tool_icon_invert_selection}`,
+        label: "Invert selection",
         tooltip: "Invert the current selection",
-        handler: () => {
+        action: () => {
           this.invert.emit()
         },
-      }, {
-        icon: icons.tool_icon_clear_selection,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_clear_selection}`,
+        label: "Clear selection",
         tooltip: "Clear the current selection and/or selection overlay (Esc)",
-        handler: () => {
+        action: () => {
           this.clear.emit()
         },
-      },
+      }),
     ]
   }
 }

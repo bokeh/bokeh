@@ -1,99 +1,130 @@
 @import "./_mixins.less";
 
-.bk-menu-icon {
-  width: 28px;
-  height: 28px;
-
-  mask-size: 60% 60%;
-  mask-position: center center;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 60% 60%;
-  -webkit-mask-position: center center;
-  -webkit-mask-repeat: no-repeat;
-
-  background-size: 60%;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center center;
-}
-
 :host {
   position: absolute;
-  display: inline-flex;
-  flex-wrap: nowrap;
+
+  display: inline-grid;
+  grid-template-columns: repeat(5, max-content);
+  grid-template-rows: auto;
+
   .no-user-select();
+  cursor: pointer;
 
   width: auto;
   height: auto;
 
   z-index: var(--bokeh-top-level);
 
-  cursor: pointer;
   font-size: var(--font-size);
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  box-shadow: var(--box-shadow);
 }
 
-:host(.bk-horizontal) {
-  flex-direction: row;
+.bk-item, .bk-divider {
+  position: relative;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: span 5;
+  align-items: center;
 }
-:host(.bk-vertical) {
-  flex-direction: column;
+.bk-check {
+  grid-column: 1;
+}
+.bk-icon {
+  grid-column: 2;
+}
+.bk-label {
+  grid-column: 3;
+}
+.bk-shortcut {
+  grid-column: 4;
+}
+.bk-chevron {
+  grid-column: 5;
 }
 
 .bk-divider {
   cursor: default;
   overflow: hidden;
-  background-color: #e5e5e5;
-}
-:host(.bk-horizontal) > .bk-divider {
-  width: 1px;
-  margin: 5px 0;
-}
-:host(.bk-vertical) > .bk-divider {
+  background-color: var(--divider-color);
   height: 1px;
-  margin: 0 5px;
+  margin: 1px 5px;
 }
 
-:host > :not(.bk-divider) {
-  border: 1px solid transparent;
+.bk-item {
+  padding: 0.5em;
 
-  --active-tool-highlight: #26aae1;
-
-  &.bk-active {
-    border-color: var(--active-tool-highlight);
-  }
   &:hover {
-    background-color: #f9f9f9;
+    background-color: var(--hover-color);
   }
   &:focus, &:focus-visible {
-    outline: 1px dotted var(--active-tool-highlight);
+    outline: 1px dotted var(--highlight-color);
     outline-offset: -1px;
   }
   &::-moz-focus-inner {
     border: 0;
   }
+
+  &.bk-disabled {
+    color: var(--disabled-color);
+    cursor: not-allowed;
+
+    .bk-icon {
+      color: var(--icon-color-disabled);
+    }
+  }
+
+  &:first-of-type {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+
+  &:last-of-type {
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+  }
 }
 
-:host(.bk-horizontal) > :not(.bk-divider) {
-  &:first-child {
-    border-top-left-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-  }
-  &:last-child {
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
+.bk-icon {
+  position: relative;
+
+  width: 16px;
+  height: 16px;
+
+  .icon-mask-base();
+  .icon-mask-base-png();
+}
+
+.bk-label {
+  padding: 0 0.5em;
+}
+
+.bk-shortcut {
+  text-align: right;
+  font-size: 90%;
+  color: var(--shortcut-color);
+}
+
+.bk-chevron {
+  .icon-mask(var(--bokeh-icon-caret-right));
+  width: 12px;
+  height: 12px;
+}
+.bk-item:not(.bk-menu) {
+  .bk-chevron {
+    display: none;
   }
 }
-:host(.bk-vertical) > :not(.bk-divider) {
-  &:first-child {
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+.bk-item.bk-checkable {
+  .bk-check {
+    width: 16px;
+    height: 16px;
   }
-  &:last-child {
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
+  &.bk-checked {
+    .bk-check {
+      .icon-mask(var(--bokeh-icon-check));
+    }
   }
 }

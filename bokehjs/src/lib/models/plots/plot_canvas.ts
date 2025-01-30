@@ -10,6 +10,7 @@ import type {DataRenderer} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
+import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
 import type {LayoutDOM, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
 import {LayoutDOMView} from "../layouts/layout_dom"
@@ -260,6 +261,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
     super.remove()
+  }
+
+  protected override _provide_context_menu(): Menu | null {
+    return new ToolMenu({toolbar: this.model.toolbar})
   }
 
   override get_context_menu(xy: XY): ViewOf<Menu> | null {

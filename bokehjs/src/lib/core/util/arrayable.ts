@@ -1,6 +1,7 @@
 import type {Arrayable, ArrayableNew, FloatArray, TypedArray} from "../types"
 import {clamp} from "./math"
 import {assert, assert_debug} from "./assert"
+export {min, max, minmax} from "./iterator"
 
 const {floor} = Math
 
@@ -232,48 +233,6 @@ export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Array
     return left.index - right.index
   })
   return map(array, (_, i) => array[tmp[i].index])
-}
-
-export function min(iterable: Iterable<number>): number {
-  let result = Infinity
-
-  for (const value of iterable) {
-    if (!isNaN(value) && value < result) {
-      result = value
-    }
-  }
-
-  return result
-}
-
-export function max(iterable: Iterable<number>): number {
-  let result = -Infinity
-
-  for (const value of iterable) {
-    if (!isNaN(value) && value > result) {
-      result = value
-    }
-  }
-
-  return result
-}
-
-export function minmax(iterable: Iterable<number>): [number, number] {
-  let min = +Infinity
-  let max = -Infinity
-
-  for (const value of iterable) {
-    if (!isNaN(value)) {
-      if (value < min) {
-        min = value
-      }
-      if (value > max) {
-        max = value
-      }
-    }
-  }
-
-  return [min, max]
 }
 
 export function minmax2(arr: Arrayable<number>, brr: Arrayable<number>): [number, number, number, number] {

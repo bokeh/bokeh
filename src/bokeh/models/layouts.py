@@ -107,13 +107,13 @@ class LayoutDOM(Pane):
     If ``True``, the widget will be greyed-out and not responsive to UI events.
     """)
 
-    width: int | None = Nullable(NonNegative(Int), help="""
+    width = Nullable(NonNegative(Int), help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height: int | None = Nullable(NonNegative(Int), help="""
+    height = Nullable(NonNegative(Int), help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.

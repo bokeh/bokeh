@@ -1,11 +1,12 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
+import {IconLike} from "../common/kinds"
+import {apply_icon} from "../common/resolve"
 import {Tool} from "./tool"
 import {ToolProxy} from "./tool_proxy"
 import type {TapEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div} from "core/dom"
-import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
 import type {Signal0} from "core/signaling"
@@ -36,6 +37,7 @@ export abstract class ToolButtonView extends UIElementView {
       prevent_hide: (event) => {
         return event.composedPath().includes(this.el)
       },
+      labels: false,
     })
 
     this._ui_gestures = new UIGestures(this.el, {
@@ -98,18 +100,7 @@ export abstract class ToolButtonView extends UIElementView {
 
     const icon = this.model.icon ?? this.model.tool.computed_icon
     if (icon != null) {
-      if (icon.startsWith("data:image")) {
-        const url = `url("${encodeURI(icon)}")`
-        icon_el.style.backgroundImage = url
-      } else if (icon.startsWith("--")) {
-        icon_el.style.backgroundImage = `var(${icon})`
-      } else if (icon.startsWith(".")) {
-        const cls = icon.substring(1)
-        icon_el.classList.add(cls)
-      } else if (ToolIcon.valid(icon)) {
-        const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
-        icon_el.classList.add(cls)
-      }
+      apply_icon(icon_el, icon)
     }
 
     if (this.model.tool.menu != null) {
@@ -143,7 +134,7 @@ export namespace ToolButton {
 
   export type Props = UIElement.Props & {
     tool: p.Property<Tool | ToolProxy<Tool>>
-    icon: p.Property<ToolIcon | string | null>
+    icon: p.Property<IconLike | null>
     tooltip: p.Property<string | null>
   }
 }
@@ -159,9 +150,9 @@ export abstract class ToolButton extends UIElement {
   }
 
   static {
-    this.define<ToolButton.Props>(({Str, Regex, Ref, Nullable, Or}) => ({
+    this.define<ToolButton.Props>(({Str, Ref, Nullable, Or}) => ({
       tool: [ Or(Ref(Tool), Ref(ToolProxy)) ],
-      icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
+      icon: [ Nullable(IconLike), null ],
       tooltip: [ Nullable(Str), null ],
     }))
   }

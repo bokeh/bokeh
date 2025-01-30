@@ -2,12 +2,17 @@ import type {StyleSheetLike} from "../dom"
 import {div, empty, InlineStyleSheet, ClassList} from "../dom"
 import type {Orientation} from "../enums"
 import {reversed} from "./array"
-import {isString} from "./types"
-import {enumerate} from "./iterator"
+import {isBoolean, isString, isPlainObject} from "./types"
+import {execute} from "./callbacks"
 
-import menus_css, * as menus from "styles/menus.css"
+import menus_css, * as menus from "styles/legacy_menus.css"
 import icons_css from "styles/icons.css"
 import base_css from "styles/base.css"
+
+import type {MenuItemLike, MenuItem} from "../../models/ui/menus"
+import {Menu, DividerItem} from "../../models/ui/menus"
+import type {IconLike} from "../../models/common/kinds"
+import {apply_icon} from "../../models/common/resolve"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
 export type At =
@@ -18,31 +23,29 @@ export type At =
   {above: HTMLElement}
 
 export type MenuEntry = {
-  icon?: string
+  icon?: IconLike
   label?: string
   tooltip?: string
   class?: string
   content?: HTMLElement
   custom?: HTMLElement
-  active?: () => boolean
-  handler?: () => void
-  if?: () => boolean
+  checked?: () => boolean
+  action?: () => void
+  disabled?: () => boolean
 }
 
-export type MenuItem = MenuEntry | null
+export type MenuItemLike_ = MenuItemLike | MenuEntry
 
 export type MenuOptions = {
   target: HTMLElement
   orientation?: Orientation
   reversed?: boolean
+  labels?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
   extra_styles?: StyleSheetLike[]
-  entry_handler?: (entry: MenuEntry, i: number) => void
 }
 
-//import {DOMComponentView} from "../dom_view"
-
-export class ContextMenu { //extends DOMComponentView {
+export class ContextMenu {
   readonly el: HTMLElement = div()
   readonly shadow_el: ShadowRoot
 
@@ -59,26 +62,31 @@ export class ContextMenu { //extends DOMComponentView {
   readonly target: HTMLElement
   readonly orientation: Orientation
   readonly reversed: boolean
+  readonly labels: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
   readonly extra_styles: StyleSheetLike[]
-  readonly entry_handler?: (entry: MenuEntry, i: number) => void
   readonly class_list: ClassList
 
-  constructor(readonly items: MenuItem[], options: MenuOptions) {
+  constructor(readonly items: MenuItemLike_[], options: MenuOptions) {
     this.target = options.target
     this.orientation = options.orientation ?? "vertical"
     this.reversed = options.reversed ?? false
+    this.labels = options.labels ?? true
     this.prevent_hide = options.prevent_hide
     this.extra_styles = options.extra_styles ?? []
-    this.entry_handler = options.entry_handler
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
     this.class_list = new ClassList(this.el.classList)
   }
 
-  protected _item_click = (entry: MenuEntry, i: number) => {
-    this.entry_handler?.(entry, i)
-    entry.handler?.()
+  protected _item_click = (entry: MenuEntry | MenuItem) => {
+    if (entry.action != null) {
+      if (isPlainObject(entry)) {
+        entry.action()
+      } else {
+        void execute(entry.action, new Menu(), {item: entry})
+      }
+    }
     this.hide()
   }
 
@@ -181,24 +189,42 @@ export class ContextMenu { //extends DOMComponentView {
     this.class_list.add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
-    for (const [item, i] of enumerate(items)) {
+    for (const item of items) {
       let el: HTMLElement
-      if (item == null) {
+      if (item == null || item instanceof DividerItem) {
         el = div({class: menus.divider})
-      } else if (item.if != null && !item.if()) {
+      } else if (isBoolean(item.disabled) ? item.disabled : item.disabled?.() ?? false) {
         continue
-      } else if (item.custom != null) {
+      } else if (isPlainObject(item) && item.custom != null) {
         el = item.custom
       } else {
-        const icon = item.icon != null ? div({class: [menus.menu_icon, item.icon]}) : null
-        const classes = [item.active?.() ?? false ? menus.active: null, item.class]
-        el = div({class: classes, title: item.tooltip, tabIndex: 0}, icon, item.label, item.content)
+        const icon_el = (() => {
+          if (item.icon != null) {
+            const el = div({class: menus.menu_icon})
+            apply_icon(el, item.icon)
+            return el
+          } else {
+            return null
+          }
+        })()
+        const checked = isBoolean(item.checked) ? item.checked : item.checked?.()
+        const active = checked ?? false ? menus.active : null
+        const label = this.labels ? item.label : null
+        el = div({class: [active], title: item.tooltip, tabIndex: 0}, icon_el, label)
+        if (isPlainObject(item)) {
+          if (item.class != null) {
+            el.classList.add(item.class)
+          }
+          if (item.content != null) {
+            el.append(item.content)
+          }
+        }
         el.addEventListener("click", () => {
-          this._item_click(item, i)
+          this._item_click(item)
         })
         el.addEventListener("keydown", (event) => {
           if (event.key == "Enter") {
-            this._item_click(item, i)
+            this._item_click(item)
           }
         })
       }

@@ -11,6 +11,7 @@ import {
   BoxEditTool,
   BoxSelectTool,
   CDSView,
+  Canvas,
   CategoricalColorMapper,
   Circle,
   Column,
@@ -1742,6 +1743,30 @@ describe("Bug", () => {
       p3.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv3} = await display(p3)
       expect(getComputedStyle(pv3.canvas.events_el).touchAction).to.be.equal("none")
+    })
+  })
+
+  describe("in issue #14164", () => {
+    it("doesn't allow to use the correct CSS color syntax in SVG output", async () => {
+      const canvas = new Canvas({
+        stylesheets: [":host {width: 100px; height: 100px}"],
+        output_backend: "svg",
+      })
+      const {view} = await display(canvas, [100, 100])
+
+      const {ctx} = view.primary
+      ctx.fillStyle = "rgb(0 128 255 / 0.5)"
+      ctx.fillRect(0, 0, 100, 100)
+
+      const blob = await view.to_blob()
+      const svg = await blob.text()
+
+      expect(svg).to.be.equal('\
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="100" height="100">\
+<defs/>\
+<path fill="rgb(0,128,255)" stroke="none" paint-order="stroke" d="M 0 0 L 100 0 L 100 100 L 0 100 L 0 0 Z" fill-opacity="0.5"/>\
+</svg>\
+')
     })
   })
 })
