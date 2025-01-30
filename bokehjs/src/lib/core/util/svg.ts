@@ -5,6 +5,7 @@
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
 import type {PlainObject} from "../types"
+import {css4_parse, transparent} from "./color"
 import {typed_entries} from "./object"
 import type {Random} from "./random"
 import {random} from "./random"
@@ -522,13 +523,11 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
         } else if (style.svg !== value) {
-          if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
-            // separate alpha value, since illustrator can't handle it
-            const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
-            const matches = regex.exec(value)!
-            const [, r, g, b, a] = matches
+          if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgb") !== -1) {
+            // convert CSS4 -> CSS3 and separate alpha value, since illustrator can't handle it
+            const [r, g, b, a] = css4_parse(value) ?? transparent()
+            const opacity = a*this.globalAlpha
             currentElement.setAttribute(style.svgAttr, `rgb(${r},${g},${b})`)
-            const opacity = parseFloat(a)*this.globalAlpha
             currentElement.setAttribute(`${style.svgAttr}-opacity`, `${opacity}`)
           } else {
             let attr = style.svgAttr!

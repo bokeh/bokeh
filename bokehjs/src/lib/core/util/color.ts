@@ -10,6 +10,7 @@ export function byte(v: number): uint8 {
 }
 
 export type RGBA = [R: uint8, G: uint8, B: uint8, A: uint8]
+export type RGBAf = [r: uint8, g: uint8, b: uint8, a: number]
 
 export function transparent(): RGBA {
   return [0, 0, 0, 0]
@@ -34,7 +35,8 @@ export function color2rgba(color: Color | null, alpha: number = 1.0): RGBA {
     } else if (isInteger(color)) {
       return decode_rgba(color)
     } else if (isString(color)) {
-      return css4_parse(color) ?? transparent()
+      const [r, g, b, a] = css4_parse(color) ?? transparent()
+      return [r, g, b, byte(a*255)]
     } else {
       if (color.length == 2) {
         const [name, alpha] = color
@@ -118,7 +120,7 @@ const css4_normalize = (() => {
   }
 })()
 
-export function css4_parse(color: string): RGBA | null {
+export function css4_parse(color: string): RGBAf | null {
   /**
     Parses CSS4 color strings:
 
@@ -138,7 +140,8 @@ export function css4_parse(color: string): RGBA | null {
   } else if (color == "transparent") {
     return transparent()
   } else if (is_named_color(color)) {
-    return decode_rgba(named_colors[color])
+    const [r, g, b, a] = decode_rgba(named_colors[color])
+    return [r, g, b, a/255]
   } else if (color[0] == "#") {
     const v = Number(`0x${color.substring(1)}`)
     if (isNaN(v)) {
@@ -152,7 +155,7 @@ export function css4_parse(color: string): RGBA | null {
         const rr = (r << 4) | r
         const gg = (g << 4) | g
         const bb = (b << 4) | b
-        return [rr, gg, bb, 255]
+        return [rr, gg, bb, 1.0]
       }
       case 4: {
         const r = (v >> 12) & 0xf
@@ -163,20 +166,20 @@ export function css4_parse(color: string): RGBA | null {
         const gg = (g << 4) | g
         const bb = (b << 4) | b
         const aa = (a << 4) | a
-        return [rr, gg, bb, aa]
+        return [rr, gg, bb, aa/255]
       }
       case 6: {
         const rr = (v >> 16) & 0xff
         const gg = (v >>  8) & 0xff
         const bb = (v >>  0) & 0xff
-        return [rr, gg, bb, 255]
+        return [rr, gg, bb, 1.0]
       }
       case 8: {
         const rr = (v >> 24) & 0xff
         const gg = (v >> 16) & 0xff
         const bb = (v >>  8) & 0xff
         const aa = (v >>  0) & 0xff
-        return [rr, gg, bb, aa]
+        return [rr, gg, bb, aa/255]
       }
     }
   } else if (color.startsWith("rgb")) {
@@ -210,12 +213,11 @@ export function css4_parse(color: string): RGBA | null {
       if (rp) { R = 255*(R/100) }
       if (gp) { G = 255*(G/100) }
       if (bp) { B = 255*(B/100) }
-      A = 255*(ap ? A/100 : A)
+      A = ap ? A/100 : A
 
       R = byte(R)
       G = byte(G)
       B = byte(B)
-      A = byte(A)
 
       return [R, G, B, A]
     }

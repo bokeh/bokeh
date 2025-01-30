@@ -148,39 +148,39 @@ describe("core/util/color module", () => {
       expect(css4_parse("")).to.be.null
       expect(css4_parse("   ")).to.be.null
 
-      expect(css4_parse("  transparent   ")).to.be.equal([0, 0, 0, 0])
+      expect(css4_parse("  transparent   ")).to.be.equal([0, 0, 0, 0.0])
       expect(css4_parse("transparent")).to.be.equal([0, 0, 0, 0])
-      expect(css4_parse("  TRANSPARENT   ")).to.be.equal([0, 0, 0, 0])
-      expect(css4_parse("TRANSPARENT")).to.be.equal([0, 0, 0, 0])
-      expect(css4_parse("  TrAnSpArEnT   ")).to.be.equal([0, 0, 0, 0])
-      expect(css4_parse("TrAnSpArEnT")).to.be.equal([0, 0, 0, 0])
+      expect(css4_parse("  TRANSPARENT   ")).to.be.equal([0, 0, 0, 0.0])
+      expect(css4_parse("TRANSPARENT")).to.be.equal([0, 0, 0, 0.0])
+      expect(css4_parse("  TrAnSpArEnT   ")).to.be.equal([0, 0, 0, 0.0])
+      expect(css4_parse("TrAnSpArEnT")).to.be.equal([0, 0, 0, 0.0])
     })
 
     it("that supports hex strings", () => {
-      expect(css4_parse("#FFFFFFFF")).to.be.equal([0xFF, 0xFF, 0xFF, 0xFF])
-      expect(css4_parse("#FFFFFF")).to.be.equal([0xFF, 0xFF, 0xFF, 0xFF])
-      expect(css4_parse("#FFFF")).to.be.equal([0xFF, 0xFF, 0xFF, 0xFF])
-      expect(css4_parse("#FFF")).to.be.equal([0xFF, 0xFF, 0xFF, 0xFF])
+      expect(css4_parse("#FFFFFFFF")).to.be.equal([0xFF, 0xFF, 0xFF, 1.0])
+      expect(css4_parse("#FFFFFF")).to.be.equal([0xFF, 0xFF, 0xFF, 1.0])
+      expect(css4_parse("#FFFF")).to.be.equal([0xFF, 0xFF, 0xFF, 1.0])
+      expect(css4_parse("#FFF")).to.be.equal([0xFF, 0xFF, 0xFF, 1.0])
 
-      expect(css4_parse("#AABBCCDD")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("#AABBCC")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
-      expect(css4_parse("#ABCD")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("#ABC")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
+      expect(css4_parse("#AABBCCDD")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("#AABBCC")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
+      expect(css4_parse("#ABCD")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("#ABC")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
 
-      expect(css4_parse("#aAbBcCdD")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("#aAbBcC")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
-      expect(css4_parse("#aBcD")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("#aBc")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
+      expect(css4_parse("#aAbBcCdD")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("#aAbBcC")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
+      expect(css4_parse("#aBcD")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("#aBc")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
 
-      expect(css4_parse("#aabbccdd")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("#aabbcc")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
-      expect(css4_parse("#abcd")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("#abc")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
+      expect(css4_parse("#aabbccdd")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("#aabbcc")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
+      expect(css4_parse("#abcd")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("#abc")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
 
-      expect(css4_parse("  #aabbccdd   ")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("  #aabbcc   ")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
-      expect(css4_parse("  #abcd   ")).to.be.equal([0xAA, 0xBB, 0xCC, 0xDD])
-      expect(css4_parse("  #abc   ")).to.be.equal([0xAA, 0xBB, 0xCC, 0xFF])
+      expect(css4_parse("  #aabbccdd   ")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("  #aabbcc   ")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
+      expect(css4_parse("  #abcd   ")).to.be.equal([0xAA, 0xBB, 0xCC, 0.8666666666666667])
+      expect(css4_parse("  #abc   ")).to.be.equal([0xAA, 0xBB, 0xCC, 1.0])
 
       expect(css4_parse("#aabbccdg")).to.be.null
       expect(css4_parse("#aabbcg")).to.be.null
@@ -194,47 +194,47 @@ describe("core/util/color module", () => {
     })
 
     it("that supports rgb() and rgba() syntax", () => {
-      expect(css4_parse("rgb(255 128 0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(255 128 0 / 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(255 128 0 / 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgb(255 128 0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(255 128 0 / 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(255 128 0 / 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgb(100% 50% 0%)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(100% 50% 0% / 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(100% 50% 0% / 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgb(100% 50% 0%)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(100% 50% 0% / 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(100% 50% 0% / 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgba(255 128 0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(255 128 0 / 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(255 128 0 / 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgba(255 128 0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(255 128 0 / 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(255 128 0 / 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgba(100% 50% 0%)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(100% 50% 0% / 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(100% 50% 0% / 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgba(100% 50% 0%)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(100% 50% 0% / 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(100% 50% 0% / 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgb(255, 128, 0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(255, 128, 0, 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(255, 128, 0, 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgb(255, 128, 0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(255, 128, 0, 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(255, 128, 0, 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgb(100%, 50%, 0%)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(100%, 50%, 0%, 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgb(100%, 50%, 0%, 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgb(100%, 50%, 0%)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(100%, 50%, 0%, 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgb(100%, 50%, 0%, 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgba(255, 128, 0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(255, 128, 0, 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(255, 128, 0, 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgba(255, 128, 0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(255, 128, 0, 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(255, 128, 0, 100%)")).to.be.equal([255, 128, 0, 1.0])
 
-      expect(css4_parse("rgba(100%, 50%, 0%)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(100%, 50%, 0%, 1.0)")).to.be.equal([255, 128, 0, 255])
-      expect(css4_parse("rgba(100%, 50%, 0%, 100%)")).to.be.equal([255, 128, 0, 255])
+      expect(css4_parse("rgba(100%, 50%, 0%)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(100%, 50%, 0%, 1.0)")).to.be.equal([255, 128, 0, 1.0])
+      expect(css4_parse("rgba(100%, 50%, 0%, 100%)")).to.be.equal([255, 128, 0, 1.0])
     })
 
     it("that supports other CSS4 syntax", () => {
-      expect(css4_parse("hsl(0deg 0% 0%)")).to.be.equal([0, 0, 0, 255])
-      expect(css4_parse("hsl(0deg 0% 0% / 0)")).to.be.equal([0, 0, 0, 0])
-      expect(css4_parse("hsl(0deg 0% 0% / 1)")).to.be.equal([0, 0, 0, 255])
+      expect(css4_parse("hsl(0deg 0% 0%)")).to.be.equal([0, 0, 0, 1.0])
+      expect(css4_parse("hsl(0deg 0% 0% / 0)")).to.be.equal([0, 0, 0, 0.0])
+      expect(css4_parse("hsl(0deg 0% 0% / 1)")).to.be.equal([0, 0, 0, 1.0])
 
-      expect(css4_parse("hsl(240deg 100% 50%)")).to.be.equal([0, 0, 255, 255])
-      expect(css4_parse("hsl(240deg 100% 50% / 0)")).to.be.equal([0, 0, 255, 0])
-      expect(css4_parse("hsl(240deg 100% 50% / 1)")).to.be.equal([0, 0, 255, 255])
+      expect(css4_parse("hsl(240deg 100% 50%)")).to.be.equal([0, 0, 255, 1.0])
+      expect(css4_parse("hsl(240deg 100% 50% / 0)")).to.be.equal([0, 0, 255, 0.0])
+      expect(css4_parse("hsl(240deg 100% 50% / 1)")).to.be.equal([0, 0, 255, 1.0])
 
       expect(css4_parse("hsl(x 0% 0%)")).to.be.null
       expect(css4_parse("hsl(0deg 0% 0% 0)")).to.be.null
