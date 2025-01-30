@@ -24,7 +24,7 @@ from unittest import mock
 from bokeh.models import CDSView, Marker
 from bokeh.plotting import figure
 from bokeh.plotting._docstring import generate_docstring
-from bokeh.plotting._renderer import RENDERER_ARGS
+from bokeh.plotting._renderer import RENDERER_ARGS, GlyphRenderer
 
 # Module under test
 import bokeh.plotting._decorators as bpd # isort:skip
