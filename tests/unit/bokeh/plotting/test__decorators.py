@@ -17,12 +17,14 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from inspect import signature
 from unittest import mock
 
 # Bokeh imports
 from bokeh.models import CDSView, Marker
 from bokeh.plotting import figure
-from bokeh.plotting._renderer import RENDERER_ARGS
+from bokeh.plotting._docstring import generate_docstring
+from bokeh.plotting._renderer import RENDERER_ARGS, GlyphRenderer
 
 # Module under test
 import bokeh.plotting._decorators as bpd # isort:skip
@@ -62,6 +64,26 @@ def test__glyph_receives_renderer_arg(arg, values) -> None:
             fn(figure(), x=0, y=0, **{arg: value})
             _, kwargs = gr_mock.call_args
             assert arg in kwargs and kwargs[arg] == value
+
+
+def test__glyph_method_keeps_metadata() -> None:
+    def foo(**kw) -> GlyphRenderer: pass
+    glyphclass = Marker
+    fn = bpd.glyph_method(glyphclass)(foo)
+    expected_doc = generate_docstring(glyphclass, glyphclass.parameters(), foo.__doc__)
+    assert fn.__name__ == foo.__name__
+    assert fn.__doc__ == expected_doc
+    assert signature(fn).return_annotation == signature(foo).return_annotation
+
+
+def test__marker_method_keeps_metadata() -> None:
+    def foo(**kw) -> GlyphRenderer: pass
+    fn = bpd.marker_method()(foo)
+    expected_doc = generate_docstring(Marker, Marker.parameters(), foo.__doc__)
+    assert fn.__name__ == foo.__name__
+    assert fn.__doc__ == expected_doc
+    assert signature(fn).return_annotation == signature(foo).return_annotation
+
 
 #-----------------------------------------------------------------------------
 # Private API
