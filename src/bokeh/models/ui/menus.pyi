@@ -16,15 +16,15 @@ from ...model import Model
 from ..callbacks import Callback
 from .ui_element import UIElement
 
+type IconLike = Image | ToolIcon | CSSVariable | CSSClass
+
 @abstract
 @dataclass(init=False)
 class MenuItem(Model):
-    ...
 
-@dataclass
-class ActionItem(MenuItem):
+    checked: bool | None = ...
 
-    icon: Image | ToolIcon | CSSVariable | CSSClass | None = ...
+    icon: IconLike | None = ...
 
     label: str = ...
 
@@ -39,17 +39,20 @@ class ActionItem(MenuItem):
     action: Callback | None = ...
 
 @dataclass
-class CheckableItem(ActionItem):
-
-    checked: bool = ...
+class ActionItem(MenuItem):
+    ...
 
 @dataclass
-class DividerItem(MenuItem):
+class CheckableItem(ActionItem):
+    ...
+
+@dataclass
+class DividerItem(Model):
     ...
 
 @dataclass
 class Menu(UIElement):
 
-    items: list[MenuItem] = ...
+    items: list[MenuItem | DividerItem | None] = ...
 
     reversed: bool = ...

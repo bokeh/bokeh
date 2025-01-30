@@ -57,7 +57,7 @@ from .glyphs import (
 from .misc.group_by import GroupBy
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
-from .ui import UIElement
+from .ui import Menu, UIElement
 
 class Modifiers(TypedDict):
     shift: NotRequired[bool]
@@ -147,7 +147,6 @@ class InspectTool(GestureTool):
 
     toggleable: bool = ...
 
-
 @dataclass
 class Toolbar(UIElement):
 
@@ -166,6 +165,11 @@ class Toolbar(UIElement):
     active_tap: Auto | Tap | ToolProxy | None = ...
 
     active_multi: Auto | GestureTool | ToolProxy | None = ...
+
+@dataclass
+class ToolMenu(Menu):
+
+    toolbar: Toolbar = ...
 
 @dataclass
 class PanTool(Drag):

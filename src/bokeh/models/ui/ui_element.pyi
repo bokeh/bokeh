@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Sequence
 
 # Bokeh imports
+from ...core.enums import AutoType as Auto
 from ...core.has_props import abstract
 from ...model import Model
 from ..css import Styles, StyleSheet
@@ -34,4 +35,4 @@ class UIElement(StyledElement):
 
     visible: bool = ...
 
-    context_menu: Menu | None = ...
+    context_menu: Menu | Auto | None = ...
