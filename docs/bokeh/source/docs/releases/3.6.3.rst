@@ -1,0 +1,15 @@
+.. _release-3-6-3:
+
+3.6.3
+=====
+
+Bokeh version ``3.6.3`` (January 2025) is a patch release that fixes a
+long-standing performance issue for data tables, and number of other
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Fixed serious data table sort performance bug (:bokeh-pull:`14262`)
+* Fixed visual bug with math text used in titles (:bokeh-pull:`14202`)
+* Fixed issues with CSS color formats in SVG exports causing problems for other applications (:bokeh-pull:`14264`)
