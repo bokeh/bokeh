@@ -32,7 +32,8 @@ from ..util.strings import nice_join
 from ._legends import pop_legend_kwarg, update_legend
 
 if TYPE_CHECKING:
-    from ..models import Glyph, Plot
+    from ..models.glyph import Glyph
+    from ..models.plots import Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -78,7 +79,7 @@ def get_default_color(plot: Plot | None = None) -> str:
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> GlyphRenderer:
+def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> GlyphRenderer[Glyph]:
     # convert data source, if necessary
     is_user_source = _convert_data_source(kwargs)
 

@@ -93,6 +93,7 @@ ALL = (
     'SpatialUnits',
     'StartEnd',
     'StepMode',
+    'TeXDisplay',
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
@@ -346,6 +347,9 @@ class Test_bce:
 
     def test_StepMode(self) -> None:
         assert tuple(bce.StepMode) == ("before", "after", "center")
+
+    def test_TeXDisplay(self) -> None:
+        assert tuple(bce.TeXDisplay) == ("inline", "block", "auto")
 
     def test_TextAlign(self) -> None:
         assert tuple(bce.TextAlign) == ("left", "right", "center")

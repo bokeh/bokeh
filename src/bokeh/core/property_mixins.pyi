@@ -9,15 +9,11 @@
 from dataclasses import dataclass
 
 # Bokeh imports
-from .._types import (
-    Alpha,
+from .._specs import (
     AlphaSpec,
-    Color,
     ColorSpec,
-    DashPattern,
     DashPatternSpec,
     FloatSpec,
-    FontSize,
     FontSizeSpec,
     FontStyleSpec,
     HatchPatternSpec,
@@ -25,10 +21,16 @@ from .._types import (
     LineCapSpec,
     LineJoinSpec,
     NumberSpec,
-    Size,
     StringSpec,
     TextAlignSpec,
     TextBaselineSpec,
+)
+from .._types import (
+    Alpha,
+    Color,
+    DashPattern,
+    FontSize,
+    Size,
 )
 from ..models.textures import Texture
 from .enums import (

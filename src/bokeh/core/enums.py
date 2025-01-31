@@ -153,6 +153,7 @@ __all__ = (
     'SpatialUnits',
     'StartEnd',
     'StepMode',
+    'TeXDisplay',
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
@@ -574,6 +575,10 @@ StartEnd = enumeration(StartEndType)
 #: Specify a mode for stepwise interpolation
 StepModeType = Literal["before", "after", "center"]
 StepMode = enumeration(StepModeType)
+
+#: Display mode in TeX
+TeXDisplayType = Literal["inline", "block", "auto"]
+TeXDisplay = enumeration(TeXDisplayType)
 
 #: Specify the horizontal alignment for rendering text
 TextAlignType = Literal["left", "right", "center"]

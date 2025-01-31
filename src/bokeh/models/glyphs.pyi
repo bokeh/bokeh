@@ -7,10 +7,9 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import Literal
 
 # Bokeh imports
-from .._types import (
+from .._specs import (
     AngleSpec,
     DataSpec,
     DistanceSpec,
@@ -29,6 +28,7 @@ from ..core.enums import (
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
     StepModeType as StepMode,
+    TeXDisplayType as TeXDisplay,
 )
 from ..core.has_props import abstract
 from ..core.property_aliases import (
@@ -208,6 +208,18 @@ class HBar(LRTBGlyph):
     left: NumberSpec = ...
 
     right: NumberSpec = ...
+
+@dataclass
+class HSpan(Glyph, LineProps):
+
+    y: NumberSpec = ...
+
+@dataclass
+class HStrip(Glyph, LineProps, FillProps, HatchProps):
+
+    y0: NumberSpec = ...
+
+    y1: NumberSpec = ...
 
 @dataclass
 class HexTile(Glyph, LineProps, FillProps, HatchProps):
@@ -454,7 +466,7 @@ class TeXGlyph(MathTextGlyph):
 
     macros: dict[str, str | tuple[str, int]] = ...
 
-    display: Literal["inline", "block", "auto"] = ...
+    display: TeXDisplay = ...
 
 @dataclass
 class VArea(Glyph, ScalarFillProps, HatchProps):
@@ -488,6 +500,18 @@ class VBar(LRTBGlyph):
     top: NumberSpec = ...
 
 @dataclass
+class VSpan(Glyph, LineProps):
+
+    x: NumberSpec = ...
+
+@dataclass
+class VStrip(Glyph, LineProps, FillProps, HatchProps):
+
+    x0: NumberSpec = ...
+
+    x1: NumberSpec = ...
+
+@dataclass
 class Wedge(XYGlyph, LineProps, FillProps, HatchProps):
 
     x: NumberSpec = ...
@@ -501,27 +525,3 @@ class Wedge(XYGlyph, LineProps, FillProps, HatchProps):
     end_angle: AngleSpec = ...
 
     direction: Direction = ...
-
-@dataclass
-class HSpan(Glyph, LineProps):
-
-    y: NumberSpec = ...
-
-@dataclass
-class VSpan(Glyph, LineProps):
-
-    x: NumberSpec = ...
-
-@dataclass
-class HStrip(Glyph, LineProps, FillProps, HatchProps):
-
-    y0: NumberSpec = ...
-
-    y1: NumberSpec = ...
-
-@dataclass
-class VStrip(Glyph, LineProps, FillProps, HatchProps):
-
-    x0: NumberSpec = ...
-
-    x1: NumberSpec = ...

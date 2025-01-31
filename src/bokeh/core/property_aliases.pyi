@@ -12,7 +12,7 @@ from typing import Literal, NotRequired, TypedDict
 from .._types import Image, NonNegative
 from ..core.enums import (
     AlignType as Align,
-    AnchorType,
+    AnchorType as Anchor_,
     AutoType as Auto,
     HAlignType as HAlign,
     ToolIconType as ToolIcon,
@@ -52,31 +52,45 @@ class Corners[T](TypedDict):
     bottom_right: NotRequired[T]
     bottom_left: NotRequired[T]
 
-type Pixels = NonNegative[int]
+type PixelsType = NonNegative[int]
+Pixels = Property[PixelsType]
 
-type HAnchor = Align | HAlign | float
-type VAnchor = Align | VAlign | float
+type HAnchorType = Align | HAlign | float
+HAnchor = Property[HAnchorType]
 
-type Anchor = AnchorType | tuple[HAnchor, VAnchor]
+type VAnchorType = Align | VAlign | float
+VAnchor = Property[VAnchorType]
 
-type AutoAnchor = Auto | Anchor | tuple[Auto | HAnchor, Auto | VAnchor]
+type AnchorType = Anchor_ | tuple[HAnchor, VAnchor]
+Anchor = Property[AnchorType]
 
-type TextAnchor = Anchor | Auto
+type AutoAnchorType = Auto | Anchor | tuple[Auto | HAnchor, Auto | VAnchor]
+AutoAnchor = Property[AutoAnchorType]
 
-type BorderRadius = Pixels | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+type TextAnchorType = Anchor | Auto
+TextAnchor = Property[TextAnchorType]
 
-type Padding = Pixels | tuple[Pixels, Pixels] | XY[Pixels] | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+type BorderRadiusType = Pixels | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+BorderRadius = Property[BorderRadiusType]
 
-type GridSpacing = Pixels | tuple[Pixels, Pixels]
+type PaddingType = Pixels | tuple[Pixels, Pixels] | XY[Pixels] | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+Padding = Property[PaddingType]
 
-type TrackAlign = Literal["start", "center", "end", "auto"]
+type GridSpacingType = Pixels | tuple[Pixels, Pixels]
+GridSpacing = Property[GridSpacingType]
 
-type TrackSize = str
+type TrackAlignType = Literal["start", "center", "end", "auto"]
+TrackAlign = Property[TrackAlignType]
+
+type TrackSizeType = str
+TrackSize = Property[TrackSizeType]
 
 class FullTrackSize(TypedDict):
     size: NotRequired[TrackSize]
     align: NotRequired[TrackAlign]
 
-type TrackSizing = TrackSize | FullTrackSize
+type TrackSizingType = TrackSize | FullTrackSize
+TrackSizing = Property[TrackSizingType]
 
-type TracksSizing = TrackSizing | list[TrackSizing] | dict[int, TrackSizing]
+type TracksSizingType = TrackSizing | list[TrackSizing] | dict[int, TrackSizing]
+TracksSizing = Property[TracksSizingType]
