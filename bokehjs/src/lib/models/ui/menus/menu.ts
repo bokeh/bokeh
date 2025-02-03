@@ -58,8 +58,9 @@ export class MenuView extends UIElementView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const menus = this.menu_items
-      .map((item) => item instanceof MenuItem ? item.menu : null)
-      .filter((item) => item != null)
+      .filter((item) => item instanceof MenuItem)
+      .map((item) => item.menu)
+      .filter((menu) => menu != null)
     await build_views(this._menu_views, menus, {parent: this})
   }
 
