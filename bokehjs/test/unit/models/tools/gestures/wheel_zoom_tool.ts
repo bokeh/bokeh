@@ -174,6 +174,46 @@ describe("WheelZoomTool", () => {
       })
     })
 
+    it("should not over-zoom when delta is large", async () => {
+      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      const zoom_event = {
+        type: "wheel" as const,
+        sx: 150,
+        sy: 150,
+        delta: 100000,
+        modifiers,
+        native: new WheelEvent("wheel"),
+      }
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-0.05, 0.05],
+        y: [-0.05, 0.05],
+      })
+    })
+
+    it("should not over-zoom when speed is large", async () => {
+      const wheel_zoom = new WheelZoomTool({dimensions: "both", speed: 1})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      const zoom_event = {
+        type: "wheel" as const,
+        sx: 150,
+        sy: 150,
+        delta: 10,
+        modifiers,
+        native: new WheelEvent("wheel"),
+      }
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-0.05, 0.05],
+        y: [-0.05, 0.05],
+      })
+    })
+
     it("should not zoom when modifiers aren't satisfied", async () => {
       const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
       const {view, tool_view} = await make_plot(wheel_zoom)
@@ -194,7 +234,7 @@ describe("WheelZoomTool", () => {
       })
     })
 
-    it("should not zoom when modifiers are satisfied", async () => {
+    it("should zoom when modifiers are satisfied", async () => {
       const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
