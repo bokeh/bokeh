@@ -4,6 +4,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import type {Scale} from "../../scales/scale"
 import {CompositeScale} from "../../scales/composite_scale"
 import {GroupBy} from "../../misc/group_by"
+import {clamp} from "core/util/math"
 import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
@@ -225,7 +226,10 @@ export class WheelZoomToolView extends GestureToolView {
     const y_axis = dims == "height" || dims == "both"
 
     const {x_target, y_target} = frame
-    const factor = this.model.speed*delta
+
+    // The interval scaling functions assume factor < 1 (otherwise range
+    // start and end can get "flipped"), so clamp to [-0.95, 0.95] here
+    const factor = clamp(this.model.speed*delta, -0.95, 0.95)
 
     const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, factor, x_axis, y_axis, center)
 
