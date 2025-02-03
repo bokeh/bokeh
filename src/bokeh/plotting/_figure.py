@@ -54,7 +54,6 @@ from ..models import (
     Range,
     Scale,
     Tool,
-    ToolMenu,
 )
 from ..models.dom import Template
 from ..models.tools import (
@@ -219,9 +218,6 @@ class figure(Plot, GlyphAPI):
             opts.active_tap,
             opts.active_multi,
         )
-
-        if self.context_menu is None:
-            self.context_menu = ToolMenu(toolbar=self.toolbar)
 
     @property
     def plot(self):
