@@ -66,7 +66,7 @@ class TestServerDocument:
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs
@@ -80,7 +80,7 @@ class TestServerDocument:
         r = bes.server_document(arguments=dict(foo=10))
         assert 'foo=10' in r
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs
@@ -95,7 +95,7 @@ class TestServerDocument:
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs
@@ -109,7 +109,7 @@ class TestServerDocument:
         r = bes.server_document(url=url, relative_urls=True)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs
@@ -137,7 +137,7 @@ class TestServerSession:
         url = "http://localhost:5006"
         r = bes.server_session(test_plot, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs
@@ -165,7 +165,7 @@ class TestServerSession:
         url = "http://localhost:5006"
         r = bes.server_session(None, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs
@@ -179,7 +179,7 @@ class TestServerSession:
         url = "http://localhost:5006"
         r = bes.server_session(test_plot, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         assert len(scripts) == 1
         script = scripts[0]
         attrs = script.attrs

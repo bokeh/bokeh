@@ -356,7 +356,7 @@ class TestResources:
         r.components.remove("bokeh-mathjax")
         out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         for script in scripts:
             if "src" not in script.attrs:
                 continue
@@ -369,7 +369,7 @@ class TestResources:
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.CDN.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         for script in scripts:
             assert "crossorigin" not in script.attrs
             assert "integrity" not in script.attrs
@@ -382,7 +382,7 @@ class TestResources:
         r.components.remove("bokeh-mathjax")
         out = r.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         for script in scripts:
             if "src" not in script.attrs:
                 continue
@@ -395,7 +395,7 @@ class TestResources:
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.INLINE.render_js()
         html = bs4.BeautifulSoup(out, "html.parser")
-        scripts = html.findAll(name='script')
+        scripts = html.find_all(name='script')
         for script in scripts:
             assert "crossorigin" not in script.attrs
             assert "integrity" not in script.attrs
