@@ -202,7 +202,7 @@ describe("Feature", () => {
 
       const {view} = await display(p)
 
-      // can't simply dispatchEvent() because if browser security
+      // can't simply dispatchEvent() because of browser security
       const {left, top} = view.el.getBoundingClientRect()
       const event = new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50})
       view.show_context_menu(event)
