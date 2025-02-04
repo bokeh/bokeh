@@ -1,6 +1,7 @@
 import type {Interval} from "../types"
 import type {Scale} from "models/scales/scale"
 import type {RangeInfo, RangeState} from "models/plots/range_manager"
+import {assert} from "core/util/assert"
 import {minmax} from "core/util/math"
 
 type Bounds = [number, number]
@@ -10,6 +11,7 @@ type ScaleRanges = RangeInfo & {
 }
 
 export function scale_interval(range: Interval, factor: number, center?: number | null): Bounds {
+  assert(Math.abs(factor) < 1)
   const [min, max] = minmax(range.start, range.end)
   const x = center ?? (max + min) / 2.0
   const x0 = min - (min - x)*factor
