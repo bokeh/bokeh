@@ -11,7 +11,7 @@ import type {Image} from "core/util/image"
 import {ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import type {Context2d} from "core/util/canvas"
-import {assert} from "core/util/assert"
+import {logger} from "core/logging"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -55,10 +55,9 @@ export class TileRendererView extends RendererView {
     const y_start = y_range.start
     const x_end = x_range.end
     const y_end = y_range.end
-    assert(isFinite(x_start))
-    assert(isFinite(y_start))
-    assert(isFinite(x_end))
-    assert(isFinite(y_end))
+    if (!(isFinite(x_start) && isFinite(y_start) && isFinite(x_end) && isFinite(y_end))) {
+        logger.warn("tile extent is (partially) undefined")
+    }
     return [x_start, y_start, x_end, y_end]
   }
 
