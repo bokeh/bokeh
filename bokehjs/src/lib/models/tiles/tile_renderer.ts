@@ -56,7 +56,7 @@ export class TileRendererView extends RendererView {
     const x_end = x_range.end
     const y_end = y_range.end
     if (!(isFinite(x_start) && isFinite(y_start) && isFinite(x_end) && isFinite(y_end))) {
-        logger.warn("tile extent is (partially) undefined")
+      logger.warn("tile extent is not fully defined")
     }
     return [x_start, y_start, x_end, y_end]
   }
