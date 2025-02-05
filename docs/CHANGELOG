@@ -1,3 +1,28 @@
+2025-02-05    3.6.3:
+--------------------
+  * bugfixes:
+    - #13504 [component: bokehjs] [BUG] Zooming inverts axis
+    - #14129 [component: bokehjs] [BUG] Double rendering Latex artifact in titles
+    - #14164 [component: bokehjs] SVG backend uses RGB colors in CSS4 notation
+    - #14180 [component: docs] Dead links in the docs
+    - #14186 mypy 1.13.0 fails in `branch-3.7`
+    - #14196 [component: docs] [BUG] Documentation - sample codes in Application > Updating from unlocked callbacks shows an empty plot.
+    - #14205 mypy 1.14.0 fails due to changed stdlib typings
+    - #14236 [component: examples] Airports_map example is broken
+    - #14242 [component: docs] `docs` CI workflow fails
+    - #14247 `GlyphAPI` glyph methods do not have correct return annotation when inspected.
+    - #14261 [component: bokehjs] DataTable column sorting unacceptably slow
+
+  * tasks:
+    - #14095 [component: docs] Improve docs for missing points
+    - #14144 [component: docs] [FEATURE] Unclear docs on "first_steps_2.rst"
+    - #14173 [component: docs] [BUG] Help text for Block x and y coordinates  is incorrect
+    - #14226 [component: examples] [BUG] Surface3D example code for wrapping.py contains an outdated link
+    - #14274 BeautifulSoup emits DeprecationWarning
+    - #14077 Test Bokeh with Python 3.13 rc
+    - #14267 Backports for 3.6.3
+    - #14278 Backports for 3.6.3 part 2
+
 2024-12-03    3.6.2:
 --------------------
   * bugfixes:
