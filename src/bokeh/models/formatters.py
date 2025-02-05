@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import (
     ContextWhich,
     LatLon,
-    LocationType,
+    Location,
     NumeralLanguage,
     ResolutionType,
     RoundingFunction,
@@ -664,7 +664,7 @@ class DatetimeTickFormatter(TickFormatter):
     `"start"`, `"end"`, `"center"`, and  `"all"`.
     """)
 
-    context_location = Enum(LocationType, default="below", help="""
+    context_location = Enum(Location, default="below", help="""
     Relative to the tick label text baseline, where the context should be
     rendered. Valid values are: `"below"`, `"above"`, `"left"`, and `"right"`.
     """)

@@ -54,6 +54,7 @@ ALL = (
     'HoldPolicy',
     'HorizontalLocation',
     'ImageOrigin',
+    'ImplicitTarget',
     'JitterRandomDistribution',
     'KeyModifier',
     'LabelOrientation',
@@ -221,6 +222,9 @@ class Test_bce:
 
     def test_ImageOrigin(self) -> None:
         assert tuple(bce.ImageOrigin) == ("bottom_left", "top_left", "bottom_right", "top_right")
+
+    def test_ImplicitTarget(self) -> None:
+        assert tuple(bce.ImplicitTarget) == ("viewport", "canvas", "plot", "frame", "parent")
 
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")

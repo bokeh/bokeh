@@ -114,6 +114,7 @@ __all__ = (
     'HoldPolicy',
     'HorizontalLocation',
     'ImageOrigin',
+    'ImplicitTarget',
     'JitterRandomDistribution',
     'KeyModifier',
     'LabelOrientation',
@@ -408,6 +409,10 @@ HorizontalLocation = enumeration(HorizontalLocationType)
 #: Defines the coordinate space within an image
 ImageOriginType = Literal["bottom_left", "top_left", "bottom_right", "top_right"]
 ImageOrigin = enumeration(ImageOriginType)
+
+#: Implicitly defined target of a node
+ImplicitTargetType = Literal["viewport", "canvas", "plot", "frame", "parent"]
+ImplicitTarget = enumeration(ImplicitTargetType)
 
 #: Specify a distribution to use for the Jitter class
 JitterRandomDistributionType = Literal["uniform", "normal"]
