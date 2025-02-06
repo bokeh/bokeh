@@ -111,6 +111,7 @@ __all__ = (
     'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
+    'HexTileOrientation',
     'HoldPolicy',
     'HorizontalLocation',
     'ImageOrigin',
@@ -397,6 +398,10 @@ HatchPattern = enumeration(HatchPatternType)
 #:     "*"  :  criss_cross
 HatchPatternAbbreviationType = Literal[" ", ".", "o", "-", "|", "+", '"', ":", "@", "/", "\\", "x", ",", "`", "v", ">", "*"]
 HatchPatternAbbreviation = enumeration(HatchPatternAbbreviationType, quote=True)
+
+#: The orientation of the hex tiles
+HexTileOrientationType = Literal["pointytop", "flattop"]
+HexTileOrientation = enumeration(HexTileOrientationType)
 
 #: Specify whether events should be combined or collected as-is when a Document hold is in effect
 HoldPolicyType = Literal["combine", "collect"]

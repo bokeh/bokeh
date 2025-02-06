@@ -51,6 +51,7 @@ ALL = (
     'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
+    'HexTileOrientation',
     'HoldPolicy',
     'HorizontalLocation',
     'ImageOrigin',
@@ -212,7 +213,10 @@ class Test_bce:
         )
 
     def test_HatchPatternAbbreviation(self) -> None:
-        assert tuple(bce.HatchPatternAbbreviation) ==(' ', '.', 'o', '-', '|', '+', '"', ':', '@', '/', '\\', 'x', ',', '`', 'v', '>', '*')
+        assert tuple(bce.HatchPatternAbbreviation) == (' ', '.', 'o', '-', '|', '+', '"', ':', '@', '/', '\\', 'x', ',', '`', 'v', '>', '*')
+
+    def test_HexTileOrientation(self) -> None:
+        assert tuple(bce.HexTileOrientation) == ("pointytop", "flattop")
 
     def test_HoldPolicy(self) -> None:
         assert tuple(bce.HoldPolicy) == ("combine", "collect")

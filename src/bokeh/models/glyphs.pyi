@@ -23,6 +23,7 @@ from .._types import (
 )
 from ..core.enums import (
     DirectionType as Direction,
+    HexTileOrientationType as HexTileOrientation,
     ImageOriginType as ImageOrigin,
     OutlineShapeNameType as OutlineShapeName,
     PaletteType as Palette,
@@ -221,7 +222,7 @@ class HexTile(Glyph, LineProps, FillProps, HatchProps):
 
     scale: NumberSpec = ...
 
-    orientation: str = ...
+    orientation: HexTileOrientation = ...
 
 @abstract
 @dataclass(init=False)

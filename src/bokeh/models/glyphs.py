@@ -37,6 +37,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import (
     Direction,
+    HexTileOrientation,
     ImageOrigin,
     OutlineShapeName,
     Palette,
@@ -721,7 +722,7 @@ class HexTile(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     A scale factor for individual tiles.
     """)
 
-    orientation = String(default="pointytop", help="""
+    orientation = Enum(HexTileOrientation, default="pointytop", help="""
     The orientation of the hex tiles.
 
     Use ``"pointytop"`` to orient the tile so that a pointed corner is at the top. Use

@@ -736,7 +736,7 @@ class figure(Plot, GlyphAPI):
         self.renderers.append(contour_renderer)
         return contour_renderer
 
-def markers():
+def markers() -> None:
     ''' Prints a list of valid marker types for scatter()
 
     Returns:
@@ -813,11 +813,9 @@ class BaseFigureOptions(Options):
 
 RangeLike = Either(
     Instance(Range),
-    Either(
-        Tuple(Float, Float),
-        Tuple(Datetime, Datetime),
-        Tuple(TimeDelta, TimeDelta),
-    ),
+    Tuple(Float, Float),
+    Tuple(Datetime, Datetime),
+    Tuple(TimeDelta, TimeDelta),
     Seq(String),
     EagerSeries,
     PandasGroupBy,
