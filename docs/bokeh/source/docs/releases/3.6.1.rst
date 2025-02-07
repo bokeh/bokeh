@@ -1,0 +1,9 @@
+.. _release-3-6-1:
+
+3.6.1
+=====
+
+Bokeh version ``3.6.1`` (November 2024) is a hotfix release of Bokeh project.
+
+* Add workaround for Chrome 130 regression (:bokeh-pull:`14093`)
+* Improved handling of ``touch-action`` based on active tools and their supported events (:bokeh-pull:`14109`)
