@@ -176,12 +176,27 @@ describe("Widgets", () => {
 
   it("should allow Switch with active=false", async () => {
     const obj = new Switch({active: false})
-    await display(obj, [500, 50])
+    await display(obj, [100, 30])
   })
 
   it("should allow Switch with active=true", async () => {
     const obj = new Switch({active: true})
-    await display(obj, [500, 50])
+    await display(obj, [100, 30])
+  })
+
+  it("should allow Switch with active=false and off_icon", async () => {
+    const obj = new Switch({active: false, off_icon: "dark_theme"})
+    await display(obj, [100, 30])
+  })
+
+  it("should allow Switch with active=true and on_icon", async () => {
+    const obj = new Switch({active: true, on_icon: "light_theme"})
+    await display(obj, [100, 30])
+  })
+
+  it("should allow Switch with active=true and label", async () => {
+    const obj = new Switch({active: true, label: "Display:"})
+    await display(obj, [100, 30])
   })
 
   it("should allow CheckboxGroup", async () => {
