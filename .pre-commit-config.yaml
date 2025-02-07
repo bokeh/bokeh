@@ -2,14 +2,14 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 ---
-default_stages: [push]
+default_stages: [pre-push]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.2
     hooks:
       - id: ruff
-        stages: [commit]
+        stages: [pre-commit]
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.10.1
