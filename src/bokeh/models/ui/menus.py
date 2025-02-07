@@ -19,20 +19,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import ToolIcon
 from ...core.properties import (
     Bool,
     Either,
-    Enum,
-    Image,
     Instance,
     List,
     Null,
     Nullable,
-    Regex,
     Required,
     String,
 )
+from ...core.property_aliases import IconLike
 from ...model import Model
 from ...util.deprecation import deprecated
 from ..callbacks import Callback
@@ -49,12 +46,6 @@ __all__ = (
     "Menu",
     "MenuItem",
 )
-
-CSSVariable = Regex(r"^--")
-
-CSSClass = Regex(r"^\.")
-
-IconLike = Either(Image, Enum(ToolIcon), CSSVariable, CSSClass)
 
 #-----------------------------------------------------------------------------
 # General API

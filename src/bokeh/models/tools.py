@@ -53,7 +53,6 @@ from ..core.enums import (
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
-    ToolIcon,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
@@ -72,7 +71,6 @@ from ..core.properties import (
     Either,
     Enum,
     Float,
-    Image,
     Instance,
     InstanceDefault,
     Int,
@@ -82,7 +80,6 @@ from ..core.properties import (
     Nullable,
     Override,
     Percent,
-    Regex,
     Required,
     Seq,
     String,
@@ -91,6 +88,7 @@ from ..core.properties import (
     TypeOfAttr,
 )
 from ..core.property.struct import Optional
+from ..core.property_aliases import IconLike
 from ..core.validation import error
 from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
@@ -200,8 +198,7 @@ class Tool(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    #Image has to be first! see #12775, temporary fix
-    icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^\.")), help="""
+    icon = Nullable(IconLike, help="""
     An icon to display in the toolbar.
 
     The icon can provided as well known tool icon name, a CSS class selector,

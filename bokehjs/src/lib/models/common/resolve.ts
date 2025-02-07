@@ -4,6 +4,7 @@ import {ToolIcon} from "core/enums"
 import {isString, isNumber, isPlainObject} from "core/util/types"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 import {unreachable} from "core/util/assert"
+import {logger} from "core/logging"
 
 export function normalized_anchor(anchor: AutoAnchor): {x: HAnchor | "auto", y: VAnchor | "auto"} {
   if (anchor == "auto") {
@@ -139,5 +140,7 @@ export function apply_icon(el: HTMLElement, icon: IconLike): void {
   } else if (ToolIcon.valid(icon)) {
     const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
     el.classList.add(cls)
+  } else {
+    logger.warn(`unable to resolve icon: ${icon}`)
   }
 }

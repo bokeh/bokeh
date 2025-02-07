@@ -9,14 +9,11 @@
 from dataclasses import dataclass
 
 # Bokeh imports
-from ..._types import CSSClass, CSSVariable, Image
-from ...core.enums import ToolIconType as ToolIcon
 from ...core.has_props import abstract
+from ...core.property_aliases import IconLikeType as IconLike
 from ...model import Model
 from ..callbacks import Callback
 from .ui_element import UIElement
-
-type IconLike = Image | ToolIcon | CSSVariable | CSSClass
 
 @abstract
 @dataclass(init=False)

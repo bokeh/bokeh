@@ -9,14 +9,32 @@
 from typing import Literal, NotRequired, TypedDict
 
 # Bokeh imports
-from .._types import NonNegative
+from .._types import Image, NonNegative
 from ..core.enums import (
     AlignType as Align,
     AnchorType,
     AutoType as Auto,
     HAlignType as HAlign,
+    ToolIconType as ToolIcon,
     VAlignType as VAlign,
 )
+from ..core.property.bases import Property
+
+type CSSLengthType = str
+CSSLength = Property[CSSLengthType]     # 10px 1.2em, etc.
+
+type CSSClassType = str
+CSSClass = Property[CSSClassType]       # ^\..*$
+
+type CSSVariableType = str
+CSSVariable = Property[CSSVariableType] # ^--.*$
+
+type DataImageType = str
+DataImage = Property[DataImageType]     # ^data:image.*$
+
+# Image has to be first! see #12775, temporary fix
+type IconLikeType = Image | ToolIcon | CSSClass | CSSVariable | DataImage
+IconLike = Property[IconLikeType]
 
 class XY[T](TypedDict):
     x: NotRequired[T]

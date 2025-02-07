@@ -130,7 +130,3 @@ type JSON = str
 
 type CoordinateLike = float | Datetime | Factor
 type Coordinate = CoordinateLike | Node
-
-type CSSLength = str
-type CSSClass = str
-type CSSVariable = str

@@ -23,7 +23,6 @@ from .._types import (
     Color,
     Date,
     Datetime,
-    Image,
     NonNegative,
     Percent,
 )
@@ -35,11 +34,11 @@ from ..core.enums import (
     PanDirectionType as PanDirection,
     RegionSelectionModeType as RegionSelectionMode,
     SelectionModeType as SelectionMode,
-    ToolIconType as ToolIcon,
     TooltipAttachmentType as TooltipAttachment,
     TooltipFieldFormatterType as TooltipFieldFormatter,
 )
 from ..core.has_props import abstract
+from ..core.property_aliases import IconLikeType as IconLike
 from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
@@ -68,7 +67,7 @@ class Modifiers(TypedDict):
 @dataclass(init=False)
 class Tool(Model):
 
-    icon: Image | ToolIcon | str | None = ...
+    icon: IconLike | None = ...
 
     description: str | None = ...
 
