@@ -265,7 +265,9 @@ export class DataTableView extends WidgetView {
     }
 
     const {indices} = this.model.source.selected
-    const permuted_indices = sort_by(map(indices, (x) => this.data.index.indexOf(x)), (x) => x)
+    const lookup: {[key: number]: number} = {}
+    this.data.index.forEach((v, i) => lookup[v] = i)
+    const permuted_indices = sort_by(map(indices, (x) => lookup[x]), (x) => x)
 
     this._in_selection_update = true
     try {
