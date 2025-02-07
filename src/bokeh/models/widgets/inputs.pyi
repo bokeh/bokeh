@@ -19,6 +19,7 @@ from ..._types import (
 )
 from ...core.enums import AutoType as Auto
 from ...core.has_props import abstract
+from ...core.property_aliases import IconLikeType as IconLike
 from ...events import ModelEvent
 from ..dom import HTML
 from ..formatters import TickFormatter
@@ -87,14 +88,18 @@ class ToggleInput(Widget):
 
     active: bool = ...
 
-@dataclass
-class Checkbox(ToggleInput):
-
     label: str = ...
 
 @dataclass
-class Switch(ToggleInput):
+class Checkbox(ToggleInput):
     ...
+
+@dataclass
+class Switch(ToggleInput):
+
+    on_icon: IconLike | None = ...
+
+    off_icon: IconLike | None = ...
 
 @dataclass
 class TextLikeInput(InputWidget):

@@ -1,23 +1,44 @@
 import {ToggleInput, ToggleInputView} from "./toggle_input"
+import {IconLike} from "../common/kinds"
+import {apply_icon} from "../common/resolve"
+import type {FullDisplay} from "../layouts/layout_dom"
 import type {StyleSheetLike} from "core/dom"
-import {div} from "core/dom"
+import {div, undisplay} from "core/dom"
 import type * as p from "core/properties"
-import switch_css from "styles/widgets/switch.css"
+import * as icons_css from "styles/icons.css"
+import * as switch_css from "styles/widgets/switch.css"
 
 export class SwitchView extends ToggleInputView {
   declare model: Switch
 
-  protected knob_el: HTMLElement
+  protected icon_el: HTMLElement
+  protected body_el: HTMLElement
   protected bar_el: HTMLElement
+  protected knob_el: HTMLElement
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), switch_css]
+    return [...super.stylesheets(), icons_css.default, switch_css.default]
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flex"} // duplicates `display: flex`
+  }
 
-    this.el.addEventListener("keydown", (event) => {
+  override render(): void {
+    super.render()
+
+    this.bar_el = div({class: switch_css.bar})
+    this.knob_el = div({class: switch_css.knob, tabIndex: 0})
+    this.icon_el = div({class: switch_css.icon})
+    this.body_el = div({class: switch_css.body}, this.bar_el, this.knob_el)
+    this.shadow_el.append(this.label_el, this.icon_el, this.body_el)
+
+    this._update_label()
+    this._update_active()
+    this._update_disabled()
+
+    this.body_el.addEventListener("click", () => this._toggle_active())
+    this.knob_el.addEventListener("keydown", (event) => {
       switch (event.key) {
         case "Enter":
         case " ": {
@@ -27,31 +48,36 @@ export class SwitchView extends ToggleInputView {
         }
       }
     })
-    this.el.addEventListener("click", () => this._toggle_active())
   }
 
-  override render(): void {
-    super.render()
-    this.bar_el = div({class: "bar"})
-    this.knob_el = div({class: "knob", tabIndex: 0})
-    const body_el = div({class: "body"}, this.bar_el, this.knob_el)
-    this._update_active()
-    this._update_disabled()
-    this.shadow_el.appendChild(body_el)
+  protected _apply_icon(icon: IconLike | null): void {
+    if (icon != null) {
+      const icon_el = div({class: switch_css.icon})
+      this.icon_el.replaceWith(icon_el)
+      this.icon_el = icon_el
+      apply_icon(this.icon_el, icon)
+    } else {
+      undisplay(this.icon_el)
+    }
   }
 
   protected _update_active(): void {
-    this.el.classList.toggle("active", this.model.active)
+    const {active, on_icon, off_icon} = this.model
+    this.el.classList.toggle(switch_css.active, active)
+    this._apply_icon(active ? on_icon : off_icon)
   }
 
   protected _update_disabled(): void {
-    this.el.classList.toggle("disabled", this.model.disabled)
+    this.el.classList.toggle(switch_css.disabled, this.model.disabled)
   }
 }
 
 export namespace Switch {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = ToggleInput.Props
+  export type Props = ToggleInput.Props & {
+    on_icon: p.Property<IconLike | null>
+    off_icon: p.Property<IconLike | null>
+  }
 }
 
 export interface Switch extends Switch.Attrs {}
@@ -67,8 +93,9 @@ export class Switch extends ToggleInput {
   static {
     this.prototype.default_view = SwitchView
 
-    this.override<Switch.Props>({
-      width: 32,
-    })
+    this.define<Switch.Props>(({Nullable}) => ({
+      on_icon: [ Nullable(IconLike), null ],
+      off_icon: [ Nullable(IconLike), null ],
+    }))
   }
 }

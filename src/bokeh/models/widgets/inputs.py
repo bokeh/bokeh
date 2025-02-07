@@ -51,6 +51,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ...core.property_aliases import IconLike
 from ...events import ModelEvent
 from ...util.deprecation import deprecated
 from ..dom import HTML
@@ -312,16 +313,16 @@ class ToggleInput(Widget):
     The state of the widget.
     """)
 
+    label = String(default="", help="""
+    The label next to the input.
+    """)
+
 class Checkbox(ToggleInput):
     """ A checkbox widget. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    label = String(default="", help="""
-    The label next to the checkbox.
-    """)
 
 class Switch(ToggleInput):
     """ A checkbox-like widget. """
@@ -330,7 +331,11 @@ class Switch(ToggleInput):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    width = Override(default=32)
+    on_icon = Nullable(IconLike, default=None, help="""
+    """)
+
+    off_icon = Nullable(IconLike, default=None, help="""
+    """)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.

@@ -6987,7 +6987,6 @@
   },
   Checkbox: {
     __extends__: "ToggleInput",
-    label: "",
   },
   ColorPicker: {
     __extends__: "InputWidget",
@@ -7077,7 +7076,8 @@
   },
   Switch: {
     __extends__: "ToggleInput",
-    width: 32,
+    on_icon: null,
+    off_icon: null,
   },
   TextAreaInput: {
     __extends__: "TextLikeInput",
@@ -7100,6 +7100,7 @@
   ToggleInput: {
     __extends__: "Widget",
     active: false,
+    label: "",
   },
   Div: {
     __extends__: "Markup",
