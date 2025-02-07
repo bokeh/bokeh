@@ -31,7 +31,7 @@ plot.context_menu = Menu(
     ],
 )
 
-toolbar_visible = Switch(active=plot.toolbar.visible)
+toolbar_visible = Switch(label="Toolbar visible:", active=plot.toolbar.visible)
 toolbar_visible.js_on_change("active", CustomJS(args=dict(plot=plot), code="""
 export default ({plot}, {active}) => {
     plot.toolbar_location = active ? "right" : null
@@ -40,7 +40,6 @@ export default ({plot}, {active}) => {
 
 layout = column([
     row([
-        Div(text="Toolbar visible:"),
         toolbar_visible,
         Div(text="(access tools by right clicking the plot regardless of toolbar visibility)"),
     ]),

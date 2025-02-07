@@ -58,8 +58,8 @@ zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 p.add_tools(ywheel_zoom, xwheel_zoom, zoom_in, zoom_out, hover)
 p.toolbar.active_scroll = ywheel_zoom
 
-level_switch = Switch(active=level == 1)
-hit_test_switch = Switch(active=hit_test)
+level_switch = Switch(active=level == 1, label="Enable zooming of sub-coordinates:")
+hit_test_switch = Switch(active=hit_test, label="Enable hit-testing based zooming:")
 behavior_select = Select(
     disabled=not hit_test_switch.active,
     value=behavior,
@@ -98,8 +98,8 @@ export default ({tool}, obj) => {
 """))
 
 layout = column(
-    row(Div(text="Enable zooming of sub-coordinates:"), level_switch),
-    row(Div(text="Enable hit-testing based zooming:"), hit_test_switch),
+    level_switch,
+    hit_test_switch,
     row(Div(text="Hit test behavior:"), behavior_select),
     p,
 )

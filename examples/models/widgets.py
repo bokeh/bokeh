@@ -14,8 +14,8 @@ from datetime import date, datetime, time
 from bokeh import palettes
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, Dialog,
-                          Examiner, GroupBox, Menu, Row, SetValue, SVGIcon,
+from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource,
+                          Dialog, Examiner, GroupBox, Row, SetValue, SVGIcon,
                           TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
@@ -201,9 +201,9 @@ checkbox_0 = w.Checkbox(active=False, label="Inactive checkbox")
 
 checkbox_1 = w.Checkbox(active=True, label="Active checkbox")
 
-switch_0 = w.Switch(active=False)
+switch_0 = w.Switch(active=False, label="Show:")
 
-switch_1 = w.Switch(active=True, context_menu=Menu())
+switch_1 = w.Switch(active=True, on_icon="light_theme", off_icon="dark_theme")
 
 switch_help = w.HelpButton(tooltip=Tooltip(content=HTML("""
 This is an <b>on</b> or <b>off</b> style of widget.
