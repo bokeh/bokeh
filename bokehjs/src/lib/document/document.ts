@@ -91,7 +91,7 @@ export class Document implements Equatable {
   protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: HasProps[]
-  /*protected*/ _all_models: Map<ID, Model>
+  protected _all_models: Map<ID, HasProps>
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
@@ -223,12 +223,19 @@ export class Document implements Equatable {
     dest_doc.set_title(this._title)
   }
 
-  // TODO other fields of doc
+  private _hold_models_freeze: boolean = false
+
   protected _push_all_models_freeze(): void {
+    if (this._hold_models_freeze) {
+      return
+    }
     this._all_models_freeze_count += 1
   }
 
   protected _pop_all_models_freeze(): void {
+    if (this._hold_models_freeze) {
+      return
+    }
     this._all_models_freeze_count -= 1
     if (this._all_models_freeze_count === 0) {
       this._recompute_all_models()
@@ -538,9 +545,14 @@ export class Document implements Equatable {
   }
 
   apply_json_patch(patch: Patch, buffers: Map<ID, ArrayBuffer> = new Map()): void {
-    this._push_all_models_freeze()
+    this._hold_models_freeze = true // try ... finally
 
-    const deserializer = new Deserializer(this._resolver, this._all_models, (obj) => obj.attach_document(this))
+    const finalize = (obj: HasProps) => {
+      obj.attach_document(this)
+      this._new_models.add(obj)
+      this._all_models.set(obj.id, obj)
+    }
+    const deserializer = new Deserializer(this._resolver, this._all_models, finalize)
     const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]
 
     for (const event of events) {
@@ -599,6 +611,6 @@ export class Document implements Equatable {
       }
     }
 
-    this._pop_all_models_freeze()
+    this._hold_models_freeze = false
   }
 }
