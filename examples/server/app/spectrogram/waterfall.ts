@@ -45,10 +45,10 @@ export class WaterfallRendererView extends RendererView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, this.request_render)
+    this.connect(this.model.change, this.request_paint)
   }
 
-  protected _render(): void {
+  protected _paint(): void {
     const {ctx} = this.layer
     ctx.save()
     ctx.imageSmoothingEnabled = false
