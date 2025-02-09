@@ -547,7 +547,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     self[name][ind] = value
                 else:
                     shape = self[name][ind[0]][tuple(ind[1:])].shape
-                    self[name][ind[0]][tuple(ind[1:])] = np.array(value, copy=False).reshape(shape)
+                    self[name][ind[0]][tuple(ind[1:])] = np.asarray(value).reshape(shape)
 
         from ...document.events import ColumnsPatchedEvent
         self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
