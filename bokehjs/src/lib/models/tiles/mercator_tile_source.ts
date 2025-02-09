@@ -140,6 +140,23 @@ export class MercatorTileSource extends TileSource {
     return [xmin - x_adjust, ymin - y_adjust, xmax + x_adjust, ymax + y_adjust]
   }
 
+  rescale(extent: Extent, height: number, width: number, last_height: number, last_width: number): Extent {
+    const [xmin, ymin, xmax, ymax] = extent
+    const x_delta = xmax-xmin
+    const y_delta = ymax-ymin
+
+    const x_scale = width/last_width
+    const y_scale = height/last_height
+
+    const desired_x_delta = x_delta*x_scale
+    const desired_y_delta = y_delta*y_scale
+
+    const x_adjust = desired_x_delta - x_delta
+    const y_adjust = desired_y_delta - y_delta
+
+    return [xmin - x_adjust/2, ymin - y_adjust/2, xmax + x_adjust/2, ymax + y_adjust/2]
+  }
+
   tms_to_wmts(x: number, y: number, z: number): [number, number, number] {
     // Note this works both ways
     return [x, 2**z - 1 - y, z]
