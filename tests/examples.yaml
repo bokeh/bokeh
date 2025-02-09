@@ -25,6 +25,7 @@
   skip: [
     "faces",
     "simple_hdf5",
+    "spectrogram", # Custom models not working in CI test harness
     "stocks",      # Bokeh.index not available, can't compute bbox
     "surface3d",   # Bokeh.index not available, can't compute bbox
   ]
