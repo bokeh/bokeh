@@ -54,6 +54,7 @@ from ..core.properties import (
     Either,
     Enum,
     Float,
+    FloatSpec,
     Include,
     Instance,
     InstanceDefault,
@@ -1622,14 +1623,14 @@ class Text(XYGlyph, TextGlyph):
     The angles to rotate the text, as measured from the horizontal.
     """)
 
-    x_offset = NumberSpec(default=0, help="""
+    x_offset = FloatSpec(default=0, help="""
     Offset values in pixels to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
     """)
 
-    y_offset = NumberSpec(default=0, help="""
+    y_offset = FloatSpec(default=0, help="""
     Offset values in pixels to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed

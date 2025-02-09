@@ -130,6 +130,7 @@ DataSpec Properties
 .. autoclass:: ColorSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
+.. autoclass:: FloatSpec
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
@@ -233,6 +234,7 @@ __all__ = (
     'Factor',
     'FactorSeq',
     'Float',
+    'FloatSpec',
     'FontSize',
     'FontSizeSpec',
     'FontStyleSpec',
@@ -336,6 +338,7 @@ from .property.dataspec import ColorSpec
 from .property.dataspec import DashPatternSpec
 from .property.dataspec import DataSpec
 from .property.dataspec import DistanceSpec
+from .property.dataspec import FloatSpec
 from .property.dataspec import FontSizeSpec
 from .property.dataspec import FontStyleSpec
 from .property.dataspec import HatchPatternSpec

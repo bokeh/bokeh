@@ -82,6 +82,7 @@ ALL = (
     'Factor',
     'FactorSeq',
     'Float',
+    'FloatSpec',
     'FontSize',
     'FontSizeSpec',
     'FontStyleSpec',

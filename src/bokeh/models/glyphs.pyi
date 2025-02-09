@@ -13,6 +13,7 @@ from .._specs import (
     AngleSpec,
     DataSpec,
     DistanceSpec,
+    FloatSpec,
     MarkerSpec,
     NonNegative,
     NullDistanceSpec,
@@ -440,9 +441,9 @@ class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, Border
 
     angle: AngleSpec = ...
 
-    x_offset: NumberSpec = ...
+    x_offset: FloatSpec = ...
 
-    y_offset: NumberSpec = ...
+    y_offset: FloatSpec = ...
 
     anchor: DataSpec[TextAnchor] = ...
 
