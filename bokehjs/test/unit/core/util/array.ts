@@ -124,14 +124,29 @@ describe("core/util/array module", () => {
   it("linspace should return an array of a given length between two given numbers", () => {
     expect(array.linspace(2, 3, 5)).to.be.equal([2, 2.25, 2.5, 2.75, 3])
     expect(array.linspace(2, 3).length).to.be.equal(100)
-    expect(array.linspace(2, 3, 0)).to.be.equal([])
     expect(() => array.linspace(2, 3, NaN)).to.throw(RangeError)
     expect(array.linspace(NaN, NaN).length).to.be.equal(100)
   })
 
-  it("linspace() should support num less than 2", () => {
+  it("linspace should support num less than 2", () => {
     expect(array.linspace(0, 1, 0)).to.be.equal([])
     expect(array.linspace(0, 1, 1)).to.be.equal([0])
+  })
+
+  it("logspace should return an array of a given length between two given exponents", () => {
+    expect(array.logspace(0, 4, 5)).to.be.equal([1, 10, 100, 1000, 10000])
+    expect(array.linspace(0, 4).length).to.be.equal(100)
+    expect(() => array.logspace(0, 4, NaN)).to.throw(RangeError)
+    expect(array.logspace(NaN, NaN).length).to.be.equal(100)
+  })
+
+  it("logspace should support base other than 10", () => {
+    expect(array.logspace(0, 4, 5, 5)).to.be.equal([1, 5, 25, 125, 625])
+  })
+
+  it("logspace should support num less than 2", () => {
+    expect(array.logspace(0, 1, 0)).to.be.equal([])
+    expect(array.logspace(0, 1, 1)).to.be.equal([1])
   })
 
   it("transpose should return the given array with transposed axes", () => {
