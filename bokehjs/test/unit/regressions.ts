@@ -62,7 +62,7 @@ import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace, range} from "@bokehjs/core/util/array"
+import {linspace, logspace, range} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -77,7 +77,7 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
-import type {ToolName} from "@bokehjs/api/figure"
+import type {AxisType, ToolName} from "@bokehjs/api/figure"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
@@ -1335,6 +1335,84 @@ describe("Bug", () => {
       await test({x_flipped: true,  y_flipped: false})
       await test({x_flipped: false, y_flipped: true})
       await test({x_flipped: true,  y_flipped: true})
+    })
+  })
+
+  describe("in issue #9663", () => {
+    it("doesn't allow to compute correct image index for log scales", async () => {
+      const n = 5
+
+      async function plot(x_axis_type: AxisType, y_axis_type: AxisType) {
+        const x = x_axis_type == "log" ? logspace(0, n-1, n) : linspace(0, n-1, n)
+        const dw = x[n-1] - x[0]
+
+        const y = y_axis_type == "log" ? logspace(0, n-1, n) : linspace(0, n-1, n)
+        const dh = y[n-1] - y[0]
+
+        const values: number[] = []
+        for (const yi of y) {
+          for (const xi of x) {
+            values.push(xi + yi)
+          }
+        }
+        const image = ndarray(values, {dtype: "float64", shape: [n, n]})
+
+        const x_range = new DataRange1d()
+        const y_range = new DataRange1d()
+
+        const p = fig([300, 300], {x_range, y_range, toolbar_location: "right", x_axis_type, y_axis_type})
+
+        const color_mapper = new LinearColorMapper({palette: Viridis256})
+        const img = p.image({image: [image], x: x[0], y: y[0], dw, dh, color_mapper})
+
+        const hover = new TapTool({renderers: [img], behavior: "select"})
+        p.add_tools(hover)
+
+        const {view} = await display(p)
+        return {view, img}
+      }
+
+      function image_index(i: number, j: number) {
+        return [{index: 0, i, j, flat_index: j*n + i}]
+      }
+
+      async function test(options: {x_axis_type: AxisType, y_axis_type: AxisType}) {
+        const {x_axis_type, y_axis_type} = options
+
+        const x = x_axis_type == "log" ? logspace(0, n-1, n) : linspace(0, n-1, n)
+        const y = y_axis_type == "log" ? logspace(0, n-1, n) : linspace(0, n-1, n)
+
+        const {view, img} = await plot(x_axis_type, y_axis_type)
+        const actions = new PlotActions(view)
+
+        await actions.tap({x: x[0]+0.1, y: y[0]+0.1})
+        await view.ready
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, 0))
+        img.data_source.selected.clear()
+        await view.ready
+
+        await actions.tap({x: x[n-1]-0.1, y: y[0]+0.1})
+        await view.ready
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, 0))
+        img.data_source.selected.clear()
+        await view.ready
+
+        await actions.tap({x: x[0]+0.1, y: y[n-1]-0.1})
+        await view.ready
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, n-1))
+        img.data_source.selected.clear()
+        await view.ready
+
+        await actions.tap({x: x[n-1]-0.1, y: y[n-1]-0.1})
+        await view.ready
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, n-1))
+        img.data_source.selected.clear()
+        await view.ready
+      }
+
+      await test({x_axis_type: "log", y_axis_type: "linear"})
+      await test({x_axis_type: "linear", y_axis_type: "log"})
+      await test({x_axis_type: "log", y_axis_type: "log"})
     })
   })
 

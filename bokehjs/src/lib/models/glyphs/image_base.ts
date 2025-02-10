@@ -16,6 +16,7 @@ import {assert} from "core/util/assert"
 import type {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
 import {anchor} from "../common/resolve"
+import {LogScale} from "../scales/log_scale"
 
 type ImageData = HTMLCanvasElement | null
 
@@ -220,13 +221,32 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected _image_index(index: number, x: number, y: number): ImageIndex {
     const [l, r, t, b] = this._lrtb(index)
-    const width = this.image_width[index]
-    const height = this.image_height[index]
-    const dx = (r - l) / width
-    const dy = (t - b) / height
-    const i = Math.floor((x - l) / dx)
-    const j = Math.floor((y - b) / dy)
-    return {index, i, j, flat_index: j*width + i}
+    const nx = this.image_width[index]
+    const ny = this.image_height[index]
+
+    // The handling of log scales here assumes that users themselves have
+    // generated images that are "pre-transformed", e.g. an np.meshgrid where
+    // np.logspace was used for one or both inputs. Bokeh images always assume
+    // square pixels and do not do any sort of transformation on the canvas
+
+    const dx = (() => {
+      if (this.renderer.xscale instanceof LogScale) {
+        return Math.log(x/l) / Math.log(r/l)
+      }
+      return (x-l) / (r-l)
+    })()
+
+    const dy = (() => {
+      if (this.renderer.yscale instanceof LogScale) {
+        return Math.log(y/b) / Math.log(t/b)
+      }
+      return (y-b) / (t-b)
+    })()
+
+    const i = Math.floor(dx * nx)
+    const j = Math.floor(dy * ny)
+
+    return {index, i, j, flat_index: j*nx + i}
   }
 
   override _hit_point(geometry: PointGeometry): Selection {
