@@ -14,7 +14,7 @@ import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
-import {isString} from "core/util/types"
+import {isArrayable, isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map} from "core/util/arrayable"
 import {inplace, project_xy} from "core/util/projections"
@@ -368,7 +368,17 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
-  protected _transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
+  protected transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
+    // examine just the top level of a 2-d array to validate
+    // that every subitem is an array of some kind, as expected
+    if (prop instanceof p.CoordinateSeqSpec) {
+      for (let i = 0; i < array.length; i++) {
+        if (!isArrayable(array[i])) {
+          logger.error(`expected a 2-d array for ${this.model.type}.${prop.attr}`)
+        }
+      }
+    }
+
     const {x_source, y_source} = this.renderer.coordinates
     const range = prop.dimension == "x" ? x_source : y_source
 
@@ -421,7 +431,7 @@ export abstract class GlyphView extends DOMComponentView {
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
-          const array = this._transform_array(prop, indices.select(prop.array(source)))
+          const array = this.transform_array(prop, indices.select(prop.array(source)))
           this._define_attr(prop.attr, array)
         } else {
           const uniform = prop.uniform(source).select(indices)
