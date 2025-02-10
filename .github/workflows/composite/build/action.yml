@@ -1,0 +1,70 @@
+name: Build
+
+description: 'Build Bokeh and Bokeh.js for testing'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        miniconda-version: 'latest'
+        activate-environment: bk-test
+        run-post: ${{ runner.os != 'Windows' }}
+
+    - name: Install libmamba solver
+      shell: bash -l {0}
+      run: |
+        conda install -q -n base conda-libmamba-solver
+        conda config --set solver libmamba
+
+    - name: Update bk-test environment
+      shell: bash -l {0}
+      run: |
+        conda env update -q -n bk-test -f conda/environment-build.yml
+
+    - name: Install node modules
+      shell: bash -l {0}
+      run: bash scripts/ci/install_node_modules.sh
+
+    - name: Build BokehJS
+      working-directory: ./bokehjs
+      shell: bash -l {0}
+      run: node make build
+
+    - name: Build pip packages
+      shell: bash -l {0}
+      env:
+        BOKEHJS_ACTION: 'install'
+      run: python -m build .
+
+    - name: Verify pip install from sdist
+      shell: bash -l {0}
+      run: bash scripts/ci/verify_pip_install_from_sdist.sh
+
+    - name: Verify pip install using sdist
+      shell: bash -l {0}
+      run: bash scripts/ci/verify_pip_install_using_sdist.sh
+
+    - name: Verify pip install using wheel
+      shell: bash -l {0}
+      run: bash scripts/ci/verify_pip_install_using_wheel.sh
+
+    - name: Build conda package
+      shell: bash -l {0}
+      run: bash scripts/ci/build_conda_package.sh
+
+    - name: Verify conda install
+      shell: bash -l {0}
+      run: bash scripts/ci/verify_conda_install.sh
+
+    - name: Upload wheel package
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheel-package
+        path: dist/bokeh-*-py3-none-any.whl
+
+    - name: Upload bokehjs package
+      uses: actions/upload-artifact@v4
+      with:
+        name: bokehjs-package
+        path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
