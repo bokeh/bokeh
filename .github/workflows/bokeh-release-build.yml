@@ -51,6 +51,7 @@ jobs:
           miniconda-version: 'latest'
           activate-environment: bk-release-build
           environment-file: conda/environment-release-build.yml
+          conda-remove-defaults: true
 
       - name: List installed software
         run: |
