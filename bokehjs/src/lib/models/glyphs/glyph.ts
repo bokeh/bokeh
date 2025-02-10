@@ -369,7 +369,7 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
-  protected transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
+  protected _transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
     // examine just the top level of a 2-d array to validate
     // that every subitem is an array of some kind, as expected
     if (prop instanceof p.CoordinateSeqSpec) {
@@ -432,7 +432,7 @@ export abstract class GlyphView extends DOMComponentView {
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
-          const array = this.transform_array(prop, indices.select(prop.array(source)))
+          const array = this._transform_array(prop, indices.select(prop.array(source)))
           this._define_attr(prop.attr, array)
         } else {
           const uniform = prop.uniform(source).select(indices)
