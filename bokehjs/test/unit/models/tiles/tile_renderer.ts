@@ -346,17 +346,17 @@ describe("tile sources", () => {
     })
 
     it("should rescale", () => {
-      const source = new MercatorTileSource();
-      const rescaled_bounds = source.rescale(T.MERCATOR_BOUNDS, 400, 400, 600, 600);
-      expect(rescaled_bounds).to.be.similar([-13358338.8933333, -13358338.8933333, 13358338.8933333, 13358338.8933333]);
-    });
+      const source = new MercatorTileSource()
+      const rescaled_bounds = source.rescale(T.MERCATOR_BOUNDS, 400, 400, 600, 600)
+      expect(rescaled_bounds).to.be.similar([-13358338.8933333, -13358338.8933333, 13358338.8933333, 13358338.8933333])
+    })
 
     it("should rescale and reverse rescale", () => {
-      const source = new MercatorTileSource();
-      const rescaled_bounds = source.rescale(T.MERCATOR_BOUNDS, 400, 400, 350, 300);
-      const reversed_rescaled_bounds = source.rescale(rescaled_bounds, 350, 300, 400, 400);
-      expect(reversed_rescaled_bounds).to.be.equal(T.MERCATOR_BOUNDS);
-    });
+      const source = new MercatorTileSource()
+      const rescaled_bounds = source.rescale(T.MERCATOR_BOUNDS, 400, 400, 350, 300)
+      const reversed_rescaled_bounds = source.rescale(rescaled_bounds, 350, 300, 400, 400)
+      expect(reversed_rescaled_bounds).to.be.equal(T.MERCATOR_BOUNDS)
+    })
 
     it("should get best zoom level based on extent and height/width", () => {
       const source = new MercatorTileSource()
