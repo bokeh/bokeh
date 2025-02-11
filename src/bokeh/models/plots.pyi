@@ -29,7 +29,7 @@ from ..core.enums import (
 from ..core.property_aliases import LRTB
 from ..core.property_mixins import (
     ScalarBackgroundFillProps,
-    ScalarBorderLineProps,
+    ScalarBorderFillProps,
     ScalarOutlineLineProps,
 )
 from ..model import Model
@@ -47,7 +47,7 @@ from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar
 
 @dataclass
-class Plot(LayoutDOM, ScalarBackgroundFillProps, ScalarBorderLineProps, ScalarOutlineLineProps):
+class Plot(LayoutDOM, ScalarBackgroundFillProps, ScalarBorderFillProps, ScalarOutlineLineProps):
 
     x_range: Range = ...
 
