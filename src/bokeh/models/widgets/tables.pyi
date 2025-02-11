@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 # Bokeh imports
-from ..._types import ColorSpec, FontStyleSpec, TextAlignSpec
+from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
 from ...core.enums import (
     AutosizeModeType as AutosizeMode,
     DateFormatType as DateFormat,

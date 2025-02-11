@@ -10,7 +10,8 @@ from dataclasses import dataclass
 from typing import Literal, Sequence
 
 # Bokeh imports
-from ..._types import CoordinateLike, NullStringSpec, TextLike
+from ..._specs import NullStringSpec
+from ..._types import CoordinateLike, TextLike
 from ...core.enums import (
     AlignType as Align,
     AlternationPolicyType as AlternationPolicy,

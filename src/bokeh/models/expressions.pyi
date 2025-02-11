@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 # Bokeh imports
-from .._types import AngleSpec, NumberSpec
+from .._specs import AngleSpec, NumberSpec
 from ..core.enums import DirectionType as Direction
 from ..core.has_props import abstract
 from ..model import Model

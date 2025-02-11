@@ -9,8 +9,8 @@
 from dataclasses import dataclass
 
 # Bokeh imports
-from ..._types import CSSLength
 from ...core.enums import LocationType as Location
+from ...core.property_aliases import CSSLength
 from .panes import Pane
 
 @dataclass
