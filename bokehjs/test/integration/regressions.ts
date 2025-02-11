@@ -4261,4 +4261,19 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #14310", () => {
+    it("doesn't allow Axis background to have a hatch pattern", async () => {
+      const p = fig([200, 200])
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: ["red", "green", "blue"]})
+
+      p.xaxis.background_hatch_pattern = "/"
+      p.xaxis.background_hatch_color = "pink"
+
+      p.yaxis.background_hatch_pattern = "\\"
+      p.yaxis.background_hatch_color = "purple"
+
+      await display(p)
+    })
+  })
 })
