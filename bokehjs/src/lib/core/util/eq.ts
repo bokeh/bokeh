@@ -97,10 +97,16 @@ export class Comparator {
         case "[object Float64Array]": {
           return this.arrays(a, b)
         }
-        case "[object Map]":
+        case "[object ArrayBuffer]":
+        case "[object SharedArrayBuffer]": {
+          return this.array_buffers(a, b)
+        }
+        case "[object Map]": {
           return this.maps(a, b)
-        case "[object Set]":
+        }
+        case "[object Set]": {
           return this.sets(a, b)
+        }
         case "[object Object]": {
           if (a.constructor == b.constructor && (a.constructor == null || a.constructor === Object)) {
             return this.objects(a, b)
@@ -144,6 +150,11 @@ export class Comparator {
     }
 
     return true
+  }
+
+  array_buffers(a: ArrayBufferLike, b: ArrayBufferLike): boolean {
+    // compare array buffers byte-wise; this doesn't allocate any memory
+    return this.arrays(new Uint8Array(a), new Uint8Array(b))
   }
 
   iterables(a: Iterable<unknown>, b: Iterable<unknown>): boolean {
