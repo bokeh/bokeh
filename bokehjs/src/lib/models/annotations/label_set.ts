@@ -71,8 +71,8 @@ export class LabelSetView extends DataAnnotationView {
     graphics.position = {sx, sy}
     graphics.visuals = this.visuals.text.values(i)
 
-    const {background_fill, border_line} = this.visuals
-    if (background_fill.doit || border_line.doit) {
+    const {background_fill, background_hatch, border_line} = this.visuals
+    if (background_fill.doit || background_hatch.doit || border_line.doit) {
       const {p0, p1, p2, p3} = graphics.rect()
       ctx.beginPath()
       ctx.moveTo(p0.x, p0.y)
@@ -82,6 +82,7 @@ export class LabelSetView extends DataAnnotationView {
       ctx.closePath()
 
       this.visuals.background_fill.apply(ctx, i)
+      this.visuals.background_hatch.apply(ctx, i)
       this.visuals.border_line.apply(ctx, i)
     }
 
@@ -108,12 +109,14 @@ export namespace LabelSet {
   export type Mixins =
     mixins.TextVector &
     mixins.Prefixed<"border", mixins.LineVector> &
-    mixins.Prefixed<"background", mixins.FillVector>
+    mixins.Prefixed<"background", mixins.FillVector> &
+    mixins.Prefixed<"background", mixins.HatchVector>
 
   export type Visuals = DataAnnotation.Visuals & {
     text: visuals.TextVector
     border_line: visuals.LineVector
     background_fill: visuals.FillVector
+    background_hatch: visuals.HatchVector
   }
 }
 
@@ -134,6 +137,7 @@ export class LabelSet extends DataAnnotation {
       mixins.TextVector,
       ["border_",     mixins.LineVector],
       ["background_", mixins.FillVector],
+      ["background_", mixins.HatchVector],
     ])
 
     this.define<LabelSet.Props>(() => ({

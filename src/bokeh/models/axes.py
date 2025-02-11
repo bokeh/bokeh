@@ -47,7 +47,12 @@ from ..core.properties import (
     TextLike,
     Tuple,
 )
-from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
+from ..core.property_mixins import (
+    ScalarFillProps,
+    ScalarHatchProps,
+    ScalarLineProps,
+    ScalarTextProps,
+)
 from .formatters import (
     CONTEXTUAL_DATETIME_FORMATTER,
     BasicTickFormatter,
@@ -246,7 +251,11 @@ class Axis(GuideRenderer):
         inside the central plot area.
     """)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} of the axis background.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
     The {prop} of the axis background.
     """)
 

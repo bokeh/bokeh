@@ -49,6 +49,7 @@ from ...core.properties import (
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,
+    HatchProps,
     LineProps,
     ScalarFillProps,
     ScalarHatchProps,
@@ -120,8 +121,6 @@ class TextAnnotation(Annotation):
     """)
 
     background_fill_color = Override(default=None)
-
-    background_hatch_color = Override(default=None)
 
     border_line_color = Override(default=None)
 
@@ -284,7 +283,11 @@ class LabelSet(DataAnnotation):
     The {prop} values for the text.
     """)
 
-    background_props = Include(FillProps, prefix="background", help="""
+    background_fill_props = Include(FillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(HatchProps, prefix="background", help="""
     The {prop} values for the text bounding box.
     """)
 

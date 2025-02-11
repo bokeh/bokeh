@@ -291,6 +291,29 @@
       type: "value",
       value: 1.0,
     },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
   },
   OpenHead: {
     __extends__: "ArrowHead",
@@ -391,6 +414,29 @@
     fill_alpha: {
       type: "value",
       value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
     },
   },
   Angular: {
@@ -628,6 +674,14 @@
     line_dash_offset: 0,
     fill_color: "#fff9ba",
     fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
   },
   BoxAnnotation: {
     __extends__: [
@@ -1163,6 +1217,29 @@
       type: "value",
       value: 1.0,
     },
+    background_hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    background_hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    background_hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    background_hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_extra: {
+      type: "map",
+    },
     border_line_color: {
       type: "value",
       value: null,
@@ -1208,7 +1285,7 @@
     text_line_height: 1.2,
     background_fill_color: null,
     background_fill_alpha: 1.0,
-    background_hatch_color: null,
+    background_hatch_color: "black",
     background_hatch_alpha: 1.0,
     background_hatch_scale: 12.0,
     background_hatch_pattern: null,
@@ -1308,6 +1385,14 @@
     border_line_dash_offset: 0,
     background_fill_color: "#ffffff",
     background_fill_alpha: 0.95,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
   },
   ColorBar: {
     __extends__: "BaseColorBar",
@@ -1357,10 +1442,34 @@
     border_line_dash_offset: 0,
     background_fill_color: "#ffffff",
     background_fill_alpha: 0.95,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
     item_background_fill_color: "#f1f1f1",
     item_background_fill_alpha: 0.8,
+    item_background_hatch_color: "black",
+    item_background_hatch_alpha: 1.0,
+    item_background_hatch_scale: 12.0,
+    item_background_hatch_pattern: null,
+    item_background_hatch_weight: 1.0,
+    item_background_hatch_extra: {
+      type: "map",
+    },
     inactive_fill_color: "white",
     inactive_fill_alpha: 0.7,
+    inactive_hatch_color: "black",
+    inactive_hatch_alpha: 1.0,
+    inactive_hatch_scale: 12.0,
+    inactive_hatch_pattern: null,
+    inactive_hatch_weight: 1.0,
+    inactive_hatch_extra: {
+      type: "map",
+    },
     click_policy: "none",
     item_background_policy: "none",
     label_text_color: "#444444",
@@ -1546,6 +1655,14 @@
     fixed_location: null,
     background_fill_color: null,
     background_fill_alpha: 1.0,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
   },
   CategoricalAxis: {
     __extends__: "Axis",
@@ -5404,8 +5521,24 @@
     },
     background_fill_color: "#ffffff",
     background_fill_alpha: 1.0,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
     border_fill_color: "#ffffff",
     border_fill_alpha: 1.0,
+    border_hatch_color: "black",
+    border_hatch_alpha: 1.0,
+    border_hatch_scale: 12.0,
+    border_hatch_pattern: null,
+    border_hatch_weight: 1.0,
+    border_hatch_extra: {
+      type: "map",
+    },
     min_border_top: null,
     min_border_bottom: null,
     min_border_left: null,

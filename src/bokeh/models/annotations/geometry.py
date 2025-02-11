@@ -378,6 +378,10 @@ class Band(DataAnnotation):
     The {prop} values for the band.
     """)
 
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the band.
+    """)
+
     fill_alpha = Override(default=0.4)
 
     fill_color = Override(default="#fff9ba")

@@ -10,10 +10,10 @@ from dataclasses import dataclass
 from typing import Sequence
 
 # Bokeh imports
+from ..._specs import CoordinateSpec
 from ..._types import (
     Coordinate,
     CoordinateLike,
-    CoordinateSpec,
     NonNegative,
     Positive,
 )
@@ -123,7 +123,7 @@ class BoxAnnotation(Annotation, AreaVisuals):
     def nodes(self) -> BoxNodes: ...
 
 @dataclass
-class Band(DataAnnotation, ScalarLineProps, ScalarFillProps):
+class Band(DataAnnotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
 
     lower: CoordinateSpec = ...
 

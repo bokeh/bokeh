@@ -231,7 +231,6 @@ export abstract class TextAnnotation extends Annotation {
     this.override<TextAnnotation.Props>({
       border_line_color: null,
       background_fill_color: null,
-      background_hatch_color: null,
     })
   }
 }

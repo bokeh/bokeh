@@ -9,10 +9,15 @@
 from dataclasses import dataclass
 
 # Bokeh imports
-from ..._types import NumberSpec
+from ..._specs import NumberSpec
 from ...core.enums import CoordinateUnitsType as CoordinateUnits
 from ...core.has_props import abstract
-from ...core.property_mixins import BodyLineProps, FillProps, LineProps
+from ...core.property_mixins import (
+    BodyLineProps,
+    FillProps,
+    HatchProps,
+    LineProps,
+)
 from ..graphics import Marking
 from .annotation import DataAnnotation
 
@@ -27,7 +32,7 @@ class OpenHead(ArrowHead, LineProps):
     ...
 
 @dataclass
-class NormalHead(ArrowHead, LineProps, FillProps):
+class NormalHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
 @dataclass
@@ -35,7 +40,7 @@ class TeeHead(ArrowHead, LineProps):
     ...
 
 @dataclass
-class VeeHead(ArrowHead, LineProps, FillProps):
+class VeeHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
 @dataclass

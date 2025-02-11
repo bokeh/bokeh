@@ -333,15 +333,17 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
+    // TODO item_background_hatch
 
-    if (this.visuals.item_background_fill.doit) {
-      const {color} = this.visuals.item_background_fill.computed_values()
+    if (this.visuals.inactive_fill.doit) {
+      const {color} = this.visuals.inactive_fill.computed_values()
       this.style.append(`
       .${legend_css.item} {
         --item-background-active-color: ${color};
       }
       `)
     }
+    // TODO inactive_hatch
 
     const grid_auto_flow = (() => {
       switch (this.model.title_location) {
@@ -389,6 +391,7 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
+    // TODO background_hatch
 
     if (this.visuals.border_line.doit) {
       // TODO use background-image to replicate number[] dash patterns
@@ -527,7 +530,7 @@ export class LegendView extends AnnotationView {
   }
 
   has_item_background(_i: number, row: number, col: number): boolean {
-    if (!this.visuals.item_background_fill.doit) {
+    if (!this.visuals.item_background_fill.doit && !this.visuals.item_background_hatch.doit) {
       return false
     }
     switch (this.model.item_background_policy) {
@@ -564,6 +567,7 @@ export class LegendView extends AnnotationView {
     round_rect(ctx, bbox, this.border_radius)
 
     this.visuals.background_fill.apply(ctx)
+    this.visuals.background_hatch.apply(ctx)
     this.visuals.border_line.apply(ctx)
   }
 
@@ -607,6 +611,7 @@ export class LegendView extends AnnotationView {
         ctx.beginPath()
         ctx.rect_bbox(item_bbox)
         this.visuals.item_background_fill.apply(ctx)
+        this.visuals.item_background_hatch.apply(ctx)
       }
 
       ctx.layer.undo_transform(() => {
@@ -628,6 +633,7 @@ export class LegendView extends AnnotationView {
         ctx.beginPath()
         ctx.rect_bbox(item_bbox)
         this.visuals.inactive_fill.apply(ctx)
+        this.visuals.inactive_hatch.apply(ctx)
       }
     }
   }
@@ -659,20 +665,26 @@ export namespace Legend {
   } & Mixins
 
   export type Mixins =
-    mixins.LabelText      &
-    mixins.TitleText      &
-    mixins.InactiveFill   &
-    mixins.BorderLine     &
-    mixins.BackgroundFill &
-    mixins.ItemBackgroundFill
+    mixins.LabelText           &
+    mixins.TitleText           &
+    mixins.InactiveFill        &
+    mixins.InactiveHatch       &
+    mixins.BorderLine          &
+    mixins.BackgroundFill      &
+    mixins.BackgroundHatch     &
+    mixins.ItemBackgroundFill  &
+    mixins.ItemBackgroundHatch
 
   export type Visuals = Annotation.Visuals & {
     label_text: visuals.Text
     title_text: visuals.Text
     inactive_fill: visuals.Fill
+    inactive_hatch: visuals.Hatch
     border_line: visuals.Line
     background_fill: visuals.Fill
+    background_hatch: visuals.Hatch
     item_background_fill: visuals.Fill
+    item_background_hatch: visuals.Hatch
   }
 }
 
@@ -693,9 +705,12 @@ export class Legend extends Annotation {
       ["label_",           mixins.Text],
       ["title_",           mixins.Text],
       ["inactive_",        mixins.Fill],
+      ["inactive_",        mixins.Hatch],
       ["border_",          mixins.Line],
       ["background_",      mixins.Fill],
+      ["background_",      mixins.Hatch],
       ["item_background_", mixins.Fill],
+      ["item_background_", mixins.Hatch],
     ])
 
     this.define<Legend.Props>(({Float, Int, Str, List, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({

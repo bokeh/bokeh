@@ -60,7 +60,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.property.struct import Optional
-from ..core.property_mixins import ScalarFillProps, ScalarLineProps
+from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import (
@@ -687,13 +687,21 @@ class Plot(LayoutDOM):
 
     """)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the plot background style.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
     The {prop} for the plot background style.
     """)
 
     background_fill_color = Override(default='#ffffff')
 
-    border_props = Include(ScalarFillProps, prefix="border", help="""
+    border_fill_props = Include(ScalarFillProps, prefix="border", help="""
+    The {prop} for the plot border style.
+    """)
+
+    border_hatch_props = Include(ScalarHatchProps, prefix="border", help="""
     The {prop} for the plot border style.
     """)
 

@@ -9,14 +9,8 @@
 from dataclasses import dataclass
 
 # Bokeh imports
-from ..._types import (
-    Angle,
-    AngleSpec,
-    Coordinate,
-    NullStringSpec,
-    NumberSpec,
-    TextLike,
-)
+from ..._specs import AngleSpec, NullStringSpec, NumberSpec
+from ..._types import Angle, Coordinate, TextLike
 from ...core.enums import (
     AngleUnitsType as AngleUnits,
     CoordinateUnitsType as CoordinateUnits,
@@ -28,6 +22,7 @@ from ...core.has_props import abstract
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     BackgroundFillProps,
+    BackgroundHatchProps,
     BorderLineProps,
     ScalarBackgroundFillProps,
     ScalarBackgroundHatchProps,
@@ -73,7 +68,7 @@ class Label(TextAnnotation):
     editable: bool = ...
 
 @dataclass
-class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BorderLineProps):
+class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
 
     x: NumberSpec = ...
 

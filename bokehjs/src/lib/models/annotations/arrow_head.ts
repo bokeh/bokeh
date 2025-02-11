@@ -1,6 +1,6 @@
 import {Marking, MarkingView} from "../graphics/marking"
 import type * as visuals from "core/visuals"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 
@@ -111,6 +111,7 @@ export class NormalHeadView extends ArrowHeadView {
     ctx.closePath()
 
     this.visuals.fill.apply(ctx, i)
+    this.visuals.hatch.apply(ctx, i)
     this.visuals.line.apply(ctx, i)
   }
 }
@@ -120,9 +121,9 @@ export namespace NormalHead {
 
   export type Props = ArrowHead.Props & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
@@ -138,7 +139,7 @@ export class NormalHead extends ArrowHead {
   static {
     this.prototype.default_view = NormalHeadView
 
-    this.mixins<NormalHead.Mixins>([LineVector, FillVector])
+    this.mixins<NormalHead.Mixins>([LineVector, FillVector, HatchVector])
 
     this.override<NormalHead.Props>({
       fill_color: "black",
@@ -171,6 +172,7 @@ export class VeeHeadView extends ArrowHeadView {
     ctx.closePath()
 
     this.visuals.fill.apply(ctx, i)
+    this.visuals.hatch.apply(ctx, i)
     this.visuals.line.apply(ctx, i)
   }
 }
@@ -180,9 +182,9 @@ export namespace VeeHead {
 
   export type Props = ArrowHead.Props & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
@@ -198,7 +200,7 @@ export class VeeHead extends ArrowHead {
   static {
     this.prototype.default_view = VeeHeadView
 
-    this.mixins<VeeHead.Mixins>([LineVector, FillVector])
+    this.mixins<VeeHead.Mixins>([LineVector, FillVector, HatchVector])
 
     this.override<VeeHead.Props>({
       fill_color: "black",

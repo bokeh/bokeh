@@ -36,7 +36,7 @@ from ...core.properties import (
     Override,
     field,
 )
-from ...core.property_mixins import FillProps, LineProps
+from ...core.property_mixins import FillProps, HatchProps, LineProps
 from ..graphics import Marking
 from .annotation import DataAnnotation
 
@@ -104,6 +104,10 @@ class NormalHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the arrow head interior.
+    """)
+
     fill_color = Override(default="black")
 
 class TeeHead(ArrowHead):
@@ -133,6 +137,10 @@ class VeeHead(ArrowHead):
     """)
 
     fill_props = Include(FillProps, help="""
+    The {prop} values for the arrow head interior.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
     The {prop} values for the arrow head interior.
     """)
 

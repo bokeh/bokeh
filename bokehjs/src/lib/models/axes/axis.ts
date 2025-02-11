@@ -208,7 +208,7 @@ export abstract class AxisView extends GuideRendererView {
   // drawing sub functions -----------------------------------------------------
 
   protected _draw_background(ctx: Context2d, _extents: Extents): void {
-    if (!this.visuals.background_fill.doit) {
+    if (!this.visuals.background_fill.doit && !this.visuals.background_hatch.doit) {
       return
     }
 
@@ -216,6 +216,7 @@ export abstract class AxisView extends GuideRendererView {
     const {x, y, width, height} = this.bbox
     ctx.rect(x, y, width, height)
     this.visuals.background_fill.apply(ctx)
+    this.visuals.background_hatch.apply(ctx)
   }
 
   protected _draw_rule(ctx: Context2d, _extents: Extents): void {
@@ -773,7 +774,8 @@ export namespace Axis {
     mixins.MinorTickLine  &
     mixins.MajorLabelText &
     mixins.AxisLabelText  &
-    mixins.BackgroundFill
+    mixins.BackgroundFill &
+    mixins.BackgroundHatch
 
   export type Visuals = GuideRenderer.Visuals & {
     axis_line: visuals.Line
@@ -782,6 +784,7 @@ export namespace Axis {
     major_label_text: visuals.Text
     axis_label_text: visuals.Text
     background_fill: visuals.Fill
+    background_hatch: visuals.Hatch
   }
 }
 
@@ -803,6 +806,7 @@ export abstract class Axis extends GuideRenderer {
       ["major_label_", mixins.Text],
       ["axis_label_",  mixins.Text],
       ["background_",  mixins.Fill],
+      ["background_",  mixins.Hatch],
     ])
 
     this.define<Axis.Props>(({Any, Int, Float, Str, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({

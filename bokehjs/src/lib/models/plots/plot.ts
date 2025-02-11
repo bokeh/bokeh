@@ -103,12 +103,16 @@ export namespace Plot {
   export type Mixins =
     mixins.OutlineLine    &
     mixins.BackgroundFill &
-    mixins.BorderFill
+    mixins.BackgroundHatch &
+    mixins.BorderFill &
+    mixins.BorderHatch
 
   export type Visuals = visuals.Visuals & {
     outline_line: visuals.Line
     background_fill: visuals.Fill
+    background_hatch: visuals.Hatch
     border_fill: visuals.Fill
+    border_hatch: visuals.Hatch
   }
 }
 
@@ -132,7 +136,9 @@ export class Plot extends LayoutDOM {
     this.mixins<Plot.Mixins>([
       ["outline_",    mixins.Line],
       ["background_", mixins.Fill],
+      ["background_", mixins.Hatch],
       ["border_",     mixins.Fill],
+      ["border_",     mixins.Hatch],
     ])
 
     this.define<Plot.Props>(({Bool, Float, Str, List, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({

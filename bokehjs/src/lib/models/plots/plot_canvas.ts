@@ -1250,7 +1250,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const [cx, cy, cw, ch] = canvas_box.args
     const [fx, fy, fw, fh] = frame_box.args
 
-    if (this.visuals.border_fill.doit) {
+    if (this.visuals.border_fill.doit || this.visuals.border_hatch.doit) {
       ctx.save()
       ctx.beginPath()
       ctx.rect(cx, cy, cw, ch)
@@ -1260,12 +1260,15 @@ export class PlotView extends LayoutDOMView implements Paintable {
       ctx.beginPath()
       ctx.rect(cx, cy, cw, ch)
       this.visuals.border_fill.apply(ctx)
+      this.visuals.border_hatch.apply(ctx)
       ctx.restore()
     }
 
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fillRect(fx, fy, fw, fh)
+    if (this.visuals.background_fill.doit || this.visuals.background_hatch.doit) {
+      ctx.beginPath()
+      ctx.rect(fx, fy, fw, fh)
+      this.visuals.background_fill.apply(ctx)
+      this.visuals.background_hatch.apply(ctx)
     }
   }
 

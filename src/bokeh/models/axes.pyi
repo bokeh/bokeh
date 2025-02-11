@@ -18,15 +18,16 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.property_mixins import (
-    ScalarAxisLabelTextProps,
-    ScalarAxisLineProps,
-    ScalarBackgroundFillProps,
-    ScalarGroupTextProps,
-    ScalarMajorLabelTextProps,
-    ScalarMajorTickLineProps,
-    ScalarMinorTickLineProps,
-    ScalarSeparatorLineProps,
-    ScalarSubgroupTextProps,
+    ScalarAxisLabelTextProps as AxisLabelText,
+    ScalarAxisLineProps as AxisLine,
+    ScalarBackgroundFillProps as BackgroundFill,
+    ScalarBackgroundHatchProps as BackgroundHatch,
+    ScalarGroupTextProps as GroupText,
+    ScalarMajorLabelTextProps as MajorLabelText,
+    ScalarMajorTickLineProps as MajorTickLine,
+    ScalarMinorTickLineProps as MinorTickLine,
+    ScalarSeparatorLineProps as SeparatorLine,
+    ScalarSubgroupTextProps as SubgroupText,
 )
 from .formatters import (
     BasicTickFormatter,
@@ -50,8 +51,7 @@ from .tickers import (
 
 @abstract
 @dataclass(init=False)
-class Axis(GuideRenderer, ScalarAxisLabelTextProps, ScalarMajorLabelTextProps, ScalarAxisLineProps,
-           ScalarMajorTickLineProps, ScalarMinorTickLineProps, ScalarBackgroundFillProps):
+class Axis(GuideRenderer, AxisLabelText, MajorLabelText, AxisLine, MajorTickLine, MinorTickLine, BackgroundFill, BackgroundHatch):
 
     dimension: Auto | Literal[0, 1] = ...
 
@@ -109,7 +109,7 @@ class LogAxis(ContinuousAxis):
     formatter: LogTickFormatter = ...
 
 @dataclass
-class CategoricalAxis(Axis, ScalarSeparatorLineProps, ScalarGroupTextProps, ScalarSubgroupTextProps):
+class CategoricalAxis(Axis, SeparatorLine, GroupText, SubgroupText):
 
     ticker: CategoricalTicker = ...
 

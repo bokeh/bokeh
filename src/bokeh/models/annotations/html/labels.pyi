@@ -9,14 +9,12 @@
 from dataclasses import dataclass
 
 # Bokeh imports
+from ...._specs import AngleSpec, NullStringSpec, NumberSpec
 from ...._types import (
     Alpha,
     Angle,
-    AngleSpec,
     Color,
     CoordinateLike,
-    NullStringSpec,
-    NumberSpec,
 )
 from ....core.enums import (
     AngleUnitsType as AngleUnits,
