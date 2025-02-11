@@ -396,6 +396,8 @@ export class TooltipView extends UIElementView {
 
     this.el.style.top = `${top}px`
     this.el.style.left = `${left}px`
+
+    this.update_bbox()
   }
 }
 
