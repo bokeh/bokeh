@@ -912,7 +912,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
-    if (fill_rule != null) {
+    if (fill_rule != null && fill_rule != "nonzero") { // don't apply the default
       this.__currentElement.setAttribute("fill-rule", fill_rule)
     }
     if (this._clip_path != null) {
