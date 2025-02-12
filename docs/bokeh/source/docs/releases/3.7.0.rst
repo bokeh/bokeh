@@ -17,6 +17,7 @@ Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
 * Added support for tool context menus on plots and figures (by default) (:bokeh-pull:`14228`)
 * Added support for label and on/off icons to `Switch` widget (:bokeh-pull:`14294`)
 * Added support for tool grouping in ``figure()`` or ``Plot`` toolbar (:bokeh-pull:`14259`)
+* Added support for hatch visuals everywhere fill visuals are supported (:bokeh-pull:`14311`)
 
 Deprecations
 ------------
