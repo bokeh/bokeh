@@ -333,7 +333,7 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO item_background_hatch
+    // TODO item_background_hatch (https://github.com/bokeh/bokeh/issues/14312)
 
     if (this.visuals.inactive_fill.doit) {
       const {color} = this.visuals.inactive_fill.computed_values()
@@ -343,7 +343,7 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO inactive_hatch
+    // TODO inactive_hatch (https://github.com/bokeh/bokeh/issues/14312)
 
     const grid_auto_flow = (() => {
       switch (this.model.title_location) {
@@ -391,7 +391,7 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO background_hatch
+    // TODO background_hatch (https://github.com/bokeh/bokeh/issues/14312)
 
     if (this.visuals.border_line.doit) {
       // TODO use background-image to replicate number[] dash patterns
