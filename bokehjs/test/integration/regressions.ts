@@ -41,7 +41,7 @@ import {
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -4343,6 +4343,41 @@ describe("Bug", () => {
       p0.renderers = [osm]
 
       await view.ready
+    })
+  })
+
+  describe("in issue #14207", () => {
+    it("has zoom in when visibility changes", async () => {
+      const osm = new TileRenderer({tile_source: osm_source.clone()})
+
+      const p0 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        sizing_mode: "stretch_height",
+        renderers: [osm],
+      })
+
+      const sw0 = new Switch({active: false})
+      const s0 = new Select({
+        value: "foo",
+        options: ["foo", "baz"],
+        sizing_mode: "fixed",
+        visible: false,
+      })
+
+      const col1 = new Column({children: [p0], sizing_mode: "stretch_height"})
+      const col2 = new Column({children: [sw0, s0], sizing_mode: "stretch_both"})
+      const layout = new Row({children: [col1, col2], sizing_mode: "stretch_both"})
+
+      const {view} = await display(layout, [400, 500])
+
+      s0.visible = true
+      await view.ready
+
+      expect(p0.y_range.start).to.be.equal(-4033457.249070633)
+      expect(p0.y_range.end).to.be.equal(10033457.249070633)
     })
   })
 })
