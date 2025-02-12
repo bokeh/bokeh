@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.enums import Align, LabelOrientation
 from ..core.has_props import abstract
@@ -90,7 +93,7 @@ class Axis(GuideRenderer):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     # TODO: Enum(0, 1) instead of Int
@@ -256,7 +259,7 @@ class ContinuousAxis(Axis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class LinearAxis(ContinuousAxis):
@@ -266,7 +269,7 @@ class LinearAxis(ContinuousAxis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(BasicTicker))
@@ -280,7 +283,7 @@ class LogAxis(ContinuousAxis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(LogTicker))
@@ -297,7 +300,7 @@ class CategoricalAxis(Axis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(CategoricalTicker))
@@ -364,7 +367,7 @@ class DatetimeAxis(LinearAxis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(DatetimeTicker))

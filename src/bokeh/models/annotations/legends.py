@@ -112,7 +112,7 @@ class BaseColorBar(Annotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
@@ -253,7 +253,7 @@ class ColorBar(BaseColorBar):
 
     '''
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     color_mapper = Instance(ColorMapper, help="""
@@ -288,7 +288,7 @@ class ContourColorBar(BaseColorBar):
 
     '''
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     fill_renderer = Instance(GlyphRenderer, help="""
@@ -365,7 +365,7 @@ class Legend(Annotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""

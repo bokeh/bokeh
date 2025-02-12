@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import ToolIcon
 from ...core.has_props import abstract
@@ -63,7 +66,7 @@ class Icon(UIElement):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     size = Either(Int, FontSize, default="1em", help="""
@@ -75,7 +78,7 @@ class BuiltinIcon(Icon):
     """ Built-in icons included with BokehJS. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:
+    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs: Any) -> None:
         super().__init__(icon_name=icon_name, **kwargs)
 
     icon_name = Required(Either(Enum(ToolIcon), String), help="""
@@ -107,7 +110,7 @@ class SVGIcon(Icon):
     """ SVG icons with inline definitions. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, svg: Init[str] = Intrinsic, **kwargs) -> None:
+    def __init__(self, svg: Init[str] = Intrinsic, **kwargs: Any) -> None:
         super().__init__(svg=svg, **kwargs)
 
     svg = Required(String, help="""
@@ -131,7 +134,7 @@ class TablerIcon(Icon):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs) -> None:
+    def __init__(self, icon_name: Init[str] = Intrinsic, **kwargs: Any) -> None:
         super().__init__(icon_name=icon_name, **kwargs)
 
     icon_name = Required(String, help="""

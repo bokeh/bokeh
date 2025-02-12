@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -48,7 +51,7 @@ class LabelingPolicy(Model):
     """ Base class for labeling policies. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -56,7 +59,7 @@ class AllLabels(LabelingPolicy):
     """ Select all labels even if they overlap. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -64,7 +67,7 @@ class NoOverlap(LabelingPolicy):
     """ Basic labeling policy avoiding label overlap. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     min_distance = Int(default=5, help="""
@@ -84,7 +87,7 @@ class CustomLabelingPolicy(LabelingPolicy):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""

@@ -22,12 +22,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
-from typing import Any as TAny
+from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
-    Any,
+    AnyRef,
     Auto,
     Bool,
     Color,
@@ -93,7 +93,7 @@ class InputWidget(Widget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     title = Either(String, Instance(HTML), default="", help="""
@@ -130,7 +130,7 @@ class FileInput(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Readonly(Either(String, List(String)), help='''
@@ -239,7 +239,7 @@ class NumericInput(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Either(Null, Float, Int, help="""
@@ -278,7 +278,7 @@ class Spinner(NumericInput):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value_throttled = Readonly(Either(Null, Float, Int), help="""
@@ -306,7 +306,7 @@ class ToggleInput(Widget):
     """ Base class for toggleable (boolean) input widgets. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     active = Bool(default=False, help="""
@@ -321,14 +321,14 @@ class Checkbox(ToggleInput):
     """ A checkbox widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class Switch(ToggleInput):
     """ A checkbox-like widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     on_icon = Nullable(IconLike, default=None, help="""
@@ -343,7 +343,7 @@ class TextLikeInput(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = String(default="", help="""
@@ -373,7 +373,7 @@ class TextInput(TextLikeInput):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     prefix = Nullable(String, help="""
@@ -392,7 +392,7 @@ class TextAreaInput(TextLikeInput):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     cols = Int(default=20, help="""
@@ -418,7 +418,7 @@ class PasswordInput(TextInput):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -428,7 +428,7 @@ class AutocompleteInput(TextInput):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     completions = List(String, help="""
@@ -459,7 +459,7 @@ class AutocompleteInput(TextInput):
     match any substring of a completion string.
     """)
 
-Options = List(Either(String, Tuple(Any, String)))
+Options = List(Either(String, Tuple(AnyRef, String)))
 OptionsGroups = Dict(String, Options)
 
 NotSelected = "" # TODO symbol
@@ -470,7 +470,7 @@ class Select(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     options = Either(Options, OptionsGroups, help="""
@@ -486,7 +486,7 @@ class Select(InputWidget):
     values are in the aforementioned list format.
     """).accepts(List(Either(Null, String)), lambda v: [ NotSelected if item is None else item for item in v ])
 
-    value = Any(default=NotSelected, help="""
+    value = AnyRef(default=NotSelected, help="""
     Initial or selected value.
     """).accepts(Null, lambda _: NotSelected)
 
@@ -496,7 +496,7 @@ class MultiSelect(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     options = List(Either(String, Tuple(String, String)), help="""
@@ -523,7 +523,7 @@ class MultiChoice(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     options = List(Either(String, Tuple(String, String)), help="""
@@ -567,7 +567,7 @@ class ColorPicker(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     color = ColorHex(default='#000000', help="""
@@ -580,7 +580,7 @@ class PaletteSelect(InputWidget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Required(String, help="""
@@ -604,7 +604,7 @@ class PaletteSelect(InputWidget):
     The number of columns to split the display of the palettes into.
     """)
 
-def ColorMap(*args: TAny, **kwargs: TAny) -> PaletteSelect:
+def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
     ''' Color palette select widget.
 
     .. deprecated:: 3.4.0

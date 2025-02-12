@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.properties import (
     Bool,
@@ -58,7 +61,7 @@ class MenuItem(Model):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     checked = Nullable(Bool, default=None, help="""
@@ -106,7 +109,7 @@ class MenuItem(Model):
 class ActionItem(MenuItem):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         deprecated((3, 7, 0), "ActionItem", "MenuItem")
         super().__init__(*args, **kwargs)
 
@@ -114,7 +117,7 @@ class CheckableItem(MenuItem):
     """ A two state checkable menu item. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
         super().__init__(*args, **kwargs)
 
@@ -122,7 +125,7 @@ class DividerItem(Model):
     """ A dividing line between two groups of menu items. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class Menu(UIElement):
@@ -132,7 +135,7 @@ class Menu(UIElement):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     items = List(Either(Instance(MenuItem), Instance(DividerItem), Null), default=[], help="""

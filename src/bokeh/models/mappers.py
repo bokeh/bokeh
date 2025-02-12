@@ -22,6 +22,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from .. import palettes
 from ..core.enums import Palette
@@ -78,7 +81,7 @@ class Mapper(Transform):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -112,7 +115,7 @@ class CategoricalMapper(Mapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     factors = FactorSeq(help="""
@@ -157,7 +160,7 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @warning(PALETTE_LENGTH_FACTORS_MISMATCH)
@@ -181,7 +184,7 @@ class CategoricalMarkerMapper(CategoricalMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     markers = Seq(MarkerType, help="""
@@ -204,7 +207,7 @@ class CategoricalPatternMapper(CategoricalMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     patterns = Seq(HatchPatternType, help="""
@@ -223,7 +226,7 @@ class ContinuousColorMapper(ColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[], help="""
@@ -267,7 +270,7 @@ class LinearColorMapper(ContinuousColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class LogColorMapper(ContinuousColorMapper):
@@ -290,14 +293,14 @@ class LogColorMapper(ContinuousColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 @abstract
 class ScanningColorMapper(ContinuousColorMapper):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -307,7 +310,7 @@ class EqHistColorMapper(ScanningColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     bins = Int(default=256*256, help="Number of histogram bins")
@@ -330,7 +333,7 @@ class StackColorMapper(ColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class WeightedStackColorMapper(StackColorMapper):
@@ -348,7 +351,7 @@ class WeightedStackColorMapper(StackColorMapper):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     alpha_mapper = Instance(ContinuousColorMapper, help="""

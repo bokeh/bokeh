@@ -20,9 +20,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.properties import (
-    Any,
+    AnyRef,
     Bool,
     Dict,
     Float,
@@ -59,7 +62,7 @@ class TileSource(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'extra_url_vars')
@@ -80,7 +83,7 @@ class TileSource(Model):
     A maximum zoom level for the tile layer. This is the most zoomed-in level.
     """)
 
-    extra_url_vars = Dict(String, Any, help="""
+    extra_url_vars = Dict(String, AnyRef, help="""
     A dictionary that maps url variable template keys to values.
 
     These variables are useful for parts of tile urls which do not change from
@@ -110,7 +113,7 @@ class MercatorTileSource(TileSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
@@ -145,7 +148,7 @@ class TMSTileSource(MercatorTileSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class WMTSTileSource(MercatorTileSource):
@@ -159,7 +162,7 @@ class WMTSTileSource(MercatorTileSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class QUADKEYTileSource(MercatorTileSource):
@@ -170,7 +173,7 @@ class QUADKEYTileSource(MercatorTileSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class BBoxTileSource(MercatorTileSource):
@@ -181,7 +184,7 @@ class BBoxTileSource(MercatorTileSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     use_latlon = Bool(default=False, help="""

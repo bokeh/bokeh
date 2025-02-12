@@ -59,7 +59,7 @@ class HasDocumentRef:
     _document: Document | None
     _temp_document: Document | None
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args: Any, **kw: Any):
         super().__init__(*args, **kw)
         self._document = None
         self._temp_document = None

@@ -71,7 +71,7 @@ class GlyphRenderer(DataRenderer):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)

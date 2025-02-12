@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.properties import Instance, InstanceDefault
 from ...core.validation import error
@@ -58,7 +61,7 @@ class GraphRenderer(DataRenderer):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @error(MALFORMED_GRAPH_SOURCE)

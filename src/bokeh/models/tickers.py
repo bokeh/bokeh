@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.enums import LatLon
 from ..core.has_props import abstract
@@ -79,7 +82,7 @@ class Ticker(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class CustomJSTicker(Ticker):
@@ -98,7 +101,7 @@ class CustomJSTicker(Ticker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
@@ -161,7 +164,7 @@ class ContinuousTicker(Ticker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     num_minor_ticks = Int(5, help="""
@@ -188,7 +191,7 @@ class FixedTicker(ContinuousTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticks = Seq(Float, default=[], help="""
@@ -211,7 +214,7 @@ class AdaptiveTicker(ContinuousTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     base = Float(10.0, help="""
@@ -243,7 +246,7 @@ class CompositeTicker(ContinuousTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     tickers = NonEmpty(Seq(Instance(Ticker)), help="""
@@ -261,7 +264,7 @@ class BaseSingleIntervalTicker(ContinuousTicker):
     ''' Base class for single interval tickers. '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class SingleIntervalTicker(BaseSingleIntervalTicker):
@@ -271,7 +274,7 @@ class SingleIntervalTicker(BaseSingleIntervalTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     interval = Required(Float, help="""
@@ -284,7 +287,7 @@ class DaysTicker(BaseSingleIntervalTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     days = Seq(Int, default=[], help="""
@@ -299,7 +302,7 @@ class MonthsTicker(BaseSingleIntervalTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     months = Seq(Int, default=[], help="""
@@ -312,7 +315,7 @@ class YearsTicker(BaseSingleIntervalTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class BasicTicker(AdaptiveTicker):
@@ -324,7 +327,7 @@ class BasicTicker(AdaptiveTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class LogTicker(AdaptiveTicker):
@@ -333,7 +336,7 @@ class LogTicker(AdaptiveTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     mantissas = Override(default=[1, 5])
@@ -345,7 +348,7 @@ class MercatorTicker(BasicTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     dimension = Nullable(Enum(LatLon), help="""
@@ -376,7 +379,7 @@ class CategoricalTicker(Ticker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 ONE_MILLI = 1.0
@@ -393,7 +396,7 @@ class DatetimeTicker(CompositeTicker):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     num_minor_ticks = Override(default=0)
@@ -440,7 +443,7 @@ class BinnedTicker(Ticker):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     mapper = Instance(ScanningColorMapper, help="""

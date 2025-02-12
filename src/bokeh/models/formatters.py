@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.enums import (
     ContextWhich,
@@ -89,7 +92,7 @@ class TickFormatter(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class BasicTickFormatter(TickFormatter):
@@ -99,7 +102,7 @@ class BasicTickFormatter(TickFormatter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     precision = Either(Auto, Int, help="""
@@ -137,7 +140,7 @@ class MercatorTickFormatter(BasicTickFormatter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     dimension = Nullable(Enum(LatLon), help="""
@@ -166,7 +169,7 @@ class NumeralTickFormatter(TickFormatter):
     ''' Tick formatter based on a human-readable format string. '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     format = String("0,0", help="""
@@ -257,7 +260,7 @@ class PrintfTickFormatter(TickFormatter):
     ''' Tick formatter based on a printf-style format string. '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     format = String("%s", help="""
@@ -313,7 +316,7 @@ class LogTickFormatter(TickFormatter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Nullable(Instance(Ticker), help="""
@@ -334,7 +337,7 @@ class CategoricalTickFormatter(TickFormatter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class CustomJSTickFormatter(TickFormatter):
@@ -349,7 +352,7 @@ class CustomJSTickFormatter(TickFormatter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
@@ -589,7 +592,7 @@ class DatetimeTickFormatter(TickFormatter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),

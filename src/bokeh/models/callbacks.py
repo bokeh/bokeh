@@ -70,7 +70,7 @@ class Callback(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class OpenURL(Callback):
@@ -79,7 +79,7 @@ class OpenURL(Callback):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     url = String("http://", help="""
@@ -98,7 +98,7 @@ class CustomCode(Callback):
     """ """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class CustomJS(CustomCode):
@@ -113,7 +113,7 @@ class CustomJS(CustomCode):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef)(default={}, help="""
@@ -209,7 +209,7 @@ class SetValue(Callback):
     """ Allows to update a property of an object. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, value: Init[any] = Intrinsic, **kwargs) -> None:
+    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, value: Init[Any] = Intrinsic, **kwargs: Any) -> None:
         super().__init__(obj=obj, attr=attr, value=value, **kwargs)
 
     obj: HasProps = Required(Instance(HasProps), help="""
@@ -244,7 +244,7 @@ class ToggleVisibility(Callback):
     """ Toggle visibility of a UI element. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     target = Required(Instance(".models.ui.UIElement"), help="""
@@ -255,7 +255,7 @@ class OpenDialog(Callback):
     """ Open a dialog box. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     dialog = Required(Instance(".models.ui.Dialog"), help="""
@@ -273,7 +273,7 @@ class CloseDialog(Callback):
     """ Close a dialog box. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     dialog = Required(Instance(".models.ui.Dialog"), help="""

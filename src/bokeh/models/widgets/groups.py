@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
@@ -58,7 +61,7 @@ class AbstractGroup(Widget):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     labels = List(String, help="""
@@ -72,7 +75,7 @@ class ToggleButtonGroup(AbstractGroup, ButtonLike):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     orientation = Enum("horizontal", "vertical", help="""
@@ -87,7 +90,7 @@ class ToggleInputGroup(AbstractGroup):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     inline = Bool(False, help="""
@@ -105,7 +108,7 @@ class CheckboxGroup(ToggleInputGroup):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     active = List(Int, help="""
@@ -118,7 +121,7 @@ class RadioGroup(ToggleInputGroup):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     active = Nullable(Int, help="""
@@ -131,7 +134,7 @@ class CheckboxButtonGroup(ToggleButtonGroup):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     active = List(Int, help="""
@@ -144,7 +147,7 @@ class RadioButtonGroup(ToggleButtonGroup):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     active = Nullable(Int, help="""

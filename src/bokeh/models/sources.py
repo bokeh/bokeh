@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     TYPE_CHECKING,
-    Any as TAny,
+    Any,
     Sequence,
     TypeAlias,
     overload,
@@ -33,7 +33,8 @@ import numpy as np
 from ..core.has_props import abstract
 from ..core.properties import (
     JSON,
-    Any,
+    Any as AnyVal,
+    AnyRef,
     Bool,
     ColumnData,
     Dict,
@@ -82,7 +83,7 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    DataDict: TypeAlias = dict[str, Sequence[TAny] | npt.NDArray[TAny] | pd.Series | pd.Index]
+    DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series | pd.Index]
 
     Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
@@ -95,7 +96,7 @@ class DataSource(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
@@ -112,10 +113,10 @@ class ColumnarDataSource(DataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    default_values = Dict(String, Any, default={}, help="""
+    default_values = Dict(String, AnyRef, default={}, help="""
     Defines the default value for each column.
 
     This is used when inserting rows into a data source, e.g. by edit tools,
@@ -199,7 +200,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     '''
 
-    data = ColumnData(String, Seq(Any), help="""
+    data = ColumnData(String, Seq(AnyVal), help="""
     Mapping of column names to sequences of data. The columns can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
 
@@ -216,11 +217,11 @@ class ColumnDataSource(ColumnarDataSource):
                     f"Current lengths: {', '.join(sorted(str((k, len(v))) for k, v in data.items()))}", BokehUserWarning))
 
     @overload
-    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny) -> None: ...
+    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: Any) -> None: ...
     @overload
-    def __init__(self, **kwargs: TAny) -> None: ...
+    def __init__(self, **kwargs: Any) -> None: ...
 
-    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         ''' If called with a single argument that is a dict or
         ``pandas.DataFrame``, treat that implicitly as the "data" attribute.
 
@@ -747,7 +748,7 @@ class CDSView(Model):
 
     '''
 
-    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
@@ -771,7 +772,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     geojson = Required(JSON, help="""
@@ -791,7 +792,7 @@ class WebDataSource(ColumnDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     adapter = Nullable(Instance(CustomJS), help="""
@@ -827,7 +828,7 @@ class ServerSentDataSource(WebDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class AjaxDataSource(WebDataSource):
@@ -862,7 +863,7 @@ class AjaxDataSource(WebDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     polling_interval = Nullable(Int, help="""

@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Counter
 from math import nan
+from typing import Any
 
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
@@ -74,7 +75,7 @@ class Range(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 @abstract
@@ -84,7 +85,7 @@ class NumericalRange(Range):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     start = Required(Either(Float, Datetime, TimeDelta), help="""
@@ -172,7 +173,7 @@ class DataRange(NumericalRange):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     renderers = Either(List(Instance(Model)), Auto, help="""

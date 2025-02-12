@@ -119,7 +119,7 @@ class Plot(LayoutDOM):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def select(self, *args, **kwargs):
@@ -865,7 +865,7 @@ class GridPlot(LayoutDOM, GridCommon):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     toolbar = Instance(Toolbar, default=InstanceDefault(Toolbar), help="""

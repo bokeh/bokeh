@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Instance, List, Required
@@ -41,14 +44,14 @@ class GroupBy(Model):
     """ Base class for grouping behaviors. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class GroupByModels(GroupBy):
     """ Group models by manually predefined groups. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     groups = Required(List(List(Instance(Model))), help="""
@@ -59,7 +62,7 @@ class GroupByName(GroupBy):
     """ Group models by their names (``Model.name`` property). """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 # TODO GroupByCustomJS(GroupBy)

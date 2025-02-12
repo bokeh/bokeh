@@ -17,10 +17,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
-    Any,
     AnyRef,
     Bool,
     Instance,
@@ -63,7 +65,7 @@ class Filter(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def __invert__(self) -> Filter:
@@ -85,14 +87,14 @@ class AllIndices(Filter):
     """ Trivial filter that includes all indices in a dataset. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class InversionFilter(Filter):
     """ Inverts indices resulting from another filter. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     operand = Required(Instance(Filter), help="""
@@ -104,7 +106,7 @@ class CompositeFilter(Filter):
     """ Base class for composite filters. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
@@ -115,28 +117,28 @@ class IntersectionFilter(CompositeFilter):
     """ Computes intersection of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class UnionFilter(CompositeFilter):
     """ Computes union of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class DifferenceFilter(CompositeFilter):
     """ Computes difference of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class SymmetricDifferenceFilter(CompositeFilter):
     """ Computes symmetric difference of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class IndexFilter(Filter):
@@ -177,7 +179,7 @@ class GroupFilter(Filter):
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = Required(Any, help="""
+    group = Required(AnyRef, help="""
     The value of the column indicating the rows of data to keep.
     """)
 
@@ -200,7 +202,7 @@ class CustomJSFilter(Filter):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     args = RestrictedDict(String, AnyRef, disallow=("source",), help="""

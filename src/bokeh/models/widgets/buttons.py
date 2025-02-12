@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ...core.enums import ButtonType
@@ -72,7 +72,7 @@ class ButtonLike(HasProps):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     button_type = Enum(ButtonType, help="""
@@ -99,7 +99,7 @@ class AbstractButton(Widget, ButtonLike):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     label = Either(Instance(DOMNode), String, default="Button", help="""
@@ -122,7 +122,7 @@ class Button(AbstractButton):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     label = Override(default="Button")
@@ -149,7 +149,7 @@ class Toggle(AbstractButton):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     label = Override(default="Toggle")
@@ -179,7 +179,7 @@ class Dropdown(AbstractButton):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     label = Override(default="Dropdown")
@@ -216,7 +216,7 @@ class HelpButton(AbstractButton):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     tooltip = Required(Instance(Tooltip), help="""
