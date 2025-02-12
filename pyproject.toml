@@ -17,7 +17,7 @@ dependencies = [
     "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
-    "tornado >=6.2",
+    "tornado >=6.2; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
