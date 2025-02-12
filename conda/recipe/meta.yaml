@@ -39,7 +39,7 @@ requirements:
     - python >=3.10
 
     {% for dep in data['project']['dependencies'] %}
-    - {{ dep.lower() }}
+    - {{ dep.lower().split(";")[0] }}
     {% endfor %}
 
 about:
