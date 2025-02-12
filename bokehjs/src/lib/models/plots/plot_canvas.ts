@@ -9,7 +9,6 @@ import {CompositeRendererView} from "../renderers/composite_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
-import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
 import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
@@ -40,7 +39,6 @@ import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray, isString} from "core/util/types"
 import {copy, reversed} from "core/util/array"
-import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
 import {CanvasLayer, is_Exportable} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
@@ -953,9 +951,12 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   async build_tool_views(): Promise<void> {
-    const tool_models = flat_map(this.model.toolbar.computed_tools, (item) => item instanceof ToolProxy ? item.tools : [item])
-    const {created} = await build_views(this.tool_views, [...tool_models], {parent: this})
-    created.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
+    const tools = this.model.toolbar.all_computed_tools
+    const {created} = await build_views(this.tool_views, tools, {parent: this})
+
+    for (const tool_view of created) {
+      this.canvas_view.ui_event_bus.register_tool(tool_view)
+    }
   }
 
   override connect_signals(): void {
@@ -999,7 +1000,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.invalidate_layout()
     })
 
-    this.connect(this.model.toolbar.properties.tools.change, async () => {
+    const {tools, children} = this.model.toolbar.properties
+    this.on_change([tools, children], async () => {
       await this.build_tool_views()
       await this._update_renderers()
     })

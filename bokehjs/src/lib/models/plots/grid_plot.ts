@@ -65,7 +65,8 @@ export class GridPlotView extends LayoutDOMView {
       await this.grid_box_view.ready
     })
 
-    this.on_change(this.model.toolbar.properties.tools, async () => {
+    const tbp = this.model.toolbar.properties
+    this.on_change([tbp.tools, tbp.children], async () => {
       await this.build_tool_views()
     })
 
@@ -85,7 +86,7 @@ export class GridPlotView extends LayoutDOMView {
   private readonly _tool_views: ViewStorage<ActionTool> = new Map()
 
   async build_tool_views(): Promise<void> {
-    const tools = this.model.toolbar.tools.filter((tool) => tool instanceof ActionTool)
+    const tools = this.model.toolbar.computed_tools.filter((tool) => tool instanceof ActionTool)
     await build_views(this._tool_views, tools, {parent: this})
   }
 

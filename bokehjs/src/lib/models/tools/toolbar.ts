@@ -488,14 +488,37 @@ export class Toolbar extends UIElement {
 
   readonly active_changed: Signal0<this> = new Signal0(this, "active_changed")
 
+  /**
+   * Collect unique top-level tool like models.
+   */
   get computed_tools(): ToolLike[] {
-    const tools = [...this.tools]
+    const tools = new Set(this.tools)
     for (const child of this.children) {
       if (child instanceof ToolButton) {
-        tools.push(child.tool)
+        tools.add(child.tool)
       }
     }
-    return tools
+    return [...tools]
+  }
+
+  /**
+   * Collect all unique individual tool models.
+   */
+  get all_computed_tools(): Tool[] {
+    const collected = new Set<Tool>()
+
+    function visit(tools: ToolLike<Tool>[]) {
+      for (const tool of tools) {
+        if (tool instanceof ToolProxy) {
+          visit(tool.tools)
+        } else {
+          collected.add(tool)
+        }
+      }
+    }
+
+    visit(this.computed_tools)
+    return [...collected]
   }
 
   override connect_signals(): void {
@@ -625,9 +648,12 @@ export class Toolbar extends UIElement {
       return et == "tap" || et == "pan" || tool.supports_auto()
     }
 
+    const tools = this.computed_tools
+
     const is_active_gesture = (active_tool: ToolLike<GestureTool>): boolean => {
-      const tools = this.computed_tools
-      return tools.includes(active_tool) || (active_tool instanceof Tool && tools.some((tool) => tool instanceof ToolProxy && tool.tools.includes(active_tool)))
+      return tools.includes(active_tool) || (
+        active_tool instanceof Tool && tools.some((tool) => tool instanceof ToolProxy && tool.tools.includes(active_tool))
+      )
     }
 
     const _resolve_gesture_activation = (gesture: GestureEntry, active_attr: keyof ActiveGestureToolsProps | null): void => {
