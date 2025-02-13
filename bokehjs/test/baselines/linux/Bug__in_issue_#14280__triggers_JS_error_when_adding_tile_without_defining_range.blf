@@ -1,0 +1,7 @@
+Figure bbox=[0, 0, 300, 250]
+  Canvas bbox=[0, 0, 300, 250]
+  CartesianFrame bbox=[5, 5, 290, 240]
+  Panel bbox=[176, 232, 119, 13]
+    bokeh.models.dom.HTML bbox=[0, 0, 115, 9]
+  MercatorAxis bbox=[5, 245, 290, 0]
+  MercatorAxis bbox=[5, 5, 0, 240]
