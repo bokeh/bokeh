@@ -12,7 +12,9 @@ import {Selection} from "../selections/selection"
 import type {PointGeometry} from "core/geometry"
 import type {SpatialIndex} from "core/util/spatial"
 import type {NDArrayType} from "core/util/ndarray"
+import {is_NDArray} from "core/util/ndarray"
 import {assert} from "core/util/assert"
+import {logger} from "core/logging"
 import type {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
 import {anchor} from "../common/resolve"
@@ -113,13 +115,14 @@ export abstract class ImageBaseView extends XYGlyphView {
     const n = this.data_size
 
     if (!this._can_inherit_image_data) {
-      if (typeof this.image_data === "undefined" || this.image_data.length != n) {
+      if (this.image_data == null || this.image_data.length != n) {
         this._define_attr<ImageBase.Data>("image_data", new Array(n).fill(null))
         this._define_attr<ImageBase.Data>("image_width", new Uint32Array(n))
         this._define_attr<ImageBase.Data>("image_height", new Uint32Array(n))
       }
 
-      const {image_dimension} = this
+      const {image_data, image_width, image_height, image_dimension} = this
+      assert(image_data != null)
 
       for (let i = 0; i < n; i++) {
         if (indices != null && !indices.includes(i)) {
@@ -127,11 +130,20 @@ export abstract class ImageBaseView extends XYGlyphView {
         }
 
         const img = this.image.get(i)
-        assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
+
+        if (!is_NDArray(img) || img.dimension != image_dimension) {
+          const got = is_NDArray(img) ? `${img.dimension}D array` : typeof img
+          logger.error(`${this.model}.image[${i}]: expected a ${image_dimension}D array, got ${got}`)
+          // don't keep rendering a stale image from a previous update
+          image_data[i] = null
+          image_width[i] = 0
+          image_height[i] = 0
+          continue
+        }
 
         const [height, width] = img.shape
-        this.image_width[i] = width
-        this.image_height[i] = height
+        image_width[i] = width
+        image_height[i] = height
 
         const buf8 = this._flat_img_to_buf8(img)
         this._set_image_data_from_buffer(i, buf8)
