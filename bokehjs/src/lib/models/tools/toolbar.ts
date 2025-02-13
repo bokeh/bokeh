@@ -319,6 +319,10 @@ export class ToolbarView extends UIElementView {
     if (this._overflow_menu.is_open) {
       this._overflow_menu.show(this._menu_at())
     }
+
+    for (const tb_view of this.tool_button_views) {
+      tb_view.update_bbox()
+    }
   }
 }
 
