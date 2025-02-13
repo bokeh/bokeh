@@ -44,6 +44,7 @@ from ..core.enums import (
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
+    RenderLevelType as RendererLevel,
     SpatialUnitsType as SpatialUnits,
     StepModeType as StepMode,
     TeXDisplayType as TeXDisplay,
@@ -53,11 +54,12 @@ from ..core.property_aliases import (
     PaddingType as Padding,
 )
 from ..models import glyphs
+from ..models.annotations import Legend
 from ..models.callbacks import CustomJS
 from ..models.coordinates import CoordinateMapping
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import ColumnarDataSource, DataDictLike
+from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -166,10 +168,23 @@ class TextVisuals(AuxTextVisuals, total=False):
     text_baseline: TextBaselineArg
     text_line_height: NumberArg
 
-
 class AuxGlyphArgs(TypedDict, total=False):
-    source: ColumnarDataSource | DataDictLike
+    # Model
+    name: str | None
 
+    # Renderer
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    level: RendererLevel
+    visible: bool
+
+    # GlyphRenderer
+    source: ColumnarDataSource | DataDictLike
+    view: CDSView
+    muted: bool
+
+    legend: Legend
     legend_label: str
     legend_field: str
     legend_group: str
