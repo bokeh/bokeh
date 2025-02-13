@@ -18,7 +18,8 @@ import {
   Plot,
   TeX,
   Toolbar, ToolProxy,
-  PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool, WheelZoomTool,
+  PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
+  WheelPanTool, BoxSelectTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
@@ -4274,6 +4275,34 @@ describe("Bug", () => {
       p.yaxis.background_hatch_color = "purple"
 
       await display(p)
+    })
+  })
+
+  describe("in issue #14246", () => {
+    it("doesn't allow to correctly update Toolbar after changing Tool visiblity", async () => {
+      const pan = new PanTool()
+      const box_select = new BoxSelectTool()
+      const wheel_zoom = new WheelZoomTool()
+      const undo = new UndoTool()
+      const redo = new RedoTool()
+      const reset = new ResetTool()
+      const hover = new HoverTool()
+      const tools = [pan, box_select, wheel_zoom, undo, redo, reset, hover]
+      const toolbar = new Toolbar({tools})
+
+      const plot = fig([200, 200], {toolbar, toolbar_location: "above"})
+      plot.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: ["red", "green", "blue"]})
+
+      const {view} = await display(plot)
+
+      undo.visible = false
+      redo.visible = false
+      reset.visible = false
+      await view.ready
+
+      wheel_zoom.visible = false
+      reset.visible = true
+      await view.ready
     })
   })
 })
