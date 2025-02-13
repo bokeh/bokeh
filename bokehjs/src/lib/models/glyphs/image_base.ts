@@ -12,6 +12,7 @@ import {Selection} from "../selections/selection"
 import type {PointGeometry} from "core/geometry"
 import type {SpatialIndex} from "core/util/spatial"
 import type {NDArrayType} from "core/util/ndarray"
+import {is_NDArray} from "core/util/ndarray"
 import {assert} from "core/util/assert"
 import type {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
@@ -127,7 +128,14 @@ export abstract class ImageBaseView extends XYGlyphView {
         }
 
         const img = this.image.get(i)
-        assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
+
+        if (!is_NDArray(img)) {
+          console.error(`expected a ${image_dimension}D array`)
+          continue
+        } else if (img.dimension != image_dimension) {
+          console.error(`expected a ${image_dimension}D array, not ${img.dimension}D`)
+          continue
+        }
 
         const [height, width] = img.shape
         this.image_width[i] = width
