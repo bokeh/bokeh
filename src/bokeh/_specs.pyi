@@ -111,6 +111,14 @@ Number3dVal: TypeAlias = Sequence[Sequence[Sequence[float | Datetime | TimeDelta
 Number3dSpec: TypeAlias = DataSpec[Number3dVal]
 Number3dArg: TypeAlias = FieldName | Number3dVal | Number3dSpec | Sequence[Number3dVal] | Number3dArray
 
+Image2dVal: TypeAlias = Number2dArray
+Image2dSpec: TypeAlias = DataSpec[Image2dVal]
+Image2dArg: TypeAlias = FieldName | Image2dSpec | Sequence[Image2dVal]
+
+Image3dVal: TypeAlias = Number3dArray
+Image3dSpec: TypeAlias = DataSpec[Image3dVal]
+Image3dArg: TypeAlias = FieldName | Image3dSpec | Sequence[Image3dVal]
+
 SizeVal: TypeAlias = NonNegative[float] | Datetime | TimeDelta
 SizeSpec: TypeAlias = DataSpec[SizeVal]
 SizeArg: TypeAlias = FieldName | SizeVal | Sequence[SizeVal] | SizeSpec | NumberArray

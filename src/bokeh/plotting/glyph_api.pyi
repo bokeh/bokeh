@@ -19,6 +19,8 @@ from .._specs import (
     FontSizeArg,
     FontStyleArg,
     HatchPatternArg,
+    Image2dArg,
+    Image3dArg,
     IntArg,
     LineCapArg,
     LineJoinArg,
@@ -26,7 +28,6 @@ from .._specs import (
     NonNegative,
     NullDistanceArg,
     Number1dArg,
-    Number2dArg,
     Number3dArg,
     NumberArg,
     OutlineShapeNameArg,
@@ -36,10 +37,12 @@ from .._specs import (
     TextAnchorArg,
     TextBaselineArg,
 )
+from .._types import Color
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
     DirectionType as Direction,
+    PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
     SpatialUnitsType as SpatialUnits,
     StepModeType as StepMode,
@@ -280,16 +283,16 @@ class HexTileArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False
     orientation: str
 
 class ImageArgs(GlyphArgs, total=False):
-    # image: Number2dArg
+    # image: Image2dArg
     # x: NumberArg
     # y: NumberArg
     # dw: DistanceArg
     # dh: DistanceArg
     # dilate: bool
-    pass
+    palette: Palette | list[Color]
 
 class ImageRGBAArgs(GlyphArgs, total=False):
-    # image: Number2dArg
+    # image: Image2dArg
     # x: NumberArg
     # y: NumberArg
     # dw: DistanceArg
@@ -298,7 +301,7 @@ class ImageRGBAArgs(GlyphArgs, total=False):
     pass
 
 class ImageStackArgs(GlyphArgs, total=False):
-    # image: Number3dArg
+    # image: Image3dArg
     # x: NumberArg
     # y: NumberArg
     # dw: DistanceArg
@@ -590,7 +593,7 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.HexTile]: ...
 
     def image(self,
-        image: Number2dArg = ...,
+        image: Image2dArg = ...,
         x: NumberArg = ...,
         y: NumberArg = ...,
         dw: DistanceArg = ...,
@@ -600,7 +603,7 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Image]: ...
 
     def image_rgba(self,
-        image: Number2dArg = ...,
+        image: Image2dArg = ...,
         x: NumberArg = ...,
         y: NumberArg = ...,
         dw: DistanceArg = ...,
@@ -610,7 +613,7 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.ImageRGBA]: ...
 
     def image_stack(self,
-        image: Number3dArg = ...,
+        image: Image3dArg = ...,
         x: NumberArg = ...,
         y: NumberArg = ...,
         dw: DistanceArg = ...,
