@@ -50,7 +50,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     KeyModifierType,
-    LogoStyle,
+    LogoVariant,
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
@@ -134,6 +134,7 @@ __all__ = (
     'GestureTool',
     'LassoSelectTool',
     'LineEditTool',
+    'Logo',
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -379,6 +380,17 @@ class InspectTool(GestureTool):
 
     toggleable = DeprecatedAlias[bool]("visible", since=(3, 4, 0))
 
+class Logo(UIElement):
+    """ Component displaying Bokeh's official logo. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    variant = Enum(LogoVariant, default="normal", help="""
+    What variant of the Bokeh logo to display.
+    """)
+
 class ToolButton(UIElement):
     """ UI component for interacting with plot tools. """
 
@@ -415,6 +427,10 @@ class Toolbar(UIElement):
 
     tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
     A list of tools to add to the plot.
+
+    This can be left empty if using manual tool button layout (``children``
+    property), or additional tools not accessible via the toolbar can be
+    added here.
     """)
 
     children = Either(Auto, List(Nullable(Instance(UIElement))), default="auto", help="""
@@ -424,11 +440,19 @@ class Toolbar(UIElement):
     ``tools`` property, tools' pre-defined grouping and priority. Otherwise
     the user can specify the layout of tool buttons, separators and other
     tool unrelated UI elements, like select widgets, etc.
+
+    Tools repeated between ``tools`` property and tools belonging to tool
+    buttons will be deduplicated. ``tools`` property may provide more tools,
+    which will be available to the plot, but not accessible via the toolbar.
+    Extra tools may be accessed via a tool context menu or other approach if
+    configured.
     """)
 
-    logo = Nullable(Enum(LogoStyle), default="normal", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
+    logo = Nullable(Enum(LogoVariant), default="normal", help="""
+    What variant of the Bokeh logo to display on the toolbar.
+
+    If set to ``None``, no logo will be displayed. This property is only
+    applicable when using auto-layout for tool buttons (``children == "auto"``).
     """)
 
     autohide = Bool(default=False, help="""

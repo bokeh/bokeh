@@ -1,6 +1,6 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import type {ToolbarView} from "./toolbar"
-import {LogoStyle as LogoStyle} from "core/enums"
+import {LogoVariant} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {a} from "core/dom"
 import {version} from "version"
@@ -18,7 +18,7 @@ export class LogoView extends UIElementView {
   override render(): void {
     super.render()
 
-    this.class_list.toggle(logo_css.grey, this.model.style == "grey")
+    this.class_list.toggle(logo_css.grey, this.model.variant == "grey")
     this.class_list.toggle(logo_css.last, this.parent.horizontal)
 
     const logo_el = a({href: "https://bokeh.org/", target: "_blank", title: `Bokeh ${version}`})
@@ -30,7 +30,7 @@ export namespace Logo {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    style: p.Property<LogoStyle>
+    variant: p.Property<LogoVariant>
   }
 }
 
@@ -48,7 +48,7 @@ export class Logo extends UIElement {
     this.prototype.default_view = LogoView
 
     this.define<Logo.Props>(() => ({
-      style: [ LogoStyle, "normal" ],
+      variant: [ LogoVariant, "normal" ],
     }))
   }
 }

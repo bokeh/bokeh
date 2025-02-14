@@ -7011,6 +7011,10 @@
     },
     dimensions: "both",
   },
+  Logo: {
+    __extends__: "UIElement",
+    variant: "normal",
+  },
   PanTool: {
     __extends__: "Drag",
     dimensions: "both",

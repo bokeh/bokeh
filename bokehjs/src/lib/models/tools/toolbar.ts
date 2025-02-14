@@ -4,7 +4,7 @@ import type {ViewStorage, View} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
-import {LogoStyle, Location, ToolName} from "core/enums"
+import {LogoVariant, Location, ToolName} from "core/enums"
 import {every, sort_by, includes, intersection, clear} from "core/util/array"
 import {join, enumerate} from "core/util/iterator"
 import type {Orientation} from "core/enums"
@@ -412,7 +412,7 @@ export namespace Toolbar {
   export type Props = UIElement.Props & {
     tools: p.Property<(Tool | ToolProxy<Tool>)[]>
     children: p.Property<(UIElement | null)[] | "auto">
-    logo: p.Property<LogoStyle | null>
+    logo: p.Property<LogoVariant | null>
     autohide: p.Property<boolean>
     group: p.Property<boolean>
     group_types: p.Property<ToolName[]>
@@ -462,7 +462,7 @@ export class Toolbar extends UIElement {
     this.define<Toolbar.Props>(({Bool, List, Or, Ref, Nullable, Auto, Null}) => ({
       tools:          [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       children:       [ Or(List(Or(Ref(UIElement), Null)), Auto), "auto" ],
-      logo:           [ Nullable(LogoStyle), "normal" ],
+      logo:           [ Nullable(LogoVariant), "normal" ],
       autohide:       [ Bool, false ],
       group:          [ Bool, true ],
       group_types:    [ List(ToolName), ["hover"] ],
