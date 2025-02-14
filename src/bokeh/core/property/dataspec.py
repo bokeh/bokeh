@@ -31,6 +31,7 @@ from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
+from .exceptions import ValidationError
 from .instance import Instance
 from .nothing import Nothing
 from .nullable import Nullable
@@ -233,7 +234,7 @@ class DataSpec(Either[Any]):
         try:
             self.value_type.replace(String, Nothing()).validate(val, False)
             val = Value(val)
-        except ValueError:
+        except ValidationError:
             pass
 
         # Check for data source field name
@@ -359,7 +360,7 @@ class FontSizeSpec(DataSpec):
         if isinstance(value, str):
             if len(value) == 0 or (value[0].isdigit() and not CSS_LENGTH_RE.match(value)):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
-                raise ValueError(msg)
+                raise ValidationError(msg)
 
 class FontStyleSpec(DataSpec):
     def __init__(self, default: Any, *, help: str | None = None) -> None:

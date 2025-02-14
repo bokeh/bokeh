@@ -38,6 +38,7 @@ from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
 from .either import Either
 from .enum import Enum
+from .exceptions import ValidationError
 from .nullable import Nullable
 from .numeric import Float, Int
 from .primitive import String
@@ -116,7 +117,7 @@ class CSSLength(String):
 
         if not (isinstance(value, str) and CSS_LENGTH_RE.match(value)):
             msg = "" if not detail else f"{value!r} is not a valid CSS length"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 class FontSize(String):
 
@@ -126,10 +127,10 @@ class FontSize(String):
         if isinstance(value, str):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
-                raise ValueError(msg)
+                raise ValidationError(msg)
             elif not CSS_LENGTH_RE.match(value):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
-                raise ValueError(msg)
+                raise ValidationError(msg)
 
 type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType | str
 
@@ -175,7 +176,7 @@ class Image(Property[str]):
                 return
 
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def transform(self, value: Any) -> str:
         import numpy as np
@@ -221,7 +222,7 @@ class MinMaxBounds(Either[MinMaxBoundsType]):
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
     increasing or decreasing, the first item should be the minimum value of the range and the
-    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+    second item should be the maximum. Setting min > max will result in a ``ValidationError``.
 
     Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
     want to constrain one end of the plot, you can set min or max to
@@ -267,7 +268,7 @@ class MinMaxBounds(Either[MinMaxBoundsType]):
             return
 
         msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 class MarkerType(Enum[str]):
     """

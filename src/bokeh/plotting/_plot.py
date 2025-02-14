@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 
 from ..core.property.datetime import Datetime
+from ..core.property.exceptions import ValidationError
 from ..models import (
     Axis,
     CategoricalAxis,
@@ -90,7 +91,7 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
                 if end is not None:
                     properties["end"] = end
                 return Range1d(**properties)
-            except ValueError:  # @mattpap suggests ValidationError instead
+            except ValidationError:
                 pass
     elif uses_pandas(range_input):
         from pandas import Series
@@ -170,7 +171,7 @@ def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) ->
                     Datetime.validate(Datetime(), value)
                     # TODO timedelta
                     return DatetimeAxis, {}
-                except ValueError:
+                except ValidationError:
                     pass
             return LinearAxis, {}
         case _:

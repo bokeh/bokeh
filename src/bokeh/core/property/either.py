@@ -32,6 +32,7 @@ from .bases import (
     Property,
     TypeOrInst,
 )
+from .exceptions import ValidationError
 from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
@@ -65,9 +66,9 @@ class Either[T](ParameterizedProperty[T]):
 
             >>> m.prop = "auto"
 
-            >>> m.prop = 10.3   # ValueError !!
+            >>> m.prop = 10.3   # ValidationError !!
 
-            >>> m.prop = "foo"  # ValueError !!
+            >>> m.prop = "foo"  # ValidationError !!
 
     """
 
@@ -95,7 +96,7 @@ class Either[T](ParameterizedProperty[T]):
         from ...util.strings import nice_join
 
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def wrap(self, value: T) -> T:
         for tp in self.type_params:
