@@ -21,7 +21,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, override
+from dataclasses import dataclass
+
+# External imports
+import numpy as np
 
 # Bokeh imports
 from ...util.dataclasses import Unspecified
@@ -84,6 +88,7 @@ __all__ = (
     'LineCapSpec',
     'LineJoinSpec',
     'MarkerSpec',
+    'NDArraySpec',
     'NumberSpec',
     'SizeSpec',
     'StringSpec',
@@ -94,6 +99,23 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@dataclass
+class ValidationEntry:
+
+    type: Literal["warning", "error"]
+    text: str
+    exception: ValueValidationError | None = None
+
+class ValidationContext:
+
+    entries: list[ValidationEntry]
+
+    def warn(self, text: str, exception: ValueValidationError | None = None) -> None:
+        self.entries.append(ValidationEntry("warning", text, exception))
+
+    def error(self, text: str, exception: ValueValidationError | None = None) -> None:
+        self.entries.append(ValidationEntry("error", text, exception))
 
 class DataSpec(Either):
     """ Base class for properties that accept either a fixed value, or a
@@ -246,6 +268,14 @@ class DataSpec(Either):
 
         return val
 
+    def validate_column_type(self, column: Any, context: ValidationContext) -> bool:
+        """ Validate the type of the column, but not its data, i.e. fast validation. """
+        return True
+
+    def validate_column_data(self, column: Any, context: ValidationContext) -> bool:
+        """ Validate the data in the column, i.e. slow validation. """
+        return True
+
 class BoolSpec(DataSpec):
     def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Bool, default=default, help=help)
@@ -255,6 +285,7 @@ class IntSpec(DataSpec):
         super().__init__(Int, default=default, help=help)
 
 class FloatSpec(DataSpec):
+
     def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Float, default=default, help=help)
 
@@ -622,6 +653,29 @@ class ColorSpec(DataSpec):
         if self.is_color_tuple_shape(value):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
         return super().prepare_value(cls, name, value)
+
+class NDArraySpec(DataSpec):
+    """ A |DataSpec| property that accepts N-dimensional arrays of numbers.
+
+    """
+
+    ndims: int
+
+    def __init__(self, ndims: int, default, *, help: str | None = None) -> None:
+        super().__init__(Float, default=default, help=help)
+        self.ndims = ndims
+
+    @override
+    def validate_column_type(self, column: Any, context: ValidationContext) -> bool:
+        if isinstance(column, np.ndarray):
+            if not (column.ndim == self.ndims and column.dtype == np.floating):
+                context.error(f"expected ndarray[{self.ndims}d, floating], got ndarray[{column.ndim}d, {column.dtype}]")
+                return False
+        else:
+            context.error(f"expected an ndarray, got a value of type {type(column)})")
+            return False
+
+        return True
 
 #-----------------------------------------------------------------------------
 # Dev API
