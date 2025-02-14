@@ -199,32 +199,34 @@ export class ToolbarView extends UIElementView {
   protected async _build_tool_button_views(): Promise<void> {
     this._destroy_proxies()
 
-    const ui_elements = (() => {
-      const {children} = this.model
-      if (children == "auto") {
-        const tool_bars: ToolLike<Tool>[][] = [
-          ...values(this.model.gestures).map((gesture) => gesture.tools),
-          this.model.actions,
-          this.model.inspectors,
-          this.model.auxiliaries,
-        ]
-        const {group} = this.model
-        const button_bars = tool_bars.map((bar) => {
-          const grouped = group ? this._group_tools(bar) : bar
-          return grouped.map((tool) => new ToolButton({tool}))
-        })
-        return [...join(button_bars, () => new Divider())]
-      } else {
-        return children.map((child) => child ?? new Divider())
-      }
-    })()
+    const {children} = this.model
+    if (children == "auto") {
+      const tool_bars: ToolLike<Tool>[][] = [
+        ...values(this.model.gestures).map((gesture) => gesture.tools),
+        this.model.actions,
+        this.model.inspectors,
+        this.model.auxiliaries,
+      ]
+      const {group} = this.model
+      const button_bars = tool_bars.map((bar) => {
+        const grouped = group ? this._group_tools(bar) : bar
+        return grouped.map((tool) => new ToolButton({tool}))
+      })
+      this._ui_elements = [...join(button_bars, () => new Divider())]
 
-    const {logo} = this.model
-    if (logo != null) {
-      ui_elements.unshift(new Logo({style: logo}))
+      const {logo} = this.model
+      if (logo != null) {
+        const obj = new Logo({variant: logo})
+        if (this.horizontal) {
+          this._ui_elements.push(obj)
+        } else {
+          this._ui_elements.unshift(obj)
+        }
+      }
+    } else {
+      this._ui_elements = children.map((child) => child ?? new Divider())
     }
 
-    this._ui_elements = ui_elements
     await build_views(this._ui_element_views, this._ui_elements, {parent: this})
   }
 
