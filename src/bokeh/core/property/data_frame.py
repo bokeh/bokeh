@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from .bases import Property
+from .exceptions import ValueValidationError
 
 if TYPE_CHECKING:
     from narwhals.stable.v1.typing import IntoDataFrame, IntoSeries  # noqa: F401
@@ -63,7 +64,7 @@ class EagerDataFrame(Property["IntoDataFrame"]):
             return
 
         msg = "" if not detail else f"expected object convertible to Narwhals DataFrame, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 class EagerSeries(Property["IntoSeries"]):
     """ Accept eager series supported by Narwhals.
@@ -81,7 +82,7 @@ class EagerSeries(Property["IntoSeries"]):
             return
 
         msg = "" if not detail else f"expected object convertible to Narwhals Series, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 class PandasDataFrame(Property["DataFrame"]):
     """ Accept Pandas DataFrame values.
@@ -104,7 +105,7 @@ class PandasDataFrame(Property["DataFrame"]):
             return
 
         msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 class PandasGroupBy(Property["GroupBy[Any]"]):
     """ Accept Pandas DataFrame values.
@@ -123,7 +124,7 @@ class PandasGroupBy(Property["GroupBy[Any]"]):
             return
 
         msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

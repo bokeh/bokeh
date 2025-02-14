@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import SingleParameterizedProperty
+from .exceptions import ValueValidationError
 
 if TYPE_CHECKING:
     from .bases import Init, Property, TypeOrInst
@@ -60,13 +61,13 @@ class Nullable(SingleParameterizedProperty[T | None]):
 
         try:
             super().validate(value, detail=False)
-        except ValueError:
+        except ValueValidationError:
             pass
         else:
             return
 
         msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

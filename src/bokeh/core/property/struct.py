@@ -27,6 +27,7 @@ from typing import Any, Generic, TypeVar
 
 # Bokeh imports
 from .bases import ParameterizedProperty, Property
+from .exceptions import ValueValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -105,7 +106,7 @@ class Struct(ParameterizedProperty[T]):
                     return
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__
