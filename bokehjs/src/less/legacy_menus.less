@@ -15,6 +15,7 @@
   position: absolute;
   display: inline-flex;
   flex-wrap: nowrap;
+  align-items: center;
   .no-user-select();
 
   width: auto;
@@ -51,7 +52,7 @@
   margin: 0 5px;
 }
 
-:host > :not(.bk-divider) {
+:host(:not(.bk-custom)) > :not(.bk-divider) {
   border: 1px solid transparent;
 
   &.bk-active {
