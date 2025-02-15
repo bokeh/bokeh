@@ -16,7 +16,6 @@ import type {ToolLike} from "./tool_proxy"
 import {ToolProxy} from "./tool_proxy"
 import {ToolGroup} from "./tool_group"
 import {ToolButton, ToolButtonView} from "./tool_button"
-import {LayoutDOMView} from "../layouts/layout_dom"
 import {Divider} from "./divider"
 import {Logo} from "./logo"
 import {GestureTool} from "./gestures/gesture_tool"
@@ -285,15 +284,6 @@ export class ToolbarView extends UIElementView {
     for (const ui_view of this.ui_element_views) {
       ui_view.render_to(this.shadow_el)
       this._items.push(ui_view.el)
-
-      if (ui_view instanceof LayoutDOMView) {
-        ui_view.style.append(":host", {
-          flex: "0 0 auto",
-          align_self: "center",
-          width: "auto",
-          margin: this.horizontal ? "0 5px" : "5px 0",
-        })
-      }
     }
 
     let prev_divider = true
