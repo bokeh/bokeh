@@ -13,7 +13,7 @@ export class ToolbarPanelView extends AnnotationView {
   declare layout: Layoutable
 
   override update_layout(): void {
-    this.layout = new SideLayout(this.panel!, () => this.get_size(), true)
+    this.layout = new SideLayout(this.panel!, () => this.get_size(), false)
   }
 
   override after_layout(): void {
@@ -88,11 +88,8 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   protected override _get_size(): Size {
-    const {tools, logo} = this.model.toolbar
-    return {
-      width: tools.length*30 + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
-      height: 30,
-    }
+    const {width, height} = this.toolbar_view.el.getBoundingClientRect()
+    return {width, height}
   }
 }
 
