@@ -17,7 +17,7 @@ import {ToolProxy} from "./tool_proxy"
 import {ToolGroup} from "./tool_group"
 import {ToolButton, ToolButtonView} from "./tool_button"
 import {LayoutDOMView} from "../layouts/layout_dom"
-import {Divider, DividerView} from "./divider"
+import {Divider} from "./divider"
 import {Logo} from "./logo"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
@@ -207,11 +207,15 @@ export class ToolbarView extends UIElementView {
         this.model.inspectors,
         this.model.auxiliaries,
       ]
+
       const {group} = this.model
-      const button_bars = tool_bars.map((bar) => {
-        const grouped = group ? this._group_tools(bar) : bar
-        return grouped.map((tool) => new ToolButton({tool}))
-      })
+      const button_bars = tool_bars
+        .map((bar) => {
+          const grouped = group ? this._group_tools(bar) : bar
+          return grouped.map((tool) => new ToolButton({tool}))
+        })
+        .filter((bar) => bar.length != 0)
+
       this._ui_elements = [...join(button_bars, () => new Divider())]
 
       const {logo} = this.model
@@ -278,21 +282,7 @@ export class ToolbarView extends UIElementView {
 
     this._items = []
 
-    let prev_divider = false
     for (const ui_view of this.ui_element_views) {
-      if (!ui_view.model.visible) {
-        continue
-      }
-
-      if (ui_view instanceof DividerView) {
-        if (prev_divider) {
-          continue
-        }
-        prev_divider = true
-      } else {
-        prev_divider = false
-      }
-
       ui_view.render_to(this.shadow_el)
       this._items.push(ui_view.el)
 
@@ -301,9 +291,33 @@ export class ToolbarView extends UIElementView {
           flex: "0 0 auto",
           align_self: "center",
           width: "auto",
-          margin: "0 5px",
+          margin: this.horizontal ? "0 5px" : "5px 0",
         })
       }
+    }
+
+    let prev_divider = true
+    let divider: Divider | null = null
+
+    for (const ui_view of this.ui_element_views) {
+      if (ui_view.model instanceof Divider) {
+        divider = ui_view.model
+        if (prev_divider) {
+          divider.visible = false
+        } else {
+          divider.visible = true
+          prev_divider = true
+        }
+      } else if (!ui_view.model.visible || (ui_view instanceof ToolButtonView && !ui_view.model.tool.visible)) {
+        continue
+      } else {
+        prev_divider = false
+        divider = null
+      }
+    }
+
+    if (divider != null) {
+      divider.visible = false
     }
 
     this.shadow_el.append(...this._items)
