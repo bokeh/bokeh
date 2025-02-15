@@ -106,7 +106,7 @@ export class ToolbarView extends UIElementView {
     const reversed = location == "left" || location == "above"
     this._overflow_menu = new ContextMenu([], {
       target: this.el,
-      orientation: this.horizontal ? "vertical" : "horizontal",
+      orientation: this.orientation,
       reversed,
       prevent_hide: (event) => {
         return event.composedPath().includes(this._overflow_el)
@@ -270,7 +270,7 @@ export class ToolbarView extends UIElementView {
     this.el.classList.toggle(toolbars.inner, this.model.inner)
     this._on_visible_change()
 
-    this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, this.horizontal ? "⋮" : "⋯")
+    this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, div({class: toolbars.icon}))
     this._overflow_el.addEventListener("click", () => {
       this.toggle_menu()
     })

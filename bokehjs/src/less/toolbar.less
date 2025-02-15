@@ -34,13 +34,13 @@
 /// Overflow button
 
 .bk-tool-overflow {
-  color: gray;
-  display: flex;
-  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+  .no-user-select();
 }
 
 .bk-tool-overflow:hover {
-  background-color: rgba(192, 192, 192, 0.15);
+  background-color: var(--hover-color);
 }
 
 .bk-tool-overflow:focus, .bk-tool-overflow:focus-visible {
@@ -53,16 +53,16 @@
 }
 
 :host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
-  .bk-tool-overflow {
+  .bk-tool-overflow .bk-icon {
     width: calc(var(--tool-button-width)/2);
-    height: var(--button-height);
-    flex-direction: row;
+    height: var(--tool-button-height);
+    .icon-mask(var(--bokeh-icon-vdots));
   }
 }
 :host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
-  .bk-tool-overflow {
+  .bk-tool-overflow .bk-icon {
     width: var(--tool-button-width);
-    height: calc(var(--button-height)/2);
-    flex-direction: column;
+    height: calc(var(--tool-button-height)/2);
+    .icon-mask(var(--bokeh-icon-hdots));
   }
 }
