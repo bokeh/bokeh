@@ -9,7 +9,7 @@ import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {HAlign, VAlign} from "core/enums"
-import {Align, Face, LabelOrientation} from "core/enums"
+import {Align, CorrectionPolicy, Face, LabelOrientation} from "core/enums"
 import type {Size} from "core/layout"
 import {Indices} from "core/types"
 import type {Orient, Normal, Dimension} from "core/layout/side_panel"
@@ -249,13 +249,14 @@ export abstract class AxisView extends GuideRendererView {
   }
 
   protected _draw_major_labels(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
-    const coords   = tick_coords.major
-    const labels   = this.compute_labels(coords[this.dimension])
-    const orient   = this.model.major_label_orientation
-    const standoff = extents.tick + this.model.major_label_standoff
-    const visuals  = this.visuals.major_label_text
+    const coords              = tick_coords.major
+    const labels              = this.compute_labels(coords[this.dimension])
+    const orient              = this.model.major_label_orientation
+    const standoff            = extents.tick + this.model.major_label_standoff
+    const visuals             = this.visuals.major_label_text
+    const correction_policy   = this.model.axis_label_correction
 
-    this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals)
+    this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals, correction_policy)
   }
 
   protected _axis_label_extent(): number {
@@ -369,6 +370,7 @@ export abstract class AxisView extends GuideRendererView {
   protected _draw_oriented_labels(
       ctx: Context2d, labels: GraphicsBoxes, coords: Coords,
       orient: Orient | number, standoff: number, visuals: visuals.Text,
+      correction_policy: CorrectionPolicy = "auto",
   ): void {
     if (!visuals.doit || labels.length == 0) {
       return
@@ -419,6 +421,53 @@ export abstract class AxisView extends GuideRendererView {
 
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
+
+    const ids = [...selected.ones()]
+    if (ids.length != 0) {
+      const cbox = this.canvas.bbox
+
+      const correct_x = (k: number) => {
+        const bbox = bboxes[k]
+
+        if (bbox.left < 0) {
+          const offset = -bbox.left
+          const {position} = items[k]
+          items[k].position = {...position, sx: position.sx + offset}
+        } else if (bbox.right > cbox.width) {
+          const offset = bbox.right - cbox.width
+          const {position} = items[k]
+          items[k].position = {...position, sx: position.sx - offset}
+        }
+      }
+
+      const correct_y = (k: number) => {
+        const bbox = bboxes[k]
+
+        if (bbox.top < 0) {
+          const offset = -bbox.top
+          const {position} = items[k]
+          items[k].position = {...position, sy: position.sy + offset}
+        } else if (bbox.bottom > cbox.height) {
+          const offset = bbox.bottom - cbox.height
+          const {position} = items[k]
+          items[k].position = {...position, sy: position.sy - offset}
+        }
+      }
+
+      const i = ids[0]
+      const j = ids[ids.length - 1]
+
+      const policy_x = (correction_policy == 'always') || (correction_policy == 'auto' && abs(angle) == Math.PI/2)
+      const policy_y = (correction_policy == 'always') || (correction_policy == 'auto' && angle == 0)
+
+      if (this.dimension == 0 && policy_x) {
+        correct_x(i)
+        correct_x(j)
+      } else if (this.dimension == 1 && policy_y ) {
+        correct_y(i)
+        correct_y(j)
+      }
+    }
 
     for (const i of selected) {
       const label = items[i]
@@ -713,6 +762,7 @@ export namespace Axis {
     axis_label_standoff: p.Property<number>
     axis_label_orientation: p.Property<LabelOrientation | number>
     axis_label_align: p.Property<Align>
+    axis_label_correction: p.Property<CorrectionPolicy | "auto">
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<LabelOrientation | number>
     major_label_overrides: p.Property<LabelOverrides>
@@ -775,6 +825,7 @@ export abstract class Axis extends GuideRenderer {
       axis_label_standoff:     [ Int, 5 ],
       axis_label_orientation:  [ Or(LabelOrientation, Float), "parallel" ],
       axis_label_align:        [ Align, "center" ],
+      axis_label_correction:   [ Or(CorrectionPolicy, Auto), "auto"],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(LabelOrientation, Float), "horizontal" ],
       major_label_overrides:   [ LabelOverrides, new Map() ],

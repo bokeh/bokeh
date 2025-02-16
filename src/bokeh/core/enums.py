@@ -100,6 +100,7 @@ __all__ = (
     'CalendarPosition',
     'ContextWhich',
     'CoordinateUnits',
+    'CorrectionPolicy',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -315,6 +316,10 @@ ContextWhich = enumeration(ContextWhichType)
 #: Specify units for mapping coordinates
 CoordinateUnitsType = Literal["canvas", "screen", "data"]
 CoordinateUnits = enumeration(CoordinateUnitsType)
+
+#: Specify the rule for a correction
+CorrectionPolicyType = Literal["auto", "always", "never"]
+CorrectionPolicy = enumeration(CorrectionPolicyType)
 
 #: Specify a named dashing pattern for stroking lines
 DashPatternType = Literal["solid", "dashed", "dotted", "dotdash", "dashdot"]

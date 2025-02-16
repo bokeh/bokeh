@@ -32,6 +32,9 @@ export type ButtonType = typeof ButtonType["__type__"]
 export const CalendarPosition = Enum("auto", "above", "below")
 export type CalendarPosition = typeof CalendarPosition["__type__"]
 
+export const CorrectionPolicy = Enum("auto", "always", "never")
+export type CorrectionPolicy = typeof CorrectionPolicy["__type__"]
+
 export const Clock = Enum("12h", "24h")
 export type Clock = typeof Clock["__type__"]
 
