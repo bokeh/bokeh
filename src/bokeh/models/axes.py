@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from ..core.enums import Align, AxisLabelStandoffMode, LabelOrientation
+from ..core.enums import Align, CorrectionPolicy, AxisLabelStandoffMode, LabelOrientation
 from ..core.has_props import abstract
 from ..core.property.auto import Auto
 from ..core.property.container import Dict, Seq, Tuple
@@ -176,6 +176,11 @@ class Axis(GuideRenderer):
     _axis_label_text_font_size = Override(default="13px")
 
     _axis_label_text_font_style = Override(default="italic")
+
+    axis_label_correction = Enum(CorrectionPolicy, default="auto", help="""
+    Operation on labels to keep them in the visible area if
+    the label is to long and parts would be cut off.
+    """)
 
     major_label_standoff = Int(default=5, help="""
     The distance in pixels that the major tick labels should be

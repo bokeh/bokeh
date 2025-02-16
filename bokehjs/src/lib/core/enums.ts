@@ -39,6 +39,9 @@ export type ButtonType = Infer<typeof ButtonType>
 export const CalendarPosition = Enum("auto", "above", "below")
 export type CalendarPosition = Infer<typeof CalendarPosition>
 
+export const CorrectionPolicy = Enum("auto", "always", "never")
+export type CorrectionPolicy = typeof CorrectionPolicy["__type__"]
+
 export const Clock = Enum("12h", "24h")
 export type Clock = Infer<typeof Clock>
 
