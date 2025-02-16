@@ -29,7 +29,9 @@ def nix(val, lst):
 def get_data(t1, t2):
     df1 = getattr(SERVER_CONTEXT, t1)
     df2 = getattr(SERVER_CONTEXT, t2)
-    data = df1.join(df2, lsuffix=f"_{t1}", rsuffix=f"_{t2}").dropna()
+    df1 = df1.rename(columns={"Close": f"Close_{t1}", "Returns": f"Returns_{t1}"})
+    df2 = df2.rename(columns={"Close": f"Close_{t2}", "Returns": f"Returns_{t2}"})
+    data = df1.join(df2,how="outer").dropna()
     data["t1"] = data[f"Close_{t1}"]
     data["t2"] = data[f"Close_{t2}"]
     data["t1_returns"] = data[f"Returns_{t1}"]
@@ -41,19 +43,19 @@ source_static = ColumnDataSource(data=dict(date=[], t1=[], t2=[], t1_returns=[],
 
 corr = figure(width=370, height=350,  min_border_left=60,
               tools="pan,wheel_zoom,box_select,reset", active_drag="box_select")
-corr.scatter("t1_returns", "t2_returns", size=3, source=source,
+corr.scatter("t1_returns_", "t2_returns_", size=3, source=source,
              selection_color="orange", alpha=0.8,
              nonselection_alpha=0.1, selection_alpha=0.5)
 
 ts1 = figure(width=900, height=200, x_axis_type="datetime",
              tools="pan,wheel_zoom,xbox_select,reset", active_drag="xbox_select")
-ts1.line("Date", "t1", source=source_static)
-ts1.scatter("Date", "t1", size=3, source=source, color=None, selection_color="orange")
+ts1.line("Date", "t1_", source=source_static)
+ts1.scatter("Date", "t1_", size=3, source=source, color=None, selection_color="orange")
 
 ts2 = figure(width=900, height=200, x_axis_type="datetime",
              tools="pan,wheel_zoom,xbox_select,reset", active_drag="xbox_select")
-ts2.line("Date", "t2", source=source_static)
-ts2.scatter("Date", "t2", size=3, source=source, color=None, selection_color="orange")
+ts2.line("Date", "t2_", source=source_static)
+ts2.scatter("Date", "t2_", size=3, source=source, color=None, selection_color="orange")
 
 ts2.x_range = ts1.x_range
 
