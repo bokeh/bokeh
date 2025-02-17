@@ -57,7 +57,6 @@ dependencies:
   - h5py
   - icalendar
   - notebook
-  - pandas-datareader
   - pyshp
   - scikit-learn
   #- squarify

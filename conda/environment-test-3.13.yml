@@ -58,7 +58,6 @@ dependencies:
   # - h5py # Not yet available for Python 3.13
   - icalendar
   # - notebook # Not yet available for Python 3.13
-  - pandas-datareader
   - pyshp
   - scikit-learn
   #- squarify
