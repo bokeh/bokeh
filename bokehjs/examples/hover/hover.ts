@@ -52,9 +52,9 @@ export namespace HoverfulScatter {
     div.style.width = "200px"
     div.style.height = "75px"
     if (info.index != null) {
-      div.style.backgroundColor = Bokeh.Plotting.color(
-        (data_source.get("colors") as typeof colors)[info.index],
-      )
+      const color_source = data_source.get("colors") as typeof colors
+      const css_color = Bokeh.Plotting.color(color_source[info.index])
+      div.style.backgroundColor = css_color
     }
     return div
   }
