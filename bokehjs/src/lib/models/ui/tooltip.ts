@@ -25,6 +25,8 @@ import icons_css from "styles/icons.css"
 export class TooltipView extends UIElementView {
   declare model: Tooltip
 
+  static override aria_role = "tooltip" as const
+
   protected arrow_el: HTMLElement
   protected content_el: HTMLElement
   protected _observer: ResizeObserver

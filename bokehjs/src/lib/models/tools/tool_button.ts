@@ -22,6 +22,8 @@ export abstract class ToolButtonView extends UIElementView {
   declare model: ToolButton
   declare readonly parent: ToolbarView
 
+  static override aria_role = "button" as const
+
   protected _menu: ContextMenu
   protected _ui_gestures: UIGestures
 

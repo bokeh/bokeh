@@ -20,6 +20,8 @@ import icons_css from "styles/icons.css"
 export class TabsView extends LayoutDOMView {
   declare model: Tabs
 
+  static override aria_role = "tablist" as const
+
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
   protected header_el: HTMLElement
   protected header_els: HTMLElement[]
@@ -101,13 +103,15 @@ export class TabsView extends LayoutDOMView {
     this.header_el = div({class: tabs.header})
     this.shadow_el.append(this.header_el)
     this._update_headers()
+
+    // TODO role="tabpanel" for children; needs a redesign, because we don't have wrapper elements for tap panels
   }
 
   protected _update_headers(): void {
     const {active} = this.model
 
     const headers = this.model.tabs.map((tab, i) => {
-      const tab_el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: 0}, tab.title)
+      const tab_el = div({class: [tabs.tab, i == active ? tabs.active : null], role: "tab", tabIndex: 0}, tab.title)
       tab_el.addEventListener("click", (event) => {
         if (this.model.disabled) {
           return

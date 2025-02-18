@@ -16,6 +16,8 @@ import buttons_css, * as buttons from "styles/buttons.css"
 export abstract class AbstractButtonView extends ControlView {
   declare model: AbstractButton
 
+  static override aria_role = "button" as const
+
   protected label_view?: ViewOf<DOMNode>
   protected icon_view?: ViewOf<Icon>
 

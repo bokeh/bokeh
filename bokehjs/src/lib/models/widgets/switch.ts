@@ -11,6 +11,8 @@ import * as switch_css from "styles/widgets/switch.css"
 export class SwitchView extends ToggleInputView {
   declare model: Switch
 
+  static override aria_role = "switch" as const
+
   protected icon_el: HTMLElement
   protected body_el: HTMLElement
   protected bar_el: HTMLElement

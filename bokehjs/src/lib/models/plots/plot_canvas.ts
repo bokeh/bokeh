@@ -87,6 +87,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   declare model: Plot
   visuals: Plot.Visuals
 
+  static override aria_role = "figure" as const
+
   declare layout: BorderLayout
 
   private _top_panel: CanvasPanel

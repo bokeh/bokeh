@@ -33,6 +33,8 @@ import icons_css from "styles/icons.css"
 export class ToolbarView extends UIElementView {
   declare model: Toolbar
 
+  static override aria_role = "toolbar" as const
+
   protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
   protected _tool_buttons: ToolButton[][]
   protected _items: HTMLElement[] = []
