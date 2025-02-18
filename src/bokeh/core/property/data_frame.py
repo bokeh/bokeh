@@ -60,7 +60,7 @@ class EagerDataFrame(Property["IntoDataFrame"]):
         super().validate(value, detail)
 
         if nw.dependencies.is_into_dataframe(value):
-            return
+            return # type: ignore[unreachable] # https://github.com/bokeh/bokeh/issues/14342
 
         msg = "" if not detail else f"expected object convertible to Narwhals DataFrame, got {value!r}"
         raise ValueError(msg)
@@ -78,7 +78,7 @@ class EagerSeries(Property["IntoSeries"]):
         super().validate(value, detail)
 
         if nw.dependencies.is_into_series(value):
-            return
+            return # type: ignore[unreachable] # https://github.com/bokeh/bokeh/issues/14342
 
         msg = "" if not detail else f"expected object convertible to Narwhals Series, got {value!r}"
         raise ValueError(msg)
