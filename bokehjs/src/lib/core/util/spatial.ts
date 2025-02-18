@@ -1,6 +1,6 @@
 import FlatBush from "flatbush"
 
-import type {Rect, TypedArray} from "../types"
+import type {Rect} from "../types"
 import {Indices} from "../types"
 import {empty} from "./bbox"
 
@@ -20,18 +20,13 @@ function upperBound(value: number, arr: ArrayLike<number>): number {
 
 class _FlatBush extends FlatBush {
 
-  get boxes(): TypedArray | Uint8ClampedArray {
-    return this._boxes
-  }
-
-  search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
+  search_apply(minX: number, minY: number, maxX: number, maxY: number, nodeFunction: (index: number, node: Rect) => void): void {
     if (this._pos !== this._boxes.length) {
       throw new Error("Data not yet indexed - call index.finish().")
     }
 
     let nodeIndex: number | undefined = this._boxes.length - 4
     const queue = []
-    const results = new Indices(this.numItems)
 
     while (nodeIndex !== undefined) {
       // find the end index of the node
@@ -39,9 +34,6 @@ class _FlatBush extends FlatBush {
 
       // search through child nodes
       for (let pos: number = nodeIndex; pos < end; pos += 4) {
-        const index = this._indices[pos >> 2] | 0
-
-        // check if node bbox intersects with query bbox
         const nodeMinX = this._boxes[pos + 0]
         const nodeMinY = this._boxes[pos + 1]
         const nodeMaxX = this._boxes[pos + 2]
@@ -51,18 +43,59 @@ class _FlatBush extends FlatBush {
           continue
         }
 
+        const index = this._indices[pos >> 2] | 0
+
         if (nodeIndex < this.numItems * 4) {
-          results.set(index) // leaf item
+          nodeFunction(index, {x0: nodeMinX, y0: nodeMinY, x1: nodeMaxX, y1: nodeMaxY})
         } else {
           queue.push(index) // node; add it to the search queue
         }
+
       }
 
       nodeIndex = queue.pop()
     }
-
-    return results
   }
+
+  search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
+    const result = new Indices(this.numItems)
+
+    function fn(result: Indices) {
+      return (index: number, _node: Rect) => { result.set(index) }
+    }
+    this.search_apply(minX, minY, maxX, maxY, fn(result))
+
+    return result
+  }
+
+  search_bounds(minX: number, minY: number, maxX: number, maxY: number): Rect {
+    const result = empty()
+
+    function fn(result: Rect) {
+      return (_index: number, node: Rect) => {
+        if (node.x0 >= minX && node.x0 < result.x0) {
+          result.x0 = node.x0
+        }
+        if (node.x1 <= maxX && node.x1 > result.x1) {
+          result.x1 = node.x1
+        }
+        if (node.y0 >= minY && node.y0 < result.y0) {
+          result.y0 = node.y0
+        }
+        if (node.y1 <= maxY && node.y1 > result.y1) {
+          result.y1 = node.y1
+        }
+      }
+    }
+    this.search_apply(minX, minY, maxX, maxY, fn(result))
+
+    if (!isFinite(result.x0 + result.y0 + result.x1 + result.y1)) {
+      return empty()
+    }
+
+    return result
+  }
+
 }
 
 export class SpatialIndex {
@@ -128,31 +161,11 @@ export class SpatialIndex {
   }
 
   bounds(rect: Rect): Rect {
-    const bounds = empty()
     if (this.index == null) {
-      return bounds
+      return empty()
+    } else {
+      const {x0, y0, x1, y1} = this._normalize(rect)
+      return this.index.search_bounds(x0, y0, x1, y1)
     }
-
-    const {boxes} = this.index
-    for (const i of this.indices(rect)) {
-      const x0 = boxes[4*i + 0]
-      const y0 = boxes[4*i + 1]
-      const x1 = boxes[4*i + 2]
-      const y1 = boxes[4*i + 3]
-      if (x0 >= rect.x0 && x0 < bounds.x0) {
-        bounds.x0 = x0
-      }
-      if (x1 <= rect.x1 && x1 > bounds.x1) {
-        bounds.x1 = x1
-      }
-      if (y0 >= rect.y0 && y0 < bounds.y0) {
-        bounds.y0 = y0
-      }
-      if (y1 <= rect.y1 && y1 > bounds.y1) {
-        bounds.y1 = y1
-      }
-    }
-
-    return bounds
   }
 }
