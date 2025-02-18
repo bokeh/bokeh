@@ -59,39 +59,28 @@ class _FlatBush extends FlatBush {
 
   search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
     const result = new Indices(this.numItems)
-
-    function fn(result: Indices) {
-      return (index: number, _node: Rect) => { result.set(index) }
-    }
-    this.search_apply(minX, minY, maxX, maxY, fn(result))
-
+    this.search_apply(minX, minY, maxX, maxY, (index) => result.set(index))
     return result
   }
 
   search_bounds(minX: number, minY: number, maxX: number, maxY: number): Rect {
     const result = empty()
-
-    function fn(result: Rect) {
-      return (_index: number, node: Rect) => {
-        if (node.x0 >= minX && node.x0 < result.x0) {
-          result.x0 = node.x0
-        }
-        if (node.x1 <= maxX && node.x1 > result.x1) {
-          result.x1 = node.x1
-        }
-        if (node.y0 >= minY && node.y0 < result.y0) {
-          result.y0 = node.y0
-        }
-        if (node.y1 <= maxY && node.y1 > result.y1) {
-          result.y1 = node.y1
-        }
+    this.search_apply(minX, minY, maxX, maxY, (_index, node) => {
+      if (node.x0 >= minX && node.x0 < result.x0) {
+        result.x0 = node.x0
       }
-    }
-    this.search_apply(minX, minY, maxX, maxY, fn(result))
-
+      if (node.x1 <= maxX && node.x1 > result.x1) {
+        result.x1 = node.x1
+      }
+      if (node.y0 >= minY && node.y0 < result.y0) {
+        result.y0 = node.y0
+      }
+      if (node.y1 <= maxY && node.y1 > result.y1) {
+        result.y1 = node.y1
+      }
+    })
     return result
   }
-
 }
 
 export class SpatialIndex {
