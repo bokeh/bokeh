@@ -18,22 +18,47 @@ export function empty(): Rect {
   }
 }
 
-export function positive_x(): Rect {
+export function full(): Rect {
   return {
-    x0:  Number.MIN_VALUE,
+    x0: -Infinity,
     y0: -Infinity,
     x1:  Infinity,
     y1:  Infinity,
   }
 }
 
-export function positive_y(): Rect {
+export function x_range(x0: number, x1: number): Rect {
   return {
-    x0: -Infinity,
-    y0:  Number.MIN_VALUE,
-    x1:  Infinity,
+    x0,
+    y0: -Infinity,
+    x1,
     y1:  Infinity,
   }
+}
+
+export function y_range(y0: number, y1: number): Rect {
+  return {
+    x0: -Infinity,
+    y0,
+    x1:  Infinity,
+    y1,
+  }
+}
+
+export function positive_x(): Rect {
+  return x_range(Number.MIN_VALUE, Infinity)
+}
+
+export function negative_x(): Rect {
+  return x_range(-Infinity, -Number.MIN_VALUE)
+}
+
+export function positive_y(): Rect {
+  return y_range(Number.MIN_VALUE, Infinity)
+}
+
+export function negative_y(): Rect {
+  return y_range(-Infinity, -Number.MIN_VALUE)
 }
 
 function _min(a: number, b: number): number {
