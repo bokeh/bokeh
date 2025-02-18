@@ -89,10 +89,6 @@ class _FlatBush extends FlatBush {
     }
     this.search_apply(minX, minY, maxX, maxY, fn(result))
 
-    if (!isFinite(result.x0 + result.y0 + result.x1 + result.y1)) {
-      return empty()
-    }
-
     return result
   }
 
