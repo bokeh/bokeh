@@ -1,6 +1,45 @@
 @import "./_mixins.less";
 
 :host {
+  --active-color: lighten(black, 30%);
+  --active-background-color: white;
+
+  // This is the line that separates the set of tabs from the tab panels, i.e., the content for that tab
+  --divider-width: 1px;
+  --divider-style: solid;
+  --divider-color: lighten(black, 90%);
+
+  // These borders are defined clockwise from the divider
+  // 0 means the border that runs along the divider
+  // 1 means the first border clockwise from the divider, runs perpendicular to the divider
+  // 2 means the border opposite the divider
+  // 3 means the third border clockwise from the divider, also runs perpendicular to the divider
+  --border-0-width: 0;
+  --border-1-width: 1px;
+  --border-2-width: 3px;
+  --border-3-width: 1px;
+  --border-style: solid;
+
+  --hover-background-color: lighten(rgb(88, 75, 75), 95%);
+
+  --close-icon-hover-background-color: red;
+  --close-icon-width: 14px;
+  --close-icon-height: 14px;
+  --close-icon-color: gray;
+  --close-icon-space-away-from-tab-text: 10px;
+
+  --padding-vertical: 4px;
+  --padding-horizontal: 8px;
+
+  --focus-ring-color: #ccc;
+  --focus-ring-offset: -5px;
+  --focus-ring-style: dotted;
+  --focus-ring-width: 1px;
+
+  --disabled-opacity: 0.65;
+}
+
+:host {
   display: grid;
 }
 
@@ -48,74 +87,74 @@
   }
 }
 
-@border: 1px solid lighten(black, 90%);
-
-:host(.bk-above) .bk-header { border-bottom: @border; }
-:host(.bk-right) .bk-header { border-left:   @border; }
-:host(.bk-below) .bk-header { border-top:    @border; }
-:host(.bk-left)  .bk-header { border-right:  @border; }
+:host(.bk-above) .bk-header { border-bottom: var(--divider-width) var(--divider-style) var(--divider-color); }
+:host(.bk-right) .bk-header { border-left:   var(--divider-width) var(--divider-style) var(--divider-color); }
+:host(.bk-below) .bk-header { border-top:    var(--divider-width) var(--divider-style) var(--divider-color); }
+:host(.bk-left)  .bk-header { border-right:  var(--divider-width) var(--divider-style) var(--divider-color); }
 
 .bk-tab {
-  padding: 4px 8px; // var(--padding-vertical) var(--padding-horizontal);
-  border: solid transparent;
+  padding: var(--padding-vertical) var(--padding-horizontal);
+  border: var(--border-style) transparent;
   outline: 0;
-  outline-offset: -5px;
+  outline-offset: var(--focus-ring-offset);
   white-space: nowrap;
   cursor: pointer;
   text-align: center;
 
   &:hover {
-    background-color: lighten(black, 95%);
+    background-color: var(--hover-background-color);
   }
 
   &:focus, &:active {
-    outline: 1px dotted #ccc;
+    outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
   }
 
   &.bk-active {
-    color: lighten(black, 30%);
-    background-color: white;
-    border-color: lighten(black, 90%);
+    color: var(--active-color);
+    background-color: var(--active-background-color);
+    border-color: var(--border-color);
   }
 
   .bk-close {
-    margin-left: 10px;
+    margin-left: var(--close-icon-space-away-from-tab-text);
   }
 
   &.bk-disabled { // TODO: same as elsewhere, so use a mixin
     cursor: not-allowed;
     pointer-events: none;
-    opacity: 0.65;
+    opacity: var(--disabled-opacity);
   }
 }
 
 :host(.bk-above) .bk-tab {
-  border-width: 3px 1px 0px 1px;
+  border-width: var(--border-2-width) var(--border-3-width) var(--border-0-width) var(--border-1-width);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 :host(.bk-right) .bk-tab {
-  border-width: 1px 3px 1px 0px;
+  border-width: 1px var(--border-opposite-divider-width) 1px 0px;
+  border-width: var(--border-1-width) var(--border-2-width) var(--border-3-width) var(--border-0-width);
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 :host(.bk-below) .bk-tab {
-  border-width: 0px 1px 3px 1px;
+  border-width: var(--border-0-width) var(--border-1-width) var(--border-2-width) var(--border-3-width);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 :host(.bk-left) .bk-tab {
   border-width: 1px 0px 1px 3px;
+  border-width: var(--border-3-width) var(--border-0-width) var(--border-1-width) var(--border-2-width);
   border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
 .bk-close {
   display: inline-block;
   vertical-align: middle;
-  width: 14px;
-  height: 14px;
+  width: var(--close-icon-width);
+  height: var(--close-icon-height);
   cursor: pointer;
 
-  .icon-mask(var(--bokeh-icon-x), gray);
+  .icon-mask(var(--bokeh-icon-x), var(--close-icon-color));
 
   &:hover {
-    background-color: red;
+    background-color: var(--close-icon-hover-background-color);
   }
 }
