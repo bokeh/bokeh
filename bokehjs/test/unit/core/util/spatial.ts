@@ -36,17 +36,17 @@ describe("core/util/spatial module", () => {
       expect(index.bounds(bbox.full())).to.be.equal({x0: -0.0001, x1: 1, y0: -100, y1: 200})
     })
 
-    // it("should support bounds() with empty rect", () => {
-    //   const index = new SpatialIndex(6)
-    //   index.add_rect(0, 1, 1, 2)
-    //   index.add_rect(0.0001, 1, 1, 2)
-    //   index.add_rect(0, 100, 1, 200)
-    //   index.add_rect(0.0001, -100, 1, 200)
-    //   index.add_rect(0, 10, 1, 20)
-    //   index.add_rect(-0.0001, 10, 1, 20)
-    //   index.finish()
-    //   expect(index.bounds(bbox.empty())).to.be.equal(bbox.empty())
-    // })
+    it("should support bounds() with empty rect", () => {
+      const index = new SpatialIndex(6)
+      index.add_rect(0, 1, 1, 2)
+      index.add_rect(0.0001, 1, 1, 2)
+      index.add_rect(0, 100, 1, 200)
+      index.add_rect(0.0001, -100, 1, 200)
+      index.add_rect(0, 10, 1, 20)
+      index.add_rect(-0.0001, 10, 1, 20)
+      index.finish()
+      expect(index.bounds(bbox.empty())).to.be.equal(bbox.empty())
+    })
 
     it("should support bounds() with positive_x rect", () => {
       const index = new SpatialIndex(6)
@@ -192,9 +192,9 @@ describe("core/util/spatial module", () => {
       expect([...index.indices(bbox.full())]).to.be.equal(range(0, 45))
     })
 
-    // it("should support indices with an empty rect", () => {
-    //   expect([...index.indices(bbox.empty())]).to.be.equal([])
-    // })
+    it("should support indices with an empty rect", () => {
+      expect([...index.indices(bbox.empty())]).to.be.equal([])
+    })
 
     it("should support indices with a positive_x rect", () => {
       expect([...index.indices(bbox.positive_x())]).to.be.equal([1, ...range(5, 25)])
