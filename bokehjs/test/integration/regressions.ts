@@ -1238,7 +1238,7 @@ describe("Bug", () => {
 
       const p = fig([200, 200], {y_axis_type: "log"})
       p.line(x, y, {line_width: 2})
-      p.scatter(x, y, {size: 15})
+      p.scatter(x, y, {size: 10, fill_alpha: 0.3})
       await display(p)
     })
   })

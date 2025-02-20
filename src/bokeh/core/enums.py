@@ -165,6 +165,7 @@ __all__ = (
     'VAlign',
     'VerticalAlign',
     'VerticalLocation',
+    'WindowDimension',
 )
 
 #-----------------------------------------------------------------------------
@@ -741,6 +742,10 @@ VerticalAlign = enumeration(VerticalAlignType)
 #: Specify a vertical location in plot layouts
 VerticalLocationType = Literal["above", "below"]
 VerticalLocation = enumeration(VerticalLocationType)
+
+#: Specify a dimension to use for windowed auto-ranging
+WindowDimensionType = Literal["x", "y"]
+WindowDimension = enumeration(WindowDimensionType)
 
 #-----------------------------------------------------------------------------
 # Private API

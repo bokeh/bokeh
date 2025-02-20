@@ -46,6 +46,11 @@ export class RangeManager {
       this._update_ranges_together(range_state)   // apply interval bounds while keeping aspect
     }
     this._update_ranges_individually(range_state, {panning, scrolling, maintain_focus})
+
+    // this call is needed in order to make sure any data-ranges that are not
+    // explicitly set at this point also get re-computed, e.g. for windowed
+    // auto-ranging the y-axis based on updated x-range bounds.
+    this.update_dataranges()
   }
 
   ranges(): {x_ranges: Range[], y_ranges: Range[]} {
@@ -101,7 +106,7 @@ export class RangeManager {
     }
 
     for (const renderer of this.parent.auto_ranged_renderers) {
-      const bds = renderer.bounds()
+      const bds = renderer.bounds(this.parent.model.window_dimension)
       bounds.set(renderer.model, bds)
 
       if (calculate_log_bounds) {

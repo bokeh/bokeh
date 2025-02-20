@@ -44,15 +44,12 @@ export function scale_range(x_scales: Iterable<Scale>, y_scales: Iterable<Scale>
    * Utility function for zoom tools to calculate/create the zoom_info object
    * of the form required by `PlotView.update_range`.
    */
-  const x_factor = x_axis ? factor : 0
-  //const [sx0, sx1] = scale_interval(x_target, x_factor, center?.x)
-  //const xrs = get_info(x_scales, [sx0, sx1])
-  const xrs = rescale(x_scales, x_factor, center?.x)
 
-  const y_factor = y_axis ? factor : 0
-  //const [sy0, sy1] = scale_interval(y_range, y_factor, center?.y)
-  //const yrs = get_info(y_scales, [sy0, sy1])
-  const yrs = rescale(y_scales, y_factor, center?.y)
+  // Here we are a bit careful to only update the range info for dimensions that
+  // are "in play". This is to avoid superfluous noise updates to dataranges that
+  // would cause windowed auto-ranging to turn off.
+  const xrs = x_axis ? rescale(x_scales, factor, center?.x) : new Map()
+  const yrs = y_axis ? rescale(y_scales, factor, center?.y) : new Map()
 
   // OK this sucks we can't set factor independently in each direction. It is used
   // for GMap plots, and GMap plots always preserve aspect, so effective the value

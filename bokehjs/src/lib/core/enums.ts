@@ -220,6 +220,9 @@ export type UpdateMode = typeof UpdateMode["__type__"]
 export const VerticalAlign = Enum("top", "middle", "bottom")
 export type VerticalAlign = typeof VerticalAlign["__type__"]
 
+export const WindowDimension = Enum("x", "y")
+export type WindowDimension = typeof WindowDimension["__type__"]
+
 // Keep this in sync with bokehjs/src/less/icons.less
 export const ToolIcon = Enum(
   "append_mode",
