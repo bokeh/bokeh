@@ -20,7 +20,7 @@ dates = np.array(AAPL['date'], dtype=np.datetime64)
 source = ColumnDataSource(data=dict(date=dates, close=AAPL['adj_close']))
 
 p = figure(height=300, width=800, tools="xpan,xwheel_zoom,reset",
-           x_axis_type="datetime", x_axis_location="above", window_dimension="x",
+           x_axis_type="datetime", x_axis_location="above", window_axis="x",
            background_fill_color="#efefef", x_range=(dates[1500], dates[2500]))
 
 p.line('date', 'close', source=source)

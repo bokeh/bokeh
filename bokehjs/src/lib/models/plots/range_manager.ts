@@ -50,7 +50,7 @@ export class RangeManager {
     // If windowed auto-ranging is configured for a plot axis, then
     // this call is needed in order to make sure any data-ranges that
     // are not explicitly overridden at this point also get re-computed
-    if (this.parent.model.window_dimension != null) {
+    if (this.parent.model.window_axis != null) {
       this.update_dataranges()
     }
   }
@@ -108,7 +108,7 @@ export class RangeManager {
     }
 
     for (const renderer of this.parent.auto_ranged_renderers) {
-      const bds = renderer.bounds(this.parent.model.window_dimension)
+      const bds = renderer.bounds(this.parent.model.window_axis)
       bounds.set(renderer.model, bds)
 
       if (calculate_log_bounds) {

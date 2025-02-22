@@ -3,7 +3,7 @@ import type * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import type {Place} from "core/enums"
-import {Location, OutputBackend, ResetPolicy, WindowDimension} from "core/enums"
+import {Location, OutputBackend, ResetPolicy, WindowAxis} from "core/enums"
 import {concat, remove_by} from "core/util/array"
 import {difference} from "core/util/set"
 import {isString} from "core/util/types"
@@ -71,7 +71,7 @@ export namespace Plot {
     extra_x_scales: p.Property<Dict<Scale>>
     extra_y_scales: p.Property<Dict<Scale>>
 
-    window_dimension: p.Property<WindowDimension | null>
+    window_axis: p.Property<WindowAxis | null>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -179,7 +179,7 @@ export class Plot extends LayoutDOM {
       extra_x_scales:    [ Dict(Ref(Scale)), {} ],
       extra_y_scales:    [ Dict(Ref(Scale)), {} ],
 
-      window_dimension:  [ Nullable(WindowDimension), null ],
+      window_axis:  [ Nullable(WindowAxis), null ],
 
       lod_factor:        [ Float, 10 ],
       lod_interval:      [ Float, 300 ],

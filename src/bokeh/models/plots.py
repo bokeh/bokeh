@@ -39,7 +39,7 @@ from ..core.enums import (
     Place,
     PlaceType,
     ResetPolicy,
-    WindowDimension,
+    WindowAxis,
 )
 from ..core.properties import (
     Bool,
@@ -555,9 +555,9 @@ class Plot(LayoutDOM):
     .. note:: This feature is experimental and may change in the short term.
     """)
 
-    window_dimension = Nullable(Enum(WindowDimension), default=None, help="""
+    window_axis = Nullable(Enum(WindowAxis), default=None, help="""
     A dimension to use for windowed auto-ranging when there are data ranges
-    present on the plot. For example, if ``window_dimension`` is set to the
+    present on the plot. For example, if ``window_axis`` is set to the
     value ``"x"`` then any data ranges in the y-dimension will compute their
     auto-ranged extents using only data inside the x-range bounds of the
     current viewport.

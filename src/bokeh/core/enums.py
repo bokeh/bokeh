@@ -165,7 +165,7 @@ __all__ = (
     'VAlign',
     'VerticalAlign',
     'VerticalLocation',
-    'WindowDimension',
+    'WindowAxis',
 )
 
 #-----------------------------------------------------------------------------
@@ -744,8 +744,8 @@ VerticalLocationType = Literal["above", "below"]
 VerticalLocation = enumeration(VerticalLocationType)
 
 #: Specify a dimension to use for windowed auto-ranging
-WindowDimensionType = Literal["x", "y"]
-WindowDimension = enumeration(WindowDimensionType)
+WindowAxisType = Literal["x", "y"]
+WindowAxis = enumeration(WindowAxisType)
 
 #-----------------------------------------------------------------------------
 # Private API

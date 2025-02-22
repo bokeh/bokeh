@@ -8,7 +8,7 @@ import {settings} from "core/settings"
 import type {Context2d} from "core/util/canvas"
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
-import type {Anchor, WindowDimension} from "core/enums"
+import type {Anchor, WindowAxis} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
@@ -148,8 +148,8 @@ export abstract class GlyphView extends DOMComponentView {
     return bounds
   }
 
-  bounds(window_dimension: WindowDimension | null = null): Rect {
-    switch (window_dimension) {
+  bounds(window_axis: WindowAxis | null = null): Rect {
+    switch (window_axis) {
       case null: {
         return this._bounds(this.index.bbox)
       }

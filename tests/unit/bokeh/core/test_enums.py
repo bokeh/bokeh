@@ -105,7 +105,7 @@ ALL = (
     'VAlign',
     'VerticalAlign',
     'VerticalLocation',
-    'WindowDimension',
+    'WindowAxis',
 )
 
 #-----------------------------------------------------------------------------

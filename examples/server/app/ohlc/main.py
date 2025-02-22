@@ -20,7 +20,7 @@ source = ColumnDataSource(dict(
 ))
 
 p = figure(height=500, tools="xpan,xwheel_zoom,xbox_zoom,reset",
-           x_axis_type=None, y_axis_location="right", window_dimension="x")
+           x_axis_type=None, y_axis_location="right", window_axis="x")
 p.x_range.follow = "end"
 p.x_range.follow_interval = 100
 p.x_range.range_padding = 0
