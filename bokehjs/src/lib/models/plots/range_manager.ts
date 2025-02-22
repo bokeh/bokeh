@@ -47,10 +47,12 @@ export class RangeManager {
     }
     this._update_ranges_individually(range_state, {panning, scrolling, maintain_focus})
 
-    // this call is needed in order to make sure any data-ranges that are not
-    // explicitly set at this point also get re-computed, e.g. for windowed
-    // auto-ranging the y-axis based on updated x-range bounds.
-    this.update_dataranges()
+    // If windowed auto-ranging is configured for a plot axis, then
+    // this call is needed in order to make sure any data-ranges that
+    // are not explicitly overridden at this point also get re-computed
+    if (this.parent.model.window_dimension != null) {
+      this.update_dataranges()
+    }
   }
 
   ranges(): {x_ranges: Range[], y_ranges: Range[]} {
