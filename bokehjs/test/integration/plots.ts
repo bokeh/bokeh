@@ -174,6 +174,8 @@ describe("Plot", () => {
         await view.ready
         expect(dr.start).to.be.equal(-10)
         expect(dr.end).to.be.equal(10)
+
+        await view.ready
       })
     }
     for (const wax of ["x", "y"]) {
@@ -198,6 +200,8 @@ describe("Plot", () => {
         await view.ready
         expect(dr.start).to.be.equal(2)
         expect(dr.end).to.be.equal(4)
+
+        await view.ready
       })
     }
   })
