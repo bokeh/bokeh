@@ -748,6 +748,7 @@ export const Font = Str
 export const Angle = Float
 
 export type Float = typeof Float["__type__"]
+export type Dict<V> = Kinds.Dict<V>["__type__"]
 
 // backwards compatibility aliases (these collide with built-in types)
 /** @deprecated */

@@ -7,7 +7,7 @@ import type {StyleSheet, StyleSheetLike} from "core/dom"
 import {apply_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {entries} from "core/util/object"
-import {isNumber} from "core/util/types"
+import {isNumber, isString} from "core/util/types"
 import type * as p from "core/properties"
 import {List, Or, Ref, Str, Dict, Nullable} from "core/kinds"
 
@@ -17,7 +17,7 @@ export type StylesLike = typeof StylesLike["__type__"]
 export const StyleSheets = List(Or(Ref(BaseStyleSheet), Str, Dict(StylesLike)))
 export type StyleSheets = typeof StyleSheets["__type__"]
 
-export const CSSVariables = Dict(Ref(Node))
+export const CSSVariables = Dict(Or(Ref(Node), Str))
 export type CSSVariables = typeof CSSVariables["__type__"]
 
 export abstract class StyledElementView extends DOMComponentView {
@@ -32,16 +32,10 @@ export abstract class StyledElementView extends DOMComponentView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {styles, css_classes, css_variables, stylesheets} = this.model.properties
-    this.on_change(styles, () => this._update_styles())
-    this.on_change(css_classes, () => this._update_css_classes())
-    this.on_transitive_change(css_variables, () => this._update_css_variables())
+    const {html_attributes, html_id, styles, css_classes, css_variables, stylesheets} = this.model.properties
+    this.on_change([html_attributes, html_id, css_classes, styles], () => this._apply_html_attributes())
+    this.on_transitive_change(css_variables, () => this._apply_html_attributes())
     this.on_transitive_change(stylesheets, () => this._update_stylesheets())
-  }
-
-  override render(): void {
-    super.render()
-    this._apply_styles()
   }
 
   protected override *_css_classes(): Iterable<string> {
@@ -51,10 +45,16 @@ export abstract class StyledElementView extends DOMComponentView {
 
   protected override *_css_variables(): Iterable<[string, string]> {
     yield* super._css_variables()
-    for (const [name, node] of entries(this.model.css_variables)) {
-      const value = this.resolve_coordinate(node)
-      if (isNumber(value)) {
-        yield [name, `${value}px`]
+    for (const [key, val] of entries(this.model.css_variables)) {
+      if (val instanceof Node) {
+        const value = this.resolve_coordinate(val)
+        if (isNumber(value)) {
+          yield [key, `${value}px`]
+        } else if (isString(value)) {
+          yield [key, value]
+        }
+      } else {
+        yield [key, val]
       }
     }
   }
@@ -73,13 +73,37 @@ export abstract class StyledElementView extends DOMComponentView {
     }
   }
 
-  protected _apply_styles(): void {
-    apply_styles(this.el.style, this.model.styles)
+  protected override _apply_html_attributes(): void {
+    for (const key of this._applied_html_attributes) {
+      this.el.removeAttribute(key)
+    }
+    this._applied_html_attributes = []
+
+    this._update_css_classes()
+
+    for (const [key, val] of entries(this.model.html_attributes)) {
+      if (key == "class") {
+        const classes = val.split(/ +/)
+        this._applied_css_classes.push(...classes)
+        this.class_list.add(...classes)
+      } else {
+        this.el.setAttribute(key, val)
+        this._applied_html_attributes.push(key)
+      }
+    }
+
+    const id = this.model.html_id
+    if (id != null) {
+      this.el.setAttribute("id", id)
+      this._applied_html_attributes.push("id")
+    }
+
+    this._apply_styles()
+    this._update_css_variables()
   }
 
-  protected _update_styles(): void {
-    this.el.removeAttribute("style") // TODO: maintain _applied_styles
-    this._apply_styles()
+  protected _apply_styles(): void {
+    apply_styles(this.el.style, this.model.styles)
   }
 }
 
@@ -87,6 +111,8 @@ export namespace StyledElement {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    html_attributes: p.Property<Dict<string>>
+    html_id: p.Property<string | null>
     css_classes: p.Property<string[]>
     css_variables: p.Property<CSSVariables>
     styles: p.Property<StylesLike>
@@ -105,11 +131,13 @@ export abstract class StyledElement extends Model {
   }
 
   static {
-    this.define<StyledElement.Props>(({List, Str}) => ({
+    this.define<StyledElement.Props>({
+      html_attributes: [ Dict(Str), {} ],
+      html_id: [ Nullable(Str), null ],
       css_classes: [ List(Str), [] ],
       css_variables: [ CSSVariables, {} ],
       styles: [ StylesLike, {} ],
       stylesheets: [ StyleSheets, [] ],
-    }))
+    })
   }
 }

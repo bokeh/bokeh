@@ -7026,6 +7026,10 @@
   },
   StyledElement: {
     __extends__: "Model",
+    html_attributes: {
+      type: "map",
+    },
+    html_id: null,
     css_classes: [],
     css_variables: {
       type: "map",

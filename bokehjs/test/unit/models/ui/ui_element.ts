@@ -58,7 +58,11 @@ describe("UIElement", () => {
   })
 
   it("should allow updating 'stylesheets' without re-rendering", async () => {
-    const ui = new UI({stylesheets: [":host { background-color: #f00; }"], visible: false})
+    const ui = new UI({
+      stylesheets: [":host { background-color: #f00; }"],
+      css_variables: {"--foo": "violet"},
+      visible: false,
+    })
     const {view} = await display(ui, [100, 100])
 
     using render_spy = restorable(sinon.spy(view, "render"))
@@ -71,6 +75,7 @@ describe("UIElement", () => {
 
     expect(stylesheets()).to.be.equal([
       base_css,
+      ":host {\n--foo: violet;\n}",          // StyledElement.css_variables
       ":host{position:relative;}",           // ui.css
       ":host { background-color: #000; }",   // UIView.stylesheets
       "",                                    // StyledElement.style
@@ -83,6 +88,7 @@ describe("UIElement", () => {
 
     expect(stylesheets()).to.be.equal([
       base_css,
+      ":host {\n--foo: violet;\n}",          // StyledElement.css_variables
       ":host{position:relative;}",           // ui.css
       ":host { background-color: #000; }",   // UIView.stylesheets
       "",                                    // StyledElement.style
@@ -164,5 +170,85 @@ describe("UIElement", () => {
       expect(view.is_displayed).to.be.false
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
     })
+  })
+
+  it("should support html_id", async () => {
+    const ui = new UI({html_id: "my_id"})
+    const {view} = await display(ui, [100, 100])
+
+    expect(view.el.getAttribute("id")).to.be.equal("my_id")
+
+    ui.html_id = "my_id2"
+    await view.ready
+
+    expect(view.el.getAttribute("id")).to.be.equal("my_id2")
+
+    ui.html_id = null
+    await view.ready
+
+    expect(view.el.getAttribute("id")).to.be.null
+
+    ui.html_id = "my_id3"
+    await view.ready
+
+    expect(view.el.getAttribute("id")).to.be.equal("my_id3")
+  })
+
+  it("should support html_attributes", async () => {
+    const ui = new UI({html_attributes: {role: "button"}})
+    const {view} = await display(ui, [100, 100])
+
+    expect(view.el.getAttribute("role")).to.be.equal("button")
+    expect(view.el.getAttribute("aria-label")).to.be.null
+
+    ui.html_attributes = {...ui.html_attributes, "aria-label": "something"}
+    await view.ready
+
+    expect(view.el.getAttribute("role")).to.be.equal("button")
+    expect(view.el.getAttribute("aria-label")).to.be.equal("something")
+
+    ui.html_attributes = {}
+    await view.ready
+
+    expect(view.el.getAttribute("role")).to.be.null
+    expect(view.el.getAttribute("aria-label")).to.be.null
+  })
+
+  it("should prefer html_id over html_attributes", async () => {
+    const ui = new UI({html_id: "my_actual_id", html_attributes: {id: "my_id"}})
+    const {view} = await display(ui, [100, 100])
+
+    expect(view.el.getAttribute("id")).to.be.equal("my_actual_id")
+
+    ui.html_id = null
+    await view.ready
+
+    expect(view.el.getAttribute("id")).to.be.equal("my_id")
+  })
+
+  it("should merge css_classes with html_attributes['class']", async () => {
+    const ui = new UI({
+      css_classes: ["a", "b"],
+      html_attributes: {class: "c d"},
+    })
+    const {view} = await display(ui, [100, 100])
+
+    expect([...view.el.classList]).to.be.equal(["bk-UI", "cls0", "cls1", "a", "b", "c", "d", "render0"])
+
+    ui.html_attributes = {}
+    await view.ready
+
+    // TODO preserve order of "render0"
+    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1", "a", "b"])
+
+    ui.css_classes = []
+    await view.ready
+
+    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1"])
+
+    ui.html_attributes = {class: "e f"}
+    await view.ready
+
+    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1", "e", "f"])
   })
 })

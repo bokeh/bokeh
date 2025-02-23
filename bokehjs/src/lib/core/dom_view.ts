@@ -138,8 +138,10 @@ export abstract class DOMComponentView extends DOMElementView {
     this.shadow_el = this.el.attachShadow({mode: "open"})
   }
 
+  readonly _css_vars = new InlineStyleSheet()
+
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), base_css]
+    return [...super.stylesheets(), base_css, this._css_vars]
   }
 
   /**
@@ -176,8 +178,12 @@ export abstract class DOMComponentView extends DOMElementView {
   render(): void {
     this.empty()
     this._update_stylesheets()
+    this._apply_html_attributes()
+  }
+
+  protected _applied_html_attributes: string[] = []
+  protected _apply_html_attributes(): void {
     this._update_css_classes()
-    this._update_css_variables()
   }
 
   override reposition(_displayed?: boolean): void {
@@ -223,9 +229,11 @@ export abstract class DOMComponentView extends DOMElementView {
   }
 
   protected _update_css_variables(): void {
+    const vars = []
     for (const [name, value] of this._css_variables()) {
       const full_name = name.startsWith("--") ? name : `--${name}`
-      this.el.style.setProperty(full_name, value)
+      vars.push(`${full_name}: ${value};\n`)
     }
+    this._css_vars.replace(`:host {\n${vars}}`)
   }
 }

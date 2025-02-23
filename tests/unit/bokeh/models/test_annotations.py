@@ -76,6 +76,8 @@ from _util_models import (
 #-----------------------------------------------------------------------------
 
 STYLED_ELEMENT = [
+    "html_attributes",
+    "html_id",
     "css_classes",
     "css_variables",
     "styles",
