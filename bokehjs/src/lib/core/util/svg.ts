@@ -609,9 +609,21 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this.__stack = []
   }
 
-  private _apply_transform(element: Element, transform: AffineTransform = this._transform) {
+  private _apply_transform(element: Element, transform: AffineTransform = this._transform): void {
     if (!transform.is_identity) {
       element.setAttribute("transform", transform.toString())
+    }
+  }
+
+  private _apply_global_alpha(element: Element): void {
+    if (this.globalAlpha != 1.0) {
+      element.setAttribute("opacity", `${this.globalAlpha}`)
+    }
+  }
+
+  private _apply_clip_path(element: Element): void {
+    if (this._clip_path != null) {
+      element.setAttribute("clip-path", this._clip_path)
     }
   }
 
@@ -1289,16 +1301,22 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         scope = parent
       } else {
         scope = this.__createElement("g")
-        if (!transform.is_identity) {
-          this._apply_transform(scope, transform)
-        }
-        if (this.globalAlpha != 1.0) {
-          scope.setAttribute("opacity", `${this.globalAlpha}`)
-        }
-        if (this._clip_path != null) {
-          scope.setAttribute("clip-path", this._clip_path)
-        }
         parent.appendChild(scope)
+
+        // `transform` affects `clip-path`, so if both are present, then apply
+        // them separately in `clip-path`, `transform` order.
+        if (this._clip_path != null) {
+          this._apply_clip_path(scope)
+
+          if (!transform.is_identity) {
+            const outer = scope
+            scope = this.__createElement("g")
+            outer.appendChild(scope)
+          }
+        }
+
+        this._apply_transform(scope, transform)
+        this._apply_global_alpha(scope)
       }
       for (const child of [...svg.childNodes]) {
         if (child instanceof SVGDefsElement) {

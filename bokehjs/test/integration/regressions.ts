@@ -4306,4 +4306,24 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #14265", () => {
+    it("doesn't allow to correctly drawImage in SVG backend with transform and clip-path", async () => {
+      const plot = fig([200, 200], {output_backend: "svg"})
+      plot.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+      plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+
+      const html = new HTML({html: ""})
+      const pane = new Pane({elements: [html]})
+
+      const {view} = await display(row([plot, pane]), [400, 200])
+
+      const pv = view.owner.get_one(plot)
+      const blob = await pv.export().to_blob()
+      html.html = await blob.text()
+      await view.ready
+    })
+  })
 })
