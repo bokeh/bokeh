@@ -159,24 +159,24 @@ export abstract class GlyphView extends DOMComponentView {
         if (isNaN(x_range.start) || isNaN(x_range.end)) {
           return this._bounds(this.index.bbox)
         }
-        const {y0, y1} = this.index.bounds(bbox.x_range(x_range.start, x_range.end))
+        const hit_box = bbox.x_range(x_range.start, x_range.end)
+        const {x0, y0, x1, y1} = this.index.bounds(hit_box)
         if (!isFinite(y0+y1)) {
           return this._bounds(this.index.bbox)
         }
-        const {x0, x1} = this.index.bbox
         return this._bounds({x0, y0, x1, y1})
       }
       case "y": {
         const {y_range_name} = this.renderer.model
-        const y_range = this.renderer.plot_view.frame.x_ranges.get(y_range_name)!
+        const y_range = this.renderer.plot_view.frame.y_ranges.get(y_range_name)!
         if (isNaN(y_range.start) || isNaN(y_range.end)) {
           return this._bounds(this.index.bbox)
         }
-        const {x0, x1} = this.index.bounds(bbox.y_range(y_range.start, y_range.end))
+        const hit_box = bbox.y_range(y_range.start, y_range.end)
+        const {x0, y0, x1, y1} = this.index.bounds(hit_box)
         if (!isFinite(x0+x1)) {
           return this._bounds(this.index.bbox)
         }
-        const {y0, y1} = this.index.bbox
         return this._bounds({x0, y0, x1, y1})
       }
     }
