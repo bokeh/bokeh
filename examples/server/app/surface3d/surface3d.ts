@@ -11,6 +11,8 @@
 
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
+import {to_object} from "core/util/object"
+import type {Dict} from "core/types"
 import * as p from "core/properties"
 
 declare namespace vis {
@@ -83,9 +85,9 @@ export class Surface3dView extends LayoutDOMView {
     const source = this.model.data_source
     for (let i = 0; i < source.get_length()!; i++) {
       data.add({
-        x: source.data[this.model.x][i],
-        y: source.data[this.model.y][i],
-        z: source.data[this.model.z][i],
+        x: source.get(this.model.x)[i],
+        y: source.get(this.model.y)[i],
+        z: source.get(this.model.z)[i],
       })
     }
     return data
@@ -105,7 +107,7 @@ export namespace Surface3d {
     y: p.Property<string>
     z: p.Property<string>
     data_source: p.Property<ColumnDataSource>
-    options: p.Property<{[key: string]: unknown}>
+    options: p.Property<Dict<unknown>>
   }
 }
 
@@ -140,7 +142,7 @@ export class Surface3d extends LayoutDOM {
       y:           [ Str ],
       z:           [ Str ],
       data_source: [ Ref(ColumnDataSource) ],
-      options:     [ Dict(Unknown), OPTIONS ],
+      options:     [ Dict(Unknown), to_object(OPTIONS) ],
     }))
   }
 }
