@@ -132,20 +132,22 @@ describe("Plot", () => {
         expect(dr.start).to.be.equal(1)
         expect(dr.end).to.be.equal(5)
 
-        const data: any = {}
-
         // updated data in fixed range
+        const data: any = {}
         data[wax] = [1, 2, 3, 4, 5]
         data[nwax] = [1, 2, 10, 4, 5]
         s.data_source.data = data
+        await view.ready
         await view.ready
         expect(dr.start).to.be.equal(1)
         expect(dr.end).to.be.equal(10)
 
         // updated data not in fixed range (no change)
-        data[wax] = [-1, 1, 2, 3, 4, 100]
-        data[nwax] = [-100, 1, 2, 10, 4, 100]
-        s.data_source.data = data
+        const data2: any = {}
+        data2[wax] = [-1, 1, 2, 3, 4, 100]
+        data2[nwax] = [-100, 1, 2, 10, 4, 100]
+        s.data_source.data = data2
+        await view.ready
         await view.ready
         expect(dr.start).to.be.equal(1)
         expect(dr.end).to.be.equal(10)
@@ -156,21 +158,26 @@ describe("Plot", () => {
         new_data[nwax] = [-90, 100]
         s.data_source.stream(new_data)
         await view.ready
-        expect(dr.start).to.be.equal(-90)
-        expect(dr.end).to.be.equal(100)
-
-        // streamed data not in fixed range (no change)
-        new_data[wax] = [-1]
-        new_data[nwax] = [200]
-        s.data_source.stream(new_data)
         await view.ready
         expect(dr.start).to.be.equal(-90)
         expect(dr.end).to.be.equal(100)
 
-        // Error: expected -90 to be equal to -10
-        data[wax] = [1, 2, 3, 4, 5]
-        data[nwax] = [1, 2, 10, 4, -10]
-        s.data_source.data = data
+        // streamed data not in fixed range (no change)
+        const new_data2: any = {}
+        new_data2[wax] = [-1]
+        new_data2[nwax] = [200]
+        s.data_source.stream(new_data2)
+        await view.ready
+        await view.ready
+        expect(dr.start).to.be.equal(-90)
+        expect(dr.end).to.be.equal(100)
+
+        // new negative data in fixed range
+        const data3: any = {}
+        data3[wax] = [1, 2, 3, 4, 5]
+        data3[nwax] = [1, 2, 10, 4, -10]
+        s.data_source.data = data3
+        await view.ready
         await view.ready
         expect(dr.start).to.be.equal(-10)
         expect(dr.end).to.be.equal(10)
