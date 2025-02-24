@@ -4334,7 +4334,6 @@ describe("Bug", () => {
       const p0 = fig([300, 200], {
         x_axis_type: "mercator",
         y_axis_type: "mercator",
-        sizing_mode: "stretch_height",
       })
 
       const {view} = await display(p0)
