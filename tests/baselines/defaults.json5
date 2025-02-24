@@ -2535,6 +2535,8 @@
       type: "symbol",
       name: "unset",
     },
+    format: null,
+    formatter: "raw",
   },
   "bokeh.models.dom.ValueRef": {
     __extends__: "bokeh.models.dom.Placeholder",

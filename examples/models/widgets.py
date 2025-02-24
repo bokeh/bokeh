@@ -10,6 +10,7 @@ buttons, groups, inputs, panels, sliders, and tables, using the low-level
 
 ''' # noqa: E501
 from datetime import date, datetime, time
+from math import pi
 
 from bokeh import palettes
 from bokeh.document import Document
@@ -135,14 +136,18 @@ select = w.Select(
 select.title = HTML("Selected value: <b>", ValueOf(select, "value"), "</b>")
 
 select_any_value = w.Select(
-    value=10,
+    value=pi,
     options=[
-        (10, "Option 1"),
-        (20, "Option 2"),
-        (30, "Option 3"),
+        (1*pi, "Option 1"),
+        (2*pi, "Option 2"),
+        (3*pi, "Option 3"),
     ],
 )
-select_any_value.title = HTML("Selected value: <b>", ValueOf(select_any_value, "value"), "</b>")
+select_any_value.title = HTML(html=[
+    "Selected value: <b>",
+    ValueOf(obj=select_any_value, attr="value", formatter="printf", format="%.2f"),
+    "</b>",
+])
 
 palette_select = w.PaletteSelect(title="Choose palette:", value="PuBu", items=palette_items, ncols=4)
 

@@ -2,6 +2,7 @@ import "./setup"
 
 import type {UIElement} from "@bokehjs/models/ui/ui_element"
 import {UIElementView} from "@bokehjs/models/ui/ui_element"
+import type {DOMNode} from "@bokehjs/models/dom"
 import type {View} from "@bokehjs/core/view"
 import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
@@ -348,13 +349,13 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
 }
 
 type DisplayMultiple = {views: ViewOf<HasProps>[], doc: Document, el: HTMLElement}
-type DisplaySingle<T extends UIElement> = {view: ViewOf<T>, doc: Document, el: HTMLElement}
+type DisplaySingle<T extends UIElement | DOMNode> = {view: ViewOf<T>, doc: Document, el: HTMLElement}
 
 export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<DisplayMultiple>
-export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<DisplaySingle<T>>
+export async function display<T extends UIElement | DOMNode>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<DisplaySingle<T>>
 
-export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto",
-    el?: HTMLElement | null): Promise<DisplaySingle<UIElement> | DisplayMultiple> {
+export async function display(obj: Document | UIElement | DOMNode, viewport: [number, number] | "auto" | null = "auto",
+    el?: HTMLElement | null): Promise<DisplaySingle<UIElement | DOMNode> | DisplayMultiple> {
   const test = current_test
   assert(test != null, "display() must be called in it(...) or before*() blocks")
 
@@ -407,7 +408,7 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
   if (obj instanceof Document) {
     return {views: test.views, doc, el: viewport_el}
   } else {
-    return {view: test.views[0] as UIElementView, doc, el: viewport_el}
+    return {view: test.views[0] as ViewOf<UIElement | DOMNode>, doc, el: viewport_el}
   }
 }
 

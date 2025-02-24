@@ -151,12 +151,33 @@ class ValueOf(Placeholder):
     def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, **kwargs) -> None:
         super().__init__(obj=obj, attr=attr, **kwargs)
 
-    obj: HasProps = Required(Instance(HasProps), help="""
+    obj = Required(Instance(HasProps), help="""
     The object whose property will be observed.
     """)
 
-    attr: str = Required(String, help="""
+    attr = Required(String, help="""
     The name of the property whose value will be observed.
+    """)
+
+    format = Nullable(String, default=None, help="""
+    Optional format string, which is equivalent to using ``"@{field}{format}"``.
+    """)
+
+    formatter = Either(
+        Enum(BuiltinFormatter),
+        Instance(".models.callbacks.CustomJS"), default="raw", help="""
+    Either a named value formatter or an instance of ``CustomJS`` or ``CustomJSHover``.
+
+    .. note::
+        Custom JS formatters can return a value of any type, not necessarily a string.
+        If a non-string value is returned then, if it's an instance of DOM `Node`_
+        (in particular it can be a DOM `Document`_ or a `DocumentFragment`_), then
+        it will be added to the DOM tree as-is, otherwise it will be converted to a
+        string and added verbatim. No HTML parsing is attempted in any case.
+
+    .. _Node: https://developer.mozilla.org/en-US/docs/Web/API/Node
+    .. _Document: https://developer.mozilla.org/en-US/docs/Web/API/Document
+    .. _DocumentFragment: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
     """)
 
     @error(NOT_A_PROPERTY_OF)

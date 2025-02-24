@@ -10,6 +10,7 @@ import {logger} from "../logging"
 import {dict} from "./object"
 import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
+import {to_string} from "./pretty"
 
 const {abs} = Math
 
@@ -20,7 +21,7 @@ export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
 
 export const DEFAULT_FORMATTERS: {[key in BuiltinFormatter]: FormatterFunc} = {
-  raw:      (value: unknown, _format: string, _special_vars: Vars) => `${value}`,
+  raw:      (value: unknown, _format: string, _special_vars: Vars) => to_string(value),
   basic:    (value: unknown,  format: string,  special_vars: Vars) => basic_formatter(value, format, special_vars),
   numeral:  (value: unknown,  format: string, _special_vars: Vars) => Numbro.format(value, format),
   datetime: (value: unknown,  format: string, _special_vars: Vars) => tz(value, format),
@@ -44,8 +45,11 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
     })()
 
     return sprintf(format, value)
+  } else if (isString(value)) {
+    return value // get strings for categorical types
   } else {
-    return `${value}` // get strings for categorical types
+    // TODO to_string(value); currently ImageStack relies on the primitive representation of typed arrays
+    return `${value}`
   }
 }
 
