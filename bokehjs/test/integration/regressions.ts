@@ -4332,6 +4332,8 @@ describe("Bug", () => {
       const osm = new TileRenderer({tile_source: osm_source.clone()})
 
       const p0 = fig([300, 200], {
+        x_range: new DataRange1d(),
+        y_range: new DataRange1d(),
         x_axis_type: "mercator",
         y_axis_type: "mercator",
       })
