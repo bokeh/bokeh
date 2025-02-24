@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.layouts import layout
-from bokeh.models.widgets import Div
+from bokeh.models import Div, Range1d
 from bokeh.plotting import figure, show
 
 
@@ -22,12 +22,11 @@ description = Div(text="""<b><code>tile_demo.py</code></b> - Bokeh tile provider
 lat = 30.268801
 lon = -97.763347
 
-EN = lnglat_to_meters(lon, lat)
-dE = 1000 # (m) Easting  plus-and-minus from map center
-dN = 1000 # (m) Northing plus-and-minus from map center
+east, north = lnglat_to_meters(lon, lat)
+dist = 1000 # distance from map center
 
-x_range = (EN[0]-dE, EN[0]+dE) # (m) Easting  x_lo, x_hi
-y_range = (EN[1]-dN, EN[1]+dN) # (m) Northing y_lo, y_hi
+x_range = Range1d(east-dist, east+dist) #  eastings range (m)
+y_range = Range1d(north-dist, north+dist) # northings range (m)
 
 providers = [
     "CartoDB Positron",
