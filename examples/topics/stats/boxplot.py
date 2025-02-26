@@ -32,17 +32,19 @@ qs["upper"] = qs.q3 + 1.5*iqr
 qs["lower"] = qs.q1 - 1.5*iqr
 
 # update the whiskers to actual data points
-# the upper whisker is the maximum between p3 and upper
-# the lower whisker is the minimum between q1 and lower
 for kind, group in grouper:
     qs_idx = qs.query(f"kind=={kind!r}").index[0]
-    q1 = qs.loc[qs_idx, "q1"]
-    q3 = qs.loc[qs_idx, "q3"]
-    lower = qs.loc[qs_idx, "lower"]
-    upper = qs.loc[qs_idx, "upper"]
     data = group["hwy"]
+
+    # the upper whisker is the maximum between p3 and upper
+    q3 = qs.loc[qs_idx, "q3"]
+    upper = qs.loc[qs_idx, "upper"]
     wiskhi = group[(q3 <= data) & (data <= upper)]["hwy"]
     qs.loc[qs_idx, "upper"] = q3 if len(wiskhi) == 0 else wiskhi.max()
+
+    # the lower whisker is the minimum between q1 and lower
+    q1 = qs.loc[qs_idx, "q1"]
+    lower = qs.loc[qs_idx, "lower"]
     wisklo = group[(lower <= data) & (data<= q1)]["hwy"]
     qs.loc[qs_idx, "lower"] = q1 if len(wisklo) == 0 else wisklo.min()
 
