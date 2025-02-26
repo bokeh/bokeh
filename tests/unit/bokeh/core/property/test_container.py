@@ -336,6 +336,13 @@ class Test_Seq:
         prop = bcpc.Seq(Int)
         assert str(prop) == "Seq(Int)"
 
+    def test_wrap(self) -> None:
+        prop = bcpc.Seq(Int)
+
+        wrapped_list = prop.wrap([0, 1, 2])
+        assert isinstance(wrapped_list, PropertyValueList)
+        assert prop.wrap(wrapped_list) is wrapped_list
+
 class Test_Set:
     def test_init(self) -> None:
         with pytest.raises(TypeError):

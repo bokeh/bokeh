@@ -59,10 +59,6 @@
                     type: "object",
                     name: "Selection",
                     id: "p1007",
-                    attributes: {
-                      indices: [],
-                      line_indices: [],
-                    },
                   },
                   selection_policy: {
                     type: "object",
@@ -133,7 +129,6 @@
                     2,
                     3,
                   ],
-                  minor_ticks: [],
                 },
               },
               formatter: {
@@ -177,7 +172,6 @@
                     2,
                     3,
                   ],
-                  minor_ticks: [],
                 },
               },
               formatter: {
