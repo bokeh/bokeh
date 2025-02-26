@@ -7,7 +7,7 @@ import type {Ref} from "../util/refs"
 import {is_ref} from "../util/refs"
 import type {NDArray} from "../util/ndarray"
 import {ndarray} from "../util/ndarray"
-import {entries} from "../util/object"
+import {entries, dict} from "../util/object"
 import {map} from "../util/array"
 import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
@@ -413,7 +413,7 @@ export class Deserializer {
     const ref = this.references.get(id)
     if (ref != null) {
       if (ref.type == type) {
-        const decoded_attributes = this._decode(attributes) as Attrs
+        const decoded_attributes = this._decode_attributes(ref, attributes)
         if (this._deferred_references.delete(id)) {
           ref.initialize_props(decoded_attributes)
           this._finalizable.add(ref)
@@ -444,12 +444,32 @@ export class Deserializer {
       this.references.set(id, instance)
       this._new_references.add(id)
 
-      const decoded_attributes = this._decode(attributes) as Attrs
+      const decoded_attributes = this._decode_attributes(instance, attributes)
       instance.initialize_props(decoded_attributes)
 
       this._finalizable.add(instance)
       return instance
     }
+  }
+
+  protected _decode_attributes(obj: HasProps, attrs: Attrs = {}): Attrs {
+    const encoded_attrs = dict(attrs)
+    const decoded_attrs: Attrs = {}
+
+    for (const {attr} of obj) {
+      const value = encoded_attrs.get(attr)
+      if (value !== undefined) {
+        decoded_attrs[attr] = this._decode(value)
+      }
+    }
+
+    for (const attr of encoded_attrs.keys()) {
+      if (!(attr in obj.properties)) {
+        this.warning(`unexpected attribute '${attr}' for ${obj}`)
+      }
+    }
+
+    return decoded_attrs
   }
 
   error(message: string): never {
