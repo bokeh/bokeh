@@ -28,7 +28,6 @@ from .._specs import (
 from .._types import (
     Alpha,
     Color,
-    DashPattern,
     FontSize,
     Size,
 )
@@ -41,6 +40,7 @@ from .enums import (
     TextBaselineType as TextBaseline,
 )
 from .has_props import HasProps
+from .property.visual import DashPatternType as DashPattern
 
 ## Vector
 

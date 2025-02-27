@@ -11,12 +11,9 @@ from typing import Sequence
 
 # Bokeh imports
 from .._types import Color
-from ..core.enums import (
-    HatchPatternType as HatchPattern,
-    MarkerTypeType as MarkerType,
-    PaletteType as Palette,
-)
+from ..core.enums import MarkerTypeType as MarkerType, PaletteType as Palette
 from ..core.has_props import abstract
+from ..core.property.visual import HatchPatternType as HatchPattern
 from .glyphs import Glyph
 from .ranges import FactorSeq
 from .renderers import GlyphRenderer

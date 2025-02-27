@@ -7,18 +7,8 @@
 
 # Standard library imports
 import datetime
-from pathlib import Path
-from typing import TYPE_CHECKING, Sequence
-
-# External imports
-import numpy as np
-import numpy.typing as npt
-
-if TYPE_CHECKING:
-    import PIL.Image
 
 # Bokeh imports
-from .core.enums import DashPatternType
 from .models.nodes import Node
 from .models.ranges import Factor
 from .models.text import BaseText
@@ -46,10 +36,6 @@ type FontSize = str
 type FontStyle = str
 
 type Regex = str
-
-type DashPattern = DashPatternType | str | Sequence[int]
-
-type Image = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
 
 type Bytes = bytes
 type JSON = str

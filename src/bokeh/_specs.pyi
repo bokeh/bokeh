@@ -20,7 +20,6 @@ import numpy.typing as npt
 # Bokeh imports
 from ._types import (
     Color,
-    DashPattern,
     Datetime,
     FontSize,
     FontStyle,
@@ -40,6 +39,7 @@ from .core.enums import (
     TextBaselineType as TextBaseline,
 )
 from .core.property.vectorization import Expr, Field, Value
+from .core.property.visual import DashPatternType as DashPattern
 from .core.property_aliases import TextAnchorType as TextAnchor
 from .models.expressions import Expression
 from .models.transforms import Transform

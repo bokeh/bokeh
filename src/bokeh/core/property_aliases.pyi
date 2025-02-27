@@ -9,7 +9,7 @@
 from typing import Literal, NotRequired, TypedDict
 
 # Bokeh imports
-from .._types import Image, NonNegative
+from .._types import NonNegative
 from ..core.enums import (
     AlignType as Align,
     AnchorType as Anchor_,
@@ -19,6 +19,7 @@ from ..core.enums import (
     VAlignType as VAlign,
 )
 from ..core.property.bases import Property
+from ..core.property.visual import ImageType as Image
 
 type CSSLengthType = str
 CSSLength = Property[CSSLengthType]     # 10px 1.2em, etc.

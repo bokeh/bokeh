@@ -18,15 +18,13 @@ from ..core.enums import (
     StartEndType as StartEnd,
 )
 from ..core.has_props import abstract
+from ..core.property.visual import Bounds, MinMaxBoundsType as MinMaxBounds
 from ..model import Model
 
 type Value = float | DateTime | TimeDelta
 
 type Interval = float | TimeDelta
 
-type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
-
-type MinMaxBounds = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
 type MinMaxInterval = Auto | Bounds[float] | Bounds[TimeDelta]
 
 type L1Factor = str

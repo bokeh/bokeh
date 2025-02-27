@@ -27,7 +27,8 @@ import re
 import tempfile
 from io import BytesIO
 from pathlib import Path
-from typing import Any, BinaryIO
+from typing import Any, BinaryIO, Literal
+from urllib.parse import quote
 
 # Bokeh imports
 from ...util.serialization import convert_datetime_type
@@ -144,7 +145,7 @@ class HatchPatternType(Either):
     def __str__(self) -> str:
         return self.__class__.__name__
 
-class Image(Property):
+class Image(Property[str]):
     """ Accept image file types, e.g. PNG, JPEG, TIFF, etc.
 
     This property can be configured with:
@@ -173,7 +174,7 @@ class Image(Property):
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
         raise ValueError(msg)
 
-    def transform(self, value):
+    def transform(self, value: Any) -> str:
         import numpy as np
         import PIL.Image
 
@@ -181,7 +182,20 @@ class Image(Property):
             value = PIL.Image.fromarray(value)
 
         if isinstance(value, str):
-            return value
+            if value.startswith(("data:", "http://", "https://", "file://")):
+                return value
+
+            path = Path(value)
+            if path.exists():
+                value = path
+            else:
+                return value
+
+        def data_image(format: str, encoding: Literal["utf8", "base64"], data: str) -> str:
+            return f"data:image/{format};{encoding},{data}"
+
+        if isinstance(value, Path) and value.suffix == ".svg":
+            return data_image("svg+xml", "utf8", quote(value.read_text()))
 
         # tempfile doesn't implement IO interface (https://bugs.python.org/issue33762)
         if isinstance(value, Path | BinaryIO | tempfile._TemporaryFileWrapper):
@@ -189,10 +203,10 @@ class Image(Property):
 
         if isinstance(value, PIL.Image.Image):
             out = BytesIO()
-            fmt = value.format or "PNG"
-            value.save(out, fmt)
+            format = value.format or "PNG"
+            value.save(out, format)
             encoded = base64.b64encode(out.getvalue()).decode('ascii')
-            return f"data:image/{fmt.lower()};base64,{encoded}"
+            return data_image(format.lower(), "base64", encoded)
 
         raise ValueError(f"Could not transform {value!r}")
 

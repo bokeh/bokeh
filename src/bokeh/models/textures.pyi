@@ -11,6 +11,7 @@ from dataclasses import dataclass
 # Bokeh imports
 from ..core.enums import TextureRepetitionType as TextureRepetition
 from ..core.has_props import abstract
+from ..core.property.visual import ImageType as Image
 from ..model import Model
 
 @abstract
@@ -27,4 +28,4 @@ class CanvasTexture(Texture):
 @dataclass
 class ImageURLTexture(Texture):
 
-    url: str = ...
+    url: Image = ...
