@@ -123,7 +123,7 @@ export class RadialGlyph extends XYGlyph {
     this.mixins<RadialGlyph.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<RadialGlyph.Props>(() => ({
-      radius:           [ p.DistanceSpec, {field: "radius"} ],
+      radius:           [ p.DistanceSpec ],
       radius_dimension: [ RadiusDimension, "x" ],
     }))
   }

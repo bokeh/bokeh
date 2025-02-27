@@ -3145,8 +3145,8 @@
       field: "y",
     },
     radius: {
-      type: "field",
-      field: "radius",
+      type: "symbol",
+      name: "unset",
     },
     radius_dimension: "x",
     hit_dilation: 1.0,
@@ -4010,8 +4010,8 @@
       field: "y",
     },
     radius: {
-      type: "field",
-      field: "radius",
+      type: "symbol",
+      name: "unset",
     },
     angle: {
       type: "value",

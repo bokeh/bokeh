@@ -477,7 +477,7 @@ class Circle(RadialGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the center of the circles.
     """)
 
-    radius = DistanceSpec(default=field("radius"), help="""
+    radius = DistanceSpec(help="""
     The radius values for circles (in |data units|, by default).
 
     .. warning::
@@ -1099,7 +1099,7 @@ class Ngon(RadialGlyph):
     The y-coordinates of the center of the n-gons.
     """)
 
-    radius = DistanceSpec(default=field("radius"), help="""
+    radius = DistanceSpec(help="""
     The radius values for n-gons (in |data units|, by default). The radius is
     measured from the center to the vertices of the n-gons.
     """)
