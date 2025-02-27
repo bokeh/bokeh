@@ -757,12 +757,12 @@ class Plot(LayoutDOM):
     Decimation factor to use when applying level-of-detail mode.
 
     A ``lod_factor`` of N means that only every Nth point in the data source
-    will be drawn while interactive events are active. For example, if 
+    will be drawn while interactive events are active. For example, if
     ``lod_factor=200`` then only every 200th point will be drawn.
 
     The level-of-detail mode is intended to preserve interactive response
     times on HTML canvas plots when there are a large number of data points.
-    
+
     Note that a possible alternative to level-of-detail mode is using the
     WebGL ``output_backend``. WebGL rendering may allow very large data sets
     to remain interactive without any level-of-detail downsampling.
@@ -773,7 +773,7 @@ class Plot(LayoutDOM):
     be performed by glyph renderers. For example, if ``lod_threshold=10000``
     then level-of-detail mode will not be activated if there are fewer than
     10000 points in the data source.
-    
+
     Set to ``None`` to disable any level-of-detail downsampling at all.
     """)
 
