@@ -754,25 +754,45 @@ class Plot(LayoutDOM):
     """)
 
     lod_factor = Int(10, help="""
-    Decimation factor to use when applying level-of-detail decimation.
+    Decimation factor to use when applying level-of-detail mode.
+
+    A ``lod_factor`` of N means that only every Nth point in the data source
+    will be drawn while interactive events are active. For example, if 
+    ``lod_factor=200`` then only every 200th point will be drawn.
+
+    The level-of-detail mode is intended to preserve interactive response
+    times on HTML canvas plots when there are a large number of data points.
+    
+    Note that a possible alternative to level-of-detail mode is using the
+    WebGL ``output_backend``. WebGL rendering may allow very large data sets
+    to remain interactive without any level-of-detail downsampling.
     """)
 
     lod_threshold = Nullable(Int, default=2000, help="""
     A number of data points, above which level-of-detail downsampling may
-    be performed by glyph renderers. Set to ``None`` to disable any
-    level-of-detail downsampling.
+    be performed by glyph renderers. For example, if ``lod_threshold=10000``
+    then level-of-detail mode will not be activated if there are fewer than
+    10000 points in the data source.
+    
+    Set to ``None`` to disable any level-of-detail downsampling at all.
     """)
 
     lod_interval = Int(300, help="""
     Interval (in ms) during which an interactive tool event will enable
     level-of-detail downsampling.
+
+    If a plot needs to be re-drawn within ``lod_interval`` milliseconds
+    of the last interactive event starting, then level-of-detail mode will
+    be activated. Larger values mean the level-of-detail mode will be
+    "easier" to turn on.
     """)
 
     lod_timeout = Int(500, help="""
     Timeout (in ms) for checking whether interactive tool events are still
     occurring. Once level-of-detail mode is enabled, a check is made every
     ``lod_timeout`` ms. If no interactive tool events have happened,
-    level-of-detail mode is disabled.
+    level-of-detail mode is disabled. Larger values mean the level-of-detail
+    mode will be "slower" to turn off.
     """)
 
     output_backend = Enum(OutputBackend, default="canvas", help="""
