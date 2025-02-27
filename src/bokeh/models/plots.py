@@ -765,7 +765,8 @@ class Plot(LayoutDOM):
 
     Note that a possible alternative to level-of-detail mode is using the
     WebGL ``output_backend``. WebGL rendering may allow very large data sets
-    to remain interactive without any level-of-detail downsampling.
+    to remain interactive without any level-of-detail downsampling. When
+    WebGL output is enabled, level-of-detail mode is not used.
     """)
 
     lod_threshold = Nullable(Int, default=2000, help="""
