@@ -151,10 +151,14 @@ export class TileRendererView extends RendererView {
     if (this._last_width !== width || this._last_height !== height) {
       const extent = this.get_extent()
       const zoom_level = this.model.tile_source.get_level_by_extent(extent, height, width)
-      let new_extent = this.model.tile_source.snap_to_zoom_level(extent, height, width, zoom_level)
-      if (this._last_width !== undefined && this._last_height !== undefined) {
-        new_extent = this.model.tile_source.rescale(extent, height, width, this._last_height, this._last_width)
-      }
+      const {tile_source} = this.model
+      const new_extent = (() => {
+        {_last_width, _last_height} = this
+        if (_last_width !== undefined && _last_height !== undefined) {
+          return tile_source.rescale(extent, height, width, _last_height, _last_width)
+        }
+        return tile_source.snap_to_zoom_level(extent, height, width, zoom_level)
+      })()
       this.x_range.setv({start: new_extent[0], end: new_extent[2]})
       this.y_range.setv({start: new_extent[1], end: new_extent[3]})
       this.extent = new_extent
