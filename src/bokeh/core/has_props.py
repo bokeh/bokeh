@@ -512,14 +512,15 @@ class HasProps(Serializable):
                     key: properties.get(key, retained_defaults.get(key))
                     for key in self.properties() if key in properties or key in retained_defaults
                 }
-        attributes = {key: serializer.encode(val) for key, val in properties.items()}
+        attributes = [(key, serializer.encode(val)) for key, val in properties.items()]
 
         if serializer.compact:
-            return ObjectRep({"$type": self.__qualified_model__, **attributes})
+            return ObjectRep({"$type": self.__qualified_model__, **dict(attributes)})
         else:
             rep = ObjectRep(type="object", name=self.__qualified_model__)
             if attributes:
-                rep["attributes"] = attributes
+                USE_DICT_REP = True
+                rep["attributes"] = dict(attributes) if USE_DICT_REP else attributes
             return rep
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
