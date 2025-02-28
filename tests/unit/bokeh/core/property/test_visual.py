@@ -298,16 +298,17 @@ class Test_Image:
             assert prop.transform(file).startswith("data:image/png")
 
     def test_transform_svg_file(self) -> None:
-        with tempfile.NamedTemporaryFile("w+", suffix=".svg") as file:
+        with tempfile.TemporaryDirectory() as dir:
             svg = """
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <circle cx="12" cy="12" r="6" />
 </svg>
 """
-            file.write(svg)
-            file.flush()
+            path = Path(dir) / "Test_Image__test_transform_svg_file.svg"
+            with path.open(mode="w") as file:
+                file.write(svg)
             prop = bcpv.Image()
-            assert prop.transform(file.name) == f"data:image/svg+xml;utf8,{quote(svg)}"
+            assert prop.transform(path) == f"data:image/svg+xml;utf8,{quote(svg)}"
 
     def test_transform_string(self) -> None:
         prop = bcpv.Image()
