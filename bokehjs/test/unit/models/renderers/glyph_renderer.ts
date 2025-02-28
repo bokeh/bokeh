@@ -6,13 +6,13 @@ import {PlotActions, xy} from "../../../interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
-import {Circle} from "@bokehjs/models/glyphs"
+import {Circle, Scatter} from "@bokehjs/models/glyphs"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
 import {FactorRange} from "@bokehjs/models/ranges"
 import {CategoricalScale} from "@bokehjs/models/scales"
 
-function mkrenderer(glyph: Circle): GlyphRenderer {
+function mkrenderer(glyph: Scatter): GlyphRenderer {
   const data_source = new ColumnDataSource({
     data: {
       x: [10, 20, 30, 40],
@@ -27,7 +27,7 @@ function mkrenderer(glyph: Circle): GlyphRenderer {
 describe("GlyphRendererView", () => {
   // Basic case with no all glyphs going to their defaults
   async function make_grv() {
-    const basic_circle = new Circle({fill_color: "red"})
+    const basic_circle = new Scatter({fill_color: "red"})
     const glyph_renderer = mkrenderer(basic_circle)
     const grv = await build_view(
       glyph_renderer,
@@ -69,7 +69,7 @@ describe("GlyphRendererView", () => {
 
   it("should have default nonselection_glyph with 0.2 alpha", async () => {
     const {nonselection_glyph} = await make_grv()
-    expect((nonselection_glyph.model as Circle).fill_alpha).to.be.equal({value: 0.2})
+    expect((nonselection_glyph.model as Scatter).fill_alpha).to.be.equal({value: 0.2})
   })
 
   it("should have undefined hover_glyph if renderer hover_glyph is null", async () => {
@@ -80,13 +80,13 @@ describe("GlyphRendererView", () => {
 
   it("should have default muted_glyph with 0.2 alpha", async () => {
     const {muted_glyph} = await make_grv()
-    expect((muted_glyph.model as Circle).fill_alpha).to.be.equal({value: 0.2})
+    expect((muted_glyph.model as Scatter).fill_alpha).to.be.equal({value: 0.2})
   })
 
   it("should have default decimated_glyph with 0.3 line alpha and color grey", async () => {
     const {decimated_glyph} = await make_grv()
-    expect((decimated_glyph.model as Circle).line_alpha).to.be.equal({value: 0.3})
-    expect((decimated_glyph.model as Circle).line_color).to.be.equal({value: "grey"})
+    expect((decimated_glyph.model as Scatter).line_alpha).to.be.equal({value: 0.3})
+    expect((decimated_glyph.model as Scatter).line_color).to.be.equal({value: "grey"})
   })
 
   it("should call set_data() once when working with FactorRange", async () => {

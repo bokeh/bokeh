@@ -13,7 +13,6 @@ import {
   CDSView,
   Canvas,
   CategoricalColorMapper,
-  Circle,
   Column,
   ColumnDataSource,
   CopyTool,
@@ -205,7 +204,7 @@ describe("Bug", () => {
     it("prevents initializing GlyphRenderer with an empty data source", async () => {
       const plot = fig([200, 200])
       const data_source = new ColumnDataSource({data: {}})
-      const glyph = new Circle({x: {field: "x_field"}, y: {field: "y_field"}})
+      const glyph = new Scatter({x: {field: "x_field"}, y: {field: "y_field"}})
       const renderer = new GlyphRenderer({data_source, glyph})
       plot.add_renderers(renderer)
       const {view} = await display(plot)

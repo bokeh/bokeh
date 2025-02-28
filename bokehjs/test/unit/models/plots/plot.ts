@@ -13,7 +13,7 @@ import {Place} from "@bokehjs/core/enums"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ResetTool, PanTool, Toolbar} from "@bokehjs/models"
-import {Rect, Circle, MultiLine} from "@bokehjs/models/glyphs"
+import {Rect, Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 
@@ -80,7 +80,7 @@ describe("Plot module", () => {
         layout_provider: new StaticLayoutProvider(),
         node_renderer: new GlyphRenderer({
           data_source: new ColumnDataSource({data: {start: [], end: []}}),
-          glyph: new Circle(),
+          glyph: new Scatter(),
         }),
         edge_renderer: new GlyphRenderer({
           data_source: new ColumnDataSource({data: {index: []}}),

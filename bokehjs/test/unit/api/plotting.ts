@@ -12,14 +12,14 @@ describe("in api/plotting module", () => {
         const gr0 = figure().circle()
         expect(gr0.glyph.x).to.be.equal({field: "x"})
         expect(gr0.glyph.y).to.be.equal({field: "y"})
-        expect(gr0.glyph.radius).to.be.equal({field: "radius"})
+        expect(gr0.glyph.properties.radius.is_unset).to.be.true
         expect(gr0.data_source).to.not.be.equal(source)
 
         const gr1 = figure().circle({source})
         expect(gr1.glyph.x).to.be.equal({field: "x"})
         expect(gr1.glyph.y).to.be.equal({field: "y"})
-        expect(gr1.glyph.radius).to.be.equal({field: "radius"})
-        expect(gr1.data_source).to.be.equal(source)
+        expect(gr1.glyph.properties.radius.is_unset).to.be.true
+        expect(gr1.data_source).to.be.identical(source)
 
         const gr2 = figure().circle(5, 10, 0.5)
         expect(gr2.glyph.x).to.be.equal({value: 5})

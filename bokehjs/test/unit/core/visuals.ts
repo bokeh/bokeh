@@ -5,8 +5,8 @@ import type {Context2d} from "@bokehjs/core/util/canvas"
 import {CanvasLayer} from "@bokehjs/core/util/canvas"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
-import type {CircleView} from "@bokehjs/models/glyphs/circle"
-import {Circle} from "@bokehjs/models/glyphs/circle"
+import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
 import {Model} from "@bokehjs/model"
 import {DOMComponentView} from "@bokehjs/core/dom_view"
@@ -231,9 +231,9 @@ describe("core/visuals", () => {
     describe("interacting with GlyphViews", () => {
 
       it("should get initialized with appropriate indices", async () => {
-        const circle = new Circle({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
+        const scatter = new Scatter({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
         const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.6, 0.8]}
-        const renderer_view = await create_glyph_renderer_view(circle, data)
+        const renderer_view = await create_glyph_renderer_view(scatter, data)
 
         const filter = new IndexFilter({indices: [1, 2]})
         renderer_view.model.view = new CDSView({filter})
@@ -243,7 +243,7 @@ describe("core/visuals", () => {
         const canvas = document.createElement("canvas")
         const ctx = canvas.getContext("2d")! as Context2d
 
-        const glyph_view = renderer_view.glyph as CircleView
+        const glyph_view = renderer_view.glyph as ScatterView
         glyph_view.visuals.fill.set_vectorize(ctx, 1)
 
         expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 0.8)")

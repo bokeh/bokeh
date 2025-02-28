@@ -1,8 +1,8 @@
 import {expect, expect_not_null} from "assertions"
 import {display, fig} from "../../../_util"
 
-import type {CircleView} from "@bokehjs/models/glyphs/circle"
-import {Circle} from "@bokehjs/models/glyphs/circle"
+import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -10,11 +10,11 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 
-async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: CircleView}> {
+async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: ScatterView}> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
   const data_source = new ColumnDataSource({data})
 
-  const glyph = new Circle({x: {field: "x"}, y: {field: "y"}})
+  const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
 
   const plot = new Plot({

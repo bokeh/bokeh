@@ -4,7 +4,7 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Circle} from "@bokehjs/models/glyphs/circle"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import type {PaddingUnits} from "@bokehjs/core/enums"
 import {build_view} from "@bokehjs/core/build_views"
 
@@ -141,13 +141,13 @@ describe("DataRange1d", () => {
 
     it("should add renderers from one plot", async () => {
       const r1 = new DataRange1d()
-      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
       const p1 = new Plot({renderers: [g1], x_range: r1})
       await build_view(p1)
       expect(r1.computed_renderers()).to.be.equal([g1])
 
       const r2 = new DataRange1d()
-      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
       const p2 = new Plot({renderers: [g1, g2], x_range: r2})
       await build_view(p2)
       expect(r2.computed_renderers()).to.be.equal([g1, g2])
@@ -156,11 +156,11 @@ describe("DataRange1d", () => {
     it("should add renderers from multiple plot", async () => {
       const r = new DataRange1d()
 
-      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
       const p1 = new Plot({renderers: [g1], x_range: r})
       await build_view(p1)
 
-      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
       const p2 = new Plot({renderers: [g2], x_range: r})
       await build_view(p2)
 
@@ -168,8 +168,8 @@ describe("DataRange1d", () => {
     })
 
     it("should respect user-set renderers", async () => {
-      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
-      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
+      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
 
       const r = new DataRange1d({renderers: [g2]})
 
@@ -380,7 +380,7 @@ describe("DataRange1d", () => {
 
     it("should update its start and end values", async () => {
       const r = new DataRange1d()
-      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
       const p = new Plot({renderers: [g], x_range: r})
       const pv = await build_view(p)
 
@@ -394,7 +394,7 @@ describe("DataRange1d", () => {
 
     it("should not update its start or end values to NaN when log", async () => {
       const r = new DataRange1d({scale_hint: "log"})
-      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Scatter()})
       const p = new Plot({renderers: [g], x_range: r})
       const pv = await build_view(p)
 
