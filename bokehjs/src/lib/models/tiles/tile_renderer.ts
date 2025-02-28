@@ -153,7 +153,7 @@ export class TileRendererView extends RendererView {
       const zoom_level = this.model.tile_source.get_level_by_extent(extent, height, width)
       const {tile_source} = this.model
       const new_extent = (() => {
-        {_last_width, _last_height} = this
+        const {_last_width, _last_height} = this
         if (_last_width !== undefined && _last_height !== undefined) {
           return tile_source.rescale(extent, height, width, _last_height, _last_width)
         }
