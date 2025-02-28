@@ -5,6 +5,7 @@
 
 Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
 
+* Added support for auto-ranging based on the current visible viewport  (:bokeh-pull:`14353`)
 * Improved ``PanTool``'s cursor and state management handling (:bokeh-pull:`14106`)
 * Improved handling of ``touch-action`` based on active tools and their supported events (:bokeh-pull:`14109`)
 * Allowed ``CrosshairTool`` and ``HoverTool`` to trigger from axes (:bokeh-pull:`14124`)
