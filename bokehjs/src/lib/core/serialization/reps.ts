@@ -70,17 +70,20 @@ export type ExprRep = {
   units?: AnyVal
 }
 
+export type AttrList = [string, AnyVal][]
+export type AttrsRep = {[key: string]: AnyVal} | AttrList
+
 export type ObjectRep = {
   type: "object"
   name: string
-  attributes?: {[key: string]: AnyVal}
+  attributes?: AttrsRep
 }
 
 export type ObjectRefRep = {
   type: "object"
   name: string
   id: string
-  attributes?: {[key: string]: AnyVal}
+  attributes?: AttrsRep
 }
 
 export type ModelRep = ObjectRefRep

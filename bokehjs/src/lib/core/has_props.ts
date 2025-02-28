@@ -11,7 +11,7 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, dict} from "./util/object"
+import {keys, values, entries, extend, dict, to_object} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
@@ -319,18 +319,23 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const ref = this.ref()
     serializer.add_ref(this, ref)
 
-    const attributes: {[key: string]: AnyVal} = {}
+    const attributes: [key: string, val: AnyVal][] = []
     for (const prop of this) {
       if (prop.syncable && (serializer.include_defaults || prop.dirty) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.encode(value) as AnyVal
+        attributes.push([prop.attr, serializer.encode(value) as AnyVal])
       }
     }
 
     const {type: name, id} = this
-    const rep = {type: "object" as const, name, id}
+    const rep: ObjectRefRep = {type: "object" as const, name, id}
 
-    return is_empty(attributes) ? rep : {...rep, attributes}
+    if (attributes.length != 0) {
+      const USE_DICT_REP = true
+      rep.attributes = USE_DICT_REP ? to_object(attributes) : attributes // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+    }
+
+    return rep
   }
 
   constructor(attrs: {id: string} | AttrsLike = {}) {

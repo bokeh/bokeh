@@ -6,7 +6,7 @@ import type {Ref} from "../util/refs"
 import {is_ref} from "../util/refs"
 import type {NDArray} from "../util/ndarray"
 import {ndarray} from "../util/ndarray"
-import {entries, dict} from "../util/object"
+import {entries, dict, to_object} from "../util/object"
 import {map} from "../util/array"
 import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
@@ -15,8 +15,22 @@ import {Slice} from "../util/slice"
 import type {Value, Field, Expr} from "../vectorization"
 
 import type {
-  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, DateRep,
-  TypedArrayRep, NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
+  ArrayRep,
+  AttrsRep,
+  BytesRep,
+  DateRep,
+  ExprRep,
+  FieldRep,
+  MapRep,
+  NDArrayRep,
+  NumberRep,
+  ObjectRefRep,
+  ObjectRep,
+  SetRep,
+  SliceRep,
+  SymbolRep,
+  TypedArrayRep,
+  ValueRep,
 } from "./reps"
 
 export type Decoder = (rep: any, deserializer: Deserializer) => unknown
@@ -296,7 +310,7 @@ export class Deserializer {
     const {name: type, attributes} = obj
     const cls = this._resolve_type(type)
     if (attributes != null) {
-      return new cls(this._decode(attributes))
+      return new cls(to_object(this._decode(attributes) as AttrsRep))
     } else {
       return new cls()
     }
@@ -336,20 +350,34 @@ export class Deserializer {
     }
   }
 
-  protected _decode_attributes(obj: HasProps, attrs: Attrs = {}): Attrs {
-    const encoded_attrs = dict(attrs)
+  protected _decode_attributes(obj: HasProps, attrs: AttrsRep = []): Attrs {
     const decoded_attrs: Attrs = {}
 
-    for (const {attr} of obj) {
-      const value = encoded_attrs.get(attr)
-      if (value !== undefined) {
-        decoded_attrs[attr] = this._decode(value)
-      }
-    }
+    if (isPlainObject(attrs)) {
+      const encoded_attrs = dict(attrs)
 
-    for (const attr of encoded_attrs.keys()) {
-      if (!(attr in obj.properties)) {
-        this.warning(`unexpected attribute '${attr}' for ${obj}`)
+      for (const {attr} of obj) {
+        const value = encoded_attrs.get(attr)
+        if (value !== undefined) {
+          decoded_attrs[attr] = this._decode(value)
+        }
+      }
+
+      for (const attr of encoded_attrs.keys()) {
+        if (!(attr in obj.properties)) {
+          this.warning(`unexpected attribute '${attr}' for ${obj}`)
+        }
+      }
+
+      return decoded_attrs
+    } else {
+
+      for (const [attr, value] of attrs) {
+        if (attr in obj.properties) {
+          decoded_attrs[attr] = this._decode(value)
+        } else {
+          this.warning(`unexpected attribute '${attr}' for ${obj}`)
+        }
       }
     }
 

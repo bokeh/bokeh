@@ -418,10 +418,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         )
 
         properties = self.properties_with_values(include_defaults=settings.serialize_include_defaults())
-        attributes = {key: serializer.encode(val) for key, val in properties.items()}
+        attributes = [(key, serializer.encode(val)) for key, val in properties.items()]
 
         if attributes:
-            rep["attributes"] = attributes
+            USE_DICT_REP = True
+            rep["attributes"] = dict(attributes) if USE_DICT_REP else attributes
 
         return rep
 

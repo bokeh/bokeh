@@ -128,16 +128,15 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
+AttrsRep: TypeAlias = dict[str, AnyRep] | list[tuple[str, AnyRep]]
+
 class ObjectRep(TypedDict):
     type: Literal["object"]
     name: str
-    attributes: NotRequired[dict[str, AnyRep]]
+    attributes: NotRequired[AttrsRep]
 
-class ObjectRefRep(TypedDict):
-    type: Literal["object"]
-    name: str
+class ObjectRefRep(ObjectRep):
     id: ID
-    attributes: NotRequired[dict[str, AnyRep]]
 
 ModelRep = ObjectRefRep
 
@@ -371,7 +370,7 @@ class Serializer:
 
         attributes = list(entries(obj))
         if attributes:
-            rep["attributes"] = {key: self.encode(val) for key, val in attributes}
+            rep["attributes"] = [(key, self.encode(val)) for key, val in attributes]
 
         return rep
 
@@ -719,7 +718,9 @@ class Deserializer:
             HasProps.__init__(instance)
 
         if attributes is not None:
-            decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
+            attributes_iter = attributes.items() if isinstance(attributes, dict) else attributes
+            decoded_attributes = {key: self._decode(val) for key, val in attributes_iter}
+
             for key, val in decoded_attributes.items():
                 instance.set_from_json(key, val, setter=self._setter)
 
