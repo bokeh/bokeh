@@ -434,6 +434,20 @@ A widget for displaying a block of pre-formatted text in an HTML <pre> tag:
 
 More information can be found in the reference guide entry for |PreText|.
 
+Progress
+~~~~~~~~
+
+An indicator widget allowing to visualize progress of a task, computation,
+etc. (determinate mode) or allowing to indicate work being done if the
+amount of work cannot be determined (indeterminate mode):
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/progress.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |Progress|.
+
+.. _ug_interaction_widgets_examples_progress:
+
 RadioButtonGroup
 ~~~~~~~~~~~~~~~~
 
@@ -592,6 +606,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |Paragraph|              replace:: :class:`~bokeh.models.widgets.markups.Paragraph`
 .. |PasswordInput|          replace:: :class:`~bokeh.models.widgets.inputs.PasswordInput`
 .. |PreText|                replace:: :class:`~bokeh.models.widgets.markups.PreText`
+.. |Progress|               replace:: :class:`~bokeh.models.widgets.inputs.Progress`
 .. |RadioButtonGroup|       replace:: :class:`~bokeh.models.widgets.groups.RadioButtonGroup`
 .. |RadioGroup|             replace:: :class:`~bokeh.models.widgets.groups.RadioGroup`
 .. |RangeSlider|            replace:: :class:`~bokeh.models.widgets.sliders.RangeSlider`
