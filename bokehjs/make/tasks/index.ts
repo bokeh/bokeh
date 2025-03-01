@@ -10,6 +10,8 @@ import "./pack.ts"
 import "./build.ts"
 import "./all.ts"
 import "./default.ts"
+*/
 import "./server.ts"
+/*
 import "./watch.ts"
 */
