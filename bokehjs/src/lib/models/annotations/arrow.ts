@@ -21,21 +21,33 @@ export class ArrowView extends AnnotationView {
     super.initialize()
 
     this._renderer = new GlyphRenderer({
-      data_source: this.model.source,
-      glyph: new ArrowGlyph({
-        x0: this.model.x_start,
-        y0: this.model.y_start,
-        x1: this.model.x_end,
-        y1: this.model.y_end,
-        start: this.model.start,
-        end: this.model.end,
-        ...mixins.attrs_of(this.model, "", mixins.LineVector),
-      }),
+      glyph: new ArrowGlyph(),
       auto_ranging: "none",
-      level: "annotation",
     })
+    this._update_props()
 
     this._computed_renderers.push(this._renderer)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this._update_props())
+  }
+
+  protected _update_props(): void {
+    this._renderer.setv<GlyphRenderer.Attrs<ArrowGlyph>>({
+      data_source: this.model.source,
+      level: this.model.level,
+    })
+    this._renderer.glyph.setv<ArrowGlyph.Attrs>({
+      x0: this.model.x_start,
+      y0: this.model.y_start,
+      x1: this.model.x_end,
+      y1: this.model.y_end,
+      start: this.model.start,
+      end: this.model.end,
+      ...mixins.attrs_of(this.model, "", mixins.LineVector),
+    })
   }
 
   _paint(_ctx: Context2d): void {}

@@ -17,21 +17,33 @@ export class BandView extends UpperLowerView {
     super.initialize()
 
     this._renderer = new GlyphRenderer({
-      data_source: this.model.source,
-      glyph: new BandGlyph({
-        dimension: this.model.dimension,
-        lower: this.model.lower,
-        upper: this.model.upper,
-        base: this.model.base,
-        ...mixins.attrs_of(this.model, "", mixins.LineVector),
-        ...mixins.attrs_of(this.model, "", mixins.FillVector),
-        ...mixins.attrs_of(this.model, "", mixins.HatchVector),
-      }),
+      glyph: new BandGlyph(),
       auto_ranging: "none",
-      level: "annotation",
     })
+    this._update_props()
 
     this._computed_renderers.push(this._renderer)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this._update_props())
+  }
+
+  protected _update_props(): void {
+    this._renderer.setv<GlyphRenderer.Attrs<BandGlyph>>({
+      data_source: this.model.source,
+      level: this.model.level,
+    })
+    this._renderer.glyph.setv<BandGlyph.Attrs>({
+      dimension: this.model.dimension,
+      lower: this.model.lower,
+      upper: this.model.upper,
+      base: this.model.base,
+      ...mixins.attrs_of(this.model, "", mixins.LineVector),
+      ...mixins.attrs_of(this.model, "", mixins.FillVector),
+      ...mixins.attrs_of(this.model, "", mixins.HatchVector),
+    })
   }
 
   _paint(_ctx: Context2d): void {}

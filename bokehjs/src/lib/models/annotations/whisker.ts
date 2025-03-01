@@ -18,21 +18,33 @@ export class WhiskerView extends UpperLowerView {
     super.initialize()
 
     this._renderer = new GlyphRenderer({
-      data_source: this.model.source,
-      glyph: new WhiskerGlyph({
-        dimension: this.model.dimension,
-        lower: this.model.lower,
-        upper: this.model.upper,
-        base: this.model.base,
-        lower_head: this.model.lower_head,
-        upper_head: this.model.upper_head,
-        ...mixins.attrs_of(this.model, "", mixins.LineVector),
-      }),
+      glyph: new WhiskerGlyph(),
       auto_ranging: "none",
-      level: "annotation",
     })
+    this._update_props()
 
     this._computed_renderers.push(this._renderer)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this._update_props())
+  }
+
+  protected _update_props(): void {
+    this._renderer.setv<GlyphRenderer.Attrs<WhiskerGlyph>>({
+      data_source: this.model.source,
+      level: this.model.level,
+    })
+    this._renderer.glyph.setv<WhiskerGlyph.Attrs>({
+      dimension: this.model.dimension,
+      lower: this.model.lower,
+      upper: this.model.upper,
+      base: this.model.base,
+      lower_head: this.model.lower_head,
+      upper_head: this.model.upper_head,
+      ...mixins.attrs_of(this.model, "", mixins.LineVector),
+    })
   }
 
   _paint(_ctx: Context2d): void {}
