@@ -6,8 +6,6 @@ import type {Context2d} from "core/util/canvas"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
-import type {View, ViewOf} from "core/build_views"
-import {build_view} from "core/build_views"
 import * as p from "core/properties"
 
 import {ArrowGlyph} from "../glyphs/arrow"
@@ -18,14 +16,10 @@ export class ArrowView extends AnnotationView {
   declare visuals: Arrow.Visuals
 
   protected _renderer: GlyphRenderer<ArrowGlyph>
-  protected _renderer_view: ViewOf<GlyphRenderer<ArrowGlyph>>
 
-  override children_views(): View[] {
-    return [...super.children_views(), this._renderer_view]
-  }
+  override initialize(): void {
+    super.initialize()
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
     this._renderer = new GlyphRenderer({
       data_source: this.model.source,
       glyph: new ArrowGlyph({
@@ -40,12 +34,8 @@ export class ArrowView extends AnnotationView {
       auto_ranging: "none",
       level: "annotation",
     })
-    this._renderer_view = await build_view(this._renderer, {parent: this.plot_view})
-  }
 
-  override remove(): void {
-    this._renderer_view.remove()
-    super.remove()
+    this._computed_renderers.push(this._renderer)
   }
 
   _paint(_ctx: Context2d): void {}

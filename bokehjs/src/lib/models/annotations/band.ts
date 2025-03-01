@@ -1,7 +1,5 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import type {Context2d} from "core/util/canvas"
-import type {IterViews, ViewOf} from "core/build_views"
-import {build_view} from "core/build_views"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
@@ -14,15 +12,10 @@ export class BandView extends UpperLowerView {
   declare visuals: Band.Visuals
 
   protected _renderer: GlyphRenderer<BandGlyph>
-  protected _renderer_view: ViewOf<GlyphRenderer<BandGlyph>>
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this._renderer_view
-  }
+  override initialize(): void {
+    super.initialize()
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
     this._renderer = new GlyphRenderer({
       data_source: this.model.source,
       glyph: new BandGlyph({
@@ -37,7 +30,8 @@ export class BandView extends UpperLowerView {
       auto_ranging: "none",
       level: "annotation",
     })
-    this._renderer_view = await build_view(this._renderer, {parent: this.plot_view})
+
+    this._computed_renderers.push(this._renderer)
   }
 
   _paint(_ctx: Context2d): void {}

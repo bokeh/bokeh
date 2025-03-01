@@ -1,8 +1,6 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import {ArrowHead, TeeHead} from "./arrow_head"
 import type {Context2d} from "core/util/canvas"
-import type {View, ViewOf} from "core/build_views"
-import {build_view} from "core/build_views"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
@@ -15,14 +13,10 @@ export class WhiskerView extends UpperLowerView {
   declare visuals: Whisker.Visuals
 
   protected _renderer: GlyphRenderer<WhiskerGlyph>
-  protected _renderer_view: ViewOf<GlyphRenderer<WhiskerGlyph>>
 
-  override children_views(): View[] {
-    return [...super.children_views(), this._renderer_view]
-  }
+  override initialize(): void {
+    super.initialize()
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
     this._renderer = new GlyphRenderer({
       data_source: this.model.source,
       glyph: new WhiskerGlyph({
@@ -37,7 +31,8 @@ export class WhiskerView extends UpperLowerView {
       auto_ranging: "none",
       level: "annotation",
     })
-    this._renderer_view = await build_view(this._renderer, {parent: this.plot_view})
+
+    this._computed_renderers.push(this._renderer)
   }
 
   _paint(_ctx: Context2d): void {}
