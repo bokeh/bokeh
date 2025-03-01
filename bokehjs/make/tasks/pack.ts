@@ -2,7 +2,7 @@ import cp from "child_process"
 import fs from "fs"
 import os from "os"
 import path from "path"
-import {task, BuildError} from "../task"
+import {task, BuildError} from "../task.ts"
 
 function npm_pack() {
   const dist = "build/dist"

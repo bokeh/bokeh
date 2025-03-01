@@ -5,8 +5,8 @@ const {magenta} = chalk
 
 import {argv} from "./args.ts"
 
-import {task, run, log, task_names, show_error, show_failure} from "./task"
-import "./tasks"
+import {task, run, log, task_names, show_error, show_failure} from "./task.ts"
+import "./tasks/index.ts"
 
 const node_version = process.version
 

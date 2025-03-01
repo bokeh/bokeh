@@ -1,7 +1,7 @@
 import {join, relative} from "path"
 import fs from "fs"
 
-import {task, passthrough, BuildError} from "../task"
+import {task, passthrough, BuildError} from "../task.ts"
 
 import {rename, read, write, scan} from "@compiler/sys"
 import {wrap_css_modules} from "@compiler/styles"
@@ -10,8 +10,8 @@ import type {AssemblyOptions} from "@compiler/linker"
 import {Linker} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
 
-import {argv} from "../main"
-import * as paths from "../paths"
+import {argv} from "../args.ts"
+import * as paths from "../paths.ts"
 
 import pkg from "../../package.json"
 

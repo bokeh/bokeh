@@ -3,9 +3,9 @@ import {join, normalize} from "path"
 import {ESLint} from "eslint"
 import chalk from "chalk"
 
-import {argv} from "../main"
-import {task, log, BuildError} from "../task"
-import * as paths from "../paths"
+import {argv} from "../args.ts"
+import {task, log, BuildError} from "../task.ts"
+import * as paths from "../paths.ts"
 
 import {glob} from "@compiler/sys"
 

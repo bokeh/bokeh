@@ -1,6 +1,6 @@
 import {join} from "path"
 
-import {task} from "../task"
+import {task} from "../task.ts"
 import {compile_typescript} from "@compiler/compiler"
 
 task("examples:compile", async () => {

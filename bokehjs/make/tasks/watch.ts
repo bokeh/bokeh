@@ -1,11 +1,11 @@
-import {task, run, log} from "../task"
-import {keep_alive, debounce} from "./_util"
+import {task, run, log} from "../task.ts"
+import {keep_alive, debounce} from "./_util.ts"
 
-import {build_scripts} from "./scripts"
-import {build_defaults, build_unit, build_integration} from "./test"
+import {build_scripts} from "./scripts.ts"
+import {build_defaults, build_unit, build_integration} from "./test.ts"
 
-import * as paths from "../paths"
-import {argv} from "../main"
+import * as paths from "../paths.ts"
+import {argv} from "../args.ts"
 
 import chokidar from "chokidar"
 import chalk from "chalk"

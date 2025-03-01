@@ -3,7 +3,7 @@ import os from "os"
 import type {ChildProcess} from "child_process"
 import {Socket} from "net"
 
-import {BuildError} from "../task"
+import {BuildError} from "../task.ts"
 
 export const platform = (() => {
   switch (os.type()) {

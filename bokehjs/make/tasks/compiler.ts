@@ -1,12 +1,12 @@
 import {join} from "path"
 
-import {task, BuildError} from "../task"
+import {task, BuildError} from "../task.ts"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
 
-import {argv} from "../main"
-import {src_dir, build_dir} from "../paths"
+import {argv} from "../args.ts"
+import {src_dir, build_dir} from "../paths.ts"
 
 task("compiler:ts", async () => {
   compile_typescript(join(src_dir.compiler, "tsconfig.json"))
