@@ -124,7 +124,7 @@ describe("Plot", () => {
       return {p, s, r, dr}
     }
     for (const wax of ["x", "y"]) {
-      it(`with window_axis="${wax}" when data changes`, async () => {
+      it(`with window_axis='${wax}' when data changes`, async () => {
         const nwax = (wax == "x") ? "y" : "x"
         const {p, s, dr} = plot(wax as WindowAxis)
         const {view} = await display(p)
@@ -186,7 +186,7 @@ describe("Plot", () => {
       })
     }
     for (const wax of ["x", "y"]) {
-      it(`with window_axis="${wax}" when range changes`, async () => {
+      it(`with window_axis='${wax}' when range changes`, async () => {
         const {p, r, dr} = plot(wax as WindowAxis)
         const {view} = await display(p)
 
