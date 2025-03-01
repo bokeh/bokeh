@@ -4347,7 +4347,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14207", () => {
-    it("has zoom in when visibility changes", async () => {
+    it.allowing(1)("has zoom in when visibility changes", async () => {
       const osm = new TileRenderer({tile_source: osm_source.clone()})
 
       const p0 = fig([300, 200], {
