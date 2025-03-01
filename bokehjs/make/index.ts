@@ -1,9 +1,9 @@
-const crypto = require("crypto")
-const cp = require("child_process")
-const fs = require("fs")
-const {join, dirname, basename} = require("path")
+import crypto from "crypto"
+import cp from "child_process"
+import fs from "fs"
+import {join, dirname, basename} from "path"
 
-function npm_install() {
+function npm_install(): void {
   const is_windows = process.platform == "win32"
   const npm = is_windows ? "npm.cmd" : "npm"
   const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", shell: is_windows})
@@ -22,7 +22,7 @@ const {engines, workspaces} = require("../package.json")
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
 
-const semver = require("semver")
+import semver from "semver"
 
 if (!semver.satisfies(node_version, engines.node)) {
   console.log(`node ${engines.node} is required. Current version is ${node_version}.`)
@@ -34,14 +34,14 @@ if (!semver.satisfies(npm_version, engines.npm)) {
   process.exit(1)
 }
 
-function is_up_to_date(file) {
+function is_up_to_date(file: string): boolean {
   const hash_file = join(dirname(file), `.${basename(file)}`)
 
   if (!fs.existsSync(hash_file)) {
     return false
   }
 
-  const old_hash = fs.readFileSync(hash_file)
+  const old_hash = fs.readFileSync(hash_file, {encoding: "utf-8"})
 
   const new_hash = crypto
     .createHash("sha256")
@@ -60,24 +60,9 @@ for (const workspace of ["", ...workspaces]) {
   }
 }
 
-const {register} = require("ts-node")
-
 process.on("uncaughtException", function(err) {
   console.error(err)
   process.exit(1)
 })
 
-register({project: "./make/tsconfig.json", cache: false, logError: true})
-
-const tsconfig_paths = require("tsconfig-paths")
-
-tsconfig_paths.register({
-  baseUrl: __dirname,
-  paths: {
-    "@compiler/*": ["../src/compiler/*"],
-  },
-})
-
-if (require.main != null) {
-  require("./main")
-}
+import "./main.ts"
