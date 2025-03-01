@@ -62,7 +62,7 @@ export class RangeManager {
     for (const range of this.frame.y_ranges.values()) {
       y_ranges.add(range)
     }
-    for (const renderer of this.parent.model.data_renderers) {
+    for (const renderer of this.parent.data_renderers) {
       const {coordinates} = renderer
       if (coordinates != null) {
         x_ranges.add(coordinates.x_source)

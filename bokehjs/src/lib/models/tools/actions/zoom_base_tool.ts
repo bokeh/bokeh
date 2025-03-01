@@ -51,7 +51,7 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
     const x_scales = [...x_frame_scales.values()]
     const y_scales = [...y_frame_scales.values()]
 
-    const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
+    const data_renderers = renderers != "auto" ? renderers : this.plot_view.data_renderers
 
     for (const renderer of data_renderers) {
       if (renderer.coordinates == null) {

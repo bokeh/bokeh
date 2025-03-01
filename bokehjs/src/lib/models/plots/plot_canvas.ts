@@ -7,6 +7,7 @@ import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
 import {CompositeRendererView} from "../renderers/composite_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
+import {DataRendererView} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
@@ -182,7 +183,15 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.computed_renderer_views.filter(is_auto_ranged)
+    return this.all_renderer_views.filter(is_auto_ranged)
+  }
+
+  get data_renderer_views(): ViewOf<DataRenderer>[] {
+    return this.all_renderer_views.filter((rv) => rv instanceof DataRendererView)
+  }
+
+  get data_renderers(): DataRenderer[] {
+    return this.data_renderer_views.map((rv) => rv.model)
   }
 
   get base_font_size(): number | null {
@@ -840,7 +849,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
-    for (const renderer of this.model.data_renderers) {
+    for (const renderer of this.data_renderers) {
       const {selected} = renderer.selection_manager.source
       selection.set(renderer, selected)
     }
@@ -848,7 +857,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   update_selection(selections: Map<DataRenderer, Selection> | null): void {
-    for (const renderer of this.model.data_renderers) {
+    for (const renderer of this.data_renderers) {
       const ds = renderer.selection_manager.source
       if (selections != null) {
         const selection = selections.get(renderer)
