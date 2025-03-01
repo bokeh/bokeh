@@ -17,20 +17,20 @@ if (!fs.existsSync("node_modules/")) {
   npm_install()
 }
 
-const {engines, workspaces} = require("../package.json")
+import pkg from "../package.json" with {type: "json"}
 
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
 
 import semver from "semver"
 
-if (!semver.satisfies(node_version, engines.node)) {
-  console.log(`node ${engines.node} is required. Current version is ${node_version}.`)
+if (!semver.satisfies(node_version, pkg.engines.node)) {
+  console.log(`node ${pkg.engines.node} is required. Current version is ${node_version}.`)
   process.exit(1)
 }
 
-if (!semver.satisfies(npm_version, engines.npm)) {
-  console.log(`npm ${engines.npm} is required. Current version is ${npm_version}.`)
+if (!semver.satisfies(npm_version, pkg.engines.npm)) {
+  console.log(`npm ${pkg.engines.npm} is required. Current version is ${npm_version}.`)
   process.exit(1)
 }
 
@@ -51,7 +51,7 @@ function is_up_to_date(file: string): boolean {
   return old_hash == new_hash
 }
 
-for (const workspace of ["", ...workspaces]) {
+for (const workspace of ["", ...pkg.workspaces]) {
   const path = join(workspace, "package.json")
   if (!is_up_to_date(path)) {
     console.log(`${path} has changed. Running 'npm install'.`)
