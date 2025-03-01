@@ -3307,6 +3307,53 @@
       value: 0,
     },
   },
+  ArrowGlyph: {
+    __extends__: "Segment",
+    start: null,
+    end: {
+      type: "object",
+      name: "OpenHead",
+      attributes: {},
+    },
+  },
+  BandGlyph: {
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    fill_color: "gray",
+    fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+    line_color: "#cccccc",
+    line_alpha: 0.3,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+  },
   Bezier: {
     __extends__: [
       "Glyph",
@@ -5383,6 +5430,73 @@
     },
     hatch_extra: {
       type: "map",
+    },
+  },
+  WhiskerGlyph: {
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    lower_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    upper_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
     },
   },
   Decoration: {

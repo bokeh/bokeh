@@ -40,6 +40,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
@@ -54,6 +55,7 @@ from ..core.property_aliases import (
 )
 from ..models import glyphs
 from ..models.annotations import Legend
+from ..models.annotations.arrows import ArrowHead
 from ..models.callbacks import CustomJS
 from ..models.coordinates import CoordinateMapping
 from ..models.plots import Plot
@@ -223,6 +225,18 @@ class ArcArgs(GlyphArgs, LineVisuals, total=False):
     # end_angle: AngleArg
     end_angle_units: AngleUnits
     # direction: Direction
+
+class ArrowArgs(SegmentArgs, total=False):
+    # start: ArrowHead | None
+    # end: ArrowHead | None
+    pass
+
+class BandArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    pass
 
 class BezierArgs(GlyphArgs, LineVisuals, total=False):
     # x0: NumberArg
@@ -493,6 +507,15 @@ class WedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     end_angle_units: AngleUnits
     # direction: Direction
 
+class WhiskerArgs(GlyphArgs, LineVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    # lower_head: ArrowHead | None
+    # upper_head: ArrowHead | None
+    pass
+
 class GlyphAPI:
 
     @property
@@ -531,6 +554,24 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[ArcArgs],
     ) -> GlyphRenderer[glyphs.Arc]: ...
+
+    def arrow(self,
+        x0: NumberArg = ...,
+        y0: NumberArg = ...,
+        x1: NumberArg = ...,
+        y1: NumberArg = ...,
+        start: ArrowHead | None = ...,
+        end: ArrowHead | None = ...,
+        **kwargs: Unpack[ArrowArgs],
+    ) -> GlyphRenderer[glyphs.ArrowGlyph]: ...
+
+    def band(self,
+        dimension: Dimension,
+        lower: NumberArg,
+        upper: NumberArg,
+        base: NumberArg,
+        **kwargs: Unpack[BandArgs],
+    ) -> GlyphRenderer[glyphs.BandGlyph]: ...
 
     def bezier(self,
         x0: NumberArg = ...,
@@ -807,6 +848,16 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[WedgeArgs],
     ) -> GlyphRenderer[glyphs.Wedge]: ...
+
+    def whisker(self,
+        dimension: Dimension = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        base: NumberArg = ...,
+        lower_head: ArrowHead | None = ...,
+        upper_head: ArrowHead | None = ...,
+        **kwargs: Unpack[WhiskerArgs],
+    ) -> GlyphRenderer[glyphs.WhiskerGlyph]: ...
 
     def scatter(self,
         x: NumberArg = ...,

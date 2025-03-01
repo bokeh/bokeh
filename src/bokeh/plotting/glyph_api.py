@@ -101,6 +101,40 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.ArrowGlyph)
+    def arrow(self, *args: Any, **kwargs: Any) -> GlyphRenderer[glyphs.ArrowGlyph]:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.models import NormalHead, VeeHead
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.arrow(x0=[0], x1=[2], y0=[10], y1=[11], start=NormalHead(size=10), end=VeeHead(size=10))
+
+        show(plot)
+
+"""
+
+
+    @glyph_method(glyphs.BandGlyph)
+    def band(self, *args: Any, **kwargs: Any) -> GlyphRenderer[glyphs.BandGlyph]:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.band(dimension="height", base=[1, 2, 3], lower=[10, 9, 15], upper=[11, 12, 19])
+
+        show(plot)
+
+"""
+
     @glyph_method(glyphs.Bezier)
     def bezier(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
@@ -1063,6 +1097,22 @@ Examples:
         plot = figure(width=300, height=300)
         plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
                    end_angle=4.1, radius_units="screen", color="#2b8cbe")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.WhiskerGlyph)
+    def whisker(self, *args: Any, **kwargs: Any) -> GlyphRenderer[glyphs.WhiskerGlyph]:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.whisker(dimension="height", base=[1, 2, 3], lower=[10, 9, 15], upper=[11, 12, 19])
 
         show(plot)
 

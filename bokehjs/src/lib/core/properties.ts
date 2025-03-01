@@ -621,6 +621,22 @@ export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
   readonly dimension = "y"
 }
 
+export class XOrYCoordinateSpec extends CoordinateSpec {
+  declare readonly obj: HasProps & {dimension: enums.Dimension}
+
+  get dimension(): "x" | "y" {
+    return this.obj.dimension == "width" ? "x" : "y"
+  }
+}
+
+export class XOrYCrossCoordinateSpec extends XOrYCoordinateSpec {
+  declare readonly obj: HasProps & {dimension: enums.Dimension}
+
+  override get dimension(): "x" | "y" {
+    return super.dimension == "x" ? "y" : "x"
+  }
+}
+
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits {
     return "rad"
