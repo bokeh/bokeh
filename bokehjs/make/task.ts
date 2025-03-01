@@ -14,7 +14,11 @@ function join(items: string[], sep0: string, sep1: string): string {
 export type Result<T = unknown> = Success<T> | Failure<T>
 
 export class Success<T> {
-  constructor(readonly value: T) {}
+  readonly value: T
+
+  constructor(value: T) {
+    this.value = value
+  }
 
   is_Success(): this is Success<T> {
     return true
@@ -26,7 +30,11 @@ export class Success<T> {
 }
 
 export class Failure<T> {
-  constructor(readonly value: Error) {}
+  readonly value: Error
+
+  constructor(value: Error) {
+    this.value = value
+  }
 
   is_Success(): this is Success<T> {
     return false
@@ -72,9 +80,15 @@ export function show_error(error: unknown): void {
 export type Fn<Args extends unknown[], T> = (...args: Args) => Promise<Result<T> | void>
 
 export class Task<T = unknown> {
-  constructor(readonly name: string,
-              readonly deps: Dependency[],
-              readonly fn?: Fn<unknown[], T>) {}
+  readonly name: string
+  readonly deps: Dependency[]
+  readonly fn?: Fn<unknown[], T>
+
+  constructor(name: string, deps: Dependency[], fn?: Fn<unknown[], T>) {
+    this.name = name
+    this.deps = deps
+    this.fn = fn
+  }
 
   toString(): string {
     return this.name
@@ -135,7 +149,13 @@ export function passthrough(dep: TaskLike): Dependency {
 }
 
 class Dependency {
-  constructor(readonly task: Task, readonly passthrough: boolean = false) {}
+  readonly task: Task
+  readonly passthrough: boolean
+
+  constructor(task: Task, passthrough: boolean = false) {
+    this.task = task
+    this.passthrough = passthrough
+  }
 }
 
 export async function run(task: Task): Promise<Result> {

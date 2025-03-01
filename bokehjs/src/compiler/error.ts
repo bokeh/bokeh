@@ -1,5 +1,8 @@
 export class BuildError extends Error {
-  constructor(readonly component: string, message: string) {
+  readonly component: string
+
+  constructor(component: string, message: string) {
     super(message)
+    this.component = component
   }
 }

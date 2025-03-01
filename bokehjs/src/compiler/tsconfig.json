@@ -19,6 +19,7 @@
     "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
+    "erasableSyntaxOnly": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "isolatedModules": true,

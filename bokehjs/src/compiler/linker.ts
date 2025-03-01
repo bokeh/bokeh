@@ -96,11 +96,17 @@ export type AssemblyOptions = {
 }
 
 export class Bundle {
-  constructor(
-    readonly entry: ModuleInfo,
-    readonly artifacts: ModuleArtifact[],
-    readonly builtins: boolean,
-    readonly bases: Bundle[] = []) {}
+  readonly entry: ModuleInfo
+  readonly artifacts: ModuleArtifact[]
+  readonly builtins: boolean
+  readonly bases: Bundle[]
+
+  constructor(entry: ModuleInfo, artifacts: ModuleArtifact[], builtins: boolean, bases: Bundle[] = []) {
+    this.entry = entry
+    this.artifacts = artifacts
+    this.builtins = builtins
+    this.bases = bases
+  }
 
   assemble(options: AssemblyOptions): Artifact {
     let line = 0
@@ -201,9 +207,15 @@ export class Bundle {
 }
 
 export class Artifact {
-  constructor(readonly source: string,
-              readonly sourcemap: object | null,
-              readonly exported: Map<string, number | string>) {}
+  readonly source: string
+  readonly sourcemap: object | null
+  readonly exported: Map<string, number | string>
+
+  constructor(source: string, sourcemap: object | null, exported: Map<string, number | string>) {
+    this.source = source
+    this.sourcemap = sourcemap
+    this.exported = exported
+  }
 
   full_source(name: string): string {
     if (this.sourcemap != null) {
