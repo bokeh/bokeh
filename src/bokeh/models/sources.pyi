@@ -12,6 +12,7 @@ from typing import (
     Any,
     Literal,
     Sequence,
+    TypeAlias,
     overload,
 )
 
@@ -30,13 +31,13 @@ from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
 
-type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
+DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
 
-type DataDictLike = DataDict | pd.DataFrame | GroupBy[Any]
+DataDictLike: TypeAlias = DataDict | pd.DataFrame | GroupBy[Any]
 
-type Index = int | slice | tuple[int | slice, ...]
+Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
-type Patches = dict[str, list[tuple[Index, Any]]]
+Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
 
 @abstract
 @dataclass(init=False)

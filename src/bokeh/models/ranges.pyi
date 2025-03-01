@@ -8,7 +8,7 @@
 # Standard library imports
 from dataclasses import dataclass
 from datetime import datetime as DateTime, timedelta as TimeDelta
-from typing import Sequence
+from typing import Sequence, TypeAlias
 
 # Bokeh imports
 from .._types import Readonly
@@ -21,18 +21,18 @@ from ..core.has_props import abstract
 from ..core.property.visual import Bounds, MinMaxBoundsType as MinMaxBounds
 from ..model import Model
 
-type Value = float | DateTime | TimeDelta
+Value: TypeAlias = float | DateTime | TimeDelta
 
-type Interval = float | TimeDelta
+Interval: TypeAlias = float | TimeDelta
 
-type MinMaxInterval = Auto | Bounds[float] | Bounds[TimeDelta]
+MinMaxInterval: TypeAlias = Auto | Bounds[float] | Bounds[TimeDelta]
 
-type L1Factor = str
-type L2Factor = tuple[str, str]
-type L3Factor = tuple[str, str, str]
+L1Factor: TypeAlias = str
+L2Factor: TypeAlias = tuple[str, str]
+L3Factor: TypeAlias = tuple[str, str, str]
 
-type Factor = L1Factor | L2Factor | L3Factor
-type FactorSeq = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
+Factor: TypeAlias = L1Factor | L2Factor | L3Factor
+FactorSeq: TypeAlias = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
 
 @abstract
 @dataclass(init=False)

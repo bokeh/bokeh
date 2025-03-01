@@ -12,6 +12,7 @@ from typing import (
     Any,
     Literal,
     Sequence,
+    TypeAlias,
 )
 
 # External imports
@@ -62,8 +63,8 @@ from ..models.tools import (
 )
 from .glyph_api import GlyphAPI
 
-type EagerDataFrame = IntoDataFrame
-type EagerSeries = IntoSeries
+EagerDataFrame: TypeAlias = IntoDataFrame
+EagerSeries: TypeAlias = IntoSeries
 
 @dataclass(init=False)
 class BaseFigureOptions:
@@ -94,7 +95,7 @@ class BaseFigureOptions:
 
     tooltips: InitVar[Template | str | list[tuple[str, str]] | None] = ...
 
-type RangeLike = (
+RangeLike: TypeAlias = (
     Range |
     tuple[float, float] |
     tuple[Datetime, Datetime] |
@@ -104,7 +105,7 @@ type RangeLike = (
     GroupBy[Any]
 )
 
-type AxisType = Auto | Literal["linear", "log", "datetime", "mercator"] | None
+AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "mercator"] | None
 
 @dataclass(init=False)
 class FigureOptions(BaseFigureOptions):

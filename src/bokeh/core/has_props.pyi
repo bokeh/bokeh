@@ -16,7 +16,9 @@ from typing import (
     NoReturn,
     NotRequired,
     Self,
+    TypeAlias,
     TypedDict,
+    TypeVar,
     overload,
 )
 
@@ -33,9 +35,11 @@ from .serialization import (
     Serializer,
 )
 
-type Setter = ClientSession | ServerSession
+Setter: TypeAlias = ClientSession | ServerSession
 
-def abstract[C: type[HasProps]](cls: C) -> C: ...
+HasPropsType = TypeVar("HasPropsType", bound=type[HasProps])
+
+def abstract(cls: HasPropsType) -> HasPropsType: ...
 
 def is_abstract(cls: type[HasProps]) -> bool: ...
 

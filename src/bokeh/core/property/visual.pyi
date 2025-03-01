@@ -8,7 +8,12 @@
 # Standard library imports
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Sequence,
+    TypeAlias,
+    TypeVar,
+)
 
 # External imports
 import numpy as np
@@ -22,25 +27,27 @@ from .. import enums
 from ..enums import AutoType as Auto
 from .bases import Property
 
-type DashPatternType = enums.DashPatternType | str | Sequence[int]
-DashPattern = Property[DashPatternType]
+DashPatternType: TypeAlias = enums.DashPatternType | str | Sequence[int]
+DashPattern: TypeAlias = Property[DashPatternType]
 
-type ImageType = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
-Image = Property[ImageType]
+ImageType: TypeAlias = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
+Image: TypeAlias = Property[ImageType]
 
-type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType
-HatchPatternType = Property[HatchPatternTypeType]
+HatchPatternTypeType: TypeAlias = enums.HatchPatternType | enums.HatchPatternAbbreviationType
+HatchPatternType: TypeAlias = Property[HatchPatternTypeType]
 
-type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
+T = TypeVar("T")
 
-type MinMaxBoundsType = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
-MinMaxBounds = Property[MinMaxBoundsType]
+Bounds: TypeAlias = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 
-type CSSLengthType = str
-CSSLength = Property[CSSLengthType]
+MinMaxBoundsType: TypeAlias = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
+MinMaxBounds: TypeAlias = Property[MinMaxBoundsType]
 
-type FontSizeType = str
-FontSize = Property[FontSizeType]
+CSSLengthType: TypeAlias = str
+CSSLength: TypeAlias = Property[CSSLengthType]
 
-type MarkerTypeType = enums.MarkerTypeType
-MarkerType = Property[MarkerTypeType]
+FontSizeType: TypeAlias = str
+FontSize: TypeAlias = Property[FontSizeType]
+
+MarkerTypeType: TypeAlias = enums.MarkerTypeType
+MarkerType: TypeAlias = Property[MarkerTypeType]

@@ -7,10 +7,13 @@
 
 # Standard library imports
 from typing import (
+    Generic,
     Never,
     NotRequired,
     Sequence,
+    TypeAlias,
     TypedDict,
+    TypeVar,
 )
 
 # External imports
@@ -44,140 +47,146 @@ from .core.property_aliases import TextAnchorType as TextAnchor
 from .models.expressions import Expression
 from .models.transforms import Transform
 
-type FieldName = str
+FieldName: TypeAlias = str
 
-class ValueDict[ValueType, UnitsType](TypedDict):
+ValueType = TypeVar("ValueType")
+UnitsType = TypeVar("UnitsType")
+
+class ValueDict(TypedDict, Generic[ValueType, UnitsType]):
     value: ValueType
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-class FieldDict[ValueType, UnitsType](TypedDict):
+class FieldDict(TypedDict, Generic[ValueType, UnitsType]):
     field: FieldName
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-class ExprDict[ValueType, UnitsType](TypedDict):
+class ExprDict(TypedDict, Generic[ValueType, UnitsType]):
     expr: Expression
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-type VectorInit[ValueType, UnitsType] = Value[ValueType] | Field | Expr
-type VectorDict[ValueType, UnitsType] = ValueDict[ValueType, UnitsType] | FieldDict[ValueType, UnitsType] | ExprDict[ValueType, UnitsType]
-type VectorLike[ValueType, UnitsType] = VectorInit[ValueType, UnitsType] | VectorDict[ValueType, UnitsType]
+VectorInit: TypeAlias = Value[ValueType] | Field | Expr
+VectorDict: TypeAlias = ValueDict[ValueType, UnitsType] | FieldDict[ValueType, UnitsType] | ExprDict[ValueType, UnitsType]
+VectorLike: TypeAlias = VectorInit[ValueType] | VectorDict[ValueType, UnitsType]
 
-type Vectorized[ValueType, UnitsType] = FieldName | ValueType | VectorLike[ValueType, UnitsType]
+Vectorized: TypeAlias = FieldName | ValueType | VectorLike[ValueType, UnitsType]
 
-type IntArray = npt.NDArray[np.integer]
-type FloatArray = npt.NDArray[np.floating]
-type NumberArray = FloatArray | npt.NDArray[np.datetime64] | npt.NDArray[np.timedelta64]
-type Number1dArray = NumberArray # TODO shape
-type Number2dArray = NumberArray # TODO shape
-type Number3dArray = NumberArray # TODO shape
-type StringArray = npt.NDArray[np.str_]
+IntArray: TypeAlias = npt.NDArray[np.integer]
+FloatArray: TypeAlias = npt.NDArray[np.floating]
+NumberArray: TypeAlias = FloatArray | npt.NDArray[np.datetime64] | npt.NDArray[np.timedelta64]
+Number1dArray: TypeAlias = NumberArray # TODO shape
+Number2dArray: TypeAlias = NumberArray # TODO shape
+Number3dArray: TypeAlias = NumberArray # TODO shape
+StringArray: TypeAlias = npt.NDArray[np.str_]
 
-type DataSpec[T] = Vectorized[T, Never]
-type UnitsSpec[T, U] = Vectorized[T, U]
+T = TypeVar("T")
+U = TypeVar("U")
 
-type IntVal = int
-type IntSpec = DataSpec[IntVal]
-type IntArg = FieldName | IntVal | IntSpec | Sequence[IntVal] | IntArray
+DataSpec: TypeAlias = Vectorized[T, Never]
+UnitsSpec: TypeAlias = Vectorized[T, U]
 
-type FloatVal = float
-type FloatSpec = DataSpec[FloatVal]
-type FloatArg = FieldName | FloatVal | FloatSpec | Sequence[FloatVal] | FloatArray
+IntVal: TypeAlias = int
+IntSpec: TypeAlias = DataSpec[IntVal]
+IntArg: TypeAlias = FieldName | IntVal | IntSpec | Sequence[IntVal] | IntArray
 
-type NumberVal = float | Datetime | TimeDelta
-type NumberSpec = DataSpec[NumberVal]
-type NumberArg = FieldName | NumberVal | NumberSpec | Sequence[NumberVal] | NumberArray
+FloatVal: TypeAlias = float
+FloatSpec: TypeAlias = DataSpec[FloatVal]
+FloatArg: TypeAlias = FieldName | FloatVal | FloatSpec | Sequence[FloatVal] | FloatArray
 
-type Number1dVal = Sequence[float | Datetime | TimeDelta]
-type Number1dSpec = DataSpec[Number1dVal]
-type Number1dArg = FieldName | Number1dVal | Number1dSpec | Sequence[Number1dVal] | Number1dArray
+NumberVal: TypeAlias = float | Datetime | TimeDelta
+NumberSpec: TypeAlias = DataSpec[NumberVal]
+NumberArg: TypeAlias = FieldName | NumberVal | NumberSpec | Sequence[NumberVal] | NumberArray
 
-type Number2dVal = Sequence[Sequence[float | Datetime | TimeDelta]]
-type Number2dSpec = DataSpec[Number2dVal]
-type Number2dArg = FieldName | Number2dVal | Number2dSpec | Sequence[Number2dVal] | Number2dArray
+Number1dVal: TypeAlias = Sequence[float | Datetime | TimeDelta]
+Number1dSpec: TypeAlias = DataSpec[Number1dVal]
+Number1dArg: TypeAlias = FieldName | Number1dVal | Number1dSpec | Sequence[Number1dVal] | Number1dArray
 
-type Number3dVal = Sequence[Sequence[Sequence[float | Datetime | TimeDelta]]]
-type Number3dSpec = DataSpec[Number3dVal]
-type Number3dArg = FieldName | Number3dVal | Number3dSpec | Sequence[Number3dVal] | Number3dArray
+Number2dVal: TypeAlias = Sequence[Sequence[float | Datetime | TimeDelta]]
+Number2dSpec: TypeAlias = DataSpec[Number2dVal]
+Number2dArg: TypeAlias = FieldName | Number2dVal | Number2dSpec | Sequence[Number2dVal] | Number2dArray
 
-type SizeVal = NonNegative[float] | Datetime | TimeDelta
-type SizeSpec = DataSpec[SizeVal]
-type SizeArg = FieldName | SizeVal | Sequence[SizeVal] | SizeSpec | NumberArray
+Number3dVal: TypeAlias = Sequence[Sequence[Sequence[float | Datetime | TimeDelta]]]
+Number3dSpec: TypeAlias = DataSpec[Number3dVal]
+Number3dArg: TypeAlias = FieldName | Number3dVal | Number3dSpec | Sequence[Number3dVal] | Number3dArray
 
-type AlphaVal = FloatVal
-type AlphaSpec = FloatSpec
-type AlphaArg = FloatArg
+SizeVal: TypeAlias = NonNegative[float] | Datetime | TimeDelta
+SizeSpec: TypeAlias = DataSpec[SizeVal]
+SizeArg: TypeAlias = FieldName | SizeVal | Sequence[SizeVal] | SizeSpec | NumberArray
 
-type ColorVal = Color | None
-type ColorSpec = DataSpec[Color | None]
-type ColorArg = FieldName | ColorVal | Sequence[ColorVal] | ColorSpec | npt.NDArray[np.uint8] # TODO
+AlphaVal: TypeAlias = FloatVal
+AlphaSpec: TypeAlias = FloatSpec
+AlphaArg: TypeAlias = FloatArg
 
-type StringVal = str
-type StringSpec = DataSpec[StringVal]
-type StringArg = FieldName | StringVal | Sequence[StringVal] | StringSpec | StringArray
+ColorVal: TypeAlias = Color | None
+ColorSpec: TypeAlias = DataSpec[Color | None]
+ColorArg: TypeAlias = FieldName | ColorVal | Sequence[ColorVal] | ColorSpec | npt.NDArray[np.uint8] # TODO
 
-type NullStringVal = StringVal | None
-type NullStringSpec = DataSpec[NullStringVal]
-type NullStringArg = FieldName | NullStringVal | Sequence[NullStringVal] | NullStringSpec | StringArray
+StringVal: TypeAlias = str
+StringSpec: TypeAlias = DataSpec[StringVal]
+StringArg: TypeAlias = FieldName | StringVal | Sequence[StringVal] | StringSpec | StringArray
 
-type FontSizeVal = FontSize
-type FontSizeSpec = DataSpec[FontSizeVal]
-type FontSizeArg = FieldName | FontSizeVal | Sequence[FontSizeVal] | FontSizeSpec | StringArray
+NullStringVal: TypeAlias = StringVal | None
+NullStringSpec: TypeAlias = DataSpec[NullStringVal]
+NullStringArg: TypeAlias = FieldName | NullStringVal | Sequence[NullStringVal] | NullStringSpec | StringArray
 
-type FontStyleVal = FontStyle
-type FontStyleSpec = DataSpec[FontStyleVal]
-type FontStyleArg = FieldName | FontStyleVal | Sequence[FontStyleVal] | FontStyleSpec | StringArray
+FontSizeVal: TypeAlias = FontSize
+FontSizeSpec: TypeAlias = DataSpec[FontSizeVal]
+FontSizeArg: TypeAlias = FieldName | FontSizeVal | Sequence[FontSizeVal] | FontSizeSpec | StringArray
 
-type TextAlignVal = TextAlign
-type TextAlignSpec = DataSpec[TextAlignVal]
-type TextAlignArg = FieldName | TextAlignVal | Sequence[TextAlignVal] | TextAlignSpec | StringArray
+FontStyleVal: TypeAlias = FontStyle
+FontStyleSpec: TypeAlias = DataSpec[FontStyleVal]
+FontStyleArg: TypeAlias = FieldName | FontStyleVal | Sequence[FontStyleVal] | FontStyleSpec | StringArray
 
-type TextBaselineVal = TextBaseline
-type TextBaselineSpec = DataSpec[TextBaselineVal]
-type TextBaselineArg = FieldName | TextBaselineVal | Sequence[TextBaselineVal] | TextBaselineSpec | StringArray
+TextAlignVal: TypeAlias = TextAlign
+TextAlignSpec: TypeAlias = DataSpec[TextAlignVal]
+TextAlignArg: TypeAlias = FieldName | TextAlignVal | Sequence[TextAlignVal] | TextAlignSpec | StringArray
 
-type LineJoinVal = LineJoin
-type LineJoinSpec = DataSpec[LineJoinVal]
-type LineJoinArg = FieldName | LineJoinVal | Sequence[LineJoinVal] | LineJoinSpec | StringArray
+TextBaselineVal: TypeAlias = TextBaseline
+TextBaselineSpec: TypeAlias = DataSpec[TextBaselineVal]
+TextBaselineArg: TypeAlias = FieldName | TextBaselineVal | Sequence[TextBaselineVal] | TextBaselineSpec | StringArray
 
-type LineCapVal = LineCap
-type LineCapSpec = DataSpec[LineCapVal]
-type LineCapArg = FieldName | LineCapVal | Sequence[LineCapVal] | LineCapSpec | StringArray
+LineJoinVal: TypeAlias = LineJoin
+LineJoinSpec: TypeAlias = DataSpec[LineJoinVal]
+LineJoinArg: TypeAlias = FieldName | LineJoinVal | Sequence[LineJoinVal] | LineJoinSpec | StringArray
 
-type DashPatternVal = DashPattern
-type DashPatternSpec = DataSpec[DashPatternVal]
-type DashPatternArg = FieldName | DashPatternVal | Sequence[DashPatternVal] | DashPatternSpec | StringArray
+LineCapVal: TypeAlias = LineCap
+LineCapSpec: TypeAlias = DataSpec[LineCapVal]
+LineCapArg: TypeAlias = FieldName | LineCapVal | Sequence[LineCapVal] | LineCapSpec | StringArray
 
-type HatchPatternVal = HatchPattern | None
-type HatchPatternSpec = DataSpec[HatchPatternVal]
-type HatchPatternArg = FieldName | HatchPatternVal | Sequence[HatchPatternVal] | HatchPatternSpec | StringArray
+DashPatternVal: TypeAlias = DashPattern
+DashPatternSpec: TypeAlias = DataSpec[DashPatternVal]
+DashPatternArg: TypeAlias = FieldName | DashPatternVal | Sequence[DashPatternVal] | DashPatternSpec | StringArray
 
-type MarkerVal = MarkerType | str
-type MarkerSpec = DataSpec[MarkerVal]
-type MarkerArg = FieldName | MarkerVal | Sequence[MarkerVal] | MarkerSpec | StringArray
+HatchPatternVal: TypeAlias = HatchPattern | None
+HatchPatternSpec: TypeAlias = DataSpec[HatchPatternVal]
+HatchPatternArg: TypeAlias = FieldName | HatchPatternVal | Sequence[HatchPatternVal] | HatchPatternSpec | StringArray
 
-type TextAnchorVal = TextAnchor
-type TextAnchorSpec = DataSpec[TextAnchorVal]
-type TextAnchorArg = FieldName | TextAnchorVal | Sequence[TextAnchorVal] | TextAnchorSpec | StringArray
+MarkerVal: TypeAlias = MarkerType | str
+MarkerSpec: TypeAlias = DataSpec[MarkerVal]
+MarkerArg: TypeAlias = FieldName | MarkerVal | Sequence[MarkerVal] | MarkerSpec | StringArray
 
-type OutlineShapeNameVal = OutlineShapeName
-type OutlineShapeNameSpec = DataSpec[OutlineShapeNameVal]
-type OutlineShapeNameArg = FieldName | OutlineShapeNameVal | Sequence[OutlineShapeNameVal] | OutlineShapeNameSpec | StringArray
+TextAnchorVal: TypeAlias = TextAnchor
+TextAnchorSpec: TypeAlias = DataSpec[TextAnchorVal]
+TextAnchorArg: TypeAlias = FieldName | TextAnchorVal | Sequence[TextAnchorVal] | TextAnchorSpec | StringArray
 
-type AngleVal = float
-type AngleSpec = UnitsSpec[AngleVal, AngleUnits]
-type AngleArg = FieldName | AngleVal | Sequence[AngleVal] | AngleSpec | FloatArray
+OutlineShapeNameVal: TypeAlias = OutlineShapeName
+OutlineShapeNameSpec: TypeAlias = DataSpec[OutlineShapeNameVal]
+OutlineShapeNameArg: TypeAlias = FieldName | OutlineShapeNameVal | Sequence[OutlineShapeNameVal] | OutlineShapeNameSpec | StringArray
 
-type CoordinateVal = float | Datetime | TimeDelta
-type CoordinateSpec = UnitsSpec[float | Datetime | TimeDelta, CoordinateUnits]
-type CoordinateArg = FieldName | CoordinateVal | CoordinateSpec | Sequence[CoordinateVal] | NumberArray
+AngleVal: TypeAlias = float
+AngleSpec: TypeAlias = UnitsSpec[AngleVal, AngleUnits]
+AngleArg: TypeAlias = FieldName | AngleVal | Sequence[AngleVal] | AngleSpec | FloatArray
 
-type DistanceVal = NonNegative[float] | Datetime | TimeDelta
-type DistanceSpec = UnitsSpec[DistanceVal, SpatialUnits]
-type DistanceArg = FieldName | DistanceVal | DistanceSpec | Sequence[DistanceVal] | NumberArray
+CoordinateVal: TypeAlias = float | Datetime | TimeDelta
+CoordinateSpec: TypeAlias = UnitsSpec[float | Datetime | TimeDelta, CoordinateUnits]
+CoordinateArg: TypeAlias = FieldName | CoordinateVal | CoordinateSpec | Sequence[CoordinateVal] | NumberArray
 
-type NullDistanceVal = DistanceVal | None
-type NullDistanceSpec = UnitsSpec[NullDistanceVal, SpatialUnits]
-type NullDistanceArg = FieldName | NullDistanceVal | NullDistanceSpec | Sequence[NullDistanceVal] | NumberArray
+DistanceVal: TypeAlias = NonNegative[float] | Datetime | TimeDelta
+DistanceSpec: TypeAlias = UnitsSpec[DistanceVal, SpatialUnits]
+DistanceArg: TypeAlias = FieldName | DistanceVal | DistanceSpec | Sequence[DistanceVal] | NumberArray
+
+NullDistanceVal: TypeAlias = DistanceVal | None
+NullDistanceSpec: TypeAlias = UnitsSpec[NullDistanceVal, SpatialUnits]
+NullDistanceArg: TypeAlias = FieldName | NullDistanceVal | NullDistanceSpec | Sequence[NullDistanceVal] | NumberArray

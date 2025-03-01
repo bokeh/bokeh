@@ -7,7 +7,12 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import Any, Literal, Sequence
+from typing import (
+    Any,
+    Literal,
+    Sequence,
+    TypeAlias,
+)
 
 # Bokeh imports
 from ..._types import (
@@ -145,8 +150,8 @@ class AutocompleteInput(TextInput):
 
     search_strategy: Literal["starts_with", "includes"] = ...
 
-type Options = list[str | tuple[Any, str]]
-type OptionsGroups = dict[str, Options]
+Options: TypeAlias = list[str | tuple[Any, str]]
+OptionsGroups: TypeAlias = dict[str, Options]
 
 @dataclass
 class Select(InputWidget):
