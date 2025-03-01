@@ -306,7 +306,9 @@ export type SeparatorLine = Prefixed<"separator", Line>
 export type SubGroupText = Prefixed<"subgroup", Text>
 export type TitleText = Prefixed<"title", Text>
 
-type Mixins = Text | Line | Fill | Hatch | Image | TextVector | LineVector | FillVector | HatchVector
+type Mixins =
+  | Text | Line | Fill | Hatch | Image
+  | TextVector | LineVector | FillVector | HatchVector | ImageVector
 
 export function attrs_of<P extends string, T extends Mixins>(
     model: HasProps, prefix: P, mixin: p.DefineOf<T>, new_prefix: string | boolean = false): {[key: string]: unknown} {

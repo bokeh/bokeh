@@ -1,80 +1,46 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
-import type {ArrowHeadView} from "./arrow_head"
 import {ArrowHead, TeeHead} from "./arrow_head"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Indices} from "core/types"
 import type {Context2d} from "core/util/canvas"
-import type {View} from "core/build_views"
+import type {View, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
-import {LineVector} from "core/property_mixins"
+import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
+
+import {WhiskerGlyph} from "../glyphs/whisker"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
 
 export class WhiskerView extends UpperLowerView {
   declare model: Whisker
   declare visuals: Whisker.Visuals
 
-  protected lower_head: ArrowHeadView | null
-  protected upper_head: ArrowHeadView | null
+  protected _renderer: GlyphRenderer<WhiskerGlyph>
+  protected _renderer_view: ViewOf<GlyphRenderer<WhiskerGlyph>>
 
   override children_views(): View[] {
-    const {lower_head, upper_head} = this
-    const lower_head_view = lower_head != null? [lower_head]:[]
-    const upper_head_view = upper_head != null? [upper_head]:[]
-    return [...super.children_views(), ...lower_head_view, ...upper_head_view]
+    return [...super.children_views(), this._renderer_view]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-
-    const {lower_head, upper_head} = this.model
-    if (lower_head != null) {
-      this.lower_head = await build_view(lower_head, {parent: this})
-    }
-    if (upper_head != null) {
-      this.upper_head = await build_view(upper_head, {parent: this})
-    }
+    this._renderer = new GlyphRenderer({
+      data_source: this.model.source,
+      glyph: new WhiskerGlyph({
+        dimension: this.model.dimension,
+        lower: this.model.lower,
+        upper: this.model.upper,
+        base: this.model.base,
+        lower_head: this.model.lower_head,
+        upper_head: this.model.upper_head,
+        ...mixins.attrs_of(this.model, "", mixins.LineVector),
+      }),
+      auto_ranging: "none",
+      level: "annotation",
+    })
+    this._renderer_view = await build_view(this._renderer, {parent: this.plot_view})
   }
 
-  override set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    const indices = Indices.all_set(this._lower.length)
-    this.lower_head?.set_data(source, indices)
-    this.upper_head?.set_data(source, indices)
-  }
-
-  _paint_data(ctx: Context2d): void {
-    if (this.visuals.line.doit) {
-      for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-        ctx.beginPath()
-        ctx.moveTo(this._lower_sx[i], this._lower_sy[i])
-        ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
-        this.visuals.line.apply(ctx, i)
-      }
-    }
-
-    const angle = this.model.dimension == "height" ? 0 : Math.PI / 2
-
-    if (this.lower_head != null) {
-      for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-        ctx.save()
-        ctx.translate(this._lower_sx[i], this._lower_sy[i])
-        ctx.rotate(angle + Math.PI)
-        this.lower_head.paint(ctx, i)
-        ctx.restore()
-      }
-    }
-
-    if (this.upper_head != null) {
-      for (let i = 0, end = this._upper_sx.length; i < end; i++) {
-        ctx.save()
-        ctx.translate(this._upper_sx[i], this._upper_sy[i])
-        ctx.rotate(angle)
-        this.upper_head.paint(ctx, i)
-        ctx.restore()
-      }
-    }
-  }
+  _paint(_ctx: Context2d): void {}
 }
 
 export namespace Whisker {
@@ -85,7 +51,7 @@ export namespace Whisker {
     upper_head: p.Property<ArrowHead | null>
   } & Mixins
 
-  export type Mixins = LineVector
+  export type Mixins = mixins.LineVector
 
   export type Visuals = UpperLower.Visuals & {line: visuals.LineVector}
 }
@@ -103,7 +69,7 @@ export class Whisker extends UpperLower {
   static {
     this.prototype.default_view = WhiskerView
 
-    this.mixins<Whisker.Mixins>(LineVector)
+    this.mixins<Whisker.Mixins>(mixins.LineVector)
 
     this.define<Whisker.Props>(({Ref, Nullable}) => ({
       lower_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],

@@ -1,48 +1,46 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import type {Context2d} from "core/util/canvas"
+import type {IterViews, ViewOf} from "core/build_views"
+import {build_view} from "core/build_views"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
+
+import {BandGlyph} from "../glyphs/band"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
 
 export class BandView extends UpperLowerView {
   declare model: Band
   declare visuals: Band.Visuals
 
-  _paint_data(ctx: Context2d): void {
-    // Draw the band body
-    ctx.beginPath()
-    ctx.moveTo(this._lower_sx[0], this._lower_sy[0])
+  protected _renderer: GlyphRenderer<BandGlyph>
+  protected _renderer_view: ViewOf<GlyphRenderer<BandGlyph>>
 
-    for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-      ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
-    }
-    // iterate backwards so that the upper end is below the lower start
-    for (let i = this._upper_sx.length-1; i >= 0; i--) {
-      ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
-    }
-
-    ctx.closePath()
-    this.visuals.fill.apply(ctx)
-    this.visuals.hatch.apply(ctx)
-
-    // Draw the lower band edge
-    ctx.beginPath()
-    ctx.moveTo(this._lower_sx[0], this._lower_sy[0])
-    for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-      ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
-    }
-
-    this.visuals.line.apply(ctx)
-
-    // Draw the upper band edge
-    ctx.beginPath()
-    ctx.moveTo(this._upper_sx[0], this._upper_sy[0])
-    for (let i = 0, end = this._upper_sx.length; i < end; i++) {
-      ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
-    }
-
-    this.visuals.line.apply(ctx)
+  override *children(): IterViews {
+    yield* super.children()
+    yield this._renderer_view
   }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    this._renderer = new GlyphRenderer({
+      data_source: this.model.source,
+      glyph: new BandGlyph({
+        dimension: this.model.dimension,
+        lower: this.model.lower,
+        upper: this.model.upper,
+        base: this.model.base,
+        ...mixins.attrs_of(this.model, "", mixins.LineVector),
+        ...mixins.attrs_of(this.model, "", mixins.FillVector),
+        ...mixins.attrs_of(this.model, "", mixins.HatchVector),
+      }),
+      auto_ranging: "none",
+      level: "annotation",
+    })
+    this._renderer_view = await build_view(this._renderer, {parent: this.plot_view})
+  }
+
+  _paint(_ctx: Context2d): void {}
 }
 
 export namespace Band {
