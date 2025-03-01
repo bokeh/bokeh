@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/eslint": "^8.56.7",
     "@types/node": "^22.7.4",
+    "@types/semver": "^7.5.8",
     "@types/which": "^3.0.3",
     "@types/yargs": "^17.0.32",
     "acorn": "^8.12.1",
