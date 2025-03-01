@@ -1,7 +1,16 @@
 import chalk from "chalk"
 
-import {BuildError} from "@compiler/error"
-export {BuildError}
+//import {BuildError} from "@compiler/error"
+//export {BuildError}
+
+export class BuildError extends Error {
+  readonly component: string
+
+  constructor(component: string, message: string) {
+    super(message)
+    this.component = component
+  }
+}
 
 function join(items: string[], sep0: string, sep1: string): string {
   if (items.length <= 1) {
