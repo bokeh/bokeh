@@ -192,6 +192,12 @@ export function replace_placeholders(content: string | {html: string}, data_sour
   }
 }
 
+export function parse_html(html: string): Node[] {
+  const parser = new DOMParser()
+  const document = parser.parseFromString(html, "text/html")
+  return [...document.body.childNodes]
+}
+
 /**
  * This supports the following:
  *

@@ -34,6 +34,7 @@ export abstract class LayoutDOMView extends PaneView {
   layout?: Layoutable
 
   readonly mouseenter = new Signal<MouseEvent, this>(this, "mouseenter")
+  readonly mousemove = new Signal<MouseEvent, this>(this, "mousemove")
   readonly mouseleave = new Signal<MouseEvent, this>(this, "mouseleave")
 
   readonly disabled = new Signal<boolean, this>(this, "disabled")
@@ -73,6 +74,9 @@ export abstract class LayoutDOMView extends PaneView {
 
     this.el.addEventListener("mouseenter", (event) => {
       this.mouseenter.emit(event)
+    })
+    this.el.addEventListener("mousemove", (event) => {
+      this.mousemove.emit(event)
     })
     this.el.addEventListener("mouseleave", (event) => {
       this.mouseleave.emit(event)

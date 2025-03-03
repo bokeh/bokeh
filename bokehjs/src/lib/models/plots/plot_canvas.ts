@@ -951,6 +951,26 @@ export class PlotView extends LayoutDOMView implements Paintable {
         }
       })
     }
+
+    this.mousemove.connect((event) => {
+      const bbox = this.el.getBoundingClientRect()
+      const {pageX, pageY} = event
+      const pt = {sx: pageX - bbox.left, sy: pageY - bbox.top}
+      const hints = []
+      for (const tool_view of this.tool_views.values()) {
+        if (tool_view.model.active) {
+          const hint = tool_view.ui_hint(pt)
+          if (hint != null) {
+            hints.push(hint)
+          }
+        }
+      }
+      this.model.hints = hints.join("; ")
+    })
+
+    this.mouseleave.connect(() => {
+      this.model.hints = ""
+    })
   }
 
   protected _update_touch_action(): void {

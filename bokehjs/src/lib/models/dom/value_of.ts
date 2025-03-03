@@ -1,7 +1,7 @@
 import {DOMElement, DOMElementView} from "./dom_element"
 import {HasProps} from "core/has_props"
 import {CustomJS} from "../callbacks/customjs"
-import {DEFAULT_FORMATTERS} from "core/util/templating"
+import {DEFAULT_FORMATTERS, parse_html} from "core/util/templating"
 import {execute} from "core/util/callbacks"
 import {isArray} from "core/util/types"
 import type * as p from "core/properties"
@@ -61,8 +61,12 @@ export class ValueOfView extends DOMElementView {
       })()
       this._await_ready(promise)
     } else {
-      const contents = DEFAULT_FORMATTERS[formatter](value, format ?? "", vars)
-      render(contents)
+      if (formatter == "raw" && format == "html") {
+        render(parse_html(`${value}`))
+      } else {
+        const contents = DEFAULT_FORMATTERS[formatter](value, format ?? "", vars)
+        render(contents)
+      }
     }
   }
 

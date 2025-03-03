@@ -8,7 +8,7 @@ import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
 import type {PanEvent, KeyEvent} from "core/ui_events"
 import type {HitTestRect} from "core/geometry"
-import type {CoordinateMapper, LRTB} from "core/util/bbox"
+import type {CoordinateMapper, LRTB, SXY} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
 export class BoxSelectToolView extends RegionSelectToolView {
@@ -181,6 +181,15 @@ export class BoxSelectToolView extends RegionSelectToolView {
     const {greedy} = this.model
     const geometry: HitTestRect = {type: "rect", sx0, sx1, sy0, sy1, greedy}
     this._select(geometry, final, mode)
+  }
+
+  override ui_hint(pt: SXY/*, modifiers: KeyModifiers*/): string | null {
+    const {sx, sy} = pt
+    if (this.plot_view.frame.bbox.contains(sx, sy)) {
+      return "Pan for box selection; with <b>Shift</b> for append mode; with <b>Ctrl</b> intersection mode; with <b>Ctrl</b>+<b>Shift</b> for subtraction mode"
+    } else {
+      return super.ui_hint(pt)
+    }
   }
 }
 

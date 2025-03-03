@@ -36,6 +36,7 @@ import type {HelpTool} from "./actions/help_tool"
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
 import type {ToolLike} from "./tool_proxy"
+import type {SXY} from "core/util/bbox"
 
 export type ToolAliases = {
   pan:          PanTool
@@ -91,6 +92,10 @@ export abstract class ToolView extends View {
 
   get overlays(): Renderer[] {
     return []
+  }
+
+  ui_hint(_pt: SXY): string | null {
+    return null
   }
 
   // activate is triggered by toolbar ui actions

@@ -98,6 +98,9 @@ export namespace Plot {
     hold_render: p.Property<boolean>
 
     attribution: p.Property<(string | HTML)[]>
+
+    // internal
+    hints: p.Property<string>
   } & Mixins
 
   export type Mixins =
@@ -204,6 +207,10 @@ export class Plot extends LayoutDOM {
       hold_render:       [ Bool, false ],
 
       attribution:       [ List(Or(Str, Ref(HTML))), [] ],
+    }))
+
+    this.internal<Plot.Props>(({Str}) => ({
+      hints: [ Str, "" ],
     }))
 
     this.override<Plot.Props>({
