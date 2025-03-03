@@ -325,7 +325,7 @@ export class ToolbarView extends UIElementView {
     }
   }
 
-  toggle_auto(force?: boolean): void {
+  toggle_auto_scroll(force?: boolean): void {
     if (this.model.active_scroll != "auto") {
       return
     }

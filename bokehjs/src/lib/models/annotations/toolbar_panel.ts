@@ -53,10 +53,10 @@ export class ToolbarPanelView extends AnnotationView {
     })
 
     this.plot_view.canvas.ui_event_bus.focus.connect(() => {
-      this.toolbar_view.toggle_auto(true)
+      this.toolbar_view.toggle_auto_scroll(true)
     })
     this.plot_view.canvas.ui_event_bus.blur.connect(() => {
-      this.toolbar_view.toggle_auto(false)
+      this.toolbar_view.toggle_auto_scroll(false)
     })
   }
 
