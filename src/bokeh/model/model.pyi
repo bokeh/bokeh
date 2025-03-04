@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from inspect import Parameter
 from typing import (
     Any,
@@ -15,7 +16,7 @@ from typing import (
 )
 
 # Bokeh imports
-from ..core.has_props import HasProps, Setter
+from ..core.has_props import HasProps, Setter, abstract
 from ..core.property.validation import without_property_validation
 from ..core.query import SelectorType
 from ..core.serialization import ObjectRefRep, Ref, Serializer
@@ -34,6 +35,8 @@ from ..util.callback_manager import (
 )
 from .util import HasDocumentRef
 
+@abstract
+@dataclass(init=False)
 class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
 
     def destroy(self) -> None: ...
