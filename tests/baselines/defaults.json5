@@ -5781,6 +5781,7 @@
       name: "NodesOnly",
       attributes: {},
     },
+    paint_order: "edges_nodes",
   },
   CompositeRenderer: {
     __extends__: "Renderer",
