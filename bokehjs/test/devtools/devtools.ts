@@ -327,6 +327,35 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         shuffle(all_tests, random)
       }
 
+      function show_tree(suites: Suite[], test: Test): string[] {
+        const output = []
+        let depth = 0
+        for (const suite of [...suites, test]) {
+          const is_last = depth == suites.length
+          const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
+          output.push(`${prefix} ${suite.description}`)
+          depth++
+        }
+        return output
+      }
+
+      const invalid_chars = ['"']
+      let has_invalid_chars = false
+      for (const [suites, test] of all_tests) {
+        const baseline_name = description(suites, test)
+        for (const c of invalid_chars) {
+          if (baseline_name.includes(c)) {
+            has_invalid_chars = true
+            const output = show_tree(suites, test)
+            output.push(`baseline name contains invalid characters: ${c}`)
+            console.log(output.join("\n"))
+          }
+        }
+      }
+      if (has_invalid_chars) {
+        fail("one or more baseline uses invalid characters")
+      }
+
       if (keyword != null || grep != null) {
         if (keyword != null) {
           const keywords = keyword
@@ -471,15 +500,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         const [suites, test, status] = test_case
 
         if ((status.failure ?? false) || (status.timeout ?? false)) {
-          const output = []
-
-          let depth = 0
-          for (const suite of [...suites, test]) {
-            const is_last = depth == suites.length
-            const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-            output.push(`${prefix} ${suite.description}`)
-            depth++
-          }
+          const output = show_tree(suites, test)
 
           for (const error of status.errors) {
             output.push(error)
