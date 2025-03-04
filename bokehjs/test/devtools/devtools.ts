@@ -342,18 +342,18 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       const invalid_chars = ['"']
       let has_invalid_chars = false
       for (const [suites, test] of all_tests) {
-        const baseline_name = description(suites, test)
+        const test_description = description(suites, test)
         for (const c of invalid_chars) {
-          if (baseline_name.includes(c)) {
+          if (test_description.includes(c)) {
             has_invalid_chars = true
             const output = show_tree(suites, test)
-            output.push(`baseline name contains invalid characters: ${c}`)
+            output.push(`test description contains invalid characters: ${c}`)
             console.log(output.join("\n"))
           }
         }
       }
       if (has_invalid_chars) {
-        fail("one or more baseline uses invalid characters")
+        fail("one or more test descriptions use invalid characters")
       }
 
       if (keyword != null || grep != null) {

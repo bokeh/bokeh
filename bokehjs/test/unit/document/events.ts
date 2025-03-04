@@ -37,7 +37,7 @@ class TestModelWithProps extends Model {
   }
 
   static {
-    this.define<any>(({Float, List}) => ({
+    this.define<TestModelWithProps.Props>(({Float, List}) => ({
       foo: [ List(Float), [] ],
     }))
   }
@@ -48,7 +48,7 @@ describe("events module", () => {
   describe("exports", () => {
 
     for (const event of EVENTS) {
-      it(`"should have ${event}"`, () => {
+      it(`should have ${event}`, () => {
         expect(event in events).to.be.true
       })
     }

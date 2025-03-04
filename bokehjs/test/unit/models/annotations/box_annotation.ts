@@ -48,7 +48,7 @@ describe("BoxAnnotation", () => {
       })
     }
 
-    it("should set cursor to \"grab\" inside box", async () => {
+    it("should set cursor to 'grab' inside box", async () => {
       const plot_view = await mkplot(mkbox())
       const ac = actions(plot_view, {units: "data"})
 
@@ -61,7 +61,7 @@ describe("BoxAnnotation", () => {
       expect(get_cursor(plot_view)).to.be.equal("default")
     })
 
-    it("should set cursor to \"grabbing\" when panning", async () => {
+    it("should set cursor to 'grabbing' when panning", async () => {
       const plot_view = await mkplot(mkbox())
       const ac = actions(plot_view, {units: "data"})
 
@@ -90,7 +90,7 @@ describe("BoxAnnotation", () => {
       })
     }
 
-    it("should set cursor to \"move\" in the middle", async () => {
+    it("should set cursor to 'move' in the middle", async () => {
       const plot_view = await mkplot(mkbox())
       const ac = actions(plot_view, {units: "data"})
 
@@ -103,7 +103,7 @@ describe("BoxAnnotation", () => {
       expect(get_cursor(plot_view)).to.be.equal("default")
     })
 
-    it("should set cursor to \"move\" when panning", async () => {
+    it("should set cursor to 'move' when panning", async () => {
       const plot_view = await mkplot(mkbox())
       const ac = actions(plot_view, {units: "data"})
 
