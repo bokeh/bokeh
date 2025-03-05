@@ -555,14 +555,14 @@ class Plot(LayoutDOM):
     .. note:: This feature is experimental and may change in the short term.
     """)
 
-    window_axis = Nullable(Enum(WindowAxis), default="none", help="""
+    window_axis = Enum(WindowAxis, default="none", help="""
     An axis to use for windowed auto-ranging when there are data ranges
     present on the plot. For example, if ``window_axis`` is set to the
     value ``"x"`` then any data ranges in the y-dimension will compute their
     auto-ranged extents using only data inside the range bounds for the
     x-axis as configured in the current viewport.
 
-    If set to None (the default) then auto-ranging will use all available
+    If set to "none" (the default) then auto-ranging will use all available
     data, regardless of viewport.
     """)
 
