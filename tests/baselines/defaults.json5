@@ -5472,7 +5472,7 @@
     extra_y_scales: {
       type: "map",
     },
-    window_axis: null,
+    window_axis: "none",
     hidpi: true,
     title: {
       type: "object",

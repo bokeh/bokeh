@@ -26,7 +26,7 @@ export abstract class DataRendererView extends RendererView implements AutoRange
 
   readonly [auto_ranged] = true
 
-  bounds(window_axis: WindowAxis | null = null): Rect {
+  bounds(window_axis: WindowAxis = "none"): Rect {
     return this.glyph_view.bounds(window_axis)
   }
 

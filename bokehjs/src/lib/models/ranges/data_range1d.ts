@@ -15,7 +15,7 @@ export const auto_ranged = Symbol("auto_ranged")
 
 export interface AutoRanged {
   readonly [auto_ranged]: true
-  bounds(window_axis: WindowAxis | null): Rect
+  bounds(window_axis: WindowAxis): Rect
   log_bounds(): Rect
 }
 

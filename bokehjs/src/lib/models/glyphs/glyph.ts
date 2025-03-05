@@ -148,9 +148,9 @@ export abstract class GlyphView extends DOMComponentView {
     return bounds
   }
 
-  bounds(window_axis: WindowAxis | null = null): Rect {
+  bounds(window_axis: WindowAxis = "none"): Rect {
     switch (window_axis) {
-      case null: {
+      case "none": {
         return this._bounds(this.index.bbox)
       }
       case "x": {

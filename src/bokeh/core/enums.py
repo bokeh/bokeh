@@ -743,8 +743,8 @@ VerticalAlign = enumeration(VerticalAlignType)
 VerticalLocationType = Literal["above", "below"]
 VerticalLocation = enumeration(VerticalLocationType)
 
-#: Specify a dimension to use for windowed auto-ranging
-WindowAxisType = Literal["x", "y"]
+#: Specify a which axis to use for windowed auto-ranging
+WindowAxisType = Literal["none", "x", "y"]
 WindowAxis = enumeration(WindowAxisType)
 
 #-----------------------------------------------------------------------------

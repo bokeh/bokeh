@@ -71,7 +71,7 @@ export namespace Plot {
     extra_x_scales: p.Property<Dict<Scale>>
     extra_y_scales: p.Property<Dict<Scale>>
 
-    window_axis: p.Property<WindowAxis | null>
+    window_axis: p.Property<WindowAxis>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -179,7 +179,7 @@ export class Plot extends LayoutDOM {
       extra_x_scales:    [ Dict(Ref(Scale)), {} ],
       extra_y_scales:    [ Dict(Ref(Scale)), {} ],
 
-      window_axis:  [ Nullable(WindowAxis), null ],
+      window_axis:       [ WindowAxis, "none" ],
 
       lod_factor:        [ Float, 10 ],
       lod_interval:      [ Float, 300 ],

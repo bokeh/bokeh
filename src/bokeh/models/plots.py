@@ -555,7 +555,7 @@ class Plot(LayoutDOM):
     .. note:: This feature is experimental and may change in the short term.
     """)
 
-    window_axis = Nullable(Enum(WindowAxis), default=None, help="""
+    window_axis = Nullable(Enum(WindowAxis), default="none", help="""
     An axis to use for windowed auto-ranging when there are data ranges
     present on the plot. For example, if ``window_axis`` is set to the
     value ``"x"`` then any data ranges in the y-dimension will compute their
