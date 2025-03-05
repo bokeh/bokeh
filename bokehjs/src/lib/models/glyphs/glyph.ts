@@ -154,8 +154,7 @@ export abstract class GlyphView extends DOMComponentView {
         return this._bounds(this.index.bbox)
       }
       case "x": {
-        const {x_range_name} = this.renderer.model
-        const x_range = this.renderer.plot_view.frame.x_ranges.get(x_range_name)!
+        const x_range = this.renderer.coordinates.x_source
         if (isNaN(x_range.start) || isNaN(x_range.end)) {
           return this._bounds(this.index.bbox)
         }
@@ -167,8 +166,7 @@ export abstract class GlyphView extends DOMComponentView {
         return this._bounds({x0, y0, x1, y1})
       }
       case "y": {
-        const {y_range_name} = this.renderer.model
-        const y_range = this.renderer.plot_view.frame.y_ranges.get(y_range_name)!
+        const y_range = this.renderer.coordinates.y_source
         if (isNaN(y_range.start) || isNaN(y_range.end)) {
           return this._bounds(this.index.bbox)
         }
