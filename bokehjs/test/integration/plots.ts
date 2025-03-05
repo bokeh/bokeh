@@ -124,99 +124,107 @@ describe("Plot", () => {
       const s = p.scatter({x: [1, 2, 3, 4, 5], y: [1, 2, 3, 4, 5], size: 8})
       return {p, s, r, dr}
     }
-    for (const wax of ["x", "y"] as const) {
-      it(`with window_axis='${wax}' when data changes`, async () => {
-        const nwax = (wax == "x") ? "y" : "x"
-        const {p, s, dr} = plot(wax)
-        const {view} = await display(p)
+    async function test_window_axis_data_change(wax: WindowAxis) {
+      const nwax = (wax == "x") ? "y" : "x"
+      const {p, s, dr} = plot(wax)
+      const {view} = await display(p)
 
-        // note: view.ready is not bulletproof, but calling it twice seems
-        // achieve the necessary result. poll() does not seem like a suitable
-        // option since sometimes the values in question *don't* change.
-        // c.f. https://github.com/bokeh/bokeh/pull/14353#discussion_r1980893200
+      // note: view.ready is not bulletproof, but calling it twice seems
+      // achieve the necessary result. poll() does not seem like a suitable
+      // option since sometimes the values in question *don't* change.
+      // c.f. https://github.com/bokeh/bokeh/pull/14353#discussion_r1980893200
 
-        expect(dr.start).to.be.equal(1)
-        expect(dr.end).to.be.equal(5)
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(5)
 
-        // updated data in fixed range
-        const data: Data = {}
-        data[wax] = [1, 2, 3, 4, 5]
-        data[nwax] = [1, 2, 10, 4, 5]
-        s.data_source.data = data
-        await view.ready
-        await view.ready
-        expect(dr.start).to.be.equal(1)
-        expect(dr.end).to.be.equal(10)
+      // updated data in fixed range
+      const data: Data = {}
+      data[wax] = [1, 2, 3, 4, 5]
+      data[nwax] = [1, 2, 10, 4, 5]
+      s.data_source.data = data
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(10)
 
-        // updated data not in fixed range (no change)
-        const data2: Data = {}
-        data2[wax] = [-1, 1, 2, 3, 4, 100]
-        data2[nwax] = [-100, 1, 2, 10, 4, 100]
-        s.data_source.data = data2
-        await view.ready
-        await view.ready
-        expect(dr.start).to.be.equal(1)
-        expect(dr.end).to.be.equal(10)
+      // updated data not in fixed range (no change)
+      const data2: Data = {}
+      data2[wax] = [-1, 1, 2, 3, 4, 100]
+      data2[nwax] = [-100, 1, 2, 10, 4, 100]
+      s.data_source.data = data2
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(10)
 
-        // streamed data in fixed range
-        const new_data: Data = {}
-        new_data[wax] = [2.5, 3.5]
-        new_data[nwax] = [-90, 100]
-        s.data_source.stream(new_data)
-        await view.ready
-        await view.ready
-        expect(dr.start).to.be.equal(-90)
-        expect(dr.end).to.be.equal(100)
+      // streamed data in fixed range
+      const new_data: Data = {}
+      new_data[wax] = [2.5, 3.5]
+      new_data[nwax] = [-90, 100]
+      s.data_source.stream(new_data)
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(-90)
+      expect(dr.end).to.be.equal(100)
 
-        // streamed data not in fixed range (no change)
-        const new_data2: Data = {}
-        new_data2[wax] = [-1]
-        new_data2[nwax] = [200]
-        s.data_source.stream(new_data2)
-        await view.ready
-        await view.ready
-        expect(dr.start).to.be.equal(-90)
-        expect(dr.end).to.be.equal(100)
+      // streamed data not in fixed range (no change)
+      const new_data2: Data = {}
+      new_data2[wax] = [-1]
+      new_data2[nwax] = [200]
+      s.data_source.stream(new_data2)
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(-90)
+      expect(dr.end).to.be.equal(100)
 
-        // new negative data in fixed range
-        const data3: Data = {}
-        data3[wax] = [1, 2, 3, 4, 5]
-        data3[nwax] = [1, 2, 10, 4, -10]
-        s.data_source.data = data3
-        await view.ready
-        await view.ready
-        expect(dr.start).to.be.equal(-10)
-        expect(dr.end).to.be.equal(10)
+      // new negative data in fixed range
+      const data3: Data = {}
+      data3[wax] = [1, 2, 3, 4, 5]
+      data3[nwax] = [1, 2, 10, 4, -10]
+      s.data_source.data = data3
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(-10)
+      expect(dr.end).to.be.equal(10)
 
-        await view.ready
-      })
+      await view.ready
     }
-    for (const wax of ["x", "y"] as const) {
-      it(`with window_axis='${wax}' when range changes`, async () => {
-        const {p, r, dr} = plot(wax)
-        const {view} = await display(p)
+    it("with window_axis='x' when data changes", async () => {
+      await test_window_axis_data_change("x")
+    })
+    it("with window_axis='y' when data changes", async () => {
+      await test_window_axis_data_change("y")
+    })
+    async function test_window_axis_range_change(wax: WindowAxis) {
+      const {p, r, dr} = plot(wax)
+      const {view} = await display(p)
 
-        expect(dr.start).to.be.equal(1)
-        expect(dr.end).to.be.equal(5)
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(5)
 
-        r.start = -1
-        await view.ready
-        expect(dr.start).to.be.equal(1)
-        expect(dr.end).to.be.equal(5)
+      r.start = -1
+      await view.ready
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(5)
 
-        r.start = 1.5
-        await view.ready
-        expect(dr.start).to.be.equal(2)
-        expect(dr.end).to.be.equal(5)
+      r.start = 1.5
+      await view.ready
+      expect(dr.start).to.be.equal(2)
+      expect(dr.end).to.be.equal(5)
 
-        r.end = 4.5
-        await view.ready
-        expect(dr.start).to.be.equal(2)
-        expect(dr.end).to.be.equal(4)
+      r.end = 4.5
+      await view.ready
+      expect(dr.start).to.be.equal(2)
+      expect(dr.end).to.be.equal(4)
 
-        await view.ready
-      })
+      await view.ready
     }
+    it("with window_axis='x' when range changes", async () => {
+      await test_window_axis_range_change("x")
+    })
+    it("with window_axis='y' when range changes", async () => {
+      await test_window_axis_range_change("y")
+    })
   })
 
   it("should support match_aspect", async () => {
