@@ -130,6 +130,11 @@ describe("Plot", () => {
         const {p, s, dr} = plot(wax)
         const {view} = await display(p)
 
+        // note: view.ready is not bulletproof, but calling it twice seems
+        // achieve the necessary result. poll() does not seem like a suitable
+        // option since sometimes the values in question *don't* change.
+        // c.f. https://github.com/bokeh/bokeh/pull/14353#discussion_r1980893200
+
         expect(dr.start).to.be.equal(1)
         expect(dr.end).to.be.equal(5)
 
