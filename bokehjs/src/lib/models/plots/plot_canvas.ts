@@ -1130,7 +1130,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       }
     }
 
-    if (this._range_manager.invalidate_dataranges || this.model.window_axis != null) {
+    if (this._range_manager.invalidate_dataranges || this.model.window_axis != "none") {
       this._range_manager.update_dataranges()
       this._invalidate_layout_if_needed()
     }
