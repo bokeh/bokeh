@@ -19,6 +19,7 @@ Bokeh version ``3.7.0`` (March 2025) is a minor milestone of Bokeh project.
 * Added support for tool grouping in ``figure()`` or ``Plot`` toolbar (:bokeh-pull:`14259`)
 * Added support for hatch visuals everywhere fill visuals are supported (:bokeh-pull:`14311`)
 * Fixed tool button visibility handling in ``Toolbar`` (:bokeh-pull:`14251`)
+* Fixed image hover on log scales (:bokeh-pull:`14306`)
 * Added support for ``html_id`` and ``html_attributes`` properties to UI components (:bokeh-pull:`14357`)
 * Added support for value formatting to ``ValueOf(obj, attr)`` (:bokeh-pull:`14358`)
 * Added support for ``Drawer`` floating component (:bokeh-pull:`14081`)
