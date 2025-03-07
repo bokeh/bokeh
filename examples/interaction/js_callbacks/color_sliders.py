@@ -16,7 +16,7 @@ color = R, G, B = (75, 125, 125)
 text_color = (255, 255, 255)
 
 # create a data source to enable refreshing of fill & text color
-source = ColumnDataSource(data=dict(color=[color], text_color=[text_color]))
+source = ColumnDataSource(data=dict(color=[color], color_string=[color], text_color=[text_color]))
 
 # create first plot, as a rect() glyph and centered text label, with fill and text color taken from source
 p = figure(x_range=(-8, 8), y_range=(-4, 4),
@@ -45,8 +45,9 @@ callback = CustomJS(args=dict(source=source, red=red, blue=blue, green=green), c
     const B = blue.value | 0
 
     const color = "#" + toHex(R) + toHex(G) + toHex(B)
+    const color_string = `${R}, ${G}, ${B}`
     const text_color = ((R > 127) || (G > 127) || (B > 127)) ? '#000000' : '#ffffff'
-    source.data = { color: [color], text_color: [text_color] }
+    source.data = { color: [color], color_string: [color_string], text_color: [text_color] }
 """)
 
 red.js_on_change('value', callback)
