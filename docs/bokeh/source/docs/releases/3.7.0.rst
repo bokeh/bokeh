@@ -27,17 +27,3 @@ Bokeh version ``3.7.0`` (March 2025) is a minor milestone of Bokeh project.
 * Improved cursor handling in editable/movable ``BoxAnnotation`` (:bokeh-pull:`14151`)
 * Changed type of ``ImageURLTexture.url`` from ``String`` to ``Image`` (:bokeh-pull:`14371`)
 * Added support for automatic activation of ``WheelZoomTool`` on focus (:bokeh-pull:`14112`)
-
-Deprecations
-------------
-
-* ``ActionItem`` and ``CheckableItem`` are now combined into ``MenuItem``.
-* Use ``FloatSpec()`` instead of ``NumberSpec(accept_datetime=False, accept_timedelta=False)``.
-
-API and breaking changes
-------------------------
-
-BokehJS
-^^^^^^^
-
-* Changed the type of ``TemplateView.action_views`` from ``ViewStorage<Action>``to ``ViewOf<Action>[]``.
