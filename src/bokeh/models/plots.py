@@ -206,10 +206,10 @@ class Plot(LayoutDOM):
         '''
         return self in gridplot.column(col)
 
-    def _axis(self, *sides):
-        objs = []
-        for s in sides:
-            objs.extend(getattr(self, s, []))
+    def _axis(self, *sides: PlaceType):
+        objs: list[Model] = []
+        for side in sides:
+            objs.extend(getattr(self, side, []))
         axis = [obj for obj in objs if isinstance(obj, Axis)]
         return _list_attr_splat(axis)
 
