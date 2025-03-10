@@ -270,6 +270,7 @@ module = [
     "tests.test_cross",
     "tests.test_defaults",
     "tests.test_examples",
+    "tests.unit.bokeh.test_typing",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",
     #"tests.unit.bokeh.models._util_models",
