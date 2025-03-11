@@ -12,12 +12,12 @@ from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import curdoc, figure, show
 from bokeh.themes import Theme
 
-color = R, G, B = (75, 125, 125)
-color_string = f"#{R:x}{G:x}{B:x}"
+R, G, B = (75, 125, 125)
+color = f"#{R:x}{G:x}{B:x}"
 text_color = (255, 255, 255)
 
 # create a data source to enable refreshing of fill & text color
-source = ColumnDataSource(data=dict(color=[color_string], text_color=[text_color]))
+source = ColumnDataSource(data=dict(color=[color], text_color=[text_color]))
 
 # create first plot, as a rect() glyph and centered text label, with fill and text color taken from source
 p = figure(x_range=(-8, 8), y_range=(-4, 4),
