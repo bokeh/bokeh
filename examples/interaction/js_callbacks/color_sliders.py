@@ -14,7 +14,7 @@ from bokeh.themes import Theme
 
 R, G, B = (75, 125, 125)
 color = f"#{R:x}{G:x}{B:x}"
-text_color = (255, 255, 255)
+text_color = "#ffffff"
 
 # create a data source to enable refreshing of fill & text color
 source = ColumnDataSource(data=dict(color=[color], text_color=[text_color]))
