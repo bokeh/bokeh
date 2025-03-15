@@ -87,7 +87,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._angles.set_from_prop(this.glyph.angle)
 
     this._marker_types = this.glyph.marker
-    this._unique_marker_types = [...new Set(this._marker_types)].filter((marker) => MarkerType.valid(marker))
+    this._unique_marker_types = this._marker_types.unique().filter((marker) => MarkerType.valid(marker))
   }
 
   protected override _set_once(): void {
