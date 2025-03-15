@@ -88,6 +88,7 @@ export class UniformVector<T> extends Uniform<T> {
 
   unique(): T[] {
     return [...new Set(this.array)]
+  }
 }
 
 export class ColorUniformVector extends UniformVector<number> {
