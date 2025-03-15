@@ -94,8 +94,10 @@ export class BitSet implements Equatable {
     return ((this._array[i] >> j) & 0b1) == 0b1
   }
 
-  set(k: number, v: boolean = true): void {
-    this._check_bounds(k)
+  set(k: number, v: boolean = true, c: boolean = true): void {
+    if (c) {
+      this._check_bounds(k)
+    }
     this._count = null
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
