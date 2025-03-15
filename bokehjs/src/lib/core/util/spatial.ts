@@ -43,6 +43,28 @@ class _FlatBush extends FlatBush {
           continue
         }
 
+        if (minX <= nodeMinX && minY <= nodeMinY && maxX >= nodeMaxX && maxY >= nodeMaxY) {
+          let pos_start = pos
+          let pos_end = pos
+
+          // depth search while not leaf
+          while (pos_start >= this.numItems * 4) {
+            pos_start = this._indices[pos_start >> 2] | 0
+            const pos_end_start = this._indices[pos_end >> 2] | 0
+            pos_end = Math.min(pos_end_start + this.nodeSize * 4, upperBound(pos_end_start, this._levelBounds))-4
+          }
+
+          for (let leaf_pos: number = pos_start; leaf_pos <= pos_end; leaf_pos += 4) {
+            const nodeMinX = this._boxes[leaf_pos + 0]
+            const nodeMinY = this._boxes[leaf_pos + 1]
+            const nodeMaxX = this._boxes[leaf_pos + 2]
+            const nodeMaxY = this._boxes[leaf_pos + 3]
+            const leaf_index = this._indices[leaf_pos >> 2]
+            nodeFunction(leaf_index, {x0: nodeMinX, y0: nodeMinY, x1: nodeMaxX, y1: nodeMaxY})
+          }
+          continue
+        }
+
         const index = this._indices[pos >> 2] | 0
 
         if (nodeIndex < this.numItems * 4) {
