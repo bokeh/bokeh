@@ -420,7 +420,7 @@ export abstract class AxisView extends GuideRendererView {
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
 
-    const ids = [...selected.ones()]
+    const ids = [...selected]
     if (ids.length != 0) {
       const cbox = this.canvas.bbox
 
