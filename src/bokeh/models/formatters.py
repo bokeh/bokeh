@@ -743,7 +743,7 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
 _dttf = CONTEXTUAL_DATETIME_FORMATTER()  # Use the contextual formatter
 
-_dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 
+_dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes',
                 'hourmin', 'hours', 'days', 'months', 'years',
                 'context', 'context_which', 'context_location', 'strip_leading_zeros',
                 'boundary_scaling', 'hide_repeats')  # Added all relevant fields
