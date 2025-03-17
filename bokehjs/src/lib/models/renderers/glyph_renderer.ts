@@ -378,7 +378,12 @@ export class GlyphRendererView extends DataRendererView {
     })())
 
     // inspected is transformed to subset space
-    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
+    const inspected_subset_indices = (() => {
+      if (inspected_full_indices.size === 0) {
+        return []
+      }
+      return filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
+    })()
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView
