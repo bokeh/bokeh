@@ -52,7 +52,6 @@ from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.strings import format_docstring
 from .tickers import Ticker
-from ..models.formatters import CONTEXTUAL_DATETIME_FORMATTER
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -742,10 +741,13 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
 #-----------------------------------------------------------------------------
 
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
-_dttf = CONTEXTUAL_DATETIME_FORMATTER()  # Use the new default formatter
+_dttf = CONTEXTUAL_DATETIME_FORMATTER()  # Use the contextual formatter
+
 _dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 
                 'hourmin', 'hours', 'days', 'months', 'years',
-                'context', 'context_which', 'context_location')  # Add context-related fields
+                'context', 'context_which', 'context_location', 'strip_leading_zeros',
+                'boundary_scaling', 'hide_repeats')  # Added all relevant fields
+
 _dttf_defaults = _dttf.properties_with_values()
 _dttf_defaults_string = "\n\n        ".join(f"{name} = {_dttf_defaults[name]!r}" for name in _dttf_fields)
 
