@@ -1317,11 +1317,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_box: BBox, global_clip: boolean): void {
-    for (const renderer_view of this.computed_renderer_views) {
-      if (renderer_view.model.level != level) {
-        continue
-      }
+    const renderers = this.computed_renderer_views.filter((rv) => rv.model.level == level)
 
+    for (const renderer_view of renderers) {
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
         ctx.beginPath()
