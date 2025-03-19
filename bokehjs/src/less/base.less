@@ -13,6 +13,7 @@
 
   --bokeh-top-level: 10000; // used for z-index of menus, dropdowns, etc.
 
+  --color: #2f2f2f;
   --background-color: #ffffff;
   --hover-color: #f9f9f9;
   --disabled-color: #808080;
@@ -26,8 +27,19 @@
   --inactive-fg: #adadad;
   --icon-color: var(--bokeh-icon-color, #a1a6a9);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #d4d9db);
+  --error: red;
 
+  --border-width: 1px;
+  --border-style: solid;
   --box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  --outline-width: 1px;
+  --outline-style: dotted;
+  --outline-color: #ccc;
+  --divider-width: 1px;
+
+
+  --border: var(--border-width) var(--border-color) var(--border-style);
+  --divider: 1px var(--divider-color) solid;
 }
 
 :host {

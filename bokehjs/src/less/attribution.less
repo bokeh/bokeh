@@ -3,7 +3,11 @@
   flex-direction: column;
   flex-wrap: nowrap;
   padding: 2px;
+  // Gab: So I think the 0.5 alpha value is to help this look good no
+  // matter what background color is used for the data viz, but this
+  // creates contrast issues
   background-color: rgba(255, 255, 255, 0.5);
+  // How to make this relative to the base font size?
   font-size: 9px;
   line-height: 1.05;
   white-space: nowrap;
@@ -17,5 +21,5 @@
 }
 
 a {
-  color: black;
+  color: var(--color);
 }

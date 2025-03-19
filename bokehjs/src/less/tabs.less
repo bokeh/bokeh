@@ -1,40 +1,21 @@
 @import "./_mixins.less";
 
 :host {
-  --active-color: lighten(black, 30%);
-  --active-background-color: white;
+  // The border opposite the divider
+  --block-start-border-width: 3px;
 
-  // This is the line that separates the set of tabs from the tab panels, i.e., the content for that tab
-  --divider-width: 1px;
-  --divider-style: solid;
-  --divider-color: lighten(black, 90%);
-
-  // These borders are defined clockwise from the divider
-  // 0 means the border that runs along the divider
-  // 1 means the first border clockwise from the divider, runs perpendicular to the divider
-  // 2 means the border opposite the divider
-  // 3 means the third border clockwise from the divider, also runs perpendicular to the divider
-  --border-0-width: 0;
-  --border-1-width: 1px;
-  --border-2-width: 3px;
-  --border-3-width: 1px;
-  --border-style: solid;
-
-  --hover-background-color: lighten(rgb(88, 75, 75), 95%);
-
-  --close-icon-hover-background-color: red;
+  --close-icon-hover-background-color: var(--error);
+  // Should these dimensions be px or rem?
   --close-icon-width: 14px;
   --close-icon-height: 14px;
-  --close-icon-color: gray;
+  --close-icon-color: var(--icon-color);
   --close-icon-space-away-from-tab-text: 10px;
 
+  // Should these be px or rem?
   --padding-vertical: 4px;
   --padding-horizontal: 8px;
 
-  --focus-ring-color: #ccc;
-  --focus-ring-offset: -5px;
-  --focus-ring-style: dotted;
-  --focus-ring-width: 1px;
+  --outline-offset: -5px;
 
   --disabled-opacity: 0.65;
 }
@@ -87,31 +68,31 @@
   }
 }
 
-:host(.bk-above) .bk-header { border-bottom: var(--divider-width) var(--divider-style) var(--divider-color); }
-:host(.bk-right) .bk-header { border-left:   var(--divider-width) var(--divider-style) var(--divider-color); }
-:host(.bk-below) .bk-header { border-top:    var(--divider-width) var(--divider-style) var(--divider-color); }
-:host(.bk-left)  .bk-header { border-right:  var(--divider-width) var(--divider-style) var(--divider-color); }
+:host(.bk-above) .bk-header { border-bottom: var(--divider); }
+:host(.bk-right) .bk-header { border-left:   var(--divider); }
+:host(.bk-below) .bk-header { border-top:    var(--divider); }
+:host(.bk-left)  .bk-header { border-right:  var(--divider); }
 
 .bk-tab {
   padding: var(--padding-vertical) var(--padding-horizontal);
   border: var(--border-style) transparent;
   outline: 0;
-  outline-offset: var(--focus-ring-offset);
+  outline-offset: var(--outline-offset);
   white-space: nowrap;
   cursor: pointer;
   text-align: center;
 
   &:hover {
-    background-color: var(--hover-background-color);
+    background-color: var(--hover-color);
   }
 
   &:focus, &:active {
-    outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+    outline: var(--outline);
   }
 
   &.bk-active {
-    color: var(--active-color);
-    background-color: var(--active-background-color);
+    color: var(--color);
+    background-color: var(--background-color);
     border-color: var(--border-color);
   }
 
@@ -127,21 +108,19 @@
 }
 
 :host(.bk-above) .bk-tab {
-  border-width: var(--border-2-width) var(--border-3-width) var(--border-0-width) var(--border-1-width);
+  border-width: var(--block-start-border-width) var(--divider-width) 0 var(--divider-width);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 :host(.bk-right) .bk-tab {
-  border-width: 1px var(--border-opposite-divider-width) 1px 0px;
-  border-width: var(--border-1-width) var(--border-2-width) var(--border-3-width) var(--border-0-width);
+  border-width: var(--divider-width) var(--block-start-border-width) var(--divider-width) 0;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 :host(.bk-below) .bk-tab {
-  border-width: var(--border-0-width) var(--border-1-width) var(--border-2-width) var(--border-3-width);
+  border-width: 0 var(--divider-width) var(--block-start-border-width) var(--divider-width);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 :host(.bk-left) .bk-tab {
-  border-width: 1px 0px 1px 3px;
-  border-width: var(--border-3-width) var(--border-0-width) var(--border-1-width) var(--border-2-width);
+  border-width: var(--divider-width) 0 var(--divider-width) var(--block-start-border-width);
   border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 

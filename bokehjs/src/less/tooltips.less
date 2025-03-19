@@ -1,11 +1,13 @@
 @import "./_mixins.less";
 
 :host {
-  --tooltip-border: #e5e5e5;  /* Same border color used everywhere */
-  --tooltip-color: white;
-  --tooltip-text: #2f2f2f;
+  // Some of these colors are not exactly the same but they are
+  // close to other defined colors
 
-  --tooltip-arrow-color: #909599;  /* Gray of icons */
+  --tooltip-border: var(--divider-color);
+  --tooltip-color: var(--color);
+
+  --tooltip-arrow-color: var(--icon-color);
   --tooltip-arrow-width: 10px;
   --tooltip-arrow-height: 10px;
   --tooltip-arrow-half-width: 7px;
@@ -19,8 +21,8 @@
   position: fixed;
   padding: 5px;
   border: 1px solid var(--tooltip-border);
-  color: var(--tooltip-text);
-  background-color: var(--tooltip-color);
+  color: var(--tooltip-color);
+  background-color: var(--background-color);
   opacity: 0.95;
   z-index: var(--bokeh-top-level);
   margin: 0; // cancel native popover styling
