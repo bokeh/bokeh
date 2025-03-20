@@ -3191,6 +3191,11 @@ describe("Bug", () => {
       class CustomFigure extends Figure {
         declare __view_type__: CustomFigureView
 
+        constructor(attrs?: Partial<Figure.Attrs>) {
+          super(attrs)
+          this.maybe_initialize(CustomFigure.__name__, attrs)
+        }
+
         static {
           this.prototype.default_view = CustomFigureView
         }
@@ -3908,6 +3913,12 @@ describe("Bug", () => {
       }
       class MapFigure extends Figure {
         declare __view_type__: MapFigureView
+
+        constructor(attrs?: Partial<Figure.Attrs>) {
+          super(attrs)
+          this.maybe_initialize(MapFigure.__name__, attrs)
+        }
+
         override use_map = true
         static {
           this.prototype.default_view = MapFigureView
@@ -4243,6 +4254,7 @@ describe("Bug", () => {
 
       constructor(attrs?: Partial<FooAttrs>) {
         super(attrs)
+        this.maybe_initialize(Foo.__name__, attrs)
       }
 
       static {

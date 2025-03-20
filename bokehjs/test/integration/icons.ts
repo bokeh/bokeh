@@ -34,6 +34,7 @@ export class FlexDiv extends UIElement {
 
   constructor(attrs?: Partial<FlexDiv.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FlexDiv.__name__, attrs)
   }
 
   static {
