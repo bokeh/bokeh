@@ -23,6 +23,7 @@ export class LogColorMapper extends ContinuousColorMapper {
 
   constructor(attrs?: Partial<LogColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LogColorMapper.__name__, attrs)
   }
 
   protected scan(data: Arrayable<number>, n: number): LogScanData {

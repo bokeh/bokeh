@@ -26,6 +26,7 @@ export class Index extends Placeholder {
 
   constructor(attrs?: Partial<Index.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Index.__name__, attrs)
   }
 
   static {

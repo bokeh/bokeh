@@ -205,6 +205,7 @@ export class AutocompleteInput extends TextInput {
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AutocompleteInput.__name__, attrs)
   }
 
   static {

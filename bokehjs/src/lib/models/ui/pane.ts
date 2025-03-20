@@ -108,6 +108,7 @@ export class Pane extends UIElement {
 
   constructor(attrs?: Partial<Pane.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Pane.__name__, attrs)
   }
 
   static {

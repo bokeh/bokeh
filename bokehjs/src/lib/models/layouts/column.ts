@@ -19,6 +19,7 @@ export class Column extends FlexBox {
 
   constructor(attrs?: Partial<Column.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Column.__name__, attrs)
   }
 
   static {

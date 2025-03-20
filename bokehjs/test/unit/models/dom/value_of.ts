@@ -17,6 +17,7 @@ interface SomeModel extends SomeModel.Attrs {}
 class SomeModel extends Model {
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SomeModel.__name__, attrs)
   }
 
   static {

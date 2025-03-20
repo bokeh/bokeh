@@ -8,6 +8,11 @@ describe("Interpolator model", () => {
   let y_sorted: Arrayable<number>
 
   class CustomInterpolator extends Interpolator {
+    constructor(attrs?: Partial<Interpolator.Attrs>) {
+      super(attrs)
+      this.maybe_initialize(CustomInterpolator.__name__, attrs)
+    }
+
     compute(_x: number): number {
       return NaN
     }

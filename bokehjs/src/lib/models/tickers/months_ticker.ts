@@ -45,6 +45,7 @@ export class MonthsTicker extends BaseSingleIntervalTicker {
 
   constructor(attrs?: Partial<MonthsTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MonthsTicker.__name__, attrs)
   }
 
   static {

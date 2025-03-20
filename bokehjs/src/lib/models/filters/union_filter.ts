@@ -14,6 +14,7 @@ export class UnionFilter extends CompositeFilter {
 
   constructor(attrs?: Partial<UnionFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(UnionFilter.__name__, attrs)
   }
 
   protected _inplace_op(index: Indices, op: Indices): void {

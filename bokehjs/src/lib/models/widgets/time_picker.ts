@@ -120,6 +120,7 @@ export class TimePicker extends PickerBase {
 
   constructor(attrs?: Partial<TimePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TimePicker.__name__, attrs)
   }
 
   static {

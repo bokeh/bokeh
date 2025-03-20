@@ -167,6 +167,7 @@ export class LassoSelectTool extends RegionSelectTool {
 
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LassoSelectTool.__name__, attrs)
   }
 
   static {

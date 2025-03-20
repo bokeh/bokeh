@@ -221,6 +221,7 @@ export class CartesianFrame extends CanvasPanel {
 
   constructor(attrs?: Partial<CartesianFrame.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CartesianFrame.__name__, attrs)
   }
 
   static {

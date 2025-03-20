@@ -162,6 +162,7 @@ export abstract class SelectTool extends GestureTool {
 
   constructor(attrs?: Partial<SelectTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SelectTool.__name__, attrs)
   }
 
   declare mode: SelectionMode

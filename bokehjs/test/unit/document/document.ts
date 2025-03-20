@@ -31,6 +31,7 @@ class AnotherModel extends Model {
 
   constructor(attrs?: Partial<AnotherModel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AnotherModel.__name__, attrs)
   }
 
   static {
@@ -58,6 +59,7 @@ class SomeModel extends Model {
 
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SomeModel.__name__, attrs)
   }
 
   static {
@@ -85,6 +87,7 @@ class SomeModelWithChildren extends Model {
 
   constructor(attrs?: Partial<SomeModelWithChildren.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SomeModelWithChildren.__name__, attrs)
   }
 
   static {
@@ -111,6 +114,7 @@ class ModelWithConstructTimeChanges extends Model {
 
   constructor(attrs?: Partial<ModelWithConstructTimeChanges.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ModelWithConstructTimeChanges.__name__, attrs)
   }
 
   override initialize(): void {

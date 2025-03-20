@@ -219,6 +219,7 @@ export abstract class InputWidget extends Control {
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
     super(attrs)
+    this.maybe_initialize(InputWidget.__name__, attrs)
   }
 
   static {

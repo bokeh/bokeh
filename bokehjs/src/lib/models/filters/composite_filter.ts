@@ -18,6 +18,7 @@ export abstract class CompositeFilter extends Filter {
 
   constructor(attrs?: Partial<CompositeFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CompositeFilter.__name__, attrs)
   }
 
   static {

@@ -13,5 +13,6 @@ export abstract class Coordinate extends Model {
 
   constructor(attrs?: Partial<Coordinate.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Coordinate.__name__, attrs)
   }
 }

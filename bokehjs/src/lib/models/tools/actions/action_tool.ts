@@ -31,6 +31,7 @@ export abstract class ActionTool extends Tool {
 
   constructor(attrs?: Partial<ActionTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ActionTool.__name__, attrs)
   }
 
   readonly do = new Signal<string | undefined, this>(this, "do")

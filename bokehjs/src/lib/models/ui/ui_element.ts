@@ -268,6 +268,7 @@ export abstract class UIElement extends StyledElement {
 
   constructor(attrs?: Partial<UIElement.Attrs>) {
     super(attrs)
+    this.maybe_initialize(UIElement.__name__, attrs)
   }
 
   static {

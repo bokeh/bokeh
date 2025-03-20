@@ -14,5 +14,6 @@ export abstract class StackColorMapper extends ColorMapper {
 
   constructor(attrs?: Partial<StackColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(StackColorMapper.__name__, attrs)
   }
 }

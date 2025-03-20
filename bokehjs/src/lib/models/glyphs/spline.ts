@@ -83,6 +83,7 @@ export class Spline extends XYGlyph {
 
   constructor(attrs?: Partial<Spline.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Spline.__name__, attrs)
   }
 
   static {

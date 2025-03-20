@@ -14,6 +14,7 @@ export abstract class GroupBy extends Model {
 
   constructor(attrs?: Partial<GroupBy.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GroupBy.__name__, attrs)
   }
 
   abstract query_groups(models: Iterable<Model>, pool: Iterable<Model>): Iterable<Model[]>
@@ -33,6 +34,7 @@ export class GroupByModels extends GroupBy {
 
   constructor(attrs?: Partial<GroupByModels.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GroupByModels.__name__, attrs)
   }
 
   static {
@@ -64,6 +66,7 @@ export class GroupByName extends GroupBy {
 
   constructor(attrs?: Partial<GroupByName.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GroupByName.__name__, attrs)
   }
 
   *query_groups(models: Model[], pool: Model[]): Iterable<Model[]> {

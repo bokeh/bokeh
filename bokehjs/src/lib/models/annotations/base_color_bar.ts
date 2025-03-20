@@ -572,6 +572,7 @@ export class BaseColorBar extends Annotation {
 
   constructor(attrs?: Partial<BaseColorBar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BaseColorBar.__name__, attrs)
   }
 
   static {

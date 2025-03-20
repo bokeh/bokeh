@@ -27,6 +27,7 @@ export class MercatorAxis extends LinearAxis {
 
   constructor(attrs?: Partial<MercatorAxis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MercatorAxis.__name__, attrs)
   }
 
   static {

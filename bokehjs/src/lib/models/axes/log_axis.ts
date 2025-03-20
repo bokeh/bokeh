@@ -43,6 +43,7 @@ export class LogAxis extends ContinuousAxis {
 
   constructor(attrs?: Partial<LogAxis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LogAxis.__name__, attrs)
   }
 
   static {

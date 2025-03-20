@@ -127,6 +127,7 @@ export abstract class DOMElement extends DOMNode {
 
   constructor(attrs?: Partial<DOMElement.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DOMElement.__name__, attrs)
   }
 
   static {

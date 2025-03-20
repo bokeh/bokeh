@@ -25,6 +25,7 @@ export abstract class Range extends Model {
 
   constructor(attrs?: Partial<Range.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Range.__name__, attrs)
   }
 
   static {

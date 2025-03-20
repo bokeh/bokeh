@@ -230,6 +230,7 @@ export class Spinner extends NumericInput {
 
   constructor(attrs?: Partial<Spinner.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Spinner.__name__, attrs)
   }
 
   static {

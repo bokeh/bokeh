@@ -345,6 +345,7 @@ export class BoxEditTool extends EditTool {
 
   constructor(attrs?: Partial<BoxEditTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BoxEditTool.__name__, attrs)
   }
 
   static {

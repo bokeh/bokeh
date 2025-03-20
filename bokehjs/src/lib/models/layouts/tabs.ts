@@ -207,6 +207,7 @@ export class Tabs extends LayoutDOM {
 
   constructor(attrs?: Partial<Tabs.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Tabs.__name__, attrs)
   }
 
   static {

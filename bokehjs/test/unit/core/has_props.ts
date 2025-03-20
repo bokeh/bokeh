@@ -54,6 +54,7 @@ class SubclassWithProps extends HasProps {
   declare properties: SubclassWithProps.Props
   constructor(attrs?: Partial<SubclassWithProps.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SubclassWithProps.__name__, attrs)
   }
   static {
     this.define<SubclassWithProps.Props>(({Bool, Float}) => ({
@@ -83,13 +84,28 @@ class SubSubclassWithProps extends SubclassWithProps {
 }
 
 // TODO {{{
-class SubclassWithMixins extends HasProps {}
+class SubclassWithMixins extends HasProps {
+  constructor(attrs?: Partial<HasProps.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SubclassWithMixins.__name__, attrs)
+  }
+}
 SubclassWithMixins.mixins([mixins.Line])
 
-class SubSubclassWithMixins extends SubclassWithMixins {}
+class SubSubclassWithMixins extends SubclassWithMixins {
+  constructor(attrs?: Partial<HasProps.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SubSubclassWithMixins.__name__, attrs)
+  }
+}
 SubSubclassWithMixins.mixins([["foo_", mixins.Fill]])
 
-class SubclassWithMultipleMixins extends HasProps {}
+class SubclassWithMultipleMixins extends HasProps {
+  constructor(attrs?: Partial<HasProps.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SubclassWithMultipleMixins.__name__, attrs)
+  }
+}
 SubclassWithMultipleMixins.mixins([mixins.Line, ["bar_", mixins.Text]])
 // }}}
 
@@ -111,6 +127,7 @@ class Some0 extends HasProps {
   declare properties: Some0.Props
   constructor(attrs?: Partial<Some0.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Some0.__name__, attrs)
   }
   static {
     this.define<Some0.Props>(({Float}) => ({

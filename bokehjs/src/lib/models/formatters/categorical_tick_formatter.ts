@@ -15,6 +15,7 @@ export class CategoricalTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<CategoricalTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalTickFormatter.__name__, attrs)
   }
 
   doFormat(ticks: string[], _opts: {loc: number}): string[] {

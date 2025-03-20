@@ -14,6 +14,7 @@ export class DifferenceFilter extends CompositeFilter {
 
   constructor(attrs?: Partial<DifferenceFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DifferenceFilter.__name__, attrs)
   }
 
   protected _inplace_op(index: Indices, op: Indices): void {

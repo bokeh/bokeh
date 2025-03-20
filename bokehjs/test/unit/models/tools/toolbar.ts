@@ -625,6 +625,11 @@ describe("ToolbarView", () => {
 })
 
 class MultiTool extends SelectTool {
+  constructor(attrs?: Partial<SelectTool.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(MultiTool.__name__, attrs)
+  }
+
   override tool_name = "Multi Tool"
   override event_type = ["tap" as "tap", "pan" as "pan"]
   override default_order = 10

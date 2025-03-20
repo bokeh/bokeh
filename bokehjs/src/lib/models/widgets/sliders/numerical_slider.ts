@@ -46,5 +46,6 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
 
   constructor(attrs?: Partial<NumericalSlider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NumericalSlider.__name__, attrs)
   }
 }

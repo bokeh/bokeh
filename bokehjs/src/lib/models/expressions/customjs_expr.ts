@@ -25,6 +25,7 @@ export class CustomJSExpr extends Expression {
 
   constructor(attrs?: Partial<CustomJSExpr.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSExpr.__name__, attrs)
   }
 
   static {

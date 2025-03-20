@@ -289,6 +289,7 @@ export class PolyDrawTool extends PolyTool {
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PolyDrawTool.__name__, attrs)
   }
 
   static {

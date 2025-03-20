@@ -257,6 +257,7 @@ export class PaletteSelect extends InputWidget {
 
   constructor(attrs?: Partial<PaletteSelect.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PaletteSelect.__name__, attrs)
   }
 
   static {

@@ -19,6 +19,7 @@ export class ZoomInTool extends ZoomBaseTool {
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ZoomInTool.__name__, attrs)
   }
 
   static {

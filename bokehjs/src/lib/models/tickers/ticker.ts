@@ -33,6 +33,7 @@ export abstract class Ticker extends Model {
 
   constructor(attrs?: Partial<Ticker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Ticker.__name__, attrs)
   }
 
   // Generates a nice series of ticks for a given range.

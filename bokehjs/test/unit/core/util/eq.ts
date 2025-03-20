@@ -21,6 +21,7 @@ class SomeHasProps extends HasProps {
 
   constructor(attrs?: Partial<SomeHasProps.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SomeHasProps.__name__, attrs)
   }
 
   static {

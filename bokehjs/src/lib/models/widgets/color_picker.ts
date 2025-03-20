@@ -53,6 +53,7 @@ export class ColorPicker extends InputWidget {
 
   constructor(attrs?: Partial<ColorPicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ColorPicker.__name__, attrs)
   }
 
   static {

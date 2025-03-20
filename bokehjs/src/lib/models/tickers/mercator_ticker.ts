@@ -19,6 +19,7 @@ export class MercatorTicker extends BasicTicker {
 
   constructor(attrs?: Partial<MercatorTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MercatorTicker.__name__, attrs)
   }
 
   static {

@@ -18,6 +18,7 @@ export class GMap extends GMapPlot {
 
   constructor(attrs?: Partial<GMap.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GMap.__name__, attrs)
   }
 
   static {

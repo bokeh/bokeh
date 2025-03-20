@@ -17,6 +17,7 @@ export abstract class BaseSingleIntervalTicker extends ContinuousTicker {
 
   constructor(attrs?: Partial<BaseSingleIntervalTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BaseSingleIntervalTicker.__name__, attrs)
   }
 
   abstract interval: number
@@ -49,6 +50,7 @@ export class SingleIntervalTicker extends BaseSingleIntervalTicker {
 
   constructor(attrs?: Partial<SingleIntervalTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SingleIntervalTicker.__name__, attrs)
   }
 
   static {

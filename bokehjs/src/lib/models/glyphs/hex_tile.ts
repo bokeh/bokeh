@@ -249,6 +249,7 @@ export class HexTile extends Glyph {
 
   constructor(attrs?: Partial<HexTile.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HexTile.__name__, attrs)
   }
 
   static {

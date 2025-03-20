@@ -127,6 +127,7 @@ export class Select extends InputWidget {
 
   constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Select.__name__, attrs)
   }
 
   static {

@@ -56,6 +56,7 @@ export abstract class ColumnarDataSource extends DataSource {
 
   constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ColumnarDataSource.__name__, attrs)
   }
 
   static {

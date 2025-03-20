@@ -18,6 +18,7 @@ export class StepInterpolator extends Interpolator {
 
   constructor(attrs?: Partial<StepInterpolator.Attrs>) {
     super(attrs)
+    this.maybe_initialize(StepInterpolator.__name__, attrs)
   }
 
   static {

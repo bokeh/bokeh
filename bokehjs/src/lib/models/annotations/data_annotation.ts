@@ -89,6 +89,7 @@ export abstract class DataAnnotation extends Annotation {
 
   constructor(attrs?: Partial<DataAnnotation.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataAnnotation.__name__, attrs)
   }
 
   static {

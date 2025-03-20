@@ -139,6 +139,7 @@ export class GridPlot extends LayoutDOM {
 
   constructor(attrs?: Partial<GridPlot.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GridPlot.__name__, attrs)
   }
 
   static {

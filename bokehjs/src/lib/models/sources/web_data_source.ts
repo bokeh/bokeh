@@ -27,6 +27,7 @@ export abstract class WebDataSource extends ColumnDataSource {
 
   constructor(attrs?: Partial<WebDataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(WebDataSource.__name__, attrs)
   }
 
   override get_column(name: string): Arrayable {

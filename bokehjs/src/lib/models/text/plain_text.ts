@@ -29,6 +29,7 @@ export class PlainText extends BaseText {
 
   constructor(attrs?: Partial<PlainText.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PlainText.__name__, attrs)
   }
 
   static {

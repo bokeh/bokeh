@@ -33,6 +33,7 @@ export class UndoTool extends PlotActionTool {
 
   constructor(attrs?: Partial<UndoTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(UndoTool.__name__, attrs)
   }
 
   static {

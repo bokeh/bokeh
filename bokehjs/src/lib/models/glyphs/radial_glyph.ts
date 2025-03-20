@@ -117,6 +117,7 @@ export class RadialGlyph extends XYGlyph {
 
   constructor(attrs?: Partial<RadialGlyph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RadialGlyph.__name__, attrs)
   }
 
   static {

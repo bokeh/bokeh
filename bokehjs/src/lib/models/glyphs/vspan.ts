@@ -156,6 +156,7 @@ export class VSpan extends Glyph {
 
   constructor(attrs?: Partial<VSpan.Attrs>) {
     super(attrs)
+    this.maybe_initialize(VSpan.__name__, attrs)
   }
 
   static {

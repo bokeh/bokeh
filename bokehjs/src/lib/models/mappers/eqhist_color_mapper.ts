@@ -21,6 +21,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
   constructor(attrs?: Partial<EqHistColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(EqHistColorMapper.__name__, attrs)
   }
 
   static {

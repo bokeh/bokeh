@@ -17,6 +17,7 @@ export class Range1d extends NumericalRange {
 
   constructor(attrs?: Partial<Range1d.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Range1d.__name__, attrs)
   }
 
   static {

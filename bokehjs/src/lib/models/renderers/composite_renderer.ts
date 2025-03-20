@@ -166,6 +166,7 @@ export abstract class CompositeRenderer extends Renderer {
 
   constructor(attrs?: Partial<CompositeRenderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CompositeRenderer.__name__, attrs)
   }
 
   static {

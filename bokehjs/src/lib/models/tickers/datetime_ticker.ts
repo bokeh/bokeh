@@ -27,6 +27,7 @@ export class DatetimeTicker extends CompositeTicker {
 
   constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DatetimeTicker.__name__, attrs)
   }
 
   static {

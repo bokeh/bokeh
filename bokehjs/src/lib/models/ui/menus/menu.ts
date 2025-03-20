@@ -303,6 +303,7 @@ export class Menu extends UIElement {
 
   constructor(attrs?: Partial<Menu.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Menu.__name__, attrs)
   }
 
   static {

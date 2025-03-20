@@ -53,6 +53,7 @@ export abstract class DataRenderer extends Renderer {
 
   constructor(attrs?: Partial<DataRenderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataRenderer.__name__, attrs)
   }
 
   static {

@@ -21,6 +21,7 @@ export abstract class LabelingPolicy extends Model {
 
   constructor(attrs?: Partial<LabelingPolicy.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LabelingPolicy.__name__, attrs)
   }
 
   abstract filter(indices: Indices, bboxes: BBox[], distance: DistanceMeasure): Indices
@@ -38,6 +39,7 @@ export class AllLabels extends LabelingPolicy {
 
   constructor(attrs?: Partial<AllLabels.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AllLabels.__name__, attrs)
   }
 
   filter(indices: Indices, _bboxes: BBox[], _distance: DistanceMeasure): Indices {
@@ -59,6 +61,7 @@ export class NoOverlap extends LabelingPolicy {
 
   constructor(attrs?: Partial<NoOverlap.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NoOverlap.__name__, attrs)
   }
 
   static {
@@ -97,6 +100,7 @@ export class CustomLabelingPolicy extends LabelingPolicy {
 
   constructor(attrs?: Partial<CustomLabelingPolicy.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomLabelingPolicy.__name__, attrs)
   }
 
   static {

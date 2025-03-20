@@ -81,6 +81,7 @@ export abstract class PolyTool extends EditTool {
 
   constructor(attrs?: Partial<PolyTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PolyTool.__name__, attrs)
   }
 
   static {

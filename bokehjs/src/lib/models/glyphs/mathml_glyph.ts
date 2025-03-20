@@ -31,6 +31,7 @@ export class MathMLGlyph extends MathTextGlyph {
 
   constructor(attrs?: Partial<MathMLGlyph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MathMLGlyph.__name__, attrs)
   }
 
   static {

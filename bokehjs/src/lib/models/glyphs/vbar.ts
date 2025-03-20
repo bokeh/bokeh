@@ -81,6 +81,7 @@ export class VBar extends LRTB {
 
   constructor(attrs?: Partial<VBar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(VBar.__name__, attrs)
   }
 
   static {

@@ -129,6 +129,7 @@ export class Step extends XYGlyph {
 
   constructor(attrs?: Partial<Step.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Step.__name__, attrs)
   }
 
   static {

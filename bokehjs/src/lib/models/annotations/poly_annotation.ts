@@ -351,6 +351,7 @@ export class PolyAnnotation extends Annotation {
 
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PolyAnnotation.__name__, attrs)
   }
 
   static {

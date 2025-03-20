@@ -182,6 +182,7 @@ export class MultiLine extends Glyph {
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MultiLine.__name__, attrs)
   }
 
   static {

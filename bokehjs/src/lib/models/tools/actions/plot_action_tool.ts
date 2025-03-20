@@ -25,5 +25,6 @@ export abstract class PlotActionTool extends ActionTool {
 
   constructor(attrs?: Partial<PlotActionTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PlotActionTool.__name__, attrs)
   }
 }

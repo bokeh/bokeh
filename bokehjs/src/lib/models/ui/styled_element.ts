@@ -136,6 +136,7 @@ export abstract class StyledElement extends Model {
 
   constructor(attrs?: Partial<StyledElement.Attrs>) {
     super(attrs)
+    this.maybe_initialize(StyledElement.__name__, attrs)
   }
 
   static {

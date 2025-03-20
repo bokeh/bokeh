@@ -224,6 +224,7 @@ export class Arrow extends DataAnnotation {
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Arrow.__name__, attrs)
   }
 
   static {

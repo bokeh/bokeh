@@ -164,6 +164,7 @@ export abstract class CSSGridBox extends LayoutDOM {
 
   constructor(attrs?: Partial<CSSGridBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CSSGridBox.__name__, attrs)
   }
 
   static {

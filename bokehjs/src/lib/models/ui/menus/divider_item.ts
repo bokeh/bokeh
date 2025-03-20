@@ -13,5 +13,6 @@ export class DividerItem extends Model {
 
   constructor(attrs?: Partial<DividerItem.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DividerItem.__name__, attrs)
   }
 }

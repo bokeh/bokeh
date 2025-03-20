@@ -18,6 +18,7 @@ export class InversionFilter extends Filter {
 
   constructor(attrs?: Partial<InversionFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(InversionFilter.__name__, attrs)
   }
 
   static {

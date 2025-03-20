@@ -21,6 +21,7 @@ export class CategoricalTicker extends Ticker {
 
   constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalTicker.__name__, attrs)
   }
 
   get_ticks(start: number, end: number, range: FactorRange, _cross_loc: number): FactorTickSpec {

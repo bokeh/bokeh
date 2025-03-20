@@ -21,6 +21,7 @@ export class CustomJSTransform extends Transform {
 
   constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSTransform.__name__, attrs)
   }
 
   static {

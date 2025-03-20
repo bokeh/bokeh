@@ -72,6 +72,7 @@ export class Panel extends Pane {
 
   constructor(attrs?: Partial<Panel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Panel.__name__, attrs)
   }
 
   static {

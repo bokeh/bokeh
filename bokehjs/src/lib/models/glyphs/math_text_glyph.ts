@@ -103,5 +103,6 @@ export abstract class MathTextGlyph extends Text {
 
   constructor(attrs?: Partial<MathTextGlyph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MathTextGlyph.__name__, attrs)
   }
 }

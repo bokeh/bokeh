@@ -33,6 +33,7 @@ export abstract class ContinuousTicker extends Ticker {
 
   constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ContinuousTicker.__name__, attrs)
   }
 
   static {

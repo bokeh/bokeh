@@ -23,6 +23,7 @@ export abstract class RangeTransform extends Transform {
 
   constructor(attrs?: Partial<RangeTransform.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RangeTransform.__name__, attrs)
   }
 
   static {

@@ -162,6 +162,7 @@ export class LineEditTool extends LineTool {
 
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LineEditTool.__name__, attrs)
   }
 
   static {

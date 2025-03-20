@@ -28,6 +28,7 @@ class SubclassWithNumberSpec extends DataAnnotation {
 
   constructor(attrs?: Partial<SubclassWithNumberSpec.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SubclassWithNumberSpec.__name__, attrs)
   }
 
   static {
@@ -60,6 +61,7 @@ class SubclassWithDistanceSpec extends DataAnnotation {
 
   constructor(attrs?: Partial<SubclassWithDistanceSpec.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SubclassWithDistanceSpec.__name__, attrs)
   }
 
   static {

@@ -138,6 +138,7 @@ export class DatetimeTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DatetimeTickFormatter.__name__, attrs)
   }
 
   static {

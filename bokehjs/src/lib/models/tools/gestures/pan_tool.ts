@@ -169,6 +169,7 @@ export class PanTool extends GestureTool {
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PanTool.__name__, attrs)
   }
 
   static {

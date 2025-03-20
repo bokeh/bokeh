@@ -49,6 +49,7 @@ export class DataRange1d extends DataRange {
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataRange1d.__name__, attrs)
   }
 
   static {

@@ -15,6 +15,7 @@ export class RendererGroup extends Model {
 
   constructor(attrs?: Partial<RendererGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RendererGroup.__name__, attrs)
   }
 
   static {

@@ -26,6 +26,7 @@ export abstract class GraphHitTestPolicy extends Model {
 
   constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GraphHitTestPolicy.__name__, attrs)
   }
 
   abstract hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult
@@ -62,6 +63,7 @@ export class EdgesOnly extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<EdgesOnly.Attrs>) {
     super(attrs)
+    this.maybe_initialize(EdgesOnly.__name__, attrs)
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -110,6 +112,7 @@ export class NodesOnly extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<NodesOnly.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NodesOnly.__name__, attrs)
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -158,6 +161,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NodesAndLinkedEdges.__name__, attrs)
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -247,6 +251,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
     super(attrs)
+    this.maybe_initialize(EdgesAndLinkedNodes.__name__, attrs)
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -327,6 +332,7 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<NodesAndAdjacentNodes.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NodesAndAdjacentNodes.__name__, attrs)
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {

@@ -20,6 +20,7 @@ export class Maximum extends ScalarExpression<number> {
 
   constructor(attrs?: Partial<Maximum.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Maximum.__name__, attrs)
   }
 
   static {

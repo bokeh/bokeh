@@ -76,6 +76,7 @@ export abstract class BaseDatetimePicker extends BaseDatePicker {
 
   constructor(attrs?: Partial<BaseDatetimePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BaseDatetimePicker.__name__, attrs)
   }
 
   static {

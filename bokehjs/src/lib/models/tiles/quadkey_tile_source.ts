@@ -14,6 +14,7 @@ export class QUADKEYTileSource extends MercatorTileSource {
 
   constructor(attrs?: Partial<QUADKEYTileSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(QUADKEYTileSource.__name__, attrs)
   }
 
   override get_image_url(x: number, y: number, z: number): string {

@@ -25,6 +25,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
   constructor(attrs?: Partial<ContinuousColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ContinuousColorMapper.__name__, attrs)
   }
 
   static {

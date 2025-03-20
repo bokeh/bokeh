@@ -30,6 +30,7 @@ export class Jitter extends RangeTransform {
 
   constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Jitter.__name__, attrs)
   }
 
   static {

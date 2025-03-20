@@ -147,6 +147,7 @@ export abstract class Tool extends Model {
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Tool.__name__, attrs)
   }
 
   static {

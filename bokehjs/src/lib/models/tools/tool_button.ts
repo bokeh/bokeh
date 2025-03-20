@@ -154,6 +154,7 @@ export abstract class ToolButton extends UIElement {
 
   constructor(attrs?: Partial<ToolButton.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToolButton.__name__, attrs)
   }
 
   static {

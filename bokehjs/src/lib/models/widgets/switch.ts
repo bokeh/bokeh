@@ -89,6 +89,7 @@ export class Switch extends ToggleInput {
 
   constructor(attrs?: Partial<Switch.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Switch.__name__, attrs)
   }
 
   static {

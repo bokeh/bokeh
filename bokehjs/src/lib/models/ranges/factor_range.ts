@@ -296,6 +296,7 @@ export class FactorRange extends Range {
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FactorRange.__name__, attrs)
   }
 
   static {

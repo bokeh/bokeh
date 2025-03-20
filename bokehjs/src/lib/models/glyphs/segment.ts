@@ -187,6 +187,7 @@ export class Segment extends Glyph {
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Segment.__name__, attrs)
   }
 
   static {

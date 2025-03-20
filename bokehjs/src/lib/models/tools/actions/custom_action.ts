@@ -69,6 +69,7 @@ export class CustomAction extends ActionTool {
 
   constructor(attrs?: Partial<CustomAction.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomAction.__name__, attrs)
   }
 
   static {

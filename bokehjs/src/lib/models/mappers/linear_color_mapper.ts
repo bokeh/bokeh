@@ -24,6 +24,7 @@ export class LinearColorMapper extends ContinuousColorMapper {
 
   constructor(attrs?: Partial<LinearColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LinearColorMapper.__name__, attrs)
   }
 
   protected scan(data: Arrayable<number>, n: number): LinearScanData {

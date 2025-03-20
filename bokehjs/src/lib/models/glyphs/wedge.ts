@@ -162,6 +162,7 @@ export class Wedge extends XYGlyph {
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Wedge.__name__, attrs)
   }
 
   static {

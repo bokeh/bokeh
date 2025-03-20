@@ -59,6 +59,7 @@ export abstract class ToggleInput extends Widget {
 
   constructor(attrs?: Partial<ToggleInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToggleInput.__name__, attrs)
   }
 
   static {

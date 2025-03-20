@@ -114,6 +114,7 @@ export abstract class BaseDatePicker extends PickerBase {
 
   constructor(attrs?: Partial<BaseDatePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BaseDatePicker.__name__, attrs)
   }
 
   static {

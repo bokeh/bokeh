@@ -19,6 +19,7 @@ export class Stack extends Expression {
 
   constructor(attrs?: Partial<Stack.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Stack.__name__, attrs)
   }
 
   static {

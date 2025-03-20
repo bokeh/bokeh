@@ -20,6 +20,7 @@ export class SetValue extends Callback {
 
   constructor(attrs?: Partial<SetValue.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SetValue.__name__, attrs)
   }
 
   static {

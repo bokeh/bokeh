@@ -25,6 +25,7 @@ export class ResetTool extends PlotActionTool {
 
   constructor(attrs?: Partial<ResetTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ResetTool.__name__, attrs)
   }
 
   static {

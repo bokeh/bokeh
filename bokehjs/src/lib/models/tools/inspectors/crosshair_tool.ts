@@ -145,6 +145,7 @@ export class CrosshairTool extends InspectTool {
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CrosshairTool.__name__, attrs)
   }
 
   static {

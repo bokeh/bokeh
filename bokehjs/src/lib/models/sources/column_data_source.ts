@@ -20,6 +20,7 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ColumnDataSource.__name__, attrs)
   }
 
   static {

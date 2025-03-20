@@ -20,6 +20,7 @@ export class LinearInterpolationScale extends Scale<number> {
 
   constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LinearInterpolationScale.__name__, attrs)
   }
 
   static {

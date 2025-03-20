@@ -35,6 +35,7 @@ export class ToolMenu extends Menu {
 
   constructor(attrs?: Partial<ToolMenu.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToolMenu.__name__, attrs)
   }
 
   static {

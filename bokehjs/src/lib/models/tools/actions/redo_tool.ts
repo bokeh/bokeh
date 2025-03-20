@@ -33,6 +33,7 @@ export class RedoTool extends PlotActionTool {
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RedoTool.__name__, attrs)
   }
 
   static {

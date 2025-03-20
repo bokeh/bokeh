@@ -27,6 +27,7 @@ export class Button extends AbstractButton {
 
   constructor(attrs?: Partial<Button.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Button.__name__, attrs)
   }
 
   static {

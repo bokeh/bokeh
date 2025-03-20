@@ -59,6 +59,7 @@ export abstract class Annotation extends CompositeRenderer {
 
   constructor(attrs?: Partial<Annotation.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Annotation.__name__, attrs)
   }
 
   static {

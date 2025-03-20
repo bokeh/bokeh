@@ -20,6 +20,7 @@ export class CustomJSTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<CustomJSTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSTickFormatter.__name__, attrs)
   }
 
   static {

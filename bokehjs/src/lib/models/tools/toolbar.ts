@@ -424,6 +424,7 @@ export class Toolbar extends UIElement {
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Toolbar.__name__, attrs)
   }
 
   static {

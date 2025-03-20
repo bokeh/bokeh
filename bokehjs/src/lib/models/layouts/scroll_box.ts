@@ -60,6 +60,7 @@ export class ScrollBox extends LayoutDOM {
 
   constructor(attrs?: Partial<ScrollBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ScrollBox.__name__, attrs)
   }
 
   static {

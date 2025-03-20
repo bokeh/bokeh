@@ -14,6 +14,7 @@ export abstract class Comparison extends Model {
 
   constructor(attrs?: Partial<Comparison.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Comparison.__name__, attrs)
   }
 
   abstract compute(x: unknown, y: unknown): -1 | 0 | 1

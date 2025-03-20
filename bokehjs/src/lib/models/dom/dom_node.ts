@@ -20,5 +20,6 @@ export abstract class DOMNode extends Model {
 
   constructor(attrs?: Partial<DOMNode.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DOMNode.__name__, attrs)
   }
 }

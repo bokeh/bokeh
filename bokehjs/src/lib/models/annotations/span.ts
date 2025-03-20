@@ -240,6 +240,7 @@ export class Span extends Annotation {
 
   constructor(attrs?: Partial<Span.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Span.__name__, attrs)
   }
 
   static {

@@ -221,6 +221,7 @@ export class Grid extends GuideRenderer {
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Grid.__name__, attrs)
   }
 
   static {

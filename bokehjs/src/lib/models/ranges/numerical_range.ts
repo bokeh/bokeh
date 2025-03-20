@@ -18,6 +18,7 @@ export abstract class NumericalRange extends Range {
 
   constructor(attrs?: Partial<NumericalRange.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NumericalRange.__name__, attrs)
   }
 
   static {

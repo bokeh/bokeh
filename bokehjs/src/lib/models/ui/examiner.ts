@@ -459,6 +459,7 @@ export class Examiner extends UIElement {
 
   constructor(attrs?: Partial<Examiner.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Examiner.__name__, attrs)
   }
 
   static {

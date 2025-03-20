@@ -21,6 +21,7 @@ export class NumeralTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NumeralTickFormatter.__name__, attrs)
   }
 
   static {

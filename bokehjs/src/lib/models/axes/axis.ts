@@ -796,6 +796,7 @@ export abstract class Axis extends GuideRenderer {
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Axis.__name__, attrs)
   }
 
   static {

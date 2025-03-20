@@ -23,6 +23,7 @@ export class CustomJSFilter extends Filter {
 
   constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSFilter.__name__, attrs)
   }
 
   static {

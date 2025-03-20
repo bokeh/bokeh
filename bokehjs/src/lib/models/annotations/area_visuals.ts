@@ -29,6 +29,7 @@ export class AreaVisuals extends Model {
 
   constructor(attrs?: Partial<AreaVisuals.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AreaVisuals.__name__, attrs)
   }
 
   override clone(attrs?: Partial<AreaVisuals.Attrs>): this {

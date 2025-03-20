@@ -34,5 +34,6 @@ export abstract class Placeholder extends DOMElement {
 
   constructor(attrs?: Partial<Placeholder.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Placeholder.__name__, attrs)
   }
 }

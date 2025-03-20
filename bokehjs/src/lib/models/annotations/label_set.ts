@@ -128,6 +128,7 @@ export class LabelSet extends DataAnnotation {
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LabelSet.__name__, attrs)
   }
 
   static {

@@ -90,6 +90,7 @@ export class HelpButton extends AbstractButton {
 
   constructor(attrs?: Partial<HelpButton.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HelpButton.__name__, attrs)
   }
 
   static {

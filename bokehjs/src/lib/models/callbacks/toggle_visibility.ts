@@ -17,6 +17,7 @@ export class ToggleVisibility extends Callback {
 
   constructor(attrs?: Partial<ToggleVisibility.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToggleVisibility.__name__, attrs)
   }
 
   static {

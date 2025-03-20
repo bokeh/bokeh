@@ -81,6 +81,7 @@ export class Patch extends XYGlyph {
 
   constructor(attrs?: Partial<Patch.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Patch.__name__, attrs)
   }
 
   static {

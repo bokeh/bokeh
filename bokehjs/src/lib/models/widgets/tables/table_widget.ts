@@ -19,6 +19,7 @@ export class TableWidget extends Widget {
 
   constructor(attrs?: Partial<TableWidget.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TableWidget.__name__, attrs)
   }
 
   static {

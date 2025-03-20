@@ -348,6 +348,7 @@ export class MultiPolygons extends Glyph {
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MultiPolygons.__name__, attrs)
   }
 
   static {

@@ -17,6 +17,7 @@ export class OpenDialog extends Callback {
 
   constructor(attrs?: Partial<OpenDialog.Attrs>) {
     super(attrs)
+    this.maybe_initialize(OpenDialog.__name__, attrs)
   }
 
   static {

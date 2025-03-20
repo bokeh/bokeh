@@ -25,6 +25,7 @@ export class AdaptiveTicker extends ContinuousTicker {
 
   constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AdaptiveTicker.__name__, attrs)
   }
 
   static {

@@ -24,6 +24,7 @@ export class MapOptions extends Model {
 
   constructor(attrs?: Partial<MapOptions.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MapOptions.__name__, attrs)
   }
 
   static {
@@ -53,6 +54,7 @@ export class GMapOptions extends MapOptions {
 
   constructor(attrs?: Partial<GMapOptions.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GMapOptions.__name__, attrs)
   }
 
   static {
@@ -84,6 +86,7 @@ export class GMapPlot extends Plot {
 
   constructor(attrs?: Partial<GMapPlot.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GMapPlot.__name__, attrs)
   }
 
   static {

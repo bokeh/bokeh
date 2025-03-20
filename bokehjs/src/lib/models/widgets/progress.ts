@@ -152,6 +152,7 @@ export class Progress extends Indicator {
 
   constructor(attrs?: Partial<Progress.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Progress.__name__, attrs)
   }
 
   static {

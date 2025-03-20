@@ -4,8 +4,18 @@ import * as k from "@bokehjs/core/kinds"
 import {HasProps} from "@bokehjs/core/has_props"
 import {BitSet} from "@bokehjs/core/util/bitset"
 
-class SomeModel extends HasProps {}
-class OtherModel extends HasProps {}
+class SomeModel extends HasProps {
+  constructor(attrs?: Partial<HasProps.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SomeModel.__name__, attrs)
+  }
+}
+class OtherModel extends HasProps {
+  constructor(attrs?: Partial<HasProps.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SomeModel.__name__, attrs)
+  }
+}
 
 describe("core/kinds module", () => {
   it("should support Any kind", () => {

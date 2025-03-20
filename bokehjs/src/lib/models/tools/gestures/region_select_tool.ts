@@ -66,6 +66,7 @@ export abstract class RegionSelectTool extends SelectTool {
 
   constructor(attrs?: Partial<RegionSelectTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RegionSelectTool.__name__, attrs)
   }
 
   static {

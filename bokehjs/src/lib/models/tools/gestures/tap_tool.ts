@@ -128,6 +128,7 @@ export class TapTool extends SelectTool {
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TapTool.__name__, attrs)
   }
 
   static {

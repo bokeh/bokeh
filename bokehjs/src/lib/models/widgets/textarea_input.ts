@@ -44,6 +44,7 @@ export class TextAreaInput extends TextLikeInput {
 
   constructor(attrs?: Partial<TextAreaInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TextAreaInput.__name__, attrs)
   }
 
   static {

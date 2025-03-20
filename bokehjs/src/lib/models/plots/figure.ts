@@ -18,6 +18,7 @@ export class Figure extends Plot {
 
   constructor(attrs?: Partial<Figure.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Figure.__name__, attrs)
   }
 
   static {

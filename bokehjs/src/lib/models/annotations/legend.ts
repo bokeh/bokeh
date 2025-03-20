@@ -701,6 +701,7 @@ export class Legend extends Annotation {
 
   constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Legend.__name__, attrs)
   }
 
   static {

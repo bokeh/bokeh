@@ -16,6 +16,7 @@ export abstract class Filter extends Model {
 
   constructor(attrs?: Partial<Filter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Filter.__name__, attrs)
   }
 
   abstract compute_indices(source: DataSource): Indices

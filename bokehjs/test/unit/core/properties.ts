@@ -28,6 +28,11 @@ class TestTransform extends Transform {
 }
 
 class TestExpression extends Expression {
+  constructor(attrs?: Partial<Expression.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(TestExpression.__name__, attrs)
+  }
+
   _v_compute(source: ColumnDataSource): number[] {
     const n = source.get_length()
     expect_not_null(n)
@@ -75,6 +80,7 @@ class Some extends HasProps {
 
   constructor(attrs?: Partial<Some.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Some.__name__, attrs)
   }
 
   static {

@@ -31,6 +31,7 @@ export class TableColumn extends Model {
 
   constructor(attrs?: Partial<TableColumn.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TableColumn.__name__, attrs)
   }
 
   static {

@@ -69,6 +69,7 @@ export class SaveTool extends ActionTool {
 
   constructor(attrs?: Partial<SaveTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SaveTool.__name__, attrs)
   }
 
   static {

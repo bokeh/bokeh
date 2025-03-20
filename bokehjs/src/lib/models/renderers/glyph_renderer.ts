@@ -577,6 +577,7 @@ export class GlyphRenderer<
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>) {
     super(attrs)
+    this.maybe_initialize(GlyphRenderer.__name__, attrs)
   }
 
   static {

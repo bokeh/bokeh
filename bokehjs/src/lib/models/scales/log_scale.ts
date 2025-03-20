@@ -14,6 +14,7 @@ export class LogScale extends ContinuousScale {
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LogScale.__name__, attrs)
   }
 
   get s_compute(): (x: number) => number {

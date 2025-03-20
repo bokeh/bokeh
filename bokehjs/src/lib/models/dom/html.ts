@@ -141,6 +141,7 @@ export class HTML extends DOMElement {
 
   constructor(attrs?: Partial<HTML.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HTML.__name__, attrs)
   }
 
   static {

@@ -16,5 +16,6 @@ export class CheckableItem extends MenuItem {
 
   constructor(attrs?: Partial<CheckableItem.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CheckableItem.__name__, attrs)
   }
 }

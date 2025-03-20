@@ -286,6 +286,7 @@ export class Canvas extends UIElement {
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Canvas.__name__, attrs)
   }
 
   static {

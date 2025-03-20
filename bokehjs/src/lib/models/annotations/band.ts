@@ -63,6 +63,7 @@ export class Band extends UpperLower {
 
   constructor(attrs?: Partial<Band.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Band.__name__, attrs)
   }
 
   static {

@@ -423,6 +423,7 @@ export class Tooltip extends UIElement {
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Tooltip.__name__, attrs)
   }
 
   static {

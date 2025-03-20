@@ -20,6 +20,7 @@ export class CustomJSHover extends Model {
 
   constructor(attrs?: Partial<CustomJSHover.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSHover.__name__, attrs)
   }
 
   static {

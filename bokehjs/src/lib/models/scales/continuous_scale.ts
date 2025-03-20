@@ -14,5 +14,6 @@ export abstract class ContinuousScale extends Scale<number> {
 
   constructor(attrs?: Partial<ContinuousScale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ContinuousScale.__name__, attrs)
   }
 }

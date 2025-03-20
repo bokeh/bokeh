@@ -44,6 +44,7 @@ export class GridBox extends CSSGridBox {
 
   constructor(attrs?: Partial<GridBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GridBox.__name__, attrs)
   }
 
   static {

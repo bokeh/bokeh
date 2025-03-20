@@ -70,6 +70,7 @@ export class ImageStack extends ImageBase {
 
   constructor(attrs?: Partial<ImageStack.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImageStack.__name__, attrs)
   }
 
   static {

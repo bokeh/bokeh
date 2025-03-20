@@ -47,6 +47,7 @@ export abstract class Model extends HasProps {
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Model.__name__, attrs)
   }
 
   static {

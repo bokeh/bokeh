@@ -74,6 +74,7 @@ export class CheckboxGroup extends ToggleInputGroup {
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CheckboxGroup.__name__, attrs)
   }
 
   static {

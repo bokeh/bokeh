@@ -143,6 +143,7 @@ export class Slope extends Annotation {
 
   constructor(attrs?: Partial<Slope.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Slope.__name__, attrs)
   }
 
   static {

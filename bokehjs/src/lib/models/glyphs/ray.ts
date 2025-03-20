@@ -100,6 +100,7 @@ export class Ray extends XYGlyph {
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Ray.__name__, attrs)
   }
 
   static {

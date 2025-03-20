@@ -16,6 +16,7 @@ export class BBoxTileSource extends MercatorTileSource {
 
   constructor(attrs?: Partial<BBoxTileSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BBoxTileSource.__name__, attrs)
   }
 
   static {

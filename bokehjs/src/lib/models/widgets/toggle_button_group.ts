@@ -72,6 +72,7 @@ export abstract class ToggleButtonGroup extends OrientedControl {
 
   constructor(attrs?: Partial<ToggleButtonGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToggleButtonGroup.__name__, attrs)
   }
 
   static {

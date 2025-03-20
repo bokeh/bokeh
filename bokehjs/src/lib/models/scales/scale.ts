@@ -21,6 +21,7 @@ export abstract class Scale<T = number> extends Transform<T, number> {
 
   constructor(attrs?: Partial<Scale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Scale.__name__, attrs)
   }
 
   static {

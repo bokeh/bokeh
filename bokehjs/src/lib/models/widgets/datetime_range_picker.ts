@@ -56,6 +56,7 @@ export class DatetimeRangePicker extends BaseDatetimePicker {
 
   constructor(attrs?: Partial<DatetimeRangePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DatetimeRangePicker.__name__, attrs)
   }
 
   static {

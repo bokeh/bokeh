@@ -186,6 +186,7 @@ export class AnnularWedge extends XYGlyph {
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AnnularWedge.__name__, attrs)
   }
 
   static {

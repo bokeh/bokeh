@@ -41,6 +41,7 @@ export abstract class ToggleInputGroup extends Control {
 
   constructor(attrs?: Partial<ToggleInputGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToggleInputGroup.__name__, attrs)
   }
 
   static {

@@ -338,6 +338,7 @@ export class ColorBar extends BaseColorBar {
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ColorBar.__name__, attrs)
   }
 
   static {

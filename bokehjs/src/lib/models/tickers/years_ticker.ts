@@ -17,6 +17,7 @@ export class YearsTicker extends BaseSingleIntervalTicker {
 
   constructor(attrs?: Partial<YearsTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(YearsTicker.__name__, attrs)
   }
 
   readonly interval = ONE_YEAR

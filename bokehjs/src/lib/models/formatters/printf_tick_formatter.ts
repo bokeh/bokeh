@@ -17,6 +17,7 @@ export class PrintfTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PrintfTickFormatter.__name__, attrs)
   }
 
   static {

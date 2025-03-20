@@ -38,6 +38,7 @@ export abstract class Dimensional extends Model {
 
   constructor(attrs?: Partial<Dimensional.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Dimensional.__name__, attrs)
   }
 
   abstract get_basis(): Dict<[number, string, string?]>
@@ -114,6 +115,7 @@ export abstract class CustomDimensional extends Dimensional {
 
   constructor(attrs?: Partial<CustomDimensional.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomDimensional.__name__, attrs)
   }
 
   static {
@@ -142,6 +144,7 @@ export class Metric extends Dimensional {
 
   constructor(attrs?: Partial<Metric.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Metric.__name__, attrs)
   }
 
   static {
@@ -209,6 +212,7 @@ export class ReciprocalMetric extends Metric {
 
   constructor(attrs?: Partial<ReciprocalMetric.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ReciprocalMetric.__name__, attrs)
   }
 
   override get_basis(): Dict<[number, string, string?]> {
@@ -235,6 +239,7 @@ export class MetricLength extends Metric {
 
   constructor(attrs?: Partial<MetricLength.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MetricLength.__name__, attrs)
   }
 
   static {
@@ -257,6 +262,7 @@ export class ReciprocalMetricLength extends ReciprocalMetric {
 
   constructor(attrs?: Partial<ReciprocalMetricLength.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ReciprocalMetricLength.__name__, attrs)
   }
 
   static {
@@ -279,6 +285,7 @@ export abstract class ImperialLength extends CustomDimensional {
 
   constructor(attrs?: Partial<ImperialLength.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImperialLength.__name__, attrs)
   }
 
   static {
@@ -309,6 +316,7 @@ export abstract class Angular extends CustomDimensional {
 
   constructor(attrs?: Partial<Angular.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Angular.__name__, attrs)
   }
 
   static {

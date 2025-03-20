@@ -97,6 +97,7 @@ export class Block extends LRTB {
 
   constructor(attrs?: Partial<Block.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Block.__name__, attrs)
   }
 
   static {

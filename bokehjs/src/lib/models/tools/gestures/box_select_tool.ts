@@ -227,6 +227,7 @@ export class BoxSelectTool extends RegionSelectTool {
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BoxSelectTool.__name__, attrs)
   }
 
   static {

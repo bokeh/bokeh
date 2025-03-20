@@ -14,6 +14,7 @@ export class ServerSentDataSource extends WebDataSource {
 
   constructor(attrs?: Partial<ServerSentDataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ServerSentDataSource.__name__, attrs)
   }
 
   protected initialized: boolean = false

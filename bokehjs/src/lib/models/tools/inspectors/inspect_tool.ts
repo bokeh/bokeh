@@ -29,6 +29,7 @@ export abstract class InspectTool extends Tool {
 
   constructor(attrs?: Partial<InspectTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(InspectTool.__name__, attrs)
   }
 
   static {

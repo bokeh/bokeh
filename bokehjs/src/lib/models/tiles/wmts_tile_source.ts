@@ -14,6 +14,7 @@ export class WMTSTileSource extends MercatorTileSource {
 
   constructor(attrs?: Partial<WMTSTileSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(WMTSTileSource.__name__, attrs)
   }
 
   override get_image_url(x: number, y: number, z: number): string {

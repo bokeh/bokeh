@@ -29,6 +29,7 @@ export class MenuItem extends Model {
 
   constructor(attrs?: Partial<MenuItem.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MenuItem.__name__, attrs)
   }
 
   static {

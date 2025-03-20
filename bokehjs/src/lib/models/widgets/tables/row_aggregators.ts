@@ -22,6 +22,7 @@ export abstract class RowAggregator extends Model {
 
   constructor(attrs?: Partial<RowAggregator.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RowAggregator.__name__, attrs)
   }
 
   static {
@@ -37,6 +38,11 @@ export abstract class RowAggregator extends Model {
 
 const avg = new Avg()
 export class AvgAggregator extends RowAggregator {
+  constructor(attrs?: Partial<RowAggregator.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(AvgAggregator.__name__, attrs)
+  }
+
   override readonly key = "avg"
 
   init = avg.init
@@ -46,6 +52,11 @@ export class AvgAggregator extends RowAggregator {
 
 const min = new Min()
 export class MinAggregator extends RowAggregator {
+  constructor(attrs?: Partial<RowAggregator.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(MinAggregator.__name__, attrs)
+  }
+
   override readonly key = "min"
 
   init = min.init
@@ -55,6 +66,11 @@ export class MinAggregator extends RowAggregator {
 
 const max = new Max()
 export class MaxAggregator extends RowAggregator {
+  constructor(attrs?: Partial<RowAggregator.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(MaxAggregator.__name__, attrs)
+  }
+
   override readonly key = "max"
 
   init = max.init
@@ -64,6 +80,11 @@ export class MaxAggregator extends RowAggregator {
 
 const sum = new Sum()
 export class SumAggregator extends RowAggregator {
+  constructor(attrs?: Partial<RowAggregator.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SumAggregator.__name__, attrs)
+  }
+
   override readonly key = "sum"
 
   init = sum.init

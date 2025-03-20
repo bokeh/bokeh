@@ -17,6 +17,7 @@ export class NanCompare extends Comparison {
 
   constructor(attrs?: Partial<NanCompare.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NanCompare.__name__, attrs)
   }
 
   static {

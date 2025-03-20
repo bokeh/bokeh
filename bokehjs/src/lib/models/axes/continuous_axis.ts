@@ -34,5 +34,6 @@ export abstract class ContinuousAxis extends Axis {
 
   constructor(attrs?: Partial<ContinuousAxis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ContinuousAxis.__name__, attrs)
   }
 }

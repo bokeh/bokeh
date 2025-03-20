@@ -21,6 +21,7 @@ export class CompositeTicker extends ContinuousTicker {
 
   constructor(attrs?: Partial<CompositeTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CompositeTicker.__name__, attrs)
   }
 
   static {

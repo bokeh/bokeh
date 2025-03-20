@@ -62,6 +62,7 @@ export class CategoricalSlider extends AbstractSlider<string> {
 
   constructor(attrs?: Partial<CategoricalSlider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalSlider.__name__, attrs)
   }
 
   static {

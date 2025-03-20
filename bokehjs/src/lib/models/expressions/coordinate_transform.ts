@@ -43,6 +43,7 @@ export abstract class XYComponent extends Expression {
 
   constructor(attrs?: Partial<XYComponent.Attrs>) {
     super(attrs)
+    this.maybe_initialize(XYComponent.__name__, attrs)
   }
 
   static {
@@ -64,6 +65,7 @@ export class XComponent extends XYComponent {
 
   constructor(attrs?: Partial<XComponent.Attrs>) {
     super(attrs)
+    this.maybe_initialize(XComponent.__name__, attrs)
   }
 
   protected _v_compute(source: ColumnarDataSource): CoordinateType {
@@ -83,6 +85,7 @@ export class YComponent extends XYComponent {
 
   constructor(attrs?: Partial<YComponent.Attrs>) {
     super(attrs)
+    this.maybe_initialize(YComponent.__name__, attrs)
   }
 
   protected _v_compute(source: ColumnarDataSource): CoordinateType {

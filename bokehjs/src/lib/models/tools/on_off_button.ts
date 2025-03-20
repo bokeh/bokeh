@@ -41,6 +41,7 @@ export class OnOffButton extends ToolButton {
 
   constructor(attrs?: Partial<OnOffButton.Attrs>) {
     super(attrs)
+    this.maybe_initialize(OnOffButton.__name__, attrs)
   }
 
   static {

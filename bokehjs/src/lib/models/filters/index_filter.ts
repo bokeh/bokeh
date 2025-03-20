@@ -18,6 +18,7 @@ export class IndexFilter extends Filter {
 
   constructor(attrs?: Partial<IndexFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(IndexFilter.__name__, attrs)
   }
 
   static {

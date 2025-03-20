@@ -299,6 +299,7 @@ export class ImageURL extends XYGlyph {
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImageURL.__name__, attrs)
   }
 
   static {

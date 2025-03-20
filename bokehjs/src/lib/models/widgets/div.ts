@@ -30,6 +30,7 @@ export class Div extends Markup {
 
   constructor(attrs?: Partial<Div.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Div.__name__, attrs)
   }
 
   static {

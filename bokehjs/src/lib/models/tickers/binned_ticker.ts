@@ -21,6 +21,7 @@ export class BinnedTicker extends Ticker {
 
   constructor(attrs?: Partial<BinnedTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BinnedTicker.__name__, attrs)
   }
 
   static {

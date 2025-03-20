@@ -13,6 +13,7 @@ export class ByClass extends Selector {
 
   constructor(attrs?: Partial<ByClass.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ByClass.__name__, attrs)
   }
 
   find_one(target: ParentNode): Node | null {

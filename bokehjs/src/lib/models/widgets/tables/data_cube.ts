@@ -78,6 +78,7 @@ export class GroupingInfo extends Model {
 
   constructor(attrs?: Partial<GroupingInfo.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GroupingInfo.__name__, attrs)
   }
 
   static {
@@ -334,6 +335,7 @@ export class DataCube extends DataTable {
 
   constructor(attrs?: Partial<DataCube.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataCube.__name__, attrs)
   }
 
   static {

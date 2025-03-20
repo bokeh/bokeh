@@ -41,5 +41,6 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
 
   constructor(attrs?: Partial<NumericalRangeSlider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NumericalRangeSlider.__name__, attrs)
   }
 }

@@ -42,6 +42,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
   constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GeoJSONDataSource.__name__, attrs)
   }
 
   static {

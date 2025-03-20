@@ -26,6 +26,7 @@ export abstract class CellFormatter extends Model {
 
   constructor(attrs?: Partial<CellFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CellFormatter.__name__, attrs)
   }
 
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
@@ -57,6 +58,7 @@ export class StringFormatter extends CellFormatter {
 
   constructor(attrs?: Partial<StringFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(StringFormatter.__name__, attrs)
   }
 
   static {
@@ -181,6 +183,7 @@ export class ScientificFormatter extends StringFormatter {
 
   constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ScientificFormatter.__name__, attrs)
   }
 
   static {
@@ -247,6 +250,7 @@ export class NumberFormatter extends StringFormatter {
 
   constructor(attrs?: Partial<NumberFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NumberFormatter.__name__, attrs)
   }
 
   static {
@@ -298,6 +302,7 @@ export class BooleanFormatter extends CellFormatter {
 
   constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BooleanFormatter.__name__, attrs)
   }
 
   static {
@@ -326,6 +331,7 @@ export class DateFormatter extends StringFormatter {
 
   constructor(attrs?: Partial<DateFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DateFormatter.__name__, attrs)
   }
 
   static {
@@ -418,6 +424,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
 
   constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HTMLTemplateFormatter.__name__, attrs)
   }
 
   static {

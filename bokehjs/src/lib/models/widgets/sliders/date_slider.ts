@@ -39,6 +39,7 @@ export class DateSlider extends NumericalSlider {
 
   constructor(attrs?: Partial<DateSlider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DateSlider.__name__, attrs)
   }
 
   static {

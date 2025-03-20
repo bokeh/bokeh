@@ -48,6 +48,7 @@ export class DaysTicker extends BaseSingleIntervalTicker {
 
   constructor(attrs?: Partial<DaysTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DaysTicker.__name__, attrs)
   }
 
   static {

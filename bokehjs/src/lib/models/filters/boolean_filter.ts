@@ -18,6 +18,7 @@ export class BooleanFilter extends Filter {
 
   constructor(attrs?: Partial<BooleanFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BooleanFilter.__name__, attrs)
   }
 
   static {

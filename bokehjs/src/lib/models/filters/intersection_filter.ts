@@ -14,6 +14,7 @@ export class IntersectionFilter extends CompositeFilter {
 
   constructor(attrs?: Partial<IntersectionFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(IntersectionFilter.__name__, attrs)
   }
 
   protected _inplace_op(index: Indices, op: Indices): void {

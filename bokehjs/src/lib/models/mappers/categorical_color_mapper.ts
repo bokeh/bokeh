@@ -20,6 +20,7 @@ export class CategoricalColorMapper extends ColorMapper {
 
   constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalColorMapper.__name__, attrs)
   }
 
   static {

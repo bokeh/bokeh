@@ -91,6 +91,7 @@ export class WheelPanTool extends GestureTool {
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(WheelPanTool.__name__, attrs)
   }
 
   static {

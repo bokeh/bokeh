@@ -14,6 +14,7 @@ export abstract class StyleSheet extends Model {
 
   constructor(attrs?: Partial<StyleSheet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(StyleSheet.__name__, attrs)
   }
 
   abstract underlying(): dom.StyleSheet
@@ -33,6 +34,7 @@ export class InlineStyleSheet extends StyleSheet {
 
   constructor(attrs?: Partial<InlineStyleSheet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(InlineStyleSheet.__name__, attrs)
   }
 
   static {
@@ -60,6 +62,7 @@ export class ImportedStyleSheet extends StyleSheet {
 
   constructor(attrs?: Partial<ImportedStyleSheet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImportedStyleSheet.__name__, attrs)
   }
 
   static {
@@ -85,6 +88,7 @@ export class GlobalInlineStyleSheet extends InlineStyleSheet {
 
   constructor(attrs?: Partial<GlobalInlineStyleSheet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GlobalInlineStyleSheet.__name__, attrs)
   }
 
   private _underlying: dom.StyleSheet | null = null
@@ -109,6 +113,7 @@ export class GlobalImportedStyleSheet extends ImportedStyleSheet {
 
   constructor(attrs?: Partial<GlobalImportedStyleSheet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GlobalImportedStyleSheet.__name__, attrs)
   }
 
   private _underlying: dom.StyleSheet | null = null

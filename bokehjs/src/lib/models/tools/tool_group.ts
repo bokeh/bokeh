@@ -17,6 +17,7 @@ export class ToolGroup<T extends Tool> extends ToolProxy<T> {
 
   constructor(attrs?: Partial<ToolGroup.Attrs<T>>) {
     super(attrs)
+    this.maybe_initialize(ToolGroup.__name__, attrs)
   }
 
   static {

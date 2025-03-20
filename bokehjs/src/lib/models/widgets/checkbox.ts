@@ -45,6 +45,7 @@ export class Checkbox extends ToggleInput {
 
   constructor(attrs?: Partial<Checkbox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Checkbox.__name__, attrs)
   }
 
   static {

@@ -60,6 +60,7 @@ export class ExamineTool extends ActionTool {
 
   constructor(attrs?: Partial<ExamineTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ExamineTool.__name__, attrs)
   }
 
   static {

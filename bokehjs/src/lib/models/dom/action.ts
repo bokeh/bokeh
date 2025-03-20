@@ -24,5 +24,6 @@ export abstract class Action extends Model {
 
   constructor(attrs?: Partial<Action.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Action.__name__, attrs)
   }
 }

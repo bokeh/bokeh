@@ -32,5 +32,6 @@ export abstract class Control extends Widget {
 
   constructor(attrs?: Partial<Control.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Control.__name__, attrs)
   }
 }

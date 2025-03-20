@@ -46,6 +46,7 @@ export abstract class XYGlyph extends Glyph {
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(XYGlyph.__name__, attrs)
   }
 
   static {

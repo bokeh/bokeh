@@ -45,6 +45,7 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   constructor(attrs?: Partial<ColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ColorMapper.__name__, attrs)
   }
 
   override initialize(): void {

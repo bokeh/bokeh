@@ -53,6 +53,7 @@ export class ColorRef extends ValueRef {
 
   constructor(attrs?: Partial<ColorRef.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ColorRef.__name__, attrs)
   }
 
   static {

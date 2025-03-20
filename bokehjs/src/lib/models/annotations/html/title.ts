@@ -127,6 +127,7 @@ export class HTMLTitle extends TextAnnotation {
 
   constructor(attrs?: Partial<HTMLTitle.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HTMLTitle.__name__, attrs)
   }
 
   static {

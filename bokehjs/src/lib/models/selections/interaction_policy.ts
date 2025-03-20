@@ -6,6 +6,10 @@ import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class SelectionPolicy extends Model {
+  constructor(attrs?: Partial<Model.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SelectionPolicy.__name__, attrs)
+  }
 
   abstract hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult
 
@@ -21,6 +25,10 @@ export abstract class SelectionPolicy extends Model {
 }
 
 export class IntersectRenderers extends SelectionPolicy {
+  constructor(attrs?: Partial<Model.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(IntersectRenderers.__name__, attrs)
+  }
 
   hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult {
     const hit_test_result_renderers = []
@@ -43,6 +51,10 @@ export class IntersectRenderers extends SelectionPolicy {
 }
 
 export class UnionRenderers extends SelectionPolicy {
+  constructor(attrs?: Partial<Model.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(UnionRenderers.__name__, attrs)
+  }
 
   hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult {
     const hit_test_result_renderers = []

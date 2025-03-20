@@ -14,6 +14,7 @@ export class LinearScale extends ContinuousScale {
 
   constructor(attrs?: Partial<LinearScale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LinearScale.__name__, attrs)
   }
 
   get s_compute(): (x: number) => number {

@@ -39,6 +39,7 @@ export class DateRangeSlider extends NumericalRangeSlider {
 
   constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DateRangeSlider.__name__, attrs)
   }
 
   static {

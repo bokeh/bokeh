@@ -118,6 +118,7 @@ export class Title extends TextAnnotation {
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Title.__name__, attrs)
   }
 
   static {

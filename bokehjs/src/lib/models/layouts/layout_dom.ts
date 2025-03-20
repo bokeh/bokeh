@@ -637,6 +637,7 @@ export abstract class LayoutDOM extends Pane {
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LayoutDOM.__name__, attrs)
   }
 
   static {

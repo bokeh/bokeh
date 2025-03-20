@@ -33,6 +33,7 @@ export class RangeSlider extends NumericalRangeSlider {
 
   constructor(attrs?: Partial<RangeSlider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RangeSlider.__name__, attrs)
   }
 
   static {

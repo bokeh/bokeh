@@ -118,6 +118,7 @@ export abstract class FlexBox extends LayoutDOM {
 
   constructor(attrs?: Partial<FlexBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FlexBox.__name__, attrs)
   }
 
   static {

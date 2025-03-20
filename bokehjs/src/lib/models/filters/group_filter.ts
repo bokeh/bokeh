@@ -21,6 +21,7 @@ export class GroupFilter extends Filter {
 
   constructor(attrs?: Partial<GroupFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GroupFilter.__name__, attrs)
   }
 
   static {

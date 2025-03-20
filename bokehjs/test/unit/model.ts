@@ -18,6 +18,7 @@ class Some0Model extends Model {
   declare properties: Some0Model.Props
   constructor(attrs?: Partial<Some0Model.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Some0Model.__name__, attrs)
   }
   static {
     this.define<Some0Model.Props>(({Bool, Float, Str}) => ({

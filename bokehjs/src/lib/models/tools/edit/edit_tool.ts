@@ -210,6 +210,7 @@ export abstract class EditTool extends GestureTool {
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(EditTool.__name__, attrs)
   }
 
   static {

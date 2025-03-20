@@ -95,6 +95,12 @@ class QualifiedModelView extends UIElementView {
 }
 class QualifiedModel extends UIElement {
   declare __view_type__: QualifiedModelView
+
+  constructor(attrs?: Partial<UIElement.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(QualifiedModel.__name__, attrs)
+  }
+
   static override __module__ = "some.external.provider"
   static {
     this.prototype.default_view = QualifiedModelView
@@ -116,6 +122,7 @@ class ModelWithUnsetReadonly extends Model {
 
   constructor(attrs?: Partial<ModelWithUnsetReadonly.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ModelWithUnsetReadonly.__name__, attrs)
   }
 
   static {

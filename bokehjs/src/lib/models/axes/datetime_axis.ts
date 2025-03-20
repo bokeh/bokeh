@@ -27,6 +27,7 @@ export class DatetimeAxis extends ContinuousAxis {
 
   constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DatetimeAxis.__name__, attrs)
   }
 
   static {

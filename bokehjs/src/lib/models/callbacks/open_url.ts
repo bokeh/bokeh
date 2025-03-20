@@ -20,6 +20,7 @@ export class OpenURL extends Callback {
 
   constructor(attrs?: Partial<OpenURL.Attrs>) {
     super(attrs)
+    this.maybe_initialize(OpenURL.__name__, attrs)
   }
 
   static {

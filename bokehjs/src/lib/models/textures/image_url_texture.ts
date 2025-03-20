@@ -19,6 +19,7 @@ export class ImageURLTexture extends Texture {
 
   constructor(attrs?: Partial<ImageURLTexture.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImageURLTexture.__name__, attrs)
   }
 
   static {

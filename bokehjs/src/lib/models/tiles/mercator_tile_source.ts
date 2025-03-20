@@ -20,6 +20,7 @@ export class MercatorTileSource extends TileSource {
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MercatorTileSource.__name__, attrs)
   }
 
   static {

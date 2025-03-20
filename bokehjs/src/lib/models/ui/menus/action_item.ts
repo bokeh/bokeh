@@ -16,5 +16,6 @@ export class ActionItem extends MenuItem {
 
   constructor(attrs?: Partial<ActionItem.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ActionItem.__name__, attrs)
   }
 }

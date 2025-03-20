@@ -19,6 +19,7 @@ export class FixedTicker extends ContinuousTicker {
 
   constructor(attrs?: Partial<FixedTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FixedTicker.__name__, attrs)
   }
 
   static {

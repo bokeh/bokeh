@@ -60,6 +60,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   declare __view_type__: View
 
   readonly id: string
+  private readonly _deferred: boolean
 
   get is_syncable(): boolean {
     return true
@@ -334,6 +335,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     const deferred = isPlainObject(attrs) && "id" in attrs
     this.id = deferred ? attrs.id as string : unique_id()
+    this._deferred = deferred
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
@@ -362,13 +364,24 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
-    if (deferred) {
+    if (this._deferred) {
       assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
     } else {
-      this.initialize_props(attrs)
-      this.finalize()
-      this.connect_signals()
+      // If !this._deferred initialization occurs in maybe_initialize.
     }
+  }
+
+  protected maybe_initialize(class_name: string, attrs: {id: string} | AttrsLike = {}): void {
+    // Initialize if (1) not deferred and (2) called in the object's final constructor not any of
+    // its parent's constructors. For the latter, care is needed to compare class name in a way that
+    // works when minified.
+    if (this._deferred || class_name != this.constructor.__name__) {
+      return
+    }
+
+    this.initialize_props(attrs)
+    this.finalize()
+    this.connect_signals()
   }
 
   initialize_props(vals: Dict<unknown>): void {

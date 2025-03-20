@@ -42,6 +42,7 @@ export class ImageRGBA extends ImageBase {
 
   constructor(attrs?: Partial<ImageRGBA.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImageRGBA.__name__, attrs)
   }
 
   static {

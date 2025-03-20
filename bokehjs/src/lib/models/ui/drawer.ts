@@ -153,6 +153,7 @@ export class Drawer extends Pane {
 
   constructor(attrs?: Partial<Drawer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Drawer.__name__, attrs)
   }
 
   static {

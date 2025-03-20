@@ -156,6 +156,7 @@ export class HSpan extends Glyph {
 
   constructor(attrs?: Partial<HSpan.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HSpan.__name__, attrs)
   }
 
   static {

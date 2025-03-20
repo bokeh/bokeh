@@ -601,6 +601,7 @@ export abstract class Glyph extends Model {
 
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Glyph.__name__, attrs)
   }
 
   static {

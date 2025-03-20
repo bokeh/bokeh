@@ -102,6 +102,7 @@ export class HTMLLabel extends TextAnnotation {
 
   constructor(attrs?: Partial<HTMLLabel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HTMLLabel.__name__, attrs)
   }
 
   static {

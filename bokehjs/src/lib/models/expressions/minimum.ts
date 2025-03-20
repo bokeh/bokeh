@@ -20,6 +20,7 @@ export class Minimum extends ScalarExpression<number> {
 
   constructor(attrs?: Partial<Minimum.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Minimum.__name__, attrs)
   }
 
   static {

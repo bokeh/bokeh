@@ -17,6 +17,7 @@ export abstract class DataSource extends Model {
 
   constructor(attrs?: Partial<DataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataSource.__name__, attrs)
   }
 
   static {

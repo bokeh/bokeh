@@ -70,6 +70,7 @@ export class Image extends ImageBase {
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Image.__name__, attrs)
   }
 
   static {

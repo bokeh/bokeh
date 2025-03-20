@@ -22,6 +22,7 @@ export abstract class GuideRenderer extends Renderer {
 
   constructor(attrs?: Partial<GuideRenderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GuideRenderer.__name__, attrs)
   }
 
   static {

@@ -28,6 +28,7 @@ export class LinearAxis extends ContinuousAxis {
 
   constructor(attrs?: Partial<LinearAxis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LinearAxis.__name__, attrs)
   }
 
   static {

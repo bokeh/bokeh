@@ -16,6 +16,7 @@ export class Dodge extends RangeTransform {
 
   constructor(attrs?: Partial<Dodge.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Dodge.__name__, attrs)
   }
 
   static {

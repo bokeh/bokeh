@@ -13,6 +13,7 @@ export class ByCSS extends Selector {
 
   constructor(attrs?: Partial<ByCSS.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ByCSS.__name__, attrs)
   }
 
   find_one(target: ParentNode): Node | null {

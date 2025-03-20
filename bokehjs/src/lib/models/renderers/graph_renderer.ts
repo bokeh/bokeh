@@ -156,6 +156,7 @@ export class GraphRenderer extends DataRenderer {
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GraphRenderer.__name__, attrs)
   }
 
   static {

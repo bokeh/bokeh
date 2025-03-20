@@ -17,6 +17,7 @@ export class CategoricalScale extends Scale<FactorLike> {
 
   constructor(attrs?: Partial<CategoricalScale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalScale.__name__, attrs)
   }
 
   override source_range: FactorRange

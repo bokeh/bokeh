@@ -135,6 +135,7 @@ export class Scatter extends Marker {
 
   constructor(attrs?: Partial<Scatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Scatter.__name__, attrs)
   }
 
   static {

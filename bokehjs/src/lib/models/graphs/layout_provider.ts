@@ -17,6 +17,7 @@ export abstract class LayoutProvider extends Model {
 
   constructor(attrs?: Partial<LayoutProvider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LayoutProvider.__name__, attrs)
   }
 
   abstract get_node_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>]
@@ -46,6 +47,7 @@ export abstract class GraphCoordinates extends CoordinateTransform {
 
   constructor(attrs?: Partial<GraphCoordinates.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GraphCoordinates.__name__, attrs)
   }
 
   static {
@@ -67,6 +69,7 @@ export class NodeCoordinates extends GraphCoordinates {
 
   constructor(attrs?: Partial<NodeCoordinates.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NodeCoordinates.__name__, attrs)
   }
 
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
@@ -87,6 +90,7 @@ export class EdgeCoordinates extends GraphCoordinates {
 
   constructor(attrs?: Partial<EdgeCoordinates.Attrs>) {
     super(attrs)
+    this.maybe_initialize(EdgeCoordinates.__name__, attrs)
   }
 
   _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]} {

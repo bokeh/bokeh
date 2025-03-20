@@ -89,6 +89,7 @@ export class HArea extends Area {
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HArea.__name__, attrs)
   }
 
   static {

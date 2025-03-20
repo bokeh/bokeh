@@ -50,6 +50,7 @@ export class TeXGlyph extends MathTextGlyph {
 
   constructor(attrs?: Partial<TeXGlyph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TeXGlyph.__name__, attrs)
   }
 
   static {

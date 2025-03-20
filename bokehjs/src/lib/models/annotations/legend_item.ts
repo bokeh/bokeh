@@ -24,6 +24,7 @@ export class LegendItem extends Model {
 
   constructor(attrs?: Partial<LegendItem.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LegendItem.__name__, attrs)
   }
 
   static {

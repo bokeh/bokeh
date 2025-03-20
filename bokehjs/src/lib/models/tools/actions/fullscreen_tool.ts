@@ -51,6 +51,7 @@ export class FullscreenTool extends ActionTool {
 
   constructor(attrs?: Partial<FullscreenTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FullscreenTool.__name__, attrs)
   }
 
   static {

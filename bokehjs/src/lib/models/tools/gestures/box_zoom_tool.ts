@@ -250,6 +250,7 @@ export class BoxZoomTool extends GestureTool {
 
   constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BoxZoomTool.__name__, attrs)
   }
 
   static {

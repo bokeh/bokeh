@@ -220,6 +220,7 @@ export class CategoricalAxis extends Axis {
 
   constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalAxis.__name__, attrs)
   }
 
   static {

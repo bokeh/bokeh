@@ -42,6 +42,7 @@ export class PasswordInput extends TextInput {
 
   constructor(attrs?: Partial<PasswordInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PasswordInput.__name__, attrs)
   }
 
   static {

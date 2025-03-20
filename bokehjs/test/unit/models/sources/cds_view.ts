@@ -39,6 +39,7 @@ class DummyModel extends Model {
 
   constructor(attrs?: Partial<DummyModel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DummyModel.__name__, attrs)
   }
 
   static {

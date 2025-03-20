@@ -44,6 +44,7 @@ export class Toggle extends AbstractButton {
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Toggle.__name__, attrs)
   }
 
   static {

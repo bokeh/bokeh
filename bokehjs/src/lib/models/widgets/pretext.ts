@@ -27,6 +27,7 @@ export class PreText extends Markup {
 
   constructor(attrs?: Partial<PreText.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PreText.__name__, attrs)
   }
 
   static {

@@ -37,6 +37,7 @@ export class Area extends Glyph {
 
   constructor(attrs?: Partial<Area.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Area.__name__, attrs)
   }
 
   static {

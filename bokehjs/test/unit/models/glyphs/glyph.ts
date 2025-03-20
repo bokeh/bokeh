@@ -39,6 +39,11 @@ describe("glyph module", () => {
       }
 
       class SomeGlyph extends Glyph {
+        constructor(attrs?: Partial<Glyph.Attrs>) {
+          super(attrs)
+          this.maybe_initialize(SomeGlyph.__name__, attrs)
+        }
+
         static {
           this.prototype.default_view = SomeGlyphView
         }

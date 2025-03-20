@@ -178,6 +178,7 @@ export abstract class PickerBase extends InputWidget {
 
   constructor(attrs?: Partial<PickerBase.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PickerBase.__name__, attrs)
   }
 
   static {

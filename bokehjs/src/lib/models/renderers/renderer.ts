@@ -303,6 +303,7 @@ export abstract class Renderer extends StyledElement {
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Renderer.__name__, attrs)
   }
 
   static {

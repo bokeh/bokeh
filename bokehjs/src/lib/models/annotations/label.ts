@@ -180,6 +180,7 @@ export class Label extends TextAnnotation {
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Label.__name__, attrs)
   }
 
   static {

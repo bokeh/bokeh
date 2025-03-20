@@ -41,6 +41,7 @@ export class Text extends DOMNode {
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Text.__name__, attrs)
   }
 
   static {

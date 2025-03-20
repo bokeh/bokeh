@@ -20,6 +20,7 @@ export class CustomJSCompare extends Comparison {
 
   constructor(attrs?: Partial<CustomJSCompare.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSCompare.__name__, attrs)
   }
 
   static {

@@ -54,6 +54,7 @@ export class SVGIcon extends Icon {
 
   constructor(attrs?: Partial<SVGIcon.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SVGIcon.__name__, attrs)
   }
 
   static {

@@ -38,6 +38,7 @@ export class MultipleDatetimePicker extends BaseDatetimePicker {
 
   constructor(attrs?: Partial<MultipleDatetimePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MultipleDatetimePicker.__name__, attrs)
   }
 
   static {

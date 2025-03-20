@@ -54,6 +54,7 @@ export abstract class LineTool extends EditTool {
 
   constructor(attrs?: Partial<LineTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LineTool.__name__, attrs)
   }
 
   static {

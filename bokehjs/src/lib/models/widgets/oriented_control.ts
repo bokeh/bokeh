@@ -22,6 +22,7 @@ export abstract class OrientedControl extends Control {
 
   constructor(attrs?: Partial<OrientedControl.Attrs>) {
     super(attrs)
+    this.maybe_initialize(OrientedControl.__name__, attrs)
   }
 
   static {

@@ -33,6 +33,7 @@ export class Slider extends NumericalSlider {
 
   constructor(attrs?: Partial<Slider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Slider.__name__, attrs)
   }
 
   static {

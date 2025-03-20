@@ -27,6 +27,7 @@ export class BaseText extends Model {
 
   constructor(attrs?: Partial<BaseText.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BaseText.__name__, attrs)
   }
 
   static {

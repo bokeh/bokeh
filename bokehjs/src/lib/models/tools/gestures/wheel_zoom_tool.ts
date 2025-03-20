@@ -268,6 +268,7 @@ export class WheelZoomTool extends GestureTool {
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(WheelZoomTool.__name__, attrs)
   }
 
   static {

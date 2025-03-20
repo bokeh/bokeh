@@ -47,6 +47,7 @@ export class VBox extends CSSGridBox {
 
   constructor(attrs?: Partial<VBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(VBox.__name__, attrs)
   }
 
   static {

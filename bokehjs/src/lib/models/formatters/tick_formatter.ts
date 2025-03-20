@@ -16,6 +16,7 @@ export abstract class TickFormatter extends Model {
 
   constructor(attrs?: Partial<TickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TickFormatter.__name__, attrs)
   }
 
   abstract doFormat(ticks: string[] | number[], opts: {loc: number}): string[]

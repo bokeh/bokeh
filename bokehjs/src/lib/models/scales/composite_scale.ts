@@ -19,6 +19,7 @@ export class CompositeScale extends Scale {
 
   constructor(attrs?: Partial<CompositeScale.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CompositeScale.__name__, attrs)
   }
 
   static {

@@ -130,6 +130,7 @@ export class Plot extends LayoutDOM {
 
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Plot.__name__, attrs)
   }
 
   static {

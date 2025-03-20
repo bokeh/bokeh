@@ -18,6 +18,7 @@ export class ParkMillerLCG extends RandomGenerator {
 
   constructor(attrs?: Partial<ParkMillerLCG.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ParkMillerLCG.__name__, attrs)
   }
 
   static {

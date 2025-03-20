@@ -113,6 +113,7 @@ export abstract class ZoomBaseTool extends PlotActionTool {
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ZoomBaseTool.__name__, attrs)
   }
 
   static {

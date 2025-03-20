@@ -126,6 +126,7 @@ export class FileInput extends InputWidget {
 
   constructor(attrs?: Partial<FileInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FileInput.__name__, attrs)
   }
 
   static {

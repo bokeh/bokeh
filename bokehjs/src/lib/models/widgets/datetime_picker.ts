@@ -45,6 +45,7 @@ export class DatetimePicker extends BaseDatetimePicker {
 
   constructor(attrs?: Partial<DatetimePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DatetimePicker.__name__, attrs)
   }
 
   static {

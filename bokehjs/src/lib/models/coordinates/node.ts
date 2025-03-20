@@ -64,6 +64,7 @@ export class Node extends Coordinate {
 
   constructor(attrs?: Partial<Node.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Node.__name__, attrs)
   }
 
   static {

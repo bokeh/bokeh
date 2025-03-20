@@ -19,6 +19,7 @@ export class Row extends FlexBox {
 
   constructor(attrs?: Partial<Row.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Row.__name__, attrs)
   }
 
   static {

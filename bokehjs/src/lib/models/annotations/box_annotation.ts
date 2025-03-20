@@ -63,6 +63,7 @@ export class BoxInteractionHandles extends Model {
 
   constructor(attrs?: Partial<BoxInteractionHandles.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BoxInteractionHandles.__name__, attrs)
   }
 
   static {
@@ -868,6 +869,7 @@ export class BoxAnnotation extends Annotation {
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BoxAnnotation.__name__, attrs)
   }
 
   override clone(attrs?: Partial<BoxAnnotation.Attrs>): this {

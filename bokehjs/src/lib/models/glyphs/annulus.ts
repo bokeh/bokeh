@@ -165,6 +165,7 @@ export class Annulus extends XYGlyph {
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Annulus.__name__, attrs)
   }
 
   static {

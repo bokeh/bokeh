@@ -32,6 +32,11 @@ interface UI extends UIElement {}
 class UI extends UIElement {
   declare __view_type__: UIView
 
+  constructor(attrs?: Partial<UIElement.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(UI.__name__, attrs)
+  }
+
   static {
     this.prototype.default_view = UIView
   }

@@ -33,6 +33,7 @@ export class ToolProxy<T extends Tool> extends Model {
 
   constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
     super(attrs)
+    this.maybe_initialize(ToolProxy.__name__, attrs)
   }
 
   static {

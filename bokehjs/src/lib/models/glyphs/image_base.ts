@@ -309,6 +309,7 @@ export abstract class ImageBase extends XYGlyph {
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ImageBase.__name__, attrs)
   }
 
   static {

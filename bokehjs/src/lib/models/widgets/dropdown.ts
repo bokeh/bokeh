@@ -136,6 +136,7 @@ export class Dropdown extends AbstractButton {
 
   constructor(attrs?: Partial<Dropdown.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Dropdown.__name__, attrs)
   }
 
   static {

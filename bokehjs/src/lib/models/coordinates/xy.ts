@@ -16,6 +16,7 @@ export class XY extends Coordinate {
 
   constructor(attrs?: Partial<XY.Attrs>) {
     super(attrs)
+    this.maybe_initialize(XY.__name__, attrs)
   }
 
   static {

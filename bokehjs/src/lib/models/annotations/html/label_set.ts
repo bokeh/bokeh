@@ -183,6 +183,7 @@ export class HTMLLabelSet extends DataAnnotation {
 
   constructor(attrs?: Partial<HTMLLabelSet.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HTMLLabelSet.__name__, attrs)
   }
 
   static {

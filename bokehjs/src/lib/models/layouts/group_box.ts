@@ -75,6 +75,7 @@ export class GroupBox extends LayoutDOM {
 
   constructor(attrs?: Partial<GroupBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GroupBox.__name__, attrs)
   }
 
   static {

@@ -19,6 +19,7 @@ export abstract class Texture extends Model {
 
   constructor(attrs?: Partial<Texture.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Texture.__name__, attrs)
   }
 
   static {

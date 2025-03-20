@@ -184,6 +184,7 @@ export class Circle extends RadialGlyph {
 
   constructor(attrs?: Partial<Circle.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Circle.__name__, attrs)
   }
 
   static {

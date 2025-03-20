@@ -30,6 +30,7 @@ export class ToggleGroup extends Action {
 
   constructor(attrs?: Partial<ToggleGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToggleGroup.__name__, attrs)
   }
 
   static {

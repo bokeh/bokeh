@@ -72,6 +72,7 @@ export class ContourRenderer extends DataRenderer {
 
   constructor(attrs?: Partial<ContourRenderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ContourRenderer.__name__, attrs)
   }
 
   static {

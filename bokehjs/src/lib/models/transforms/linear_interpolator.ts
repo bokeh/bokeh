@@ -15,6 +15,7 @@ export class LinearInterpolator extends Interpolator {
 
   constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LinearInterpolator.__name__, attrs)
   }
 
   compute(x: number): number {

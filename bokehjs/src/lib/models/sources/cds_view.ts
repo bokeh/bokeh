@@ -105,6 +105,7 @@ export class CDSView extends Model {
 
   constructor(attrs?: Partial<CDSView.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CDSView.__name__, attrs)
   }
 
   static {

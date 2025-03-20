@@ -64,6 +64,11 @@ export class Template extends DOMElement {
   declare properties: Template.Props
   declare __view_type__: TemplateView
 
+  constructor(attrs?: Partial<Template.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(Template.__name__, attrs)
+  }
+
   static {
     this.prototype.default_view = TemplateView
     this.define<Template.Props>(({List, Ref}) => ({

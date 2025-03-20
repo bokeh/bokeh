@@ -16,6 +16,7 @@ export abstract class Selector extends Model {
 
   constructor(attrs?: Partial<Selector.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Selector.__name__, attrs)
   }
 
   static {

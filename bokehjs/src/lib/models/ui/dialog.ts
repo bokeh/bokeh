@@ -647,6 +647,7 @@ export class Dialog extends UIElement {
 
   constructor(attrs?: Partial<Dialog.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Dialog.__name__, attrs)
   }
 
   static {

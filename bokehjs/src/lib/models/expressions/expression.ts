@@ -16,6 +16,7 @@ export abstract class Expression<T = Arrayable> extends Model {
 
   constructor(attrs?: Partial<Expression.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Expression.__name__, attrs)
   }
 
   protected _result: Map<ColumnarDataSource, T>
@@ -50,6 +51,7 @@ export abstract class ScalarExpression<T> extends Model {
 
   constructor(attrs?: Partial<ScalarExpression.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ScalarExpression.__name__, attrs)
   }
 
   protected _result: Map<ColumnarDataSource, T>

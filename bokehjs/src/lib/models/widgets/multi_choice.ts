@@ -159,6 +159,7 @@ export class MultiChoice extends InputWidget {
 
   constructor(attrs?: Partial<MultiChoice.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MultiChoice.__name__, attrs)
   }
 
   static {

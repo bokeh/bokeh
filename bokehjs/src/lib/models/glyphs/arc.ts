@@ -112,6 +112,7 @@ export class Arc extends XYGlyph {
 
   constructor(attrs?: Partial<Arc.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Arc.__name__, attrs)
   }
 
   static {

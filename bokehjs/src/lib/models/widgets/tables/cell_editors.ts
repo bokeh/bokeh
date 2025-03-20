@@ -141,6 +141,11 @@ export interface CellEditor extends CellEditor.Attrs {}
 export abstract class CellEditor extends Model {
   declare properties: CellEditor.Props
   declare __view_type__: CellEditorView
+
+  constructor(attrs?: Partial<CellEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(CellEditor.__name__, attrs)
+  }
 }
 
 export class StringEditorView extends CellEditorView {
@@ -186,6 +191,11 @@ export interface StringEditor extends StringEditor.Attrs {}
 export class StringEditor extends CellEditor {
   declare properties: StringEditor.Props
 
+  constructor(attrs?: Partial<StringEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(StringEditor.__name__, attrs)
+  }
+
   static {
     this.prototype.default_view = StringEditorView
     this.define<StringEditor.Props>(({Str, List}) => ({
@@ -219,6 +229,11 @@ export interface TextEditor extends TextEditor.Attrs {}
 
 export class TextEditor extends CellEditor {
   declare properties: TextEditor.Props
+
+  constructor(attrs?: Partial<TextEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(TextEditor.__name__, attrs)
+  }
 
   static {
     this.prototype.default_view = TextEditorView
@@ -255,6 +270,11 @@ export interface SelectEditor extends SelectEditor.Attrs {}
 export class SelectEditor extends CellEditor {
   declare properties: SelectEditor.Props
 
+  constructor(attrs?: Partial<SelectEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(SelectEditor.__name__, attrs)
+  }
+
   static {
     this.prototype.default_view = SelectEditorView
     this.define<SelectEditor.Props>(({Str, List}) => ({
@@ -283,6 +303,11 @@ export interface PercentEditor extends PercentEditor.Attrs {}
 
 export class PercentEditor extends CellEditor {
   declare properties: PercentEditor.Props
+
+  constructor(attrs?: Partial<PercentEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(PercentEditor.__name__, attrs)
+  }
 
   static {
     this.prototype.default_view = PercentEditorView
@@ -322,6 +347,11 @@ export interface CheckboxEditor extends CheckboxEditor.Attrs {}
 
 export class CheckboxEditor extends CellEditor {
   declare properties: CheckboxEditor.Props
+
+  constructor(attrs?: Partial<CheckboxEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(CheckboxEditor.__name__, attrs)
+  }
 
   static {
     this.prototype.default_view = CheckboxEditorView
@@ -385,6 +415,11 @@ export interface IntEditor extends IntEditor.Attrs {}
 export class IntEditor extends CellEditor {
   declare properties: IntEditor.Props
 
+  constructor(attrs?: Partial<IntEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(IntEditor.__name__, attrs)
+  }
+
   static {
     this.prototype.default_view = IntEditorView
     this.define<IntEditor.Props>(({Int}) => ({
@@ -446,6 +481,11 @@ export interface NumberEditor extends NumberEditor.Attrs {}
 export class NumberEditor extends CellEditor {
   declare properties: NumberEditor.Props
 
+  constructor(attrs?: Partial<NumberEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(NumberEditor.__name__, attrs)
+  }
+
   static {
     this.prototype.default_view = NumberEditorView
     this.define<NumberEditor.Props>(({Float}) => ({
@@ -474,6 +514,11 @@ export interface TimeEditor extends TimeEditor.Attrs {}
 
 export class TimeEditor extends CellEditor {
   declare properties: TimeEditor.Props
+
+  constructor(attrs?: Partial<TimeEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(TimeEditor.__name__, attrs)
+  }
 
   static {
     this.prototype.default_view = TimeEditorView
@@ -552,6 +597,11 @@ export interface DateEditor extends DateEditor.Attrs {}
 
 export class DateEditor extends CellEditor {
   declare properties: DateEditor.Props
+
+  constructor(attrs?: Partial<DateEditor.Attrs>) {
+    super(attrs)
+    this.maybe_initialize(DateEditor.__name__, attrs)
+  }
 
   static {
     this.prototype.default_view = DateEditorView

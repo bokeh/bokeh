@@ -28,6 +28,7 @@ export class ClickButton extends OnOffButton {
 
   constructor(attrs?: Partial<ClickButton.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ClickButton.__name__, attrs)
   }
 
   static {

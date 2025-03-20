@@ -373,6 +373,7 @@ export class TileRenderer extends Renderer {
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TileRenderer.__name__, attrs)
   }
 
   static {

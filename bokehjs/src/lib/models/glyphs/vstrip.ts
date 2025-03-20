@@ -223,6 +223,7 @@ export class VStrip extends Glyph {
 
   constructor(attrs?: Partial<VStrip.Attrs>) {
     super(attrs)
+    this.maybe_initialize(VStrip.__name__, attrs)
   }
 
   static {

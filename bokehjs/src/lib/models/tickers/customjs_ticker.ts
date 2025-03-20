@@ -36,6 +36,7 @@ export class CustomJSTicker extends Ticker {
 
   constructor(attrs?: Partial<CustomJSTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJSTicker.__name__, attrs)
   }
 
   static {

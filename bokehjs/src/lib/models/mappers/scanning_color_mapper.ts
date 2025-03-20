@@ -23,6 +23,7 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
 
   constructor(attrs?: Partial<ScanningColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ScanningColorMapper.__name__, attrs)
   }
 
   declare MatricsType: {min: number, max: number, binning: Arrayable<number>, force_low_cutoff: boolean}

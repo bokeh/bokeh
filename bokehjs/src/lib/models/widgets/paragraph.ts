@@ -34,6 +34,7 @@ export class Paragraph extends Markup {
 
   constructor(attrs?: Partial<Paragraph.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Paragraph.__name__, attrs)
   }
 
   static {

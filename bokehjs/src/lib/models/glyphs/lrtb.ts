@@ -187,6 +187,7 @@ export abstract class LRTB extends Glyph {
 
   constructor(attrs?: Partial<LRTB.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LRTB.__name__, attrs)
   }
 
   static {

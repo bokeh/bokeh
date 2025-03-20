@@ -13,6 +13,7 @@ export class ByID extends Selector {
 
   constructor(attrs?: Partial<ByID.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ByID.__name__, attrs)
   }
 
   find_one(target: ParentNode): Node | null {

@@ -46,6 +46,7 @@ export class Quad extends LRTB {
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Quad.__name__, attrs)
   }
 
   static {

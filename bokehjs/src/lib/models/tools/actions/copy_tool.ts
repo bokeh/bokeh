@@ -29,6 +29,7 @@ export class CopyTool extends ActionTool {
 
   constructor(attrs?: Partial<CopyTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CopyTool.__name__, attrs)
   }
 
   static {

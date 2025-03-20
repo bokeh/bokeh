@@ -18,5 +18,6 @@ export abstract class Indicator extends Widget {
 
   constructor(attrs?: Partial<Indicator.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Indicator.__name__, attrs)
   }
 }

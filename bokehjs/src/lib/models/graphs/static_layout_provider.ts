@@ -23,6 +23,7 @@ export class StaticLayoutProvider extends LayoutProvider {
 
   constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
     super(attrs)
+    this.maybe_initialize(StaticLayoutProvider.__name__, attrs)
   }
 
   static {

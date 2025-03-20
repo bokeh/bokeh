@@ -15,6 +15,7 @@ export abstract class Transform<From = number, To = number> extends Model {
 
   constructor(attrs?: Partial<Transform.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Transform.__name__, attrs)
   }
 
   abstract compute(x: From): To

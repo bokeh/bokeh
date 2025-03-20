@@ -20,6 +20,7 @@ export class PolarTransform extends CoordinateTransform {
 
   constructor(attrs?: Partial<PolarTransform.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PolarTransform.__name__, attrs)
   }
 
   static {

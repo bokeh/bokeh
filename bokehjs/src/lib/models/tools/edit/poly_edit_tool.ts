@@ -310,6 +310,7 @@ export class PolyEditTool extends PolyTool {
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PolyEditTool.__name__, attrs)
   }
 
   static {

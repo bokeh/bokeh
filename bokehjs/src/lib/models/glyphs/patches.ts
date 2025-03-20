@@ -228,6 +228,7 @@ export class Patches extends Glyph {
 
   constructor(attrs?: Partial<Patches.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Patches.__name__, attrs)
   }
 
   static {

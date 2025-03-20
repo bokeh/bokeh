@@ -18,6 +18,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
 
   constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MercatorTickFormatter.__name__, attrs)
   }
 
   static {

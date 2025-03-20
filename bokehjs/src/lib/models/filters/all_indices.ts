@@ -16,6 +16,7 @@ export class AllIndices extends Filter {
 
   constructor(attrs?: Partial<AllIndices.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AllIndices.__name__, attrs)
   }
 
   compute_indices(source: ColumnarDataSource): Indices {

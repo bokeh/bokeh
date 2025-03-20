@@ -26,6 +26,7 @@ export class Spacer extends LayoutDOM {
 
   constructor(attrs?: Partial<Spacer.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Spacer.__name__, attrs)
   }
 
   static {

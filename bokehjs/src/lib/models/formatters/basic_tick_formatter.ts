@@ -32,6 +32,7 @@ export class BasicTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BasicTickFormatter.__name__, attrs)
   }
 
   static {

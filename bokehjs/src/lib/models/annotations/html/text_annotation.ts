@@ -189,6 +189,7 @@ export abstract class TextAnnotation extends Annotation {
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TextAnnotation.__name__, attrs)
   }
 
   static {

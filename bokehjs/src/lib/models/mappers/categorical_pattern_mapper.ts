@@ -24,6 +24,7 @@ export class CategoricalPatternMapper extends Mapper<string> {
 
   constructor(attrs?: Partial<CategoricalPatternMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalPatternMapper.__name__, attrs)
   }
 
   static {

@@ -53,6 +53,7 @@ export abstract class CenterRotatable extends XYGlyph {
 
   constructor(attrs?: Partial<CenterRotatable.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CenterRotatable.__name__, attrs)
   }
 
   static {

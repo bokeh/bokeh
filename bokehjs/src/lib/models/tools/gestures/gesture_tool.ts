@@ -26,6 +26,7 @@ export abstract class GestureTool extends Tool {
 
   constructor(attrs?: Partial<GestureTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(GestureTool.__name__, attrs)
   }
 
   abstract readonly default_order: number

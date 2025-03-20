@@ -67,6 +67,7 @@ export class TextLikeInput extends InputWidget {
 
   constructor(attrs?: Partial<TextLikeInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TextLikeInput.__name__, attrs)
   }
 
   static {

@@ -20,6 +20,7 @@ export class CumSum extends Expression {
 
   constructor(attrs?: Partial<CumSum.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CumSum.__name__, attrs)
   }
 
   static {

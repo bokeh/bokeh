@@ -45,6 +45,7 @@ export class Decoration extends Model {
 
   constructor(attrs?: Partial<Decoration.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Decoration.__name__, attrs)
   }
 
   static {

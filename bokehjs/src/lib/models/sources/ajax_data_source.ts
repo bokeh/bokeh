@@ -25,6 +25,7 @@ export class AjaxDataSource extends WebDataSource {
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AjaxDataSource.__name__, attrs)
   }
 
   static {

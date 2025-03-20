@@ -191,6 +191,7 @@ export abstract class Marker extends XYGlyph {
 
   constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Marker.__name__, attrs)
   }
 
   static {

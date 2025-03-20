@@ -98,6 +98,7 @@ export class ValueOf extends DOMElement {
 
   constructor(attrs?: Partial<ValueOf.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ValueOf.__name__, attrs)
   }
 
   static {

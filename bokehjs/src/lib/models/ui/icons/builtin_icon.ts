@@ -63,6 +63,7 @@ export class BuiltinIcon extends Icon {
 
   constructor(attrs?: Partial<BuiltinIcon.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BuiltinIcon.__name__, attrs)
   }
 
   static {

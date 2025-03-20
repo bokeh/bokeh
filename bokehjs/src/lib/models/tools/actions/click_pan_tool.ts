@@ -58,6 +58,7 @@ export class ClickPanTool extends PlotActionTool {
 
   constructor(attrs?: Partial<ClickPanTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ClickPanTool.__name__, attrs)
   }
 
   static {

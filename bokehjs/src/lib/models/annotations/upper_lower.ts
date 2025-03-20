@@ -113,6 +113,7 @@ export class UpperLower extends DataAnnotation {
 
   constructor(attrs?: Partial<UpperLower.Attrs>) {
     super(attrs)
+    this.maybe_initialize(UpperLower.__name__, attrs)
   }
 
   static {

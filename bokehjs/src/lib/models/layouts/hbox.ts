@@ -47,6 +47,7 @@ export class HBox extends CSSGridBox {
 
   constructor(attrs?: Partial<HBox.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HBox.__name__, attrs)
   }
 
   static {

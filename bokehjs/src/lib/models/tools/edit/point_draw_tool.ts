@@ -98,6 +98,7 @@ export class PointDrawTool extends EditTool {
 
   constructor(attrs?: Partial<PointDrawTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PointDrawTool.__name__, attrs)
   }
 
   static {

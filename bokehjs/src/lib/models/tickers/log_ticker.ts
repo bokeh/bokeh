@@ -16,6 +16,7 @@ export class LogTicker extends AdaptiveTicker {
 
   constructor(attrs?: Partial<LogTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LogTicker.__name__, attrs)
   }
 
   static {

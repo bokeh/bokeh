@@ -24,6 +24,7 @@ export abstract class Interpolator extends Transform {
 
   constructor(attrs?: Partial<Interpolator.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Interpolator.__name__, attrs)
   }
 
   static {

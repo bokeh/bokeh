@@ -79,6 +79,7 @@ export class TablerIcon extends Icon {
 
   constructor(attrs?: Partial<TablerIcon.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TablerIcon.__name__, attrs)
   }
 
   static {

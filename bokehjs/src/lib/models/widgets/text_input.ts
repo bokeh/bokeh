@@ -55,6 +55,7 @@ export class TextInput extends TextLikeInput {
 
   constructor(attrs?: Partial<TextInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TextInput.__name__, attrs)
   }
 
   static {

@@ -327,6 +327,7 @@ export class Styles extends Model {
 
   constructor(attrs?: Partial<Styles.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Styles.__name__, attrs)
   }
 
   static {

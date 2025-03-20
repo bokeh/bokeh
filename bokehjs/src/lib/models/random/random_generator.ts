@@ -14,6 +14,7 @@ export abstract class RandomGenerator extends Model {
 
   constructor(attrs?: Partial<RandomGenerator.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RandomGenerator.__name__, attrs)
   }
 
   abstract generator(): AbstractRandom

@@ -100,6 +100,7 @@ export class MultiSelect extends InputWidget {
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MultiSelect.__name__, attrs)
   }
 
   static {

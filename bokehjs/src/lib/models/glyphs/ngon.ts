@@ -174,6 +174,7 @@ export class Ngon extends RadialGlyph {
 
   constructor(attrs?: Partial<Ngon.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Ngon.__name__, attrs)
   }
 
   static {

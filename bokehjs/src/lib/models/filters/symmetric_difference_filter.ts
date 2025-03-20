@@ -14,6 +14,7 @@ export class SymmetricDifferenceFilter extends CompositeFilter {
 
   constructor(attrs?: Partial<SymmetricDifferenceFilter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(SymmetricDifferenceFilter.__name__, attrs)
   }
 
   protected _inplace_op(index: Indices, op: Indices): void {

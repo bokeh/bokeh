@@ -29,6 +29,7 @@ export class ZoomOutTool extends ZoomBaseTool {
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ZoomOutTool.__name__, attrs)
   }
 
   static {

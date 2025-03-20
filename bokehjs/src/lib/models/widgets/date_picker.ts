@@ -43,6 +43,7 @@ export class DatePicker extends BaseDatePicker {
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DatePicker.__name__, attrs)
   }
 
   static {

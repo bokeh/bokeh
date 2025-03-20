@@ -81,6 +81,7 @@ export class HBar extends LRTB {
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HBar.__name__, attrs)
   }
 
   static {

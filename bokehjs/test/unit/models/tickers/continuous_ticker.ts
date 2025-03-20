@@ -9,6 +9,11 @@ describe("ContinuousTicker Model", () => {
     min_interval: number
     max_interval: number | null
 
+    constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
+      super(attrs)
+      this.maybe_initialize(MyTicker.__name__, attrs)
+    }
+
     get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
       return 100
     }

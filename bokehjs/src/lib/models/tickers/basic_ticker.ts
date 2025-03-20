@@ -14,5 +14,6 @@ export class BasicTicker extends AdaptiveTicker {
 
   constructor(attrs?: Partial<BasicTicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(BasicTicker.__name__, attrs)
   }
 }

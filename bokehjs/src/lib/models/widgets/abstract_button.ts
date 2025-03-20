@@ -132,6 +132,7 @@ export abstract class AbstractButton extends Control {
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
     super(attrs)
+    this.maybe_initialize(AbstractButton.__name__, attrs)
   }
 
   static {

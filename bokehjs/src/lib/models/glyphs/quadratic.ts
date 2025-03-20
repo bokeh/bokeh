@@ -102,6 +102,7 @@ export class Quadratic extends Glyph {
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Quadratic.__name__, attrs)
   }
 
   static {

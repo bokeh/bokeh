@@ -26,6 +26,7 @@ export class HelpTool extends ActionTool {
 
   constructor(attrs?: Partial<HelpTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HelpTool.__name__, attrs)
   }
 
   static {

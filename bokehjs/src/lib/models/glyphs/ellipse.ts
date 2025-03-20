@@ -146,6 +146,7 @@ export class Ellipse extends CenterRotatable {
 
   constructor(attrs?: Partial<Ellipse.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Ellipse.__name__, attrs)
   }
 
   static {

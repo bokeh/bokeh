@@ -166,6 +166,7 @@ export class VAreaStep extends Area {
 
   constructor(attrs?: Partial<VAreaStep.Attrs>) {
     super(attrs)
+    this.maybe_initialize(VAreaStep.__name__, attrs)
   }
 
   static {

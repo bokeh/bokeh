@@ -613,6 +613,7 @@ export class ScaleBar extends Annotation {
 
   constructor(attrs?: Partial<ScaleBar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ScaleBar.__name__, attrs)
   }
 
   static {

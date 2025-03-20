@@ -63,6 +63,7 @@ export class CoordinateMapping extends Model {
 
   constructor(attrs?: Partial<CoordinateMapping.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CoordinateMapping.__name__, attrs)
   }
 
   static {

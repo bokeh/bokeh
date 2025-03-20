@@ -113,6 +113,7 @@ export class ToolbarPanel extends Annotation {
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ToolbarPanel.__name__, attrs)
   }
 
   static {

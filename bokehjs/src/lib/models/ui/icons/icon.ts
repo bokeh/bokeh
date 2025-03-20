@@ -26,6 +26,7 @@ export abstract class Icon extends UIElement {
 
   constructor(attrs?: Partial<Icon.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Icon.__name__, attrs)
   }
 
   static {

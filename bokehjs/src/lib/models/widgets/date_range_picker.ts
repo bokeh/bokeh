@@ -55,6 +55,7 @@ export class DateRangePicker extends BaseDatePicker {
 
   constructor(attrs?: Partial<DateRangePicker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DateRangePicker.__name__, attrs)
   }
 
   static {

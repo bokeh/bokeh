@@ -164,6 +164,7 @@ export class Line extends XYGlyph {
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Line.__name__, attrs)
   }
 
   static {

@@ -17,6 +17,7 @@ export class CloseDialog extends Callback {
 
   constructor(attrs?: Partial<CloseDialog.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CloseDialog.__name__, attrs)
   }
 
   static {

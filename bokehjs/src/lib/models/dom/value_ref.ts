@@ -68,6 +68,7 @@ export class ValueRef extends Placeholder {
 
   constructor(attrs?: Partial<ValueRef.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ValueRef.__name__, attrs)
   }
 
   static {

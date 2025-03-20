@@ -23,6 +23,7 @@ export class LogTickFormatter extends TickFormatter {
 
   constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
     super(attrs)
+    this.maybe_initialize(LogTickFormatter.__name__, attrs)
   }
 
   static {

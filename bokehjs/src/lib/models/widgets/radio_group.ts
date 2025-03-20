@@ -68,6 +68,7 @@ export class RadioGroup extends ToggleInputGroup {
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RadioGroup.__name__, attrs)
   }
 
   static {

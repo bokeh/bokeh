@@ -24,6 +24,7 @@ export class CategoricalMarkerMapper extends Mapper<string> {
 
   constructor(attrs?: Partial<CategoricalMarkerMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CategoricalMarkerMapper.__name__, attrs)
   }
 
   static {

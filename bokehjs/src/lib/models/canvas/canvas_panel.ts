@@ -90,6 +90,7 @@ export class CanvasPanel extends StyledElement {
 
   constructor(attrs?: Partial<CanvasPanel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CanvasPanel.__name__, attrs)
   }
 
   static {

@@ -19,6 +19,7 @@ export abstract class CanvasTexture extends Texture {
 
   constructor(attrs?: Partial<CanvasTexture.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CanvasTexture.__name__, attrs)
   }
 
   static {

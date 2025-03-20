@@ -714,6 +714,7 @@ export class HoverTool extends InspectTool {
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HoverTool.__name__, attrs)
   }
 
   static {

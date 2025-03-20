@@ -76,6 +76,7 @@ export abstract class Widget extends LayoutDOM {
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Widget.__name__, attrs)
   }
 
   static {

@@ -139,6 +139,7 @@ export class NumericInput extends InputWidget {
 
   constructor(attrs?: Partial<NumericInput.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NumericInput.__name__, attrs)
   }
 
   static {

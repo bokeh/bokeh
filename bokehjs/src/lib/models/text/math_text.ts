@@ -429,6 +429,7 @@ export class MathText extends BaseText {
 
   constructor(attrs?: Partial<MathText.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MathText.__name__, attrs)
   }
 }
 
@@ -488,6 +489,7 @@ export class Ascii extends MathText {
 
   constructor(attrs?: Partial<Ascii.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Ascii.__name__, attrs)
   }
 
   static {
@@ -542,6 +544,7 @@ export class MathML extends MathText {
 
   constructor(attrs?: Partial<MathML.Attrs>) {
     super(attrs)
+    this.maybe_initialize(MathML.__name__, attrs)
   }
 
   static {
@@ -587,6 +590,7 @@ export class TeX extends MathText {
 
   constructor(attrs?: Partial<TeX.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TeX.__name__, attrs)
   }
 
   static {

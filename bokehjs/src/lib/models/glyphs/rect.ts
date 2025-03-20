@@ -285,6 +285,7 @@ export class Rect extends CenterRotatable {
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Rect.__name__, attrs)
   }
 
   static {

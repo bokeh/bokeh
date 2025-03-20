@@ -117,6 +117,7 @@ export class ContourColorBar extends BaseColorBar {
 
   constructor(attrs?: Partial<ContourColorBar.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ContourColorBar.__name__, attrs)
   }
 
   static {

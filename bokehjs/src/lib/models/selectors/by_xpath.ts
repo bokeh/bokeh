@@ -13,6 +13,7 @@ export class ByXPath extends Selector {
 
   constructor(attrs?: Partial<ByXPath.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ByXPath.__name__, attrs)
   }
 
   find_one(target: ParentNode): Node | null {

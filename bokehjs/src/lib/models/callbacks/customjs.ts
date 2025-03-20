@@ -39,6 +39,7 @@ export class CustomJS extends Callback {
 
   constructor(attrs?: Partial<CustomJS.Attrs>) {
     super(attrs)
+    this.maybe_initialize(CustomJS.__name__, attrs)
   }
 
   static {

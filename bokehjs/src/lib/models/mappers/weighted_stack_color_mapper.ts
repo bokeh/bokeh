@@ -25,6 +25,7 @@ export class WeightedStackColorMapper extends StackColorMapper {
 
   constructor(attrs?: Partial<WeightedStackColorMapper.Attrs>) {
     super(attrs)
+    this.maybe_initialize(WeightedStackColorMapper.__name__, attrs)
   }
 
   static {

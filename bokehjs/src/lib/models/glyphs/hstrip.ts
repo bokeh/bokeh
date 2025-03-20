@@ -223,6 +223,7 @@ export class HStrip extends Glyph {
 
   constructor(attrs?: Partial<HStrip.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HStrip.__name__, attrs)
   }
 
   static {

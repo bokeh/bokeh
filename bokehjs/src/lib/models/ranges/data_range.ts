@@ -17,6 +17,7 @@ export abstract class DataRange extends NumericalRange {
 
   constructor(attrs?: Partial<DataRange.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataRange.__name__, attrs)
   }
 
   static {

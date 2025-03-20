@@ -253,6 +253,7 @@ export class RangeTool extends GestureTool {
 
   constructor(attrs?: Partial<RangeTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RangeTool.__name__, attrs)
   }
 
   static {

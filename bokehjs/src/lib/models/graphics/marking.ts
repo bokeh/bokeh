@@ -57,6 +57,7 @@ export abstract class Marking extends Model {
 
   constructor(attrs?: Partial<Marking.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Marking.__name__, attrs)
   }
 
   static {

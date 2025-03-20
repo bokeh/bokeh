@@ -103,6 +103,7 @@ export class Whisker extends UpperLower {
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Whisker.__name__, attrs)
   }
 
   static {

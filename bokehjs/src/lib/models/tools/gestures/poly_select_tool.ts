@@ -191,6 +191,7 @@ export class PolySelectTool extends RegionSelectTool {
 
   constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(PolySelectTool.__name__, attrs)
   }
 
   static {

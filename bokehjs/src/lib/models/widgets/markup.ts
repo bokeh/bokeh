@@ -68,6 +68,7 @@ export abstract class Markup extends Widget {
 
   constructor(attrs?: Partial<Markup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Markup.__name__, attrs)
   }
 
   static {

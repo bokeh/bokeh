@@ -108,6 +108,7 @@ export class FreehandDrawTool extends EditTool {
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)
+    this.maybe_initialize(FreehandDrawTool.__name__, attrs)
   }
 
   static {

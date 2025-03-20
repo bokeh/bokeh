@@ -166,6 +166,7 @@ export class HAreaStep extends Area {
 
   constructor(attrs?: Partial<HAreaStep.Attrs>) {
     super(attrs)
+    this.maybe_initialize(HAreaStep.__name__, attrs)
   }
 
   static {

@@ -37,6 +37,7 @@ export class RadioButtonGroup extends ToggleButtonGroup {
 
   constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
     super(attrs)
+    this.maybe_initialize(RadioButtonGroup.__name__, attrs)
   }
 
   static {

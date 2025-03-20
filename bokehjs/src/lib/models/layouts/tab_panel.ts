@@ -22,6 +22,7 @@ export class TabPanel extends Model {
 
   constructor(attrs?: Partial<TabPanel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TabPanel.__name__, attrs)
   }
 
   static {

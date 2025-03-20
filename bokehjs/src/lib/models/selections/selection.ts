@@ -41,6 +41,7 @@ export class Selection extends Model {
 
   constructor(attrs?: Partial<Selection.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Selection.__name__, attrs)
   }
 
   get_view(): GlyphView | null {

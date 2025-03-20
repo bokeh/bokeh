@@ -520,6 +520,7 @@ export class DataTable extends TableWidget {
 
   constructor(attrs?: Partial<DataTable.Attrs>) {
     super(attrs)
+    this.maybe_initialize(DataTable.__name__, attrs)
   }
 
   static {

@@ -17,6 +17,7 @@ export class Indexed extends Coordinate {
 
   constructor(attrs?: Partial<Indexed.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Indexed.__name__, attrs)
   }
 
   static {

@@ -32,6 +32,7 @@ export abstract class TileSource extends Model {
 
   constructor(attrs?: Partial<TileSource.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TileSource.__name__, attrs)
   }
 
   static {

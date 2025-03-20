@@ -27,6 +27,7 @@ export abstract class ArrowHead extends Marking {
 
   constructor(attrs?: Partial<ArrowHead.Attrs>) {
     super(attrs)
+    this.maybe_initialize(ArrowHead.__name__, attrs)
   }
 
   static {
@@ -79,6 +80,7 @@ export class OpenHead extends ArrowHead {
 
   constructor(attrs?: Partial<OpenHead.Attrs>) {
     super(attrs)
+    this.maybe_initialize(OpenHead.__name__, attrs)
   }
 
   static {
@@ -134,6 +136,7 @@ export class NormalHead extends ArrowHead {
 
   constructor(attrs?: Partial<NormalHead.Attrs>) {
     super(attrs)
+    this.maybe_initialize(NormalHead.__name__, attrs)
   }
 
   static {
@@ -195,6 +198,7 @@ export class VeeHead extends ArrowHead {
 
   constructor(attrs?: Partial<VeeHead.Attrs>) {
     super(attrs)
+    this.maybe_initialize(VeeHead.__name__, attrs)
   }
 
   static {
@@ -241,6 +245,7 @@ export class TeeHead extends ArrowHead {
 
   constructor(attrs?: Partial<TeeHead.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TeeHead.__name__, attrs)
   }
 
   static {
