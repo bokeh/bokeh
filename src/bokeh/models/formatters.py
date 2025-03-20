@@ -741,15 +741,32 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
 #-----------------------------------------------------------------------------
 
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
-_dttf = CONTEXTUAL_DATETIME_FORMATTER()  # Use the contextual formatter
+_dttf = CONTEXTUAL_DATETIME_FORMATTER()
 
-_dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes',
-                'hourmin', 'hours', 'days', 'months', 'years',
-                'context', 'context_which', 'context_location', 'strip_leading_zeros',
-                'boundary_scaling', 'hide_repeats')  # Added all relevant fields
+_dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 
+                'hourmin', 'hours', 'days', 'months', 'years')
 
-_dttf_defaults = _dttf.properties_with_values()
-_dttf_defaults_string = "\n\n        ".join(f"{name} = {_dttf_defaults[name]!r}" for name in _dttf_fields)
+def create_format_table() -> str:
+    # Header
+    table = "Scale         Primary          Date Context    Year Context\n"
+    table += "-" * 56 + "\n"  # Separator line (?)
+    
+    # Get formatters for each context level
+    primary = _dttf
+    context1 = _dttf.context
+    context2 = _dttf.context.context if _dttf.context else None
+    
+    # Build table rows
+    for field in _dttf_fields:
+        scale = f"{field:<12}"  # Left align, 12 chars wide
+        p_fmt = f"{getattr(primary, field):<15}"  # Primary format
+        c1_fmt = f"{getattr(context1, field):<15}" if context1 else " "*15
+        c2_fmt = f"{getattr(context2, field):<15}" if context2 else " "*15
+        table += f"{scale} {p_fmt} {c1_fmt} {c2_fmt}\n"
+    
+    return table
+
+_dttf_defaults_string = create_format_table()
 
 DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_dttf_defaults_string)
-del _dttf, _dttf_fields, _dttf_defaults, _dttf_defaults_string
+del _dttf, _dttf_fields, _dttf_defaults_string
