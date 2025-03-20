@@ -124,13 +124,16 @@ export abstract class Model extends HasProps {
   }
 
   protected override _doc_attached(): void {
+    super._doc_attached()
+
     if (this.js_event_callbacks.size != 0 || this.subscribed_events.size != 0) {
       this._update_event_callbacks()
     }
   }
 
   protected override _doc_detached(): void {
-    this.document!.event_manager.subscribed_models.delete(this)
+    super._doc_detached()
+    this.document?.event_manager.subscribed_models.delete(this)
   }
 
   select<T extends HasProps>(selector: ModelSelector<T>): T[] {

@@ -634,8 +634,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   detach_document(): void {
     // This should only be called by the Document implementation to unset the document field
-    this._doc_detached()
-    this.document = null
+    if (this.document != null) {
+      this._doc_detached()
+      this.document = null
+    }
   }
 
   protected _needs_invalidate(old_value: unknown, new_value: unknown): boolean {
