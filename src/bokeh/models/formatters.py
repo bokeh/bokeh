@@ -758,8 +758,8 @@ def create_format_table() -> str:
     
     # Build table rows
     for field in _dttf_fields:
-        scale = f"{field:<12}"  # Left align, 12 chars wide
-        p_fmt = f"{getattr(primary, field):<15}"  # Primary format
+        scale = f"{field:<12}" 
+        p_fmt = f"{getattr(primary, field):<15}"
         c1_fmt = f"{getattr(context1, field):<15}" if context1 else " "*15
         c2_fmt = f"{getattr(context2, field):<15}" if context2 else " "*15
         table += f"{scale} {p_fmt} {c1_fmt} {c2_fmt}\n"
