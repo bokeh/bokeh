@@ -87,11 +87,12 @@ export class CategoricalAxisView extends AxisView {
 
   protected override _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
     const info = this._get_factor_info()
+    const correction_policy   = this.model.label_correction_policy
 
     let standoff = extents.tick + this.model.major_label_standoff
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
-      this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals)
+      this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals, correction_policy)
       standoff += extents.tick_labels[i]
     }
   }

@@ -24,7 +24,7 @@ from bokeh.models import (
 )
 
 # Module under test
-import bokeh.models.axes as bma # isort:skip
+import bokeh.models.axes as bma  # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -33,6 +33,7 @@ import bokeh.models.axes as bma # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
 
 def test_ticker_accepts_number_sequences() -> None:
     a = bma.Axis(ticker=[-10, 0, 10, 20.7])
@@ -54,31 +55,40 @@ def test_axis_label_with_delimiters_do_not_convert_to_math_text_model() -> None:
     assert isinstance(a.axis_label, str)
     assert a.axis_label == r"$$\sin(x+1)$$"
 
+
 def test_axis_label_accepts_math_text_with_declaration() -> None:
     a = bma.Axis(axis_label=TeX(text=r"\sin(x+2)"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"\sin(x+2)"
+
 
 def test_axis_label_accepts_math_text_with_declaration_and_dollar_signs() -> None:
     a = bma.Axis(axis_label=TeX(text=r"$\sin(x+3)$"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"$\sin(x+3)$"
 
+
 def test_axis_label_accepts_math_text_with_constructor_arg() -> None:
     a = bma.Axis(axis_label=TeX(r"\sin(x+4)"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"\sin(x+4)"
+
 
 def test_axis_label_accepts_math_text_with_constructor_arg_and_dollar_signs() -> None:
     a = bma.Axis(axis_label=TeX(r"$\sin(x+4)$"))
     assert isinstance(a.axis_label, MathText)
     assert a.axis_label.text == r"$\sin(x+4)$"
 
+
 def test_axis_label_accepts_string_with_dollar_signs() -> None:
     a = bma.Axis(axis_label=PlainText(r"$\sin(x+6)$"))
     assert isinstance(a.axis_label, PlainText)
     assert a.axis_label.text == r"$\sin(x+6)$"
 
+
+def test_axis_accepts_string_for_label_correction_policy() -> None:
+    a = bma.Axis(label_correction_policy="never")
+    assert isinstance(a.label_correction_policy, str)
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

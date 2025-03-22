@@ -336,7 +336,7 @@ export abstract class AxisView extends GuideRendererView {
     const orient              = this.model.major_label_orientation
     const standoff            = extents.tick + this.model.major_label_standoff
     const visuals             = this.visuals.major_label_text
-    const correction_policy   = this.model.axis_label_correction
+    const correction_policy   = this.model.label_correction_policy
 
     this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals, correction_policy)
   }
@@ -556,8 +556,8 @@ export abstract class AxisView extends GuideRendererView {
       const i = ids[0]
       const j = ids[ids.length - 1]
 
-      const policy_x = (correction_policy == 'always') || (correction_policy == 'auto' && abs(angle) == Math.PI/2)
-      const policy_y = (correction_policy == 'always') || (correction_policy == 'auto' && angle == 0)
+      const policy_x = (correction_policy == "always") || (correction_policy == "auto" && abs(angle%Math.PI) == Math.PI/2)
+      const policy_y = (correction_policy == "always") || (correction_policy == "auto" && angle == 0)
 
       if (this.dimension == 0 && policy_x) {
         correct_x(i)
@@ -920,7 +920,7 @@ export namespace Axis {
     axis_label_standoff_mode: p.Property<AxisLabelStandoffMode>
     axis_label_orientation: p.Property<LabelOrientation | number>
     axis_label_align: p.Property<Align>
-    axis_label_correction: p.Property<CorrectionPolicy | "auto">
+    label_correction_policy: p.Property<CorrectionPolicy | "auto">
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<LabelOrientation | number>
     major_label_overrides: p.Property<LabelOverrides>
