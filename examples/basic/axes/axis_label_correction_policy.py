@@ -6,12 +6,11 @@ axis label correction policy.
     :keywords: axis_label_correction_policy
 
 '''
-from bokeh.core.enums import LabelOrientation, CorrectionPolicy
-from bokeh.models import Select
+from bokeh.core.enums import CorrectionPolicy, LabelOrientation
 from bokeh.io import show
-from bokeh.plotting import figure
 from bokeh.layouts import column, row
-
+from bokeh.models import Select
+from bokeh.plotting import figure
 
 fruits = [
     'Apples Apples Apples Apples Apples\nApples Apples Apples Apples',
@@ -19,7 +18,7 @@ fruits = [
     'Nectarines Nectarines Nectarines\nNectarines Nectarines Nectarines',
     'Plums Plums Plums Plums Plums Plums\nPlums Plums Plums Plums Plums Plums',
     'Grapes Grapes Grapes Grapes Grapes\nGrapes Grapes Grapes Grapes Grapes',
-    'Strawberries Strawberries Strawberries\nStrawberries Strawberries Strawberries'
+    'Strawberries Strawberries Strawberries\nStrawberries Strawberries Strawberries',
 ]
 counts = [5e8, 3e8, 4e8, 2e8, 4e8, 6e8]
 
@@ -40,22 +39,22 @@ orientations = list(LabelOrientation)
 correction_policies = list(CorrectionPolicy)
 
 x_axis_orientation = Select(
-    title="X-Axis label orientation", options=orientations, value=p.xaxis.major_label_orientation
+    title="X-Axis label orientation", options=orientations, value=p.xaxis.major_label_orientation,
 )
 x_axis_orientation.js_link("value", p.xaxis[0], "major_label_orientation")
 
 x_correction_policy = Select(
-    title="X-Axis label correction policy", options=correction_policies, value=p.xaxis.label_correction_policy
+    title="X-Axis label correction policy", options=correction_policies, value=p.xaxis.label_correction_policy,
 )
 x_correction_policy.js_link("value", p.xaxis[0], "label_correction_policy")
 
 y_axis_orientation = Select(
-    title="Y-Axis label orientation", options=orientations, value=p.yaxis.major_label_orientation
+    title="Y-Axis label orientation", options=orientations, value=p.yaxis.major_label_orientation,
 )
 y_axis_orientation.js_link("value", p.yaxis[0], "major_label_orientation")
 
 y_correction_policy = Select(
-    title="Y-Axis label correction policy", options=correction_policies, value=p.yaxis.label_correction_policy
+    title="Y-Axis label correction policy", options=correction_policies, value=p.yaxis.label_correction_policy,
 )
 y_correction_policy.js_link("value", p.yaxis[0], "label_correction_policy")
 
@@ -65,6 +64,6 @@ show(
             column(x_axis_orientation, x_correction_policy),
             column(y_axis_orientation, y_correction_policy),
         ),
-        p
+        p,
     ),
 )

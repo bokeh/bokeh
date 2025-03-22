@@ -458,12 +458,13 @@ export abstract class AxisView extends GuideRendererView {
       const j = ids[ids.length - 1]
 
       if (this.dimension == 0) {
-        if (correction_policy == "always" || (correction_policy == "auto" && abs(angle%Math.PI) == Math.PI/2)){
+        if (correction_policy == "always" || (correction_policy == "auto" && abs(angle%Math.PI) == Math.PI/2)) {
           correct_x(i)
           correct_x(j)
         }
-      } else if (this.dimension == 1) {
-        if (correction_policy == "always" || (correction_policy == "auto" && angle%Math.PI == 0)){
+      }
+      if (this.dimension == 1) {
+        if (correction_policy == "always" || (correction_policy == "auto" && angle%Math.PI == 0)) {
           correct_y(i)
           correct_y(j)
         }
