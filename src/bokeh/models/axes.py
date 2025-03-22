@@ -180,7 +180,7 @@ class Axis(GuideRenderer):
 
     axis_label_text_font_style = Override(default="italic")
 
-    axis_label_correction = Enum(CorrectionPolicy, default="auto", help="""
+    label_correction_policy = Enum(CorrectionPolicy, default="auto", help="""
     Operation on labels to keep them in the visible area if
     the label is to long and parts would be cut off.
     """)
