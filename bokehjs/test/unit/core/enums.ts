@@ -53,6 +53,10 @@ describe("enums module", () => {
     expect([...enums.ContextWhich]).to.be.equal(["start", "center", "end", "all"])
   })
 
+  it("should have CorrectionPolicy", () => {
+    expect([...enums.CorrectionPolicy]).to.be.equal(["auto", "always", "never"])
+  })
+
   it("should have Dimension", () => {
     expect([...enums.Dimension]).to.be.equal(["width", "height"])
   })
