@@ -748,8 +748,8 @@ _dttf_fields = ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes',
 
 def create_format_table() -> str:
     # Header
-    table = "Scale         Primary          Date Context    Year Context\n"
-    table += "-" * 56 + "\n"  # Separator line (?)
+    table = "Scale         Format           1st Context    2nd Context\n"
+    table += "-" * 56 + "\n"  # Separator line
     
     # Get formatters for each context level
     primary = _dttf
