@@ -535,9 +535,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         }
       }
 
-      for (const [prop, old_value, new_value] of changed) {
-        if (prop.may_have_refs && this._needs_invalidate(old_value, new_value)) {
-          document._invalidate_all_models()
+      for (const [prop, _, new_value] of changed) {
+        if (prop.may_have_refs) {
+          document.partially_update_all_models(new_value)
           break
         }
       }
@@ -638,28 +638,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this._doc_detached()
       this.document = null
     }
-  }
-
-  protected _needs_invalidate(old_value: unknown, new_value: unknown): boolean {
-    const new_refs = new Set<HasProps>()
-    HasProps._value_record_references(new_value, new_refs, {recursive: false})
-
-    const old_refs = new Set<HasProps>()
-    HasProps._value_record_references(old_value, old_refs, {recursive: false})
-
-    for (const new_id of new_refs) {
-      if (!old_refs.has(new_id)) {
-        return true
-      }
-    }
-
-    for (const old_id of old_refs) {
-      if (!new_refs.has(old_id)) {
-        return true
-      }
-    }
-
-    return false
   }
 
   protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
