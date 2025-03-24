@@ -401,7 +401,9 @@ export abstract class GlyphView extends DOMComponentView {
     // examine just the top level of a 2-d array to validate
     // that every subitem is an array of some kind, as expected
     if (prop instanceof p.CoordinateSeqSpec) {
-      if (!every(array, isArrayable)) {
+      // work around issues with empty data sources (see #14424)
+      const indeterminate_length = this.renderer.data_source.get_value().get_length() == null
+      if (!indeterminate_length && !every(array, isArrayable)) {
         const msg = `expected a 2-d array for ${this.model.type}.${prop.attr}`
         logger.error(msg)
         throw new Error(msg)

@@ -30,6 +30,7 @@ import {
   Node,
   PanTool,
   Pane,
+  Patches,
   Plot,
   Range1d,
   RangeTool,
@@ -1845,6 +1846,19 @@ describe("Bug", () => {
 <path fill="rgb(0,128,255)" stroke="none" paint-order="stroke" d="M 0 0 L 100 0 L 100 100 L 0 100 L 0 0 Z" fill-opacity="0.5"/>\
 </svg>\
 ')
+    })
+  })
+
+  describe("in issue #14424", () => {
+    it("doesn't allow render a plot with Patches glyph and an empty data source", async () => {
+      const data_source = new ColumnDataSource({data: {}})
+
+      const plot = new Plot()
+      const glyph = new Patches({xs: {field: "xs"}, ys: {field: "ys"}})
+      const renderer = new GlyphRenderer({data_source, glyph})
+      plot.renderers.push(renderer)
+
+      await display(plot)
     })
   })
 })
