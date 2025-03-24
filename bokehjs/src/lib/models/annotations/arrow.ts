@@ -48,6 +48,32 @@ export class ArrowView extends AnnotationView {
       end: this.model.end,
       ...mixins.attrs_of(this.model, "", mixins.LineVector),
     })
+
+    const update_scales = (units: CoordinateUnits, x: p.CoordinateSpec, y: p.CoordinateSpec) => {
+      switch (units) {
+        case "data": {
+          x.scale_override = null
+          y.scale_override = null
+          break
+        }
+        case "canvas": {
+          const {canvas} = this.plot_view
+          x.scale_override = canvas.bbox.x_screen
+          y.scale_override = canvas.bbox.y_screen
+          break
+        }
+        case "screen": {
+          const {frame} = this.plot_view
+          x.scale_override = frame.bbox.x_view
+          y.scale_override = frame.bbox.y_view
+          break
+        }
+      }
+    }
+
+    const {x0, y0, x1, y1} = this._renderer.glyph.properties
+    update_scales(this.model.start_units, x0, y0)
+    update_scales(this.model.end_units, x1, y1)
   }
 
   _paint(_ctx: Context2d): void {}

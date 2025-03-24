@@ -568,11 +568,11 @@ export abstract class GlyphView extends DOMComponentView {
   protected _mask_data?(): Indices
 
   map_data(): void {
-    const {x_scale, y_scale} = this.renderer.coordinates
+    const {coordinates} = this.renderer
     const {base_glyph} = this
 
     const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
-      const scale = prop.dimension == "x" ? x_scale : y_scale
+      const scale = prop.get_scale(coordinates)
       const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray
       if (array instanceof RaggedArray) {
         return new RaggedArray(array.offsets, scale.v_compute(array.data))

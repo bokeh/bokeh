@@ -1,4 +1,5 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
+import type {CoordinateUnits} from "core/enums"
 import type {Context2d} from "core/util/canvas"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -44,6 +45,30 @@ export class BandView extends UpperLowerView {
       ...mixins.attrs_of(this.model, "", mixins.FillVector),
       ...mixins.attrs_of(this.model, "", mixins.HatchVector),
     })
+
+    const update_scales = (units: CoordinateUnits, prop: p.XOrYCoordinateSpec) => {
+      switch (units) {
+        case "data": {
+          prop.scale_override = null
+          break
+        }
+        case "canvas": {
+          const {x_screen, y_screen} = this.plot_view.canvas.bbox
+          prop.scale_override = prop.dimension == "x" ? x_screen : y_screen
+          break
+        }
+        case "screen": {
+          const {x_view, y_view} = this.plot_view.frame.bbox
+          prop.scale_override = prop.dimension == "x" ? x_view : y_view
+          break
+        }
+      }
+    }
+
+    const {lower, upper, base} = this._renderer.glyph.properties
+    update_scales(this.model.properties.lower.units, lower)
+    update_scales(this.model.properties.upper.units, upper)
+    update_scales(this.model.properties.base.units, base)
   }
 
   _paint(_ctx: Context2d): void {}
