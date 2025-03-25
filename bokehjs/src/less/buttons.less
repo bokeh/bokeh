@@ -10,10 +10,12 @@
 
   padding: var(--padding-vertical) var(--padding-horizontal);
   font-size: var(--font-size);
-  border: 1px solid transparent;
+  border: var(--border-width) var(--border-style) transparent;
   border-radius: var(--border-radius);
 
   outline: 0;
+  // @mattpap - I don't really like this style of inset focus ring
+  // but I guess this should be tackled in a separate PR?
   outline-offset: -5px;
 
   .no-user-select();
@@ -24,7 +26,7 @@
 
   &:active, .bk-active& {
     background-image: none;
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    box-shadow: var(--box-shadow-inset);
   }
 }
 
@@ -60,56 +62,56 @@
   }
 
   &:focus, &:active {
-    outline: 1px dotted #ccc;
+    outline: var(--outline);
   }
 }
 
 ::file-selector-button {
-  @btn-default-color:  #333;
-  @btn-default-bg:     #fff;
-  @btn-default-border: #ccc;
+  @btn-default-color:  var(--color);
+  @btn-default-bg:     var(--background-color);
+  @btn-default-border: var(--border-color);
   .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
 }
 
 .bk-btn-default {
-  @btn-default-color:  #333;
-  @btn-default-bg:     #fff;
-  @btn-default-border: #ccc;
+  @btn-default-color:  var(--color);
+  @btn-default-bg:     var(--background-color);
+  @btn-default-border: var(--border-color);
   .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
 }
 
 .bk-btn-primary {
-  @btn-primary-color:  #fff;
-  @btn-primary-bg:     #428bca;
+  @btn-primary-color:  var(--inverted-color);
+  @btn-primary-bg:     var(--primary-color);
   @btn-primary-border: darken(@btn-primary-bg, 5%);
   .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
 }
 
 .bk-btn-success {
-  @btn-success-color:  #fff;
-  @btn-success-bg:     #5cb85c;
+  @btn-success-color:  var(--inverted-color);
+  @btn-success-bg:     var(--success-color);
   @btn-success-border: darken(@btn-success-bg, 5%);
   .button-variant(@btn-success-color; @btn-success-bg; @btn-success-border);
 }
 
 .bk-btn-warning {
-  @btn-warning-color:  #fff;
-  @btn-warning-bg:     #f0ad4e;
+  @btn-warning-color:  var(--inverted-color);
+  @btn-warning-bg:     var(--warning-color);
   @btn-warning-border: darken(@btn-warning-bg, 5%);
   .button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border);
 }
 
 .bk-btn-danger {
-  @btn-danger-color:   #fff;
-  @btn-danger-bg:      #d9534f;
+  @btn-danger-color:   var(--inverted-color);
+  @btn-danger-bg:      var(--danger-color);
   @btn-danger-border:  darken(@btn-danger-bg, 5%);
   .button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
 }
 
 .bk-btn-light {
-  @btn-light-color:  #333;
-  @btn-light-bg:     #fff;
-  @btn-light-border: #ccc;
+  @btn-light-color:  var(--color);
+  @btn-light-bg:     var(--background-color);
+  @btn-light-border: var(--border-color);
   .button-variant(@btn-light-color; @btn-light-bg; @btn-light-border);
   border-color: transparent;
 }

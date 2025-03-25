@@ -72,6 +72,9 @@
   width: var(--bokeh-ctrl-size);
   height: var(--bokeh-ctrl-size);
   background-color: var(--bokeh-ctrl-color);
+  // @mattpap - this changes makes the icons appear darker. Personally, I prefer
+  // the higher contrast with the background, but let me know if I should save
+  // this change for a separate PR.
   .icon-mask(var(--bokeh-icon-y-grip), var(--color));
 }
 
@@ -143,6 +146,8 @@
 }
 
 :host {
+  // @matpapp - we will eventually need to find a way to make these grab areas
+  // larger for accessibility
   --resize-radius: 3px;
   --resize-depth: calc(2*var(--resize-radius));
 }

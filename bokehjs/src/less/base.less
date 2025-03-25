@@ -31,15 +31,29 @@
 
   --border-width: 1px;
   --border-style: solid;
-  --box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  --box-shadow-color: rgba(0, 0, 0, 0.175);
+  --box-shadow: 2px 4px 8px var(--box-shadow-color);
+  --box-shadow-inset: inset 0 3px 5px var(--box-shadow-color);
+  // symmetric about the x-axis
+  --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color);
   --outline-width: 1px;
   --outline-style: dotted;
   --outline-color: #ccc;
   --divider-width: 1px;
 
 
-  --border: var(--border-width) var(--border-color) var(--border-style);
+  --border: var(--border-color) var(--border-style) var(--border-width);
+  --outline: var(--outline-color) var(--outline-style) var(--outline-width);
   --divider: 1px var(--divider-color) solid;
+
+  --primary-color: #428bca;
+  --success-color: #5cb85c;
+  --warning-color: #5cb85c;
+  --danger-color: #d9534f;
+  // @mattpap - not sure what to call this, the color
+  // for text when the background is one of the colors
+  // above
+  --inverted-color: #fff;
 }
 
 :host {
