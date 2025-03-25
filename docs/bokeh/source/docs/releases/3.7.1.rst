@@ -1,0 +1,15 @@
+.. _release-3-7-1:
+
+3.7.1
+=====
+
+Bokeh version ``3.7.1`` (March 2025) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Fixed a regression in detaching models from a document in bokehjs (:bokeh-pull:`14430`)
+* Fixed rendering of empty ``Patches`` glyph (:bokeh-pull:`14436`)
+* Improved performance of scatter plots using WebGL backend (:bokeh-pull:`14421`)
+* Improved quality of examples (:bokeh-pull:`14397`, :bokeh-pull:`14395`)
