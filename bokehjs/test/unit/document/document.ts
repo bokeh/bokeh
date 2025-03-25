@@ -199,7 +199,7 @@ describe("Document", () => {
   })
 
   it("tracks all_models", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
     const m = new SomeModel()
@@ -220,7 +220,7 @@ describe("Document", () => {
   })
 
   it("tracks all_models with list property", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
     const m = new SomeModelWithChildren()
@@ -247,7 +247,7 @@ describe("Document", () => {
   })
 
   it("tracks all_models with list property where list elements have a child", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
     const m = new SomeModelWithChildren()
@@ -320,7 +320,7 @@ describe("Document", () => {
   })
 
   it("can have all_models with multiple references", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
 
@@ -354,7 +354,7 @@ describe("Document", () => {
   })
 
   it("can have all_models with cycles", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
 
@@ -380,7 +380,7 @@ describe("Document", () => {
   })
 
   it("can have all_models with cycles through lists", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
 
@@ -750,7 +750,7 @@ describe("Document", () => {
   })
 
   it("can patch a reference property", () => {
-    const d = new Document()
+    const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
     expect(d.all_models.size).to.be.equal(0)
 
