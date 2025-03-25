@@ -1,11 +1,9 @@
 @import "./_mixins.less";
 
 :host {
-  // Some of these colors are not exactly the same but they are
-  // close to other defined colors
-
   --tooltip-border: var(--divider-color);
-  --tooltip-color: var(--color);
+  --tooltip-color: var(--background-color);
+  --tooltip-text: var(--color);
 
   --tooltip-arrow-color: var(--icon-color);
   --tooltip-arrow-width: 10px;
@@ -21,8 +19,8 @@
   position: fixed;
   padding: 5px;
   border: 1px solid var(--tooltip-border);
-  color: var(--tooltip-color);
-  background-color: var(--background-color);
+  color: var(--tooltip-text);
+  background-color: var(--tooltip-color);
   opacity: 0.95;
   z-index: var(--bokeh-top-level);
   margin: 0; // cancel native popover styling
