@@ -3,12 +3,12 @@
   flex-direction: column;
   flex-wrap: nowrap;
   padding: 2px;
-  // Gab: So I think the 0.5 alpha value is to help this look good no
-  // matter what background color is used for the data viz, but this
-  // creates contrast issues
+  // @mattpap: So I think the 0.5 alpha value is to help this look good no
+  // matter what background color is used for the data viz, but this creates
+  // contrast issues when the background is dark, and text color of the
+  // attribution is also dark. Not sure what to do about this. Any thoughts?
   background-color: rgba(255, 255, 255, 0.5);
-  // How to make this relative to the base font size?
-  font-size: 9px;
+  font-size: 0.5625rem; // 9px if base font is 16px
   line-height: 1.05;
   white-space: nowrap;
   max-width: var(--max-width);
