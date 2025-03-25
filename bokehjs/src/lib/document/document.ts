@@ -78,6 +78,12 @@ export const documents: Document[] = []
 
 export const DEFAULT_TITLE = "Bokeh Application"
 
+export type DocumentOptions = {
+  roots?: Iterable<HasProps>
+  resolver?: ModelResolver
+  recompute_timeout?: number
+}
+
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document implements Equatable {
@@ -101,8 +107,9 @@ export class Document implements Equatable {
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
+  protected _recompute_timeout: number
 
-  constructor(options: {roots?: Iterable<HasProps>, resolver?: ModelResolver} = {}) {
+  constructor(options: DocumentOptions = {}) {
     documents.push(this)
     this._init_timestamp = Date.now()
     this._resolver = options.resolver ?? new ModelResolver(default_resolver)
@@ -119,6 +126,7 @@ export class Document implements Equatable {
     this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
+    this._recompute_timeout = options.recompute_timeout ?? 30_000 /* 30s */
     if (options.roots != null) {
       this._add_roots(...options.roots)
     }
@@ -252,10 +260,15 @@ export class Document implements Equatable {
   }
 
   protected _schedule_recompute_all_models(): void {
-    this._cancel_recompute_all_models()
-    this._recompute_timer = setTimeout(() => {
+    const timeout = this._recompute_timeout
+    if (isNaN(timeout) || timeout <= 0) {
       this._recompute_all_models()
-    }, 30_000) // 30s
+    } else if (isFinite(timeout)) {
+      this._cancel_recompute_all_models()
+      this._recompute_timer = setTimeout(() => {
+        this._recompute_all_models()
+      }, timeout)
+    }
   }
 
   protected _recompute_all_models(): void {
