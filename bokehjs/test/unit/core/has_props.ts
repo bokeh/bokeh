@@ -28,6 +28,7 @@ class TestModel extends HasProps {
   declare properties: TestModel.Props
   constructor(attrs?: Partial<TestModel.Attrs>) {
     super(attrs)
+    this.maybe_initialize(TestModel.__name__, attrs)
   }
   static {
     this.define<TestModel.Props>(({Float, Str, Nullable, Ref, List, Set, Mapping, Struct}) => ({

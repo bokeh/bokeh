@@ -43,6 +43,7 @@ class Some1Model extends Model {
   declare properties: Some1Model.Props
   constructor(attrs?: Partial<Some1Model.Attrs>) {
     super(attrs)
+    this.maybe_initialize(Some1Model.__name__, attrs)
   }
   static {
     this.define<Some1Model.Props>(({Bool, Float, Str, List, Ref, Nullable}) => ({
