@@ -65,7 +65,7 @@ export class TabsView extends LayoutDOMView {
     const layoutable = new Container<LayoutDOMView>()
 
     for (const view of this.child_views) {
-      view.style.append(":host", {grid_area: "stack"})
+      view.parent_style.append(":host", {grid_area: "stack"})
 
       if (view instanceof LayoutDOMView && view.layout != null) {
         layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)

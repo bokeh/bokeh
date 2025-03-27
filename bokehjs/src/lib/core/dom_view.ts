@@ -172,7 +172,9 @@ export abstract class DOMComponentView extends DOMElementView {
     this._applied_css_classes = []
     this._applied_stylesheets = []
     for (const stylesheet of this.computed_stylesheets()) {
-      stylesheet.clear()
+      if (!stylesheet.persistent) {
+        stylesheet.clear()
+      }
     }
   }
 

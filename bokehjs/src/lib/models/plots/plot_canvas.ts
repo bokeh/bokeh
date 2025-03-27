@@ -1022,7 +1022,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const right_width = bbox.width - right.left
 
     // TODO: don't replace here; inject stylesheet?
-    this.canvas.style.replace(`
+    this.canvas.parent_style.replace(`
       .bk-layer.bk-events {
         display: grid;
         grid-template-areas:

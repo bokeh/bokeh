@@ -700,7 +700,7 @@ export abstract class StyleSheet {
 export class InlineStyleSheet extends StyleSheet {
   protected override readonly el = style()
 
-  constructor(css?: string | CSSStyleSheetDecl, id?: string) {
+  constructor(css?: string | CSSStyleSheetDecl, id?: string, readonly persistent: boolean = false) {
     super()
     if (isString(css)) {
       this._update(css)

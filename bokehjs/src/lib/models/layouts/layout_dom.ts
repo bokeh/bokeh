@@ -365,6 +365,10 @@ export abstract class LayoutDOMView extends PaneView {
   update_layout(): void {
     this.update_style()
 
+    for (const child_view of this.child_views) {
+      child_view.parent_style.clear()
+    }
+
     for (const child_view of this.layoutable_views) {
       child_view.update_layout()
     }
