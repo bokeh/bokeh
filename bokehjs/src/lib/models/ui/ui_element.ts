@@ -30,7 +30,7 @@ const {round, floor} = Math
 export abstract class UIElementView extends StyledElementView {
   declare model: UIElement
 
-  protected readonly display = new InlineStyleSheet()
+  protected readonly display = new InlineStyleSheet("", "display")
 
   override computed_stylesheets(): InlineStyleSheet[] {
     return [...super.computed_stylesheets(), this.display]

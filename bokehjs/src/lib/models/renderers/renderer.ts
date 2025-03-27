@@ -35,7 +35,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this._panel = panel
   }
 
-  readonly position = new InlineStyleSheet()
+  readonly position = new InlineStyleSheet("", "position")
 
   override computed_stylesheets(): InlineStyleSheet[] {
     return [...super.computed_stylesheets(), this.position]

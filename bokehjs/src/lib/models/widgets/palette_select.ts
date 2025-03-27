@@ -28,8 +28,8 @@ export class PaletteSelectView extends InputWidgetView {
   protected _value_el: HTMLElement
   protected _pane: DropPane
 
-  protected readonly _style = new InlineStyleSheet()
-  protected readonly _style_menu = new InlineStyleSheet()
+  protected readonly _style = new InlineStyleSheet("", "select")
+  protected readonly _style_menu = new InlineStyleSheet("", "menu")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), palette_select_css.default, item_css.default, icons_css.default, this._style]

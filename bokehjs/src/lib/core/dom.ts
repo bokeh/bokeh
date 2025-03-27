@@ -700,12 +700,15 @@ export abstract class StyleSheet {
 export class InlineStyleSheet extends StyleSheet {
   protected override readonly el = style()
 
-  constructor(css?: string | CSSStyleSheetDecl) {
+  constructor(css?: string | CSSStyleSheetDecl, id?: string) {
     super()
     if (isString(css)) {
       this._update(css)
     } else if (css != null) {
       this._update(compose_stylesheet(css))
+    }
+    if (id != null) {
+      this.el.dataset.css = id
     }
   }
 

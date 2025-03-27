@@ -23,7 +23,7 @@ export type CSSVariables = typeof CSSVariables["__type__"]
 export abstract class StyledElementView extends DOMComponentView {
   declare model: StyledElement
 
-  readonly style = new InlineStyleSheet()
+  readonly style = new InlineStyleSheet("", "style")
 
   override computed_stylesheets(): InlineStyleSheet[] {
     return [...super.computed_stylesheets(), this.style]
