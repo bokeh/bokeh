@@ -37,6 +37,7 @@ import {
   Rect,
   Row,
   Scatter,
+  Spacer,
   TablerIcon,
   TapTool,
   TileRenderer,
@@ -1859,6 +1860,35 @@ describe("Bug", () => {
       plot.renderers.push(renderer)
 
       await display(plot)
+    })
+  })
+
+  describe("in issue #14435", () => {
+    it("doesn't allow maintain parent layout styles after child re-renders", async () => {
+      const s0 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: red; }"]})
+      const s1 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: green; }"]})
+      const s2 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: blue; }"]})
+
+      const row = new Row({children: [s0, s1, s2]})
+      const {view} = await display(row)
+
+      const sv0 = view.owner.get_one(s0)
+      const sv1 = view.owner.get_one(s1)
+      const sv2 = view.owner.get_one(s2)
+
+      const css = "\n:host {\n  flex: 0 0 50px;\n}"
+
+      expect(sv0.parent_style.css).to.be.equal(css)
+      expect(sv1.parent_style.css).to.be.equal(css)
+      expect(sv2.parent_style.css).to.be.equal(css)
+
+      sv0.rerender()
+      sv1.rerender()
+      sv2.rerender()
+
+      expect(sv0.parent_style.css).to.be.equal(css)
+      expect(sv1.parent_style.css).to.be.equal(css)
+      expect(sv2.parent_style.css).to.be.equal(css)
     })
   })
 })
