@@ -48,6 +48,7 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource()
         assert isinstance(ds, bms.DataSource)
         assert isinstance(ds.selected, Selection)
+        assert ds.length == 0
 
     def test_selected_is_readonly(self) -> None:
         ds = bms.ColumnDataSource()
@@ -65,12 +66,14 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(data)
         assert ds.data == data
         assert set(ds.column_names) == set(data.keys())
+        assert ds.length == 1
 
     def test_init_dict_data_kwarg(self) -> None:
         data = dict(a=[1], b=[2])
         ds = bms.ColumnDataSource(data=data)
         assert ds.data == data
         assert set(ds.column_names) == set(data.keys())
+        assert ds.length == 1
 
     def test_init_dataframe_arg(self) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -83,6 +86,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
+        assert ds.length == 2
 
     def test_data_accepts_dataframe_arg(self, constructor) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -97,6 +101,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
+        assert ds.length == 2
 
     def test_init_dataframe_data_kwarg(self, constructor) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -109,6 +114,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
+        assert ds.length == 2
 
     def test_init_dataframe_index_named_column(self, constructor) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
@@ -121,6 +127,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['level_0'], np.ndarray)
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == {"level_0"}
+        assert ds.length == 2
 
     def test_data_accepts_dataframe_index_named_column(self, constructor) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
@@ -135,6 +142,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['level_0'], np.ndarray)
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == {"level_0"}
+        assert ds.length == 2
 
     def test_init_dataframe_index_named_column_level_0(self, constructor) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5], level_0=[2, 1])
@@ -154,6 +162,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
+        assert ds.length == 2
 
     def test_data_accepts_dataframe_column_categoricalindex(self) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
@@ -169,6 +178,7 @@ class TestColumnDataSource:
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
+        assert ds.length == 2
 
     def test_init_dataframe_nonstring_named_column(self) -> None:
         data = {1: [1, 2], 2: [2, 3]}
@@ -187,6 +197,7 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(group)
         s = group.describe()
         assert len(ds.column_names) == 49
+        assert ds.length == 9
         assert isinstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
@@ -200,6 +211,7 @@ class TestColumnDataSource:
         ds.data = group
         s = group.describe()
         assert len(ds.column_names) == 49
+        assert ds.length == 9
         assert isinstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
@@ -211,6 +223,7 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(data=group)
         s = group.describe()
         assert len(ds.column_names) == 49
+        assert ds.length == 9
         assert isinstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
@@ -223,6 +236,7 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(data=group)
         s = group.describe()
         assert len(ds.column_names) == 17
+        assert ds.length == 4
         assert isinstance(ds.data['index'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
@@ -237,6 +251,7 @@ class TestColumnDataSource:
         ds.data = group
         s = group.describe()
         assert len(ds.column_names) == 17
+        assert ds.length == 4
         assert isinstance(ds.data['index'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
@@ -279,12 +294,14 @@ class TestColumnDataSource:
         assert name
         ds.remove("foo")
         assert ds.column_names == []
+        assert ds.length == 0
 
     def test_remove_exists2(self) -> None:
         with pytest.warns(UserWarning, match=r"Unable to find column 'foo' in data source") as w:
             ds = bms.ColumnDataSource()
             ds.remove("foo")
             assert ds.column_names == []
+            assert ds.length == 0
             assert len(w) == 1
             assert w[0].category == UserWarning
             assert str(w[0].message) == "Unable to find column 'foo' in data source"

@@ -252,6 +252,13 @@ class ColumnDataSource(ColumnarDataSource):
         '''
         return list(self.data)
 
+    @property
+    def length(self) -> int:
+        ''' Number of row entries in the data. Note: All columns have the same number of row entries.
+
+        '''
+        return len(self.data[next(iter(self.data))]) if self.data else 0
+
     @staticmethod
     def _data_from_df(df: pd.DataFrame) -> DataDict:
         ''' Create a ``dict`` of columns from a Pandas ``DataFrame``,

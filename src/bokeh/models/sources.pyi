@@ -69,6 +69,9 @@ class ColumnDataSource(ColumnarDataSource):
     @property
     def column_names(self) -> list[str]: ...
 
+    @property
+    def length(self) -> int: ...
+
     @classmethod
     def from_df(cls, data: pd.DataFrame) -> DataDict: ...
 
