@@ -9,14 +9,18 @@
 
 @slickgrid_images: "@{slickgrid}/images";
 
+:host {
+  --selected: #f0f8ff;
+}
+
 // slick-default-theme.css
 .slick-header-columns {
-  border-bottom: 1px solid silver;
+  border-bottom: var(--border);
   background-image: none;
 }
 
 .slick-header-column {
-  border-right: 1px solid transparent;
+  border-right: var(--border-width) var(--border-style) transparent;
   background-image: none;
 }
 
@@ -25,7 +29,7 @@
 }
 
 .slick-header-column:hover, .slick-header-column-active {
-  background-color: #F0F8FF;
+  background-color: var(--selected);
   background-image: none;
 }
 
