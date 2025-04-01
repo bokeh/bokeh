@@ -616,7 +616,7 @@ export class LegendView extends AnnotationView {
 
       ctx.layer.undo_transform(() => {
         const glyph_el = glyph.canvas
-        const glyph_bbox = bounding_box(glyph_el).relative_to(canvas_bbox)
+        const glyph_bbox = bounding_box(glyph_el).relative_to(canvas_bbox).scale(ctx.layer.pixel_ratio)
         ctx.drawImage(glyph_el, glyph_bbox.x, glyph_bbox.y)
       })
 
