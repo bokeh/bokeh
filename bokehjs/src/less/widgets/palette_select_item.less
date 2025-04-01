@@ -15,16 +15,16 @@
 }
 
 .bk-item {
-  border: 1px solid transparent;
+  border: var(--border-width) var(--border-style) transparent;
 
   &.bk-active {
     border-color: var(--highlight-color);
   }
   &:hover {
-    background-color: #f9f9f9;
+    background-color: var(--hover-color);
   }
   &:focus, &:focus-visible {
-    outline: 1px dotted var(--highlight-color);
+    outline: var(--outline-width) var(--outline-style) var(--highlight-color);
     outline-offset: -1px;
   }
   &::-moz-focus-inner {
