@@ -121,7 +121,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, no_image?: boolean}
+type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -236,12 +236,13 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       await Log.enable()
       await Performance.enable({timeDomain: "timeTicks"})
 
-      async function override_metrics(dpr: number = 1): Promise<void> {
+      async function override_metrics(settings: {dpr?: number, scale?: number} = {}): Promise<void> {
         await Emulation.setDeviceMetricsOverride({
           width: 2000,
           height: 4000,
-          deviceScaleFactor: dpr,
+          deviceScaleFactor: settings.dpr ?? 1,
           mobile: false,
+          scale: settings.scale ?? 1,
         })
       }
 
@@ -554,13 +555,13 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
               const seq = JSON.stringify(to_seq(suites, test))
               const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
-                if (test.dpr != null) {
-                  await override_metrics(test.dpr)
+                if (test.dpr != null || test.scale != null) {
+                  await override_metrics({dpr: test.dpr, scale: test.scale})
                 }
                 try {
                   return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
-                  if (test.dpr != null) {
+                  if (test.dpr != null || test.scale != null) {
                     await override_metrics()
                   }
                 }

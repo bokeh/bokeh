@@ -21,6 +21,7 @@ declare type It = ItDecl & {
   skip: Decl
   allowing: (settings: number | TestSettings) => Decl
   dpr: (dpr: number) => Decl
+  scale: (scale: number) => Decl
   no_image: Decl
 }
 

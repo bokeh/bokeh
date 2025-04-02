@@ -46,6 +46,7 @@ export type Test = {
   threshold?: number
   retries?: number
   dpr?: number
+  scale?: number
   no_image?: boolean
 }
 
@@ -76,6 +77,7 @@ type _It = ItFn & {
   skip: ItFn
   allowing: (settings: number | TestSettings) => ItFn
   dpr: (dpr: number) => ItFn
+  scale: (scale: number) => ItFn
   no_image: ItFn
 }
 
@@ -111,6 +113,14 @@ export function dpr(dpr: number): ItFn {
   }
 }
 
+export function scale(scale: number): ItFn {
+  return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
+    const test = it(description, fn)
+    test.scale = scale
+    return test
+  }
+}
+
 export function skip(description: string, fn: ItFunc | ItAsyncFunc): Test {
   return _it(description, fn, true)
 }
@@ -125,6 +135,7 @@ export const it: _It = ((description: string, fn: ItFunc | ItAsyncFunc): Test =>
 it.skip = skip
 it.allowing = allowing
 it.dpr = dpr
+it.scale = scale
 it.no_image = no_image
 
 export function before_each(fn: Func | AsyncFunc): void {
