@@ -67,6 +67,7 @@ import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
 import type * as p from "@bokehjs/core/properties"
+import {load_image} from "@bokehjs/core/util/image"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
@@ -4378,6 +4379,32 @@ describe("Bug", () => {
 
       expect(p0.y_range.start).to.be.equal(-4033457.249070633)
       expect(p0.y_range.end).to.be.equal(10033457.249070633)
+    })
+  })
+
+  describe("in issue #14422", () => {
+    it.scale(3)("doesn't allow to correctly export image with Legend annotation with scaling", async () => {
+      const plot = fig([200, 200])
+      plot.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+      plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+
+      const canvas = document.createElement("canvas")
+      canvas.width = 200
+      canvas.height = 200
+
+      const html = new HTML({html: canvas, style: {width: "200px", height: "200px"}})
+      const pane = new Pane({elements: [html]})
+
+      const {view} = await display(row([plot, pane]), [400, 200])
+
+      const pv = view.owner.get_one(plot)
+      const blob = await pv.export().to_blob()
+      const ctx = canvas.getContext("2d")!
+      const url = URL.createObjectURL(blob)
+      const image = await load_image(url)
+      ctx.drawImage(image, 0, 0, 200, 200)
     })
   })
 })
