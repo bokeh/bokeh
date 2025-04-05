@@ -257,7 +257,18 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Number of row entries in the data. Note: All columns have the same number of row entries.
 
         '''
-        return len(self.data[next(iter(self.data))]) if self.data else 0
+        if not self.data:
+            return 0
+
+        data_lengths = {len(v) for _, v in self.data.items()}
+
+        if len(data_lengths) == 0:
+            return 0
+        elif len(data_lengths) == 1:
+            return next(iter(data_lengths))
+        else:
+            raise RuntimeError(f"expected all columns to have the same length, "
+                               f"got {len(data_lengths)} different lengths: {data_lengths}")
 
     @staticmethod
     def _data_from_df(df: pd.DataFrame) -> DataDict:
