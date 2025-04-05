@@ -257,9 +257,6 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Number of row entries in the data. Note: All columns have the same number of row entries.
 
         '''
-        if not self.data:
-            return 0
-
         data_lengths = {len(v) for _, v in self.data.items()}
 
         if len(data_lengths) == 0:
