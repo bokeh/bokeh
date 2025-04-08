@@ -39,7 +39,7 @@
         title: {
           type: "object",
           name: "Title",
-          id: "p1006",
+          id: "p1008",
         },
         toolbar: {
           type: "object",

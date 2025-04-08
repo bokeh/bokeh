@@ -44,7 +44,7 @@
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1009",
+                    id: "p1011",
                     attributes: {
                       indices: [],
                       line_indices: [],
@@ -110,12 +110,12 @@
               data_source: {
                 type: "object",
                 name: "ColumnDataSource",
-                id: "p1014",
+                id: "p1016",
                 attributes: {
                   selected: {
                     type: "object",
                     name: "Selection",
-                    id: "p1015",
+                    id: "p1017",
                     attributes: {
                       indices: [],
                       line_indices: [],
