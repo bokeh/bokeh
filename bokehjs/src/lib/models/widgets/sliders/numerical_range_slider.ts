@@ -15,7 +15,7 @@ export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
         max: end,
       },
       start: value,
-      step: step,
+      step,
     }
   }
 
@@ -25,8 +25,8 @@ export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
 
   protected _update_value_to_bounds(): void {
     const {start, end, value} = this.model
-    if (value[0] < start) {value[0] = start;}
-    if (value[1] > end) {value[1] = end;}
+    if (value[0] < start) { value[0] = start }
+    if (value[1] > end) { value[1] = end }
     this._change(value)
   }
 }
