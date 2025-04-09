@@ -6,18 +6,28 @@ export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
   declare model: NumericalRangeSlider
 
   protected _calc_to(): SliderSpec<number> {
+    this._update_value_to_bounds()
+    const {start, end, value, step} = this.model
+
     return {
       range: {
-        min: this.model.start,
-        max: this.model.end,
+        min: start,
+        max: end,
       },
-      start: this.model.value,
-      step: this.model.step,
+      start: value,
+      step: step,
     }
   }
 
   protected _calc_from(values: number[]): number[] {
     return values
+  }
+
+  protected _update_value_to_bounds(): void {
+    const {start, end, value} = this.model
+    if (value[0] < start) {value[0] = start;}
+    if (value[1] > end) {value[1] = end;}
+    this._change(value)
   }
 }
 

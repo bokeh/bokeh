@@ -9,6 +9,7 @@ export abstract class BaseNumericalSliderView extends AbstractSliderView<number>
     super.connect_signals()
 
     const {start, end, step} = this.model.properties
+    this.on_change([start, end], () => this._update_title())
     this.on_change([start, end, step], () => this._update_slider())
   }
 
