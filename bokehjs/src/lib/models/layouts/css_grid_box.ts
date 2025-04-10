@@ -64,7 +64,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
       styles.grid_row_end = `span ${row_span}`
       styles.grid_column_start = `${col + 1}`
       styles.grid_column_end = `span ${col_span}`
-      view.style.append(":host", styles)
+      view.parent_style.append(":host", styles)
 
       if (view instanceof LayoutDOMView && view.layout != null) {
         const r0 = row
@@ -124,10 +124,10 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     parse_sizing(cols, cols_template)
 
     for (const [[, row, col], i] of enumerate(this._children)) {
-      const child = this.child_views[i]
+      const view = this.child_views[i]
 
-      const {halign, valign} = child.box_sizing()
-      child.style.append(":host", {
+      const {halign, valign} = view.box_sizing()
+      view.parent_style.append(":host", {
         justify_self: halign ?? cols_template[col].align,
         align_self: valign ?? rows_template[row].align,
       })

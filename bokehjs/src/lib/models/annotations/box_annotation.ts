@@ -131,6 +131,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         top_units: "canvas",
         bottom_units: "canvas",
         level: this.model.level,
+        is_handle: true,
       }
 
       function attrs_of(source: AreaVisuals) {
@@ -163,7 +164,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       } = this.model
 
       this._handles = {
-        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         movable: this.model.movable}) : null,
+        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         in_cursor: "move", movable: this.model.movable}) : null,
         left:         resizable.left         ? new BoxAnnotation({...common, ...attrs.left,         in_cursor: ew_cursor}) : null,
         right:        resizable.right        ? new BoxAnnotation({...common, ...attrs.right,        in_cursor: ew_cursor}) : null,
         top:          resizable.top          ? new BoxAnnotation({...common, ...attrs.top,          in_cursor: ns_cursor}) : null,
@@ -469,7 +470,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   get movable(): boolean {
-    return this.model.movable != "none"
+    const movable = this.model.movable != "none"
+    return this.model.is_handle ? movable : this.model.editable && movable
   }
 
   private _hittable(): {[key in Box.HitTarget]: boolean} {
@@ -773,24 +775,25 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     } = this.model
 
     switch (target) {
-      case "top_left":     return this._handles.top_left == null     ? tl_cursor : null
-      case "top_right":    return this._handles.top_right == null    ? tr_cursor : null
-      case "bottom_left":  return this._handles.bottom_left == null  ? bl_cursor : null
-      case "bottom_right": return this._handles.bottom_right == null ? br_cursor : null
-      case "left":         return this._handles.left == null         ? ew_cursor : null
-      case "right":        return this._handles.right == null        ? ew_cursor : null
-      case "top":          return this._handles.top == null          ? ns_cursor : null
-      case "bottom":       return this._handles.bottom == null       ? ns_cursor : null
+      case "top_left":     return this._handles.top_left == null     ? tl_cursor : this._handles.top_left.tl_cursor
+      case "top_right":    return this._handles.top_right == null    ? tr_cursor : this._handles.top_right.tr_cursor
+      case "bottom_left":  return this._handles.bottom_left == null  ? bl_cursor : this._handles.bottom_left.bl_cursor
+      case "bottom_right": return this._handles.bottom_right == null ? br_cursor : this._handles.bottom_right.br_cursor
+      case "left":         return this._handles.left == null         ? ew_cursor : this._handles.left.ew_cursor
+      case "right":        return this._handles.right == null        ? ew_cursor : this._handles.right.ew_cursor
+      case "top":          return this._handles.top == null          ? ns_cursor : this._handles.top.ns_cursor
+      case "bottom":       return this._handles.bottom == null       ? ns_cursor : this._handles.bottom.ns_cursor
       case "area": {
-        if (this._handles.area == null) {
-          switch (this.model.movable) {
-            case "both": return in_cursor
-            case "x":    return ew_cursor
-            case "y":    return ns_cursor
-            case "none": return null
+        if (!this.movable) {
+          return null
+        } else if (this._handles.area == null) {
+          if (this._pan_state != null && in_cursor === "grab") {
+            return "grabbing"
+          } else {
+            return in_cursor
           }
         } else {
-          return null
+          return this._handles.area.in_cursor
         }
       }
     }
@@ -830,6 +833,7 @@ export namespace BoxAnnotation {
 
     use_handles: p.Property<boolean>
     handles: p.Property<BoxInteractionHandles>
+    is_handle: p.Property<boolean>
 
     inverted: p.Property<boolean>
 
@@ -916,14 +920,17 @@ export class BoxAnnotation extends Annotation {
       inverted:     [ Bool, false ],
     }))
 
-    this.internal<BoxAnnotation.Props>(({Str}) => ({
+    this.internal<BoxAnnotation.Props>(({Str, Bool}) => ({
       tl_cursor: [ Str, "nwse-resize" ],
       tr_cursor: [ Str, "nesw-resize" ],
       bl_cursor: [ Str, "nesw-resize" ],
       br_cursor: [ Str, "nwse-resize" ],
       ew_cursor: [ Str, "ew-resize" ],
       ns_cursor: [ Str, "ns-resize" ],
-      in_cursor: [ Str, "move" ],
+      in_cursor: [ Str, "grab" ],
+
+      // Is this BoxAnnotation functioning as a handle for another BoxAnnotation?
+      is_handle: [ Bool, false ],
     }))
 
     this.override<BoxAnnotation.Props>({

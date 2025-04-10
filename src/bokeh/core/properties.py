@@ -130,6 +130,7 @@ DataSpec Properties
 .. autoclass:: ColorSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
+.. autoclass:: FloatSpec
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
@@ -160,6 +161,8 @@ Special Properties
 Validation-only Properties
 --------------------------
 
+.. autoclass:: EagerDataFrame
+.. autoclass:: EagerSeries
 .. autoclass:: PandasDataFrame
 .. autoclass:: PandasGroupBy
 
@@ -224,11 +227,14 @@ __all__ = (
     'DeprecatedAlias',
     'Dict',
     'DistanceSpec',
+    'EagerDataFrame',
+    'EagerSeries',
     'Either',
     'Enum',
     'Factor',
     'FactorSeq',
     'Float',
+    'FloatSpec',
     'FontSize',
     'FontSizeSpec',
     'FontStyleSpec',
@@ -332,6 +338,7 @@ from .property.dataspec import ColorSpec
 from .property.dataspec import DashPatternSpec
 from .property.dataspec import DataSpec
 from .property.dataspec import DistanceSpec
+from .property.dataspec import FloatSpec
 from .property.dataspec import FontSizeSpec
 from .property.dataspec import FontStyleSpec
 from .property.dataspec import HatchPatternSpec
@@ -384,14 +391,16 @@ from .property.numeric import Size
 
 from .property.override import Override
 
-from .property.pd import PandasDataFrame
-from .property.pd import PandasGroupBy
+from .property.data_frame import EagerDataFrame
+from .property.data_frame import EagerSeries
+from .property.data_frame import PandasDataFrame
+from .property.data_frame import PandasGroupBy
 
 from .property.primitive import Bool
 from .property.primitive import Bytes
 from .property.primitive import Complex
-from .property.primitive import Int
 from .property.primitive import Float
+from .property.primitive import Int
 from .property.primitive import Null
 from .property.primitive import String
 

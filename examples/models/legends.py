@@ -11,8 +11,8 @@ from numpy import cos, linspace, pi, sin
 
 from bokeh.core.enums import LegendLocation
 from bokeh.io import show
-from bokeh.models import (ColumnDataSource, DataRange1d, Legend, Line, LinearAxis,
-                          PanTool, Plot, SaveTool, Scatter, WheelZoomTool)
+from bokeh.models import (ColumnDataSource, DataRange1d, Legend,
+                          Line, LinearAxis, Plot, Scatter)
 
 x = linspace(-2*pi, 2*pi, 400)
 y = sin(x)
@@ -39,16 +39,11 @@ line = plot.add_glyph(source, line_glyph)
 circle = Scatter(x="x", y="y2", size=6, line_color="red", fill_color="orange", fill_alpha=0.6)
 circle = plot.add_glyph(source, circle)
 
-pan = PanTool()
-wheel_zoom = WheelZoomTool()
-preview_save = SaveTool()
-
-plot.add_tools(pan, wheel_zoom, preview_save)
-
 # Add axes (Note it's important to add these before adding legends in side panels)
 plot.add_layout(LinearAxis(), "below")
 plot.add_layout(LinearAxis(), "left")
 plot.add_layout(LinearAxis(), "right")
+
 
 def add_legend(location, orientation, side, background_fill_color="#FFFFFF"):
     legend = Legend(
@@ -61,6 +56,7 @@ def add_legend(location, orientation, side, background_fill_color="#FFFFFF"):
     )
     plot.add_layout(legend, side)
 
+
 # Add legends in names positions e.g. "top_right", "top_left" (see plot for all)
 for location in LegendLocation:
     # redundant positions get a different background color and a vertical orientation to show ambiguity
@@ -68,7 +64,7 @@ for location in LegendLocation:
         background_fill_color = "#999999"
         orientation = "vertical"
     else:
-        background_fill_color ="#CCCCCC"
+        background_fill_color = "#CCCCCC"
         orientation = "horizontal"
     add_legend(location, orientation, "center", background_fill_color=background_fill_color)
 

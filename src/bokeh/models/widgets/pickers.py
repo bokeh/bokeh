@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import CalendarPosition
 from ...core.has_props import HasProps, abstract
@@ -63,7 +66,7 @@ class PickerBase(InputWidget):
     """ Base class for various kinds of picker widgets. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     position = Enum(CalendarPosition, default="auto", help="""
@@ -79,7 +82,7 @@ class TimeCommon(HasProps):
     """ Common properties for time-like picker widgets. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     hour_increment = Positive(Int)(default=1, help="""
@@ -107,7 +110,7 @@ class TimePicker(PickerBase, TimeCommon):
     """ Widget for picking time. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Nullable(Time, default=None, help="""
@@ -143,7 +146,7 @@ class DateCommon(HasProps):
     """ Common properties for date-like picker widgets. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
@@ -193,7 +196,7 @@ class BaseDatePicker(PickerBase, DateCommon):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     min_date = Nullable(Date, default=None, help="""
@@ -210,7 +213,7 @@ class DatePicker(BaseDatePicker):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Nullable(Date, default=None, help="""
@@ -221,7 +224,7 @@ class DateRangePicker(BaseDatePicker):
     """ Calendar-based picker of date ranges. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Nullable(Tuple(Date, Date), default=None, help="""
@@ -232,7 +235,7 @@ class MultipleDatePicker(BaseDatePicker):
     """ Calendar-based picker of dates. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = List(Date, default=[], help="""
@@ -250,7 +253,7 @@ class BaseDatetimePicker(PickerBase, DateCommon, TimeCommon):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     min_date = Nullable(Either(Datetime, Date), default=None, help="""
@@ -269,7 +272,7 @@ class DatetimePicker(BaseDatetimePicker):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Nullable(Datetime, default=None, help="""
@@ -280,7 +283,7 @@ class DatetimeRangePicker(BaseDatetimePicker):
     """ Calendar-based picker of date and time ranges. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Nullable(Tuple(Datetime, Datetime), default=None, help="""
@@ -291,7 +294,7 @@ class MultipleDatetimePicker(BaseDatetimePicker):
     """ Calendar-based picker of dates and times. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = List(Datetime, default=[], help="""

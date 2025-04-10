@@ -21,7 +21,7 @@ source = AjaxDataSource(data_url='http://localhost:5050/data',
 
 p = figure(height=300, width=800, background_fill_color="lightgrey",
            title="Streaming Noisy sin(x) via Ajax")
-p.circle('x', 'y', source=source)
+p.scatter('x', 'y', source=source)
 
 p.x_range.follow = "end"
 p.x_range.follow_interval = 10

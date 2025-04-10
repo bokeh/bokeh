@@ -1,0 +1,48 @@
+name: Downstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 15 * * WED' # two hours before weekly meeting
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history to get proper build version
+
+      - name: Build Bokeh and Bokeh.js
+        uses: ./.github/workflows/composite/build
+
+  downstream:
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'downstream'
+          source-tree: 'delete'
+
+      - name: Install downstream packages
+        run: bash scripts/ci/install_downstream_packages.sh
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Run tests
+        run: bash scripts/ci/run_downstream_tests.sh

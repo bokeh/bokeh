@@ -1,6 +1,7 @@
 import {Tool, ToolView} from "../tool"
 import type {ToolButton} from "../tool_button"
 import {ClickButton} from "../click_button"
+import type {MenuItem} from "../../ui/menus"
 import type {LayoutDOMView} from "../../layouts/layout_dom"
 import {Signal} from "core/signaling"
 import type * as p from "core/properties"
@@ -36,5 +37,11 @@ export abstract class ActionTool extends Tool {
 
   override tool_button(): ToolButton {
     return new ClickButton({tool: this})
+  }
+
+  override menu_item(): MenuItem {
+    const item = super.menu_item()
+    item.action = () => this.do.emit(undefined)
+    return item
   }
 }

@@ -15,7 +15,7 @@ defaults:
 jobs:
 
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check Maintainer
@@ -49,6 +49,7 @@ jobs:
           miniconda-version: 'latest'
           activate-environment: bk-release-deploy
           environment-file: conda/environment-release-deploy.yml
+          conda-remove-defaults: true
 
       - name: Deploy Release Tarball
         env:

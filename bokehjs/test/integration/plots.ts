@@ -5,9 +5,10 @@ import {display, fig, row} from "./_util"
 import {mouse_click} from "../interactive"
 
 import {figure} from "@bokehjs/api/plotting"
-import type {Location} from "@bokehjs/core/enums"
-import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
+import type {Location, WindowAxis} from "@bokehjs/core/enums"
+import {DataRange1d, Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import {Text} from "@bokehjs/models/dom"
+import type {Data} from "@bokehjs/core/types"
 
 describe("Plot", () => {
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
@@ -104,6 +105,125 @@ describe("Plot", () => {
       const {view} = await display(f("right"))
       const {overflow_el} = view.owner.get_one(view.model.toolbar)
       await mouse_click(overflow_el)
+    })
+  })
+
+  describe("should support windowed auto-ranging", async () => {
+    function plot(window_axis: WindowAxis) {
+      const r = new Range1d({start: 0, end: 6})
+      const dr = new DataRange1d({range_padding: 0})
+      const p = figure({
+        sizing_mode: "fixed",
+        width: 300,
+        height: 300,
+        window_axis,
+        title: `window_axis == ${window_axis}`,
+        x_range: window_axis == "x" ? r: dr,
+        y_range: window_axis == "x" ? dr: r,
+      })
+      const s = p.scatter({x: [1, 2, 3, 4, 5], y: [1, 2, 3, 4, 5], size: 8})
+      return {p, s, r, dr}
+    }
+    async function test_window_axis_data_change(wax: WindowAxis) {
+      const nwax = (wax == "x") ? "y" : "x"
+      const {p, s, dr} = plot(wax)
+      const {view} = await display(p)
+
+      // note: view.ready is not bulletproof, but calling it twice seems
+      // achieve the necessary result. poll() does not seem like a suitable
+      // option since sometimes the values in question *don't* change.
+      // c.f. https://github.com/bokeh/bokeh/pull/14353#discussion_r1980893200
+
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(5)
+
+      // updated data in fixed range
+      const data: Data = {}
+      data[wax] = [1, 2, 3, 4, 5]
+      data[nwax] = [1, 2, 10, 4, 5]
+      s.data_source.data = data
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(10)
+
+      // updated data not in fixed range (no change)
+      const data2: Data = {}
+      data2[wax] = [-1, 1, 2, 3, 4, 100]
+      data2[nwax] = [-100, 1, 2, 10, 4, 100]
+      s.data_source.data = data2
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(10)
+
+      // streamed data in fixed range
+      const new_data: Data = {}
+      new_data[wax] = [2.5, 3.5]
+      new_data[nwax] = [-90, 100]
+      s.data_source.stream(new_data)
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(-90)
+      expect(dr.end).to.be.equal(100)
+
+      // streamed data not in fixed range (no change)
+      const new_data2: Data = {}
+      new_data2[wax] = [-1]
+      new_data2[nwax] = [200]
+      s.data_source.stream(new_data2)
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(-90)
+      expect(dr.end).to.be.equal(100)
+
+      // new negative data in fixed range
+      const data3: Data = {}
+      data3[wax] = [1, 2, 3, 4, 5]
+      data3[nwax] = [1, 2, 10, 4, -10]
+      s.data_source.data = data3
+      await view.ready
+      await view.ready
+      expect(dr.start).to.be.equal(-10)
+      expect(dr.end).to.be.equal(10)
+
+      await view.ready
+    }
+    it("with window_axis='x' when data changes", async () => {
+      await test_window_axis_data_change("x")
+    })
+    it("with window_axis='y' when data changes", async () => {
+      await test_window_axis_data_change("y")
+    })
+    async function test_window_axis_range_change(wax: WindowAxis) {
+      const {p, r, dr} = plot(wax)
+      const {view} = await display(p)
+
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(5)
+
+      r.start = -1
+      await view.ready
+      expect(dr.start).to.be.equal(1)
+      expect(dr.end).to.be.equal(5)
+
+      r.start = 1.5
+      await view.ready
+      expect(dr.start).to.be.equal(2)
+      expect(dr.end).to.be.equal(5)
+
+      r.end = 4.5
+      await view.ready
+      expect(dr.start).to.be.equal(2)
+      expect(dr.end).to.be.equal(4)
+
+      await view.ready
+    }
+    it("with window_axis='x' when range changes", async () => {
+      await test_window_axis_range_change("x")
+    })
+    it("with window_axis='y' when range changes", async () => {
+      await test_window_axis_range_change("y")
     })
   })
 

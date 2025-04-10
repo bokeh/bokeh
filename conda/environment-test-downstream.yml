@@ -7,6 +7,7 @@ dependencies:
   # runtime
   - contourpy >=1.2
   - jinja2 >=2.7
+  - narwhals>=1.13
   - numpy >=1.16
   - packaging >=16.8
   - pillow >=4.0

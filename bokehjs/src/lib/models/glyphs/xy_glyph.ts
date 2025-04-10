@@ -16,9 +16,7 @@ export abstract class XYGlyphView extends GlyphView {
     const {x, y, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x_i = x[i]
-      const y_i = y[i]
-      index.add_point(x_i, y_i)
+      index.add_point(x[i], y[i])
     }
   }
 

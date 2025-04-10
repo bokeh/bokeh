@@ -23,6 +23,7 @@ import tempfile
 from io import BytesIO
 from pathlib import Path
 from typing import Literal
+from urllib.parse import quote
 
 # External imports
 import numpy as np
@@ -223,9 +224,15 @@ class Test_Image:
         prop = bcpv.Image()
         assert not prop.is_valid(None)
 
-    def test_validate_data_url(self) -> None:
+    def test_validate_data_urls(self) -> None:
         prop = bcpv.Image()
         assert prop.is_valid("data:image/png;base64,")
+        assert prop.is_valid("data:image/svg+xml;utf8,")
+
+    def test_validate_urls(self) -> None:
+        prop = bcpv.Image()
+        assert prop.is_valid("http://static.bokeh.org/branding/logos/bokeh-logo.svg")
+        assert prop.is_valid("https://static.bokeh.org/branding/logos/bokeh-logo.svg")
 
     def test_validate_Path(self) -> None:
         prop = bcpv.Image()
@@ -289,6 +296,19 @@ class Test_Image:
             image.save(file, "png")
             prop = bcpv.Image()
             assert prop.transform(file).startswith("data:image/png")
+
+    def test_transform_svg_file(self) -> None:
+        with tempfile.TemporaryDirectory() as dir:
+            svg = """
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="6" />
+</svg>
+"""
+            path = Path(dir) / "Test_Image__test_transform_svg_file.svg"
+            with path.open(mode="w") as file:
+                file.write(svg)
+            prop = bcpv.Image()
+            assert prop.transform(path) == f"data:image/svg+xml;utf8,{quote(svg)}"
 
     def test_transform_string(self) -> None:
         prop = bcpv.Image()

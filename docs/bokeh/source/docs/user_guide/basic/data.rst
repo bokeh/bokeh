@@ -28,7 +28,7 @@ to the :func:`~bokeh.plotting.figure.circle` function (see
     y_values = [6, 7, 2, 3, 6]
 
     p = figure()
-    p.circle(x=x_values, y=y_values)
+    p.scatter(x=x_values, y=y_values)
 
 .. _ug_basic_data_numpy:
 
@@ -48,7 +48,7 @@ structures in Bokeh:
     cosine = np.cos(x)
 
     p = figure()
-    p.circle(x=x, y=random)
+    p.scatter(x=x, y=random)
     p.line(x=x, y=cosine)
 
 .. _ug_basic_data_cds:
@@ -126,7 +126,7 @@ For example:
 
     # create a plot using the ColumnDataSource's two columns
     p = figure()
-    p.circle(x='x_values', y='y_values', source=source)
+    p.scatter(x='x_values', y='y_values', source=source)
 
 Modifying a ColumnDataSource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,23 +161,24 @@ property of your ColumnDataSource object:
 
 .. _ug_basic_data_cds_pandas_data_frame:
 
-Using a pandas DataFrame
-~~~~~~~~~~~~~~~~~~~~~~~~
+Using dataframes
+~~~~~~~~~~~~~~~~
 
-The ``data`` parameter can also be a pandas ``DataFrame`` or ``GroupBy`` object:
+The ``data`` parameter can also be a dataframe (pandas, Polars, PyArrow, or any other eager dataframe
+supported by `Narwhals <https://narwhals-dev.github.io/narwhals/>`_) or a pandas ``GroupBy`` object:
 
 .. code-block:: python
 
    source = ColumnDataSource(df)
 
-If you use a pandas ``DataFrame``, the resulting ColumnDataSource in Bokeh will
+If you use a ``DataFrame``, the resulting ColumnDataSource in Bokeh will
 have columns that correspond to the columns of the ``DataFrame``. The naming of
 the columns follows these rules:
 
 * If the ``DataFrame`` has a named index column, the ColumnDataSource will also
   have a column with this name.
-* If the index name is ``None``, the ColumnDataSource will have a generic name:
-  either ``index`` (if that name is available) or ``level_0``.
+* If the index name is ``None`` (or if there is no index), the ColumnDataSource
+  will have a generic name: either ``index`` (if that name is available) or ``level_0``.
 
 .. _ug_basic_data_cds_pandas_multi_index:
 
@@ -428,7 +429,7 @@ A |CDSView| has one property, ``filter``:
 
 In this example, you create a |CDSView| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and an intersection of two filters, ``filter1``
-and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.circle`
+and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.scatter`
 renderer function:
 
 .. code-block:: python
@@ -443,7 +444,7 @@ renderer function:
     view = CDSView(filter=filter1 & filter2)
 
     p = figure()
-    p.circle(x="x", y="y", source=source, view=view)
+    p.scatter(x="x", y="y", source=source, view=view)
 
 .. _ug_basic_data_filtering_index:
 

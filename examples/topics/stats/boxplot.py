@@ -22,14 +22,32 @@ df = autompg2[["class", "hwy"]].rename(columns={"class": "kind"})
 kinds = df.kind.unique()
 
 # compute quantiles
-qs = df.groupby("kind").hwy.quantile([0.25, 0.5, 0.75])
-qs = qs.unstack().reset_index()
+grouper = df.groupby("kind")
+qs = grouper.hwy.quantile([0.25, 0.5, 0.75]).unstack().reset_index()
 qs.columns = ["kind", "q1", "q2", "q3"]
 
 # compute IQR outlier bounds
 iqr = qs.q3 - qs.q1
 qs["upper"] = qs.q3 + 1.5*iqr
 qs["lower"] = qs.q1 - 1.5*iqr
+
+# update the whiskers to actual data points
+for kind, group in grouper:
+    qs_idx = qs.query(f"kind=={kind!r}").index[0]
+    data = group["hwy"]
+
+    # the upper whisker is the maximum between p3 and upper
+    q3 = qs.loc[qs_idx, "q3"]
+    upper = qs.loc[qs_idx, "upper"]
+    wiskhi = group[(q3 <= data) & (data <= upper)]["hwy"]
+    qs.loc[qs_idx, "upper"] = q3 if len(wiskhi) == 0 else wiskhi.max()
+
+    # the lower whisker is the minimum between q1 and lower
+    q1 = qs.loc[qs_idx, "q1"]
+    lower = qs.loc[qs_idx, "lower"]
+    wisklo = group[(lower <= data) & (data<= q1)]["hwy"]
+    qs.loc[qs_idx, "lower"] = q1 if len(wisklo) == 0 else wisklo.min()
+
 df = pd.merge(df, qs, on="kind", how="left")
 
 source = ColumnDataSource(qs)

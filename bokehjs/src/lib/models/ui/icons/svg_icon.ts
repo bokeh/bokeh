@@ -7,7 +7,7 @@ import type * as p from "core/properties"
 export class SVGIconView extends IconView {
   declare model: SVGIcon
 
-  protected readonly _style = new InlineStyleSheet()
+  protected readonly _style = new InlineStyleSheet("", "icon")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), this._style]

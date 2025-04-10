@@ -15,7 +15,7 @@ defaults:
 jobs:
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check Maintainer
@@ -51,6 +51,7 @@ jobs:
           miniconda-version: 'latest'
           activate-environment: bk-release-build
           environment-file: conda/environment-release-build.yml
+          conda-remove-defaults: true
 
       - name: List installed software
         run: |

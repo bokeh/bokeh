@@ -23,6 +23,7 @@ export class BandView extends UpperLowerView {
 
     ctx.closePath()
     this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
 
     // Draw the lower band edge
     ctx.beginPath()
@@ -49,9 +50,9 @@ export namespace Band {
 
   export type Props = UpperLower.Props & Mixins
 
-  export type Mixins = mixins.Line & mixins.Fill
+  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
 
-  export type Visuals = UpperLower.Visuals & {line: visuals.Line, fill: visuals.Fill}
+  export type Visuals = UpperLower.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
 }
 
 export interface Band extends Band.Attrs {}
@@ -67,7 +68,7 @@ export class Band extends UpperLower {
   static {
     this.prototype.default_view = BandView
 
-    this.mixins<Band.Mixins>([mixins.Line, mixins.Fill])
+    this.mixins<Band.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
     this.override<Band.Props>({
       fill_color: "#fff9ba",

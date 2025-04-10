@@ -5,8 +5,8 @@ import {display} from "../../../_util"
 
 import {build_view} from "@bokehjs/core/build_views"
 
-import type {CircleView} from "@bokehjs/models/glyphs/circle"
-import {Circle} from "@bokehjs/models/glyphs/circle"
+import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import type {PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Patches} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -25,7 +25,7 @@ export interface PolyEditTestCase {
   draw_tool_view: PolyEditToolView
   glyph_view: PatchesView
   glyph_renderer: GlyphRenderer<Patches>
-  vertex_glyph_view: CircleView
+  vertex_glyph_view: ScatterView
   vertex_source: ColumnDataSource
   vertex_renderer: GlyphRenderer
 }
@@ -51,7 +51,7 @@ async function make_testcase(): Promise<PolyEditTestCase> {
     xs: {field: "xs"},
     ys: {field: "ys"},
   })
-  const vertex_glyph = new Circle({
+  const vertex_glyph = new Scatter({
     x: {field: "x"},
     y: {field: "y"},
   })
@@ -82,7 +82,7 @@ async function make_testcase(): Promise<PolyEditTestCase> {
     draw_tool_view,
     glyph_view: glyph_renderer_view.glyph as PatchesView,
     glyph_renderer,
-    vertex_glyph_view: vertex_renderer_view.glyph as CircleView,
+    vertex_glyph_view: vertex_renderer_view.glyph as ScatterView,
     vertex_source,
     vertex_renderer,
   }

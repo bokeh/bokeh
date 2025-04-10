@@ -1006,7 +1006,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({fill_color: {field: "color"}})
+      const glyph = new Circle({radius: {field: "radius"}, fill_color: {field: "color"}})
       const selection_glyph = new Circle({radius: {field: "selection_radius"}, fill_color: {field: "color"}})
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)
@@ -1053,7 +1053,7 @@ describe("Glyph models", () => {
         },
       })
       data_source.selected.indices = range(N).filter((i) => i % 2 == 0)
-      const glyph = new Circle({fill_color: {field: "color"}})
+      const glyph = new Circle({radius: {field: "radius"}, fill_color: {field: "color"}})
       const selection_glyph = new Rect({fill_color: {field: "color"}})
       const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
       p.renderers.push(glyph_renderer)

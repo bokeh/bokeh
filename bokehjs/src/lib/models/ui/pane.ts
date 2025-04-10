@@ -35,10 +35,6 @@ export class PaneView extends UIElementView {
     return await build_views(this._element_views, this.elements, {parent: this})
   }
 
-  get self_target(): HTMLElement | ShadowRoot {
-    return this.shadow_el
-  }
-
   protected async _update_elements(): Promise<void> {
     const {created} = await this._build_elements()
     const created_elements = new Set(created)

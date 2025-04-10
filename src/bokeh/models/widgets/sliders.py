@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import numbers
 from datetime import date, datetime, timezone
+from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -130,7 +131,7 @@ class NumericalSlider(AbstractSlider):
     """ Base class for numerical sliders. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     format = Either(String, Instance(TickFormatter), help="""
@@ -144,7 +145,7 @@ class CategoricalSlider(AbstractSlider):
     """ Discrete slider allowing selection from a collection of values. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     categories = Required(Seq(String), help="""
@@ -163,7 +164,7 @@ class Slider(NumericalSlider):
     """ Slider-based number selection widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     start = Required(Float, help="""
@@ -192,7 +193,7 @@ class RangeSlider(NumericalSlider):
     """ Range-slider based number range selection widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     value = Required(Tuple(Float, Float), help="""
@@ -221,7 +222,7 @@ class DateSlider(NumericalSlider):
     """ Slider-based date selection widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @property
@@ -279,7 +280,7 @@ class DateRangeSlider(NumericalSlider):
     """ Slider-based date range selection widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @property
@@ -350,7 +351,7 @@ class DatetimeRangeSlider(NumericalSlider):
     """ Slider-based datetime range selection widget. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @property

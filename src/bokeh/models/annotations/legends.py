@@ -112,7 +112,7 @@ class BaseColorBar(Annotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
@@ -237,7 +237,11 @@ class BaseColorBar(Annotation):
 
     border_line_color = Override(default=None)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the color bar background style.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
     The {prop} for the color bar background style.
     """)
 
@@ -253,7 +257,7 @@ class ColorBar(BaseColorBar):
 
     '''
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     color_mapper = Instance(ColorMapper, help="""
@@ -288,7 +292,7 @@ class ContourColorBar(BaseColorBar):
 
     '''
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     fill_renderer = Instance(GlyphRenderer, help="""
@@ -365,7 +369,7 @@ class Legend(Annotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
@@ -423,15 +427,29 @@ class Legend(Annotation):
 
     border_line_alpha = Override(default=0.5)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
     The {prop} for the legend background style.
     """)
 
-    item_background_props = Include(ScalarFillProps, prefix="item_background", help="""
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
+    The {prop} for the legend background style.
+    """)
+
+    item_background_fill_props = Include(ScalarFillProps, prefix="item_background", help="""
     The {prop} for the legend items' background style.
     """)
 
-    inactive_props = Include(ScalarFillProps, prefix="inactive", help="""
+    item_background_hatch_props = Include(ScalarHatchProps, prefix="item_background", help="""
+    The {prop} for the legend items' background style.
+    """)
+
+    inactive_fill_props = Include(ScalarFillProps, prefix="inactive", help="""
+    The {prop} for the legend item style when inactive. These control an overlay
+    on the item that can be used to obscure it when the corresponding glyph
+    is inactive (e.g. by making it semi-transparent).
+    """)
+
+    inactive_hatch_props = Include(ScalarHatchProps, prefix="inactive", help="""
     The {prop} for the legend item style when inactive. These control an overlay
     on the item that can be used to obscure it when the corresponding glyph
     is inactive (e.g. by making it semi-transparent).

@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.enums import Align, LabelOrientation
 from ..core.has_props import abstract
@@ -44,11 +47,16 @@ from ..core.properties import (
     TextLike,
     Tuple,
 )
-from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
+from ..core.property_mixins import (
+    ScalarFillProps,
+    ScalarHatchProps,
+    ScalarLineProps,
+    ScalarTextProps,
+)
 from .formatters import (
+    CONTEXTUAL_DATETIME_FORMATTER,
     BasicTickFormatter,
     CategoricalTickFormatter,
-    DatetimeTickFormatter,
     LogTickFormatter,
     MercatorTickFormatter,
     TickFormatter,
@@ -90,7 +98,7 @@ class Axis(GuideRenderer):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     # TODO: Enum(0, 1) instead of Int
@@ -243,7 +251,11 @@ class Axis(GuideRenderer):
         inside the central plot area.
     """)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} of the axis background.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
     The {prop} of the axis background.
     """)
 
@@ -256,7 +268,7 @@ class ContinuousAxis(Axis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class LinearAxis(ContinuousAxis):
@@ -266,7 +278,7 @@ class LinearAxis(ContinuousAxis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(BasicTicker))
@@ -280,7 +292,7 @@ class LogAxis(ContinuousAxis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(LogTicker))
@@ -297,7 +309,7 @@ class CategoricalAxis(Axis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(CategoricalTicker))
@@ -364,12 +376,12 @@ class DatetimeAxis(LinearAxis):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     ticker = Override(default=InstanceDefault(DatetimeTicker))
 
-    formatter = Override(default=InstanceDefault(DatetimeTickFormatter))
+    formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a

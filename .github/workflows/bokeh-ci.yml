@@ -23,61 +23,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history to get proper build version
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniconda-version: 'latest'
-          activate-environment: bk-test
-          run-post: ${{ runner.os != 'Windows' }}
 
-      - name: Install libmamba solver
-        shell: bash -l {0}
-        run: |
-          conda install -q -n base conda-libmamba-solver
-          conda config --set solver libmamba
-
-      - name: Update bk-test environment
-        shell: bash -l {0}
-        run: |
-          conda env update -q -n bk-test -f conda/environment-build.yml
-
-      - name: Install node modules
-        run: bash scripts/ci/install_node_modules.sh
-
-      - name: Build BokehJS
-        working-directory: ./bokehjs
-        run: node make build
-
-      - name: Build pip packages
-        env:
-          BOKEHJS_ACTION: 'install'
-        run: python -m build .
-
-      - name: Verify pip install from sdist
-        run: bash scripts/ci/verify_pip_install_from_sdist.sh
-
-      - name: Verify pip install using sdist
-        run: bash scripts/ci/verify_pip_install_using_sdist.sh
-
-      - name: Verify pip install using wheel
-        run: bash scripts/ci/verify_pip_install_using_wheel.sh
-
-      - name: Build conda package
-        run: bash scripts/ci/build_conda_package.sh
-
-      - name: Verify conda install
-        run: bash scripts/ci/verify_conda_install.sh
-
-      - name: Upload wheel package
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-package
-          path: dist/bokeh-*-py3-none-any.whl
-
-      - name: Upload bokehjs package
-        uses: actions/upload-artifact@v4
-        with:
-          name: bokehjs-package
-          path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
+      - name: Build Bokeh and Bokeh.js
+        uses: ./.github/workflows/composite/build
 
   codebase:
     needs: build
@@ -303,29 +251,3 @@ jobs:
         with:
           name: docs-html
           path: docs/bokeh/docs-html.tgz
-
-  downstream:
-    needs: build
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Prepare Environment
-        uses: ./.github/workflows/composite/test-setup
-        with:
-          test-env: 'downstream'
-          source-tree: 'delete'
-
-      - name: Install downstream packages
-        run: bash scripts/ci/install_downstream_packages.sh
-
-      - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
-
-      - name: Run tests
-        run: bash scripts/ci/run_downstream_tests.sh

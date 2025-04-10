@@ -8,14 +8,15 @@ import {settings} from "core/settings"
 import type {Context2d} from "core/util/canvas"
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
-import type {Anchor} from "core/enums"
+import type {Anchor, WindowAxis} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
-import {isString} from "core/util/types"
+import {isArrayable, isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
+import {every} from "core/util/array"
 import {inplace_map} from "core/util/arrayable"
 import {inplace, project_xy} from "core/util/projections"
 import {is_equal, EqNotImplemented} from "core/util/eq"
@@ -147,8 +148,36 @@ export abstract class GlyphView extends DOMComponentView {
     return bounds
   }
 
-  bounds(): Rect {
-    return this._bounds(this.index.bbox)
+  bounds(window_axis: WindowAxis = "none"): Rect {
+    switch (window_axis) {
+      case "none": {
+        return this._bounds(this.index.bbox)
+      }
+      case "x": {
+        const x_range = this.renderer.coordinates.x_source
+        if (isNaN(x_range.start) || isNaN(x_range.end)) {
+          return this._bounds(this.index.bbox)
+        }
+        const hit_box = bbox.x_range(x_range.start, x_range.end)
+        const {x0, y0, x1, y1} = this.index.bounds(hit_box)
+        if (!isFinite(y0+y1)) {
+          return this._bounds(this.index.bbox)
+        }
+        return this._bounds({x0, y0, x1, y1})
+      }
+      case "y": {
+        const y_range = this.renderer.coordinates.y_source
+        if (isNaN(y_range.start) || isNaN(y_range.end)) {
+          return this._bounds(this.index.bbox)
+        }
+        const hit_box = bbox.y_range(y_range.start, y_range.end)
+        const {x0, y0, x1, y1} = this.index.bounds(hit_box)
+        if (!isFinite(x0+x1)) {
+          return this._bounds(this.index.bbox)
+        }
+        return this._bounds({x0, y0, x1, y1})
+      }
+    }
   }
 
   log_bounds(): Rect {
@@ -369,6 +398,18 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   protected _transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
+    // examine just the top level of a 2-d array to validate
+    // that every subitem is an array of some kind, as expected
+    if (prop instanceof p.CoordinateSeqSpec) {
+      // work around issues with empty data sources (see #14424)
+      const indeterminate_length = this.renderer.data_source.get_value().get_length() == null
+      if (!indeterminate_length && !every(array, isArrayable)) {
+        const msg = `expected a 2-d array for ${this.model.type}.${prop.attr}`
+        logger.error(msg)
+        throw new Error(msg)
+      }
+    }
+
     const {x_source, y_source} = this.renderer.coordinates
     const range = prop.dimension == "x" ? x_source : y_source
 

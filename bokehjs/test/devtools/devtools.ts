@@ -121,7 +121,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, no_image?: boolean}
+type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -134,7 +134,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
   let failure = false
   try {
     client = await CDP({port, host})
-    const {Emulation, Network, Browser, Page, Runtime, Log, Performance} = client
+    const {Emulation, Network, Browser, Page, DOM, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -230,20 +230,24 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       await Page.enable()
       await Page.navigate({url: "about:blank"})
 
+      await DOM.enable({})
+
       await Runtime.enable()
       await Log.enable()
       await Performance.enable({timeDomain: "timeTicks"})
 
-      async function override_metrics(dpr: number = 1): Promise<void> {
+      async function override_metrics(settings: {dpr?: number, scale?: number} = {}): Promise<void> {
         await Emulation.setDeviceMetricsOverride({
           width: 2000,
           height: 4000,
-          deviceScaleFactor: dpr,
+          deviceScaleFactor: settings.dpr ?? 1,
           mobile: false,
+          scale: settings.scale ?? 1,
         })
       }
 
       await override_metrics()
+      await Emulation.setFocusEmulationEnabled({enabled: true})
 
       await Browser.grantPermissions({
         permissions: ["clipboardReadWrite"],
@@ -322,6 +326,35 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         const random = new Random(seed)
         console.log(`randomizing with seed ${seed}`)
         shuffle(all_tests, random)
+      }
+
+      function show_tree(suites: Suite[], test: Test): string[] {
+        const output = []
+        let depth = 0
+        for (const suite of [...suites, test]) {
+          const is_last = depth == suites.length
+          const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
+          output.push(`${prefix} ${suite.description}`)
+          depth++
+        }
+        return output
+      }
+
+      const invalid_chars = ['"']
+      let has_invalid_chars = false
+      for (const [suites, test] of all_tests) {
+        const test_description = description(suites, test)
+        for (const c of invalid_chars) {
+          if (test_description.includes(c)) {
+            has_invalid_chars = true
+            const output = show_tree(suites, test)
+            output.push(`test description contains invalid characters: ${c}`)
+            console.log(output.join("\n"))
+          }
+        }
+      }
+      if (has_invalid_chars) {
+        fail("one or more test descriptions use invalid characters")
       }
 
       if (keyword != null || grep != null) {
@@ -468,15 +501,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         const [suites, test, status] = test_case
 
         if ((status.failure ?? false) || (status.timeout ?? false)) {
-          const output = []
-
-          let depth = 0
-          for (const suite of [...suites, test]) {
-            const is_last = depth == suites.length
-            const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-            output.push(`${prefix} ${suite.description}`)
-            depth++
-          }
+          const output = show_tree(suites, test)
 
           for (const error of status.errors) {
             output.push(error)
@@ -530,13 +555,13 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
               const seq = JSON.stringify(to_seq(suites, test))
               const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
-                if (test.dpr != null) {
-                  await override_metrics(test.dpr)
+                if (test.dpr != null || test.scale != null) {
+                  await override_metrics({dpr: test.dpr, scale: test.scale})
                 }
                 try {
                   return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
-                  if (test.dpr != null) {
+                  if (test.dpr != null || test.scale != null) {
                     await override_metrics()
                   }
                 }

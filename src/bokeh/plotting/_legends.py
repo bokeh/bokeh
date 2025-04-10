@@ -17,6 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
 # External imports
 import numpy as np
 
@@ -24,6 +27,11 @@ import numpy as np
 from ..core.properties import field, value
 from ..models import Legend, LegendItem
 from ..util.strings import nice_join
+
+if TYPE_CHECKING:
+    from .._specs import DataSpec
+    from ..models import GlyphRenderer, Plot
+    from ..models.glyph import Glyph
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,13 +52,13 @@ LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 # Dev API
 #-----------------------------------------------------------------------------
 
-def pop_legend_kwarg(kwargs):
+def pop_legend_kwarg(kwargs: dict[str, Any]):
     result = {attr: kwargs.pop(attr) for attr in LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
         raise ValueError(f"Only one of {nice_join(LEGEND_ARGS)} may be provided, got: {nice_join(result.keys())}")
     return result
 
-def update_legend(plot, legend_kwarg, glyph_renderer):
+def update_legend(plot: Plot, legend_kwarg: dict[str, Any], glyph_renderer: GlyphRenderer[Glyph]):
     legend = _get_or_create_legend(plot)
     kwarg, value = next(iter(legend_kwarg.items()))
 
@@ -60,13 +68,13 @@ def update_legend(plot, legend_kwarg, glyph_renderer):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _find_legend_item(label, legend):
+def _find_legend_item(label: DataSpec[str | None], legend: Legend) -> LegendItem | None:
     for item in legend.items:
         if item.label == label:
             return item
     return None
 
-def _get_or_create_legend(plot):
+def _get_or_create_legend(plot: Plot) -> Legend:
     # Using the simpler plot.select(type=Legend) to find the existing legend
     # here is very inefficient on already populated plots, therefore we do it
     # like this. TODO: This will need to be reworked when introducing nested
@@ -82,7 +90,7 @@ def _get_or_create_legend(plot):
         return legends[0]
     raise RuntimeError(f"Plot {plot} configured with more than one legend renderer, cannot use legend_* convenience arguments")
 
-def _handle_legend_field(label, legend, glyph_renderer):
+def _handle_legend_field(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
     if not isinstance(label, str):
         raise ValueError("legend_field value must be a string")
     label = field(label)
@@ -93,7 +101,7 @@ def _handle_legend_field(label, legend, glyph_renderer):
         new_item = LegendItem(label=label, renderers=[glyph_renderer])
         legend.items.append(new_item)
 
-def _handle_legend_group(label, legend, glyph_renderer):
+def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
     if not isinstance(label, str):
         raise ValueError("legend_group value must be a string")
 
@@ -110,7 +118,7 @@ def _handle_legend_group(label, legend, glyph_renderer):
         new_item = LegendItem(label=label, renderers=[glyph_renderer], index=ind)
         legend.items.append(new_item)
 
-def _handle_legend_label(label, legend, glyph_renderer):
+def _handle_legend_label(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
     if not isinstance(label, str):
         raise ValueError("legend_label value must be a string")
     label = value(label)

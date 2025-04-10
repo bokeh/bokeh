@@ -18,9 +18,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar
 
 # Bokeh imports
+from ..core.enums import ImplicitTarget, ImplicitTargetType
+from ..core.has_props import abstract
 from ..core.properties import (
     Either,
     Enum,
@@ -42,8 +44,6 @@ __all__ = (
     "XY",
 )
 
-ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
 class BoxNodes:
     """ Provider of box nodes for box-like models. """
 
-    def __init__(self, target: Model | ImplicitTarget) -> None:
+    def __init__(self, target: Model | ImplicitTargetType) -> None:
         self.target = target
 
     def _node(self, symbol: str) -> Node:
@@ -121,6 +121,7 @@ class BoxNodes:
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class Coordinate(Model):
     """ A base class for various types of coordinate specifications.
     """

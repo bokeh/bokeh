@@ -11,7 +11,7 @@ import type {Image} from "core/util/image"
 import {ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import type {Context2d} from "core/util/canvas"
-import {assert} from "core/util/assert"
+import {logger} from "core/logging"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -55,10 +55,9 @@ export class TileRendererView extends RendererView {
     const y_start = y_range.start
     const x_end = x_range.end
     const y_end = y_range.end
-    assert(isFinite(x_start))
-    assert(isFinite(y_start))
-    assert(isFinite(x_end))
-    assert(isFinite(y_end))
+    if (!(isFinite(x_start) && isFinite(y_start) && isFinite(x_end) && isFinite(y_end))) {
+      logger.warn("tile extent is not fully defined")
+    }
     return [x_start, y_start, x_end, y_end]
   }
 
@@ -152,7 +151,14 @@ export class TileRendererView extends RendererView {
     if (this._last_width !== width || this._last_height !== height) {
       const extent = this.get_extent()
       const zoom_level = this.model.tile_source.get_level_by_extent(extent, height, width)
-      const new_extent = this.model.tile_source.snap_to_zoom_level(extent, height, width, zoom_level)
+      const {tile_source} = this.model
+      const new_extent = (() => {
+        const {_last_width, _last_height} = this
+        if (_last_width !== undefined && _last_height !== undefined) {
+          return tile_source.rescale(extent, height, width, _last_height, _last_width)
+        }
+        return tile_source.snap_to_zoom_level(extent, height, width, zoom_level)
+      })()
       this.x_range.setv({start: new_extent[0], end: new_extent[2]})
       this.y_range.setv({start: new_extent[1], end: new_extent[3]})
       this.extent = new_extent

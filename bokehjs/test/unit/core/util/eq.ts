@@ -92,6 +92,33 @@ describe("core/util/eq module", () => {
       expect(is_equal([], new Float64Array())).to.be.false
     })
 
+    it("that supports ArrayBufferLike", () => {
+      const b0 = new Uint8Array([0, 1, 2]).buffer
+      const b1 = new Uint8Array([0, 1, 2]).buffer
+      const b2 = new Uint8Array([0, 1, 3]).buffer
+      const b3 = new Uint8Array([0, 1, 2, 4]).buffer
+
+      expect(is_equal(b0, b1)).to.be.true
+      expect(is_equal(b0, b2)).to.be.false
+      expect(is_equal(b0, b3)).to.be.false
+
+      if (typeof SharedArrayBuffer !== "undefined") {
+        const sb0 = new SharedArrayBuffer(3)
+        const sb1 = new SharedArrayBuffer(3)
+        const sb2 = new SharedArrayBuffer(3)
+        const sb3 = new SharedArrayBuffer(4)
+
+        new Uint8Array(sb0).set([0, 1, 2])
+        new Uint8Array(sb1).set([0, 1, 2])
+        new Uint8Array(sb2).set([0, 1, 3])
+        new Uint8Array(sb3).set([0, 1, 2, 3])
+
+        expect(is_equal(sb0, sb1)).to.be.true
+        expect(is_equal(sb0, sb2)).to.be.false
+        expect(is_equal(sb0, sb3)).to.be.false
+      }
+    })
+
     it("that supports Map<K, V>", () => {
       expect(is_equal(new Map(), [])).to.be.false
       expect(is_equal(new Map(), {})).to.be.false

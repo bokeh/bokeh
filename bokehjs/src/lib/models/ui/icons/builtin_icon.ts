@@ -11,7 +11,7 @@ import icons_css from "styles/icons.css"
 export class BuiltinIconView extends IconView {
   declare model: BuiltinIcon
 
-  protected readonly _style = new InlineStyleSheet()
+  protected readonly _style = new InlineStyleSheet("", "icon")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), icons_css, this._style]

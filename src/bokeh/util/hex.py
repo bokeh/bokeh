@@ -25,13 +25,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # External imports
 import numpy as np
 
 # Bokeh imports
+from ..core.enums import HexTileOrientationType
 from .dependencies import import_required
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -150,7 +155,13 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
 
     return _round_hex(q, r)
 
-def hexbin(x: Any, y: Any, size: float, orientation: str = "pointytop", aspect_scale: float = 1) -> Any:
+def hexbin(
+    x: npt.NDArray[np.floating],
+    y: npt.NDArray[np.floating],
+    size: float,
+    orientation: HexTileOrientationType = "pointytop",
+    aspect_scale: float = 1,
+) -> pd.DataFrame:
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 
     For more sophisticated use cases, e.g. weighted binning or scaling

@@ -93,6 +93,7 @@ __all__ = (
     'AlternationPolicy',
     'Anchor',
     'AngleUnits',
+    'Auto',
     'AutosizeMode',
     'BuiltinFormatter',
     'ButtonType',
@@ -110,9 +111,11 @@ __all__ = (
     'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
+    'HexTileOrientation',
     'HoldPolicy',
     'HorizontalLocation',
     'ImageOrigin',
+    'ImplicitTarget',
     'JitterRandomDistribution',
     'KeyModifier',
     'LabelOrientation',
@@ -135,6 +138,7 @@ __all__ = (
     'Palette',
     'PanDirection',
     'Place',
+    'RadiusDimension',
     'RegionSelectionMode',
     'RenderLevel',
     'ResetPolicy',
@@ -149,16 +153,19 @@ __all__ = (
     'SpatialUnits',
     'StartEnd',
     'StepMode',
+    'TeXDisplay',
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
     'ToolIcon',
+    'ToolName',
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
     'VAlign',
     'VerticalAlign',
     'VerticalLocation',
+    'WindowAxis',
 )
 
 #-----------------------------------------------------------------------------
@@ -281,6 +288,10 @@ Anchor = enumeration(AnchorType)
 AngleUnitsType = Literal["deg", "rad", "grad", "turn"]
 AngleUnits = enumeration(AngleUnitsType)
 
+#:
+AutoType = Literal["auto"]
+Auto = enumeration(AutoType)
+
 #: Specify autosize mode for DataTable
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
 AutosizeMode = enumeration(AutosizeModeType)
@@ -391,6 +402,10 @@ HatchPattern = enumeration(HatchPatternType)
 HatchPatternAbbreviationType = Literal[" ", ".", "o", "-", "|", "+", '"', ":", "@", "/", "\\", "x", ",", "`", "v", ">", "*"]
 HatchPatternAbbreviation = enumeration(HatchPatternAbbreviationType, quote=True)
 
+#: The orientation of the hex tiles
+HexTileOrientationType = Literal["pointytop", "flattop"]
+HexTileOrientation = enumeration(HexTileOrientationType)
+
 #: Specify whether events should be combined or collected as-is when a Document hold is in effect
 HoldPolicyType = Literal["combine", "collect"]
 HoldPolicy = enumeration(HoldPolicyType)
@@ -402,6 +417,10 @@ HorizontalLocation = enumeration(HorizontalLocationType)
 #: Defines the coordinate space within an image
 ImageOriginType = Literal["bottom_left", "top_left", "bottom_right", "top_right"]
 ImageOrigin = enumeration(ImageOriginType)
+
+#: Implicitly defined target of a node
+ImplicitTargetType = Literal["viewport", "canvas", "plot", "frame", "parent"]
+ImplicitTarget = enumeration(ImplicitTargetType)
 
 #: Specify a distribution to use for the Jitter class
 JitterRandomDistributionType = Literal["uniform", "normal"]
@@ -476,8 +495,8 @@ OrientationType = Literal["horizontal", "vertical"]
 Orientation = enumeration(OrientationType)
 
 #: Names of pre-defined outline shapes (used in ``Text.outline_shape``)
-OutlineShapeName = Literal["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"]
-OutlineShapeName = enumeration(OutlineShapeName)
+OutlineShapeNameType = Literal["none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle"]
+OutlineShapeName = enumeration(OutlineShapeNameType)
 
 #: Specify an output backend to render a plot area onto
 OutputBackendType = Literal["canvas", "svg", "webgl"]
@@ -488,15 +507,20 @@ PaddingUnitsType = Literal["percent", "absolute"]
 PaddingUnits = enumeration(PaddingUnitsType)
 
 #: Which direction click pan tool acts on.
-PanDirection = Literal["left", "right", "up", "down", "west", "east", "north", "south"]
-PanDirection = enumeration(PanDirection)
+PanDirectionType = Literal["left", "right", "up", "down", "west", "east", "north", "south"]
+PanDirection = enumeration(PanDirectionType)
 
 #: Specify the name of a palette from :ref:`bokeh.palettes`
+PaletteType = str # TODO
 Palette = enumeration(*palettes.__palettes__)
 
 #: Placement of a layout element, in particular in border-style layouts
 PlaceType = Literal["above", "below", "left", "right", "center"]
 Place = enumeration(PlaceType)
+
+#: Specify which dimension or dimensions to use when measuring circle radius
+RadiusDimensionType = Literal["x", "y", "max", "min"]
+RadiusDimension = enumeration(RadiusDimensionType)
 
 #: Specify a position in the render order for a renderer
 RenderLevelType = Literal["image", "underlay", "glyph", "guide", "annotation", "overlay"]
@@ -554,6 +578,10 @@ StartEnd = enumeration(StartEndType)
 StepModeType = Literal["before", "after", "center"]
 StepMode = enumeration(StepModeType)
 
+#: Display mode in TeX
+TeXDisplayType = Literal["inline", "block", "auto"]
+TeXDisplay = enumeration(TeXDisplayType)
+
 #: Specify the horizontal alignment for rendering text
 TextAlignType = Literal["left", "right", "center"]
 TextAlign = enumeration(TextAlignType)
@@ -568,78 +596,132 @@ TextureRepetition = enumeration(TextureRepetitionType)
 
 #: Well known tool icon names
 ToolIconType = Literal[
-  "append_mode",
-  "arrow_down_to_bar",
-  "arrow_up_from_bar",
+    "append_mode",
+    "arrow_down_to_bar",
+    "arrow_up_from_bar",
+    "auto_box_zoom",
+    "bold",
+    "box_edit",
+    "box_select",
+    "box_zoom",
+    "caret_down",
+    "caret_left",
+    "caret_right",
+    "caret_up",
+    "check",
+    "chevron_down",
+    "chevron_left",
+    "chevron_right",
+    "chevron_up",
+    "clear_selection",
+    "copy",
+    "crosshair",
+    "dark_theme",
+    "delete",
+    "freehand_draw",
+    "fullscreen",
+    "help",
+    "hover",
+    "intersect_mode",
+    "invert_selection",
+    "italic",
+    "lasso_select",
+    "light_theme",
+    "line_edit",
+    "maximize",
+    "minimize",
+    "pan",
+    "pin",
+    "point_draw",
+    "pointer",
+    "poly_draw",
+    "poly_edit",
+    "polygon_select",
+    "range",
+    "redo",
+    "replace_mode",
+    "reset",
+    "save",
+    "see_off",
+    "see_on",
+    "settings",
+    "square",
+    "square_check",
+    "subtract_mode",
+    "tap_select",
+    "text_align_center",
+    "text_align_left",
+    "text_align_right",
+    "undo",
+    "unknown",
+    "unpin",
+    "wheel_pan",
+    "wheel_zoom",
+    "x_box_select",
+    "x_box_zoom",
+    "x_grip",
+    "x_pan",
+    "xor_mode",
+    "y_box_select",
+    "y_box_zoom",
+    "y_grip",
+    "y_pan",
+    "zoom_in",
+    "zoom_out",
+]
+ToolIcon = enumeration(ToolIconType)
+
+#: Known tool names/aliases
+ToolNameType = Literal[
   "auto_box_zoom",
-  "bold",
-  "box_edit",
   "box_select",
   "box_zoom",
-  "caret_down",
-  "caret_left",
-  "caret_right",
-  "caret_up",
-  "check",
-  "chevron_down",
-  "chevron_left",
-  "chevron_right",
-  "chevron_up",
-  "clear_selection",
+  "click",
   "copy",
   "crosshair",
-  "delete",
+  "doubletap",
+  "examine",
   "freehand_draw",
   "fullscreen",
   "help",
   "hover",
-  "intersect_mode",
-  "invert_selection",
-  "italic",
   "lasso_select",
-  "line_edit",
-  "maximize",
-  "minimize",
   "pan",
-  "pin",
-  "point_draw",
-  "pointer",
-  "poly_draw",
-  "poly_edit",
-  "polygon_select",
-  "range",
+  "pan_down",
+  "pan_east",
+  "pan_left",
+  "pan_north",
+  "pan_right",
+  "pan_south",
+  "pan_up",
+  "pan_west",
+  "poly_select",
   "redo",
-  "replace_mode",
   "reset",
   "save",
-  "see_off",
-  "see_on",
-  "settings",
-  "square",
-  "square_check",
-  "subtract_mode",
-  "tap_select",
-  "text_align_center",
-  "text_align_left",
-  "text_align_right",
+  "tap",
   "undo",
-  "unknown",
-  "unpin",
-  "wheel_pan",
   "wheel_zoom",
-  "x_box_select",
-  "x_box_zoom",
-  "x_grip",
-  "x_pan",
-  "xor_mode",
-  "y_box_select",
-  "y_box_zoom",
-  "y_grip",
-  "y_pan",
+  "xbox_select",
+  "xbox_zoom",
+  "xcrosshair",
+  "xpan",
+  "xwheel_pan",
+  "xwheel_zoom",
+  "xzoom_in",
+  "xzoom_out",
+  "ybox_select",
+  "ybox_zoom",
+  "ycrosshair",
+  "ypan",
+  "ywheel_pan",
+  "ywheel_zoom",
+  "yzoom_in",
+  "yzoom_out",
   "zoom_in",
   "zoom_out",
 ]
-ToolIcon = enumeration(ToolIconType)
+ToolName = enumeration(ToolNameType)
 
 #: Specify an attachment for tooltips
 TooltipAttachmentType = Literal["horizontal", "vertical", "left", "right", "above", "below"]
@@ -660,6 +742,10 @@ VerticalAlign = enumeration(VerticalAlignType)
 #: Specify a vertical location in plot layouts
 VerticalLocationType = Literal["above", "below"]
 VerticalLocation = enumeration(VerticalLocationType)
+
+#: Specify a which axis to use for windowed auto-ranging
+WindowAxisType = Literal["none", "x", "y"]
+WindowAxis = enumeration(WindowAxisType)
 
 #-----------------------------------------------------------------------------
 # Private API

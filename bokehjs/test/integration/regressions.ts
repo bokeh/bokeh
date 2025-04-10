@@ -18,7 +18,8 @@ import {
   Plot,
   TeX,
   Toolbar, ToolProxy,
-  PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool, WheelZoomTool,
+  PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
+  WheelPanTool, BoxSelectTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
@@ -35,12 +36,12 @@ import {
 } from "@bokehjs/models"
 
 import {
-  InlineStyleSheet, HTML,
+  InlineStyleSheet, HTML, ValueOf,
 } from "@bokehjs/models/dom"
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -65,6 +66,8 @@ import {div} from "@bokehjs/core/dom"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
+import type * as p from "@bokehjs/core/properties"
+import {load_image} from "@bokehjs/core/util/image"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
@@ -74,6 +77,7 @@ import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
 import {open_picker} from "./widgets"
+import {Model} from "@bokehjs/model"
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -881,19 +885,32 @@ describe("Bug", () => {
   })
 
   describe("in issue #10498", () => {
-    it("prevents GridBox from rebuilding when rows or cols properties are modified", async () => {
+    async function plot(orientation: "cols" | "rows") {
       const p1 = fig([300, 300])
       const p2 = fig([300, 300])
       p1.scatter({x: [0, 1], y: [0, 1], color: "red"})
       p2.scatter({x: [1, 0], y: [0, 1], color: "green"})
       const box = new GridBox({
-        children: [[p1, 0, 0], [p2, 0, 1]],
-        cols: ["300px", "300px"],
+        children: [
+          [p1, 0, 0],
+          orientation === "cols" ?
+            [p2, 0, 1] :
+            [p2, 1, 0],
+        ],
+        [orientation]: ["300px", "300px"],
         sizing_mode: "fixed",
       })
-      const {view} = await display(box, [600, 300])
-      box.cols = ["100px", "500px"]
+      const {view} = await display(box, orientation === "cols" ? [600, 300] : [300, 600])
+      box[orientation] = ["100px", "500px"]
       await view.ready
+    }
+
+    it("prevents GridBox from rebuilding in the x direction when cols are modified", async () => {
+      await plot("cols")
+    })
+
+    it("prevents GridBox from rebuilding in the y direction when rows are modified", async () => {
+      await plot("rows")
     })
   })
 
@@ -1222,6 +1239,7 @@ describe("Bug", () => {
 
       const p = fig([200, 200], {y_axis_type: "log"})
       p.line(x, y, {line_width: 2})
+      p.scatter(x, y, {size: 10, fill_alpha: 0.3})
       await display(p)
     })
   })
@@ -4208,6 +4226,185 @@ describe("Bug", () => {
       })
 
       await display(p)
+    })
+  })
+
+  describe("in issue #14120", () => {
+    type FooAttrs = p.AttrsOf<FooProps>
+
+    type FooProps = Model.Props & {
+      value: p.Property<number>
+    }
+
+    interface Foo extends FooAttrs {}
+
+    class Foo extends Model {
+      declare properties: FooProps
+
+      constructor(attrs?: Partial<FooAttrs>) {
+        super(attrs)
+      }
+
+      static {
+        this.define<FooProps>(({Float}) => ({
+          value: [ Float ],
+        }))
+      }
+    }
+
+    it("doesn't allow updates when properties of ValueOf change", async () => {
+      const obj = new Foo({value: 127})
+      const val = new ValueOf({obj, attr: "value"})
+
+      const html = new HTML({html: ["Value of <tt>Foo.value</tt> is <b>", val, "<b/>"]})
+      const pane = new Pane({elements: [html]})
+      const {view} = await display(pane, [200, 50])
+
+      obj.value = 128
+      await view.ready
+    })
+  })
+
+  describe("in issue #14310", () => {
+    it("doesn't allow Axis background to have a hatch pattern", async () => {
+      const p = fig([200, 200])
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: ["red", "green", "blue"]})
+
+      p.xaxis.background_hatch_pattern = "/"
+      p.xaxis.background_hatch_color = "pink"
+
+      p.yaxis.background_hatch_pattern = "\\"
+      p.yaxis.background_hatch_color = "purple"
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #14246", () => {
+    it("doesn't allow to correctly update Toolbar after changing Tool visiblity", async () => {
+      const pan = new PanTool()
+      const box_select = new BoxSelectTool()
+      const wheel_zoom = new WheelZoomTool()
+      const undo = new UndoTool()
+      const redo = new RedoTool()
+      const reset = new ResetTool()
+      const hover = new HoverTool()
+      const tools = [pan, box_select, wheel_zoom, undo, redo, reset, hover]
+      const toolbar = new Toolbar({tools})
+
+      const plot = fig([200, 200], {toolbar, toolbar_location: "above"})
+      plot.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: ["red", "green", "blue"]})
+
+      const {view} = await display(plot)
+
+      undo.visible = false
+      redo.visible = false
+      reset.visible = false
+      await view.ready
+
+      wheel_zoom.visible = false
+      reset.visible = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #14265", () => {
+    it("doesn't allow to correctly drawImage in SVG backend with transform and clip-path", async () => {
+      const plot = fig([200, 200], {output_backend: "svg"})
+      plot.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+      plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+
+      const html = new HTML({html: ""})
+      const pane = new Pane({elements: [html]})
+
+      const {view} = await display(row([plot, pane]), [400, 200])
+
+      const pv = view.owner.get_one(plot)
+      const blob = await pv.export().to_blob()
+      html.html = await blob.text()
+      await view.ready
+    })
+  })
+
+  describe("in issue #14280", () => {
+    it("triggers JS error when adding tile without defining range", async () => {
+      const osm = new TileRenderer({tile_source: osm_source.clone()})
+
+      const p0 = fig([300, 200], {
+        x_range: new DataRange1d(),
+        y_range: new DataRange1d(),
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+      })
+
+      const {view} = await display(p0)
+
+      p0.renderers = [osm]
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #14207", () => {
+    it.allowing(1)("has zoom in when visibility changes", async () => {
+      const osm = new TileRenderer({tile_source: osm_source.clone()})
+
+      const p0 = fig([300, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        sizing_mode: "stretch_height",
+        renderers: [osm],
+      })
+
+      const sw0 = new Switch({active: false})
+      const s0 = new Select({
+        value: "foo",
+        options: ["foo", "baz"],
+        sizing_mode: "fixed",
+        visible: false,
+      })
+
+      const col1 = new Column({children: [p0], sizing_mode: "stretch_height"})
+      const col2 = new Column({children: [sw0, s0], sizing_mode: "stretch_both"})
+      const layout = new Row({children: [col1, col2], sizing_mode: "stretch_both"})
+
+      const {view} = await display(layout, [400, 500])
+
+      s0.visible = true
+      await view.ready
+
+      expect(p0.y_range.start).to.be.equal(-4033457.249070633)
+      expect(p0.y_range.end).to.be.equal(10033457.249070633)
+    })
+  })
+
+  describe("in issue #14422", () => {
+    it.scale(3)("doesn't allow to correctly export image with Legend annotation with scaling", async () => {
+      const plot = fig([200, 200])
+      plot.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 2, legend_label: "Temp.", color: "#ff0000"})
+      plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+      plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
+
+      const canvas = document.createElement("canvas")
+      canvas.width = 200
+      canvas.height = 200
+
+      const html = new HTML({html: canvas, style: {width: "200px", height: "200px"}})
+      const pane = new Pane({elements: [html]})
+
+      const {view} = await display(row([plot, pane]), [400, 200])
+
+      const pv = view.owner.get_one(plot)
+      const blob = await pv.export().to_blob()
+      const ctx = canvas.getContext("2d")!
+      const url = URL.createObjectURL(blob)
+      const image = await load_image(url)
+      ctx.drawImage(image, 0, 0, 200, 200)
     })
   })
 })

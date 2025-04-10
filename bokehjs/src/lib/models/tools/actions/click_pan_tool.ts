@@ -1,9 +1,10 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
+import {update_ranges} from "../gestures/pan_tool"
+import type {IconLike} from "../../common/kinds"
 import {Float} from "core/kinds"
 import {PanDirection} from "core/enums"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
-import {update_ranges} from "../gestures/pan_tool"
 
 export class ClickPanToolView extends PlotActionToolView {
   declare model: ClickPanTool
@@ -84,7 +85,7 @@ export class ClickPanTool extends PlotActionTool {
     return `Pan ${this.direction}`
   }
 
-  override get computed_icon(): string {
+  override get computed_icon(): IconLike {
     const icon = super.computed_icon
     if (icon != null) {
       return icon

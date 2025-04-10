@@ -13,12 +13,17 @@ pytest_plugins = (
 )
 
 # Standard library imports
+import importlib
+import importlib.util
 from inspect import iscoroutinefunction
 
 # External imports
 import _pytest
+import pandas as pd
 import pytest
+from narwhals.stable.v1.typing import IntoDataFrame
 
+pandas_1x = pd.__version__.startswith("1")
 
 def pytest_collection_modifyitems(items: list[_pytest.nodes.Item]) -> None:
     for item in items:
@@ -48,3 +53,39 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
     parser.addoption(
         "--no-js", action="store_true", default=False,
         help="only run python code and skip js")
+
+def pandas_constructor(obj) -> IntoDataFrame:
+    return pd.DataFrame(obj)  # type: ignore[no-any-return]
+
+
+def pandas_nullable_constructor(obj) -> IntoDataFrame:
+    return pd.DataFrame(obj).convert_dtypes(dtype_backend="numpy_nullable")  # type: ignore[no-any-return]
+
+
+def pandas_pyarrow_constructor(obj) -> IntoDataFrame:
+    return pd.DataFrame(obj).convert_dtypes(dtype_backend="pyarrow")  # type: ignore[no-any-return]
+
+
+def polars_eager_constructor(obj) -> IntoDataFrame:
+    import polars as pl
+    return pl.DataFrame(obj)
+
+
+def pyarrow_table_constructor(obj) -> IntoDataFrame:
+    import pyarrow as pa
+    return pa.table(obj)  # type: ignore[no-any-return]
+
+
+constructors = [pandas_constructor]
+
+if not pandas_1x:
+    constructors.append(pandas_nullable_constructor)
+if importlib.util.find_spec('pyarrow') is not None:
+    constructors.extend([pandas_pyarrow_constructor, pyarrow_table_constructor])
+if importlib.util.find_spec('polars') is not None:
+    constructors.append(polars_eager_constructor)
+
+
+@pytest.fixture(params=constructors)
+def constructor(request: pytest.FixtureRequest):
+    return request.param  # type: ignore[no-any-return]

@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     TYPE_CHECKING,
-    Any as TAny,
+    Any,
     Sequence,
     TypeAlias,
     overload,
@@ -33,7 +33,8 @@ import numpy as np
 from ..core.has_props import abstract
 from ..core.properties import (
     JSON,
-    Any,
+    Any as AnyVal,
+    AnyRef,
     Bool,
     ColumnData,
     Dict,
@@ -42,12 +43,12 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     Nullable,
-    Object,
     Readonly,
     Required,
     Seq,
     String,
 )
+from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..model import Model
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning, warn
@@ -82,7 +83,7 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    DataDict: TypeAlias = dict[str, Sequence[TAny] | npt.NDArray[TAny] | pd.Series | pd.Index]
+    DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series | pd.Index]
 
     Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
@@ -95,7 +96,7 @@ class DataSource(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
@@ -112,10 +113,10 @@ class ColumnarDataSource(DataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    default_values = Dict(String, Any, default={}, help="""
+    default_values = Dict(String, AnyRef, default={}, help="""
     Defines the default value for each column.
 
     This is used when inserting rows into a data source, e.g. by edit tools,
@@ -199,7 +200,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     '''
 
-    data: DataDict = ColumnData(String, Seq(Any), help="""
+    data = ColumnData(String, Seq(AnyVal), help="""
     Mapping of column names to sequences of data. The columns can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
 
@@ -207,20 +208,20 @@ class ColumnDataSource(ColumnarDataSource):
     objects. In these cases, the behaviour is identical to passing the objects
     to the ``ColumnDataSource`` initializer.
     """).accepts(
-        Object("pandas.DataFrame"), lambda x: ColumnDataSource._data_from_df(x),
-    ).accepts(
-        Object("pandas.core.groupby.GroupBy"), lambda x: ColumnDataSource._data_from_groupby(x),
+        EagerDataFrame, lambda x: ColumnDataSource._data_from_df(x),
+     ).accepts(
+        PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x),
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warn(
                     "ColumnDataSource's columns must be of the same length. " +
                     f"Current lengths: {', '.join(sorted(str((k, len(v))) for k, v in data.items()))}", BokehUserWarning))
 
     @overload
-    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny) -> None: ...
+    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: Any) -> None: ...
     @overload
-    def __init__(self, **kwargs: TAny) -> None: ...
+    def __init__(self, **kwargs: Any) -> None: ...
 
-    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         ''' If called with a single argument that is a dict or
         ``pandas.DataFrame``, treat that implicitly as the "data" attribute.
 
@@ -231,14 +232,16 @@ class ColumnDataSource(ColumnarDataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data: DataDict = kwargs.pop("data", {})
 
+        import narwhals.stable.v1 as nw
         import pandas as pd
+
         if not isinstance(raw_data, dict):
-            if isinstance(raw_data, pd.DataFrame):
+            if nw.dependencies.is_into_dataframe(raw_data):
                 raw_data = self._data_from_df(raw_data)
             elif isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             else:
-                raise ValueError(f"expected a dict or pandas.DataFrame, got {raw_data}")
+                raise ValueError(f"expected a dict or eager dataframe support by Narwhals, got {raw_data}")
         super().__init__(**kwargs)
         self.data.update(raw_data)
 
@@ -248,6 +251,22 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         return list(self.data)
+
+    @property
+    def length(self) -> int:
+        ''' Number of row entries in the data. Note: All columns have the same number of row entries.
+
+        '''
+        data_lengths = {len(v) for _, v in self.data.items()}
+
+        match len(data_lengths):
+            case 0:
+                return 0
+            case 1:
+                return data_lengths.pop()
+            case _:
+                raise RuntimeError(f"expected all columns to have the same length, "
+                                   f"got {len(data_lengths)} different lengths: {data_lengths}")
 
     @staticmethod
     def _data_from_df(df: pd.DataFrame) -> DataDict:
@@ -261,29 +280,41 @@ class ColumnDataSource(ColumnarDataSource):
             dict[str, np.array]
 
         '''
-        import pandas as pd
+        import narwhals.stable.v1 as nw
 
-        _df = df.copy()
+        if nw.dependencies.is_pandas_like_dataframe(df):
+            pdx = nw.get_native_namespace(nw.from_native(df))
+            _df = df.copy()
 
-        # Flatten columns
-        if isinstance(df.columns, pd.MultiIndex):
-            try:
-                _df.columns = ['_'.join(col) for col in _df.columns.values]
-            except TypeError:
-                raise TypeError('Could not flatten MultiIndex columns. '
-                                'use string column names or flatten manually')
-        # Transform columns CategoricalIndex in list
-        if isinstance(df.columns, pd.CategoricalIndex):
-            _df.columns = df.columns.tolist()
-        # Flatten index
-        index_name = ColumnDataSource._df_index_name(df)
-        if index_name == 'index':
-            _df.index = pd.Index(_df.index.values)
+            # Flatten columns
+            if isinstance(_df.columns, pdx.MultiIndex):
+                try:
+                    _df.columns = ['_'.join(col) for col in _df.columns.values]
+                except TypeError:
+                    raise TypeError('Could not flatten MultiIndex columns. '
+                                    'use string column names or flatten manually')
+            # Transform columns CategoricalIndex in list
+            if isinstance(_df.columns, pdx.CategoricalIndex):
+                _df.columns = _df.columns.tolist()
+            # Flatten index
+            index_name = ColumnDataSource._df_index_name(_df)
+            if index_name == 'index':
+                _df.index = pdx.Index(_df.index.values)
+            else:
+                _df.index = pdx.Index(_df.index.values, name=index_name)
+            _df.reset_index(inplace=True)
+            _df = nw.from_native(_df, eager_only=True)
         else:
-            _df.index = pd.Index(_df.index.values, name=index_name)
-        _df.reset_index(inplace=True)
+            _df = nw.from_native(df, eager_only=True)
+            if 'index' in _df.columns and 'level_0' in _df.columns:
+                raise ValueError('Could use dataframe with both "index" and "level_0" as column names.')
+            elif 'index' in _df.columns:
+                # Mirror pandas `reset_index` behaviour
+                _df = _df.with_row_index('level_0')
+            else:
+                _df = _df.with_row_index()
 
-        tmp_data = {c: v.values for c, v in _df.items()}
+        tmp_data = {c: v.to_numpy() for c, v in _df.to_dict(as_series=True).items()}
 
         new_data: DataDict = {}
         for k, v in tmp_data.items():
@@ -733,7 +764,7 @@ class CDSView(Model):
 
     '''
 
-    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
@@ -757,7 +788,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     geojson = Required(JSON, help="""
@@ -777,7 +808,7 @@ class WebDataSource(ColumnDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     adapter = Nullable(Instance(CustomJS), help="""
@@ -813,7 +844,7 @@ class ServerSentDataSource(WebDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class AjaxDataSource(WebDataSource):
@@ -848,7 +879,7 @@ class AjaxDataSource(WebDataSource):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     polling_interval = Nullable(Int, help="""

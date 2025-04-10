@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..colors import RGB, Color, ColorLike
 from ..core.enums import (
@@ -98,7 +101,7 @@ class LayoutDOM(Pane):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     disabled = Bool(False, help="""
@@ -107,13 +110,13 @@ class LayoutDOM(Pane):
     If ``True``, the widget will be greyed-out and not responsive to UI events.
     """)
 
-    width: int | None = Nullable(NonNegative(Int), help="""
+    width = Nullable(NonNegative(Int), help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height: int | None = Nullable(NonNegative(Int), help="""
+    height = Nullable(NonNegative(Int), help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.
@@ -337,7 +340,7 @@ class Spacer(LayoutDOM):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 @abstract
@@ -394,7 +397,7 @@ class GridBox(LayoutDOM, GridCommon):
     """ A CSS grid-based grid container. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     children = List(Either(
@@ -413,7 +416,7 @@ class HBox(LayoutDOM):
     """ A CSS grid-based horizontal box. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     children = List(Struct(child=Instance(UIElement), col=Optional(Int), span=Optional(Int)), default=[], help="""
@@ -438,7 +441,7 @@ class VBox(LayoutDOM):
     """ A CSS grid-based vertical box. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     children = List(Struct(child=Instance(UIElement), row=Optional(Int), span=Optional(Int)), default=[], help="""
@@ -513,7 +516,7 @@ class Row(FlexBox):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _sphinx_height_hint(self) -> int|None:
@@ -529,7 +532,7 @@ class Column(FlexBox):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _sphinx_height_hint(self) -> int|None:
@@ -543,7 +546,7 @@ class TabPanel(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     title = String(default="", help="""
@@ -575,7 +578,7 @@ class Tabs(LayoutDOM):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     __example__ = "examples/interaction/widgets/tab_panes.py"
@@ -599,7 +602,7 @@ class GroupBox(LayoutDOM):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     title = Nullable(String, help="""
@@ -623,7 +626,7 @@ class ScrollBox(LayoutDOM):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     child = Instance(UIElement, help="""

@@ -5,6 +5,7 @@
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
 import type {PlainObject} from "../types"
+import {css4_parse, transparent} from "./color"
 import {typed_entries} from "./object"
 import type {Random} from "./random"
 import {random} from "./random"
@@ -522,13 +523,11 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
         } else if (style.svg !== value) {
-          if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
-            // separate alpha value, since illustrator can't handle it
-            const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
-            const matches = regex.exec(value)!
-            const [, r, g, b, a] = matches
+          if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgb") !== -1) {
+            // convert CSS4 -> CSS3 and separate alpha value, since illustrator can't handle it
+            const [r, g, b, a] = css4_parse(value) ?? transparent()
+            const opacity = a*this.globalAlpha
             currentElement.setAttribute(style.svgAttr, `rgb(${r},${g},${b})`)
-            const opacity = parseFloat(a)*this.globalAlpha
             currentElement.setAttribute(`${style.svgAttr}-opacity`, `${opacity}`)
           } else {
             let attr = style.svgAttr!
@@ -610,9 +609,21 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this.__stack = []
   }
 
-  private _apply_transform(element: Element, transform: AffineTransform = this._transform) {
+  private _apply_transform(element: Element, transform: AffineTransform = this._transform): void {
     if (!transform.is_identity) {
       element.setAttribute("transform", transform.toString())
+    }
+  }
+
+  private _apply_global_alpha(element: Element): void {
+    if (this.globalAlpha != 1.0) {
+      element.setAttribute("opacity", `${this.globalAlpha}`)
+    }
+  }
+
+  private _apply_clip_path(element: Element): void {
+    if (this._clip_path != null) {
+      element.setAttribute("clip-path", this._clip_path)
     }
   }
 
@@ -913,7 +924,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
-    if (fill_rule != null) {
+    if (fill_rule != null && fill_rule != "nonzero") { // don't apply the default
       this.__currentElement.setAttribute("fill-rule", fill_rule)
     }
     if (this._clip_path != null) {
@@ -1290,16 +1301,22 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
         scope = parent
       } else {
         scope = this.__createElement("g")
-        if (!transform.is_identity) {
-          this._apply_transform(scope, transform)
-        }
-        if (this.globalAlpha != 1.0) {
-          scope.setAttribute("opacity", `${this.globalAlpha}`)
-        }
-        if (this._clip_path != null) {
-          scope.setAttribute("clip-path", this._clip_path)
-        }
         parent.appendChild(scope)
+
+        // `transform` affects `clip-path`, so if both are present, then apply
+        // them separately in `clip-path`, `transform` order.
+        if (this._clip_path != null) {
+          this._apply_clip_path(scope)
+
+          if (!transform.is_identity) {
+            const outer = scope
+            scope = this.__createElement("g")
+            outer.appendChild(scope)
+          }
+        }
+
+        this._apply_transform(scope, transform)
+        this._apply_global_alpha(scope)
       }
       for (const child of [...svg.childNodes]) {
         if (child instanceof SVGDefsElement) {

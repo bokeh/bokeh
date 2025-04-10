@@ -19,7 +19,7 @@ export class CanvasPanelView extends StyledElementView {
     return this._bbox
   }
 
-  readonly position = new InlineStyleSheet()
+  readonly position = new InlineStyleSheet("", "position")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), css.default, this.position]

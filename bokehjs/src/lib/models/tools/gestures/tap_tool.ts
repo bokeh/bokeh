@@ -1,5 +1,7 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {Modifiers, satisfies_modifiers} from "./common"
+import {MenuItem} from "../../ui/menus"
+import type {MenuItemLike} from "../../ui/menus"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
@@ -7,8 +9,6 @@ import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
-import {prepend} from "core/util/arrayable"
-import type {MenuItem} from "core/util/menus"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select, tool_icon_toggle_mode} from "styles/icons.css"
@@ -151,20 +151,19 @@ export class TapTool extends SelectTool {
   override event_type = "tap" as "tap"
   override default_order = 10
 
-  override get menu(): MenuItem[] | null {
-    const menu = super.menu
-    if (menu == null) {
-      return null
-    } else {
-      return prepend(menu, {
-        icon: tool_icon_toggle_mode,
+  override get menu(): MenuItemLike[] {
+    return [
+      new MenuItem({
+        icon: `.${tool_icon_toggle_mode}`,
+        label: "Toggle mode",
         tooltip: "Toggle the current selection",
-        active: () => this.mode == "toggle",
-        handler: () => {
+        checked: () => this.mode == "toggle",
+        action: () => {
           this.mode = "toggle"
           this.active = true
         },
-      })
-    }
+      }),
+      ...super.menu,
+    ]
   }
 }

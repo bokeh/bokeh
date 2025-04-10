@@ -8,9 +8,12 @@ dependencies:
   # runtime
   - contourpy >=1.2
   - jinja2 >=2.7
+  - narwhals>=1.13
   - numpy >=1.20.0
   - packaging >=16.8
   - pandas >=1.2
+  - polars >=1.0
+  - pyarrow>=14.0
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
@@ -55,7 +58,6 @@ dependencies:
   # - h5py # Not yet available for Python 3.13
   - icalendar
   # - notebook # Not yet available for Python 3.13
-  - pandas-datareader
   - pyshp
   - scikit-learn
   #- squarify
@@ -64,7 +66,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=1.11
+    - mypy >=1.15
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme

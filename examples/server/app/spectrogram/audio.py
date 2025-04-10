@@ -2,7 +2,7 @@ from time import sleep
 
 import numpy as np
 from scipy.fft import fft
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100.
@@ -32,7 +32,7 @@ try:
                 signal = raw_data / 32768.0
                 spectrum = abs(fft(signal))[:int(NUM_SAMPLES/2)]
                 power = spectrum**2
-                bins = simps(np.split(power, NUM_BINS))
+                bins = simpson(np.split(power, NUM_BINS))
                 data['values'] = signal, spectrum, bins
             except Exception:
                 continue
@@ -64,6 +64,6 @@ except ImportError:
 
             spectrum = abs(fft(signal))[:int(NUM_SAMPLES/2)]
             power = spectrum**2
-            bins = simps(np.split(power, NUM_BINS))
+            bins = simpson(np.split(power, NUM_BINS))
             data['values'] = signal, spectrum, bins
             sleep(1.0/12)

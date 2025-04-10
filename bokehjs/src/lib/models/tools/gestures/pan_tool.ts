@@ -1,11 +1,13 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import type {RangeInfo, RangeState} from "../../plots/range_manager"
+import {MenuItem} from "../../ui/menus"
+import type {MenuItemLike} from "../../ui/menus"
+import type {IconLike} from "../../common/kinds"
 import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
 import {assert} from "core/util/assert"
 import {Dimensions} from "core/enums"
 import type {SXY} from "core/util/bbox"
-import type {MenuItem} from "core/util/menus"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
 
@@ -114,42 +116,37 @@ export class PanToolView extends GestureToolView {
     const sy_high = vr.end - new_dy
 
     const dims = this.model.dimensions
+    const {x_scales, y_scales} = frame
 
     const x_axis_only = state.dims == "width"
     const y_axis_only = state.dims == "height"
 
-    let sx0: number
-    let sx1: number
+    // Here we are a bit careful to only update the range info for dimensions that
+    // are "in play". This is to avoid superfluous noise updates to dataranges that
+    // would cause windowed auto-ranging to turn off.
+
     let sdx: number
+    let xrs: RangeState
     if ((dims == "width" || dims == "both") && !y_axis_only) {
-      sx0 = sx_low
-      sx1 = sx_high
       sdx = -new_dx
+      xrs = update_ranges(x_scales, sx_low, sx_high)
     } else {
-      sx0 = hr.start
-      sx1 = hr.end
       sdx = 0
+      xrs = new Map()
     }
 
-    let sy0: number
-    let sy1: number
     let sdy: number
+    let yrs: RangeState
     if ((dims == "height" || dims == "both") && !x_axis_only) {
-      sy0 = sy_low
-      sy1 = sy_high
       sdy = -new_dy
+      yrs = update_ranges(y_scales, sy_low, sy_high)
     } else {
-      sy0 = vr.start
-      sy1 = vr.end
       sdy = 0
+      yrs = new Map()
     }
 
     state.last_dx = dx
     state.last_dy = dy
-
-    const {x_scales, y_scales} = frame
-    const xrs = update_ranges(x_scales, sx0, sx1)
-    const yrs = update_ranges(y_scales, sy0, sy1)
 
     this.pan_info = {xrs, yrs, sdx, sdy}
     this.plot_view.update_range(this.pan_info, {panning: true})
@@ -194,7 +191,7 @@ export class PanTool extends GestureTool {
     return this._get_dim_tooltip(this.dimensions)
   }
 
-  override get computed_icon(): string {
+  override get computed_icon(): IconLike {
     const icon = super.computed_icon
     if (icon != null) {
       return icon
@@ -207,33 +204,38 @@ export class PanTool extends GestureTool {
     }
   }
 
-  override get menu(): MenuItem[] | null {
+  override get menu(): MenuItemLike[] {
     return [
-      {
-        icon: icons.tool_icon_pan,
+      new MenuItem({
+        icon: `.${icons.tool_icon_pan}`,
+        label: "XY mode",
         tooltip: "Pan in both dimensions",
-        active: () => this.dimensions == "both",
-        handler: () => {
+        checked: () => this.dimensions == "both",
+        action: () => {
           this.dimensions = "both"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_x_pan,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_x_pan}`,
+        label: "X-only",
         tooltip: "Pan in x-dimension",
-        active: () => this.dimensions == "width",
-        handler: () => {
+        checked: () => this.dimensions == "width",
+        action: () => {
           this.dimensions = "width"
           this.active = true
         },
-      }, {
-        icon: icons.tool_icon_y_pan,
+      }),
+      new MenuItem({
+        icon: `.${icons.tool_icon_y_pan}`,
+        label: "Y-only",
         tooltip: "Pan in y-dimension",
-        active: () => this.dimensions == "height",
-        handler: () => {
+        checked: () => this.dimensions == "height",
+        action: () => {
           this.dimensions = "height"
           this.active = true
         },
-      },
+      }),
     ]
   }
 }

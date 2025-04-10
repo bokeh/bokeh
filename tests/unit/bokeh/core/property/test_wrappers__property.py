@@ -19,6 +19,9 @@ import pytest ; pytest
 # Standard library imports
 from unittest.mock import MagicMock, patch
 
+# External imports
+import numpy as np
+
 # Bokeh imports
 from bokeh.core.properties import (
     Angle,
@@ -402,6 +405,29 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == ({'foo': [10, 50]},)
     assert pvcd == dict(foo=[10, 50])
+    assert 'hint' in mock_notify.call_args[1]
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsPatchedEvent)
+    assert event.setter == 'setter'
+
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
+def test_PropertyValueColumnData__patch_with_list_indices(mock_notify: MagicMock) -> None:
+    from bokeh.document.events import ColumnsPatchedEvent
+    source = ColumnDataSource(data=dict(foo=[np.array([1, 40]), np.array([1, 50])]))
+    pvcd = bcpw.PropertyValueColumnData(source.data)
+
+    mock_notify.reset_mock()
+    pvcd._patch("doc", source, dict(foo=[([1, 0], 60)]), setter='setter')
+    assert mock_notify.call_count == 1
+
+    expected = [np.array([1, 40]), np.array([60, 50])]
+    assert (mock_notify.call_args[0][0]["foo"][0] == expected[0]).all()
+    assert (mock_notify.call_args[0][0]["foo"][1] == expected[1]).all()
+
+    assert set(pvcd) == {"foo"}
+    assert (pvcd["foo"][0] == expected[0]).all()
+    assert (pvcd["foo"][1] == expected[1]).all()
+
     assert 'hint' in mock_notify.call_args[1]
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsPatchedEvent)

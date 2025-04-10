@@ -117,12 +117,15 @@ export class TableDataProvider implements DataProvider<Item> {
     }
 
     const records = this.getRecords()
-    const old_index = this.index.slice()
+
+    const lookup: {[key: number]: number} = {}
+    this.index.forEach((v, i) => lookup[v] = i)
 
     this.index.sort((i0, i1) => {
       for (const [col, sign] of cols) {
-        const v0 = records[old_index.indexOf(i0)][col.field!]
-        const v1 = records[old_index.indexOf(i1)][col.field!]
+        const field = col.field!
+        const v0 = records[lookup[i0]][field]
+        const v1 = records[lookup[i1]][field]
         if (col.sorter != null) {
           return sign * col.sorter.compute(v0, v1)
         }
@@ -262,7 +265,9 @@ export class DataTableView extends WidgetView {
     }
 
     const {indices} = this.model.source.selected
-    const permuted_indices = sort_by(map(indices, (x) => this.data.index.indexOf(x)), (x) => x)
+    const lookup: {[key: number]: number} = {}
+    this.data.index.forEach((v, i) => lookup[v] = i)
+    const permuted_indices = sort_by(map(indices, (x) => lookup[x]), (x) => x)
 
     this._in_selection_update = true
     try {

@@ -3,6 +3,7 @@ import type {GlyphView} from "../glyphs/glyph"
 import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
+import type {WindowAxis} from "core/enums"
 import type {SelectionManager} from "core/selection_manager"
 import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
@@ -25,8 +26,8 @@ export abstract class DataRendererView extends RendererView implements AutoRange
 
   readonly [auto_ranged] = true
 
-  bounds(): Rect {
-    return this.glyph_view.bounds()
+  bounds(window_axis: WindowAxis = "none"): Rect {
+    return this.glyph_view.bounds(window_axis)
   }
 
   log_bounds(): Rect {

@@ -121,7 +121,7 @@ class List(Seq[T]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = [], help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = [], help: str | None = None) -> None:
         # TODO: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.

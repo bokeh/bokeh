@@ -25,13 +25,15 @@ from tests.support.util.api import verify_all
 from _util_property import _TestHasProps, _TestModel
 
 # Module under test
-import bokeh.core.property.pd as bcpp # isort:skip
+import bokeh.core.property.data_frame as bcpp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'EagerDataFrame',
+    'EagerSeries',
     'PandasDataFrame',
     'PandasGroupBy',
 )
@@ -48,6 +50,56 @@ class Test_PandasDataFrame:
 
     def test_invalid(self) -> None:
         prop = bcpp.PandasDataFrame()
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+class Test_EagerDataFrame:
+    def test_valid(self) -> None:
+        prop = bcpp.EagerDataFrame()
+        assert prop.is_valid(pd.DataFrame())
+
+    def test_valid_polars(self) -> None:
+        polars = pytest.importorskip('polars')
+        prop = bcpp.EagerDataFrame()
+        assert prop.is_valid(polars.DataFrame())
+
+    def test_valid_pyarrow(self) -> None:
+        pyarrow = pytest.importorskip('pyarrow')
+        prop = bcpp.EagerDataFrame()
+        assert prop.is_valid(pyarrow.table({}))
+
+    def test_invalid(self) -> None:
+        prop = bcpp.EagerDataFrame()
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+class Test_EagerSeries:
+    def test_valid(self) -> None:
+        prop = bcpp.EagerSeries()
+        assert prop.is_valid(pd.Series(dtype='float64'))
+
+    def test_valid_polars(self) -> None:
+        polars = pytest.importorskip('polars')
+        prop = bcpp.EagerSeries()
+        assert prop.is_valid(polars.Series())
+
+    def test_valid_pyarrow(self) -> None:
+        pa = pytest.importorskip('pyarrow')
+        prop = bcpp.EagerSeries()
+        assert prop.is_valid(pa.chunked_array([], type=pa.int64()))
+
+    def test_invalid(self) -> None:
+        prop = bcpp.EagerSeries()
         assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid(())

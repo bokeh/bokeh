@@ -11,12 +11,13 @@ requires-python = ">=3.10"
 dependencies = [
     "Jinja2 >=2.9",
     "contourpy >=1.2",
+    "narwhals>=1.13",
     "numpy >=1.16",
     "packaging >=16.8",
     "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
-    "tornado >=6.2",
+    "tornado >=6.2; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -116,7 +117,7 @@ source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.13"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 
@@ -216,7 +217,7 @@ module = [
     "bokeh.core.property.nullable",
     "bokeh.core.property.numeric",
     "bokeh.core.property.override",
-    "bokeh.core.property.pd",
+    "bokeh.core.property.data_frame",
     "bokeh.core.property.primitive",
     "bokeh.core.property.readonly",
     "bokeh.core.property.required",

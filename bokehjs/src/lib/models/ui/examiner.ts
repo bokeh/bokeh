@@ -430,8 +430,7 @@ export class ExaminerView extends UIElementView {
     } else {
       const {document} = this.model
       if (document != null) {
-        const models = document._all_models.values()
-        render_models(models, document)
+        render_models(document.all_models, document)
 
         const roots = document.roots()
         if (roots.length != 0) {

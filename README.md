@@ -1,5 +1,5 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-white-text-no-padding.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-white-text-no-padding.svg">
   <img src="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-black-text-no-padding.svg" alt="Bokeh logo -- text is white in dark theme and black in light theme" height=60/>
 </picture>
 
@@ -147,7 +147,7 @@ To install Bokeh and its required dependencies using `pip`, enter the following 
 pip install bokeh
 ```
 
-To install `conda`, enter the following command at a Bash or Windows command prompt:
+To install using `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
@@ -159,19 +159,19 @@ Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/
 
 Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [checkout the Bokeh tutorial repository](https://github.com/bokeh/tutorial/) to learn about Bokeh in live Jupyter Notebooks.
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.0/docs/CODE_OF_CONDUCT.md).*
+*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/HEAD/docs/CODE_OF_CONDUCT.md).*
 
 ## Support
 
 ### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://opencollective.com/bokeh), as well as for monetary support from the organizations and companies listed below:
+The Bokeh project is grateful for [individual contributions](https://opencollective.com/bokeh), as well as for present and past monetary support from the organizations and companies listed below:
 
 <table align="center">
 <tr>

@@ -1,5 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
+import type {RangeState} from "../../plots/range_manager"
 import type * as p from "core/properties"
 import type {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
@@ -33,33 +34,33 @@ export class WheelPanToolView extends GestureToolView {
     const [sx_low, sx_high] = [hr.start, hr.end]
     const [sy_low, sy_high] = [vr.start, vr.end]
 
-    let sx0: number
-    let sx1: number
-    let sy0: number
-    let sy1: number
+    let xrs: RangeState
+    let yrs: RangeState
+
+    const {x_scales, y_scales} = frame
+
+    // Here we are a bit careful to only update the range info for dimensions that
+    // are "in play". This is to avoid superfluous noise updates to dataranges that
+    // would cause windowed auto-ranging to turn off.
 
     switch (this.model.dimension) {
       case "height": {
         const sy_range = Math.abs(sy_high - sy_low)
-        sx0 = sx_low
-        sx1 = sx_high
-        sy0 = sy_low - sy_range * factor
-        sy1 = sy_high - sy_range * factor
+        const sy0 = sy_low - sy_range * factor
+        const sy1 = sy_high - sy_range * factor
+        xrs = new Map()
+        yrs = update_ranges(y_scales, sy0, sy1)
         break
       }
       case "width": {
         const sx_range = Math.abs(sx_high - sx_low)
-        sx0 = sx_low - sx_range * factor
-        sx1 = sx_high - sx_range * factor
-        sy0 = sy_low
-        sy1 = sy_high
+        const sx0 = sx_low - sx_range * factor
+        const sx1 = sx_high - sx_range * factor
+        xrs = update_ranges(x_scales, sx0, sx1)
+        yrs = new Map()
         break
       }
     }
-
-    const {x_scales, y_scales} = frame
-    const xrs = update_ranges(x_scales, sx0, sx1)
-    const yrs = update_ranges(y_scales, sy0, sy1)
 
     // OK this sucks we can't set factor independently in each direction. It is used
     // for GMap plots, and GMap plots always preserve aspect, so effective the value

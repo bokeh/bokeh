@@ -44,13 +44,25 @@
 }
 
 .tool-icon-mask(@icon) {
-  background-color: var(--bokeh-icon-color);
+  background-color: var(--icon-color);
   .mask-image(@icon);
 }
 
 .icon-mask(@icon) {
   .tool-icon-mask(@icon);
+  .icon-mask-base();
+}
+
+.icon-mask-base() {
   .mask-size(100% 100%);
   .mask-position(center center);
   .mask-repeat(no-repeat);
+}
+
+/* for PNG icons; remove when dropped */
+.icon-mask-base-png() {
+  background-size: 100% 100%;
+  background-origin: border-box;
+  background-position: center center;
+  background-repeat: no-repeat;
 }

@@ -1,5 +1,5 @@
 import {entries} from "./object"
-import {isPrimitive, isPlainObject, isObject, isArray} from "./types"
+import {isPrimitive, isPlainObject, isObject, isArray, isFunction} from "./types"
 
 export type CloneableType =
   | null
@@ -11,6 +11,7 @@ export type CloneableType =
   | {[key: string]: CloneableType}
   | Map<CloneableType, CloneableType>
   | Set<CloneableType>
+  | Function
 
 export const clone = Symbol("clone")
 
@@ -33,7 +34,7 @@ export class Cloner {
   clone(obj: unknown): unknown {
     if (is_Cloneable(obj)) {
       return obj[clone](this)
-    } else if (isPrimitive(obj)) {
+    } else if (isPrimitive(obj) || isFunction(obj)) {
       return obj
     } else if (isArray(obj)) {
       const n = obj.length

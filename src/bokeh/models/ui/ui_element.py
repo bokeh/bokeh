@@ -20,12 +20,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     Dict,
     Either,
+    Enum,
     Instance,
     List,
     Nullable,
@@ -59,14 +63,26 @@ class StyledElement(Model):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    html_attributes = Dict(String, String, default={}, help="""
+    Allows to configure HTML attributes on the underlying HTML element.
+    """)
+
+    html_id = Nullable(String, default=None, help="""
+    Sets the ``id`` attribute of the underlying HTML element.
+
+    This is a shorthand for the common HTML ``id`` attribute. Alternatively
+    the ``id`` can be set in the ``html_attributes`` dictionary. ``html_id``
+    takes precedence.
+    """)
 
     css_classes = List(String, default=[], help="""
     A list of additional CSS classes to add to the underlying DOM element.
     """).accepts(Seq(String), lambda x: list(x))
 
-    css_variables = Dict(String, Instance(Node), default={}, help="""
+    css_variables = Dict(String, Either(String, Instance(Node)), default={}, help="""
     Allows to define dynamically computed CSS variables.
 
     This can be used, for example, to coordinate positioning and styling
@@ -103,15 +119,19 @@ class UIElement(StyledElement):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     visible = Bool(default=True, help="""
     Whether the component should be displayed on screen.
     """)
 
-    context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""
+    context_menu = Nullable(Either(Instance(".models.ui.Menu"), Enum("auto")), default=None, help="""
     A menu to display when user right clicks on the component.
+
+    If set to ``"auto"``, the component may provide a dynamically generated
+    menu. For example, ``Plot`` and related models provide a ``ToolMenu``
+    instance for easy access to their tools.
 
     .. note::
         Use shift key when right clicking to display the native context menu.

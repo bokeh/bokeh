@@ -1,0 +1,136 @@
+:host {
+  --progress: 0%;
+}
+
+.bk-bar {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--active-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bk-value {
+  position: absolute;
+  background-color: var(--active-fg);
+}
+
+:host(.bk-disabled) {
+  .bk-bar {
+    background-color: var(--inactive-bg);
+  }
+
+  .bk-value {
+    background-color:var(--inactive-fg);
+  }
+}
+
+:host(.bk-horizontal) {
+  .bk-bar {
+    width: 100%;
+    height: max-content;
+    min-width: 3em;
+    min-height: 0.5em;
+  }
+
+  .bk-value {
+    left: 0;
+    width: var(--progress);
+    height: 100%;
+  }
+}
+
+:host(.bk-vertical) {
+  .bk-bar {
+    width: max-content;
+    height: 100%;
+    min-width: 0.5em;
+    min-height: 3em;
+  }
+
+  .bk-value {
+    bottom: 0;
+    width: 100%;
+    height: var(--progress);
+  }
+}
+
+:host(.bk-horizontal.bk-reversed) {
+  .bk-value {
+    left: unset;
+    right: 0;
+  }
+}
+
+:host(.bk-vertical.bk-reversed) {
+  .bk-value {
+    top: 0;
+    bottom: unset;
+  }
+}
+
+.bk-label {
+  position: relative;
+  padding: 0.25em;
+}
+
+.bk-label.bk-hidden {
+  display: none;
+}
+
+:host(.bk-vertical) {
+  .bk-label {
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+}
+
+:host(.bk-indeterminate) {
+  --indeterminate-size: 10%;
+
+  .bk-label {
+    visibility: hidden;
+  }
+
+  .bk-value {
+    animation-duration: 1.5s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+}
+
+:host(.bk-indeterminate.bk-horizontal:not(.bk-disabled)) {
+  .bk-value {
+    width: var(--indeterminate-size);
+    animation-name: bk-progress-animation-horizontal;
+  }
+}
+:host(.bk-indeterminate.bk-vertical:not(.bk-disabled)) {
+  .bk-value {
+    height: var(--indeterminate-size);
+    animation-name: bk-progress-animation-vertical;
+  }
+}
+
+@keyframes bk-progress-animation-horizontal {
+  from {
+    left: calc(-1 * var(--indeterminate-size));
+  }
+  to {
+    left: 100%;
+  }
+}
+
+@keyframes bk-progress-animation-vertical {
+  from {
+    bottom: calc(-1 * var(--indeterminate-size));
+  }
+  to {
+    bottom: 100%;
+  }
+}

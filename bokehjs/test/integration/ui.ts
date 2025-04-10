@@ -1,7 +1,7 @@
 import {display} from "./_util"
 import {actions, xy} from "../interactive"
 
-import {Dialog, Drawer, Pane, Menu, ActionItem, CheckableItem, DividerItem, CustomJS, BoxSelectTool} from "@bokehjs/models"
+import {Dialog, Drawer, Pane, Menu, MenuItem, CustomJS, BoxSelectTool} from "@bokehjs/models"
 import type {Figure} from "@bokehjs/api/plotting"
 import {figure} from "@bokehjs/api/plotting"
 import {Random} from "@bokehjs/core/util/random"
@@ -66,20 +66,20 @@ describe("UI elements", () => {
       const palette = Spectral11.map((color) => color2hex(color))
       const menu = new Menu({
         items: [
-          new ActionItem({
+          new MenuItem({
             label: "Count",
             shortcut: "Alt+C",
             disabled: true,
             action: new CustomJS({code: "console.log('count not implemented')"}),
           }),
-          new ActionItem({
+          new MenuItem({
             label: "Delete",
             shortcut: "Alt+Shift+D",
             icon: "delete",
             action: new CustomJS({code: "console.log('delete not implemented')"}),
           }),
-          new DividerItem(),
-          new ActionItem({
+          null,
+          new MenuItem({
             label: "Choose color",
             menu: new Menu({
               stylesheets: [
@@ -87,7 +87,7 @@ describe("UI elements", () => {
                 ".bk-label { font-family: monospace; }",
               ],
               items: palette.map((color) => {
-                return new ActionItem({
+                return new MenuItem({
                   label: color,
                   icon: `.color-${color.substring(1)}`,
                   action: new CustomJS({code: "console.log('color not implemented')"}),
@@ -95,19 +95,19 @@ describe("UI elements", () => {
               }),
             }),
           }),
-          new DividerItem(),
-          new CheckableItem({
+          null,
+          new MenuItem({
             label: "Continuous selection",
             checked: box_select.continuous,
             action: new CustomJS({code: "console.log('continuous not implemented')"}),
           }),
-          new DividerItem(),
-          new ActionItem({
+          null,
+          new MenuItem({
             icon: "invert_selection",
             label: "Invert selection",
             action: new CustomJS({code: "console.log('invert not implemented')"}),
           }),
-          new ActionItem({
+          new MenuItem({
             icon: "clear_selection",
             label: "Clear selection",
             shortcut: "Esc",

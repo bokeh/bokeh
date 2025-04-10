@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Counter
 from math import nan
+from typing import Any
 
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
@@ -74,7 +75,7 @@ class Range(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 @abstract
@@ -84,7 +85,7 @@ class NumericalRange(Range):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     start = Required(Either(Float, Datetime, TimeDelta), help="""
@@ -172,7 +173,7 @@ class DataRange(NumericalRange):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     renderers = Either(List(Instance(Model)), Auto, help="""
@@ -187,7 +188,7 @@ class DataRange(NumericalRange):
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.
 
-    By default the ``start`` and ``end`` of the range automatically
+    By default, the ``start`` and ``end`` of the range automatically
     assume min and max values of the data for associated renderers.
 
     '''
@@ -298,7 +299,7 @@ class FactorRange(Range):
 
     .. code-block:: python
 
-        p.circle(x=["foo", "bar"], ...)
+        p.scatter(x=["foo", "bar"], ...)
 
     BokehJS will create a mapping from ``"foo"`` and ``"bar"`` to a numerical
     coordinate system called *synthetic coordinates*. In the simplest cases,
@@ -315,7 +316,7 @@ class FactorRange(Range):
 
     .. code-block:: python
 
-        p.circle(x=[("foo", 0.3), ...], ...)
+        p.scatter(x=[("foo", 0.3), ...], ...)
 
     will position the first circle at an ``x`` position that is offset by
     adding 0.3 to the synthetic coordinate for ``"foo"``.

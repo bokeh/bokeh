@@ -27,7 +27,7 @@ export class DrawerView extends PaneView {
     this.on_pan_end = this.on_pan_end.bind(this)
   }
 
-  protected readonly sizing = new InlineStyleSheet()
+  protected readonly sizing = new InlineStyleSheet("", "sizing")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), icons_css.default, drawers_css.default, this.sizing]

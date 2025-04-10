@@ -11,16 +11,18 @@
 
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
+import {to_object} from "core/util/object"
+import type {Dict, PlainObject} from "core/types"
 import * as p from "core/properties"
 
 declare namespace vis {
   class Graph3d {
-    constructor(el: HTMLElement | DocumentFragment, data: object, OPTIONS: object)
+    constructor(el: HTMLElement | DocumentFragment, data: DataSet, OPTIONS: PlainObject)
     setData(data: vis.DataSet): void
   }
 
   class DataSet {
-    add(data: unknown): void
+    add(data: PlainObject): void
   }
 }
 
@@ -65,7 +67,7 @@ export class Surface3dView extends LayoutDOMView {
     // Bokeh views ignore this default <div>, and instead do things like draw
     // to the HTML canvas. In this case though, we use the <div> to attach a
     // Graph3d to the DOM.
-    this._graph = new vis.Graph3d(this.shadow_el, this.get_data(), this.model.options)
+    this._graph = new vis.Graph3d(this.shadow_el, this.get_data(), to_object(this.model.options))
   }
 
   override connect_signals(): void {
@@ -83,9 +85,9 @@ export class Surface3dView extends LayoutDOMView {
     const source = this.model.data_source
     for (let i = 0; i < source.get_length()!; i++) {
       data.add({
-        x: source.data[this.model.x][i],
-        y: source.data[this.model.y][i],
-        z: source.data[this.model.z][i],
+        x: source.get(this.model.x)[i],
+        y: source.get(this.model.y)[i],
+        z: source.get(this.model.z)[i],
       })
     }
     return data
@@ -105,7 +107,7 @@ export namespace Surface3d {
     y: p.Property<string>
     z: p.Property<string>
     data_source: p.Property<ColumnDataSource>
-    options: p.Property<{[key: string]: unknown}>
+    options: p.Property<Dict<unknown>>
   }
 }
 

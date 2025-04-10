@@ -291,6 +291,29 @@
       type: "value",
       value: 1.0,
     },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
   },
   OpenHead: {
     __extends__: "ArrowHead",
@@ -391,6 +414,29 @@
     fill_alpha: {
       type: "value",
       value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
     },
   },
   Angular: {
@@ -628,6 +674,14 @@
     line_dash_offset: 0,
     fill_color: "#fff9ba",
     fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
   },
   BoxAnnotation: {
     __extends__: [
@@ -1163,6 +1217,29 @@
       type: "value",
       value: 1.0,
     },
+    background_hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    background_hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    background_hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    background_hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_extra: {
+      type: "map",
+    },
     border_line_color: {
       type: "value",
       value: null,
@@ -1208,7 +1285,7 @@
     text_line_height: 1.2,
     background_fill_color: null,
     background_fill_alpha: 1.0,
-    background_hatch_color: null,
+    background_hatch_color: "black",
     background_hatch_alpha: 1.0,
     background_hatch_scale: 12.0,
     background_hatch_pattern: null,
@@ -1308,6 +1385,14 @@
     border_line_dash_offset: 0,
     background_fill_color: "#ffffff",
     background_fill_alpha: 0.95,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
   },
   ColorBar: {
     __extends__: "BaseColorBar",
@@ -1357,10 +1442,34 @@
     border_line_dash_offset: 0,
     background_fill_color: "#ffffff",
     background_fill_alpha: 0.95,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
     item_background_fill_color: "#f1f1f1",
     item_background_fill_alpha: 0.8,
+    item_background_hatch_color: "black",
+    item_background_hatch_alpha: 1.0,
+    item_background_hatch_scale: 12.0,
+    item_background_hatch_pattern: null,
+    item_background_hatch_weight: 1.0,
+    item_background_hatch_extra: {
+      type: "map",
+    },
     inactive_fill_color: "white",
     inactive_fill_alpha: 0.7,
+    inactive_hatch_color: "black",
+    inactive_hatch_alpha: 1.0,
+    inactive_hatch_scale: 12.0,
+    inactive_hatch_pattern: null,
+    inactive_hatch_weight: 1.0,
+    inactive_hatch_extra: {
+      type: "map",
+    },
     click_policy: "none",
     item_background_policy: "none",
     label_text_color: "#444444",
@@ -1546,6 +1655,14 @@
     fixed_location: null,
     background_fill_color: null,
     background_fill_alpha: 1.0,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
   },
   CategoricalAxis: {
     __extends__: "Axis",
@@ -1792,7 +1909,58 @@
     formatter: {
       type: "object",
       name: "DatetimeTickFormatter",
-      attributes: {},
+      attributes: {
+        seconds: "%T",
+        minsec: "%T",
+        minutes: "%H:%M",
+        hours: "%H:%M",
+        days: "%b %d",
+        months: "%b %Y",
+        strip_leading_zeros: [
+          "microseconds",
+          "milliseconds",
+          "seconds",
+        ],
+        boundary_scaling: false,
+        context: {
+          type: "object",
+          name: "DatetimeTickFormatter",
+          attributes: {
+            microseconds: "%T",
+            milliseconds: "%T",
+            seconds: "%b %d, %Y",
+            minsec: "%b %d, %Y",
+            minutes: "%b %d, %Y",
+            hourmin: "%b %d, %Y",
+            hours: "%b %d, %Y",
+            days: "%Y",
+            months: "",
+            years: "",
+            boundary_scaling: false,
+            hide_repeats: true,
+            context: {
+              type: "object",
+              name: "DatetimeTickFormatter",
+              attributes: {
+                microseconds: "%b %d, %Y",
+                milliseconds: "%b %d, %Y",
+                seconds: "",
+                minsec: "",
+                minutes: "",
+                hourmin: "",
+                hours: "",
+                days: "",
+                months: "",
+                years: "",
+                boundary_scaling: false,
+                hide_repeats: true,
+              },
+            },
+            context_which: "all",
+          },
+        },
+        context_which: "all",
+      },
     },
   },
   LinearAxis: {
@@ -2367,6 +2535,8 @@
       type: "symbol",
       name: "unset",
     },
+    format: null,
+    formatter: "raw",
   },
   "bokeh.models.dom.ValueRef": {
     __extends__: "bokeh.models.dom.Placeholder",
@@ -2571,25 +2741,17 @@
   ConnectedXYGlyph: {
     __extends__: "XYGlyph",
   },
-  FillGlyph: {
-    __extends__: "Glyph",
-  },
+  FillGlyph: {},
   Glyph: {
     __extends__: "Model",
     decorations: [],
   },
-  HatchGlyph: {
-    __extends__: "Glyph",
-  },
-  LineGlyph: {
-    __extends__: "Glyph",
-  },
+  HatchGlyph: {},
+  LineGlyph: {},
   RadialGlyph: {
     __extends__: "XYGlyph",
   },
-  TextGlyph: {
-    __extends__: "Glyph",
-  },
+  TextGlyph: {},
   XYGlyph: {
     __extends__: "Glyph",
   },
@@ -2824,7 +2986,10 @@
     },
   },
   Bezier: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x0: {
       type: "field",
       field: "x0",
@@ -2980,8 +3145,8 @@
       field: "y",
     },
     radius: {
-      type: "field",
-      field: "radius",
+      type: "symbol",
+      name: "unset",
     },
     radius_dimension: "x",
     hit_dilation: 1.0,
@@ -3134,7 +3299,7 @@
   },
   HArea: {
     __extends__: [
-      "LineGlyph",
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -3178,6 +3343,7 @@
   },
   HAreaStep: {
     __extends__: [
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -3299,7 +3465,10 @@
     },
   },
   HSpan: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     y: {
       type: "field",
       field: "y",
@@ -3335,6 +3504,7 @@
   },
   HStrip: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3409,6 +3579,7 @@
   },
   HexTile: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3593,6 +3764,7 @@
   },
   LRTBGlyph: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3711,7 +3883,10 @@
     __extends__: "Text",
   },
   MultiLine: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     xs: {
       type: "field",
       field: "xs",
@@ -3751,6 +3926,7 @@
   },
   MultiPolygons: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -3834,8 +4010,8 @@
       field: "y",
     },
     radius: {
-      type: "field",
-      field: "radius",
+      type: "symbol",
+      name: "unset",
     },
     angle: {
       type: "value",
@@ -3941,6 +4117,7 @@
   },
   Patches: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -4092,7 +4269,10 @@
     },
   },
   Quadratic: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x0: {
       type: "field",
       field: "x0",
@@ -4296,7 +4476,10 @@
     },
   },
   Segment: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x0: {
       type: "field",
       field: "x0",
@@ -4508,6 +4691,7 @@
   },
   VArea: {
     __extends__: [
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -4551,6 +4735,7 @@
   },
   VAreaStep: {
     __extends__: [
+      "Glyph",
       "FillGlyph",
       "HatchGlyph",
     ],
@@ -4672,7 +4857,10 @@
     },
   },
   VSpan: {
-    __extends__: "LineGlyph",
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+    ],
     x: {
       type: "field",
       field: "x",
@@ -4708,6 +4896,7 @@
   },
   VStrip: {
     __extends__: [
+      "Glyph",
       "LineGlyph",
       "FillGlyph",
       "HatchGlyph",
@@ -5250,6 +5439,7 @@
   },
   Plot: {
     __extends__: "LayoutDOM",
+    context_menu: "auto",
     width: 600,
     height: 600,
     x_range: {
@@ -5284,6 +5474,7 @@
     extra_y_scales: {
       type: "map",
     },
+    window_axis: "none",
     hidpi: true,
     title: {
       type: "object",
@@ -5333,8 +5524,24 @@
     },
     background_fill_color: "#ffffff",
     background_fill_alpha: 1.0,
+    background_hatch_color: "black",
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
     border_fill_color: "#ffffff",
     border_fill_alpha: 1.0,
+    border_hatch_color: "black",
+    border_hatch_alpha: 1.0,
+    border_hatch_scale: 12.0,
+    border_hatch_pattern: null,
+    border_hatch_weight: 1.0,
+    border_hatch_extra: {
+      type: "map",
+    },
     min_border_top: null,
     min_border_bottom: null,
     min_border_left: null,
@@ -6590,6 +6797,14 @@
     icon: null,
     description: null,
     visible: true,
+    group: true,
+  },
+  ToolMenu: {
+    __extends__: "Menu",
+    toolbar: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   ToolProxy: {
     __extends__: "Model",
@@ -6599,9 +6814,13 @@
   },
   Toolbar: {
     __extends__: "UIElement",
+    tools: [],
     logo: "normal",
     autohide: false,
-    tools: [],
+    group: true,
+    group_types: [
+      "hover",
+    ],
     active_drag: "auto",
     active_inspect: "auto",
     active_scroll: "auto",
@@ -6754,6 +6973,21 @@
   },
   ActionItem: {
     __extends__: "MenuItem",
+  },
+  CheckableItem: {
+    __extends__: "MenuItem",
+  },
+  DividerItem: {
+    __extends__: "Model",
+  },
+  Menu: {
+    __extends__: "UIElement",
+    items: [],
+    reversed: false,
+  },
+  MenuItem: {
+    __extends__: "Model",
+    checked: null,
     icon: null,
     label: {
       type: "symbol",
@@ -6764,21 +6998,6 @@
     tooltip: null,
     disabled: false,
     action: null,
-  },
-  CheckableItem: {
-    __extends__: "ActionItem",
-    checked: false,
-  },
-  DividerItem: {
-    __extends__: "MenuItem",
-  },
-  Menu: {
-    __extends__: "UIElement",
-    items: [],
-    reversed: false,
-  },
-  MenuItem: {
-    __extends__: "Model",
   },
   Panel: {
     __extends__: "Pane",
@@ -6810,6 +7029,10 @@
   },
   StyledElement: {
     __extends__: "Model",
+    html_attributes: {
+      type: "map",
+    },
+    html_id: null,
     css_classes: [],
     css_variables: {
       type: "map",
@@ -6898,6 +7121,21 @@
     __extends__: "AbstractGroup",
     inline: false,
   },
+  Indicator: {
+    __extends__: "Widget",
+  },
+  Progress: {
+    __extends__: "Indicator",
+    mode: "determinate",
+    value: 0,
+    min: 0,
+    max: 100,
+    reversed: false,
+    orientation: "horizontal",
+    label: "@{percent}%",
+    label_location: "inline",
+    description: null,
+  },
   AutocompleteInput: {
     __extends__: "TextInput",
     completions: [],
@@ -6909,7 +7147,6 @@
   },
   Checkbox: {
     __extends__: "ToggleInput",
-    label: "",
   },
   ColorPicker: {
     __extends__: "InputWidget",
@@ -6999,7 +7236,8 @@
   },
   Switch: {
     __extends__: "ToggleInput",
-    width: 32,
+    on_icon: null,
+    off_icon: null,
   },
   TextAreaInput: {
     __extends__: "TextLikeInput",
@@ -7022,6 +7260,7 @@
   ToggleInput: {
     __extends__: "Widget",
     active: false,
+    label: "",
   },
   Div: {
     __extends__: "Markup",

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+from typing import Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -83,7 +84,7 @@ class AreaVisuals(Model):
     """ Allows to style line, fill and hatch visuals. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     line_props = Include(ScalarLineProps, help="""
@@ -116,7 +117,7 @@ class BoxInteractionHandles(Model):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     all          = Required(Instance(AreaVisuals)) # move, resize
@@ -157,7 +158,7 @@ class BoxAnnotation(Annotation, AreaVisuals):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     left = Coordinate(default=lambda: Node.frame.left, help="""
@@ -345,7 +346,7 @@ class Band(DataAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
@@ -377,6 +378,10 @@ class Band(DataAnnotation):
     The {prop} values for the band.
     """)
 
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the band.
+    """)
+
     fill_alpha = Override(default=0.4)
 
     fill_color = Override(default="#fff9ba")
@@ -391,7 +396,7 @@ class PolyAnnotation(Annotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     xs = Seq(CoordinateLike, default=[], help="""
@@ -463,7 +468,7 @@ class Slope(Annotation):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     gradient = Nullable(Float, help="""
@@ -508,7 +513,7 @@ class Span(Annotation):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     location = Nullable(CoordinateLike, help="""
@@ -551,7 +556,7 @@ class Whisker(DataAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""

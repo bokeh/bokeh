@@ -7,6 +7,7 @@ dependencies:
   # runtime
   - contourpy >=1.2
   - jinja2 >=2.7
+  - narwhals <1.14
   - numpy <1.25
   - packaging >=16.8
   - pandas 1*,>=1.2
@@ -47,7 +48,6 @@ dependencies:
   # examples
   - h5py
   - icalendar
-  - pandas-datareader
   - pyshp
 
   # pip dependencies

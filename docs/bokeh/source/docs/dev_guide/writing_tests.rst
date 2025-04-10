@@ -71,37 +71,6 @@ Use ``pytest`` (not ``unittest``)
     aspects, such as test running, fixtures, or parameterized testing. Please
     do *not* use the ``unittest`` module of the Python standard library.
 
-.. _contributor_guide_writing_tests_integration:
-
-Python integration tests
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Bokeh's Python-focused integration tests help make sure that Bokeh's Python code
-works as intended with the TypeScript code of :term:`BokehJS`.
-
-The Python integration tests use `Selenium`_ with `ChromeDriver`_. The test
-scripts are located in :bokeh-tree:`tests/integration`. The folder structure
-resembles the structure of Bokeh's Python models.
-
-Python integration tests use pytest fixtures to handle the web driver
-configuration and interaction with Selenium. Depending on which context you
-want to test an object in, choose from ``bokeh_model_page``,
-``single_plot_page``, or ``bokeh_server_page``. See
-:bokeh-tree:`tests/support/plugins/project.py` for more details.
-
-Follow these guidelines when adding or updating Python integration tests:
-
-Keep your code as simple as possible
-    Try to only include things that are essential to your test. Focus your test
-    on one specific functionality. If possible, write several small tests
-    instead of one complex one.
-
-Use the |bokeh.models| API whenever possible
-    Try to use Bokeh's
-    :ref:`low-level bokeh.models interface <ug_interfaces_models>`
-    instead of the more high-level
-    :ref:`bokeh.plotting interface <ug_interfaces_plotting>`.
-
 .. _contributor_guide_writing_tests_bokehjs:
 
 Writing JavaScript tests (BokehJS)
@@ -323,10 +292,8 @@ Follow these steps to write new visual tests or update existing tests:
        ``/integration/report?platform=macos``, and finally to
        ``/integration/report?platform=windows``.
     6. If you did not detect any unintentional differences, commit all new or
-       modified ``*.blf`` and ``*.png`` files from the folders
-       :bokeh-tree:`bokehjs/test/baselines/linux`,
-       :bokeh-tree:`bokehjs/test/baselines/macos`, and
-       :bokeh-tree:`bokehjs/test/baselines/windows`.
+       modified ``*.blf`` and ``*.png`` files from the folder
+       :bokeh-tree:`bokehjs/test/baselines/linux`.
     7. Push your changes to GitHub again and verify that the tests pass this
        time.
 

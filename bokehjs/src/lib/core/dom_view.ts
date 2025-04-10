@@ -7,6 +7,8 @@ import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
 import base_css from "styles/base.css"
 
+export type RenderingTarget = HTMLElement | ShadowRoot
+
 export interface DOMView extends View {
   constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
 }
@@ -101,7 +103,7 @@ export abstract class DOMView extends View {
    * This is useful when creating "floating" components or adding
    * components to canvas' layers.
    */
-  rendering_target(): HTMLElement | ShadowRoot | null {
+  rendering_target(): RenderingTarget | null {
     return null
   }
 }
@@ -115,6 +117,10 @@ export abstract class DOMElementView extends DOMView {
     super.initialize()
     this.class_list = new ClassList(this.el.classList)
   }
+
+  get self_target(): RenderingTarget {
+    return this.el
+  }
 }
 
 export abstract class DOMComponentView extends DOMElementView {
@@ -123,13 +129,20 @@ export abstract class DOMComponentView extends DOMElementView {
 
   declare shadow_el: ShadowRoot
 
+  override get self_target(): RenderingTarget {
+    return this.shadow_el
+  }
+
   override initialize(): void {
     super.initialize()
     this.shadow_el = this.el.attachShadow({mode: "open"})
   }
 
+  readonly _base_style = new InlineStyleSheet(base_css, "base")
+  readonly _css_vars = new InlineStyleSheet("", "vars")
+
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), base_css]
+    return [...super.stylesheets(), this._base_style]
   }
 
   /**
@@ -143,7 +156,7 @@ export abstract class DOMComponentView extends DOMElementView {
    * Stylesheets computed by the component.
    */
   computed_stylesheets(): InlineStyleSheet[] {
-    return []
+    return [this._css_vars]
   }
 
   /**
@@ -159,15 +172,21 @@ export abstract class DOMComponentView extends DOMElementView {
     this._applied_css_classes = []
     this._applied_stylesheets = []
     for (const stylesheet of this.computed_stylesheets()) {
-      stylesheet.clear()
+      if (!stylesheet.persistent) {
+        stylesheet.clear()
+      }
     }
   }
 
   render(): void {
     this.empty()
     this._update_stylesheets()
+    this._apply_html_attributes()
+  }
+
+  protected _applied_html_attributes: string[] = []
+  protected _apply_html_attributes(): void {
     this._update_css_classes()
-    this._update_css_variables()
   }
 
   override reposition(_displayed?: boolean): void {
@@ -213,9 +232,15 @@ export abstract class DOMComponentView extends DOMElementView {
   }
 
   protected _update_css_variables(): void {
+    const vars = []
     for (const [name, value] of this._css_variables()) {
       const full_name = name.startsWith("--") ? name : `--${name}`
-      this.el.style.setProperty(full_name, value)
+      vars.push(`${full_name}: ${value};\n`)
+    }
+    if (vars.length == 0) {
+      this._css_vars.clear()
+    } else {
+      this._css_vars.replace(`:host {\n${vars}}`)
     }
   }
 }

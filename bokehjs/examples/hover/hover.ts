@@ -47,13 +47,14 @@ export namespace HoverfulScatter {
   })
 
   const hover = p.toolbar.get_one(Bokeh.HoverTool)
-  hover.tooltips = (source, info) => {
-    const ds = source as Bokeh.ColumnDataSource
+  hover.tooltips = (data_source: typeof source, info) => {
     const div = document.createElement("div")
     div.style.width = "200px"
     div.style.height = "75px"
     if (info.index != null) {
-      div.style.backgroundColor = ds.get("colors")[info.index] as string
+      const color_source = data_source.get("colors") as typeof colors
+      const css_color = Bokeh.Plotting.color(color_source[info.index])
+      div.style.backgroundColor = css_color
     }
     return div
   }

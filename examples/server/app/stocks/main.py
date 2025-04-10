@@ -29,7 +29,11 @@ def nix(val, lst):
 def get_data(t1, t2):
     df1 = getattr(SERVER_CONTEXT, t1)
     df2 = getattr(SERVER_CONTEXT, t2)
-    data = df1.join(df2, lsuffix=f"_{t1}", rsuffix=f"_{t2}").dropna()
+    df1.columns = [f"{col[0]}_{col[1]}" if isinstance(col, tuple) and col[1] != "" else col[0] for col in df1.columns]
+    df2.columns = [f"{col[0]}_{col[1]}" if isinstance(col, tuple) and col[1] != "" else col[0] for col in df2.columns]
+    df1 = df1.rename(columns={"Close": f"Close_{t1}", "Returns": f"Returns_{t1}"})
+    df2 = df2.rename(columns={"Close": f"Close_{t2}", "Returns": f"Returns_{t2}"})
+    data = df1.join(df2, how="outer").dropna()
     data["t1"] = data[f"Close_{t1}"]
     data["t2"] = data[f"Close_{t2}"]
     data["t1_returns"] = data[f"Returns_{t1}"]

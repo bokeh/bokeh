@@ -1,11 +1,13 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
+import {IconLike} from "../common/kinds"
+import {apply_icon} from "../common/resolve"
 import {Tool} from "./tool"
 import {ToolProxy} from "./tool_proxy"
+import {ToolGroup} from "./tool_group"
 import type {TapEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div} from "core/dom"
-import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
 import type {Signal0} from "core/signaling"
@@ -36,6 +38,7 @@ export abstract class ToolButtonView extends UIElementView {
       prevent_hide: (event) => {
         return event.composedPath().includes(this.el)
       },
+      labels: false,
     })
 
     this._ui_gestures = new UIGestures(this.el, {
@@ -88,36 +91,31 @@ export abstract class ToolButtonView extends UIElementView {
   override render(): void {
     super.render()
 
+    const {tool} = this.model
     this.class_list.add(tool_button[this.parent.model.location])
-    if (this.model.tool.disabled) {
-      this.class_list.add(tool_button.disabled)
-    }
+
+    this.class_list.toggle(tool_button.hidden, !tool.visible)
+    this.class_list.toggle(tool_button.disabled, tool.disabled)
 
     const icon_el = div({class: tool_button.tool_icon})
-    this.shadow_el.appendChild(icon_el)
+    this.shadow_el.append(icon_el)
 
-    const icon = this.model.icon ?? this.model.tool.computed_icon
+    const icon = this.model.icon ?? tool.computed_icon
     if (icon != null) {
-      if (icon.startsWith("data:image")) {
-        const url = `url("${encodeURI(icon)}")`
-        icon_el.style.backgroundImage = url
-      } else if (icon.startsWith("--")) {
-        icon_el.style.backgroundImage = `var(${icon})`
-      } else if (icon.startsWith(".")) {
-        const cls = icon.substring(1)
-        icon_el.classList.add(cls)
-      } else if (ToolIcon.valid(icon)) {
-        const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
-        icon_el.classList.add(cls)
-      }
+      apply_icon(icon_el, icon)
     }
 
-    if (this.model.tool.menu != null) {
+    if (tool.menu != null) {
       const chevron_el = div({class: tool_button.tool_chevron})
-      this.shadow_el.appendChild(chevron_el)
+      this.shadow_el.append(chevron_el)
     }
 
-    const tooltip = this.model.tooltip ?? this.model.tool.tooltip
+    if (tool instanceof ToolGroup && tool.show_count) {
+      const count_el = div({class: tool_button.count}, `${tool.tools.length}`)
+      this.shadow_el.append(count_el)
+    }
+
+    const tooltip = this.model.tooltip ?? tool.tooltip
     this.el.title = tooltip
 
     this.el.tabIndex = 0
@@ -143,7 +141,7 @@ export namespace ToolButton {
 
   export type Props = UIElement.Props & {
     tool: p.Property<Tool | ToolProxy<Tool>>
-    icon: p.Property<ToolIcon | string | null>
+    icon: p.Property<IconLike | null>
     tooltip: p.Property<string | null>
   }
 }
@@ -159,9 +157,9 @@ export abstract class ToolButton extends UIElement {
   }
 
   static {
-    this.define<ToolButton.Props>(({Str, Regex, Ref, Nullable, Or}) => ({
+    this.define<ToolButton.Props>(({Str, Ref, Nullable, Or}) => ({
       tool: [ Or(Ref(Tool), Ref(ToolProxy)) ],
-      icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
+      icon: [ Nullable(IconLike), null ],
       tooltip: [ Nullable(Str), null ],
     }))
   }

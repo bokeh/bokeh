@@ -3,11 +3,28 @@
 3.7.0
 =====
 
-Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
+Bokeh version ``3.7.0`` (March 2025) is a minor milestone of Bokeh project.
 
+* Added support for auto-ranging based on the current visible viewport  (:bokeh-pull:`14353`)
 * Improved ``PanTool``'s cursor and state management handling (:bokeh-pull:`14106`)
 * Improved handling of ``touch-action`` based on active tools and their supported events (:bokeh-pull:`14109`)
 * Allowed ``CrosshairTool`` and ``HoverTool`` to trigger from axes (:bokeh-pull:`14124`)
 * Added support for dual canvas and DOM rendering to ``Legend`` annotation (:bokeh-pull:`14028`)
 * Added support for custom marker definitions to ``Scatter`` glyph (:bokeh-pull:`14165`)
 * Added support for stateful action tools, especially ``CustomAction`` (:bokeh-pull:`14143`)
+* Enhanced default ``DatetimeTickFormatter`` by providing additional context (:bokeh-pull:`13854`)
+* Added preliminary support for type declaration files (``*.pyi``) in ``bokeh.models`` (:bokeh-pull:`13900`)
+* Added preliminary type declarations to ``figure()`` and its glyph methods (:bokeh-pull:`14269`, :bokeh-pull:`14289`)
+* Added support for tool context menus on plots and figures (by default) (:bokeh-pull:`14228`)
+* Added support for label and on/off icons to `Switch` widget (:bokeh-pull:`14294`)
+* Added support for tool grouping in ``figure()`` or ``Plot`` toolbar (:bokeh-pull:`14259`)
+* Added support for hatch visuals everywhere fill visuals are supported (:bokeh-pull:`14311`)
+* Fixed tool button visibility handling in ``Toolbar`` (:bokeh-pull:`14251`)
+* Fixed image hover on log scales (:bokeh-pull:`14306`)
+* Added support for ``html_id`` and ``html_attributes`` properties to UI components (:bokeh-pull:`14357`)
+* Added support for value formatting to ``ValueOf(obj, attr)`` (:bokeh-pull:`14358`)
+* Added support for ``Drawer`` floating component (:bokeh-pull:`14081`)
+* Added support for determinate and indeterminate ``Progress`` widgets (:bokeh-pull:`13546`)
+* Improved cursor handling in editable/movable ``BoxAnnotation`` (:bokeh-pull:`14151`)
+* Changed type of ``ImageURLTexture.url`` from ``String`` to ``Image`` (:bokeh-pull:`14371`)
+* Added support for automatic activation of ``WheelZoomTool`` on focus (:bokeh-pull:`14112`)

@@ -3,6 +3,18 @@
   pointer-events: none;
 }
 
+/* The default for CSS grids is to stretch items to completely fill a grid cell
+  if their width or height is `auto`. So we would have to explicitly set the
+  width and height on components to something other than `auto`, such as
+  `max-content` to prevent it from being stretched. This change allows us to
+  leave the width and height properties to their default value, which is `auto`.
+  See discussion on GitHub:
+  https://github.com/bokeh/bokeh/pull/14191#discussion_r1880500434 */
+:host {
+  align-items: start;
+  justify-items: start;
+}
+
 :host(.bk-above), :host(.bk-below) {
   display: grid;
   grid-auto-flow: row;

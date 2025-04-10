@@ -27,8 +27,9 @@ from .property.container import Dict, List, Tuple
 from .property.either import Either
 from .property.enum import Enum
 from .property.numeric import Int, NonNegative, Percent
-from .property.string import String
+from .property.string import Regex, String
 from .property.struct import Optional, Struct
+from .property.visual import Image
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,7 +39,11 @@ __all__ = (
     "Anchor",
     "AutoAnchor",
     "BorderRadius",
+    "CSSClass",
+    "CSSVariable",
+    "DataImage",
     "GridSpacing",
+    "IconLike",
     "Padding",
     "Pixels",
     "TextAnchor",
@@ -49,8 +54,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Pixels = NonNegative(Int)
+CSSVariable = Regex(r"^--")
 
+CSSClass = Regex(r"^\.")
+
+DataImage = Regex(r"^\data:image")
+
+IconLike = Either(Image, Enum(enums.ToolIcon), CSSVariable, CSSClass, DataImage)
+
+Pixels = NonNegative(Int)
 
 HAnchor = Either(Enum(enums.Align), Enum(enums.HAlign), Percent)
 VAnchor = Either(Enum(enums.Align), Enum(enums.VAlign), Percent)

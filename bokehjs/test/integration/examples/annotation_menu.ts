@@ -4,12 +4,11 @@ import {figure} from "@bokehjs/api/plotting"
 import {Spectral11 as Palette} from "@bokehjs/api/palettes"
 import {f} from "@bokehjs/api/expr"
 import type {Data} from "@bokehjs/core/types"
-import {assert} from "@bokehjs/core/util/assert"
 import {entries} from "@bokehjs/core/util/object"
 import {Random} from "@bokehjs/core/util/random"
 import {color2hex} from "@bokehjs/core/util/color"
 import {filter} from "@bokehjs/core/util/arrayable"
-import {BoxSelectTool, ActionItem, CheckableItem, DividerItem, Menu} from "@bokehjs/models"
+import {BoxSelectTool, Menu, MenuItem} from "@bokehjs/models"
 
 const Spectral11 = Palette.map(color2hex)
 
@@ -42,7 +41,7 @@ describe("Examples", () => {
       renderer.data_source.selected.indices = [] // TODO bug in ds update
     }
 
-    const change_color = (_menu: Menu, {item}: {item: ActionItem}) => {
+    const change_color = (_menu: Menu, {item}: {item: MenuItem}) => {
       const {data, selected} = renderer.data_source
       const indices = new Set(selected.indices)
       const selected_color = item.label
@@ -54,8 +53,7 @@ describe("Examples", () => {
       renderer.data_source.data = {...data, fill_color}
     }
 
-    const change_continuous = (_menu: Menu, {item}: {item: ActionItem}) => {
-      assert(item instanceof CheckableItem)
+    const change_continuous = (_menu: Menu, {item}: {item: MenuItem}) => {
       const {continuous} = box_select
       box_select.continuous = item.checked = !continuous
     }
@@ -71,20 +69,20 @@ describe("Examples", () => {
 
     const menu = new Menu({
       items: [
-        new ActionItem({
+        new MenuItem({
           label: "Count",
           shortcut: "Alt+C",
           disabled: true,
           action: () => console.log("not implemented"),
         }),
-        new ActionItem({
+        new MenuItem({
           label: "Delete",
           shortcut: "Alt+Shift+D",
           icon: "delete",
           action: delete_selected,
         }),
-        new DividerItem(),
-        new ActionItem({
+        null,
+        new MenuItem({
           label: "Choose color",
           menu: new Menu({
             stylesheets: [
@@ -92,7 +90,7 @@ describe("Examples", () => {
               ".bk-label { font-family: monospace; }",
             ],
             items: Spectral11.map((color) => {
-              return new ActionItem({
+              return new MenuItem({
                 label: color,
                 icon: `.color-${color.replace(/^#/, "")}`,
                 action: change_color,
@@ -100,19 +98,19 @@ describe("Examples", () => {
             }),
           }),
         }),
-        new DividerItem(),
-        new CheckableItem({
+        null,
+        new MenuItem({
           label: "Continuous selection",
           checked: box_select.continuous,
           action: change_continuous,
         }),
-        new DividerItem(),
-        new ActionItem({
+        null,
+        new MenuItem({
           icon: "invert_selection",
           label: "Invert selection",
           action: invert_selection,
         }),
-        new ActionItem({
+        new MenuItem({
           icon: "clear_selection",
           label: "Clear selection",
           shortcut: "Esc",

@@ -131,5 +131,7 @@ export abstract class TileSource extends Model {
 
   abstract snap_to_zoom_level(extent: Extent, height: number, width: number, level: number): Extent
 
+  abstract rescale(extent: Extent, height: number, width: number, last_height: number, last_width: number): Extent
+
   abstract normalize_xyz(x: number, y: number, z: number): [number, number, number]
 }

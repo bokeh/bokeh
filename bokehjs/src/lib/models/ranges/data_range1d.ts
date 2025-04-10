@@ -1,5 +1,6 @@
 import {DataRange} from "./data_range"
 import type {Renderer, RendererView} from "../renderers/renderer"
+import type {WindowAxis} from "core/enums"
 import {PaddingUnits, StartEnd} from "core/enums"
 import type {Rect} from "core/types"
 import {flat_map} from "core/util/iterator"
@@ -14,7 +15,7 @@ export const auto_ranged = Symbol("auto_ranged")
 
 export interface AutoRanged {
   readonly [auto_ranged]: true
-  bounds(): Rect
+  bounds(window_axis: WindowAxis): Rect
   log_bounds(): Rect
 }
 

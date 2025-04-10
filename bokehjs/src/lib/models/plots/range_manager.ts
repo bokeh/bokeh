@@ -101,7 +101,7 @@ export class RangeManager {
     }
 
     for (const renderer of this.parent.auto_ranged_renderers) {
-      const bds = renderer.bounds()
+      const bds = renderer.bounds(this.parent.model.window_axis)
       bounds.set(renderer.model, bds)
 
       if (calculate_log_bounds) {

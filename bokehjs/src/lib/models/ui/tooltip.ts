@@ -186,6 +186,8 @@ export class TooltipView extends UIElementView {
       this.model.visible = false
     })
 
+    this.el.setAttribute("popover", "manual") // allows multiple simultaneous popover elements
+
     this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
     this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
 
@@ -236,6 +238,13 @@ export class TooltipView extends UIElementView {
     }
 
     target.append(this.el)
+
+    // If popover API isn't available, then tooltip will still show in most
+    // situations, but not in fullscreen or may be partially obscured by
+    // other elements or components.
+    if (typeof this.el.showPopover !== "undefined") {
+      this.el.showPopover()
+    }
 
     const bbox = bounding_box(this.target)
     const [sx, sy] = (() => {
@@ -387,6 +396,8 @@ export class TooltipView extends UIElementView {
 
     this.el.style.top = `${top}px`
     this.el.style.left = `${left}px`
+
+    this.update_bbox()
   }
 }
 

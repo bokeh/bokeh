@@ -3,7 +3,7 @@
     {
       type: "object",
       name: "Plot",
-      id: "p1001",
+      id: "p1003",
       attributes: {
         tags: [
           {
@@ -19,32 +19,32 @@
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1002",
+          id: "p1004",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1003",
+          id: "p1005",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1004",
+          id: "p1006",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1005",
+          id: "p1007",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1006",
+          id: "p1008",
         },
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1007",
+          id: "p1009",
         },
       },
     },

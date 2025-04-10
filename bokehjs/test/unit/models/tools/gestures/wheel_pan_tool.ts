@@ -56,10 +56,10 @@ describe("WheelPanTool", () => {
     })
 
     it("should translate y-range in negative direction", async () => {
-      const x_wheel_pan_tool = new WheelPanTool({dimension: "height"})
-      const plot_view = await mkplot(x_wheel_pan_tool)
+      const y_wheel_pan_tool = new WheelPanTool({dimension: "height"})
+      const plot_view = await mkplot(y_wheel_pan_tool)
 
-      const wheel_pan_tool_view = plot_view.owner.get_one(x_wheel_pan_tool)
+      const wheel_pan_tool_view = plot_view.owner.get_one(y_wheel_pan_tool)
 
       // positive factors move in positive y-data direction
       wheel_pan_tool_view._update_ranges(0.75)

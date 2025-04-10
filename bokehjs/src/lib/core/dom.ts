@@ -700,12 +700,15 @@ export abstract class StyleSheet {
 export class InlineStyleSheet extends StyleSheet {
   protected override readonly el = style()
 
-  constructor(css?: string | CSSStyleSheetDecl) {
+  constructor(css?: string | CSSStyleSheetDecl, id?: string, readonly persistent: boolean = false) {
     super()
     if (isString(css)) {
       this._update(css)
     } else if (css != null) {
       this._update(compose_stylesheet(css))
+    }
+    if (id != null) {
+      this.el.dataset.css = id
     }
   }
 
@@ -794,3 +797,12 @@ export function px(value: number | string): string {
 }
 
 export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
+
+export function has_focus(el: Element): boolean {
+  const root = el.getRootNode()
+  if (root instanceof ShadowRoot || root instanceof Document) {
+    return root.activeElement === el
+  } else {
+    return false
+  }
+}

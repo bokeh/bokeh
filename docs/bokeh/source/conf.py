@@ -114,10 +114,23 @@ bokeh_example_subdirs = [
 
 bokeh_missing_google_api_key_ok = False
 
-if not bokeh_missing_google_api_key_ok:
-    if "GOOGLE_API_KEY" not in os.environ:
-        raise RuntimeError("\n\nThe GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                           "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
+if "GOOGLE_API_KEY" not in os.environ:
+    print("GOOGLE_API_KEY not found in environment")
+
+    if bokeh_missing_google_api_key_ok:
+        print(
+            "But bokeh_missing_google_api_key_ok set to true in conf.py, so building docs anyway (with broken Google Maps)",
+        )
+    elif os.environ.get("BOKEH_DOCS_CDN") == "local":
+        print(
+            "But BOKEH_DOCS_CDN=local, so building docs anyway (with broken Google Maps)",
+        )
+    else:
+        raise RuntimeError(
+            "\n\nThe GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+            "or to build anyway (with broken Google Maps), set bokeh_missing_google_api_key_ok=True in conf.py "
+            "or set BOKEH_DOCS_CDN=local in your environment.",
+        )
 
 bokeh_plot_pyfile_include_dirs = ["docs"]
 
@@ -188,7 +201,7 @@ html_theme_options = {
         "plausible_analytics_url": "https://plausible.io/js/script.js",
     },
     "external_links": [
-        {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/tutorial/main?filepath=notebooks%2F01_introduction.ipynb"},
+        {"name": "Tutorial",  "url": "https://github.com/bokeh/tutorial/"},
         {"name": "Community", "url": "https://discourse.bokeh.org"},
     ],
     "github_url": "https://github.com/bokeh/bokeh",

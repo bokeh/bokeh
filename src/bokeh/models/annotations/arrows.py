@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import CoordinateUnits
 from ...core.has_props import abstract
@@ -33,7 +36,7 @@ from ...core.properties import (
     Override,
     field,
 )
-from ...core.property_mixins import FillProps, LineProps
+from ...core.property_mixins import FillProps, HatchProps, LineProps
 from ..graphics import Marking
 from .annotation import DataAnnotation
 
@@ -61,7 +64,7 @@ class ArrowHead(Marking):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     size = NumberSpec(default=25, help="""
@@ -76,7 +79,7 @@ class OpenHead(ArrowHead):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
@@ -90,7 +93,7 @@ class NormalHead(ArrowHead):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
@@ -98,6 +101,10 @@ class NormalHead(ArrowHead):
     """)
 
     fill_props = Include(FillProps, help="""
+    The {prop} values for the arrow head interior.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
     The {prop} values for the arrow head interior.
     """)
 
@@ -109,7 +116,7 @@ class TeeHead(ArrowHead):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
@@ -122,7 +129,7 @@ class VeeHead(ArrowHead):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
@@ -130,6 +137,10 @@ class VeeHead(ArrowHead):
     """)
 
     fill_props = Include(FillProps, help="""
+    The {prop} values for the arrow head interior.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
     The {prop} values for the arrow head interior.
     """)
 
@@ -143,7 +154,7 @@ class Arrow(DataAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     x_start = NumberSpec(default=field("x_start"), help="""

@@ -5,20 +5,65 @@ import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("bbox module", () => {
   describe("empty", () => {
-    it("should be an unbounded box", () => {
+    it("should be an inverted unbounded box", () => {
       expect(bbox.empty()).to.be.equal({x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity})
     })
   })
 
+  describe("full", () => {
+    it("should be an unbounded box", () => {
+      expect(bbox.full()).to.be.equal({x0: -Infinity, y0: -Infinity, x1: Infinity, y1: Infinity})
+    })
+  })
+
+  describe("x_range", () => {
+    it("should be box covering the given x range", () => {
+      expect(bbox.x_range(3, 3)).to.be.equal({x0: 3, y0: -Infinity, x1: 3, y1: Infinity})
+      expect(bbox.x_range(1, 3)).to.be.equal({x0: 1, y0: -Infinity, x1: 3, y1: Infinity})
+      expect(bbox.x_range(0, 3)).to.be.equal({x0: 0, y0: -Infinity, x1: 3, y1: Infinity})
+      expect(bbox.x_range(-1, 3)).to.be.equal({x0: -1, y0: -Infinity, x1: 3, y1: Infinity})
+      expect(bbox.x_range(-3, 3)).to.be.equal({x0: -3, y0: -Infinity, x1: 3, y1: Infinity})
+      expect(bbox.x_range(-3, 1)).to.be.equal({x0: -3, y0: -Infinity, x1: 1, y1: Infinity})
+      expect(bbox.x_range(-3, 0)).to.be.equal({x0: -3, y0: -Infinity, x1: 0, y1: Infinity})
+      expect(bbox.x_range(-3, -1)).to.be.equal({x0: -3, y0: -Infinity, x1: -1, y1: Infinity})
+      expect(bbox.x_range(-3, -3)).to.be.equal({x0: -3, y0: -Infinity, x1: -3, y1: Infinity})
+    })
+  })
+
+  describe("y_range", () => {
+    it("should be box covering the given x range", () => {
+      expect(bbox.y_range(1, 3)).to.be.equal({x0: -Infinity, y0: 1, x1: Infinity, y1: 3})
+      expect(bbox.y_range(0, 3)).to.be.equal({x0: -Infinity, y0: 0, x1: Infinity, y1: 3})
+      expect(bbox.y_range(-1, 3)).to.be.equal({x0: -Infinity, y0: -1, x1: Infinity, y1: 3})
+      expect(bbox.y_range(-3, 3)).to.be.equal({x0: -Infinity, y0: -3, x1: Infinity, y1: 3})
+      expect(bbox.y_range(-3, 1)).to.be.equal({x0: -Infinity, y0: -3, x1: Infinity, y1: 1})
+      expect(bbox.y_range(-3, 0)).to.be.equal({x0: -Infinity, y0: -3, x1: Infinity, y1: 0})
+      expect(bbox.y_range(-3, -1)).to.be.equal({x0: -Infinity, y0: -3, x1: Infinity, y1: -1})
+      expect(bbox.y_range(-3, -3)).to.be.equal({x0: -Infinity, y0: -3, x1: Infinity, y1: -3})
+    })
+  })
+
   describe("positive_x", () => {
-    it("should be box covering the area where x is positive", () => {
+    it("should be box covering the half-plane where x is positive", () => {
       expect(bbox.positive_x()).to.be.equal({x0: Number.MIN_VALUE, y0: -Infinity, x1: Infinity, y1: Infinity})
     })
   })
 
+  describe("negative_x", () => {
+    it("should be box covering the half-plane where x is negative", () => {
+      expect(bbox.negative_x()).to.be.equal({x0: -Infinity, y0: -Infinity, x1: -Number.MIN_VALUE, y1: Infinity})
+    })
+  })
+
   describe("positive_y", () => {
-    it("should be box covering the area where y is positive", () => {
+    it("should be box covering the half-plane where y is positive", () => {
       expect(bbox.positive_y()).to.be.equal({x0: -Infinity, y0: Number.MIN_VALUE, x1: Infinity, y1: Infinity})
+    })
+  })
+
+  describe("negative_y", () => {
+    it("should be box covering the half-plane where y is negative", () => {
+      expect(bbox.negative_y()).to.be.equal({x0: -Infinity, y0: -Infinity, x1: Infinity, y1: -Number.MIN_VALUE})
     })
   })
 

@@ -11,8 +11,15 @@ import * as styles from "styles/tooltips.css"
 export class ColorRefView extends ValueRefView {
   declare model: ColorRef
 
-  value_el?: HTMLElement
-  swatch_el?: HTMLElement
+  value_el: HTMLElement
+  swatch_el: HTMLElement
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {hex, swatch} = this.model.properties
+    this.on_change([hex, swatch], () => this.render())
+  }
 
   override render(): void {
     super.render()
@@ -20,8 +27,7 @@ export class ColorRefView extends ValueRefView {
     this.value_el = span()
     this.swatch_el = span({class: styles.tooltip_color_block}, " ")
 
-    this.el.appendChild(this.value_el)
-    this.el.appendChild(this.swatch_el)
+    this.el.append(this.value_el, this.swatch_el)
   }
 
   override update(source: ColumnarDataSource, i: Index | null, _vars: PlainObject, _formatters?: Formatters): void {

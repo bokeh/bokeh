@@ -683,10 +683,10 @@ def test_Wedge() -> None:
 
 
 def test_Circle() -> None:
-    glyph = m.Circle()
+    glyph = m.Circle(radius=10)
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius == field("radius")
+    assert glyph.radius == 10
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)

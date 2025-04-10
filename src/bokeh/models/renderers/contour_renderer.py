@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...core.properties import Float, Instance, Seq
@@ -51,7 +51,7 @@ class ContourRenderer(DataRenderer):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     line_renderer = Instance(GlyphRenderer, help="""

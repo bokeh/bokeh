@@ -509,14 +509,11 @@ export abstract class BaseColorBarView extends AnnotationView {
     }
 
     ctx.save()
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fillRect(x, y, width, height)
-    }
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-      ctx.strokeRect(x, y, width, height)
-    }
+    ctx.beginPath()
+    ctx.rect(x, y, width, height)
+    this.visuals.background_fill.apply(ctx)
+    this.visuals.background_hatch.apply(ctx)
+    this.visuals.border_line.apply(ctx)
     ctx.restore()
   }
 }
@@ -552,7 +549,8 @@ export namespace BaseColorBar {
     mixins.MinorTickLine  &
     mixins.BorderLine     &
     mixins.BarLine        &
-    mixins.BackgroundFill
+    mixins.BackgroundFill &
+    mixins.BackgroundHatch
 
   export type Visuals = Annotation.Visuals & {
     major_label_text: visuals.Text
@@ -562,6 +560,7 @@ export namespace BaseColorBar {
     border_line: visuals.Line
     bar_line: visuals.Line
     background_fill: visuals.Fill
+    background_hatch: visuals.Hatch
   }
 }
 
@@ -584,6 +583,7 @@ export class BaseColorBar extends Annotation {
       ["border_",      mixins.Line],
       ["bar_",         mixins.Line],
       ["background_",  mixins.Fill],
+      ["background_",  mixins.Hatch],
     ])
 
     this.define<BaseColorBar.Props>(({Alpha, Float, Str, Tuple, Or, Ref, Auto, Nullable}) => ({

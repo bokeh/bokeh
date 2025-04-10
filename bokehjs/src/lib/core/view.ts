@@ -31,6 +31,11 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
+type TransitiveOpts = {
+  recursive?: boolean
+  signal?: (obj: HasProps) => Signal<unknown, HasProps>
+}
+
 export abstract class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
 
@@ -187,7 +192,7 @@ export abstract class View implements ISignalable, Equatable {
     }
   }
 
-  on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false}: {recursive?: boolean} = {}): void {
+  on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
     const collect = () => {
       const value = property.is_unset ? [] : property.get_value()
       return HasProps.references(value, {recursive})
@@ -195,13 +200,13 @@ export abstract class View implements ISignalable, Equatable {
 
     const connect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.connect(model.change, fn)
+        this.connect(signal(model), () => fn())
       }
     }
 
     const disconnect = (models: Iterable<HasProps>) => {
       for (const model of models) {
-        this.disconnect(model.change, fn)
+        this.disconnect(signal(model), () => fn())
       }
     }
 

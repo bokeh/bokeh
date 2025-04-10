@@ -41,8 +41,8 @@ __all__ = (
     'Bool',
     'Bytes',
     'Complex',
-    'Int',
     'Float',
+    'Int',
     'Null',
     'String',
 )

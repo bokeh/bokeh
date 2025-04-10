@@ -21,7 +21,7 @@ Bokeh automatically adds a legend to your plot if you include the
 
 .. code-block:: python
 
-    p.circle(x, y3, legend_label="Objects")
+    p.scatter(x, y3, legend_label="Objects")
 
 This adds a legend with the entry "Objects" to your plot.
 

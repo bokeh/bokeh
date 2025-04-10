@@ -12,7 +12,7 @@ the array values be computed in the browser:
 
 .. code-block:: python
 
-    p.circle(x={'expr': some_expression}, ...)
+    p.scatter(x={'expr': some_expression}, ...)
 
 or using the ``expr`` convenience function:
 
@@ -20,7 +20,7 @@ or using the ``expr`` convenience function:
 
     from bokeh.core.properties import expr
 
-    p.circle(x=expr(some_expression), ...)
+    p.scatter(x=expr(some_expression), ...)
 
 In this case, the values of the ``x`` coordinates will be computed in the
 browser by the JavaScript implementation of ``some_expression`` using a
@@ -42,6 +42,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+from typing import Any
 
 # Bokeh imports
 from ..core.enums import Direction
@@ -84,7 +85,7 @@ class Expression(Model):
     ''' Base class for ``Expression`` models that represent a computation
     to be carried out on the client-side.
 
-    JavaScript implementations should implement the following methods:
+    JavaScripts implementations should implement the following methods:
 
     .. code-block
 
@@ -99,7 +100,7 @@ class Expression(Model):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -115,7 +116,7 @@ class CustomJSExpr(Expression):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
@@ -144,7 +145,7 @@ class CumSum(Expression):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     field = Required(String, help="""
@@ -180,7 +181,7 @@ class Stack(Expression):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     fields = Seq(String, default=[], help="""
@@ -198,10 +199,10 @@ class Stack(Expression):
 
 @abstract
 class ScalarExpression(Model):
-    """ Base class for for scalar expressions. """
+    """ Base class for scalar expressions. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -209,7 +210,7 @@ class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     field = Required(String)
@@ -220,7 +221,7 @@ class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     field = Required(String)
@@ -232,7 +233,7 @@ class CoordinateTransform(Expression):
     """ Base class for coordinate transforms. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @property
@@ -248,7 +249,7 @@ class PolarTransform(CoordinateTransform):
     """ Transform from polar to cartesian coordinates. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     radius = NumberSpec(default=field("radius"), help="""
@@ -272,7 +273,7 @@ class XYComponent(Expression):
     """ Base class for bi-variate expressions. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     transform = Instance(CoordinateTransform)
@@ -282,7 +283,7 @@ class XComponent(XYComponent):
     """ X-component of a coordinate system transform to cartesian coordinates. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 
@@ -290,7 +291,7 @@ class YComponent(XYComponent):
     """ Y-component of a coordinate system transform to cartesian coordinates. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 

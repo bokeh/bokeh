@@ -197,7 +197,7 @@ Views
   how things look in the browser requires a corresponding view.
 
 For each model, the model definition and the corresponding view should be in the
-same file in the :bokeh-tree:`bokehjs/models` directory.
+same file in the :bokeh-tree:`bokehjs/src/lib/models` directory.
 
 .. tip::
   When updating or adding new models and views, look at how similar models and

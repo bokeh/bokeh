@@ -10,12 +10,13 @@ buttons, groups, inputs, panels, sliders, and tables, using the low-level
 
 ''' # noqa: E501
 from datetime import date, datetime, time
+from math import pi
 
 from bokeh import palettes
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, Dialog,
-                          Examiner, GroupBox, Menu, Row, SetValue, SVGIcon,
+from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, CustomJS,
+                          Dialog, Examiner, GroupBox, Row, SetValue, SVGIcon,
                           TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
@@ -135,14 +136,18 @@ select = w.Select(
 select.title = HTML("Selected value: <b>", ValueOf(select, "value"), "</b>")
 
 select_any_value = w.Select(
-    value=10,
+    value=pi,
     options=[
-        (10, "Option 1"),
-        (20, "Option 2"),
-        (30, "Option 3"),
+        (1*pi, "Option 1"),
+        (2*pi, "Option 2"),
+        (3*pi, "Option 3"),
     ],
 )
-select_any_value.title = HTML("Selected value: <b>", ValueOf(select_any_value, "value"), "</b>")
+select_any_value.title = HTML(html=[
+    "Selected value: <b>",
+    ValueOf(obj=select_any_value, attr="value", formatter="printf", format="%.2f"),
+    "</b>",
+])
 
 palette_select = w.PaletteSelect(title="Choose palette:", value="PuBu", items=palette_items, ncols=4)
 
@@ -201,15 +206,45 @@ checkbox_0 = w.Checkbox(active=False, label="Inactive checkbox")
 
 checkbox_1 = w.Checkbox(active=True, label="Active checkbox")
 
-switch_0 = w.Switch(active=False)
+switch_0 = w.Switch(active=False, label="Show:")
 
-switch_1 = w.Switch(active=True, context_menu=Menu())
+switch_1 = w.Switch(active=True, on_icon="light_theme", off_icon="dark_theme")
 
 switch_help = w.HelpButton(tooltip=Tooltip(content=HTML("""
 This is an <b>on</b> or <b>off</b> style of widget.
 <br>
 Right click on the widget to display the context menu.
 """), position="right"))
+
+progress = w.Progress(value=0, min=0, max=179, label="Processing item @{index} of @{total} (@{percent}%)", width_policy="max")
+progress_disabled = w.Progress(value=30, min=0, max=100, disabled=True, width_policy="max")
+indeterminate_progress = w.Progress(mode="indeterminate", width_policy="max")
+indeterminate_progress_thin = w.Progress(mode="indeterminate", label=None, width_policy="max")
+
+progress_vertical = w.Progress(value=105, min=0, max=179, label="@{percent}% (@{index} of @{total})", orientation="vertical", height_policy="max")
+indeterminate_progress_vertical = w.Progress(mode="indeterminate", orientation="vertical", height_policy="max")
+
+start_computation = w.Button(label="Start computation")
+start_computation.js_on_click(CustomJS(
+    args=dict(progress=progress, button=start_computation),
+    code="""
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+export default async ({progress, button}) => {
+    button.disabled = true
+    try {
+        progress.value = 0
+        while (!progress.has_finished) {
+            const ms = Math.random()*100
+            await delay(ms)
+            progress.increment(1)
+        }
+    } finally {
+        button.disabled = false
+    }
+}
+"""))
 
 group_box = GroupBox(
     title="Head offset:",
@@ -312,6 +347,17 @@ widgets = Column(children=[
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),
+            Row(children=[
+                Column(children=[
+                    start_computation,
+                    progress,
+                    progress_disabled,
+                    indeterminate_progress,
+                    indeterminate_progress_thin,
+                ], width_policy="max"),
+                progress_vertical,
+                indeterminate_progress_vertical,
+            ], width_policy="max"),
             group_box,
             paragraph, div, pre_text,
         ]),

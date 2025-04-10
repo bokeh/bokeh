@@ -33,6 +33,7 @@ ALL = (
     'AlternationPolicy',
     'Anchor',
     'AngleUnits',
+    'Auto',
     'AutosizeMode',
     'BuiltinFormatter',
     'ButtonType',
@@ -50,9 +51,11 @@ ALL = (
     'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
+    'HexTileOrientation',
     'HoldPolicy',
     'HorizontalLocation',
     'ImageOrigin',
+    'ImplicitTarget',
     'JitterRandomDistribution',
     'KeyModifier',
     'LabelOrientation',
@@ -75,6 +78,7 @@ ALL = (
     'Palette',
     'PanDirection',
     'Place',
+    'RadiusDimension',
     'RegionSelectionMode',
     'RenderLevel',
     'ResetPolicy',
@@ -89,16 +93,19 @@ ALL = (
     'SpatialUnits',
     'StartEnd',
     'StepMode',
+    'TeXDisplay',
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
     'ToolIcon',
+    'ToolName',
     'TooltipAttachment',
     'TooltipFieldFormatter',
     'TrackPolicy',
     'VAlign',
     'VerticalAlign',
     'VerticalLocation',
+    'WindowAxis',
 )
 
 #-----------------------------------------------------------------------------
@@ -163,6 +170,9 @@ class Test_bce:
     def test_AngleUnits(self) -> None:
         assert tuple(bce.AngleUnits) == ("deg", "rad", "grad", "turn")
 
+    def test_Auto(self) -> None:
+        assert tuple(bce.Auto) == ("auto",)
+
     def test_ButtonType(self) -> None:
         assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "light")
 
@@ -206,7 +216,10 @@ class Test_bce:
         )
 
     def test_HatchPatternAbbreviation(self) -> None:
-        assert tuple(bce.HatchPatternAbbreviation) ==(' ', '.', 'o', '-', '|', '+', '"', ':', '@', '/', '\\', 'x', ',', '`', 'v', '>', '*')
+        assert tuple(bce.HatchPatternAbbreviation) == (' ', '.', 'o', '-', '|', '+', '"', ':', '@', '/', '\\', 'x', ',', '`', 'v', '>', '*')
+
+    def test_HexTileOrientation(self) -> None:
+        assert tuple(bce.HexTileOrientation) == ("pointytop", "flattop")
 
     def test_HoldPolicy(self) -> None:
         assert tuple(bce.HoldPolicy) == ("combine", "collect")
@@ -216,6 +229,9 @@ class Test_bce:
 
     def test_ImageOrigin(self) -> None:
         assert tuple(bce.ImageOrigin) == ("bottom_left", "top_left", "bottom_right", "top_right")
+
+    def test_ImplicitTarget(self) -> None:
+        assert tuple(bce.ImplicitTarget) == ("viewport", "canvas", "plot", "frame", "parent")
 
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")
@@ -310,6 +326,9 @@ class Test_bce:
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
+    def test_RadiusDimension(self) -> None:
+        assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")
+
     def test_RegionSelectionMode(self) -> None:
         assert tuple(bce.RegionSelectionMode) == ("replace", "append", "intersect", "subtract", "xor")
 
@@ -330,6 +349,9 @@ class Test_bce:
 
     def test_StepMode(self) -> None:
         assert tuple(bce.StepMode) == ("before", "after", "center")
+
+    def test_TeXDisplay(self) -> None:
+        assert tuple(bce.TeXDisplay) == ("inline", "block", "auto")
 
     def test_TextAlign(self) -> None:
         assert tuple(bce.TextAlign) == ("left", "right", "center")
@@ -362,6 +384,7 @@ class Test_bce:
             "clear_selection",
             "copy",
             "crosshair",
+            "dark_theme",
             "delete",
             "freehand_draw",
             "fullscreen",
@@ -371,6 +394,7 @@ class Test_bce:
             "invert_selection",
             "italic",
             "lasso_select",
+            "light_theme",
             "line_edit",
             "maximize",
             "minimize",
@@ -414,6 +438,57 @@ class Test_bce:
             "zoom_out",
         )
 
+    def test_ToolName(self) -> None:
+        assert tuple(bce.ToolName) == (
+            "auto_box_zoom",
+            "box_select",
+            "box_zoom",
+            "click",
+            "copy",
+            "crosshair",
+            "doubletap",
+            "examine",
+            "freehand_draw",
+            "fullscreen",
+            "help",
+            "hover",
+            "lasso_select",
+            "pan",
+            "pan_down",
+            "pan_east",
+            "pan_left",
+            "pan_north",
+            "pan_right",
+            "pan_south",
+            "pan_up",
+            "pan_west",
+            "poly_select",
+            "redo",
+            "reset",
+            "save",
+            "tap",
+            "undo",
+            "wheel_zoom",
+            "xbox_select",
+            "xbox_zoom",
+            "xcrosshair",
+            "xpan",
+            "xwheel_pan",
+            "xwheel_zoom",
+            "xzoom_in",
+            "xzoom_out",
+            "ybox_select",
+            "ybox_zoom",
+            "ycrosshair",
+            "ypan",
+            "ywheel_pan",
+            "ywheel_zoom",
+            "yzoom_in",
+            "yzoom_out",
+            "zoom_in",
+            "zoom_out",
+        )
+
     def test_TooltipAttachment(self) -> None:
         assert tuple(bce.TooltipAttachment) == ("horizontal", "vertical", "left", "right", "above", "below")
 
@@ -425,6 +500,9 @@ class Test_bce:
 
     def test_VerticalLocation(self) -> None:
         assert tuple(bce.VerticalLocation) == ("above", "below")
+
+    def test_WindowAxis(self) -> None:
+        assert tuple(bce.WindowAxis) == ("none", "x", "y")
 
 # any changes to contents of bce.py easily trackable here
 def test_enums_contents() -> None:

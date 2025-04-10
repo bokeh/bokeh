@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import (
     AngleUnits,
@@ -46,6 +49,7 @@ from ...core.properties import (
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,
+    HatchProps,
     LineProps,
     ScalarFillProps,
     ScalarHatchProps,
@@ -78,7 +82,7 @@ class TextAnnotation(Annotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     text = TextLike(default="", help="""
@@ -118,8 +122,6 @@ class TextAnnotation(Annotation):
 
     background_fill_color = Override(default=None)
 
-    background_hatch_color = Override(default=None)
-
     border_line_color = Override(default=None)
 
 class Label(TextAnnotation):
@@ -143,7 +145,7 @@ class Label(TextAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     anchor = TextAnchor(default="auto", help="""
@@ -234,7 +236,7 @@ class LabelSet(DataAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     x = NumberSpec(default=field("x"), help="""
@@ -281,7 +283,11 @@ class LabelSet(DataAnnotation):
     The {prop} values for the text.
     """)
 
-    background_props = Include(FillProps, prefix="background", help="""
+    background_fill_props = Include(FillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(HatchProps, prefix="background", help="""
     The {prop} values for the text bounding box.
     """)
 
@@ -301,7 +307,7 @@ class Title(TextAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""

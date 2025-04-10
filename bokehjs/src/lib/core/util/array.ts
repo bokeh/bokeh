@@ -119,7 +119,18 @@ export function linspace(start: number, stop: number, num: number = 100): number
   const array = new Array(num)
 
   for (let i = 0; i < num; i++) {
-    array[i] = start + step*i
+    array[i] = start + i*step
+  }
+
+  return array
+}
+
+export function logspace(start: number, stop: number, num: number = 100, base: number = 10): number[] {
+  const step = num == 1 ? 0 : (stop - start) / (num - 1)
+  const array = new Array(num)
+
+  for (let i = 0; i < num; i++) {
+    array[i] = base**(start + i*step)
   }
 
   return array
@@ -148,6 +159,15 @@ export function argmin(array: number[]): number {
 
 export function argmax(array: number[]): number {
   return max_by(range(array.length), (i) => array[i])
+}
+
+/**
+ * Return the permutation indices for sorting an array.
+ */
+export function argsort(array: number[]): number[] {
+  const indices = Array.from(array.keys())
+  indices.sort((a, b) => array[a] - array[b])
+  return indices
 }
 
 export function uniq<T>(array: Arrayable<T>): T[] {

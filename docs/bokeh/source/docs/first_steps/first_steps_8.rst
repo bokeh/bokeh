@@ -79,6 +79,9 @@ To use data from a pandas ``DataFrame``, pass your pandas data to a
    includes information on using pandas ``DataFrame``, ``MultiIndex``, and
    ``GroupBy`` data.
 
+Polars, PyArrow, and any other eager dataframe supported by `Narwhals <https://narwhals-dev.github.io/narwhals/>`_
+can also be passed to ColumnDataSource.
+
 Filtering data
 --------------
 

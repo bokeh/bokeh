@@ -67,14 +67,14 @@ class DOMNode(Model, Qualified):
     """ Base class for DOM nodes. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class Text(DOMNode):
     """ DOM text node. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     content = String("")
@@ -84,7 +84,7 @@ class DOMElement(DOMNode):
     """ Base class for DOM elements. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     style = Either(Instance(Styles), Dict(String, String), default={})
@@ -94,38 +94,38 @@ class DOMElement(DOMNode):
 class Span(DOMElement):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class Div(DOMElement):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class Table(DOMElement):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class TableRow(DOMElement):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 @abstract
 class Action(Model, Qualified):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class Template(DOMElement):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     actions = List(Instance(Action))
@@ -133,7 +133,7 @@ class Template(DOMElement):
 class ToggleGroup(Action):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     groups = List(Instance(".models.renderers.RendererGroup"))
@@ -142,7 +142,7 @@ class ToggleGroup(Action):
 class Placeholder(DOMElement):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class ValueOf(Placeholder):
@@ -151,12 +151,33 @@ class ValueOf(Placeholder):
     def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, **kwargs) -> None:
         super().__init__(obj=obj, attr=attr, **kwargs)
 
-    obj: HasProps = Required(Instance(HasProps), help="""
+    obj = Required(Instance(HasProps), help="""
     The object whose property will be observed.
     """)
 
-    attr: str = Required(String, help="""
+    attr = Required(String, help="""
     The name of the property whose value will be observed.
+    """)
+
+    format = Nullable(String, default=None, help="""
+    Optional format string, which is equivalent to using ``"@{field}{format}"``.
+    """)
+
+    formatter = Either(
+        Enum(BuiltinFormatter),
+        Instance(".models.callbacks.CustomJS"), default="raw", help="""
+    Either a named value formatter or an instance of ``CustomJS`` or ``CustomJSHover``.
+
+    .. note::
+        Custom JS formatters can return a value of any type, not necessarily a string.
+        If a non-string value is returned then, if it's an instance of DOM `Node`_
+        (in particular it can be a DOM `Document`_ or a `DocumentFragment`_), then
+        it will be added to the DOM tree as-is, otherwise it will be converted to a
+        string and added verbatim. No HTML parsing is attempted in any case.
+
+    .. _Node: https://developer.mozilla.org/en-US/docs/Web/API/Node
+    .. _Document: https://developer.mozilla.org/en-US/docs/Web/API/Document
+    .. _DocumentFragment: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
     """)
 
     @error(NOT_A_PROPERTY_OF)
@@ -169,7 +190,7 @@ class ValueOf(Placeholder):
 class Index(Placeholder):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
 class ValueRef(Placeholder):
@@ -177,7 +198,7 @@ class ValueRef(Placeholder):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     field = Required(String, help="""
@@ -209,7 +230,7 @@ class ValueRef(Placeholder):
 class ColorRef(ValueRef):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     hex = Bool(default=True)

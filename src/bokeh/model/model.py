@@ -137,7 +137,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def id(self) -> ID:
         return self._id
 
-    name: str | None = p.Nullable(p.String, help="""
+    name = p.Nullable(p.String, help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -145,7 +145,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     .. code:: python
 
-        >>> plot.circle([1,2,3], [4,5,6], name="temp")
+        >>> plot.scatter([1,2,3], [4,5,6], name="temp")
         >>> plot.select(name="temp")
         [GlyphRenderer(id='399d53f5-73e9-44d9-9527-544b761c7705', ...)]
 
@@ -156,7 +156,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    tags: list[Any] = p.List(p.AnyRef, help="""
+    tags = p.List(p.AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -165,7 +165,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     .. code:: python
 
-        >>> r = plot.circle([1,2,3], [4,5,6])
+        >>> r = plot.scatter([1,2,3], [4,5,6])
         >>> r.tags = ["foo", 10]
         >>> plot.select(tags=['foo', 10])
         [GlyphRenderer(id='1de4c3df-a83d-480a-899b-fb263d3d5dd9', ...)]

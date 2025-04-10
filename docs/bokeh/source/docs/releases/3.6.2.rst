@@ -1,0 +1,16 @@
+.. _release-3-6-2:
+
+3.6.2
+=====
+
+Bokeh version ``3.6.2`` (December 2024) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Fixed a regression in `ScaleBar` positioning (:bokeh-pull:`14154`)
+* Restored the ability to add more than one tile renderer (:bokeh-pull:`14170`)
+* Fixed search box in the documentation (:bokeh-pull:`14161`)
+* Fixed regressions after splitting up `Circle` and `Scatter` glyphs (:bokeh-pull:`14085`, :bokeh-pull:`14089`)
+* Updated links to sponsor page (:bokeh-pull:`14086`)

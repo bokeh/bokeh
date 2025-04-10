@@ -33,6 +33,7 @@ from bokeh.models import (
     Legend,
     LinearAxis,
     LogScale,
+    Menu,
     PanTool,
     ResetTool,
     Scatter,
@@ -250,6 +251,22 @@ class Test_figure:
         m = re.search (r"Expected y, (.+), (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
         assert m is not None
         assert set(m.groups()) == {"fill_color", "hatch_color", "line_color"}
+
+    def test_context_menu(self) -> None:
+        plot = bpf.figure()
+        assert plot.context_menu == "auto"
+
+        plot = bpf.figure(context_menu=None)
+        assert plot.context_menu is None
+
+        menu = Menu()
+        plot = bpf.figure()
+        plot.context_menu = menu
+        assert plot.context_menu == menu
+
+        menu = Menu()
+        plot = bpf.figure(context_menu=menu)
+        assert plot.context_menu == menu
 
 NONCIRCLE_MARKERS = set(MarkerType) - {"circle"}
 

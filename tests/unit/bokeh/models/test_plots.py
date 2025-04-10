@@ -77,7 +77,7 @@ class TestPlotLegendProperty:
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 1
 
-    def test_warnign(self) -> None:
+    def test_warning(self) -> None:
         plot = figure(tools='')
         with pytest.warns(UserWarning) as warns:
             plot.legend.location = "above"

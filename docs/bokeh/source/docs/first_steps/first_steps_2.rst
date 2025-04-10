@@ -24,15 +24,17 @@ glyphs, such as lines, bars, hex tiles, or other polygons.
 Rendering circles
 ^^^^^^^^^^^^^^^^^
 
-Use the :func:`~bokeh.plotting.figure.circle` function instead of
-:func:`~bokeh.plotting.figure.line` to render circles:
+Use the :func:`~bokeh.plotting.figure.scatter` function instead of
+:func:`~bokeh.plotting.figure.line` to render circles. Circles are
+the default marker type of the scatter function.
 
 .. code-block:: python
 
     p.scatter(x, y3, legend_label="Objects", color="yellow", size=12)
 
-Replace one of the ``line()`` functions in your previous visualization with
-the :func:`~bokeh.plotting.figure.circle` function to create circles:
+Replace one of the :func:`~bokeh.plotting.figure.line` functions in your
+previous visualization with the :func:`~bokeh.plotting.figure.scatter`
+function to create circles.
 
 .. literalinclude:: examples/first_steps_2_add_circles.py
    :language: python
@@ -45,14 +47,14 @@ Rendering bars
 ^^^^^^^^^^^^^^
 
 Similarly, use the :func:`~bokeh.plotting.figure.vbar` function to render
-vertical bars:
+vertical bars.
 
 .. code-block:: python
 
     p.vbar(x=x, top=y2, legend_label="Rate", width=0.5, bottom=0, color="red")
 
 Add the :func:`~bokeh.plotting.figure.vbar` function to your previous
-visualization:
+visualization.
 
 .. literalinclude:: examples/first_steps_2_add_bars.py
    :language: python
@@ -74,15 +76,21 @@ your glyphs look like.
 Defining properties of new glyphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :func:`~bokeh.plotting.figure.circle` function, for example, lets you
+The :func:`~bokeh.plotting.figure.scatter` function, for example, lets you
 define aspects like the color or diameter of the circles:
 
 * ``fill_color``: the fill color of the circles
 * ``fill_alpha``: the transparency of the fill color (any value between ``0``
   and ``1``)
 * ``line_color``: the fill color of the circles' outlines
-* ``size``: the size of the circles (in |screen units| or |data units|)
+* ``size``: the size of the circles (in |screen units|)
 * ``legend_label``: legend entry for the circles
+
+The :func:`~bokeh.plotting.figure.scatter` function does also support other
+marker types:
+
+* ``marker``: name of the selected form, e.g. "circle", "quad", "y".
+  See :class:`~bokeh.core.enums.MarkerType` for a complete list.
 
 Note that in the previous examples, you used the ``color`` property to define
 the color of an object. ``color`` is an alias that automatically sets all
@@ -121,7 +129,7 @@ red color by passing the argument ``fill_color="red"``.
 
 To change the color of your circles from red to blue, you first need to assign
 a variable name (such as ``scatter``) to the new object when you call the
-:func:`~bokeh.plotting.figure.circle` function.
+:func:`~bokeh.plotting.figure.scatter` function.
 
 .. code-block:: python
 

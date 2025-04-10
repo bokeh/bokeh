@@ -61,7 +61,7 @@ class RendererGroup(Model):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     visible = Bool(default=True, help="""
@@ -79,7 +79,7 @@ class Renderer(StyledElement):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     level = Enum(RenderLevel, help="""
@@ -160,7 +160,7 @@ class DataRenderer(Renderer):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     level = Override(default="glyph")
@@ -173,7 +173,7 @@ class GuideRenderer(Renderer):
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     level = Override(default="guide")

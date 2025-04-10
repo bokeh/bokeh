@@ -39,6 +39,7 @@ from ..core.enums import (
     Place,
     PlaceType,
     ResetPolicy,
+    WindowAxis,
 )
 from ..core.properties import (
     Bool,
@@ -60,7 +61,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.property.struct import Optional
-from ..core.property_mixins import ScalarFillProps, ScalarLineProps
+from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import (
@@ -119,7 +120,7 @@ class Plot(LayoutDOM):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def select(self, *args, **kwargs):
@@ -554,6 +555,17 @@ class Plot(LayoutDOM):
     .. note:: This feature is experimental and may change in the short term.
     """)
 
+    window_axis = Enum(WindowAxis, default="none", help="""
+    An axis to use for windowed auto-ranging when there are data ranges
+    present on the plot. For example, if ``window_axis`` is set to the
+    value ``"x"`` then any data ranges in the y-dimension will compute their
+    auto-ranged extents using only data inside the range bounds for the
+    x-axis as configured in the current viewport.
+
+    If set to "none" (the default) then auto-ranging will use all available
+    data, regardless of viewport.
+    """)
+
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.
     """)
@@ -687,13 +699,21 @@ class Plot(LayoutDOM):
 
     """)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the plot background style.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
     The {prop} for the plot background style.
     """)
 
     background_fill_color = Override(default='#ffffff')
 
-    border_props = Include(ScalarFillProps, prefix="border", help="""
+    border_fill_props = Include(ScalarFillProps, prefix="border", help="""
+    The {prop} for the plot border style.
+    """)
+
+    border_hatch_props = Include(ScalarHatchProps, prefix="border", help="""
     The {prop} for the plot border style.
     """)
 
@@ -746,25 +766,46 @@ class Plot(LayoutDOM):
     """)
 
     lod_factor = Int(10, help="""
-    Decimation factor to use when applying level-of-detail decimation.
+    Decimation factor to use when applying level-of-detail mode.
+
+    A ``lod_factor`` of N means that only every Nth point in the data source
+    will be drawn while interactive events are active. For example, if
+    ``lod_factor=200`` then only every 200th point will be drawn.
+
+    The level-of-detail mode is intended to preserve interactive response
+    times on HTML canvas plots when there are a large number of data points.
+
+    Note that a possible alternative to level-of-detail mode is using the
+    WebGL ``output_backend``. WebGL rendering may allow very large data sets
+    to remain interactive without any level-of-detail downsampling. When
+    WebGL output is enabled, level-of-detail mode is not used.
     """)
 
     lod_threshold = Nullable(Int, default=2000, help="""
     A number of data points, above which level-of-detail downsampling may
-    be performed by glyph renderers. Set to ``None`` to disable any
-    level-of-detail downsampling.
+    be performed by glyph renderers. For example, if ``lod_threshold=10000``
+    then level-of-detail mode will not be activated if there are fewer than
+    10000 points in the data source.
+
+    Set to ``None`` to disable any level-of-detail downsampling at all.
     """)
 
     lod_interval = Int(300, help="""
     Interval (in ms) during which an interactive tool event will enable
     level-of-detail downsampling.
+
+    If a plot needs to be re-drawn within ``lod_interval`` milliseconds
+    of the last interactive event starting, then level-of-detail mode will
+    be activated. Larger values mean the level-of-detail mode will be
+    "easier" to turn on.
     """)
 
     lod_timeout = Int(500, help="""
     Timeout (in ms) for checking whether interactive tool events are still
     occurring. Once level-of-detail mode is enabled, a check is made every
     ``lod_timeout`` ms. If no interactive tool events have happened,
-    level-of-detail mode is disabled.
+    level-of-detail mode is disabled. Larger values mean the level-of-detail
+    mode will be "slower" to turn off.
     """)
 
     output_backend = Enum(OutputBackend, default="canvas", help="""
@@ -857,13 +898,15 @@ class Plot(LayoutDOM):
         This feature is experimental and may change in the short term.
     """)
 
+    context_menu = Override(default="auto")
+
 class GridPlot(LayoutDOM, GridCommon):
     """ Collection of plots and other layoutables on arranged on a rectangular grid.
 
     """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     toolbar = Instance(Toolbar, default=InstanceDefault(Toolbar), help="""

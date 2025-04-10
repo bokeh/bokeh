@@ -1,8 +1,7 @@
 import numpy as np
 
 from bokeh.io import show
-from bokeh.models import (ActionItem, BoxSelectTool, CheckableItem,
-                          CustomJS, DividerItem, Menu)
+from bokeh.models import BoxSelectTool, CustomJS, Menu, MenuItem
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
@@ -86,20 +85,20 @@ export default ({renderer, overlay}) => {
 
 menu = Menu(
     items=[
-        ActionItem(
+        MenuItem(
             label="Count",
             shortcut="Alt+C",
             disabled=True,
             action=CustomJS(code="""console.log("not implemented")"""),
         ),
-        ActionItem(
+        MenuItem(
             label="Delete",
             shortcut="Alt+Shift+D",
             icon="delete",
             action=delete_selected,
         ),
-        DividerItem(),
-        ActionItem(
+        None,
+        MenuItem(
             label="Choose color",
             menu=Menu(
                 stylesheets=[
@@ -107,7 +106,7 @@ menu = Menu(
                     ".bk-label { font-family: monospace; }",
                 ],
                 items=[
-                    ActionItem(
+                    MenuItem(
                         label=color,
                         icon=f".color-{color.removeprefix('#')}",
                         action=change_color,
@@ -115,19 +114,19 @@ menu = Menu(
                 ],
             ),
         ),
-        DividerItem(),
-        CheckableItem(
+        None,
+        MenuItem(
             label="Continuous selection",
             checked=box_select.continuous,
             action=change_continuous,
         ),
-        DividerItem(),
-        ActionItem(
+        None,
+        MenuItem(
             icon="invert_selection",
             label="Invert selection",
             action=invert_selection,
         ),
-        ActionItem(
+        MenuItem(
             icon="clear_selection",
             label="Clear selection",
             shortcut="Esc",

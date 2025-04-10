@@ -23,7 +23,7 @@ dst_end = Span(location=dt(2013, 10, 27, 3, 0, 0), dimension='height',
                line_color='#009E73', line_width=5)
 p.add_layout(dst_end)
 
-p.yaxis.formatter.days = "%Hh"
+p.yaxis.formatter.context = None
 p.xgrid.grid_line_color = None
 
 show(p)

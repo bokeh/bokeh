@@ -100,6 +100,7 @@ from .properties import (
     Dict,
     Enum,
     Float,
+    FloatSpec,
     FontSize,
     FontSizeSpec,
     FontStyleSpec,
@@ -275,9 +276,9 @@ class HatchProps(HasProps):
 
     hatch_color = ColorSpec(default="black", help=_color_help % "hatching")
     hatch_alpha = AlphaSpec(help=_alpha_help % "hatching")
-    hatch_scale = NumberSpec(default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help)
+    hatch_scale = FloatSpec(default=12.0, help=_hatch_scale_help)
     hatch_pattern = HatchPatternSpec(default=None, help=_hatch_pattern_help)
-    hatch_weight = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help)
+    hatch_weight = FloatSpec(default=1.0, help=_hatch_weight_help)
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
 
 class ScalarHatchProps(HasProps):
@@ -322,7 +323,7 @@ class LineProps(HasProps):
 
     line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
     line_alpha = AlphaSpec(help=_alpha_help % "stroke paths")
-    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
+    line_width = FloatSpec(default=1, help=_line_width_help)
     line_join = LineJoinSpec(default="bevel", help=_line_join_help)
     line_cap = LineCapSpec(default="butt", help=_line_cap_help)
     line_dash = DashPatternSpec(default=[], help="""How should the line be dashed.""")

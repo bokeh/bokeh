@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.has_props import HasProps
 from ...core.properties import Instance, Nullable
@@ -45,7 +48,7 @@ class Examiner(UIElement):
     """ A diagnostic tool for examining documents, models, properties, etc. """
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     target = Nullable(Instance(HasProps), help="""

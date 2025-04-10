@@ -15,6 +15,13 @@ describe("core/util/iterator module", () => {
     expect([...range(0, 5)]).to.be.equal([0, 1, 2, 3, 4])
     expect([...range(1, 6)]).to.be.equal([1, 2, 3, 4, 5])
     expect([...range(0, 10, 2)]).to.be.equal([0, 2, 4, 6, 8])
+
+    expect([...range(5, 0)]).to.be.equal([5, 4, 3, 2, 1])
+    expect([...range(4, -1)]).to.be.equal([4, 3, 2, 1, 0])
+    expect([...range(10, 0, 2)]).to.be.equal([10, 8, 6, 4, 2])
+
+    expect(() => [...range(0, 5, -1)]).to.throw(AssertionError)
+    expect(() => [...range(5, 0, -1)]).to.throw(AssertionError)
   })
 
   it("implements reverse() function", () => {

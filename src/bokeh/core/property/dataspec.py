@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...util.dataclasses import Unspecified
+from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.strings import nice_join
 from .. import enums
@@ -74,6 +75,7 @@ __all__ = (
     'DashPatternSpec',
     'DataSpec',
     'DistanceSpec',
+    'FloatSpec',
     'FontSizeSpec',
     'FontStyleSpec',
     'HatchPatternSpec',
@@ -247,6 +249,10 @@ class IntSpec(DataSpec):
     def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Int, default=default, help=help)
 
+class FloatSpec(DataSpec):
+    def __init__(self, default, *, help: str | None = None) -> None:
+        super().__init__(Float, default=default, help=help)
+
 class NumberSpec(DataSpec):
     """ A |DataSpec| property that accepts numeric and datetime fixed values.
 
@@ -268,18 +274,24 @@ class NumberSpec(DataSpec):
 
     """
 
-    def __init__(self, default=Undefined, *, help: str | None = None, accept_datetime=True, accept_timedelta=True) -> None:
+    def __init__(self, default=Undefined, *, help: str | None = None, accept_datetime: bool = True, accept_timedelta: bool = True) -> None:
         super().__init__(Float, default=default, help=help)
+
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
+        else:
+            deprecated((3, 7, 0), "NumberSpec(..., accept_datetime=False)", "FloatSpec()")
+
         if accept_datetime:
             self.accepts(Datetime, convert_datetime_type)
+        else:
+            deprecated((3, 7, 0), "NumberSpec(..., accept_timedelta=False)", "FloatSpec()")
 
-class AlphaSpec(NumberSpec):
+class AlphaSpec(FloatSpec):
 
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{ALPHA_DEFAULT_HELP}"
-        super().__init__(default=default, help=help, accept_datetime=False, accept_timedelta=False)
+        super().__init__(default=default, help=help)
 
 class NullStringSpec(DataSpec):
     def __init__(self, default=None, *, help: str | None = None) -> None:

@@ -50,6 +50,14 @@ describe("core/util/cloneable module", () => {
       expect(r0).to.be.identical(v0)
     })
 
+    it("that supports functions", () => {
+      const v0 = (a: number) => a + 1
+      const r0 = copy(v0)
+
+      expect(r0).to.be.equal(v0)
+      expect(r0).to.be.identical(v0)
+    })
+
     it("that supports arrays", () => {
       const v0: number[] = []
       const r0 = copy(v0)

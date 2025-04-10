@@ -12,8 +12,9 @@ from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import curdoc, figure, show
 from bokeh.themes import Theme
 
-color = R, G, B = (75, 125, 125)
-text_color = (255, 255, 255)
+R, G, B = (75, 125, 125)
+color = f"#{R:x}{G:x}{B:x}"
+text_color = "#ffffff"
 
 # create a data source to enable refreshing of fill & text color
 source = ColumnDataSource(data=dict(color=[color], text_color=[text_color]))

@@ -10,6 +10,7 @@ import type {DataRenderer} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
+import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
 import type {LayoutDOM, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
 import {LayoutDOMView} from "../layouts/layout_dom"
@@ -100,7 +101,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   readonly repainted = new Signal0(this, "repainted")
 
-  protected readonly _computed_style = new InlineStyleSheet()
+  protected readonly _computed_style = new InlineStyleSheet("", "computed")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), plots_css.default, this._computed_style]
@@ -260,6 +261,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
     super.remove()
+  }
+
+  protected override _provide_context_menu(): Menu | null {
+    return new ToolMenu({toolbar: this.model.toolbar})
   }
 
   override get_context_menu(xy: XY): ViewOf<Menu> | null {
@@ -1017,7 +1022,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const right_width = bbox.width - right.left
 
     // TODO: don't replace here; inject stylesheet?
-    this.canvas.style.replace(`
+    this.canvas.parent_style.replace(`
       .bk-layer.bk-events {
         display: grid;
         grid-template-areas:
@@ -1125,7 +1130,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       }
     }
 
-    if (this._range_manager.invalidate_dataranges) {
+    if (this._range_manager.invalidate_dataranges || this.model.window_axis != "none") {
       this._range_manager.update_dataranges()
       this._invalidate_layout_if_needed()
     }
@@ -1245,7 +1250,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const [cx, cy, cw, ch] = canvas_box.args
     const [fx, fy, fw, fh] = frame_box.args
 
-    if (this.visuals.border_fill.doit) {
+    if (this.visuals.border_fill.doit || this.visuals.border_hatch.doit) {
       ctx.save()
       ctx.beginPath()
       ctx.rect(cx, cy, cw, ch)
@@ -1255,12 +1260,15 @@ export class PlotView extends LayoutDOMView implements Paintable {
       ctx.beginPath()
       ctx.rect(cx, cy, cw, ch)
       this.visuals.border_fill.apply(ctx)
+      this.visuals.border_hatch.apply(ctx)
       ctx.restore()
     }
 
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fillRect(fx, fy, fw, fh)
+    if (this.visuals.background_fill.doit || this.visuals.background_hatch.doit) {
+      ctx.beginPath()
+      ctx.rect(fx, fy, fw, fh)
+      this.visuals.background_fill.apply(ctx)
+      this.visuals.background_hatch.apply(ctx)
     }
   }
 

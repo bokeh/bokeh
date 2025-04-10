@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ....core.enums import (
     AngleUnits,
@@ -75,7 +78,7 @@ __all__ = (
 class HTMLTextAnnotation(HTMLAnnotation):
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     padding = Padding(default=0, help="""
@@ -132,7 +135,7 @@ class HTMLLabel(HTMLTextAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     x = Required(CoordinateLike, help="""
@@ -209,7 +212,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     x = NumberSpec(default=field("x"), help="""
@@ -276,7 +279,7 @@ class HTMLTitle(HTMLTextAnnotation):
     '''
 
     # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     text = String(default="", help="""
