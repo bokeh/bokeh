@@ -154,6 +154,10 @@ export class LegendView extends AnnotationView {
     return false
   }
 
+  protected _toggle_inactive({el, item}: Entry): void {
+    el.classList.toggle(legend_css.inactive, !this.is_active(item))
+  }
+
   protected _render_items(): void {
     this.entries = []
 
@@ -169,17 +173,20 @@ export class LegendView extends AnnotationView {
 
         const glyph_el = glyph.canvas
         const label_el = div({class: legend_css.label}, `${label}`)
-        const item_el = div({class: legend_css.item}, glyph_el, label_el)
+        const overlay_el = div({class: legend_css.overlay})
+        const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
         item_el.classList.toggle(legend_css.hidden, !item.visible)
+
+        const entry: Entry = {el: item_el, glyph, label_el, item, label, i: i++, row: 0, col: 0}
+        this.entries.push(entry)
 
         item_el.addEventListener("pointerdown", () => {
           this.model.trigger_event(new LegendItemClick(this.model, item))
           for (const renderer of item.renderers) {
             click_policy(renderer)
           }
+          this._toggle_inactive(entry)
         })
-
-        this.entries.push({el: item_el, glyph, label_el, item, label, i: i++, row: 0, col: 0})
       }
     }
 
@@ -235,11 +242,8 @@ export class LegendView extends AnnotationView {
       }
     }
 
-    const {is_active} = this
-    for (const {el, item} of this.entries) {
-      if (!is_active(item)) {
-        el.classList.add(legend_css.active)
-      }
+    for (const entry of this.entries) {
+      this._toggle_inactive(entry)
     }
 
     for (const {el, i, row, col} of this.entries) {
@@ -339,7 +343,7 @@ export class LegendView extends AnnotationView {
       const {color} = this.visuals.inactive_fill.computed_values()
       this.style.append(`
       .${legend_css.item} {
-        --item-background-active-color: ${color};
+        --item-background-inactive-color: ${color};
       }
       `)
     }
