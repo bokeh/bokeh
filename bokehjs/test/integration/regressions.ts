@@ -4407,4 +4407,37 @@ describe("Bug", () => {
       ctx.drawImage(image, 0, 0, 200, 200)
     })
   })
+
+  describe("in issue #14442", () => {
+    it("doesn't allow to correctly render Legend with inactive items", async () => {
+      const x = np.linspace(0, 4*np.pi, 50)
+      const y = np.sin(x)
+
+      const p = fig([200, 200])
+
+      const r0 = p.scatter(x, y)
+      r0.muted = true
+      const r1 = p.line(x, y)
+      r1.muted = true
+
+      const r2 = p.line(x, f`2*${y}`, {line_dash: [4, 4], line_color: "orange", line_width: 2})
+      r2.muted = true
+
+      const r3 = p.scatter(x, f`3*${y}`, {marker: "square", fill_color: null, line_color: "green"})
+      const r4 = p.line(x, f`3*${y}`, {line_color: "green"})
+
+      const legend = new Legend({
+        items: [
+          new LegendItem({label: "sin(x)",   renderers: [r0, r1]}),
+          new LegendItem({label: "2*sin(x)", renderers: [r2]}),
+          new LegendItem({label: "3*sin(x)", renderers: [r3, r4]}),
+        ],
+        location: "top_right",
+        click_policy: "mute",
+      })
+      p.add_layout(legend)
+
+      await display(p)
+    })
+  })
 })
