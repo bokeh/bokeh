@@ -97,8 +97,8 @@ export class MultiChoiceView extends InputWidgetView {
     })
 
     const fill = this.model.solid ? "solid" : "light"
-    const item = [`choices__item`,`${fill}`]
-    const button = [`choices__button`,`${fill}`]
+    const item = ["choices__item", `${fill}`]
+    const button = ["choices__button", `${fill}`]
 
     const options: Partial<Choices["config"]> = {
       choices,
