@@ -26,8 +26,8 @@ class OurChoices extends Choices {
   override _onBlur(event: FocusEvent): void {
     super._onBlur(retarget(event))
   }
-  override _onKeyUp(event: KeyboardEvent): void {
-    super._onKeyUp(retarget(event))
+  override _onKeyUp(): void {
+    super._onKeyUp()
   }
   override _onKeyDown(event: KeyboardEvent): void {
     super._onKeyDown(retarget(event))
@@ -97,8 +97,8 @@ export class MultiChoiceView extends InputWidgetView {
     })
 
     const fill = this.model.solid ? "solid" : "light"
-    const item = `choices__item ${fill}`
-    const button = `choices__button ${fill}`
+    const item = [`choices__item`,`${fill}`]
+    const button = [`choices__button`,`${fill}`]
 
     const options: Partial<Choices["config"]> = {
       choices,

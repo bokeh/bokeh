@@ -47,7 +47,7 @@
     "@types/google.maps": "^3.55.5",
     "@types/proj4": "^2.5.5",
     "@types/sprintf-js": "^1.1.4",
-    "choices.js": "^10.2.0",
+    "choices.js": "^11.1.0",
     "fflate": "^0.8.2",
     "flatbush": "^4.5.0",
     "flatpickr": "^4.6.13",
