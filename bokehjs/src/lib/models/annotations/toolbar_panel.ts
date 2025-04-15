@@ -3,20 +3,14 @@ import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
-import {empty, position, display, undisplay} from "core/dom"
 import type {Size, Layoutable} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
-import {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
   declare model: ToolbarPanel
 
   declare layout: Layoutable
-
-  override rendering_target(): HTMLElement {
-    return this.plot_view.canvas_view.events_el
-  }
 
   override update_layout(): void {
     this.layout = new SideLayout(this.panel!, () => this.get_size(), true)
@@ -70,33 +64,14 @@ export class ToolbarPanelView extends AnnotationView {
     this.toolbar_view.render_to(this.shadow_el)
   }
 
-  private _previous_bbox: BBox = new BBox()
-
   protected _paint(): void {
-    // TODO this shouldn't be necessary
-    display(this.el)
-
-    // TODO: this should be handled by the layout
-    const {bbox} = this.layout
-    if (!this._previous_bbox.equals(bbox)) {
-      position(this.el, bbox)
-      this._previous_bbox = bbox
-
-      empty(this.el)
-      this.el.style.position = "absolute"
-
-      const {style} = this.toolbar_view.el
-      if (this.toolbar_view.model.horizontal) {
-        style.width = "100%"
-        style.height = "unset"
-      } else {
-        style.width = "unset"
-        style.height = "100%"
-      }
-    }
-
-    if (!this.model.visible) {
-      undisplay(this.el)
+    const {style} = this.toolbar_view.el
+    if (this.toolbar_view.model.horizontal) {
+      style.width = "100%"
+      style.height = "unset"
+    } else {
+      style.width = "unset"
+      style.height = "100%"
     }
   }
 

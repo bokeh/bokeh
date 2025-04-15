@@ -58,7 +58,7 @@ import type {StateInfo} from "./state_manager"
 import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import type {StyleSheetLike} from "core/dom"
-import {InlineStyleSheet, px} from "core/dom"
+import {InlineStyleSheet, px, div} from "core/dom"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
@@ -646,17 +646,32 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.layout = layout
 
-    const above_els = this.views.select(this.model.above).map((view) => view.el)
-    const below_els = this.views.select(this.model.below).map((view) => view.el)
-    const left_els = this.views.select(this.model.left).map((view) => view.el)
-    const right_els = this.views.select(this.model.right).map((view) => view.el)
-    const center_els = this.views.select(this.model.center).map((view) => view.el)
-    const renderer_els = this.views.select(this.model.renderers).map((view) => view.el)
+    const process = (panels: Panels, dim: "x" | "y") => {
+      return panels.map((obj) => {
+        if (isArray(obj)) {
+          const els = this.views.select(obj).map((view) => view.el)
+          switch (dim) {
+            case "x": return div({style: {display: "flex", flex_direction: "row", width: "100%"}}, els)
+            case "y": return div({style: {display: "flex", flex_direction: "column", height: "100%"}}, els)
+          }
+        } else {
+          return this.views.get_one(obj).el
+        }
+      })
+    }
+
+    const above_els = process(outer_above, "x")
+    const below_els = process(outer_below, "x")
+    const left_els = process(outer_left, "y")
+    const right_els = process(outer_right, "y")
 
     this.top_panel.shadow_el.append(...reversed(above_els))
     this.bottom_panel.shadow_el.append(...below_els)
     this.left_panel.shadow_el.append(...reversed(left_els))
     this.right_panel.shadow_el.append(...right_els)
+
+    const center_els = this.views.select(this.model.center).map((view) => view.el)
+    const renderer_els = this.views.select(this.model.renderers).map((view) => view.el)
 
     this.frame.shadow_el.append(...renderer_els, ...center_els)
   }
