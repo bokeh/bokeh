@@ -45,7 +45,7 @@ export class PaneView extends UIElementView {
     // order and then either insert each item before an existing node or append it.
     // This ensures correct ordering without removing and then re-adding DOM nodes
     // which can cause issues for certain virtual DOM implementations (e.g. React).
-    const current_elements = Array.from(this.self_target).filter(el => {
+    const current_elements = Array.from(this.self_target.children).filter(el => {
       return this.element_views.some(view => view.el === el)
     })
     current_views = current_views.filter(view => !current_elements.includes(view.el))
