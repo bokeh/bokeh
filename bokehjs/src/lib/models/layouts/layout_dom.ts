@@ -189,7 +189,7 @@ export abstract class LayoutDOMView extends PaneView {
         const next_view = current_views.find(view => current_elements.includes(view.el) && !added.has(view))
         if (next_view === undefined) {
 	  this.shadow_el.appendChild(child_view.el)
-	} else {
+        } else {
           this.shadow_el.insertBefore(child_view.el, next_view.el)
         }
       }
