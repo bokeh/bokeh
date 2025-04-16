@@ -168,8 +168,7 @@ export abstract class LayoutDOMView extends PaneView {
     current_views = current_views.filter(view => !current_elements.includes(view.el))
 
     const added = new Set()
-    for (let i = 0; i < this.child_views.length; i++) {
-      const child_view = this.child_views[i]
+    for (const child_view of this.child_views) {
       const is_new = created_children.has(child_view)
       const target = child_view.rendering_target()
 
