@@ -1,0 +1,11 @@
+@import "./_mixins.less";
+
+:host {
+  display: grid;
+  grid-template-areas:
+    ".    above  .    "
+    "left center right"
+    ".    below  .    ";
+  grid-template-rows: max-content 1fr max-content;
+  grid-template-columns: max-content 1fr max-content;
+}

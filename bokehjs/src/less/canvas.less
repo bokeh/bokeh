@@ -10,9 +10,16 @@
 }
 
 .bk-events {
+  display: grid;
+  grid-template-areas:
+    ".    above  .    "
+    "left center right"
+    ".    below  .    ";
+
   touch-action: none;
   overflow: visible;
   cursor: default;
+
 }
 
 .bk-events:focus, .bk-events:focus-visible {
