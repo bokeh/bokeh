@@ -177,17 +177,17 @@ export abstract class LayoutDOMView extends PaneView {
         child_view.render()
       }
 
-      if (target != null) {
+      if (target !== null) {
         if (!target.contains(child_view.el)) {
-          if (child_view.el.parentNode) {
+          if (child_view.el.parentNode !== null) {
             child_view.el.remove()
           }
           target.append(child_view.el)
         }
       } else {
-	// Compute insertion point for view in previous ordering
+        // Compute insertion point for view in previous ordering
         const next_view = current_views.find(view => current_elements.includes(view.el) && !added.has(view))
-        if (next_view) {
+        if (next_view !== null) {
           this.shadow_el.insertBefore(child_view.el, next_view.el)
         } else {
           this.shadow_el.appendChild(child_view.el)
