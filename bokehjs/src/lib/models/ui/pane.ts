@@ -39,39 +39,17 @@ export class PaneView extends UIElementView {
     const {created} = await this._build_elements()
     const created_views = new Set(created)
 
-    // The newly generated child_views are added to the shadow_el one-by-one
-    // In order to determine the correct ordering we compute the existing
-    // order and then either insert each item before an existing node or append it.
-    // This ensures correct ordering without removing and then re-adding DOM nodes
-    // which can cause issues for certain virtual DOM implementations (e.g. React).
-    const current_views = Array.from(this.shadow_el.children).flatMap(el => {
-      const view = this.element_views.find(view => view.el === el)
-      return view === undefined ? [] : [view]
-    })
-
-    const added = new Set()
+    // Since appending to a DOM node will move the node to the end if it has
+    // already been added appending all the children in order will result in
+    // correct ordering
     for (const element_view of this.element_views) {
       const is_new = created_views.has(element_view)
-      const target = element_view.rendering_target()
-
+      const target = element_view.rendering_target() ?? this.self_target
       if (is_new) {
-        element_view.render()
-      }
-
-      if (target !== null) {
-        if (!target.contains(element_view.el)) {
-          target.append(element_view.el)
-        }
+        element_view.render_to(target)
       } else {
-        // Compute insertion point for view in previous ordering
-        const next_view = current_views.find(view => !added.has(view))
-        if (next_view === undefined) {
-          this.self_target.appendChild(element_view.el)
-        } else {
-          this.self_target.insertBefore(element_view.el, next_view.el)
-        }
+	target.appendChild(element_view.el)
       }
-      added.add(element_view)
     }
     this.r_after_render()
   }
