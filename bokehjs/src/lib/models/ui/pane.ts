@@ -48,7 +48,7 @@ export class PaneView extends UIElementView {
       if (is_new) {
         element_view.render_to(target)
       } else {
-	target.appendChild(element_view.el)
+        target.appendChild(element_view.el)
       }
     }
     this.r_after_render()
