@@ -165,7 +165,7 @@ export abstract class LayoutDOMView extends PaneView {
       if (is_new) {
         child_view.render_to(target)
       } else {
-        target.appendChild(child_view.el)
+        target.append(child_view.el)
       }
     }
 
