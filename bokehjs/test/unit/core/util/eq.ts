@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import type {Comparator} from "@bokehjs/core/util/eq"
 import type {Equatable} from "@bokehjs/core/util/eq"
-import {is_equal, equals} from "@bokehjs/core/util/eq"
+import {is_equal, is_structurally_equal, equals} from "@bokehjs/core/util/eq"
 import {HasProps} from "@bokehjs/core/has_props"
 import type * as p from "@bokehjs/core/properties"
 
@@ -236,22 +236,25 @@ describe("core/util/eq module", () => {
     const div2 = document.createElement("div")
     div2.appendChild(div1)
 
-    expect(is_equal(text0, text0)).to.be.true
-    expect(is_equal(text0, text1)).to.be.true
-    expect(is_equal(text0, text2)).to.be.false
-    expect(is_equal(text0, span0)).to.be.false
-    expect(is_equal(text0, div0)).to.be.false
-    expect(is_equal(text0, div1)).to.be.false
-    expect(is_equal(text0, div2)).to.be.false
+    expect(is_structurally_equal(text0, text0)).to.be.true
+    expect(is_structurally_equal(text0, text1)).to.be.true
+    expect(is_structurally_equal(text0, text2)).to.be.false
+    expect(is_structurally_equal(text0, span0)).to.be.false
+    expect(is_structurally_equal(text0, div0)).to.be.false
+    expect(is_structurally_equal(text0, div1)).to.be.false
+    expect(is_structurally_equal(text0, div2)).to.be.false
 
-    expect(is_equal(span0, div0)).to.be.false
+    expect(is_structurally_equal(span0, div0)).to.be.false
+
+    expect(is_structurally_equal(div0, div0)).to.be.true
+    expect(is_structurally_equal(div0, div1)).to.be.false
+    expect(is_structurally_equal(div0, div2)).to.be.false
+    expect(is_structurally_equal(div1, div2)).to.be.false
+    expect(is_structurally_equal(div1, div1)).to.be.true
+    expect(is_structurally_equal(div2, div2)).to.be.true
 
     expect(is_equal(div0, div0)).to.be.true
     expect(is_equal(div0, div1)).to.be.false
-    expect(is_equal(div0, div2)).to.be.false
-    expect(is_equal(div1, div2)).to.be.false
-    expect(is_equal(div1, div1)).to.be.true
-    expect(is_equal(div2, div2)).to.be.true
   })
 
   it("that supports HasProps instances", () => {

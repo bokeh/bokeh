@@ -234,19 +234,23 @@ export class Comparator {
   }
 
   nodes(a: Node, b: Node): boolean {
-    if (a.nodeType != b.nodeType) {
-      return false
-    }
+    if (this.structural) {
+      if (a.nodeType != b.nodeType) {
+        return false
+      }
 
-    if (a.textContent != b.textContent) {
-      return false
-    }
+      if (a.textContent != b.textContent) {
+        return false
+      }
 
-    if (!this.iterables(a.childNodes, b.childNodes)) {
-      return false
-    }
+      if (!this.iterables(a.childNodes, b.childNodes)) {
+        return false
+      }
 
-    return true
+      return true
+    } else {
+      return a === b
+    }
   }
 }
 
