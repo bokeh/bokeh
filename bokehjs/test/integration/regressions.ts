@@ -53,7 +53,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace, cumsum} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum, reversed} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -4438,6 +4438,32 @@ describe("Bug", () => {
       p.add_layout(legend)
 
       await display(p)
+    })
+  })
+
+  describe("in issue #14458", () => {
+    it("doesn't allow to update layout children without removing them from DOM", async () => {
+      function f(color: Color) {
+        const p = fig([200, 200])
+        p.scatter([1, 2, 3], [1, 2, 3], {size: 30, color})
+        return p
+      }
+
+      const layout = new Row({
+        children: [f("red"), f("green"), f("blue"), f("yellow"), f("purple")],
+      })
+      const {view} = await display(layout)
+
+      function figs() {
+        return [...view.shadow_el.children].filter((el) => el.classList.contains("bk-Figure"))
+      }
+
+      const pre_update = figs()
+      layout.children = reversed(layout.children)
+      await view.ready
+      const post_update = figs()
+
+      expect(reversed(pre_update)).to.be.equal(post_update)
     })
   })
 })
