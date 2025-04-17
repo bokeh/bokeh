@@ -45,7 +45,7 @@ export class PaneView extends UIElementView {
     // This ensures correct ordering without removing and then re-adding DOM nodes
     // which can cause issues for certain virtual DOM implementations (e.g. React).
     const current_views = Array.from(this.shadow_el.children).flatMap(el => {
-      const view = this.child_views.find(view => view.el === el)
+      const view = this.element_views.find(view => view.el === el)
       return view === undefined ? [] : [view]
     })
 
