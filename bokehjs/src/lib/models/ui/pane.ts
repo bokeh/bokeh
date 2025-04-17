@@ -36,7 +36,6 @@ export class PaneView extends UIElementView {
   }
 
   protected async _update_elements(): Promise<void> {
-    let current_views = [...this.element_views]
     const {created} = await this._build_elements()
     const created_views = new Set(created)
 
@@ -45,10 +44,10 @@ export class PaneView extends UIElementView {
     // order and then either insert each item before an existing node or append it.
     // This ensures correct ordering without removing and then re-adding DOM nodes
     // which can cause issues for certain virtual DOM implementations (e.g. React).
-    const current_elements: Node[] = Array.from(this.self_target.children).filter(el => {
-      return this.element_views.some(view => view.el === el)
+    const current_views = Array.from(this.shadow_el.children).flatMap(el => {
+      const view = this.child_views.find(view => view.el === el)
+      return view === undefined ? [] : [view]
     })
-    current_views = current_views.filter(view => !current_elements.includes(view.el))
 
     const added = new Set()
     for (const element_view of this.element_views) {
@@ -68,7 +67,7 @@ export class PaneView extends UIElementView {
         }
       } else {
         // Compute insertion point for view in previous ordering
-        const next_view = current_views.find(view => current_elements.includes(view.el) && !added.has(view))
+        const next_view = current_views.find(view => !added.has(view))
         if (next_view === undefined) {
           this.self_target.appendChild(element_view.el)
         } else {
