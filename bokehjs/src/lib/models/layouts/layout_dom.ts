@@ -177,9 +177,6 @@ export abstract class LayoutDOMView extends PaneView {
 
       if (target !== null) {
         if (!target.contains(child_view.el)) {
-          if (child_view.el.parentNode !== null) {
-            child_view.el.remove()
-          }
           target.append(child_view.el)
         }
       } else {

@@ -60,9 +60,6 @@ export class PaneView extends UIElementView {
 
       if (target !== null) {
         if (!target.contains(element_view.el)) {
-          if (element_view.el.parentNode !== null) {
-            element_view.el.remove()
-          }
           target.append(element_view.el)
         }
       } else {
