@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools-git-versioning", "colorama"]
+requires = ["setuptools>=77", "setuptools-git-versioning", "colorama"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -24,7 +24,8 @@ authors = [
   {email = "info@bokeh.org"},
   {name = "Bokeh Team"}
 ]
-license = {file = "LICENSE.txt"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -38,7 +39,6 @@ classifiers = [
     "Intended Audience :: Legal Industry",
     "Intended Audience :: Other Audience",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
