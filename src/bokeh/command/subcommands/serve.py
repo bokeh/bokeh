@@ -981,7 +981,7 @@ class Serve(Subcommand):
                     url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
                     log.info(f"Bokeh app running at: {url}")
 
-                log.info("Starting Bokeh server with process id: %d" % os.getpid())
+                log.info(f"Starting Bokeh server with process id: {os.getpid()}")
 
             server = self.customize_server(server)
 

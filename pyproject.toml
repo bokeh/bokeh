@@ -172,6 +172,7 @@ lint.ignore = [
     'NPY002', # Replace legacy np.random.{method_name} call with np.random.Generator
     'UP035',  # Import from `collections.abc` instead: `Iterator`
     'RUF012', # Mutable class attributes should be annotated with `typing.ClassVar`
+    'RUF022', # Ruff uses weird "isort-style" sort rather than straigh alphabetic sort
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
 line-length = 165

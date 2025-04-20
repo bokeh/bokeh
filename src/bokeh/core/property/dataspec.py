@@ -345,7 +345,7 @@ class FontSizeSpec(DataSpec):
         super().validate(value, detail)
 
         if isinstance(value, str):
-            if len(value) == 0 or value[0].isdigit() and not CSS_LENGTH_RE.match(value):
+            if len(value) == 0 or (value[0].isdigit() and not CSS_LENGTH_RE.match(value)):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 
