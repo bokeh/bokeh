@@ -338,7 +338,7 @@ class RGB(Color):
 
         '''
         if self.a < 1.0:
-            return f"#{self.r:02x}{self.g:02x}{self.b:02x}{int(round(self.a*255)):02x}"
+            return f"#{self.r:02x}{self.g:02x}{self.b:02x}{round(self.a*255):02x}"
         else:
             return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
 

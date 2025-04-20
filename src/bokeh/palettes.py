@@ -1526,7 +1526,7 @@ def linear_palette(palette: Palette, n: int) -> Palette:
     """
     if n > len(palette):
         raise ValueError(f"Requested {n} colors, function can only return colors up to the base palette's length ({len(palette)})")
-    return tuple( palette[int(math.floor(i))] for i in np.linspace(0, len(palette)-1, num=n) )
+    return tuple( palette[math.floor(i)] for i in np.linspace(0, len(palette)-1, num=n) )
 
 def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: float = 0.5) -> Palette:
     """ Generate a new palette by combining exactly two input palettes.
@@ -1564,8 +1564,8 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     palette2 = palette2[::-1]
 
     # determine number of colors from each palette
-    n1 = int(round(midpoint * n))
-    n2 = int(round((1 - midpoint) * n))
+    n1 = round(midpoint * n)
+    n2 = round((1 - midpoint) * n)
 
     # return piecewise linear interpolation of colors
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)

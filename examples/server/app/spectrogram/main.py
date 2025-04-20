@@ -104,7 +104,7 @@ def update():
     alphas = []
     for x in bins:
         a = np.zeros_like(eq_range)
-        N = int(ceil(x))
+        N = ceil(x)
         a[:N] = (1 - eq_range[:N]*0.05)
         alphas.append(a)
     eq_source.data['alpha'] = np.hstack(alphas)
