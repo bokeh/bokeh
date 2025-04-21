@@ -26,9 +26,6 @@ class OurChoices extends Choices {
   override _onBlur(event: FocusEvent): void {
     super._onBlur(retarget(event))
   }
-  override _onKeyUp(): void {
-    super._onKeyUp()
-  }
   override _onKeyDown(event: KeyboardEvent): void {
     super._onKeyDown(retarget(event))
   }
