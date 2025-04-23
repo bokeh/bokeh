@@ -7,8 +7,8 @@
 :host {
   position: absolute;
   background-color: var(--background-color);
-  // @mattpap - the opacity creates inaccessible contrast - is it necessary? can
-  // I remove it?
+  // TODO: remove this opacity rule. A semi-transparent background results in
+  // low contrast text, bad for accessibility.
   opacity: 90%;
 }
 
