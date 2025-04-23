@@ -221,6 +221,16 @@ export class ConnectionLost extends ConnectionEvent {
   }
 }
 
+export class ReconnectEvent extends ConnectionEvent {
+  protected get event_values(): Attrs {
+    return {}
+  }
+
+  static {
+    this.prototype.event_name = "reconnect_event"
+  }
+}
+
 @event("axis_click")
 export class AxisClick extends ModelEvent {
 

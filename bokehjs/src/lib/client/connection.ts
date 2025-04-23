@@ -1,3 +1,4 @@
+import {ReconnectEvent} from "core/bokeh_events"
 import {logger} from "core/logging"
 import type {DocJson, DocumentEvent} from "document"
 import {Document} from "document"
@@ -117,6 +118,7 @@ export class ClientConnection {
           this.connect().then(() => {
             logger.info(`Reconnected websocket ${this._number}`)
             this._reconnectionAttempts = RECONNECTION_ATTEMPTS
+            this.session?.document.event_manager.send_event(new ReconnectEvent())
           }).catch(err => {
             logger.debug(`Could not reconnect ${this._number}, ${err}`)
           })
@@ -193,7 +195,7 @@ export class ClientConnection {
       } else {
         this.session.document.replace_with_json(doc_json)
         logger.debug("Updated existing session with new pulled doc")
-        // Since the session already exists, we don't need to call `resolve` again.
+        resolve(this.session)
       }
     } catch (error) {
       console.trace(error)

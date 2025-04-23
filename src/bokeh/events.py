@@ -255,6 +255,13 @@ class ConnectionLost(ConnectionEvent):
         super().__init__()
         self.timestamp = datetime.now()
 
+class ReconnectEvent(ConnectionEvent):
+    '''
+    Announce when a connection to the client has been reconnected.
+
+    '''
+    event_name = 'reconnect_event'
+
 class ModelEvent(Event):
     ''' Base class for all Bokeh Model events.
 
