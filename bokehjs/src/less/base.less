@@ -1,3 +1,5 @@
+@import "_colors.less";
+
 :host {
   --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   --mono-font: var(--bokeh-mono-font, monospace);
@@ -14,27 +16,28 @@
   --bokeh-top-level: 10000; // used for z-index of menus, dropdowns, etc.
 
   // Colors
-  --color: #18191d; // base text color
-  --background-color: #ffffff;
-  --hover-color: #f9f9f9;
-  --disabled-color: #808080;
-  --border-color: #cccccc;
-  --divider-color: #e5e5e5;
-  --shortcut-color: #808080;
-  --highlight-color: #26aae1;
-  --active-bg: #c2d5f7;
-  --active-fg: #3b80f0;
-  --inactive-bg: #e5e5e5;
-  --inactive-fg: #adadad;
-  --icon-color: var(--bokeh-icon-color, #a1a6a9);
-  --icon-color-disabled: var(--bokeh-icon-color-disabled, #d4d9db);
-  --error: red;
-  --inverted-color: #fff; // the color for when the background is dark
-  --placeholder-color: #999;
-  --surface-background-color: #e6e6e6;
-  --disabled-background-color: #eee;
-  --input-focus-border-color: #66afe9; // same as rgb(102, 175, 233)
-  --input-focus-halo-color: rgba(102, 175, 233, 0.6); // same as fade(#66afe9, 60%)
+  --color: #colors[text];
+  --background-color: #colors[background];
+  --hover-color: #colors[hover];
+  --disabled-color: #colors[disabled];
+  --border-color: #colors[border];
+  --divider-color: #colors[divider];
+  --shortcut-color: #colors[disabled];
+  // TODO: should highlight-color be #colors[accent] (mauve-500)?
+  --highlight-color: #colors[highlight];
+  --active-bg: #colors[active-background];
+  --active-fg: #colors[primary];
+  --inactive-bg: #colors[surface];
+  --inactive-fg: #colors[placeholder];
+  --icon-color: var(--bokeh-icon-color, #colors[icon]);
+  --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
+  --error: #colors[error];
+  --inverted-color: #colors[background]; // the color for when the background is dark
+  --placeholder-color: #colors[placeholder];
+  --surface-background-color: #colors[surface];
+  --disabled-background-color: #colors[surface];
+  --input-focus-border-color: #colors[highlight]; // same as rgb(101, 162, 203)
+  --input-focus-halo-color: rgba(101, 162, 203, 0.6); // same as fade(#colors[highlight], 60%)
 
   // Border, box shadow, outline
   --border-style: solid;
@@ -46,7 +49,7 @@
   --box-shadow: 2px 4px 8px var(--box-shadow-color);
   --divider-width: 1px;
   --divider: 1px var(--divider-color) solid;
-  --outline-color: #ccc;
+  --outline-color: #colors[border];
   --outline-style: dotted;
   --outline-width: 1px;
   --outline: var(--outline-color) var(--outline-style) var(--outline-width);
