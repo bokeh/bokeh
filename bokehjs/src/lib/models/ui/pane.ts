@@ -41,16 +41,17 @@ export class PaneView extends UIElementView {
 
     // Since appending to a DOM node will move the node to the end if it has
     // already been added appending all the children in order will result in
-    // correct ordering
-    for (const element_view of this.element_views) {
-      const is_new = created_views.has(element_view)
-      const target = element_view.rendering_target() ?? this.self_target
+    // correct ordering.
+    for (const view of this.element_views) {
+      const is_new = created_views.has(view)
+      const target = view.rendering_target() ?? this.self_target
       if (is_new) {
-        element_view.render_to(target)
+        view.render_to(target)
       } else {
-        target.append(element_view.el)
+        target.append(view.el)
       }
     }
+
     this.r_after_render()
   }
 

@@ -16,6 +16,7 @@ import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 import {RendererGroup} from "./renderer_group"
 import {InlineStyleSheet} from "core/dom"
+import type {RenderingTarget} from "core/dom_view"
 import type {SidePanel} from "core/layout/side_panel"
 import type {Layoutable} from "core/layout"
 
@@ -41,7 +42,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return [...super.computed_stylesheets(), this.position]
   }
 
-  override rendering_target(): HTMLElement | ShadowRoot {
+  override rendering_target(): RenderingTarget | null {
     return this.plot_view.canvas_view.underlays_el
   }
 

@@ -816,25 +816,21 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected async _update_renderers(): Promise<void> {
     const {created} = await this._build_renderers()
-    const created_renderers = new Set(created)
+    const created_views = new Set(created)
 
-    // First remove and then either reattach existing renderers or render and
-    // attach new renderers, so that the order of children is consistent, while
-    // avoiding expensive re-rendering of existing views.
-    for (const renderer_view of this.renderer_views.values()) {
-      renderer_view.el.remove()
-    }
-
-    for (const renderer_view of this.renderer_views.values()) {
-      const is_new = created_renderers.has(renderer_view)
-
-      const target = renderer_view.rendering_target()
+    // Since appending to a DOM node will move the node to the end if it has
+    // already been added appending all the children in order will result in
+    // correct ordering.
+    for (const view of this.renderer_views.values()) {
+      const is_new = created_views.has(view)
+      const target = view.rendering_target() ?? this.self_target
       if (is_new) {
-        renderer_view.render_to(target)
+        view.render_to(target)
       } else {
-        target.append(renderer_view.el)
+        target.append(view.el)
       }
     }
+
     this.r_after_render()
   }
 
@@ -1079,7 +1075,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     super.render()
 
     for (const renderer_view of this.computed_renderer_views) {
-      const target = renderer_view.rendering_target()
+      const target = renderer_view.rendering_target() ?? this.self_target
       renderer_view.render_to(target)
     }
   }

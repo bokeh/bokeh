@@ -154,18 +154,18 @@ export abstract class LayoutDOMView extends PaneView {
 
   async update_children(): Promise<void> {
     const created = await this.build_child_views()
-    const created_children = new Set(created)
+    const created_views = new Set(created)
 
     // Since appending to a DOM node will move the node to the end if it has
     // already been added appending all the children in order will result in
-    // correct ordering
-    for (const child_view of this.child_views) {
-      const is_new = created_children.has(child_view)
-      const target = child_view.rendering_target() ?? this.shadow_el
+    // correct ordering.
+    for (const view of this.child_views) {
+      const is_new = created_views.has(view)
+      const target = view.rendering_target() ?? this.self_target
       if (is_new) {
-        child_view.render_to(target)
+        view.render_to(target)
       } else {
-        target.append(child_view.el)
+        target.append(view.el)
       }
     }
 

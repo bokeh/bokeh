@@ -66,25 +66,21 @@ export abstract class CompositeRendererView extends RendererView {
 
   protected async _update_elements(): Promise<void> {
     const {created} = await this._build_elements()
-    const created_elements = new Set(created)
+    const created_views = new Set(created)
 
-    // First remove and then either reattach existing elements or render and
-    // attach new elements, so that the order of children is consistent, while
-    // avoiding expensive re-rendering of existing views.
-    for (const element_view of this.element_views) {
-      element_view.el.remove()
-    }
-
-    for (const element_view of this.element_views) {
-      const is_new = created_elements.has(element_view)
-
-      const target = element_view.rendering_target() ?? this.shadow_el
+    // Since appending to a DOM node will move the node to the end if it has
+    // already been added appending all the children in order will result in
+    // correct ordering.
+    for (const view of this.element_views) {
+      const is_new = created_views.has(view)
+      const target = view.rendering_target() ?? this.shadow_el
       if (is_new) {
-        element_view.render_to(target)
+        view.render_to(target)
       } else {
-        target.append(element_view.el)
+        target.append(view.el)
       }
     }
+
     this.r_after_render()
   }
 
