@@ -251,6 +251,8 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_node(bokehjs_content, html=bokehjs_content.html)
     app.add_directive("bokehjs-content", BokehJSContent)
+    # add jquery from CDN to activate working links to code pen online editor, see GitHub issue #14468
+    app.add_js_file("https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js")
 
     return PARALLEL_SAFE
 
