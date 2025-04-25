@@ -3903,24 +3903,19 @@ describe("Bug", () => {
   })
 
   describe("in issue #13771", () => {
+    const old_use_map = Figure.prototype.use_map
+
+    before_each(() => {
+      // @ts-ignore TS2540: Cannot assign to 'use_map' because it is a read-only property.
+      Figure.prototype.use_map = true
+    })
+
+    after_each(() => {
+      // @ts-ignore TS2540: Cannot assign to 'use_map' because it is a read-only property.
+      Figure.prototype.use_map = old_use_map
+    })
+
     it("doesn't allow to correctly maintain projections in secondary glyphs", async () => {
-      class MapFigureView extends FigureView {
-        declare model: MapFigure
-      }
-      class MapFigure extends Figure {
-        declare __view_type__: MapFigureView
-
-        constructor(attrs?: Partial<Figure.Attrs>) {
-          super(attrs)
-          this.maybe_initialize(MapFigure.__name__, attrs)
-        }
-
-        override use_map = true
-        static {
-          this.prototype.default_view = MapFigureView
-        }
-      }
-
       const xf = new MercatorTickFormatter({dimension: "lon"})
       const xt = new MercatorTicker({dimension: "lon"})
       const xa = new LinearAxis({formatter: xf, ticker: xt, axis_label: "Longitude"})
@@ -3929,7 +3924,7 @@ describe("Bug", () => {
       const yt = new MercatorTicker({dimension: "lat"})
       const ya = new LinearAxis({formatter: yf, ticker: yt, axis_label: "Latitude"})
 
-      const plot = new MapFigure({
+      const plot = new Figure({
         x_axis_type: null,
         y_axis_type: null,
         below: [xa],
