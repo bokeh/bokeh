@@ -1,6 +1,6 @@
 <div id="codepen-html">
 <!--
-{%- include 'bokehjs_html_template.html' -%}
+{%- include 'bokehjs_html_template.html' %}
 -->
 </div>
 {% for css_file in css_files %}
@@ -23,7 +23,7 @@
       if (form === null) { return; }
 
       const data = {
-        title: el.dataset["data-codepen-title"],
+        title: el.getAttribute("data-codepen-title"),
         description: "",
         html: HTML,
         html_pre_processor: "none",
