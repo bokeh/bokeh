@@ -794,7 +794,7 @@ describe("Bug", () => {
         Banana: random.floats(N),
       }})
 
-      const choices = new MultiChoice({options: columns})
+      const choices = new MultiChoice({options: columns, width: 196})
       const button = new Button({label: "A button"})
       const table = new DataTable({
         width: 300,
@@ -816,7 +816,7 @@ describe("Bug", () => {
     it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
       const columns = ["Apple", "Pear", "Banana"]
 
-      const choices = new MultiChoice({options: columns})
+      const choices = new MultiChoice({options: columns, width: 196})
       const button = new Button({label: "A button"})
 
       const layout = column([choices, button])
@@ -3046,7 +3046,7 @@ describe("Bug", () => {
       view.choice_el.input.isFocussed = true // Can't focus in headless.
 
       const init = {key: "B", code: "KeyB", keyCode: 66, shiftKey: true, bubbles: true, composed: true}
-      input_el.dispatchEvent(new KeyboardEvent("keyup", init))
+      input_el.dispatchEvent(new KeyboardEvent("keydown", init))
       await paint()
     })
   })

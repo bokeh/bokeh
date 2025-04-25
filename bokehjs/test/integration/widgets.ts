@@ -327,12 +327,12 @@ describe("Widgets", () => {
   })
 
   it.allowing(8)("should allow MultiChoice", async () => {
-    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3"]})
+    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3"], width: 196})
     await display(obj, [500, 100])
   })
 
   it.allowing(8)("should allow MultiChoice with empty value", async () => {
-    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"]})
+    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], width: 196})
     await display(obj, [500, 100])
   })
 
