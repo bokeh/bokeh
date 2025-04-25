@@ -794,7 +794,7 @@ describe("Bug", () => {
         Banana: random.floats(N),
       }})
 
-      const choices = new MultiChoice({options: columns, width: 196})
+      const choices = new MultiChoice({options: columns, width: 206})
       const button = new Button({label: "A button"})
       const table = new DataTable({
         width: 300,
@@ -816,7 +816,7 @@ describe("Bug", () => {
     it.allowing(16)("prevents showing MultiChoice's dropdown menu over subsequent roots", async () => {
       const columns = ["Apple", "Pear", "Banana"]
 
-      const choices = new MultiChoice({options: columns, width: 196})
+      const choices = new MultiChoice({options: columns, width: 206})
       const button = new Button({label: "A button"})
 
       const layout = column([choices, button])
