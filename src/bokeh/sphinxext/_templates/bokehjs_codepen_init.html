@@ -13,21 +13,6 @@
 
 
 <script>
-  (function () {
-
-    // this monkey patches Plotting.show to insert the plot below
-    // the script block
-
-    const originalPltShow = Bokeh.Plotting.show;
-    const newPlotShow = function(layoutDomObj, target) {
-      if(typeof target === "undefined"){
-        target = document.currentScript.parentElement;
-      }
-      return originalPltShow(layoutDomObj, target);
-    };
-    Bokeh.Plotting.show = newPlotShow;
-  })()
-
   document.addEventListener("DOMContentLoaded", () => {
     let HTML = ""
     const html_el = document.getElementById("codepen-html")
