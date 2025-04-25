@@ -17,8 +17,7 @@
     let HTML = ""
     const html_el = document.getElementById("codepen-html")
     for (const child_el of html_el.childNodes) {
-      // nodeType == 8 is the special number for comment nodes
-      if (child_el.nodeType == 8) {
+      if (child_el.nodeType === Node.COMMENT_NODE) {
         HTML = child_el.textContent
       }
     }
