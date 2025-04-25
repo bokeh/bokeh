@@ -3178,36 +3178,32 @@ describe("Bug", () => {
   })
 
   describe("in issue #13104", () => {
+    // Hot-swap the FigureView class to use a slower lazy_initialize
+    class CustomFigureView extends FigureView {
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        await delay(5)
+      }
+    }
+
+    const old_default_view = Figure.prototype.default_view
+
+    before_each(() => {
+      Figure.prototype.default_view = CustomFigureView
+    })
+
+    after_each(() => {
+      Figure.prototype.default_view = old_default_view
+    })
+
     it("results in a race condition in the layout if lazy_initialize() takes time", async () => {
-      class CustomFigureView extends FigureView {
-        declare model: CustomFigure
-
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
-          await delay(5)
-        }
-      }
-
-      class CustomFigure extends Figure {
-        declare __view_type__: CustomFigureView
-
-        constructor(attrs?: Partial<Figure.Attrs>) {
-          super(attrs)
-          this.maybe_initialize(CustomFigure.__name__, attrs)
-        }
-
-        static {
-          this.prototype.default_view = CustomFigureView
-        }
-      }
-
-      const p00 = new CustomFigure()
+      const p00 = new Figure()
       p00.scatter([1, 2, 3], [1, 2, 3], {fill_color: "red"})
-      const p01 = new CustomFigure()
+      const p01 = new Figure()
       p01.scatter([1, 2, 3], [1, 2, 3], {fill_color: "green"})
-      const p10 = new CustomFigure()
+      const p10 = new Figure()
       p10.scatter([1, 2, 3], [1, 2, 3], {fill_color: "blue"})
-      const p11 = new CustomFigure()
+      const p11 = new Figure()
       p11.scatter([1, 2, 3], [1, 2, 3], {fill_color: "yellow"})
 
       const gp = new GridBox({
