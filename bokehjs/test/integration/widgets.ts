@@ -327,7 +327,7 @@ describe("Widgets", () => {
   })
 
   it.allowing(8)("should allow MultiChoice", async () => {
-    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3"], width: 206})
+    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3"], width: 387})
     await display(obj, [500, 100])
   })
 
