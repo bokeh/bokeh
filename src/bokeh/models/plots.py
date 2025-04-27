@@ -908,6 +908,10 @@ class Plot(LayoutDOM):
         This feature is experimental and may change in the short term.
     """)
 
+    selectable_text = Bool(default=True, help="""
+    Allows to toggle whether text can be selected on the canvas.
+    """)
+
     context_menu = Override(default="auto")
 
 class GridPlot(LayoutDOM, GridCommon):

@@ -100,6 +100,8 @@ export namespace Plot {
     hold_render: p.Property<boolean>
 
     attribution: p.Property<(string | HTML)[]>
+
+    selectable_text: p.Property<boolean>
   } & Mixins
 
   export type Mixins =
@@ -208,6 +210,8 @@ export class Plot extends LayoutDOM {
       hold_render:       [ Bool, false ],
 
       attribution:       [ List(Or(Str, Ref(HTML))), [] ],
+
+      selectable_text:   [ Bool, true ],
     }))
 
     this.override<Plot.Props>({

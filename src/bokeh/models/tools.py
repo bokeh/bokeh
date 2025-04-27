@@ -152,6 +152,7 @@ __all__ = (
     'ExamineTool',
     'Tap',
     'TapTool',
+    'ToggleTextSelectionTool',
     'Tool',
     'ToolMenu',
     'ToolProxy',
@@ -2130,6 +2131,13 @@ class LineEditTool(EditTool, Drag, Tap):
     plot, or vertical across the height of the plot.
     """)
 
+class ToggleTextSelectionTool(PlotActionTool):
+    """ Allows to toggle whether text can be selected on plot canvas. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -2201,3 +2209,4 @@ Tool.register_alias("hover", lambda: HoverTool(tooltips=[
     ("data (x, y)", "($x, $y)"),
     ("screen (x, y)", "($sx, $sy)"),
 ]))
+Tool.register_alias("toggle_text_selection", lambda: ToggleTextSelectionTool())

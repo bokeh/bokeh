@@ -1038,6 +1038,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
         }
       })
     }
+
+    const {selectable_text} = this.model.properties
+    this.on_change(selectable_text, () => {
+      this.el.style.setProperty("--plot-selectable-text", this.model.selectable_text ? "auto" : "none")
+    })
   }
 
   protected _update_touch_action(): void {

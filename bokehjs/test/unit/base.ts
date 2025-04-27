@@ -374,6 +374,7 @@ describe("default model resolver", () => {
       "TimedeltaTicker",
       "Title",
       "Toggle",
+      "ToggleTextSelectionTool",
       "ToggleVisibility",
       "Tool",
       "ToolButton",

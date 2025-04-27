@@ -323,6 +323,7 @@ describe("enums module", () => {
       "text_align_center",
       "text_align_left",
       "text_align_right",
+      "text_cursor",
       "undo",
       "unknown",
       "unpin",
