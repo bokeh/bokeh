@@ -126,7 +126,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return this._toolbar != null ? this.views.find_one(this._toolbar) : null
   }
 
-  protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
   protected _invalidated_painters: Set<RendererView> = new Set()
@@ -1090,9 +1089,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.unpause(true)
     }
 
-    if (!this._outer_bbox.equals(this.bbox)) {
-      this.canvas_view.resize() // XXX temporary hack
-      this._outer_bbox = this.bbox
+    if (this.canvas_view.update_bbox()) {
       this._invalidate_all = true
       this._needs_paint = true
     }

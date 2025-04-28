@@ -472,6 +472,7 @@ export abstract class LayoutDOMView extends PaneView {
 
   invalidate_render(): void {
     this.render()
+    this.r_after_render()
     this.invalidate_layout()
   }
 
