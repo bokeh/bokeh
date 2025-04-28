@@ -30,7 +30,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Literal, assert_type
+from typing import Literal
+
+# External imports
+from typing_extensions import assert_type  # for Python 3.10
 
 # Bokeh imports
 from bokeh.models.annotations import LegendItem
