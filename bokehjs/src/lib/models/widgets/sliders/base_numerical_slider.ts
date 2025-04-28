@@ -1,6 +1,6 @@
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 import {TickFormatter} from "../../formatters/tick_formatter"
-import type * as p from "core/properties"
+import * as p from "core/properties"
 
 export abstract class BaseNumericalSliderView extends AbstractSliderView<number> {
   declare model: BaseNumericalSlider
@@ -41,11 +41,24 @@ export abstract class BaseNumericalSlider extends AbstractSlider<number> {
     super(attrs)
   }
 
+  abstract _enforce_value_gte_start(start: number): void
+  abstract _enforce_value_lte_end(end: number): void
+
   static {
     this.define<BaseNumericalSlider.Props>(({Float, Str, Or, Ref}) => {
+      const convert_start = (value: number, obj: BaseNumericalSlider): number => {
+        obj._enforce_value_gte_start(value)
+        return value
+      }
+
+      const convert_end = (value: number, obj: BaseNumericalSlider): number => {
+        obj._enforce_value_lte_end(value)
+        return value
+      }
+
       return {
-        start:  [ Float ],
-        end:    [ Float ],
+        start:  [ Float, p.unset, {convert: convert_start}],
+        end:    [ Float, p.unset, {convert: convert_end}],
         step:   [ Float, 1 ],
         format: [ Or(Str, Ref(TickFormatter)) ],
       }
