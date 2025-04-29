@@ -42,7 +42,7 @@ import {
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker, RangeSlider,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -5154,6 +5154,20 @@ describe("Bug", () => {
 
       const table = new DataTable({source, columns, width: 300, height: 400})
       await display(table, [350, 450])
+    })
+  })
+
+  describe("in issue #14388", () => {
+    it("values is outside range bounds when end is changed", async () => {
+      const slider = new RangeSlider({start: 0, end: 10, step: 1, value: [4, 8]})
+
+      const {view} = await display(slider, [500, 100])
+      slider.start = 5
+      slider.end = 7
+
+      await view.ready
+
+      expect(slider.value).to.be.equal([5, 7])
     })
   })
 })

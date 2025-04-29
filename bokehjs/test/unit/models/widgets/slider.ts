@@ -47,6 +47,13 @@ describe("RangeSlider", () => {
     const view = await build_view(slider, {parent: null})
     expect(view.pretty(-104000)).to.be.equal("-104k")
   })
+
+  it("should keep value inside range bounds upon range adjustments", async () => {
+    const slider = new RangeSlider({start: 0, end: 10, step: 1, value: [4, 8]})
+    slider.start = 5
+    slider.end = 7
+    expect(slider.value).to.be.equal([5, 7])
+  })
 })
 
 describe("DateSliderView", () => {
