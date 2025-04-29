@@ -24,8 +24,19 @@ export const DEFAULT_FORMATTERS: {[key in BuiltinFormatter]: FormatterFunc} = {
   raw:      (value: unknown, _format: string, _special_vars: Vars) => to_string(value),
   basic:    (value: unknown,  format: string,  special_vars: Vars) => basic_formatter(value, format, special_vars),
   numeral:  (value: unknown,  format: string, _special_vars: Vars) => Numbro.format(value, format),
-  datetime: (value: unknown,  format: string, _special_vars: Vars) => tz(value, format),
+  datetime: (value: unknown,  format: string, _special_vars: Vars) => datetime(value, format),
   printf:   (value: unknown,  format: string, _special_vars: Vars) => sprintf(format, value),
+}
+
+/**
+ * Format finite numbers as dates or return NaN.
+ */
+export function datetime(value: unknown, format?: string): string {
+  if (isNumber(value) && isFinite(value)) {
+    return tz(value, format)
+  } else {
+    return "NaN"
+  }
 }
 
 export function sprintf(format: string, ...args: unknown[]): string {

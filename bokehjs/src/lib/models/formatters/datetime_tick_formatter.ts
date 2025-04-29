@@ -1,12 +1,11 @@
 import {ContextWhich, Location, ResolutionType} from "core/enums"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
-import {sprintf} from "core/util/templating"
+import {datetime, sprintf} from "core/util/templating"
 import {isString, isArray, isBoolean, is_undefined} from "core/util/types"
 import type {Arrayable} from "core/types"
 import {TickFormatter} from "models/formatters/tick_formatter"
 import {ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR} from "models/tickers/util"
-import tz from "timezone"
 
 export type {ResolutionType} from "core/enums"
 
@@ -74,7 +73,7 @@ export function _get_resolution(resolution_secs: number, span_secs: number): Res
 }
 
 export function _mktime(t: number): number[] {
-  return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(e => parseInt(e, 10))
+  return datetime(t, "%Y %m %d %H %M %S").split(/\s+/).map(e => parseInt(e, 10))
 }
 
 export function _strftime(t: number, format: string): string {
@@ -92,7 +91,7 @@ export function _strftime(t: number, format: string): string {
     return format
   }
 
-  return tz(t, format)
+  return datetime(t, format)
 }
 
 export function _us(t: number): number {

@@ -22,6 +22,11 @@ describe("templating module", () => {
     it("should have a datetime formatter", () => {
       const f = tmpl.DEFAULT_FORMATTERS.datetime
       expect(f(946684800000, "%m/%d/%Y", {})).to.be.equal("01/01/2000")
+
+      expect(f(NaN, "%m/%d/%Y", {})).to.be.equal("NaN")
+      expect(f(Infinity, "%m/%d/%Y", {})).to.be.equal("NaN")
+      expect(f(-Infinity, "%m/%d/%Y", {})).to.be.equal("NaN")
+      expect(f(null, "%m/%d/%Y", {})).to.be.equal("NaN")
     })
 
     it("should have a printf formatter", () => {
