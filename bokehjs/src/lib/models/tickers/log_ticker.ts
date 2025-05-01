@@ -68,16 +68,17 @@ export class LogTicker extends AdaptiveTicker {
       const endlog = Math.floor(log_high * (1.0+sign_log_high*d))
       const interval = Math.ceil((endlog - startlog) / 9.0)
 
-      ticks = range(startlog-1, endlog+1, interval)
-        .map((i) => base**i)
+      let tick_options = range(startlog-1, endlog+1, 1).map((i) => base**i)
+      tick_options = tick_options.filter((tick) => data_low <= tick && tick <= data_high)
+      ticks = tick_options.filter((_, i) => i % interval === 0)
 
       if (num_minor_ticks > 0 && ticks.length > 0) {
         const minor_interval = base**interval / num_minor_ticks
         const minor_offsets = range(1, num_minor_ticks+1).map((i) => i*minor_interval)
+        const max_offset = Math.max(...minor_offsets)
         for (const x of minor_offsets) {
-          minor_ticks.push(ticks[0] / x)
+          minor_ticks.push(ticks[0] * (x/max_offset))
         }
-        minor_ticks.push(ticks[0])
         for (const tick of ticks) {
           for (const x of minor_offsets) {
             minor_ticks.push(tick * x)
