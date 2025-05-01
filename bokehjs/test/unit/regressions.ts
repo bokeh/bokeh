@@ -1891,4 +1891,11 @@ describe("Bug", () => {
       expect(sv2.parent_style.css).to.be.equal(css)
     })
   })
+
+  describe("in issue #14352", () => {
+    it("doesn't calculate log ranges below 1", async () => {
+      const p = fig([200, 200], {x_axis_type: "log", x_range: [1e-8, 1e-6]})
+      await display(p)
+    })
+  })
 })

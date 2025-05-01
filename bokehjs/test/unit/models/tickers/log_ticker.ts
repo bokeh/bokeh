@@ -74,5 +74,19 @@ describe("LogTicker Model", () => {
       expect(ticks.major).to.be.equal([1e1, 1e2, 1e3])
       expect(ticks.minor).to.be.equal([2, 4, 6, 8, 10, 20, 40, 60, 80, 100, 200, 400, 600, 800, 1000])
     })
+
+    // range below 1
+
+    it("should have correct default ticks for (1e-8, 1e-6) range", () => {
+      const ticker = new LogTicker()
+      const ticks = ticker.get_ticks_no_defaults(1e-8, 1e-6, NaN, 4)
+      expect(ticks.major).to.be.equal([1e-8, 1e-7, 1e-6])
+    })
+
+    it("should have correct default ticks for (9e-3, 1e2) range", () => {
+      const ticker = new LogTicker()
+      const ticks = ticker.get_ticks_no_defaults(9e-3, 1e2, NaN, 4)
+      expect(ticks.major).to.be.equal([1e-2, 1e-1, 1e0, 1e1, 1e2])
+    })
   })
 })
