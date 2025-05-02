@@ -29,6 +29,24 @@ export class StepView extends XYGlyphView {
       return
     }
 
+    let indices_consecutive: number[] = []
+
+    for (let i=0; i < indices.length; i++) {
+      if (i == 0) {
+        indices_consecutive.push(indices[i])
+      } else if ((indices[i]-1) != indices[i-1]) {
+        this._paint_consecutive(ctx, indices_consecutive, data)
+        indices_consecutive = [indices[i]]
+      } else {
+        indices_consecutive.push(indices[i])
+        if (i+1 == indices.length) {
+          this._paint_consecutive(ctx, indices_consecutive, data)
+        }
+      }
+    }
+  }
+
+  protected _paint_consecutive(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     const {sx, sy} = {...this, ...data}
     const mode = this.model.mode
 
@@ -43,7 +61,7 @@ export class StepView extends XYGlyphView {
     }
 
     for (const i of indices) {
-      const next_finite = isFinite(sx[i+1] + sy[i+1])
+      const next_finite = isFinite(sx[i+1] + sy[i+1]) && indices.includes(i+1)
       switch (mode) {
         case "before":
           drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
@@ -76,7 +94,7 @@ export class StepView extends XYGlyphView {
       is_finite = next_finite
     }
     if (drawing) {
-      const i = indices[npoints-1]
+      const i = indices[indices.length-1]
       if (this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])) {
         ctx.stroke()
       }
