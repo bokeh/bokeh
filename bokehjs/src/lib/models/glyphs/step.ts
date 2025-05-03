@@ -31,7 +31,7 @@ export class StepView extends XYGlyphView {
 
     let indices_consecutive: number[] = []
 
-    for (let i=0; i < indices.length; i++) {
+    for (let i = 0; i < indices.length; i++) {
       if (i == 0) {
         indices_consecutive.push(indices[i])
       } else if ((indices[i]-1) != indices[i-1]) {
