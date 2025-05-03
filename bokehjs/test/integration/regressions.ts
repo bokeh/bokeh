@@ -4549,4 +4549,29 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #12430", () => {
+    it("doesn't correctly show selected indices of Step glyph", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x0: [0, 1, 2, 3, 4, 5, 6],
+          x1: [0, 1, 2, 3, 4, 5, 6],
+          x2: [0, 1, 2, 3.25, 4, 5, 6],
+          y0: [0.2, 1.2, 1.5, 2.0, 1.5, 1.0, 0.0],
+          y1: [0.1, 1.1, 1.4, 1.9, 1.6, 1.1, 0.1],
+          y2: [0.0, 1.0, 1.3, 1.8, 1.7, 1.2, 0.2],
+        },
+      })
+
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {output_backend, title: output_backend})
+        p.step({x: {field: "x0"}, y: {field: "y0"}, source, line_width: 5, line_cap: "round", mode: "before", line_color: "red"})
+        p.step({x: {field: "x1"}, y: {field: "y1"}, source, line_width: 5, line_cap: "round", mode: "center", line_color: "green"})
+        p.step({x: {field: "x2"}, y: {field: "y2"}, source, line_width: 5, line_cap: "round", mode: "after", line_color: "blue"})
+        return p
+      }
+      source.selected.indices = [0, 1, 5, 6]
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+  })
 })
