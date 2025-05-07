@@ -975,11 +975,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
 
     const {above, below, left, right, center, renderers} = this.model.properties
-    const panels = [above, below, left, right, center]
-    this.on_change(renderers, async () => {
-      await this._update_renderers()
-    })
-    this.on_change(panels, async () => {
+    this.on_change([above, below, left, right, center, renderers], async () => {
       await this._update_renderers()
       this.invalidate_layout()
     })
