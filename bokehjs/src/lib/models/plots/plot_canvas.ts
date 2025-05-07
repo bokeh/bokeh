@@ -69,6 +69,18 @@ import * as attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
+type Panels = (Axis | Annotation | Annotation[])[]
+type LayoutPanels = {
+  outer_above: Panels
+  outer_below: Panels
+  outer_left: Panels
+  outer_right: Panels
+  inner_above: Panels
+  inner_below: Panels
+  inner_left: Panels
+  inner_right: Panels
+}
+
 export class PlotView extends LayoutDOMView implements Paintable {
   declare model: Plot
   visuals: Plot.Visuals
@@ -442,34 +454,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return {inner: this.model.flow_mode, outer: "grid"}
   }
 
-  override _update_layout(): void {
-    super._update_layout()
-
-    // TODO: invalidating all should imply "needs paint"
-    this._invalidate_all = true
-    this._needs_paint = true
-
-    const layout = new BorderLayout()
-
-    const {frame_align} = this.model
-    layout.aligns = (() => {
-      if (isBoolean(frame_align)) {
-        return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
-      } else {
-        const {left=true, right=true, top=true, bottom=true} = frame_align
-        return {left, right, top, bottom}
-      }
-    })()
-
-    layout.set_sizing({width_policy: "max", height_policy: "max"})
-
-    if (this.visuals.outline_line.doit) {
-      const width = this.visuals.outline_line.line_width.get_value()
-      layout.center_border_width = width
-    }
-
-    type Panels = (Axis | Annotation | Annotation[])[]
-
+  private _compute_layout_panels(): LayoutPanels {
     const outer_above: Panels = copy(this.model.above)
     const outer_below: Panels = copy(this.model.below)
     const outer_left:  Panels = copy(this.model.left)
@@ -523,6 +508,44 @@ export class PlotView extends LayoutDOMView implements Paintable {
         const panels = get_side(location, true)
         panels.push(this._toolbar)
       }
+    }
+
+    return {
+      outer_above,
+      outer_below,
+      outer_left,
+      outer_right,
+      inner_above,
+      inner_below,
+      inner_left,
+      inner_right,
+    }
+  }
+
+  override _update_layout(): void {
+    super._update_layout()
+
+    // TODO: invalidating all should imply "needs paint"
+    this._invalidate_all = true
+    this._needs_paint = true
+
+    const layout = new BorderLayout()
+
+    const {frame_align} = this.model
+    layout.aligns = (() => {
+      if (isBoolean(frame_align)) {
+        return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
+      } else {
+        const {left=true, right=true, top=true, bottom=true} = frame_align
+        return {left, right, top, bottom}
+      }
+    })()
+
+    layout.set_sizing({width_policy: "max", height_policy: "max"})
+
+    if (this.visuals.outline_line.doit) {
+      const width = this.visuals.outline_line.line_width.get_value()
+      layout.center_border_width = width
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
@@ -626,6 +649,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
     bottom_panel.on_resize((bbox) => this.bottom_panel.set_geometry(bbox))
     left_panel.on_resize((bbox) => this.left_panel.set_geometry(bbox))
     right_panel.on_resize((bbox) => this.right_panel.set_geometry(bbox))
+
+    const {
+      outer_above,
+      outer_below,
+      outer_left,
+      outer_right,
+      inner_above,
+      inner_below,
+      inner_left,
+      inner_right,
+    } = this._compute_layout_panels()
 
     top_panel.children    = reversed(set_layouts("above", outer_above))
     bottom_panel.children =          set_layouts("below", outer_below)
