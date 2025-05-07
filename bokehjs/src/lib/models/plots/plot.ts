@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import type {Place} from "core/enums"
 import {Location, OutputBackend, ResetPolicy, WindowAxis} from "core/enums"
-import {concat, remove_by} from "core/util/array"
+import {concat, remove} from "core/util/array"
 import {difference} from "core/util/set"
 import {isString} from "core/util/types"
 import type {LRTB} from "core/util/bbox"
@@ -221,21 +221,18 @@ export class Plot extends LayoutDOM {
   }
 
   add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
+    this.remove_layout(renderer)
+
     const renderers = this.properties[side].get_value()
     this.setv({[side]: [...renderers, renderer]})
   }
 
   remove_layout(renderer: Annotation | GuideRenderer): void {
-
-    const del = (items: (Annotation | GuideRenderer)[]): void => {
-      remove_by(items, (item) => item == renderer)
-    }
-
-    del(this.left)
-    del(this.right)
-    del(this.above)
-    del(this.below)
-    del(this.center)
+    remove(this.left, renderer)
+    remove(this.right, renderer)
+    remove(this.above, renderer)
+    remove(this.below, renderer)
+    remove(this.center, renderer)
   }
 
   get data_renderers(): DataRenderer[] {

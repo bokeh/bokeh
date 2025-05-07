@@ -285,7 +285,12 @@ class Plot(LayoutDOM):
         self.toolbar.tools = tools
 
     def add_layout(self, obj: Renderer, place: PlaceType = "center") -> None:
-        ''' Adds an object to the plot in a specified place.
+        ''' Adds an object to the plot in the specified place.
+
+        If the renderer is already a part of a plot, this operation will move
+        it to the new location. If you need finer control than this, you can
+        manipulate ``left``, ``right``, ``above``, ``below`` or ``center``
+        Plot's properties manually.
 
         Args:
             obj (Renderer) : the object to add to the Plot
@@ -300,6 +305,11 @@ class Plot(LayoutDOM):
             raise ValueError(
                 f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}",
             )
+
+        for name in Place:
+            panel = getattr(self, name)
+            while obj in panel:
+                panel.remove(obj)
 
         getattr(self, place).append(obj)
 

@@ -33,6 +33,7 @@ from bokeh.models import (
     DataRange1d,
     FactorRange,
     GlyphRenderer,
+    Grid,
     Label,
     LinearAxis,
     LinearScale,
@@ -271,6 +272,45 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers() -> None:
     plot.add_layout(axis, 'left')
     assert axis in plot.left
 
+
+def test_plot_add_layout_moves_an_existing_renderer() -> None:
+    plot = figure()
+    axis = LinearAxis()
+
+    plot.add_layout(axis, 'left')
+    assert axis in plot.left
+    assert axis not in plot.right
+    assert axis not in plot.above
+    assert axis not in plot.below
+    assert axis not in plot.center
+
+    plot.add_layout(axis, 'above')
+    assert axis not in plot.left
+    assert axis not in plot.right
+    assert axis in plot.above
+    assert axis not in plot.below
+    assert axis not in plot.center
+
+def test_plot_add_layout_moves_an_existing_renderer_added_manually() -> None:
+    plot = figure()
+    axis = LinearAxis()
+    grid = Grid()
+
+    plot.left = [axis, grid, axis]
+    assert grid in plot.left
+    assert axis in plot.left
+    assert axis not in plot.right
+    assert axis not in plot.above
+    assert axis not in plot.below
+    assert axis not in plot.center
+
+    plot.add_layout(axis, 'above')
+    assert grid in plot.left
+    assert axis not in plot.left
+    assert axis not in plot.right
+    assert axis in plot.above
+    assert axis not in plot.below
+    assert axis not in plot.center
 
 def test_sizing_mode_property_is_fixed_by_default() -> None:
     plot = figure()
