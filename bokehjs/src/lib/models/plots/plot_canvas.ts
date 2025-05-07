@@ -666,13 +666,29 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.layout = layout
 
+    const wrapper = (flex_direction: "row" | "column", children: Element[]) => {
+      return div({
+        style: {
+          display: "flex",
+          flex_direction,
+          width: "100%",
+          height: "100%",
+        },
+      }, children)
+    }
+
     const process = (panels: Panels, dim: "x" | "y") => {
       return panels.map((obj) => {
         if (isArray(obj)) {
-          const els = this.views.select(obj).map((view) => view.el)
+          const els = this.views.select(obj).map((view) => {
+            const {el} = view
+            // allow to shrink toolbars, but keep everything else content sized
+            el.style.flex = view.model instanceof ToolbarPanel ? "1" : "none"
+            return el
+          })
           switch (dim) {
-            case "x": return div({style: {display: "flex", flex_direction: "row", width: "100%"}}, els)
-            case "y": return div({style: {display: "flex", flex_direction: "column", height: "100%"}}, els)
+            case "x": return wrapper("row", els)
+            case "y": return wrapper("column", els)
           }
         } else {
           return this.views.get_one(obj).el

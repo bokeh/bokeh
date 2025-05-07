@@ -64,14 +64,27 @@ export class ToolbarPanelView extends AnnotationView {
     this.toolbar_view.render_to(this.shadow_el)
   }
 
+  private get is_horizontal(): boolean {
+    return this.toolbar_view.model.horizontal
+  }
+
   protected _paint(): void {
     const {style} = this.toolbar_view.el
-    if (this.toolbar_view.model.horizontal) {
+    if (this.is_horizontal) {
       style.width = "100%"
       style.height = "unset"
     } else {
       style.width = "unset"
       style.height = "100%"
+    }
+
+    // allow shrinking past content size in flex layouts
+    if (this.is_horizontal) {
+      this.el.style.minWidth = "0"
+      this.el.style.minHeight = "unset"
+    } else {
+      this.el.style.minWidth = "unset"
+      this.el.style.minHeight = "0"
     }
   }
 
