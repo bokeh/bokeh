@@ -4469,7 +4469,7 @@ describe("Bug", () => {
 
   describe("in issue #14451", () => {
     describe("doesn't allow to correctly position Legend annotation in side panel", () => {
-      function make(location: Location) {
+      function make(location: Location, options?: {multiple: boolean}) {
         const x = np.linspace(0, 4*np.pi, 50)
         const y = np.sin(x)
 
@@ -4495,6 +4495,18 @@ describe("Bug", () => {
         })
         p.add_layout(legend, location)
 
+        if (options?.multiple ?? false) {
+          const legend = new Legend({
+            items: [
+              new LegendItem({label: "sin(x)", renderers: [r0, r1]}),
+            ],
+            location: "center",
+            margin: 0,
+            click_policy: "mute",
+          })
+          p.add_layout(legend, location)
+        }
+
         return p
       }
       it("above", async () => {
@@ -4509,6 +4521,32 @@ describe("Bug", () => {
       it("right", async () => {
         await display(make("right"), [450, 450])
       })
+
+      it("above with multiple legends", async () => {
+        await display(make("above", {multiple: true}), [500, 500])
+      })
+      it("below with multiple legends", async () => {
+        await display(make("below", {multiple: true}), [500, 500])
+      })
+      it("left with multiple legends", async () => {
+        await display(make("left", {multiple: true}), [500, 500])
+      })
+      it("right with multiple legends", async () => {
+        await display(make("right", {multiple: true}), [500, 500])
+      })
+    })
+
+    it("doesn't allow to keep toolbar visible if renderers change", async () => {
+      const p = fig([200, 200], {toolbar_location: "right"})
+      p.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
+
+      const {view} = await display(p)
+
+      p.scatter([1, 2, 3], [2, 3, 4], {color: "blue"})
+      await view.ready
+
+      p.scatter([1, 2, 3], [3, 4, 5], {color: "green"})
+      await view.ready
     })
   })
 })
