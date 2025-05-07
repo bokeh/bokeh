@@ -415,6 +415,7 @@ export class LegendView extends AnnotationView {
   override after_render(): void {
     super.after_render()
     this.update_position()
+    this.request_paint()   // paint glyphs
   }
 
   get location(): {x: HAlign | number, y: VAlign | number} {
