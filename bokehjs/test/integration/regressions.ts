@@ -4510,29 +4510,29 @@ describe("Bug", () => {
         return p
       }
       it("above", async () => {
-        await display(make("above"), [450, 450])
+        await display(make("above"), [350, 450])
       })
       it("below", async () => {
-        await display(make("below"), [450, 450])
+        await display(make("below"), [350, 450])
       })
       it("left", async () => {
-        await display(make("left"), [450, 450])
+        await display(make("left"), [450, 300])
       })
       it("right", async () => {
-        await display(make("right"), [450, 450])
+        await display(make("right"), [450, 300])
       })
 
       it("above with multiple legends", async () => {
-        await display(make("above", {multiple: true}), [500, 500])
+        await display(make("above", {multiple: true}), [350, 500])
       })
       it("below with multiple legends", async () => {
-        await display(make("below", {multiple: true}), [500, 500])
+        await display(make("below", {multiple: true}), [350, 500])
       })
       it("left with multiple legends", async () => {
-        await display(make("left", {multiple: true}), [500, 500])
+        await display(make("left", {multiple: true}), [500, 300])
       })
       it("right with multiple legends", async () => {
-        await display(make("right", {multiple: true}), [500, 500])
+        await display(make("right", {multiple: true}), [500, 300])
       })
     })
 
