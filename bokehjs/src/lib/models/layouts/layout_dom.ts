@@ -164,9 +164,9 @@ export abstract class LayoutDOMView extends PaneView {
     let matching_index = null
     for (let i = 0; i < current_views.length; i++) {
       if (current_views[i] === this.child_views[i]) {
-	matching_index = i
+        matching_index = i
       } else {
-	break
+        break
       }
     }
 
