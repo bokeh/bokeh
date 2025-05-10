@@ -299,7 +299,6 @@ export class HoverToolView extends InspectToolView {
   _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
     const selection_manager = renderer.get_selection_manager()
     const fullset_indices = selection_manager.inspectors.get(renderer)!
-    const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
     // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
     if (fullset_indices.is_empty() && fullset_indices.view == null) {
@@ -320,8 +319,9 @@ export class HoverToolView extends InspectToolView {
     const y = yscale.invert(sy)
 
     const {glyph} = renderer_view
+    const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
-    const tooltips: [number, number, Node | null][] = []
+    const collected: {ds: ColumnarDataSource, vars: TooltipVars}[] = []
 
     if (glyph instanceof PatchView) {
       const [snap_sx, snap_sy] = [sx, sy]
@@ -333,8 +333,7 @@ export class HoverToolView extends InspectToolView {
         x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
       }
-      const rendered = this._render_tooltips(ds, vars)
-      tooltips.push([snap_sx, snap_sy, rendered])
+      collected.push({ds, vars})
     } else if (glyph instanceof HAreaStepView ||
                glyph instanceof HAreaView ||
                glyph instanceof VAreaStepView ||
@@ -350,8 +349,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
+        collected.push({ds, vars})
       }
     } else if (glyph instanceof LineView) {
       const {line_policy} = this.model
@@ -394,8 +392,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
+        collected.push({ds, vars})
       }
     } else if (glyph instanceof ImageBaseView) {
       for (const image_index of fullset_indices.image_indices) {
@@ -409,8 +406,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           image_index,
         }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
+        collected.push({ds, vars})
       }
     } else {
       for (const i of subset_indices.indices) {
@@ -451,8 +447,7 @@ export class HoverToolView extends InspectToolView {
               indices: subset_indices.multiline_indices,
               segment_index: jj,
             }
-            const rendered = this._render_tooltips(ds, vars)
-            tooltips.push([snap_sx, snap_sy, rendered])
+            collected.push({ds, vars})
           }
         } else {
           // handle non-multiglyphs
@@ -485,29 +480,32 @@ export class HoverToolView extends InspectToolView {
             name: renderer.name,
             indices: subset_indices.indices,
           }
-          const rendered = this._render_tooltips(ds, vars)
-          tooltips.push([snap_sx, snap_sy, rendered])
+          collected.push({ds, vars})
         }
       }
     }
 
     const {bbox} = this.plot_view.frame
-    const in_frame = tooltips.filter(([sx, sy]) => bbox.contains(sx, sy))
+    const tooltips = collected
+      .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
+      .map(({ds, vars}) => ({html: this._render_tooltips(ds, vars), vars}))
+      .filter(({html}) => html != null)
 
-    if (in_frame.length == 0) {
+    if (tooltips.length == 0) {
       tooltip.clear()
     } else {
       const {content} = tooltip
       assert(content instanceof Node)
       empty(content)
-      for (const [,, node] of in_frame) {
-        if (node != null) {
-          content.appendChild(node)
+
+      for (const {html} of tooltips) {
+        if (html != null) {
+          content.appendChild(html)
         }
       }
 
-      const [x, y] = in_frame[in_frame.length-1]
-      tooltip.show({x, y})
+      const {vars} = tooltips.at(-1)!
+      tooltip.show({x: vars.snap_sx, y: vars.snap_sy})
     }
   }
 
