@@ -6,6 +6,7 @@ import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {px} from "core/dom"
 import type {Display, CSSStyles} from "core/css"
 import {isNumber, isArray} from "core/util/types"
+import {enumerate} from "core/util/iterator"
 import type * as p from "core/properties"
 
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -175,8 +176,7 @@ export abstract class LayoutDOMView extends PaneView {
     // Since appending to a DOM node will move the node to the end if it has
     // already been added appending all the children in order will result in
     // correct ordering.
-    for (let i = 0; i < this.child_views.length; i++) {
-      const view = this.child_views[i]
+    for (const [view, i] of enumerate(this.child_views)) {
       const is_new = created_views.has(view)
       const target = view.rendering_target() ?? this.self_target
       if (is_new) {
