@@ -504,6 +504,7 @@ export class HoverToolView extends InspectToolView {
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
       .map(({ds, vars}) => ({html: this._render_tooltips(ds, vars), vars}))
       .filter(({html}) => html != null)
+      .slice(0, this.model.limit ?? undefined)
 
     if (tooltips.length == 0) {
       tooltip.clear()
@@ -730,6 +731,7 @@ export namespace HoverTool {
     tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     filters: p.Property<Dict<CustomJS>>
+    limit: p.Property<number | null>
     renderers: p.Property<DataRenderer[] | "auto">
     mode: p.Property<HoverMode>
     muted_policy: p.Property<MutedPolicy>
@@ -755,7 +757,7 @@ export class HoverTool extends InspectTool {
   static {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>(({Any, Bool, Str, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
+    this.define<HoverTool.Props>(({Any, Bool, Int, Str, Positive, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
       tooltips: [ Nullable(Or(Ref(DOMElement), Str, List(Tuple(Str, Str)), Func<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
@@ -763,6 +765,7 @@ export class HoverTool extends InspectTool {
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
       filters:      [ Dict(Ref(CustomJS)), {} ],
+      limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],

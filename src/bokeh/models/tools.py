@@ -80,6 +80,7 @@ from ..core.properties import (
     Nullable,
     Override,
     Percent,
+    Positive,
     Required,
     Seq,
     String,
@@ -1631,6 +1632,12 @@ class HoverTool(InspectTool):
     """)
 
     filters = Dict(String, Instance(CustomJS), default={}, help="""
+    """)
+
+    limit = Nullable(Positive(Int), default=None, help="""
+    Limit the number the number of data points for which tooltips will be showed.
+
+    By default ``HoverTool`` will show tooltips for all hit data points.
     """)
 
     mode = Enum("mouse", "hline", "vline", help="""
