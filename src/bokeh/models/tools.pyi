@@ -42,7 +42,7 @@ from ..core.has_props import abstract
 from ..core.property_aliases import IconLikeType as IconLike
 from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation, Span
-from .callbacks import Callback
+from .callbacks import Callback, CustomJS
 from .dom import DOMElement
 from .glyphs import (
     HStrip,
@@ -354,6 +354,8 @@ class HoverTool(InspectTool):
     tooltips: None | DOMElement | str | list[tuple[str, str]] | dict[str, str] = ...
 
     formatters: dict[str, TooltipFieldFormatter | CustomJSHover] = ...
+
+    filters: dict[str, CustomJS] = ...
 
     mode: Literal["mouse", "hline", "vline"] = ...
 

@@ -6,16 +6,18 @@ import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geo
 import * as hittest from "core/hittest"
 import type * as p from "core/properties"
 import {Signal} from "core/signaling"
-import type {Arrayable, Color} from "core/types"
+import type {Arrayable, Color, Dict} from "core/types"
 import type {MoveEvent} from "core/ui_events"
 import {assert, unreachable} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
+import {entries} from "core/util/object"
 import type {CallbackLike1} from "core/util/callbacks"
-import {execute} from "core/util/callbacks"
+import {execute, execute_sync} from "core/util/callbacks"
+import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
-import {replace_placeholders} from "core/util/templating"
-import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
+import {replace_placeholders, get_value} from "core/util/templating"
+import {isFunction, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
@@ -120,6 +122,12 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
+  protected async _update_filters(): Promise<void> {
+    for (const [_, filter] of entries(this.model.filters)) {
+      await filter.compile()
+    }
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._update_ttmodels()
@@ -129,6 +137,8 @@ export class HoverToolView extends InspectToolView {
       this._template_view = await build_view(tooltips, {parent: this.plot_view.canvas})
       this._template_view.render()
     }
+
+    await this._update_filters()
   }
 
   override remove(): void {
@@ -151,6 +161,9 @@ export class HoverToolView extends InspectToolView {
         this._inspect(sx, sy, dims)
       }
     })
+
+    const {filters} = this.model.properties
+    this.on_change(filters, () => this._update_filters())
   }
 
   protected async _update_ttmodels(): Promise<void> {
@@ -488,6 +501,7 @@ export class HoverToolView extends InspectToolView {
     const {bbox} = this.plot_view.frame
     const tooltips = collected
       .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
+      .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
       .map(({ds, vars}) => ({html: this._render_tooltips(ds, vars), vars}))
       .filter(({html}) => html != null)
 
@@ -507,6 +521,29 @@ export class HoverToolView extends InspectToolView {
       const {vars} = tooltips.at(-1)!
       tooltip.show({x: vars.snap_sx, y: vars.snap_sy})
     }
+  }
+
+  protected _can_render_tooltip(ds: ColumnarDataSource, vars: TooltipVars): boolean {
+    const {filters} = this.model
+    const index = vars.image_index ?? vars.index
+
+    for (const [field, filter] of entries(filters)) {
+      const [type, name] = ((): ["@" | "$", string] => {
+        switch (field[0]) {
+          case "@": return ["@", field.substring(1)]
+          case "$": return ["$", field.substring(1)]
+          default:  return ["@", field]
+        }
+      })()
+      const value = get_value(type, name, ds, index, vars)
+
+      const result = execute_sync(filter, this.model, {value, field, vars})
+      if (isBoolean(result) && !result) {
+        return false
+      }
+    }
+
+    return true
   }
 
   update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
@@ -652,21 +689,21 @@ export class HoverToolView extends InspectToolView {
     const {tooltips} = this.model
 
     // if we have an image_index, that is what replace_placeholders needs
-    const i = is_undefined(vars.image_index) ? vars.index : vars.image_index
+    const index = vars.image_index ?? vars.index
 
     if (isString(tooltips)) {
-      const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
+      const content = replace_placeholders({html: tooltips}, ds, index, this.model.formatters, vars)
       return div(content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else if (tooltips instanceof DOMElement) {
       const {_template_view} = this
       assert(_template_view != null)
-      this._update_template(_template_view, ds, i, vars)
+      this._update_template(_template_view, ds, index, vars)
       return _template_view.el.cloneNode(true) as HTMLElement
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
-      return this._render_template(template, tooltips, ds, i, vars)
+      return this._render_template(template, tooltips, ds, index, vars)
     } else {
       return null
     }
@@ -692,6 +729,7 @@ export namespace HoverTool {
   export type Props = InspectTool.Props & {
     tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
+    filters: p.Property<Dict<CustomJS>>
     renderers: p.Property<DataRenderer[] | "auto">
     mode: p.Property<HoverMode>
     muted_policy: p.Property<MutedPolicy>
@@ -724,6 +762,7 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
+      filters:      [ Dict(Ref(CustomJS)), {} ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],

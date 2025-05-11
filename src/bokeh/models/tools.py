@@ -94,7 +94,7 @@ from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
-from .callbacks import Callback
+from .callbacks import Callback, CustomJS
 from .dom import DOMElement
 from .glyphs import (
     HStrip,
@@ -1628,6 +1628,9 @@ class HoverTool(InspectTool):
     .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
     .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
+    """)
+
+    filters = Dict(String, Instance(CustomJS), default={}, help="""
     """)
 
     mode = Enum("mouse", "hline", "vline", help="""
