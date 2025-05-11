@@ -17,7 +17,7 @@ import {execute, execute_sync} from "core/util/callbacks"
 import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
 import {replace_placeholders, get_value} from "core/util/templating"
-import {isFunction, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
+import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
@@ -42,6 +42,19 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Nullable, Or, Str, Tuple, Enum, List, Ref} from "core/kinds"
+
+const AscDesc = Enum(1, -1)
+const Field = Str
+
+const FieldAscDesc = Tuple(Field, AscDesc)
+type FieldAscDesc = typeof FieldAscDesc["__type__"]
+
+const FieldOrAscDesc = Or(Field, Tuple(Field, AscDesc))
+type FieldOrAscDesc = typeof FieldAscDesc["__type__"]
+
+const SortBy = Nullable(Or(FieldOrAscDesc, List(FieldOrAscDesc), Ref(CustomJS)))
+type SortBy = typeof SortBy["__type__"]
 
 export type TooltipVars = {
   index: number | null
@@ -505,6 +518,61 @@ export class HoverToolView extends InspectToolView {
       .map(({ds, vars}) => ({html: this._render_tooltips(ds, vars), vars}))
       .filter(({html}) => html != null)
       .slice(0, this.model.limit ?? undefined)
+      .map((tooltip, i) => ({i, ...tooltip}))
+
+    const {sort_by} = this.model
+    if (sort_by instanceof CustomJS) {
+      // TODO
+    } else if (sort_by != null) {
+      function isFieldAscDesc(val: unknown): val is FieldAscDesc {
+        return isArray(val) && val.length == 2 && isNumber(val[1])
+      }
+
+      const columns = ((): FieldAscDesc[] => {
+        if (isString(sort_by)) {
+          return [[sort_by, 1]]
+        } else if (isFieldAscDesc(sort_by)) {
+          return [sort_by]
+        } else {
+          return sort_by.map((val) => isString(val) ? [val, 1] : val)
+        }
+      })()
+
+      const records = Array.from(tooltips, ({vars}) => {
+        const record = new Map<string, unknown>()
+        for (const [field] of columns) {
+          const value = this._get_value(field, ds, vars)
+          record.set(field, value)
+        }
+        return record
+      })
+
+      function lookup(i: number, field: string): unknown {
+        return records[i].get(field) ?? NaN
+      }
+
+      tooltips.sort((t0, t1) => {
+        for (const [field, sign] of columns) {
+          const v0 = lookup(t0.i, field)
+          const v1 = lookup(t1.i, field)
+          if (v0 === v1) {
+            continue
+          }
+          if (isNumber(v0) && isNumber(v1)) {
+            /* eslint-disable @typescript-eslint/strict-boolean-expressions */
+            return sign*(v0 - v1 || +isNaN(v0) - +isNaN(v1))
+          } else {
+            const result = `${v0}`.localeCompare(`${v1}`)
+            if (result == 0) {
+              continue
+            } else {
+              return sign*result
+            }
+          }
+        }
+        return 0
+      })
+    }
 
     if (tooltips.length == 0) {
       tooltip.clear()
@@ -524,21 +592,24 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
+  protected _get_value(field: string, ds: ColumnarDataSource, vars: TooltipVars): unknown {
+    const [type, name] = ((): ["@" | "$", string] => {
+      switch (field[0]) {
+        case "@": return ["@", field.substring(1)]
+        case "$": return ["$", field.substring(1)]
+        default:  return ["@", field]
+      }
+    })()
+    const index = vars.image_index ?? vars.index
+    return get_value(type, name, ds, index, vars)
+  }
+
   protected _can_render_tooltip(ds: ColumnarDataSource, vars: TooltipVars): boolean {
     const {filters} = this.model
-    const index = vars.image_index ?? vars.index
 
     for (const [field, filter] of entries(filters)) {
-      const [type, name] = ((): ["@" | "$", string] => {
-        switch (field[0]) {
-          case "@": return ["@", field.substring(1)]
-          case "$": return ["$", field.substring(1)]
-          default:  return ["@", field]
-        }
-      })()
-      const value = get_value(type, name, ds, index, vars)
-
-      const result = execute_sync(filter, this.model, {value, field, vars})
+      const value = this._get_value(field, ds, vars)
+      const result = execute_sync(filter, this.model, {value, field, data_source: ds, vars})
       if (isBoolean(result) && !result) {
         return false
       }
@@ -731,6 +802,7 @@ export namespace HoverTool {
     tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     filters: p.Property<Dict<CustomJS>>
+    sort_by: p.Property<SortBy>
     limit: p.Property<number | null>
     renderers: p.Property<DataRenderer[] | "auto">
     mode: p.Property<HoverMode>
@@ -765,6 +837,7 @@ export class HoverTool extends InspectTool {
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
       filters:      [ Dict(Ref(CustomJS)), {} ],
+      sort_by:      [ SortBy, null ],
       limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
