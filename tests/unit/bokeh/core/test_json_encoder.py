@@ -38,7 +38,7 @@ def test_json_encoder():
     assert rep0.buffers is not None and len(rep0.buffers) == 1
 
     assert serialize_json(rep0.content) == """\
-[null,true,false,-128,-1,0,1,128,{"type":"number","value":"nan"},{"type":"map","entries":[["key_0",{"type":"bytes","data":"dXZ3"}]]}]\
+[null,true,false,-128,-1,0,1,128,{"type":"number","value":"nan"},{"type":"map","entries":[["key_0",{"type":"bytes","data":"H4sIAAAAAAACEystKwcARkl/GgMAAAA="}]]}]\
 """
 
     assert serialize_json(rep0) == f"""\
@@ -66,7 +66,7 @@ def test_json_encoder():
         "key_0",
         {
           "type": "bytes",
-          "data": "dXZ3"
+          "data": "H4sIAAAAAAACEystKwcARkl/GgMAAAA="
         }
       ]
     ]

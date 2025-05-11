@@ -47,6 +47,7 @@
     "@types/proj4": "^2.5.5",
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
+    "fflate": "^0.8.2",
     "flatbush": "^4.2.0",
     "flatpickr": "^4.6.13",
     "mathjax-full": "^3.2.2",

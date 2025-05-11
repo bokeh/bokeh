@@ -311,7 +311,7 @@ class TestSerializer:
         rep = encoder.encode(val)
         assert rep == BytesRep(
             type="bytes",
-            data="/wAX/gA=",
+            data="H4sIAAAAAAACE/vPIP6PAQBXSRCfBQAAAA==",
         )
         assert encoder.buffers == []
 
@@ -340,7 +340,7 @@ class TestSerializer:
             type="typed_array",
             array=BytesRep(
                 type="bytes",
-                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
+                data="H4sIAAAAAAACE2NgYGBgBGImIGYGYhYgZgViAD34DIUYAAAA",
             ),
             order=sys.byteorder,
             dtype="int32",
@@ -373,7 +373,7 @@ class TestSerializer:
             type="ndarray",
             array=BytesRep(
                 type="bytes",
-                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
+                data="H4sIAAAAAAACE2NgYGBgBGImIGYGYhYgZgViAD34DIUYAAAA",
             ),
             order=sys.byteorder,
             shape=[6],

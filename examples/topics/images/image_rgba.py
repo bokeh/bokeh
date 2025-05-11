@@ -10,7 +10,7 @@ import numpy as np
 
 from bokeh.plotting import figure, show
 
-N = 20
+N = 500
 img = np.empty((N,N), dtype=np.uint32)
 view = img.view(dtype=np.uint8).reshape((N, N, 4))
 for i in range(N):

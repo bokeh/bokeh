@@ -67,7 +67,7 @@ import {linspace, logspace, range} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
-import {base64_to_buffer} from "@bokehjs/core/util/buffer"
+import {b64decode} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
 import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
@@ -327,7 +327,7 @@ describe("Bug", () => {
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "AAAAAAAAAACHROdKGFfWP4dE50oYV+Y/ZXMtOFLB8D+HROdKGFf2P6kVoV3e7Ps/ZXMtOFLBAED2W4pBNYwDQIdE50oYVwZAGC1EVPshCUA=",
+                          data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
                         },
                         dtype: "float64",
                         order: "little",
@@ -337,7 +337,7 @@ describe("Bug", () => {
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "AAAAAAAA8D+Mcwt+GjrGPxstUkL2Ee6/BAAAAAAA4L83UM+ib4PoPzpQz6Jvg+g/8v//////378eLVJC9hHuv3NzC34aOsY/AAAAAAAA8D8=",
+                          data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
                         },
                         dtype: "float64",
                         order: "little",
@@ -347,7 +347,7 @@ describe("Bug", () => {
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "AAAAAAAAAAAcFjxSt5HkPxccgYyLg+8/q0xY6Hq26z/4C4p0qOPVP/QLinSo49W/qExY6Hq2678YHIGMi4Pvvx8WPFK3keS/B1wUMyamsbw=",
+                          data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
                         },
                         dtype: "float64",
                         order: "little",
@@ -464,7 +464,7 @@ describe("Bug", () => {
       expect(render.callCount).to.be.equal(1)
       render.resetHistory()
 
-      const url = URL.createObjectURL(new Blob([base64_to_buffer(png)]))
+      const url = URL.createObjectURL(new Blob([b64decode(png)]))
       const p2 = fig([200, 200])
       p2.image_url([url], 0, 0, 10, 10)
       await display(p2)

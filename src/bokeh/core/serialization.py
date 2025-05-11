@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
+import gzip
 import sys
 from array import array as TypedArray
 from math import isinf, isnan
@@ -174,8 +175,13 @@ class Buffer:
     def to_bytes(self) -> bytes:
         return self.data.tobytes() if isinstance(self.data, memoryview) else self.data
 
+    def to_compressed_bytes(self) -> bytes:
+        # we do not want the result to be different depending on mtime, since that is
+        # irrelevant and also makes things harder to test, so set mtime=0 here
+        return gzip.compress(self.to_bytes(), mtime=0)
+
     def to_base64(self) -> str:
-        return base64.b64encode(self.data).decode("utf-8")
+        return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
 
 T = TypeVar("T")
 
@@ -604,7 +610,7 @@ class Deserializer:
         data = obj["data"]
 
         if isinstance(data, str):
-            return base64.b64decode(data)
+            return gzip.decompress(base64.b64decode(data))
         elif isinstance(data, Buffer):
             buffer = data # in case of decode(encode(obj))
         else:

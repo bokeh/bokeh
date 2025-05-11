@@ -182,7 +182,7 @@ describe("core/serialization module", () => {
           type: "bytes",
           data: new Base64Buffer(buf0),
         },
-        json: '{"type":"bytes","data":"AAECAwQFBg=="}',
+        json: '{"type":"bytes","data":"H4sIAAAAAAAAA2NgZGJmYWUDAPkJWK0HAAAA"}',
       })
     })
 
@@ -199,7 +199,7 @@ describe("core/serialization module", () => {
           order: BYTE_ORDER,
           dtype: "int32",
         },
-        json: `{"type":"typed_array","array":{"type":"bytes","data":"AQAAAAIAAAADAAAA"},"order":"${BYTE_ORDER}","dtype":"int32"}`,
+        json: `{"type":"typed_array","array":{"type":"bytes","data":"H4sIAAAAAAAAA2NkYGBgAmJmIAYAkyLgsAwAAAA="},"order":"${BYTE_ORDER}","dtype":"int32"}`,
       })
 
       const arr1 = new Float64Array([1.1, 2.1, 3.1, 4.1, 5.1, 6.1])
@@ -214,7 +214,7 @@ describe("core/serialization module", () => {
           order: BYTE_ORDER,
           dtype: "float64",
         },
-        json: `{"type":"typed_array","array":{"type":"bytes","data":"mpmZmZmZ8T/NzMzMzMwAQM3MzMzMzAhAZmZmZmZmEEBmZmZmZmYUQGZmZmZmZhhA"},"order":"${BYTE_ORDER}","dtype":"float64"}`,
+        json: `{"type":"typed_array","array":{"type":"bytes","data":"H4sIAAAAAAAAA5s1EwQ+2p89AwIMDhCawyENDASgtAiUlnAAALssYAAwAAAA"},"order":"${BYTE_ORDER}","dtype":"float64"}`,
       })
     })
 
@@ -232,7 +232,7 @@ describe("core/serialization module", () => {
           dtype: "int32",
           shape: [1, 3],
         },
-        json: `{"type":"ndarray","array":{"type":"bytes","data":"AQAAAAIAAAADAAAA"},"order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
+        json: `{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAAAAAAAA2NkYGBgAmJmIAYAkyLgsAwAAAA="},"order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
       })
 
       const nd1 = ndarray([1.1, 2.1, 3.1, 4.1, 5.1, 6.1], {dtype: "float64", shape: [2, 3]})
@@ -248,7 +248,7 @@ describe("core/serialization module", () => {
           dtype: "float64",
           shape: [2, 3],
         },
-        json: `{"type":"ndarray","array":{"type":"bytes","data":"mpmZmZmZ8T/NzMzMzMwAQM3MzMzMzAhAZmZmZmZmEEBmZmZmZmYUQGZmZmZmZhhA"},"order":"${BYTE_ORDER}","dtype":"float64","shape":[2,3]}`,
+        json: `{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAAAAAAAA5s1EwQ+2p89AwIMDhCawyENDASgtAiUlnAAALssYAAwAAAA"},"order":"${BYTE_ORDER}","dtype":"float64","shape":[2,3]}`,
       })
     })
 

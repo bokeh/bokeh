@@ -1,19 +1,33 @@
 import type {NDDataType} from "../types"
 
-export function buffer_to_base64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  const chars = Array.from(bytes).map((b) => String.fromCharCode(b))
+import {gunzipSync, gzipSync} from "fflate"
+
+export function b64encode(data: Uint8Array): string {
+  const chars = Array.from(data).map((b) => String.fromCharCode(b))
   return btoa(chars.join(""))
 }
 
-export function base64_to_buffer(base64: string): ArrayBuffer {
-  const binary_string = atob(base64)
+export function b64decode(data: string): Uint8Array {
+  const binary_string = atob(data)
   const len = binary_string.length
   const bytes = new Uint8Array(len)
   for (let i = 0, end = len; i < end; i++) {
     bytes[i] = binary_string.charCodeAt(i)
   }
-  return bytes.buffer
+  return bytes
+}
+
+export function buffer_to_base64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  // we do not want the result to be different depending on mtime, since that is
+  // irrelevant and also makes things harder to test, so set mtime=0 here
+  const compressed = gzipSync(bytes, {mtime: 0})
+  return b64encode(compressed)
+}
+
+export function base64_to_buffer(base64: string): ArrayBuffer {
+  const bytes = b64decode(base64)
+  return gunzipSync(bytes).buffer
 }
 
 // NOTE: swap{16,32,64} assume byteOffset == 0
