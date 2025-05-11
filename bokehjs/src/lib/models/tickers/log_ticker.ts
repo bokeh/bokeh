@@ -61,11 +61,11 @@ export class LogTicker extends AdaptiveTicker {
         }
       }
     } else {
-      const sign_log_low = Math.sign(log_low)
-      const sign_log_high = Math.sign(log_high)
       const d = 0.000001
-      const startlog = Math.ceil(log_low * (1.0-sign_log_low*d))
-      const endlog = Math.floor(log_high * (1.0+sign_log_high*d))
+      const low_pad = 1.0 - Math.sign(log_low)*d
+      const high_pad = 1.0 + Math.sign(log_high)*d 
+      const startlog = Math.ceil(log_low * low_pad)
+      const endlog = Math.floor(log_high * high_pad)
       const interval = Math.ceil((endlog - startlog) / 9.0)
 
       let tick_options = range(startlog-1, endlog+1, 1).map((i) => base**i)
