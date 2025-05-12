@@ -185,16 +185,16 @@ class Enumeration:
     '''
     __slots__ = ()
 
-    _values: list[str]
-    _default: str
+    _values: list[str | int]
+    _default: str | int
     _case_sensitive: bool
     _quote: bool
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[str | int]:
         return iter(self._values)
 
-    def __contains__(self, value: str) -> bool:
-        if not self._case_sensitive:
+    def __contains__(self, value: str | int) -> bool:
+        if not self._case_sensitive and isinstance(value, str):
             value = value.lower()
         return value in self._values
 
@@ -218,8 +218,12 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
         #: Specify the horizontal alignment for rendering text
         TextAlign = enumeration("left", "right", "center")
 
+        #: Specify either ascending or descending item order
+        AscDesc = enumeration(1, -1)
+
     Args:
-        values (str) : string enumeration values, passed as positional arguments
+        values (str | int) : string or integer enumeration values, passed as
+            positional arguments
 
             The order of arguments is the order of the enumeration, and the
             first element will be considered the default value when used
@@ -242,13 +246,15 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
     if len(values) == 1 and hasattr(values[0], "__args__"):
         values = get_args(values[0])
 
-    if not (values and all(isinstance(value, str) and value for value in values)):
-        raise ValueError(f"expected a non-empty sequence of strings, got {nice_join(values)}")
+    if not (values and
+            (all(isinstance(value, str) and value for value in values) or
+             all(isinstance(value, int) for value in values))):
+        raise ValueError(f"expected a non-empty heterogenous sequence of strings or integers, got {nice_join(values)}")
 
     if len(values) != len(set(values)):
         raise ValueError(f"enumeration items must be unique, got {nice_join(values)}")
 
-    attrs: dict[str, Any] = {value: value for value in values}
+    attrs: dict[str, Any] = {value: value for value in values if isinstance(value, str)}
     attrs.update({
         "_values": list(values),
         "_default": values[0],
