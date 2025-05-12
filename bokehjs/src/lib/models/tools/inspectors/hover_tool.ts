@@ -517,7 +517,6 @@ export class HoverToolView extends InspectToolView {
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
       .map(({ds, vars}) => ({html: this._render_tooltips(ds, vars), vars}))
       .filter(({html}) => html != null)
-      .slice(0, this.model.limit ?? undefined)
       .map((tooltip, i) => ({i, ...tooltip}))
 
     const {sort_by} = this.model
@@ -572,6 +571,11 @@ export class HoverToolView extends InspectToolView {
         }
         return 0
       })
+    }
+
+    const {limit} = this.model
+    if (limit != null) {
+      tooltips.splice(limit)
     }
 
     if (tooltips.length == 0) {
