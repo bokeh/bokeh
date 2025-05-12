@@ -1,3 +1,14 @@
+2025-05-12    3.7.3:
+--------------------
+  * bugfixes:
+    - #14442 [component: bokehjs] Regression in legend and plot interaction behaviour
+    - #14451 [component: bokehjs] Legend overlaps toolbar when located outside plot
+
+  * tasks:
+    - #14248 [component: docs] Update default values in DatetimeTickFormatter doc entry
+    - #14455 Backports for 3.7.3
+    - #14483 Avoid re-appending views if order is unchanged
+
 2025-03-28    3.7.2:
 --------------------
   * bugfixes:
