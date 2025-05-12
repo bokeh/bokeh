@@ -1634,8 +1634,7 @@ class HoverTool(InspectTool):
     filters = Dict(String, Instance(CustomJS), default={}, help="""
     """)
 
-    # TODO: Enum(1, -1)
-    sort_by = Nullable(Either(String, Tuple(String, Int), List(Either(String, Tuple(String, Int))), Instance(CustomJS)), default=None, help="""
+    sort_by = Nullable(Either(String, Tuple(String, Enum(1, -1)), List(Either(String, Tuple(String, Enum(1, -1)))), Instance(CustomJS)), default=None, help="""
     Allow to sort hover results by a field, a sequence of fields or with custom sorter.
     """)
 

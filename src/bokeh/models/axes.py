@@ -104,8 +104,7 @@ class Axis(GuideRenderer):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    # TODO: Enum(0, 1) instead of Int
-    dimension = Either(Auto, Int, default="auto", help="""
+    dimension = Either(Auto, Enum(0, 1), default="auto", help="""
     This allows to override the inferred dimensions in contexts that
     support this. This property has no effect when an axes is used
     as a frame axis.
