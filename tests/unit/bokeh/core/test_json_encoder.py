@@ -86,7 +86,8 @@ def test_json_encoder_bytes():
     rep = Serializer().serialize(val)
     assert rep.buffers is not None and len(rep.buffers) == 1
 
-    encoded_bytes = b64encode(gzip.compress(val["key"], mtime=0)).decode("utf-8")
+    # Note mtime=1 is a workaround for an issue with Python 3.11 and 3.12
+    encoded_bytes = b64encode(gzip.compress(val["key"], mtime=1)).decode("utf-8")
 
     assert serialize_json(rep.content) == f"""\
 {{"type":"map","entries":[["key",{{"type":"bytes","data":"{encoded_bytes}"}}]]}}\

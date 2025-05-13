@@ -177,8 +177,10 @@ class Buffer:
 
     def to_compressed_bytes(self) -> bytes:
         # we do not want the result to be different depending on mtime, since that is
-        # irrelevant and also makes things harder to test, so set mtime=0 here
-        return gzip.compress(self.to_bytes(), mtime=0)
+        # irrelevant and also makes things harder to test, but Python 3.11 and 3.12 have
+        # bug where using mtime=0 results in the Gzip header OS field varies by platforam
+        # instead of getting set to a fixed value of 255. So, for now use mtime=1 instead.
+        return gzip.compress(self.to_bytes(), mtime=1)
 
     def to_base64(self) -> str:
         return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
