@@ -24,6 +24,7 @@ from math import nan
 # Bokeh imports
 from bokeh.core.json_encoder import serialize_json
 from bokeh.core.serialization import Serializer
+from bokeh.settings import settings
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -87,7 +88,8 @@ def test_json_encoder_bytes():
     assert rep.buffers is not None and len(rep.buffers) == 1
 
     # Note mtime=1 is a workaround for an issue with Python 3.11 and 3.12
-    encoded_bytes = b64encode(gzip.compress(val["key"], mtime=1)).decode("utf-8")
+    compressed_bytes = gzip.compress(val["key"], mtime=1, compresslevel=settings.compression_level())
+    encoded_bytes = b64encode(compressed_bytes).decode("utf-8")
 
     assert serialize_json(rep.content) == f"""\
 {{"type":"map","entries":[["key",{{"type":"bytes","data":"{encoded_bytes}"}}]]}}\

@@ -48,6 +48,7 @@ _expected_settings = (
     'browser',
     'cdn_version',
     'chromedriver_path',
+    'compression_level',
     'cookie_secret',
     'default_server_host',
     'default_server_port',
@@ -99,6 +100,8 @@ class TestSettings:
 
         assert bs.settings.default_server_port.convert_type == "Int"
 
+        assert bs.settings.compression_level.convert_type == "Compression Level (0-9)"
+
         assert bs.settings.py_log_level.convert_type == "Log Level"
 
         assert bs.settings.validation_level.convert_type == "Validation Level"
@@ -108,15 +111,16 @@ class TestSettings:
         assert bs.settings.ico_path.convert_type == "Ico Path"
 
         default_typed = set(_expected_settings) - {
+            'allowed_ws_origin',
+            'compression_level',
+            'default_server_port',
             'ico_path',
             'ignore_filename',
             'minified',
-            'default_server_port',
             'perform_document_validation',
+            'py_log_level',
             'simple_ids',
             'validation_level',
-            'py_log_level',
-            'allowed_ws_origin',
             'xsrf_cookies',
         }
         for name in default_typed:
