@@ -1,77 +1,14 @@
 import {Model} from "../../model"
 import {CustomJS} from "../callbacks/customjs"
 import type {ExecutableLike, SyncExecutableLike} from "core/util/callbacks"
+import {KeyCombination, KeySequence} from "core/keyboard"
 import type * as p from "core/properties"
-import {Enum} from "core/kinds"
-import type {Infer} from "core/kinds"
-
-export const UpperKey = Enum(
-  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-  "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-  "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+",
-  "{", "}", "|", ":", "\"", "<", ">", "?",
-)
-export type UpperKey = Infer<typeof UpperKey>
-
-export const LowerKey = Enum(
-  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-  "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-  "`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=",
-  "[", "]", "\\", ";", "'", ",", ".", "/",
-)
-export type LowerKey = Infer<typeof LowerKey>
-
-export const PrintableKey = Enum(...UpperKey, ...LowerKey)
-export type PrintableKey = Infer<typeof PrintableKey>
-
-export const WhitespaceKey = Enum("Enter", "Tab", "Space", " ")
-export type WhitespaceKey = Infer<typeof WhitespaceKey>
-
-export const UIKey = Enum("Escape")
-export type UIKey = Infer<typeof UIKey>
-
-export const NavigationKey = Enum("ArrowDown", "ArrowLeft", "ArrowRight", "ArrowUp", "End", "Home", "PageDown", "PageUp")
-export type NavigationKey = Infer<typeof NavigationKey>
-
-export const EditingKey = Enum("Backspace", "Delete", "Insert")
-export type EditingKey = Infer<typeof EditingKey>
-
-export const FunctionKey = Enum("F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12")
-export type FunctionKey = Infer<typeof FunctionKey>
-
-export const ModifierKey = Enum("Ctrl", "Shift", "Alt", "Meta")
-export type ModifierKey = Infer<typeof ModifierKey>
-
-export const NonModifierKey = Enum(...PrintableKey, ...WhitespaceKey, ...UIKey, ...NavigationKey, ...EditingKey, ...FunctionKey)
-export type NonModifierKey = Infer<typeof NonModifierKey>
-
-export const Key = Enum(...NonModifierKey, ...ModifierKey)
-export type Key = Infer<typeof Key>
-
-export const KeyCombination = Enum(
-  ...[...NonModifierKey].flatMap((key) => [
-    key,
-    `Ctrl+${key}` as const,
-    `Shift+${key}` as const,
-    `Alt+${key}` as const,
-    `Meta+${key}` as const,
-    `Ctrl+Shift+${key}` as const,
-    `Ctrl+Alt+${key}` as const,
-    `Ctrl+Meta+${key}` as const,
-    `Ctrl+Shift+Alt+${key}` as const,
-    `Ctrl+Shift+Meta+${key}` as const,
-    `Shift+Alt+${key}` as const,
-    `Shift+Meta+${key}` as const,
-    `Alt+Meta+${key}` as const,
-  ]),
-)
-export type KeyCombination = Infer<typeof KeyCombination>
 
 export namespace KeyBinding {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    key: p.Property<KeyCombination | KeyCombination[]>
+    key: p.Property<KeyCombination | KeySequence>
     when: p.Property<SyncExecutableLike<Model, [], boolean> | null>
     action: p.Property<ExecutableLike<Model, [], void>>
     priority: p.Property<number>
@@ -88,8 +25,8 @@ export class KeyBinding extends Model {
   }
 
   static {
-    this.define<KeyBinding.Props>(({Or, List, Ref, Nullable, Int, Func}) => ({
-      key: [ Or(KeyCombination, List(KeyCombination)) ],
+    this.define<KeyBinding.Props>(({Or, Ref, Nullable, Int, Func}) => ({
+      key: [ Or(KeyCombination, KeySequence) ],
       when: [ Nullable(Or(Ref(CustomJS), Func<[], boolean>())), null ],
       action: [ Or(Ref(CustomJS), Func<[], void | Promise<void>>()) ],
       priority: [ Int, 0 ],
