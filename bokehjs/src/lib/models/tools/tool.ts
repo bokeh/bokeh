@@ -5,7 +5,7 @@ import type {Class} from "core/class"
 import type {Dimensions, ToolName} from "core/enums"
 import {min, max} from "core/util/array"
 import {entries} from "core/util/object"
-import {isString} from "core/util/types"
+import {isString, isArray} from "core/util/types"
 import {Comparator} from "core/util/eq"
 import {Model} from "../../model"
 import type {Renderer} from "../renderers/renderer"
@@ -33,7 +33,7 @@ import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
-import type {KeyCombination, KeyBinding} from "core/keyboard"
+import type {KeyCombination, KeySequence, KeyBinding} from "core/keyboard"
 
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
@@ -129,8 +129,15 @@ export abstract class ToolView extends View {
 
   key_bindings(): KeyBinding[] {
     const bindings: KeyBinding[] = []
-    if (this.model.toggle_key != null) {
-      bindings.push({keys: ["a", this.model.toggle_key], action: () => { this.model.active = !this.model.active }})
+    const {toggle_key} = this.model
+    if (toggle_key != null) {
+      const tool_name = this.model.tool_name.toLocaleLowerCase().replace(/ /g, "_")
+      const key_seq = isArray(toggle_key) ? toggle_key : [toggle_key]
+      bindings.push({
+        keys: ["a", ...key_seq],
+        cmd: `activate_${tool_name}`,
+        action: () => { this.model.active = !this.model.active },
+      })
     }
     return bindings
   }
@@ -229,7 +236,7 @@ export abstract class Tool extends Model {
   /**
    * Key combination for toggling the tool.
    */
-  readonly toggle_key: KeyCombination | null = null
+  readonly toggle_key: KeyCombination | KeySequence | null = null
 
   supports_auto(): boolean {
     return false

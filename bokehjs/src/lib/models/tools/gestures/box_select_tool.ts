@@ -284,4 +284,6 @@ export class BoxSelectTool extends RegionSelectTool {
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
+
+  override readonly toggle_key = ["b" as const, "s" as const]
 }

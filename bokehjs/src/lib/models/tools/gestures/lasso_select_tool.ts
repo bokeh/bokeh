@@ -187,4 +187,6 @@ export class LassoSelectTool extends RegionSelectTool {
   override tool_icon = tool_icon_lasso_select
   override event_type = "pan" as "pan"
   override default_order = 12
+
+  override readonly toggle_key = "l"
 }

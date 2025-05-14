@@ -277,5 +277,5 @@ export class PanTool extends GestureTool {
     ]
   }
 
-  override toggle_key = "p" as const
+  override readonly toggle_key = "p"
 }
