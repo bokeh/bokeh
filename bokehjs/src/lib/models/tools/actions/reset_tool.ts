@@ -1,5 +1,5 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
-import type {KeyBinding} from "../tool"
+import type {KeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import {tool_icon_reset} from "styles/icons.css"
 

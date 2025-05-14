@@ -1,6 +1,6 @@
 import {UIGestures} from "./ui_gestures"
 import {Signal, Signal0} from "./signaling"
-import type {AnyKey, Key, KeyCombination} from "./dom"
+import type {NonModifierKey, Key, KeyCombination} from "./keyboard"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
 import type {ViewStorage} from "./build_views"
@@ -8,11 +8,12 @@ import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty, sort_by} from "./util/array"
 import {isObject, isBoolean} from "./util/types"
 import type {PlotView} from "../models/plots/plot"
-import type {Tool, ToolView, KeyBinding} from "../models/tools/tool"
+import type {Tool, ToolView} from "../models/tools/tool"
 import type {ToolLike} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 import {execute, execute_sync} from "./util/callbacks"
+import type {KeyBinding} from "./keyboard"
 
 import type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 export type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
@@ -99,7 +100,7 @@ export type ScrollEvent = {
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
 
 type KeyState = {
-  key: AnyKey
+  key: Key
   modifiers: KeyModifiers
 }
 
@@ -727,7 +728,7 @@ export class UIEventBus {
   protected _key_event(event: KeyboardEvent): KeyEvent {
     return {
       type: event.type as KeyEvent["type"],
-      key: event.key as Key,
+      key: event.key as NonModifierKey,
       modifiers: this._get_modifiers(event),
       native: event,
     }
@@ -812,7 +813,7 @@ export class UIEventBus {
 
   protected _key_state: "cmd" | "seq" | "none" = "none"
   protected _key_buffer: string = ""
-  protected _cmd_start: Key = ":"
+  protected _cmd_start: NonModifierKey = ":"
   protected _seq_index: number = 0
   protected _collected_bindings: KeyBinding[] = []
 
@@ -830,7 +831,7 @@ export class UIEventBus {
     }
     */
 
-    const is_upper_like = (key: AnyKey): boolean => {
+    const is_upper_like = (key: Key): boolean => {
       if (key.length != 1) {
         return false
       }
@@ -895,7 +896,7 @@ export class UIEventBus {
       const keys = key_combination.split("+")
       const key = keys[keys.length - 1]
       const result = {
-        key: key == "" ? "+" : key as Key,
+        key: key == "" ? "+" : key as NonModifierKey,
         modifiers: {ctrl: false, shift: false, alt: false},
       }
       for (const key of keys) {
@@ -920,7 +921,7 @@ export class UIEventBus {
       return result
     }
 
-    const is_alphabetic = (key: Key): boolean => {
+    const is_alphabetic = (key: NonModifierKey): boolean => {
       return key.length == 1 && (key == "_" || ("a" <= key && key <= "z") || ("A" <= key && key <= "Z") || ("0" <= key && key <= "9"))
     }
 
@@ -935,8 +936,8 @@ export class UIEventBus {
 
     switch (ev.key) {
       case "Ctrl":
-      case "Control":
-      case "Ctl":
+      //case "Control":
+      //case "Ctl":
       case "Shift":
       case "Alt":
       case "Meta":

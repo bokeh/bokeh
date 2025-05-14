@@ -1,6 +1,6 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
-import type {KeyBinding} from "../tool"
 import {tool_icon_zoom_in} from "styles/icons.css"
+import type {KeyBinding} from "core/keyboard"
 
 export class ZoomInToolView extends ZoomBaseToolView {
   declare model: ZoomBaseTool
