@@ -726,9 +726,18 @@ export class UIEventBus {
   }
 
   protected _key_event(event: KeyboardEvent): KeyEvent {
+    function normalize(key: string): Key {
+      switch (key) {
+        case "Control":
+        case "Ctl":
+          return "Ctrl"
+        default:
+          return key as Key
+      }
+    }
     return {
       type: event.type as KeyEvent["type"],
-      key: event.key as NonModifierKey,
+      key: normalize(event.key),
       modifiers: this._get_modifiers(event),
       native: event,
     }
@@ -936,8 +945,6 @@ export class UIEventBus {
 
     switch (ev.key) {
       case "Ctrl":
-      //case "Control":
-      //case "Ctl":
       case "Shift":
       case "Alt":
       case "Meta":
