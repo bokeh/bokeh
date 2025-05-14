@@ -690,27 +690,9 @@ type EditingKey = "Backspace" | "Delete" | "Insert"
 
 type FunctionKey = "F1" | "F2" | "F3" | "F4" | "F5" | "F6" | "F7" | "F8" | "F9" | "F10" | "F11" | "F12"
 
-type ModifierKey = "Ctrl" | "Control" | "Ctl" | "Shift" | "Alt" | "Meta"
-
 export type Keys = Key // deprecated
 
 export type Key = PrintableKey | WhitespaceKey | UIKey | NavigationKey | EditingKey | FunctionKey
-export type AnyKey = Key | ModifierKey
-
-export type KeyCombination =
-  | Key
-  | `Ctrl+${Key}`
-  | `Shift+${Key}`
-  | `Alt+${Key}`
-  | `Meta+${Key}`
-  | `Ctrl+Shift+${Key}`
-  | `Ctrl+Alt+${Key}`
-  | `Ctrl+Meta+${Key}`
-  | `Ctrl+Shift+Alt+${Key}`
-  | `Ctrl+Shift+Meta+${Key}`
-  | `Shift+Alt+${Key}`
-  | `Shift+Meta+${Key}`
-  | `Alt+Meta+${Key}`
 
 export enum MouseButton {
   None = 0b0,

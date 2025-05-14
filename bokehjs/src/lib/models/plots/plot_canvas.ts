@@ -64,7 +64,7 @@ import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
 import type {StyledElement} from "../ui/styled_element"
-import type {KeyBinding} from "../tools/tool"
+import type {KeyBinding} from "core/keyboard"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"

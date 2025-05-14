@@ -33,16 +33,7 @@ import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
-import type {KeyCombination} from "core/dom"
-import type {ExecutableLike, SyncExecutableLike} from "core/util/callbacks"
-
-export type KeyBinding = {
-  keys: KeyCombination[]
-  cmd?: string
-  when?: SyncExecutableLike<Model, [], boolean>
-  action: ExecutableLike<Model, [], void>
-  priority?: number
-}
+import type {KeyCombination, KeyBinding} from "core/keyboard"
 
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
