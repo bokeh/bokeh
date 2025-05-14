@@ -2,7 +2,7 @@ import {HasProps} from "./has_props"
 import type {Property} from "./properties"
 import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
-import {isArray, isString, isNumber} from "./util/types"
+import {isArray, isString, isNumber, isFunction} from "./util/types"
 import type {BBox, XY} from "./util/bbox"
 import type {Coordinate} from "../models/coordinates/coordinate"
 import type {NodeTarget} from "../models/coordinates/node"
@@ -24,7 +24,7 @@ export type SerializableState = {
 export namespace View {
   export type Options = {
     model: HasProps
-    parent: View | null
+    parent: View | null | ((obj: HasProps) => View | null)
     owner?: ViewManager
   }
 }
@@ -83,13 +83,13 @@ export abstract class View implements ISignalable, Equatable {
     const {model, parent, owner} = options
 
     this.model = model
-    this.parent = parent
+    this.parent = isFunction(parent) ? parent(this.model) : parent
 
-    if (parent == null) {
+    if (this.parent == null) {
       this.root = this
       this.owner = owner ?? new ViewManager([this])
     } else {
-      this.root = parent.root
+      this.root = this.parent.root
       this.owner = this.root.owner
     }
   }

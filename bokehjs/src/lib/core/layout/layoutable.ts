@@ -296,6 +296,17 @@ export abstract class ContentLayoutable extends Layoutable {
   }
 }
 
+export class ElementLayout extends ContentLayoutable {
+  constructor(readonly el: HTMLElement) {
+    super()
+  }
+
+  _content_size(): Sizeable {
+    const {width, height} = this.el.getBoundingClientRect()
+    return new Sizeable({width, height})
+  }
+}
+
 export class TextLayout extends ContentLayoutable {
 
   constructor(readonly text: TextBox) {

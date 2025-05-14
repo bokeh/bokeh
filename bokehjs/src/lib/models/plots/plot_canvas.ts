@@ -3,7 +3,7 @@ import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CanvasView} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
-import type {Renderer} from "../renderers/renderer"
+import {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
 import {CompositeRendererView} from "../renderers/composite_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
@@ -12,12 +12,12 @@ import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
-import type {LayoutDOM, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
-import {LayoutDOMView} from "../layouts/layout_dom"
+import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
-import type {Axis} from "../axes/axis"
+import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
@@ -45,6 +45,7 @@ import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
 import {CanvasLayer} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
+import {ElementLayout} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
@@ -62,6 +63,7 @@ import {InlineStyleSheet, px, div} from "core/dom"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
+import type {StyledElement} from "../ui/styled_element"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"
@@ -69,7 +71,7 @@ import * as attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
-type Panels = (Axis | Annotation | Annotation[])[]
+type Panels = (Axis | Annotation | Annotation[] | StyledElement)[]
 type LayoutPanels = {
   outer_above: Panels
   outer_below: Panels
@@ -548,11 +550,18 @@ export class PlotView extends LayoutDOMView implements Paintable {
       layout.center_border_width = width
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
-      const view = this.views.get_one(model)
-      view.panel = new SidePanel(side)
-      view.update_layout?.()
-      return view.layout
+    const set_layout = (side: Side, model: Annotation | Axis | StyledElement): Layoutable | undefined => {
+      if (model instanceof Annotation || model instanceof Axis) {
+        const view = this.views.get_one(model)
+        view.panel = new SidePanel(side)
+        view.update_layout?.()
+        return view.layout
+      } else {
+        const view = this.views.get_one(model)
+        const layout = new ElementLayout(view.el)
+        layout.set_sizing({width_policy: "fixed", height_policy: "fixed"})
+        return layout
+      }
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
@@ -873,11 +882,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {above, below, left, right, center, renderers} = this.model
 
     yield* renderers
-    yield* above
-    yield* below
-    yield* left
-    yield* right
-    yield* center
+    yield* [...above, ...below, ...left, ...right, ...center] //.filter((model) => model instanceof Renderer)
 
     if (this._title != null) {
       yield this._title
@@ -904,7 +909,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
-    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
     this._update_attribution()
     return result
   }
