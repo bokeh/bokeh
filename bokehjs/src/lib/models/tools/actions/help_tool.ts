@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import type {KeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import {tool_icon_help} from "styles/icons.css"
 
@@ -7,6 +8,13 @@ export class HelpToolView extends ActionToolView {
 
   doit(): void {
     window.open(this.model.redirect)
+  }
+
+  override key_bindings(): KeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      // {keys: ["H"], cmd: ":help", action: () => this.parent.show_bindings()},
+    ]
   }
 }
 

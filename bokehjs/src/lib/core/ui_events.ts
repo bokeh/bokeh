@@ -205,6 +205,10 @@ export class UIEventBus {
   protected readonly _tools: ViewStorage<ToolLike<Tool>> = new Map()
   protected readonly _key_bindings: KeyBinding[] = []
 
+  get key_bindings(): readonly KeyBinding[] {
+    return this._key_bindings
+  }
+
   add_key_bindings(bindings: KeyBinding[]): void {
     this._key_bindings.push(...bindings)
   }
