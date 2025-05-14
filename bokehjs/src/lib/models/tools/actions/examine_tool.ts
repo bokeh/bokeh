@@ -78,5 +78,5 @@ export class ExamineTool extends ActionTool {
     return true
   }
 
-  override toggle_key = "E" as const
+  override readonly toggle_key = "E"
 }

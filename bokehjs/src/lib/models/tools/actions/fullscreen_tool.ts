@@ -61,5 +61,5 @@ export class FullscreenTool extends ActionTool {
     return true
   }
 
-  override toggle_key = "F" as const
+  override readonly toggle_key = "F"
 }
