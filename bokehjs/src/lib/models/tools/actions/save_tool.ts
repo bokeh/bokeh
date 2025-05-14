@@ -1,6 +1,7 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
+import type {KeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
@@ -50,6 +51,15 @@ export class SaveToolView extends ActionToolView {
         break
       }
     }
+  }
+
+  override key_bindings(): KeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      {keys: ["S"], cmd: "save", action: () => this.doit("save")},
+      {keys: ["C"], cmd: "copy", action: () => this.doit("copy")},
+      {keys: ["O"], cmd: "open", action: () => this.doit("open")},
+    ]
   }
 }
 
