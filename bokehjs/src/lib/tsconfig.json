@@ -12,7 +12,7 @@
     "strictPropertyInitialization": false,
     "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
-    "noErrorTruncation": true,
+    "noErrorTruncation": false,
     "noEmitOnError": false,
     "stripInternal": true,
     "declaration": true,
