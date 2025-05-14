@@ -1539,8 +1539,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.trigger_ranges_update_event()
   }
 
+  show_bindings(): void {
+    for (const {keys, cmd} of this.canvas.ui_event_bus.key_bindings) {
+      console.log(`${keys.join(" ")} ${cmd != null ? `:${cmd}` : "<none>"}`)
+    }
+  }
+
   key_bindings(): KeyBinding[] {
-    const bindings: KeyBinding[] = []
+    const bindings: KeyBinding[] = [
+      {keys: ["H"], cmd: ":help", action: () => this.show_bindings()},
+    ]
     for (const {key, when, action, priority} of this.model.key_bindings) {
       bindings.push({
         keys: isArray(key) ? key : [key],
