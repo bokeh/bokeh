@@ -1,25 +1,25 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import type {KeyBinding} from "core/keyboard"
-import {parse} from "core/keyboard"
+import {parse, is_upper_like} from "core/keyboard"
 import type * as p from "core/properties"
 import {tool_icon_help} from "styles/icons.css"
 import type {DialogView} from "../../ui/dialog"
 import {Dialog} from "../../ui/dialog"
 import {HTML} from "../../dom/html"
 import {Pane} from "../../ui/pane"
-import {Column} from "../../layouts/column"
 import {Tabs} from "../../layouts/tabs"
 import {TabPanel} from "../../layouts/tab_panel"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {PlotView} from "../../plots/plot_canvas"
-import {div, span} from "core/dom"
+import {div, span, table, tr, td, th} from "core/dom"
+import * as help_css from "styles/help.css"
 
 export class HelpToolView extends ActionToolView {
   declare model: HelpTool
 
   dialog: DialogView
-  bindings: HTML
+  readonly bindings = new HTML({html: ""})
 
   override *children(): IterViews {
     yield* super.children()
@@ -36,33 +36,38 @@ export class HelpToolView extends ActionToolView {
 
         const repr: (string | HTMLElement)[] = []
         if (modifiers.ctrl) {
-          repr.push(span({class: "key"}, "Ctrl"), "+")
+          repr.push(span({class: help_css.key}, "Ctrl"), span("+"))
         }
-        if (modifiers.shift) {
-          repr.push(span({class: "key"}, "Shift"), "+")
+        if (modifiers.shift && !is_upper_like(key)) {
+          repr.push(span({class: help_css.key}, "Shift"), span("+"))
         }
         if (modifiers.alt) {
-          repr.push(span({class: "key"}, "Alt"), "+")
+          repr.push(span({class: help_css.key}, "Alt"), span("+"))
         }
-        repr.push(span({class: "key"}, key))
+        repr.push(span({class: help_css.key}, key))
 
-        return div({class: "key-combination"}, repr)
+        return div({class: help_css.key_combination}, repr)
       })
 
-      return div({class: "key-binding"},
-        div({class: "description"}, description),
-        div({class: "key-sequence"}, seq),
-        div({class: "command"}, command),
+      return tr({class: help_css.key_binding},
+        td({class: help_css.description}, description),
+        td({class: help_css.key_sequence}, seq),
+        td({class: help_css.command}, command != null ? `:${command}` : ""),
       )
     })
 
-    return div({class: "key-bindings"}, elements)
+    const header = tr({class: help_css.key_binding},
+      th("Description"),
+      th("Key binding"),
+      th("Command"),
+    )
+
+    return table({class: help_css.key_bindings}, header, elements)
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    this.bindings = new HTML({html: ""})
     const tabs = [
       new TabPanel({
         title: "Information",
@@ -70,15 +75,12 @@ export class HelpToolView extends ActionToolView {
       }),
       new TabPanel({
         title: "Keyboard",
-        child: new Column({
-          children: [
-            new Pane({
-              elements: [
-                new HTML({html: "<input type='text', placeholder='Type to search for key bindings'>"}),
-                this.bindings,
-              ],
-            }),
+        child: new Pane({
+          elements: [
+            new HTML({html: `<input type="text" class=${help_css.search} placeholder="Type to search for key bindings">`}),
+            this.bindings,
           ],
+          stylesheets: [help_css.default],
         }),
       }),
     ]
