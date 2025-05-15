@@ -55,7 +55,7 @@ from .scales import Scale
 from .sources import IndexedDataSource
 from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar, ToolProxy
-from .ui.other import KeyBinding
+from .ui.keyboard import KeyBinding
 from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
