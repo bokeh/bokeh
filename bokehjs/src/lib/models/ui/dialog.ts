@@ -566,10 +566,11 @@ export class DialogView extends UIElementView {
     return this.model.visible
   }
 
-  toggle(force?: boolean): void {
+  toggle(force?: boolean): boolean {
     const visible = force ?? !this.model.visible
     this.model.setv({visible}, {check_eq: false})
     this.displayed.emit(visible)
+    return this.model.visible
   }
 
   open(): void {
