@@ -87,7 +87,7 @@ export type KeyState = {
   modifiers: KeyModifiers
 }
 
-function is_upper_like(key: Key): boolean {
+export function is_upper_like(key: Key): boolean {
   if (key.length != 1) {
     return false
   }
