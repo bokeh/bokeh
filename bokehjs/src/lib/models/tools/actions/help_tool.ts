@@ -1,14 +1,114 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import type {KeyBinding} from "core/keyboard"
+import {parse} from "core/keyboard"
 import type * as p from "core/properties"
 import {tool_icon_help} from "styles/icons.css"
+import type {DialogView} from "../../ui/dialog"
+import {Dialog} from "../../ui/dialog"
+import {HTML} from "../../dom/html"
+import {Pane} from "../../ui/pane"
+import {Column} from "../../layouts/column"
+import {Tabs} from "../../layouts/tabs"
+import {TabPanel} from "../../layouts/tab_panel"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type {PlotView} from "../../plots/plot_canvas"
+import {div, span} from "core/dom"
 
 export class HelpToolView extends ActionToolView {
   declare model: HelpTool
 
+  dialog: DialogView
+  bindings: HTML
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this.dialog
+  }
+
+  protected _render_key_bindings(): HTMLElement {
+    const plot_view = this.parent as PlotView // TODO
+    const bindings = plot_view.canvas.ui_event_bus.key_bindings
+
+    const elements = bindings.map(({description, keys, command}) => {
+      const seq = keys.map((key_combination) => {
+        const {key, modifiers} = parse(key_combination)
+
+        const repr: (string | HTMLElement)[] = []
+        if (modifiers.ctrl) {
+          repr.push(span({class: "key"}, "Ctrl"), "+")
+        }
+        if (modifiers.shift) {
+          repr.push(span({class: "key"}, "Shift"), "+")
+        }
+        if (modifiers.alt) {
+          repr.push(span({class: "key"}, "Alt"), "+")
+        }
+        repr.push(span({class: "key"}, key))
+
+        return div({class: "key-combination"}, repr)
+      })
+
+      return div({class: "key-binding"},
+        div({class: "description"}, description),
+        div({class: "key-sequence"}, seq),
+        div({class: "command"}, command),
+      )
+    })
+
+    return div({class: "key-bindings"}, elements)
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    this.bindings = new HTML({html: ""})
+    const tabs = [
+      new TabPanel({
+        title: "Information",
+        child: new Pane(),
+      }),
+      new TabPanel({
+        title: "Keyboard",
+        child: new Column({
+          children: [
+            new Pane({
+              elements: [
+                new HTML({html: "<input type='text', placeholder='Type to search for key bindings'>"}),
+                this.bindings,
+              ],
+            }),
+          ],
+        }),
+      }),
+    ]
+
+    const dialog = new Dialog({
+      stylesheets: [],
+      title: "Help",
+      content: new Tabs({tabs, sizing_mode: "stretch_both"}),
+      visible: false,
+      close_action: "hide",
+    })
+    this.dialog = await build_view(dialog, {parent: this.parent})
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.dialog.displayed.connect((visible) => this.model.active = visible)
+  }
+
+  doit(): void {
+    if (this.dialog.toggle()) {
+      this.bindings.html = this._render_key_bindings()
+    }
+  }
+
+  /*
   doit(): void {
     window.open(this.model.redirect)
   }
+  */
 
   override key_bindings(): KeyBinding[] {
     return [
