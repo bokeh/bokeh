@@ -7379,6 +7379,24 @@
       name: "unset",
     },
   },
+  KeyBinding: {
+    __extends__: "Model",
+    description: {
+      type: "symbol",
+      name: "unset",
+    },
+    key: {
+      type: "symbol",
+      name: "unset",
+    },
+    command: null,
+    when: null,
+    action: {
+      type: "symbol",
+      name: "unset",
+    },
+    priority: 0,
+  },
   ActionItem: {
     __extends__: "MenuItem",
   },
@@ -7409,24 +7427,6 @@
   },
   Notifications: {
     __extends__: "UIElement",
-  },
-  KeyBinding: {
-    __extends__: "Model",
-    description: {
-      type: "symbol",
-      name: "unset",
-    },
-    key: {
-      type: "symbol",
-      name: "unset",
-    },
-    command: null,
-    when: null,
-    action: {
-      type: "symbol",
-      name: "unset",
-    },
-    priority: 0,
   },
   Panel: {
     __extends__: "Pane",
