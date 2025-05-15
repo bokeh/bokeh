@@ -1,6 +1,7 @@
 import {UIGestures} from "./ui_gestures"
 import {Signal, Signal0} from "./signaling"
-import type {NonModifierKey, Key, KeyCombination} from "./keyboard"
+import type {NonModifierKey, Key} from "./keyboard"
+import {parse, unparse} from "./keyboard"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
 import type {ViewStorage} from "./build_views"
@@ -847,96 +848,6 @@ export class UIEventBus {
     }
     */
 
-    const is_upper_like = (key: Key): boolean => {
-      if (key.length != 1) {
-        return false
-      }
-      if ("A" <= key && key <= "Z") {
-        return true
-      } else {
-        switch (key) {
-          case "~":
-          case "!":
-          case "@":
-          case "#":
-          case "$":
-          case "%":
-          case "^":
-          case "&":
-          case "*":
-          case "(":
-          case ")":
-          case "_":
-          case "+":
-          case "{":
-          case "}":
-          case "|":
-          case ":":
-          case "\"":
-          case "<":
-          case ">":
-          case "?":
-            return true
-          default:
-            return false
-        }
-      }
-    }
-
-    const to_string = (key_state: KeyState): string => {
-      const {key, modifiers} = key_state
-      let s = ""
-      if (modifiers.ctrl) {
-        s += "Ctrl+"
-      }
-      if (modifiers.shift && !is_upper_like(key)) {
-        s += "Shift+"
-      }
-      if (modifiers.alt) {
-        s += "Alt+"
-      }
-      switch (key) {
-        case " ": {
-          s += "Space"
-          break
-        }
-        default: {
-          s += key
-        }
-      }
-      return s
-
-    }
-
-    const normalize = (key_combination: KeyCombination): KeyState => {
-      const keys = key_combination.split("+")
-      const key = keys[keys.length - 1]
-      const result = {
-        key: key == "" ? "+" : key as NonModifierKey,
-        modifiers: {ctrl: false, shift: false, alt: false},
-      }
-      for (const key of keys) {
-        switch (key) {
-          case "Ctrl": {
-            result.modifiers.ctrl = true
-            break
-          }
-          case "Shift": {
-            result.modifiers.shift = true
-            break
-          }
-          case "Alt": {
-            result.modifiers.alt = true
-            break
-          }
-        }
-      }
-      if (is_upper_like(result.key)) {
-        result.modifiers.shift = true
-      }
-      return result
-    }
-
     const is_alphabetic = (key: NonModifierKey): boolean => {
       return key.length == 1 && (key == "_" || ("a" <= key && key <= "z") || ("A" <= key && key <= "Z") || ("0" <= key && key <= "9"))
     }
@@ -1000,7 +911,7 @@ export class UIEventBus {
     }
 
     if (this._key_state == "none") {
-      if (matches(ev, normalize(this._cmd_start))) {
+      if (matches(ev, parse(this._cmd_start))) {
         this._key_state = "cmd"
         this._key_buffer = this._cmd_start
         this.key_strokes.emit(this._key_buffer)
@@ -1008,7 +919,7 @@ export class UIEventBus {
       }
     }
 
-    this._key_buffer += `${to_string(ev)} `
+    this._key_buffer += `${unparse(ev)} `
 
     const bindings = (() => {
       if (this._key_state == "seq") {
@@ -1027,7 +938,7 @@ export class UIEventBus {
         continue
       }
       const key = binding.keys[i]
-      const normalized = normalize(key)
+      const normalized = parse(key)
       if (matches(normalized, ev)) {
         collected.push(binding)
       }
