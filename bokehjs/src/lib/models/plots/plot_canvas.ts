@@ -1060,6 +1060,18 @@ export class PlotView extends LayoutDOMView implements Paintable {
         }
       })
     }
+
+    const notification = new Div({children: [], style: {display: "none"}})
+    this._notifications.elements = [...this._notifications.elements, notification]
+
+    this.canvas.ui_event_bus.key_strokes.connect((keys) => {
+      notification.children = [keys]
+      notification.style = {display: keys.length == 0 ? "none" : "block"}
+    })
+
+    this.canvas.ui_event_bus.notifications.connect((message) => {
+      this.notify_about(message, "warning")
+    })
   }
 
   protected _update_touch_action(): void {
@@ -1487,11 +1499,20 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected _messages: Map<string, number> = new Map()
 
-  notify_about(message: string): void {
+  notify_about(message: string, type: "message" | "info" | "success" | "warning" | "error" = "message"): void {
     if (this._messages.has(message)) {
       return
     }
-    const el = new Div({children: [message]})
+    const bg = (() => {
+      switch (type) {
+        case "message": return "white"
+        case "info":    return "rgb(207, 244, 252)"
+        case "success": return "rgb(209, 231, 221)"
+        case "warning": return "rgb(255, 243, 205)"
+        case "error":   return "rgb(248, 215, 218)"
+      }
+    })()
+    const el = new Div({children: [message], style: {background_color: bg}})
     const timer = setTimeout(() => {
       this._messages.delete(message)
       this._notifications.elements = this._notifications.elements.filter((item) => item != el)

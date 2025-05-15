@@ -143,6 +143,9 @@ export class UIEventBus {
   readonly focus:        Signal0<this>         = new Signal0(this, "focus")
   readonly blur:         Signal0<this>         = new Signal0(this, "blur")
 
+  readonly key_strokes: Signal<string, this>   = new Signal(this, "key_strokes")
+  readonly notifications: Signal<string, this> = new Signal(this, "notifications")
+
   readonly hit_area: HTMLElement
   readonly ui_gestures: UIGestures
 
@@ -959,13 +962,13 @@ export class UIEventBus {
 
     if (this._key_state == "cmd") {
       if (ev.key == "Enter") {
-        const binding = find_cmd(this._key_buffer)
+        const binding = find_cmd(this._key_buffer.slice(this._cmd_start.length))
         if (binding != null) {
           if (binding.when == null || execute_sync(binding.when, target) !== false) {
             void execute(binding.action, target)
           }
         } else {
-          console.warn(`${this._cmd_start}${this._key_buffer} command not found`)
+          this.notifications.emit(`${this._key_buffer} command not found`)
         }
         this._key_state = "none"
         this._key_buffer = ""
@@ -979,6 +982,7 @@ export class UIEventBus {
         this._key_buffer += ev.key
       }
 
+      this.key_strokes.emit(this._key_buffer)
       return
     }
 
@@ -998,7 +1002,8 @@ export class UIEventBus {
     if (this._key_state == "none") {
       if (matches(ev, normalize(this._cmd_start))) {
         this._key_state = "cmd"
-        this._key_buffer = ""
+        this._key_buffer = this._cmd_start
+        this.key_strokes.emit(this._key_buffer)
         return
       }
     }
@@ -1033,11 +1038,12 @@ export class UIEventBus {
     const reset_state = (): void => {
       this._key_state = "none"
       this._key_buffer = ""
+      this.key_strokes.emit(this._key_buffer)
       this._seq_index = 0
     }
 
     if (collected.length == 0) {
-      console.log(`unknown key sequence: ${this._key_buffer}`)
+      this.notifications.emit(`unknown key sequence: ${this._key_buffer}`)
       reset_state()
     } else {
       const longer = collected.filter((binding) => binding.keys.length-1 > i)

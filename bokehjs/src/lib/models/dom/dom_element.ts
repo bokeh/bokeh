@@ -57,7 +57,14 @@ export abstract class DOMElementView extends DOMNodeView {
     return await build_views(this.child_views, children, {parent: this})
   }
 
+  protected _text_nodes: Text[] = []
+
   protected async _update_children(): Promise<void> {
+    for (const node of this._text_nodes) {
+      node.remove()
+    }
+    this._text_nodes = []
+
     const {created} = await this._build_children()
     const created_views = new Set(created)
 
@@ -67,6 +74,7 @@ export abstract class DOMElementView extends DOMNodeView {
     for (const child of this.model.children) {
       if (isString(child)) {
         const node = document.createTextNode(child)
+        this._text_nodes.push(node)
         this.self_target.append(node)
       } else {
         const view = this.child_views.get(child)
