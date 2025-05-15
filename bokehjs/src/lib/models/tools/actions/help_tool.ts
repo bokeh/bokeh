@@ -12,8 +12,10 @@ import {TabPanel} from "../../layouts/tab_panel"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {PlotView} from "../../plots/plot_canvas"
-import {div, span, table, tr, td, th} from "core/dom"
+import {div, span, table, tr, td, th, a} from "core/dom"
+import {version} from "version"
 import * as help_css from "styles/help.css"
+import * as logo_css from "styles/logo.css"
 
 export class HelpToolView extends ActionToolView {
   declare model: HelpTool
@@ -71,7 +73,17 @@ export class HelpToolView extends ActionToolView {
     const tabs = [
       new TabPanel({
         title: "Information",
-        child: new Pane(),
+        child: new Pane({
+          elements: [
+            new HTML({
+              html: div({style: {display: "flex", align_items: "center"}},
+                a({href: "https://bokeh.org/", target: "_blank", class: [logo_css.logo, logo_css.logo_small]}),
+                `Bokeh ${version}`,
+              ),
+            }),
+          ],
+          stylesheets: [logo_css.default],
+        }),
       }),
       new TabPanel({
         title: "Keyboard",
