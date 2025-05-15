@@ -74,3 +74,103 @@ export type KeyBinding = {
   action: ExecutableLike<Model, [], void>
   priority?: number
 }
+
+export type KeyModifiers = {
+  shift: boolean
+  ctrl: boolean
+  alt: boolean
+}
+
+export type KeyState = {
+  key: Key
+  modifiers: KeyModifiers
+}
+
+function is_upper_like(key: Key): boolean {
+  if (key.length != 1) {
+    return false
+  }
+  if ("A" <= key && key <= "Z") {
+    return true
+  } else {
+    switch (key) {
+      case "~":
+      case "!":
+      case "@":
+      case "#":
+      case "$":
+      case "%":
+      case "^":
+      case "&":
+      case "*":
+      case "(":
+      case ")":
+      case "_":
+      case "+":
+      case "{":
+      case "}":
+      case "|":
+      case ":":
+      case "\"":
+      case "<":
+      case ">":
+      case "?":
+        return true
+      default:
+        return false
+    }
+  }
+}
+
+export function parse(key_combination: KeyCombination): KeyState {
+  const keys = key_combination.split("+")
+  const key = keys[keys.length - 1]
+  const result = {
+    key: key == "" ? "+" : key as NonModifierKey,
+    modifiers: {ctrl: false, shift: false, alt: false},
+  }
+  for (const key of keys) {
+    switch (key) {
+      case "Ctrl": {
+        result.modifiers.ctrl = true
+        break
+      }
+      case "Shift": {
+        result.modifiers.shift = true
+        break
+      }
+      case "Alt": {
+        result.modifiers.alt = true
+        break
+      }
+    }
+  }
+  if (is_upper_like(result.key)) {
+    result.modifiers.shift = true
+  }
+  return result
+}
+
+export function unparse(key_state: KeyState): KeyCombination {
+  const {key, modifiers} = key_state
+  let s = ""
+  if (modifiers.ctrl) {
+    s += "Ctrl+"
+  }
+  if (modifiers.shift && !is_upper_like(key)) {
+    s += "Shift+"
+  }
+  if (modifiers.alt) {
+    s += "Alt+"
+  }
+  switch (key) {
+    case " ": {
+      s += "Space"
+      break
+    }
+    default: {
+      s += key
+    }
+  }
+  return s as KeyCombination
+}

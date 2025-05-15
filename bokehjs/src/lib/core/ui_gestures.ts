@@ -1,11 +1,8 @@
 import {MouseButton, offset_bbox} from "./dom"
 import {assert, unreachable} from "./util/assert"
+import type {KeyModifiers} from "./keyboard"
 
-export type KeyModifiers = {
-  shift: boolean
-  ctrl: boolean
-  alt: boolean
-}
+export type {KeyModifiers} // TODO remove this
 
 export type TapEvent = {
   type: "tap" | "double_tap" | "press" | "press_up"
