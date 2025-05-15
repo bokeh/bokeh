@@ -177,7 +177,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["s", "b"], cmd: "select_box", action: () => {}},
+      {description: "Start box selection", keys: ["s", "b"], command: "select_box", action: () => {}},
       /*
       {keys: ["ArrowUp"], action: () => {}},
       {keys: ["ArrowDown"], action: () => {}},

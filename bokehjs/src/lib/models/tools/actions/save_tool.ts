@@ -56,9 +56,9 @@ export class SaveToolView extends ActionToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["S"], cmd: "save", action: () => this.doit("save")},
-      {keys: ["C"], cmd: "copy", action: () => this.doit("copy")},
-      {keys: ["O"], cmd: "open", action: () => this.doit("open")},
+      {description: "Save image to a file",    keys: ["S"], command: "save", action: () => this.doit("save")},
+      {description: "Copy image to clipboard", keys: ["C"], command: "copy", action: () => this.doit("copy")},
+      {description: "Open image in new a tab", keys: ["O"], command: "open", action: () => this.doit("open")},
     ]
   }
 }

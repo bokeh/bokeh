@@ -69,8 +69,9 @@ export const KeySequence = List(KeyCombination)
 export type KeySequence = Infer<typeof KeySequence>
 
 export type KeyBinding = {
+  description: string
   keys: KeySequence
-  cmd?: string
+  command?: string
   when?: SyncExecutableLike<Model, [], boolean>
   action: ExecutableLike<Model, [], void>
   priority?: number
