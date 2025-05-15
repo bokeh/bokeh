@@ -56,7 +56,7 @@ export abstract class RegionSelectToolView extends SelectToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["Escape"], action: () => this._stop_or_clear_selection()},
+      {description: "Stop or clear selection", keys: ["Escape"], action: () => this._stop_or_clear_selection()},
     ]
   }
 }

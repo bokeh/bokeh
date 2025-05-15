@@ -178,15 +178,15 @@ export class PanToolView extends GestureToolView {
     return [
       ...super.key_bindings(),
 
-      {keys: ["ArrowLeft"],  cmd: "pan_left",  action: () => this._pan_by("left")},
-      {keys: ["ArrowRight"], cmd: "pan_right", action: () => this._pan_by("right")},
-      {keys: ["ArrowUp"],    cmd: "pan_up",    action: () => this._pan_by("up")},
-      {keys: ["ArrowDown"],  cmd: "pan_down",  action: () => this._pan_by("down")},
+      {description: "Pan left",  keys: ["ArrowLeft"],  command: "pan_left",  action: () => this._pan_by("left")},
+      {description: "Pan right", keys: ["ArrowRight"], command: "pan_right", action: () => this._pan_by("right")},
+      {description: "Pan up",    keys: ["ArrowUp"],    command: "pan_up",    action: () => this._pan_by("up")},
+      {description: "Pan down",  keys: ["ArrowDown"],  command: "pan_down",  action: () => this._pan_by("down")},
 
-      {keys: ["p", "l"], action: () => this._pan_by("left")},
-      {keys: ["p", "r"], action: () => this._pan_by("right")},
-      {keys: ["p", "u"], action: () => this._pan_by("up")},
-      {keys: ["p", "d"], action: () => this._pan_by("down")},
+      {description: "Pan left",  keys: ["p", "l"], action: () => this._pan_by("left")},
+      {description: "Pan right", keys: ["p", "r"], action: () => this._pan_by("right")},
+      {description: "Pan up",    keys: ["p", "u"], action: () => this._pan_by("up")},
+      {description: "Pan down",  keys: ["p", "d"], action: () => this._pan_by("down")},
     ]
   }
 }

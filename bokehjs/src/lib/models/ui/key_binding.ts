@@ -8,7 +8,9 @@ export namespace KeyBinding {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    description: p.Property<string>
     key: p.Property<KeyCombination | KeySequence>
+    command: p.Property<string | null>
     when: p.Property<SyncExecutableLike<Model, [], boolean> | null>
     action: p.Property<ExecutableLike<Model, [], void>>
     priority: p.Property<number>
@@ -25,8 +27,10 @@ export class KeyBinding extends Model {
   }
 
   static {
-    this.define<KeyBinding.Props>(({Or, Ref, Nullable, Int, Func}) => ({
+    this.define<KeyBinding.Props>(({Str, Or, Ref, Nullable, Int, Func}) => ({
+      description: [ Str ],
       key: [ Or(KeyCombination, KeySequence) ],
+      command: [ Nullable(Str), null ],
       when: [ Nullable(Or(Ref(CustomJS), Func<[], boolean>())), null ],
       action: [ Or(Ref(CustomJS), Func<[], void | Promise<void>>()) ],
       priority: [ Int, 0 ],

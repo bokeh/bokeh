@@ -24,7 +24,7 @@ export class UndoToolView extends PlotActionToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["u"], cmd: "undo", action: () => this.doit()},
+      {description: "Undo last action", keys: ["u"], command: "undo", action: () => this.doit()},
     ]
   }
 }

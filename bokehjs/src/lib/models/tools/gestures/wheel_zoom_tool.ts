@@ -305,4 +305,6 @@ export class WheelZoomTool extends GestureTool {
     const {alt, ctrl, shift} = this.modifiers
     return alt != null || ctrl != null || shift != null
   }
+
+  override readonly toggle_key = ["w" as const, "z" as const]
 }

@@ -24,7 +24,7 @@ export class RedoToolView extends PlotActionToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["r"], cmd: "redo", action: () => this.doit()},
+      {description: "Redo last action", keys: ["r"], command: "redo", action: () => this.doit()},
     ]
   }
 }

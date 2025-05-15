@@ -854,7 +854,7 @@ export class UIEventBus {
 
     const find_cmd = (cmd: string): KeyBinding | null => {
       for (const binding of this._key_bindings) {
-        if (binding.cmd == cmd) {
+        if (binding.command == cmd) {
           return binding
         }
       }

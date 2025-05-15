@@ -14,8 +14,8 @@ export class ZoomOutToolView extends ZoomBaseToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["-"], cmd: "zoom_out", action: () => this.doit()},
-      {keys: ["z", "o"], cmd: "zoom_in", action: () => this.doit()},
+      {description: "Zoom Out", keys: ["-"], command: "zoom_out", action: () => this.doit()},
+      {description: "Zoom Out", keys: ["z", "o"], command: "zoom_out", action: () => this.doit()},
     ]
   }
 }

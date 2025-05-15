@@ -134,8 +134,9 @@ export abstract class ToolView extends View {
       const tool_name = this.model.tool_name.toLocaleLowerCase().replace(/ /g, "_")
       const key_seq = isArray(toggle_key) ? toggle_key : [toggle_key]
       bindings.push({
+        description: `Activate ${this.model.tool_name}`,
         keys: ["a", ...key_seq],
-        cmd: `activate_${tool_name}`,
+        command: `activate_${tool_name}`,
         action: () => { this.model.active = !this.model.active },
       })
     }

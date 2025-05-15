@@ -7412,10 +7412,15 @@
   },
   KeyBinding: {
     __extends__: "Model",
+    description: {
+      type: "symbol",
+      name: "unset",
+    },
     key: {
       type: "symbol",
       name: "unset",
     },
+    command: null,
     when: null,
     action: {
       type: "symbol",
