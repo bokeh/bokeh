@@ -33,6 +33,7 @@ from ...core.properties import (
     Nullable,
     Required,
     Seq,
+    String,
 )
 from ...model import Model
 from ...util.helpers import flatten
@@ -112,8 +113,16 @@ class KeyBinding(Model):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+    description = Required(String, help="""
+    Descriptive explanation of the binding.
+    """)
+
     key = Required(Either(Enum(KeyCombination), Seq(Enum(KeyCombination))), help="""
     A single key combination or a sequence of key combinations.
+    """)
+
+    command = Nullable(String, default=None, help="""
+    Command name excluding leader character (typically colon).
     """)
 
     when = Nullable(Instance(Callback), default=None, help="""

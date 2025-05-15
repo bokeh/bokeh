@@ -14,7 +14,7 @@ export class ResetToolView extends PlotActionToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {keys: ["R"], cmd: "reset", action: () => this.doit()},
+      {description: "Reset plot state", keys: ["R"], command: "reset", action: () => this.doit()},
     ]
   }
 }
