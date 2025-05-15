@@ -27,8 +27,8 @@ from . import (
     examiner,
     floating,
     icons,
+    keyboard,
     menus,
-    other,
     panels,
     panes,
     tooltips,
@@ -38,8 +38,8 @@ from .dialogs import *
 from .examiner import *
 from .floating import *
 from .icons import *
+from .keyboard import *
 from .menus import *
-from .other import *
 from .panels import *
 from .panes import *
 from .tooltips import *
@@ -58,8 +58,8 @@ __all__ = (
     *_all(icons),
     *_all(examiner),
     *_all(floating),
+    *_all(keyboard),
     *_all(menus),
-    *_all(other),
     *_all(panels),
     *_all(panes),
     *_all(tooltips),
