@@ -127,7 +127,7 @@ export class HelpToolView extends ActionToolView {
   override key_bindings(): KeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Open help dialog", keys: ["H"], command: ":help", action: () => this.doit()},
+      {description: "Open help dialog", keys: ["H"], command: "help", action: () => this.doit()},
     ]
   }
 }
