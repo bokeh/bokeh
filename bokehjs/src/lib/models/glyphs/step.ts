@@ -60,8 +60,9 @@ export class StepView extends XYGlyphView {
       drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
     }
 
-    for (const i of indices) {
-      const next_finite = isFinite(sx[i+1] + sy[i+1]) && indices.includes(i+1)
+    for (let k = 0; k < indices.length; k++) {
+      const i = indices[k]
+      const next_finite = isFinite(sx[i+1] + sy[i+1]) && indices[k+1] == i+1
       switch (mode) {
         case "before":
           drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
