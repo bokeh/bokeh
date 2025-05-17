@@ -27,7 +27,7 @@ from typing import Any, overload
 from ...util.strings import nice_join
 from .. import enums
 from ._sphinx import model_link, property_link, register_type_link
-from .bases import Init
+from .bases import Init, Property
 from .either import Either
 from .primitive import Int, String
 from .singletons import Intrinsic
@@ -102,6 +102,13 @@ class Enum(Either):
 
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"
         raise ValueError(msg)
+
+    # override replace so that .replace() doesn't descend this type
+    def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            return self
 
 #-----------------------------------------------------------------------------
 # Dev API
