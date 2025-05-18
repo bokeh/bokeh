@@ -943,7 +943,9 @@ class Serve(Subcommand):
 
         if server_kwargs['autoreload']:
             if len(applications.keys()) != 1:
-                die("--dev can only support a single app.")
+                die("Bokeh server --dev option can only support a single app")
+            if len(args.files) == 0:
+                die("Bokeh server --dev option requires an app script or directory be provided")
             if server_kwargs['num_procs'] != 1:
                 log.info("Running in --dev mode. --num-procs is limited to 1.")
                 server_kwargs['num_procs'] = 1

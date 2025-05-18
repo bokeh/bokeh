@@ -67,7 +67,7 @@ def die(message: str, status: int = 1) -> Never:
         status (int) : the exit status to pass to ``sys.exit``
 
     '''
-    print(message, file=sys.stderr)
+    print(f"ERROR: {message}", file=sys.stderr)
     sys.exit(status)
 
 DIRSTYLE_MAIN_WARNING = """
