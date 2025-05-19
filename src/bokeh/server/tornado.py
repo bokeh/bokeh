@@ -456,9 +456,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super().__init__(all_patterns, # type: ignore[arg-type] # TODO: this may be another bug in mypy (not sure; but looks suspicious)
-            websocket_max_message_size=websocket_max_message_size_bytes,
-            **kwargs)
+        super().__init__(all_patterns, websocket_max_message_size=websocket_max_message_size_bytes, **kwargs)
 
     def initialize(self, io_loop: IOLoop) -> None:
         ''' Start a Bokeh Server Tornado Application on a given Tornado IOLoop.
