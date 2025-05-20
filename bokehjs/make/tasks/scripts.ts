@@ -1,4 +1,5 @@
 import {join, relative} from "path"
+import cp from "child_process"
 import fs from "fs"
 
 import {task, passthrough, BuildError} from "../task"
@@ -32,6 +33,27 @@ task("scripts:styles", ["styles:compile"], async () => {
   wrap_css_modules(css_dir, js_dir, dts_dir, dts_internal_dir)
 })
 
+task("scripts:grammar", async () => {
+  function compile_grammar(ne_path: string, js_path: string) {
+    const is_windows = process.platform == "win32"
+    const npx = is_windows ? "npx.cmd" : "npx"
+    const {status, stdout, stderr} = cp.spawnSync(npx, ["nearleyc", ne_path, "-o", js_path], {stdio: "pipe", encoding: "utf-8", shell: is_windows})
+    if (status !== 0) {
+      console.error(stdout)
+      console.error(stderr)
+      throw new BuildError("pack", `failed to run '${npx} nearleyc'`)
+    }
+  }
+
+  const base = paths.src_dir.grammar
+  for (const ne_path of scan(base, [".ne"])) {
+    const sub_path = relative(base, ne_path)
+    const js_path = rename(join(paths.build_dir.lib, sub_path), {ext: ".js"})
+    write(js_path, "") // make sure path exists before running nearleyc
+    compile_grammar(ne_path, js_path)
+  }
+})
+
 task("scripts:glsl", async () => {
   const lib_base = paths.src_dir.lib
 
@@ -55,7 +77,7 @@ export default shader;
   }
 })
 
-task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:version"], async () => {
+task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar", "scripts:version"], async () => {
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
 })
 
