@@ -4,7 +4,7 @@ import {PickerBase, PickerBaseView} from "./picker_base"
 import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {Or, Tuple, Str, Float, List, Ref, Struct} from "core/kinds"
-import {assert} from "core/util/assert"
+import {unreachable} from "core/util/assert"
 
 export type DateLike = typeof DateLike["__type__"]
 export const DateLike = Or(Ref(Date), Str, Float)
@@ -108,7 +108,7 @@ export abstract class BaseDatePickerView extends PickerBaseView {
       case 2:
         break
       default: {
-        assert(false, "invalid length")
+        unreachable("invalid length")
       }
     }
   }
