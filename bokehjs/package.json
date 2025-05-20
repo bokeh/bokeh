@@ -40,6 +40,7 @@
   "main": "build/js/lib/bokeh.js",
   "types": "build/js/lib/bokeh.d.ts",
   "dependencies": {
+    "@types/nearley": "^2.11.5",
     "@bokeh/numbro": "^1.6.2",
     "@bokeh/slickgrid": "~2.4.4103",
     "@types/geojson": "^7946.0.13",
@@ -51,6 +52,7 @@
     "flatbush": "^4.4.1",
     "flatpickr": "^4.6.13",
     "mathjax-full": "^3.2.2",
+    "nearley": "^2.20.1",
     "nouislider": "^15.7.1",
     "proj4": "^2.11.0",
     "regl": "^2.1.0",
