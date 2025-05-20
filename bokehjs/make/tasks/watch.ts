@@ -14,6 +14,7 @@ task("watch", [], async () => {
   const watched_paths = new Map([
     [paths.src_dir.less, build_scripts], // build_styles
     [paths.src_dir.lib, build_scripts],
+    [paths.src_dir.grammar, build_scripts],
     [paths.test_dir.defaults, build_defaults],
     [paths.test_dir.unit, build_unit],
     [paths.test_dir.integration, build_integration],

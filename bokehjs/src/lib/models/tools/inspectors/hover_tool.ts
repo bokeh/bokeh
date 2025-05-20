@@ -16,7 +16,7 @@ import type {CallbackLike1} from "core/util/callbacks"
 import {execute, execute_sync} from "core/util/callbacks"
 import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
-import {replace_placeholders, get_value} from "core/util/templating"
+import {replace_placeholders_html, get_value, Skip} from "core/util/templating"
 import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
@@ -68,7 +68,7 @@ export type TooltipVars = {
   snap_y: number
   snap_sx: number
   snap_sy: number
-  name: string | null
+  name?: string | null
   indices?: MultiIndices | OpaqueIndices
   segment_index?: number
   image_index?: ImageIndex
@@ -515,7 +515,7 @@ export class HoverToolView extends InspectToolView {
     const tooltips = collected
       .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
-      .map(({ds, vars}) => ({html: this._render_tooltips(ds, vars), vars}))
+      .map(({ds, vars}) => ({html: this._render_tooltips_if_can(ds, vars), vars}))
       .filter(({html}) => html != null)
       .map((tooltip, i) => ({i, ...tooltip}))
 
@@ -708,14 +708,8 @@ export class HoverToolView extends InspectToolView {
       const color_match = value.match(COLOR_RE)
 
       if (swatch_match == null && color_match == null) {
-        const content = replace_placeholders(value.replace("$~", "$data_"), ds, index, this.model.formatters, vars)
-        if (isString(content)) {
-          value_els[j].textContent = content
-        } else {
-          for (const el of content) {
-            value_els[j].appendChild(el)
-          }
-        }
+        const content = replace_placeholders_html(value.replace("$~", "$data_"), ds, index, this.model.formatters, vars)
+        value_els[j].append(...content)
         continue
       }
 
@@ -761,6 +755,18 @@ export class HoverToolView extends InspectToolView {
     return el
   }
 
+  _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
+    try {
+      return this._render_tooltips(ds, vars)
+    } catch (error) {
+      if (error instanceof Skip) {
+        return null
+      } else {
+        throw error
+      }
+    }
+  }
+
   _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
     const {tooltips} = this.model
 
@@ -768,7 +774,7 @@ export class HoverToolView extends InspectToolView {
     const index = vars.image_index ?? vars.index
 
     if (isString(tooltips)) {
-      const content = replace_placeholders({html: tooltips}, ds, index, this.model.formatters, vars)
+      const content = replace_placeholders_html(tooltips, ds, index, this.model.formatters, vars)
       return div(content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
