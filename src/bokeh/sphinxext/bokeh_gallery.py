@@ -158,6 +158,9 @@ def config_inited_handler(app, config):
 def get_details(app):
     details = []
     for subdir in app.config.bokeh_example_subdirs:
+        if _REPO_TOP is None:
+            log.warning("Could not find the Bokeh repo top directory.")
+            return []
         for name in os.listdir(_REPO_TOP / "examples" / subdir):
             path = PurePath("examples", subdir, name).as_posix()
             if not name.startswith('_') and name.endswith('.py') and path not in app.config.bokeh_sampledata_xref_skiplist:

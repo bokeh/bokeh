@@ -135,6 +135,9 @@ def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None
     empty.
 
     """
+    if _REPO_TOP is None:
+        log.error("Bokeh repository top directory not found. Cannot determine minimum Python version.")
+        return [], []
     pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
     node = nodes.Text(pyproject["project"]["requires-python"].lstrip(">="))
     return [node], []
@@ -169,10 +172,11 @@ def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=N
     empty.
 
     """
-    pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
     node = nodes.bullet_list()
-    for dep in pyproject["project"]["dependencies"]:
-        node += nodes.list_item("", nodes.Text(dep))
+    if _REPO_TOP is not None:
+        pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
+        for dep in pyproject["project"]["dependencies"]:
+            node += nodes.list_item("", nodes.Text(dep))
     return [node], []
 
 

@@ -44,8 +44,12 @@ __all__ = ("get_sphinx_resources",)
 # Dev API
 # -----------------------------------------------------------------------------
 
-# TODO (bv) this needs to be a configuration
-_REPO_TOP = PurePath(os.getcwd()).parents[1]
+# try-except context: https://github.com/bokeh/bokeh/issues/14499
+try:
+    # TODO (bv) this needs to be a configuration
+    _REPO_TOP: "PurePath | None" = PurePath(os.getcwd()).parents[1]
+except:
+    _REPO_TOP = None
 
 def get_sphinx_resources(include_bokehjs_api=False):
     docs_cdn = settings.docs_cdn()
