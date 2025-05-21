@@ -5,8 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
-import pathlib
 import os
+import pathlib
 
 __all__ = (
     "_REPO_TOP",
