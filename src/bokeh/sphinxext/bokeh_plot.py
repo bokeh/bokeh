@@ -223,9 +223,6 @@ class BokehPlotDirective(BokehDirective):
         path = self.arguments[0]
         log.debug(f"[bokeh-plot] handling external content in {self.env.docname!r}: {path}")
         if path.startswith("__REPO__/"):
-            # __REPO__ is an internal/undocumented convention for Bokeh's own docs
-            if _REPO_TOP is None:
-                raise SphinxError(f"bokeh-plot:: __REPO__ convention requires _REPO_TOP to be set")
             path = join(_REPO_TOP, path.replace("__REPO__/", ""))
         elif not path.startswith("/"):
             path = join(self.env.app.srcdir, path)
