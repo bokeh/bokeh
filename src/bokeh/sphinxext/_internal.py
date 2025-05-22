@@ -5,13 +5,13 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
+# Standard library imports
 import os
 import pathlib
 
 __all__ = (
-    "_REPO_TOP",
+    "REPO_TOP",
 )
 
-# TODO (bv) this needs to be a configuration
 # issue #14499; moved from bokeh.sphinxext.util
-_REPO_TOP = pathlib.PurePath(os.getcwd()).parents[1]
+REPO_TOP = pathlib.PurePath(os.getcwd()).parents[1]

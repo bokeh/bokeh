@@ -134,8 +134,8 @@ def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None
     empty.
 
     """
-    from ._internal import _REPO_TOP
-    pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
+    from ._internal import REPO_TOP
+    pyproject = toml.load(join(REPO_TOP, "pyproject.toml"))
     node = nodes.Text(pyproject["project"]["requires-python"].lstrip(">="))
     return [node], []
 
@@ -169,8 +169,8 @@ def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=N
     empty.
 
     """
-    from ._internal import _REPO_TOP
-    pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
+    from ._internal import REPO_TOP
+    pyproject = toml.load(join(REPO_TOP, "pyproject.toml"))
     node = nodes.bullet_list()
     for dep in pyproject["project"]["dependencies"]:
         node += nodes.list_item("", nodes.Text(dep))
