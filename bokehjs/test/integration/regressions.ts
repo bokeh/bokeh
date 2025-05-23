@@ -41,7 +41,7 @@ import {
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -4589,6 +4589,22 @@ describe("Bug", () => {
       await view.ready
       await view.picker.close()
       expect(obj.value).to.be.equal(null)
+    })
+  })
+
+  describe("in issue #14503", () => {
+    it("doesn't reset value when picker is closed mid selection", async () => {
+      const d0 = "2023-01-23 08:30"
+      const obj = new DatetimePicker({value: d0, width: 400})
+      const {view} = await display(obj, [600, 500])
+      await open_picker(view)
+      const days_el = view.shadow_el.querySelectorAll<HTMLElement>(".flatpickr-day")
+      expect_not_null(days_el)
+      await view.ready
+      await mouse_click(days_el[2])
+      await view.ready
+      await view.picker.close()
+      expect(obj.value).to.not.be.equal(null)
     })
   })
 })
