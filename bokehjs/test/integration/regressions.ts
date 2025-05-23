@@ -4593,7 +4593,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14503", () => {
-    it("doesn't reset value when picker is closed mid selection", async () => {
+    it("doesn't keep picked datetime value after closing", async () => {
       const d0 = "2023-01-23 08:30"
       const obj = new DatetimePicker({value: d0, width: 400})
       const {view} = await display(obj, [600, 500])
