@@ -22,9 +22,13 @@ export class DatetimeRangePickerView extends BaseDatetimePickerView {
   protected _on_close(selected: Date[]): void {
     switch (selected.length) {
       case 0:
+        break
       case 1: {
         // Incomplete selection, treat as no selection.
         this.model.value = null
+        this.picker.clear(false, false)
+        this.picker._input.focus()
+        this.picker.close()
         break
       }
       case 2:
