@@ -551,7 +551,7 @@ export class LegendView extends AnnotationView {
       return
     }
 
-    if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
+    if (this.is_dual_renderer && !this.plot_view.is_forcing_paint) {
       if (this._should_rerender_items) {
         this._render_items()
       }

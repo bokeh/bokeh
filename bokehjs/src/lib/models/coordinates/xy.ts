@@ -20,8 +20,12 @@ export class XY extends Coordinate {
 
   static {
     this.define<XY.Props>(({Float}) => ({
-      x: [ Float ],
-      y: [ Float ],
+      x: [ Float, NaN ],
+      y: [ Float, NaN ],
     }))
+  }
+
+  translate(tx: number, ty: number): XY {
+    return new XY({x: this.x + tx, y: this.y + ty})
   }
 }

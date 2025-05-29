@@ -674,11 +674,13 @@ ToolIcon = enumeration(ToolIconType)
 #: Known tool names/aliases
 ToolNameType = Literal[
   "auto_box_zoom",
+  "angle",
   "box_select",
   "box_zoom",
   "click",
   "copy",
   "crosshair",
+  "distance",
   "doubletap",
   "examine",
   "freehand_draw",

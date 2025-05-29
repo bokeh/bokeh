@@ -311,6 +311,12 @@ class Test_bce:
     def test_PanDirection(self) -> None:
         assert tuple(bce.PanDirection) == ("left", "right", "up", "down", "west", "east", "north", "south")
 
+    def test_RadiusDimension(self) -> None:
+        assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")
+
+    def test_RegionSelectionMode(self) -> None:
+        assert tuple(bce.RegionSelectionMode) == ("replace", "append", "intersect", "subtract", "xor")
+
     def test_RenderLevel(self) -> None:
         assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
@@ -325,12 +331,6 @@ class Test_bce:
 
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
-
-    def test_RadiusDimension(self) -> None:
-        assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")
-
-    def test_RegionSelectionMode(self) -> None:
-        assert tuple(bce.RegionSelectionMode) == ("replace", "append", "intersect", "subtract", "xor")
 
     def test_SelectionMode(self) -> None:
         assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract", "xor", "toggle")
@@ -441,11 +441,13 @@ class Test_bce:
     def test_ToolName(self) -> None:
         assert tuple(bce.ToolName) == (
             "auto_box_zoom",
+            "angle",
             "box_select",
             "box_zoom",
             "click",
             "copy",
             "crosshair",
+            "distance",
             "doubletap",
             "examine",
             "freehand_draw",

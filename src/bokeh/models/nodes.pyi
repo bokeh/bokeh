@@ -10,7 +10,8 @@ from dataclasses import dataclass
 from typing import ClassVar, Literal
 
 # Bokeh imports
-from .._types import CoordinateLike
+from .._types import Angle, CoordinateLike, NonNegative
+from ..core.enums import AngleUnitsType as AngleUnits, DirectionType as Direction
 from ..core.has_props import abstract
 from ..model import Model
 from .glyphs import Glyph
@@ -103,3 +104,16 @@ class Node(Coordinate):
     frame: ClassVar[BoxNodes] = ...
 
     parent: ClassVar[BoxNodes] = ...
+
+@dataclass
+class Polar(Coordinate):
+
+    origin: Coordinate = ...
+
+    radius: NonNegative[float] = ...
+
+    angle: Angle = ...
+
+    angle_units: AngleUnits = ...
+
+    direction: Direction = ...
