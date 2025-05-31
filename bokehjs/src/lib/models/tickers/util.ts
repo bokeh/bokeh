@@ -9,6 +9,8 @@
 // used anywhere.  Should we restore them?
 
 // Some time constants, in milliseconds.
+export const ONE_NANO = 0.000001
+export const ONE_MICRO = 0.001
 export const ONE_MILLI = 1.0
 export const ONE_SECOND = 1000.0
 export const ONE_MINUTE = 60.0 * ONE_SECOND

@@ -32,6 +32,7 @@ from ..core.enums import (
     NumeralLanguage,
     ResolutionType,
     RoundingFunction,
+    TimedeltaResolutionType,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -63,6 +64,7 @@ __all__ = (
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
     "DatetimeTickFormatter",
+    "TimedeltaTickFormatter",
     "LogTickFormatter",
     "MercatorTickFormatter",
     "NumeralTickFormatter",
@@ -79,6 +81,13 @@ def _DATETIME_TICK_FORMATTER_HELP(field: str) -> str:
     Formats for displaying datetime values in the {field} range.
 
     See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
+    """
+
+def _TIMEDELTA_TICK_FORMATTER_HELP(field: str) -> str:
+    return f"""
+    Formats for displaying timedelta values in the {field} range.
+
+    See the :class:`~bokeh.models.formatters.TimedeltaTickFormatter` help for a list of all supported formats.
     """
 
 #-----------------------------------------------------------------------------
@@ -632,6 +641,93 @@ class DatetimeTickFormatter(TickFormatter):
     """)
 
 
+class TimedeltaTickFormatter(TickFormatter):
+    ''' A ``TickFormatter`` for displaying timedelta values nicely across a
+    range of scales.
+
+    ``TimedeltaTickFormatter`` has the following properties (listed together
+    with their default values) that can be used to control the formatting
+    of axis ticks at different scales:
+
+    Each scale property can be set to format or list of formats to use for
+    formatting timedelta tick values that fall in that "time scale".
+    By default, only the first format string passed for each time scale
+    will be used.
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
+                          default="")
+
+    microseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``microseconds``"),
+                          default="")
+
+    milliseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``milliseconds``"),
+                          default="")
+
+    seconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``seconds``"),
+                     default="")
+
+    minsec = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
+                    default="")
+
+    minutes = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minutes``"),
+                     default="")
+
+    hourmin = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
+                     default="")
+
+    hours = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hours``"),
+                   default="")
+
+    days = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``days``"),
+                  default="")
+
+    strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)), default=False, help="""
+    Whether to strip any leading zeros in the formatted ticks.
+
+    Valid values are:
+
+    * ``True`` or ``False`` (default) to set stripping across all resolutions.
+    * A sequence of resolution types, e.g. ``["microseconds", "milliseconds"]``, to enable
+      scale-dependent stripping of leading zeros.
+    """)
+
+    hide_repeats = Bool(default=False, help="""
+    Whether repeated formatted tick values will be suppressed.
+
+    For example, an initial set of ticks ``["06/07", "06/07", "06/07", "06/08",
+    "06/08"]`` will become ``["06/07", "", "", "06/08", ""]``. Only the base
+    label, without any additional context, is considered when determining
+    repeats. If the context itself is a ``TimeDeltaTickFormatter``, then this
+    property may also be set for the context separately, if desired.
+    """)
+
+    context = Nullable(Either(String, Instance("bokeh.models.formatters.TimedeltaTickFormatter")), default=None, help="""
+    A format for adding context to the tick or ticks specified by ``context_which``.
+    Valid values are:
+
+    * None, no context is added
+    * A standard :class:`~bokeh.models.TimedeltaTickFormatter` format string, the single format is
+      used across all scales
+    * Another :class:`~bokeh.models.TimedeltaTickFormatter` instance, to have scale-dependent
+      context
+    """)
+
+    context_which = Enum(ContextWhich, default="start", help="""
+    Which tick or ticks to add a formatted context string to. Valid values are:
+    `"start"`, `"end"`, `"center"`, and  `"all"`.
+    """)
+
+    context_location = Enum(Location, default="below", help="""
+    Relative to the tick label text baseline, where the context should be
+    rendered. Valid values are: `"below"`, `"above"`, `"left"`, and `"right"`.
+    """)
+
+
 def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
     return DatetimeTickFormatter(
         microseconds="%T",
@@ -688,6 +784,47 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
                 months="",
                 years="",
                 boundary_scaling=False,
+                hide_repeats=True,
+                context=None,
+            ),
+        ),
+    )
+
+def CONTEXTUAL_TIMEDELTA_FORMATTER() -> TimedeltaTickFormatter:
+    return TimedeltaTickFormatter(
+        nanoseconds="%Nanons",
+        microseconds="%Microus",
+        milliseconds="%Millims",
+        seconds="%Hour:%Minute:%Second",
+        minsec="%Hour:%Minute:%Second",
+        minutes="%Hour:%Minute h",
+        hourmin="%Hour:%Minute h",
+        hours="%Hour:%Minute h",
+        days="%day days",
+        strip_leading_zeros=["nanoseconds", "microseconds", "milliseconds"],
+        context_which="all",
+        context=TimedeltaTickFormatter(
+            nanoseconds="%Hour:%Minute:%Second.%Milli%Micro",
+            microseconds="%Hour:%Minute:%Second.%Milli",
+            milliseconds="%Hour:%Minute:%Second",
+            seconds="%day days",
+            minsec="%day days",
+            minutes="%day days",
+            hourmin="%day days",
+            hours="%day days",
+            days="",
+            hide_repeats=True,
+            context_which="all",
+            context=TimedeltaTickFormatter(
+                nanoseconds="%day days",
+                microseconds="%day days",
+                milliseconds="%day days",
+                seconds="",
+                minsec="",
+                minutes="",
+                hourmin="",
+                hours="",
+                days="",
                 hide_repeats=True,
                 context=None,
             ),

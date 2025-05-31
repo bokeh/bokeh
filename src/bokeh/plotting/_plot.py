@@ -49,6 +49,7 @@ from ..models import (
     Range,
     Range1d,
     Scale,
+    TimedeltaAxis,
 )
 
 if TYPE_CHECKING:
@@ -103,12 +104,12 @@ def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Seri
                 pass
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-AxisType: TypeAlias = Literal["linear", "log", "datetime", "mercator", "auto"]
+AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
 AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
 Dim: TypeAlias = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
-    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
+    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "timedelta", "mercator", "auto", None]:
         return LinearScale()
     elif isinstance(range_input, DataRange1d | Range1d) and axis_type == "log":
         return LogScale()
@@ -149,6 +150,8 @@ def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) ->
         return LogAxis, {}
     elif axis_type == "datetime":
         return DatetimeAxis, {}
+    elif axis_type == "timedelta":
+        return TimedeltaAxis, {}
     elif axis_type == "mercator":
         return MercatorAxis, dict(dimension='lon' if dim == 0 else 'lat')
     elif axis_type == "auto":
@@ -162,6 +165,7 @@ def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) ->
                 if Datetime.is_timestamp(value):
                     return LinearAxis, {}
                 Datetime.validate(Datetime(), value)
+                # ToDo timedelta
                 return DatetimeAxis, {}
             except ValueError:
                 pass
