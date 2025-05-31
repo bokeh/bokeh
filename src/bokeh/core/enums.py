@@ -157,6 +157,7 @@ __all__ = (
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
+    'TimedeltaResolutionType',
     'ToolIcon',
     'ToolName',
     'TooltipAttachment',
