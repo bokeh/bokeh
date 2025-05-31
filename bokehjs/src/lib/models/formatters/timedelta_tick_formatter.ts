@@ -69,10 +69,8 @@ export function _get_resolution(resolution_secs: number, span_secs: number): Tim
 
 export function _strftimedelta(t: number, format: string): string {
   for (const [k, v] of Object.entries(formatting_map)) {
-    console.log(`format ${format}`)
     const format_template = new RegExp(`((^|[^%])(%%)*)${k}`)
     if (format_template.test(format)) {
-      console.log(`format matched ${format}`)
       format = format.replace(format_template, `$1${v(t)}`)
     }
   }
@@ -124,7 +122,6 @@ export function _calc_time_in_unit(t: number, factor_transform: number, factor_n
 
 function _time_since_next(t: number, factor_transform: number, factor_next: number): number {
   const millis_since_last_next = t % (factor_transform * factor_next)
-  console.log(`final ${millis_since_last_next/factor_transform}, millis_since_last_next ${millis_since_last_next}, factor_next ${factor_next}`)
   return millis_since_last_next/factor_transform
 }
 
@@ -184,7 +181,6 @@ export class TimedeltaTickFormatter extends TickFormatter {
   }
 
   doFormat(ticks: number[], _opts: {loc: number}, _resolution?: TimedeltaResolutionType): string[] {
-    console.log(this)
     if (ticks.length == 0) {
       return []
     }
@@ -211,7 +207,6 @@ export class TimedeltaTickFormatter extends TickFormatter {
   }
 
   _compute_label(t: number, resolution: TimedeltaResolutionType): string {
-    console.log(`t ${t}, this res ${this[resolution]}, res ${resolution}`)
     const s0 = _strftimedelta(t, this[resolution])
 
     const {strip_leading_zeros} = this
