@@ -1,11 +1,7 @@
-//import {range} from "core/util/array"
 import type * as p from "core/properties"
 
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {CompositeTicker} from "./composite_ticker"
-//import {DaysTicker} from "./days_ticker"
-//import {MonthsTicker} from "./months_ticker"
-//import {YearsTicker} from "./years_ticker"
 import {ONE_MILLI, ONE_SECOND, ONE_MINUTE, ONE_HOUR, ONE_DAY} from "./util"
 
 // This is a decent ticker for time data (in milliseconds).

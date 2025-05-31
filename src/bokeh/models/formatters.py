@@ -702,7 +702,7 @@ class TimedeltaTickFormatter(TickFormatter):
     For example, an initial set of ticks ``["06/07", "06/07", "06/07", "06/08",
     "06/08"]`` will become ``["06/07", "", "", "06/08", ""]``. Only the base
     label, without any additional context, is considered when determining
-    repeats. If the context itself is a ``TimeDeltaTickFormatter``, then this
+    repeats. If the context itself is a ``TimedeltaTickFormatter``, then this
     property may also be set for the context separately, if desired.
     """)
 
