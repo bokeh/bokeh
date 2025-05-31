@@ -28,6 +28,7 @@ from .color import (
     RGB,
     Color,
     ColorLike,
+    is_css_color,
 )
 
 #-----------------------------------------------------------------------------
@@ -40,6 +41,7 @@ __all__ = (
     'HSL',
     'RGB',
     'groups',
+    'is_css_color',
     'named',
 )
 

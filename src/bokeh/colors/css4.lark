@@ -1,0 +1,209 @@
+%import common.WS
+%import common.SIGNED_NUMBER -> NUMBER
+%import common.HEXDIGIT
+
+%ignore WS
+
+start: TRANSPARENT | NAMED | HEX | rgb | hsl | hwb | lab | lch | oklab | oklch | color
+
+HEX: "#" (HEXDIGIT~3 | HEXDIGIT~4 | HEXDIGIT~6 | HEXDIGIT~8)
+
+rgb: modern_rgb | legacy_rgb
+hsl: modern_hsl | legacy_hsl
+
+modern_rgb: (RGB | RGBA) COLOR_VALUE~3 ("/" ALPHA_VALUE)? ")"
+
+modern_hsl: (HSL | HSLA) HUE COLOR_VALUE~2 ("/" ALPHA_VALUE)? ")"
+
+legacy_rgb: RGB NUMBER "," NUMBER "," NUMBER ")"
+          | RGB PERCENTAGE "," PERCENTAGE "," PERCENTAGE ")"
+          | RGBA NUMBER "," NUMBER "," NUMBER ("," (PERCENTAGE | NUMBER))? ")"
+          | RGBA PERCENTAGE "," PERCENTAGE "," PERCENTAGE ("," (PERCENTAGE | NUMBER))? ")"
+
+legacy_hsl: HSL HUE_LEGACY "," PERCENTAGE "," PERCENTAGE ")"
+          | HSLA HUE_LEGACY "," PERCENTAGE "," PERCENTAGE ("," (PERCENTAGE | NUMBER))? ")"
+
+RGB: "rgb("i
+RGBA: "rgba("i
+
+HSL: "hsl("i
+HSLA: "hsla("i
+
+hwb: "hwb("i HUE COLOR_VALUE COLOR_VALUE ("/" ALPHA_VALUE)?
+
+lab: "lab("i COLOR_VALUE COLOR_VALUE COLOR_VALUE ("/" ALPHA_VALUE)?
+
+lch: "lch("i COLOR_VALUE COLOR_VALUE HUE ("/" ALPHA_VALUE)?
+
+oklab: "oklab("i COLOR_VALUE COLOR_VALUE COLOR_VALUE ("/" ALPHA_VALUE)?
+
+oklch: "oklch("i COLOR_VALUE COLOR_VALUE HUE ("/" ALPHA_VALUE)?
+
+color: "color("i colorspace_params ("/" ALPHA_VALUE)? ")"
+colorspace_params: predefined_rgb_params | xyz_params
+predefined_rgb_params: predefined_rgb COLOR_VALUE~3
+predefined_rgb: "srgb"i | "srgb-linear"i | "display-p3"i | "a98-rgb"i | "prophoto-rgb"i | "rec2020"i
+xyz_params: xyz_space COLOR_VALUE~3
+xyz_space: "xyz"i | "xyz-d50"i | "xyz-d65"i
+
+NONE: "none"i
+PERCENTAGE: NUMBER "%"
+ANGLE_UNIT: "deg"i | "grad"i | "rad"i | "turn"i
+ANGLE: NUMBER ANGLE_UNIT
+
+COLOR_VALUE: PERCENTAGE | NUMBER | NONE
+ALPHA_VALUE: PERCENTAGE | NUMBER | NONE
+
+HUE: ANGLE | NUMBER | NONE
+HUE_LEGACY: ANGLE | NUMBER
+
+TRANSPARENT: "transparent"i
+
+NAMED: "aliceblue"i
+     | "antiquewhite"i
+     | "aqua"i
+     | "aquamarine"i
+     | "azure"i
+     | "beige"i
+     | "bisque"i
+     | "black"i
+     | "blanchedalmond"i
+     | "blue"i
+     | "blueviolet"i
+     | "brown"i
+     | "burlywood"i
+     | "cadetblue"i
+     | "chartreuse"i
+     | "chocolate"i
+     | "coral"i
+     | "cornflowerblue"i
+     | "cornsilk"i
+     | "crimson"i
+     | "cyan"i
+     | "darkblue"i
+     | "darkcyan"i
+     | "darkgoldenrod"i
+     | "darkgray"i
+     | "darkgreen"i
+     | "darkgrey"i
+     | "darkkhaki"i
+     | "darkmagenta"i
+     | "darkolivegreen"i
+     | "darkorange"i
+     | "darkorchid"i
+     | "darkred"i
+     | "darksalmon"i
+     | "darkseagreen"i
+     | "darkslateblue"i
+     | "darkslategray"i
+     | "darkslategrey"i
+     | "darkturquoise"i
+     | "darkviolet"i
+     | "deeppink"i
+     | "deepskyblue"i
+     | "dimgray"i
+     | "dimgrey"i
+     | "dodgerblue"i
+     | "firebrick"i
+     | "floralwhite"i
+     | "forestgreen"i
+     | "fuchsia"i
+     | "gainsboro"i
+     | "ghostwhite"i
+     | "gold"i
+     | "goldenrod"i
+     | "gray"i
+     | "green"i
+     | "greenyellow"i
+     | "grey"i
+     | "honeydew"i
+     | "hotpink"i
+     | "indianred"i
+     | "indigo"i
+     | "ivory"i
+     | "khaki"i
+     | "lavender"i
+     | "lavenderblush"i
+     | "lawngreen"i
+     | "lemonchiffon"i
+     | "lightblue"i
+     | "lightcoral"i
+     | "lightcyan"i
+     | "lightgoldenrodyellow"i
+     | "lightgray"i
+     | "lightgreen"i
+     | "lightgrey"i
+     | "lightpink"i
+     | "lightsalmon"i
+     | "lightseagreen"i
+     | "lightskyblue"i
+     | "lightslategray"i
+     | "lightslategrey"i
+     | "lightsteelblue"i
+     | "lightyellow"i
+     | "lime"i
+     | "limegreen"i
+     | "linen"i
+     | "magenta"i
+     | "maroon"i
+     | "mediumaquamarine"i
+     | "mediumblue"i
+     | "mediumorchid"i
+     | "mediumpurple"i
+     | "mediumseagreen"i
+     | "mediumslateblue"i
+     | "mediumspringgreen"i
+     | "mediumturquoise"i
+     | "mediumvioletred"i
+     | "midnightblue"i
+     | "mintcream"i
+     | "mistyrose"i
+     | "moccasin"i
+     | "navajowhite"i
+     | "navy"i
+     | "oldlace"i
+     | "olive"i
+     | "olivedrab"i
+     | "orange"i
+     | "orangered"i
+     | "orchid"i
+     | "palegoldenrod"i
+     | "palegreen"i
+     | "paleturquoise"i
+     | "palevioletred"i
+     | "papayawhip"i
+     | "peachpuff"i
+     | "peru"i
+     | "pink"i
+     | "plum"i
+     | "powderblue"i
+     | "purple"i
+     | "rebeccapurple"i
+     | "red"i
+     | "rosybrown"i
+     | "royalblue"i
+     | "saddlebrown"i
+     | "salmon"i
+     | "sandybrown"i
+     | "seagreen"i
+     | "seashell"i
+     | "sienna"i
+     | "silver"i
+     | "skyblue"i
+     | "slateblue"i
+     | "slategray"i
+     | "slategrey"i
+     | "snow"i
+     | "springgreen"i
+     | "steelblue"i
+     | "tan"i
+     | "teal"i
+     | "thistle"i
+     | "tomato"i
+     | "turquoise"i
+     | "violet"i
+     | "wheat"i
+     | "white"i
+     | "whitesmoke"i
+     | "yellow"i
+     | "yellowgreen"i
