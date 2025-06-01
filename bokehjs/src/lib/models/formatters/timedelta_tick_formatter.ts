@@ -15,20 +15,19 @@ export const resolution_order: TimedeltaResolutionType[] = [
 ]
 
 export const formatting_map: {[x: string]: any} = {
-  "%Nano": (t: number): string => _ns(t, true),
-  "%nano": (t: number): string => _ns(t, false),
-  "%Micro": (t: number): string => _us(t, true),
-  "%micro": (t: number): string => _us(t, false),
-  "%Milli": (t: number): string => _ms(t, true),
-  "%milli": (t: number): string => _ms(t, false),
-  "%Second": (t: number): string => _seconds(t, true),
-  "%second": (t: number): string => _seconds(t, false),
-  "%Minute": (t: number): string => _minutes(t, true),
-  "%minute": (t: number): string => _minutes(t, false),
-  "%Hour": (t: number): string => _hours(t, true),
-  "%hour": (t: number): string => _hours(t, false),
-  "%Day": (t: number): string => _days(t, true),
-  "%day": (t: number): string => _days(t, false),
+  "%Nano": (t: number): string => _ns(t),
+  "%nano": (t: number): string => _ns(t, null),
+  "%Micro": (t: number): string => _us(t),
+  "%micro": (t: number): string => _us(t, null),
+  "%Milli": (t: number): string => _ms(t),
+  "%milli": (t: number): string => _ms(t, null),
+  "%Second": (t: number): string => _seconds(t),
+  "%second": (t: number): string => _seconds(t, null),
+  "%Minute": (t: number): string => _minutes(t),
+  "%minute": (t: number): string => _minutes(t, null),
+  "%Hour": (t: number): string => _hours(t),
+  "%hour": (t: number): string => _hours(t, null),
+  "%day": (t: number): string => _days(t, null),
 }
 
 export function _get_resolution(resolution_secs: number, span_secs: number): TimedeltaResolutionType {
@@ -67,7 +66,7 @@ export function _get_resolution(resolution_secs: number, span_secs: number): Tim
   return "days"
 }
 
-export function _strftimedelta(t: number, format: string): string {
+export function _str_timedelta(t: number, format: string): string {
   for (const [k, v] of Object.entries(formatting_map)) {
     const format_template = new RegExp(`((^|[^%])(%%)*)${k}`)
     if (format_template.test(format)) {
@@ -77,43 +76,43 @@ export function _strftimedelta(t: number, format: string): string {
   return format
 }
 
-export function _days(t: number, has_next: boolean): string {
-  const days = _calc_time_in_unit(t, ONE_DAY, 7, has_next)
+export function _days(t: number, factor_next: number | null = null): string {
+  const days = _calc_time_in_unit(t, ONE_DAY, factor_next)
   return String(days)
 }
 
-export function _hours(t: number, has_next: boolean): string {
-  const hours = _calc_time_in_unit(t, ONE_HOUR, 24, has_next)
-  return has_next? sprintf("%02d", hours) : String(hours)
+export function _hours(t: number, factor_next: number | null = 24): string {
+  const hours = _calc_time_in_unit(t, ONE_HOUR, factor_next)
+  return factor_next !== null? sprintf("%02d", hours) : String(hours)
 }
 
-export function _minutes(t: number, has_next: boolean): string {
-  const minutes = _calc_time_in_unit(t, ONE_MINUTE, 60, has_next)
-  return has_next? sprintf("%02d", minutes) : String(minutes)
+export function _minutes(t: number, factor_next: number | null = 60): string {
+  const minutes = _calc_time_in_unit(t, ONE_MINUTE, factor_next)
+  return factor_next !== null? sprintf("%02d", minutes) : String(minutes)
 }
 
-export function _seconds(t: number, has_next: boolean): string {
-  const seconds = _calc_time_in_unit(t, ONE_SECOND, 60, has_next)
-  return has_next? sprintf("%02d", seconds) : String(seconds)
+export function _seconds(t: number, factor_next: number | null = 60): string {
+  const seconds = _calc_time_in_unit(t, ONE_SECOND, factor_next)
+  return factor_next !== null? sprintf("%02d", seconds) : String(seconds)
 }
 
-export function _ms(t: number, has_next: boolean): string {
-  const millis = _calc_time_in_unit(t, ONE_MILLI, 1_000, has_next)
-  return has_next? sprintf("%03d", millis) : String(millis)
+export function _ms(t: number, factor_next: number | null = 1_000): string {
+  const millis = _calc_time_in_unit(t, ONE_MILLI, factor_next)
+  return factor_next !== null? sprintf("%03d", millis) : String(millis)
 }
 
-export function _us(t: number, has_next: boolean): string {
-  const us = Math.round(_calc_time_in_unit(t, ONE_MICRO, 1_000, has_next))
-  return has_next? sprintf("%03d", us) : String(us)
+export function _us(t: number, factor_next: number | null = 1_000_000): string {
+  const us = Math.round(_calc_time_in_unit(t, ONE_MICRO, factor_next))
+  return factor_next !== null? sprintf("%06d", us) : String(us)
 }
 
-export function _ns(t: number, has_next: boolean): string {
-  const ns = Math.round(_calc_time_in_unit(t, ONE_NANO, 1_000, has_next))
-  return has_next? sprintf("%03d", ns) : String(ns)
+export function _ns(t: number, factor_next: number | null = 1_000_000_000): string {
+  const ns = Math.round(_calc_time_in_unit(t, ONE_NANO, factor_next))
+  return factor_next !== null? sprintf("%09d", ns) : String(ns)
 }
 
-export function _calc_time_in_unit(t: number, factor_transform: number, factor_next: number, has_next: boolean) {
-  if (has_next) {
+export function _calc_time_in_unit(t: number, factor_transform: number, factor_next: number | null) {
+  if (factor_next !== null) {
     return _time_since_next(t, factor_transform, factor_next)
   } else {
     return _time_total(t, factor_transform)
@@ -207,7 +206,7 @@ export class TimedeltaTickFormatter extends TickFormatter {
   }
 
   _compute_label(t: number, resolution: TimedeltaResolutionType): string {
-    const s0 = _strftimedelta(t, this[resolution])
+    const s0 = _str_timedelta(t, this[resolution])
 
     const {strip_leading_zeros} = this
     if ((isBoolean(strip_leading_zeros) && strip_leading_zeros) ||
@@ -230,7 +229,7 @@ export class TimedeltaTickFormatter extends TickFormatter {
     const context_labels: string[] = []
     if (isString(context)) {
       for (const tick of ticks) {
-        context_labels.push(_strftimedelta(tick, context))
+        context_labels.push(_str_timedelta(tick, context))
       }
     } else {
       context_labels.push(...context.doFormat(ticks, {loc: 0}, resolution))
