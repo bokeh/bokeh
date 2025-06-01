@@ -14,18 +14,18 @@ export const resolution_order: TimedeltaResolutionType[] = [
   "nanoseconds", "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days",
 ]
 
-export const formatting_map: {[x: string]: any} = {
-  "%Nano": (t: number): string => _ns(t),
+export const formatting_map: {[template: string]: any} = {
+  "%Nano": (t: number): string => _ns(t, 1_000),
   "%nano": (t: number): string => _ns(t, null),
-  "%Micro": (t: number): string => _us(t),
+  "%Micro": (t: number): string => _us(t, 1_000),
   "%micro": (t: number): string => _us(t, null),
-  "%Milli": (t: number): string => _ms(t),
+  "%Milli": (t: number): string => _ms(t, 1_000),
   "%milli": (t: number): string => _ms(t, null),
-  "%Second": (t: number): string => _seconds(t),
+  "%Second": (t: number): string => _seconds(t, 60),
   "%second": (t: number): string => _seconds(t, null),
-  "%Minute": (t: number): string => _minutes(t),
+  "%Minute": (t: number): string => _minutes(t, 60),
   "%minute": (t: number): string => _minutes(t, null),
-  "%Hour": (t: number): string => _hours(t),
+  "%Hour": (t: number): string => _hours(t, 24),
   "%hour": (t: number): string => _hours(t, null),
   "%day": (t: number): string => _days(t, null),
 }
@@ -76,51 +76,61 @@ export function _str_timedelta(t: number, format: string): string {
   return format
 }
 
-export function _days(t: number, factor_next: number | null = null): string {
-  const days = _calc_time_in_unit(t, ONE_DAY, factor_next)
-  return String(days)
+export function _days(t: number, factor_next: number | null): string {
+  const days = _calc_tick_value(t, ONE_DAY, factor_next)
+  return _str_tick_value(days, factor_next)
 }
 
-export function _hours(t: number, factor_next: number | null = 24): string {
-  const hours = _calc_time_in_unit(t, ONE_HOUR, factor_next)
-  return factor_next !== null? sprintf("%02d", hours) : String(hours)
+export function _hours(t: number, factor_next: number | null): string {
+  const hours = _calc_tick_value(t, ONE_HOUR, factor_next)
+  return _str_tick_value(hours, factor_next)
 }
 
-export function _minutes(t: number, factor_next: number | null = 60): string {
-  const minutes = _calc_time_in_unit(t, ONE_MINUTE, factor_next)
-  return factor_next !== null? sprintf("%02d", minutes) : String(minutes)
+export function _minutes(t: number, factor_next: number | null): string {
+  const minutes = _calc_tick_value(t, ONE_MINUTE, factor_next)
+  return _str_tick_value(minutes, factor_next)
 }
 
-export function _seconds(t: number, factor_next: number | null = 60): string {
-  const seconds = _calc_time_in_unit(t, ONE_SECOND, factor_next)
-  return factor_next !== null? sprintf("%02d", seconds) : String(seconds)
+export function _seconds(t: number, factor_next: number | null): string {
+  const seconds = _calc_tick_value(t, ONE_SECOND, factor_next)
+  return _str_tick_value(seconds, factor_next)
 }
 
-export function _ms(t: number, factor_next: number | null = 1_000): string {
-  const millis = _calc_time_in_unit(t, ONE_MILLI, factor_next)
-  return factor_next !== null? sprintf("%03d", millis) : String(millis)
+export function _ms(t: number, factor_next: number | null): string {
+  const millis = _calc_tick_value(t, ONE_MILLI, factor_next)
+  return _str_tick_value(millis, factor_next)
 }
 
-export function _us(t: number, factor_next: number | null = 1_000_000): string {
-  const us = Math.round(_calc_time_in_unit(t, ONE_MICRO, factor_next))
-  return factor_next !== null? sprintf("%06d", us) : String(us)
+export function _us(t: number, factor_next: number | null): string {
+  const us = _calc_tick_value(t, ONE_MICRO, factor_next)
+  return _str_tick_value(us, factor_next)
 }
 
-export function _ns(t: number, factor_next: number | null = 1_000_000_000): string {
-  const ns = Math.round(_calc_time_in_unit(t, ONE_NANO, factor_next))
-  return factor_next !== null? sprintf("%09d", ns) : String(ns)
+export function _ns(t: number, factor_next: number | null): string {
+  const ns = _calc_tick_value(t, ONE_NANO, factor_next)
+  return _str_tick_value(ns, factor_next)
 }
 
-export function _calc_time_in_unit(t: number, factor_transform: number, factor_next: number | null) {
+function _str_tick_value(v: number, factor_next: number | null) {
+  return factor_next !== null? sprintf(`%0${`${factor_next-1}`.length}d`, v) : String(v)
+}
+
+function _calc_tick_value(t: number, factor_transform: number, factor_next: number | null) {
   if (factor_next !== null) {
-    return _time_since_next(t, factor_transform, factor_next)
+    return _time_since_last_next(t, factor_transform, factor_next)
   } else {
     return _time_total(t, factor_transform)
   }
 }
 
-function _time_since_next(t: number, factor_transform: number, factor_next: number): number {
+function _time_since_last_next(t: number, factor_transform: number, factor_next: number): number {
   const millis_since_last_next = t % (factor_transform * factor_next)
+  if (factor_transform < 1) {
+    // sub milliseconds
+    // account for floating point precision by rounding at nanoseconds level
+    const nanos_since_last = Math.round(millis_since_last_next * 1_000_000)
+    return (nanos_since_last / (factor_transform * 1_000_000)) % factor_next
+  }
   return millis_since_last_next/factor_transform
 }
 
