@@ -5,7 +5,7 @@ dependencies:
   - python=3.10
 
   # build
-  - boto
+  - boto3
   - build
   - colorama
   - conda-build=3.22.0

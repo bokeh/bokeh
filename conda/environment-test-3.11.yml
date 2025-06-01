@@ -78,7 +78,7 @@ dependencies:
     # tests
     - pandas-stubs >=2.2
     - ruff ==0.11.6
-    - types-boto
+    - types-boto3
     - types-colorama
     - types-mock
     - types-pillow
