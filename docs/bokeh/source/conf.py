@@ -44,25 +44,25 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "bokeh.sphinxext.bokeh_autodoc",
-    "bokeh.sphinxext.bokeh_dataframe",
-    "bokeh.sphinxext.bokeh_color",
-    "bokeh.sphinxext.bokeh_enum",
-    "bokeh.sphinxext.bokeh_example_metadata",
-    "bokeh.sphinxext.bokeh_gallery",
-    "bokeh.sphinxext.bokeh_jinja",
-    "bokeh.sphinxext.bokeh_model",
-    "bokeh.sphinxext.bokeh_options",
-    "bokeh.sphinxext.bokeh_palette",
-    "bokeh.sphinxext.bokeh_palette_group",
     "bokeh.sphinxext.bokeh_plot",
-    "bokeh.sphinxext.bokeh_prop",
-    "bokeh.sphinxext.bokeh_releases",
-    "bokeh.sphinxext.bokeh_roles",
-    "bokeh.sphinxext.bokeh_sampledata_xref",
-    "bokeh.sphinxext.bokeh_settings",
-    "bokeh.sphinxext.bokeh_sitemap",
-    "bokeh.sphinxext.bokehjs_content",
+    "bokeh.sphinxext._internal.bokeh_autodoc",
+    "bokeh.sphinxext._internal.bokeh_dataframe",
+    "bokeh.sphinxext._internal.bokeh_color",
+    "bokeh.sphinxext._internal.bokeh_enum",
+    "bokeh.sphinxext._internal.bokeh_example_metadata",
+    "bokeh.sphinxext._internal.bokeh_gallery",
+    "bokeh.sphinxext._internal.bokeh_jinja",
+    "bokeh.sphinxext._internal.bokeh_model",
+    "bokeh.sphinxext._internal.bokeh_options",
+    "bokeh.sphinxext._internal.bokeh_palette",
+    "bokeh.sphinxext._internal.bokeh_palette_group",
+    "bokeh.sphinxext._internal.bokeh_prop",
+    "bokeh.sphinxext._internal.bokeh_releases",
+    "bokeh.sphinxext._internal.bokeh_roles",
+    "bokeh.sphinxext._internal.bokeh_sampledata_xref",
+    "bokeh.sphinxext._internal.bokeh_settings",
+    "bokeh.sphinxext._internal.bokeh_sitemap",
+    "bokeh.sphinxext._internal.bokehjs_content",
 ]
 
 needs_sphinx = "4.3.2"
@@ -131,8 +131,6 @@ if "GOOGLE_API_KEY" not in os.environ:
             "or to build anyway (with broken Google Maps), set bokeh_missing_google_api_key_ok=True in conf.py "
             "or set BOKEH_DOCS_CDN=local in your environment.",
         )
-
-bokeh_plot_pyfile_include_dirs = ["docs"]
 
 bokeh_sampledata_xref_skiplist = [
     "examples/basic/data/ajax_source.py",

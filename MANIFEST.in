@@ -2,7 +2,7 @@
 graft src/bokeh/_sri
 graft src/bokeh/core/_templates
 graft src/bokeh/sampledata/_data
-graft src/bokeh/sphinxext/_templates
+graft src/bokeh/sphinxext/_internal/_templates
 include src/bokeh/server/views/*.html
 include src/bokeh/server/views/*.ico
 include src/bokeh/util/sampledata.json

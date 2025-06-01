@@ -63,10 +63,7 @@ result in a ``ValueError`` exception:
     ValueError: expected a value of type Integral, got 2.3 of type float
 
 Models with properties know how to serialize themselves, to be understood
-by BokehJS. Additionally, any help strings provided on properties can be
-easily and automatically extracted with the Sphinx extensions in the
-:ref:`bokeh.sphinxext` module.
-
+by BokehJS.
 
 Basic Properties
 ----------------

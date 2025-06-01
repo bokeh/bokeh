@@ -22,9 +22,6 @@ To avoid warnings about orphaned files, add the following to the Sphinx
 
     exclude_patterns = ['docs/releases/*']
 
-To enable this extension, add `"bokeh.sphinxext.bokeh_releases"` to the
-extensions list in your Sphinx configuration module.
-
 """
 
 # -----------------------------------------------------------------------------
@@ -60,7 +57,10 @@ from .templates import RELEASE_DETAIL
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = ("BokehReleases", "setup")
+__all__ = (
+    "BokehReleases",
+    "setup",
+)
 
 # -----------------------------------------------------------------------------
 # General API

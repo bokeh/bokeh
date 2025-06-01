@@ -10,13 +10,6 @@
 Each URL is listed on a line in the text file. It is machine readable
 and used by search engines to know what pages are available for indexing.
 
-All that is required to generate the sitemap is to list this module
-``bokeh.sphinxext.sitemap`` in the list of extensions in the Sphinx
-configuration file ``conf.py``.
-
-To enable this extension, add `"bokeh.sphinxext.bokeh_sitemap"` to the
-extensions list in your Sphinx configuration module.
-
 """
 
 # -----------------------------------------------------------------------------

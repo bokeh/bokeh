@@ -15,34 +15,7 @@ argument and the module as an option:
 
 .. code-block:: rest
 
-    .. bokeh-prop:: Bar.thing
-        :module: bokeh.sphinxext.sample
-
-Examples
---------
-
-For the following definition of ``bokeh.sphinxext.sample.Bar``:
-
-.. code-block:: python
-
-    class Bar(Model):
-        ''' This is a Bar model. '''
-        thing = List(Int, help="doc for thing")
-
-the above usage yields the output:
-
------
-
-.. bokeh-prop:: Bar.thing
-    :module: bokeh.sphinxext.sample
-
------
-
-The ``bokeh-prop`` direction may be used explicitly, but it can also be used
-in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
-
-To enable this extension, add `"bokeh.sphinxext.bokeh_prop"` to the
-extensions list in your Sphinx configuration module.
+    .. bokeh-prop:: SomeModel.thing
 
 """
 

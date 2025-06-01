@@ -4,7 +4,20 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Provide a base class and useful functions for Bokeh Sphinx directives.
+""" Generate an inline visual representations of a pandas Dataframe.
+
+This directive will embed the output of ``df.head().to_html()`` into the HTML
+output.
+
+For example:
+
+.. code-block:: rest
+
+    :bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
+
+Will generate the output:
+
+:bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
 
 """
 
@@ -22,32 +35,22 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-import re
+import importlib
 
 # External imports
 from docutils import nodes
-from docutils.statemachine import ViewList
-from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import nested_parse_with_titles
+from sphinx.errors import SphinxError
+
+# Bokeh imports
+from . import PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-# taken from Sphinx autodoc
-py_sig_re = re.compile(
-    r"""^ ([\w.]*\.)?            # class name(s)
-          (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional: arguments
-           (?:\s* -> \s* (.*))?  # return annotation
-          )? $                   # and nothing more
-          """,
-    re.VERBOSE,
-)
-
 __all__ = (
-    "BokehDirective",
-    "py_sig_re",
+    "bokeh_dataframe",
+    "setup",
 )
 
 # -----------------------------------------------------------------------------
@@ -59,17 +62,42 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehDirective(SphinxDirective):
+def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """Generate an inline visual representation of a single color palette.
 
-    def parse(self, rst_text, annotation):
-        result = ViewList()
-        for line in rst_text.split("\n"):
-            result.append(line, annotation)
-        node = nodes.paragraph()
-        node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
-        return node.children
+    If the HTML representation of the dataframe can not be created, a
+    SphinxError is raised to terminate the build.
 
+    For details on the arguments to this function, consult the Docutils docs:
+
+    http://docutils.sourceforge.net/docs/howto/rst-roles.html#define-the-role-function
+
+    """
+    import pandas as pd
+
+    module_name, df_name = text.rsplit(".", 1)
+
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError:
+        raise SphinxError(f"Unable to generate HTML table for {df_name}: couldn't import module {module_name}")
+
+    df = getattr(module, df_name, None)
+    if df is None:
+        raise SphinxError(f"Unable to generate HTML table for {df_name}: no Dataframe {df_name} in module {module_name}")
+
+    if not isinstance(df, pd.DataFrame):
+        raise SphinxError(f"{text!r} is not a pandas Dataframe")
+
+    node = nodes.raw("", df.head().to_html(), format="html")
+    return [node], []
+
+
+def setup(app):
+    """ Required Sphinx extension setup function. """
+    app.add_role("bokeh-dataframe", bokeh_dataframe)
+
+    return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API

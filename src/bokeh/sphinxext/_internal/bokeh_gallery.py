@@ -6,9 +6,6 @@
 # -----------------------------------------------------------------------------
 """ Generate a gallery of Bokeh plots from a configuration file.
 
-To enable this extension, add `"bokeh.sphinxext.bokeh_gallery"` to the
-extensions list in your Sphinx configuration module.
-
 """
 
 # -----------------------------------------------------------------------------
@@ -45,7 +42,7 @@ from sphinx.util import ensuredir
 from sphinx.util.display import status_iterator
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, REPO_TOP
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
@@ -155,7 +152,6 @@ def config_inited_handler(app, config):
 
 
 def get_details(app):
-    from ._internal import REPO_TOP
     details = []
     for subdir in app.config.bokeh_example_subdirs:
         for name in os.listdir(REPO_TOP / "examples" / subdir):

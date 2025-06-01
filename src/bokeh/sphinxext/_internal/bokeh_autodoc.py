@@ -7,16 +7,7 @@
 """ Integrate Bokeh extensions into Sphinx autodoc.
 
 Ensures that autodoc directives such as ``autoclass`` automatically make use of
-Bokeh-specific directives when appropriate. The following Bokeh extensions are
-configured:
-
-* :ref:`bokeh.sphinxext.bokeh_color`
-* :ref:`bokeh.sphinxext.bokeh_enum`
-* :ref:`bokeh.sphinxext.bokeh_model`
-* :ref:`bokeh.sphinxext.bokeh_prop`
-
-To enable this extension, add `"bokeh.sphinxext.bokeh_autodoc"` to the
-extensions list in your Sphinx configuration module.
+Bokeh-specific directives when appropriate.
 
 """
 

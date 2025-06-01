@@ -15,35 +15,7 @@ module as an option:
 
 .. code-block:: rest
 
-    .. bokeh-model:: Foo
-        :module: bokeh.sphinxext.sample
-
-Examples
---------
-
-For the following definition of ``bokeh.sphinxext.sample.Foo``:
-
-.. code-block:: python
-
-    class Foo(Model):
-        ''' This is a Foo model. '''
-        index = Either(Auto, Enum('abc', 'def', 'xzy'), help="doc for index")
-        value = Tuple(Float, Float, help="doc for value")
-
-usage yields the output:
-
-=====
-
-.. bokeh-model:: Foo
-    :module: bokeh.sphinxext.sample
-
-=====
-
-The ``bokeh-model`` direction may be used explicitly, but it can also be used
-in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
-
-To enable this extension, add `"bokeh.sphinxext.bokeh_model"` to the
-extensions list in your Sphinx configuration module.
+    .. bokeh-model:: SomeModel
 
 """
 

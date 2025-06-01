@@ -4,23 +4,24 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Generate an inline visual representations of a pandas Dataframe.
+""" Generate visual representations of palettes in Bokeh palette groups.
 
-This directive will embed the output of ``df.head().to_html()`` into the HTML
-output.
+The ``bokeh.palettes`` modules expose attributes such as ``mpl``, ``brewer``,
+and ``d3`` that provide groups of palettes. The ``bokeh-palette-group``
+directive accepts the name of one of these groups, and generates a visual
+matrix of colors for every palette in the group.
 
-For example:
+As an example, the following usage of the directive:
 
 .. code-block:: rest
 
-    :bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
+    .. bokeh-palette-group:: mpl
 
-Will generate the output:
+Generates the output:
 
-:bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
+-----
 
-To enable this extension, add `"bokeh.sphinxext.bokeh_dataframe"` to the
-extensions list in your Sphinx configuration module.
+.. bokeh-palette-group:: mpl
 
 """
 
@@ -37,22 +38,25 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
-import importlib
-
 # External imports
 from docutils import nodes
+from docutils.parsers.rst import Directive
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+import bokeh.palettes as bp
+
+# Bokeh imports
 from . import PARALLEL_SAFE
+from .templates import PALETTE_GROUP_DETAIL
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
 __all__ = (
-    "bokeh_dataframe",
+    "bokeh_palette_group",
+    "BokehPaletteGroupDirective",
     "setup",
 )
 
@@ -65,40 +69,43 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Generate an inline visual representation of a single color palette.
+class bokeh_palette_group(nodes.General, nodes.Element):
 
-    If the HTML representation of the dataframe can not be created, a
-    SphinxError is raised to terminate the build.
+    @staticmethod
+    def visit_html(visitor, node):
+        visitor.body.append('<div class="container-fluid"><div class="row">')
+        group = getattr(bp, node["group"], None)
+        if not isinstance(group, dict):
+            group_name = node["group"]
+            raise SphinxError(f"invalid palette group name {group_name}")
+        names = sorted(group)
+        for name in names:
+            palettes = group[name]
+            # arbitrary cutoff here, idea is to not show large (e.g. 256 length) palettes
+            numbers = [x for x in sorted(palettes) if x < 30]
+            html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
+            visitor.body.append(html)
+        visitor.body.append("</div></div>")
+        raise nodes.SkipNode
 
-    For details on the arguments to this function, consult the Docutils docs:
+    html = visit_html.__func__, None
 
-    http://docutils.sourceforge.net/docs/howto/rst-roles.html#define-the-role-function
 
-    """
-    import pandas as pd
+class BokehPaletteGroupDirective(Directive):
 
-    module_name, df_name = text.rsplit(".", 1)
+    has_content = False
+    required_arguments = 1
 
-    try:
-        module = importlib.import_module(module_name)
-    except ImportError:
-        raise SphinxError(f"Unable to generate HTML table for {df_name}: couldn't import module {module_name}")
-
-    df = getattr(module, df_name, None)
-    if df is None:
-        raise SphinxError(f"Unable to generate HTML table for {df_name}: no Dataframe {df_name} in module {module_name}")
-
-    if not isinstance(df, pd.DataFrame):
-        raise SphinxError(f"{text!r} is not a pandas Dataframe")
-
-    node = nodes.raw("", df.head().to_html(), format="html")
-    return [node], []
+    def run(self):
+        node = bokeh_palette_group()
+        node["group"] = self.arguments[0]
+        return [node]
 
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_role("bokeh-dataframe", bokeh_dataframe)
+    app.add_node(bokeh_palette_group, html=bokeh_palette_group.html)
+    app.add_directive("bokeh-palette-group", BokehPaletteGroupDirective)
 
     return PARALLEL_SAFE
 

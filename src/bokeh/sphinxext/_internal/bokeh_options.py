@@ -15,32 +15,6 @@ its module as an option:
 .. code-block:: rest
 
     .. bokeh-options:: Opts
-        :module: bokeh.sphinxext.sample
-
-Examples
---------
-
-For the following definition of ``bokeh.sphinxext.sample.Opts``:
-
-.. code-block:: python
-
-    class Opts(Options):
-        ''' This is an Options class '''
-
-        host = String(default="localhost", help="a host to connect to")
-        port = Int(default=5890, help="a port to connect to")
-
-the above usage yields the output:
-
-=====
-
-.. bokeh-options:: Opts
-    :module: bokeh.sphinxext.sample
-
-=====
-
-To enable this extension, add `"bokeh.sphinxext.bokeh_options"` to the
-extensions list in your Sphinx configuration module.
 
 """
 

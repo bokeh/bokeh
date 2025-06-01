@@ -39,9 +39,6 @@ The inline example code above produces the following output:
 
     alert('this is called in the codepen');
 
-To enable this extension, add `"bokeh.sphinxext.bokehjs_content"` to the
-extensions list in your Sphinx configuration module.
-
 """
 
 # -----------------------------------------------------------------------------
@@ -203,9 +200,7 @@ class BokehJSContent(CodeBlock):
         return js_source
 
     def get_code_language(self):
-        """
-        This is largely copied from bokeh.sphinxext.bokeh_plot.run
-        """
+        # This is largely copied from bokeh_plot
         js_source = self.get_js_source()
         if self.options.get("include_html", False):
             resources = get_sphinx_resources(include_bokehjs_api=True)

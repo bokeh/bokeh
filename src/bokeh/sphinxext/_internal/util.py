@@ -4,10 +4,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" This modules simply provides some sample code for the documentation of
-``bokeh.sphinxext`` itself.
-
-"""
 
 # -----------------------------------------------------------------------------
 # Boilerplate
@@ -23,30 +19,14 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.enums import enumeration
-from bokeh.core.properties import (
-    Auto,
-    Either,
-    Enum,
-    Float,
-    Int,
-    List,
-    String,
-    Tuple,
-)
-from bokeh.model import Model
-from bokeh.util.options import Options
+from bokeh.resources import Resources
+from bokeh.settings import settings
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "Bar",
-    "baz",
-    "Foo",
-    "Opts",
-)
+__all__ = ("get_sphinx_resources",)
 
 # -----------------------------------------------------------------------------
 # General API
@@ -56,30 +36,29 @@ __all__ = (
 # Dev API
 # -----------------------------------------------------------------------------
 
+def get_sphinx_resources(include_bokehjs_api=False):
+    docs_cdn = settings.docs_cdn()
 
-class Foo(Model):
-    """ This is a Foo model. """
+    # if BOKEH_DOCS_CDN is unset just use default CDN resources
+    if docs_cdn is None:
+        resources = Resources(mode="cdn")
+    else:
+        # "BOKEH_DOCS_CDN=local" is used for building and displaying the docs locally
+        if docs_cdn == "local":
+            resources = Resources(mode="server", root_url="/en/latest/")
 
-    index = Either(Auto, Enum("abc", "def", "xzy"), help="doc for index")
-    value = Tuple(Float, Float, help="doc for value")
+        # "BOKEH_DOCS_CDN=test:newthing" is used for building and deploying test docs to
+        # a one-off location "en/newthing" on the docs site
+        elif docs_cdn.startswith("test:"):
+            version = docs_cdn.split(":")[1]
+            resources = Resources(mode="server", root_url=f"/en/{version}/")
 
-
-class Bar(Model):
-    """ This is a Bar model. """
-
-    thing = List(Int, help="doc for thing")
-
-
-#: This is an enumeration
-baz = enumeration("a", "b", "c")
-
-
-class Opts(Options):
-    """ This is an Options class """
-
-    host = String(default="localhost", help="a host to connect to")
-    port = Int(default=5890, help="a port to connect to")
-
+        # Otherwise assume it is a dev/rc/full release version and use CDN for it
+        else:
+            resources = Resources(mode="cdn", version=docs_cdn)
+    if include_bokehjs_api:
+        resources.components.append("bokeh-api")
+    return resources
 
 # -----------------------------------------------------------------------------
 # Private API

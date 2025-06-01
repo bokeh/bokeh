@@ -14,9 +14,6 @@ The ``bokeh-example-metadata`` directive can be used by supplying:
         :refs: `ug_basic_bars`
         :words: bar, vbar, legend, factor_cmap, palette
 
-To enable this extension, add `"bokeh.sphinxext.bokeh_example_metadata"` to the
-extensions list in your Sphinx configuration module.
-
 """
 
 #-----------------------------------------------------------------------------
