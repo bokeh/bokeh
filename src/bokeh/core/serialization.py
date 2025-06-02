@@ -600,7 +600,7 @@ class Deserializer:
         entries = obj.get("entries", [])
         return { self._decode(key): self._decode(val) for key, val in entries }
 
-    def _decode_bytes(self, obj: BytesRep) -> bytes:
+    def _decode_bytes(self, obj: BytesRep) -> bytes | memoryview[int]:
         data = obj["data"]
 
         if isinstance(data, str):
