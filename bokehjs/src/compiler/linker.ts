@@ -562,7 +562,11 @@ export class Linker {
     const path = join(dir, subpath)
     for (const [key, val] of Object.entries(export_map)) {
       if (join(dir, key) == path) {
-        return join(dir, val)
+        if (typeof val === "string") {
+          return join(dir, val)
+        } else {
+          return join(dir, val.default)
+        }
       }
     }
     return null
