@@ -191,11 +191,24 @@ export abstract class ColumnarDataSource extends DataSource {
     this.stream_to(this.properties.data, new_data, rollover, {sync})
   }
 
+  to_rows(): [string[], ...any[]] {
+    const header_row = this.columns()
+    const num_rows = this.length + 1 // + 1 for the header row
+    const num_columns = header_row.length
+    const records = new Array(num_rows)
+    records[0] = header_row
+    for (let j = 1; j < num_rows; j++) {
+      records[j] = new Array(num_columns)
+      for (let i = 0; i < num_columns; i++) {
+        const column_name = header_row[i]
+        records[j][i] = this.get(column_name)[j]
+      }
+    }
+    return records as [string[], ...any[]]
+  }
+
   to_csv(): string {
-    return stringify([this.data], {
-      header: true,
-      columns: this.columns()
-    })
+    return stringify(this.to_rows())
   }
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
