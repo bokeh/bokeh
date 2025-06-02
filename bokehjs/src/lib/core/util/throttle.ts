@@ -49,7 +49,7 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
         pending = true
         request = requestAnimationFrame(later)
       } else if (timeout == null && !pending) {
-        timeout = setTimeout(() => request = requestAnimationFrame(later), remaining)
+        timeout = window.setTimeout(() => request = requestAnimationFrame(later), remaining)
       } else {
         resolve()
       }
