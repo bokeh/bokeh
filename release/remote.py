@@ -42,22 +42,22 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
     suffixes = ("js", "min.js", "esm.js", "esm.min.js")
 
     try:
-        for name, suffix in product(file_names, suffixes):
-            local_path = f"bokehjs/build/js/{name}.{suffix}"
-            cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
+        for bucket, region_name in BOKEHJS_BUCKETS:
+            s3 = boto3.client(
+                "s3",
+                region_name=region_name,
+                aws_access_key_id=access_key_id,
+                aws_secret_access_key=secret_access_key,
+            )
 
-            with open(local_path) as f:
-                data = f.read().encode("utf-8")
+            for name, suffix in product(file_names, suffixes):
+                local_path = f"bokehjs/build/js/{name}.{suffix}"
+                cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
 
-            for bucket, region_name in BOKEHJS_BUCKETS:
-                s3 = boto3.client(
-                    "s3",
-                    region_name=region_name,
-                    aws_access_key_id=access_key_id,
-                    aws_secret_access_key=secret_access_key,
-                )
+                with open(local_path) as f:
+                    data = f.read().encode("utf-8")
 
-                LOG.record(f":uploading to CDN: {cdn_path}")
+                LOG.record(f":uploading to CDN [{bucket}]: {cdn_path}")
 
                 s3.put_object(
                     Bucket=bucket,

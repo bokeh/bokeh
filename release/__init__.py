@@ -6,4 +6,7 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-BOKEHJS_BUCKETS = [("cdn.bokeh.org", "us-east-1"), ("cdn-backup.bokeh.org", "us-west-2")]
+BOKEHJS_BUCKETS = (
+    ("cdn.bokeh.org", "us-east-1"),
+    ("cdn-backup.bokeh.org", "us-west-2"),
+)
