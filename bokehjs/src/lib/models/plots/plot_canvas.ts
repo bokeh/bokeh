@@ -1490,7 +1490,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       return
     }
     const el = new Div({children: [message]})
-    const timer = window.setTimeout(() => {
+    const timer = setTimeout(() => {
       this._messages.delete(message)
       this._notifications.elements = this._notifications.elements.filter((item) => item != el)
     }, 2000)

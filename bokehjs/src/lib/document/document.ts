@@ -275,7 +275,7 @@ export class Document implements Equatable {
       this._recompute_all_models()
     } else if (isFinite(timeout)) {
       this._cancel_recompute_all_models()
-      this._recompute_timer = window.setTimeout(() => {
+      this._recompute_timer = setTimeout(() => {
         this._recompute_all_models()
       }, timeout)
     }
