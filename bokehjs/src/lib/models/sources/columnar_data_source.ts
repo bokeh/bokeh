@@ -1,4 +1,5 @@
 import {stringify} from "csv-stringify/browser/esm/sync"
+import type {Options as CSVStringifyOptions} from "csv-stringify/browser/esm/sync"
 
 import type {Geometry} from "core/geometry"
 import {logger} from "core/logging"
@@ -207,8 +208,15 @@ export abstract class ColumnarDataSource extends DataSource {
     return records as [string[], ...any[]]
   }
 
-  to_csv(): string {
-    return stringify(this.to_rows())
+  to_csv(options: CSVStringifyOptions): string {
+    return stringify(this.to_rows(), {...options,
+      // Prevent CSV injection. Example scenario: a malicious plot author
+      // provides a data source that contains fields with harmful formulas that
+      // don't show up in the plot but do show up in the CSV. The user downloads
+      // the CSV, opens it in a spreadsheet app, and the app executes the
+      // harmful fields (if they are not escaped by this method).
+      escape_formulas: true,
+    })
   }
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
