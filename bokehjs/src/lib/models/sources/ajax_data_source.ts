@@ -55,7 +55,7 @@ export class AjaxDataSource extends WebDataSource {
       this.get_data(this.mode)
       if (this.polling_interval != null) {
         const callback = () => this.get_data(this.mode, this.max_size, this.if_modified)
-        this.interval = window.setInterval(callback, this.polling_interval)
+        this.interval = setInterval(callback, this.polling_interval)
       }
     }
   }

@@ -185,7 +185,7 @@ export class UIGestures {
 
   protected _start_timeout(): void {
     assert(this.press_timer == null)
-    this.press_timer = window.setTimeout(() => this._pointer_timeout(), UIGestures.press_threshold)
+    this.press_timer = setTimeout(() => this._pointer_timeout(), UIGestures.press_threshold)
   }
 
   protected _cancel_timeout(): void {

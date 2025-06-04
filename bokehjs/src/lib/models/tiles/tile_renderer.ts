@@ -199,7 +199,7 @@ export class TileRendererView extends RendererView {
       clearTimeout(this.prefetch_timer)
     }
 
-    this.prefetch_timer = window.setTimeout(this._prefetch_tiles.bind(this), 500)
+    this.prefetch_timer = setTimeout(this._prefetch_tiles.bind(this), 500)
 
     if (this.has_finished()) {
       this.notify_finished()
@@ -350,7 +350,7 @@ export class TileRendererView extends RendererView {
       clearTimeout(this.render_timer)
     }
 
-    this.render_timer = window.setTimeout((() => this._fetch_tiles(need_load)), 65)
+    this.render_timer = setTimeout((() => this._fetch_tiles(need_load)), 65)
   }
 }
 
