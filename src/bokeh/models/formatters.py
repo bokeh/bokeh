@@ -705,33 +705,34 @@ class TimedeltaTickFormatter(TickFormatter):
         super().__init__(*args, **kwargs)
 
     nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
-                          default="")
+                          default="%Nanons")
 
     microseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``microseconds``"),
-                          default="")
+                          default="%Microus")
 
     milliseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``milliseconds``"),
-                          default="")
+                          default="%Millims")
 
     seconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``seconds``"),
-                     default="")
+                     default="%Hour:%Minute:%Second")
 
     minsec = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-                    default="")
+                    default="%Hour:%Minute:%Second")
 
     minutes = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minutes``"),
-                     default="")
+                     default="%Hour:%Minute")
 
     hourmin = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-                     default="")
+                     default="%Hour:%Minute")
 
     hours = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hours``"),
-                   default="")
+                   default="%Hour:%Minute")
 
     days = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``days``"),
-                  default="")
+                  default="%day days")
 
-    strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)), default=False, help="""
+    strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)),
+                                 default=["nanoseconds", "microseconds", "milliseconds"], help="""
     Whether to strip any leading zeros in the formatted ticks.
 
     Valid values are:
@@ -842,9 +843,9 @@ def CONTEXTUAL_TIMEDELTA_FORMATTER() -> TimedeltaTickFormatter:
         milliseconds="%Millims",
         seconds="%Hour:%Minute:%Second",
         minsec="%Hour:%Minute:%Second",
-        minutes="%Hour:%Minute h",
-        hourmin="%Hour:%Minute h",
-        hours="%Hour:%Minute h",
+        minutes="%Hour:%Minute",
+        hourmin="%Hour:%Minute",
+        hours="%Hour:%Minute",
         days="%day days",
         strip_leading_zeros=["nanoseconds", "microseconds", "milliseconds"],
         context_which="all",
