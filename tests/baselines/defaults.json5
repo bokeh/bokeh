@@ -2099,6 +2099,11 @@
       type: "object",
       name: "TimedeltaTickFormatter",
       attributes: {
+        strip_leading_zeros: [
+          "nanoseconds",
+          "microseconds",
+          "milliseconds",
+        ],
         context: {
           type: "object",
           name: "TimedeltaTickFormatter",
@@ -2863,11 +2868,7 @@
     hourmin: "%Hour:%Minute",
     hours: "%Hour:%Minute",
     days: "%day days",
-    strip_leading_zeros: [
-      "nanoseconds",
-      "microseconds",
-      "milliseconds",
-    ],
+    strip_leading_zeros: false,
     hide_repeats: false,
     context: null,
     context_which: "start",

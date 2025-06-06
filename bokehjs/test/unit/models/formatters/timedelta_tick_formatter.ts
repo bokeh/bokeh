@@ -80,33 +80,36 @@ describe("_str_timedelta", () => {
     expect(tdtf._str_timedelta(t, "%Micro")).to.be.equal("123")
   })
   it("should handle nanoseconds", () => {
-    const t = 1655945719752.000001
-    expect(tdtf._str_timedelta(t, "%Nano")).to.be.equal("1")
+    const t1 = 1655945719752.0
+    expect(tdtf._str_timedelta(t1, "%Nano")).to.be.equal("000")
+
+    const t2 = 1652.000001
+    expect(tdtf._str_timedelta(t2, "%Nano")).to.be.equal("001")
+
+    const t3 = 1652.0
+    expect(tdtf._str_timedelta(t3, "%Nano")).to.be.equal("000")
+
+    const t4 = 1652.000991
+    expect(tdtf._str_timedelta(t4, "%Nano")).to.be.equal("991")
+
+    const t5 = 1652.000999
+    expect(tdtf._str_timedelta(t5, "%Nano")).to.be.equal("999")
   })
   it("should handle total nanoseconds", () => {
-    const t1 = 1655945719752.000001
-    expect(tdtf._str_timedelta(t1, "%nano")).to.be.equal("1655945719752000001")
+    const t1 = 1655945719752.0
+    expect(tdtf._str_timedelta(t1, "%nano")).to.be.equal("1655945719752000000")
 
     const t2 = 1652.000001
     expect(tdtf._str_timedelta(t2, "%nano")).to.be.equal("1652000001")
 
-    const t3 = 1655945719752.0
-    expect(tdtf._str_timedelta(t3, "%nano")).to.be.equal("1655945719752000000")
+    const t3 = 1652.0
+    expect(tdtf._str_timedelta(t3, "%nano")).to.be.equal("1652000000")
 
-    const t4 = 1652.0
-    expect(tdtf._str_timedelta(t4, "%nano")).to.be.equal("1652000000")
+    const t4 = 1652.000991
+    expect(tdtf._str_timedelta(t4, "%nano")).to.be.equal("1652000991")
 
-    const t5 = 1655945719752.000991
-    expect(tdtf._str_timedelta(t5, "%nano")).to.be.equal("1655945719752000991")
-
-    const t6 = 1652.000991
-    expect(tdtf._str_timedelta(t6, "%nano")).to.be.equal("1652000991")
-
-    const t7 = 1655945719752.000999
-    expect(tdtf._str_timedelta(t7, "%nano")).to.be.equal("1655945719752000999")
-
-    const t8 = 1652.000999
-    expect(tdtf._str_timedelta(t8, "%nano")).to.be.equal("1652000999")
+    const t5 = 1652.000999
+    expect(tdtf._str_timedelta(t5, "%nano")).to.be.equal("1652000999")
   })
 })
 
@@ -124,8 +127,8 @@ describe("TimedeltaTickFormatter", () => {
     })
     it("should handle nanoseconds", () => {
       const formatter = new tdtf.TimedeltaTickFormatter()
-      const labels = formatter.doFormat([t, t+0.000001, t+0.000002], {loc: 0})
-      expect(labels).to.be.equal(["000ns", "001ns", "002ns"])
+      const labels = formatter.doFormat([t/1000000, t/1000000+0.000001, t/1000000+0.000002], {loc: 0})
+      expect(labels).to.be.equal(["752ns", "753ns", "754ns"])
     })
     it("should handle microseconds", () => {
       const formatter = new tdtf.TimedeltaTickFormatter()
@@ -243,10 +246,10 @@ describe("TimedeltaTickFormatter", () => {
       expect(us_labels).to.be.equal(["000us\nmicroseconds", "001us\n", "002us\n"])
 
       const days_labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(days_labels).to.be.equal(["00:55\ndays", "01:55\n", "02:55\n"])
+      expect(days_labels).to.be.equal(["00:55\nhours", "01:55\n", "02:55\n"])
 
       const years_labels = formatter.doFormat([t, t+DAY, t+DAY*2], {loc: 0})
-      expect(years_labels).to.be.equal(["19166\ndays", "19167\n", "19168\n"])
+      expect(years_labels).to.be.equal(["19166 days\ndays", "19167 days\n", "19168 days\n"])
     })
   })
   describe("context_which", () => {

@@ -667,8 +667,12 @@ class TimedeltaTickFormatter(TickFormatter):
     +----+-------------------------------------------------------------------------+
     | "%Nano"    | Nanoseconds since last microsecond as a decimal number,         |
     |            | zero-padded on the left (range 000 to 999).                     |
+    |            | Warning: Due to floating point precision, ticks may be formatted|
+    |            | incorrectly if the overall timedelta is rather large (>10days). |
     +----+-------------------------------------------------------------------------+
     | "%nano"    | Overall completed nanoseconds.                                  |
+    |            | Warning: Due to floating point precision, ticks may be formatted|
+    |            | incorrectly if the overall timedelta is rather large (>10days). |
     +----+-------------------------------------------------------------------------+
     | "%Micro"   | Microseconds since last millisecond as a decimal number,        |
     |            | zero-padded on the left (range 000 to 999).                     |
@@ -731,8 +735,7 @@ class TimedeltaTickFormatter(TickFormatter):
     days = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``days``"),
                   default="%day days")
 
-    strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)),
-                                 default=["nanoseconds", "microseconds", "milliseconds"], help="""
+    strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)), default=False, help="""
     Whether to strip any leading zeros in the formatted ticks.
 
     Valid values are:

@@ -107,6 +107,7 @@ export function _us(t: number, factor_next: number | null): string {
 }
 
 export function _ns(t: number, factor_next: number | null): string {
+  console.log(`ns ${t}`)
   const ns = _calc_tick_value(t, ONE_NANO, factor_next)
   return _str_tick_value(ns, factor_next)
 }
@@ -124,13 +125,19 @@ function _calc_tick_value(t: number, factor_transform: number, factor_next: numb
 }
 
 function _time_since_last_next(t: number, factor_transform: number, factor_next: number): number {
-  const millis_since_last_next = t % (factor_transform * factor_next)
   if (factor_transform < 1) {
     // sub milliseconds
-    // account for floating point precision by rounding at nanoseconds level
-    const nanos_since_last = Math.round(millis_since_last_next * 1_000_000)
-    return (nanos_since_last / (factor_transform * 1_000_000)) % factor_next
+    // handle floating point precision as best as possible
+    const t_nano = Math.round(t * 1_000_000)
+    const divisor_next = factor_transform * factor_next * 1_000_000
+    // switch to String to avoid precision issues,
+    // e.g. 116011933670718300 - 116011933670718000 equals 304
+    const digits = `${divisor_next}`.length
+    const str_t_nano = String(t_nano)
+    const nanos_since_last_next = parseFloat(str_t_nano.substring(str_t_nano.length-digits)) % divisor_next
+    return (nanos_since_last_next / (factor_transform * 1_000_000)) % factor_next
   }
+  const millis_since_last_next = t % (factor_transform * factor_next)
   return millis_since_last_next/factor_transform
 }
 
@@ -181,7 +188,7 @@ export class TimedeltaTickFormatter extends TickFormatter {
       hourmin: [ Str, "%Hour:%Minute" ],
       hours: [ Str, "%Hour:%Minute" ],
       days: [ Str, "%day days" ],
-      strip_leading_zeros: [ Or(Bool, Arrayable(TimedeltaResolutionType)), ["nanoseconds", "microseconds", "milliseconds"] ],
+      strip_leading_zeros: [ Or(Bool, Arrayable(TimedeltaResolutionType)), false ],
       hide_repeats: [ Bool, false ],
       context: [ Nullable(Or(Str, Ref(TimedeltaTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
