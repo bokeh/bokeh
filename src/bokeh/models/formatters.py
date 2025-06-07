@@ -927,11 +927,11 @@ def create_format_table(fields: tuple[str, ...], primary: TickFormatter) -> str:
 
 
 DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=create_format_table(
-    ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',),
+    ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'),
     CONTEXTUAL_DATETIME_FORMATTER(),
 ))
 
 TimedeltaTickFormatter.__doc__ = format_docstring(TimedeltaTickFormatter.__doc__, defaults=create_format_table(
-    ('nanoseconds', 'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days',),
+    ('nanoseconds', 'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days'),
     CONTEXTUAL_TIMEDELTA_FORMATTER(),
 ))
