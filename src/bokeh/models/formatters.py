@@ -664,43 +664,43 @@ class TimedeltaTickFormatter(TickFormatter):
     formats with a lowercase letter corresponds to the overall completed time
     passed (3.6 days becomes 3 days).
 
-    +----+-------------------------------------------------------------------------+
-    | "%Nano"    | Nanoseconds since last microsecond as a decimal number,         |
-    |            | zero-padded on the left (range 000 to 999).                     |
-    |            | Warning: Due to floating point precision, ticks may be formatted|
-    |            | incorrectly if the overall timedelta is rather large (>10days). |
-    +----+-------------------------------------------------------------------------+
-    | "%nano"    | Overall completed nanoseconds.                                  |
-    |            | Warning: Due to floating point precision, ticks may be formatted|
-    |            | incorrectly if the overall timedelta is rather large (>10days). |
-    +----+-------------------------------------------------------------------------+
-    | "%Micro"   | Microseconds since last millisecond as a decimal number,        |
-    |            | zero-padded on the left (range 000 to 999).                     |
-    +----+-------------------------------------------------------------------------+
-    | "%micro"   | Overall completed microseconds.                                 |
-    +----+-------------------------------------------------------------------------+
-    | "%Milli"   | Milliseconds since last second as a decimal number,             |
-    |            | zero-padded on the left (range 000 to 999).                     |
-    +----+-------------------------------------------------------------------------+
-    | "%milli"   | Overall completed milliseconds.                                 |
-    +----+-------------------------------------------------------------------------+
-    | "%Second"  | Seconds since last minute as a decimal number, zero-padded on   |
-    |            | the left (range 00 to 59).                                      |
-    +----+-------------------------------------------------------------------------+
-    | "%second"  | Overall completed seconds.                                      |
-    +----+-------------------------------------------------------------------------+
-    | "%Minute"  | Minutes since last hour as a decimal number, zero-padded on     |
-    |            | the left (range 00 to 59).                                      |
-    +----+-------------------------------------------------------------------------+
-    | "%minute"  | Overall completed minutes.                                      |
-    +----+-------------------------------------------------------------------------+
-    | "%Hour"    | Hours since last day as a decimal number, zero-padded on the    |
-    |            | left (range 00 to 23).                                          |
-    +----+-------------------------------------------------------------------------+
-    | "%hour"    | Overall completed hours.                                        |
-    +----+-------------------------------------------------------------------------+
-    | "%day"     | Overall completed days.                                         |
-    +----+-------------------------------------------------------------------------+
+    +----------+-----------------------------------------------------------------+
+    | %Nano    | Nanoseconds since last microsecond as a decimal number,         |
+    |          | zero-padded on the left (range 000 to 999).                     |
+    |          | Warning: Due to floating point precision, ticks may be formatted|
+    |          | incorrectly if the overall timedelta is rather large (>10days). |
+    +----------+-----------------------------------------------------------------+
+    | %nano    | Overall completed nanoseconds.                                  |
+    |          | Warning: Due to floating point precision, ticks may be formatted|
+    |          | incorrectly if the overall timedelta is rather large (>10days). |
+    +----------+-----------------------------------------------------------------+
+    | %Micro   | Microseconds since last millisecond as a decimal number,        |
+    |          | zero-padded on the left (range 000 to 999).                     |
+    +----------+-----------------------------------------------------------------+
+    | %micro   | Overall completed microseconds.                                 |
+    +----------+-----------------------------------------------------------------+
+    | %Milli   | Milliseconds since last second as a decimal number,             |
+    |          | zero-padded on the left (range 000 to 999).                     |
+    +----------+-----------------------------------------------------------------+
+    | %milli   | Overall completed milliseconds.                                 |
+    +----------+-----------------------------------------------------------------+
+    | %Second  | Seconds since last minute as a decimal number, zero-padded on   |
+    |          | the left (range 00 to 59).                                      |
+    +----------+-----------------------------------------------------------------+
+    | %second  | Overall completed seconds.                                      |
+    +----------+-----------------------------------------------------------------+
+    | %Minute  | Minutes since last hour as a decimal number, zero-padded on     |
+    |          | the left (range 00 to 59).                                      |
+    +----------+-----------------------------------------------------------------+
+    | %minute  | Overall completed minutes.                                      |
+    +----------+-----------------------------------------------------------------+
+    | %Hour    | Hours since last day as a decimal number, zero-padded on the    |
+    |          | left (range 00 to 23).                                          |
+    +----------+-----------------------------------------------------------------+
+    | %hour    | Overall completed hours.                                        |
+    +----------+-----------------------------------------------------------------+
+    | %day     | Overall completed days.                                         |
+    +----------+-----------------------------------------------------------------+
 
     '''
 
@@ -902,8 +902,15 @@ def create_format_table(fields: tuple[str, ...], primary: TickFormatter) -> str:
     def create_separator_line(character):
         return extended_join("+", [character*col_len for col_len in lens])
     column_names = ["Scale", "Format", "1st Context", "2nd Context"]
+    # Get formatters for each context level
+    secondary = primary.context
+    tertiary = secondary.context
+
     lens = [len(name) for name in column_names]
-    lens[0] = max(map(len, fields))
+    lens[0] = max(lens[0], max(map(len, fields)))
+    lens[1] = max(lens[1], max(map(lambda f: len(getattr(primary, f) if primary else ""), fields)))
+    lens[2] = max(lens[2], max(map(lambda f: len(getattr(secondary, f) if primary else ""), fields)))
+    lens[3] = max(lens[3], max(map(lambda f: len(getattr(tertiary, f) if primary else ""), fields)))
     separator = create_separator_line("-")
     rows = [
         separator,
@@ -911,9 +918,7 @@ def create_format_table(fields: tuple[str, ...], primary: TickFormatter) -> str:
         create_separator_line("="),
     ]
 
-    # Get formatters for each context level
-    secondary = primary.context
-    tertiary = secondary.context
+
     # Build table rows
     for field in fields:
         scale = f"{field:<{lens[0]}}"
