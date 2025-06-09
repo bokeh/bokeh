@@ -380,6 +380,7 @@ export class DataTableView extends WidgetView {
       frozenRow: frozen_row,
       frozenBottom: frozen_bottom,
       explicitInitialization: false,
+      multiSelect: this.model.multi_selectable,
     }
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
@@ -504,6 +505,7 @@ export namespace DataTable {
     scroll_to_selection: p.Property<boolean>
     header_row: p.Property<boolean>
     row_height: p.Property<number>
+    multi_selectable: p.Property<boolean>
   }
 }
 
@@ -542,6 +544,7 @@ export class DataTable extends TableWidget {
       scroll_to_selection: [ Bool, true ],
       header_row:          [ Bool, true ],
       row_height:          [ Int, 25 ],
+      multi_selectable:    [ Bool, true ],
     }))
 
     this.override<DataTable.Props>({
