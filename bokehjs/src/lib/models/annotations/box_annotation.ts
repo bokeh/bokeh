@@ -16,6 +16,7 @@ import type {Context2d} from "core/util/canvas"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
+import {isNumber} from "core/util/types"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {values} from "core/util/object"
@@ -26,6 +27,11 @@ import * as resolve from "../common/resolve"
 import {Node} from "../coordinates/node"
 import {Coordinate} from "../coordinates/coordinate"
 import type {Renderer} from "../renderers/renderer"
+import {FactorLike, FactorRange} from "../ranges/factor_range"
+import {Or, Float, Ref} from "core/kinds"
+
+const CoordinateLike = Or(Float, FactorLike, Ref(Coordinate))
+type CoordinateLike = typeof CoordinateLike["__type__"]
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -225,9 +231,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return build_result
   }
 
-  readonly [auto_ranged] = true
-
-  bounds(): Rect {
+  private _synthetic_lrtb(): LRTB {
     const {
       left, left_units,
       right, right_units,
@@ -235,10 +239,64 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom, bottom_units,
     } = this.model
 
-    const left_ok = left_units == "data" && !(left instanceof Coordinate)
-    const right_ok = right_units == "data" && !(right instanceof Coordinate)
-    const top_ok = top_units == "data" && !(top instanceof Coordinate)
-    const bottom_ok = bottom_units == "data" && !(bottom instanceof Coordinate)
+    const {x_source, y_source} = this.coordinates
+
+    const x_factor = x_source instanceof FactorRange
+    const y_factor = y_source instanceof FactorRange
+
+    return {
+      left: (() => {
+        if (left_units == "data" && !(left instanceof Coordinate)) {
+          if (x_factor) {
+            return x_source.synthetic(left)
+          } else if (isNumber(left)) {
+            return left
+          }
+        }
+        return NaN
+      })(),
+      right: (() => {
+        if (right_units == "data" && !(right instanceof Coordinate)) {
+          if (x_factor) {
+            return x_source.synthetic(right)
+          } else if (isNumber(right)) {
+            return right
+          }
+        }
+        return NaN
+      })(),
+      top: (() => {
+        if (top_units == "data" && !(top instanceof Coordinate)) {
+          if (y_factor) {
+            return y_source.synthetic(top)
+          } else if (isNumber(top)) {
+            return top
+          }
+        }
+        return NaN
+      })(),
+      bottom: (() => {
+        if (bottom_units == "data" && !(bottom instanceof Coordinate)) {
+          if (y_factor) {
+            return y_source.synthetic(bottom)
+          } else if (isNumber(bottom)) {
+            return bottom
+          }
+        }
+        return NaN
+      })(),
+    }
+  }
+
+  readonly [auto_ranged] = true
+
+  bounds(): Rect {
+    const {left, right, top, bottom} = this._synthetic_lrtb()
+
+    const left_ok = isFinite(left)
+    const right_ok = isFinite(right)
+    const top_ok = isFinite(top)
+    const bottom_ok = isFinite(bottom)
 
     const [x0, x1] = (() => {
       if (left_ok && right_ok) {
@@ -303,7 +361,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     super.compute_geometry()
 
     const bbox = (() => {
-      const compute = (dim: "x" | "y", value: number | Coordinate, mapper: CoordinateMapper): number => {
+      const compute = (dim: "x" | "y", value: CoordinateLike, mapper: CoordinateMapper<number | FactorLike>): number => {
         return value instanceof Coordinate ? this.resolve_as_scalar(value, dim) : mapper.compute(value)
       }
 
@@ -527,7 +585,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const {mappers} = this
 
-    const resolve = (dim: "x" | "y", limit: Coordinate | number | null, mapper: CoordinateMapper): number => {
+    const resolve = (dim: "x" | "y", limit: CoordinateLike | null, mapper: CoordinateMapper<number | FactorLike>): number => {
       if (limit instanceof Coordinate) {
         return this.resolve_as_scalar(limit, dim)
       } else if (limit == null) {
@@ -804,10 +862,10 @@ export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    top: p.Property<number | Coordinate>
-    bottom: p.Property<number | Coordinate>
-    left: p.Property<number | Coordinate>
-    right: p.Property<number | Coordinate>
+    top: p.Property<CoordinateLike>
+    bottom: p.Property<CoordinateLike>
+    left: p.Property<CoordinateLike>
+    right: p.Property<CoordinateLike>
 
     top_units: p.Property<CoordinateUnits>
     bottom_units: p.Property<CoordinateUnits>
@@ -886,11 +944,11 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Bool, Float, Ref, Or, NonNegative, Positive}) => ({
-      top:          [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "top"}) ],
-      bottom:       [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "bottom"}) ],
-      left:         [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "left"}) ],
-      right:        [ Or(Float, Ref(Coordinate)), () => new Node({target: "frame", symbol: "right"}) ],
+    this.define<BoxAnnotation.Props>(({Bool, Float, Ref, NonNegative, Positive}) => ({
+      top:          [ CoordinateLike, () => new Node({target: "frame", symbol: "top"}) ],
+      bottom:       [ CoordinateLike, () => new Node({target: "frame", symbol: "bottom"}) ],
+      left:         [ CoordinateLike, () => new Node({target: "frame", symbol: "left"}) ],
+      right:        [ CoordinateLike, () => new Node({target: "frame", symbol: "right"}) ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
