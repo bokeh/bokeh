@@ -1,245 +1,240 @@
 @import "./_mixins.less";
 
-.tool-icon(@icon, @file) {
-  @path: "../../../docs/bokeh/source/_images/icons";
-  background-image: var(@icon, data-uri("@{path}/@{file}.png"));
-}
-
 .bk-tool-icon-copy {
-  .tool-icon-mask(var(--bokeh-icon-copy));
+  .mask-image(var(--bokeh-icon-copy));
 }
 
 .bk-tool-icon-open {
-  .tool-icon-mask(var(--bokeh-icon-open));
+  .mask-image(var(--bokeh-icon-open));
 }
 
 .bk-tool-icon-replace-mode {
-  .tool-icon-mask(var(--bokeh-icon-replace-mode));
+  .mask-image(var(--bokeh-icon-replace-mode));
 }
 
 .bk-tool-icon-toggle-mode {
-  .tool-icon-mask(var(--bokeh-icon-toggle-mode));
+  .mask-image(var(--bokeh-icon-toggle-mode));
 }
 
 .bk-tool-icon-append-mode {
-  .tool-icon-mask(var(--bokeh-icon-append-mode));
+  .mask-image(var(--bokeh-icon-append-mode));
 }
 
 .bk-tool-icon-intersect-mode {
-  .tool-icon-mask(var(--bokeh-icon-intersect-mode));
+  .mask-image(var(--bokeh-icon-intersect-mode));
 }
 
 .bk-tool-icon-subtract-mode {
-  .tool-icon-mask(var(--bokeh-icon-subtract-mode));
+  .mask-image(var(--bokeh-icon-subtract-mode));
 }
 
 .bk-tool-icon-xor-mode {
-  .tool-icon-mask(var(--bokeh-icon-xor-mode));
+  .mask-image(var(--bokeh-icon-xor-mode));
 }
 
 .bk-tool-icon-invert-selection {
-  .tool-icon-mask(var(--bokeh-icon-invert-selection));
+  .mask-image(var(--bokeh-icon-invert-selection));
 }
 
 .bk-tool-icon-clear-selection {
-  .tool-icon-mask(var(--bokeh-icon-clear-selection));
+  .mask-image(var(--bokeh-icon-clear-selection));
 }
 
 .bk-tool-icon-box-select {
-  .tool-icon-mask(var(--bokeh-icon-box-select));
+  .mask-image(var(--bokeh-icon-box-select));
 }
 
 .bk-tool-icon-x-box-select {
-  .tool-icon-mask(var(--bokeh-icon-x-box-select));
+  .mask-image(var(--bokeh-icon-x-box-select));
 }
 
 .bk-tool-icon-y-box-select {
-  .tool-icon-mask(var(--bokeh-icon-y-box-select));
+  .mask-image(var(--bokeh-icon-y-box-select));
 }
 
 .bk-tool-icon-box-zoom {
-  .tool-icon-mask(var(--bokeh-icon-box-zoom));
+  .mask-image(var(--bokeh-icon-box-zoom));
 }
 
 .bk-tool-icon-x-box-zoom {
-  .tool-icon-mask(var(--bokeh-icon-x-box-zoom));
+  .mask-image(var(--bokeh-icon-x-box-zoom));
 }
 
 .bk-tool-icon-y-box-zoom {
-  .tool-icon-mask(var(--bokeh-icon-y-box-zoom));
+  .mask-image(var(--bokeh-icon-y-box-zoom));
 }
 
 .bk-tool-icon-auto-box-zoom {
-  .tool-icon-mask(var(--bokeh-icon-auto-box-zoom));
+  .mask-image(var(--bokeh-icon-auto-box-zoom));
 }
 
 .bk-tool-icon-zoom-in {
-  .tool-icon-mask(var(--bokeh-icon-zoom-in));
+  .mask-image(var(--bokeh-icon-zoom-in));
 }
 
 .bk-tool-icon-zoom-out {
-  .tool-icon-mask(var(--bokeh-icon-zoom-out));
+  .mask-image(var(--bokeh-icon-zoom-out));
 }
 
 .bk-tool-icon-help {
-  .tool-icon-mask(var(--bokeh-icon-help));
+  .mask-image(var(--bokeh-icon-help));
 }
 
 .bk-tool-icon-hover {
-  .tool-icon-mask(var(--bokeh-icon-hover));
+  .mask-image(var(--bokeh-icon-hover));
 }
 
 .bk-tool-icon-crosshair {
-  .tool-icon-mask(var(--bokeh-icon-crosshair));
+  .mask-image(var(--bokeh-icon-crosshair));
 }
 
 .bk-tool-icon-lasso-select {
-  .tool-icon-mask(var(--bokeh-icon-lasso-select));
+  .mask-image(var(--bokeh-icon-lasso-select));
 }
 
 .bk-tool-icon-pan {
-  .tool-icon-mask(var(--bokeh-icon-pan));
+  .mask-image(var(--bokeh-icon-pan));
 }
 
 .bk-tool-icon-x-pan {
-  .tool-icon-mask(var(--bokeh-icon-x-pan));
+  .mask-image(var(--bokeh-icon-x-pan));
 }
 
 .bk-tool-icon-y-pan {
-  .tool-icon-mask(var(--bokeh-icon-y-pan));
+  .mask-image(var(--bokeh-icon-y-pan));
 }
 
 .bk-tool-icon-pan-left {
-  .tool-icon-mask(var(--bokeh-icon-pan-left));
+  .mask-image(var(--bokeh-icon-pan-left));
 }
 
 .bk-tool-icon-pan-right {
-  .tool-icon-mask(var(--bokeh-icon-pan-right));
+  .mask-image(var(--bokeh-icon-pan-right));
 }
 
 .bk-tool-icon-pan-up {
-  .tool-icon-mask(var(--bokeh-icon-pan-up));
+  .mask-image(var(--bokeh-icon-pan-up));
 }
 
 .bk-tool-icon-pan-down {
-  .tool-icon-mask(var(--bokeh-icon-pan-down));
+  .mask-image(var(--bokeh-icon-pan-down));
 }
 
 .bk-tool-icon-range {
-  .tool-icon-mask(var(--bokeh-icon-range));
+  .mask-image(var(--bokeh-icon-range));
 }
 
 .bk-tool-icon-polygon-select {
-  .tool-icon-mask(var(--bokeh-icon-polygon-select));
+  .mask-image(var(--bokeh-icon-polygon-select));
 }
 
 .bk-tool-icon-redo {
-  .tool-icon-mask(var(--bokeh-icon-redo));
+  .mask-image(var(--bokeh-icon-redo));
 }
 
 .bk-tool-icon-reset {
-  .tool-icon-mask(var(--bokeh-icon-reset));
+  .mask-image(var(--bokeh-icon-reset));
 }
 
 .bk-tool-icon-save {
-  .tool-icon-mask(var(--bokeh-icon-save));
+  .mask-image(var(--bokeh-icon-save));
 }
 
 .bk-tool-icon-tap-select {
-  .tool-icon-mask(var(--bokeh-icon-tap-select));
+  .mask-image(var(--bokeh-icon-tap-select));
 }
 
 .bk-tool-icon-undo {
-  .tool-icon-mask(var(--bokeh-icon-undo));
+  .mask-image(var(--bokeh-icon-undo));
 }
 
 .bk-tool-icon-wheel-pan {
-  .tool-icon-mask(var(--bokeh-icon-wheel-pan));
+  .mask-image(var(--bokeh-icon-wheel-pan));
 }
 
 .bk-tool-icon-wheel-zoom {
-  .tool-icon-mask(var(--bokeh-icon-wheel-zoom));
+  .mask-image(var(--bokeh-icon-wheel-zoom));
 }
 
 .bk-tool-icon-box-edit {
-  .tool-icon-mask(var(--bokeh-icon-box-edit));
+  .mask-image(var(--bokeh-icon-box-edit));
 }
 
 .bk-tool-icon-freehand-draw {
-  .tool-icon-mask(var(--bokeh-icon-freehand-draw));
+  .mask-image(var(--bokeh-icon-freehand-draw));
 }
 
 .bk-tool-icon-poly-draw {
-  .tool-icon-mask(var(--bokeh-icon-poly-draw));
+  .mask-image(var(--bokeh-icon-poly-draw));
 }
 
 .bk-tool-icon-point-draw {
-  .tool-icon-mask(var(--bokeh-icon-point-draw));
+  .mask-image(var(--bokeh-icon-point-draw));
 }
 
 .bk-tool-icon-poly-edit {
-  .tool-icon-mask(var(--bokeh-icon-poly-edit));
+  .mask-image(var(--bokeh-icon-poly-edit));
 }
 
 .bk-tool-icon-line-edit {
-  .tool-icon-mask(var(--bokeh-icon-line-edit));
+  .mask-image(var(--bokeh-icon-line-edit));
 }
 
 .bk-tool-icon-settings {
-  .tool-icon-mask(var(--bokeh-icon-settings));
+  .mask-image(var(--bokeh-icon-settings));
 }
 
 .bk-tool-icon-unknown {
-  .tool-icon-mask(var(--bokeh-icon-unknown));
+  .mask-image(var(--bokeh-icon-unknown));
 }
 
 .bk-tool-icon-fullscreen {
-  .tool-icon-mask(var(--bokeh-icon-fullscreen));
+  .mask-image(var(--bokeh-icon-fullscreen));
 }
 
-.bk-tool-icon-chevron-up    { .tool-icon-mask(var(--bokeh-icon-chevron-up)); }
-.bk-tool-icon-chevron-down  { .tool-icon-mask(var(--bokeh-icon-chevron-down)); }
-.bk-tool-icon-chevron-left  { .tool-icon-mask(var(--bokeh-icon-chevron-left)); }
-.bk-tool-icon-chevron-right { .tool-icon-mask(var(--bokeh-icon-chevron-right)); }
+.bk-tool-icon-chevron-up    { .mask-image(var(--bokeh-icon-chevron-up)); }
+.bk-tool-icon-chevron-down  { .mask-image(var(--bokeh-icon-chevron-down)); }
+.bk-tool-icon-chevron-left  { .mask-image(var(--bokeh-icon-chevron-left)); }
+.bk-tool-icon-chevron-right { .mask-image(var(--bokeh-icon-chevron-right)); }
 
-.bk-tool-icon-caret-up    { .tool-icon-mask(var(--bokeh-icon-caret-up)); }
-.bk-tool-icon-caret-down  { .tool-icon-mask(var(--bokeh-icon-caret-down)); }
-.bk-tool-icon-caret-left  { .tool-icon-mask(var(--bokeh-icon-caret-left)); }
-.bk-tool-icon-caret-right { .tool-icon-mask(var(--bokeh-icon-caret-right)); }
+.bk-tool-icon-caret-up    { .mask-image(var(--bokeh-icon-caret-up)); }
+.bk-tool-icon-caret-down  { .mask-image(var(--bokeh-icon-caret-down)); }
+.bk-tool-icon-caret-left  { .mask-image(var(--bokeh-icon-caret-left)); }
+.bk-tool-icon-caret-right { .mask-image(var(--bokeh-icon-caret-right)); }
 
-.bk-tool-icon-see-on  { .tool-icon-mask(var(--bokeh-icon-see-on)); }
-.bk-tool-icon-see-off { .tool-icon-mask(var(--bokeh-icon-see-off)); }
+.bk-tool-icon-see-on  { .mask-image(var(--bokeh-icon-see-on)); }
+.bk-tool-icon-see-off { .mask-image(var(--bokeh-icon-see-off)); }
 
-.bk-tool-icon-x-grip { .tool-icon-mask(var(--bokeh-icon-x-grip)); }
-.bk-tool-icon-y-grip { .tool-icon-mask(var(--bokeh-icon-y-grip)); }
+.bk-tool-icon-x-grip { .mask-image(var(--bokeh-icon-x-grip)); }
+.bk-tool-icon-y-grip { .mask-image(var(--bokeh-icon-y-grip)); }
 
-.bk-tool-icon-arrow-down-to-bar { .tool-icon-mask(var(--bokeh-icon-arrow-down-to-bar)); }
-.bk-tool-icon-arrow-up-from-bar { .tool-icon-mask(var(--bokeh-icon-arrow-up-from-bar)); }
+.bk-tool-icon-arrow-down-to-bar { .mask-image(var(--bokeh-icon-arrow-down-to-bar)); }
+.bk-tool-icon-arrow-up-from-bar { .mask-image(var(--bokeh-icon-arrow-up-from-bar)); }
 
-.bk-tool-icon-minimize { .tool-icon-mask(var(--bokeh-icon-minimize)); }
-.bk-tool-icon-maximize { .tool-icon-mask(var(--bokeh-icon-maximize)); }
+.bk-tool-icon-minimize { .mask-image(var(--bokeh-icon-minimize)); }
+.bk-tool-icon-maximize { .mask-image(var(--bokeh-icon-maximize)); }
 
-.bk-tool-icon-pin      { .tool-icon-mask(var(--bokeh-icon-pin)); }
-.bk-tool-icon-unpin    { .tool-icon-mask(var(--bokeh-icon-unpin)); }
+.bk-tool-icon-pin      { .mask-image(var(--bokeh-icon-pin)); }
+.bk-tool-icon-unpin    { .mask-image(var(--bokeh-icon-unpin)); }
 
-.bk-tool-icon-pointer  { .tool-icon-mask(var(--bokeh-icon-hand-pointing));  }
-.bk-tool-icon-delete   { .tool-icon-mask(var(--bokeh-icon-trash)); }
+.bk-tool-icon-pointer  { .mask-image(var(--bokeh-icon-hand-pointing));  }
+.bk-tool-icon-delete   { .mask-image(var(--bokeh-icon-trash)); }
 
-.bk-tool-icon-bold   { .tool-icon-mask(var(--bokeh-icon-bold));   }
-.bk-tool-icon-italic { .tool-icon-mask(var(--bokeh-icon-italic)); }
+.bk-tool-icon-bold   { .mask-image(var(--bokeh-icon-bold));   }
+.bk-tool-icon-italic { .mask-image(var(--bokeh-icon-italic)); }
 
-.bk-tool-icon-text-align-left   { .tool-icon-mask(var(--bokeh-icon-text-align-left));   }
-.bk-tool-icon-text-align-center { .tool-icon-mask(var(--bokeh-icon-text-align-center)); }
-.bk-tool-icon-text-align-right  { .tool-icon-mask(var(--bokeh-icon-text-align-right));  }
+.bk-tool-icon-text-align-left   { .mask-image(var(--bokeh-icon-text-align-left));   }
+.bk-tool-icon-text-align-center { .mask-image(var(--bokeh-icon-text-align-center)); }
+.bk-tool-icon-text-align-right  { .mask-image(var(--bokeh-icon-text-align-right));  }
 
-.bk-tool-icon-check { .tool-icon-mask(var(--bokeh-icon-check));  }
-.bk-tool-icon-square { .tool-icon-mask(var(--bokeh-icon-square));  }
-.bk-tool-icon-square-check { .tool-icon-mask(var(--bokeh-icon-square-check));  }
+.bk-tool-icon-check { .mask-image(var(--bokeh-icon-check));  }
+.bk-tool-icon-square { .mask-image(var(--bokeh-icon-square));  }
+.bk-tool-icon-square-check { .mask-image(var(--bokeh-icon-square-check));  }
 
-.bk-tool-icon-list { .tool-icon-mask(var(--bokeh-icon-list)); }
+.bk-tool-icon-list { .mask-image(var(--bokeh-icon-list)); }
 
-.bk-tool-icon-light-theme { .tool-icon-mask(var(--bokeh-icon-light-theme)); }
-.bk-tool-icon-dark-theme { .tool-icon-mask(var(--bokeh-icon-dark-theme)); }
+.bk-tool-icon-light-theme { .mask-image(var(--bokeh-icon-light-theme)); }
+.bk-tool-icon-dark-theme { .mask-image(var(--bokeh-icon-dark-theme)); }
 
 :host {
   // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
