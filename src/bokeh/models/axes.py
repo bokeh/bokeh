@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.enums import Align, LabelOrientation
+from ..core.enums import Align, AxisLabelStandoffMode, LabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -160,7 +160,11 @@ class Axis(GuideRenderer):
 
     axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset
-    from the tick labels.
+    from the tick labels or axis.
+    """)
+
+    axis_label_standoff_mode = Enum(AxisLabelStandoffMode, default="tick_labels", help="""
+    The reference point for the distance of the ``axis_label_standoff``.
     """)
 
     axis_label_orientation = Either(Enum(LabelOrientation), Float)(default="parallel", help="""
