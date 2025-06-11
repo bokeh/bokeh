@@ -189,4 +189,88 @@ describe("column_data_source module", () => {
       // TODO ["d15", new Map([[0, "a"], [1, "b"], [2, "c"]])],
     ]))
   })
+
+  describe("to_rows", () => {
+    it("should return empty for empty data source", () => {
+      const cds = new ColumnDataSource()
+      expect(cds.to_rows()).to.be.equal([])
+    })
+
+    it("should return column names as header row", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [],
+        bar: [],
+      }})
+      expect(cds.to_rows()[0]).to.be.equal(["foo", "bar"])
+    })
+
+    it("should transpose data", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [1, 2, 3],
+        bar: ["a", "b", "c"],
+      }})
+      expect(cds.to_rows()).to.be.equal([
+        ["foo", "bar"],
+        [1, "a"],
+        [2, "b"],
+        [3, "c"],
+      ])
+    })
+
+    it("should handle inconsistent-length columns", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [1, 2, 3],
+        bar: ["a", "b"],
+      }})
+      expect(cds.to_rows()).to.be.equal([
+        ["foo", "bar"],
+        [1, "a"],
+        [2, "b"],
+      ])
+    })
+  })
+
+  describe("to_csv", () => {
+    it("should return empty string for empty data source", () => {
+      const cds = new ColumnDataSource()
+      expect(cds.to_csv()).to.be.equal("")
+
+      const cds2 = new ColumnDataSource({data: {}})
+      expect(cds2.to_csv()).to.be.equal("")
+    })
+
+    it("should handle empty column", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [],
+      }})
+      expect(cds.to_csv()).to.be.equal("foo\n")
+
+      const cds2 = new ColumnDataSource({data: {
+        foo: [],
+        bar: [],
+      }})
+      expect(cds2.to_csv()).to.be.equal("foo,bar\n")
+    })
+
+    it("should handle single column", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [1],
+      }})
+      expect(cds.to_csv()).to.be.equal("foo\n1\n")
+    })
+
+    it("should escape formulas", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: [1, 2, 3],
+        bar: ["=harmful", "+csv", "-injection"],
+      }})
+      const lines = cds.to_csv().split("\n")
+      expect(lines.length).to.be.equal(5)
+      expect(lines[0]).to.be.equal("foo,bar")
+      expect(lines[1]).to.be.equal("1,'=harmful")
+      expect(lines[2]).to.be.equal("2,'+csv")
+      expect(lines[3]).to.be.equal("3,'-injection")
+      expect(lines[4]).to.be.equal("")
+    })
+  })
 })

@@ -182,29 +182,45 @@ export abstract class ColumnarDataSource extends DataSource {
     this.stream_to(this.properties.data, new_data, rollover, {sync})
   }
 
-  to_rows(): [string[], ...any[]] {
+  to_rows(): any[] {
     const header_row = this.columns()
-    const num_rows = this.length + 1 // + 1 for the header row
+
+    if (header_row.length === 0) {
+      return []
+    }
+
+    const num_rows = this.length + 1 // + 1 for header row
     const num_columns = header_row.length
-    const records = new Array(num_rows)
-    records[0] = header_row
-    for (let j = 1; j < num_rows; j++) {
-      records[j] = new Array(num_columns)
-      for (let i = 0; i < num_columns; i++) {
-        const column_name = header_row[i]
-        records[j][i] = this.get(column_name)[j]
+
+    // Initialize rows
+    const rows = new Array(num_rows)
+    for (let j = 0; j < num_rows; j++) {
+      rows[j] = new Array(num_columns)
+    }
+
+    // Fill rows
+    rows[0] = header_row
+    for (let c = 0; c < num_columns; c++) {
+      const column_name = header_row[c]
+      const column = this.get(column_name)
+      for (let r = 1; r < num_rows; r++) { // start from r=1 because r=0 is header
+        rows[r][c] = column[r - 1]
       }
     }
-    return records as [string[], ...any[]]
+
+    return rows
   }
 
-  to_csv(options: CSVStringifyOptions): string {
-    return stringify(this.to_rows(), {...options,
+  to_csv(options: CSVStringifyOptions = {}): string {
+    console.log(this.to_rows())
+    return stringify(this.to_rows(), {
+      ...options,
+
       // Prevent CSV injection. Example scenario: a malicious plot author
       // provides a data source that contains fields with harmful formulas that
       // don't show up in the plot but do show up in the CSV. The user downloads
       // the CSV, opens it in a spreadsheet app, and the app executes the
-      // harmful fields (if they are not escaped by this method).
+      // harmful fields (if they are not escaped).
       escape_formulas: true,
     })
   }
