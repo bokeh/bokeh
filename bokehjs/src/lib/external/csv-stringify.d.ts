@@ -1,9 +1,8 @@
 declare module "csv-stringify/browser/esm/sync" {
 
-  export type Callback = (err: Error | undefined, output: string) => void
   export type RecordDelimiter = string | "unix" | "mac" | "windows" | "ascii" | "unicode"
 
-  export type CastReturnObject = { value: string } & Pick<Options,
+  type CastReturnObject = { value: string } & Pick<Options,
   | "delimiter"
   | "escape"
   | "quote"
@@ -110,5 +109,5 @@ declare module "csv-stringify/browser/esm/sync" {
 
   declare function stringify(input: Input, options?: Options): string
 
-  export {stringify, Options}
+  export {stringify}
 }
