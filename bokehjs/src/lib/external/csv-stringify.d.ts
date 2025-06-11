@@ -62,7 +62,7 @@ declare module "csv-stringify/browser/esm/sync" {
     /**
      * Set the field delimiter, one character only, defaults to a comma.
      */
-    delimiter?: string | Buffer
+    delimiter?: string
     /**
      * Add the value of "options.RecordDelimiter" on the last line, default to true.
      */
@@ -70,7 +70,7 @@ declare module "csv-stringify/browser/esm/sync" {
     /**
      * Defaults to the escape read option.
      */
-    escape?: string | Buffer
+    escape?: string
     /**
      * Display the column names on the first line if the columns option is provided or discovered.
      */
@@ -78,7 +78,7 @@ declare module "csv-stringify/browser/esm/sync" {
     /**
      * The quote characters, defaults to the ", an empty quote value will preserve the original field.
      */
-    quote?: string | Buffer | boolean
+    quote?: string | boolean
     /**
      * Boolean, default to false, quote all the non-empty fields even if not required.
      */
