@@ -274,14 +274,15 @@ export abstract class AxisView extends GuideRendererView {
 
     const size = axis_label_graphics.size()
     const extent = this.dimension == 0 ? size.height : size.width
-    const standoff = (() => {
+    const standoff_offset = (() => {
       switch (this.model.axis_label_standoff_mode) {
         case "tick_labels":
-          return this.model.axis_label_standoff
+          return 0
         case "axis":
-          return this.model.axis_label_standoff - sum(this._tick_label_extents()) - this._tick_extent()
+          return sum(this._tick_label_extents()) + this._tick_extent()
       }
     })()
+    const standoff = this.model.axis_label_standoff - standoff_offset
 
     return extent > 0 ? standoff + extent + padding : 0
   }
@@ -328,14 +329,15 @@ export abstract class AxisView extends GuideRendererView {
     const [nx, ny] = this.normals
     const orient = this.model.axis_label_orientation
     const standoff_mode = this.model.axis_label_standoff_mode
-    const standoff = (() => {
+    const standoff_offset = (() => {
       switch (standoff_mode) {
         case "tick_labels":
-          return extents.tick + extents.tick_label + this.model.axis_label_standoff
+          return extents.tick + extents.tick_label
         case "axis":
-          return this.model.axis_label_standoff
+          return 0
       }
     })()
+    const standoff = this.model.axis_label_standoff + standoff_offset
     const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
 
     const position = {
