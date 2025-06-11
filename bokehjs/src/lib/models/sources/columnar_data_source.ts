@@ -212,7 +212,6 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   to_csv(options: CSVStringifyOptions = {}): string {
-    console.log(this.to_rows())
     return stringify(this.to_rows(), {
       ...options,
 
