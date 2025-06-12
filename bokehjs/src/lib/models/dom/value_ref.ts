@@ -4,18 +4,49 @@ import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Index} from "core/util/templating"
-import {_get_column_value, MISSING, DEFAULT_FORMATTERS} from "core/util/templating"
-import {execute} from "core/util/callbacks"
-import {isArray} from "core/util/types"
+import {_get_column_value, MISSING, DEFAULT_FORMATTERS, Skip} from "core/util/templating"
+import type {SyncExecutableLike} from "core/util/callbacks"
+import {execute, execute_sync} from "core/util/callbacks"
+import {isArray, isBoolean} from "core/util/types"
 import type * as p from "core/properties"
 import type {PlainObject} from "core/types"
+import {Or, Func, Ref} from "core/kinds"
+
+const FilterDef = Or(Func<any, boolean>(), Ref(CustomJS))
+type FilterDef = SyncExecutableLike<ValueRef, [{value: unknown, data_source: ColumnarDataSource, vars: PlainObject}], boolean>
 
 export class ValueRefView extends PlaceholderView {
   declare model: ValueRef
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {filter} = this.model.properties
+    this.on_change(filter, () => this._update_filter())
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._update_filter()
+  }
+
+  protected async _update_filter(): Promise<void> {
+    const {filter} = this.model
+    if (filter instanceof CustomJS) {
+      await filter.compile()
+    }
+  }
+
   update(source: ColumnarDataSource, i: Index | null, vars: PlainObject, _formatters?: Formatters): void {
-    const {field, format, formatter} = this.model
+    const {field, format, formatter, filter} = this.model
     const value = _get_column_value(field, source, i)
+
+    if (filter != null) {
+      const result = execute_sync(filter, this.model, {value, field, data_source: source, vars})
+      if (isBoolean(result) && !result) {
+        throw new Skip()
+      }
+    }
 
     const render = (output: unknown) => {
       if (output == null) {
@@ -57,6 +88,7 @@ export namespace ValueRef {
     field: p.Property<string>
     format: p.Property<string | null>
     formatter: p.Property<Formatter>
+    filter: p.Property<FilterDef | null>
   }
 }
 
@@ -76,6 +108,7 @@ export class ValueRef extends Placeholder {
       field: [ Str ],
       format: [ Nullable(Str), null ],
       formatter: [ Formatter, "raw" ],
+      filter: [ Nullable(FilterDef as any), null ], // XXX: `any` cast because of CustomJS/Func types
     }))
   }
 }

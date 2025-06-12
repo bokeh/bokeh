@@ -2666,6 +2666,7 @@
     },
     format: null,
     formatter: "raw",
+    filter: null,
   },
   CoordinateTransform: {
     __extends__: "Expression",

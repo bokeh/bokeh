@@ -42,6 +42,7 @@ from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import NOT_A_PROPERTY_OF
 from ..model import Model, Qualified
+from .callbacks import CustomJS
 from .css import Styles
 from .ui.ui_element import UIElement
 
@@ -225,6 +226,9 @@ class ValueRef(Placeholder):
     .. _Node: https://developer.mozilla.org/en-US/docs/Web/API/Node
     .. _Document: https://developer.mozilla.org/en-US/docs/Web/API/Document
     .. _DocumentFragment: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
+    """)
+
+    filter = Nullable(Instance(CustomJS), default=None, help="""
     """)
 
 class ColorRef(ValueRef):
