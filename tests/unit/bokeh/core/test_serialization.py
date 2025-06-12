@@ -261,12 +261,20 @@ class TestSerializer:
         ]
         assert encoder.buffers == []
 
-    def test_list_circular(self) -> None:
+    def test_list_circular_with_checking(self) -> None:
         val: Sequence[Any] = [1, 2, 3]
-        val.insert(2, val)
+        val.append(val)
 
-        encoder = Serializer()
-        with pytest.raises(SerializationError):
+        encoder = Serializer(check_circular=True)
+        with pytest.raises(SerializationError, match="circular reference"):
+            encoder.encode(val)
+
+    def test_list_circular_without_checking(self) -> None:
+        val: Sequence[Any] = [1, 2, 3]
+        val.append(val)
+
+        encoder = Serializer(check_circular=False)
+        with pytest.raises(RecursionError):
             encoder.encode(val)
 
     def test_dict_empty(self) -> None:
