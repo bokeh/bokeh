@@ -53,6 +53,7 @@ from ..core.enums import (
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
+    SortDirection,
     ToolName,
     TooltipAttachment,
     TooltipFieldFormatter,
@@ -1632,10 +1633,29 @@ class HoverTool(InspectTool):
     """)
 
     filters = Dict(String, Instance(CustomJS), default={}, help="""
+    Allow to filter hover results by a ``CustomJS`` callback.
+
+    .. code::
+
+        HoverTool(filters=[
+            CustomJS(code='''
+                export default (args, tool, {value, data_source, vars}) => {
+                    return value >= 0
+                }
+            ''')
+        ])
+
     """)
 
-    sort_by = Nullable(Either(String, Tuple(String, Enum(1, -1)), List(Either(String, Tuple(String, Enum(1, -1)))), Instance(CustomJS)), default=None, help="""
-    Allow to sort hover results by a field, a sequence of fields or with custom sorter.
+    sort_by = Nullable(
+        Either(
+            String,
+            List(
+                Either(String, Tuple(String, Either(Enum(SortDirection), Enum(1, -1)))),
+            ),
+        ),
+    )(default=None, help="""
+    Allow to sort hover results by a field or a sequence of fields.
     """)
 
     limit = Nullable(Positive(Int), default=None, help="""

@@ -17,7 +17,7 @@ import {execute, execute_sync} from "core/util/callbacks"
 import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
 import {replace_placeholders_html, get_value, Skip} from "core/util/templating"
-import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
+import {isFunction, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
@@ -42,18 +42,18 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
-import {Nullable, Or, Str, Tuple, Enum, List, Ref} from "core/kinds"
+import {Nullable, Or, Str, Tuple, Enum, List} from "core/kinds"
 
-const AscDesc = Enum(1, -1)
 const Field = Str
+type Field = typeof Field["__type__"]
 
-const FieldAscDesc = Tuple(Field, AscDesc)
-type FieldAscDesc = typeof FieldAscDesc["__type__"]
+const SortDirection = Or(Enum("ascending", "descending"), Enum(1, -1))
+type SortDirection = typeof SortDirection["__type__"]
 
-const FieldOrAscDesc = Or(Field, Tuple(Field, AscDesc))
-type FieldOrAscDesc = typeof FieldAscDesc["__type__"]
+const SortColumn = Tuple(Field, SortDirection)
+type SortColumn = typeof SortColumn["__type__"]
 
-const SortBy = Nullable(Or(FieldOrAscDesc, List(FieldOrAscDesc), Ref(CustomJS)))
+const SortBy = Nullable(Or(Field, List(Or(Field, SortColumn))))
 type SortBy = typeof SortBy["__type__"]
 
 export type TooltipVars = {
@@ -520,20 +520,27 @@ export class HoverToolView extends InspectToolView {
       .map((tooltip, i) => ({i, ...tooltip}))
 
     const {sort_by} = this.model
-    if (sort_by instanceof CustomJS) {
-      // TODO
-    } else if (sort_by != null) {
-      function isFieldAscDesc(val: unknown): val is FieldAscDesc {
-        return isArray(val) && val.length == 2 && isNumber(val[1])
+    if (sort_by != null) {
+      const sign = (dir: SortDirection) => {
+        switch (dir) {
+          case  1:
+          case "ascending":  return  1
+          case -1:
+          case "descending": return -1
+        }
       }
-
-      const columns = ((): FieldAscDesc[] => {
+      const columns = ((): [Field, 1 | -1][] => {
         if (isString(sort_by)) {
           return [[sort_by, 1]]
-        } else if (isFieldAscDesc(sort_by)) {
-          return [sort_by]
         } else {
-          return sort_by.map((val) => isString(val) ? [val, 1] : val)
+          return sort_by.map((val) => {
+            if (isString(val)) {
+              return [val, 1]
+            } else {
+              const [field, dir] = val
+              return [field, sign(dir)]
+            }
+          })
         }
       })()
 

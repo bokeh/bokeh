@@ -34,6 +34,7 @@ from ..core.enums import (
     PanDirectionType as PanDirection,
     RegionSelectionModeType as RegionSelectionMode,
     SelectionModeType as SelectionMode,
+    SortDirectionType as SortDirection,
     ToolNameType as ToolName,
     TooltipAttachmentType as TooltipAttachment,
     TooltipFieldFormatterType as TooltipFieldFormatter,
@@ -357,7 +358,7 @@ class HoverTool(InspectTool):
 
     filters: dict[str, CustomJS] = ...
 
-    sort_by: str | tuple[str, Literal[1, -1]] | list[str | tuple[str, Literal[1, -1]]] | CustomJS | None = ...
+    sort_by: str | list[str | tuple[str, SortDirection | Literal[1, -1]]] | None = ...
 
     limit: int | None = ...
 
