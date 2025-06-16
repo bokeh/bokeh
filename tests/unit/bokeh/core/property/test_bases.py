@@ -234,6 +234,11 @@ class TestProperty:
         p.prepare_value(hp, "foo", 10)
         assert mock_hv.called
 
+    def test_pandas_na(self):
+        # pd.NA raises a TypeError when bool(pd.NA == pd.NA)
+        assert bcpb.Property().matches(pd.NA, pd.NA) is False
+        assert bcpb.Property().matches({"name": pd.NA}, {"name": 1}) is False
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

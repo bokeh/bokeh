@@ -267,10 +267,12 @@ class Property(PropertyDescriptorFactory[T]):
             # FYI Numpy can erroneously raise a warning about elementwise
             # comparison here when a timedelta is compared to another scalar.
             # https://github.com/numpy/numpy/issues/10095
-            return new == old
+            # bool() is to handle when new and old cannot be compared
+            # and raises TypeError, an example of this is pd.NA
+            return bool(new == old)
 
         # if the comparison fails for some reason, just punt and return no-match
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     def transform(self, value: Any) -> T:
