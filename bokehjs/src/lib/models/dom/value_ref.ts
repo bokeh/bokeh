@@ -32,8 +32,10 @@ export class ValueRefView extends PlaceholderView {
 
   protected async _update_filter(): Promise<void> {
     const {filter} = this.model
-    if (filter instanceof CustomJS) {
-      await filter.compile()
+    for (const fn of isArray(filter) ? filter : [filter]) {
+      if (fn instanceof CustomJS) {
+        await fn.compile()
+      }
     }
   }
 
@@ -42,9 +44,11 @@ export class ValueRefView extends PlaceholderView {
     const value = _get_column_value(field, source, i)
 
     if (filter != null) {
-      const result = execute_sync(filter, this.model, {value, field, data_source: source, vars})
-      if (isBoolean(result) && !result) {
-        throw new Skip()
+      for (const fn of isArray(filter) ? filter : [filter]) {
+        const result = execute_sync(fn, this.model, {value, field, data_source: source, vars})
+        if (isBoolean(result) && !result) {
+          throw new Skip()
+        }
       }
     }
 
@@ -88,7 +92,7 @@ export namespace ValueRef {
     field: p.Property<string>
     format: p.Property<string | null>
     formatter: p.Property<Formatter>
-    filter: p.Property<FilterDef | null>
+    filter: p.Property<FilterDef | FilterDef[] | null>
   }
 }
 
@@ -104,11 +108,11 @@ export class ValueRef extends Placeholder {
 
   static {
     this.prototype.default_view = ValueRefView
-    this.define<ValueRef.Props>(({Str, Nullable}) => ({
+    this.define<ValueRef.Props>(({Str, Nullable, List, Or}) => ({
       field: [ Str ],
       format: [ Nullable(Str), null ],
       formatter: [ Formatter, "raw" ],
-      filter: [ Nullable(FilterDef as any), null ], // XXX: `any` cast because of CustomJS/Func types
+      filter: [ Nullable(Or(FilterDef, List(FilterDef))) as any, null ], // XXX: `any` cast because of CustomJS/Func types
     }))
   }
 }

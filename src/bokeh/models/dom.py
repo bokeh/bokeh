@@ -228,7 +228,8 @@ class ValueRef(Placeholder):
     .. _DocumentFragment: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
     """)
 
-    filter = Nullable(Instance(CustomJS), default=None, help="""
+    filter = Nullable(Either(Instance(CustomJS), List(Instance(CustomJS))), default=None, help="""
+    Allow to filter hover results by a ``CustomJS`` callback.
     """)
 
 class ColorRef(ValueRef):

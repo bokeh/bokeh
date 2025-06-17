@@ -1,4 +1,13 @@
 import {assert} from "./assert"
+import {isIterable} from "./types"
+
+export function* iter<T>(obj: T | Iterable<T>): Iterable<T> {
+  if (isIterable(obj)) {
+    yield* obj
+  } else {
+    yield obj
+  }
+}
 
 export function* range(start: number, stop?: number, step: number = 1): Iterable<number> {
   assert(step > 0)

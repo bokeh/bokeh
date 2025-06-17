@@ -1632,7 +1632,7 @@ class HoverTool(InspectTool):
 
     """)
 
-    filters = Dict(String, Instance(CustomJS), default={}, help="""
+    filters = Dict(String, Either(Instance(CustomJS), List(Instance(CustomJS))), default={}, help="""
     Allow to filter hover results by a ``CustomJS`` callback.
 
     .. code::

@@ -17,7 +17,7 @@ import {execute, execute_sync} from "core/util/callbacks"
 import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
 import {replace_placeholders_html, get_value, Skip} from "core/util/templating"
-import {isFunction, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
+import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
@@ -137,7 +137,9 @@ export class HoverToolView extends InspectToolView {
 
   protected async _update_filters(): Promise<void> {
     for (const [_, filter] of entries(this.model.filters)) {
-      await filter.compile()
+      for (const cjs of isArray(filter) ? filter : [filter]) {
+        await cjs.compile()
+      }
     }
   }
 
@@ -620,9 +622,11 @@ export class HoverToolView extends InspectToolView {
 
     for (const [field, filter] of entries(filters)) {
       const value = this._get_value(field, ds, vars)
-      const result = execute_sync(filter, this.model, {value, field, data_source: ds, vars})
-      if (isBoolean(result) && !result) {
-        return false
+      for (const cjs of isArray(filter) ? filter : [filter]) {
+        const result = execute_sync(cjs, this.model, {value, field, data_source: ds, vars})
+        if (isBoolean(result) && !result) {
+          return false
+        }
       }
     }
 
@@ -818,7 +822,7 @@ export namespace HoverTool {
   export type Props = InspectTool.Props & {
     tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
-    filters: p.Property<Dict<CustomJS>>
+    filters: p.Property<Dict<CustomJS | CustomJS[]>>
     sort_by: p.Property<SortBy>
     limit: p.Property<number | null>
     renderers: p.Property<DataRenderer[] | "auto">
@@ -853,7 +857,7 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
-      filters:      [ Dict(Ref(CustomJS)), {} ],
+      filters:      [ Dict(Or(Ref(CustomJS), List(Ref(CustomJS)))), {} ],
       sort_by:      [ SortBy, null ],
       limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
