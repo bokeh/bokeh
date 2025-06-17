@@ -11,9 +11,10 @@ import {isArray, isBoolean} from "core/util/types"
 import type * as p from "core/properties"
 import type {PlainObject} from "core/types"
 import {Or, Func, Ref} from "core/kinds"
+import type {Model} from "../../model"
 
-const FilterDef = Or(Func<any, boolean>(), Ref(CustomJS))
-type FilterDef = SyncExecutableLike<ValueRef, [{
+export const FilterDef = Or(Func<any, boolean>(), Ref(CustomJS))
+export type FilterDef = SyncExecutableLike<Model, [{
   value: unknown
   field: string
   row: {[key: string]: unknown}

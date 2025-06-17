@@ -43,6 +43,7 @@ import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Nullable, Or, Str, Tuple, Enum, List} from "core/kinds"
+import {FilterDef} from "../../dom/value_ref"
 
 const Field = Str
 type Field = typeof Field["__type__"]
@@ -138,7 +139,9 @@ export class HoverToolView extends InspectToolView {
   protected async _update_filters(): Promise<void> {
     for (const [_, filter] of entries(this.model.filters)) {
       for (const fn of isArray(filter) ? filter : [filter]) {
-        await fn.compile()
+        if (fn instanceof CustomJS) {
+          await fn.compile()
+        }
       }
     }
   }
@@ -826,7 +829,7 @@ export namespace HoverTool {
   export type Props = InspectTool.Props & {
     tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
-    filters: p.Property<Dict<CustomJS | CustomJS[]>>
+    filters: p.Property<Dict<FilterDef | FilterDef[]>>
     sort_by: p.Property<SortBy>
     limit: p.Property<number | null>
     renderers: p.Property<DataRenderer[] | "auto">
@@ -861,7 +864,7 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
-      filters:      [ Dict(Or(Ref(CustomJS), List(Ref(CustomJS)))), {} ],
+      filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ],
       sort_by:      [ SortBy, null ],
       limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
