@@ -1,0 +1,49 @@
+<div id="codepen-html">
+<!--
+{%- include 'bokehjs_html_template.html' %}
+-->
+</div>
+{% for css_file in css_files %}
+<link rel="stylesheet" href="{{css_file}}" type="text/css" />{% endfor %}
+{% for js_file in js_files %}
+<script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    let HTML = ""
+    const html_el = document.getElementById("codepen-html")
+    for (const child_el of html_el.childNodes) {
+      if (child_el.nodeType === Node.COMMENT_NODE) {
+        // remove first line break to avoid an empty line in the html section of code pen
+        HTML = child_el.textContent.replace(/\n/, "")
+      }
+    }
+    document.querySelectorAll(".codepen-wrap").forEach((el) => {
+      let form = el.querySelector("form")
+      // do nothing if no form tag exists
+      if (form === null) { return; }
+
+      const data = {
+        title: el.getAttribute("data-codepen-title"),
+        description: "",
+        html: HTML,
+        html_pre_processor: "none",
+        css: "",
+        css_pre_processor: "none",
+        css_starter: "neither",
+        css_prefix_free: false,
+        js: el.querySelector(".codepen-content").innerText,
+        js_pre_processor: "none",
+        js_modernizr: false,
+        js_library: "",
+        html_classes: "",
+        css_external: "",
+        js_external: "",
+        template: true,
+      }
+      // Quotes will screw up the JSON
+      const json_string = JSON.stringify(data).replace(/"/g, "&quot;").replace(/'/g, "&apos;")
+      const json_input = `<input type="hidden" name="data" value="${json_string}">`
+      form.innerHTML += json_input
+    })
+  })
+</script>

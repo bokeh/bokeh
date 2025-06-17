@@ -4,9 +4,11 @@ import type {Node} from "../coordinates/node"
 import type * as p from "core/properties"
 import {InlineStyleSheet} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
+import type {RenderingTarget} from "core/dom_view"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {Place} from "core/enums"
+import {Bool} from "core/kinds"
 import {isNumber} from "core/util/types"
 import * as css from "styles/canvas_panel.css"
 
@@ -25,8 +27,12 @@ export class CanvasPanelView extends StyledElementView {
     return [...super.stylesheets(), css.default, this.position]
   }
 
-  override rendering_target(): HTMLElement {
-    return this.parent.canvas_view.events_el
+  override rendering_target(): RenderingTarget {
+    if (this.model.inner) {
+      return this.parent.frame_view.shadow_el
+    } else {
+      return this.parent.canvas_view.events_el
+    }
   }
 
   override render(): void {
@@ -72,6 +78,7 @@ export namespace CanvasPanel {
   export type Attrs = p.AttrsOf<Props>
   export type Props = StyledElement.Props & {
     place: p.Property<Place>
+    inner: p.Property<boolean>
   }
 }
 
@@ -90,6 +97,7 @@ export class CanvasPanel extends StyledElement {
 
     this.define<CanvasPanel.Props>({
       place: [ Place ],
+      inner: [ Bool, false ],
     })
   }
 }

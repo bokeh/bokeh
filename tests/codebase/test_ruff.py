@@ -30,7 +30,7 @@ from tests.support.util.project import TOP_PATH
 
 def test_ruff() -> None:
     chdir(TOP_PATH)
-    proc = run(["ruff", "."], capture_output=True)
+    proc = run(["ruff", "check", "."], capture_output=True)
     assert proc.returncode == 0, f"ruff issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------

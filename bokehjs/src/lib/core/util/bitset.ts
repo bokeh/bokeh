@@ -145,7 +145,9 @@ export class BitSet implements Equatable {
     return c
   }
 
-  *ones(): Iterable<number> {
+  ones(): number[] {
+    const indices = new Array(this.count)
+    let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
@@ -155,13 +157,16 @@ export class BitSet implements Equatable {
       }
       for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
         if (((word >>> j) & 0b1) == 0b1) {
-          yield k
+          indices[index++] = k
         }
       }
     }
+    return indices
   }
 
-  *zeros(): Iterable<number> {
+  zeros(): number[] {
+    const indices = new Array(this.count)
+    let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
@@ -171,10 +176,11 @@ export class BitSet implements Equatable {
       }
       for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
         if (((word >>> j) & 0b1) == 0b0) {
-          yield k
+          indices[index++] = k
         }
       }
     }
+    return indices
   }
 
   private _check_size(other: BitSet): void {

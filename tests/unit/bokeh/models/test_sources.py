@@ -303,7 +303,7 @@ class TestColumnDataSource:
             assert ds.column_names == []
             assert ds.length == 0
             assert len(w) == 1
-            assert w[0].category == UserWarning
+            assert w[0].category is UserWarning
             assert str(w[0].message) == "Unable to find column 'foo' in data source"
 
     def test_stream_bad_data(self) -> None:
@@ -509,7 +509,7 @@ Lime,Green,99,$0.39
     def _assert_equal_dicts_of_arrays(self, d1, d2):
         assert d1.keys() == d2.keys()
         for k, v in d1.items():
-            assert type(v) == np.ndarray
+            assert type(v) is np.ndarray
             assert np.array_equal(v, d2[k])
 
     def test_stream_dict_to_ds_created_from_df(self) -> None:

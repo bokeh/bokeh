@@ -1,6 +1,24 @@
 @import "./_mixins.less";
 
 :host {
+  // The border opposite the divider
+  --block-start-border-width: 3px;
+
+  --close-icon-hover-background-color: var(--error);
+  --close-icon-width: 14px;
+  --close-icon-height: 14px;
+  --close-icon-color: var(--icon-color);
+  --close-icon-space-away-from-tab-text: 10px;
+
+  --padding-vertical: 4px;
+  --padding-horizontal: 8px;
+
+  --outline-offset: -5px;
+
+  --disabled-opacity: 0.65;
+}
+
+:host {
   display: grid;
 }
 
@@ -48,74 +66,72 @@
   }
 }
 
-@border: 1px solid lighten(black, 90%);
-
-:host(.bk-above) .bk-header { border-bottom: @border; }
-:host(.bk-right) .bk-header { border-left:   @border; }
-:host(.bk-below) .bk-header { border-top:    @border; }
-:host(.bk-left)  .bk-header { border-right:  @border; }
+:host(.bk-above) .bk-header { border-bottom: var(--divider); }
+:host(.bk-right) .bk-header { border-left:   var(--divider); }
+:host(.bk-below) .bk-header { border-top:    var(--divider); }
+:host(.bk-left)  .bk-header { border-right:  var(--divider); }
 
 .bk-tab {
-  padding: 4px 8px; // var(--padding-vertical) var(--padding-horizontal);
-  border: solid transparent;
+  padding: var(--padding-vertical) var(--padding-horizontal);
+  border: var(--border-style) transparent;
   outline: 0;
-  outline-offset: -5px;
+  outline-offset: var(--outline-offset);
   white-space: nowrap;
   cursor: pointer;
   text-align: center;
 
   &:hover {
-    background-color: lighten(black, 95%);
+    background-color: var(--hover-color);
   }
 
   &:focus, &:active {
-    outline: 1px dotted #ccc;
+    outline: var(--outline);
   }
 
   &.bk-active {
-    color: lighten(black, 30%);
-    background-color: white;
-    border-color: lighten(black, 90%);
+    color: var(--color);
+    background-color: var(--background-color);
+    border-color: var(--border-color);
   }
 
   .bk-close {
-    margin-left: 10px;
+    margin-left: var(--close-icon-space-away-from-tab-text);
   }
 
   &.bk-disabled { // TODO: same as elsewhere, so use a mixin
     cursor: not-allowed;
     pointer-events: none;
-    opacity: 0.65;
+    opacity: var(--disabled-opacity);
   }
 }
 
 :host(.bk-above) .bk-tab {
-  border-width: 3px 1px 0px 1px;
+  border-width: var(--block-start-border-width) var(--divider-width) 0 var(--divider-width);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 :host(.bk-right) .bk-tab {
-  border-width: 1px 3px 1px 0px;
+  border-width: var(--divider-width) var(--block-start-border-width) var(--divider-width) 0;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 :host(.bk-below) .bk-tab {
-  border-width: 0px 1px 3px 1px;
+  border-width: 0 var(--divider-width) var(--block-start-border-width) var(--divider-width);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 :host(.bk-left) .bk-tab {
-  border-width: 1px 0px 1px 3px;
+  border-width: var(--divider-width) 0 var(--divider-width) var(--block-start-border-width);
   border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
 .bk-close {
   display: inline-block;
   vertical-align: middle;
-  width: 14px;
-  height: 14px;
+  width: var(--close-icon-width);
+  height: var(--close-icon-height);
   cursor: pointer;
 
-  .icon-mask(var(--bokeh-icon-x), gray);
+  .icon-mask(var(--bokeh-icon-x), var(--close-icon-color));
 
   &:hover {
-    background-color: red;
+    background-color: var(--close-icon-hover-background-color);
   }
 }

@@ -2,6 +2,8 @@
 
 :host {
   --input-min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
+  --focus-border-color: var(--input-focus-border-color);
+  --focus-halo-color: var(--input-focus-halo-color);
 }
 
 .bk-input {
@@ -11,24 +13,22 @@
   flex-grow: 1;
   min-height: var(--input-min-height);
   padding: 0 var(--padding-horizontal);
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  border: var(--border);
   border-radius: var(--border-radius);
   resize: none;
 
-  @border-focus: #66afe9;
-  @border-focus-faded: fade(@border-focus, 60%);
   &:focus {
-    border-color: @border-focus;
+    border-color: var(--focus-border-color);
     outline: 0;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @border-focus-faded;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
   }
 
-  .placeholder(#999);
+  .placeholder(var(--placeholder-color));
 
   &[disabled], &.bk-disabled {
     cursor: not-allowed;
-    background-color: #eee;
+    background-color: var(--disabled-background-color);
     opacity: 1;
   }
 }
@@ -45,10 +45,10 @@
     display: flex;
     align-items: center;
     flex: 0 1 0;
-    border: 1px solid #ccc;
+    border: var(--border);
     border-radius: var(--border-radius);
     padding: 0 var(--padding-horizontal);
-    background-color: #e6e6e6;
+    background-color: var(--surface-background-color);
   }
 
   .bk-input-prefix {
@@ -79,7 +79,7 @@
 }
 
 input[type=file].bk-input {
-  // aligne the button with input's edge
+  // align the button with input's edge
   padding-left: 0;
 }
 input[type=file]::file-selector-button {
@@ -172,10 +172,10 @@ select[multiple], select[size], textarea {
         top: 0;
 
         &:before {
-          border-bottom: 5px solid black;
+          border-bottom: 5px solid var(--color);
         }
         &:disabled:before {
-          border-bottom-color: grey;
+          border-bottom-color: var(--disabled-color);
         }
       }
 
@@ -183,11 +183,11 @@ select[multiple], select[size], textarea {
         bottom: 0;
 
         &:before {
-          border-top: 5px solid black;
+          border-top: 5px solid var(--color);
         }
 
         &:disabled:before {
-          border-top-color: grey;
+          border-top-color: var(--disabled-color);
         }
       }
     }
@@ -203,10 +203,9 @@ select[multiple], select[size], textarea {
   cursor: pointer;
 
   &> .bk-icon {
-    opacity: 0.5;
     width: 18px;
     height: 18px;
-    .icon-mask(var(--bokeh-icon-help), gray);
+    .icon-mask(var(--bokeh-icon-help), var(--color));
   }
 }
 

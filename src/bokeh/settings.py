@@ -169,6 +169,16 @@ def convert_int(value: int | str) -> int:
     '''
     return int(value)
 
+def convert_compression(value: int | str) -> int:
+    ''' Convert a string to a gzip compression level value.
+    '''
+    level = int(value)
+
+    if 0 <= level <= 9:
+        return level
+
+    raise ValueError(f"Compression level must be an integer in [0, 9], got {value!r}")
+
 def convert_bool(value: bool | str) -> bool:
     ''' Convert a string to True or False.
 
@@ -499,6 +509,8 @@ class PrioritizedSetting(Generic[T]):
             return "Bool"
         if self._convert is convert_int:
             return "Int"
+        if self._convert is convert_compression:
+            return "Compression Level (0-9)"
         if self._convert is convert_logging:
             return "Log Level"
         if self._convert is convert_str_seq:
@@ -581,6 +593,16 @@ class Settings:
     different name for ``chromedriver``, like ``chromedriver-binary`` or
     ``chromium.chromedriver`` (or its variant, which is used for example
     by Snap package manager; see https://snapcraft.io/).
+    """)
+
+    compression_level: PrioritizedSetting[int] = PrioritizedSetting("compression_level", "BOKEH_COMPRESSION_LEVEL", default=9, convert=convert_compression, help="""
+    In contexts where array buffers are base64-encoded (e.g. to embed inside
+    an HTML file), the buffer will first be compressed to save space.
+
+    Valid values are the standard gzip compression levels 0-9. A setting of 9
+    (the default) will result in the highest compression. A setting of 1 will
+    result in the least compression, but be faster. A setting of 0 will result
+    in no compression.
     """)
 
     cookie_secret: PrioritizedSetting[str | None] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""

@@ -41,7 +41,7 @@ import {
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput, Switch,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -53,7 +53,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace, cumsum} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum, reversed} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -4405,6 +4405,206 @@ describe("Bug", () => {
       const url = URL.createObjectURL(blob)
       const image = await load_image(url)
       ctx.drawImage(image, 0, 0, 200, 200)
+    })
+  })
+
+  describe("in issue #14442", () => {
+    it("doesn't allow to correctly render Legend with inactive items", async () => {
+      const x = np.linspace(0, 4*np.pi, 50)
+      const y = np.sin(x)
+
+      const p = fig([200, 200])
+
+      const r0 = p.scatter(x, y)
+      r0.muted = true
+      const r1 = p.line(x, y)
+      r1.muted = true
+
+      const r2 = p.line(x, f`2*${y}`, {line_dash: [4, 4], line_color: "orange", line_width: 2})
+      r2.muted = true
+
+      const r3 = p.scatter(x, f`3*${y}`, {marker: "square", fill_color: null, line_color: "green"})
+      const r4 = p.line(x, f`3*${y}`, {line_color: "green"})
+
+      const legend = new Legend({
+        items: [
+          new LegendItem({label: "sin(x)",   renderers: [r0, r1]}),
+          new LegendItem({label: "2*sin(x)", renderers: [r2]}),
+          new LegendItem({label: "3*sin(x)", renderers: [r3, r4]}),
+        ],
+        location: "top_right",
+        click_policy: "mute",
+      })
+      p.add_layout(legend)
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #14458", () => {
+    it("doesn't allow to update layout children without removing them from DOM", async () => {
+      function f(color: Color) {
+        const p = fig([200, 200])
+        p.scatter([1, 2, 3], [1, 2, 3], {size: 30, color})
+        return p
+      }
+
+      const layout = new Row({
+        children: [f("red"), f("green"), f("blue"), f("yellow"), f("purple")],
+      })
+      const {view} = await display(layout)
+
+      function figs() {
+        return [...view.shadow_el.children].filter((el) => el.classList.contains("bk-Figure"))
+      }
+
+      const pre_update = figs()
+      layout.children = reversed(layout.children)
+      await view.ready
+      const post_update = figs()
+
+      expect(reversed(pre_update)).to.be.equal(post_update)
+    })
+  })
+
+  describe("in issue #14451", () => {
+    describe("doesn't allow to correctly position Legend annotation in side panel", () => {
+      function make(location: Location, options?: {multiple: boolean}) {
+        const x = np.linspace(0, 4*np.pi, 50)
+        const y = np.sin(x)
+
+        const p = figure({frame_width: 250, frame_height: 250, toolbar_location: location})
+
+        const r0 = p.scatter(x, y)
+        const r1 = p.line(x, y)
+
+        const r2 = p.line(x, f`2*${y}`, {line_dash: [4, 4], line_color: "orange", line_width: 2})
+
+        const r3 = p.scatter(x, f`3*${y}`, {marker: "square", fill_color: null, line_color: "green"})
+        const r4 = p.line(x, f`3*${y}`, {line_color: "green"})
+
+        const legend = new Legend({
+          items: [
+            new LegendItem({label: "sin(x)",   renderers: [r0, r1]}),
+            new LegendItem({label: "2*sin(x)", renderers: [r2]}),
+            new LegendItem({label: "3*sin(x)", renderers: [r3, r4]}),
+          ],
+          location: "center",
+          margin: 0,
+          click_policy: "mute",
+        })
+        p.add_layout(legend, location)
+
+        if (options?.multiple ?? false) {
+          const legend = new Legend({
+            items: [
+              new LegendItem({label: "sin(x)", renderers: [r0, r1]}),
+            ],
+            location: "center",
+            margin: 0,
+            click_policy: "mute",
+          })
+          p.add_layout(legend, location)
+        }
+
+        return p
+      }
+      it("above", async () => {
+        await display(make("above"), [350, 450])
+      })
+      it("below", async () => {
+        await display(make("below"), [350, 450])
+      })
+      it("left", async () => {
+        await display(make("left"), [450, 300])
+      })
+      it("right", async () => {
+        await display(make("right"), [450, 300])
+      })
+
+      it("above with multiple legends", async () => {
+        await display(make("above", {multiple: true}), [350, 500])
+      })
+      it("below with multiple legends", async () => {
+        await display(make("below", {multiple: true}), [350, 500])
+      })
+      it("left with multiple legends", async () => {
+        await display(make("left", {multiple: true}), [500, 300])
+      })
+      it("right with multiple legends", async () => {
+        await display(make("right", {multiple: true}), [500, 300])
+      })
+    })
+
+    it("doesn't allow to keep toolbar visible if renderers change", async () => {
+      const p = fig([200, 200], {toolbar_location: "right"})
+      p.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
+
+      const {view} = await display(p)
+
+      p.scatter([1, 2, 3], [2, 3, 4], {color: "blue"})
+      await view.ready
+
+      p.scatter([1, 2, 3], [3, 4, 5], {color: "green"})
+      await view.ready
+    })
+  })
+
+  describe("in issue #12430", () => {
+    it("doesn't correctly show selected indices of Step glyph", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x0: [0, 1, 2, 3, 4, 5, 6],
+          x1: [0, 1, 2, 3, 4, 5, 6],
+          x2: [0, 1, 2, 3.25, 4, 5, 6],
+          y0: [0.2, 1.2, 1.5, 2.0, 1.5, 1.0, 0.0],
+          y1: [0.1, 1.1, 1.4, 1.9, 1.6, 1.1, 0.1],
+          y2: [0.0, 1.0, 1.3, 1.8, 1.7, 1.2, 0.2],
+        },
+      })
+
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {output_backend, title: output_backend})
+        p.step({x: {field: "x0"}, y: {field: "y0"}, source, line_width: 5, line_cap: "round", mode: "before", line_color: "red"})
+        p.step({x: {field: "x1"}, y: {field: "y1"}, source, line_width: 5, line_cap: "round", mode: "center", line_color: "green"})
+        p.step({x: {field: "x2"}, y: {field: "y2"}, source, line_width: 5, line_cap: "round", mode: "after", line_color: "blue"})
+        return p
+      }
+      source.selected.indices = [0, 1, 5, 6]
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+  })
+
+  describe("in issue #13616", () => {
+    it("doesn't reset value when picker is closed mid selection", async () => {
+      const d0 = "2023-01-18"
+      const d1 = "2023-01-23"
+      const obj = new DateRangePicker({value: [d0, d1], width: 400})
+      const {view} = await display(obj, [600, 500])
+      await open_picker(view)
+      const days_el = view.shadow_el.querySelectorAll<HTMLElement>(".flatpickr-day")
+      expect_not_null(days_el)
+      await view.ready
+      await mouse_click(days_el[2])
+      await view.ready
+      await view.picker.close()
+      expect(obj.value).to.be.equal(null)
+    })
+  })
+
+  describe("in issue #14503", () => {
+    it("doesn't keep picked datetime value after closing", async () => {
+      const d0 = "2023-01-23 08:30"
+      const obj = new DatetimePicker({value: d0, width: 400})
+      const {view} = await display(obj, [600, 500])
+      await open_picker(view)
+      const days_el = view.shadow_el.querySelectorAll<HTMLElement>(".flatpickr-day")
+      expect_not_null(days_el)
+      await view.ready
+      await mouse_click(days_el[2])
+      await view.ready
+      await view.picker.close()
+      expect(obj.value).to.not.be.equal(null)
     })
   })
 })

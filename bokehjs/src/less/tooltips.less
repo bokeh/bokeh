@@ -1,11 +1,11 @@
 @import "./_mixins.less";
 
 :host {
-  --tooltip-border: #e5e5e5;  /* Same border color used everywhere */
-  --tooltip-color: white;
-  --tooltip-text: #2f2f2f;
+  --tooltip-border: var(--divider-color);
+  --tooltip-color: var(--background-color);
+  --tooltip-text: var(--color);
 
-  --tooltip-arrow-color: #909599;  /* Gray of icons */
+  --tooltip-arrow-color: var(--icon-color);
   --tooltip-arrow-width: 10px;
   --tooltip-arrow-height: 10px;
   --tooltip-arrow-half-width: 7px;

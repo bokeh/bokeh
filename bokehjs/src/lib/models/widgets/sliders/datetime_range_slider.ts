@@ -1,9 +1,8 @@
-import tz from "timezone"
-
 import {NumericalRangeSlider, NumericalRangeSliderView} from "./numerical_range_slider"
 import type {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
+import {datetime} from "core/util/templating"
 
 export class DatetimeRangeSliderView extends NumericalRangeSliderView {
   declare model: DatetimeRangeSlider
@@ -13,7 +12,7 @@ export class DatetimeRangeSliderView extends NumericalRangeSliderView {
 
   protected _formatter(value: number, format: string | TickFormatter): string {
     if (isString(format)) {
-      return tz(value, format)
+      return datetime(value, format)
     } else {
       return format.compute(value)
     }

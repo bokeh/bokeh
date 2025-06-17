@@ -185,8 +185,11 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected _set_image_data_from_buffer(i: number, buf8: Uint8ClampedArray): void {
     assert(this.image_data != null)
+    // This creates a software 2D canvas, which is good for frequent getImageData() and
+    // putImageData(), but not for general rendering due to lack of hardware acceleration.
     const canvas = this._get_or_create_canvas(i)
-    const ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext("2d", {willReadFrequently: true})
+    assert(ctx != null)
     const image_data = ctx.getImageData(0, 0, this.image_width[i], this.image_height[i])
     image_data.data.set(buf8)
     ctx.putImageData(image_data, 0, 0)

@@ -19,23 +19,23 @@
 
   cursor: pointer;
   font-size: var(--font-size);
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  border: var(--border);
   border-radius: var(--border-radius);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: var(--box-shadow-x-symmetric);
 
   & > .bk-divider {
     height: 1px;
     margin: calc(var(--line-height-computed)/2 - 1px) 0;
     overflow: hidden;
-    background-color: #e5e5e5;
+    background-color: var(--divider-color);
   }
 
   & > :not(.bk-divider) {
     padding: var(--padding-vertical) var(--padding-horizontal);
 
     &:hover, &.bk-active {
-      background-color: darken(white, 10%);
+      background-color: var(--surface-background-color);
     }
   }
 }

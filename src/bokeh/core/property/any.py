@@ -53,9 +53,7 @@ class Any(Property[typing.Any]):
             have (default: None)
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     Example:
 

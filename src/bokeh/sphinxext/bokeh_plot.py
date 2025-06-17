@@ -15,11 +15,6 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
     .. bokeh-plot:: path/to/plot.py
 
-.. note::
-    .py scripts are not scanned automatically! In order to include
-    certain directories into .py scanning process use following directive
-    in sphinx conf.py file: bokeh_plot_pyfile_include_dirs = ["dir1","dir2"]
-
 **Inline code** as the content of the directive::
 
  .. bokeh-plot::
@@ -112,17 +107,17 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
-from . import PARALLEL_SAFE
-from .bokeh_directive import BokehDirective
-from .example_handler import ExampleHandler
-from .util import _REPO_TOP, get_sphinx_resources
+# Local imports
+from ._internal import PARALLEL_SAFE
+from ._internal.bokeh_directive import BokehDirective
+from ._internal.example_handler import ExampleHandler
+from ._internal.util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
 __all__ = (
-    "autoload_script",
     "BokehPlotDirective",
     "setup",
 )
@@ -223,7 +218,9 @@ class BokehPlotDirective(BokehDirective):
         path = self.arguments[0]
         log.debug(f"[bokeh-plot] handling external content in {self.env.docname!r}: {path}")
         if path.startswith("__REPO__/"):
-            path = join(_REPO_TOP, path.replace("__REPO__/", ""))
+            # __REPO__ is an internal/undocumented convention for Bokeh's own docs
+            from ._internal import REPO_TOP
+            path = join(REPO_TOP, path.replace("__REPO__/", ""))
         elif not path.startswith("/"):
             path = join(self.env.app.srcdir, path)
         try:

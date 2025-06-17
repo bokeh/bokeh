@@ -14,35 +14,35 @@
 }
 
 .bk-tool-icon-replace-mode {
-  .tool-icon(--bokeh-icon-replace-mode, "ReplaceMode");
+  .tool-icon-mask(var(--bokeh-icon-replace-mode));
 }
 
 .bk-tool-icon-toggle-mode {
-  .tool-icon(--bokeh-icon-toggle-mode, "ToggleMode");
+  .tool-icon-mask(var(--bokeh-icon-toggle-mode));
 }
 
 .bk-tool-icon-append-mode {
-  .tool-icon(--bokeh-icon-append-mode, "AppendMode");
+  .tool-icon-mask(var(--bokeh-icon-append-mode));
 }
 
 .bk-tool-icon-intersect-mode {
-  .tool-icon(--bokeh-icon-intersect-mode, "IntersectMode");
+  .tool-icon-mask(var(--bokeh-icon-intersect-mode));
 }
 
 .bk-tool-icon-subtract-mode {
-  .tool-icon(--bokeh-icon-subtract-mode, "SubtractMode");
+  .tool-icon-mask(var(--bokeh-icon-subtract-mode));
 }
 
 .bk-tool-icon-xor-mode {
-  .tool-icon(--bokeh-icon-xor-mode, "XorMode");
+  .tool-icon-mask(var(--bokeh-icon-xor-mode));
 }
 
 .bk-tool-icon-invert-selection {
-  .tool-icon(--bokeh-icon-invert-selection, "InvertSelection");
+  .tool-icon-mask(var(--bokeh-icon-invert-selection));
 }
 
 .bk-tool-icon-clear-selection {
-  .tool-icon(--bokeh-icon-clear-selection, "ClearSelection");
+  .tool-icon-mask(var(--bokeh-icon-clear-selection));
 }
 
 .bk-tool-icon-box-select {
@@ -126,11 +126,11 @@
 }
 
 .bk-tool-icon-range {
-  .tool-icon(--bokeh-icon-range, "Range");
+  .tool-icon-mask(var(--bokeh-icon-range));
 }
 
 .bk-tool-icon-polygon-select {
-  .tool-icon(--bokeh-icon-polygon-select, "PolygonSelect");
+  .tool-icon-mask(var(--bokeh-icon-polygon-select));
 }
 
 .bk-tool-icon-redo {
@@ -154,35 +154,35 @@
 }
 
 .bk-tool-icon-wheel-pan {
-  .tool-icon(--bokeh-icon-wheel-pan, "WheelPan");
+  .tool-icon-mask(var(--bokeh-icon-wheel-pan));
 }
 
 .bk-tool-icon-wheel-zoom {
-  .tool-icon(--bokeh-icon-wheel-zoom, "WheelZoom");
+  .tool-icon-mask(var(--bokeh-icon-wheel-zoom));
 }
 
 .bk-tool-icon-box-edit {
-  .tool-icon(--bokeh-icon-box-edit, "BoxEdit");
+  .tool-icon-mask(var(--bokeh-icon-box-edit));
 }
 
 .bk-tool-icon-freehand-draw {
-  .tool-icon(--bokeh-icon-freehand-draw, "FreehandDraw");
+  .tool-icon-mask(var(--bokeh-icon-freehand-draw));
 }
 
 .bk-tool-icon-poly-draw {
-  .tool-icon(--bokeh-icon-poly-draw, "PolyDraw");
+  .tool-icon-mask(var(--bokeh-icon-poly-draw));
 }
 
 .bk-tool-icon-point-draw {
-  .tool-icon(--bokeh-icon-point-draw, "PointDraw");
+  .tool-icon-mask(var(--bokeh-icon-point-draw));
 }
 
 .bk-tool-icon-poly-edit {
-  .tool-icon(--bokeh-icon-poly-edit, "PolyEdit");
+  .tool-icon-mask(var(--bokeh-icon-poly-edit));
 }
 
 .bk-tool-icon-line-edit {
-  .tool-icon(--bokeh-icon-line-edit, "LineEdit");
+  .tool-icon-mask(var(--bokeh-icon-line-edit));
 }
 
 .bk-tool-icon-settings {
@@ -242,7 +242,7 @@
 .bk-tool-icon-dark-theme { .tool-icon-mask(var(--bokeh-icon-dark-theme)); }
 
 :host {
-  // Based on https://tabler-icons.io/ (MIT License)
+  // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
   --bokeh-icon-question-mark: data-uri("icons/question-mark.svg");
   --bokeh-icon-help: data-uri("icons/help.svg");
   --bokeh-icon-x: data-uri("icons/x.svg");
@@ -256,6 +256,7 @@
 
   --bokeh-icon-tap-select: data-uri("icons/tap.svg");
   --bokeh-icon-lasso-select: data-uri("icons/lasso-select.svg");
+  --bokeh-icon-polygon-select: data-uri("icons/polygon-select.svg");
 
   --bokeh-icon-pan: data-uri("icons/pan.svg");
   --bokeh-icon-x-pan: data-uri("icons/x-pan.svg");
@@ -266,6 +267,8 @@
   --bokeh-icon-pan-up: data-uri("icons/pan_up.svg");
   --bokeh-icon-pan-down: data-uri("icons/pan_down.svg");
 
+  --bokeh-icon-wheel-pan: data-uri("icons/wheel-pan.svg");
+
   --bokeh-icon-box-select: data-uri("icons/box-select.svg");
   --bokeh-icon-x-box-select: data-uri("icons/x-box-select.svg");
   --bokeh-icon-y-box-select: data-uri("icons/y-box-select.svg");
@@ -275,12 +278,32 @@
   --bokeh-icon-y-box-zoom: data-uri("icons/y-box-zoom.svg");
   --bokeh-icon-auto-box-zoom: data-uri("icons/auto-box-zoom.svg");
 
+  --bokeh-icon-wheel-zoom: data-uri("icons/wheel-zoom.svg");
+
+  --bokeh-icon-box-edit: data-uri("icons/box-edit.svg");
+  --bokeh-icon-poly-edit: data-uri("icons/poly-edit.svg");
+  --bokeh-icon-line-edit: data-uri("icons/line-edit.svg");
+
+  --bokeh-icon-clear-selection: data-uri("icons/clear-selection.svg");
+  --bokeh-icon-invert-selection: data-uri("icons/invert-selection.svg");
+
+  --bokeh-icon-point-draw: data-uri("icons/point-draw.svg");
+  --bokeh-icon-poly-draw: data-uri("icons/poly-draw.svg");
+  --bokeh-icon-freehand-draw: data-uri("icons/freehand-draw.svg");
+
+  --bokeh-icon-append-mode: data-uri("icons/append-mode.svg");
+  --bokeh-icon-intersect-mode: data-uri("icons/intersect-mode.svg");
+  --bokeh-icon-subtract-mode: data-uri("icons/subtract-mode.svg");
+  --bokeh-icon-xor-mode: data-uri("icons/xor-mode.svg");
+  --bokeh-icon-replace-mode: data-uri("icons/replace-mode.svg");
+  --bokeh-icon-toggle-mode: data-uri("icons/toggle-mode.svg");
+
   --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
   --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
 
-  --bokeh-icon-undo: data-uri("icons/arrow-back-up.svg");
-  --bokeh-icon-redo: data-uri("icons/arrow-forward-up.svg");
-  --bokeh-icon-reset: data-uri("icons/refresh.svg");
+  --bokeh-icon-undo: data-uri("icons/undo.svg");
+  --bokeh-icon-redo: data-uri("icons/redo.svg");
+  --bokeh-icon-reset: data-uri("icons/reset.svg");
 
   --bokeh-icon-hover: data-uri("icons/hover.svg");
   --bokeh-icon-crosshair: data-uri("icons/crosshair.svg");
@@ -327,6 +350,8 @@
   --bokeh-icon-square-check: data-uri("icons/square-check.svg");
 
   --bokeh-icon-list: data-uri("icons/list.svg");
+
+  --bokeh-icon-range: data-uri("icons/range.svg");
 
   --bokeh-icon-light-theme: data-uri("icons/light-theme.svg");
   --bokeh-icon-dark-theme: data-uri("icons/dark-theme.svg");

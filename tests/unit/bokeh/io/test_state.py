@@ -44,7 +44,7 @@ class Test_State:
     def test_default_file_resources(self) -> None:
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file.resources.minified, True
+        assert s.file.resources.minified is True
 
     def test_output_file(self) -> None:
         s = bis.State()

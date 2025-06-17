@@ -6,7 +6,9 @@
 
 :host {
   position: absolute;
-  background-color: white;
+  background-color: var(--background-color);
+  // TODO: remove this opacity rule. A semi-transparent background results in
+  // low contrast text, bad for accessibility.
   opacity: 90%;
 }
 
@@ -67,19 +69,19 @@
 
 :host(.bk-left.bk-open) {
   width: var(--drawer-size);
-  border-right: 1px solid lightgray;
+  border-right: var(--border);
 }
 :host(.bk-right.bk-open) {
   width: var(--drawer-size);
-  border-left: 1px solid lightgray;
+  border-left: var(--border);
 }
 :host(.bk-above.bk-open) {
   height: var(--drawer-size);
-  border-bottom: 1px solid lightgray;
+  border-bottom: var(--border);
 }
 :host(.bk-below.bk-open) {
   height: var(--drawer-size);
-  border-top: 1px solid lightgray;
+  border-top: var(--border);
 }
 
 .bk-toggle {
@@ -90,7 +92,7 @@
   height: var(--toggle-height);
   cursor: pointer;
   background-color: white;
-  border: 1px solid lightgray;
+  border: var(--border);
 }
 
 :host(.bk-left) .bk-toggle {
@@ -100,7 +102,7 @@
   left: 100%;
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
-  box-shadow: inset 1px 0px 5px 0px lightgray;
+  box-shadow: inset 1px 0px 5px 0px var(--box-shadow-color);
 }
 
 :host(.bk-right) .bk-toggle {
@@ -110,7 +112,7 @@
   right: 100%;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
-  box-shadow: inset -1px 0px 5px 0px lightgray;
+  box-shadow: inset -1px 0px 5px 0px var(--box-shadow-color);
 }
 
 :host(.bk-above) .bk-toggle {
@@ -120,7 +122,7 @@
   top: 100%;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
-  box-shadow: inset 0px 1px 5px 0px lightgray;
+  box-shadow: inset 0px 1px 5px 0px var(--box-shadow-color);
 }
 
 :host(.bk-below) .bk-toggle {
@@ -130,7 +132,7 @@
   bottom: 100%;
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
-  box-shadow: inset 0px -1px 5px 0px lightgray;
+  box-shadow: inset 0px -1px 5px 0px var(--box-shadow-color);
 }
 
 .bk-chevron {

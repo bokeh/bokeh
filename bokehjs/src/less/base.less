@@ -13,6 +13,8 @@
 
   --bokeh-top-level: 10000; // used for z-index of menus, dropdowns, etc.
 
+  // Colors
+  --color: #18191d; // base text color
   --background-color: #ffffff;
   --hover-color: #f9f9f9;
   --disabled-color: #808080;
@@ -26,8 +28,28 @@
   --inactive-fg: #adadad;
   --icon-color: var(--bokeh-icon-color, #a1a6a9);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #d4d9db);
+  --error: red;
+  --inverted-color: #fff; // the color for when the background is dark
+  --placeholder-color: #999;
+  --surface-background-color: #e6e6e6;
+  --disabled-background-color: #eee;
+  --input-focus-border-color: #66afe9; // same as rgb(102, 175, 233)
+  --input-focus-halo-color: rgba(102, 175, 233, 0.6); // same as fade(#66afe9, 60%)
 
-  --box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  // Border, box shadow, outline
+  --border-style: solid;
+  --border-width: 1px;
+  --border: var(--border-color) var(--border-style) var(--border-width);
+  --box-shadow-color: rgba(0, 0, 0, 0.175);
+  --box-shadow-inset: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color); // symmetric about the x-axis
+  --box-shadow: 2px 4px 8px var(--box-shadow-color);
+  --divider-width: 1px;
+  --divider: 1px var(--divider-color) solid;
+  --outline-color: #ccc;
+  --outline-style: dotted;
+  --outline-width: 1px;
+  --outline: var(--outline-color) var(--outline-style) var(--outline-width);
 }
 
 :host {

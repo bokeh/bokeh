@@ -1,5 +1,78 @@
 @import "./_mixins.less";
 
+:host {
+
+  // hover = darken(color, 4%);
+  // hover-border = darken(border, 8%);
+  // active = darken(color, 8%);
+  // active-border = darken(border, 12%);
+  // disabled = darken(desaturate(color, 30%), 10%);
+  // disabled-border = border;
+
+  --file: #fff;
+  --file-border: #ccc;
+  --file-hover: #f5f5f5;
+  --file-hover-border: #b8b8b8;
+  --file-active: #ebebeb;
+  --file-active-border: #adadad;
+  --file-disabled: #e6e6e6;
+  --file-disabled-border: #ccc;
+
+  --default: #fff;
+  --default-border: #ccc;
+  --default-hover: #f5f5f5;
+  --default-hover-border: #b8b8b8;
+  --default-active: #ebebeb;
+  --default-active-border: #adadad;
+  --default-disabled: #e6e6e6;
+  --default-disabled-border: #ccc;
+
+  --primary: #428bca;
+  --primary-border: #357ebd;
+  --primary-hover: #3681c1;
+  --primary-hover-border: #2c699e;
+  --primary-active: #3276b1;
+  --primary-active-border: #285e8e;
+  --primary-disabled: #506f89;
+  --primary-disabled-border: #357ebd;
+
+  --success: #5cb85c;
+  --success-border: #4cae4c;
+  --success-hover: #4eb24e;
+  --success-hover-border: #409240;
+  --success-active: #47a447;
+  --success-active-border: #398439;
+  --success-disabled: #667b66;
+  --success-disabled-border: #4cae4c;
+
+  --warning: #f0ad4e;
+  --warning-border: #eea236;
+  --warning-hover: #eea43b;
+  --warning-hover-border: #e89014;
+  --warning-active: #ed9c28;
+  --warning-active-border: #d58512;
+  --warning-disabled: #c89143;
+  --warning-disabled-border: #eea236;
+
+  --danger: #d9534f;
+  --danger-border: #d43f3a;
+  --danger-hover: #d5433e;
+  --danger-hover-border: #bd2d29;
+  --danger-active: #d2322d;
+  --danger-active-border: #ac2925;
+  --danger-disabled: #a55350;
+  --danger-disabled-border: #d43f3a;
+
+  --light: #fff;
+  --light-border: #ccc;
+  --light-hover: #f5f5f5;
+  --light-hover-border: #b8b8b8;
+  --light-active: #ebebeb;
+  --light-active-border: #adadad;
+  --light-disabled: #e6e6e6;
+  --light-disabled-border: #ccc;
+}
+
 .bk-btn, ::file-selector-button {
   height: 100%;
   display: inline-block;
@@ -10,7 +83,7 @@
 
   padding: var(--padding-vertical) var(--padding-horizontal);
   font-size: var(--font-size);
-  border: 1px solid transparent;
+  border: var(--border-width) var(--border-style) transparent;
   border-radius: var(--border-radius);
 
   outline: 0;
@@ -24,7 +97,7 @@
 
   &:active, .bk-active& {
     background-image: none;
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    box-shadow: var(--box-shadow-inset);
   }
 }
 
@@ -37,80 +110,139 @@
   }
 }
 
-.button-variant(@color; @background; @border) {
+.button-variant(
+  @color;
+  @background;
+  @border;
+  @hover-background;
+  @hover-border;
+  @active-background;
+  @active-border;
+  @disabled-background;
+  @disabled-border;
+) {
   color: @color;
   background-color: @background;
   border-color: @border;
 
   &:hover {
-    background-color: darken(@background, 4%);
-    border-color: darken(@border, 8%);
+    background-color: @hover-background;
+    border-color: @hover-border;
   }
 
   .bk-active& {
-    background-color: darken(@background, 8%);
-    border-color: darken(@border, 12%);
+    background-color: @active-background;
+    border-color: @active-border;
   }
 
   &[disabled] {
     &, &:hover, &:focus, &:active, .bk-active& {
-      background-color: darken(desaturate(@background, 30%), 10%);
-      border-color: @border;
+      background-color: @disabled-background;
+      border-color: @disabled-border;
     }
   }
 
   &:focus, &:active {
-    outline: 1px dotted #ccc;
+    outline: var(--outline);
   }
 }
 
 ::file-selector-button {
-  @btn-default-color:  #333;
-  @btn-default-bg:     #fff;
-  @btn-default-border: #ccc;
-  .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+  .button-variant(
+    var(--color);
+    var(--file);
+    var(--file-border);
+    var(--file-hover);
+    var(--file-hover-border);
+    var(--file-active);
+    var(--file-active-border);
+    var(--file-disabled);
+    var(--file-disabled-border);
+  );
 }
 
 .bk-btn-default {
-  @btn-default-color:  #333;
-  @btn-default-bg:     #fff;
-  @btn-default-border: #ccc;
-  .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+  .button-variant(
+    var(--color);
+    var(--default);
+    var(--default-border);
+    var(--default-hover);
+    var(--default-hover-border);
+    var(--default-active);
+    var(--default-active-border);
+    var(--default-disabled);
+    var(--default-disabled-border);
+  );
 }
 
 .bk-btn-primary {
-  @btn-primary-color:  #fff;
-  @btn-primary-bg:     #428bca;
-  @btn-primary-border: darken(@btn-primary-bg, 5%);
-  .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
+  .button-variant(
+    var(--inverted-color);
+    var(--primary);
+    var(--primary-border);
+    var(--primary-hover);
+    var(--primary-hover-border);
+    var(--primary-active);
+    var(--primary-active-border);
+    var(--primary-disabled);
+    var(--primary-disabled-border);
+  );
 }
 
 .bk-btn-success {
-  @btn-success-color:  #fff;
-  @btn-success-bg:     #5cb85c;
-  @btn-success-border: darken(@btn-success-bg, 5%);
-  .button-variant(@btn-success-color; @btn-success-bg; @btn-success-border);
+  .button-variant(
+    var(--inverted-color);
+    var(--success);
+    var(--success-border);
+    var(--success-hover);
+    var(--success-hover-border);
+    var(--success-active);
+    var(--success-active-border);
+    var(--success-disabled);
+    var(--success-disabled-border);
+  );
 }
 
 .bk-btn-warning {
-  @btn-warning-color:  #fff;
-  @btn-warning-bg:     #f0ad4e;
-  @btn-warning-border: darken(@btn-warning-bg, 5%);
-  .button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border);
+  .button-variant(
+    var(--inverted-color);
+    var(--warning);
+    var(--warning-border);
+    var(--warning-hover);
+    var(--warning-hover-border);
+    var(--warning-active);
+    var(--warning-active-border);
+    var(--warning-disabled);
+    var(--warning-disabled-border);
+  );
 }
 
 .bk-btn-danger {
-  @btn-danger-color:   #fff;
-  @btn-danger-bg:      #d9534f;
-  @btn-danger-border:  darken(@btn-danger-bg, 5%);
-  .button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
+  .button-variant(
+    var(--inverted-color);
+    var(--danger);
+    var(--danger-border);
+    var(--danger-hover);
+    var(--danger-hover-border);
+    var(--danger-active);
+    var(--danger-active-border);
+    var(--danger-disabled);
+    var(--danger-disabled-border);
+  );
 }
 
 .bk-btn-light {
-  @btn-light-color:  #333;
-  @btn-light-bg:     #fff;
-  @btn-light-border: #ccc;
-  .button-variant(@btn-light-color; @btn-light-bg; @btn-light-border);
+  .button-variant(
+    var(--color);
+    var(--light);
+    var(--light-border);
+    var(--light-hover);
+    var(--light-hover-border);
+    var(--light-active);
+    var(--light-active-border);
+    var(--light-disabled);
+    var(--light-disabled-border);
+  );
   border-color: transparent;
 }
 

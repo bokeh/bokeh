@@ -492,7 +492,7 @@ def test_unix_socket_on_windows() -> None:
 def test_unix_socket_with_port() -> None:
     unix_socket = "test.sock"
     out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
-    expected = "--port arg is not supported with a unix socket"
+    expected = "ERROR: --port arg is not supported with a unix socket"
     assert expected == out
 
 def test_unix_socket_with_invalid_args() -> None:
@@ -500,8 +500,19 @@ def test_unix_socket_with_invalid_args() -> None:
     for arg in invalid_args:
         unix_socket = "test.sock"
         out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"]).strip()
-        expected = "['address', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
+        expected = "ERROR: ['address', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
         assert expected == out
+
+def test_dev_with_no_app() -> None:
+    out = check_error(["--dev"]).strip()
+    expected = "ERROR: Bokeh server --dev option requires an app script or directory be provided"
+    assert expected == out
+
+def test_dev_with_multiple_apps() -> None:
+    out = check_error(["--glob", APPS, "--dev"]).strip()
+    expected = "ERROR: Bokeh server --dev option can only support a single app"
+    assert expected == out
+
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
 def test_unix_socket() -> None:

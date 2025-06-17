@@ -3,6 +3,16 @@
 @choices: "../../../node_modules/choices.js/public/assets/styles";
 @import (less) "@{choices}/choices.css";
 
+
+:host {
+  // TODO: remove alpha value if not necessary
+  --light: rgba(0,126,255,.08);
+  --light-border: rgba(0,126,255,.24);
+  --light-text: #007eff;
+
+  --solid: #1f77b4;
+}
+
 .choices {
   width: 100%
 }
@@ -20,19 +30,19 @@ input[type="search"] {
 }
 
 .choices__inner .choices__item.light {
-  background-color: rgba(0,126,255,.08);
-  border-radius: 5px;
-  border: 1px solid rgba(0,126,255,.24);
-  color: #007eff;
+  background-color: var(--light);
+  border-radius: var(--border-radius);
+  border: var(--border-width) var(--border-style) var(--light-border);
+  color: var(--light-text);
 }
 
 .choices__inner .choices__item.solid {
-  background-color: #1f77b4;
+  background-color: var(--solid);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   color: white;
   .is-highlighted {
-    background-color: #1f77b4;
+    background-color: var(--solid);
     border: none;
   }
 }
@@ -43,8 +53,8 @@ input[type="search"] {
 
 .choices__inner {
   background: transparent;
-  border: 1px solid darkgray;
-  border-radius: 5px;
+  border: var(--border);
+  border-radius: var(--border-radius);
   min-height: 0;
   padding: calc(var(--padding-vertical) / 2) var(--padding-horizontal);
 }
@@ -67,6 +77,6 @@ input[type="search"] {
 
 .choices[data-type*=select-multiple] .choices__button.solid {
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMjEiIHZpZXdCb3g9IjAgMCAyMSAyMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjZmZmZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0yLjU5Mi4wNDRsMTguMzY0IDE4LjM2NC0yLjU0OCAyLjU0OEwuMDQ0IDIuNTkyeiIvPjxwYXRoIGQ9Ik0wIDE4LjM2NEwxOC4zNjQgMGwyLjU0OCAyLjU0OEwyLjU0OCAyMC45MTJ6Ii8+PC9nPjwvc3ZnPg==);
-  border-left: 1px solid white;
+  border-left: var(--divider-width) solid var(--inverted-color);
   opacity: 1;
 }

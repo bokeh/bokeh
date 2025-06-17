@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from types import MethodType
+from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -40,6 +41,7 @@ from bokeh.core.property.descriptors import (
 )
 from bokeh.core.property.singletons import Intrinsic, Undefined
 from bokeh.core.property.vectorization import field, value
+from bokeh.util.warnings import BokehUserWarning
 
 # Module under test
 import bokeh.core.has_props as hp # isort:skip
@@ -701,6 +703,20 @@ def test_HasProps_clone_with_unset_properties() -> None:
 
     assert obj1 is not obj0
     assert obj1.properties_with_values(include_defaults=False, include_undefined=True) == dict(f0=Undefined, f1=1, f2=2)
+
+@patch("warnings.warn")
+def test_HasProps_model_redefinition(mock_warn: MagicMock) -> None:
+    class Foo1(hp.HasProps):
+        __qualified_model__ = "Foo"
+
+    class Foo2(hp.HasProps):
+        __qualified_model__ = "Foo"
+
+    assert mock_warn.called
+
+    msg, cls = mock_warn.call_args[0]
+    assert msg.startswith("Duplicate qualified model definition of 'Foo'.")
+    assert cls is BokehUserWarning
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -11,7 +11,9 @@ import type {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import type {Dict} from "core/types"
+import type {StyleSheetLike} from "core/dom"
 import type * as p from "core/properties"
+import * as css from "styles/cartesian_frame.css"
 
 type Ranges = Dict<Range>
 type Scales = Dict<Scale>
@@ -27,6 +29,10 @@ export class CartesianFrameView extends CanvasPanelView {
   override remove(): void {
     this._unregister_frame()
     super.remove()
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), css.default]
   }
 
   override connect_signals(): void {

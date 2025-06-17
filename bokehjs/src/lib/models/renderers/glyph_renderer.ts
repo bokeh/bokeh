@@ -334,8 +334,8 @@ export class GlyphRendererView extends DataRendererView {
     this.map_data()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
-    const all_indices = [...this.all_indices]
-    let indices = [...this._update_masked_indices()]
+    const all_indices = this.all_indices.ones()
+    let indices = this._update_masked_indices().ones()
 
     // selected is in full set space
     const {selected} = this.model.data_source
@@ -378,7 +378,12 @@ export class GlyphRendererView extends DataRendererView {
     })())
 
     // inspected is transformed to subset space
-    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
+    const inspected_subset_indices = (() => {
+      if (inspected_full_indices.size === 0) {
+        return []
+      }
+      return filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
+    })()
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView

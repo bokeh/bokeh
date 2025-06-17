@@ -1,4 +1,3 @@
-import tz from "timezone"
 import * as Numbro from "@bokeh/numbro"
 import {_} from "underscore.template"
 
@@ -12,6 +11,7 @@ import {color2css, rgba2css} from "core/util/color"
 import {Model} from "../../../model"
 import {ColorMapper} from "../../mappers/color_mapper"
 import {unreachable} from "core/util/assert"
+import {datetime} from "core/util/templating"
 
 export namespace CellFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -395,7 +395,7 @@ export class DateFormatter extends StringFormatter {
       } else if (value == null) {
         return this.null_format
       } else {
-        return tz(epoch, this.getFormat())
+        return datetime(epoch, this.getFormat())
       }
     })()
 

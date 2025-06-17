@@ -46,9 +46,6 @@ as well as containment tests:
     >>> "port" in MyEnum
     True
 
-Enumerations can be easily documented in Sphinx documentation with the
-:ref:`bokeh.sphinxext.bokeh_enum` Sphinx extension.
-
 ----
 
 .. autofunction:: bokeh.core.enums.enumeration

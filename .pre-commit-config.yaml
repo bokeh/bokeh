@@ -6,13 +6,13 @@ default_stages: [pre-push]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.2
+    rev: v0.11.6
     hooks:
       - id: ruff
         stages: [pre-commit]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.10.1
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
         name: Validate pyproject.toml

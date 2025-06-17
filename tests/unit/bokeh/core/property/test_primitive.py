@@ -250,7 +250,7 @@ class Test_Float:
 class Test_Int:
 
     def test_eq(self) -> None:
-        assert (bcpp.Int() == int) is False
+        assert bcpp.Int() is not int
 
         assert (bcpp.Int() == bcpp.Int()) is True
         assert (bcpp.Int(default=0) == bcpp.Int()) is True

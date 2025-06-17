@@ -58,7 +58,7 @@ import type {StateInfo} from "./state_manager"
 import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import type {StyleSheetLike} from "core/dom"
-import {InlineStyleSheet, px} from "core/dom"
+import {InlineStyleSheet, px, div} from "core/dom"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
@@ -68,6 +68,18 @@ import * as canvas_css from "styles/canvas.css"
 import * as attribution_css from "styles/attribution.css"
 
 const {max} = Math
+
+type Panels = (Axis | Annotation | Annotation[])[]
+type LayoutPanels = {
+  outer_above: Panels
+  outer_below: Panels
+  outer_left: Panels
+  outer_right: Panels
+  inner_above: Panels
+  inner_below: Panels
+  inner_left: Panels
+  inner_right: Panels
+}
 
 export class PlotView extends LayoutDOMView implements Paintable {
   declare model: Plot
@@ -84,6 +96,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
   bottom_panel: ViewOf<CanvasPanel>
   left_panel: ViewOf<CanvasPanel>
   right_panel: ViewOf<CanvasPanel>
+
+  private _inner_top_panel: CanvasPanel
+  private _inner_bottom_panel: CanvasPanel
+  private _inner_left_panel: CanvasPanel
+  private _inner_right_panel: CanvasPanel
+
+  inner_top_panel: ViewOf<CanvasPanel>
+  inner_bottom_panel: ViewOf<CanvasPanel>
+  inner_left_panel: ViewOf<CanvasPanel>
+  inner_right_panel: ViewOf<CanvasPanel>
 
   private _frame: CartesianFrame
   frame_view: CartesianFrameView
@@ -116,7 +138,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return this._toolbar != null ? this.views.find_one(this._toolbar) : null
   }
 
-  protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
   protected _invalidated_painters: Set<RendererView> = new Set()
@@ -295,6 +316,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._left_panel = new CanvasPanel({place: "left"})
     this._right_panel = new CanvasPanel({place: "right"})
 
+    this._inner_top_panel = new CanvasPanel({place: "above", inner: true})
+    this._inner_bottom_panel = new CanvasPanel({place: "below", inner: true})
+    this._inner_left_panel = new CanvasPanel({place: "left", inner: true})
+    this._inner_right_panel = new CanvasPanel({place: "right", inner: true})
+
     this._frame = new CartesianFrame({
       place: "center",
       x_scale: this.model.x_scale,
@@ -378,6 +404,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this._bottom_panel,
       this._left_panel,
       this._right_panel,
+      this._inner_top_panel,
+      this._inner_bottom_panel,
+      this._inner_left_panel,
+      this._inner_right_panel,
       this._attribution,
       this._notifications,
       ...super.elements,
@@ -396,6 +426,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.bottom_panel = this._element_views.get(this._bottom_panel)! as ViewOf<CanvasPanel>
     this.left_panel = this._element_views.get(this._left_panel)! as ViewOf<CanvasPanel>
     this.right_panel = this._element_views.get(this._right_panel)! as ViewOf<CanvasPanel>
+
+    this.inner_top_panel = this._element_views.get(this._inner_top_panel)! as ViewOf<CanvasPanel>
+    this.inner_bottom_panel = this._element_views.get(this._inner_bottom_panel)! as ViewOf<CanvasPanel>
+    this.inner_left_panel = this._element_views.get(this._inner_left_panel)! as ViewOf<CanvasPanel>
+    this.inner_right_panel = this._element_views.get(this._inner_right_panel)! as ViewOf<CanvasPanel>
 
     await this.build_tool_views()
     await this.build_renderer_views()
@@ -419,34 +454,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return {inner: this.model.flow_mode, outer: "grid"}
   }
 
-  override _update_layout(): void {
-    super._update_layout()
-
-    // TODO: invalidating all should imply "needs paint"
-    this._invalidate_all = true
-    this._needs_paint = true
-
-    const layout = new BorderLayout()
-
-    const {frame_align} = this.model
-    layout.aligns = (() => {
-      if (isBoolean(frame_align)) {
-        return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
-      } else {
-        const {left=true, right=true, top=true, bottom=true} = frame_align
-        return {left, right, top, bottom}
-      }
-    })()
-
-    layout.set_sizing({width_policy: "max", height_policy: "max"})
-
-    if (this.visuals.outline_line.doit) {
-      const width = this.visuals.outline_line.line_width.get_value()
-      layout.center_border_width = width
-    }
-
-    type Panels = (Axis | Annotation | Annotation[])[]
-
+  private _compute_layout_panels(): LayoutPanels {
     const outer_above: Panels = copy(this.model.above)
     const outer_below: Panels = copy(this.model.below)
     const outer_left:  Panels = copy(this.model.left)
@@ -500,6 +508,44 @@ export class PlotView extends LayoutDOMView implements Paintable {
         const panels = get_side(location, true)
         panels.push(this._toolbar)
       }
+    }
+
+    return {
+      outer_above,
+      outer_below,
+      outer_left,
+      outer_right,
+      inner_above,
+      inner_below,
+      inner_left,
+      inner_right,
+    }
+  }
+
+  override _update_layout(): void {
+    super._update_layout()
+
+    // TODO: invalidating all should imply "needs paint"
+    this._invalidate_all = true
+    this._needs_paint = true
+
+    const layout = new BorderLayout()
+
+    const {frame_align} = this.model
+    layout.aligns = (() => {
+      if (isBoolean(frame_align)) {
+        return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
+      } else {
+        const {left=true, right=true, top=true, bottom=true} = frame_align
+        return {left, right, top, bottom}
+      }
+    })()
+
+    layout.set_sizing({width_policy: "max", height_policy: "max"})
+
+    if (this.visuals.outline_line.doit) {
+      const width = this.visuals.outline_line.line_width.get_value()
+      layout.center_border_width = width
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
@@ -604,10 +650,26 @@ export class PlotView extends LayoutDOMView implements Paintable {
     left_panel.on_resize((bbox) => this.left_panel.set_geometry(bbox))
     right_panel.on_resize((bbox) => this.right_panel.set_geometry(bbox))
 
+    const {
+      outer_above,
+      outer_below,
+      outer_left,
+      outer_right,
+      inner_above,
+      inner_below,
+      inner_left,
+      inner_right,
+    } = this._compute_layout_panels()
+
     top_panel.children    = reversed(set_layouts("above", outer_above))
     bottom_panel.children =          set_layouts("below", outer_below)
     left_panel.children   = reversed(set_layouts("left",  outer_left))
     right_panel.children  =          set_layouts("right", outer_right)
+
+    inner_top_panel.on_resize((bbox) => this.inner_top_panel.set_geometry(bbox))
+    inner_bottom_panel.on_resize((bbox) => this.inner_bottom_panel.set_geometry(bbox))
+    inner_left_panel.on_resize((bbox) => this.inner_left_panel.set_geometry(bbox))
+    inner_right_panel.on_resize((bbox) => this.inner_right_panel.set_geometry(bbox))
 
     inner_top_panel.children    = set_layouts("above", inner_above)
     inner_bottom_panel.children = set_layouts("below", inner_below)
@@ -631,32 +693,65 @@ export class PlotView extends LayoutDOMView implements Paintable {
     layout.left_panel = left_panel
     layout.right_panel = right_panel
 
-    if (inner_top_panel.children.length != 0) {
-      layout.inner_top_panel = inner_top_panel
-    }
-    if (inner_bottom_panel.children.length != 0) {
-      layout.inner_bottom_panel = inner_bottom_panel
-    }
-    if (inner_left_panel.children.length != 0) {
-      layout.inner_left_panel = inner_left_panel
-    }
-    if (inner_right_panel.children.length != 0) {
-      layout.inner_right_panel = inner_right_panel
-    }
+    layout.inner_top_panel = inner_top_panel
+    layout.inner_bottom_panel = inner_bottom_panel
+    layout.inner_left_panel = inner_left_panel
+    layout.inner_right_panel = inner_right_panel
 
     this.layout = layout
 
-    const above_els = this.views.select(this.model.above).map((view) => view.el)
-    const below_els = this.views.select(this.model.below).map((view) => view.el)
-    const left_els = this.views.select(this.model.left).map((view) => view.el)
-    const right_els = this.views.select(this.model.right).map((view) => view.el)
-    const center_els = this.views.select(this.model.center).map((view) => view.el)
-    const renderer_els = this.views.select(this.model.renderers).map((view) => view.el)
+    const wrapper = (flex_direction: "row" | "column", children: Element[]) => {
+      return div({
+        style: {
+          display: "flex",
+          flex_direction,
+          width: "100%",
+          height: "100%",
+        },
+      }, children)
+    }
+
+    const process = (panels: Panels, dim: "x" | "y") => {
+      return panels.map((obj) => {
+        if (isArray(obj)) {
+          const els = this.views.select(obj).map((view) => {
+            const {el} = view
+            // allow to shrink toolbars, but keep everything else content sized
+            el.style.flex = view.model instanceof ToolbarPanel ? "1" : "none"
+            return el
+          })
+          switch (dim) {
+            case "x": return wrapper("row", els)
+            case "y": return wrapper("column", els)
+          }
+        } else {
+          return this.views.get_one(obj).el
+        }
+      })
+    }
+
+    const above_els = process(outer_above, "x")
+    const below_els = process(outer_below, "x")
+    const left_els = process(outer_left, "y")
+    const right_els = process(outer_right, "y")
 
     this.top_panel.shadow_el.append(...reversed(above_els))
     this.bottom_panel.shadow_el.append(...below_els)
     this.left_panel.shadow_el.append(...reversed(left_els))
     this.right_panel.shadow_el.append(...right_els)
+
+    const inner_above_els = process(inner_above, "x")
+    const inner_below_els = process(inner_below, "x")
+    const inner_left_els = process(inner_left, "y")
+    const inner_right_els = process(inner_right, "y")
+
+    this.inner_top_panel.shadow_el.append(...reversed(inner_above_els))
+    this.inner_bottom_panel.shadow_el.append(...inner_below_els)
+    this.inner_left_panel.shadow_el.append(...reversed(inner_left_els))
+    this.inner_right_panel.shadow_el.append(...inner_right_els)
+
+    const center_els = this.views.select(this.model.center).map((view) => view.el)
+    const renderer_els = this.views.select(this.model.renderers).map((view) => view.el)
 
     this.frame.shadow_el.append(...renderer_els, ...center_els)
   }
@@ -816,25 +911,21 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected async _update_renderers(): Promise<void> {
     const {created} = await this._build_renderers()
-    const created_renderers = new Set(created)
+    const created_views = new Set(created)
 
-    // First remove and then either reattach existing renderers or render and
-    // attach new renderers, so that the order of children is consistent, while
-    // avoiding expensive re-rendering of existing views.
-    for (const renderer_view of this.renderer_views.values()) {
-      renderer_view.el.remove()
-    }
-
-    for (const renderer_view of this.renderer_views.values()) {
-      const is_new = created_renderers.has(renderer_view)
-
-      const target = renderer_view.rendering_target()
+    // Since appending to a DOM node will move the node to the end if it has
+    // already been added appending all the children in order will result in
+    // correct ordering.
+    for (const view of this.renderer_views.values()) {
+      const is_new = created_views.has(view)
+      const target = view.rendering_target() ?? this.self_target
       if (is_new) {
-        renderer_view.render_to(target)
+        view.render_to(target)
       } else {
-        target.append(renderer_view.el)
+        target.append(view.el)
       }
     }
+
     this.r_after_render()
   }
 
@@ -884,11 +975,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
 
     const {above, below, left, right, center, renderers} = this.model.properties
-    const panels = [above, below, left, right, center]
-    this.on_change(renderers, async () => {
-      await this._update_renderers()
-    })
-    this.on_change(panels, async () => {
+    this.on_change([above, below, left, right, center, renderers], async () => {
       await this._update_renderers()
       this.invalidate_layout()
     })
@@ -1023,12 +1110,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     // TODO: don't replace here; inject stylesheet?
     this.canvas.parent_style.replace(`
-      .bk-layer.bk-events {
-        display: grid;
-        grid-template-areas:
-          ".    above  .    "
-          "left center right"
-          ".    below  .    ";
+      .bk-events {
         grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
         grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
       }
@@ -1053,9 +1135,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.unpause(true)
     }
 
-    if (!this._outer_bbox.equals(this.bbox)) {
-      this.canvas_view.resize() // XXX temporary hack
-      this._outer_bbox = this.bbox
+    if (this.canvas_view.update_bbox()) {
       this._invalidate_all = true
       this._needs_paint = true
     }
@@ -1079,7 +1159,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     super.render()
 
     for (const renderer_view of this.computed_renderer_views) {
-      const target = renderer_view.rendering_target()
+      const target = renderer_view.rendering_target() ?? this.self_target
       renderer_view.render_to(target)
     }
   }

@@ -151,8 +151,7 @@ class FileOutputSubcommand(Subcommand):
             outputs = list(args.output)  # copy so we can pop from it
 
         if len(outputs) > len(applications):
-            die("--output/-o was given too many times (%d times for %d applications)" %
-                (len(outputs), len(applications)))
+            die(f"--output/-o was given too many times ({len(outputs)} times for {len(applications)} applications)")
 
         for (route, app) in applications.items():
             doc = app.create_document()

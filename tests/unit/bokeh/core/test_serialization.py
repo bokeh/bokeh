@@ -18,11 +18,14 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime as dt
+import gzip
 import sys
 from array import array as TypedArray
+from base64 import b64decode
 from math import inf, nan
 from types import SimpleNamespace
 from typing import Any, Sequence
+from unittest.mock import patch
 
 # External imports
 import numpy as np
@@ -96,6 +99,74 @@ class SomeDataClass:
     f3: NotRequired[bool | None] = Unspecified
     f4: NotRequired[SomeProps] = Unspecified
     f5: NotRequired[SomeModel] = Unspecified
+
+class TestBuffer:
+
+    def test_ref(self) -> None:
+        buf = Buffer(10, b"\x001\xefabc\x12")
+        assert buf.ref == {'id': 10}
+
+    def test_to_bytes_from_bytes(self) -> None:
+        val = b"\x001\xefabc\x12"
+        buf = Buffer(10, val)
+        ret = buf.to_bytes()
+        assert isinstance(ret, bytes)
+        assert ret == val
+
+    def test_to_bytes_from_memoryview(self) -> None:
+        val = b"\x001\xefabc\x12"
+        view = memoryview(val)
+        buf = Buffer(10, view)
+        ret = buf.to_bytes()
+        assert isinstance(ret, bytes)
+        assert ret == val
+
+    def test_to_compressed_bytes_from_bytes(self) -> None:
+        val = b"\x001\xefabc\x12"
+        buf = Buffer(10, val)
+
+        ret = buf.to_compressed_bytes()
+
+        assert isinstance(ret, bytes)
+
+        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[9] == 255
+
+        assert gzip.decompress(ret) == val
+
+    def test_to_compressed_bytes_from_memoryview(self) -> None:
+        val = b"\x001\xefabc\x12"
+        view = memoryview(val)
+        buf = Buffer(10, view)
+
+        ret = buf.to_compressed_bytes()
+
+        assert isinstance(ret, bytes)
+
+        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[9] == 255
+
+        assert gzip.decompress(ret) == val
+
+    @pytest.mark.parametrize("level", range(0, 10))
+    @patch("gzip.compress")
+    def test_to_compressed_compression_level(self, compress, level: int, monkeypatch: pytest.MonkeyPatch) -> None:
+        val = b"\x001\xefabc\x12"
+        buf = Buffer(10, val)
+
+        monkeypatch.setenv("BOKEH_COMPRESSION_LEVEL", f"{level}")
+        buf.to_compressed_bytes()
+
+        compress.assert_called_once_with(val, mtime=1, compresslevel=level)
+
+    def test_to_base64(self):
+        val = b"\x001\xefabc\x12"
+        buf = Buffer(10, val)
+
+        ret = buf.to_base64()
+
+        assert isinstance(ret, str)
+        assert b64decode(ret) == buf.to_compressed_bytes()
 
 class TestSerializer:
 
@@ -309,10 +380,8 @@ class TestSerializer:
         encoder = Serializer(deferred=False)
         val = bytes([0xFF, 0x00, 0x17, 0xFE, 0x00])
         rep = encoder.encode(val)
-        assert rep == BytesRep(
-            type="bytes",
-            data="/wAX/gA=",
-        )
+        assert rep["type"] == "bytes"
+        assert gzip.decompress(b64decode(rep["data"])) == val
         assert encoder.buffers == []
 
     def test_typed_array(self) -> None:
@@ -336,15 +405,13 @@ class TestSerializer:
         encoder = Serializer(deferred=False)
         val = TypedArray("i", [0, 1, 2, 3, 4, 5])
         rep = encoder.encode(val)
-        assert rep == TypedArrayRep(
-            type="typed_array",
-            array=BytesRep(
-                type="bytes",
-                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
-            ),
-            order=sys.byteorder,
-            dtype="int32",
-        )
+        # isinstance not supported for typed dicts, alas
+        # assert isinstance(rep, TypedArrayRep)
+        assert rep.keys() == {"type", "order", "dtype", "array"}
+        assert rep["type"] == "typed_array"
+        assert rep["order"] == sys.byteorder
+        assert rep["dtype"] == "int32"
+        assert rep["array"] == encoder._encode_bytes(memoryview(val))
         assert encoder.buffers == []
 
     def test_ndarray(self) -> None:
@@ -369,16 +436,14 @@ class TestSerializer:
         encoder = Serializer(deferred=False)
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
-        assert rep == NDArrayRep(
-            type="ndarray",
-            array=BytesRep(
-                type="bytes",
-                data="AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA",
-            ),
-            order=sys.byteorder,
-            shape=[6],
-            dtype="int32",
-        )
+        # isinstance not supported for typed dicts, alas
+        # assert isinstance(rep, NDArrayRep)
+        assert rep.keys() == {"type", "order", "shape", "dtype", "array"}
+        assert rep["type"] == "ndarray"
+        assert rep["order"] == sys.byteorder
+        assert rep["shape"] == [6]
+        assert rep["dtype"] == "int32"
+        assert rep["array"] == encoder._encode_bytes(memoryview(val))
         assert encoder.buffers == []
 
     def test_ndarray_dtypes_shape(self) -> None:

@@ -15,11 +15,10 @@ from functools import wraps
 from typing import Callable
 
 # External imports
-import boto
-import boto.s3.connection
-import boto.s3.key
+import boto3
 
 # Bokeh imports
+from . import BOKEHJS_BUCKETS
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
 from .pipeline import StepType
@@ -65,7 +64,6 @@ def collect_credential(**kw: str) -> Callable[[VerifyFunctionType], StepType]:
 
 @collect_credential(token="ANACONDA_TOKEN")
 def verify_anaconda_credentials(config: Config, system: System, *, token: str) -> None:
-    """"""
     out = system.run(f"anaconda -t {token} whoami")
     if "Username: bokeh" not in out:
         raise RuntimeError(*out.strip().split("\n"))
@@ -73,21 +71,18 @@ def verify_anaconda_credentials(config: Config, system: System, *, token: str) -
 
 @collect_credential(token="PYPI_TOKEN")
 def verify_pypi_credentials(config: Config, system: System, *, token: str) -> None:
-    """"""
     # TODO is there a way to actually test that the creds work?
     pass
 
 
 @collect_credential(token="GOOGLE_API_KEY")
 def verify_google_credentials(config: Config, system: System, *, token: str) -> None:
-    """"""
     # TODO is there a way to actually test that the creds work?
     pass
 
 
 @collect_credential(token="NPM_TOKEN")
 def verify_npm_credentials(config: Config, system: System, *, token: str) -> None:
-    """"""
     system.run("npm set registry 'https://registry.npmjs.org'")
     system.run(f"npm set //registry.npmjs.org/:_authToken {token}")
     out = system.run("npm whoami")
@@ -97,16 +92,11 @@ def verify_npm_credentials(config: Config, system: System, *, token: str) -> Non
 
 @collect_credential(access_key_id="AWS_ACCESS_KEY_ID", secret_access_key="AWS_SECRET_ACCESS_KEY")
 def verify_aws_credentials(config: Config, system: System, *, access_key_id: str, secret_access_key: str) -> None:
-    """"""
-    calling_format = boto.s3.connection.OrdinaryCallingFormat()
-    for bucket_name, bucket_region in [
-        ("cdn.bokeh.org", "us-east-1"),
-        ("cdn-backup.bokeh.org", "us-west-2"),
-    ]:
-        conn = boto.s3.connect_to_region(
-            bucket_region,
+    for bucket, region_name in BOKEHJS_BUCKETS:
+        s3 = boto3.client(
+            "s3",
+            region_name=region_name,
             aws_access_key_id=access_key_id,
             aws_secret_access_key=secret_access_key,
-            calling_format=calling_format,
         )
-        conn.get_bucket(bucket_name)
+        s3.head_bucket(Bucket=bucket)

@@ -1,8 +1,12 @@
-:root {
+:host {
   --common-padding: 3px;
+
+  // Note: use of var(--outline) would make the focus ring barely visible
   --common-outline: rgb(26, 115, 232) solid 1px;
   --panel-bg-color: rgb(241, 243, 244);
-  --panel-border-color: rgb(202, 205, 209);
+  --panel-border-color: var(--border-color);
+  --muted-bg-color: #f1f3f4;
+  --muted-color: #5f6368;
 }
 
 .ref {
@@ -124,10 +128,10 @@
   }
 }
 .model-ref:hover {
-  background-color: #e2e2e2;
+  background-color: var(--hover-color);
 }
 .model-ref.active {
-  background-color: #c8e0ee;
+  background-color: var(--active-bg);
 }
 
 .tag {
@@ -137,16 +141,16 @@
   border-width: 1px;
   border-style: solid;
   border-radius: 4px;
-  color: #202124;
-  background-color: #f1f3f4;
-  border-color: #cacdd1;
+  color: var(--color);
+  background-color: var(--surface-background-color);
+  border-color: var(--border-color);
 }
 
 .expander {
   margin: 0 2px;
   display: inline-block;
   vertical-align: middle;
-  background-color: #5f6368;
+  background-color: var(--muted-color);
   --open-image: url('data:image/svg+xml;utf8,\
     <svg xmlns="http://www.w3.org/2000/svg" width="6" height="6">\
       <path d="M 0 1 L 6 1 3 5 Z"/>\
@@ -173,7 +177,7 @@
 
 .base {
   grid-column: 1 / span 4;
-  color: rgb(95, 99, 104);
+  color: var(--muted-color);
   cursor: pointer;
 }
 

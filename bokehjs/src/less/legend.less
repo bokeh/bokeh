@@ -56,14 +56,25 @@
   background-color: var(--item-background-color);
 }
 
-.bk-item.bk-active {
-  background-color: var(--item-background-active-color);
-}
-
 :host(.bk-interactive) .bk-item {
   cursor: pointer;
 }
 
 .bk-glyph {
   position: relative;
+}
+
+.bk-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bk-item.bk-inactive {
+  .bk-overlay {
+    background-color: var(--item-background-inactive-color);
+  }
 }
