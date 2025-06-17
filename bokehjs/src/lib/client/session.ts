@@ -1,4 +1,5 @@
 import {DocumentEventBatch} from "document"
+import type {DocumentChangedEvent} from "document"
 import {ConnectionLost} from "core/bokeh_events"
 import type {Patch, Document, DocumentEvent} from "document"
 import {Message} from "protocol/message"
@@ -84,7 +85,7 @@ export class ClientSession {
 
   protected _document_changed(event: DocumentEvent): void {
     const events = (() => {
-      const events = event instanceof DocumentEventBatch ? (event.sync ? event.events : []) : [event]
+      const events: DocumentChangedEvent[] = event instanceof DocumentEventBatch ? (event.sync ? event.events : []) : [event]
       return events.filter((event) => event.sync)
     })()
 
