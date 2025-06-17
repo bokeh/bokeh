@@ -230,6 +230,16 @@ class ValueRef(Placeholder):
 
     filter = Nullable(Either(Instance(CustomJS), List(Instance(CustomJS))), default=None, help="""
     Allow to filter hover results by a ``CustomJS`` callback.
+
+    .. code::
+
+        ValueRef(filter=
+            CustomJS(code='''
+                export default (args, tool, {value, field, row, data_source, vars}) => {
+                    return value >= 0
+                }
+            ''')
+        ]
     """)
 
 class ColorRef(ValueRef):

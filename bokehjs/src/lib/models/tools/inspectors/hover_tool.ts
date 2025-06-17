@@ -137,8 +137,8 @@ export class HoverToolView extends InspectToolView {
 
   protected async _update_filters(): Promise<void> {
     for (const [_, filter] of entries(this.model.filters)) {
-      for (const cjs of isArray(filter) ? filter : [filter]) {
-        await cjs.compile()
+      for (const fn of isArray(filter) ? filter : [filter]) {
+        await fn.compile()
       }
     }
   }
@@ -622,8 +622,12 @@ export class HoverToolView extends InspectToolView {
 
     for (const [field, filter] of entries(filters)) {
       const value = this._get_value(field, ds, vars)
-      for (const cjs of isArray(filter) ? filter : [filter]) {
-        const result = execute_sync(cjs, this.model, {value, field, data_source: ds, vars})
+
+      const index = vars.image_index ?? vars.index
+      const row = index != null ? ds.get_row(index) : {}
+
+      for (const fn of isArray(filter) ? filter : [filter]) {
+        const result = execute_sync(fn, this.model, {value, field, row, data_source: ds, vars})
         if (isBoolean(result) && !result) {
           return false
         }

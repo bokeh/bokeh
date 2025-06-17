@@ -13,7 +13,13 @@ import type {PlainObject} from "core/types"
 import {Or, Func, Ref} from "core/kinds"
 
 const FilterDef = Or(Func<any, boolean>(), Ref(CustomJS))
-type FilterDef = SyncExecutableLike<ValueRef, [{value: unknown, data_source: ColumnarDataSource, vars: PlainObject}], boolean>
+type FilterDef = SyncExecutableLike<ValueRef, [{
+  value: unknown
+  field: string
+  row: {[key: string]: unknown}
+  data_source: ColumnarDataSource
+  vars: PlainObject
+}], boolean>
 
 export class ValueRefView extends PlaceholderView {
   declare model: ValueRef
@@ -39,13 +45,15 @@ export class ValueRefView extends PlaceholderView {
     }
   }
 
-  update(source: ColumnarDataSource, i: Index | null, vars: PlainObject, _formatters?: Formatters): void {
+  update(source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
     const {field, format, formatter, filter} = this.model
-    const value = _get_column_value(field, source, i)
+
+    const value = _get_column_value(field, source, index)
+    const row = index != null ? source.get_row(index) : {}
 
     if (filter != null) {
       for (const fn of isArray(filter) ? filter : [filter]) {
-        const result = execute_sync(fn, this.model, {value, field, data_source: source, vars})
+        const result = execute_sync(fn, this.model, {value, field, row, data_source: source, vars})
         if (isBoolean(result) && !result) {
           throw new Skip()
         }

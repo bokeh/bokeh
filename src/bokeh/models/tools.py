@@ -1637,13 +1637,13 @@ class HoverTool(InspectTool):
 
     .. code::
 
-        HoverTool(filters=[
+        HoverTool(filters={"@x":
             CustomJS(code='''
-                export default (args, tool, {value, data_source, vars}) => {
-                    return value >= 0
+                export default (args, tool, {value: x, field, row, data_source, vars}) => {
+                    return x >= 0
                 }
             ''')
-        ])
+        )])
 
     """)
 
