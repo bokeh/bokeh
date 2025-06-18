@@ -388,7 +388,7 @@ class DatetimeAxis(LinearAxis):
 
 class TimedeltaAxis(LinearAxis):
     ''' A ``LinearAxis`` that picks nice numbers for tick locations on
-    a datetime scale. Configured with a ``TimedeltaTickFormatter`` by
+    a timedelta scale. Configured with a ``TimedeltaTickFormatter`` by
     default.
 
     '''
