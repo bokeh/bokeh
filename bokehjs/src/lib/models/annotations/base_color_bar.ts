@@ -565,7 +565,7 @@ export namespace BaseColorBar {
 
 export interface BaseColorBar extends BaseColorBar.Attrs {}
 
-export class BaseColorBar extends Annotation {
+export abstract class BaseColorBar extends Annotation {
   declare properties: BaseColorBar.Props
   declare __view_type__: BaseColorBarView
 
