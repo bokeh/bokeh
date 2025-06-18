@@ -643,7 +643,9 @@ class DatetimeTickFormatter(TickFormatter):
 
 class TimedeltaTickFormatter(TickFormatter):
     ''' A ``TickFormatter`` for displaying timedelta values nicely across a
-    range of scales.
+    range of scales. The largest scale for differentiating between formats
+    is "days", as the conversion from "days" to "months" or "years" is not
+    well defined.
 
     ``TimedeltaTickFormatter`` has the following properties (listed together
     with their default values) that can be used to control the formatting
