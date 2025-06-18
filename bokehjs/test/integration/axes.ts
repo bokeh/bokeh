@@ -195,6 +195,10 @@ import {radians} from "@bokehjs/core/util/math"
     it("should support single line axis_label and axis_label_standoff=70 and axis_label_standoff_mode=axis", async () => {
       await plot({axis_label: "This is an axis label", axis_label_standoff: 70, axis_label_standoff_mode: "axis"}, {minor_size: 100})
     })
+
+    it("should support single line axis_label and axis_label_standoff=20 and axis_label_standoff_mode=tick_labels", async () => {
+      await plot({axis_label: "This is an axis label", axis_label_standoff: 20, axis_label_standoff_mode: "tick_labels"}, {minor_size: 100})
+    })
   }
 
   describe("LinearAxis", () => {
