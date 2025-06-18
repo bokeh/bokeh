@@ -1317,7 +1317,6 @@
     orientation: "auto",
     height: "auto",
     width: "auto",
-    scale_alpha: 1.0,
     title: null,
     title_text_color: "#444444",
     title_text_outline_color: null,
@@ -1402,6 +1401,7 @@
     },
     display_low: null,
     display_high: null,
+    scale_alpha: 1.0,
   },
   ContourColorBar: {
     __extends__: "BaseColorBar",

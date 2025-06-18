@@ -138,10 +138,6 @@ class BaseColorBar(Annotation):
     The width (in pixels) that the color scale should occupy.
     """)
 
-    scale_alpha = Float(1.0, help="""
-    The alpha with which to render the color scale.
-    """)
-
     title = Nullable(TextLike, help="""
     The title text to render.
     """)
@@ -279,6 +275,10 @@ class ColorBar(BaseColorBar):
     display_high = Nullable(Float, help="""
     The highest value to display in the color bar. The whole of the color entry
     containing this value is shown.
+    """)
+
+    scale_alpha = Float(1.0, help="""
+    The alpha with which to render the color scale.
     """)
 
 
