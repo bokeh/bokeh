@@ -7526,6 +7526,7 @@
     scroll_to_selection: true,
     header_row: true,
     row_height: 25,
+    multi_selectable: true,
   },
   DateEditor: {
     __extends__: "CellEditor",
