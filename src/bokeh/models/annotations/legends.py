@@ -54,6 +54,7 @@ from ...core.properties import (
     NullStringSpec,
     Override,
     Positive,
+    Required,
     Seq,
     String,
     TextLike,
@@ -77,6 +78,7 @@ from ...core.validation.errors import (
 from ...events import LegendItemClick
 from ...model import Model
 from ..formatters import TickFormatter
+#from ..glyph import RadialGlyph
 from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper
 from ..ranges import Range
@@ -99,6 +101,7 @@ __all__ = (
     "Legend",
     "LegendItem",
     "ScaleBar",
+    "SizeBar",
 )
 
 #-----------------------------------------------------------------------------
@@ -749,6 +752,17 @@ class ScaleBar(Annotation):
     label_text_baseline = Override(default="middle")
     title_text_font_size = Override(default="13px")
     title_text_font_style = Override(default="italic")
+
+class SizeBar(BaseColorBar):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    # TODO GlyphRendererOf(RadialGlyph)
+    renderer = Required(Instance(GlyphRenderer), help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

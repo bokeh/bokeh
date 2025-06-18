@@ -43,7 +43,7 @@ from ...model import Model
 from ...util.callback_manager import EventCallback as PyEventCallback
 from ..callbacks import Callback as JsEventCallback
 from ..formatters import TickFormatter
-from ..glyph import Glyph
+from ..glyph import Glyph, RadialGlyph
 from ..labeling import LabelingPolicy
 from ..mappers import ColorMapper
 from ..ranges import Range
@@ -222,3 +222,8 @@ class ScaleBar(Annotation, ScalarBarLineProps, ScalarLabelTextProps, ScalarTitle
     title_standoff: int = ...
 
     ticker: Ticker = ...
+
+@dataclass
+class SizeBar(BaseColorBar):
+
+    renderer: GlyphRenderer[RadialGlyph] = ...

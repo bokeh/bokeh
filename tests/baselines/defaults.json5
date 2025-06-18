@@ -1582,6 +1582,13 @@
       type: "map",
     },
   },
+  SizeBar: {
+    __extends__: "BaseColorBar",
+    renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   Axis: {
     __extends__: "GuideRenderer",
     dimension: "auto",
