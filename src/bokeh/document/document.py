@@ -739,7 +739,7 @@ side of a communications channel while it was being removed on the other end.\
             self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
 
     def to_json(self, *, deferred: bool = True) -> DocJson:
-        ''' Convert this document to a JSON-serializble object.
+        ''' Convert this document to a JSON-serializable object.
 
         Return:
             DocJson

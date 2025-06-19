@@ -261,12 +261,20 @@ class TestSerializer:
         ]
         assert encoder.buffers == []
 
-    def test_list_circular(self) -> None:
+    def test_list_circular_with_checking(self) -> None:
         val: Sequence[Any] = [1, 2, 3]
-        val.insert(2, val)
+        val.append(val)
 
-        encoder = Serializer()
-        with pytest.raises(SerializationError):
+        encoder = Serializer(check_circular=True)
+        with pytest.raises(SerializationError, match="circular reference"):
+            encoder.encode(val)
+
+    def test_list_circular_without_checking(self) -> None:
+        val: Sequence[Any] = [1, 2, 3]
+        val.append(val)
+
+        encoder = Serializer(check_circular=False)
+        with pytest.raises(RecursionError):
             encoder.encode(val)
 
     def test_dict_empty(self) -> None:
@@ -295,12 +303,20 @@ class TestSerializer:
         )
         assert encoder.buffers == []
 
-    def test_dict_circular(self) -> None:
+    def test_dict_circular_with_checking(self) -> None:
         val: dict[Any, Any] = {nan: [1, 2]}
         val[inf] = val
 
-        encoder = Serializer()
-        with pytest.raises(SerializationError):
+        encoder = Serializer(check_circular=True)
+        with pytest.raises(SerializationError, match="circular reference"):
+            encoder.encode(val)
+
+    def test_dict_circular_without_checking(self) -> None:
+        val: dict[Any, Any] = {nan: [1, 2]}
+        val[inf] = val
+
+        encoder = Serializer(check_circular=False)
+        with pytest.raises(RecursionError):
             encoder.encode(val)
 
     def test_dict_ColumnData(self) -> None:
@@ -924,6 +940,20 @@ class TestSerializer:
         )
 
         assert rep1["array"]["data"].data == rep2["array"]["data"].data
+
+    def test_self_referential_issue_14383(self) -> None:
+        from bokeh.models import CustomJS
+        from bokeh.plotting import figure
+
+        p = figure()
+        lines = [p.line([1, 2, 3], [1, 2, 3]) for _ in range(3)]
+
+        for line in lines:
+            handler = CustomJS(args=dict(lines=lines), code="")
+            line.js_on_change("muted", handler)
+
+        encoder = Serializer()
+        encoder.encode(p) # no SerializationError("circular reference") error raised here
 
 class TestDeserializer:
 
