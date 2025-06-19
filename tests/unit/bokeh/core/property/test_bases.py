@@ -234,6 +234,26 @@ class TestProperty:
         p.prepare_value(hp, "foo", 10)
         assert mock_hv.called
 
+    def test_pandas_na(self):
+        # Property.matches handles this as False could change in the future.
+        # pd.NA raises a TypeError when bool(pd.NA == pd.NA)
+        assert bcpb.Property().matches(pd.NA, pd.NA) is False
+        assert bcpb.Property().matches({"name": pd.NA}, {"name": 1}) is False
+
+    def test_nan(self):
+        # Property.matches handles this as False could change in the future.
+        assert bcpb.Property().matches(np.nan, np.nan) is False
+        assert bcpb.Property().matches({"name": np.nan}, {"name": np.nan}) is False
+        assert bcpb.Property().matches(np.array([np.nan]), np.array([np.nan])) is False
+
+    def test_nat(self):
+        # Property.matches handles this as False could change in the future.
+        nat = np.datetime64("NAT")
+        assert np.isnat(nat)
+        assert bcpb.Property().matches(nat, nat) is False
+        assert bcpb.Property().matches({"name": nat}, {"name": nat}) is False
+        assert bcpb.Property().matches(np.array([nat]), np.array([nat])) is False
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
