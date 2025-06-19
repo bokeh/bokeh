@@ -77,8 +77,9 @@ from ...core.validation.errors import (
 )
 from ...events import LegendItemClick
 from ...model import Model
+from ..common.properties import GlyphRendererOf
 from ..formatters import TickFormatter
-#from ..glyph import RadialGlyph
+from ..glyph import RadialGlyph
 from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper
 from ..ranges import Range
@@ -760,8 +761,7 @@ class SizeBar(BaseColorBar):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    # TODO GlyphRendererOf(RadialGlyph)
-    renderer = Required(Instance(GlyphRenderer), help="""
+    renderer = Required(GlyphRendererOf(RadialGlyph), help="""
     """)
 
 #-----------------------------------------------------------------------------
