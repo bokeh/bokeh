@@ -92,6 +92,7 @@ __all__ = (
     'AngleUnits',
     'Auto',
     'AutosizeMode',
+    'AxisLabelStandoffMode',
     'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
@@ -292,6 +293,10 @@ Auto = enumeration(AutoType)
 #: Specify autosize mode for DataTable
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
 AutosizeMode = enumeration(AutosizeModeType)
+
+#: Specify the reference point of the ``axis_label_standoff``
+AxisLabelStandoffModeType = Literal["tick_labels", "axis"]
+AxisLabelStandoffMode = enumeration(AxisLabelStandoffModeType)
 
 #: Names of built-in value formatters
 BuiltinFormatterType = Literal["raw", "basic", "numeral", "printf", "datetime"]

@@ -191,6 +191,14 @@ import {radians} from "@bokehjs/core/util/math"
     it("should support major_label_policy=NoOverlap(min_distance=50) with major_label_orientation=normal", async () => {
       await plot({major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "normal"}, {num_ticks: 20})
     })
+
+    it("should support single line axis_label and axis_label_standoff=70 and axis_label_standoff_mode=axis", async () => {
+      await plot({axis_label: "This is an axis label", axis_label_standoff: 70, axis_label_standoff_mode: "axis"}, {minor_size: 100})
+    })
+
+    it("should support single line axis_label and axis_label_standoff=20 and axis_label_standoff_mode=tick_labels", async () => {
+      await plot({axis_label: "This is an axis label", axis_label_standoff: 20, axis_label_standoff_mode: "tick_labels"}, {minor_size: 100})
+    })
   }
 
   describe("LinearAxis", () => {

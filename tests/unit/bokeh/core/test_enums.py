@@ -35,6 +35,7 @@ ALL = (
     'AngleUnits',
     'Auto',
     'AutosizeMode',
+    'AxisLabelStandoffMode',
     'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
