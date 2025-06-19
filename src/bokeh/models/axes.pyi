@@ -14,6 +14,7 @@ from .._types import Datetime, TextLike
 from ..core.enums import (
     AlignType as Align,
     AutoType as Auto,
+    CorrectionPolicyType as CorrectionPolicy,
     LabelOrientationType as LabelOrientation,
 )
 from ..core.has_props import abstract
@@ -70,6 +71,8 @@ class Axis(GuideRenderer, AxisLabelText, MajorLabelText, AxisLine, MajorTickLine
     axis_label_orientation: LabelOrientation | float = ...
 
     axis_label_align: Align = ...
+
+    label_correction_policy: CorrectionPolicy = ...
 
     major_label_standoff: int = ...
 

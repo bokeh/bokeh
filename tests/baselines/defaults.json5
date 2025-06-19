@@ -1608,6 +1608,7 @@
     axis_label_text_align: "left",
     axis_label_text_baseline: "bottom",
     axis_label_text_line_height: 1.2,
+    label_correction_policy: "auto",
     major_label_standoff: 5,
     major_label_orientation: "horizontal",
     major_label_overrides: {
