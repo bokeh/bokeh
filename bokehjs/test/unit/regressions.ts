@@ -1877,8 +1877,12 @@ describe("Bug", () => {
       const sv1 = view.owner.get_one(s1)
       const sv2 = view.owner.get_one(s2)
 
-      const css = "\n:host {\n  flex: 0 0 50px;\n}"
-
+      const css = `
+:host {
+  flex: 0 0 50px;
+  min-width: 0;
+  min-height: 0;
+}`
       expect(sv0.parent_style.css).to.be.equal(css)
       expect(sv1.parent_style.css).to.be.equal(css)
       expect(sv2.parent_style.css).to.be.equal(css)
