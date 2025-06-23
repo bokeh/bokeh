@@ -69,17 +69,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
       })()
 
       function min_size(size: number | null): string {
-        if (size != null) {
-          return px(size)
-        } else {
-          switch (sizing.width_policy) {
-            case "fixed": return "auto"
-            case "auto":
-            case "fit":
-            case "max":
-            case "min":   return "0"
-          }
-        }
+        return size != null ? px(size) : "0"
       }
 
       const min_width = min_size(view.model.min_width)
