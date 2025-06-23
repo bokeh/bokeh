@@ -9,6 +9,7 @@ import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 
 import {OrientedControl, OrientedControlView} from "../oriented_control"
+import type {CSSSizeKeyword} from "../../layouts/layout_dom"
 
 import sliders_css, * as sliders from "styles/widgets/sliders.css"
 import nouislider_css from "styles/widgets/nouislider.css"
@@ -34,8 +35,8 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   protected slider_el?: HTMLElement
   protected title_el: HTMLElement
 
-  protected override readonly _auto_width = "auto"
-  protected override readonly _auto_height = "auto"
+  protected override get _auto_width(): CSSSizeKeyword { return "auto" }
+  protected override get _auto_height(): CSSSizeKeyword { return "auto" }
 
   public *controls() {
     yield this.slider_el as HTMLInputElement

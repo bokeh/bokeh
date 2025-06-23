@@ -126,7 +126,15 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     for (const [[, row, col], i] of enumerate(this._children)) {
       const view = this.child_views[i]
 
-      const {halign, valign} = view.box_sizing()
+      const {width_policy, height_policy, halign, valign} = view.box_sizing()
+
+      if (height_policy == "max" && rows_template[row].size == null) {
+        rows_template[row].size = "1fr"
+      }
+      if (width_policy == "max" && cols_template[col].size == null) {
+        cols_template[col].size = "1fr"
+      }
+
       view.parent_style.append(":host", {
         justify_self: halign ?? cols_template[col].align,
         align_self: valign ?? rows_template[row].align,

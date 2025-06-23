@@ -191,8 +191,8 @@ export abstract class LayoutDOMView extends PaneView {
     this.invalidate_layout()
   }
 
-  protected readonly _auto_width: CSSSizeKeyword = "fit-content"
-  protected readonly _auto_height: CSSSizeKeyword = "fit-content"
+  protected get _auto_width(): CSSSizeKeyword { return "max-content" }
+  protected get _auto_height(): CSSSizeKeyword { return "max-content" }
 
   protected _intrinsic_display(): FullDisplay {
     return {inner: this.model.flow_mode, outer: "flow"}
@@ -204,7 +204,7 @@ export abstract class LayoutDOMView extends PaneView {
         case "auto":
           return size != null ? px(size) : auto_size
         case "fixed":
-          return size != null ? px(size) : "fit-content"
+          return size != null ? px(size) : auto_size
         case "fit":
           return "fit-content"
         case "min":

@@ -1,4 +1,4 @@
-import type {FullDisplay} from "./layout_dom"
+import type {FullDisplay, CSSSizeKeyword} from "./layout_dom"
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {Container} from "core/layout/grid"
@@ -24,6 +24,21 @@ export abstract class FlexBoxView extends LayoutDOMView {
 
   protected override _intrinsic_display(): FullDisplay {
     return {inner: this.model.flow_mode, outer: "flex"}
+  }
+
+  protected override get _auto_width(): CSSSizeKeyword {
+    if (this.layoutable_views.map((view) => view.box_sizing().width_policy).some((policy) => policy == "max")) {
+      return "auto"
+    } else {
+      return "max-content"
+    }
+  }
+  protected override get _auto_height(): CSSSizeKeyword {
+    if (this.layoutable_views.map((view) => view.box_sizing().height_policy).some((policy) => policy == "max")) {
+      return "auto"
+    } else {
+      return "max-content"
+    }
   }
 
   override _update_layout(): void {

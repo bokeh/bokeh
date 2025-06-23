@@ -1,4 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import type {CSSSizeKeyword} from "./layout_dom"
 import type * as p from "core/properties"
 
 export class SpacerView extends LayoutDOMView {
@@ -8,8 +9,8 @@ export class SpacerView extends LayoutDOMView {
     return []
   }
 
-  protected override readonly _auto_width = "auto"
-  protected override readonly _auto_height = "auto"
+  protected override get _auto_width(): CSSSizeKeyword { return "auto" }
+  protected override get _auto_height(): CSSSizeKeyword { return "auto" }
 }
 
 export namespace Spacer {

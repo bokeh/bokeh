@@ -1,3 +1,4 @@
+import type {CSSSizeKeyword} from "../layouts/layout_dom"
 import type {StyleSheetLike} from "core/dom"
 import {div} from "core/dom"
 import type * as p from "core/properties"
@@ -10,8 +11,8 @@ export abstract class MarkupView extends WidgetView {
 
   protected markup_el: HTMLElement
 
-  protected override readonly _auto_width = "fit-content"
-  protected override readonly _auto_height = "auto"
+  protected override get _auto_width(): CSSSizeKeyword { return "fit-content" }
+  protected override get _auto_height(): CSSSizeKeyword { return "auto" }
 
   override async lazy_initialize() {
     await super.lazy_initialize()
