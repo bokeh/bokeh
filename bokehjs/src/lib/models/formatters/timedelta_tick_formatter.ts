@@ -15,19 +15,19 @@ export const resolution_order: TimedeltaResolutionType[] = [
 ]
 
 export const formatting_map: {[template: string]: any} = {
-  "%Nano": (t: number): string => _ns(t, 1_000),
-  "%nano": (t: number): string => _ns(t, null),
-  "%Micro": (t: number): string => _us(t, 1_000),
-  "%micro": (t: number): string => _us(t, null),
-  "%Milli": (t: number): string => _ms(t, 1_000),
-  "%milli": (t: number): string => _ms(t, null),
-  "%Second": (t: number): string => _seconds(t, 60),
-  "%second": (t: number): string => _seconds(t, null),
-  "%Minute": (t: number): string => _minutes(t, 60),
-  "%minute": (t: number): string => _minutes(t, null),
-  "%Hour": (t: number): string => _hours(t, 24),
-  "%hour": (t: number): string => _hours(t, null),
-  "%day": (t: number): string => _days(t, null),
+  "%NS": (t: number): string => _ns(t, 1_000),
+  "%ns": (t: number): string => _ns(t, null),
+  "%US": (t: number): string => _us(t, 1_000),
+  "%us": (t: number): string => _us(t, null),
+  "%MS": (t: number): string => _ms(t, 1_000),
+  "%ms": (t: number): string => _ms(t, null),
+  "%S": (t: number): string => _seconds(t, 60),
+  "%s": (t: number): string => _seconds(t, null),
+  "%M": (t: number): string => _minutes(t, 60),
+  "%m": (t: number): string => _minutes(t, null),
+  "%H": (t: number): string => _hours(t, 24),
+  "%h": (t: number): string => _hours(t, null),
+  "%d": (t: number): string => _days(t, null),
 }
 
 export function _get_resolution(resolution_secs: number, span_secs: number): TimedeltaResolutionType {
@@ -179,15 +179,15 @@ export class TimedeltaTickFormatter extends TickFormatter {
 
   static {
     this.define<TimedeltaTickFormatter.Props>(({Bool, Nullable, Or, Ref, Str, Arrayable}) => ({
-      nanoseconds: [ Str, "%Nanons" ],
-      microseconds: [ Str, "%Microus" ],
-      milliseconds: [ Str, "%Millims" ],
-      seconds: [ Str, "%Hour:%Minute:%Second" ],
-      minsec: [ Str, "%Hour:%Minute:%Second" ],
-      minutes: [ Str, "%Hour:%Minute" ],
-      hourmin: [ Str, "%Hour:%Minute" ],
-      hours: [ Str, "%Hour:%Minute" ],
-      days: [ Str, "%day days" ],
+      nanoseconds: [ Str, "%NSns" ],
+      microseconds: [ Str, "%USus" ],
+      milliseconds: [ Str, "%MSms" ],
+      seconds: [ Str, "%H:%M:%S" ],
+      minsec: [ Str, "%H:%M:%S" ],
+      minutes: [ Str, "%H:%M" ],
+      hourmin: [ Str, "%H:%M" ],
+      hours: [ Str, "%H:%M" ],
+      days: [ Str, "%d days" ],
       strip_leading_zeros: [ Or(Bool, Arrayable(TimedeltaResolutionType)), false ],
       hide_repeats: [ Bool, false ],
       context: [ Nullable(Or(Str, Ref(TimedeltaTickFormatter))), null ],

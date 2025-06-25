@@ -77,39 +77,39 @@ describe("_str_timedelta", () => {
   })
   it("should handle microseconds", () => {
     const t = 123456789.1234
-    expect(tdtf._str_timedelta(t, "%Micro")).to.be.equal("123")
+    expect(tdtf._str_timedelta(t, "%US")).to.be.equal("123")
   })
   it("should handle nanoseconds", () => {
     const t1 = 1655945719752.0
-    expect(tdtf._str_timedelta(t1, "%Nano")).to.be.equal("000")
+    expect(tdtf._str_timedelta(t1, "%NS")).to.be.equal("000")
 
     const t2 = 1652.000001
-    expect(tdtf._str_timedelta(t2, "%Nano")).to.be.equal("001")
+    expect(tdtf._str_timedelta(t2, "%NS")).to.be.equal("001")
 
     const t3 = 1652.0
-    expect(tdtf._str_timedelta(t3, "%Nano")).to.be.equal("000")
+    expect(tdtf._str_timedelta(t3, "%NS")).to.be.equal("000")
 
     const t4 = 1652.000991
-    expect(tdtf._str_timedelta(t4, "%Nano")).to.be.equal("991")
+    expect(tdtf._str_timedelta(t4, "%NS")).to.be.equal("991")
 
     const t5 = 1652.000999
-    expect(tdtf._str_timedelta(t5, "%Nano")).to.be.equal("999")
+    expect(tdtf._str_timedelta(t5, "%NS")).to.be.equal("999")
   })
   it("should handle total nanoseconds", () => {
     const t1 = 1655945719752.0
-    expect(tdtf._str_timedelta(t1, "%nano")).to.be.equal("1655945719752000000")
+    expect(tdtf._str_timedelta(t1, "%ns")).to.be.equal("1655945719752000000")
 
     const t2 = 1652.000001
-    expect(tdtf._str_timedelta(t2, "%nano")).to.be.equal("1652000001")
+    expect(tdtf._str_timedelta(t2, "%ns")).to.be.equal("1652000001")
 
     const t3 = 1652.0
-    expect(tdtf._str_timedelta(t3, "%nano")).to.be.equal("1652000000")
+    expect(tdtf._str_timedelta(t3, "%ns")).to.be.equal("1652000000")
 
     const t4 = 1652.000991
-    expect(tdtf._str_timedelta(t4, "%nano")).to.be.equal("1652000991")
+    expect(tdtf._str_timedelta(t4, "%ns")).to.be.equal("1652000991")
 
     const t5 = 1652.000999
-    expect(tdtf._str_timedelta(t5, "%nano")).to.be.equal("1652000999")
+    expect(tdtf._str_timedelta(t5, "%ns")).to.be.equal("1652000999")
   })
 })
 
@@ -197,7 +197,7 @@ describe("TimedeltaTickFormatter", () => {
   })
   describe("hide_repeats", () => {
     it("should handle boolean", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({hours: "%day", hide_repeats: true})
+      const formatter = new tdtf.TimedeltaTickFormatter({hours: "%d", hide_repeats: true})
       const labels = formatter.doFormat([t+HOUR, t+HOUR*2, t+HOUR*3], {loc: 0})
       expect(labels).to.be.equal(["19166", "", ""])
     })
@@ -225,7 +225,7 @@ describe("TimedeltaTickFormatter", () => {
       expect(labels).to.be.equal(["00:55\nFOO", "01:55\n", "02:55\n"])
     })
     it("should handle a format string", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n", "02:55\n"])
     })
@@ -254,44 +254,44 @@ describe("TimedeltaTickFormatter", () => {
   })
   describe("context_which", () => {
     it("should handle start", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_which: "start"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "start"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n", "02:55\n"])
     })
     it("should handle end", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_which: "end"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "end"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n", "01:55\n", "02:55\n19"])
     })
     it("should handle center", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_which: "center"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "center"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n", "01:55\n19", "02:55\n"])
     })
     it("should handle all", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_which: "all"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_which: "all"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n19", "02:55\n19"])
     })
   })
   describe("context_location", () => {
     it("should handle left", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_location: "left"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "left"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["19 00:55", "01:55", "02:55"])
     })
     it("should handle right", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_location: "right"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "right"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55 19", "01:55", "02:55"])
     })
     it("should handle above", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_location: "above"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "above"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["19\n00:55", "\n01:55", "\n02:55"])
     })
     it("should handle below", () => {
-      const formatter = new tdtf.TimedeltaTickFormatter({context: "%Second", context_location: "below"})
+      const formatter = new tdtf.TimedeltaTickFormatter({context: "%S", context_location: "below"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       expect(labels).to.be.equal(["00:55\n19", "01:55\n", "02:55\n"])
     })

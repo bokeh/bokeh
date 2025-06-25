@@ -666,43 +666,43 @@ class TimedeltaTickFormatter(TickFormatter):
     formats with a lowercase letter corresponds to the overall completed time
     passed (3.6 days becomes 3 days).
 
-    +----------+-----------------------------------------------------------------+
-    | %Nano    | Nanoseconds since last microsecond as a decimal number,         |
-    |          | zero-padded on the left (range 000 to 999).                     |
-    |          | Warning: Due to floating point precision, ticks may be formatted|
-    |          | incorrectly if the overall timedelta is rather large (>10days). |
-    +----------+-----------------------------------------------------------------+
-    | %nano    | Overall completed nanoseconds.                                  |
-    |          | Warning: Due to floating point precision, ticks may be formatted|
-    |          | incorrectly if the overall timedelta is rather large (>10days). |
-    +----------+-----------------------------------------------------------------+
-    | %Micro   | Microseconds since last millisecond as a decimal number,        |
-    |          | zero-padded on the left (range 000 to 999).                     |
-    +----------+-----------------------------------------------------------------+
-    | %micro   | Overall completed microseconds.                                 |
-    +----------+-----------------------------------------------------------------+
-    | %Milli   | Milliseconds since last second as a decimal number,             |
-    |          | zero-padded on the left (range 000 to 999).                     |
-    +----------+-----------------------------------------------------------------+
-    | %milli   | Overall completed milliseconds.                                 |
-    +----------+-----------------------------------------------------------------+
-    | %Second  | Seconds since last minute as a decimal number, zero-padded on   |
-    |          | the left (range 00 to 59).                                      |
-    +----------+-----------------------------------------------------------------+
-    | %second  | Overall completed seconds.                                      |
-    +----------+-----------------------------------------------------------------+
-    | %Minute  | Minutes since last hour as a decimal number, zero-padded on     |
-    |          | the left (range 00 to 59).                                      |
-    +----------+-----------------------------------------------------------------+
-    | %minute  | Overall completed minutes.                                      |
-    +----------+-----------------------------------------------------------------+
-    | %Hour    | Hours since last day as a decimal number, zero-padded on the    |
-    |          | left (range 00 to 23).                                          |
-    +----------+-----------------------------------------------------------------+
-    | %hour    | Overall completed hours.                                        |
-    +----------+-----------------------------------------------------------------+
-    | %day     | Overall completed days.                                         |
-    +----------+-----------------------------------------------------------------+
+    +--------+-----------------------------------------------------------------+
+    | %NS    | Nanoseconds since last microsecond as a decimal number,         |
+    |        | zero-padded on the left (range 000 to 999).                     |
+    |        | Warning: Due to floating point precision, ticks may be formatted|
+    |        | incorrectly if the overall timedelta is rather large (>10days). |
+    +--------+-----------------------------------------------------------------+
+    | %ns    | Overall completed nanoseconds.                                  |
+    |        | Warning: Due to floating point precision, ticks may be formatted|
+    |        | incorrectly if the overall timedelta is rather large (>10days). |
+    +--------+-----------------------------------------------------------------+
+    | %US    | Microseconds since last millisecond as a decimal number,        |
+    |        | zero-padded on the left (range 000 to 999).                     |
+    +--------+-----------------------------------------------------------------+
+    | %us    | Overall completed microseconds.                                 |
+    +--------+-----------------------------------------------------------------+
+    | %MS    | Milliseconds since last second as a decimal number,             |
+    |        | zero-padded on the left (range 000 to 999).                     |
+    +--------+-----------------------------------------------------------------+
+    | %ms    | Overall completed milliseconds.                                 |
+    +--------+-----------------------------------------------------------------+
+    | %S     | Seconds since last minute as a decimal number, zero-padded on   |
+    |        | the left (range 00 to 59).                                      |
+    +--------+-----------------------------------------------------------------+
+    | %s     | Overall completed seconds.                                      |
+    +--------+-----------------------------------------------------------------+
+    | %M     | Minutes since last hour as a decimal number, zero-padded on     |
+    |        | the left (range 00 to 59).                                      |
+    +--------+-----------------------------------------------------------------+
+    | %m     | Overall completed minutes.                                      |
+    +--------+-----------------------------------------------------------------+
+    | %H     | Hours since last day as a decimal number, zero-padded on the    |
+    |        | left (range 00 to 23).                                          |
+    +--------+-----------------------------------------------------------------+
+    | %h     | Overall completed hours.                                        |
+    +--------+-----------------------------------------------------------------+
+    | %d     | Overall completed days.                                         |
+    +--------+-----------------------------------------------------------------+
 
     '''
 
@@ -711,31 +711,31 @@ class TimedeltaTickFormatter(TickFormatter):
         super().__init__(*args, **kwargs)
 
     nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
-                          default="%Nanons")
+                          default="%NSns")
 
     microseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``microseconds``"),
-                          default="%Microus")
+                          default="%USus")
 
     milliseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``milliseconds``"),
-                          default="%Millims")
+                          default="%MSms")
 
     seconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``seconds``"),
-                     default="%Hour:%Minute:%Second")
+                     default="%H:%M:%S")
 
     minsec = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-                    default="%Hour:%Minute:%Second")
+                    default="%H:%M:%S")
 
     minutes = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minutes``"),
-                     default="%Hour:%Minute")
+                     default="%H:%M")
 
     hourmin = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-                     default="%Hour:%Minute")
+                     default="%H:%M")
 
     hours = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hours``"),
-                   default="%Hour:%Minute")
+                   default="%H:%M")
 
     days = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``days``"),
-                  default="%day days")
+                  default="%d days")
 
     strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)), default=False, help="""
     Whether to strip any leading zeros in the formatted ticks.
@@ -843,33 +843,33 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
 
 def CONTEXTUAL_TIMEDELTA_FORMATTER() -> TimedeltaTickFormatter:
     return TimedeltaTickFormatter(
-        nanoseconds="%Nanons",
-        microseconds="%Microus",
-        milliseconds="%Millims",
-        seconds="%Hour:%Minute:%Second",
-        minsec="%Hour:%Minute:%Second",
-        minutes="%Hour:%Minute",
-        hourmin="%Hour:%Minute",
-        hours="%Hour:%Minute",
-        days="%day days",
+        nanoseconds="%NSns",
+        microseconds="%USus",
+        milliseconds="%MSms",
+        seconds="%H:%M:%S",
+        minsec="%H:%M:%S",
+        minutes="%H:%M",
+        hourmin="%H:%M",
+        hours="%H:%M",
+        days="%d days",
         strip_leading_zeros=["nanoseconds", "microseconds", "milliseconds"],
         context_which="all",
         context=TimedeltaTickFormatter(
-            nanoseconds="%Hour:%Minute:%Second.%Milli%Micro",
-            microseconds="%Hour:%Minute:%Second.%Milli",
-            milliseconds="%Hour:%Minute:%Second",
-            seconds="%day days",
-            minsec="%day days",
-            minutes="%day days",
-            hourmin="%day days",
-            hours="%day days",
+            nanoseconds="%H:%M:%S.%MS%US",
+            microseconds="%H:%M:%S.%MS",
+            milliseconds="%H:%M:%S",
+            seconds="%d days",
+            minsec="%d days",
+            minutes="%d days",
+            hourmin="%d days",
+            hours="%d days",
             days="",
             hide_repeats=True,
             context_which="all",
             context=TimedeltaTickFormatter(
-                nanoseconds="%day days",
-                microseconds="%day days",
-                milliseconds="%day days",
+                nanoseconds="%d days",
+                microseconds="%d days",
+                milliseconds="%d days",
                 seconds="",
                 minsec="",
                 minutes="",
