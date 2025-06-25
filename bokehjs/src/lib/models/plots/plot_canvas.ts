@@ -864,10 +864,12 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _invalidate_layout_if_needed(): void {
     const needs_layout = (() => {
       for (const panel of this.model.side_panels) {
-        const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
-        if (view.layout?.has_size_changed() ?? false) {
-          this.invalidate_painters(view)
-          return true
+        const view = this.renderer_views.get(panel as any) // TODO
+        if (view != null) {
+          if (view.layout?.has_size_changed() ?? false) {
+            this.invalidate_painters(view)
+            return true
+          }
         }
       }
       return false
@@ -882,7 +884,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {above, below, left, right, center, renderers} = this.model
 
     yield* renderers
-    yield* [...above, ...below, ...left, ...right, ...center] //.filter((model) => model instanceof Renderer)
+    yield* [...above, ...below, ...left, ...right, ...center] as any // TODO
 
     if (this._title != null) {
       yield this._title
