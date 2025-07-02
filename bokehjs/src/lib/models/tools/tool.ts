@@ -32,6 +32,7 @@ import type {UndoTool} from "./actions/undo_tool"
 import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
+import type {CsvTool} from "./actions/csv_tool"
 
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
@@ -71,6 +72,7 @@ export type ToolAliases = {
   redo:         RedoTool
   reset:        ResetTool
   help:         HelpTool
+  csv:          CsvTool
 }
 
 export type EventRole = EventType | "multi"

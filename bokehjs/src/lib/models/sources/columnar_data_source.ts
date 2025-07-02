@@ -220,7 +220,7 @@ export abstract class ColumnarDataSource extends DataSource {
       // don't show up in the plot but do show up in the CSV. The user downloads
       // the CSV, opens it in a spreadsheet app, and the app executes the
       // harmful fields (if they are not escaped).
-      escape_formulas: true,
+      // escape_formulas: true,
     })
   }
 

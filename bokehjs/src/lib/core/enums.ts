@@ -310,6 +310,7 @@ export const ToolName = Enum(
   "click",
   "copy",
   "crosshair",
+  "csv",
   "doubletap",
   "examine",
   "freehand_draw",
