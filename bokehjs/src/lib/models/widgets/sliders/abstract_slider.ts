@@ -27,8 +27,6 @@ export type SliderSpec<T> = {
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
   declare model: AbstractSlider<T>
 
-  static override aria_role = "slider" as const
-
   protected behaviour: "drag" | "tap"
   protected connected: false | boolean[] = false
 

@@ -59,8 +59,6 @@ const _minimization_area: HTMLElement = (() => {
 export class DialogView extends UIElementView {
   declare model: Dialog
 
-  static override aria_role = "dialog" as const
-
   protected _title: ViewOf<UIElementLike>
   protected _content: ViewOf<UIElementLike>
 

@@ -26,8 +26,6 @@ export type MenuItemLike = typeof MenuItemLike["__type__"]
 export class MenuView extends UIElementView {
   declare model: Menu
 
-  static override aria_role = "menu" as const
-
   protected _menu_views: ViewStorage<Menu> = new Map()
 
   override *children(): IterViews {
@@ -165,7 +163,7 @@ export class MenuView extends UIElementView {
         })()
 
         const item_el = div(
-          {class: menus.item, title: item.tooltip, tabIndex: 0, role: "menuitem"},
+          {class: menus.item, title: item.tooltip, tabIndex: 0},
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 
