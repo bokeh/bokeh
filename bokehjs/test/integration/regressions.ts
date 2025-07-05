@@ -4607,4 +4607,18 @@ describe("Bug", () => {
       expect(obj.value).to.not.be.equal(null)
     })
   })
+
+  describe("in issue #12994", () => {
+    it("doesn't render patch for certain inputs", async () => {
+      const p = fig([200, 200])
+      const N = 15000
+      const _x = linspace(0, 1000, N)
+      const x = [..._x, ..._x]
+      const y = Array(x.length).fill(0)
+
+      p.patch(x, y)
+
+      await display(p, [350, 250])
+    })
+  })
 })
