@@ -107,7 +107,6 @@ export function _us(t: number, factor_next: number | null): string {
 }
 
 export function _ns(t: number, factor_next: number | null): string {
-  console.log(`ns ${t}`)
   const ns = _calc_tick_value(t, ONE_NANO, factor_next)
   return _str_tick_value(ns, factor_next)
 }
