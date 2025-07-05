@@ -129,7 +129,7 @@ to set one or both of the axes to ``"mercator"``.
    :source-position: above
 
 Timedelta axes
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. note::
     The example in this section requires a network connection and depends on
