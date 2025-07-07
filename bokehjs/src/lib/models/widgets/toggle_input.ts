@@ -9,8 +9,6 @@ export abstract class ToggleInputView extends WidgetView {
 
   protected label_el: HTMLElement
 
-  protected label_id: string = "label"
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), toggle_input_css.default]
   }
@@ -36,10 +34,7 @@ export abstract class ToggleInputView extends WidgetView {
 
   override render(): void {
     super.render()
-    this.label_el = div(
-      {class: toggle_input_css.label, id: this.label_id},
-      this.model.label
-    )
+    this.label_el = div({class: toggle_input_css.label}, this.model.label)
   }
 
   protected _update_label(): void {
