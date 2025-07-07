@@ -19,6 +19,7 @@ export abstract class DOMView extends View {
   static tag_name: keyof HTMLElementTagNameMap = "div"
   static aria_role?: ARIARole
 
+  // Could we make this type narrower? Instead of ChildNode, maybe Element or HTMLElement
   el: ChildNode
   shadow_el?: ShadowRoot
 
@@ -81,7 +82,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    return create_element(this.constructor.tag_name, {role: this.constructor.aria_role})
+    return create_element(this.constructor.tag_name, {})
   }
 
   reposition(_displayed?: boolean): void {}
