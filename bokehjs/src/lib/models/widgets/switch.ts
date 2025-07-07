@@ -29,11 +29,8 @@ export class SwitchView extends ToggleInputView {
   override render(): void {
     super.render()
 
-    // Maybe this should be done during construction?
-    this.el.tabIndex = 0
-
     this.bar_el = div({class: switch_css.bar})
-    this.knob_el = div({class: switch_css.knob})
+    this.knob_el = div({class: switch_css.knob, tabIndex: 0})
     this.icon_el = div({class: switch_css.icon, role: "img", "aria-hidden": "true"})
     this.body_el = div({class: switch_css.body}, this.bar_el, this.knob_el)
     this.shadow_el.append(this.label_el, this.icon_el, this.body_el)
