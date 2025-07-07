@@ -19,7 +19,6 @@ export abstract class DOMView extends View {
   static tag_name: keyof HTMLElementTagNameMap = "div"
   static aria_role?: ARIARole
 
-  // Could we make this type narrower? Instead of ChildNode, maybe Element or HTMLElement
   el: ChildNode
   shadow_el?: ShadowRoot
 
