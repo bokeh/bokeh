@@ -29,13 +29,10 @@ export class SwitchView extends ToggleInputView {
   override render(): void {
     super.render()
 
+    this.el.tabIndex = 0
+
     this.bar_el = div({class: switch_css.bar})
-    this.knob_el = div({
-      class: switch_css.knob,
-      role: this.constructor.aria_role,
-      tabIndex: 0,
-      "aria-labelledby": this.label_id,
-    })
+    this.knob_el = div({class: switch_css.knob})
     this.icon_el = div({class: switch_css.icon, role: "img", "aria-hidden": "true"})
     this.body_el = div({class: switch_css.body}, this.bar_el, this.knob_el)
     this.shadow_el.append(this.label_el, this.icon_el, this.body_el)
@@ -44,8 +41,8 @@ export class SwitchView extends ToggleInputView {
     this._update_active()
     this._update_disabled()
 
-    this.body_el.addEventListener("click", () => this._toggle_active())
-    this.knob_el.addEventListener("keydown", (event) => {
+    this.el.addEventListener("click", () => this._toggle_active())
+    this.el.addEventListener("keydown", (event) => {
       switch (event.key as Keys) {
         case "Enter":
         case " ": {
@@ -72,7 +69,7 @@ export class SwitchView extends ToggleInputView {
   protected _update_active(): void {
     const {active, on_icon, off_icon} = this.model
     this.el.classList.toggle(switch_css.active, active)
-    this.knob_el.ariaChecked = active ? "true" : "false"
+    this.el.ariaChecked = active ? "true" : "false"
     this._apply_icon(active ? on_icon : off_icon)
   }
 

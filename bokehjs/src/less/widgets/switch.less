@@ -11,6 +11,7 @@
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 0.5em;
+  cursor: pointer;
 }
 
 .bk-icon {
@@ -24,10 +25,9 @@
   position: relative;
   width: var(--switch-width);
   height: var(--switch-size);
-  cursor: pointer;
 }
 
-:host(.bk-disabled) .bk-body {
+:host(.bk-disabled) {
   cursor: default;
 }
 
