@@ -29,6 +29,7 @@ export class SwitchView extends ToggleInputView {
   override render(): void {
     super.render()
 
+    // Maybe this should be done during construction?
     this.el.tabIndex = 0
 
     this.bar_el = div({class: switch_css.bar})

@@ -24,7 +24,6 @@ export type ElementCommonAttrs = {
   tabIndex: HTMLOrSVGElement["tabIndex"]
   role: ARIARole
   "aria-hidden": "true" | "false"
-  "aria-labelledby": string
 }
 
 export type HTMLAttrs<_T extends HTMLElementName, ElementSpecificAttrs> = ElementOurAttrs & Optional<ElementCommonAttrs> & Optional<ElementSpecificAttrs>
