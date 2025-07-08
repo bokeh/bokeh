@@ -98,6 +98,7 @@ ALL = (
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
+    'TimedeltaResolutionType',
     'ToolIcon',
     'ToolName',
     'TooltipAttachment',
@@ -362,6 +363,10 @@ class Test_bce:
 
     def test_TextureRepetition(self) -> None:
         assert tuple(bce.TextureRepetition) == ("repeat", "repeat_x", "repeat_y", "no_repeat")
+
+    def test_TimedeltaResolutionType(self) -> None:
+        assert tuple(bce.TimedeltaResolutionType) == (
+        "nanoseconds", "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days")
 
     def test_ToolIcon(self) -> None:
         assert tuple(bce.ToolIcon) == (

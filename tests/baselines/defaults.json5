@@ -2023,6 +2023,125 @@
       },
     },
   },
+  TimedeltaAxis: {
+    __extends__: "LinearAxis",
+    ticker: {
+      type: "object",
+      name: "TimedeltaTicker",
+      attributes: {
+        tickers: [
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              mantissas: [
+                1,
+                2,
+                5,
+              ],
+              max_interval: 500.0,
+            },
+          },
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              base: 60,
+              mantissas: [
+                1,
+                2,
+                5,
+                10,
+                15,
+                20,
+                30,
+              ],
+              min_interval: 1000.0,
+              max_interval: 1800000.0,
+            },
+          },
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              base: 24,
+              mantissas: [
+                1,
+                2,
+                4,
+                6,
+                8,
+                12,
+              ],
+              min_interval: 3600000.0,
+              max_interval: 43200000.0,
+            },
+          },
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              mantissas: [
+                1,
+                2,
+                5,
+              ],
+              min_interval: 86400000.0,
+            },
+          },
+        ],
+      },
+    },
+    formatter: {
+      type: "object",
+      name: "TimedeltaTickFormatter",
+      attributes: {
+        strip_leading_zeros: [
+          "nanoseconds",
+          "microseconds",
+          "milliseconds",
+        ],
+        context: {
+          type: "object",
+          name: "TimedeltaTickFormatter",
+          attributes: {
+            nanoseconds: "%H:%M:%S.%MS%US",
+            microseconds: "%H:%M:%S.%MS",
+            milliseconds: "%H:%M:%S",
+            seconds: "%d days",
+            minsec: "%d days",
+            minutes: "%d days",
+            hourmin: "%d days",
+            hours: "%d days",
+            days: "",
+            hide_repeats: true,
+            context: {
+              type: "object",
+              name: "TimedeltaTickFormatter",
+              attributes: {
+                nanoseconds: "%d days",
+                microseconds: "%d days",
+                milliseconds: "%d days",
+                seconds: "",
+                minsec: "",
+                minutes: "",
+                hourmin: "",
+                hours: "",
+                days: "",
+                hide_repeats: true,
+              },
+            },
+            context_which: "all",
+          },
+        },
+        context_which: "all",
+      },
+    },
+  },
   Callback: {
     __extends__: "Model",
   },
@@ -2738,6 +2857,23 @@
   },
   TickFormatter: {
     __extends__: "Model",
+  },
+  TimedeltaTickFormatter: {
+    __extends__: "TickFormatter",
+    nanoseconds: "%NSns",
+    microseconds: "%USus",
+    milliseconds: "%MSms",
+    seconds: "%H:%M:%S",
+    minsec: "%H:%M:%S",
+    minutes: "%H:%M",
+    hourmin: "%H:%M",
+    hours: "%H:%M",
+    days: "%d days",
+    strip_leading_zeros: false,
+    hide_repeats: false,
+    context: null,
+    context_which: "start",
+    context_location: "below",
   },
   ConnectedXYGlyph: {
     __extends__: "XYGlyph",
@@ -6284,6 +6420,75 @@
   },
   Ticker: {
     __extends__: "Model",
+  },
+  TimedeltaTicker: {
+    __extends__: "CompositeTicker",
+    num_minor_ticks: 0,
+    tickers: [
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          mantissas: [
+            1,
+            2,
+            5,
+          ],
+          max_interval: 500.0,
+        },
+      },
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          base: 60,
+          mantissas: [
+            1,
+            2,
+            5,
+            10,
+            15,
+            20,
+            30,
+          ],
+          min_interval: 1000.0,
+          max_interval: 1800000.0,
+        },
+      },
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          base: 24,
+          mantissas: [
+            1,
+            2,
+            4,
+            6,
+            8,
+            12,
+          ],
+          min_interval: 3600000.0,
+          max_interval: 43200000.0,
+        },
+      },
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          mantissas: [
+            1,
+            2,
+            5,
+          ],
+          min_interval: 86400000.0,
+        },
+      },
+    ],
   },
   YearsTicker: {
     __extends__: "BaseSingleIntervalTicker",

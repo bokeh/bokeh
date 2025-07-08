@@ -3,7 +3,7 @@
     {
       type: "object",
       name: "TextInput",
-      id: "p1003",
+      id: "p1006",
       attributes: {
         js_property_callbacks: {
           type: "map",
@@ -14,7 +14,7 @@
                 {
                   type: "object",
                   name: "CustomJS",
-                  id: "p1004",
+                  id: "p1007",
                   attributes: {
                     args: {
                       type: "map",

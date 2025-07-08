@@ -55,6 +55,7 @@ from ..core.property_mixins import (
 )
 from .formatters import (
     CONTEXTUAL_DATETIME_FORMATTER,
+    CONTEXTUAL_TIMEDELTA_FORMATTER,
     BasicTickFormatter,
     CategoricalTickFormatter,
     LogTickFormatter,
@@ -71,6 +72,7 @@ from .tickers import (
     LogTicker,
     MercatorTicker,
     Ticker,
+    TimedeltaTicker,
 )
 
 #-----------------------------------------------------------------------------
@@ -85,6 +87,7 @@ __all__ = (
     'LinearAxis',
     'LogAxis',
     'MercatorAxis',
+    'TimedeltaAxis',
 )
 
 #-----------------------------------------------------------------------------
@@ -386,6 +389,21 @@ class DatetimeAxis(LinearAxis):
     ticker = Override(default=InstanceDefault(DatetimeTicker))
 
     formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
+
+class TimedeltaAxis(LinearAxis):
+    ''' A ``LinearAxis`` that picks nice numbers for tick locations on
+    a timedelta scale. Configured with a ``TimedeltaTickFormatter`` by
+    default.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Override(default=InstanceDefault(TimedeltaTicker))
+
+    formatter = Override(default=CONTEXTUAL_TIMEDELTA_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a

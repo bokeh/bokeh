@@ -105,7 +105,7 @@ RangeLike: TypeAlias = (
     GroupBy[Any]
 )
 
-AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "mercator"] | None
+AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
 
 @dataclass(init=False)
 class FigureOptions(BaseFigureOptions):

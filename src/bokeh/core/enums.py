@@ -155,6 +155,7 @@ __all__ = (
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
+    'TimedeltaResolutionType',
     'ToolIcon',
     'ToolName',
     'TooltipAttachment',
@@ -595,6 +596,10 @@ TextBaseline = enumeration(TextBaselineType)
 #: Specify how textures used as canvas patterns should repeat
 TextureRepetitionType = Literal["repeat", "repeat_x", "repeat_y", "no_repeat"]
 TextureRepetition = enumeration(TextureRepetitionType)
+
+#: Specify which resolutions should be used for stripping of leading zeros
+TimedeltaResolutionTypeType = Literal["nanoseconds", "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days"]
+TimedeltaResolutionType = enumeration(TimedeltaResolutionTypeType)
 
 #: Well known tool icon names
 ToolIconType = Literal[

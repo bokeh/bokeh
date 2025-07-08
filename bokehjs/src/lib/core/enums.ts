@@ -211,6 +211,9 @@ export type TextBaseline = typeof TextBaseline["__type__"]
 export const TextureRepetition = Enum("repeat", "repeat_x", "repeat_y", "no_repeat")
 export type TextureRepetition = typeof TextureRepetition["__type__"]
 
+export const TimedeltaResolutionType = Enum("nanoseconds", "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days")
+export type TimedeltaResolutionType = typeof TimedeltaResolutionType["__type__"]
+
 export const LabelOrientation = Enum("vertical", "horizontal", "parallel", "normal")
 export type LabelOrientation = typeof LabelOrientation["__type__"]
 
