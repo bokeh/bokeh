@@ -85,6 +85,7 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
     docs/reference
     docs/dev_guide
     docs/releases
+    docs/plot_reader_guide
 
 
 .. image:: _images/bokeh-hero.png
