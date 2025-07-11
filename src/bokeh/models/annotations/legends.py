@@ -12,6 +12,9 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import annotations
+from ...core.properties import Instance, InstanceDefault
+from ..formatters import TickFormatter, NumeralTickFormatter
+
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -280,6 +283,12 @@ class ColorBar(BaseColorBar):
     The highest value to display in the color bar. The whole of the color entry
     containing this value is shown.
     """)
+   
+
+    formatter = Override(default=lambda: NumeralTickFormatter(format="0.00"))
+
+
+
 
 
 class ContourColorBar(BaseColorBar):

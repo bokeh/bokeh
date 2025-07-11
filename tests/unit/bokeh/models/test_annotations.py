@@ -10,6 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -49,6 +50,7 @@ from bokeh.models import (
 )
 from bokeh.models.annotations.dimensional import CustomDimensional, Metric
 from bokeh.util.serialization import convert_datetime_type
+from bokeh.models.formatters import NumeralTickFormatter
 
 from _util_models import (
     ABOVE_FILL,
@@ -190,7 +192,8 @@ def test_ColorBar() -> None:
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
     assert color_bar.ticker == "auto"
-    assert color_bar.formatter == "auto"
+    assert isinstance(color_bar.formatter, NumeralTickFormatter)
+    assert color_bar.formatter.format == '0.00'
     assert color_bar.color_mapper == color_mapper
     assert color_bar.margin == 30
     assert color_bar.padding == 10
