@@ -257,9 +257,10 @@ export class BitSet implements Equatable {
     assert(this.size <= array.length, "Size mismatch")
     const n = this.count
     const result = new (array.constructor as ArrayableNew)<T>(n)
+    const indices = this.ones()
     let i = 0
-    for (const j of this) {
-      result[i++] = array[j]
+    for (let j = 0; j < indices.length; j++) {
+      result[i++] = array[indices[j]]
     }
     return result
   }

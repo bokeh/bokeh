@@ -109,6 +109,10 @@ export class ColorUniformVector extends UniformVector<number> {
       yield this.get(i)
     }
   }
+
+  get_buffer(): ArrayBuffer {
+    return this._view.buffer
+  }
 }
 
 export function min(u: Uniform<number>): number {

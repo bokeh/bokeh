@@ -7,7 +7,7 @@ import {ColorArray} from "core/types"
 import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
 import type {NDArrayType} from "core/util/ndarray"
-import {is_NDArray} from "core/util/ndarray"
+import {is_NDArray, Uint32NDArray} from "core/util/ndarray"
 
 export interface RGBAMapper {
   v_compute(xs: Arrayable<number> | NDArrayType<number> | Arrayable<Factor> | NDArrayType<Factor>): RGBAArray
@@ -60,9 +60,9 @@ export abstract class ColorMapper extends Mapper<Color> {
   }
 
   v_compute(xs: Arrayable<number> | Arrayable<Factor | number | null>): Arrayable<Color> {
-    const values: Color[] = new Array(xs.length)
-    this._v_compute(xs, values, this.palette, this._colors((c) => c))
-    return values
+    const values: ColorArray = new Uint32Array(xs.length)
+    this._v_compute(xs, values, _convert_palette(this.palette), this._colors(_convert_color))
+    return new Uint32NDArray(values)
   }
 
   get rgba_mapper(): RGBAMapper {
