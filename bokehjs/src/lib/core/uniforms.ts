@@ -111,7 +111,7 @@ export class ColorUniformVector extends UniformVector<number> {
   }
 
   get_buffer(): ArrayBuffer {
-    return this._view.buffer
+    return this._view.buffer.slice(0)
   }
 }
 
