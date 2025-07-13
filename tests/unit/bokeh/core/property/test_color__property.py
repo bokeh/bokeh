@@ -61,13 +61,13 @@ class Test_Color:
 
         assert prop.is_valid(RGB(10, 20, 30))
 
+        assert prop.is_valid(0xFFFF0088)
+
     def test_invalid(self) -> None:
         prop = bcpc.Color()
         assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
-        assert not prop.is_valid(0)
-        assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
         assert not prop.is_valid(1.0 + 1.0j)
@@ -106,6 +106,8 @@ class Test_Color:
         assert not prop.is_valid("#00AaFff")
 
         assert not prop.is_valid("foobar")
+
+        assert not prop.is_valid(3.14)
 
     def test_transform(self) -> None:
         prop = bcpc.Color()
