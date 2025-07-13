@@ -108,6 +108,7 @@ class Complex(PrimitiveProperty[complex]):
     """
 
     _underlying_type = (numbers.Complex,)
+    _not_underlying_type = bokeh_bool_types
 
     def __init__(self, default: Init[complex] = 0j, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
@@ -141,6 +142,7 @@ class Int(PrimitiveProperty[int]):
     """
 
     _underlying_type = bokeh_integer_types
+    _not_underlying_type = bokeh_bool_types
 
     def __init__(self, default: Init[int] = 0, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
@@ -175,6 +177,7 @@ class Float(PrimitiveProperty[float]):
     """
 
     _underlying_type = (numbers.Real,)
+    _not_underlying_type = bokeh_bool_types
 
     def __init__(self, default: Init[float] = 0.0, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)

@@ -542,11 +542,12 @@ class PrimitiveProperty(Property[T]):
     """
 
     _underlying_type: ClassVar[tuple[type[Any], ...]]
+    _not_underlying_type: ClassVar[tuple[type[Any], ...]] = ()
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        if isinstance(value, self._underlying_type):
+        if isinstance(value, self._underlying_type) and not isinstance(value, self._not_underlying_type):
             return
 
         if not detail:

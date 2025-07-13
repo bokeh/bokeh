@@ -63,14 +63,13 @@ class Test_Either:
         assert prop.is_valid([1, 2, 3])
         assert prop.is_valid(100)
 
-        # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
-
     def test_invalid(self) -> None:
         prop = bcpe.Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))
 
         assert not prop.is_valid(None)
+
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
 
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
