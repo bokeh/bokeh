@@ -1898,4 +1898,23 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #14334", () => {
+    it("doesn't allow update of Range.{start,end} in RangeTool when there are no linked plots with ranges", async () => {
+      let n_start = 0
+      let n_end = 0
+      const x_range = new Range1d({start: 10, end: 20})
+      x_range.on_change(x_range.properties.start, () => n_start += 1)
+      x_range.on_change(x_range.properties.end, () => n_end += 1)
+      const range_tool = new RangeTool({x_range, x_interaction: true})
+      const p = fig([300, 200], {x_range: [0, 100], y_range: [0, 1], tools: [range_tool]})
+      const {view} = await display(p)
+      await actions(view).pan(xy(15, 0.5), xy(55, 0.5))
+      await view.ready
+      expect(x_range.start).to.be.similar(50)
+      expect(x_range.end).to.be.similar(60)
+      expect(n_start).to.not.be.equal(0)
+      expect(n_end).to.not.be.equal(0)
+    })
+  })
 })
