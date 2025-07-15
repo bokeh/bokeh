@@ -66,7 +66,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=1.15
+    - mypy >=1.17
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme
@@ -78,7 +78,7 @@ dependencies:
     - sphinxext-opengraph
     # tests
     - pandas-stubs >=2.2
-    - ruff ==0.11.6
+    - ruff ==0.12.3
     - types-boto3
     - types-colorama
     - types-mock
