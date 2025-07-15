@@ -447,10 +447,10 @@ class BokehTornado(TornadoApplication):
                         "use_redirect": redirect_root,
                     }
                     prefixed_pat = (self._prefix + p[0], *p[1:], data)
-                    all_patterns.append(prefixed_pat) # type: ignore[arg-type] # TODO: easy to fix types, but also easy to break logic
+                    all_patterns.append(prefixed_pat)
             else:
                 prefixed_pat = (self._prefix + p[0], *p[1:])
-                all_patterns.append(prefixed_pat) # type: ignore[arg-type] # TODO: easy to fix types, but also easy to break logic
+                all_patterns.append(prefixed_pat)
 
         log.debug("Patterns are:")
         for line in pformat(all_patterns, width=60).split("\n"):
