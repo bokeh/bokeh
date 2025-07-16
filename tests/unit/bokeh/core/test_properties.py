@@ -58,6 +58,7 @@ ALL = (
     'Array',
     'Auto',
     'Bool',
+    'BoolSpec',
     'Byte',
     'Bytes',
     'CSSLength',
