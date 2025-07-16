@@ -1,4 +1,4 @@
-import {ReconnectEvent} from "core/bokeh_events"
+import {ClientReconnected} from "core/bokeh_events"
 import {logger} from "core/logging"
 import type {DocJson, DocumentEvent} from "document"
 import {Document} from "document"
@@ -42,8 +42,9 @@ export class ClientConnection {
   session: ClientSession | null = null
 
   closed_permanently: boolean = false
-  id: string
-  protected _reconnectionAttempts = RECONNECTION_ATTEMPTS
+  readonly id: string
+
+  protected _reconnection_attempts = RECONNECTION_ATTEMPTS
 
   protected _current_handler: ((message: Message<unknown>) => void) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
@@ -107,26 +108,27 @@ export class ClientConnection {
 
   protected _schedule_reconnect(milliseconds: number): void {
     const retry = () => {
-      if (this.closed_permanently || this._reconnectionAttempts <= 0) {
+      if (this.closed_permanently || this._reconnection_attempts <= 0) {
         logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
         this.session?.notify_connection_lost()
       } else {
         if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
-          logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnectionAttempts} attempts left`)
+          logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts} attempts left`)
 
           this.connect().then(() => {
             logger.info(`Reconnected websocket ${this._number}`)
-            this._reconnectionAttempts = RECONNECTION_ATTEMPTS
-            this.session?.document.event_manager.send_event(new ReconnectEvent())
+            this._reconnection_attempts = RECONNECTION_ATTEMPTS
+            this.session?.document.event_manager.send_event(new ClientReconnected())
           }).catch(err => {
             logger.debug(`Could not reconnect ${this._number}, ${err}`)
           })
 
-          this._reconnectionAttempts -= 1
+          this._reconnection_attempts -= 1
         }
 
       }
     }
+
     // TODO: maybe also show notification we are retrying (which attempt, next attempt in x ms, ...)
 
     setTimeout(retry, milliseconds)
@@ -234,7 +236,7 @@ export class ClientConnection {
 
   /* The reconnect delay exponentially increases after each attempt */
   private _reconnect_delay(): number {
-    return RECONNECT_BASE_DELAY * 2**(RECONNECTION_ATTEMPTS - this._reconnectionAttempts - 1)
+    return RECONNECT_BASE_DELAY * 2**(RECONNECTION_ATTEMPTS - this._reconnection_attempts - 1)
   }
 
   protected _on_close(event: CloseEvent, reject: Rejecter): void {

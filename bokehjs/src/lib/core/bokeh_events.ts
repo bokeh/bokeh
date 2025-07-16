@@ -221,13 +221,17 @@ export class ConnectionLost extends ConnectionEvent {
   }
 }
 
-export class ReconnectEvent extends ConnectionEvent {
+/**
+ * Announce when a connection to the client has been reconnected.
+ */
+export class ClientReconnected extends ConnectionEvent {
+
   protected get event_values(): Attrs {
     return {}
   }
 
   static {
-    this.prototype.event_name = "reconnect_event"
+    this.prototype.event_name = "client_reconnected"
   }
 }
 
