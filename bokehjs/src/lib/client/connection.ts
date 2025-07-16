@@ -6,6 +6,7 @@ import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import type {ErrorMsg} from "./session"
 import {ClientSession} from "./session"
+import {assert} from "core/util/assert"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"
@@ -77,13 +78,14 @@ export class ClientConnection {
       this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
       return new Promise((resolve, reject) => {
+        assert(this.socket != null)
         // "arraybuffer" gives us binary data we can look at;
         // if we just needed an opaque blob we could use "blob"
-        this.socket!.binaryType = "arraybuffer"
-        this.socket!.onopen = () => this._on_open(resolve, reject)
-        this.socket!.onmessage = (event) => this._on_message(event)
-        this.socket!.onclose = (event) => this._on_close(event, reject)
-        this.socket!.onerror = () => this._on_error(reject)
+        this.socket.binaryType = "arraybuffer"
+        this.socket.onopen = () => this._on_open(resolve, reject)
+        this.socket.onmessage = (event) => this._on_message(event)
+        this.socket.onclose = (event) => this._on_close(event, reject)
+        this.socket.onerror = () => this._on_error(reject)
       })
     } catch (error) {
       logger.error(`websocket creation failed to url: ${this.url}`)
