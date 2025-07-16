@@ -223,12 +223,14 @@ class Serializer:
 
     _references: dict[ObjID, Ref]
     _deferred: bool
+    _check_circular: bool
     _circular: dict[ObjID, Any]
     _buffers: list[Buffer]
 
-    def __init__(self, *, references: set[Model] = set(), deferred: bool = True) -> None:
+    def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False) -> None:
         self._references = {id(obj): obj.ref for obj in references}
         self._deferred = deferred
+        self._check_circular = check_circular
         self._circular = {}
         self._buffers = []
 
@@ -255,14 +257,15 @@ class Serializer:
             return ref
 
         ident = id(obj)
-        if ident in self._circular:
+        if self._check_circular and ident in self._circular:
             self.error("circular reference")
 
         self._circular[ident] = obj
         try:
             return self._encode(obj)
         finally:
-            del self._circular[ident]
+            if ident in self._circular:
+                del self._circular[ident]
 
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}

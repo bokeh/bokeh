@@ -32,6 +32,7 @@ from ..core.enums import (
     NumeralLanguage,
     ResolutionType,
     RoundingFunction,
+    TimedeltaResolutionType,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -63,6 +64,7 @@ __all__ = (
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
     "DatetimeTickFormatter",
+    "TimedeltaTickFormatter",
     "LogTickFormatter",
     "MercatorTickFormatter",
     "NumeralTickFormatter",
@@ -79,6 +81,13 @@ def _DATETIME_TICK_FORMATTER_HELP(field: str) -> str:
     Formats for displaying datetime values in the {field} range.
 
     See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
+    """
+
+def _TIMEDELTA_TICK_FORMATTER_HELP(field: str) -> str:
+    return f"""
+    Formats for displaying timedelta values in the {field} range.
+
+    See the :class:`~bokeh.models.formatters.TimedeltaTickFormatter` help for a list of all supported formats.
     """
 
 #-----------------------------------------------------------------------------
@@ -632,6 +641,144 @@ class DatetimeTickFormatter(TickFormatter):
     """)
 
 
+class TimedeltaTickFormatter(TickFormatter):
+    ''' A ``TickFormatter`` for displaying timedelta values nicely across a
+    range of scales. The largest scale for differentiating between formats
+    is "days", as the conversion from "days" to "months" or "years" is not
+    well defined.
+
+    ``TimedeltaTickFormatter`` has the following properties (listed together
+    with their default values) that can be used to control the formatting
+    of axis ticks at different scales:
+
+    {defaults}
+
+    Each scale property can be set to format or list of formats to use for
+    formatting timedelta tick values that fall in that "time scale".
+    By default, only the first format string passed for each time scale
+    will be used. By default, leading zeros are stripped away from
+    the formatted labels for the time scales ``nanoseconds``, ``microseconds``
+    and ``milliseconds``.
+
+    This list of supported formats is reproduced below. In general formats
+    with an uppercase letter refer to the time passed since the next last
+    larger time format (e.g. minutes since the last hour). On the other hand
+    formats with a lowercase letter corresponds to the overall completed time
+    passed (3.6 days becomes 3 days).
+
+    +--------+-----------------------------------------------------------------+
+    | %NS    | Nanoseconds since last microsecond as a decimal number,         |
+    |        | zero-padded on the left (range 000 to 999).                     |
+    |        | Warning: Due to floating point precision, ticks may be formatted|
+    |        | incorrectly if the overall timedelta is rather large (>10days). |
+    +--------+-----------------------------------------------------------------+
+    | %ns    | Overall completed nanoseconds.                                  |
+    |        | Warning: Due to floating point precision, ticks may be formatted|
+    |        | incorrectly if the overall timedelta is rather large (>10days). |
+    +--------+-----------------------------------------------------------------+
+    | %US    | Microseconds since last millisecond as a decimal number,        |
+    |        | zero-padded on the left (range 000 to 999).                     |
+    +--------+-----------------------------------------------------------------+
+    | %us    | Overall completed microseconds.                                 |
+    +--------+-----------------------------------------------------------------+
+    | %MS    | Milliseconds since last second as a decimal number,             |
+    |        | zero-padded on the left (range 000 to 999).                     |
+    +--------+-----------------------------------------------------------------+
+    | %ms    | Overall completed milliseconds.                                 |
+    +--------+-----------------------------------------------------------------+
+    | %S     | Seconds since last minute as a decimal number, zero-padded on   |
+    |        | the left (range 00 to 59).                                      |
+    +--------+-----------------------------------------------------------------+
+    | %s     | Overall completed seconds.                                      |
+    +--------+-----------------------------------------------------------------+
+    | %M     | Minutes since last hour as a decimal number, zero-padded on     |
+    |        | the left (range 00 to 59).                                      |
+    +--------+-----------------------------------------------------------------+
+    | %m     | Overall completed minutes.                                      |
+    +--------+-----------------------------------------------------------------+
+    | %H     | Hours since last day as a decimal number, zero-padded on the    |
+    |        | left (range 00 to 23).                                          |
+    +--------+-----------------------------------------------------------------+
+    | %h     | Overall completed hours.                                        |
+    +--------+-----------------------------------------------------------------+
+    | %d     | Overall completed days.                                         |
+    +--------+-----------------------------------------------------------------+
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
+                          default="%NSns")
+
+    microseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``microseconds``"),
+                          default="%USus")
+
+    milliseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``milliseconds``"),
+                          default="%MSms")
+
+    seconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``seconds``"),
+                     default="%H:%M:%S")
+
+    minsec = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
+                    default="%H:%M:%S")
+
+    minutes = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``minutes``"),
+                     default="%H:%M")
+
+    hourmin = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
+                     default="%H:%M")
+
+    hours = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``hours``"),
+                   default="%H:%M")
+
+    days = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``days``"),
+                  default="%d days")
+
+    strip_leading_zeros = Either(Bool, Seq(Enum(TimedeltaResolutionType)), default=False, help="""
+    Whether to strip any leading zeros in the formatted ticks.
+
+    Valid values are:
+
+    * ``True`` or ``False`` (default) to set stripping across all resolutions.
+    * A sequence of resolution types, e.g. ``["microseconds", "milliseconds"]``, to enable
+      scale-dependent stripping of leading zeros.
+    """)
+
+    hide_repeats = Bool(default=False, help="""
+    Whether repeated formatted tick values will be suppressed.
+
+    For example, an initial set of ticks ``["06:07", "06:07", "06:07", "06:08",
+    "06:08"]`` will become ``["06:07", "", "", "06:08", ""]``. Only the base
+    label, without any additional context, is considered when determining
+    repeats. If the context itself is a ``TimedeltaTickFormatter``, then this
+    property may also be set for the context separately, if desired.
+    """)
+
+    context = Nullable(Either(String, Instance("bokeh.models.formatters.TimedeltaTickFormatter")), default=None, help="""
+    A format for adding context to the tick or ticks specified by ``context_which``.
+    Valid values are:
+
+    * None, no context is added
+    * A standard :class:`~bokeh.models.TimedeltaTickFormatter` format string, the single format is
+      used across all scales
+    * Another :class:`~bokeh.models.TimedeltaTickFormatter` instance, to have scale-dependent
+      context
+    """)
+
+    context_which = Enum(ContextWhich, default="start", help="""
+    Which tick or ticks to add a formatted context string to. Valid values are:
+    `"start"`, `"end"`, `"center"`, and  `"all"`.
+    """)
+
+    context_location = Enum(Location, default="below", help="""
+    Relative to the tick label text baseline, where the context should be
+    rendered. Valid values are: `"below"`, `"above"`, `"left"`, and `"right"`.
+    """)
+
+
 def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
     return DatetimeTickFormatter(
         microseconds="%T",
@@ -693,6 +840,47 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
             ),
         ),
     )
+
+def CONTEXTUAL_TIMEDELTA_FORMATTER() -> TimedeltaTickFormatter:
+    return TimedeltaTickFormatter(
+        nanoseconds="%NSns",
+        microseconds="%USus",
+        milliseconds="%MSms",
+        seconds="%H:%M:%S",
+        minsec="%H:%M:%S",
+        minutes="%H:%M",
+        hourmin="%H:%M",
+        hours="%H:%M",
+        days="%d days",
+        strip_leading_zeros=["nanoseconds", "microseconds", "milliseconds"],
+        context_which="all",
+        context=TimedeltaTickFormatter(
+            nanoseconds="%H:%M:%S.%MS%US",
+            microseconds="%H:%M:%S.%MS",
+            milliseconds="%H:%M:%S",
+            seconds="%d days",
+            minsec="%d days",
+            minutes="%d days",
+            hourmin="%d days",
+            hours="%d days",
+            days="",
+            hide_repeats=True,
+            context_which="all",
+            context=TimedeltaTickFormatter(
+                nanoseconds="%d days",
+                microseconds="%d days",
+                milliseconds="%d days",
+                seconds="",
+                minsec="",
+                minutes="",
+                hourmin="",
+                hours="",
+                days="",
+                hide_repeats=True,
+                context=None,
+            ),
+        ),
+    )
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -701,13 +889,10 @@ def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter:
 # Code
 #-----------------------------------------------------------------------------
 
-# This is to automate documentation of DatetimeTickFormatter formats and their defaults
+# This is to automate documentation of DatetimeTickFormatter/TimedeltaTickFormatter formats and their defaults.
 
 
-def create_format_table() -> str:
-    fields = (
-        'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',
-    )
+def create_format_table(fields: tuple[str, ...], primary: TickFormatter) -> str:
 
     def extended_join(character, iterable):
         return f"{character}{character.join(iterable)}{character}"
@@ -719,8 +904,15 @@ def create_format_table() -> str:
     def create_separator_line(character):
         return extended_join("+", [character*col_len for col_len in lens])
     column_names = ["Scale", "Format", "1st Context", "2nd Context"]
+    # Get formatters for each context level
+    secondary = primary.context
+    tertiary = secondary.context
+
     lens = [len(name) for name in column_names]
-    lens[0] = max(map(len, fields))
+    lens[0] = max(lens[0], max(map(len, fields)))
+    lens[1] = max(lens[1], max(map(lambda f: len(getattr(primary, f) if primary else ""), fields)))
+    lens[2] = max(lens[2], max(map(lambda f: len(getattr(secondary, f) if primary else ""), fields)))
+    lens[3] = max(lens[3], max(map(lambda f: len(getattr(tertiary, f) if primary else ""), fields)))
     separator = create_separator_line("-")
     rows = [
         separator,
@@ -728,10 +920,7 @@ def create_format_table() -> str:
         create_separator_line("="),
     ]
 
-    # Get formatters for each context level
-    primary = CONTEXTUAL_DATETIME_FORMATTER()
-    secondary = primary.context
-    tertiary = secondary.context
+
     # Build table rows
     for field in fields:
         scale = f"{field:<{lens[0]}}"
@@ -744,4 +933,12 @@ def create_format_table() -> str:
     return f"\n{indent}".join(rows)
 
 
-DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=create_format_table())
+DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=create_format_table(
+    ('microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'),
+    CONTEXTUAL_DATETIME_FORMATTER(),
+))
+
+TimedeltaTickFormatter.__doc__ = format_docstring(TimedeltaTickFormatter.__doc__, defaults=create_format_table(
+    ('nanoseconds', 'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days'),
+    CONTEXTUAL_TIMEDELTA_FORMATTER(),
+))

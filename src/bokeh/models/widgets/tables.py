@@ -886,6 +886,10 @@ class DataTable(TableWidget):
     The height of each row in pixels.
     """)
 
+    multi_selectable = Bool(True, help="""
+    Whether multiple rows can be selected.
+    """)
+
     @staticmethod
     def from_data(data, columns=None, formatters={}, **kwargs) -> DataTable:
         """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.

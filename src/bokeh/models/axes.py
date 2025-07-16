@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.enums import Align, LabelOrientation
+from ..core.enums import Align, AxisLabelStandoffMode, LabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -55,6 +55,7 @@ from ..core.property_mixins import (
 )
 from .formatters import (
     CONTEXTUAL_DATETIME_FORMATTER,
+    CONTEXTUAL_TIMEDELTA_FORMATTER,
     BasicTickFormatter,
     CategoricalTickFormatter,
     LogTickFormatter,
@@ -71,6 +72,7 @@ from .tickers import (
     LogTicker,
     MercatorTicker,
     Ticker,
+    TimedeltaTicker,
 )
 
 #-----------------------------------------------------------------------------
@@ -85,6 +87,7 @@ __all__ = (
     'LinearAxis',
     'LogAxis',
     'MercatorAxis',
+    'TimedeltaAxis',
 )
 
 #-----------------------------------------------------------------------------
@@ -160,7 +163,11 @@ class Axis(GuideRenderer):
 
     axis_label_standoff = Int(default=5, help="""
     The distance in pixels that the axis labels should be offset
-    from the tick labels.
+    from the tick labels or axis.
+    """)
+
+    axis_label_standoff_mode = Enum(AxisLabelStandoffMode, default="tick_labels", help="""
+    The reference point for the distance of the ``axis_label_standoff``.
     """)
 
     axis_label_orientation = Either(Enum(LabelOrientation), Float)(default="parallel", help="""
@@ -382,6 +389,21 @@ class DatetimeAxis(LinearAxis):
     ticker = Override(default=InstanceDefault(DatetimeTicker))
 
     formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
+
+class TimedeltaAxis(LinearAxis):
+    ''' A ``LinearAxis`` that picks nice numbers for tick locations on
+    a timedelta scale. Configured with a ``TimedeltaTickFormatter`` by
+    default.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Override(default=InstanceDefault(TimedeltaTicker))
+
+    formatter = Override(default=CONTEXTUAL_TIMEDELTA_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a

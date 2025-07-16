@@ -128,6 +128,23 @@ to set one or both of the axes to ``"mercator"``.
 .. bokeh-plot:: __REPO__/examples/topics/geo/tile_source.py
    :source-position: above
 
+Timedelta axes
+~~~~~~~~~~~~~~
+
+.. note::
+    The example in this section requires a network connection and depends on
+    the open source Pandas library to present realistic time series data.
+
+For time series data that involves time deltas or intervals, you may want to
+use axes with labels suitable for different time scales.
+
+The |figure| function accepts ``x_axis_type`` and ``y_axis_type`` as arguments.
+To specify a datetime axis, pass ``"timedelta"`` for the value of either of
+these parameters.
+
+.. bokeh-plot:: __REPO__/examples/basic/axes/timedelta_axis.py
+    :source-position: above
+
 
 .. _ug_basic_axes_twin:
 

@@ -48,7 +48,7 @@
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
     "fflate": "^0.8.2",
-    "flatbush": "^4.2.0",
+    "flatbush": "^4.4.1",
     "flatpickr": "^4.6.13",
     "mathjax-full": "^3.2.2",
     "nouislider": "^15.7.1",
