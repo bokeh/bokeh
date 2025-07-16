@@ -62,12 +62,12 @@ class Test_CoordinateLike:
         assert prop.is_valid("")
         assert prop.is_valid(("", ""))
         assert prop.is_valid(("", "", ""))
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
 
     def test_invalid(self) -> None:
         prop = bcpc.CoordinateLike()
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid(())
         assert not prop.is_valid([])

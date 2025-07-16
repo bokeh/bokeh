@@ -32,6 +32,7 @@ from .container import Tuple
 from .either import Either
 from .enum import Enum
 from .numeric import Byte, Percent
+from .primitive import Int
 from .singletons import Undefined
 from .string import Regex
 
@@ -134,6 +135,7 @@ class Color(Either):
                        r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
+                 Int,
                  RGB)
         help = f"{help or ''}\n{COLOR_DEFAULT_HELP}"
         super().__init__(*types, default=default, help=help)
