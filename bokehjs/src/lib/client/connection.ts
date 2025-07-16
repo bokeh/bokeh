@@ -75,9 +75,6 @@ export class ClientConnection {
       }
 
       this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
-      // TODO: remove this!!
-      // @ts-ignore
-      window.theSocket = this.socket
 
       return new Promise((resolve, reject) => {
         // "arraybuffer" gives us binary data we can look at;
