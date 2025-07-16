@@ -331,8 +331,14 @@ export class RangeTool extends GestureTool {
       }
     }
 
-    for (const plot of affected_plots) {
-      plot.update_range({xrs, yrs}, {panning: true, scrolling: true})
+    if (affected_plots.size == 0) {
+      for (const [range, {start, end}] of [...xrs, ...yrs]) {
+        range.setv({start, end})
+      }
+    } else {
+      for (const plot of affected_plots) {
+        plot.update_range({xrs, yrs}, {panning: true, scrolling: true})
+      }
     }
   }
 
