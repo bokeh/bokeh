@@ -10,8 +10,9 @@ import {assert} from "core/util/assert"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"
-const RECONNECTION_ATTEMPTS = 5
-const RECONNECT_BASE_DELAY = 2000
+
+const MAX_RECONNECTION_ATTEMPTS = 5
+const RECONNECT_BASE_DELAY = 1000
 
 let _connection_count: number = 0
 
@@ -44,7 +45,7 @@ export class ClientConnection {
   closed_permanently: boolean = false
   readonly id: string
 
-  protected _reconnection_attempts = RECONNECTION_ATTEMPTS
+  protected _reconnection_attempts = MAX_RECONNECTION_ATTEMPTS
 
   protected _current_handler: ((message: Message<unknown>) => void) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
@@ -117,7 +118,7 @@ export class ClientConnection {
 
           this.connect().then(() => {
             logger.info(`Reconnected websocket ${this._number}`)
-            this._reconnection_attempts = RECONNECTION_ATTEMPTS
+            this._reconnection_attempts = MAX_RECONNECTION_ATTEMPTS
             this.session?.document.event_manager.send_event(new ClientReconnected())
           }).catch(err => {
             logger.debug(`Could not reconnect ${this._number}, ${err}`)
@@ -234,9 +235,13 @@ export class ClientConnection {
     }
   }
 
-  /* The reconnect delay exponentially increases after each attempt */
+  /**
+   * The reconnect delay exponentially increases after each attempt. The
+   * first attempt is done immediately.
+   */
   private _reconnect_delay(): number {
-    return RECONNECT_BASE_DELAY * 2**(RECONNECTION_ATTEMPTS - this._reconnection_attempts - 1)
+    const retries = MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts
+    return retries == 0 ? 0 : RECONNECT_BASE_DELAY * 2**retries
   }
 
   protected _on_close(event: CloseEvent, reject: Rejecter): void {
