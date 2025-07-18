@@ -7,7 +7,11 @@ import {unique_id} from "@bokehjs/core/util/string"
 const port = 5877
 const url = `ws://127.0.0.1:${port}/ws`
 
-function token(session_id: string = unique_id(), session_expiry: number = Date.now() + 300) {
+function seconds(n: number): number {
+  return n*1000
+}
+
+function token(session_id: string = unique_id(), session_expiry: number = Date.now() + seconds(300)) {
   return btoa(JSON.stringify({session_id, session_expiry})).replace(/=+$/, "")
 }
 
