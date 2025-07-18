@@ -1,4 +1,4 @@
-import {ClientReconnected} from "core/bokeh_events"
+import {ClientReconnected, ConnectionLost} from "core/bokeh_events"
 import {logger} from "core/logging"
 import type {DocJson, DocumentEvent} from "document"
 import {Document} from "document"
@@ -110,7 +110,7 @@ export class ClientConnection {
     const retry = () => {
       if (this.closed_permanently || this._reconnection_attempts <= 0) {
         logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        this.session?.notify_connection_lost()
+        this.session?.document.event_manager.send_event(new ConnectionLost()) // TODO ConnectionLostPermanently
       } else {
         if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
           logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts} attempts left`)

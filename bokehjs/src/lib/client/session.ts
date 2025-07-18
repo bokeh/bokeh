@@ -1,6 +1,5 @@
 import {DocumentEventBatch} from "document"
 import type {DocumentChangedEvent} from "document"
-import {ConnectionLost} from "core/bokeh_events"
 import type {Patch, Document, DocumentEvent} from "document"
 import {Message} from "protocol/message"
 import type {ClientConnection} from "./connection"
@@ -43,11 +42,6 @@ export class ClientSession {
       default:
         logger.debug(`Doing nothing with message '${msgtype}'`)
     }
-  }
-
-  // TODO: refactor to connection_lost_permanently
-  notify_connection_lost(): void {
-    this.document.event_manager.send_event(new ConnectionLost())
   }
 
   // TODO: notify_connection_retry ?
