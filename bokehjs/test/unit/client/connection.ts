@@ -1,13 +1,20 @@
 import {expect} from "assertions"
 
-import {pull_session} from "@bokehjs/client/connection"
+import {pull_session, ClientConnection} from "@bokehjs/client/connection"
+import {ClientReconnected} from "@bokehjs/core/bokeh_events"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {unique_id} from "@bokehjs/core/util/string"
+import {assert} from "@bokehjs/core/util/assert"
+import {poll} from "@bokehjs/core/util/defer"
 
 const port = 5877
 const url = `ws://127.0.0.1:${port}/ws`
 
-function token(session_id: string = unique_id(), session_expiry: number = Date.now() + 300) {
+function seconds(n: number): number {
+  return n*1000
+}
+
+function token(session_id: string = unique_id(), session_expiry: number = Date.now() + seconds(300)) {
   return btoa(JSON.stringify({session_id, session_expiry})).replace(/=+$/, "")
 }
 
@@ -64,6 +71,24 @@ describe("ClientSession", () => {
       }
     } finally {
       session1.close()
+    }
+  })
+
+  it("should be able to reconnect when websocket is lost", async () => {
+    const connection = new ClientConnection(url, token())
+    const session = await connection.connect()
+
+    try {
+      let client_reconnected = false
+      session.document.on_event(ClientReconnected, () => client_reconnected = true)
+
+      assert(connection.socket != null)
+      connection.socket.close()
+
+      await poll(() => client_reconnected, 100, 2000)
+      expect(client_reconnected).to.be.true
+    } finally {
+      session.close()
     }
   })
 })

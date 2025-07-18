@@ -163,11 +163,11 @@ export class Document implements Equatable {
     }
   }
 
-  clear(): void {
+  clear({sync}: {sync?: boolean} = {}): void {
     this._push_all_models_freeze()
     try {
       while (this._roots.length > 0) {
-        this.remove_root(this._roots[0])
+        this.remove_root(this._roots[0], {sync})
       }
     } finally {
       this._pop_all_models_freeze()
@@ -207,12 +207,18 @@ export class Document implements Equatable {
     if (dest_doc === this) {
       throw new Error("Attempted to overwrite a document with itself")
     }
-    dest_doc.clear()
+
+    // Don't synchronize root removal with the server, because we are rebuilding from
+    // scratch and server has the complete state. However, events will be distributed
+    // internally within bokehjs, because UI refresh depends on this (in standalone
+    // embedding and its derivatives).
+    dest_doc.clear({sync: false})
+
     // we have to remove ALL roots before adding any
     // to the new doc or else models referenced from multiple
     // roots could be in both docs at once, which isn't allowed.
     const roots = copy(this._roots)
-    this.clear()
+    this.clear({sync: false})
 
     for (const root of roots) {
       if (root.document != null) {
