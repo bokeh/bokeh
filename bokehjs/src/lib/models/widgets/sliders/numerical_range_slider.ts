@@ -46,22 +46,24 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   }
 
   _enforce_value_gte_start(start: number) {
-    const {value} = this
-    if (value[0] < start) {
-      value[0] = start
-      if (value[1] < start) { value[1] = start }
-      this.properties.value.set_value(value)
-      this.properties.value_throttled.set_value(value)
+    const v = this.value.slice()
+    if (v[0] < start) {
+      v[0] = start
+      if (v[1] < start) {
+        v[1] = start
+      }
+      this.setv({value: v, value_throttled: v})
     }
   }
 
   _enforce_value_lte_end(end: number) {
-    const {value} = this
-    if (value[1] > end) {
-      if (value[0] > end) { value[0] = end }
-      value[1] = end
-      this.properties.value.set_value(value)
-      this.properties.value_throttled.set_value(value)
+    const v = this.value.slice()
+    if (v[1] > end) {
+      v[1] = end
+      if (v[0] > end) {
+        v[0] = end
+      }
+      this.setv({value: v, value_throttled: v})
     }
   }
 }
