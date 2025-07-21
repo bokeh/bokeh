@@ -9,13 +9,13 @@ import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
 import {is_NDArray} from "./ndarray"
-import {isArray, isNumber, isString, isTypedArray, isInteger, isPlainObject} from "./types"
+import {isArray, isNumber, isString, isTypedArray/*, isInteger, isPlainObject*/} from "./types"
 import {to_string} from "./pretty"
 import {escape} from "./string"
 import {assert} from "./assert"
 
-import {Parser, Grammar} from "nearley"
-import grammar from "./pipes"
+//import {Parser, Grammar} from "nearley"
+//import grammar from "./pipes"
 
 const {abs} = Math
 
@@ -163,7 +163,7 @@ class HTML {
 }
 
 const functions = {
-  safe: (value: unknown, args: unknown[]) => {
+  safe: (value: unknown, ...args: unknown[]) => {
     assert(args.length == 0)
     if (value == null) {
       return MISSING
@@ -173,7 +173,8 @@ const functions = {
       return new HTML(`${value}`)
     }
   },
-  fixed: (value: unknown, args: unknown[]) => {
+  /*
+  fixed: (value: unknown, ...args: unknown[]) => {
     assert(args.length == 1)
     const [digits] = args
     if (isNumber(value) && isInteger(digits)) {
@@ -182,7 +183,7 @@ const functions = {
       return value
     }
   },
-  round: (value: unknown, args: unknown[]) => {
+  round: (value: unknown, ...args: unknown[]) => {
     assert(args.length == 0)
     if (isNumber(value)) {
       return Math.round(value)
@@ -190,7 +191,7 @@ const functions = {
       return value
     }
   },
-  upper: (value: unknown, args: unknown[]) => {
+  upper: (value: unknown, ...args: unknown[]) => {
     assert(args.length == 0)
     if (isString(value)) {
       return value.toUpperCase()
@@ -198,7 +199,7 @@ const functions = {
       return value
     }
   },
-  lower: (value: unknown, args: unknown[]) => {
+  lower: (value: unknown, ...args: unknown[]) => {
     assert(args.length == 0)
     if (isString(value)) {
       return value.toLowerCase()
@@ -206,7 +207,7 @@ const functions = {
       return value
     }
   },
-  filter: (value: unknown, args: unknown[]) => {
+  filter: (value: unknown, ...args: unknown[]) => {
     assert(args.length == 1)
     const [expr] = args
     if (isPlainObject(expr) && "lit" in expr) {
@@ -218,6 +219,7 @@ const functions = {
     }
     return value
   },
+  */
 }
 
 export function replace_placeholders_html(input: string, data_source: ColumnarDataSource,
@@ -226,6 +228,7 @@ export function replace_placeholders_html(input: string, data_source: ColumnarDa
   const html = process_placeholders(input, (type, name, format, _, spec) => {
     const value = get_value(type, name, data_source, index, special_vars)
 
+    /*
     type Lit = {lit: string}
     type Fn = {name: Lit, args: unknown[]}
 
@@ -247,12 +250,21 @@ export function replace_placeholders_html(input: string, data_source: ColumnarDa
       for (const fn of pipeline) {
         const name = fn.name.lit
         if (name in functions) {
-          result = functions[name as keyof typeof functions](result, fn.args)
+          result = functions[name as keyof typeof functions](result, ...fn.args)
         } else {
           console.error(`unknown function '${fn.name}'`)
           break
         }
       }
+      if (result instanceof HTML) {
+        return result.html
+      } else {
+        return escape(`${result}`)
+      }
+    */
+
+    if (format == "safe") {
+      const result = functions.safe(value)
       if (result instanceof HTML) {
         return result.html
       } else {
