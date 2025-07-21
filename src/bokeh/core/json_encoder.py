@@ -73,7 +73,7 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
     Convert an object or a serialized representation to a JSON string.
 
     This function accepts Python-serializable objects and converts them to
-    a JSON string. This function does not perform any advaced serialization,
+    a JSON string. This function does not perform any advanced serialization,
     in particular it won't serialize Bokeh models or numpy arrays. For that,
     use :class:`bokeh.core.serialization.Serializer` class, which handles
     serialization of all types of objects that may be encountered in Bokeh.
@@ -130,7 +130,7 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
 
             >>> serialize_json(rep)
             '{"type":"map","entries":[["b",1677283200000.0],["a",{"type":"ndarray","array":'
-            "{"type":"bytes","data":"AAAAAAEAAAACAAAA"},"shape":[3],"dtype":"int32","order":"little"}]]}'
+            '{"type":"bytes","data":"AAAAAAEAAAACAAAA"},"shape":[3],"dtype":"int32","order":"little"}]]}'
 
     .. note::
 

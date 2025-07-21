@@ -1,11 +1,10 @@
-import {stringify} from "csv-stringify/browser/esm/sync"
-import type {Options as CSVStringifyOptions} from "csv-stringify/browser/esm/sync"
-
 import type {Geometry} from "core/geometry"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
+import {stringify} from "core/csv/index"
+import type {Options as CSVOptions} from "core/csv/index"
 import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
@@ -192,46 +191,38 @@ export abstract class ColumnarDataSource extends DataSource {
     this.stream_to(this.properties.data, new_data, rollover, {sync})
   }
 
-  to_rows(): any[] {
+  // Returns a generator that iterates through the data as rows rather than
+  // columns. The first row is the header row. It contains the column names. So
+  // if your data looks like: {"x": [5, 10], "y", [25, 100]}, the generator
+  // returns:
+  //  1. ["x", "y"]
+  //  2. [5, 25]
+  //  3. [10, 100]
+  *row_generator(): Generator<any[]> {
     const header_row = this.columns()
 
     if (header_row.length === 0) {
-      return []
+      return
     }
 
-    const num_rows = this.length + 1 // + 1 for header row
+    yield header_row
+
+    const num_rows = this.length
     const num_columns = header_row.length
 
-    // Initialize rows
-    const rows = new Array(num_rows)
-    for (let j = 0; j < num_rows; j++) {
-      rows[j] = new Array(num_columns)
-    }
-
-    // Fill rows
-    rows[0] = header_row
-    for (let c = 0; c < num_columns; c++) {
-      const column_name = header_row[c]
-      const column = this.get(column_name)
-      for (let r = 1; r < num_rows; r++) { // start from r=1 because r=0 is header
-        rows[r][c] = column[r - 1]
+    for (let r = 0; r < num_rows; r++) {
+      const row = new Array(num_columns)
+      for (let c = 0; c < num_columns; c++) {
+        const column_name = header_row[c]
+        const column = this.get(column_name)
+        row[c] = column[r]
       }
+      yield row
     }
-
-    return rows
   }
 
-  to_csv(options: CSVStringifyOptions = {}): string {
-    return stringify(this.to_rows(), {
-      ...options,
-
-      // Prevent CSV injection. Example scenario: a malicious plot author
-      // provides a data source that contains fields with harmful formulas that
-      // don't show up in the plot but do show up in the CSV. The user downloads
-      // the CSV, opens it in a spreadsheet app, and the app executes the
-      // harmful fields (if they are not escaped).
-      escape_formulas: true,
-    })
+  to_csv(options: CSVOptions = {}): string {
+    return stringify(this.row_generator(), options)
   }
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {

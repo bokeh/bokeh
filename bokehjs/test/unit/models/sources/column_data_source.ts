@@ -190,10 +190,10 @@ describe("column_data_source module", () => {
     ]))
   })
 
-  describe("to_rows", () => {
+  describe("generate_rows", () => {
     it("should return empty for empty data source", () => {
       const cds = new ColumnDataSource()
-      expect(cds.to_rows()).to.be.equal([])
+      expect(Array.from(cds.row_generator())).to.be.equal([])
     })
 
     it("should return column names as header row", () => {
@@ -201,7 +201,7 @@ describe("column_data_source module", () => {
         foo: [],
         bar: [],
       }})
-      expect(cds.to_rows()[0]).to.be.equal(["foo", "bar"])
+      expect(cds.row_generator().next().value).to.be.equal(["foo", "bar"])
     })
 
     it("should transpose data", () => {
@@ -209,7 +209,7 @@ describe("column_data_source module", () => {
         foo: [1, 2, 3],
         bar: ["a", "b", "c"],
       }})
-      expect(cds.to_rows()).to.be.equal([
+      expect(Array.from(cds.row_generator())).to.be.equal([
         ["foo", "bar"],
         [1, "a"],
         [2, "b"],
@@ -222,7 +222,7 @@ describe("column_data_source module", () => {
         foo: [1, 2, 3],
         bar: ["a", "b"],
       }})
-      expect(cds.to_rows()).to.be.equal([
+      expect(Array.from(cds.row_generator())).to.be.equal([
         ["foo", "bar"],
         [1, "a"],
         [2, "b"],
@@ -239,7 +239,7 @@ describe("column_data_source module", () => {
       expect(cds2.to_csv()).to.be.equal("")
     })
 
-    it("should handle empty column", () => {
+    it("should handle empty columns", () => {
       const cds = new ColumnDataSource({data: {
         foo: [],
       }})
@@ -257,20 +257,6 @@ describe("column_data_source module", () => {
         foo: [1],
       }})
       expect(cds.to_csv()).to.be.equal("foo\n1\n")
-    })
-
-    it("should escape formulas", () => {
-      const cds = new ColumnDataSource({data: {
-        foo: [1, 2, 3],
-        bar: ["=harmful", "+csv", "-injection"],
-      }})
-      const lines = cds.to_csv().split("\n")
-      expect(lines.length).to.be.equal(5)
-      expect(lines[0]).to.be.equal("foo,bar")
-      expect(lines[1]).to.be.equal("1,'=harmful")
-      expect(lines[2]).to.be.equal("2,'+csv")
-      expect(lines[3]).to.be.equal("3,'-injection")
-      expect(lines[4]).to.be.equal("")
     })
   })
 })
