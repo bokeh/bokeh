@@ -470,12 +470,12 @@ export class DataTableView extends WidgetView {
     const index = this.data.view.indices
     const {source} = this.data
 
-    const not_filtered = filter(source.selected.indices, (i) => index.get_no_except(i))
-    const was_filtered = new Set(filter(this._filtered_selection, (i) => index.get_no_except(i)))
+    const not_filtered = filter(source.selected.indices, (i) => index.get(i))
+    const was_filtered = new Set(filter(this._filtered_selection, (i) => index.get(i)))
 
     this._filtered_selection = [
       ...filter(this._filtered_selection, (i) => !was_filtered.has(i)),
-      ...filter(source.selected.indices, (i) => !index.get_no_except(i)),
+      ...filter(source.selected.indices, (i) => !index.get(i)),
     ]
 
     source.selected.indices = [

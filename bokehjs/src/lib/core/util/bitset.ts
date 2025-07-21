@@ -83,24 +83,24 @@ export class BitSet implements Equatable {
     return bits
   }
 
-  private _check_bounds(k: number): void {
-    if (!(0 <= k && k < this.size)) {
-      throw new Error(`Out of bounds: 0 <= ${k} < ${this.size}`)
-    }
-  }
-
-  get(k: number): boolean {
-    this._check_bounds(k)
-    return this._get(k)
-  }
-
   protected _get(k: number): boolean {
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
     return ((this._array[i] >> j) & 0b1) == 0b1
   }
 
-  get_no_except(k: number): boolean {
+  protected _set(k: number, v: boolean = true): void {
+    this._count = null
+    const i = k >>> 5  // Math.floor(k/32)
+    const j = k & 0x1f // k % 32
+    if (v) {
+      this._array[i] |= 0b1 << j
+    } else {
+      this._array[i] &= ~(0b1 << j)
+    }
+  }
+
+  get(k: number): boolean {
     if (0 <= k && k < this.size) {
       return this._get(k)
     } else {
@@ -109,18 +109,8 @@ export class BitSet implements Equatable {
   }
 
   set(k: number, v: boolean = true): void {
-    this._check_bounds(k)
-    this.set_without_bounds_check(k, v)
-  }
-
-  set_without_bounds_check(k: number, v: boolean = true): void {
-    this._count = null
-    const i = k >>> 5  // Math.floor(k/32)
-    const j = k & 0x1f // k % 32
-    if (v) {
-      this._array[i] |= 0b1 << j
-    } else {
-      this._array[i] &= ~(0b1 << j)
+    if (0 <= k && k < this.size) {
+      this._set(k, v)
     }
   }
 

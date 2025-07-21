@@ -45,7 +45,24 @@ describe("core/util/bitset module", () => {
       expect(bs0.get(37)).to.be.equal(false)
       expect(bs0.get(38)).to.be.equal(true)
 
-      expect(() => bs0.get(39)).to.throw()
+      expect(bs0.get(-1)).to.be.equal(false)
+      expect(bs0.get(39)).to.be.equal(false)
+    })
+
+    it("should support set() method", () => {
+      const bs = BitSet.from_indices(5, [0, 1, 4])
+
+      expect(bs.get(0)).to.be.true
+      bs.set(0, false)
+      expect(bs.get(0)).to.be.false
+      bs.set(0, true)
+      expect(bs.get(0)).to.be.true
+
+      bs.set(-1, true)
+      expect(bs.get(-1)).to.be.false
+
+      bs.set(5, true)
+      expect(bs.get(5)).to.be.false
     })
 
     it("should support iterator protocol", () => {
