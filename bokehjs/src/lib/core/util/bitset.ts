@@ -84,14 +84,28 @@ export class BitSet implements Equatable {
   }
 
   private _check_bounds(k: number): void {
-    assert(0 <= k && k < this.size, `Out of bounds: 0 <= ${k} < ${this.size}`)
+    if (!(0 <= k && k < this.size)) {
+      throw new Error(`Out of bounds: 0 <= ${k} < ${this.size}`)
+    }
   }
 
   get(k: number): boolean {
     this._check_bounds(k)
+    return this._get(k)
+  }
+
+  protected _get(k: number): boolean {
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
     return ((this._array[i] >> j) & 0b1) == 0b1
+  }
+
+  get_no_except(k: number): boolean {
+    if (0 <= k && k < this.size) {
+      return this._get(k)
+    } else {
+      return false
+    }
   }
 
   set(k: number, v: boolean = true): void {
