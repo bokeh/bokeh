@@ -630,7 +630,7 @@ export class HoverToolView extends InspectToolView {
       const row = index != null ? ds.get_row(index) : {}
 
       for (const fn of isArray(filter) ? filter : [filter]) {
-        const result = execute_sync(fn, this.model, {value, field, row, data_source: ds, vars})
+        const result = execute_sync(fn, this.model, {value, row, index, field, data_source: ds, vars})
         if (isBoolean(result) && !result) {
           return false
         }
