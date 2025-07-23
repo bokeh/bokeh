@@ -591,6 +591,11 @@ export class HoverToolView extends InspectToolView {
     return tooltips
   }
 
+  /**
+   * This is used exclusively for testing.
+   */
+  _current_entries: TooltipEntry[] = []
+
   _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
     const selection_manager = renderer.get_selection_manager()
     const fullset_indices = selection_manager.inspectors.get(renderer)
@@ -598,11 +603,13 @@ export class HoverToolView extends InspectToolView {
 
     // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
     if (fullset_indices.is_empty() && fullset_indices.view == null) {
+      this._current_entries = []
       tooltip.clear()
       return
     }
 
     const entries = this.render_entries(renderer, geometry)
+    this._current_entries = entries
 
     if (entries.length == 0) {
       tooltip.clear()
