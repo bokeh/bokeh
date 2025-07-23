@@ -13,14 +13,16 @@ import type {PlainObject} from "core/types"
 import {Or, Func, Ref} from "core/kinds"
 import type {Model} from "../../model"
 
-export const FilterDef = Or(Func<any, boolean>(), Ref(CustomJS))
-export type FilterDef = SyncExecutableLike<Model, [{
+export type FilterArgs = {
   value: unknown
   field: string
   row: {[key: string]: unknown}
   data_source: ColumnarDataSource
   vars: PlainObject
-}], boolean>
+}
+
+export const FilterDef = Or(Func<[FilterArgs], boolean>(), Ref(CustomJS))
+export type FilterDef = SyncExecutableLike<Model, [FilterArgs], boolean> | CustomJS
 
 export class ValueRefView extends PlaceholderView {
   declare model: ValueRef
@@ -46,15 +48,22 @@ export class ValueRefView extends PlaceholderView {
     }
   }
 
-  update(source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
+  update(data_source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
     const {field, format, formatter, filter} = this.model
 
-    const value = _get_column_value(field, source, index)
-    const row = index != null ? source.get_row(index) : {}
+    const value = _get_column_value(field, data_source, index)
+    const row = index != null ? data_source.get_row(index) : {}
 
     if (filter != null) {
       for (const fn of isArray(filter) ? filter : [filter]) {
-        const result = execute_sync(fn, this.model, {value, field, row, data_source: source, vars})
+        const args: FilterArgs = {value, field, row, data_source, vars}
+        const result = (() => {
+          if (fn instanceof CustomJS) {
+            return fn.execute_sync(this.model, args)
+          } else {
+            return execute_sync(fn, this.model, args)
+          }
+        })()
         if (isBoolean(result) && !result) {
           throw new Skip()
         }
@@ -121,7 +130,7 @@ export class ValueRef extends Placeholder {
       field: [ Str ],
       format: [ Nullable(Str), null ],
       formatter: [ Formatter, "raw" ],
-      filter: [ Nullable(Or(FilterDef, List(FilterDef))) as any, null ], // XXX: `any` cast because of CustomJS/Func types
+      filter: [ Nullable(Or(FilterDef, List(FilterDef))) as any, null ], // XXX `any` cast because of CustomJS/Func types
     }))
   }
 }

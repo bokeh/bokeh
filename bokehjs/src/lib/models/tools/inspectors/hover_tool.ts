@@ -44,6 +44,7 @@ import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Nullable, Or, Str, Tuple, Enum, List} from "core/kinds"
 import {FilterDef} from "../../dom/value_ref"
+import type {FilterArgs} from "../../dom/value_ref"
 
 const Field = Str
 type Field = typeof Field["__type__"]
@@ -631,17 +632,24 @@ export class HoverToolView extends InspectToolView {
     return get_value(type, name, ds, index, vars)
   }
 
-  protected _can_render_tooltip(ds: ColumnarDataSource, vars: TooltipVars): boolean {
+  protected _can_render_tooltip(data_source: ColumnarDataSource, vars: TooltipVars): boolean {
     const {filters} = this.model
 
     for (const [field, filter] of entries(filters)) {
-      const value = this._get_value(field, ds, vars)
+      const value = this._get_value(field, data_source, vars)
 
       const index = vars.image_index ?? vars.index
-      const row = index != null ? ds.get_row(index) : {}
+      const row = index != null ? data_source.get_row(index) : {}
 
       for (const fn of isArray(filter) ? filter : [filter]) {
-        const result = execute_sync(fn, this.model, {value, row, index, field, data_source: ds, vars})
+        const args: FilterArgs = {value, field, row, data_source, vars}
+        const result = (() => {
+          if (fn instanceof CustomJS) {
+            return fn.execute_sync(this.model, args)
+          } else {
+            return execute_sync(fn, this.model, args)
+          }
+        })()
         if (isBoolean(result) && !result) {
           return false
         }
@@ -875,7 +883,7 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
-      filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ],
+      filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ], // XXX `any` cast because of CustomJS/Func types
       sort_by:      [ SortBy, null ],
       limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
