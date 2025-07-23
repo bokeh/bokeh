@@ -766,11 +766,11 @@ where:
 * ``index`` is the current linear index, image index or ``null``
 * ``field`` is the currently processed field name
 * ``data_source`` is the currently processed data source
-* ``vars`` is a collection special variables
+* ``vars`` is a collection of special variables
 
 Sorting can be accomplished via ``sort_by`` property, by either providing
-a single field name or a sequence of field names. Additionally in the sequence
-form, sort order can can be provided as either a string enum ``"ascending"``
+a single field name or a sequence of field names. When using a sequence,
+the sort order can optionally be provided as either a string enum ``"ascending"``
 or ``"descending"``, or an integer enum ``1``, ``-1`` respectively.
 
 .. code::
@@ -779,7 +779,7 @@ or ``"descending"``, or an integer enum ``1``, ``-1`` respectively.
 
 Finally a limit can be applied via ``limit`` property, by providing a
 non-negative integer that establishes a hard cap on the number of entries
-showed at one time.
+shown at one time.
 
 .. code::
 
@@ -787,7 +787,7 @@ showed at one time.
 
 Of course all three properties can be used simultaneously. Currently there is
 no support for any kind of feedback to the end user regarding how many entries
-were discarded or how many entries were actually hit. Neither there is any
+were discarded or how many entries were actually hit. Neither is there
 support for aggregating data.
 
 .. _ug_interaction_tools_image_hover:
