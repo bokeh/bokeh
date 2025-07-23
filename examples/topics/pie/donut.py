@@ -38,7 +38,7 @@ browsers = selected.index.tolist()
 angles = selected.Share.map(lambda x: 2*pi*(x/100)).cumsum().tolist()
 
 browsers_source = ColumnDataSource(dict(
-    start  = [0] + angles[:-1],
+    start  = [0, *angles[:-1]],
     end    = angles,
     colors = [colors[browser] for browser in browsers],
 ))

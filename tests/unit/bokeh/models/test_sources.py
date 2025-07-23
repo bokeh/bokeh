@@ -134,7 +134,7 @@ class TestColumnDataSource:
         df = nw.from_native(constructor(data), eager_only=True)
         ds = bms.ColumnDataSource()
         assert ds.data == {}
-        ds.data = df
+        ds.data = df.to_native()
         assert set(df.columns).issubset(set(ds.column_names))
         for key in data.keys():
             assert isinstance(ds.data[key], np.ndarray)

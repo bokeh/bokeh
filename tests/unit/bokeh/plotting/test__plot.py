@@ -65,6 +65,9 @@ class test_get_scale_factor_range:
         s = bpp.get_scale(Range1d(), "datetime")
         assert isinstance(s, LinearScale)
 
+        s = bpp.get_scale(Range1d(), "timedelta")
+        assert isinstance(s, LinearScale)
+
         s = bpp.get_scale(Range1d(), "auto")
         assert isinstance(s, LinearScale)
 

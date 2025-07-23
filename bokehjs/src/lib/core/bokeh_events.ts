@@ -221,6 +221,20 @@ export class ConnectionLost extends ConnectionEvent {
   }
 }
 
+/**
+ * Announce when a connection to the client has been reconnected.
+ */
+export class ClientReconnected extends ConnectionEvent {
+
+  protected get event_values(): Attrs {
+    return {}
+  }
+
+  static {
+    this.prototype.event_name = "client_reconnected"
+  }
+}
+
 @event("axis_click")
 export class AxisClick extends ModelEvent {
 

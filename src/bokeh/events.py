@@ -94,6 +94,7 @@ if TYPE_CHECKING:
 __all__ = (
     'AxisClick',
     'ButtonClick',
+    'ClientReconnected',
     'ConnectionLost',
     'DocumentEvent',
     'DocumentReady',
@@ -254,6 +255,13 @@ class ConnectionLost(ConnectionEvent):
     def __init__(self) -> None:
         super().__init__()
         self.timestamp = datetime.now()
+
+class ClientReconnected(ConnectionEvent):
+    '''
+    Announce when a connection to the client has been reconnected.
+
+    '''
+    event_name = 'client_reconnected'
 
 class ModelEvent(Event):
     ''' Base class for all Bokeh Model events.

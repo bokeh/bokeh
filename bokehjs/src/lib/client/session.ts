@@ -1,5 +1,5 @@
 import {DocumentEventBatch} from "document"
-import {ConnectionLost} from "core/bokeh_events"
+import type {DocumentChangedEvent} from "document"
 import type {Patch, Document, DocumentEvent} from "document"
 import {Message} from "protocol/message"
 import type {ClientConnection} from "./connection"
@@ -44,9 +44,8 @@ export class ClientSession {
     }
   }
 
-  notify_connection_lost(): void {
-    this.document.event_manager.send_event(new ConnectionLost())
-  }
+  // TODO: notify_connection_retry ?
+  // data: time (ms) to next retry, connection attempt number
 
   close(): void {
     this._connection.close()
@@ -80,7 +79,7 @@ export class ClientSession {
 
   protected _document_changed(event: DocumentEvent): void {
     const events = (() => {
-      const events = event instanceof DocumentEventBatch ? (event.sync ? event.events : []) : [event]
+      const events: DocumentChangedEvent[] = event instanceof DocumentEventBatch ? (event.sync ? event.events : []) : [event]
       return events.filter((event) => event.sync)
     })()
 

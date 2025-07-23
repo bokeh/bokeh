@@ -124,6 +124,7 @@ DataSpec Properties
 
 .. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
+.. autoclass:: BoolSpec
 .. autoclass:: ColorSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
@@ -207,6 +208,7 @@ __all__ = (
     'Array',
     'Auto',
     'Bool',
+    'BoolSpec',
     'Byte',
     'Bytes',
     'CSSLength',
@@ -331,6 +333,7 @@ from .property.container import RestrictedDict
 
 from .property.dataspec import AlphaSpec
 from .property.dataspec import AngleSpec
+from .property.dataspec import BoolSpec
 from .property.dataspec import ColorSpec
 from .property.dataspec import DashPatternSpec
 from .property.dataspec import DataSpec

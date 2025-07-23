@@ -35,6 +35,7 @@ import {
   MercatorAxis,
   Range,
   Range1d,
+  TimedeltaAxis,
   Tool,
   ToolProxy,
 } from "./models"
@@ -58,7 +59,7 @@ const _default_color = "#1f77b4"
 
 const _default_alpha = 1.0
 
-export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | null
+export type AxisType = "auto" | "linear" | "datetime" | "timedelta" | "log" | "mercator" | null
 export type AxisLocation = Location | null
 
 export namespace Figure {
@@ -651,6 +652,7 @@ export class Figure extends BaseFigure {
         case "auto":
         case "linear":
         case "datetime":
+        case "timedelta":
         case "mercator":
           return new LinearScale()
         case "log":
@@ -701,6 +703,8 @@ export class Figure extends BaseFigure {
         return new LogAxis()
       case "datetime":
         return new DatetimeAxis()
+      case "timedelta":
+        return new TimedeltaAxis()
       case "mercator": {
         const axis = new MercatorAxis()
         const dimension = dim == 0 ? "lon" : "lat"

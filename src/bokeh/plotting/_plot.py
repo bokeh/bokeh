@@ -49,6 +49,7 @@ from ..models import (
     Range,
     Range1d,
     Scale,
+    TimedeltaAxis,
 )
 
 if TYPE_CHECKING:
@@ -103,12 +104,12 @@ def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Seri
                 pass
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-AxisType: TypeAlias = Literal["linear", "log", "datetime", "mercator", "auto"]
+AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
 AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
 Dim: TypeAlias = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
-    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
+    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "timedelta", "mercator", "auto", None]:
         return LinearScale()
     elif isinstance(range_input, DataRange1d | Range1d) and axis_type == "log":
         return LogScale()
@@ -141,33 +142,37 @@ def process_axis_and_grid(plot: Plot, axis_type: AxisType | None, axis_location:
 #-----------------------------------------------------------------------------
 
 def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) -> tuple[type[Axis] | None, Any]:
-    if axis_type is None:
-        return None, {}
-    elif axis_type == "linear":
-        return LinearAxis, {}
-    elif axis_type == "log":
-        return LogAxis, {}
-    elif axis_type == "datetime":
-        return DatetimeAxis, {}
-    elif axis_type == "mercator":
-        return MercatorAxis, dict(dimension='lon' if dim == 0 else 'lat')
-    elif axis_type == "auto":
-        if isinstance(range_input, FactorRange):
-            return CategoricalAxis, {}
-        elif isinstance(range_input, Range1d):
-            try:
-                value = range_input.start
-                # Datetime accepts ints/floats as timestamps, but we don't want
-                # to assume that implies a datetime axis
-                if Datetime.is_timestamp(value):
-                    return LinearAxis, {}
-                Datetime.validate(Datetime(), value)
-                return DatetimeAxis, {}
-            except ValueError:
-                pass
-        return LinearAxis, {}
-    else:
-        raise ValueError(f"Unrecognized axis_type: '{axis_type!r}'")
+    match axis_type:
+        case None:
+            return None, {}
+        case "linear":
+            return LinearAxis, {}
+        case "log":
+            return LogAxis, {}
+        case "datetime":
+            return DatetimeAxis, {}
+        case "timedelta":
+            return TimedeltaAxis, {}
+        case "mercator":
+            return MercatorAxis, dict(dimension='lon' if dim == 0 else 'lat')
+        case "auto":
+            if isinstance(range_input, FactorRange):
+                return CategoricalAxis, {}
+            elif isinstance(range_input, Range1d):
+                try:
+                    value = range_input.start
+                    # Datetime accepts ints/floats as timestamps, but we don't want
+                    # to assume that implies a datetime axis
+                    if Datetime.is_timestamp(value):
+                        return LinearAxis, {}
+                    Datetime.validate(Datetime(), value)
+                    # TODO timedelta
+                    return DatetimeAxis, {}
+                except ValueError:
+                    pass
+            return LinearAxis, {}
+        case _:
+            raise ValueError(f"Unrecognized axis_type: '{axis_type!r}'")
 
 def _get_num_minor_ticks(axis_class: type[Axis], num_minor_ticks: int | Literal["auto"] | None) -> int:
     if isinstance(num_minor_ticks, int):
