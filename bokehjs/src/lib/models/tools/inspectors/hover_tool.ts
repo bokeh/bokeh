@@ -516,11 +516,11 @@ export class HoverToolView extends InspectToolView {
 
     const {bbox} = this.plot_view.frame
     const tooltips = collected
+      .map(({ds, vars}, i) => ({ds, vars, i}))
       .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
-      .map(({ds, vars}) => ({html: this._render_tooltips_if_can(ds, vars), vars}))
+      .map(({ds, vars, i}) => ({html: this._render_tooltips_if_can(ds, vars), vars, i}))
       .filter((entry): entry is TooltipEntry => entry.html != null)
-      .map(({html, vars}, i) => ({html, vars, i}))
 
     const {sort_by} = this.model
     if (sort_by != null) {
