@@ -57,6 +57,8 @@ type SortColumn = typeof SortColumn["__type__"]
 const SortBy = Nullable(Or(Field, List(Or(Field, SortColumn))))
 type SortBy = typeof SortBy["__type__"]
 
+type TooltipEntry = {html: Element, vars: TooltipVars, i: number}
+
 export type TooltipVars = {
   index: number | null
   glyph_view: GlyphView
@@ -327,20 +329,15 @@ export class HoverToolView extends InspectToolView {
     this._emit_callback(geometry)
   }
 
-  _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
+  render_entries(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry): TooltipEntry[] {
     const selection_manager = renderer.get_selection_manager()
-    const fullset_indices = selection_manager.inspectors.get(renderer)!
-
-    // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
-    if (fullset_indices.is_empty() && fullset_indices.view == null) {
-      tooltip.clear()
-      return
-    }
+    const fullset_indices = selection_manager.inspectors.get(renderer)
+    assert(fullset_indices != null)
 
     const ds = selection_manager.source
     const renderer_view = this.plot_view.views.find_one(renderer)
     if (renderer_view == null) {
-      return
+      return []
     }
 
     const {sx, sy} = geometry
@@ -521,8 +518,8 @@ export class HoverToolView extends InspectToolView {
       .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
       .map(({ds, vars}) => ({html: this._render_tooltips_if_can(ds, vars), vars}))
-      .filter(({html}) => html != null)
-      .map((tooltip, i) => ({i, ...tooltip}))
+      .filter((entry): entry is TooltipEntry => entry.html != null)
+      .map(({html, vars}, i) => ({html, vars, i}))
 
     const {sort_by} = this.model
     if (sort_by != null) {
@@ -590,20 +587,34 @@ export class HoverToolView extends InspectToolView {
       tooltips.splice(limit)
     }
 
-    if (tooltips.length == 0) {
+    return tooltips
+  }
+
+  _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
+    const selection_manager = renderer.get_selection_manager()
+    const fullset_indices = selection_manager.inspectors.get(renderer)
+    assert(fullset_indices != null)
+
+    // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
+    if (fullset_indices.is_empty() && fullset_indices.view == null) {
+      tooltip.clear()
+      return
+    }
+
+    const entries = this.render_entries(renderer, geometry)
+
+    if (entries.length == 0) {
       tooltip.clear()
     } else {
       const {content} = tooltip
       assert(content instanceof Node)
       empty(content)
 
-      for (const {html} of tooltips) {
-        if (html != null) {
-          content.appendChild(html)
-        }
+      for (const {html} of entries) {
+        content.appendChild(html)
       }
 
-      const {vars} = tooltips.at(-1)!
+      const {vars} = entries.at(-1)!
       tooltip.show({x: vars.snap_sx, y: vars.snap_sy})
     }
   }
