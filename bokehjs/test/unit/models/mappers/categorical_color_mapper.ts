@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {_convert_palette} from "@bokehjs/models/mappers/color_mapper"
+import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import {CategoricalColorMapper} from "@bokehjs/models/mappers/categorical_color_mapper"
 import type {L2Factor as F2, L3Factor as F3} from "@bokehjs/models/ranges/factor_range"
 
@@ -14,21 +14,21 @@ describe("CategoricalColorMapper module", () => {
         const palette = ["red", "green", "blue"]
         const cm = new CategoricalColorMapper({palette, factors: ["a", "b", "c"]})
         const vals = cm.v_compute(["c", "b", "a", "b"])
-        expect(vals).to.be.equal(_convert_palette(["blue", "green", "red", "green"]))
+        expect(vals).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
       })
 
       it("should map data unknown data to nan_color value", () => {
         const palette = ["red", "green", "blue"]
         const cm = new CategoricalColorMapper({palette, nan_color: "gray", factors: ["a", "b", "c"]})
         const vals = cm.v_compute(["d", "a", "b"])
-        expect(vals).to.be.equal(_convert_palette(["gray", "red", "green"]))
+        expect(vals).to.be.equal(convert_to_uint32_palette(["gray", "red", "green"]))
       })
 
       it("should map data with short palette to nan_color value", () => {
         const palette = ["red", "green"]
         const cm = new CategoricalColorMapper({palette, nan_color: "gray", factors: ["a", "b", "c"]})
         const vals = cm.v_compute(["a", "b", "c"])
-        expect(vals).to.be.equal(_convert_palette(["red", "green", "gray"]))
+        expect(vals).to.be.equal(convert_to_uint32_palette(["red", "green", "gray"]))
       })
 
       it("should disregard any start or end values", () => {
@@ -36,15 +36,15 @@ describe("CategoricalColorMapper module", () => {
 
         const cm0 = new CategoricalColorMapper({palette, factors: ["a", "b", "c"], start: 1})
         const vals0 = cm0.v_compute(["c", "b", "a", "b"])
-        expect(vals0).to.be.equal(_convert_palette(["blue", "green", "red", "green"]))
+        expect(vals0).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
 
         const cm1 = new CategoricalColorMapper({palette, factors: ["a", "b", "c"], end: 2})
         const vals1 = cm1.v_compute(["c", "b", "a", "b"])
-        expect(vals1).to.be.equal(_convert_palette(["blue", "green", "red", "green"]))
+        expect(vals1).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
 
         const cm2 = new CategoricalColorMapper({palette, factors: ["a", "b", "c"], start: 1, end: 2})
         const vals2 = cm2.v_compute(["c", "b", "a", "b"])
-        expect(vals2).to.be.equal(_convert_palette(["blue", "green", "red", "green"]))
+        expect(vals2).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
       })
     })
   })
@@ -62,7 +62,7 @@ describe("CategoricalColorMapper module", () => {
           end: 1,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map factors to palette with start=1, end=2", () => {
@@ -75,7 +75,7 @@ describe("CategoricalColorMapper module", () => {
           end: 2,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map everything to nan_color with start=0, end=2", () => {
@@ -90,7 +90,7 @@ describe("CategoricalColorMapper module", () => {
         })
 
         const vals0 = cm0.v_compute([["a", "1"]])
-        expect(vals0).to.be.equal(_convert_palette(["gray"]))
+        expect(vals0).to.be.equal(convert_to_uint32_palette(["gray"]))
 
         const cm1 = new CategoricalColorMapper({
           palette,
@@ -100,7 +100,7 @@ describe("CategoricalColorMapper module", () => {
         })
 
         const vals1 = cm1.v_compute([["a", "1"]])
-        expect(vals1).to.be.equal(_convert_palette(["gray"]))
+        expect(vals1).to.be.equal(convert_to_uint32_palette(["gray"]))
       })
     })
 
@@ -111,7 +111,7 @@ describe("CategoricalColorMapper module", () => {
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
         const cm = new CategoricalColorMapper({palette, factors})
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map factors to palette with start=0, end=2", () => {
@@ -119,7 +119,7 @@ describe("CategoricalColorMapper module", () => {
         const factors: F2[] = [["a", "1"], ["d", "2"], ["b", "3"], ["c", "4"]]
         const cm = new CategoricalColorMapper({palette, factors, start: 0, end: 2})
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       for (const [i, j] of [[0, 1], [1, 2]]) {
@@ -130,7 +130,7 @@ describe("CategoricalColorMapper module", () => {
           const cm = new CategoricalColorMapper({palette, factors, start: i, end: j})
 
           const vals = cm.v_compute([["a", "1"]])
-          expect(vals).to.be.equal(_convert_palette(["gray"]))
+          expect(vals).to.be.equal(convert_to_uint32_palette(["gray"]))
         })
       }
     })
@@ -149,7 +149,7 @@ describe("CategoricalColorMapper module", () => {
           end: 1,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map factors to palette with start=1, end=2", () => {
@@ -162,7 +162,7 @@ describe("CategoricalColorMapper module", () => {
           end: 2,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map factors to palette with start=2, end=3", () => {
@@ -175,7 +175,7 @@ describe("CategoricalColorMapper module", () => {
           end: 3,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       for (const [i, j] of [[0, 2], [0, 3], [1, 3]]) {
@@ -191,10 +191,10 @@ describe("CategoricalColorMapper module", () => {
           })
 
           const vals0 = cm0.v_compute([["a", "1", "foo"]])
-          expect(vals0).to.be.equal(_convert_palette(["gray"]))
+          expect(vals0).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals1 = cm0.v_compute([["a", "1", "baz"]])
-          expect(vals1).to.be.equal(_convert_palette(["gray"]))
+          expect(vals1).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const cm1 = new CategoricalColorMapper({
             palette,
@@ -204,10 +204,10 @@ describe("CategoricalColorMapper module", () => {
           })
 
           const vals2 = cm1.v_compute([["a", "1", "foo"]])
-          expect(vals2).to.be.equal(_convert_palette(["gray"]))
+          expect(vals2).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals3 = cm1.v_compute([["a", "1", "baz"]])
-          expect(vals3).to.be.equal(_convert_palette(["gray"]))
+          expect(vals3).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const cm2 = new CategoricalColorMapper({
             palette,
@@ -217,10 +217,10 @@ describe("CategoricalColorMapper module", () => {
           })
 
           const vals4 = cm2.v_compute([["a", "1", "foo"]])
-          expect(vals4).to.be.equal(_convert_palette(["gray"]))
+          expect(vals4).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals5 = cm2.v_compute([["a", "1", "baz"]])
-          expect(vals5).to.be.equal(_convert_palette(["gray"]))
+          expect(vals5).to.be.equal(convert_to_uint32_palette(["gray"]))
         })
       }
     })
@@ -236,7 +236,7 @@ describe("CategoricalColorMapper module", () => {
           end: 2,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map factors to palette with start=1, end=3", () => {
@@ -250,7 +250,7 @@ describe("CategoricalColorMapper module", () => {
         })
 
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       for (const [i, j] of [[0, 1], [0, 3], [1, 2], [2, 3]]) {
@@ -266,16 +266,16 @@ describe("CategoricalColorMapper module", () => {
           })
 
           const vals0 = cm0.v_compute(["a"])
-          expect(vals0).to.be.equal(_convert_palette(["gray"]))
+          expect(vals0).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals1 = cm0.v_compute([["a", "1"]])
-          expect(vals1).to.be.equal(i == 0 && j == 3 ? _convert_palette(["red"]) : _convert_palette(["gray"]))
+          expect(vals1).to.be.equal(i == 0 && j == 3 ? convert_to_uint32_palette(["red"]) : convert_to_uint32_palette(["gray"]))
 
           const vals2 = cm0.v_compute([["a", "1", "foo"]])
-          expect(vals2).to.be.equal(_convert_palette(["gray"]))
+          expect(vals2).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals3 = cm0.v_compute([["a", "1", "baz"]])
-          expect(vals3).to.be.equal(_convert_palette(["gray"]))
+          expect(vals3).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const cm1 = new CategoricalColorMapper({
             palette,
@@ -285,16 +285,16 @@ describe("CategoricalColorMapper module", () => {
           })
 
           const vals4 = cm1.v_compute(["a"])
-          expect(vals4).to.be.equal(_convert_palette(["gray"]))
+          expect(vals4).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals5 = cm1.v_compute([["a", "1"]])
-          expect(vals5).to.be.equal(_convert_palette(["gray"]))
+          expect(vals5).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals6 = cm1.v_compute([["a", "1", "foo"]])
-          expect(vals6).to.be.equal(_convert_palette(["gray"]))
+          expect(vals6).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals7 = cm1.v_compute([["a", "1", "baz"]])
-          expect(vals7).to.be.equal(_convert_palette(["gray"]))
+          expect(vals7).to.be.equal(convert_to_uint32_palette(["gray"]))
         })
       }
     })
@@ -306,7 +306,7 @@ describe("CategoricalColorMapper module", () => {
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
         const cm = new CategoricalColorMapper({palette, factors})
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       it("should map factors to palette with start=0, end=3", () => {
@@ -314,7 +314,7 @@ describe("CategoricalColorMapper module", () => {
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
         const cm = new CategoricalColorMapper({palette, factors, start: 0, end: 3})
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.equal(_convert_palette(palette))
+        expect(vals).to.be.equal(convert_to_uint32_palette(palette))
       })
 
       for (const [i, j] of [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3]]) {
@@ -324,16 +324,16 @@ describe("CategoricalColorMapper module", () => {
           const cm = new CategoricalColorMapper({palette, factors, start: i, end: j})
 
           const vals0 = cm.v_compute(["a"])
-          expect(vals0).to.be.equal(_convert_palette(["gray"]))
+          expect(vals0).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals1 = cm.v_compute([["a", "1"]])
-          expect(vals1).to.be.equal(_convert_palette(["gray"]))
+          expect(vals1).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals2 = cm.v_compute([["a", "1", "foo"]])
-          expect(vals2).to.be.equal(_convert_palette(["gray"]))
+          expect(vals2).to.be.equal(convert_to_uint32_palette(["gray"]))
 
           const vals3 = cm.v_compute([["a", "1", "baz"]])
-          expect(vals3).to.be.equal(_convert_palette(["gray"]))
+          expect(vals3).to.be.equal(convert_to_uint32_palette(["gray"]))
         })
       }
     })
