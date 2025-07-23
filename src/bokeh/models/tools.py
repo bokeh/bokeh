@@ -1633,7 +1633,7 @@ class HoverTool(InspectTool):
     """)
 
     filters = Dict(String, Either(Instance(CustomJS), List(Instance(CustomJS))), default={}, help="""
-    Allow to filter hover results by a ``CustomJS`` callback.
+    Allows filtering hover results using a ``CustomJS`` callback.
 
     An example of a simple filter function:
     .. code::
@@ -1655,7 +1655,7 @@ class HoverTool(InspectTool):
             ),
         ),
     )(default=None, help="""
-    Allow to sort hover results by a field or a sequence of fields.
+    Allows sorting hover results by a field or a sequence of fields.
 
     Additionally sort direction can be provided when using the sequence form, even if
     providing a single field. The default sort order is based on data index and/or
