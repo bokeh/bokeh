@@ -34,6 +34,7 @@ from ..core.enums import (
     PanDirectionType as PanDirection,
     RegionSelectionModeType as RegionSelectionMode,
     SelectionModeType as SelectionMode,
+    SortDirectionType as SortDirection,
     ToolNameType as ToolName,
     TooltipAttachmentType as TooltipAttachment,
     TooltipFieldFormatterType as TooltipFieldFormatter,
@@ -42,7 +43,7 @@ from ..core.has_props import abstract
 from ..core.property_aliases import IconLikeType as IconLike
 from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation, Span
-from .callbacks import Callback
+from .callbacks import Callback, CustomJS
 from .dom import DOMElement
 from .glyphs import (
     HStrip,
@@ -354,6 +355,12 @@ class HoverTool(InspectTool):
     tooltips: None | DOMElement | str | list[tuple[str, str]] | dict[str, str] = ...
 
     formatters: dict[str, TooltipFieldFormatter | CustomJSHover] = ...
+
+    filters: dict[str, CustomJS | list[CustomJS]] = ...
+
+    sort_by: str | list[str | tuple[str, SortDirection | Literal[1, -1]]] | None = ...
+
+    limit: int | None = ...
 
     mode: Literal["mouse", "hline", "vline"] = ...
 

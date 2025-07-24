@@ -96,6 +96,8 @@ class ValueRef(Placeholder):
 
     formatter: BuiltinFormatter | CustomJS | CustomJSHover = ...
 
+    filter: CustomJS | list[CustomJS] | None = ...
+
 @dataclass
 class ColorRef(ValueRef):
 

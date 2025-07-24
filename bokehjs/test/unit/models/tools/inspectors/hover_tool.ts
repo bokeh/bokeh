@@ -6,9 +6,13 @@ import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
+import {ValidationError} from "@bokehjs/core/properties"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {isNumber} from "@bokehjs/core/util/types"
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: ScatterView}> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
@@ -266,5 +270,178 @@ describe("HoverTool", () => {
 </div>
 `
     expect(el.outerHTML).to.be.equal(html.trim().split("\n").map((s) => s.trim()).join(""))
+  })
+
+  const test_case = async () => {
+    const hover = new HoverTool()
+    const p = fig([200, 200], {tools: [hover]})
+    const r = p.circle({
+      x: [1, 1, 1, 1, 1, 1],
+      y: [2, 2, 2, 2, 2, 2],
+      radius: [0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
+      fill_color: ["red", "green", "blue", "yellow", "pink", "purple"],
+      source: {
+        foo: [1, 1, 1, 2, 2, 2],
+        bar: [3, 2, 1, 3, 2, 1],
+      },
+    })
+
+    const {view} = await display(p)
+
+    const hv = view.owner.get_one(hover)
+    const gv = view.owner.get_one(r)
+
+    const hover_at = (hv: HoverToolView, gv: GlyphRendererView, x: number = NaN, y: number = NaN) => {
+      if (isFinite(x + y)) {
+        const sx = gv.coordinates.x_scale.compute(x)
+        const sy = gv.coordinates.y_scale.compute(y)
+        hv._move({type: "move", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}, native: new PointerEvent("pointermove")})
+      } else {
+        hv._move_exit()
+      }
+    }
+
+    const indices = (hv: HoverToolView) => hv._current_entries.map(({vars}) => vars.index)
+
+    const expect_indices = (expected_indices: number[]) => {
+      hover_at(hv, gv, 1, 2)
+      expect(indices(hv)).to.be.equal(expected_indices)
+      hover_at(hv, gv)
+      expect(indices(hv)).to.be.equal([])
+    }
+
+    return {hover, hover_view: hv, expect_indices}
+  }
+
+  it("should support limiting the number of entries", async () => {
+    const {hover, expect_indices} = await test_case()
+
+    hover.limit = null
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.limit = 3
+    expect_indices([0, 1, 2])
+
+    hover.limit = 1
+    expect_indices([0])
+
+    hover.limit = 4
+    expect_indices([0, 1, 2, 3])
+
+    hover.limit = null
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    expect(() => hover.limit = 0).to.throw(ValidationError)
+  })
+
+  it("should support sorting entries", async () => {
+    const {hover, expect_indices} = await test_case()
+
+    hover.sort_by = null
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.sort_by = "radius"
+    expect_indices([5, 4, 3, 2, 1, 0])
+
+    hover.sort_by = ["foo"]
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.sort_by = [["foo", "ascending"]]
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.sort_by = [["foo", 1]]
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.sort_by = [["foo", "descending"]]
+    expect_indices([3, 4, 5, 0, 1, 2])
+
+    hover.sort_by = [["foo", -1]]
+    expect_indices([3, 4, 5, 0, 1, 2])
+
+    hover.sort_by = ["foo", "bar"]
+    expect_indices([2, 1, 0, 5, 4, 3])
+
+    hover.sort_by = [["foo", "descending"], "bar"]
+    expect_indices([5, 4, 3, 2, 1, 0])
+
+    hover.sort_by = [["foo", -1], "bar"]
+    expect_indices([5, 4, 3, 2, 1, 0])
+
+    hover.sort_by = [["foo", "descending"], ["bar", "descending"]]
+    expect_indices([3, 4, 5, 0, 1, 2])
+
+    hover.sort_by = [["foo", -1], ["bar", -1]]
+    expect_indices([3, 4, 5, 0, 1, 2])
+
+    hover.sort_by = null
+    expect_indices([0, 1, 2, 3, 4, 5])
+  })
+
+  it("should support filtering entries", async () => {
+    const {hover, hover_view, expect_indices} = await test_case()
+
+    hover.filters = {}
+    await hover_view.ready
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.filters = {"@radius": new CustomJS({code: "export default (args, tool, {value}) => value >= 0.4"})}
+    await hover_view.ready
+    expect_indices([0, 1, 2])
+
+    hover.filters = {"@radius": (_, {value}) => isNumber(value) && value >= 0.4}
+    await hover_view.ready
+    expect_indices([0, 1, 2])
+
+    hover.filters = {"@radius": new CustomJS({code: "export default (args, tool, {value}) => value < 0.4"})}
+    await hover_view.ready
+    expect_indices([3, 4, 5])
+
+    hover.filters = {"@radius": (_, {value}) => isNumber(value) && value < 0.4}
+    await hover_view.ready
+    expect_indices([3, 4, 5])
+
+    hover.filters = {
+      "@foo": new CustomJS({code: "export default (args, tool, {value: foo}) => foo == 2"}),
+      "@bar": new CustomJS({code: "export default (args, tool, {value: bar}) => bar % 2 == 1"}),
+    }
+    await hover_view.ready
+    expect_indices([3, 5])
+
+    hover.filters = {
+      "@foo": (_, {value: foo}) => isNumber(foo) && foo == 2,
+      "@bar": (_, {value: bar}) => isNumber(bar) && bar % 2 == 1,
+    }
+    await hover_view.ready
+    expect_indices([3, 5])
+
+    hover.filters = {"@foo": (_, {row: {foo, bar}}) => isNumber(foo) && foo == 1 && isNumber(bar) && bar % 2 == 1}
+    await hover_view.ready
+    expect_indices([0, 2])
+
+    hover.filters = {}
+    await hover_view.ready
+    expect_indices([0, 1, 2, 3, 4, 5])
+  })
+
+  it("should allow filtering, sorting and limits simultaneously", async () => {
+    const {hover, hover_view, expect_indices} = await test_case()
+
+    hover.filters = {}
+    hover.sort_by = null
+    hover.limit = null
+    await hover_view.ready
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.filters = {"@bar": (_, {value: bar}) => isNumber(bar) && bar % 2 == 1}
+    hover.sort_by = "fill_color"
+    hover.limit = 3
+    await hover_view.ready
+    expect_indices([2, 5, 0])
+
+    hover.filters = {}
+    hover.sort_by = null
+    hover.limit = null
+    await hover_view.ready
+    expect_indices([0, 1, 2, 3, 4, 5])
   })
 })

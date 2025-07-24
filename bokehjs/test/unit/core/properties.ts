@@ -111,6 +111,13 @@ class Some extends HasProps {
 
 describe("properties module", () => {
 
+  describe("Property", () => {
+    it("validate() should throw an instance of ValidationError", () => {
+      const obj = new Some()
+      expect(() => obj.properties.int.validate(0.5)).to.throw(p.ValidationError)
+    })
+  })
+
   function enum_validation_errors(prop: p.Property<unknown>): void {
     expect(prop.valid(true)).to.be.false
     expect(prop.valid(10)).to.be.false
