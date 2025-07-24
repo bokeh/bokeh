@@ -58,7 +58,12 @@ type SortColumn = typeof SortColumn["__type__"]
 const SortBy = Nullable(Or(Field, List(Or(Field, SortColumn))))
 type SortBy = typeof SortBy["__type__"]
 
-type TooltipEntry = {html: Element, vars: TooltipVars, i: number}
+type TooltipEntry = {
+  html: Element
+  vars: TooltipVars
+  i: number  // index before any filtering (fullset)
+  j: number  // index after all filtering (subset)
+}
 
 export type TooltipVars = {
   index: number | null
@@ -515,12 +520,13 @@ export class HoverToolView extends InspectToolView {
     }
 
     const {bbox} = this.plot_view.frame
-    const tooltips = collected
-      .map(({ds, vars}, i) => ({ds, vars, i}))
+    const entries = collected
+      .map((entry, i) => ({...entry, i}))
       .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
       .map(({ds, vars, i}) => ({html: this._render_tooltips_if_can(ds, vars), vars, i}))
-      .filter((entry): entry is TooltipEntry => entry.html != null)
+      .filter((entry) => entry.html != null)
+      .map((entry, j) => ({...entry, j}))
 
     const {sort_by} = this.model
     if (sort_by != null) {
@@ -547,7 +553,7 @@ export class HoverToolView extends InspectToolView {
         }
       })()
 
-      const records = Array.from(tooltips, ({vars}) => {
+      const records = Array.from(entries, ({vars}) => {
         const record = new Map<string, unknown>()
         for (const [field] of columns) {
           const value = this._get_value(field, ds, vars)
@@ -560,10 +566,10 @@ export class HoverToolView extends InspectToolView {
         return records[i].get(field) ?? NaN
       }
 
-      tooltips.sort((t0, t1) => {
+      entries.sort((e0, e1) => {
         for (const [field, sign] of columns) {
-          const v0 = lookup(t0.i, field)
-          const v1 = lookup(t1.i, field)
+          const v0 = lookup(e0.j, field)
+          const v1 = lookup(e1.j, field)
           if (v0 === v1) {
             continue
           }
@@ -585,10 +591,10 @@ export class HoverToolView extends InspectToolView {
 
     const {limit} = this.model
     if (limit != null) {
-      tooltips.splice(limit)
+      entries.splice(limit)
     }
 
-    return tooltips
+    return entries as TooltipEntry[] // because filter() can't narrow null
   }
 
   /**

@@ -422,4 +422,26 @@ describe("HoverTool", () => {
     await hover_view.ready
     expect_indices([0, 1, 2, 3, 4, 5])
   })
+
+  it("should allow filtering, sorting and limits simultaneously", async () => {
+    const {hover, hover_view, expect_indices} = await test_case()
+
+    hover.filters = {}
+    hover.sort_by = null
+    hover.limit = null
+    await hover_view.ready
+    expect_indices([0, 1, 2, 3, 4, 5])
+
+    hover.filters = {"@bar": (_, {value: bar}) => isNumber(bar) && bar % 2 == 1}
+    hover.sort_by = "fill_color"
+    hover.limit = 3
+    await hover_view.ready
+    expect_indices([2, 5, 0])
+
+    hover.filters = {}
+    hover.sort_by = null
+    hover.limit = null
+    await hover_view.ready
+    expect_indices([0, 1, 2, 3, 4, 5])
+  })
 })
