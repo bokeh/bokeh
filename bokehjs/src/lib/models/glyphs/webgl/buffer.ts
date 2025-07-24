@@ -163,7 +163,7 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
 
     if (!is_scalar_colors) {
       const color_v = color_prop as ColorUniformVector
-      const array = new Uint8Array(color_v.get_buffer())
+      const array = new Uint8Array(color_v.copy_buffer())
       for (let i = 0; i < ncolors; i++) {
         const alpha = alpha_prop.get(i)
         array[4*i+3] = byte(alpha*array[4*i+3])
