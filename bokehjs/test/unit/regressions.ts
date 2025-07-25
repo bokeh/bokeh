@@ -3,6 +3,7 @@ import sinon from "sinon"
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "../interactive"
+import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 
 import {
   AllIndices,
@@ -898,7 +899,7 @@ describe("Bug", () => {
       })
 
       const data = ["a", "c", "a", "b", null, "b", "a", NaN]
-      const result = ["red", "black", "red", "green", "black", "green", "red", "black"]
+      const result = convert_to_uint32_palette(["red", "black", "red", "green", "black", "green", "red", "black"])
 
       expect(mapper.v_compute(data)).to.be.equal(result)
     })

@@ -1,5 +1,6 @@
 import {expect} from "assertions"
 
+import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
 
 describe("LogColorMapper module", () => {
@@ -25,7 +26,7 @@ describe("LogColorMapper module", () => {
       const color_mapper = new LogColorMapper({low: 1, high: 100, palette})
 
       const vals = color_mapper.v_compute([0, 1, 10])
-      expect(vals).to.be.equal(["red", "red", "green"])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["red", "red", "green"]))
     })
 
     it("Should map data above high value to high", () => {
@@ -33,7 +34,7 @@ describe("LogColorMapper module", () => {
       const color_mapper = new LogColorMapper({low: 1, high: 100, palette})
 
       const vals = color_mapper.v_compute([10, 100, 101])
-      expect(vals).to.be.equal(["green", "blue", "blue"])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["green", "blue", "blue"]))
     })
 
     it("Should map data NaN to nan_color value", () => {
@@ -41,7 +42,7 @@ describe("LogColorMapper module", () => {
       const color_mapper = new LogColorMapper({low: 1, high: 100, palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 100])
-      expect(vals).to.be.equal(["red", "gray", "blue"])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "blue"]))
     })
 
     it("Should map data NaN to nan_color value when high/low not set", () => {
@@ -49,7 +50,7 @@ describe("LogColorMapper module", () => {
       const color_mapper = new LogColorMapper({palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 100])
-      expect(vals).to.be.equal(["red", "gray", "blue"])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "blue"]))
     })
 
     it("Should map high/low values to high_color/low_color, if provided", () => {
@@ -57,7 +58,7 @@ describe("LogColorMapper module", () => {
       const color_mapper = new LogColorMapper({low: 1, high: 100, low_color: "pink", high_color: "orange", palette})
 
       const vals = color_mapper.v_compute([0.5, 1, 10, 100, 101])
-      expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))
     })
   })
 })

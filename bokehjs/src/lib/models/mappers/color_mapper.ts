@@ -7,22 +7,20 @@ import {ColorArray} from "core/types"
 import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
 import type {NDArrayType} from "core/util/ndarray"
-import {is_NDArray} from "core/util/ndarray"
+import {is_NDArray, Uint32NDArray} from "core/util/ndarray"
 
 export interface RGBAMapper {
   v_compute(xs: Arrayable<number> | NDArrayType<number> | Arrayable<Factor> | NDArrayType<Factor>): RGBAArray
 }
 
-// export for testing
-export function _convert_color(color: Color): uint32 {
+export function convert_to_uint32_color(color: Color): uint32 {
   return encode_rgba(color2rgba(color))
 }
 
-// export for testing
-export function _convert_palette(palette: Color[]): Uint32Array {
+export function convert_to_uint32_palette(palette: Color[]): Uint32Array {
   const new_palette = new Uint32Array(palette.length)
   for (let i = 0, end = palette.length; i < end; i++) {
-    new_palette[i] = _convert_color(palette[i])
+    new_palette[i] = convert_to_uint32_color(palette[i])
   }
   return new_palette
 }
@@ -60,20 +58,20 @@ export abstract class ColorMapper extends Mapper<Color> {
   }
 
   v_compute(xs: Arrayable<number> | Arrayable<Factor | number | null>): Arrayable<Color> {
-    const values: Color[] = new Array(xs.length)
-    this._v_compute(xs, values, this.palette, this._colors((c) => c))
-    return values
+    const values: ColorArray = new Uint32Array(xs.length)
+    this._v_compute(xs, values, convert_to_uint32_palette(this.palette), this._colors(convert_to_uint32_color))
+    return new Uint32NDArray(values)
   }
 
   get rgba_mapper(): RGBAMapper {
     const self = this
-    const palette = _convert_palette(this.palette)
-    const colors = this._colors(_convert_color)
+    const palette = convert_to_uint32_palette(this.palette)
+    const colors = this._colors(convert_to_uint32_color)
     return {
       v_compute(xs) {
         const length_divisor = is_NDArray(xs) && xs.dimension == 3 ? xs.shape[2] : 1
         const values = new ColorArray(xs.length / length_divisor)
-        self._v_compute_uint32(xs, values, palette, colors)
+        self._v_compute(xs, values, palette, colors)
         return new Uint8ClampedArray(to_big_endian(values).buffer)
       },
     }
@@ -83,11 +81,6 @@ export abstract class ColorMapper extends Mapper<Color> {
     return {nan_color: conv(this.nan_color)}
   }
 
-  protected abstract _v_compute<T>(xs: Arrayable<uint32> | Arrayable<Factor | number | null>,
-    values: Arrayable<T>, palette: Arrayable<T>, colors: {nan_color: T}): void
-
-  protected _v_compute_uint32(xs: Arrayable<uint32> | Arrayable<Factor | number | null>, values: Arrayable<uint32>,
-      palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
-    this._v_compute(xs, values, palette, colors)
-  }
+  protected abstract _v_compute(xs: Arrayable<uint32> | Arrayable<Factor | number | null>,
+    values: Arrayable<uint32>, palette: Arrayable<uint32>, colors: {nan_color: uint32}): void
 }
