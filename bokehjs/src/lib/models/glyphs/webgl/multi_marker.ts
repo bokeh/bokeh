@@ -36,7 +36,8 @@ export class MultiMarkerGL extends BaseMarkerGL {
     const nmarkers = main_gl_glyph.nvertices
 
     const ntypes = main_gl_glyph._unique_marker_types.length
-    for (const marker_type of main_gl_glyph._unique_marker_types) {
+    for (let i = 0; i < main_gl_glyph._unique_marker_types.length; i++) {
+      const marker_type = main_gl_glyph._unique_marker_types[i]
       if (marker_type == null) {
         continue
       }
@@ -52,9 +53,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
         // Set show values of markers to render to 255.
         nshow = 0
-        for (const k of indices) {  // Marker index.
+        for (let k = 0; k < indices.length; k++) {  // Marker index.
           if (ntypes == 1 || main_gl_glyph._marker_types!.get(k) == marker_type) {
-            show_array[k] = 255
+            show_array[indices[k]] = 255
             nshow++
           }
         }
