@@ -15,9 +15,37 @@ import type {ElementLike} from "../renderers/composite_renderer"
 import {isString} from "core/util/types"
 import type {Align, Orientation} from "core/enums"
 import {Title} from "../annotations/title"
-import {Plot} from "../plots/plot"
+import {Plot, PlotView} from "../plots/plot"
 import {FixedTicker} from "../tickers/fixed_ticker"
 import {max, linspace, repeat} from "core/util/array"
+
+class InternalPlotView extends PlotView {
+  declare model: InternalPlot
+
+  override initialize(): void {
+    super.initialize()
+    this._range_manager.warn_initial_ranges = false
+  }
+}
+
+namespace InternalPlot {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Plot.Props
+}
+interface InternalPlot extends InternalPlot.Attrs {}
+
+class InternalPlot extends Plot {
+  declare properties: InternalPlot.Props
+  declare __view_type__: InternalPlotView
+
+  constructor(attrs?: Partial<InternalPlot.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = InternalPlotView
+  }
+}
 
 export class SizeBarView extends BaseBarView {
   declare model: SizeBar
@@ -112,7 +140,7 @@ export class SizeBarView extends BaseBarView {
 
     switch (orientation) {
       case "horizontal": {
-        this._size_bar = new Plot({
+        this._size_bar = new InternalPlot({
           frame_width: 200,
           frame_height: 50,
           renderers: [circle_renderer],
@@ -128,7 +156,7 @@ export class SizeBarView extends BaseBarView {
         break
       }
       case "vertical": {
-        this._size_bar = new Plot({
+        this._size_bar = new InternalPlot({
           frame_width: 50,
           frame_height: 200,
           renderers: [circle_renderer],
