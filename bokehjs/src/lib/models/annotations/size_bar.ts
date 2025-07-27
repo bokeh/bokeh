@@ -157,6 +157,9 @@ export class SizeBarView extends BaseBarView {
 
   override update_layout(): void {
     this.layout = this._size_bar_view.layout
+    this.layout.on_resize(() => {
+      this.parent.request_layout(true)
+    })
   }
 
   get glyph_view(): RadialGlyphView {

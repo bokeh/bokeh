@@ -267,7 +267,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  request_layout(): void {
+  request_layout(force: boolean = false): void {
+    if (force) {
+      this._needs_layout = true
+    }
     this.request_repaint()
   }
 
@@ -861,8 +864,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.update_selection(null)
   }
 
+  private _needs_layout: boolean = false
+
   protected _invalidate_layout_if_needed(): void {
-    const needs_layout = (() => {
+    const needs_layout = this._needs_layout || (() => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel as any) // TODO
         if (view != null) {
@@ -876,6 +881,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })()
 
     if (needs_layout) {
+      this._needs_layout = false
       this.compute_layout()
     }
   }
