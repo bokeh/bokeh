@@ -8,7 +8,7 @@ describe("core/csv", () => {
 
     it("should use default cast function when option not provided", () => {
       const record = [
-        new Date(0), {a: 1}, "foo"
+        new Date(0), {a: 1}, "foo",
       ]
       const data = stringify(
         [
@@ -16,13 +16,13 @@ describe("core/csv", () => {
         ],
       )
       expect(data).to.be.equal(
-        `1970-01-01T00:00:00.000Z,"{""a"":1}",foo\n`
+        "1970-01-01T00:00:00.000Z,\"{\"\"a\"\":1}\",foo\n",
       )
     })
 
     it("should use provided cast function", () => {
       const record = [
-        new Date(), {a: 1}, "foo"
+        new Date(), {a: 1}, "foo",
       ]
       const data = stringify(
         [
@@ -37,8 +37,8 @@ describe("core/csv", () => {
             } else {
               return "string"
             }
-          }
-        }
+          },
+        },
       )
       expect(data).to.be.equal("date,object,string\n")
     })
@@ -46,15 +46,15 @@ describe("core/csv", () => {
     it("catch error", () => {
       const fn = () => {
         stringify([
-            [
-              true,
-            ],
+          [
+            true,
           ],
-          {
-            cast() {
-              throw new Error("Catchme")
-            }
-          }
+        ],
+        {
+          cast() {
+            throw new Error("Catchme")
+          },
+        },
         )
       }
       expect(fn).to.throw(Error, "Catchme")
@@ -68,7 +68,7 @@ describe("core/csv", () => {
           ],
         ],
         // @ts-ignore
-        { cast: (value) => (value ? 1 : 0) },
+        {cast: (value) => (value ? 1 : 0)},
       )
       expect(fn).to.throw(Error, "Invalid Casting Value: string cast function must return a string, got true")
     })
@@ -80,9 +80,9 @@ describe("core/csv", () => {
           {
             cast: (_, context) => {
               expect(
-                Object.keys(context).sort()
+                Object.keys(context).sort(),
               ).to.be.equal(
-                ["column_index", "first_row", "row_index"]
+                ["column_index", "first_row", "row_index"],
               )
               return "a"
             },
@@ -90,7 +90,7 @@ describe("core/csv", () => {
         )
       })
 
-      it("should provide column name, index, and record count", function () {
+      it("should provide first row, and column and row index", function() {
         stringify(
           [
             ["P", "Q"],
@@ -111,10 +111,9 @@ describe("core/csv", () => {
               }
               return ""
             },
-          }
+          },
         )
       })
     })
   })
 })
-
