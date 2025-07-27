@@ -207,12 +207,24 @@ export class DocumentReady extends DocumentEvent {
 
 export abstract class ConnectionEvent extends DocumentEvent {}
 
+/**
+ * Announce when a WebSocket connection was disconnected.
+ *
+ * @member timestamp when the last connection attempt was made
+ * @member attempts  the number of times reconnection was attempted
+ * @member timeout   milliseconds till next reconnection attempt or `null`
+ *                   indicating that no further attempts will be made
+ */
 export class ConnectionLost extends ConnectionEvent {
-  readonly timestamp = new Date()
+  readonly timestamp = Date.now()
+
+  constructor(readonly attempts: number, readonly timeout: number | null) {
+    super()
+  }
 
   protected get event_values(): Attrs {
-    const {timestamp} = this
-    return {timestamp}
+    const {timestamp, attempts, timeout} = this
+    return {timestamp, attempts, timeout}
   }
 
   static {

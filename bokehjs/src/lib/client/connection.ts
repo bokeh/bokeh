@@ -108,13 +108,17 @@ export class ClientConnection {
   }
 
   protected _schedule_reconnect(milliseconds: number): void {
+    // TODO: maybe also show notification we are retrying (which attempt, next attempt in x ms, ...)
+    // TODO: after retries ended, show a button to try one last reconnect.
+
     const retry = () => {
       if (this.closed_permanently || this._reconnection_attempts <= 0) {
         logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        this.session?.document.event_manager.send_event(new ConnectionLost()) // TODO ConnectionLostPermanently
+        this.session?.document.event_manager.send_event(new ConnectionLost(this._reconnection_attempts, null))
       } else {
         if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
           logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts} attempts left`)
+          this.session?.document.event_manager.send_event(new ConnectionLost(this._reconnection_attempts, milliseconds))
 
           this.connect().then(() => {
             logger.info(`Reconnected websocket ${this._number}`)
@@ -130,11 +134,7 @@ export class ClientConnection {
       }
     }
 
-    // TODO: maybe also show notification we are retrying (which attempt, next attempt in x ms, ...)
-
     setTimeout(retry, milliseconds)
-
-    // TODO: after retries ended, show a button to try one last reconnect.
   }
 
   send(message: Message<unknown>): void {
