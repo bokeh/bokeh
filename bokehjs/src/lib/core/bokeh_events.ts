@@ -37,7 +37,8 @@ export type DocumentEventType =
   ConnectionEventType
 
 export type ConnectionEventType =
-  "connection_lost"
+  "connection_lost" |
+  "client_reconnected"
 
 export type ModelEventType =
   "axis_click" |
@@ -83,6 +84,7 @@ export type BokehEventMap = {
   button_click: ButtonClick
   clear_input: ClearInput
   connection_lost: ConnectionLost
+  client_reconnected: ClientReconnected
   document_ready: DocumentReady
   doubletap: DoubleTap
   legend_item_click: LegendItemClick
