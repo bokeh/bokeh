@@ -45,7 +45,11 @@ export class ClientConnection {
   closed_permanently: boolean = false
   readonly id: string
 
-  protected _reconnection_attempts = MAX_RECONNECTION_ATTEMPTS
+  protected _reconnection_attempts_left = MAX_RECONNECTION_ATTEMPTS
+
+  get reconnection_attempts(): number {
+    return MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts_left
+  }
 
   protected _current_handler: ((message: Message<unknown>) => void) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
@@ -112,23 +116,23 @@ export class ClientConnection {
     // TODO: after retries ended, show a button to try one last reconnect.
 
     const retry = () => {
-      if (this.closed_permanently || this._reconnection_attempts <= 0) {
+      if (this.closed_permanently || this._reconnection_attempts_left <= 0) {
         logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        this.session?.document.event_manager.send_event(new ConnectionLost(this._reconnection_attempts, null))
+        this.session?.document.event_manager.send_event(new ConnectionLost(new WeakRef(this), this.reconnection_attempts, null))
       } else {
         if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
-          logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts} attempts left`)
-          this.session?.document.event_manager.send_event(new ConnectionLost(this._reconnection_attempts, milliseconds))
+          logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts_left} attempts left`)
+          this.session?.document.event_manager.send_event(new ConnectionLost(new WeakRef(this), this.reconnection_attempts, milliseconds))
 
           this.connect().then(() => {
             logger.info(`Reconnected websocket ${this._number}`)
-            this._reconnection_attempts = MAX_RECONNECTION_ATTEMPTS
+            this._reconnection_attempts_left = MAX_RECONNECTION_ATTEMPTS
             this.session?.document.event_manager.send_event(new ClientReconnected())
           }).catch(err => {
             logger.debug(`Could not reconnect ${this._number}, ${err}`)
           })
 
-          this._reconnection_attempts -= 1
+          this._reconnection_attempts_left -= 1
         }
 
       }
@@ -240,7 +244,7 @@ export class ClientConnection {
    * first attempt is done immediately.
    */
   private _reconnect_delay(): number {
-    const retries = MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts
+    const retries = MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts_left
     return retries == 0 ? 0 : RECONNECT_BASE_DELAY * 2**retries
   }
 

@@ -16,6 +16,7 @@ import type {Axis} from "../models/axes/axis"
 import type {LegendItem} from "../models/annotations/legend_item"
 import type {Factor} from "../models/ranges/factor_range"
 import type {ClearInput} from "../models/widgets/input_widget"
+import type {ClientConnection} from "../client/connection"
 
 Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
   const cls = deserializable_events.get(rep.name)
@@ -220,7 +221,7 @@ export abstract class ConnectionEvent extends DocumentEvent {}
 export class ConnectionLost extends ConnectionEvent {
   readonly timestamp = Date.now()
 
-  constructor(readonly attempts: number, readonly timeout: number | null) {
+  constructor(private readonly connection: WeakRef<ClientConnection>, readonly attempts: number, readonly timeout: number | null) {
     super()
   }
 
@@ -232,6 +233,10 @@ export class ConnectionLost extends ConnectionEvent {
   static {
     this.prototype.event_name = "connection_lost"
     this.prototype.publish = false
+  }
+
+  reconnect(): void {
+    void this.connection.deref()?.connect()
   }
 }
 
