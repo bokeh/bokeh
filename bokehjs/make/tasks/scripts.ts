@@ -37,7 +37,7 @@ task("scripts:grammar", async () => {
   function compile_grammar(ne_path: string, js_path: string) {
     const is_windows = process.platform == "win32"
     const npx = is_windows ? "npx.cmd" : "npx"
-    const {status, stdout, stderr} = cp.spawnSync(npx, ["nearleyc", ne_path, "-o", js_path], {stdio: "pipe", encoding: "utf-8", shell: is_windows})
+    const {status, stdout, stderr} = cp.spawnSync(npx, ["nearleyc", `"${ne_path}"`, "-o", `"${js_path}"`], {stdio: "pipe", encoding: "utf-8", shell: true})
     if (status !== 0) {
       console.error(stdout)
       console.error(stderr)
