@@ -255,6 +255,27 @@ the plot using the |add layout| method.
 .. bokeh-plot:: __REPO__/examples/basic/annotations/colorbar_log.py
     :source-position: above
 
+.. _ug_basic_annotations_size_bars:
+
+Size bars
+---------
+
+|SizeBar| is a visual indicator that allows gauge the size of radial glyphs,
+like |Circle| or |Ngon|, which essentially allows to add a third dimension to
+2D scatter plots.
+
+To create a |SizeBar| the user needs at least to provide a reference to a glyph
+renderer, either an explicit or an implicit one.
+
+.. code:: python
+
+    from bokeh.models import Range1d, SizeBar
+
+    plot = figure()
+    cr = plot.circle([1, 2, 3], [1, 2, 3], radius=[0.1, 0.5, 1.7])
+    scale_bar = SizeBar(renderer=cr) # or leave the default "auto"
+    plot.add_layout(size_bar, "below")
+
 .. _ug_basic_annotations_scale_bars:
 
 Scale bars
@@ -570,6 +591,7 @@ These are the most commonly used properties for this annotation:
 .. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
+.. |SizeBar|       replace:: :class:`~bokeh.models.annotations.SizeBar`
 .. |ScaleBar|      replace:: :class:`~bokeh.models.annotations.ScaleBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
@@ -578,3 +600,6 @@ These are the most commonly used properties for this annotation:
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
 .. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`
+
+.. |Circle|        replace:: :class:`~bokeh.models.glyphs.Circle`
+.. |Ngon|          replace:: :class:`~bokeh.models.glyphs.Ngon`
