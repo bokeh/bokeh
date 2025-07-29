@@ -754,13 +754,23 @@ class ScaleBar(Annotation):
     title_text_font_style = Override(default="italic")
 
 class SizeBar(BaseColorBar):
-    """ """
+    """ ``SizeBar`` is a visual indicator that allows gauge the size of radial glyphs,
+    like ``Circle`` or ``Ngon``, which essentially allows to add a third dimension to
+    2D scatter plots.
+
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     renderer = Either(GlyphRendererOf(RadialGlyph), Auto, default="auto", help="""
+    A reference to a radial glyph renderer or ``"auto"``.
+
+    If a plot only contains a single radial glyph renderer, then it's safe to
+    use the automatic mode (``"auto"``). In case there are more radial glyph
+    renderers, ``renderer`` property allows to select the one to use with
+    this ``SizeBar``.
     """)
 
 #-----------------------------------------------------------------------------
