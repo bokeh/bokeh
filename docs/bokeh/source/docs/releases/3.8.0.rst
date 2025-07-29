@@ -1,0 +1,8 @@
+.. _release-3-8-0:
+
+3.8.0
+=====
+
+Bokeh version ``3.8.0`` (August 2025) is a minor milestone of Bokeh project.
+
+* Added a tool for toggling selectable text on the canvas (:bokeh-pull:`14472`)
