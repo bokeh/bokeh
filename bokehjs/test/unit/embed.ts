@@ -49,7 +49,7 @@ describe("embed", () => {
     const doc = new Document({roots: [new ModelWithView]})
     const views = await embed.add_document_standalone(doc, document.body)
     try {
-      expect(views.roots.length).to.be.equal(1)
+      expect(views.roots.length).to.be.equal(2) // root + notifications
       const [view] = views.roots
 
       expect(index[view.model.id]).to.be.equal(view)

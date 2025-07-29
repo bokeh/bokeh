@@ -63,6 +63,14 @@ export class ClientConnection {
     logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
   }
 
+  async reconnect(): Promise<void> {
+    if (this.closed_permanently || this.socket != null) {
+      return
+    } else {
+      await this.connect()
+    }
+  }
+
   async connect(): Promise<ClientSession> {
     if (this.closed_permanently) {
       throw new Error("Cannot connect() a closed ClientConnection")

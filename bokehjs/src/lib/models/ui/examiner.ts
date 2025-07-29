@@ -303,7 +303,7 @@ export class ExaminerView extends UIElementView {
       clear(models_list)
       empty(models_list_el)
 
-      const roots = doc != null ? new Set(doc.roots()) : new Set()
+      const roots = doc != null ? new Set(doc.all_roots) : new Set()
       for (const model of models) {
         const root = roots.has(model) ? span({class: "tag"}, "root") : null
         const ref_el = span({class: "model-ref", tabIndex: 0}, to_html(model), root)

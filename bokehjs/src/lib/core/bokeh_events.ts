@@ -236,7 +236,7 @@ export class ConnectionLost extends ConnectionEvent {
   }
 
   reconnect(): void {
-    void this.connection.deref()?.connect()
+    void this.connection.deref()?.reconnect()
   }
 }
 
