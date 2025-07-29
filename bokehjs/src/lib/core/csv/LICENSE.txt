@@ -1,0 +1,5 @@
+The code in this folder is derived from node-csv (https://github.com/adaltas/node-csv)
+
+Original code Copyright (c) 2010 Adaltas
+
+See THIRD_PARTY_LICENSES.md file in project root for full license text.
