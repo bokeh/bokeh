@@ -9,7 +9,7 @@ import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
-import {is_NDArray} from "core/util/ndarray"
+import {is_NDArray, ndget} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -215,7 +215,11 @@ export abstract class ColumnarDataSource extends DataSource {
       for (let c = 0; c < num_columns; c++) {
         const column_name = header_row[c]
         const column = this.get(column_name)
-        row[c] = column[r]
+        if (is_NDArray(column)) {
+          row[c] = ndget(column, r)
+        } else {
+          row[c] = column[r]
+        }
       }
       yield row
     }

@@ -416,3 +416,47 @@ export function ndarray(init: number | ArrayBufferLike | ArrayLike<unknown>, {dt
     case "object":  return new ObjectNDArray(init, shape)
   }
 }
+
+// Take a flat representation of an n-dimensional array and return generator
+// that iterates through the first axis, returning nested
+export function* nditer(flat: NDArray | Arrayable<unknown>, shape?: number[], start = 0): Generator<unknown> {
+  if (shape == null) {
+    if ("shape" in flat && Array.isArray(flat.shape)) {
+      shape = flat.shape
+    } else {
+      throw new Error("No shape provided to nditer.")
+    }
+  }
+
+  if (shape.length === 0) {
+    yield flat[start]
+  } else if (shape.length === 1) {
+    yield flat.slice(start, start + shape[0])
+  } else {
+    const [length, ...subshape] = shape
+    const item_size = subshape.reduce((product, curr) => product * curr, 1)
+    for (let i = 0; i < length; i++) {
+      yield Array.from(nditer(flat, subshape, start + i * item_size))
+    }
+  }
+}
+
+export function ndget(flat: NDArray | Arrayable<unknown>, index: number, shape?: number[]): unknown {
+  if (shape == null) {
+    if ("shape" in flat && Array.isArray(flat.shape)) {
+      shape = flat.shape
+    } else {
+      throw new Error("No shape provided to nditer.")
+    }
+  }
+
+  if (shape.length === 0) {
+    return flat[0]
+  } else if (shape.length === 1) {
+    return flat[index]
+  } else {
+    const [_, ...subshape] = shape
+    const item_size = subshape.reduce((product, curr) => product * curr, 1)
+    return Array.from(nditer(flat, subshape, index * item_size))
+  }
+}
