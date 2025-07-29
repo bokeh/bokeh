@@ -99,7 +99,10 @@ def _get_or_create_legend(plot: Plot, legend_name: str | None) -> Legend:
             return legend
         if len(legends) == 1:
             return legends[0]
-        raise RuntimeError(f"Plot {plot} configured with more than one legend renderer, cannot use legend_* convenience arguments")
+        raise RuntimeError(
+            f"Plot {plot} configured with more than one legend renderer, cannot use legend_* convenience arguments."
+            "Make legends unique by applying a name and assign renderers with 'legend_name' argument to a legend.",
+        )
 
 def _handle_legend_field(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
     if not isinstance(label, str):
