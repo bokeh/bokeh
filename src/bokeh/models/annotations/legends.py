@@ -54,7 +54,6 @@ from ...core.properties import (
     NullStringSpec,
     Override,
     Positive,
-    Required,
     Seq,
     String,
     TextLike,
@@ -761,7 +760,7 @@ class SizeBar(BaseColorBar):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    renderer = Required(GlyphRendererOf(RadialGlyph), help="""
+    renderer = Either(GlyphRendererOf(RadialGlyph), Auto, default="auto", help="""
     """)
 
 #-----------------------------------------------------------------------------

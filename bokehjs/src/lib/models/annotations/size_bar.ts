@@ -1,5 +1,6 @@
 import {BaseBar, BaseBarView} from "./base_bar"
-import type {RadialGlyph, RadialGlyphView} from "../glyphs/radial_glyph"
+import type {RadialGlyphView} from "../glyphs/radial_glyph"
+import {RadialGlyph} from "../glyphs/radial_glyph"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {Context2d} from "core/util/canvas"
 import type {Range} from "../ranges/range"
@@ -18,6 +19,8 @@ import {Title} from "../annotations/title"
 import {Plot, PlotView} from "../plots/plot"
 import {FixedTicker} from "../tickers/fixed_ticker"
 import {max, linspace, repeat} from "core/util/array"
+import {logger} from "core/logging"
+import {Circle} from "../glyphs/circle"
 
 class InternalPlotView extends PlotView {
   declare model: InternalPlot
@@ -115,7 +118,7 @@ export class SizeBarView extends BaseBarView {
     this._minor_range = new DataRange1d()
     this._minor_scale = new LinearScale()
 
-    const {renderer} = this.model
+    const renderer = this.renderer ?? new GlyphRenderer({glyph: new Circle()})
 
     const Cls = renderer.glyph.constructor as any // expression not constructible
     const glyph: RadialGlyph = new Cls({
@@ -190,13 +193,45 @@ export class SizeBarView extends BaseBarView {
     })
   }
 
-  get glyph_view(): RadialGlyphView {
-    const rv = this.plot_view.views.get_one(this.model.renderer)
-    return rv.glyph_view as RadialGlyphView
+  get renderer(): GlyphRenderer<RadialGlyph> | null {
+    const {renderer} = this.model
+    if (renderer == "auto") {
+      const renderers = this.plot_view.model.renderers.filter((r): r is GlyphRenderer<RadialGlyph> => {
+        return r instanceof GlyphRenderer && r.glyph instanceof RadialGlyph
+      })
+      switch (renderers.length) {
+        case 0: {
+          logger.warn("can't find any radial glyph renderers")
+          return null
+        }
+        case 1: {
+          return renderers[0]
+        }
+        default: {
+          logger.warn("found multiple radial glyph renderers; choosing the first one")
+          return renderers[0]
+        }
+      }
+    } else {
+      return renderer
+    }
+  }
+
+  get glyph_view(): RadialGlyphView | null {
+    const {renderer} = this
+    if (renderer == null) {
+      return null
+    } else {
+      const rv = this.plot_view.views.get_one(renderer)
+      return rv.glyph_view as RadialGlyphView
+    }
   }
 
   protected _paint(_ctx: Context2d): void {
     const {glyph_view} = this
+    if (glyph_view == null) {
+      return
+    }
 
     const start = Math.ceil(uniforms.min(glyph_view.radius))
     const end = Math.floor(uniforms.max(glyph_view.radius))
@@ -227,7 +262,7 @@ export namespace SizeBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = BaseBar.Props & {
-    renderer: p.Property<GlyphRenderer<RadialGlyph>>
+    renderer: p.Property<GlyphRenderer<RadialGlyph> | "auto">
   }
 }
 
@@ -244,8 +279,8 @@ export class SizeBar extends BaseBar {
   static {
     this.prototype.default_view = SizeBarView
 
-    this.define<SizeBar.Props>(({Ref}) => ({
-      renderer: [ Ref(GlyphRenderer) ],
+    this.define<SizeBar.Props>(({Ref, Auto, Or}) => ({
+      renderer: [ Or(Ref(GlyphRenderer), Auto), "auto" ],
     }))
   }
 }

@@ -1584,10 +1584,7 @@
   },
   SizeBar: {
     __extends__: "BaseColorBar",
-    renderer: {
-      type: "symbol",
-      name: "unset",
-    },
+    renderer: "auto",
   },
   Axis: {
     __extends__: "GuideRenderer",
