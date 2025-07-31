@@ -84,13 +84,13 @@ export class BitSet implements Equatable {
     return bits
   }
 
-  protected _get(k: number): boolean {
+  get_unchecked(k: number): boolean {
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
     return ((this._array[i] >> j) & 0b1) == 0b1
   }
 
-  protected _set(k: number, v: boolean = true): void {
+  set_unchecked(k: number, v: boolean = true): void {
     this._count = null
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
@@ -104,9 +104,9 @@ export class BitSet implements Equatable {
   get(k: number): boolean {
     const {size} = this
     if (0 <= k && k < size) {
-      return this._get(k)
+      return this.get_unchecked(k)
     } else if (-size <= k && k <= -1) {
-      return this._get(size + k)
+      return this.get_unchecked(size + k)
     } else {
       return false
     }
@@ -115,9 +115,9 @@ export class BitSet implements Equatable {
   set(k: number, v: boolean = true): void {
     const {size} = this
     if (0 <= k && k < size) {
-      this._set(k, v)
+      this.set_unchecked(k, v)
     } else if (-size <= k && k <= -1) {
-      this._set(size + k, v)
+      this.set_unchecked(size + k, v)
     } else {
       logger.warn(`out of bounds access: index=${k >= 0 ? k : size + k} >= size=${size}`)
     }
