@@ -3,6 +3,7 @@ import {equals} from "./eq"
 import type {Arrayable, ArrayableNew} from "../types"
 import {assert} from "./assert"
 import {has_refs} from "core/util/refs"
+import {logger} from "core/logging"
 
 export class BitSet implements Equatable {
   readonly [Symbol.toStringTag] = "BitSet"
@@ -83,23 +84,13 @@ export class BitSet implements Equatable {
     return bits
   }
 
-  private _check_bounds(k: number): void {
-    assert(0 <= k && k < this.size, `Out of bounds: 0 <= ${k} < ${this.size}`)
-  }
-
-  get(k: number): boolean {
-    this._check_bounds(k)
+  get_unchecked(k: number): boolean {
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
     return ((this._array[i] >> j) & 0b1) == 0b1
   }
 
-  set(k: number, v: boolean = true): void {
-    this._check_bounds(k)
-    this.set_without_bounds_check(k, v)
-  }
-
-  set_without_bounds_check(k: number, v: boolean = true): void {
+  set_unchecked(k: number, v: boolean = true): void {
     this._count = null
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
@@ -107,6 +98,28 @@ export class BitSet implements Equatable {
       this._array[i] |= 0b1 << j
     } else {
       this._array[i] &= ~(0b1 << j)
+    }
+  }
+
+  get(k: number): boolean {
+    const {size} = this
+    if (0 <= k && k < size) {
+      return this.get_unchecked(k)
+    } else if (-size <= k && k <= -1) {
+      return this.get_unchecked(size + k)
+    } else {
+      return false
+    }
+  }
+
+  set(k: number, v: boolean = true): void {
+    const {size} = this
+    if (0 <= k && k < size) {
+      this.set_unchecked(k, v)
+    } else if (-size <= k && k <= -1) {
+      this.set_unchecked(size + k, v)
+    } else {
+      logger.warn(`out of bounds access: index=${k >= 0 ? k : size + k} >= size=${size}`)
     }
   }
 
