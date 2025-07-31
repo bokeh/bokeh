@@ -3,6 +3,9 @@ import {BitSet} from "@bokehjs/core/util/bitset"
 import {range} from "@bokehjs/core/util/array"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {may_have_refs} from "@bokehjs/core/util/refs"
+import {version as js_version} from "@bokehjs/version"
+
+import {trap} from "../../../util"
 
 describe("core/util/bitset module", () => {
 
@@ -45,8 +48,11 @@ describe("core/util/bitset module", () => {
       expect(bs0.get(37)).to.be.equal(false)
       expect(bs0.get(38)).to.be.equal(true)
 
-      expect(bs0.get(-1)).to.be.equal(false)
+      expect(bs0.get(-1)).to.be.equal(true)
       expect(bs0.get(39)).to.be.equal(false)
+
+      expect(bs0.get(-39)).to.be.equal(true)
+      expect(bs0.get(-40)).to.be.equal(false)
     })
 
     it("should support set() method", () => {
@@ -58,11 +64,22 @@ describe("core/util/bitset module", () => {
       bs.set(0, true)
       expect(bs.get(0)).to.be.true
 
-      bs.set(-1, true)
+      expect(bs.get(-1)).to.be.true
+      expect(bs.get(4)).to.be.true
+      bs.set(-1, false)
       expect(bs.get(-1)).to.be.false
+      expect(bs.get(4)).to.be.false
+      bs.set(-1, true)
+      expect(bs.get(-1)).to.be.true
+      expect(bs.get(4)).to.be.true
 
-      bs.set(5, true)
+      const out0 = trap(() => bs.set(5, true))
+      expect(out0.warn).to.be.equal(`[bokeh ${js_version}] out of bounds access: index=5 >= size=5\n`)
       expect(bs.get(5)).to.be.false
+
+      const out1 = trap(() => bs.set(-6, true))
+      expect(out1.warn).to.be.equal(`[bokeh ${js_version}] out of bounds access: index=-1 >= size=5\n`)
+      expect(bs.get(-6)).to.be.false
     })
 
     it("should support iterator protocol", () => {

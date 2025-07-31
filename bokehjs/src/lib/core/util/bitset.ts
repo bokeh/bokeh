@@ -3,6 +3,7 @@ import {equals} from "./eq"
 import type {Arrayable, ArrayableNew} from "../types"
 import {assert} from "./assert"
 import {has_refs} from "core/util/refs"
+import {logger} from "core/logging"
 
 export class BitSet implements Equatable {
   readonly [Symbol.toStringTag] = "BitSet"
@@ -101,16 +102,24 @@ export class BitSet implements Equatable {
   }
 
   get(k: number): boolean {
-    if (0 <= k && k < this.size) {
+    const {size} = this
+    if (0 <= k && k < size) {
       return this._get(k)
+    } else if (-size <= k && k <= -1) {
+      return this._get(size + k)
     } else {
       return false
     }
   }
 
   set(k: number, v: boolean = true): void {
-    if (0 <= k && k < this.size) {
+    const {size} = this
+    if (0 <= k && k < size) {
       this._set(k, v)
+    } else if (-size <= k && k <= -1) {
+      this._set(size + k, v)
+    } else {
+      logger.warn(`out of bounds access: index=${k >= 0 ? k : size + k} >= size=${size}`)
     }
   }
 
