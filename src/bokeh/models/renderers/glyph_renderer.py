@@ -39,7 +39,7 @@ from ...core.properties import (
 from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
-from ..glyphs import ConnectedXYGlyph, Glyph
+from ..glyph import ConnectedXYGlyph, Glyph
 from ..graphics import Decoration, Marking
 from ..sources import (
     CDSView,
