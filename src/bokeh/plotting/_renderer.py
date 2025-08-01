@@ -133,9 +133,8 @@ def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> Glyph
     plot.renderers.append(glyph_renderer)
 
     if legend_kwarg:
-        # It must be after the renderer is added because
-        # if it creates a new `LegendItem`, the referenced
-        # renderer must already be present.
+        # It must be after the renderer is added because if it creates a new `LegendItem`,
+        # the referenced renderer must already be present.
         update_legend(plot, legend_kwarg, legend_name, glyph_renderer)
 
     return glyph_renderer

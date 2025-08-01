@@ -185,3 +185,29 @@ class Test__get_or_create_legend:
         with pytest.raises(RuntimeError) as e:
             bpl._get_or_create_legend(plot, None)
             assert str(e).endswith('configured with more than one legend renderer, cannot use legend_* convenience arguments')
+
+    def test_legend_name(self) -> None:
+        p = figure()
+        legend = Legend(name="foo")
+        p.add_layout(legend, "below")
+        cr = p.circle([1, 2, 3], [1, 2, 3], legend_label="bar", legend_name="foo")
+
+        assert len(legend.items) == 1
+        assert legend.items[0].label == value("bar")
+        assert legend.items[0].renderers == [cr]
+
+    def test_legend_name_missing(self) -> None:
+        p = figure()
+
+        with pytest.raises(RuntimeError):
+            p.circle([1, 2, 3], [1, 2, 3], legend_label="bar", legend_name="foo")
+
+    def test_legend_name_multiple(self) -> None:
+        p = figure()
+        legend0 = Legend(name="foo")
+        legend1 = Legend(name="foo")
+        p.add_layout(legend0, "below")
+        p.add_layout(legend1, "above")
+
+        with pytest.raises(RuntimeError):
+            p.circle([1, 2, 3], [1, 2, 3], legend_label="bar", legend_name="foo")
