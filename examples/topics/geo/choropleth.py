@@ -50,4 +50,4 @@ p.patches(county_xs, county_ys,
 p.patches(state_xs, state_ys, fill_alpha=0.0,
           line_color="#884444", line_width=2, line_alpha=0.3)
 
-show(p)  # Change to save(p) to save but not show the HTML file
+show(p)
