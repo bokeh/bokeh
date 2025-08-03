@@ -21,8 +21,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal, override
 from dataclasses import dataclass
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Sequence,
+)
 
 # External imports
 import numpy as np
@@ -110,6 +115,13 @@ class ValidationEntry:
 class ValidationContext:
 
     entries: list[ValidationEntry]
+
+    @property
+    def has_failure(self) -> bool:
+        return self.entries != []
+
+    def __init__(self) -> None:
+        self.entries = []
 
     def warn(self, text: str, exception: ValueValidationError | None = None) -> None:
         self.entries.append(ValidationEntry("warning", text, exception))
@@ -268,13 +280,8 @@ class DataSpec(Either):
 
         return val
 
-    def validate_column_type(self, column: Any, context: ValidationContext) -> bool:
-        """ Validate the type of the column, but not its data, i.e. fast validation. """
-        return True
-
-    def validate_column_data(self, column: Any, context: ValidationContext) -> bool:
-        """ Validate the data in the column, i.e. slow validation. """
-        return True
+    def validate_column(self, column: Any, context: ValidationContext) -> None:
+        """ Validate the data in a column of a ``ColumnarDataSource``. """
 
 class BoolSpec(DataSpec):
     def __init__(self, default, *, help: str | None = None) -> None:
@@ -665,17 +672,25 @@ class NDArraySpec(DataSpec):
         super().__init__(Float, default=default, help=help)
         self.ndims = ndims
 
-    @override
-    def validate_column_type(self, column: Any, context: ValidationContext) -> bool:
-        if isinstance(column, np.ndarray):
-            if not (column.ndim == self.ndims and column.dtype == np.floating):
-                context.error(f"expected ndarray[{self.ndims}d, floating], got ndarray[{column.ndim}d, {column.dtype}]")
-                return False
-        else:
-            context.error(f"expected an ndarray, got a value of type {type(column)})")
-            return False
+    # TODO @override
+    # Can't use it currently, because it must be imported from typing_extensions because of Python 3.10 and
+    # 3.11. However, that module is banned on the top-level and this is a decorator, so we can't hide it
+    # behind TYPE_CHECKING.
+    def validate_column(self, column: Any, context: ValidationContext) -> None:
+        super().validate_column(column, context)
 
-        return True
+        if not isinstance(column, Sequence):
+            context.error(f"expected a sequence of ndarrays, got a value of type {type(column)}")
+        else:
+            for i, value in enumerate(column):
+                if not isinstance(value, np.ndarray):
+                    context.error(f"expected {self._nd_type} at index {i}, got a value of type {type(value)}")
+                elif not (value.ndim == self.ndims and (value.dtype == np.floating or value.dtype == np.integer)):
+                    context.error(f"expected {self._nd_type} at index {i}, got ndarray[{value.ndim}d, {value.dtype}]")
+
+    @property
+    def _nd_type(self) -> str:
+        return f"ndarray[{self.ndims}d, floating | integer]"
 
 #-----------------------------------------------------------------------------
 # Dev API
