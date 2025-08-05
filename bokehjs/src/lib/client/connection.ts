@@ -64,11 +64,7 @@ export class ClientConnection {
   }
 
   async reconnect(): Promise<void> {
-    if (this.closed_permanently || this.socket != null) {
-      return
-    } else {
-      await this.connect()
-    }
+    this._try_reconnect(true)
   }
 
   async connect(): Promise<ClientSession> {
@@ -119,34 +115,37 @@ export class ClientConnection {
     }
   }
 
-  protected _schedule_reconnect(milliseconds: number): void {
-    // TODO: maybe also show notification we are retrying (which attempt, next attempt in x ms, ...)
-    // TODO: after retries ended, show a button to try one last reconnect.
+  protected _try_reconnect(force: boolean = false): void {
+    if (this.closed_permanently) {
+      logger.info(`Websocket connection ${this._number} permanently disconnected, will not attempt to reconnect`)
+    } else if (!force && this._reconnection_attempts_left <= 0) {
+      logger.info(`Websocket connection ${this._number} disconnected, will not attempt to automatically reconnect`)
+    } else {
+      if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
+        this._reconnection_attempts_left -= 1
 
-    const retry = () => {
-      if (this.closed_permanently || this._reconnection_attempts_left <= 0) {
-        logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        this.session?.document.event_manager.send_event(new ConnectionLost(new WeakRef(this), this.reconnection_attempts, null))
-      } else {
-        if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
-          logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts_left} attempts left`)
-          this.session?.document.event_manager.send_event(new ConnectionLost(new WeakRef(this), this.reconnection_attempts, milliseconds))
+        logger.debug(`Attempting to reconnect websocket ${this._number}, ${this._reconnection_attempts_left} attempts left`)
 
-          this.connect().then(() => {
-            logger.info(`Reconnected websocket ${this._number}`)
-            this._reconnection_attempts_left = MAX_RECONNECTION_ATTEMPTS
-            this.session?.document.event_manager.send_event(new ClientReconnected())
-          }).catch(err => {
-            logger.debug(`Could not reconnect ${this._number}, ${err}`)
-          })
-
-          this._reconnection_attempts_left -= 1
-        }
-
+        this.connect().then(() => {
+          logger.info(`Reconnected websocket ${this._number}`)
+          this._reconnection_attempts_left = MAX_RECONNECTION_ATTEMPTS
+          this.session?.document.event_manager.send_event(new ClientReconnected())
+        }).catch(err => {
+          logger.debug(`Could not reconnect ${this._number}, ${err}`)
+        })
       }
     }
+  }
 
-    setTimeout(retry, milliseconds)
+  protected _schedule_reconnect(milliseconds: number): void {
+    const should_reconnect = this._reconnection_attempts_left > 0
+    const timeout = should_reconnect ? milliseconds : null
+    const event = new ConnectionLost(new WeakRef(this), this.reconnection_attempts, timeout)
+    this.session?.document.event_manager.send_event(event)
+
+    if (should_reconnect) {
+      setTimeout(() => this._try_reconnect(), milliseconds)
+    }
   }
 
   send(message: Message<unknown>): void {
