@@ -120,13 +120,13 @@ class BaseColorBar(Annotation):
 
     location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
-    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
-    tuple indicating an absolute location absolute location in screen
-    coordinates (pixels from the bottom-left corner).
+    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)`` tuple
+    indicating an absolute location in screen coordinates (pixels from the
+    bottom-left corner).
 
     .. warning::
         If the color bar is placed in a side panel, the location will likely
-        have to be set to `(0,0)`.
+        have to be set to `(0, 0)`.
     """)
 
     orientation = Either(Enum(Orientation), Auto, default="auto", help="""
@@ -378,8 +378,8 @@ class Legend(Annotation):
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
     :class:`~bokeh.core.enums.LegendLocation`'s enumerated values, or a ``(x, y)``
-    tuple indicating an absolute location absolute location in screen
-    coordinates (pixels from the bottom-left corner).
+    tuple indicating an absolute location in screen coordinates (pixels from the
+    bottom-left corner).
     """)
 
     orientation = Enum(Orientation, default="vertical", help="""
@@ -766,12 +766,12 @@ class BaseBar(Annotation):
     location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
     The location where the bar should draw itself. It's either one of
     ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
-    tuple indicating an absolute location absolute location in screen
-    coordinates (pixels from the bottom-left corner).
+    tuple indicating an absolute location in screen coordinates (pixels
+    from the bottom-left corner).
 
     .. warning::
         If the bar is placed in a side panel, the location will likely
-        have to be set to `(0,0)`.
+        have to be set to `(0, 0)`.
     """)
 
     orientation = Either(Enum(Orientation), Auto, default="auto", help="""
