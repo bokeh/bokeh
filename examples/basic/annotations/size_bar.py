@@ -1,3 +1,10 @@
+"""
+Example demonstrating the SizeBar annotation for radial glyphs.
+
+SizeBar provides a visual reference for understanding the size mapping
+in scatter plots where circle radius varies with data values.
+"""
+
 import numpy as np
 
 from bokeh.models import SizeBar

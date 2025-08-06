@@ -894,8 +894,8 @@ class BaseBar(Annotation):
     background_fill_alpha = Override(default=0.95)
 
 class SizeBar(BaseBar):
-    """ ``SizeBar`` is a visual indicator that allows gauge the size of radial glyphs,
-    like ``Circle`` or ``Ngon``, which essentially allows to add a third dimension to
+    """ ``SizeBar`` is a visual indicator that allows you to gauge the size of radial glyphs,
+    like ``Circle`` or ``Ngon``, which essentially allows you to add a third dimension to
     2D scatter plots.
 
     """
