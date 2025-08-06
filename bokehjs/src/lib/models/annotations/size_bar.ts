@@ -9,6 +9,7 @@ import {LinearScale} from "../scales"
 import {DataRange1d} from "../ranges/data_range1d"
 import {LinearAxis} from "../axes/linear_axis"
 import type * as p from "core/properties"
+import * as mixins from "core/property_mixins"
 import * as uniforms from "core/uniforms"
 import {ColumnDataSource} from "../sources/column_data_source"
 import type {ViewOf} from "core/build_views"
@@ -17,6 +18,8 @@ import {isString} from "core/util/types"
 import type {Align, Orientation} from "core/enums"
 import {Title} from "../annotations/title"
 import {Plot, PlotView} from "../plots/plot"
+import type {TickFormatter} from "../formatters/tick_formatter"
+import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {FixedTicker} from "../tickers/fixed_ticker"
 import {max, linspace, repeat} from "core/util/array"
 import {logger} from "core/logging"
@@ -64,6 +67,7 @@ export class SizeBarView extends BaseBarView {
   protected _data_source: ColumnDataSource
   protected _major_axis: LinearAxis
   protected _major_ticker: FixedTicker
+  protected _major_formatter: TickFormatter
 
   get align(): {h: Align, v: Align} {
     const {location} = this.model
@@ -136,41 +140,72 @@ export class SizeBarView extends BaseBarView {
     })
     const circle_renderer = new GlyphRenderer({data_source: this._data_source, glyph})
 
-    this._major_ticker = new FixedTicker({ticks: []})
-    this._major_axis = new LinearAxis({ticker: this._major_ticker, axis_line_color: null})
+    const {ticker, formatter} = this.model
+    this._major_ticker = ticker != "auto" ? ticker : new FixedTicker({ticks: []})
+    this._major_formatter = formatter != "auto" ? formatter : new BasicTickFormatter()
+    this._major_axis = new LinearAxis({
+      ticker: this._major_ticker,
+      formatter: this._major_formatter,
+      axis_line_color: null,
+      major_label_standoff: this.model.label_standoff,
+      major_tick_in: this.model.major_tick_in,
+      major_tick_out: this.model.major_tick_out,
+      minor_tick_in: this.model.minor_tick_in,
+      minor_tick_out: this.model.minor_tick_out,
+      major_label_overrides: this.model.major_label_overrides,
+      major_label_policy: this.model.major_label_policy,
+      ...mixins.attrs_of(this.model, "major_label_", mixins.Text, true),
+      ...mixins.attrs_of(this.model, "major_tick_", mixins.Line, true),
+      ...mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true),
+    })
 
-    const {title} = this.model
+    const {width, height} = this.model
+
+    const title = new Title({
+      text: this.model.title ?? undefined,
+      standoff: this.model.title_standoff,
+      ...mixins.attrs_of(this.model, "title_", mixins.Text, false),
+    })
+
+    const plot_attrs: Partial<InternalPlot.Attrs> = {
+      renderers: [circle_renderer],
+      toolbar_location: null,
+      title,
+      ...mixins.attrs_of(this.model, "background_", mixins.Fill, true),
+      ...mixins.attrs_of(this.model, "background_", mixins.Hatch, true),
+      // TODO plot border is not what you think
+      // ...mixins.attrs_of(this.model, "border_", mixins.Line, true),
+      ...mixins.attrs_of(this.model, "bar_", mixins.Line, "outline_"),
+    }
 
     switch (orientation) {
       case "horizontal": {
         this._size_bar = new InternalPlot({
-          frame_width: 200,
-          frame_height: 50,
-          renderers: [circle_renderer],
+          width_policy: width == "max" ? "max" : "fit",
+          height_policy: height == "max" ? "max" : "fit",
+          frame_width: width == "max" ? undefined : width,
+          frame_height: height == "max" ? undefined : height,
           below: [this._major_axis],
           x_range: this._major_range,
           y_range: this._minor_range,
           x_scale: this._major_scale,
           y_scale: this._minor_scale,
-          toolbar_location: null,
-          outline_line_color: null,
-          title: new Title({text: title ?? undefined}),
+          ...plot_attrs,
         })
         break
       }
       case "vertical": {
         this._size_bar = new InternalPlot({
-          frame_width: 50,
-          frame_height: 200,
-          renderers: [circle_renderer],
+          width_policy: height == "max" ? "max" : "fit",
+          height_policy: width == "max" ? "max" : "fit",
+          frame_width: height == "max" ? undefined : height,
+          frame_height: width == "max" ? undefined : width,
           right: [this._major_axis],
           x_range: this._minor_range,
           y_range: this._major_range,
           x_scale: this._minor_scale,
           y_scale: this._major_scale,
-          toolbar_location: null,
-          outline_line_color: null,
-          title: new Title({text: title ?? undefined}),
+          ...plot_attrs,
         })
         break
       }

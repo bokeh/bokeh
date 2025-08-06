@@ -753,7 +753,147 @@ class ScaleBar(Annotation):
     title_text_font_size = Override(default="13px")
     title_text_font_style = Override(default="italic")
 
-class SizeBar(BaseColorBar):
+@abstract
+class BaseBar(Annotation):
+    """ Abstract base class for legend bars.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    location = Either(Enum(HVAlign), Tuple(Float, Float), default="top_right", help="""
+    The location where the bar should draw itself. It's either one of
+    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
+    tuple indicating an absolute location absolute location in screen
+    coordinates (pixels from the bottom-left corner).
+
+    .. warning::
+        If the bar is placed in a side panel, the location will likely
+        have to be set to `(0,0)`.
+    """)
+
+    orientation = Either(Enum(Orientation), Auto, default="auto", help="""
+    Whether the bar should be oriented vertically or horizontally.
+    """)
+
+    width = Either(Enum("max"), Int, default=200, help="""
+    The width (in pixels) that the color scale should occupy.
+    """)
+
+    height = Either(Enum("max"), Int, default=50, help="""
+    The height (in pixels) that the color scale should occupy.
+    """)
+
+    margin = Int(30, help="""
+    Amount of margin (in pixels) around the outside of the bar.
+    """)
+
+    padding = Int(10, help="""
+    Amount of padding (in pixels) between the color scale and bar border.
+    """)
+
+    title = Nullable(TextLike, help="""
+    The title text to render.
+    """)
+
+    title_standoff = Int(2, help="""
+    The distance (in pixels) to separate the title from the bar.
+    """)
+
+    title_props = Include(ScalarTextProps, prefix="title", help="""
+    The {prop} values for the title text.
+    """)
+
+    title_text_font_size = Override(default="13px")
+
+    title_text_font_style = Override(default="italic")
+
+    ticker = Either(Instance(FixedTicker), Auto, default="auto", help="""
+    A Ticker to use for computing locations of axis components.
+    """)
+
+    formatter = Either(Instance(TickFormatter), Auto, default="auto", help="""
+    A ``TickFormatter`` to use for formatting the visual appearance of ticks.
+    """)
+
+    major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
+    Provide explicit tick label values for specific tick locations that
+    override normal formatting.
+    """)
+
+    major_label_policy = Instance(LabelingPolicy, default=InstanceDefault(NoOverlap), help="""
+    Allows to filter out labels, e.g. declutter labels to avoid overlap.
+    """)
+
+    major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
+    The {prop} of the major tick labels.
+    """)
+
+    major_label_text_font_size = Override(default="11px")
+
+    label_standoff = Int(5, help="""
+    The distance (in pixels) to separate the tick labels from the bar.
+    """)
+
+    major_tick_props = Include(ScalarLineProps, prefix="major_tick", help="""
+    The {prop} of the major ticks.
+    """)
+
+    major_tick_line_color = Override(default="black")
+
+    major_tick_in = Int(default=5, help="""
+    The distance (in pixels) that major ticks should extend into the
+    main plot area.
+    """)
+
+    major_tick_out = Int(default=0, help="""
+    The distance (in pixels) that major ticks should extend out of the
+    main plot area.
+    """)
+
+    minor_tick_props = Include(ScalarLineProps, prefix="minor_tick", help="""
+    The {prop} of the minor ticks.
+    """)
+
+    minor_tick_line_color = Override(default=None)
+
+    minor_tick_in = Int(default=0, help="""
+    The distance (in pixels) that minor ticks should extend into the
+    main plot area.
+    """)
+
+    minor_tick_out = Int(default=0, help="""
+    The distance (in pixels) that major ticks should extend out of the
+    main plot area.
+    """)
+
+    bar_props = Include(ScalarLineProps, prefix="bar", help="""
+    The {prop} for the color scale bar outline.
+    """)
+
+    bar_line_color = Override(default=None)
+
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the bar border outline.
+    """)
+
+    border_line_color = Override(default=None)
+
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the bar background style.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
+    The {prop} for the bar background style.
+    """)
+
+    background_fill_color = Override(default="#ffffff")
+
+    background_fill_alpha = Override(default=0.95)
+
+class SizeBar(BaseBar):
     """ ``SizeBar`` is a visual indicator that allows gauge the size of radial glyphs,
     like ``Circle`` or ``Ngon``, which essentially allows to add a third dimension to
     2D scatter plots.
