@@ -1197,7 +1197,7 @@ control LOD behavior:
 
 .. |Selection| replace:: :class:`~bokeh.models.selections.Selection`
 
-.. |hover_basic| image:: /_images/hover.svg
+.. |hover_basic| image:: /_images/icons/hover.svg
 
 .. |box_select_icon| image:: /_images/icons/box-select.svg
     :height: 19px
