@@ -52,14 +52,15 @@ LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 # Dev API
 #-----------------------------------------------------------------------------
 
-def pop_legend_kwarg(kwargs: dict[str, Any]):
+def pop_legend_kwarg(kwargs: dict[str, Any]) -> tuple[Any, str]:
     result = {attr: kwargs.pop(attr) for attr in LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
         raise ValueError(f"Only one of {nice_join(LEGEND_ARGS)} may be provided, got: {nice_join(result.keys())}")
-    return result
+    legend_name = kwargs.pop("legend_name", None)
+    return result, legend_name
 
-def update_legend(plot: Plot, legend_kwarg: dict[str, Any], glyph_renderer: GlyphRenderer[Glyph]):
-    legend = _get_or_create_legend(plot)
+def update_legend(plot: Plot, legend_kwarg: dict[str, Any], legend_name: str | None, glyph_renderer: GlyphRenderer[Glyph]):
+    legend = _get_or_create_legend(plot, legend_name)
     kwarg, value = next(iter(legend_kwarg.items()))
 
     _LEGEND_KWARG_HANDLERS[kwarg](value, legend, glyph_renderer)
@@ -74,7 +75,7 @@ def _find_legend_item(label: DataSpec[str | None], legend: Legend) -> LegendItem
             return item
     return None
 
-def _get_or_create_legend(plot: Plot) -> Legend:
+def _get_or_create_legend(plot: Plot, legend_name: str | None) -> Legend:
     # Using the simpler plot.select(type=Legend) to find the existing legend
     # here is very inefficient on already populated plots, therefore we do it
     # like this. TODO: This will need to be reworked when introducing nested
@@ -82,13 +83,26 @@ def _get_or_create_legend(plot: Plot) -> Legend:
     panels = plot.above + plot.below + plot.left + plot.right + plot.center
     legends = [obj for obj in panels if isinstance(obj, Legend)]
 
-    if not legends:
-        legend = Legend()
-        plot.add_layout(legend)
-        return legend
-    if len(legends) == 1:
-        return legends[0]
-    raise RuntimeError(f"Plot {plot} configured with more than one legend renderer, cannot use legend_* convenience arguments")
+    if legend_name is not None:
+        legends = [legend for legend in legends if legend.name == legend_name]
+        if len(legends) == 1:
+            return legends[0]
+        elif not legends:
+            raise RuntimeError(f"can't find Legend instance with '{legend_name}' name")
+        else:
+            raise RuntimeError(f"found multiple Legend instances with '{legend_name}' name")
+    else:
+        legends = [legend for legend in legends if legend.name is None]
+        if not legends:
+            legend = Legend()
+            plot.add_layout(legend)
+            return legend
+        if len(legends) == 1:
+            return legends[0]
+        raise RuntimeError(
+            f"Plot {plot} configured with more than one legend renderer, cannot use legend_* convenience arguments."
+            "Make legends unique by applying a name and assign renderers with 'legend_name' argument to a legend.",
+        )
 
 def _handle_legend_field(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
     if not isinstance(label, str):

@@ -206,7 +206,7 @@ html_theme_options = {
     "navbar_align": "left",
     "navbar_end": ["navbar-icon-links"],
     "navbar_start": ["navbar-logo", "version-switcher"],
-    "pygment_light_style": "xcode",
+    "pygments_light_style": "xcode",
     "secondary_sidebar_items": ["page-toc", "edit-this-page"],
     "show_nav_level": 2,
     "show_toc_level": 1,

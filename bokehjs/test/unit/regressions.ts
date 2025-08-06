@@ -3,6 +3,7 @@ import sinon from "sinon"
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "../interactive"
+import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 
 import {
   AllIndices,
@@ -898,7 +899,7 @@ describe("Bug", () => {
       })
 
       const data = ["a", "c", "a", "b", null, "b", "a", NaN]
-      const result = ["red", "black", "red", "green", "black", "green", "red", "black"]
+      const result = convert_to_uint32_palette(["red", "black", "red", "green", "black", "green", "red", "black"])
 
       expect(mapper.v_compute(data)).to.be.equal(result)
     })
@@ -1876,8 +1877,12 @@ describe("Bug", () => {
       const sv1 = view.owner.get_one(s1)
       const sv2 = view.owner.get_one(s2)
 
-      const css = "\n:host {\n  flex: 0 0 50px;\n}"
-
+      const css = `
+:host {
+  flex: 0 0 50px;
+  min-width: 0;
+  min-height: 0;
+}`
       expect(sv0.parent_style.css).to.be.equal(css)
       expect(sv1.parent_style.css).to.be.equal(css)
       expect(sv2.parent_style.css).to.be.equal(css)
@@ -1915,6 +1920,24 @@ describe("Bug", () => {
       expect(x_range.end).to.be.similar(60)
       expect(n_start).to.not.be.equal(0)
       expect(n_end).to.not.be.equal(0)
+    })
+  })
+
+  describe("in issue #14565", () => {
+    it("doesn't allow to correctly remove items from a DataTable", async () => {
+      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
+      const columns = [
+        new TableColumn({field: "my_col", title: "My Column"}),
+      ]
+
+      const table = new DataTable({source, columns})
+      const {view} = await display(table)
+
+      source.selected.indices = [0, 3, 4]
+      source.data = {my_col: ["a", "b", "c", "d"]}
+      await view.ready
+
+      expect(source.selected.indices).to.be.equal([0, 3])
     })
   })
 })

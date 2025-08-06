@@ -27,8 +27,9 @@ from typing import Any, overload
 from ...util.strings import nice_join
 from .. import enums
 from ._sphinx import model_link, property_link, register_type_link
-from .bases import Init
-from .primitive import String
+from .bases import Init, Property
+from .either import Either
+from .primitive import Int, String
 from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
@@ -43,7 +44,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Enum(String):
+class Enum(Either):
     """ Accept values from enumerations.
 
     The first value in enumeration is used as the default value, unless the
@@ -59,9 +60,13 @@ class Enum(String):
     def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
     @overload
     def __init__(self, enum: str, *values: str, default: Init[str] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__(self, enum: enums.Enumeration, *, default: Init[int] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__(self, enum: int, *values: int, default: Init[int] = ..., help: str | None = ...) -> None: ...
 
-    def __init__(self, enum: str | enums.Enumeration, *values: str, default: Init[str] = Intrinsic, help: str | None = None) -> None:
-        if isinstance(enum, str):
+    def __init__(self, enum: str | int | enums.Enumeration, *values: str | int, default: Init[str | int] = Intrinsic, help: str | None = None) -> None:
+        if isinstance(enum, str | int):
             self._enum = enums.enumeration(enum, *values)
         elif values:
             raise ValueError("unexpected enum values")
@@ -69,9 +74,9 @@ class Enum(String):
             self._enum = enum
 
         default = default if default is not Intrinsic else self._enum._default
-        super().__init__(default=default, help=help)
+        super().__init__(String, Int, default=default, help=help)
 
-    def __call__(self, *, default: Init[str] = Intrinsic, help: str | None = None) -> Enum:
+    def __call__(self, *, default: Init[str | int] = Intrinsic, help: str | None = None) -> Enum:
         """ Clone this property and allow to override ``default`` and ``help``. """
         default = self._default if default is Intrinsic else default
         help = self._help if help is None else help
@@ -86,7 +91,7 @@ class Enum(String):
         return f"{class_name}({allowed_values})"
 
     @property
-    def allowed_values(self) -> list[str]:
+    def allowed_values(self) -> list[str | int]:
         return self._enum._values
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -97,6 +102,13 @@ class Enum(String):
 
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"
         raise ValueError(msg)
+
+    # override replace so that .replace() doesn't descend this type
+    def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
+        if self.__class__ == old:
+            return new
+        else:
+            return self
 
 #-----------------------------------------------------------------------------
 # Dev API

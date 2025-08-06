@@ -36,7 +36,7 @@ import {
 } from "@bokehjs/models"
 
 import {
-  InlineStyleSheet, HTML, ValueOf,
+  InlineStyleSheet, HTML, ValueOf, Text as DOMText, Styles,
 } from "@bokehjs/models/dom"
 
 import {
@@ -4619,6 +4619,39 @@ describe("Bug", () => {
       p.patch(x, y)
 
       await display(p, [350, 250])
+    })
+  })
+
+  describe("in issue #14536", () => {
+    it("doesn't allow a responsive overflowing child layout to fit into the parent flex container", async () => {
+      const html = new Pane({elements: [
+        new HTML({html: `
+          <div style="display: flex; flex-direction: row; width: 300px; height: 50px; background-color: pink;">
+            <div style="height: 25px; background-color: red; ">Aaaaaaaaaaaaaa</div>
+            <div style="height: 25px; background-color: green; ">Baaaaaaaaaaaaa</div>
+            <div style="height: 25px; background-color: blue; ">Caaaaaaaaaaaaa</div>
+            <div style="height: 25px; background-color: yellow; flex: 1; min-width: 0">Daaaaaaaaaaaaa</div>
+          </div>
+        `}),
+      ]})
+
+      const text = (content: string) => new DOMText({content})
+
+      const s0 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "red"}), elements: [text("Aaaaaaaaaaaaaa")]})
+      const s1 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "green"}), elements: [text("Baaaaaaaaaaaaa")]})
+      const s2 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "blue"}), elements: [text("Caaaaaaaaaaaaa")]})
+      const s3 = new Spacer({width_policy: "min",  height_policy: "fixed", height: 25, styles: new Styles({background_color: "yellow"}), elements: [text("Daaaaaaaaaaaaa")]})
+
+      const row = new Row({children: [s0, s1, s2, s3], width: 300, height: 50, sizing_mode: "fixed", styles: new Styles({background_color: "pink"})})
+
+      const both = new Pane({
+        elements: [
+          text("HTML:"), html,
+          text("Layout:"), row,
+        ],
+      })
+
+      await display(both, [350, 200])
     })
   })
 })

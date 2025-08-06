@@ -3,9 +3,9 @@ import {cap_lookup, hatch_pattern_to_index, join_lookup} from "./webgl_utils"
 import type {LineCap, LineJoin} from "core/enums"
 import type {HatchPattern} from "core/property_mixins"
 import type {uint32, Arrayable} from "core/types"
-import type {Uniform} from "core/uniforms"
+import type {Uniform, ColorUniformVector} from "core/uniforms"
 import {assert} from "core/util/assert"
-import {color2rgba} from "core/util/color"
+import {color2rgba, byte} from "core/util/color"
 import type {AttributeConfig, Buffer} from "regl"
 
 type WrappedArrayType = Float32Array | Uint8Array
@@ -157,8 +157,22 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
   }
 
   set_from_color(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): void {
-    const is_scalar = color_prop.is_Scalar() && alpha_prop.is_Scalar()
+    const is_scalar_colors = color_prop.is_Scalar()
+    const is_scalar = is_scalar_colors && alpha_prop.is_Scalar()
     const ncolors = is_scalar ? 1 : color_prop.length
+
+    if (!is_scalar_colors) {
+      const color_v = color_prop as ColorUniformVector
+      const array = new Uint8Array(color_v.copy_buffer())
+      for (let i = 0; i < ncolors; i++) {
+        const alpha = alpha_prop.get(i)
+        array[4*i+3] = byte(alpha*array[4*i+3])
+      }
+      this.array = array
+      this.update(is_scalar)
+      return
+    }
+
     const array = this.get_sized_array(4*ncolors)
 
     for (let i = 0; i < ncolors; i++) {

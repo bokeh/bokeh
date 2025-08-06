@@ -1,11 +1,11 @@
-import {_convert_palette, _convert_color} from "./color_mapper"
+import {convert_to_uint32_palette} from "./color_mapper"
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {StackColorMapper} from "./stack_color_mapper"
 import type * as p from "core/properties"
 import type {Arrayable, ArrayableOf, uint32} from "core/types"
 import {RGBAArray} from "core/types"
 import {min} from "core/util/arrayable"
-import {assert, unreachable} from "core/util/assert"
+import {assert} from "core/util/assert"
 import {byte, decode_rgba, encode_rgba} from "core/util/color"
 
 export namespace WeightedStackColorMapper {
@@ -76,12 +76,7 @@ export class WeightedStackColorMapper extends StackColorMapper {
     return encode_rgba([byte(r), byte(g), byte(b), byte(a)])
   }
 
-  protected override _v_compute<T>(_data: Arrayable<number>, _values: Arrayable<T>,
-      _palette: Arrayable<T>, _colors: {nan_color: T}): void {
-    unreachable()
-  }
-
-  protected override _v_compute_uint32(data: ArrayableOf<number>, values: Arrayable<uint32>,
+  protected override _v_compute(data: ArrayableOf<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
 
     const n = values.length
@@ -128,7 +123,7 @@ export class WeightedStackColorMapper extends StackColorMapper {
     }
 
     // Calculate alphas using alpha_mapper.
-    const alpha_palette = _convert_palette(this.alpha_mapper.palette)
+    const alpha_palette = convert_to_uint32_palette(this.alpha_mapper.palette)
     const alphas = new Uint32Array(n)
     this.alpha_mapper._v_compute(totals, alphas, alpha_palette, colors)
 

@@ -84,7 +84,7 @@ def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> Glyph
     is_user_source = _convert_data_source(kwargs)
 
     # save off legend kwargs before we get going
-    legend_kwarg = pop_legend_kwarg(kwargs)
+    legend_kwarg, legend_name = pop_legend_kwarg(kwargs)
 
     # need to check if user source is present before pop_renderer_args
     renderer_kws = _pop_renderer_args(kwargs)
@@ -133,10 +133,9 @@ def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> Glyph
     plot.renderers.append(glyph_renderer)
 
     if legend_kwarg:
-        # It must be after the renderer is added because
-        # if it creates a new `LegendItem`, the referenced
-        # renderer must already be present.
-        update_legend(plot, legend_kwarg, glyph_renderer)
+        # It must be after the renderer is added because if it creates a new `LegendItem`,
+        # the referenced renderer must already be present.
+        update_legend(plot, legend_kwarg, legend_name, glyph_renderer)
 
     return glyph_renderer
 

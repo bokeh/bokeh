@@ -81,7 +81,7 @@ class _FlatBush extends FlatBush {
 
   search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
     const result = new Indices(this.numItems)
-    this.search_apply(minX, minY, maxX, maxY, (index) => result.set_without_bounds_check(index))
+    this.search_apply(minX, minY, maxX, maxY, (index) => result.set_unchecked(index))
     return result
   }
 

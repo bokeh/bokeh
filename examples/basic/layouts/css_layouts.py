@@ -1,6 +1,5 @@
-from bokeh.io import save
 from bokeh.models.dom import Div, Styles
-from bokeh.plotting import figure
+from bokeh.plotting import figure, save
 
 p0 = figure(width=200, height=200)
 p1 = figure(width=200, height=200)

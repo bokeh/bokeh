@@ -53,6 +53,7 @@ from ..core.enums import (
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
+    SortDirection,
     ToolName,
     TooltipAttachment,
     TooltipFieldFormatter,
@@ -80,6 +81,7 @@ from ..core.properties import (
     Nullable,
     Override,
     Percent,
+    Positive,
     Required,
     Seq,
     String,
@@ -94,7 +96,7 @@ from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
-from .callbacks import Callback
+from .callbacks import Callback, CustomJS
 from .dom import DOMElement
 from .glyphs import (
     HStrip,
@@ -1628,6 +1630,42 @@ class HoverTool(InspectTool):
     .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
     .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
+    """)
+
+    filters = Dict(String, Either(Instance(CustomJS), List(Instance(CustomJS))), default={}, help="""
+    Allows filtering hover results using a ``CustomJS`` callback.
+
+    An example of a simple filter function:
+    .. code::
+
+        filter = '''
+            export default (args, tool, {value: x, row, index, field, data_source, vars}) => {
+                return x >= 0
+            }
+        '''
+        HoverTool(filters={"@x": CustomJS(args={}, code=filter)})
+
+    """)
+
+    sort_by = Nullable(
+        Either(
+            String,
+            List(
+                Either(String, Tuple(String, Either(Enum(SortDirection), Enum(1, -1)))),
+            ),
+        ),
+    )(default=None, help="""
+    Allows sorting hover results by a field or a sequence of fields.
+
+    Additionally sort direction can be provided when using the sequence form, even if
+    providing a single field. The default sort order is based on data index and/or
+    proximity to the hit point.
+    """)
+
+    limit = Nullable(Positive(Int), default=None, help="""
+    Limit the number the number of data points for which tooltips will be showed.
+
+    By default ``HoverTool`` will show tooltips for all hit data points.
     """)
 
     mode = Enum("mouse", "hline", "vline", help="""

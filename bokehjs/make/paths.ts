@@ -22,6 +22,7 @@ export const build_dir = {
 
 export const src_dir = {
   lib: join(base_dir, "src", "lib"),
+  grammar: join(base_dir, "src", "grammar"),
   less: join(base_dir, "src", "less"),
   compiler: join(base_dir, "src", "compiler"),
   server: join(base_dir, "src", "server"),

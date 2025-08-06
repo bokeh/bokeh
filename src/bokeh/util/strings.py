@@ -60,15 +60,15 @@ def indent(text: str, n: int = 2, ch: str = " ") -> str:
     return "\n".join(padding + line for line in text.split("\n"))
 
 
-def nice_join(seq: Iterable[str], *, sep: str = ", ", conjunction: str = "or") -> str:
+def nice_join(seq: Iterable[Any], *, sep: str = ", ", conjunction: str | None = "or") -> str:
     ''' Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
     Args:
-        seq (seq[str]) : a sequence of strings to nicely join
+        seq (seq[any]) : a sequence of values to nicely join
         sep (str, optional) : a sequence delimiter to use (default: ", ")
         conjunction (str or None, optional) : a conjunction to use for the last
-            two items, or None to reproduce basic join behaviour (default: "or")
+            two items, or None to reproduce basic join behavior (default: "or")
 
     Returns:
         a joined string

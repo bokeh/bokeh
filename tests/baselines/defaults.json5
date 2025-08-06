@@ -2666,6 +2666,7 @@
     },
     format: null,
     formatter: "raw",
+    filter: null,
   },
   CoordinateTransform: {
     __extends__: "Expression",
@@ -6750,6 +6751,11 @@
     formatters: {
       type: "map",
     },
+    filters: {
+      type: "map",
+    },
+    sort_by: null,
+    limit: null,
     mode: "mouse",
     muted_policy: "show",
     point_policy: "snap_to_data",

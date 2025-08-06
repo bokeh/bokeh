@@ -4,7 +4,7 @@ import type {SelectionMode} from "core/enums"
 import {union, intersection, difference, symmetric_difference} from "core/util/array"
 import {merge} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
-import {Arrayable, Int, Mapping} from "core/kinds"
+import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
 import {map} from "core/util/arrayable"
 
 export const OpaqueIndices = Arrayable(Int)
@@ -13,13 +13,11 @@ export type OpaqueIndices = typeof OpaqueIndices["__type__"]
 export const MultiIndices = Mapping(Int, OpaqueIndices)
 export type MultiIndices = typeof MultiIndices["__type__"]
 
-export type ImageIndex = {
-  index: number
-  i: number
-  j: number
-  flat_index: number
-}
-export type ImageIndices = ImageIndex[]
+export const ImageIndex = Struct({index: Int, i: Int, j: Int, flat_index: Int})
+export type ImageIndex = typeof ImageIndex["__type__"]
+
+export const ImageIndices = List(ImageIndex)
+export type ImageIndices = typeof ImageIndices["__type__"]
 
 export namespace Selection {
   export type Attrs = p.AttrsOf<Props>
@@ -28,7 +26,7 @@ export namespace Selection {
     indices: p.Property<OpaqueIndices>
     line_indices: p.Property<OpaqueIndices>
     multiline_indices: p.Property<MultiIndices>
-    image_indices: p.Property<ImageIndex[]>
+    image_indices: p.Property<ImageIndices>
     view: p.Property<GlyphView | null>
     selected_glyphs: p.Property<Glyph[]>
   }
@@ -48,12 +46,12 @@ export class Selection extends Model {
   }
 
   static {
-    this.define<Selection.Props>(({Int, List, Struct}) => ({
+    this.define<Selection.Props>({
       indices:           [ OpaqueIndices, [] ],
       line_indices:      [ OpaqueIndices, [] ],
       multiline_indices: [ MultiIndices, new Map() ],
-      image_indices:     [ List(Struct({index: Int, i: Int, j: Int, flat_index: Int})), [] ],
-    }))
+      image_indices:     [ ImageIndices, [] ],
+    })
 
     this.internal<Selection.Props>(({List, AnyRef, Nullable}) => ({
       selected_glyphs:   [ List(AnyRef()), [] ],
