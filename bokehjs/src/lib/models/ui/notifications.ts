@@ -1,6 +1,7 @@
 import {UIElement, UIElementView} from "./ui_element"
 import type * as p from "core/properties"
 import {dom_ready, span, div, InlineStyleSheet} from "core/dom"
+import {settings} from "core/settings"
 
 import * as base_css from "styles/base.css"
 import * as icons_css from "styles/icons.css"
@@ -35,6 +36,9 @@ export class NotificationsView extends UIElementView {
     }
 
     document.on_event("connection_lost", (_, event) => {
+      if (!settings.notifications) {
+        return
+      }
       this._connection_el?.remove()
       if (this._connection_timer != null) {
         clearTimeout(this._connection_timer)
@@ -70,6 +74,9 @@ export class NotificationsView extends UIElementView {
     })
 
     document.on_event("client_reconnected", (_, _event) => {
+      if (!settings.notifications) {
+        return
+      }
       this._connection_el?.remove()
       if (this._connection_timer != null) {
         clearTimeout(this._connection_timer)
