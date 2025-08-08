@@ -185,6 +185,7 @@ class AuxGlyphArgs(TypedDict, total=False):
     muted: bool
 
     legend: Legend
+    legend_name: str
     legend_label: str
     legend_field: str
     legend_group: str
