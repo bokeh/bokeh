@@ -141,7 +141,7 @@ export class AutocompleteInputView extends TextInputView {
   protected _menu_hover(event: MouseEvent): void {
     if (event.target != event.currentTarget && event.target instanceof Element) {
       for (let i = 0; i < this.menu.children.length; i++) {
-        if (this.menu.children[i].textContent! == event.target.textContent!) {
+        if (this.menu.children[i].textContent == event.target.textContent) {
           this._bump_hover(i)
           break
         }

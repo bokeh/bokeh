@@ -997,8 +997,8 @@ describe("Bug", () => {
       expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
       expect(view.shadow_el.querySelectorAll("link[href='/assets/css/local.css']").length).to.be.equal(1)
 
-      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent?.includes("--global-inline: 1")).length).to.be.equal(1)
-      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent?.includes("--local-inline: 1")).length).to.be.equal(1)
+      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
+      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
 
       await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
       await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
