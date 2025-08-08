@@ -45,7 +45,11 @@ export class ClientConnection {
   closed_permanently: boolean = false
   readonly id: string
 
-  protected _reconnection_attempts = MAX_RECONNECTION_ATTEMPTS
+  protected _reconnection_attempts_left = MAX_RECONNECTION_ATTEMPTS
+
+  get reconnection_attempts(): number {
+    return MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts_left
+  }
 
   protected _current_handler: ((message: Message<unknown>) => void) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
@@ -57,6 +61,10 @@ export class ClientConnection {
               readonly args_string: string | null = null) {
     this.id = parse_token(token).session_id.split(".")[0]
     logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
+  }
+
+  async reconnect(): Promise<void> {
+    this._try_reconnect(true)
   }
 
   async connect(): Promise<ClientSession> {
@@ -107,34 +115,37 @@ export class ClientConnection {
     }
   }
 
-  protected _schedule_reconnect(milliseconds: number): void {
-    const retry = () => {
-      if (this.closed_permanently || this._reconnection_attempts <= 0) {
-        logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        this.session?.document.event_manager.send_event(new ConnectionLost()) // TODO ConnectionLostPermanently
-      } else {
-        if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
-          logger.debug(`Attempting to reconnect websocket ${this._number} in ${milliseconds}ms, ${this._reconnection_attempts} attempts left`)
+  protected _try_reconnect(force: boolean = false): void {
+    if (this.closed_permanently) {
+      logger.info(`Websocket connection ${this._number} permanently disconnected, will not attempt to reconnect`)
+    } else if (!force && this._reconnection_attempts_left <= 0) {
+      logger.info(`Websocket connection ${this._number} disconnected, will not attempt to automatically reconnect`)
+    } else {
+      if (this.socket?.readyState !== WebSocket.OPEN && this.socket?.readyState !== WebSocket.CONNECTING) {
+        this._reconnection_attempts_left -= 1
 
-          this.connect().then(() => {
-            logger.info(`Reconnected websocket ${this._number}`)
-            this._reconnection_attempts = MAX_RECONNECTION_ATTEMPTS
-            this.session?.document.event_manager.send_event(new ClientReconnected())
-          }).catch(err => {
-            logger.debug(`Could not reconnect ${this._number}, ${err}`)
-          })
+        logger.debug(`Attempting to reconnect websocket ${this._number}, ${this._reconnection_attempts_left} attempts left`)
 
-          this._reconnection_attempts -= 1
-        }
-
+        this.connect().then(() => {
+          logger.info(`Reconnected websocket ${this._number}`)
+          this._reconnection_attempts_left = MAX_RECONNECTION_ATTEMPTS
+          this.session?.document.event_manager.send_event(new ClientReconnected())
+        }).catch(err => {
+          logger.debug(`Could not reconnect ${this._number}, ${err}`)
+        })
       }
     }
+  }
 
-    // TODO: maybe also show notification we are retrying (which attempt, next attempt in x ms, ...)
+  protected _schedule_reconnect(milliseconds: number): void {
+    const should_reconnect = this._reconnection_attempts_left > 0
+    const timeout = should_reconnect ? milliseconds : null
+    const event = new ConnectionLost(new WeakRef(this), this.reconnection_attempts, timeout)
+    this.session?.document.event_manager.send_event(event)
 
-    setTimeout(retry, milliseconds)
-
-    // TODO: after retries ended, show a button to try one last reconnect.
+    if (should_reconnect) {
+      setTimeout(() => this._try_reconnect(), milliseconds)
+    }
   }
 
   send(message: Message<unknown>): void {
@@ -240,7 +251,7 @@ export class ClientConnection {
    * first attempt is done immediately.
    */
   private _reconnect_delay(): number {
-    const retries = MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts
+    const retries = MAX_RECONNECTION_ATTEMPTS - this._reconnection_attempts_left
     return retries == 0 ? 0 : RECONNECT_BASE_DELAY * 2**retries
   }
 

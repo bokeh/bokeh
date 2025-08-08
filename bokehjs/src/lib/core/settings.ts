@@ -3,6 +3,7 @@ export class Settings {
   private _wireframe = false
   private _force_webgl = false
   private _force_fields = false
+  private _notifications = true
 
   set dev(dev: boolean) {
     this._dev = dev
@@ -34,6 +35,14 @@ export class Settings {
 
   get force_fields(): boolean {
     return this._force_fields
+  }
+
+  set notifications(notifications: boolean) {
+    this._notifications = notifications
+  }
+
+  get notifications(): boolean {
+    return this._notifications
   }
 }
 

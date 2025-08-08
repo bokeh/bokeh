@@ -16,6 +16,7 @@ import type {Axis} from "../models/axes/axis"
 import type {LegendItem} from "../models/annotations/legend_item"
 import type {Factor} from "../models/ranges/factor_range"
 import type {ClearInput} from "../models/widgets/input_widget"
+import type {ClientConnection} from "../client/connection"
 
 Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
   const cls = deserializable_events.get(rep.name)
@@ -37,7 +38,8 @@ export type DocumentEventType =
   ConnectionEventType
 
 export type ConnectionEventType =
-  "connection_lost"
+  "connection_lost" |
+  "client_reconnected"
 
 export type ModelEventType =
   "axis_click" |
@@ -83,6 +85,7 @@ export type BokehEventMap = {
   button_click: ButtonClick
   clear_input: ClearInput
   connection_lost: ConnectionLost
+  client_reconnected: ClientReconnected
   document_ready: DocumentReady
   doubletap: DoubleTap
   legend_item_click: LegendItemClick
@@ -207,17 +210,33 @@ export class DocumentReady extends DocumentEvent {
 
 export abstract class ConnectionEvent extends DocumentEvent {}
 
+/**
+ * Announce when a WebSocket connection was disconnected.
+ *
+ * @member timestamp when the last connection attempt was made
+ * @member attempts  the number of times reconnection was attempted
+ * @member timeout   milliseconds till next reconnection attempt or `null`
+ *                   indicating that no further attempts will be made
+ */
 export class ConnectionLost extends ConnectionEvent {
-  readonly timestamp = new Date()
+  readonly timestamp = Date.now()
+
+  constructor(private readonly connection: WeakRef<ClientConnection>, readonly attempts: number, readonly timeout: number | null) {
+    super()
+  }
 
   protected get event_values(): Attrs {
-    const {timestamp} = this
-    return {timestamp}
+    const {timestamp, attempts, timeout} = this
+    return {timestamp, attempts, timeout}
   }
 
   static {
     this.prototype.event_name = "connection_lost"
     this.prototype.publish = false
+  }
+
+  reconnect(): void {
+    void this.connection.deref()?.reconnect()
   }
 }
 

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 from ..core.types import PathLike
 from ..document import Document
 from ..embed import file_html
+from ..model import Model
 from ..resources import INLINE, Resources
 from ..themes import Theme
 from ..util.warnings import warn
@@ -297,7 +298,7 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
-        svgs = cast(list[str], web_driver.execute_script(_SVG_SCRIPT))
+        svgs = cast(list[str], web_driver.execute_script(_SVG_SCRIPT(obj)))
 
     return svgs
 
@@ -485,14 +486,22 @@ function* collect_svgs(views) {
 return [...collect_svgs(Bokeh.index)]
 """
 
-_SVG_SCRIPT = """\
-function* export_svgs(views) {
-  for (const view of views) {
+def _SVG_SCRIPT(obj: Model | Document) -> str:
+    if isinstance(obj, Document):
+        ids = [root.id for root in obj.roots]
+    else:
+        ids = [obj.id]
+    return f"""\
+const ids = new Set({ids})
+function* export_svgs(views) {{
+  for (const view of views) {{
     // TODO: use to_blob() API in future
-    const {ctx} = view.export("svg")
-    yield ctx.get_serialized_svg(true)
-  }
-}
+    if (ids.has(view.model.id)) {{
+        const {{ctx}} = view.export("svg")
+        yield ctx.get_serialized_svg(true)
+    }}
+  }}
+}}
 
 return [...export_svgs(Bokeh.index)]
 """
