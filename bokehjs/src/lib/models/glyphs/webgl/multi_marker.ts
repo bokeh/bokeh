@@ -36,8 +36,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     const nmarkers = main_gl_glyph.nvertices
 
     const ntypes = main_gl_glyph._unique_marker_types.length
-    for (let i = 0; i < main_gl_glyph._unique_marker_types.length; i++) {
-      const marker_type = main_gl_glyph._unique_marker_types[i]
+    for (const marker_type of main_gl_glyph._unique_marker_types) {
       if (marker_type == null) {
         continue
       }
