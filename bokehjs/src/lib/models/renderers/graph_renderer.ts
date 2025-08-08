@@ -15,6 +15,10 @@ import type {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
 import {Patches} from "../glyphs/patches"
+import {Enum} from "core/kinds"
+
+const PaintOrder = Enum("edges_nodes", "nodes_edges")
+type PaintOrder = typeof PaintOrder["__type__"]
 
 type XsYsGlyph = MultiLine | Patches
 
@@ -123,8 +127,18 @@ export class GraphRendererView extends DataRendererView {
   }
 
   protected _paint(ctx: Context2d): void {
-    this.edge_view.paint(ctx)
-    this.node_view.paint(ctx)
+    switch (this.model.paint_order) {
+      case "edges_nodes": {
+        this.edge_view.paint(ctx)
+        this.node_view.paint(ctx)
+        break
+      }
+      case "nodes_edges": {
+        this.node_view.paint(ctx)
+        this.edge_view.paint(ctx)
+        break
+      }
+    }
   }
 
   override get has_webgl(): boolean {
@@ -145,6 +159,7 @@ export namespace GraphRenderer {
     edge_renderer: p.Property<GlyphRenderer<XsYsGlyph>>
     selection_policy: p.Property<GraphHitTestPolicy>
     inspection_policy: p.Property<GraphHitTestPolicy>
+    paint_order: p.Property<PaintOrder>
   }
 }
 
@@ -167,6 +182,7 @@ export class GraphRenderer extends DataRenderer {
       edge_renderer:     [ Ref(GlyphRenderer<XsYsGlyph>) ],
       selection_policy:  [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
       inspection_policy: [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
+      paint_order:       [ PaintOrder, "edges_nodes" ],
     }))
   }
 

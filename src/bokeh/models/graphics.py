@@ -23,7 +23,14 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Enum, Instance, Required
+from ..core.properties import (
+    Bool,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Required,
+)
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -62,8 +69,12 @@ class Decoration(Model):
     The graphical marking associated with this decoration, e.g. an arrow head.
     """)
 
-    node = Required(Enum("start", "middle", "end"), help="""
+    node = Required(Either(Enum("start", "middle", "end"), Float), help="""
     The placement of the marking on the parent graphical object.
+    """)
+
+    reversed = Bool(default=False, help="""
+    Reverse the natural orientation of the marking if applicable.
     """)
 
 #-----------------------------------------------------------------------------

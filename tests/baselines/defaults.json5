@@ -5205,6 +5205,7 @@
       type: "symbol",
       name: "unset",
     },
+    reversed: false,
   },
   Marking: {
     __extends__: "Model",
@@ -5918,6 +5919,7 @@
       name: "NodesOnly",
       attributes: {},
     },
+    paint_order: "edges_nodes",
   },
   CompositeRenderer: {
     __extends__: "Renderer",

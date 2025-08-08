@@ -157,9 +157,11 @@ class GlyphRenderer(DataRenderer):
     a legend was configured with ``click_policy = "mute"``.
     """)
 
-    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:
+    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"] | float, reversed: bool = False) -> Decoration:
+        """ Add a decoration (e.g. arrow head) to renderer's glyphs.
+        """
         glyphs = [self.glyph, self.selection_glyph, self.nonselection_glyph, self.hover_glyph, self.muted_glyph]
-        decoration = Decoration(marking=marking, node=node)
+        decoration = Decoration(marking=marking, node=node, reversed=reversed)
 
         for glyph in glyphs:
             if isinstance(glyph, Glyph):

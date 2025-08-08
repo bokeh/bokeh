@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...core.properties import Instance, InstanceDefault
+from ...core.properties import Enum, Instance, InstanceDefault
 from ...core.validation import error
 from ...core.validation.errors import MALFORMED_GRAPH_SOURCE
 from ..glyphs import MultiLine, Scatter
@@ -99,6 +99,10 @@ class GraphRenderer(DataRenderer):
     inspection_policy = Instance(GraphHitTestPolicy, default=InstanceDefault(NodesOnly), help="""
     An instance of a ``GraphHitTestPolicy`` that provides the logic for inspection
     of graph components.
+    """)
+
+    paint_order = Enum("edges_nodes", "nodes_edges", default="edges_nodes", help="""
+    Determines the order of painting of edge and node renderers.
     """)
 
 #-----------------------------------------------------------------------------

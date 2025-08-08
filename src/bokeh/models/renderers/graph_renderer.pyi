@@ -7,6 +7,7 @@
 
 # Standard library imports
 from dataclasses import dataclass
+from typing import Literal
 
 # Bokeh imports
 from ..glyph import XYGlyph
@@ -27,3 +28,5 @@ class GraphRenderer(DataRenderer):
     selection_policy: GraphHitTestPolicy = ...
 
     inspection_policy: GraphHitTestPolicy = ...
+
+    paint_order: Literal["edges_nodes", "nodes_edges"] = ...
