@@ -7,7 +7,7 @@ export function b64encode(data: Uint8Array): string {
   return btoa(chars.join(""))
 }
 
-export function b64decode(data: string): Uint8Array {
+export function b64decode(data: string): Uint8Array<ArrayBuffer> {
   const binary_string = atob(data)
   const len = binary_string.length
   const bytes = new Uint8Array(len)
@@ -17,7 +17,7 @@ export function b64decode(data: string): Uint8Array {
   return bytes
 }
 
-export function buffer_to_base64(buffer: ArrayBuffer): string {
+export function buffer_to_base64(buffer: ArrayBufferLike): string {
   const bytes = new Uint8Array(buffer)
   // we do not want the result to be different depending on mtime, since that is
   // irrelevant and also makes things harder to test, so set mtime=0 here
@@ -25,14 +25,14 @@ export function buffer_to_base64(buffer: ArrayBuffer): string {
   return b64encode(compressed)
 }
 
-export function base64_to_buffer(base64: string): ArrayBuffer {
+export function base64_to_buffer(base64: string): ArrayBufferLike {
   const bytes = b64decode(base64)
   return gunzipSync(bytes).buffer
 }
 
 // NOTE: swap{16,32,64} assume byteOffset == 0
 
-function swap16(buffer: ArrayBuffer): void {
+function swap16(buffer: ArrayBufferLike): void {
   const x = new Uint8Array(buffer)
   for (let i = 0, end = x.length; i < end; i += 2) {
     const t = x[i]
@@ -41,7 +41,7 @@ function swap16(buffer: ArrayBuffer): void {
   }
 }
 
-function swap32(buffer: ArrayBuffer): void {
+function swap32(buffer: ArrayBufferLike): void {
   const x = new Uint8Array(buffer)
   for (let i = 0, end = x.length; i < end; i += 4) {
     let t = x[i]
@@ -53,7 +53,7 @@ function swap32(buffer: ArrayBuffer): void {
   }
 }
 
-function swap64(buffer: ArrayBuffer): void {
+function swap64(buffer: ArrayBufferLike): void {
   const x = new Uint8Array(buffer)
   for (let i = 0, end = x.length; i < end; i += 8) {
     let t = x[i]
@@ -71,7 +71,7 @@ function swap64(buffer: ArrayBuffer): void {
   }
 }
 
-export function swap(buffer: ArrayBuffer, dtype: NDDataType): void {
+export function swap(buffer: ArrayBufferLike, dtype: NDDataType): void {
   switch (dtype) {
     case "uint16":
     case "int16":
