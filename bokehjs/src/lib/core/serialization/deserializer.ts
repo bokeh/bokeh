@@ -208,7 +208,7 @@ export class Deserializer {
     }
   }
 
-  protected _decode_bytes(obj: BytesRep): ArrayBuffer {
+  protected _decode_bytes(obj: BytesRep): ArrayBufferLike {
     const {data} = obj
     if (is_ref(data)) {
       const buffer = this._buffers.get(data.id)

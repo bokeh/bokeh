@@ -110,7 +110,7 @@ export class ColorUniformVector extends UniformVector<number> {
     }
   }
 
-  copy_buffer(): ArrayBuffer {
+  copy_buffer(): ArrayBufferLike {
     return this.array.buffer.slice()
   }
 }

@@ -154,9 +154,9 @@ napoleon_include_init_with_doc = True
 
 ogp_site_url = "https://docs.bokeh.org/en/latest/"
 ogp_image = "http://static.bokeh.org/og/logotype-on-hex.png"
-ogp_custom_meta_tags = [
+ogp_custom_meta_tags = (
     '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
-]
+)
 
 pygments_style = "sphinx"
 

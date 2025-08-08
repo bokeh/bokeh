@@ -2,7 +2,7 @@ import {Message} from "protocol/message"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
 
-export type Fragment = string | ArrayBuffer
+export type Fragment = string | ArrayBufferLike
 
 export class Receiver {
   message: Message<unknown> | null = null

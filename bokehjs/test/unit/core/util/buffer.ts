@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
 import {swap, base64_to_buffer, buffer_to_base64} from "@bokehjs/core/util/buffer"
+import {assert} from "@bokehjs/core/util/assert"
 
 describe("serialization module", () => {
 
@@ -73,8 +74,14 @@ describe("serialization module", () => {
 
   describe("base64 conversion functions", () => {
     const typed_arrays = [
-      Float32Array, Float64Array, Uint8Array, Int8Array,
-      Uint16Array, Int16Array, Uint32Array, Int32Array,
+      Float32Array,
+      Float64Array,
+      Uint8Array,
+      Int8Array,
+      Uint16Array,
+      Int16Array,
+      Uint32Array,
+      Int32Array,
     ]
 
     for (const type of typed_arrays) {
@@ -88,6 +95,7 @@ describe("serialization module", () => {
         const b64 = buffer_to_base64(b.buffer)
         expect(typeof b64).to.be.equal("string")
         const buf = base64_to_buffer(b64)
+        assert(buf instanceof ArrayBuffer)
         const c = new type(buf)
         expect(c).to.be.equal(b)
       })
