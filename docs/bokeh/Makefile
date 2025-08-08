@@ -17,10 +17,12 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf source/docs/gallery/*
 	-rm -rf source/docs/examples/*
+	-rm -rf source/_images/icons/*
 
 html:
 	@start=$$(date +%s) \
-	; sphinx-build -W -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source $(BUILDDIR)/html \
+	; cp -r ../../bokehjs/src/less/icons/* source/_images/icons/ \
+	&& sphinx-build -W -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source $(BUILDDIR)/html \
 	&& cp -r source/_images/examples $(BUILDDIR)/html/_images/ \
 	&& (cp -r ../../src/bokeh/server/static $(BUILDDIR)/html/ || true) \
 	&& echo \
