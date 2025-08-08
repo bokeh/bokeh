@@ -713,7 +713,7 @@ export class InlineStyleSheet extends StyleSheet {
   }
 
   get css(): string {
-    return this.el.textContent ?? ""
+    return this.el.textContent
   }
 
   protected _update(css: string): void {
