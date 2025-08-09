@@ -125,7 +125,7 @@ class Settings(Subcommand):
         '''
 
         '''
-        all_settings = []
+        all_settings: list[tuple[str, PrioritizedSetting[Any]]] = []
         for name, attr in settings.__class__.__dict__.items():
             if isinstance(attr, PrioritizedSetting):
                 all_settings.append((name, attr))
@@ -146,7 +146,7 @@ class Settings(Subcommand):
         else:
             self._print_settings_table(all_settings)
 
-    def _print_settings_table(self, all_settings: list) -> None:
+    def _print_settings_table(self, all_settings: list[tuple[str, PrioritizedSetting[Any]]]) -> None:
         ''' Print all settings in a table format.
         '''
         print("Bokeh Settings:")
@@ -178,7 +178,7 @@ class Settings(Subcommand):
 
         print("-" * 80)
 
-    def _print_setting_detail(self, setting_name: str, all_settings: list) -> None:
+    def _print_setting_detail(self, setting_name: str, all_settings: list[tuple[str, PrioritizedSetting[Any]]]) -> None:
         ''' Print detailed help for a specific setting.
         '''
         setting_attr = None
