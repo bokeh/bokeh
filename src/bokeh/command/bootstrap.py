@@ -87,6 +87,7 @@ def main(argv: Sequence[str]) -> None:
     * :ref:`json <bokeh.command.subcommands.json>`
     * :ref:`secret <bokeh.command.subcommands.secret>`
     * :ref:`serve <bokeh.command.subcommands.serve>`
+    * :ref:`settings <bokeh.command.subcommands.settings>`
     * :ref:`static <bokeh.command.subcommands.static>`
 
     '''

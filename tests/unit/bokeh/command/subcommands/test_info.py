@@ -23,6 +23,7 @@ from os.path import join
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
 from tests.support.util.types import Capture
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.command.subcommands.info as scinfo # isort:skip
@@ -65,7 +66,7 @@ def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 11
+    assert len(lines) >= 11
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
@@ -84,6 +85,13 @@ def test_run_static(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
     assert out.endswith(join('bokeh', 'server', 'static') + '\n')
+
+def test_run_with_non_default_section(capsys: Capture) -> None:
+    with envset(BOKEH_LOG_LEVEL="debug"):
+        main(["bokeh", "info"])
+        out, err = capsys.readouterr()
+        assert err == ""
+        assert "Non-default Bokeh Settings:" in out
 
 #-----------------------------------------------------------------------------
 # Private API

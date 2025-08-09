@@ -23,7 +23,7 @@ import sys
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.settings import settings
+from bokeh.settings import settings, PrioritizedSetting
 from bokeh.util.compiler import nodejs_version, npmjs_version
 from bokeh.util.dependencies import import_optional
 
@@ -33,6 +33,7 @@ from bokeh.util.dependencies import import_optional
 
 __all__ = (
     "print_info",
+    "print_non_default_settings",
 )
 
 #-----------------------------------------------------------------------------
@@ -56,6 +57,51 @@ def print_info() -> None:
     print(f"npm version           :  {_if_installed(npmjs_version())}")
     print(f"jupyter_bokeh version :  {_if_installed(_version('jupyter_bokeh', '__version__'))}")
     print(f"Operating system      :  {platform.platform()}")
+
+def print_non_default_settings() -> None:
+    """ Print non-default settings in a table format. """
+    def truncate_str(s: str, max_len: int = 18) -> str:
+        return s if len(s) <= max_len else s[:15] + "..."
+
+    all_settings = [
+        (name, attr) for name, attr in settings.__class__.__dict__.items()
+        if isinstance(attr, PrioritizedSetting)
+    ]
+
+    non_default_settings = []
+    for name, attr in all_settings:
+        try:
+            current_value = getattr(settings, name)()
+            default_value = attr.default
+
+            if str(current_value).lower() != str(attr.default).lower():
+                non_default_settings.append((name, attr, current_value))
+        except Exception:
+            continue
+
+    if not non_default_settings:
+        print()
+        print("No non-default settings found")
+        return
+
+    non_default_settings.sort(key=lambda x: x[0])
+
+    print()
+    print("Non-default Bokeh Settings:")
+    print("=" * 60)
+    print(f"{'Setting':<25} {'Value':<20} {'Default':<25}")
+    print("-" * 60)
+
+    for name, attr, current_value in non_default_settings:
+        value_str = "None" if current_value is None else str(current_value)
+        value_str = truncate_str(value_str)
+
+        default_str = "None" if attr.default is None else str(attr.default)
+        default_str = truncate_str(default_str)
+
+        print(f"{name:<25} {value_str:<20} {default_str:<25}")
+
+    print("-" * 60)
 
 #-----------------------------------------------------------------------------
 # Legacy API

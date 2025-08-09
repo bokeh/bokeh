@@ -21,6 +21,7 @@ from typing import Any
 
 # Bokeh imports
 from tests.support.util.types import Capture
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.util.info as bui # isort:skip
@@ -56,6 +57,19 @@ def test__version_missing(ipython: Any) -> None:
     assert bui._version('IPython', '__version__') is not None
     assert bui._version('tornado', 'version') is not None
     assert bui._version('junk', 'whatever') is None
+
+def test_print_non_default_settings(capsys: Capture) -> None:
+    with envset(BOKEH_LOG_LEVEL="debug", BOKEH_MINIFIED="no", BOKEH_DEFAULT_SERVER_PORT="6000"):
+        bui.print_non_default_settings()
+        out, err = capsys.readouterr()
+        assert err == ""
+        # Header lines
+        assert "Non-default Bokeh Settings:" in out
+        assert "Setting" in out and "Value" in out and "Default" in out
+        # Selected rows
+        assert "log_level" in out and "debug" in out and "info" in out
+        assert "minified" in out and "False" in out and "True" in out
+        assert "default_server_port" in out and "6000" in out and "5006" in out
 
 #-----------------------------------------------------------------------------
 # Dev API
