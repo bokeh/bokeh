@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
@@ -19,7 +21,6 @@ documentation.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
 
 # use the wrapped sphinx logger
 try:

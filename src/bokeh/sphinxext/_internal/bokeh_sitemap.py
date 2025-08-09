@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
@@ -16,7 +18,6 @@ and used by search engines to know what pages are available for indexing.
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
-from __future__ import annotations
 
 import logging  # isort:skip
 

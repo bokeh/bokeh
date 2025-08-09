@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
@@ -22,7 +24,6 @@ This directive takes the name of a module attribute
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
-from __future__ import annotations
 
 import logging  # isort:skip
 

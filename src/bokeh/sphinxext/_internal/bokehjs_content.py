@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
@@ -45,7 +47,6 @@ The inline example code above produces the following output:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
-from __future__ import annotations
 
 import logging  # isort:skip
 

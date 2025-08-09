@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
@@ -44,7 +46,6 @@ updating all of the files in the :bokeh-tree:`examples` subdirectory.
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
-from __future__ import annotations
 
 import logging  # isort:skip
 

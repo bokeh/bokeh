@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
@@ -12,7 +14,6 @@
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
-from __future__ import annotations
 
 import logging  # isort:skip
 
