@@ -27,6 +27,9 @@ from ...core.enums import (
 from ...core.has_props import abstract
 from ...core.property_aliases import AutoAnchor, BorderRadius, Padding
 from ...core.property_mixins import (
+    GlyphFillProps,
+    GlyphHatchProps,
+    GlyphLineProps,
     ScalarBackgroundFillProps,
     ScalarBackgroundHatchProps,
     ScalarBarLineProps,
@@ -263,6 +266,6 @@ class BaseBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, Scala
     minor_tick_out: int = ...
 
 @dataclass
-class SizeBar(BaseBar):
+class SizeBar(BaseBar, GlyphLineProps, GlyphFillProps, GlyphHatchProps):
 
     renderer: GlyphRenderer[RadialGlyph] | Auto = ...

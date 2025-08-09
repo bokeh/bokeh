@@ -9,6 +9,7 @@ import {LinearScale} from "../scales"
 import {DataRange1d} from "../ranges/data_range1d"
 import {LinearAxis} from "../axes/linear_axis"
 import type * as p from "core/properties"
+import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as uniforms from "core/uniforms"
 import {ColumnDataSource} from "../sources/column_data_source"
@@ -21,7 +22,7 @@ import {Plot, PlotView} from "../plots/plot"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {FixedTicker} from "../tickers/fixed_ticker"
-import {max, linspace, repeat} from "core/util/array"
+import {max, linspace, repeat, reversed} from "core/util/array"
 import {logger} from "core/logging"
 import {Circle} from "../glyphs/circle"
 
@@ -129,7 +130,9 @@ export class SizeBarView extends BaseBarView {
       x: {field: "x"},
       y: {field: "y"},
       radius: {field: "r"},
-      line_color: null,
+      ...mixins.attrs_of(this.model, "glyph_", mixins.LineVector),
+      ...mixins.attrs_of(this.model, "glyph_", mixins.FillVector),
+      ...mixins.attrs_of(this.model, "glyph_", mixins.HatchVector),
     } as RadialGlyph.Attrs)
     this._data_source = new ColumnDataSource({
       data: {
@@ -276,9 +279,9 @@ export class SizeBarView extends BaseBarView {
 
     this._major_ticker.ticks = ticks
 
-    const x = ticks
+    const x = reversed(ticks)
     const y = repeat(0, x.length)
-    const r = ticks.map((v) => v/v_max)
+    const r = reversed(ticks.map((v) => v/v_max))
 
     switch (this.orientation) {
       case "horizontal": {
@@ -298,6 +301,17 @@ export namespace SizeBar {
 
   export type Props = BaseBar.Props & {
     renderer: p.Property<GlyphRenderer<RadialGlyph> | "auto">
+  } & Mixins
+
+  export type Mixins =
+    mixins.GlyphLineVector &
+    mixins.GlyphFillVector &
+    mixins.GlyphHatchVector
+
+  export type Visuals = BaseBar.Visuals & {
+    glyph_line: visuals.LineVector
+    glyph_fill: visuals.FillVector
+    glyph_hatch: visuals.HatchVector
   }
 }
 
@@ -313,6 +327,16 @@ export class SizeBar extends BaseBar {
 
   static {
     this.prototype.default_view = SizeBarView
+
+    this.mixins<SizeBar.Mixins>([
+      ["glyph_", mixins.LineVector],
+      ["glyph_", mixins.FillVector],
+      ["glyph_", mixins.HatchVector],
+    ])
+
+    this.override<SizeBar.Props>({
+      glyph_line_color: null,
+    })
 
     this.define<SizeBar.Props>(({Ref, Auto, Or}) => ({
       renderer: [ Or(Ref(GlyphRenderer), Auto), "auto" ],

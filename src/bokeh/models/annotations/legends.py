@@ -63,6 +63,9 @@ from ...core.properties import (
 from ...core.property.vectorization import Field
 from ...core.property_aliases import AutoAnchor, BorderRadius, Padding
 from ...core.property_mixins import (
+    FillProps,
+    HatchProps,
+    LineProps,
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
@@ -912,6 +915,20 @@ class SizeBar(BaseBar):
     renderers, ``renderer`` property allows to select the one to use with
     this ``SizeBar``.
     """)
+
+    glyph_line_props = Include(LineProps, prefix="glyph", help="""
+    The {prop} of the glyph.
+    """)
+
+    glyph_fill_props = Include(FillProps, prefix="glyph", help="""
+    The {prop} of the glyph.
+    """)
+
+    glyph_hatch_props = Include(HatchProps, prefix="glyph", help="""
+    The {prop} of the glyph.
+    """)
+
+    glyph_line_color = Override(default=None)
 
 #-----------------------------------------------------------------------------
 # Dev API
