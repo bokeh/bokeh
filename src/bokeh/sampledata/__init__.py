@@ -78,10 +78,10 @@ def _create_sampledata_shim(mod_name: str) -> tuple[Any, Any, Any]:
 #-----------------------------------------------------------------------------
 
 try:
-    import bokeh_sampledata as _mod  # type: ignore[import-not-found]
+    import bokeh_sampledata as _mod
 except ImportError:
     _mod = None  # type: ignore[assignment]
-    def __getattr__(name: str):
+    def __getattr__(name: str) -> Any:
         raise RuntimeError(
             "The separate bokeh_sampledata is needed in order to use the "
             "sampledata module. Install with 'pip install bokeh_sampledata'.",

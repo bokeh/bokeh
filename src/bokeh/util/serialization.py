@@ -353,7 +353,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
         array = _cast_if_can(array, np.uint32)
 
     if isinstance(array, np.ma.MaskedArray):
-        array = array.filled(np.nan)
+        array = array.filled(np.nan) # type: ignore[no-untyped-call]
     if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
 
