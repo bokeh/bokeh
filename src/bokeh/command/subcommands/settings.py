@@ -163,7 +163,7 @@ class Settings(Subcommand):
                     value_str = "None"
                 elif isinstance(current_value, bool):
                     value_str = str(current_value)
-                elif isinstance(current_value, (list, tuple)):
+                elif isinstance(current_value, list | tuple):
                     value_str = str(current_value)
                 else:
                     value_str = str(current_value)
@@ -173,7 +173,7 @@ class Settings(Subcommand):
 
                 print(f"{name:<30} {value_str:<25} {env_var:<25}")
 
-            except Exception as e:
+            except Exception:
                 print(f"{name:<30} {'<error>':<25} {'<error>':<25}")
 
         print("-" * 80)
@@ -206,7 +206,7 @@ class Settings(Subcommand):
             if setting_attr.dev_default is not _Unset:
                 print(f"Dev Default: {setting_attr.dev_default}")
             print(f"Environment Variable: {env_var}")
-            print(f"\nHelp:")
+            print("\nHelp:")
             print(f"{setting_attr.help.strip()}")
 
         except Exception as e:
@@ -217,7 +217,7 @@ class Settings(Subcommand):
             if setting_attr.dev_default is not _Unset:
                 print(f"Dev Default: {setting_attr.dev_default}")
             print(f"Environment Variable: {setting_attr.env_var}")
-            print(f"\nHelp:")
+            print("\nHelp:")
             print(f"{setting_attr.help.strip()}")
 
 #-----------------------------------------------------------------------------

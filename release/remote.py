@@ -10,7 +10,7 @@ from __future__ import annotations
 from itertools import product
 
 # External imports
-import boto3
+import boto3  # type: ignore[import-untyped]
 from packaging.version import Version as V
 
 # Bokeh imports

@@ -72,7 +72,6 @@ def print_non_default_settings() -> None:
     for name, attr in all_settings:
         try:
             current_value = getattr(settings, name)()
-            default_value = attr.default
 
             if str(current_value).lower() != str(attr.default).lower():
                 non_default_settings.append((name, attr, current_value))

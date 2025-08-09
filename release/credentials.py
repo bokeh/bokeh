@@ -15,7 +15,7 @@ from functools import wraps
 from typing import Callable
 
 # External imports
-import boto3
+import boto3  # type: ignore[import-untyped]
 
 # Bokeh imports
 from . import BOKEHJS_BUCKETS
