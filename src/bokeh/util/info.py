@@ -23,7 +23,7 @@ import sys
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.settings import settings, PrioritizedSetting
+from bokeh.settings import PrioritizedSetting, settings
 from bokeh.util.compiler import nodejs_version, npmjs_version
 from bokeh.util.dependencies import import_optional
 

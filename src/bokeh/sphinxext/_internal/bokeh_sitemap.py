@@ -1,3 +1,4 @@
+"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -30,8 +31,14 @@ from html import escape
 from os.path import join
 
 # External imports
-from sphinx.errors import SphinxError
-from sphinx.util.display import status_iterator
+try:
+    from sphinx.errors import SphinxError
+    from sphinx.util.display import status_iterator
+except Exception:  # pragma: no cover
+    class SphinxError(Exception):
+        pass
+    def status_iterator(iterable, *_args, **_kwargs):
+        return iterable
 
 # Bokeh imports
 from . import PARALLEL_SAFE

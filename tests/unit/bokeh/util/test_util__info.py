@@ -20,8 +20,8 @@ import pytest ; pytest
 from typing import Any
 
 # Bokeh imports
-from tests.support.util.types import Capture
 from tests.support.util.env import envset
+from tests.support.util.types import Capture
 
 # Module under test
 import bokeh.util.info as bui # isort:skip

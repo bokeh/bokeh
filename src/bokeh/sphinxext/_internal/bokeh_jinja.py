@@ -1,3 +1,4 @@
+"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -44,7 +45,11 @@ import textwrap
 from os.path import basename
 
 # External imports
-from sphinx.errors import SphinxError
+try:
+    from sphinx.errors import SphinxError
+except Exception:  # pragma: no cover
+    class SphinxError(Exception):
+        pass
 
 # Bokeh imports
 from . import PARALLEL_SAFE

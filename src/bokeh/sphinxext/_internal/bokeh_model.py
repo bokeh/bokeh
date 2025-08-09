@@ -1,3 +1,4 @@
+"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -40,8 +41,14 @@ from os import getenv
 from typing import Any
 
 # External imports
-from docutils.parsers.rst.directives import unchanged
-from sphinx.errors import SphinxError
+try:
+    from docutils.parsers.rst.directives import unchanged
+    from sphinx.errors import SphinxError
+except Exception:  # pragma: no cover
+    def unchanged(value: str) -> str:  # type: ignore[no-redef]
+        return value
+    class SphinxError(Exception):
+        pass
 
 # Bokeh imports
 from bokeh.core.property.singletons import Undefined

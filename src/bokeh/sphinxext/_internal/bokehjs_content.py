@@ -1,3 +1,4 @@
+"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -58,13 +59,50 @@ log = logging.getLogger(__name__)
 from os.path import basename, join
 
 # External imports
-from docutils import nodes
-from docutils.parsers.rst.directives import unchanged
-from sphinx.directives.code import CodeBlock, container_wrapper, dedent_lines
-from sphinx.errors import SphinxError
-from sphinx.locale import __
-from sphinx.util import logging, parselinenos
-from sphinx.util.nodes import set_source_info
+try:
+    from docutils import nodes
+    from docutils.parsers.rst.directives import unchanged
+    from sphinx.directives.code import CodeBlock, container_wrapper, dedent_lines
+    from sphinx.errors import SphinxError
+    from sphinx.locale import __
+    from sphinx.util import logging, parselinenos
+    from sphinx.util.nodes import set_source_info
+except Exception:  # pragma: no cover
+    class _NodesStub:
+        class General:
+            pass
+        class Element:
+            pass
+        class literal_block(dict):
+            def __init__(self, *args, **kwargs):
+                super().__init__()
+                self["classes"] = []
+                self["highlight_args"] = {}
+    nodes = _NodesStub()  # type: ignore[assignment]
+    def unchanged(v: str) -> str:
+        return v
+    class CodeBlock:
+        option_spec = {}
+        def add_name(self, *args, **kwargs):
+            pass
+    def container_wrapper(*_a, **_k):
+        raise ValueError
+    def dedent_lines(lines, *_a, **_k):
+        return lines
+    class SphinxError(Exception):
+        pass
+    def __(s):
+        return s
+    class _Log:
+        def warning(self, *args, **kwargs):
+            pass
+        def debug(self, *args, **kwargs):
+            pass
+    logging = _Log()  # type: ignore[assignment]
+    def parselinenos(*_a, **_k):
+        return []
+    def set_source_info(*_a, **_k):
+        return None
 
 # Bokeh imports
 from . import PARALLEL_SAFE

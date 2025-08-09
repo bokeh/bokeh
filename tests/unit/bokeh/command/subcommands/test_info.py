@@ -22,8 +22,8 @@ from os.path import join
 # Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
-from tests.support.util.types import Capture
 from tests.support.util.env import envset
+from tests.support.util.types import Capture
 
 # Module under test
 import bokeh.command.subcommands.info as scinfo # isort:skip

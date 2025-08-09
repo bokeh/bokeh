@@ -1,3 +1,4 @@
+"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -37,9 +38,17 @@ from pathlib import PurePath
 from typing import TypedDict
 
 # External imports
-from sphinx.errors import SphinxError
-from sphinx.util import ensuredir
-from sphinx.util.display import status_iterator
+try:
+    from sphinx.errors import SphinxError
+    from sphinx.util import ensuredir
+    from sphinx.util.display import status_iterator
+except Exception:  # pragma: no cover
+    class SphinxError(Exception):
+        pass
+    def ensuredir(path: str) -> None:  # type: ignore[no-redef]
+        os.makedirs(path, exist_ok=True)
+    def status_iterator(iterable, *_args, **_kwargs):  # type: ignore[no-redef]
+        return iterable
 
 # Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP

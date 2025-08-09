@@ -1,3 +1,4 @@
+"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -58,8 +59,29 @@ from os.path import join
 
 # External imports
 import toml
-from docutils import nodes, utils
-from docutils.parsers.rst.roles import set_classes
+try:
+    from docutils import nodes, utils
+    from docutils.parsers.rst.roles import set_classes
+except Exception:  # pragma: no cover
+    class _NodesStub:
+        class Text:
+            def __init__(self, *args, **kwargs):
+                pass
+        class bullet_list(list):
+            pass
+        class list_item:
+            def __init__(self, *_args):
+                pass
+        class reference:
+            def __init__(self, *args, **kwargs):
+                pass
+    class _UtilsStub:
+        def unescape(self, s):
+            return s
+    def set_classes(options):
+        return None
+    nodes = _NodesStub()  # type: ignore[assignment]
+    utils = _UtilsStub()  # type: ignore[assignment]
 
 # Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP

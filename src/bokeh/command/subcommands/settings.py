@@ -81,7 +81,7 @@ from argparse import Namespace
 from typing import Any
 
 # Bokeh imports
-from bokeh.settings import settings, PrioritizedSetting, _Unset
+from bokeh.settings import PrioritizedSetting, _Unset, settings
 
 # Bokeh imports
 from ..subcommand import Argument, Subcommand
