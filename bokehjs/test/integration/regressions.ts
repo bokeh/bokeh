@@ -4654,4 +4654,22 @@ describe("Bug", () => {
       await display(both, [350, 200])
     })
   })
+
+  describe("in issue #14520", () => {
+    it("doesn't allow BoxAnnotation to support categorical coordinates", async () => {
+      const p = fig([300, 200], {y_range: ["A", "B", "C", "D", "E", "F"]})
+
+      const box = new BoxAnnotation({bottom: "B", top: "D", fill_alpha: 0.2, fill_color: "green"})
+      p.add_layout(box)
+
+      p.scatter({
+        x: [0, 10, 20, 30, 40, 50],
+        y: ["A", "B", "C", "D", "E", "F"],
+        marker: "circle",
+        size: 10,
+      })
+
+      await display(p)
+    })
+  })
 })

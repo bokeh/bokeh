@@ -1,6 +1,6 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
-import {Or, Str, List, Tuple} from "core/kinds"
+import {Float, Or, Str, List, Tuple} from "core/kinds"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import type {Arrayable} from "core/types"
@@ -10,23 +10,44 @@ import {isArray, isNumber, isString} from "core/util/types"
 
 export type FactorLevel = 1 | 2 | 3
 
-export type L1Factor = string
-export type L2Factor = [string, string]
-export type L3Factor = [string, string, string]
+export const L1Factor = Str
+export type L1Factor = typeof L1Factor["__type__"]
 
-export type Factor = L1Factor | L2Factor | L3Factor
-export type FactorSeq = L1Factor[] | L2Factor[] | L3Factor[]
+export const L2Factor = Tuple(Str, Str)
+export type L2Factor = typeof L2Factor["__type__"]
 
-export const Factor = Or(Str, Tuple(Str, Str), Tuple(Str, Str, Str))
-export const FactorSeq = Or(List(Str), List(Tuple(Str, Str)), List(Tuple(Str, Str, Str)))
+export const L3Factor = Tuple(Str, Str, Str)
+export type L3Factor = typeof L3Factor["__type__"]
 
-export type L1OffsetFactor = [string, number]
-export type L2OffsetFactor = [string, string, number]
-export type L3OffsetFactor = [string, string, string, number]
+export const L1FactorSeq = List(L1Factor)
+export type L1FactorSeq = typeof L1FactorSeq["__type__"]
 
-export type OffsetFactor = L1OffsetFactor | L2OffsetFactor | L3OffsetFactor
+export const L2FactorSeq = List(L2Factor)
+export type L2FactorSeq = typeof L2FactorSeq["__type__"]
 
-export type FactorLike = number | Factor | OffsetFactor
+export const L3FactorSeq = List(L3Factor)
+export type L3FactorSeq = typeof L3FactorSeq["__type__"]
+
+export const L1OffsetFactor = Tuple(Str, Float)
+export type L1OffsetFactor = typeof L1OffsetFactor["__type__"]
+
+export const L2OffsetFactor = Tuple(Str, Str, Float)
+export type L2OffsetFactor = typeof L2OffsetFactor["__type__"]
+
+export const L3OffsetFactor = Tuple(Str, Str, Str, Float)
+export type L3OffsetFactor = typeof L3OffsetFactor["__type__"]
+
+export const Factor = Or(L1Factor, L2Factor, L3Factor)
+export type Factor = typeof Factor["__type__"]
+
+export const FactorSeq = Or(L1FactorSeq, L2FactorSeq, L3FactorSeq)
+export type FactorSeq = typeof FactorSeq["__type__"]
+
+export const OffsetFactor = Or(L1OffsetFactor, L2OffsetFactor, L3OffsetFactor)
+export type OffsetFactor = typeof OffsetFactor["__type__"]
+
+export const FactorLike = Or(Float, Factor, OffsetFactor)
+export type FactorLike = typeof FactorLike["__type__"]
 
 export type L1Mapping = Map<string, {value: number}>
 export type L2Mapping = Map<string, {value: number, mapping: L1Mapping}>
