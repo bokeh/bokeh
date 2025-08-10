@@ -17,38 +17,41 @@ This will print all settings to standard output, such as:
 
 .. code-block:: none
 
-    Setting                    Value                    Environment Variable
-    -------                    -----                    -------------------
-    allowed_ws_origin         []                       BOKEH_ALLOW_WS_ORIGIN
-    auth_module               None                     BOKEH_AUTH_MODULE
-    browser                   None                     BOKEH_BROWSER
-    cdn_version               None                     BOKEH_CDN_VERSION
-    chromedriver_path         None                     BOKEH_CHROMEDRIVER_PATH
-    compression_level         6                        BOKEH_COMPRESSION_LEVEL
-    cookie_secret             None                     BOKEH_COOKIE_SECRET
-    default_server_host       localhost                BOKEH_DEFAULT_SERVER_HOST
-    default_server_port       5006                     BOKEH_DEFAULT_SERVER_PORT
-    docs_cdn                  None                     BOKEH_DOCS_CDN
-    docs_version              None                     BOKEH_DOCS_VERSION
-    ico_path                  default                  BOKEH_ICO_PATH
-    ignore_filename           False                    BOKEH_IGNORE_FILENAME
-    log_level                 info                     BOKEH_LOG_LEVEL
-    minified                  True                     BOKEH_MINIFIED
-    nodejs_path               None                     BOKEH_NODEJS_PATH
-    perform_document_validation True                   BOKEH_VALIDATE_DOC
-    pretty                    False                    BOKEH_PRETTY
-    py_log_level              none                     BOKEH_PY_LOG_LEVEL
-    resources                 cdn                      BOKEH_RESOURCES
-    rootdir                   None                     BOKEH_ROOTDIR
-    secret_key                None                     BOKEH_SECRET_KEY
-    serialize_include_defaults False                   BOKEH_SERIALIZE_INCLUDE_DEFAULTS
-    sign_sessions             False                    BOKEH_SIGN_SESSIONS
-    simple_ids                False                    BOKEH_SIMPLE_IDS
-    ssl_certfile              None                     BOKEH_SSL_CERTFILE
-    ssl_keyfile               None                     BOKEH_SSL_KEYFILE
-    ssl_password              None                     BOKEH_SSL_PASSWORD
-    validation_level          none                     BOKEH_VALIDATION_LEVEL
-    xsrf_cookies              False                    BOKEH_XSRF_COOKIES
+Bokeh Settings:
+================================================================================
+Setting                        Environment Variable                Value
+--------------------------------------------------------------------------------
+allowed_ws_origin              BOKEH_ALLOW_WS_ORIGIN               []
+auth_module                    BOKEH_AUTH_MODULE                   None
+browser                        BOKEH_BROWSER                       None
+cdn_version                    BOKEH_CDN_VERSION                   None
+chromedriver_path              BOKEH_CHROMEDRIVER_PATH             None
+compression_level              BOKEH_COMPRESSION_LEVEL             9
+cookie_secret                  BOKEH_COOKIE_SECRET                 None
+default_server_host            BOKEH_DEFAULT_SERVER_HOST           localhost
+default_server_port            BOKEH_DEFAULT_SERVER_PORT           5006
+docs_cdn                       BOKEH_DOCS_CDN                      None
+docs_version                   BOKEH_DOCS_VERSION                  None
+ico_path                       BOKEH_ICO_PATH                      /path/to/ico
+ignore_filename                BOKEH_IGNORE_FILENAME               False
+log_level                      BOKEH_LOG_LEVEL                     info
+minified                       BOKEH_MINIFIED                      True
+nodejs_path                    BOKEH_NODEJS_PATH                   None
+perform_document_validation    BOKEH_VALIDATE_DOC                  True
+pretty                         BOKEH_PRETTY                        False
+py_log_level                   BOKEH_PY_LOG_LEVEL                  None
+resources                      BOKEH_RESOURCES                     cdn
+rootdir                        BOKEH_ROOTDIR                       None
+secret_key                     BOKEH_SECRET_KEY                    None
+serialize_include_defaults     BOKEH_SERIALIZE_INCLUDE_DEFAULTS    False
+sign_sessions                  BOKEH_SIGN_SESSIONS                 False
+simple_ids                     BOKEH_SIMPLE_IDS                    True
+ssl_certfile                   BOKEH_SSL_CERTFILE                  None
+ssl_keyfile                    BOKEH_SSL_KEYFILE                   None
+ssl_password                   BOKEH_SSL_PASSWORD                  None
+validation_level               BOKEH_VALIDATION_LEVEL              none
+xsrf_cookies                   BOKEH_XSRF_COOKIES                  False
+--------------------------------------------------------------------------------
 
 This will display all available Bokeh settings in a table format with their current values and environment variables.
 
@@ -109,7 +112,7 @@ class Settings(Subcommand):
 
     args = (
 
-        ('-v', Argument(
+        (('-v', '--verbose'), Argument(
             action="store_true",
             help="Show detailed help for a specific setting",
         )),
@@ -136,11 +139,11 @@ class Settings(Subcommand):
             print("No settings found")
             return
 
-        if args.setting_name and args.v:
+        if args.setting_name and args.verbose:
             self._print_setting_detail(args.setting_name, all_settings)
-        elif args.setting_name and not args.v:
+        elif args.setting_name and not args.verbose:
             print("To get detailed help for a specific setting, use:")
-            print("  bokeh settings -v <setting_name>")
+            print("  bokeh settings --verbose <setting_name>")
             print("\nFor a list of all settings, use:")
             print("  bokeh settings")
         else:
@@ -151,7 +154,7 @@ class Settings(Subcommand):
         '''
         print("Bokeh Settings:")
         print("=" * 80)
-        print(f"{'Setting':<30} {'Value':<25} {'Environment Variable':<25}")
+        print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
         print("-" * 80)
 
         for name, attr in all_settings:
@@ -168,13 +171,10 @@ class Settings(Subcommand):
                 else:
                     value_str = str(current_value)
 
-                if len(value_str) > 23:
-                    value_str = value_str[:20] + "..."
-
-                print(f"{name:<30} {value_str:<25} {env_var:<25}")
+                print(f"{name:<30} {env_var:<35} {value_str:<25}")
 
             except Exception:
-                print(f"{name:<30} {'<error>':<25} {'<error>':<25}")
+                print(f"{name:<30} {'<error>':<35} {'<error>':<25}")
 
         print("-" * 80)
 

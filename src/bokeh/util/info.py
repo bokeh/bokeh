@@ -60,8 +60,6 @@ def print_info() -> None:
 
 def print_non_default_settings() -> None:
     """ Print non-default settings in a table format. """
-    def truncate_str(s: str, max_len: int = 18) -> str:
-        return s if len(s) <= max_len else s[:15] + "..."
 
     all_settings = [
         (name, attr) for name, attr in settings.__class__.__dict__.items()
@@ -88,17 +86,14 @@ def print_non_default_settings() -> None:
     print()
     print("Non-default Bokeh Settings:")
     print("=" * 60)
-    print(f"{'Setting':<25} {'Value':<20} {'Default':<25}")
+    print(f"{'Setting':<25} {'Default':<25} {'Value':<25}")
     print("-" * 60)
 
     for name, attr, current_value in non_default_settings:
         value_str = "None" if current_value is None else str(current_value)
-        value_str = truncate_str(value_str)
-
         default_str = "None" if attr.default is None else str(attr.default)
-        default_str = truncate_str(default_str)
 
-        print(f"{name:<25} {value_str:<20} {default_str:<25}")
+        print(f"{name:<25} {default_str:<25} {value_str:<20}")
 
     print("-" * 60)
 

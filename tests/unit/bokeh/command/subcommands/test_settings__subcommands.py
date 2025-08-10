@@ -55,7 +55,7 @@ def test_help() -> None:
 
 def test_args() -> None:
     assert scsettings.Settings.args == (
-        ('-v', Argument(
+        (('-v', '--verbose'), Argument(
             action="store_true",
             help="Show detailed help for a specific setting",
         )),
@@ -71,11 +71,9 @@ def test_run_shows_table(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
 
-    # basic header
     assert out.startswith("Bokeh Settings:\n")
     assert "Setting" in out and "Environment Variable" in out
 
-    # contains at least one known setting row
     assert "log_level" in out
     assert "BOKEH_LOG_LEVEL" in out
 
@@ -85,7 +83,7 @@ def test_run_guidance_when_name_without_detail(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
     assert "To get detailed help for a specific setting, use:" in out
-    assert "bokeh settings -v <setting_name>" in out
+    assert "bokeh settings --verbose <setting_name>" in out
     assert "For a list of all settings, use:" in out
     assert "bokeh settings" in out
 

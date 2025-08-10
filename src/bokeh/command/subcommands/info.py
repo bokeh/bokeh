@@ -31,9 +31,9 @@ will also display set (non-default) Bokeh settings as part of the output:
 
     Non-default Bokeh Settings:
     ============================================================
-    Setting                Value                Default
+    Setting                Default              Value
     ------------------------------------------------------------
-    ico_path               /path/to/ico         default
+    ico_path               default              /path/to/ico
     log_level              debug                info
     ------------------------------------------------------------
 
