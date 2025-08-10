@@ -63,10 +63,8 @@ def test_print_non_default_settings(capsys: Capture) -> None:
         bui.print_non_default_settings()
         out, err = capsys.readouterr()
         assert err == ""
-        
         assert "Non-default Bokeh Settings:" in out
         assert "Setting" in out and "Default" in out and "Value" in out
-        
         assert "log_level" in out and "info" in out and "debug" in out
         assert "minified" in out and "True" in out and "False" in out
         assert "default_server_port" in out and "5006" in out and "6000" in out
