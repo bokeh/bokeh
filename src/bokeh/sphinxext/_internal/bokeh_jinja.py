@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -30,6 +27,7 @@ generate the following output:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 import logging  # isort:skip
 
@@ -46,11 +44,7 @@ import textwrap
 from os.path import basename
 
 # External imports
-try:
-    from sphinx.errors import SphinxError
-except Exception:  # pragma: no cover
-    class SphinxError(Exception):
-        pass
+from sphinx.errors import SphinxError
 
 # Bokeh imports
 from . import PARALLEL_SAFE

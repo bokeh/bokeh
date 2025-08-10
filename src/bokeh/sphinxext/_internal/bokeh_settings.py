@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -24,6 +21,7 @@ This directive takes the name of a module attribute
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 import logging  # isort:skip
 
@@ -38,14 +36,8 @@ import importlib
 import textwrap
 
 # External imports
-try:
-    from docutils.parsers.rst.directives import unchanged
-    from sphinx.errors import SphinxError
-except Exception:  # pragma: no cover
-    def unchanged(value: str) -> str:  # type: ignore[no-redef]
-        return value
-    class SphinxError(Exception):
-        pass
+from docutils.parsers.rst.directives import unchanged
+from sphinx.errors import SphinxError
 
 # Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset

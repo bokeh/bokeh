@@ -22,34 +22,16 @@ The ``bokeh-example-metadata`` directive can be used by supplying:
 from __future__ import annotations
 
 # use the wrapped sphinx logger
-try:
-    from sphinx.util import logging  # isort:skip
-    log = logging.getLogger(__name__)
-except Exception:  # pragma: no cover
-    class _Logger:
-        def getLogger(self, name):
-            class _L:
-                def __getattr__(self, _):
-                    def noop(*args, **kwargs):
-                        pass
-                    return noop
-            return _L()
-    logging = _Logger()  # type: ignore[assignment]
-    log = logging.getLogger(__name__)  # type: ignore[assignment]
+from sphinx.util import logging  # isort:skip
+log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
 
 # External imports
-try:
-    from docutils.parsers.rst.directives import unchanged
-    from sphinx.errors import SphinxError
-except Exception:  # pragma: no cover
-    def unchanged(value: str) -> str:  # type: ignore[no-redef]
-        return value
-    class SphinxError(Exception):
-        pass
+from docutils.parsers.rst.directives import unchanged
+from sphinx.errors import SphinxError
 
 # Bokeh imports
 from . import PARALLEL_SAFE

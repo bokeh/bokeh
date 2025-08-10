@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -31,6 +28,7 @@ Generates the output:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 import logging  # isort:skip
 
@@ -41,20 +39,9 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # External imports
-try:
-    from docutils import nodes
-    from docutils.parsers.rst import Directive
-    from sphinx.errors import SphinxError
-except Exception:  # pragma: no cover
-    class _NodesStub:
-        class General: pass
-        class Element: pass
-        class SkipNode(Exception): pass
-    nodes = _NodesStub()  # type: ignore[assignment]
-    class Directive:  # type: ignore[no-redef]
-        pass
-    class SphinxError(Exception):
-        pass
+from docutils import nodes
+from docutils.parsers.rst import Directive
+from sphinx.errors import SphinxError
 
 # Bokeh imports
 import bokeh.palettes as bp

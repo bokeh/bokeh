@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -18,6 +15,7 @@ and used by search engines to know what pages are available for indexing.
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 import logging  # isort:skip
 
@@ -32,14 +30,8 @@ from html import escape
 from os.path import join
 
 # External imports
-try:
-    from sphinx.errors import SphinxError
-    from sphinx.util.display import status_iterator
-except Exception:  # pragma: no cover
-    class SphinxError(Exception):
-        pass
-    def status_iterator(iterable, *_args, **_kwargs):
-        return iterable
+from sphinx.errors import SphinxError
+from sphinx.util.display import status_iterator
 
 # Bokeh imports
 from . import PARALLEL_SAFE

@@ -34,17 +34,8 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # External imports
-try:
-    from docutils import nodes
-    from docutils.parsers.rst.directives import unchanged
-except Exception:  # pragma: no cover - only used in docs builds
-    class _NodesStub:
-        class raw:  # minimal stub to avoid runtime in non-doc builds
-            def __init__(self, *args, **kwargs):
-                pass
-    nodes = _NodesStub()  # type: ignore[assignment]
-    def unchanged(value: str) -> str:  # type: ignore[no-redef]
-        return value
+from docutils import nodes
+from docutils.parsers.rst.directives import unchanged
 
 # Bokeh imports
 from bokeh.colors import named

@@ -25,5 +25,4 @@ class SphinxParallelSpec(TypedDict):
 
 PARALLEL_SAFE = SphinxParallelSpec(parallel_read_safe=True, parallel_write_safe=True)
 
-_cwd = pathlib.PurePath(os.getcwd())
-REPO_TOP = _cwd.parents[1] if len(_cwd.parents) > 1 else _cwd
+REPO_TOP = pathlib.PurePath(os.getcwd()).parents[1]

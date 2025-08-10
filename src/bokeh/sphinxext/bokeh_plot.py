@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -78,22 +75,11 @@ list in your Sphinx configuration module.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
 
 # use the wrapped sphinx logger
-try:
-    from sphinx.util import logging  # isort:skip
-    log = logging.getLogger(__name__)
-except Exception:  # pragma: no cover
-    class _Logger:
-        def getLogger(self, name):
-            class _L:
-                def __getattr__(self, _):
-                    def noop(*args, **kwargs):
-                        pass
-                    return noop
-            return _L()
-    logging = _Logger()  # type: ignore[assignment]
-    log = logging.getLogger(__name__)  # type: ignore[assignment]
+from sphinx.util import logging  # isort:skip
+log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Imports
@@ -107,30 +93,12 @@ from os.path import basename, dirname, join
 from uuid import uuid4
 
 # External imports
-try:
-    from docutils import nodes
-    from docutils.parsers.rst.directives import choice, flag
-    from sphinx.errors import SphinxError
-    from sphinx.util import copyfile, ensuredir
-    from sphinx.util.display import status_iterator
-    from sphinx.util.nodes import set_source_info
-except Exception:  # pragma: no cover
-    class _NodesStub:
-        class General: pass
-        class Element: pass
-        class target:
-            def __init__(self, *args, **kwargs): pass
-        class literal_block:
-            def __init__(self, *args, **kwargs): pass
-        class SkipNode(Exception): pass
-    nodes = _NodesStub()  # type: ignore[assignment]
-    def choice(x, opts): return x
-    def flag(x): return None
-    class SphinxError(Exception): pass
-    def copyfile(src, dst): pass
-    def ensuredir(path): pass
-    def status_iterator(iterable, *_a, **_k): return iterable
-    def set_source_info(*_a, **_k): return None
+from docutils import nodes
+from docutils.parsers.rst.directives import choice, flag
+from sphinx.errors import SphinxError
+from sphinx.util import copyfile, ensuredir
+from sphinx.util.display import status_iterator
+from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
 from bokeh.document import Document

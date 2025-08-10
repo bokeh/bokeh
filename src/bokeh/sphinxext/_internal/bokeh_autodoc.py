@@ -25,16 +25,11 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # External imports
-try:
-    from sphinx.ext.autodoc import (
-        AttributeDocumenter,
-        ClassDocumenter,
-        ModuleLevelDocumenter,
-    )
-except Exception:  # pragma: no cover - only used in docs builds
-    class _Stub:
-        pass
-    AttributeDocumenter = ClassDocumenter = ModuleLevelDocumenter = _Stub  # type: ignore[assignment]
+from sphinx.ext.autodoc import (
+    AttributeDocumenter,
+    ClassDocumenter,
+    ModuleLevelDocumenter,
+)
 
 # Bokeh imports
 from bokeh.colors.color import Color

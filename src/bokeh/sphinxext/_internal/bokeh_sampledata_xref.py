@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-"""isort:skip_file"""
 # -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
@@ -21,22 +18,11 @@ documentation.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
 
 # use the wrapped sphinx logger
-try:
-    from sphinx.util import logging  # isort:skip
-    log = logging.getLogger(__name__)
-except Exception:  # pragma: no cover
-    class _Logger:
-        def getLogger(self, name):
-            class _L:
-                def __getattr__(self, _):
-                    def noop(*args, **kwargs):
-                        pass
-                    return noop
-            return _L()
-    logging = _Logger()  # type: ignore[assignment]
-    log = logging.getLogger(__name__)  # type: ignore[assignment]
+from sphinx.util import logging  # isort:skip
+log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Imports
@@ -46,33 +32,8 @@ except Exception:  # pragma: no cover
 from os.path import basename
 
 # External imports
-try:
-    from docutils import nodes
-    from sphinx.locale import _
-except Exception:  # pragma: no cover
-    class _NodesStub:
-        class paragraph:
-            def __init__(self):
-                pass
-        class rubric:
-            def __init__(self, *args, **kwargs):
-                pass
-        class line:
-            def __init__(self):
-                pass
-        class Text:
-            def __init__(self, *args, **kwargs):
-                pass
-        class reference:
-            def __init__(self, *args, **kwargs):
-                pass
-        class emphasis:
-            def __init__(self, *args, **kwargs):
-                pass
-        class General: pass
-        class Element: pass
-    nodes = _NodesStub()  # type: ignore[assignment]
-    def _(s): return s
+from docutils import nodes
+from sphinx.locale import _
 
 # Bokeh imports
 from . import PARALLEL_SAFE
