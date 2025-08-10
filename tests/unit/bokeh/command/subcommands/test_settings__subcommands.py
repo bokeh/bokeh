@@ -55,13 +55,13 @@ def test_help() -> None:
 
 def test_args() -> None:
     assert scsettings.Settings.args == (
-        ('--detail', Argument(
+        ('-v', Argument(
             action="store_true",
             help="Show detailed help for a specific setting",
         )),
         ('setting_name', Argument(
             nargs='?',
-            help="Name of a specific setting to show detailed help for (use with --detail)",
+            help="Name of a specific setting to show detailed help for (use with -v)",
         )),
     )
 
@@ -85,13 +85,13 @@ def test_run_guidance_when_name_without_detail(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
     assert "To get detailed help for a specific setting, use:" in out
-    assert "bokeh settings --detail <setting_name>" in out
+    assert "bokeh settings -v <setting_name>" in out
     assert "For a list of all settings, use:" in out
     assert "bokeh settings" in out
 
 
 def test_run_detail_specific_setting(capsys: Capture) -> None:
-    main(["bokeh", "settings", "--detail", "log_level"])
+    main(["bokeh", "settings", "-v", "log_level"])
     out, err = capsys.readouterr()
     assert err == ""
 
@@ -103,7 +103,7 @@ def test_run_detail_specific_setting(capsys: Capture) -> None:
 
 
 def test_run_detail_invalid_setting(capsys: Capture) -> None:
-    main(["bokeh", "settings", "--detail", "__does_not_exist__"])
+    main(["bokeh", "settings", "-v", "__does_not_exist__"])
     out, err = capsys.readouterr()
     assert err == ""
 

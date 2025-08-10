@@ -52,12 +52,12 @@ This will print all settings to standard output, such as:
 
 This will display all available Bokeh settings in a table format with their current values and environment variables.
 
-To get detailed help for a specific setting, use the --detail option:
+To get detailed help for a specific setting, use the -v option:
 
 .. code-block:: sh
 
-    bokeh settings --detail log_level
-    bokeh settings --detail minified
+    bokeh settings -v log_level
+    bokeh settings -v minified
 
 This will show detailed information about the specified setting including its help text,
 default values, and current value.
@@ -109,14 +109,14 @@ class Settings(Subcommand):
 
     args = (
 
-        ('--detail', Argument(
+        ('-v', Argument(
             action="store_true",
             help="Show detailed help for a specific setting",
         )),
 
         ('setting_name', Argument(
             nargs='?',
-            help="Name of a specific setting to show detailed help for (use with --detail)",
+            help="Name of a specific setting to show detailed help for (use with -v)",
         )),
 
     )
@@ -136,11 +136,11 @@ class Settings(Subcommand):
             print("No settings found")
             return
 
-        if args.setting_name and args.detail:
+        if args.setting_name and args.v:
             self._print_setting_detail(args.setting_name, all_settings)
-        elif args.setting_name and not args.detail:
+        elif args.setting_name and not args.v:
             print("To get detailed help for a specific setting, use:")
-            print("  bokeh settings --detail <setting_name>")
+            print("  bokeh settings -v <setting_name>")
             print("\nFor a list of all settings, use:")
             print("  bokeh settings")
         else:
