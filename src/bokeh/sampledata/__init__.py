@@ -55,23 +55,12 @@ SAMPLEDATA_MIN_VERSION = "2025.0"
 
 def _create_sampledata_shim(mod_name: str) -> tuple[Any, Any, Any]:
     from importlib import import_module
-    try:
-        mod = import_module(f"bokeh_sampledata.{mod_name.split('.')[-1]}")
-    except Exception:
-        def __getattr__(name: str) -> Any:
-            raise RuntimeError(
-                "The separate bokeh_sampledata is needed in order to use the "
-                "sampledata module. Install with 'pip install bokeh_sampledata'.",
-            )
-        def __dir__() -> list[str]:
-            return []
-        return __getattr__, __dir__, None
-    else:
-        def __getattr__(name: str) -> Any:
-            return getattr(mod, name)
-        def __dir__() -> list[str]:
-            return dir(mod)
-        return __getattr__, __dir__, mod.__doc__
+    mod = import_module(f"bokeh_sampledata.{mod_name.split('.')[-1]}")
+    def __getattr__(name: str) -> Any:
+        return getattr(mod, name)
+    def __dir__() -> list[str]:
+        return dir(mod)
+    return __getattr__, __dir__, mod.__doc__
 
 #-----------------------------------------------------------------------------
 # Code
@@ -80,14 +69,12 @@ def _create_sampledata_shim(mod_name: str) -> tuple[Any, Any, Any]:
 try:
     import bokeh_sampledata as _mod
 except ImportError:
-    _mod = None  # type: ignore[assignment]
-    def __getattr__(name: str) -> Any:
-        raise RuntimeError(
-            "The separate bokeh_sampledata is needed in order to use the "
-            "sampledata module. Install with 'pip install bokeh_sampledata'.",
-        )
+    raise RuntimeError(
+        "The separate bokeh_sampledata is needed in order to use the "
+        "sampledata module. Install with 'pip install bokeh_sampledata'.",
+    )
 
-if _mod is not None and Version(_mod.__version__) < Version(SAMPLEDATA_MIN_VERSION):
+if Version(_mod.__version__) < Version(SAMPLEDATA_MIN_VERSION):
     warn(
         f"The installed bokeh_sampledata version ({_mod.__version__}) is too "
         f"old. At least version {SAMPLEDATA_MIN_VERSION} is needed to run all "
