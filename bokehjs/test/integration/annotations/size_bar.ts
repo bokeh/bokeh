@@ -20,10 +20,15 @@ describe("SizeBar annotation", () => {
     return {p, cr}
   }
 
+  const common: Partial<SizeBar.Attrs> = {
+    glyph_fill_color: "pink",
+    glyph_line_color: "green",
+  }
+
   it("should support automatic renderer", async () => {
     const {p} = make_plot()
 
-    const size_bar = new SizeBar({renderer: "auto", orientation: "horizontal"})
+    const size_bar = new SizeBar({renderer: "auto", orientation: "horizontal", ...common})
     p.add_layout(size_bar, "below")
 
     await display(p)
@@ -32,7 +37,7 @@ describe("SizeBar annotation", () => {
   it("should support manual renderer", async () => {
     const {p, cr} = make_plot()
 
-    const size_bar = new SizeBar({renderer: cr, orientation: "horizontal"})
+    const size_bar = new SizeBar({renderer: cr, orientation: "horizontal", ...common})
     p.add_layout(size_bar, "below")
 
     await display(p)
@@ -41,7 +46,7 @@ describe("SizeBar annotation", () => {
   async function test(orientation: Orientation, side: Side, width: number, height: number) {
     const {p, cr} = make_plot({width, height})
 
-    const size_bar = new SizeBar({renderer: cr, orientation})
+    const size_bar = new SizeBar({renderer: cr, orientation, ...common})
     p.add_layout(size_bar, side)
 
     await display(p)
