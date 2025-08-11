@@ -52,9 +52,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
         // Set show values of markers to render to 255.
         nshow = 0
-        for (const k of indices) {  // Marker index.
+        for (let k = 0; k < indices.length; k++) {  // Marker index.
           if (ntypes == 1 || main_gl_glyph._marker_types!.get(k) == marker_type) {
-            show_array[k] = 255
+            show_array[indices[k]] = 255
             nshow++
           }
         }
