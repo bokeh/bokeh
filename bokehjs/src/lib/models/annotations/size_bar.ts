@@ -25,6 +25,7 @@ import {FixedTicker} from "../tickers/fixed_ticker"
 import {max, linspace, repeat, reversed} from "core/util/array"
 import {logger} from "core/logging"
 import {Circle} from "../glyphs/circle"
+import {BBox} from "core/util/bbox"
 
 class InternalPlotView extends PlotView {
   declare model: InternalPlot
@@ -224,10 +225,15 @@ export class SizeBarView extends BaseBarView {
     this._size_bar_view = this._element_views.get(this._size_bar) as ViewOf<Plot>
   }
 
+  private _last_bbox = new BBox()
+
   override update_layout(): void {
     this.layout = this._size_bar_view.layout
-    this.layout.on_resize(() => {
-      this.parent.request_layout(true)
+    this.layout.on_resize((outer) => {
+      if (!outer.equals(this._last_bbox)) {
+        this._last_bbox = outer
+        this.parent.request_layout(true)
+      }
     })
   }
 
