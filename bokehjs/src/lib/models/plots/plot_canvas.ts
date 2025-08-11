@@ -867,17 +867,22 @@ export class PlotView extends LayoutDOMView implements Paintable {
   private _needs_layout: boolean = false
 
   protected _invalidate_layout_if_needed(): void {
-    const needs_layout = this._needs_layout || (() => {
-      for (const panel of this.model.side_panels) {
-        const view = this.renderer_views.get(panel as any) // TODO
-        if (view != null) {
-          if (view.layout?.has_size_changed() ?? false) {
-            this.invalidate_painters(view)
-            return true
+    const needs_layout = (() => {
+      if (this._needs_layout) {
+        this.invalidate_painters()
+        return true
+      } else {
+        for (const panel of this.model.side_panels) {
+          const view = this.renderer_views.get(panel as any) // TODO
+          if (view != null) {
+            if (view.layout?.has_size_changed() ?? false) {
+              this.invalidate_painters(view)
+              return true
+            }
           }
         }
+        return false
       }
-      return false
     })()
 
     if (needs_layout) {
