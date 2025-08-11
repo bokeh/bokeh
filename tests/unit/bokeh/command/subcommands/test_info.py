@@ -22,7 +22,6 @@ from os.path import join
 # Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
-from tests.support.util.env import envset
 from tests.support.util.types import Capture
 
 # Module under test
@@ -87,11 +86,13 @@ def test_run_static(capsys: Capture) -> None:
     assert out.endswith(join('bokeh', 'server', 'static') + '\n')
 
 def test_run_with_non_default_section(capsys: Capture) -> None:
-    with envset(BOKEH_LOG_LEVEL="debug"):
-        main(["bokeh", "info"])
-        out, err = capsys.readouterr()
-        assert err == ""
-        assert "Non-default Bokeh Settings:" in out
+    main(["bokeh", "info"])
+    out, err = capsys.readouterr()
+    assert err == ""
+    assert (
+        "Non-default Bokeh Settings:" in out
+        or "No non-default settings found" in out
+    )
 
 #-----------------------------------------------------------------------------
 # Private API

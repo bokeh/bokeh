@@ -17,43 +17,44 @@ This will print all settings to standard output, such as:
 
 .. code-block:: none
 
-Bokeh Settings:
-================================================================================
-Setting                        Environment Variable                Value
---------------------------------------------------------------------------------
-allowed_ws_origin              BOKEH_ALLOW_WS_ORIGIN               []
-auth_module                    BOKEH_AUTH_MODULE                   None
-browser                        BOKEH_BROWSER                       None
-cdn_version                    BOKEH_CDN_VERSION                   None
-chromedriver_path              BOKEH_CHROMEDRIVER_PATH             None
-compression_level              BOKEH_COMPRESSION_LEVEL             9
-cookie_secret                  BOKEH_COOKIE_SECRET                 None
-default_server_host            BOKEH_DEFAULT_SERVER_HOST           localhost
-default_server_port            BOKEH_DEFAULT_SERVER_PORT           5006
-docs_cdn                       BOKEH_DOCS_CDN                      None
-docs_version                   BOKEH_DOCS_VERSION                  None
-ico_path                       BOKEH_ICO_PATH                      /path/to/ico
-ignore_filename                BOKEH_IGNORE_FILENAME               False
-log_level                      BOKEH_LOG_LEVEL                     info
-minified                       BOKEH_MINIFIED                      True
-nodejs_path                    BOKEH_NODEJS_PATH                   None
-perform_document_validation    BOKEH_VALIDATE_DOC                  True
-pretty                         BOKEH_PRETTY                        False
-py_log_level                   BOKEH_PY_LOG_LEVEL                  None
-resources                      BOKEH_RESOURCES                     cdn
-rootdir                        BOKEH_ROOTDIR                       None
-secret_key                     BOKEH_SECRET_KEY                    None
-serialize_include_defaults     BOKEH_SERIALIZE_INCLUDE_DEFAULTS    False
-sign_sessions                  BOKEH_SIGN_SESSIONS                 False
-simple_ids                     BOKEH_SIMPLE_IDS                    True
-ssl_certfile                   BOKEH_SSL_CERTFILE                  None
-ssl_keyfile                    BOKEH_SSL_KEYFILE                   None
-ssl_password                   BOKEH_SSL_PASSWORD                  None
-validation_level               BOKEH_VALIDATION_LEVEL              none
-xsrf_cookies                   BOKEH_XSRF_COOKIES                  False
---------------------------------------------------------------------------------
+    Bokeh Settings:
+    ==========================================================================
+    Setting                      Environment Variable              Value
+    --------------------------------------------------------------------------
+    allowed_ws_origin            BOKEH_ALLOW_WS_ORIGIN             []
+    auth_module                  BOKEH_AUTH_MODULE                 None
+    browser                      BOKEH_BROWSER                     None
+    cdn_version                  BOKEH_CDN_VERSION                 None
+    chromedriver_path            BOKEH_CHROMEDRIVER_PATH           None
+    compression_level            BOKEH_COMPRESSION_LEVEL           9
+    cookie_secret                BOKEH_COOKIE_SECRET               None
+    default_server_host          BOKEH_DEFAULT_SERVER_HOST         localhost
+    default_server_port          BOKEH_DEFAULT_SERVER_PORT         5006
+    docs_cdn                     BOKEH_DOCS_CDN                    None
+    docs_version                 BOKEH_DOCS_VERSION                None
+    ico_path                     BOKEH_ICO_PATH                    /path/to/ico
+    ignore_filename              BOKEH_IGNORE_FILENAME             False
+    log_level                    BOKEH_LOG_LEVEL                   info
+    minified                     BOKEH_MINIFIED                    True
+    nodejs_path                  BOKEH_NODEJS_PATH                 None
+    perform_document_validation  BOKEH_VALIDATE_DOC                True
+    pretty                       BOKEH_PRETTY                      False
+    py_log_level                 BOKEH_PY_LOG_LEVEL                None
+    resources                    BOKEH_RESOURCES                   cdn
+    rootdir                      BOKEH_ROOTDIR                     None
+    secret_key                   BOKEH_SECRET_KEY                  None
+    serialize_include_defaults   BOKEH_SERIALIZE_INCLUDE_DEFAULTS  False
+    sign_sessions                BOKEH_SIGN_SESSIONS               False
+    simple_ids                   BOKEH_SIMPLE_IDS                  True
+    ssl_certfile                 BOKEH_SSL_CERTFILE                None
+    ssl_keyfile                  BOKEH_SSL_KEYFILE                 None
+    ssl_password                 BOKEH_SSL_PASSWORD                None
+    validation_level             BOKEH_VALIDATION_LEVEL            none
+    xsrf_cookies                 BOKEH_XSRF_COOKIES                False
+    --------------------------------------------------------------------------
 
-This will display all available Bokeh settings in a table format with their current values and environment variables.
+This will display all available Bokeh settings in a table format with their
+current values and environment variables.
 
 To get detailed help for a specific setting, use the -v option:
 
@@ -62,8 +63,8 @@ To get detailed help for a specific setting, use the -v option:
     bokeh settings -v log_level
     bokeh settings -v minified
 
-This will show detailed information about the specified setting including its help text,
-default values, and current value.
+This will show detailed information about the specified setting including its
+help text, default values, and current value.
 
 '''
 
@@ -85,6 +86,7 @@ from typing import Any
 
 # Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset, settings
+from bokeh.util.settings import get_all_settings
 
 # Bokeh imports
 from ..subcommand import Argument, Subcommand
@@ -128,28 +130,30 @@ class Settings(Subcommand):
         '''
 
         '''
-        all_settings: list[tuple[str, PrioritizedSetting[Any]]] = []
-        for name, attr in settings.__class__.__dict__.items():
-            if isinstance(attr, PrioritizedSetting):
-                all_settings.append((name, attr))
-
-        all_settings.sort(key=lambda x: x[0])
+        all_settings = get_all_settings()
 
         if not all_settings:
             print("No settings found")
             return
 
-        if args.setting_name and args.verbose:
-            self._print_setting_detail(args.setting_name, all_settings)
-        elif args.setting_name and not args.verbose:
-            print("To get detailed help for a specific setting, use:")
-            print("  bokeh settings --verbose <setting_name>")
-            print("\nFor a list of all settings, use:")
-            print("  bokeh settings")
+        if args.setting_name:
+            if args.setting_name in all_settings:
+                if args.verbose:
+                    self._print_setting_detail(args.setting_name, all_settings[args.setting_name])
+                else:
+                    print("To get detailed help for a specific setting, use:")
+                    print("  bokeh settings [-v | --verbose] <setting_name>")
+                    print("\nFor a list of all settings, use:")
+                    print("  bokeh settings")
+            else:
+                print(f"Setting '{args.setting_name}' not found.")
+                print("Available settings:")
+                for name in sorted(all_settings):
+                    print(f"  {name}")
         else:
             self._print_settings_table(all_settings)
 
-    def _print_settings_table(self, all_settings: list[tuple[str, PrioritizedSetting[Any]]]) -> None:
+    def _print_settings_table(self, all_settings: dict[str, PrioritizedSetting[Any]]) -> None:
         ''' Print all settings in a table format.
         '''
         print("Bokeh Settings:")
@@ -157,68 +161,28 @@ class Settings(Subcommand):
         print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
         print("-" * 80)
 
-        for name, attr in all_settings:
-            try:
-                current_value = getattr(settings, name)()
-                env_var = attr.env_var
+        for name, attr in all_settings.items():
+            current_value = getattr(settings, name)()
+            env_var = attr.env_var
+            value_str = str(current_value)
 
-                if current_value is None:
-                    value_str = "None"
-                elif isinstance(current_value, bool):
-                    value_str = str(current_value)
-                elif isinstance(current_value, list | tuple):
-                    value_str = str(current_value)
-                else:
-                    value_str = str(current_value)
-
-                print(f"{name:<30} {env_var:<35} {value_str:<25}")
-
-            except Exception:
-                print(f"{name:<30} {'<error>':<35} {'<error>':<25}")
+            print(f"{name:<30} {env_var:<35} {value_str:<25}")
 
         print("-" * 80)
 
-    def _print_setting_detail(self, setting_name: str, all_settings: list[tuple[str, PrioritizedSetting[Any]]]) -> None:
+    def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting) -> None:
         ''' Print detailed help for a specific setting.
         '''
-        setting_attr = None
-        for name, attr in all_settings:
-            if name.lower() == setting_name.lower():
-                setting_attr = attr
-                setting_name = name
-                break
-
-        if not setting_attr:
-            print(f"Setting '{setting_name}' not found.")
-            print("Available settings:")
-            for name, _ in all_settings:
-                print(f"  {name}")
-            return
-
-        try:
-            current_value = getattr(settings, setting_name)()
-            env_var = setting_attr.env_var
-
-            print(f"Setting: {setting_name}")
-            print("=" * 60)
-            print(f"Current Value: {current_value}")
-            print(f"Default Value: {setting_attr.default}")
-            if setting_attr.dev_default is not _Unset:
-                print(f"Dev Default: {setting_attr.dev_default}")
-            print(f"Environment Variable: {env_var}")
-            print("\nHelp:")
-            print(f"{setting_attr.help.strip()}")
-
-        except Exception as e:
-            print(f"Setting: {setting_name}")
-            print("=" * 60)
-            print(f"Error accessing value: {e}")
-            print(f"Default Value: {setting_attr.default}")
-            if setting_attr.dev_default is not _Unset:
-                print(f"Dev Default: {setting_attr.dev_default}")
-            print(f"Environment Variable: {setting_attr.env_var}")
-            print("\nHelp:")
-            print(f"{setting_attr.help.strip()}")
+        ''' Print all settings in a table format. '''
+        print(f"Setting: {setting_name}")
+        print("=" * 60)
+        print(f"Current Value: {getattr(settings, setting_name)()}")
+        print(f"Default Value: {descriptor.default}")
+        if descriptor.dev_default is not _Unset:
+            print(f"Dev Default: {descriptor.dev_default}")
+        print(f"Environment Variable: {descriptor.env_var}")
+        print("\nHelp:")
+        print(f"{descriptor.help.strip()}")
 
 #-----------------------------------------------------------------------------
 # Dev API

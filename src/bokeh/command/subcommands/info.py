@@ -13,8 +13,9 @@ type ``bokeh info`` on the command line.
 
     bokeh info
 
-This will print general information to standard output, such as Python and Bokeh versions. The command
-will also display set (non-default) Bokeh settings as part of the output:
+This will print general information to standard output, such as Python and
+Bokeh versions. The command will also display set (non-default) Bokeh
+settings as part of the output:
 
 .. code-block:: none
 
@@ -30,12 +31,12 @@ will also display set (non-default) Bokeh settings as part of the output:
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
     Non-default Bokeh Settings:
-    ============================================================
-    Setting                Default              Value
-    ------------------------------------------------------------
-    ico_path               default              /path/to/ico
-    log_level              debug                info
-    ------------------------------------------------------------
+    =======================================
+    Setting                Value
+    ---------------------------------------
+    ico_path               /path/to/ico
+    log_level              info
+    ---------------------------------------
 
 Sometimes it can be useful to get just paths to the BokehJS static files in order
 to configure other servers or processes. To do this, use the ``--static`` option

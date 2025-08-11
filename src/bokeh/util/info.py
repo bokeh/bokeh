@@ -23,9 +23,10 @@ import sys
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.settings import PrioritizedSetting, settings
+from bokeh.settings import settings
 from bokeh.util.compiler import nodejs_version, npmjs_version
 from bokeh.util.dependencies import import_optional
+from bokeh.util.settings import get_all_settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -61,39 +62,28 @@ def print_info() -> None:
 def print_non_default_settings() -> None:
     """ Print non-default settings in a table format. """
 
-    all_settings = [
-        (name, attr) for name, attr in settings.__class__.__dict__.items()
-        if isinstance(attr, PrioritizedSetting)
-    ]
+    all_settings = get_all_settings()
 
     non_default_settings = []
-    for name, attr in all_settings:
+    for name, descriptor in all_settings.items():
         try:
             current_value = getattr(settings, name)()
-
-            if str(current_value).lower() != str(attr.default).lower():
-                non_default_settings.append((name, attr, current_value))
+            if str(current_value).lower() != str(descriptor.default).lower():
+                non_default_settings.append((name, current_value))
         except Exception:
             continue
 
     if not non_default_settings:
-        print()
-        print("No non-default settings found")
+        print("\nNo non-default settings found")
         return
 
-    non_default_settings.sort(key=lambda x: x[0])
-
-    print()
-    print("Non-default Bokeh Settings:")
+    print("\nNon-default Bokeh Settings:")
     print("=" * 60)
-    print(f"{'Setting':<25} {'Default':<25} {'Value':<25}")
+    print(f"{'Setting':<25} {'Value':<25}")
     print("-" * 60)
 
-    for name, attr, current_value in non_default_settings:
-        value_str = "None" if current_value is None else str(current_value)
-        default_str = "None" if attr.default is None else str(attr.default)
-
-        print(f"{name:<25} {default_str:<25} {value_str:<20}")
+    for name, current_value in non_default_settings:
+        print(f"{name:<25} {current_value!s:<20}")
 
     print("-" * 60)
 
