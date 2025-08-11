@@ -916,6 +916,11 @@ class SizeBar(BaseBar):
     this ``SizeBar``.
     """)
 
+    # XXX keep Auto Tuple order, because of Either.transform()
+    bounds = Either(Auto, Tuple(Float, Float), default="auto", help="""
+    Allows to limit the range of displayed radii.
+    """)
+
     glyph_line_props = Include(LineProps, prefix="glyph", help="""
     The {prop} of the glyph.
     """)

@@ -1667,6 +1667,7 @@
   SizeBar: {
     __extends__: "BaseBar",
     renderer: "auto",
+    bounds: "auto",
     glyph_line_color: {
       type: "value",
       value: null,

@@ -277,8 +277,17 @@ export class SizeBarView extends BaseBarView {
       return
     }
 
-    const start = Math.ceil(uniforms.min(glyph_view.radius))
-    const end = Math.floor(uniforms.max(glyph_view.radius))
+    const bounds = (() => {
+      const {bounds} = this.model
+      return bounds == "auto" ? [-Infinity, Infinity] as const : bounds
+    })()
+
+    const r_min = Math.max(uniforms.min(glyph_view.radius), bounds[0])
+    const r_max = Math.min(uniforms.max(glyph_view.radius), bounds[1])
+    console.log(r_min, r_max)
+
+    const start = Math.ceil(r_min)
+    const end = Math.floor(r_max)
 
     const ticks = linspace(start, end, 5)
     const v_max = max(ticks)
@@ -307,6 +316,7 @@ export namespace SizeBar {
 
   export type Props = BaseBar.Props & {
     renderer: p.Property<GlyphRenderer<RadialGlyph> | "auto">
+    bounds: p.Property<[number, number] | "auto">
   } & Mixins
 
   export type Mixins =
@@ -344,8 +354,9 @@ export class SizeBar extends BaseBar {
       glyph_line_color: null,
     })
 
-    this.define<SizeBar.Props>(({Ref, Auto, Or}) => ({
+    this.define<SizeBar.Props>(({Ref, Auto, Or, Float, Tuple}) => ({
       renderer: [ Or(Ref(GlyphRenderer), Auto), "auto" ],
+      bounds: [ Or(Tuple(Float, Float), Auto), "auto" ],
     }))
   }
 }
