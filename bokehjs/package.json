@@ -49,7 +49,7 @@
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
     "fflate": "^0.8.2",
-    "flatbush": "^4.4.1",
+    "flatbush": "^4.5.0",
     "flatpickr": "^4.6.13",
     "mathjax-full": "^3.2.2",
     "nearley": "^2.20.1",
