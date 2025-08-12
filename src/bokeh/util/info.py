@@ -67,9 +67,8 @@ def print_non_default_settings() -> None:
     non_default_settings = []
     for name, descriptor in all_settings.items():
         try:
-            current_value = getattr(settings, name)()
-            if str(current_value).lower() != str(descriptor.default).lower():
-                non_default_settings.append((name, current_value))
+            if descriptor() != descriptor._convert(descriptor.default):
+                non_default_settings.append((name, descriptor()))
         except Exception:
             continue
 
@@ -78,14 +77,14 @@ def print_non_default_settings() -> None:
         return
 
     print("\nNon-default Bokeh Settings:")
-    print("=" * 60)
+    print("=" * 40)
     print(f"{'Setting':<25} {'Value':<25}")
-    print("-" * 60)
+    print("-" * 40)
 
     for name, current_value in non_default_settings:
         print(f"{name:<25} {current_value!s:<20}")
 
-    print("-" * 60)
+    print("-" * 40)
 
 #-----------------------------------------------------------------------------
 # Legacy API

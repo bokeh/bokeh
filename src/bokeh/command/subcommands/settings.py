@@ -85,7 +85,7 @@ from argparse import Namespace
 from typing import Any
 
 # Bokeh imports
-from bokeh.settings import PrioritizedSetting, _Unset, settings
+from bokeh.settings import PrioritizedSetting, _Unset
 from bokeh.util.settings import get_all_settings
 
 # Bokeh imports
@@ -132,10 +132,6 @@ class Settings(Subcommand):
         '''
         all_settings = get_all_settings()
 
-        if not all_settings:
-            print("No settings found")
-            return
-
         if args.setting_name:
             if args.setting_name in all_settings:
                 if args.verbose:
@@ -161,12 +157,8 @@ class Settings(Subcommand):
         print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
         print("-" * 80)
 
-        for name, attr in all_settings.items():
-            current_value = getattr(settings, name)()
-            env_var = attr.env_var
-            value_str = str(current_value)
-
-            print(f"{name:<30} {env_var:<35} {value_str:<25}")
+        for name, descriptor in all_settings.items():
+            print(f"{name:<30} {descriptor.env_var:<35} {descriptor()!s:<25}")
 
         print("-" * 80)
 
@@ -176,7 +168,7 @@ class Settings(Subcommand):
         ''' Print all settings in a table format. '''
         print(f"Setting: {setting_name}")
         print("=" * 60)
-        print(f"Current Value: {getattr(settings, setting_name)()}")
+        print(f"Current Value: {descriptor()}")
         print(f"Default Value: {descriptor.default}")
         if descriptor.dev_default is not _Unset:
             print(f"Dev Default: {descriptor.dev_default}")
