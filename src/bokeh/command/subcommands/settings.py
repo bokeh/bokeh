@@ -170,7 +170,7 @@ class Settings(Subcommand):
 
         print("-" * 80)
 
-    def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting) -> None:
+    def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
         ''' Print detailed help for a specific setting.
         '''
         ''' Print all settings in a table format. '''
