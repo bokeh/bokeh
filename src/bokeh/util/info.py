@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import platform
 import sys
+from typing import cast
 
 # Bokeh imports
 from bokeh import __version__
@@ -67,7 +68,7 @@ def print_non_default_settings() -> None:
     non_default_settings = []
     for name, descriptor in all_settings.items():
         try:
-            if descriptor() != descriptor._convert(descriptor.default):
+            if descriptor() != descriptor._convert(cast(str, descriptor.default)):
                 non_default_settings.append((name, descriptor()))
         except Exception:
             continue
