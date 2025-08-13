@@ -30,7 +30,7 @@ settings as part of the output:
     jupyter_bokeh version :  (not installed)
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
-    Non-default Bokeh Settings:
+    Set (non-default) Bokeh Settings:
     =======================================
     Setting                Value
     ---------------------------------------
