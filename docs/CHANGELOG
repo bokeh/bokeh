@@ -2407,7 +2407,7 @@
     - #7452 [component: bokehjs] [regression] [widgets] Revert nouislider rev update
     - #7460 Bokeh.core.properties.date#transform fails on windows
     - #7461 [component: server] [regression] Unable to reuse sessions of a server application
-    - #7470 [component: bokehjs] Polydrawtool does not emit event on double-click
+    - #7470 [component: bokehjs] Polydrawtool does not emit event on double tap
     - #7475 [component: bokehjs] [regression] Setting range end or start through customjs not working
     - #7478 [component: bokehjs] [regression] Selection and nonselection glyph properties ignored
     - #7484 [regression] Cannot select tools in certain examples
