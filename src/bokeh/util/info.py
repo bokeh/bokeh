@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import platform
 import sys
-from typing import cast
 
 # Bokeh imports
 from bokeh import __version__
@@ -68,16 +67,16 @@ def print_non_default_settings() -> None:
     non_default_settings = []
     for name, descriptor in all_settings.items():
         try:
-            if descriptor() != descriptor._convert(cast(str, descriptor.default)):
+            if descriptor.is_set:
                 non_default_settings.append((name, descriptor()))
         except Exception:
             continue
 
     if not non_default_settings:
-        print("\nNo non-default settings found")
+        print("\nNo set (non-default) settings found")
         return
 
-    print("\nNon-default Bokeh Settings:")
+    print("\nSet (non-default) Bokeh Settings:")
     print("=" * 40)
     print(f"{'Setting':<25} {'Value':<25}")
     print("-" * 40)

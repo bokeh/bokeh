@@ -90,8 +90,8 @@ def test_run_with_non_default_section(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
     assert (
-        "Non-default Bokeh Settings:" in out
-        or "No non-default settings found" in out
+        "Set (non-default) Bokeh Settings:" in out
+        or "No set (non-default) settings found" in out
     )
 
 #-----------------------------------------------------------------------------
