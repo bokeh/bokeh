@@ -20,11 +20,11 @@ import pytest ; pytest
 from typing import Any
 
 # Bokeh imports
+from bokeh.settings import settings
 from tests.support.util.types import Capture
 
 # Module under test
 import bokeh.util.info as bui # isort:skip
-from bokeh.settings import settings
 
 #-----------------------------------------------------------------------------
 # Setup
