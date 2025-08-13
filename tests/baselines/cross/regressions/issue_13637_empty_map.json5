@@ -792,6 +792,13 @@
         background_hatch_extra: {
           type: "map",
         },
+        border_line_color: null,
+        border_line_alpha: 1.0,
+        border_line_width: 1,
+        border_line_join: "bevel",
+        border_line_cap: "butt",
+        border_line_dash: [],
+        border_line_dash_offset: 0,
         border_fill_color: "#ffffff",
         border_fill_alpha: 1.0,
         border_hatch_color: "black",

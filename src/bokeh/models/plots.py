@@ -720,6 +720,10 @@ class Plot(LayoutDOM):
 
     background_fill_color = Override(default='#ffffff')
 
+    border_line_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the plot border style.
+    """)
+
     border_fill_props = Include(ScalarFillProps, prefix="border", help="""
     The {prop} for the plot border style.
     """)
@@ -727,6 +731,8 @@ class Plot(LayoutDOM):
     border_hatch_props = Include(ScalarHatchProps, prefix="border", help="""
     The {prop} for the plot border style.
     """)
+
+    border_line_color = Override(default=None)
 
     border_fill_color = Override(default='#ffffff')
 

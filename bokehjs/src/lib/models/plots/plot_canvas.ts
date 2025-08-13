@@ -1342,49 +1342,59 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
+  /**
+   * Shrink bbox by 1px to make right and bottom lines visible if they are on the edge of the canvas.
+   */
+  private _shrink_to_canvas(bbox: BBox): BBox {
+    let {x, y, width, height} = bbox
+    if (x + width == this.bbox.width) {
+      width -= 1
+    }
+    if (y + height == this.bbox.height) {
+      height -= 1
+    }
+    return new BBox({x, y, width, height})
+  }
+
   protected _paint_empty(ctx: Context2d, frame_box: BBox): void {
     const canvas_box = this.bbox.relative()
 
-    const [cx, cy, cw, ch] = canvas_box.args
-    const [fx, fy, fw, fh] = frame_box.args
-
-    if (this.visuals.border_fill.doit || this.visuals.border_hatch.doit) {
+    const {border_fill, border_hatch} = this.visuals
+    if (border_fill.doit || border_hatch.doit) {
       ctx.save()
       ctx.beginPath()
-      ctx.rect(cx, cy, cw, ch)
-      ctx.rect(fx, fy, fw, fh)
+      ctx.rect_bbox(canvas_box)
+      ctx.rect_bbox(frame_box)
       ctx.clip("evenodd")
 
       ctx.beginPath()
-      ctx.rect(cx, cy, cw, ch)
-      this.visuals.border_fill.apply(ctx)
-      this.visuals.border_hatch.apply(ctx)
+      ctx.rect_bbox(canvas_box)
+      border_fill.apply(ctx)
+      border_hatch.apply(ctx)
       ctx.restore()
     }
 
-    if (this.visuals.background_fill.doit || this.visuals.background_hatch.doit) {
+    const {border_line} = this.visuals
+    if (border_line.doit) {
       ctx.beginPath()
-      ctx.rect(fx, fy, fw, fh)
-      this.visuals.background_fill.apply(ctx)
-      this.visuals.background_hatch.apply(ctx)
+      ctx.rect_bbox(this._shrink_to_canvas(canvas_box))
+      border_line.apply(ctx)
+    }
+
+    const {background_fill, background_hatch} = this.visuals
+    if (background_fill.doit || background_hatch.doit) {
+      ctx.beginPath()
+      ctx.rect_bbox(frame_box)
+      background_fill.apply(ctx)
+      background_hatch.apply(ctx)
     }
   }
 
   protected _paint_outline(ctx: Context2d, frame_box: BBox): void {
-    if (this.visuals.outline_line.doit) {
-      ctx.save()
-      this.visuals.outline_line.set_value(ctx)
-      let [x0, y0, w, h] = frame_box.args
-      // XXX: shrink outline region by 1px to make right and bottom lines visible
-      // if they are on the edge of the canvas.
-      if (x0 + w == this.bbox.width) {
-        w -= 1
-      }
-      if (y0 + h == this.bbox.height) {
-        h -= 1
-      }
-      ctx.strokeRect(x0, y0, w, h)
-      ctx.restore()
+    const {outline_line} = this.visuals
+    if (outline_line.doit) {
+      ctx.rect_bbox(this._shrink_to_canvas(frame_box))
+      outline_line.apply(ctx)
     }
   }
 

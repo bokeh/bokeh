@@ -107,6 +107,7 @@ export namespace Plot {
     mixins.OutlineLine    &
     mixins.BackgroundFill &
     mixins.BackgroundHatch &
+    mixins.BorderLine &
     mixins.BorderFill &
     mixins.BorderHatch
 
@@ -114,6 +115,7 @@ export namespace Plot {
     outline_line: visuals.Line
     background_fill: visuals.Fill
     background_hatch: visuals.Hatch
+    border_line: visuals.Line
     border_fill: visuals.Fill
     border_hatch: visuals.Hatch
   }
@@ -140,6 +142,7 @@ export class Plot extends LayoutDOM {
       ["outline_",    mixins.Line],
       ["background_", mixins.Fill],
       ["background_", mixins.Hatch],
+      ["border_",     mixins.Line],
       ["border_",     mixins.Fill],
       ["border_",     mixins.Hatch],
     ])
@@ -215,6 +218,7 @@ export class Plot extends LayoutDOM {
       width: 600,
       height: 600,
       outline_line_color: "#e5e5e5",
+      border_line_color: null,
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
       context_menu: "auto",

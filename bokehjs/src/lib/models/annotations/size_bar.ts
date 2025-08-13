@@ -57,6 +57,7 @@ class InternalPlot extends Plot {
 
 export class SizeBarView extends BaseBarView {
   declare model: SizeBar
+  declare visuals: SizeBar.Visuals
 
   protected _major_range: Range
   protected _major_scale: Scale
@@ -177,8 +178,7 @@ export class SizeBarView extends BaseBarView {
       title,
       ...mixins.attrs_of(this.model, "background_", mixins.Fill, true),
       ...mixins.attrs_of(this.model, "background_", mixins.Hatch, true),
-      // TODO plot border is not what you think
-      // ...mixins.attrs_of(this.model, "border_", mixins.Line, true),
+      ...mixins.attrs_of(this.model, "border_", mixins.Line, true),
       ...mixins.attrs_of(this.model, "bar_", mixins.Line, "outline_"),
     }
 

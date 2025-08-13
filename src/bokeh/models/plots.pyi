@@ -34,6 +34,7 @@ from ..core.property_mixins import (
     ScalarBackgroundHatchProps as BackgroundHatch,
     ScalarBorderFillProps as BorderFill,
     ScalarBorderHatchProps as BorderHatch,
+    ScalarBorderLineProps as BorderLine,
     ScalarOutlineLineProps as OutlineLine,
 )
 from ..model import Model
@@ -66,7 +67,7 @@ class HoverListAttrSplat(list[HoverTool], HoverTool):
     pass
 
 @dataclass
-class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderFill, BorderHatch, OutlineLine):
+class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, BorderHatch, OutlineLine):
 
     x_range: Range = ...
 
