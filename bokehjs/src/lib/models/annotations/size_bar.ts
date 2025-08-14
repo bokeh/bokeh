@@ -6,7 +6,7 @@ import type {Context2d} from "core/util/canvas"
 import type {Range} from "../ranges/range"
 import type {Scale} from "../scales"
 import {LinearScale} from "../scales"
-import {DataRange1d} from "../ranges/data_range1d"
+import {Range1d} from "../ranges/range1d"
 import {LinearAxis} from "../axes/linear_axis"
 import type * as p from "core/properties"
 import type * as visuals from "core/visuals"
@@ -22,7 +22,7 @@ import {Plot, PlotView} from "../plots/plot"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {FixedTicker} from "../tickers/fixed_ticker"
-import {max, linspace, repeat, reversed} from "core/util/array"
+import {linspace, repeat, elementwise} from "core/util/array"
 import {logger} from "core/logging"
 import {Circle} from "../glyphs/circle"
 import {BBox} from "core/util/bbox"
@@ -133,10 +133,10 @@ export class SizeBarView extends BaseBarView {
 
     const {orientation} = this
 
-    this._major_range = new DataRange1d()
+    this._major_range = new Range1d()
     this._major_scale = new LinearScale()
 
-    this._minor_range = new DataRange1d()
+    this._minor_range = new Range1d()
     this._minor_scale = new LinearScale()
 
     const renderer = this.renderer ?? new GlyphRenderer({glyph: new Circle()})
@@ -145,7 +145,7 @@ export class SizeBarView extends BaseBarView {
     const glyph: RadialGlyph = new Cls({
       x: {field: "x"},
       y: {field: "y"},
-      radius: {field: "r"},
+      radius: {field: "s", units: "screen"},
       ...mixins.attrs_of(this.model, "glyph_", mixins.LineVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.FillVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.HatchVector),
@@ -154,7 +154,7 @@ export class SizeBarView extends BaseBarView {
       data: {
         x: [],
         y: [],
-        r: [],
+        s: [],
       },
     })
     const circle_renderer = new GlyphRenderer({data_source: this._data_source, glyph})
@@ -298,27 +298,55 @@ export class SizeBarView extends BaseBarView {
 
     const r_min = Math.max(uniforms.min(glyph_view.radius), bounds[0])
     const r_max = Math.min(uniforms.max(glyph_view.radius), bounds[1])
-    console.log(r_min, r_max)
 
-    const start = Math.ceil(r_min)
-    const end = Math.floor(r_max)
+    const start = r_min
+    const end = r_max
 
-    const ticks = linspace(start, end, 5)
-    const v_max = max(ticks)
+    const n_ticks = 5
+    const radii = linspace(start, end, n_ticks)
+    this._major_ticker.ticks = radii
 
-    this._major_ticker.ticks = ticks
-
-    const x = reversed(ticks)
+    const x = radii
     const y = repeat(0, x.length)
-    const r = reversed(ticks.map((v) => v/v_max))
+
+    const s = (() => {
+      if (glyph_view.model.properties.radius.units == "data") {
+        const sradius_x = () => glyph_view.sdist(glyph_view.renderer.xscale, repeat(0, radii.length), new uniforms.UniformVector(radii))
+        const sradius_y = () => glyph_view.sdist(glyph_view.renderer.yscale, repeat(0, radii.length), new uniforms.UniformVector(radii))
+
+        const {radius_dimension} = glyph_view.model
+        switch (radius_dimension) {
+          case "x": {
+            return sradius_x()
+          }
+          case "y": {
+            return sradius_y()
+          }
+          case "min":
+          case "max": {
+            return elementwise(sradius_x(), sradius_y(), Math[radius_dimension])
+          }
+        }
+      } else {
+        return radii
+      }
+    })()
+
+    const padding = 1.0
+    const r_start = start*padding
+    const r_end = end*padding
 
     switch (this.orientation) {
       case "horizontal": {
-        this._data_source.data = {x, y, r}
+        this._major_range.setv({start: r_start, end: r_end})
+        this._minor_range.setv({start: -1, end: 1})
+        this._data_source.setv({data: {x, y, s}})
         break
       }
       case "vertical": {
-        this._data_source.data = {x: y, y: x, r}
+        this._major_range.setv({start: -1, end: 1})
+        this._minor_range.setv({start: r_start, end: r_end})
+        this._data_source.setv({data: {x: y, y: x, s}})
         break
       }
     }
