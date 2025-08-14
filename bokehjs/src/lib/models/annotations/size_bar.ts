@@ -21,8 +21,10 @@ import {Title} from "../annotations/title"
 import {Plot, PlotView} from "../plots/plot"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
+import type {Ticker} from "../tickers/ticker"
+import {AdaptiveTicker} from "../tickers/adaptive_ticker"
 import {FixedTicker} from "../tickers/fixed_ticker"
-import {linspace, repeat, elementwise} from "core/util/array"
+import {repeat, elementwise} from "core/util/array"
 import {logger} from "core/logging"
 import {Circle} from "../glyphs/circle"
 import {BBox} from "core/util/bbox"
@@ -83,7 +85,7 @@ export class SizeBarView extends BaseBarView {
 
   protected _data_source: ColumnDataSource
   protected _major_axis: LinearAxis
-  protected _major_ticker: FixedTicker
+  protected _major_ticker: Ticker
   protected _major_formatter: TickFormatter
 
   get align(): {h: Align, v: Align} {
@@ -303,8 +305,13 @@ export class SizeBarView extends BaseBarView {
     const end = r_max
 
     const n_ticks = 5
-    const radii = linspace(start, end, n_ticks)
-    this._major_ticker.ticks = radii
+    const t = new AdaptiveTicker({desired_num_ticks: n_ticks})
+    const ticks = t.get_ticks(start, end, new Range1d(), NaN)
+    const radii = ticks.major
+
+    if (this.model.ticker == "auto" && this._major_ticker instanceof FixedTicker) {
+      this._major_ticker.ticks = radii
+    }
 
     const x = radii
     const y = repeat(0, x.length)
@@ -332,20 +339,18 @@ export class SizeBarView extends BaseBarView {
       }
     })()
 
-    const padding = 1.0
-    const r_start = start*padding
-    const r_end = end*padding
+    const r_start = start
+    const r_end = end
+
+    this._major_range.setv({start: r_start, end: r_end})
+    this._minor_range.setv({start: -r_end, end: r_end})
 
     switch (this.orientation) {
       case "horizontal": {
-        this._major_range.setv({start: r_start, end: r_end})
-        this._minor_range.setv({start: -1, end: 1})
         this._data_source.setv({data: {x, y, s}})
         break
       }
       case "vertical": {
-        this._major_range.setv({start: -1, end: 1})
-        this._minor_range.setv({start: r_start, end: r_end})
         this._data_source.setv({data: {x: y, y: x, s}})
         break
       }

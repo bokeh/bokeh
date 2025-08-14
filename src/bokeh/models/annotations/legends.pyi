@@ -51,7 +51,7 @@ from ..labeling import LabelingPolicy
 from ..mappers import ColorMapper
 from ..ranges import Range
 from ..renderers import GlyphRenderer
-from ..tickers import FixedTicker, Ticker
+from ..tickers import Ticker
 from .annotation import Annotation
 from .dimensional import Dimensional
 
@@ -247,7 +247,7 @@ class BaseBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, Scala
 
     title_standoff: int = ...
 
-    ticker: FixedTicker | Auto = ...
+    ticker: Ticker | Auto = ...
 
     formatter: TickFormatter | Auto = ...
 

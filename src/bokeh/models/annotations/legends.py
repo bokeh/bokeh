@@ -813,7 +813,7 @@ class BaseBar(Annotation):
 
     title_text_font_style = Override(default="italic")
 
-    ticker = Either(Instance(FixedTicker), Auto, default="auto", help="""
+    ticker = Either(Instance(Ticker), Auto, default="auto", help="""
     A Ticker to use for computing locations of axis components.
     """)
 
