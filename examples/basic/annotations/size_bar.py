@@ -19,7 +19,14 @@ colors = np.array([(r, g, 150) for r, g in zip(50 + 2*x, 30 + 2*y)], dtype=np.ui
 p = figure()
 cr = p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
-size_bar = SizeBar(renderer=cr, title="SizeBar component", orientation="horizontal", glyph_fill_color="violet", glyph_fill_alpha=0.8)
+size_bar = SizeBar(
+    renderer=cr,
+    title="SizeBar component",
+    width="max",
+    orientation="horizontal",
+    glyph_fill_color="violet", glyph_fill_alpha=0.8, glyph_line_color="black",
+    border_line_color="gray", border_line_dash="dotted",
+)
 p.add_layout(size_bar, "below")
 
 show(p)
