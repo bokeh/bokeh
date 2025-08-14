@@ -26,6 +26,15 @@ import {max, linspace, repeat, reversed} from "core/util/array"
 import {logger} from "core/logging"
 import {Circle} from "../glyphs/circle"
 import {BBox} from "core/util/bbox"
+import {BorderLayout} from "core/layout/border"
+
+class InternalBorderLayout extends BorderLayout {
+
+  override set_geometry(viewport: BBox): void {
+    const {outer, inner} = this._compute(viewport)
+    super.set_geometry(outer, inner)
+  }
+}
 
 class InternalPlotView extends PlotView {
   declare model: InternalPlot
@@ -33,6 +42,10 @@ class InternalPlotView extends PlotView {
   override initialize(): void {
     super.initialize()
     this._range_manager.warn_initial_ranges = false
+  }
+
+  protected override _make_layout(): BorderLayout {
+    return new InternalBorderLayout()
   }
 }
 
@@ -58,6 +71,7 @@ class InternalPlot extends Plot {
 export class SizeBarView extends BaseBarView {
   declare model: SizeBar
   declare visuals: SizeBar.Visuals
+  declare layout: BorderLayout
 
   protected _major_range: Range
   protected _major_scale: Scale

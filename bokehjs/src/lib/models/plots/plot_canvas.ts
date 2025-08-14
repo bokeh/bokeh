@@ -527,6 +527,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
+  protected _make_layout(): BorderLayout {
+    return new BorderLayout()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
@@ -534,7 +538,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._invalidate_all = true
     this._needs_paint = true
 
-    const layout = new BorderLayout()
+    const layout = this._make_layout()
 
     const {frame_align} = this.model
     layout.aligns = (() => {
