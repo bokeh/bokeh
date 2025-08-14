@@ -150,7 +150,7 @@ export class Document implements Equatable {
 
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
-    for (const root of this._roots) {
+    for (const root of this.all_roots) {
       if (!this._idle_roots.has(root)) {
         return false
       }
