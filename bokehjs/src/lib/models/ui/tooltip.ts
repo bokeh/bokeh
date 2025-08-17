@@ -282,7 +282,12 @@ export class TooltipView extends UIElementView {
       height: window.innerHeight,
     })
 
-    const arrow_size = box_size(this.arrow_el)
+    // TODO box_size(this.arrow_el), but currently doesn't work reliably
+    const el_style = getComputedStyle(this.el)
+    const arrow_size = {
+      width: parseFloat(el_style.getPropertyValue("--tooltip-arrow-width")),
+      height: parseFloat(el_style.getPropertyValue("--tooltip-arrow-height")),
+    }
 
     const side = (() => {
       const attachment = (() => {
