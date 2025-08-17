@@ -6,3 +6,4 @@
 Bokeh version ``3.8.0`` (August 2025) is a minor milestone of Bokeh project.
 
 * added support for session reconnect, connection events and UI notifications (:bokeh-pull:`14201`, :bokeh-pull:`14576`)
+* Added support for ``Plot`` side panel layouts and ``SizeBar`` annotation (:bokeh-pull:`14487`)

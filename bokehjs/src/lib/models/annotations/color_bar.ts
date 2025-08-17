@@ -12,7 +12,6 @@ import {LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from 
 import type {Ticker} from "../tickers/ticker"
 import {BasicTicker, LogTicker, BinnedTicker, CategoricalTicker} from "../tickers"
 import type * as p from "core/properties"
-import type {Layoutable} from "core/layout"
 import type {Arrayable} from "core/types"
 import {range, reversed} from "core/util/array"
 import {unreachable} from "core/util/assert"
@@ -21,7 +20,6 @@ import type {Context2d} from "core/util/canvas"
 
 export class ColorBarView extends BaseColorBarView {
   declare model: ColorBar
-  declare layout: Layoutable
 
   protected _image: HTMLCanvasElement | null
 
@@ -327,6 +325,7 @@ export namespace ColorBar {
     color_mapper: p.Property<ColorMapper>
     display_low: p.Property<number | null>
     display_high: p.Property<number | null>
+    scale_alpha: p.Property<number>
   }
 }
 
@@ -343,10 +342,11 @@ export class ColorBar extends BaseColorBar {
   static {
     this.prototype.default_view = ColorBarView
 
-    this.define<ColorBar.Props>(({Nullable, Float, Ref}) => ({
+    this.define<ColorBar.Props>(({Alpha, Nullable, Float, Ref}) => ({
       color_mapper: [ Ref(ColorMapper) ],
       display_low:  [ Nullable(Float), null ],
       display_high: [ Nullable(Float), null ],
+      scale_alpha:  [ Alpha, 1.0 ],
     }))
   }
 }

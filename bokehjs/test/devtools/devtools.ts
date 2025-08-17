@@ -552,21 +552,35 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           } else {
             async function run_test(attempt: number | null, status: Status): Promise<boolean> {
               let may_retry = false
+
               const seq = JSON.stringify(to_seq(suites, test))
               const ctx_ = JSON.stringify(ctx)
+
               const output = await (async () => {
-                if (test.dpr != null || test.scale != null) {
-                  await override_metrics({dpr: test.dpr, scale: test.scale})
-                }
-                try {
-                  return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
-                } finally {
-                  if (test.dpr != null || test.scale != null) {
-                    await override_metrics()
+                let attempts = 2
+
+                do {
+                  const output = await (async () => {
+                    if (test.dpr != null || test.scale != null) {
+                      await override_metrics({dpr: test.dpr, scale: test.scale})
+                    }
+                    try {
+                      return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
+                    } finally {
+                      if (test.dpr != null || test.scale != null) {
+                        await override_metrics()
+                      }
+                    }
+                  })()
+
+                  if (attempts-- <= 0 || !(output instanceof Timeout)) {
+                    return output
                   }
-                }
+                } while (true)
               })()
+
               await add_datapoint()
+
               try {
                 const errors = entries.filter((entry) => entry.level == "error")
                 if (errors.length != 0) {

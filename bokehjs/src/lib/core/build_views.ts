@@ -7,7 +7,10 @@ import {assert} from "./util/assert"
 export type {IterViews, ViewOf} from "./view"
 
 export type ViewStorage<T extends HasProps> = Map<T, ViewOf<T>>
-export type Options<T extends View> = {parent: T["parent"] | null, owner?: ViewManager}
+export type Options<T extends View> = {
+  parent: T["parent"] | null | ((obj: HasProps) => T["parent"] | null)
+  owner?: ViewManager
+}
 
 async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options<ViewOf<T>>): Promise<ViewOf<T>> {
   assert(view_cls != null, "model doesn't implement a view")

@@ -32,7 +32,7 @@ import {stream_to_columns, patch_to_columns} from "./patching"
 
 type AttrsLike = Dict<unknown>
 
-export module HasProps {
+export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
 

@@ -328,6 +328,7 @@ describe("default model resolver", () => {
       "ServerSentDataSource",
       "SetValue",
       "SingleIntervalTicker",
+      "SizeBar",
       "Slider",
       "Slope",
       "SomeModel",

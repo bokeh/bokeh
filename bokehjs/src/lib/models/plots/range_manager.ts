@@ -27,6 +27,8 @@ export class RangeManager {
     return this.parent.frame
   }
 
+  warn_initial_ranges: boolean = true
+
   invalidate_dataranges: boolean = true
 
   update(range_info: RangeInfo, options: Partial<RangeOptions> = {}): void {
@@ -201,7 +203,9 @@ export class RangeManager {
     if (good_vals) {
       return {xrs, yrs}
     } else {
-      logger.warn("could not set initial ranges")
+      if (this.warn_initial_ranges) {
+        logger.warn("could not set initial ranges")
+      }
       return null
     }
   }

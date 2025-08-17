@@ -12,12 +12,12 @@ import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
-import type {LayoutDOM, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
-import {LayoutDOMView} from "../layouts/layout_dom"
+import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
-import type {Axis} from "../axes/axis"
+import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
@@ -45,6 +45,7 @@ import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
 import {CanvasLayer} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
+import {ElementLayout} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
@@ -62,6 +63,7 @@ import {InlineStyleSheet, px, div} from "core/dom"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
+import type {StyledElement} from "../ui/styled_element"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"
@@ -69,7 +71,7 @@ import * as attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
-type Panels = (Axis | Annotation | Annotation[])[]
+type Panels = (Axis | Annotation | Annotation[] | StyledElement)[]
 type LayoutPanels = {
   outer_above: Panels
   outer_below: Panels
@@ -265,7 +267,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  request_layout(): void {
+  request_layout(force: boolean = false): void {
+    if (force) {
+      this._needs_layout = true
+    }
     this.request_repaint()
   }
 
@@ -522,6 +527,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
+  protected _make_layout(): BorderLayout {
+    return new BorderLayout()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
@@ -529,7 +538,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._invalidate_all = true
     this._needs_paint = true
 
-    const layout = new BorderLayout()
+    const layout = this._make_layout()
 
     const {frame_align} = this.model
     layout.aligns = (() => {
@@ -548,11 +557,18 @@ export class PlotView extends LayoutDOMView implements Paintable {
       layout.center_border_width = width
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
-      const view = this.views.get_one(model)
-      view.panel = new SidePanel(side)
-      view.update_layout?.()
-      return view.layout
+    const set_layout = (side: Side, model: Annotation | Axis | StyledElement): Layoutable | undefined => {
+      if (model instanceof Annotation || model instanceof Axis) {
+        const view = this.views.get_one(model)
+        view.panel = new SidePanel(side)
+        view.update_layout?.()
+        return view.layout
+      } else {
+        const view = this.views.get_one(model)
+        const layout = new ElementLayout(view.el)
+        layout.set_sizing({width_policy: "fixed", height_policy: "fixed"})
+        return layout
+      }
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
@@ -852,19 +868,29 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.update_selection(null)
   }
 
+  private _needs_layout: boolean = false
+
   protected _invalidate_layout_if_needed(): void {
     const needs_layout = (() => {
-      for (const panel of this.model.side_panels) {
-        const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
-        if (view.layout?.has_size_changed() ?? false) {
-          this.invalidate_painters(view)
-          return true
+      if (this._needs_layout) {
+        this.invalidate_painters()
+        return true
+      } else {
+        for (const panel of this.model.side_panels) {
+          const view = this.renderer_views.get(panel as any) // TODO
+          if (view != null) {
+            if (view.layout?.has_size_changed() ?? false) {
+              this.invalidate_painters(view)
+              return true
+            }
+          }
         }
+        return false
       }
-      return false
     })()
 
     if (needs_layout) {
+      this._needs_layout = false
       this.compute_layout()
     }
   }
@@ -873,11 +899,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {above, below, left, right, center, renderers} = this.model
 
     yield* renderers
-    yield* above
-    yield* below
-    yield* left
-    yield* right
-    yield* center
+    yield* [...above, ...below, ...left, ...right, ...center] as any // TODO
 
     if (this._title != null) {
       yield this._title
@@ -904,7 +926,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
-    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
     this._update_attribution()
     return result
   }
@@ -1324,49 +1346,65 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
+  /**
+   * Shrink bbox by 1px to make right and bottom lines visible if they are on the edge of the canvas.
+   */
+  private _shrink_to_canvas(bbox: BBox): BBox {
+    let {x, y, width, height} = bbox
+    if (width > 0 && x + width == this.bbox.width) {
+      width -= 1
+    }
+    if (height > 0 && y + height == this.bbox.height) {
+      height -= 1
+    }
+    return new BBox({x, y, width, height})
+  }
+
   protected _paint_empty(ctx: Context2d, frame_box: BBox): void {
     const canvas_box = this.bbox.relative()
 
-    const [cx, cy, cw, ch] = canvas_box.args
-    const [fx, fy, fw, fh] = frame_box.args
-
-    if (this.visuals.border_fill.doit || this.visuals.border_hatch.doit) {
+    const {border_fill, border_hatch} = this.visuals
+    if (border_fill.doit || border_hatch.doit) {
       ctx.save()
       ctx.beginPath()
-      ctx.rect(cx, cy, cw, ch)
-      ctx.rect(fx, fy, fw, fh)
+      ctx.rect_bbox(canvas_box)
+      ctx.rect_bbox(frame_box)
       ctx.clip("evenodd")
 
       ctx.beginPath()
-      ctx.rect(cx, cy, cw, ch)
-      this.visuals.border_fill.apply(ctx)
-      this.visuals.border_hatch.apply(ctx)
+      ctx.rect_bbox(canvas_box)
+      border_fill.apply(ctx)
+      border_hatch.apply(ctx)
       ctx.restore()
     }
 
-    if (this.visuals.background_fill.doit || this.visuals.background_hatch.doit) {
+    const {border_line} = this.visuals
+    if (border_line.doit) {
       ctx.beginPath()
-      ctx.rect(fx, fy, fw, fh)
-      this.visuals.background_fill.apply(ctx)
-      this.visuals.background_hatch.apply(ctx)
+      ctx.rect_bbox(this._shrink_to_canvas(canvas_box))
+      border_line.apply(ctx)
+    }
+
+    const {background_fill, background_hatch} = this.visuals
+    if (background_fill.doit || background_hatch.doit) {
+      ctx.beginPath()
+      ctx.rect_bbox(frame_box)
+      background_fill.apply(ctx)
+      background_hatch.apply(ctx)
     }
   }
 
   protected _paint_outline(ctx: Context2d, frame_box: BBox): void {
-    if (this.visuals.outline_line.doit) {
-      ctx.save()
-      this.visuals.outline_line.set_value(ctx)
-      let [x0, y0, w, h] = frame_box.args
-      // XXX: shrink outline region by 1px to make right and bottom lines visible
-      // if they are on the edge of the canvas.
-      if (x0 + w == this.bbox.width) {
-        w -= 1
-      }
-      if (y0 + h == this.bbox.height) {
-        h -= 1
-      }
-      ctx.strokeRect(x0, y0, w, h)
-      ctx.restore()
+    const {outline_line} = this.visuals
+    if (outline_line.doit) {
+      outline_line.set_value(ctx)
+      const {x, y, width, height} = this._shrink_to_canvas(frame_box)
+      ctx.strokeRect(x, y, width, height)
+      // TODO This should be equivalent, but results in a lot of trivial image
+      // differences in frame corners. Switch to this approach when migrating
+      // to newer version of Chromium in integration tests.
+      // ctx.rect_bbox(this._shrink_to_canvas(frame_box))
+      // outline_line.apply(ctx)
     }
   }
 

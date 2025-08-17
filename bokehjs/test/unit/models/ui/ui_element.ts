@@ -75,13 +75,13 @@ describe("UIElement", () => {
 
     expect(stylesheets()).to.be.equal([
       base_css,
-      ":host{position:relative;}",           // ui.css
-      ":host { background-color: #000; }",   // UIView.stylesheets
-      ":host {\n--foo: violet;\n}",          // StyledElement.css_variables
-      "",                                    // StyledElement.style
-      "",                                    // StyledElement.parent_style
-      ":host { display: none; }",            // UIElementView._display
-      ":host { background-color: #f00; }",   // UIElement.stylesheets
+      ":host{position:relative;pointer-events:auto;}", // ui.css
+      ":host { background-color: #000; }",             // UIView.stylesheets
+      ":host {\n--foo: violet;\n}",                    // StyledElement.css_variables
+      "",                                              // StyledElement.style
+      "",                                              // StyledElement.parent_style
+      ":host { display: none; }",                      // UIElementView._display
+      ":host { background-color: #f00; }",             // UIElement.stylesheets
     ])
 
     ui.stylesheets = [...ui.stylesheets, ":host { background-color: #ff0; }"]
@@ -89,14 +89,14 @@ describe("UIElement", () => {
 
     expect(stylesheets()).to.be.equal([
       base_css,
-      ":host{position:relative;}",           // ui.css
-      ":host { background-color: #000; }",   // UIView.stylesheets
-      ":host {\n--foo: violet;\n}",          // StyledElement.css_variables
-      "",                                    // StyledElement.style
-      "",                                    // StyledElement.parent_style
-      ":host { display: none; }",            // UIElementView._display
-      ":host { background-color: #f00; }",   // UIElement.stylesheets
-      ":host { background-color: #ff0; }",   // UIElement.stylesheets
+      ":host{position:relative;pointer-events:auto;}", // ui.css
+      ":host { background-color: #000; }",             // UIView.stylesheets
+      ":host {\n--foo: violet;\n}",                    // StyledElement.css_variables
+      "",                                              // StyledElement.style
+      "",                                              // StyledElement.parent_style
+      ":host { display: none; }",                      // UIElementView._display
+      ":host { background-color: #f00; }",             // UIElement.stylesheets
+      ":host { background-color: #ff0; }",             // UIElement.stylesheets
     ])
     expect(render_spy.callCount).to.be.equal(0)
   })

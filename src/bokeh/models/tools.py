@@ -87,7 +87,6 @@ from ..core.properties import (
     String,
     Struct,
     Tuple,
-    TypeOfAttr,
 )
 from ..core.property.struct import Optional
 from ..core.property_aliases import IconLike
@@ -97,22 +96,22 @@ from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback, CustomJS
+from .common.properties import GlyphRendererOf
 from .dom import DOMElement
+from .glyph import LineGlyph, XYGlyph
 from .glyphs import (
     HStrip,
     Line,
-    LineGlyph,
     LRTBGlyph,
     MultiLine,
     Patches,
     Rect,
     VStrip,
-    XYGlyph,
 )
 from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
-from .renderers import DataRenderer, GlyphRenderer
+from .renderers import DataRenderer
 from .ui import Menu, UIElement
 
 #-----------------------------------------------------------------------------
@@ -185,10 +184,6 @@ def _parse_modifiers(value: str) -> dict[KeyModifierType, bool]:
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def GlyphRendererOf(*types: type[Model]):
-    """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """
-    return TypeOfAttr(Instance(GlyphRenderer), "glyph", Either(*(Instance(type) for type in types)))
 
 @abstract
 class Tool(Model):
