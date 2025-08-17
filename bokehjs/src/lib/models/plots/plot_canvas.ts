@@ -1351,10 +1351,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
    */
   private _shrink_to_canvas(bbox: BBox): BBox {
     let {x, y, width, height} = bbox
-    if (x + width == this.bbox.width) {
+    if (width > 0 && x + width == this.bbox.width) {
       width -= 1
     }
-    if (y + height == this.bbox.height) {
+    if (height > 0 && y + height == this.bbox.height) {
       height -= 1
     }
     return new BBox({x, y, width, height})
