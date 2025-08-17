@@ -341,22 +341,15 @@ export class SizeBarView extends BaseBarView {
       }
     })()
 
-    const r_start = start
-    const r_end = end
+    this._major_range.setv({start, end})
+    this._minor_range.setv({start: -end, end})
 
-    this._major_range.setv({start: r_start, end: r_end})
-    this._minor_range.setv({start: -r_end, end: r_end})
-
-    switch (this.orientation) {
-      case "horizontal": {
-        this._data_source.setv({data: {x, y, s}})
-        break
+    this._data_source.data = (() => {
+      switch (this.orientation) {
+        case "horizontal": return {x, y, s}
+        case "vertical":   return {x: y, y: x, s}
       }
-      case "vertical": {
-        this._data_source.setv({data: {x: y, y: x, s}})
-        break
-      }
-    }
+    })()
   }
 }
 
