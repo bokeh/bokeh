@@ -58,7 +58,7 @@ export abstract class CompositeRendererView extends RendererView {
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.computed_elements, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    return await build_views(this._element_views, this.computed_elements, {parent: (model) => model instanceof LayoutDOM ? null : this.plot_view})
   }
 
   protected async _update_renderers(): Promise<void> {
