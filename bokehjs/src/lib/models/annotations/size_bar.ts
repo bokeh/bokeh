@@ -300,13 +300,15 @@ export class SizeBarView extends BaseBarView {
 
     const r_min = Math.max(uniforms.min(glyph_view.radius), bounds[0])
     const r_max = Math.min(uniforms.max(glyph_view.radius), bounds[1])
+    const equal = r_max == r_min
+    const eps = 0.000001
 
-    const start = r_min
-    const end = r_max
+    const start = equal ? Math.max(r_min - eps, 0) : r_min
+    const end = equal ? r_max + eps : r_max
 
-    const n_ticks = 5
+    const n_ticks = equal ? 1 : 5
     const t = new AdaptiveTicker({desired_num_ticks: n_ticks})
-    const ticks = t.get_ticks(start, end, new Range1d(), NaN)
+    const ticks = t.get_ticks(start == 0 ? end*eps : start, end, new Range1d(), NaN)
     const radii = ticks.major
 
     if (this.model.ticker == "auto" && this._major_ticker instanceof FixedTicker) {
