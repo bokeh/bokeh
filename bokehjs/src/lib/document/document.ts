@@ -318,8 +318,12 @@ export class Document implements Equatable {
     this._schedule_recompute_all_models()
   }
 
+  get internal_roots(): HasProps[] {
+    return [this._notifications]
+  }
+
   get all_roots(): HasProps[] {
-    return [...this._roots, this._notifications]
+    return [...this._roots, ...this.internal_roots]
   }
 
   roots(): HasProps[] {

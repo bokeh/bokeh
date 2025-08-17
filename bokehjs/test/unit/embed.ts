@@ -6,6 +6,7 @@ import {Document} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {DOMElementView} from "@bokehjs/core/dom_view"
 import {is_equal} from "@bokehjs/core/util/eq"
+import {defer} from "@bokehjs/core/util/defer"
 
 class SomeView extends DOMElementView {
   render(): void {
@@ -37,6 +38,7 @@ describe("embed", () => {
       doc.add_root(new ModelWithoutView())
       doc.add_root(new ModelWithView())
       const views = await embed.add_document_standalone(doc, document.body)
+      await defer() // wait one full loop for NotificationsView; unfortunately view.ready isn't in sync
       try {
         expect(doc.is_idle).to.be.true
       } finally {
