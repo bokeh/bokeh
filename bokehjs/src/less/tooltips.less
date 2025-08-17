@@ -107,6 +107,10 @@
   display: inline-block;
 }
 
+:host(.bk-closable) {
+  padding-right: 17px; // 5px + close button width
+}
+
 :host(:not(.bk-closable)) {
   .bk-close {
     display: none;
