@@ -623,23 +623,23 @@ class Plot(LayoutDOM):
     makes most sense with auto-hidden toolbars.
     """)
 
-    left = List(Instance(StyledElement), help="""
+    left = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)
 
-    right = List(Instance(StyledElement), help="""
+    right = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(StyledElement), help="""
+    above = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
-    below = List(Instance(StyledElement), help="""
+    below = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area below of the plot.
     """)
 
-    center = List(Instance(StyledElement), help="""
+    center = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
