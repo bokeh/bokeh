@@ -59,7 +59,7 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 
 # Bokeh imports
-from bokeh.settings import settings
+from bokeh.settings import PrioritizedSetting, settings
 from bokeh.util.info import print_info
 
 # Bokeh imports
@@ -104,6 +104,60 @@ class Info(Subcommand):
             print(settings.bokehjs_path())
         else:
             print_info()
+            
+            # Display non-default settings
+            self._print_non_default_settings()
+
+    def _print_non_default_settings(self) -> None:
+        """Print settings that have been changed from their default values."""
+        
+        # Get all PrioritizedSetting attributes from the settings class
+        setting_items = []
+        for attr_name in dir(settings):
+            attr = getattr(settings.__class__, attr_name, None)
+            if isinstance(attr, PrioritizedSetting):
+                setting_items.append((attr_name, attr))
+
+        # Find non-default settings
+        non_default_items = []
+        for name, setting in setting_items:
+            current_value = getattr(settings, name)()
+            default_value = setting._default
+            dev_default_value = getattr(setting, '_dev_default', None)
+            
+            # Check if current value differs from default
+            if settings.dev and dev_default_value is not None:
+                is_default = current_value == dev_default_value
+            else:
+                is_default = current_value == default_value
+            
+            if not is_default:
+                non_default_items.append((name, setting, current_value))
+
+        if non_default_items:
+            print()
+            print("Non-default settings:")
+            print("--------------------")
+            non_default_items.sort(key=lambda x: x[0])
+            for name, setting, current_value in non_default_items:
+                env_var = setting._env_var
+                formatted_value = self._format_value(current_value)
+                print(f"  {name:<25} : {formatted_value} (env: {env_var})")
+
+    def _format_value(self, value) -> str:
+        """Format a setting value for display."""
+        if value is None:
+            return "None"
+        elif isinstance(value, str):
+            return f'"{value}"' if value else '""'
+        elif isinstance(value, list):
+            if not value:
+                return "[]"
+            return str(value)
+        elif isinstance(value, bool):
+            return str(value)
+        else:
+            return str(value)
 
 #-----------------------------------------------------------------------------
 # Dev API
