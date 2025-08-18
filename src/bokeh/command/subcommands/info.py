@@ -114,6 +114,9 @@ class Info(Subcommand):
         # Get all PrioritizedSetting attributes from the settings class
         setting_items = []
         for attr_name in dir(settings):
+            # Skip private attributes and methods
+            if attr_name.startswith('_'):
+                continue
             attr = getattr(settings.__class__, attr_name, None)
             if isinstance(attr, PrioritizedSetting):
                 setting_items.append((attr_name, attr))
@@ -121,18 +124,22 @@ class Info(Subcommand):
         # Find non-default settings
         non_default_items = []
         for name, setting in setting_items:
-            current_value = getattr(settings, name)()
-            default_value = setting._default
-            dev_default_value = getattr(setting, '_dev_default', None)
-            
-            # Check if current value differs from default
-            if settings.dev and dev_default_value is not None:
-                is_default = current_value == dev_default_value
-            else:
-                is_default = current_value == default_value
-            
-            if not is_default:
-                non_default_items.append((name, setting, current_value))
+            try:
+                current_value = getattr(settings, name)()
+                default_value = getattr(setting, '_default', None)
+                dev_default_value = getattr(setting, '_dev_default', None)
+                
+                # Check if current value differs from default
+                if settings.dev and dev_default_value is not None:
+                    is_default = current_value == dev_default_value
+                else:
+                    is_default = current_value == default_value
+                
+                if not is_default:
+                    non_default_items.append((name, setting, current_value))
+            except Exception:
+                # Skip settings that can't be evaluated
+                continue
 
         if non_default_items:
             print()
@@ -140,7 +147,7 @@ class Info(Subcommand):
             print("--------------------")
             non_default_items.sort(key=lambda x: x[0])
             for name, setting, current_value in non_default_items:
-                env_var = setting._env_var
+                env_var = getattr(setting, '_env_var', 'Unknown')
                 formatted_value = self._format_value(current_value)
                 print(f"  {name:<25} : {formatted_value} (env: {env_var})")
 

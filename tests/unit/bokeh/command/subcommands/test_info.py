@@ -65,7 +65,8 @@ def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 11
+    # Check that we have at least the basic info lines (may have more due to non-default settings)
+    assert len(lines) >= 11
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
@@ -77,6 +78,7 @@ def test_run(capsys: Capture) -> None:
     assert lines[8].startswith("jupyter_bokeh version")
     assert lines[9].startswith("Operating system")
     assert lines[10] == ""
+    # May have additional lines for non-default settings section
     assert err == ""
 
 def test_run_static(capsys: Capture) -> None:

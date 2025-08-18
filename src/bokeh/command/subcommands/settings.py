@@ -74,7 +74,6 @@ import textwrap
 from argparse import Namespace
 
 # Bokeh imports
-from bokeh import __version__
 from bokeh.settings import PrioritizedSetting, settings
 
 # Bokeh imports
@@ -120,13 +119,23 @@ class Settings(Subcommand):
         '''
 
         '''
-        print(f"Settings for Bokeh {__version__}")
-        print("=" * (len(f"Settings for Bokeh {__version__}")))
+        # Get version from settings or use a fallback
+        try:
+            from bokeh import __version__
+            version_str = __version__
+        except ImportError:
+            version_str = "development"
+        
+        print(f"Settings for Bokeh {version_str}")
+        print("=" * (len(f"Settings for Bokeh {version_str}")))
         print()
 
         # Get all PrioritizedSetting attributes from the settings class
         setting_items = []
         for attr_name in dir(settings):
+            # Skip private attributes and methods
+            if attr_name.startswith('_'):
+                continue
             attr = getattr(settings.__class__, attr_name, None)
             if isinstance(attr, PrioritizedSetting):
                 setting_items.append((attr_name, attr))
@@ -148,18 +157,22 @@ class Settings(Subcommand):
         if args.non_default:
             non_default_items = []
             for name, setting in setting_items:
-                current_value = getattr(settings, name)()
-                default_value = setting._default
-                dev_default_value = getattr(setting, '_dev_default', None)
-                
-                # Check if current value differs from default
-                if settings.dev and dev_default_value is not None:
-                    is_default = current_value == dev_default_value
-                else:
-                    is_default = current_value == default_value
-                
-                if not is_default:
-                    non_default_items.append((name, setting))
+                try:
+                    current_value = getattr(settings, name)()
+                    default_value = setting._default
+                    dev_default_value = getattr(setting, '_dev_default', None)
+                    
+                    # Check if current value differs from default
+                    if settings.dev and dev_default_value is not None:
+                        is_default = current_value == dev_default_value
+                    else:
+                        is_default = current_value == default_value
+                    
+                    if not is_default:
+                        non_default_items.append((name, setting))
+                except Exception:
+                    # Skip settings that can't be evaluated
+                    continue
             setting_items = non_default_items
 
         # Display settings
@@ -184,34 +197,38 @@ class Settings(Subcommand):
         print("-" * len(name))
         
         # Environment variable
-        env_var = setting._env_var
+        env_var = getattr(setting, '_env_var', 'Unknown')
         print(f"Environment Variable : {env_var}")
         
         # Current value
-        current_value = getattr(settings, name)()
-        current_str = self._format_value(current_value)
-        
-        # Check if we're using dev default
-        dev_default = getattr(setting, '_dev_default', None)
-        if settings.dev and dev_default is not None and current_value == dev_default:
-            current_str += " (dev mode)"
-        
-        print(f"Current Value        : {current_str}")
+        try:
+            current_value = getattr(settings, name)()
+            current_str = self._format_value(current_value)
+            
+            # Check if we're using dev default
+            dev_default = getattr(setting, '_dev_default', None)
+            if settings.dev and dev_default is not None and current_value == dev_default:
+                current_str += " (dev mode)"
+            
+            print(f"Current Value        : {current_str}")
+        except Exception:
+            print(f"Current Value        : <unable to determine>")
         
         # Default value
-        default_value = setting._default
+        default_value = getattr(setting, '_default', None)
         print(f"Default Value        : {self._format_value(default_value)}")
         
         # Dev default value (if different)
+        dev_default = getattr(setting, '_dev_default', None)
         if dev_default is not None and dev_default != default_value:
             print(f"Dev Default Value    : {self._format_value(dev_default)}")
         
         # Type
-        type_str = setting.convert_type
+        type_str = getattr(setting, 'convert_type', 'Unknown')
         print(f"Type                 : {type_str}")
         
         # Help text (wrapped)
-        help_text = setting.help.strip()
+        help_text = getattr(setting, 'help', '').strip()
         if help_text:
             print("Help                 :", end="")
             # Wrap help text to fit nicely
