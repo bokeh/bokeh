@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Devtools Server Home</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f9fafb;
+        color: #333;
+      }
+      header {
+        background: #2563eb;
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.8rem;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+      }
+      .card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+      }
+      .card h2 {
+        font-size: 1.3rem;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: #1e40af;
+      }
+      .card p {
+        margin: 0.5rem 0 0;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Devtools Server Home</h1>
+      <p>Discover available features, examples, and test runners</p>
+    </header>
+
+    <main class="container">
+      <a href="/examples" class="card">
+        <h2>BokehJS Examples</h2>
+        <p>BokehJS examples</p>
+      </a>
+
+      <a href="/bokeh/examples/" class="card">
+        <h2>Bokeh Examples</h2>
+        <p>Python Examples</p>
+      </a>
+
+      <div class="card" onclick="location.href='/unit/run'">
+        <h2>Unit Tests</h2>
+        <p>You can filter the tests with:</p>
+        <p>
+          <a
+            href="/unit/run?k=13965&k=CategoricalSlider"
+            onclick="event.stopPropagation()"
+          >
+            <code>/unit/run?k=13965&k=CategoricalSlider</code>
+          </a>
+        </p>
+      </div>
+
+      <div class="card" onclick="location.href='/integration/run'">
+        <h2>Integration Tests</h2>
+        <p>You can filter the tests with:</p>
+        <p>
+          <a
+            href="/integration/run?k=13756&k=Tooltip"
+            onclick="event.stopPropagation()"
+          >
+            <code>/integration/run?k=13756&k=Tooltip</code>
+          </a>
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

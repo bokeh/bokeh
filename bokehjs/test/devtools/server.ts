@@ -63,6 +63,10 @@ function using_report(fn: (report: Report, req: express.Request, res: express.Re
   }
 }
 
+app.get("/", async (_req, res) => {
+  res.render("test/devtools/server_home.html")
+})
+
 const unit = test("unit.js", "Unit Tests")
 const defaults = test("defaults.js", "Defaults Tests")
 const integration = test("integration.js", "Integration Tests")
