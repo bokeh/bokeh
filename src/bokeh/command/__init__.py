@@ -26,6 +26,9 @@ secret
 serve
     Run a Bokeh server hosting one or more applications
 
+settings
+    Print information about Bokeh settings and their current values
+
 static
     Serve bokehjs' static assets (JavaScript, CSS, images, fonts, etc.)
 

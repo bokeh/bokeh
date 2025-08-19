@@ -26,6 +26,7 @@ from bokeh import __version__
 from bokeh.settings import settings
 from bokeh.util.compiler import nodejs_version, npmjs_version
 from bokeh.util.dependencies import import_optional
+from bokeh.util.settings import get_all_settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -33,6 +34,7 @@ from bokeh.util.dependencies import import_optional
 
 __all__ = (
     "print_info",
+    "print_non_default_settings",
 )
 
 #-----------------------------------------------------------------------------
@@ -56,6 +58,33 @@ def print_info() -> None:
     print(f"npm version           :  {_if_installed(npmjs_version())}")
     print(f"jupyter_bokeh version :  {_if_installed(_version('jupyter_bokeh', '__version__'))}")
     print(f"Operating system      :  {platform.platform()}")
+
+def print_non_default_settings() -> None:
+    """ Print non-default settings in a table format. """
+
+    all_settings = get_all_settings()
+
+    non_default_settings = []
+    for name, descriptor in all_settings.items():
+        try:
+            if descriptor.is_set:
+                non_default_settings.append((name, descriptor()))
+        except Exception:
+            continue
+
+    if not non_default_settings:
+        print("\nNo set (non-default) settings found")
+        return
+
+    print("\nSet (non-default) Bokeh Settings:")
+    print("=" * 40)
+    print(f"{'Setting':<25} {'Value':<25}")
+    print("-" * 40)
+
+    for name, current_value in non_default_settings:
+        print(f"{name:<25} {current_value!s:<20}")
+
+    print("-" * 40)
 
 #-----------------------------------------------------------------------------
 # Legacy API

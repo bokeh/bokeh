@@ -65,7 +65,7 @@ def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 11
+    assert len(lines) >= 11
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
@@ -84,6 +84,15 @@ def test_run_static(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
     assert out.endswith(join('bokeh', 'server', 'static') + '\n')
+
+def test_run_with_non_default_section(capsys: Capture) -> None:
+    main(["bokeh", "info"])
+    out, err = capsys.readouterr()
+    assert err == ""
+    assert (
+        "Set (non-default) Bokeh Settings:" in out
+        or "No set (non-default) settings found" in out
+    )
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -8,71 +8,52 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from bokeh import __version__
-from tests.support.util.types import Capture
-
-# Module under test
-from bokeh.command.bootstrap import main # isort:skip
+from bokeh.settings import PrioritizedSetting, settings
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-def _assert_version_output(capsys: Capture):
-    out, err = capsys.readouterr()
-    err_expected = ""
-    out_expected = (f"{__version__}\n")
-    assert err == err_expected
-    assert out == out_expected
+__all__ = (
+    "get_all_settings",
+)
 
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+def get_all_settings() -> dict[str, PrioritizedSetting[Any]]:
+    """ Return all settings as a dictionary """
+    return {
+        name: descriptor
+        for name, descriptor in settings.__class__.__dict__.items()
+        if isinstance(descriptor, PrioritizedSetting)
+    }
+
+#-----------------------------------------------------------------------------
+# Legacy API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_no_subcommand(capsys: Capture) -> None:
-    with pytest.raises(SystemExit):
-        main(["bokeh"])
-    out, err = capsys.readouterr()
-    assert err == "ERROR: Must specify subcommand, one of: build, info, init, json, secret, serve, settings or static\n"
-    assert out == ""
-
-def test_version(capsys: Capture) -> None:
-    with pytest.raises(SystemExit):
-        main(["bokeh", "--version"])
-    _assert_version_output(capsys)
-
-def test_version_short(capsys: Capture) -> None:
-    with pytest.raises(SystemExit):
-        main(["bokeh", "-v"])
-    _assert_version_output(capsys)
-
-def test_error(capsys: Capture) -> None:
-    from bokeh.command.subcommands.info import Info
-    old_invoke = Info.invoke
-    def err(x, y): raise RuntimeError("foo")
-    Info.invoke = err
-    with pytest.raises(SystemExit):
-        main(["bokeh", "info"])
-    out, err = capsys.readouterr()
-    assert err == 'ERROR: foo\n'
-    Info.invoke = old_invoke
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code
