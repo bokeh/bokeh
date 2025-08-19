@@ -32,7 +32,7 @@ import {
   Tooltip,
   Node, Indexed,
   Dialog,
-  Legend, LegendItem, ScaleBar,
+  Legend, LegendItem, ScaleBar, SizeBar,
 } from "@bokehjs/models"
 
 import {
@@ -57,7 +57,7 @@ import {range, linspace, cumsum, reversed} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {paint, delay} from "@bokehjs/core/util/defer"
+import {paint, delay, defer} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
@@ -4670,6 +4670,33 @@ describe("Bug", () => {
       })
 
       await display(p)
+    })
+  })
+
+  describe("in issue #14602", () => {
+    it("doesn't allow to correctly export plots with inner plots", async () => {
+      const plot = fig([200, 200])
+      const cr = plot.circle({x: [1, 2, 3], y: [1, 2, 3], radius: [0.2, 0.3, 0.4]})
+      const size_bar = new SizeBar({renderer: cr, orientation: "horizontal", width: "max", glyph_fill_alpha: 0.8, border_line_color: "violet"})
+      plot.add_layout(size_bar, "below")
+
+      const canvas = document.createElement("canvas")
+      canvas.width = 200
+      canvas.height = 200
+
+      const html = new HTML({html: canvas, style: {width: "200px", height: "200px"}})
+      const pane = new Pane({elements: [html]})
+
+      const {view} = await display(row([plot, pane]), [400, 200])
+
+      await defer() // give time for SizeBar's layout; this should be included in pv.ready
+
+      const pv = view.owner.get_one(plot)
+      const blob = await pv.export().to_blob()
+      const ctx = canvas.getContext("2d")!
+      const url = URL.createObjectURL(blob)
+      const image = await load_image(url)
+      ctx.drawImage(image, 0, 0, 200, 200)
     })
   })
 })
