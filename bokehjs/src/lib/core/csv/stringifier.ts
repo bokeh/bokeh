@@ -58,7 +58,7 @@ export class Stringifier {
     for (const line of this.line_generator(records)) {
       result += line
     }
-    return result;
+    return result
   }
 
   // Create string for a single record (row) of CSV data. Do not include the

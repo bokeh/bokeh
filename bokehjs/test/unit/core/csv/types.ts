@@ -32,7 +32,7 @@ describe("core/csv stringify", () => {
     const a = stringify([
       ["1", "2"],
       ["3", "4"],
-    ]);
+    ])
     const b = stringify([
       [1, 2],
       [3, 4],

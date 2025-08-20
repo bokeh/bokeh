@@ -7,7 +7,7 @@ import {
   Uint32NDArray, Int32NDArray,
   Float32NDArray, Float64NDArray,
   ObjectNDArray,
-  atFirstAxis
+  atFirstAxis,
 } from "@bokehjs/core/util/ndarray"
 
 import {Cloner} from "@bokehjs/core/util/cloneable"

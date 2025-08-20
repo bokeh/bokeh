@@ -428,9 +428,9 @@ export function ndarray(init: number | ArrayBufferLike | ArrayLike<unknown>, {dt
  */
 export function atFirstAxis(
   array: NDArray,
-  index_along_first_axis: number
+  index_along_first_axis: number,
 ): NDArray | NDArray[number] {
-  const { shape } = array
+  const {shape} = array
 
   if (shape.length === 0) {
     throw new Error("Cannot index 0-dimension array.")
@@ -449,6 +449,6 @@ export function atFirstAxis(
   const ctor = array.constructor as any // XXX: how can we make TypeScript happy here?
   return new ctor(
     array.slice(flat_index, flat_index + n_per_index),
-    subshape
+    subshape,
   ) as NDArray
 }
