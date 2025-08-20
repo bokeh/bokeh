@@ -36,12 +36,12 @@ import {
 } from "@bokehjs/models"
 
 import {
-  InlineStyleSheet, HTML, ValueOf,
+  InlineStyleSheet, HTML, ValueOf, Text as DOMText, Styles,
 } from "@bokehjs/models/dom"
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -4589,6 +4589,87 @@ describe("Bug", () => {
       await view.ready
       await view.picker.close()
       expect(obj.value).to.be.equal(null)
+    })
+  })
+
+  describe("in issue #14503", () => {
+    it("doesn't keep picked datetime value after closing", async () => {
+      const d0 = "2023-01-23 08:30"
+      const obj = new DatetimePicker({value: d0, width: 400})
+      const {view} = await display(obj, [600, 500])
+      await open_picker(view)
+      const days_el = view.shadow_el.querySelectorAll<HTMLElement>(".flatpickr-day")
+      expect_not_null(days_el)
+      await view.ready
+      await mouse_click(days_el[2])
+      await view.ready
+      await view.picker.close()
+      expect(obj.value).to.not.be.equal(null)
+    })
+  })
+
+  describe("in issue #12994", () => {
+    it("doesn't render patch for certain inputs", async () => {
+      const p = fig([200, 200])
+      const N = 15000
+      const _x = linspace(0, 1000, N)
+      const x = [..._x, ..._x]
+      const y = Array(x.length).fill(0)
+
+      p.patch(x, y)
+
+      await display(p, [350, 250])
+    })
+  })
+
+  describe("in issue #14536", () => {
+    it("doesn't allow a responsive overflowing child layout to fit into the parent flex container", async () => {
+      const html = new Pane({elements: [
+        new HTML({html: `
+          <div style="display: flex; flex-direction: row; width: 300px; height: 50px; background-color: pink;">
+            <div style="height: 25px; background-color: red; ">Aaaaaaaaaaaaaa</div>
+            <div style="height: 25px; background-color: green; ">Baaaaaaaaaaaaa</div>
+            <div style="height: 25px; background-color: blue; ">Caaaaaaaaaaaaa</div>
+            <div style="height: 25px; background-color: yellow; flex: 1; min-width: 0">Daaaaaaaaaaaaa</div>
+          </div>
+        `}),
+      ]})
+
+      const text = (content: string) => new DOMText({content})
+
+      const s0 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "red"}), elements: [text("Aaaaaaaaaaaaaa")]})
+      const s1 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "green"}), elements: [text("Baaaaaaaaaaaaa")]})
+      const s2 = new Spacer({width_policy: "auto", height_policy: "fixed", height: 25, styles: new Styles({background_color: "blue"}), elements: [text("Caaaaaaaaaaaaa")]})
+      const s3 = new Spacer({width_policy: "min",  height_policy: "fixed", height: 25, styles: new Styles({background_color: "yellow"}), elements: [text("Daaaaaaaaaaaaa")]})
+
+      const row = new Row({children: [s0, s1, s2, s3], width: 300, height: 50, sizing_mode: "fixed", styles: new Styles({background_color: "pink"})})
+
+      const both = new Pane({
+        elements: [
+          text("HTML:"), html,
+          text("Layout:"), row,
+        ],
+      })
+
+      await display(both, [350, 200])
+    })
+  })
+
+  describe("in issue #14520", () => {
+    it("doesn't allow BoxAnnotation to support categorical coordinates", async () => {
+      const p = fig([300, 200], {y_range: ["A", "B", "C", "D", "E", "F"]})
+
+      const box = new BoxAnnotation({bottom: "B", top: "D", fill_alpha: 0.2, fill_color: "green"})
+      p.add_layout(box)
+
+      p.scatter({
+        x: [0, 10, 20, 30, 40, 50],
+        y: ["A", "B", "C", "D", "E", "F"],
+        marker: "circle",
+        size: 10,
+      })
+
+      await display(p)
     })
   })
 })

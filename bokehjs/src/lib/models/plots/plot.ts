@@ -31,6 +31,7 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
+import {StyledElement} from "../ui/styled_element"
 
 import {PlotView} from "./plot_canvas"
 export {PlotView}
@@ -51,11 +52,11 @@ export namespace Plot {
     title: p.Property<Title | string | null>
     title_location: p.Property<Location | null>
 
-    above: p.Property<(Annotation | Axis)[]>
-    below: p.Property<(Annotation | Axis)[]>
-    left: p.Property<(Annotation | Axis)[]>
-    right: p.Property<(Annotation | Axis)[]>
-    center: p.Property<(Annotation | Grid)[]>
+    above: p.Property<(Annotation | Axis | StyledElement)[]>
+    below: p.Property<(Annotation | Axis | StyledElement)[]>
+    left: p.Property<(Annotation | Axis | StyledElement)[]>
+    right: p.Property<(Annotation | Axis | StyledElement)[]>
+    center: p.Property<(Annotation | Grid | StyledElement)[]>
 
     renderers: p.Property<Renderer[]>
 
@@ -106,6 +107,7 @@ export namespace Plot {
     mixins.OutlineLine    &
     mixins.BackgroundFill &
     mixins.BackgroundHatch &
+    mixins.BorderLine &
     mixins.BorderFill &
     mixins.BorderHatch
 
@@ -113,6 +115,7 @@ export namespace Plot {
     outline_line: visuals.Line
     background_fill: visuals.Fill
     background_hatch: visuals.Hatch
+    border_line: visuals.Line
     border_fill: visuals.Fill
     border_hatch: visuals.Hatch
   }
@@ -139,6 +142,7 @@ export class Plot extends LayoutDOM {
       ["outline_",    mixins.Line],
       ["background_", mixins.Fill],
       ["background_", mixins.Hatch],
+      ["border_",     mixins.Line],
       ["border_",     mixins.Fill],
       ["border_",     mixins.Hatch],
     ])
@@ -159,11 +163,11 @@ export class Plot extends LayoutDOM {
       }],
       title_location:    [ Nullable(Location), "above" ],
 
-      above:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
-      below:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
-      left:              [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
-      right:             [ List(Or(Ref(Annotation), Ref(Axis))), [] ],
-      center:            [ List(Or(Ref(Annotation), Ref(Grid))), [] ],
+      above:             [ List(Or(Ref(Annotation), Ref(Axis), Ref(StyledElement))), [] ],
+      below:             [ List(Or(Ref(Annotation), Ref(Axis), Ref(StyledElement))), [] ],
+      left:              [ List(Or(Ref(Annotation), Ref(Axis), Ref(StyledElement))), [] ],
+      right:             [ List(Or(Ref(Annotation), Ref(Axis), Ref(StyledElement))), [] ],
+      center:            [ List(Or(Ref(Annotation), Ref(Grid), Ref(StyledElement))), [] ],
 
       renderers:         [ List(Ref(Renderer)), [] ],
 
@@ -214,20 +218,21 @@ export class Plot extends LayoutDOM {
       width: 600,
       height: 600,
       outline_line_color: "#e5e5e5",
+      border_line_color: null,
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
       context_menu: "auto",
     })
   }
 
-  add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
+  add_layout(renderer: Annotation | GuideRenderer | StyledElement, side: Place = "center"): void {
     this.remove_layout(renderer)
 
     const renderers = this.properties[side].get_value()
     this.setv({[side]: [...renderers, renderer]})
   }
 
-  remove_layout(renderer: Annotation | GuideRenderer): void {
+  remove_layout(renderer: Annotation | GuideRenderer | StyledElement): void {
     remove(this.left, renderer)
     remove(this.right, renderer)
     remove(this.above, renderer)
@@ -259,11 +264,11 @@ export class Plot extends LayoutDOM {
     this.toolbar.tools = [...difference(new Set(this.toolbar.tools), new Set(tools))]
   }
 
-  get panels(): (Annotation | Axis | Grid)[] {
+  get panels(): (Annotation | Axis | Grid | StyledElement)[] {
     return [...this.side_panels, ...this.center]
   }
 
-  get side_panels(): (Annotation | Axis)[] {
+  get side_panels(): (Annotation | Axis | StyledElement)[] {
     const {above, below, left, right} = this
     return concat([above, below, left, right])
   }

@@ -194,22 +194,22 @@ Bokeh's |bokeh.plotting| interface require:
     These functions either save your plot to an HTML file or display it in a
     browser.
 
-.. |pan_tool| image:: /_images/icons/Pan.png
+.. |pan_tool| image:: /_images/icons/pan.svg
     :alt: Icon representing the pan tool
     :height: 19px
-.. |box_zoom| image:: /_images/icons/BoxZoom.png
+.. |box_zoom| image:: /_images/icons/box-zoom.svg
     :alt: Icon representing box zoom
     :height: 19px
-.. |wheel_zoom| image:: /_images/icons/WheelZoom.png
+.. |wheel_zoom| image:: /_images/icons/wheel-zoom.svg
     :height: 19px
     :alt: Icon representing the wheel zoom
-.. |save_tool| image:: /_images/icons/Save.png
+.. |save_tool| image:: /_images/icons/save.svg
     :height: 19px
     :alt: Icon representing the save tool
-.. |reset| image:: /_images/icons/Reset.png
+.. |reset| image:: /_images/icons/reset.svg
     :height: 19px
     :alt: Icon representing the reset tool
-.. |help| image:: /_images/icons/Help.png
+.. |help| image:: /_images/icons/help.svg
     :height: 19px
     :alt: Help symbol
 

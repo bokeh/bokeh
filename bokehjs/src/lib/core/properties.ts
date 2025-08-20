@@ -28,6 +28,8 @@ import type {RaggedArray} from "./util/ragged_array"
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
 
+export class ValidationError extends Error {}
+
 function valueToString(value: any): string {
   try {
     return JSON.stringify(value)
@@ -273,7 +275,7 @@ export abstract class Property<T = unknown> {
 
   validate(value: unknown): void {
     if (!this.valid(value)) {
-      throw new Error(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
+      throw new ValidationError(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
     }
   }
 

@@ -74,7 +74,8 @@ export class VStack extends Stack {
       const {width} = outer
 
       for (const child of this.children) {
-        const {height} = child.measure({width: 0, height: 0})
+        const size_hint = child.measure({width: 0, height: 0})
+        const {height} = size_hint
         child.set_geometry(new BBox({top, height, left, width}))
         top += height
       }

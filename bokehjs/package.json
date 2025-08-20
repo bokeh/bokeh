@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "3.8.0-dev.1",
+  "version": "3.8.0-rc.1",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -40,6 +40,7 @@
   "main": "build/js/lib/bokeh.js",
   "types": "build/js/lib/bokeh.d.ts",
   "dependencies": {
+    "@types/nearley": "^2.11.5",
     "@bokeh/numbro": "^1.6.2",
     "@bokeh/slickgrid": "~2.4.4103",
     "@types/geojson": "^7946.0.13",
@@ -47,9 +48,11 @@
     "@types/proj4": "^2.5.5",
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
-    "flatbush": "^4.2.0",
+    "fflate": "^0.8.2",
+    "flatbush": "^4.5.0",
     "flatpickr": "^4.6.13",
     "mathjax-full": "^3.2.2",
+    "nearley": "^2.20.1",
     "nouislider": "^15.7.1",
     "proj4": "^2.11.0",
     "regl": "^2.1.0",

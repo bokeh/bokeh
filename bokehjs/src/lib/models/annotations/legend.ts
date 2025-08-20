@@ -583,27 +583,25 @@ export class LegendView extends AnnotationView {
     }
 
     const text = this.title_el.textContent
-    if (text != null) {
-      const text_box = new TextBox({text})
-      const title_bbox = bounding_box(this.title_el).relative_to(canvas_bbox)
-      let {x: sx, y: sy} = title_bbox
-      switch (this.model.title_location) {
-        case "left": {
-          sy += title_bbox.height
-          break
-        }
-        case "right": {
-          sx += title_bbox.width
-          break
-        }
-        default:
+    const text_box = new TextBox({text})
+    const title_bbox = bounding_box(this.title_el).relative_to(canvas_bbox)
+    let {x: sx, y: sy} = title_bbox
+    switch (this.model.title_location) {
+      case "left": {
+        sy += title_bbox.height
+        break
       }
-      text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
-      text_box.visuals = this.visuals.title_text.values()
-      const panel = new SidePanel(this.model.title_location)
-      text_box.angle = panel.get_label_angle_heuristic("parallel")
-      text_box.paint(ctx)
+      case "right": {
+        sx += title_bbox.width
+        break
+      }
+      default:
     }
+    text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
+    text_box.visuals = this.visuals.title_text.values()
+    const panel = new SidePanel(this.model.title_location)
+    text_box.angle = panel.get_label_angle_heuristic("parallel")
+    text_box.paint(ctx)
   }
 
   protected _draw_legend_items(ctx: Context2d, canvas_bbox: BBox): void {
@@ -626,13 +624,11 @@ export class LegendView extends AnnotationView {
       })
 
       const text = label_el.textContent
-      if (text != null) {
-        const text_box = new TextBox({text})
-        const {x: sx, vcenter: sy} = bounding_box(label_el).relative_to(canvas_bbox)
-        text_box.position = {sx, sy, x_anchor: "left", y_anchor: "center"}
-        text_box.visuals = this.visuals.label_text.values()
-        text_box.paint(ctx)
-      }
+      const text_box = new TextBox({text})
+      const {x: sx, vcenter: sy} = bounding_box(label_el).relative_to(canvas_bbox)
+      text_box.position = {sx, sy, x_anchor: "left", y_anchor: "center"}
+      text_box.visuals = this.visuals.label_text.values()
+      text_box.paint(ctx)
 
       if (!is_active(item)) {
         ctx.beginPath()

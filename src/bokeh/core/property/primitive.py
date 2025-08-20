@@ -70,9 +70,7 @@ class Bool(PrimitiveProperty[bool]):
             A default value for attributes created from this property to have.
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     Example:
 
@@ -105,13 +103,12 @@ class Complex(PrimitiveProperty[complex]):
             A default value for attributes created from this property to have.
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     """
 
     _underlying_type = (numbers.Complex,)
+    _not_underlying_type = bokeh_bool_types
 
     def __init__(self, default: Init[complex] = 0j, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
@@ -124,9 +121,7 @@ class Int(PrimitiveProperty[int]):
             A default value for attributes created from this property to have.
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     Example:
 
@@ -147,6 +142,7 @@ class Int(PrimitiveProperty[int]):
     """
 
     _underlying_type = bokeh_integer_types
+    _not_underlying_type = bokeh_bool_types
 
     def __init__(self, default: Init[int] = 0, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
@@ -159,9 +155,7 @@ class Float(PrimitiveProperty[float]):
             A default value for attributes created from this property to have.
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     Example:
 
@@ -183,6 +177,7 @@ class Float(PrimitiveProperty[float]):
     """
 
     _underlying_type = (numbers.Real,)
+    _not_underlying_type = bokeh_bool_types
 
     def __init__(self, default: Init[float] = 0.0, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
@@ -205,9 +200,7 @@ class String(PrimitiveProperty[str]):
             A default value for attributes created from this property to have.
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     Example:
 

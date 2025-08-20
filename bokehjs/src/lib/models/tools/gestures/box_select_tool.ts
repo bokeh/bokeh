@@ -3,6 +3,7 @@ import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Coordinate} from "../../coordinates/coordinate"
 import type {Scale} from "../../scales/scale"
 import type {IconLike} from "../../common/kinds"
+import type {FactorLike} from "../../ranges/factor_range"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
@@ -52,7 +53,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
-  protected _mappers(): LRTB<CoordinateMapper> {
+  protected _mappers(): LRTB<CoordinateMapper<number | FactorLike>> {
     const mapper = (units: CoordinateUnits, scale: Scale,
         view: CoordinateMapper, canvas: CoordinateMapper) => {
       switch (units) {
@@ -76,7 +77,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
     }
   }
 
-  protected _compute_lrtb({left, right, top, bottom}: LRTB): LRTB {
+  protected _compute_lrtb({left, right, top, bottom}: LRTB<number | FactorLike>): LRTB {
     const lrtb = this._mappers()
     return {
       left: lrtb.left.compute(left),

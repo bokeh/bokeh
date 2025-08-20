@@ -14,6 +14,7 @@ import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
 import {DataSource} from "./data_source"
+import type {Index} from "core/util/templating"
 
 // Abstract base class for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -132,6 +133,15 @@ export abstract class ColumnarDataSource extends DataSource {
   get_column(name: string): Arrayable | null {
     const data = dict(this.data)
     return data.get(name) ?? null
+  }
+
+  get_row(index: Index): {[key: string]: unknown} {
+    const i = isNumber(index) ? index : index.index
+    const result: {[key: string]: unknown} = {}
+    for (const [column, array] of entries(this.data)) {
+      result[column] = array[i]
+    }
+    return result
   }
 
   columns(): string[] {

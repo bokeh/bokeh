@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
+import gzip
 import sys
 from array import array as TypedArray
 from math import isinf, isnan
@@ -44,6 +45,7 @@ from typing import (
 import numpy as np
 
 # Bokeh imports
+from ..settings import settings
 from ..util.dataclasses import (
     Unspecified,
     dataclass,
@@ -174,8 +176,16 @@ class Buffer:
     def to_bytes(self) -> bytes:
         return self.data.tobytes() if isinstance(self.data, memoryview) else self.data
 
+    def to_compressed_bytes(self) -> bytes:
+        level = settings.compression_level()
+        # we do not want the result to be different depending on mtime, since that is
+        # irrelevant and also makes things harder to test, but Python 3.11 and 3.12 have
+        # bug where using mtime=0 results in the Gzip header OS field varies by platforam
+        # instead of getting set to a fixed value of 255. So, for now use mtime=1 instead.
+        return gzip.compress(self.to_bytes(), mtime=1, compresslevel=level)
+
     def to_base64(self) -> str:
-        return base64.b64encode(self.data).decode("utf-8")
+        return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
 
 T = TypeVar("T")
 
@@ -213,12 +223,14 @@ class Serializer:
 
     _references: dict[ObjID, Ref]
     _deferred: bool
+    _check_circular: bool
     _circular: dict[ObjID, Any]
     _buffers: list[Buffer]
 
-    def __init__(self, *, references: set[Model] = set(), deferred: bool = True) -> None:
+    def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False) -> None:
         self._references = {id(obj): obj.ref for obj in references}
         self._deferred = deferred
+        self._check_circular = check_circular
         self._circular = {}
         self._buffers = []
 
@@ -245,14 +257,15 @@ class Serializer:
             return ref
 
         ident = id(obj)
-        if ident in self._circular:
+        if self._check_circular and ident in self._circular:
             self.error("circular reference")
 
         self._circular[ident] = obj
         try:
             return self._encode(obj)
         finally:
-            del self._circular[ident]
+            if ident in self._circular:
+                del self._circular[ident]
 
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
@@ -600,11 +613,11 @@ class Deserializer:
         entries = obj.get("entries", [])
         return { self._decode(key): self._decode(val) for key, val in entries }
 
-    def _decode_bytes(self, obj: BytesRep) -> bytes:
+    def _decode_bytes(self, obj: BytesRep) -> bytes | memoryview[int]:
         data = obj["data"]
 
         if isinstance(data, str):
-            return base64.b64decode(data)
+            return gzip.decompress(base64.b64decode(data))
         elif isinstance(data, Buffer):
             buffer = data # in case of decode(encode(obj))
         else:

@@ -15,11 +15,6 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
     .. bokeh-plot:: path/to/plot.py
 
-.. note::
-    .py scripts are not scanned automatically! In order to include
-    certain directories into .py scanning process use following directive
-    in sphinx conf.py file: bokeh_plot_pyfile_include_dirs = ["dir1","dir2"]
-
 **Inline code** as the content of the directive::
 
  .. bokeh-plot::
@@ -112,17 +107,17 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
-from . import PARALLEL_SAFE
-from .bokeh_directive import BokehDirective
-from .example_handler import ExampleHandler
-from .util import get_sphinx_resources
+# Local imports
+from ._internal import PARALLEL_SAFE
+from ._internal.bokeh_directive import BokehDirective
+from ._internal.example_handler import ExampleHandler
+from ._internal.util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
 __all__ = (
-    "autoload_script",
     "BokehPlotDirective",
     "setup",
 )

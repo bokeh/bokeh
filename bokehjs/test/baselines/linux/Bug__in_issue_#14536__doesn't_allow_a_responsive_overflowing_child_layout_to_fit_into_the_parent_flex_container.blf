@@ -1,0 +1,8 @@
+Pane bbox=[0, 0, 350, 134]
+  Pane bbox=[0, 17, 350, 50]
+    bokeh.models.dom.HTML bbox=[0, 0, 350, 50]
+  Row bbox=[0, 84, 300, 50]
+    Spacer bbox=[0, 0, 92, 25]
+    Spacer bbox=[93, 0, 92, 25]
+    Spacer bbox=[185, 0, 92, 25]
+    Spacer bbox=[278, 0, 22, 25]

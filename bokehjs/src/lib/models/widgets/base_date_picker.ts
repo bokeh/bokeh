@@ -4,7 +4,6 @@ import {PickerBase, PickerBaseView} from "./picker_base"
 import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {Or, Tuple, Str, Float, List, Ref, Struct} from "core/kinds"
-import {unreachable} from "core/util/assert"
 
 export type DateLike = typeof DateLike["__type__"]
 export const DateLike = Or(Ref(Date), Str, Float)
@@ -77,10 +76,6 @@ export abstract class BaseDatePickerView extends PickerBaseView {
       options.enable = this._convert_date_list(enabled_dates)
     }
 
-    options.onClose = (selected) => {
-      this._on_close(selected)
-    }
-
     return options
   }
 
@@ -95,22 +90,6 @@ export abstract class BaseDatePickerView extends PickerBaseView {
       }
     }
     return result
-  }
-
-  protected _on_close(selected: Date[]): void {
-    switch (selected.length) {
-      case 0:
-      case 1: {
-        // Incomplete selection, treat as no selection.
-        this.model.value = null
-        break
-      }
-      case 2:
-        break
-      default: {
-        unreachable("invalid length")
-      }
-    }
   }
 }
 

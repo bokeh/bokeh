@@ -56,7 +56,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring, nice_join
-from ..util.warnings import warn
+from ..util.warnings import BokehUserWarning, warn
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -138,7 +138,7 @@ def _generators(class_dict: dict[str, Any]):
     return generators
 
 class _ModelResolver:
-    """ """
+    """ A class responsible for tracking of models and how to resolve them. """
 
     _known_models: dict[str, type[HasProps]]
 
@@ -150,7 +150,8 @@ class _ModelResolver:
             # update the mapping of view model names to classes, checking for any duplicates
             previous = self._known_models.get(cls.__qualified_model__, None)
             if previous is not None and not hasattr(cls, "__implementation__"):
-                raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
+                warn(f"Duplicate qualified model definition of '{cls.__qualified_model__}'. " \
+                     f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).", BokehUserWarning)
             self._known_models[cls.__qualified_model__] = cls
 
     def remove(self, cls: type[HasProps]) -> None:

@@ -2,16 +2,40 @@ import type flatpickr from "flatpickr"
 
 import {BaseDatetimePicker, BaseDatetimePickerView} from "./base_datetime_picker"
 import {DateLike} from "./base_date_picker"
-import {assert} from "core/util/assert"
+import {unreachable} from "core/util/assert"
 import type * as p from "core/properties"
 
 export class DatetimeRangePickerView extends BaseDatetimePickerView {
   declare model: DatetimeRangePicker
 
   protected override get flatpickr_options(): flatpickr.Options.Options {
-    return {
-      ...super.flatpickr_options,
-      mode: "range",
+    const options = super.flatpickr_options
+    options.mode = "range"
+
+    options.onClose = (selected) => {
+      this._on_close(selected)
+    }
+
+    return options
+  }
+
+  protected _on_close(selected: Date[]): void {
+    switch (selected.length) {
+      case 0:
+        break
+      case 1: {
+        // Incomplete selection, treat as no selection.
+        this.model.value = null
+        this.picker.clear(false, false)
+        this.picker._input.focus()
+        this.picker.close()
+        break
+      }
+      case 2:
+        break
+      default: {
+        unreachable("invalid length")
+      }
     }
   }
 
@@ -34,7 +58,7 @@ export class DatetimeRangePickerView extends BaseDatetimePickerView {
         break
       }
       default: {
-        assert(false, "invalid length")
+        unreachable("invalid length")
       }
     }
   }

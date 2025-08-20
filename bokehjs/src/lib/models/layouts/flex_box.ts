@@ -68,7 +68,14 @@ export abstract class FlexBoxView extends LayoutDOMView {
         }
       })()
 
-      view.parent_style.append(":host", {flex, align_self})
+      function min_size(size: number | null): string {
+        return size != null ? px(size) : "0"
+      }
+
+      const min_width = min_size(view.model.min_width)
+      const min_height = min_size(view.model.min_height)
+
+      view.parent_style.append(":host", {flex, align_self, min_width, min_height})
 
       // undo `width/height: 100%` and let `align-self: stretch` do the work
       if (this._direction == "row") {

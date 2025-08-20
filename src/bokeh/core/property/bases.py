@@ -88,9 +88,7 @@ class Property(PropertyDescriptorFactory[T]):
             A default value for attributes created from this property to have.
 
         help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
+            A documentation string for this property. (default: None)
 
     """
 
@@ -269,10 +267,12 @@ class Property(PropertyDescriptorFactory[T]):
             # FYI Numpy can erroneously raise a warning about elementwise
             # comparison here when a timedelta is compared to another scalar.
             # https://github.com/numpy/numpy/issues/10095
-            return new == old
+            # bool() is to handle when new and old cannot be compared
+            # and raises TypeError, an example of this is pd.NA
+            return bool(new == old)
 
         # if the comparison fails for some reason, just punt and return no-match
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     def transform(self, value: Any) -> T:
@@ -542,11 +542,12 @@ class PrimitiveProperty(Property[T]):
     """
 
     _underlying_type: ClassVar[tuple[type[Any], ...]]
+    _not_underlying_type: ClassVar[tuple[type[Any], ...]] = ()
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        if isinstance(value, self._underlying_type):
+        if isinstance(value, self._underlying_type) and not isinstance(value, self._not_underlying_type):
             return
 
         if not detail:

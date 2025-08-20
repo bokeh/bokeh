@@ -9,7 +9,7 @@ import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {HAlign, VAlign} from "core/enums"
-import {Align, Face, LabelOrientation} from "core/enums"
+import {Align, Face, LabelOrientation, AxisLabelStandoffMode} from "core/enums"
 import type {Size} from "core/layout"
 import {Indices} from "core/types"
 import type {Orient, Normal, Dimension} from "core/layout/side_panel"
@@ -274,7 +274,15 @@ export abstract class AxisView extends GuideRendererView {
 
     const size = axis_label_graphics.size()
     const extent = this.dimension == 0 ? size.height : size.width
-    const standoff = this.model.axis_label_standoff
+    const standoff_offset = (() => {
+      switch (this.model.axis_label_standoff_mode) {
+        case "tick_labels":
+          return 0
+        case "axis":
+          return sum(this._tick_label_extents()) + this._tick_extent()
+      }
+    })()
+    const standoff = this.model.axis_label_standoff - standoff_offset
 
     return extent > 0 ? standoff + extent + padding : 0
   }
@@ -320,7 +328,16 @@ export abstract class AxisView extends GuideRendererView {
 
     const [nx, ny] = this.normals
     const orient = this.model.axis_label_orientation
-    const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
+    const standoff_mode = this.model.axis_label_standoff_mode
+    const standoff_offset = (() => {
+      switch (standoff_mode) {
+        case "tick_labels":
+          return extents.tick + extents.tick_label
+        case "axis":
+          return 0
+      }
+    })()
+    const standoff = this.model.axis_label_standoff + standoff_offset
     const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
 
     const position = {
@@ -755,6 +772,7 @@ export namespace Axis {
     formatter: p.Property<TickFormatter>
     axis_label: p.Property<string | BaseText | null>
     axis_label_standoff: p.Property<number>
+    axis_label_standoff_mode: p.Property<AxisLabelStandoffMode>
     axis_label_orientation: p.Property<LabelOrientation | number>
     axis_label_align: p.Property<Align>
     major_label_standoff: p.Property<number>
@@ -810,24 +828,25 @@ export abstract class Axis extends GuideRenderer {
     ])
 
     this.define<Axis.Props>(({Any, Int, Float, Str, Ref, Tuple, Or, Nullable, Auto, Enum}) => ({
-      dimension:               [ Or(Enum(0, 1), Auto), "auto" ],
-      face:                    [ Or(Face, Auto), "auto" ],
-      bounds:                  [ Or(Tuple(Float, Float), Auto), "auto" ],
-      ticker:                  [ Ref(Ticker) ],
-      formatter:               [ Ref(TickFormatter) ],
-      axis_label:              [ Nullable(Or(Str, Ref(BaseText))), null],
-      axis_label_standoff:     [ Int, 5 ],
-      axis_label_orientation:  [ Or(LabelOrientation, Float), "parallel" ],
-      axis_label_align:        [ Align, "center" ],
-      major_label_standoff:    [ Int, 5 ],
-      major_label_orientation: [ Or(LabelOrientation, Float), "horizontal" ],
-      major_label_overrides:   [ LabelOverrides, new Map() ],
-      major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
-      major_tick_in:           [ Float, 2 ],
-      major_tick_out:          [ Float, 6 ],
-      minor_tick_in:           [ Float, 0 ],
-      minor_tick_out:          [ Float, 4 ],
-      fixed_location:          [ Nullable(Or(Float, Any)), null ],
+      dimension:                [ Or(Enum(0, 1), Auto), "auto" ],
+      face:                     [ Or(Face, Auto), "auto" ],
+      bounds:                   [ Or(Tuple(Float, Float), Auto), "auto" ],
+      ticker:                   [ Ref(Ticker) ],
+      formatter:                [ Ref(TickFormatter) ],
+      axis_label:               [ Nullable(Or(Str, Ref(BaseText))), null],
+      axis_label_standoff:      [ Int, 5 ],
+      axis_label_standoff_mode: [ AxisLabelStandoffMode, "tick_labels"],
+      axis_label_orientation:   [ Or(LabelOrientation, Float), "parallel" ],
+      axis_label_align:         [ Align, "center" ],
+      major_label_standoff:     [ Int, 5 ],
+      major_label_orientation:  [ Or(LabelOrientation, Float), "horizontal" ],
+      major_label_overrides:    [ LabelOverrides, new Map() ],
+      major_label_policy:       [ Ref(LabelingPolicy), () => new AllLabels() ],
+      major_tick_in:            [ Float, 2 ],
+      major_tick_out:           [ Float, 6 ],
+      minor_tick_in:            [ Float, 0 ],
+      minor_tick_out:           [ Float, 4 ],
+      fixed_location:           [ Nullable(Or(Float, Any)), null ],
     }))
 
     this.override<Axis.Props>({

@@ -418,6 +418,8 @@ describe("Document", () => {
     doc.add_root(root)
     doc.notify_idle(root)
 
+    doc.internal_roots.forEach((root) => doc.notify_idle(root))
+
     expect(signals).to.be.equal(1)
     expect(events).to.be.equal([
       new ev.RootAddedEvent(doc, root),

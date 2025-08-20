@@ -53,6 +53,7 @@ from ..core.enums import (
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
+    SortDirection,
     ToolName,
     TooltipAttachment,
     TooltipFieldFormatter,
@@ -80,12 +81,12 @@ from ..core.properties import (
     Nullable,
     Override,
     Percent,
+    Positive,
     Required,
     Seq,
     String,
     Struct,
     Tuple,
-    TypeOfAttr,
 )
 from ..core.property.struct import Optional
 from ..core.property_aliases import IconLike
@@ -94,23 +95,23 @@ from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
-from .callbacks import Callback
+from .callbacks import Callback, CustomJS
+from .common.properties import GlyphRendererOf
 from .dom import DOMElement
+from .glyph import LineGlyph, XYGlyph
 from .glyphs import (
     HStrip,
     Line,
-    LineGlyph,
     LRTBGlyph,
     MultiLine,
     Patches,
     Rect,
     VStrip,
-    XYGlyph,
 )
 from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
-from .renderers import DataRenderer, GlyphRenderer
+from .renderers import DataRenderer
 from .ui import Menu, UIElement
 
 #-----------------------------------------------------------------------------
@@ -183,10 +184,6 @@ def _parse_modifiers(value: str) -> dict[KeyModifierType, bool]:
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def GlyphRendererOf(*types: type[Model]):
-    """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """
-    return TypeOfAttr(Instance(GlyphRenderer), "glyph", Either(*(Instance(type) for type in types)))
 
 @abstract
 class Tool(Model):
@@ -462,7 +459,7 @@ class PanTool(Drag):
     panning. For instance, dragging in the vertical border or axis will effect
     a pan in the vertical direction only, with horizontal dimension kept fixed.
 
-    .. |pan_icon| image:: /_images/icons/Pan.png
+    .. |pan_icon| image:: /_images/icons/pan.svg
         :height: 24px
         :alt: Icon of four arrows meeting in a plus shape representing the pan tool in the toolbar.
 
@@ -535,7 +532,7 @@ class RangeTool(Tool):
     manipulates the overlay, the range of the second plot will be updated
     automatically.
 
-    .. |range_icon| image:: /_images/icons/Range.png
+    .. |range_icon| image:: /_images/icons/range.svg
         :height: 24px
 
 
@@ -609,7 +606,7 @@ class WheelPanTool(Scroll):
     The wheel pan tool allows the user to pan the plot along the configured
     dimension using the scroll wheel.
 
-    .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
+    .. |wheel_pan_icon| image:: /_images/icons/wheel-pan.svg
         :height: 24px
         :alt: Icon of a mouse shape next to crossed arrows representing the wheel-pan tool in the toolbar.
 
@@ -664,7 +661,7 @@ class WheelZoomTool(Scroll):
     axis will effect a zoom in the vertical direction only, with the
     horizontal dimension kept fixed.
 
-    .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
+    .. |wheel_zoom_icon| image:: /_images/icons/wheel-zoom.svg
         :height: 24px
         :alt: Icon of a mouse shape next to an hourglass representing the wheel-zoom tool in the toolbar.
 
@@ -854,7 +851,7 @@ class SaveTool(ActionTool):
     save it by right clicking on the image and choosing "Save As" (or similar)
     menu item.
 
-    .. |save_icon| image:: /_images/icons/Save.png
+    .. |save_icon| image:: /_images/icons/save.svg
         :height: 24px
         :alt: Icon of a floppy disk representing the save tool in the toolbar.
 
@@ -878,7 +875,7 @@ class CopyTool(ActionTool):
     dependent and may not function in certain browsers, or require additional
     permissions to be granted to the web page.
 
-    .. |copy_icon| image:: /_images/icons/Copy.png
+    .. |copy_icon| image:: /_images/icons/copy.svg
         :height: 24px
 
     '''
@@ -894,7 +891,7 @@ class ResetTool(PlotActionTool):
     the data bounds of the plot to their values when the plot was initially
     created.
 
-    .. |reset_icon| image:: /_images/icons/Reset.png
+    .. |reset_icon| image:: /_images/icons/reset.svg
         :height: 24px
         :alt: Icon of two arrows on a circular arc forming a circle representing the reset tool in the toolbar.
 
@@ -913,7 +910,7 @@ class TapTool(Tap, SelectTool):
     See :ref:`ug_styling_plots_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
-    .. |tap_icon| image:: /_images/icons/Tap.png
+    .. |tap_icon| image:: /_images/icons/tap.svg
         :height: 24px
         :alt:  Icon of two concentric circles with a + in the lower right representing the tap tool in the toolbar.
 
@@ -1016,7 +1013,7 @@ class CrosshairTool(InspectTool):
     across only one dimension by setting the ``dimension`` property to only
     ``width`` or ``height``.
 
-    .. |crosshair_icon| image:: /_images/icons/Crosshair.png
+    .. |crosshair_icon| image:: /_images/icons/crosshair.svg
         :height: 24px
         :alt: Icon of circle with aiming reticle marks representing the crosshair tool in the toolbar.
 
@@ -1116,7 +1113,7 @@ class BoxZoomTool(Drag):
     zoom to by dragging he mouse or a finger over the plot region. The end of
     the drag event indicates the selection region is ready.
 
-    .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
+    .. |box_zoom_icon| image:: /_images/icons/box-zoom.svg
         :height: 24px
         :alt: Icon of a dashed box with a magnifying glass in the upper right representing the box-zoom tool in the toolbar.
 
@@ -1196,7 +1193,7 @@ class ZoomInTool(ZoomBaseTool):
     The zoom-in tool allows users to click a button to zoom in
     by a fixed amount.
 
-    .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+    .. |zoom_in_icon| image:: /_images/icons/zoom-in.svg
         :height: 24px
         :alt: Icon of a plus sign next to a magnifying glass representing the zoom-in tool in the toolbar.
 
@@ -1212,7 +1209,7 @@ class ZoomOutTool(ZoomBaseTool):
     The zoom-out tool allows users to click a button to zoom out
     by a fixed amount.
 
-    .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
+    .. |zoom_out_icon| image:: /_images/icons/zoom-out.svg
         :height: 24px
         :alt: Icon of a minus sign next to a magnifying glass representing the zoom-out tool in the toolbar.
 
@@ -1240,7 +1237,7 @@ class BoxSelectTool(Drag, RegionSelectTool):
     on styling selected and unselected glyphs.
 
 
-    .. |box_select_icon| image:: /_images/icons/BoxSelect.png
+    .. |box_select_icon| image:: /_images/icons/box-select.svg
         :height: 24px
         :alt: Icon of a dashed box with a + in the lower right representing the box-selection tool in the toolbar.
 
@@ -1300,7 +1297,7 @@ class LassoSelectTool(Drag, RegionSelectTool):
         selection to append the new selection to any previous selection that
         might exist.
 
-    .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
+    .. |lasso_select_icon| image:: /_images/icons/lasso-select.svg
         :height: 24px
         :alt:  Icon of a looped lasso shape representing the lasso-selection tool in the toolbar.
 
@@ -1334,7 +1331,7 @@ class PolySelectTool(Tap, RegionSelectTool):
         while making a selection to append the new selection to any
         previous selection that might exist.
 
-    .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
+    .. |poly_select_icon| image:: /_images/icons/polygon-select.svg
         :height: 24px
         :alt: Icon of a dashed trapezoid with an arrow pointing at the lower right representing the polygon-selection tool in the toolbar.
 
@@ -1501,7 +1498,7 @@ class HoverTool(InspectTool):
         * step
         * text
 
-    .. |hover_icon| image:: /_images/icons/Hover.png
+    .. |hover_icon| image:: /_images/icons/hover.svg
         :height: 24px
         :alt: Icon of a popup tooltip with abstract lines of text representing the hover tool in the toolbar.
 
@@ -1630,6 +1627,42 @@ class HoverTool(InspectTool):
 
     """)
 
+    filters = Dict(String, Either(Instance(CustomJS), List(Instance(CustomJS))), default={}, help="""
+    Allows filtering hover results using a ``CustomJS`` callback.
+
+    An example of a simple filter function:
+    .. code::
+
+        filter = '''
+            export default (args, tool, {value: x, row, index, field, data_source, vars}) => {
+                return x >= 0
+            }
+        '''
+        HoverTool(filters={"@x": CustomJS(args={}, code=filter)})
+
+    """)
+
+    sort_by = Nullable(
+        Either(
+            String,
+            List(
+                Either(String, Tuple(String, Either(Enum(SortDirection), Enum(1, -1)))),
+            ),
+        ),
+    )(default=None, help="""
+    Allows sorting hover results by a field or a sequence of fields.
+
+    Additionally sort direction can be provided when using the sequence form, even if
+    providing a single field. The default sort order is based on data index and/or
+    proximity to the hit point.
+    """)
+
+    limit = Nullable(Positive(Int), default=None, help="""
+    Limit the number the number of data points for which tooltips will be showed.
+
+    By default ``HoverTool`` will show tooltips for all hit data points.
+    """)
+
     mode = Enum("mouse", "hline", "vline", help="""
     Whether to consider hover pointer as a point (x/y values), or a
     span on h or v directions.
@@ -1718,7 +1751,7 @@ class UndoTool(PlotActionTool):
 
     Undo tool allows to restore previous state of the plot.
 
-    .. |undo_icon| image:: /_images/icons/Undo.png
+    .. |undo_icon| image:: /_images/icons/undo.svg
         :height: 24px
         :alt: Icon of an arrow on a circular arc pointing to the left representing the undo tool in the toolbar.
 
@@ -1733,7 +1766,7 @@ class RedoTool(PlotActionTool):
 
     Redo tool reverses the last action performed by undo tool.
 
-    .. |redo_icon| image:: /_images/icons/Redo.png
+    .. |redo_icon| image:: /_images/icons/redo.svg
         :height: 24px
         :alt: Icon of an arrow on a circular arc pointing to the right representing the redo tool in the toolbar.
 
@@ -1825,7 +1858,7 @@ class BoxEditTool(EditTool, Drag, Tap):
     * Delete selection: Select box(es) with SHIFT+tap (or another selection
       tool) then press BACKSPACE while the mouse is within the plot area.
 
-    .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
+    .. |box_edit_icon| image:: /_images/icons/box-edit.svg
         :height: 24px
         :alt: Icon of a solid line box with a plus sign in the lower right representing the box-edit tool in the toolbar.
     '''
@@ -1884,7 +1917,7 @@ class PointDrawTool(EditTool, Drag, Tap):
     * Delete point: Tap a point to select it then press BACKSPACE
       key while the mouse is within the plot area.
 
-    .. |point_draw_icon| image:: /_images/icons/PointDraw.png
+    .. |point_draw_icon| image:: /_images/icons/point-draw.svg
         :height: 24px
         :alt: Icon of three points with an arrow pointing to one representing the point-edit tool in the toolbar.
 
@@ -1942,7 +1975,7 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     * Delete patch or multi-line: Tap a patch/multi-line to select it then
       press BACKSPACE key while the mouse is within the plot area.
 
-    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+    .. |poly_draw_icon| image:: /_images/icons/poly-draw.svg
         :height: 24px
         :alt: Icon of a solid line trapezoid with an arrow pointing at the lower right representing the polygon-draw tool in the toolbar.
 
@@ -1985,7 +2018,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     * Delete patch/multi-line: Tap a patch/multi-line to select it then press
       BACKSPACE key while the mouse is within the plot area.
 
-    .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
+    .. |freehand_draw_icon| image:: /_images/icons/freehand-draw.svg
         :height: 24px
         :alt: Icon of a pen drawing a wavy line representing the freehand-draw tool in the toolbar.
 
@@ -2033,7 +2066,7 @@ class PolyEditTool(PolyTool, Drag, Tap):
     * Delete vertex: After selecting one or more vertices press BACKSPACE
       while the mouse cursor is within the plot area.
 
-    .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
+    .. |poly_edit_icon| image:: /_images/icons/poly-edit.svg
         :height: 24px
         :alt: Icon of two lines meeting in a vertex with an arrow pointing at it representing the polygon-edit tool in the toolbar.
 
@@ -2067,7 +2100,7 @@ class LineEditTool(EditTool, Drag, Tap):
     * Move point: Drag an existing point and let go of the mouse button to
       release it.
 
-    .. |line_edit_icon| image:: /_images/icons/LineEdit.png
+    .. |line_edit_icon| image:: /_images/icons/line-edit.svg
         :height: 24px
         :alt: Icon of a line with a point on it with an arrow pointing at it representing the line-edit tool in the toolbar.
 

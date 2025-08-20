@@ -48,10 +48,6 @@ class Test_Angle:
     def test_valid(self) -> None:
         prop = bcpn.Angle()
 
-        # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
@@ -61,6 +57,8 @@ class Test_Angle:
         prop = bcpn.Angle()
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
@@ -89,10 +87,6 @@ class Test_Interval:
     def test_valid_int(self) -> None:
         prop = bcpn.Interval(Int, 0, 255)
 
-        # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(127)
@@ -101,6 +95,8 @@ class Test_Interval:
         prop = bcpn.Interval(Int, 0, 255)
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
         assert not prop.is_valid(1.0+1.0j)
@@ -117,10 +113,6 @@ class Test_Interval:
     def test_valid_float(self) -> None:
         prop = bcpn.Interval(Float, 0.0, 1.0)
 
-        # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
@@ -131,6 +123,8 @@ class Test_Interval:
         prop = bcpn.Interval(Float, 0.0, 1.0)
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
@@ -155,10 +149,6 @@ class Test_Size:
     def test_valid(self) -> None:
         prop = bcpn.Size()
 
-        # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
@@ -170,6 +160,8 @@ class Test_Size:
         prop = bcpn.Size()
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
@@ -194,10 +186,6 @@ class Test_Percent:
     def test_valid(self) -> None:
         prop = bcpn.Percent()
 
-        # TODO (bev) should fail
-        assert prop.is_valid(False)
-        assert prop.is_valid(True)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
@@ -208,6 +196,8 @@ class Test_Percent:
         prop = bcpn.Percent()
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
@@ -232,10 +222,6 @@ class Test_NonNegative:
     def test_valid(self) -> None:
         prop0 = bcpn.NonNegative(Int)
 
-        # TODO (bev) should fail
-        assert prop0.is_valid(False)
-        assert prop0.is_valid(True)
-
         assert prop0.is_valid(0)
         assert prop0.is_valid(1)
         assert prop0.is_valid(2)
@@ -252,6 +238,8 @@ class Test_NonNegative:
         prop = bcpn.NonNegative(Int)
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(-1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
@@ -281,9 +269,6 @@ class Test_PositiveInt:
     def test_valid(self) -> None:
         prop0 = bcpn.Positive(Int)
 
-        # TODO (bev) should fail
-        assert prop0.is_valid(True)
-
         assert prop0.is_valid(1)
         assert prop0.is_valid(2)
         assert prop0.is_valid(100)
@@ -297,6 +282,7 @@ class Test_PositiveInt:
         prop = bcpn.Positive(Int)
 
         assert not prop.is_valid(None)
+        assert not prop.is_valid(True)
         assert not prop.is_valid(False)
         assert not prop.is_valid(-1)
         assert not prop.is_valid(0)

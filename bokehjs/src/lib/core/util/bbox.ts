@@ -131,10 +131,10 @@ export type VerticalPosition =
 
 export type Position = HorizontalPosition & VerticalPosition
 
-export type CoordinateMapper = {
-  compute(v: number): number
+export type CoordinateMapper<T = number> = {
+  compute(v: T): number
   invert(sv: number): number
-  v_compute(vs: Arrayable<number>): ScreenArray
+  v_compute(vs: Arrayable<T>): ScreenArray
   v_invert(svs: Arrayable<number>): Arrayable<number>
   readonly source_range: Interval
   readonly target_range: Interval

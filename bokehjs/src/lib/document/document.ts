@@ -30,6 +30,7 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
+import {Notifications} from "../models/ui/notifications"
 
 Deserializer.register("model", decode_def)
 
@@ -108,6 +109,7 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
+  protected _notifications: Notifications
 
   constructor(options: DocumentOptions = {}) {
     documents.push(this)
@@ -134,6 +136,8 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
+    this._notifications = new Notifications()
+    this._notifications.attach_document(this)
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -146,7 +150,7 @@ export class Document implements Equatable {
 
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
-    for (const root of this._roots) {
+    for (const root of this.all_roots) {
       if (!this._idle_roots.has(root)) {
         return false
       }
@@ -163,11 +167,11 @@ export class Document implements Equatable {
     }
   }
 
-  clear(): void {
+  clear({sync}: {sync?: boolean} = {}): void {
     this._push_all_models_freeze()
     try {
       while (this._roots.length > 0) {
-        this.remove_root(this._roots[0])
+        this.remove_root(this._roots[0], {sync})
       }
     } finally {
       this._pop_all_models_freeze()
@@ -207,12 +211,18 @@ export class Document implements Equatable {
     if (dest_doc === this) {
       throw new Error("Attempted to overwrite a document with itself")
     }
-    dest_doc.clear()
+
+    // Don't synchronize root removal with the server, because we are rebuilding from
+    // scratch and server has the complete state. However, events will be distributed
+    // internally within bokehjs, because UI refresh depends on this (in standalone
+    // embedding and its derivatives).
+    dest_doc.clear({sync: false})
+
     // we have to remove ALL roots before adding any
     // to the new doc or else models referenced from multiple
     // roots could be in both docs at once, which isn't allowed.
     const roots = copy(this._roots)
-    this.clear()
+    this.clear({sync: false})
 
     for (const root of roots) {
       if (root.document != null) {
@@ -306,6 +316,14 @@ export class Document implements Equatable {
       }
     }
     this._schedule_recompute_all_models()
+  }
+
+  get internal_roots(): HasProps[] {
+    return [this._notifications]
+  }
+
+  get all_roots(): HasProps[] {
+    return [...this._roots, ...this.internal_roots]
   }
 
   roots(): HasProps[] {

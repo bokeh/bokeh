@@ -46,6 +46,7 @@ import bokeh.core.property.dataspec as bcpd # isort:skip
 ALL = (
     'AlphaSpec',
     'AngleSpec',
+    'BoolSpec',
     'ColorSpec',
     'DashPatternSpec',
     'DataSpec',
@@ -143,6 +144,16 @@ class Test_AngleSpec:
 
         assert new_value_copy == new_value
 
+
+class Test_BoolSpec:
+    def test_is_valid(self) -> None:
+        prop = bcpd.BoolSpec(default=True)
+
+        assert prop.is_valid(False)
+        assert prop.is_valid(True)
+
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
 
 class Test_ColorSpec:
     def test_field(self) -> None:

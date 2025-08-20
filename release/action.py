@@ -29,7 +29,7 @@ class ActionReturn:
         self.details = details
 
     def __str__(self) -> str:
-        return self.__class__.ui(self.message, self.details)
+        return self.ui(self.message, self.details)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.message!r}, details=...)"
@@ -39,18 +39,18 @@ class FAILED(ActionReturn):
     """"""
 
     kind = ActionResult.FAIL
-    ui = failed
+    ui = staticmethod(failed)
 
 
 class PASSED(ActionReturn):
     """"""
 
     kind = ActionResult.PASS
-    ui = passed
+    ui = staticmethod(passed)
 
 
 class SKIPPED(ActionReturn):
     """"""
 
     kind = ActionResult.SKIP
-    ui = skipped
+    ui = staticmethod(skipped)

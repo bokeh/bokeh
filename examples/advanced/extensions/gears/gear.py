@@ -1,6 +1,6 @@
-from bokeh.core.properties import AngleSpec, Include, NumberSpec
+from bokeh.core.properties import AngleSpec, BoolSpec, Include, NumberSpec
 from bokeh.core.property_mixins import FillProps, HatchProps, LineProps
-from bokeh.models import Glyph
+from bokeh.models.glyph import Glyph
 
 
 class Gear(Glyph):
@@ -52,7 +52,7 @@ class Gear(Glyph):
     size. [float]
     """)
 
-    internal = NumberSpec(default=False, help="""
+    internal = BoolSpec(default=False, help="""
     Whether the gear teeth are internal. [bool]
     """)
 

@@ -57,7 +57,7 @@ export async function add_document_standalone(document: Document, element: Embed
     const view = await views.build_view(model)
 
     if (view instanceof DOMView) {
-      const i = document.roots().indexOf(model)
+      const i = document.all_roots.indexOf(model)
       const root_el = roots[i] ?? element
       view.build(root_el)
     }
@@ -78,7 +78,7 @@ export async function add_document_standalone(document: Document, element: Embed
     view?.remove()
   }
 
-  for (const model of document.roots()) {
+  for (const model of document.all_roots) {
     await render_model(model)
   }
 

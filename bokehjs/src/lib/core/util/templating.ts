@@ -9,8 +9,13 @@ import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
 import {is_NDArray} from "./ndarray"
-import {isArray, isNumber, isString, isTypedArray} from "./types"
+import {isArray, isNumber, isString, isTypedArray/*, isInteger, isPlainObject*/} from "./types"
 import {to_string} from "./pretty"
+import {escape} from "./string"
+import {assert} from "./assert"
+
+//import {Parser, Grammar} from "nearley"
+//import grammar from "./pipes"
 
 const {abs} = Math
 
@@ -27,6 +32,8 @@ export const DEFAULT_FORMATTERS: {[key in BuiltinFormatter]: FormatterFunc} = {
   datetime: (value: unknown,  format: string, _special_vars: Vars) => datetime(value, format),
   printf:   (value: unknown,  format: string, _special_vars: Vars) => sprintf(format, value),
 }
+
+export class Skip {}
 
 /**
  * Format finite numbers as dates or return NaN.
@@ -141,13 +148,146 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
   }
 }
 
-type PlaceholderType = "$" | "@"
+type PlaceholderType = "$" | "@" | "@$"
 
-export function get_value(type: PlaceholderType, name: string, data_source: ColumnarDataSource, i: Index | null, special_vars: Vars) {
+export function get_value(type: PlaceholderType, name: string, data_source: ColumnarDataSource, index: Index | null, vars: Vars) {
   switch (type) {
-    case "$": return _get_special_value(name, special_vars)
-    case "@": return _get_column_value(name, data_source, i)
+    case "$":  return _get_special_value(name, vars)
+    case "@":  return _get_column_value(name, data_source, index)
+    case "@$": return name == "name" && isString(vars.name) ? _get_column_value(vars.name, data_source, index) : null
   }
+}
+
+class HTML {
+  constructor(public html: string) {}
+}
+
+const functions = {
+  safe: (value: unknown, ...args: unknown[]) => {
+    assert(args.length == 0)
+    if (value == null) {
+      return MISSING
+    } else if (isNumber(value) && isNaN(value)) {
+      return "NaN"
+    } else {
+      return new HTML(`${value}`)
+    }
+  },
+  /*
+  fixed: (value: unknown, ...args: unknown[]) => {
+    assert(args.length == 1)
+    const [digits] = args
+    if (isNumber(value) && isInteger(digits)) {
+      return value.toFixed(digits)
+    } else {
+      return value
+    }
+  },
+  round: (value: unknown, ...args: unknown[]) => {
+    assert(args.length == 0)
+    if (isNumber(value)) {
+      return Math.round(value)
+    } else {
+      return value
+    }
+  },
+  upper: (value: unknown, ...args: unknown[]) => {
+    assert(args.length == 0)
+    if (isString(value)) {
+      return value.toUpperCase()
+    } else {
+      return value
+    }
+  },
+  lower: (value: unknown, ...args: unknown[]) => {
+    assert(args.length == 0)
+    if (isString(value)) {
+      return value.toLowerCase()
+    } else {
+      return value
+    }
+  },
+  filter: (value: unknown, ...args: unknown[]) => {
+    assert(args.length == 1)
+    const [expr] = args
+    if (isPlainObject(expr) && "lit" in expr) {
+      if (expr.lit == "finite") {
+        if (!isNumber(value) || !isFinite(value)) {
+          throw new Skip()
+        }
+      }
+    }
+    return value
+  },
+  */
+}
+
+export function replace_placeholders_html(input: string, data_source: ColumnarDataSource,
+    index: Index | null, formatters?: Formatters, special_vars: Vars = {}): Node[] {
+
+  const html = process_placeholders(input, (type, name, format, _, spec) => {
+    const value = get_value(type, name, data_source, index, special_vars)
+
+    /*
+    type Lit = {lit: string}
+    type Fn = {name: Lit, args: unknown[]}
+
+    const parse = (input: string): Fn[] | null => {
+      let parser: Parser
+      try {
+        parser = new Parser(Grammar.fromCompiled(grammar))
+        parser.feed(input)
+        const [pipeline] = parser.results
+        return pipeline as Fn[]
+      } catch (error) {
+        return null
+      }
+    }
+
+    const pipeline = parse(format ?? "")
+    if (pipeline != null) {
+      let result: unknown = value
+      for (const fn of pipeline) {
+        const name = fn.name.lit
+        if (name in functions) {
+          result = functions[name as keyof typeof functions](result, ...fn.args)
+        } else {
+          console.error(`unknown function '${fn.name}'`)
+          break
+        }
+      }
+      if (result instanceof HTML) {
+        return result.html
+      } else {
+        return escape(`${result}`)
+      }
+    */
+
+    if (format == "safe") {
+      const result = functions.safe(value)
+      if (result instanceof HTML) {
+        return result.html
+      } else {
+        return escape(`${result}`)
+      }
+    } else {
+      const result = (() => {
+        if (value == null) {
+          return MISSING
+        } else if (isNumber(value) && isNaN(value)) {
+          return "NaN"
+        } else {
+          const formatter = get_formatter(spec, format, formatters)
+          return `${formatter(value, format ?? "", special_vars)}`
+        }
+      })()
+      return escape(result)
+    }
+  })
+
+  const html_parser = new DOMParser()
+  const document = html_parser.parseFromString(html, "text/html")
+  return [...document.body.childNodes]
 }
 
 export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource,

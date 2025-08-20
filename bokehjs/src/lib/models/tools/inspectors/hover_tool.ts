@@ -6,16 +6,18 @@ import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geo
 import * as hittest from "core/hittest"
 import type * as p from "core/properties"
 import {Signal} from "core/signaling"
-import type {Arrayable, Color} from "core/types"
+import type {Arrayable, Color, Dict} from "core/types"
 import type {MoveEvent} from "core/ui_events"
 import {assert, unreachable} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
+import {entries} from "core/util/object"
 import type {CallbackLike1} from "core/util/callbacks"
-import {execute} from "core/util/callbacks"
+import {execute, execute_sync} from "core/util/callbacks"
+import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
-import {replace_placeholders} from "core/util/templating"
-import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
+import {replace_placeholders_html, get_value, Skip} from "core/util/templating"
+import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
@@ -40,6 +42,28 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {Nullable, Or, Str, Tuple, Enum, List} from "core/kinds"
+import {FilterDef} from "../../dom/value_ref"
+import type {FilterArgs} from "../../dom/value_ref"
+
+const Field = Str
+type Field = typeof Field["__type__"]
+
+const SortDirection = Or(Enum("ascending", "descending"), Enum(1, -1))
+type SortDirection = typeof SortDirection["__type__"]
+
+const SortColumn = Tuple(Field, SortDirection)
+type SortColumn = typeof SortColumn["__type__"]
+
+const SortBy = Nullable(Or(Field, List(Or(Field, SortColumn))))
+type SortBy = typeof SortBy["__type__"]
+
+type TooltipEntry = {
+  html: Element
+  vars: TooltipVars
+  i: number  // index before any filtering (fullset)
+  j: number  // index after all filtering (subset)
+}
 
 export type TooltipVars = {
   index: number | null
@@ -53,7 +77,7 @@ export type TooltipVars = {
   snap_y: number
   snap_sx: number
   snap_sy: number
-  name: string | null
+  name?: string | null
   indices?: MultiIndices | OpaqueIndices
   segment_index?: number
   image_index?: ImageIndex
@@ -120,6 +144,16 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
+  protected async _update_filters(): Promise<void> {
+    for (const [_, filter] of entries(this.model.filters)) {
+      for (const fn of isArray(filter) ? filter : [filter]) {
+        if (fn instanceof CustomJS) {
+          await fn.compile()
+        }
+      }
+    }
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._update_ttmodels()
@@ -129,6 +163,8 @@ export class HoverToolView extends InspectToolView {
       this._template_view = await build_view(tooltips, {parent: this.plot_view.canvas})
       this._template_view.render()
     }
+
+    await this._update_filters()
   }
 
   override remove(): void {
@@ -151,6 +187,9 @@ export class HoverToolView extends InspectToolView {
         this._inspect(sx, sy, dims)
       }
     })
+
+    const {filters} = this.model.properties
+    this.on_change(filters, () => this._update_filters())
   }
 
   protected async _update_ttmodels(): Promise<void> {
@@ -296,21 +335,15 @@ export class HoverToolView extends InspectToolView {
     this._emit_callback(geometry)
   }
 
-  _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
+  render_entries(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry): TooltipEntry[] {
     const selection_manager = renderer.get_selection_manager()
-    const fullset_indices = selection_manager.inspectors.get(renderer)!
-    const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
-
-    // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
-    if (fullset_indices.is_empty() && fullset_indices.view == null) {
-      tooltip.clear()
-      return
-    }
+    const fullset_indices = selection_manager.inspectors.get(renderer)
+    assert(fullset_indices != null)
 
     const ds = selection_manager.source
     const renderer_view = this.plot_view.views.find_one(renderer)
     if (renderer_view == null) {
-      return
+      return []
     }
 
     const {sx, sy} = geometry
@@ -320,8 +353,9 @@ export class HoverToolView extends InspectToolView {
     const y = yscale.invert(sy)
 
     const {glyph} = renderer_view
+    const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
-    const tooltips: [number, number, Node | null][] = []
+    const collected: {ds: ColumnarDataSource, vars: TooltipVars}[] = []
 
     if (glyph instanceof PatchView) {
       const [snap_sx, snap_sy] = [sx, sy]
@@ -333,8 +367,7 @@ export class HoverToolView extends InspectToolView {
         x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
       }
-      const rendered = this._render_tooltips(ds, vars)
-      tooltips.push([snap_sx, snap_sy, rendered])
+      collected.push({ds, vars})
     } else if (glyph instanceof HAreaStepView ||
                glyph instanceof HAreaView ||
                glyph instanceof VAreaStepView ||
@@ -350,8 +383,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
+        collected.push({ds, vars})
       }
     } else if (glyph instanceof LineView) {
       const {line_policy} = this.model
@@ -394,8 +426,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           indices: subset_indices.line_indices,
         }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
+        collected.push({ds, vars})
       }
     } else if (glyph instanceof ImageBaseView) {
       for (const image_index of fullset_indices.image_indices) {
@@ -409,8 +440,7 @@ export class HoverToolView extends InspectToolView {
           name: renderer.name,
           image_index,
         }
-        const rendered = this._render_tooltips(ds, vars)
-        tooltips.push([snap_sx, snap_sy, rendered])
+        collected.push({ds, vars})
       }
     } else {
       for (const i of subset_indices.indices) {
@@ -451,8 +481,7 @@ export class HoverToolView extends InspectToolView {
               indices: subset_indices.multiline_indices,
               segment_index: jj,
             }
-            const rendered = this._render_tooltips(ds, vars)
-            tooltips.push([snap_sx, snap_sy, rendered])
+            collected.push({ds, vars})
           }
         } else {
           // handle non-multiglyphs
@@ -485,30 +514,162 @@ export class HoverToolView extends InspectToolView {
             name: renderer.name,
             indices: subset_indices.indices,
           }
-          const rendered = this._render_tooltips(ds, vars)
-          tooltips.push([snap_sx, snap_sy, rendered])
+          collected.push({ds, vars})
         }
       }
     }
 
     const {bbox} = this.plot_view.frame
-    const in_frame = tooltips.filter(([sx, sy]) => bbox.contains(sx, sy))
+    const entries = collected
+      .map((entry, i) => ({...entry, i}))
+      .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
+      .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
+      .map(({ds, vars, i}) => ({html: this._render_tooltips_if_can(ds, vars), vars, i}))
+      .filter((entry) => entry.html != null)
+      .map((entry, j) => ({...entry, j}))
 
-    if (in_frame.length == 0) {
+    const {sort_by} = this.model
+    if (sort_by != null) {
+      const sign = (dir: SortDirection) => {
+        switch (dir) {
+          case  1:
+          case "ascending":  return  1
+          case -1:
+          case "descending": return -1
+        }
+      }
+      const columns = ((): [Field, 1 | -1][] => {
+        if (isString(sort_by)) {
+          return [[sort_by, 1]]
+        } else {
+          return sort_by.map((val) => {
+            if (isString(val)) {
+              return [val, 1]
+            } else {
+              const [field, dir] = val
+              return [field, sign(dir)]
+            }
+          })
+        }
+      })()
+
+      const records = Array.from(entries, ({vars}) => {
+        const record = new Map<string, unknown>()
+        for (const [field] of columns) {
+          const value = this._get_value(field, ds, vars)
+          record.set(field, value)
+        }
+        return record
+      })
+
+      function lookup(i: number, field: string): unknown {
+        return records[i].get(field) ?? NaN
+      }
+
+      entries.sort((e0, e1) => {
+        for (const [field, sign] of columns) {
+          const v0 = lookup(e0.j, field)
+          const v1 = lookup(e1.j, field)
+          if (v0 === v1) {
+            continue
+          }
+          if (isNumber(v0) && isNumber(v1)) {
+            /* eslint-disable @typescript-eslint/strict-boolean-expressions */
+            return sign*(v0 - v1 || +isNaN(v0) - +isNaN(v1))
+          } else {
+            const result = `${v0}`.localeCompare(`${v1}`)
+            if (result == 0) {
+              continue
+            } else {
+              return sign*result
+            }
+          }
+        }
+        return 0
+      })
+    }
+
+    const {limit} = this.model
+    if (limit != null) {
+      entries.splice(limit)
+    }
+
+    return entries as TooltipEntry[] // because filter() can't narrow null
+  }
+
+  /**
+   * This is used exclusively for testing.
+   */
+  _current_entries: TooltipEntry[] = []
+
+  _update(renderer: GlyphRenderer, geometry: PointGeometry | SpanGeometry, tooltip: Tooltip): void {
+    const selection_manager = renderer.get_selection_manager()
+    const fullset_indices = selection_manager.inspectors.get(renderer)
+    assert(fullset_indices != null)
+
+    // XXX: https://github.com/bokeh/bokeh/pull/11992#pullrequestreview-897552484
+    if (fullset_indices.is_empty() && fullset_indices.view == null) {
+      this._current_entries = []
+      tooltip.clear()
+      return
+    }
+
+    const entries = this.render_entries(renderer, geometry)
+    this._current_entries = entries
+
+    if (entries.length == 0) {
       tooltip.clear()
     } else {
       const {content} = tooltip
       assert(content instanceof Node)
       empty(content)
-      for (const [,, node] of in_frame) {
-        if (node != null) {
-          content.appendChild(node)
-        }
+
+      for (const {html} of entries) {
+        content.appendChild(html)
       }
 
-      const [x, y] = in_frame[in_frame.length-1]
-      tooltip.show({x, y})
+      const {vars} = entries.at(-1)!
+      tooltip.show({x: vars.snap_sx, y: vars.snap_sy})
     }
+  }
+
+  protected _get_value(field: string, ds: ColumnarDataSource, vars: TooltipVars): unknown {
+    const [type, name] = ((): ["@" | "$", string] => {
+      switch (field[0]) {
+        case "@": return ["@", field.substring(1)]
+        case "$": return ["$", field.substring(1)]
+        default:  return ["@", field]
+      }
+    })()
+    const index = vars.image_index ?? vars.index
+    return get_value(type, name, ds, index, vars)
+  }
+
+  protected _can_render_tooltip(data_source: ColumnarDataSource, vars: TooltipVars): boolean {
+    const {filters} = this.model
+
+    for (const [field, filter] of entries(filters)) {
+      const value = this._get_value(field, data_source, vars)
+
+      const index = vars.image_index ?? vars.index
+      const row = index != null ? data_source.get_row(index) : {}
+
+      for (const fn of isArray(filter) ? filter : [filter]) {
+        const args: FilterArgs = {value, field, row, data_source, vars}
+        const result = (() => {
+          if (fn instanceof CustomJS) {
+            return fn.execute_sync(this.model, args)
+          } else {
+            return execute_sync(fn, this.model, args)
+          }
+        })()
+        if (isBoolean(result) && !result) {
+          return false
+        }
+      }
+    }
+
+    return true
   }
 
   update([renderer, {geometry}]: [GlyphRenderer, {geometry: Geometry}]): void {
@@ -597,14 +758,8 @@ export class HoverToolView extends InspectToolView {
       const color_match = value.match(COLOR_RE)
 
       if (swatch_match == null && color_match == null) {
-        const content = replace_placeholders(value.replace("$~", "$data_"), ds, index, this.model.formatters, vars)
-        if (isString(content)) {
-          value_els[j].textContent = content
-        } else {
-          for (const el of content) {
-            value_els[j].appendChild(el)
-          }
-        }
+        const content = replace_placeholders_html(value.replace("$~", "$data_"), ds, index, this.model.formatters, vars)
+        value_els[j].append(...content)
         continue
       }
 
@@ -650,25 +805,37 @@ export class HoverToolView extends InspectToolView {
     return el
   }
 
+  _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
+    try {
+      return this._render_tooltips(ds, vars)
+    } catch (error) {
+      if (error instanceof Skip) {
+        return null
+      } else {
+        throw error
+      }
+    }
+  }
+
   _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
     const {tooltips} = this.model
 
     // if we have an image_index, that is what replace_placeholders needs
-    const i = is_undefined(vars.image_index) ? vars.index : vars.image_index
+    const index = vars.image_index ?? vars.index
 
     if (isString(tooltips)) {
-      const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
+      const content = replace_placeholders_html(tooltips, ds, index, this.model.formatters, vars)
       return div(content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else if (tooltips instanceof DOMElement) {
       const {_template_view} = this
       assert(_template_view != null)
-      this._update_template(_template_view, ds, i, vars)
+      this._update_template(_template_view, ds, index, vars)
       return _template_view.el.cloneNode(true) as HTMLElement
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
-      return this._render_template(template, tooltips, ds, i, vars)
+      return this._render_template(template, tooltips, ds, index, vars)
     } else {
       return null
     }
@@ -694,6 +861,9 @@ export namespace HoverTool {
   export type Props = InspectTool.Props & {
     tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
+    filters: p.Property<Dict<FilterDef | FilterDef[]>>
+    sort_by: p.Property<SortBy>
+    limit: p.Property<number | null>
     renderers: p.Property<DataRenderer[] | "auto">
     mode: p.Property<HoverMode>
     muted_policy: p.Property<MutedPolicy>
@@ -719,13 +889,16 @@ export class HoverTool extends InspectTool {
   static {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>(({Any, Bool, Str, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
+    this.define<HoverTool.Props>(({Any, Bool, Int, Str, Positive, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
       tooltips: [ Nullable(Or(Ref(DOMElement), Str, List(Tuple(Str, Str)), Func<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
+      filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ], // XXX `any` cast because of CustomJS/Func types
+      sort_by:      [ SortBy, null ],
+      limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],

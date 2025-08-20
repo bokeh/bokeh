@@ -38,6 +38,7 @@ from .instance import Instance
 from .nothing import Nothing
 from .nullable import Nullable
 from .primitive import (
+    Bool,
     Float,
     Int,
     Null,
@@ -71,6 +72,7 @@ if TYPE_CHECKING:
 __all__ = (
     'AlphaSpec',
     'AngleSpec',
+    'BoolSpec',
     'ColorSpec',
     'DashPatternSpec',
     'DataSpec',
@@ -244,6 +246,10 @@ class DataSpec(Either):
             return Field(val)
 
         return val
+
+class BoolSpec(DataSpec):
+    def __init__(self, default, *, help: str | None = None) -> None:
+        super().__init__(Bool, default=default, help=help)
 
 class IntSpec(DataSpec):
     def __init__(self, default, *, help: str | None = None) -> None:

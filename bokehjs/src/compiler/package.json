@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/compiler",
-  "version": "3.8.0-dev.1",
+  "version": "3.8.0-rc.1",
   "private": true,
   "description": "Internal package for bokehjs' extensions compiler",
   "license": "BSD-3-Clause",
@@ -21,7 +21,7 @@
     "css": "^3.0.0",
     "less": "^4.2.0",
     "terser": "^5.31.2",
-    "typescript": "~5.8.2",
+    "typescript": "~5.9.2",
     "yargs": "^17.7.2"
   }
 }

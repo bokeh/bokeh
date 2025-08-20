@@ -3,6 +3,7 @@ import sinon from "sinon"
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "../interactive"
+import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 
 import {
   AllIndices,
@@ -67,7 +68,7 @@ import {linspace, logspace, range} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
-import {base64_to_buffer} from "@bokehjs/core/util/buffer"
+import {b64decode} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
 import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
@@ -327,7 +328,7 @@ describe("Bug", () => {
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "AAAAAAAAAACHROdKGFfWP4dE50oYV+Y/ZXMtOFLB8D+HROdKGFf2P6kVoV3e7Ps/ZXMtOFLBAED2W4pBNYwDQIdE50oYVwZAGC1EVPshCUA=",
+                          data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
                         },
                         dtype: "float64",
                         order: "little",
@@ -337,7 +338,7 @@ describe("Bug", () => {
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "AAAAAAAA8D+Mcwt+GjrGPxstUkL2Ee6/BAAAAAAA4L83UM+ib4PoPzpQz6Jvg+g/8v//////378eLVJC9hHuv3NzC34aOsY/AAAAAAAA8D8=",
+                          data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
                         },
                         dtype: "float64",
                         order: "little",
@@ -347,7 +348,7 @@ describe("Bug", () => {
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "AAAAAAAAAAAcFjxSt5HkPxccgYyLg+8/q0xY6Hq26z/4C4p0qOPVP/QLinSo49W/qExY6Hq2678YHIGMi4Pvvx8WPFK3keS/B1wUMyamsbw=",
+                          data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
                         },
                         dtype: "float64",
                         order: "little",
@@ -464,7 +465,7 @@ describe("Bug", () => {
       expect(render.callCount).to.be.equal(1)
       render.resetHistory()
 
-      const url = URL.createObjectURL(new Blob([base64_to_buffer(png)]))
+      const url = URL.createObjectURL(new Blob([b64decode(png)]))
       const p2 = fig([200, 200])
       p2.image_url([url], 0, 0, 10, 10)
       await display(p2)
@@ -898,7 +899,7 @@ describe("Bug", () => {
       })
 
       const data = ["a", "c", "a", "b", null, "b", "a", NaN]
-      const result = ["red", "black", "red", "green", "black", "green", "red", "black"]
+      const result = convert_to_uint32_palette(["red", "black", "red", "green", "black", "green", "red", "black"])
 
       expect(mapper.v_compute(data)).to.be.equal(result)
     })
@@ -996,8 +997,8 @@ describe("Bug", () => {
       expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
       expect(view.shadow_el.querySelectorAll("link[href='/assets/css/local.css']").length).to.be.equal(1)
 
-      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent?.includes("--global-inline: 1")).length).to.be.equal(1)
-      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent?.includes("--local-inline: 1")).length).to.be.equal(1)
+      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
+      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
 
       await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
       await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
@@ -1876,8 +1877,12 @@ describe("Bug", () => {
       const sv1 = view.owner.get_one(s1)
       const sv2 = view.owner.get_one(s2)
 
-      const css = "\n:host {\n  flex: 0 0 50px;\n}"
-
+      const css = `
+:host {
+  flex: 0 0 50px;
+  min-width: 0;
+  min-height: 0;
+}`
       expect(sv0.parent_style.css).to.be.equal(css)
       expect(sv1.parent_style.css).to.be.equal(css)
       expect(sv2.parent_style.css).to.be.equal(css)
@@ -1896,6 +1901,43 @@ describe("Bug", () => {
     it("doesn't calculate log ranges below 1", async () => {
       const p = fig([200, 200], {x_axis_type: "log", x_range: [1e-8, 1e-6]})
       await display(p)
+    })
+  })
+
+  describe("in issue #14334", () => {
+    it("doesn't allow update of Range.{start,end} in RangeTool when there are no linked plots with ranges", async () => {
+      let n_start = 0
+      let n_end = 0
+      const x_range = new Range1d({start: 10, end: 20})
+      x_range.on_change(x_range.properties.start, () => n_start += 1)
+      x_range.on_change(x_range.properties.end, () => n_end += 1)
+      const range_tool = new RangeTool({x_range, x_interaction: true})
+      const p = fig([300, 200], {x_range: [0, 100], y_range: [0, 1], tools: [range_tool]})
+      const {view} = await display(p)
+      await actions(view).pan(xy(15, 0.5), xy(55, 0.5))
+      await view.ready
+      expect(x_range.start).to.be.similar(50)
+      expect(x_range.end).to.be.similar(60)
+      expect(n_start).to.not.be.equal(0)
+      expect(n_end).to.not.be.equal(0)
+    })
+  })
+
+  describe("in issue #14565", () => {
+    it("doesn't allow to correctly remove items from a DataTable", async () => {
+      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
+      const columns = [
+        new TableColumn({field: "my_col", title: "My Column"}),
+      ]
+
+      const table = new DataTable({source, columns})
+      const {view} = await display(table)
+
+      source.selected.indices = [0, 3, 4]
+      source.data = {my_col: ["a", "b", "c", "d"]}
+      await view.ready
+
+      expect(source.selected.indices).to.be.equal([0, 3])
     })
   })
 })

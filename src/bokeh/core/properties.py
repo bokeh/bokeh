@@ -63,10 +63,7 @@ result in a ``ValueError`` exception:
     ValueError: expected a value of type Integral, got 2.3 of type float
 
 Models with properties know how to serialize themselves, to be understood
-by BokehJS. Additionally, any help strings provided on properties can be
-easily and automatically extracted with the Sphinx extensions in the
-:ref:`bokeh.sphinxext` module.
-
+by BokehJS.
 
 Basic Properties
 ----------------
@@ -127,6 +124,7 @@ DataSpec Properties
 
 .. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
+.. autoclass:: BoolSpec
 .. autoclass:: ColorSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
@@ -210,6 +208,7 @@ __all__ = (
     'Array',
     'Auto',
     'Bool',
+    'BoolSpec',
     'Byte',
     'Bytes',
     'CSSLength',
@@ -334,6 +333,7 @@ from .property.container import RestrictedDict
 
 from .property.dataspec import AlphaSpec
 from .property.dataspec import AngleSpec
+from .property.dataspec import BoolSpec
 from .property.dataspec import ColorSpec
 from .property.dataspec import DashPatternSpec
 from .property.dataspec import DataSpec

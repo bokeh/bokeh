@@ -524,7 +524,7 @@ HoverTool
 * menu icon: |hover_icon|
 
 The hover tool is a passive inspector tool. It defaults to be on at all times,
-but you can change this in the inspector’s menu in the toolbar.
+but you can change this in the inspector's menu in the toolbar.
 
 .. _ug_interaction_tools_basic_tooltips:
 
@@ -719,7 +719,7 @@ for different fields:
         },
 
         # display a tooltip whenever the cursor is vertically in line with a glyph
-        mode='vline'
+        mode='vline',
     )
 
 You can see the output generated from this configuration by hovering the mouse
@@ -730,6 +730,65 @@ over the plot below:
 
 The |CustomJSHover| model allows you to use JavaScript to specify a custom
 formatter that can display derived quantities in the tooltip.
+
+Filtering, sorting and limits
+'''''''''''''''''''''''''''''
+
+By default ``HoverTool`` displays a tooltip entry for every data point hit, in
+a certain order of relevance (by index and/or spacial distance from the hit
+point). This may be either unsuited for the given application or overwhelming
+to the end user of the visualization, if working with large data or in regions
+of high data density. For that reason ``HoverTool`` allows to filter, sort and
+limit the number of entries that will be presented to the user. These operations
+should be familiar to any users of SQL (``where``, ``order_by`` and ``limit``
+clauses respectively) or similar tools.
+
+Filtering can be accomplished by providing via ``filters`` property a ``CustomJS``
+function or a sequence of ``CustomJS`` functions per field. Such function are
+given access to all relevant information regarding the currently processed data
+point, and must return a boolean value. Returning a value of any other type will
+be ignored and is equivalent to returning ``true``. An example of a simple filter
+function is as follows:
+
+.. code::
+
+    filter = """
+        export default (args, tool, {value: x, row, index, field, data_source, vars}) => {
+            return x >= 0
+        }
+    """
+    HoverTool(filters={"@x": CustomJS(args={}, code=filter)})
+
+where:
+
+* ``value`` contains the value of the currently processed data point
+* ``row`` contains values for all fields for the current index
+* ``index`` is the current linear index, image index or ``null``
+* ``field`` is the currently processed field name
+* ``data_source`` is the currently processed data source
+* ``vars`` is a collection of special variables
+
+Sorting can be accomplished via ``sort_by`` property, by either providing
+a single field name or a sequence of field names. When using a sequence,
+the sort order can optionally be provided as either a string enum ``"ascending"``
+or ``"descending"``, or an integer enum ``1``, ``-1`` respectively.
+
+.. code::
+
+    HoverTool(sort_by=["@x", ("@y", "descending")])
+
+Finally a limit can be applied via ``limit`` property, by providing a
+non-negative integer that establishes a hard cap on the number of entries
+shown at one time.
+
+.. code::
+
+    HoverTool(limit=3)
+
+Of course all three properties can be used simultaneously. Currently there is
+no support for any kind of feedback to the end user regarding how many entries
+were discarded or how many entries were actually hit. Neither is there
+support for aggregating data.
 
 .. _ug_interaction_tools_image_hover:
 
@@ -1138,49 +1197,49 @@ control LOD behavior:
 
 .. |Selection| replace:: :class:`~bokeh.models.selections.Selection`
 
-.. |hover_basic| image:: /_images/hover_basic.png
+.. |hover_basic| image:: /_images/icons/hover.svg
 
-.. |box_select_icon| image:: /_images/icons/BoxSelect.png
+.. |box_select_icon| image:: /_images/icons/box-select.svg
     :height: 19px
-.. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
+.. |box_zoom_icon| image:: /_images/icons/box-zoom.svg
     :height: 19px
-.. |help_icon| image:: /_images/icons/Help.png
+.. |help_icon| image:: /_images/icons/help.svg
     :height: 19px
-.. |crosshair_icon| image:: /_images/icons/Crosshair.png
+.. |crosshair_icon| image:: /_images/icons/crosshair.svg
     :height: 19px
-.. |hover_icon| image:: /_images/icons/Hover.png
+.. |hover_icon| image:: /_images/icons/hover.svg
     :height: 19px
-.. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
+.. |lasso_select_icon| image:: /_images/icons/lasso-select.svg
     :height: 19px
-.. |pan_icon| image:: /_images/icons/Pan.png
+.. |pan_icon| image:: /_images/icons/pan.svg
     :height: 19px
-.. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
+.. |poly_select_icon| image:: /_images/icons/polygon-select.svg
     :height: 19px
-.. |redo_icon| image:: /_images/icons/Redo.png
+.. |redo_icon| image:: /_images/icons/redo.svg
     :height: 19px
-.. |reset_icon| image:: /_images/icons/Reset.png
+.. |reset_icon| image:: /_images/icons/reset.svg
     :height: 19px
-.. |save_icon| image:: /_images/icons/Save.png
+.. |save_icon| image:: /_images/icons/save.svg
     :height: 19px
-.. |tap_icon| image:: /_images/icons/Tap.png
+.. |tap_icon| image:: /_images/icons/tap.svg
     :height: 19px
-.. |undo_icon| image:: /_images/icons/Undo.png
+.. |undo_icon| image:: /_images/icons/undo.svg
     :height: 19px
-.. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
+.. |wheel_pan_icon| image:: /_images/icons/wheel-pan.svg
     :height: 19px
-.. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
+.. |wheel_zoom_icon| image:: /_images/icons/wheel-zoom.svg
     :height: 19px
-.. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
+.. |zoom_in_icon| image:: /_images/icons/zoom-in.svg
     :height: 19px
-.. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
+.. |zoom_out_icon| image:: /_images/icons/zoom-out.svg
     :height: 19px
-.. |box_edit_icon| image:: /_images/icons/BoxEdit.png
+.. |box_edit_icon| image:: /_images/icons/box-edit.svg
     :height: 19px
-.. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
+.. |freehand_draw_icon| image:: /_images/icons/freehand-draw.svg
     :height: 19px
-.. |point_draw_icon| image:: /_images/icons/PointDraw.png
+.. |point_draw_icon| image:: /_images/icons/point-draw.svg
     :height: 19px
-.. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+.. |poly_draw_icon| image:: /_images/icons/poly-draw.svg
     :height: 19px
-.. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
+.. |poly_edit_icon| image:: /_images/icons/poly-edit.svg
     :height: 19px

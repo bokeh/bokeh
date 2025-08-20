@@ -97,6 +97,7 @@ from .scales import (
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
+from .ui import StyledElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -284,7 +285,7 @@ class Plot(LayoutDOM):
     def tools(self, tools: list[Tool]):
         self.toolbar.tools = tools
 
-    def add_layout(self, obj: Renderer, place: PlaceType = "center") -> None:
+    def add_layout(self, obj: Renderer | StyledElement, place: PlaceType = "center") -> None:
         ''' Adds an object to the plot in the specified place.
 
         If the renderer is already a part of a plot, this operation will move
@@ -622,23 +623,23 @@ class Plot(LayoutDOM):
     makes most sense with auto-hidden toolbars.
     """)
 
-    left = List(Instance(Renderer), help="""
+    left = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area to the left of the plot.
     """)
 
-    right = List(Instance(Renderer), help="""
+    right = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area to the right of the plot.
     """)
 
-    above = List(Instance(Renderer), help="""
+    above = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area above of the plot.
     """)
 
-    below = List(Instance(Renderer), help="""
+    below = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the area below of the plot.
     """)
 
-    center = List(Instance(Renderer), help="""
+    center = List(Either(Instance(Renderer), Instance(StyledElement)), help="""
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
@@ -719,6 +720,10 @@ class Plot(LayoutDOM):
 
     background_fill_color = Override(default='#ffffff')
 
+    border_line_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the plot border style.
+    """)
+
     border_fill_props = Include(ScalarFillProps, prefix="border", help="""
     The {prop} for the plot border style.
     """)
@@ -726,6 +731,8 @@ class Plot(LayoutDOM):
     border_hatch_props = Include(ScalarHatchProps, prefix="border", help="""
     The {prop} for the plot border style.
     """)
+
+    border_line_color = Override(default=None)
 
     border_fill_color = Override(default='#ffffff')
 

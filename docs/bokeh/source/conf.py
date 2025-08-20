@@ -44,25 +44,25 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "bokeh.sphinxext.bokeh_autodoc",
-    "bokeh.sphinxext.bokeh_dataframe",
-    "bokeh.sphinxext.bokeh_color",
-    "bokeh.sphinxext.bokeh_enum",
-    "bokeh.sphinxext.bokeh_example_metadata",
-    "bokeh.sphinxext.bokeh_gallery",
-    "bokeh.sphinxext.bokeh_jinja",
-    "bokeh.sphinxext.bokeh_model",
-    "bokeh.sphinxext.bokeh_options",
-    "bokeh.sphinxext.bokeh_palette",
-    "bokeh.sphinxext.bokeh_palette_group",
     "bokeh.sphinxext.bokeh_plot",
-    "bokeh.sphinxext.bokeh_prop",
-    "bokeh.sphinxext.bokeh_releases",
-    "bokeh.sphinxext.bokeh_roles",
-    "bokeh.sphinxext.bokeh_sampledata_xref",
-    "bokeh.sphinxext.bokeh_settings",
-    "bokeh.sphinxext.bokeh_sitemap",
-    "bokeh.sphinxext.bokehjs_content",
+    "bokeh.sphinxext._internal.bokeh_autodoc",
+    "bokeh.sphinxext._internal.bokeh_dataframe",
+    "bokeh.sphinxext._internal.bokeh_color",
+    "bokeh.sphinxext._internal.bokeh_enum",
+    "bokeh.sphinxext._internal.bokeh_example_metadata",
+    "bokeh.sphinxext._internal.bokeh_gallery",
+    "bokeh.sphinxext._internal.bokeh_jinja",
+    "bokeh.sphinxext._internal.bokeh_model",
+    "bokeh.sphinxext._internal.bokeh_options",
+    "bokeh.sphinxext._internal.bokeh_palette",
+    "bokeh.sphinxext._internal.bokeh_palette_group",
+    "bokeh.sphinxext._internal.bokeh_prop",
+    "bokeh.sphinxext._internal.bokeh_releases",
+    "bokeh.sphinxext._internal.bokeh_roles",
+    "bokeh.sphinxext._internal.bokeh_sampledata_xref",
+    "bokeh.sphinxext._internal.bokeh_settings",
+    "bokeh.sphinxext._internal.bokeh_sitemap",
+    "bokeh.sphinxext._internal.bokehjs_content",
 ]
 
 needs_sphinx = "4.3.2"
@@ -132,8 +132,6 @@ if "GOOGLE_API_KEY" not in os.environ:
             "or set BOKEH_DOCS_CDN=local in your environment.",
         )
 
-bokeh_plot_pyfile_include_dirs = ["docs"]
-
 bokeh_sampledata_xref_skiplist = [
     "examples/basic/data/ajax_source.py",
     "examples/basic/data/server_sent_events_source.py",
@@ -156,9 +154,9 @@ napoleon_include_init_with_doc = True
 
 ogp_site_url = "https://docs.bokeh.org/en/latest/"
 ogp_image = "http://static.bokeh.org/og/logotype-on-hex.png"
-ogp_custom_meta_tags = [
+ogp_custom_meta_tags = (
     '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
-]
+)
 
 pygments_style = "sphinx"
 
@@ -208,7 +206,7 @@ html_theme_options = {
     "navbar_align": "left",
     "navbar_end": ["navbar-icon-links"],
     "navbar_start": ["navbar-logo", "version-switcher"],
-    "pygment_light_style": "xcode",
+    "pygments_light_style": "xcode",
     "secondary_sidebar_items": ["page-toc", "edit-this-page"],
     "show_nav_level": 2,
     "show_toc_level": 1,

@@ -1,4 +1,4 @@
-import {ColorMapper, _convert_palette, _convert_color} from "./color_mapper"
+import {ColorMapper} from "./color_mapper"
 import type * as p from "core/properties"
 
 export namespace StackColorMapper {

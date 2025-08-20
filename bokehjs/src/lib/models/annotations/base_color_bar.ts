@@ -528,7 +528,6 @@ export namespace BaseColorBar {
     title_standoff: p.Property<number>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
-    scale_alpha: p.Property<number>
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
     major_label_overrides: p.Property<LabelOverrides>
@@ -566,7 +565,7 @@ export namespace BaseColorBar {
 
 export interface BaseColorBar extends BaseColorBar.Attrs {}
 
-export class BaseColorBar extends Annotation {
+export abstract class BaseColorBar extends Annotation {
   declare properties: BaseColorBar.Props
   declare __view_type__: BaseColorBarView
 
@@ -586,14 +585,13 @@ export class BaseColorBar extends Annotation {
       ["background_",  mixins.Hatch],
     ])
 
-    this.define<BaseColorBar.Props>(({Alpha, Float, Str, Tuple, Or, Ref, Auto, Nullable}) => ({
+    this.define<BaseColorBar.Props>(({Float, Str, Tuple, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Float, Float)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(Or(Str, Ref(BaseText))), null ],
       title_standoff:        [ Float, 2 ],
       width:                 [ Or(Float, Auto), "auto" ],
       height:                [ Or(Float, Auto), "auto" ],
-      scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
       major_label_overrides: [ LabelOverrides, new Map() ],

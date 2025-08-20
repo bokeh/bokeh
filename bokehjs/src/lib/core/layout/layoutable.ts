@@ -197,7 +197,7 @@ export abstract class Layoutable {
     return {...computed, ...size}
   }
 
-  compute(viewport: Partial<Size> = {}): void {
+  protected _compute(viewport: Partial<Size>): {outer: BBox, inner?: BBox} {
     const size_hint = this.measure({
       width: viewport.width != null && this.is_width_expanding() ? viewport.width : Infinity,
       height: viewport.height != null && this.is_height_expanding() ? viewport.height : Infinity,
@@ -214,6 +214,11 @@ export abstract class Layoutable {
       inner = new BBox({left, top, right: width - right, bottom: height - bottom})
     }
 
+    return {outer, inner}
+  }
+
+  compute(viewport: Partial<Size> = {}): void {
+    const {outer, inner} = this._compute(viewport)
     this.set_geometry(outer, inner)
   }
 
@@ -293,6 +298,17 @@ export abstract class ContentLayoutable extends Layoutable {
     })()
 
     return {width, height}
+  }
+}
+
+export class ElementLayout extends ContentLayoutable {
+  constructor(readonly el: HTMLElement) {
+    super()
+  }
+
+  _content_size(): Sizeable {
+    const {width, height} = this.el.getBoundingClientRect()
+    return new Sizeable({width, height})
   }
 }
 

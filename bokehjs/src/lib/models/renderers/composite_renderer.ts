@@ -6,22 +6,23 @@ import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 import type {Context2d} from "core/util/canvas"
+import {LayoutDOM} from "models/layouts/layout_dom"
 
 // TODO UIElement needs to inherit from DOMNode
-const ElementLike = Or(Ref(UIElement), Ref(DOMNode))
-type ElementLike = typeof ElementLike["__type__"]
+export const ElementLike = Or(Ref(UIElement), Ref(DOMNode))
+export type ElementLike = typeof ElementLike["__type__"]
 
 export abstract class CompositeRendererView extends RendererView {
   declare model: CompositeRenderer
 
   protected readonly _renderer_views: ViewStorage<Renderer> = new Map()
   get renderer_views(): ViewOf<Renderer>[] {
-    return this.model.renderers.map((renderer) => this._renderer_views.get(renderer)!)
+    return this.computed_renderer_views
   }
 
   protected readonly _element_views: ViewStorage<ElementLike> = new Map()
   get element_views(): ViewOf<ElementLike>[] {
-    return this.model.elements.map((element) => this._element_views.get(element)!)
+    return this.computed_element_views
   }
 
   override *children(): IterViews {
@@ -57,7 +58,7 @@ export abstract class CompositeRendererView extends RendererView {
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.computed_elements, {parent: this.plot_view})
+    return await build_views(this._element_views, this.computed_elements, {parent: (model) => model instanceof LayoutDOM ? null : this.plot_view})
   }
 
   protected async _update_renderers(): Promise<void> {
@@ -73,7 +74,7 @@ export abstract class CompositeRendererView extends RendererView {
     // correct ordering.
     for (const view of this.element_views) {
       const is_new = created_views.has(view)
-      const target = view.rendering_target() ?? this.shadow_el
+      const target = view.rendering_target() ?? this.self_target
       if (is_new) {
         view.render_to(target)
       } else {
@@ -82,6 +83,15 @@ export abstract class CompositeRendererView extends RendererView {
     }
 
     this.r_after_render()
+  }
+
+  override render(): void {
+    super.render()
+
+    for (const element_view of this.element_views) {
+      const target = element_view.rendering_target() ?? this.self_target
+      element_view.render_to(target)
+    }
   }
 
   override remove(): void {
@@ -101,17 +111,7 @@ export abstract class CompositeRendererView extends RendererView {
     })
   }
 
-  private _has_rendered_elements: boolean = false
-
   override paint(ctx: Context2d): void {
-    if (!this._has_rendered_elements) {
-      for (const element_view of this.element_views) {
-        const target = element_view.rendering_target() ?? this.shadow_el
-        element_view.render_to(target)
-      }
-      this._has_rendered_elements = true
-    }
-
     super.paint(ctx)
 
     if (this.displayed && this.is_renderable) {

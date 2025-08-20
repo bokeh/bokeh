@@ -6,7 +6,7 @@ dependencies:
 
   # deploy
   - anaconda-client
-  - boto
+  - boto3
   - colorama
   - nodejs 20.*
   - packaging
