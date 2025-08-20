@@ -141,7 +141,7 @@ export abstract class ColumnarDataSource extends DataSource {
     const i = isNumber(index) ? index : index.index
     const result: {[key: string]: unknown} = {}
     for (const [column_name, array] of entries(this.data)) {
-      if (is_NDArray(array) && array.dimension > 1) {
+      if (is_NDArray(array)) {
         result[column_name] = atFirstAxis(array, i)
       } else {
         result[column_name] = array[i]

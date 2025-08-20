@@ -426,10 +426,10 @@ export function ndarray(init: number | ArrayBufferLike | ArrayLike<unknown>, {dt
  *    atFirstAxis(two_colors, 1)
  *    > Uint8NDArray(3) [64, 184, 19, dtype: 'uint8', shape: [3], dimension: 1, ...
  */
-export function atFirstAxis(
-  array: NDArray,
+export function atFirstAxis<T extends NDArray>(
+  array: T,
   index_along_first_axis: number,
-): NDArray | NDArray[number] {
+): T | ReturnType<T["get"]> {
   const {shape} = array
 
   if (shape.length === 0) {
@@ -438,6 +438,23 @@ export function atFirstAxis(
 
   if (index_along_first_axis < 0 || index_along_first_axis >= shape[0]) {
     throw new Error("Index out of bounds.")
+  }
+
+  /* The return type here is inconsistent with the return type of higher
+    dimension arrays but it is arguably more intuitive.
+
+    Actual (more intuitive, less consistent):
+
+      atFirstIndex(ndarray([100, 101, 102], {dtype: 'uint8', shape: [3]})
+      > 100
+
+    Versus (more consistent, less intuitive):
+
+      atFirstIndex(ndarray([100, 101, 102], {dtype: 'uint8', shape: [3]})
+      > Uint8NDArray(1) [100, dtype: 'uint8', shape: [], dimension: 0, ...
+  */
+  if (shape.length === 1) {
+    return array.get(index_along_first_axis) as ReturnType<T["get"]>
   }
 
   // if array has 1 dimension, subshape is [], and number of items per index
@@ -450,5 +467,5 @@ export function atFirstAxis(
   return new ctor(
     array.slice(flat_index, flat_index + n_per_index),
     subshape,
-  ) as NDArray
+  ) as T
 }

@@ -600,15 +600,15 @@ describe("core/util/ndarray module", () => {
       expect(() => atFirstAxis(nd, 0)).to.throw()
     })
 
-    it("should handle dimension=1", () => {
+    it("should return value for dimension=1", () => {
       const nd = new Uint8NDArray([2, 4, 42, 2442])
-      expect(atFirstAxis(nd, 2)).to.be.equal(new Uint8NDArray([42], []))
+      expect(atFirstAxis(nd, 2)).to.be.equal(42)
 
       // First axis index out of bounds
       expect(() => atFirstAxis(nd, 4)).to.throw()
     })
 
-    it("should handle dimension=2", () => {
+    it("should return new ndarray for dimension=2", () => {
       const nd = new Uint8NDArray([1, 2, 3, 4], [2, 2])
       expect(atFirstAxis(nd, 0)).to.be.equal(new Uint8NDArray([1, 2], [2]))
       expect(atFirstAxis(nd, 1)).to.be.equal(new Uint8NDArray([3, 4], [2]))
@@ -617,7 +617,7 @@ describe("core/util/ndarray module", () => {
       expect(() => atFirstAxis(nd, 2)).to.throw()
     })
 
-    it("should handle dimension=3", () => {
+    it("should return new ndarray for dimension=3", () => {
       const nd = new Uint8NDArray([1, 2, 3, 4], [2, 2, 1])
       expect(atFirstAxis(nd, 0)).to.be.equal(new Uint8NDArray([1, 2], [2, 1]))
       expect(atFirstAxis(nd, 1)).to.be.equal(new Uint8NDArray([3, 4], [2, 1]))
