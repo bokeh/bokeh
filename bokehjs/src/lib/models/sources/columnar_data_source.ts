@@ -3,13 +3,13 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import {stringify} from "core/csv/index"
+import {line_generator} from "core/csv/index"
 import type {Options as CSVOptions} from "core/csv/index"
 import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
-import {is_NDArray, ndget} from "core/util/ndarray"
+import {is_NDArray, atFirstAxis} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -140,8 +140,12 @@ export abstract class ColumnarDataSource extends DataSource {
   get_row(index: Index): {[key: string]: unknown} {
     const i = isNumber(index) ? index : index.index
     const result: {[key: string]: unknown} = {}
-    for (const [column, array] of entries(this.data)) {
-      result[column] = array[i]
+    for (const [column_name, array] of entries(this.data)) {
+      if (is_NDArray(array) && array.dimension > 1) {
+        result[column_name] = atFirstAxis(array, i)
+      } else {
+        result[column_name] = array[i]
+      }
     }
     return result
   }
@@ -199,34 +203,27 @@ export abstract class ColumnarDataSource extends DataSource {
   //  2. [5, 25]
   //  3. [10, 100]
   *row_generator(): Generator<any[]> {
-    const header_row = this.columns()
-
+    const header_row = keys(this.data)
     if (header_row.length === 0) {
       return
     }
-
     yield header_row
-
     const num_rows = this.length
-    const num_columns = header_row.length
-
     for (let r = 0; r < num_rows; r++) {
-      const row = new Array(num_columns)
-      for (let c = 0; c < num_columns; c++) {
-        const column_name = header_row[c]
-        const column = this.get(column_name)
-        if (is_NDArray(column)) {
-          row[c] = ndget(column, r)
-        } else {
-          row[c] = column[r]
-        }
-      }
-      yield row
+      yield Object.values(this.get_row(r))
     }
   }
 
+  *csv_generator(options: CSVOptions = {}): Generator<string> {
+    yield* line_generator(this.row_generator(), options)
+  }
+
   to_csv(options: CSVOptions = {}): string {
-    return stringify(this.row_generator(), options)
+    let result = ""
+    for (const line of this.csv_generator(options)) {
+      result += line
+    }
+    return result
   }
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {

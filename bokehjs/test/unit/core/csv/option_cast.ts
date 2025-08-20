@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {stringify} from "@bokehjs/core/csv"
 
-describe("core/csv", () => {
+describe("core/csv stringify", () => {
 
   describe("Option `cast`", () => {
 
@@ -16,7 +16,7 @@ describe("core/csv", () => {
         ],
       )
       expect(data).to.be.equal(
-        "1970-01-01T00:00:00.000Z,\"{\"\"a\"\":1}\",foo\n",
+        "1970-01-01T00:00:00.000Z,{a: 1},foo\n",
       )
     })
 
@@ -43,7 +43,7 @@ describe("core/csv", () => {
       expect(data).to.be.equal("date,object,string\n")
     })
 
-    it("catch error", () => {
+    it("should catch error thrown in cast function", () => {
       const fn = () => {
         stringify([
           [

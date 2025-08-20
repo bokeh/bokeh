@@ -417,46 +417,38 @@ export function ndarray(init: number | ArrayBufferLike | ArrayLike<unknown>, {dt
   }
 }
 
-// Take a flat representation of an n-dimensional array and return generator
-// that iterates through the first axis, returning nested
-export function* nditer(flat: NDArray | Arrayable<unknown>, shape?: number[], start = 0): Generator<unknown> {
-  if (shape == null) {
-    if ("shape" in flat && Array.isArray(flat.shape)) {
-      shape = flat.shape
-    } else {
-      throw new Error("No shape provided to nditer.")
-    }
-  }
+/**
+ * Given an ndarray with shape [p, r, q], the value returned
+ * at index i (where 0 <= i < p) will be a new ndarray with shape [r, q].
+ *
+ * Example usage:
+ *    const two_colors = ndarray([155, 200, 180, 64, 184, 19], {dtype: 'uint8', shape: [2, 3]})
+ *    atFirstAxis(two_colors, 1)
+ *    > Uint8NDArray(3) [64, 184, 19, dtype: 'uint8', shape: [3], dimension: 1, ...
+ */
+export function atFirstAxis(
+  array: NDArray,
+  index_along_first_axis: number
+): NDArray | NDArray[number] {
+  const { shape } = array
 
   if (shape.length === 0) {
-    yield flat[start]
-  } else if (shape.length === 1) {
-    yield flat.slice(start, start + shape[0])
-  } else {
-    const [length, ...subshape] = shape
-    const item_size = subshape.reduce((product, curr) => product * curr, 1)
-    for (let i = 0; i < length; i++) {
-      yield Array.from(nditer(flat, subshape, start + i * item_size))
-    }
-  }
-}
-
-export function ndget(flat: NDArray | Arrayable<unknown>, index: number, shape?: number[]): unknown {
-  if (shape == null) {
-    if ("shape" in flat && Array.isArray(flat.shape)) {
-      shape = flat.shape
-    } else {
-      throw new Error("No shape provided to nditer.")
-    }
+    throw new Error("Cannot index 0-dimension array.")
   }
 
-  if (shape.length === 0) {
-    return flat[0]
-  } else if (shape.length === 1) {
-    return flat[index]
-  } else {
-    const [_, ...subshape] = shape
-    const item_size = subshape.reduce((product, curr) => product * curr, 1)
-    return Array.from(nditer(flat, subshape, index * item_size))
+  if (index_along_first_axis < 0 || index_along_first_axis >= shape[0]) {
+    throw new Error("Index out of bounds.")
   }
+
+  // if array has 1 dimension, subshape is [], and number of items per index
+  // along first axis is 1
+  const subshape = shape.slice(1)
+  const n_per_index = subshape.reduce((product, curr) => product * curr, 1)
+  const flat_index = index_along_first_axis * n_per_index
+
+  const ctor = array.constructor as any // XXX: how can we make TypeScript happy here?
+  return new ctor(
+    array.slice(flat_index, flat_index + n_per_index),
+    subshape
+  ) as NDArray
 }

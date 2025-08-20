@@ -13,9 +13,7 @@ export class Stringifier {
     this.options = normalize_options(options)
   }
 
-  // Create the full CSV string that can be written to a .csv file
-  stringify(records: Iterable<CSVRecord>): string {
-    let result = ""
+  *line_generator(records: Iterable<CSVRecord>): Generator<string> {
     let first_row
     let row_index = 0
     for (const record of records) {
@@ -23,11 +21,20 @@ export class Stringifier {
         first_row = record
       }
       const context = {first_row, row_index, column_index: 0}
-      result += this.stringify_record(record, context)
-      result += "\n"
+      let line = this.stringify_record(record, context)
+      line += "\n"
+      yield line
       row_index++
     }
-    return result
+  }
+
+  // Create the full CSV string that can be written to a .csv file
+  stringify(records: Iterable<CSVRecord>): string {
+    let result = ""
+    for (const line of this.line_generator(records)) {
+      result += line
+    }
+    return result;
   }
 
   // Create string for a single record (row) of CSV data. Do not include the
@@ -98,4 +105,11 @@ export class Stringifier {
 export function stringify(records: Iterable<CSVRecord>, options: Options = {}) {
   const stringifier = new Stringifier(options)
   return stringifier.stringify(records)
+}
+
+// This generator is like stringify but it yields one line at a time instead of
+// all lines at once
+export function* line_generator(records: Iterable<CSVRecord>, options: Options = {}) {
+  const stringifier = new Stringifier(options)
+  yield* stringifier.line_generator(records)
 }

@@ -1,2 +1,2 @@
 export type {Options} from "./types"
-export {stringify} from "./stringifier"
+export {stringify, line_generator} from "./stringifier"

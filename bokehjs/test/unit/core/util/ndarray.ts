@@ -7,6 +7,7 @@ import {
   Uint32NDArray, Int32NDArray,
   Float32NDArray, Float64NDArray,
   ObjectNDArray,
+  atFirstAxis
 } from "@bokehjs/core/util/ndarray"
 
 import {Cloner} from "@bokehjs/core/util/cloneable"
@@ -591,5 +592,38 @@ describe("core/util/ndarray module", () => {
     expect(nd9.dtype).to.be.equal("object")
     expect(nd9.shape).to.be.equal([2, 3])
     expect(nd9.length).to.be.equal(6)
+  })
+
+  describe("atFirstAxis", () => {
+    it("should throw an error if dimension=0", () => {
+      const nd = new Uint8NDArray([42], [])
+      expect(() => atFirstAxis(nd, 0)).to.throw()
+    })
+
+    it("should handle dimension=1", () => {
+      const nd = new Uint8NDArray([2, 4, 42, 2442])
+      expect(atFirstAxis(nd, 2)).to.be.equal(new Uint8NDArray([42], []))
+
+      // First axis index out of bounds
+      expect(() => atFirstAxis(nd, 4)).to.throw()
+    })
+
+    it("should handle dimension=2", () => {
+      const nd = new Uint8NDArray([1, 2, 3, 4], [2, 2])
+      expect(atFirstAxis(nd, 0)).to.be.equal(new Uint8NDArray([1, 2], [2]))
+      expect(atFirstAxis(nd, 1)).to.be.equal(new Uint8NDArray([3, 4], [2]))
+
+      // First axis index out of bounds
+      expect(() => atFirstAxis(nd, 2)).to.throw()
+    })
+
+    it("should handle dimension=3", () => {
+      const nd = new Uint8NDArray([1, 2, 3, 4], [2, 2, 1])
+      expect(atFirstAxis(nd, 0)).to.be.equal(new Uint8NDArray([1, 2], [2, 1]))
+      expect(atFirstAxis(nd, 1)).to.be.equal(new Uint8NDArray([3, 4], [2, 1]))
+
+      // First axis index out of bounds
+      expect(() => atFirstAxis(nd, 2)).to.throw()
+    })
   })
 })
