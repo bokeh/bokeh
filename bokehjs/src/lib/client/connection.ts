@@ -138,10 +138,11 @@ export class ClientConnection {
   }
 
   protected _schedule_reconnect(milliseconds: number): void {
-    const should_reconnect = this._reconnection_attempts_left > 0
+    const {document} = this.session!
+    const should_reconnect = document.config.reconnect_session && this._reconnection_attempts_left > 0
     const timeout = should_reconnect ? milliseconds : null
     const event = new ConnectionLost(new WeakRef(this), this.reconnection_attempts, timeout)
-    this.session?.document.event_manager.send_event(event)
+    document.event_manager.send_event(event)
 
     if (should_reconnect) {
       setTimeout(() => this._try_reconnect(), milliseconds)
