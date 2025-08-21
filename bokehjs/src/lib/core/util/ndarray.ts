@@ -445,20 +445,19 @@ export function atFirstAxis<T extends NDArray>(
 
     Actual (more intuitive, less consistent):
 
-      atFirstIndex(ndarray([100, 101, 102], {dtype: 'uint8', shape: [3]})
+      const nd = ndarray([100, 101, 102], {dtype: 'uint8', shape: [3]}
+      atFirstIndex(nd, 0)
       > 100
 
     Versus (more consistent, less intuitive):
 
-      atFirstIndex(ndarray([100, 101, 102], {dtype: 'uint8', shape: [3]})
+      atFirstIndex(nd, 0)
       > Uint8NDArray(1) [100, dtype: 'uint8', shape: [], dimension: 0, ...
   */
   if (shape.length === 1) {
     return array.get(index_along_first_axis) as ReturnType<T["get"]>
   }
 
-  // if array has 1 dimension, subshape is [], and number of items per index
-  // along first axis is 1
   const subshape = shape.slice(1)
   const n_per_index = subshape.reduce((product, curr) => product * curr, 1)
   const flat_index = index_along_first_axis * n_per_index

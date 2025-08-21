@@ -275,7 +275,7 @@ describe("column_data_source module", () => {
       expect(cds.to_csv()).to.be.equal(
         "foo,bar\n" +
         "\"Uint8Array([255, 0, 0])\",\"Float32Array([0.5, 3.5, 10.25, -0.125])\"\n" +
-        "\"Uint8Array([0, 255, 0])\",\"Float32Array([3.75, 0.25, 0.5, -0.125])\"\n"
+        "\"Uint8Array([0, 255, 0])\",\"Float32Array([3.75, 0.25, 0.5, -0.125])\"\n",
       )
     })
   })

@@ -625,5 +625,7 @@ describe("core/util/ndarray module", () => {
       // First axis index out of bounds
       expect(() => atFirstAxis(nd, 2)).to.throw()
     })
+
+    // And so on and so forth for dimension > 3
   })
 })
