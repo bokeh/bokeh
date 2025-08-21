@@ -258,5 +258,25 @@ describe("column_data_source module", () => {
       }})
       expect(cds.to_csv()).to.be.equal("foo\n1\n")
     })
+
+    it("should treat 1-dimensional ndarray just like a normal array", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),
+        bar: ndarray([10, 9, 8], {dtype: "uint8", shape: [3]}),
+      }})
+      expect(cds.to_csv()).to.be.equal("foo,bar\ntrue,10\nfalse,9\ntrue,8\n")
+    })
+
+    it("should pack values for ndarray with dimension > 1", () => {
+      const cds = new ColumnDataSource({data: {
+        foo: ndarray([255, 0, 0, 0, 255, 0], {dtype: "uint8", shape: [2, 3]}),
+        bar: ndarray([0.5, 3.5, 10.25, -0.125, 3.75, 0.25, 0.5, -0.125], {dtype: "float32", shape: [2, 4]}),
+      }})
+      expect(cds.to_csv()).to.be.equal(
+        "foo,bar\n" +
+        "\"Uint8Array([255, 0, 0])\",\"Float32Array([0.5, 3.5, 10.25, -0.125])\"\n" +
+        "\"Uint8Array([0, 255, 0])\",\"Float32Array([3.75, 0.25, 0.5, -0.125])\"\n"
+      )
+    })
   })
 })

@@ -219,11 +219,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   to_csv(options: CSVOptions = {}): string {
-    let result = ""
-    for (const line of this.csv_generator(options)) {
-      result += line
-    }
-    return result
+    return [...this.csv_generator(options)].join("")
   }
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
