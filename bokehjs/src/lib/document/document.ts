@@ -22,6 +22,7 @@ import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import {assert} from "core/util/assert"
 import {Model} from "model"
+import {DocumentConfig} from "./config"
 import type {ModelDef} from "./defs"
 import {decode_def} from "./defs"
 import type {BokehEvent, BokehEventType, BokehEventMap} from "core/bokeh_events"
@@ -30,7 +31,6 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
-import {Notifications} from "../models/ui/notifications"
 
 Deserializer.register("model", decode_def)
 
@@ -67,6 +67,7 @@ export type DocJson = {
   version?: string
   title?: string
   defs?: ModelDef[]
+  config?: ModelRep
   roots: ModelRep[]
   callbacks?: {[key: string]: ModelRep[]}
 }
@@ -91,6 +92,14 @@ export class Document implements Equatable {
   /** @experimental */
   views_manager?: ViewManager
 
+  private _config: DocumentConfig | null = null
+  get config(): DocumentConfig {
+    if (this._config == null) {
+      this._config = new DocumentConfig()
+    }
+    return this._config
+  }
+
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 
@@ -109,7 +118,6 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
-  protected _notifications: Notifications
 
   constructor(options: DocumentOptions = {}) {
     documents.push(this)
@@ -136,8 +144,6 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
-    this._notifications = new Notifications()
-    this._notifications.attach_document(this)
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -285,7 +291,7 @@ export class Document implements Equatable {
     this._cancel_recompute_all_models()
 
     let new_all_models_set = new Set<HasProps>()
-    for (const r of this._roots) {
+    for (const r of this.all_roots) {
       new_all_models_set = sets.union(new_all_models_set, r.references())
     }
     const old_all_models_set = new Set(this._all_models.values())
@@ -319,7 +325,8 @@ export class Document implements Equatable {
   }
 
   get internal_roots(): HasProps[] {
-    return [this._notifications]
+    const {notifications} = this.config
+    return notifications != null ? [notifications] : []
   }
 
   get all_roots(): HasProps[] {
@@ -494,10 +501,12 @@ export class Document implements Equatable {
 
   to_json(include_defaults: boolean = true): DocJson {
     const serializer = new Serializer({include_defaults})
+    const config = serializer.encode(this.config)
     const roots = serializer.encode(this._roots)
     return {
       version: js_version,
       title: this._title,
+      config,
       roots,
     }
   }
@@ -544,6 +553,7 @@ export class Document implements Equatable {
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
+    doc._config = deserializer.decode(doc_json.config) as DocumentConfig | undefined ?? null
     const roots = deserializer.decode(doc_json.roots) as Model[]
 
     const callbacks = (() => {
