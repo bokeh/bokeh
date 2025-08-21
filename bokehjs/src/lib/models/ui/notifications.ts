@@ -1,7 +1,6 @@
 import {UIElement, UIElementView} from "./ui_element"
 import type * as p from "core/properties"
 import {dom_ready, span, div, InlineStyleSheet} from "core/dom"
-import {settings} from "core/settings"
 
 import * as base_css from "styles/base.css"
 import * as icons_css from "styles/icons.css"
@@ -32,11 +31,11 @@ export class NotificationsView extends UIElementView {
 
     const {document} = this.model
     if (document == null) {
-      return
+      return // this shouldn't happen
     }
 
     document.on_event("connection_lost", (_, event) => {
-      if (!settings.notifications) {
+      if (!document.config.notify_connection_status) {
         return
       }
       this._connection_el?.remove()
@@ -74,7 +73,7 @@ export class NotificationsView extends UIElementView {
     })
 
     document.on_event("client_reconnected", (_, _event) => {
-      if (!settings.notifications) {
+      if (!document.config.notify_connection_status) {
         return
       }
       this._connection_el?.remove()

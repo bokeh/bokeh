@@ -7,6 +7,7 @@ export namespace DocumentConfig {
 
   export type Props = Model.Props & {
     reconnect_session: p.Property<boolean>
+    notify_connection_status: p.Property<boolean>
     notifications: p.Property<Notifications | null>
   }
 }
@@ -23,6 +24,7 @@ export class DocumentConfig extends Model {
   static {
     this.define<DocumentConfig.Props>(({Bool, Ref, Nullable}) => ({
       reconnect_session: [ Bool, true ],
+      notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
     }))
   }
