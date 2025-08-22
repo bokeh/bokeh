@@ -68,6 +68,7 @@ from .callbacks import (
     JSEventCallback,
     MessageCallback,
 )
+from .config import DocumentConfig
 from .events import (
     DocumentPatchedEvent,
     RootAddedEvent,
@@ -124,6 +125,7 @@ class Document:
     models: DocumentModelManager
     modules: DocumentModuleManager
 
+    _config: DocumentConfig
     _roots: list[Model]
     _theme: Theme
     _title: str
@@ -136,6 +138,7 @@ class Document:
         self.models = DocumentModelManager(self)
         self.modules = DocumentModuleManager(self)
 
+        self._config = DocumentConfig()
         self._roots = []
         self._template = FILE
         self._template_variables = {}
@@ -147,8 +150,15 @@ class Document:
     # Properties --------------------------------------------------------------
 
     @property
+    def config(self) -> DocumentConfig:
+        ''' A configuration of this document.
+
+        '''
+        return self._config
+
+    @property
     def roots(self) -> list[Model]:
-        ''' A list of all the root models in this Document.
+        ''' A list of all the root models in this document.
 
         '''
         return list(self._roots)
@@ -437,10 +447,13 @@ side of a communications channel while it was being removed on the other end.\
         deserializer = Deserializer()
         doc_struct = deserializer.deserialize(doc_json)
 
+        config = doc_struct["config"]
         roots = doc_struct["roots"]
         title = doc_struct["title"]
 
         doc = Document()
+        doc._config = config
+
         for root in roots:
             doc.add_root(root)
 
@@ -749,12 +762,14 @@ side of a communications channel while it was being removed on the other end.\
 
         serializer = Serializer(deferred=deferred)
         defs = serializer.encode(data_models)
+        config = serializer.encode(self._config)
         roots = serializer.encode(self._roots)
         callbacks = serializer.encode(self.callbacks._js_event_callbacks)
 
         doc_json = DocJson(
             version=__version__,
             title=self.title,
+            config=config,
             roots=roots,
         )
 
@@ -809,6 +824,7 @@ side of a communications channel while it was being removed on the other end.\
         # we have to remove ALL roots before adding any
         # to the new doc or else models referenced from multiple
         # roots could be in both docs at once, which isn't allowed.
+        config = self.config
         roots: list[Model] = []
 
         with self.models.freeze():
@@ -823,6 +839,8 @@ side of a communications channel while it was being removed on the other end.\
 
         if len(self.models) != 0:
             raise RuntimeError(f"_all_models still had stuff in it: {self.models!r}")
+
+        dest_doc._config = config
 
         for root in roots:
             dest_doc.add_root(root)
