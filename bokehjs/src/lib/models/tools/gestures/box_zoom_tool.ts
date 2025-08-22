@@ -146,7 +146,16 @@ export class BoxZoomToolView extends GestureToolView {
       return
     }
 
-    const [[left, right], [top, bottom]] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
+    let [[left, right], [top, bottom]] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
+
+    if (this.model.dimensions == "width") {
+      top = -1e9
+      bottom = 1e9
+    } else if (this.model.dimensions == "height") {
+      left = -1e9
+      right = 1e9
+    }
+
     this.model.overlay.update({left, right, top, bottom})
   }
 
