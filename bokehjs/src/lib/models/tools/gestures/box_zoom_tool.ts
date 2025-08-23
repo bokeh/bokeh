@@ -11,8 +11,6 @@ import type {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import * as icons from "styles/icons.css"
 import type {Coordinate} from "models/coordinates/coordinate"
-
-
 type Point = [number, number]
 
 export class BoxZoomToolView extends GestureToolView {
@@ -142,12 +140,10 @@ export class BoxZoomToolView extends GestureToolView {
       this._base_point = [sx, sy]
     }
   }
-
   override _pan(ev: PanEvent): void {
     if (this._base_point == null) {
       return
     }
-
     const [x_limits, y_limits] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
     let [left, right]: [number | Coordinate, number | Coordinate] = x_limits
     let [top, bottom]: [number | Coordinate, number | Coordinate] = y_limits
@@ -159,7 +155,6 @@ export class BoxZoomToolView extends GestureToolView {
       left = undefined as any
       right = undefined as any
     }
-
     this.model.overlay.update({left, right, top, bottom})
   }
   override _pan_end(ev: PanEvent): void {
