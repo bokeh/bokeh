@@ -15,7 +15,7 @@ import {Signal0} from "core/signaling"
 import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
-import {copy} from "core/util/array"
+import {copy, clear} from "core/util/array"
 import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
@@ -92,13 +92,7 @@ export class Document implements Equatable {
   /** @experimental */
   views_manager?: ViewManager
 
-  private _config: DocumentConfig | null = null
-  get config(): DocumentConfig {
-    if (this._config == null) {
-      this._config = new DocumentConfig()
-    }
-    return this._config
-  }
+  config: DocumentConfig = new DocumentConfig()
 
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
@@ -107,6 +101,7 @@ export class Document implements Equatable {
   protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: HasProps[]
+  protected _internal_roots: HasProps[] = []
   protected _all_models: Map<ID, HasProps>
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
@@ -179,6 +174,7 @@ export class Document implements Equatable {
       while (this._roots.length > 0) {
         this.remove_root(this._roots[0], {sync})
       }
+      clear(this._internal_roots)
     } finally {
       this._pop_all_models_freeze()
     }
@@ -227,7 +223,9 @@ export class Document implements Equatable {
     // we have to remove ALL roots before adding any
     // to the new doc or else models referenced from multiple
     // roots could be in both docs at once, which isn't allowed.
+    const {config} = this
     const roots = copy(this._roots)
+
     this.clear({sync: false})
 
     for (const root of roots) {
@@ -239,6 +237,8 @@ export class Document implements Equatable {
     if (this._all_models.size != 0) {
       throw new Error(`this._all_models still had stuff in it: ${this._all_models}`)
     }
+
+    dest_doc.config = config
 
     for (const root of roots) {
       dest_doc.add_root(root)
@@ -326,7 +326,10 @@ export class Document implements Equatable {
 
   get internal_roots(): HasProps[] {
     const {notifications} = this.config
-    return notifications != null ? [notifications] : []
+    if (notifications != null && !this._internal_roots.includes(notifications)) {
+      this._internal_roots.push(notifications)
+    }
+    return [...this._internal_roots]
   }
 
   get all_roots(): HasProps[] {
@@ -553,7 +556,12 @@ export class Document implements Equatable {
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
-    doc._config = deserializer.decode(doc_json.config) as DocumentConfig | undefined ?? null
+    const config = deserializer.decode(doc_json.config)
+    assert(config instanceof DocumentConfig || config == null)
+    if (config != null) {
+      doc.config = config
+    }
+
     const roots = deserializer.decode(doc_json.roots) as Model[]
 
     const callbacks = (() => {
