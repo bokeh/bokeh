@@ -7375,7 +7375,7 @@
     action: null,
   },
   Notifications: {
-    __extends__: "Model",
+    __extends__: "UIElement",
   },
   Panel: {
     __extends__: "Pane",

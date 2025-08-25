@@ -35,6 +35,20 @@
             type: "set",
           },
           syncable: true,
+          html_attributes: {
+            type: "map",
+          },
+          html_id: null,
+          css_classes: [],
+          css_variables: {
+            type: "map",
+          },
+          styles: {
+            type: "map",
+          },
+          stylesheets: [],
+          visible: true,
+          context_menu: null,
         },
       },
     },

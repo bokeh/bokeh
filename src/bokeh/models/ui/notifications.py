@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...model import Model
+from ...models.ui import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Notifications(Model):
+class Notifications(UIElement):
     """ Allows to display global notifications (in browser's viewport). """
 
     # explicit __init__ to support Init signatures
