@@ -1,0 +1,19 @@
+.. _release-3-7-3:
+
+3.7.3
+=====
+
+Bokeh version ``3.7.3`` (May 2025) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Fixed Legend's rendering when scaling or on high DPI displays (:bokeh-pull:`14443`)
+* Fixed Legend's inactive visuals in CSS mode (:bokeh-pull:`14454`)
+* Fixed Legend's positioning in side panels (:bokeh-pull:`14457`)
+* Allowed to update child views without removing their elements (:bokeh-pull:`14459`)
+* Updated `DatetimeTickFormatter`'s documentation (:bokeh-pull:`14452`)
+* Fixed CodePen template in the documentation (:bokeh-pull:`14471`)
+* Fixed type declarations of ``Figure``'s properties (:bokeh-pull:`14401`)
+* Improved corner case handling in datetime formatter (:bokeh-pull:`14473`)

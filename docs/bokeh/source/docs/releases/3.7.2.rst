@@ -1,0 +1,12 @@
+.. _release-3-7-2:
+
+3.7.2
+=====
+
+Bokeh version ``3.7.2`` (March 2025) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Fixed a regression in application of layout styles during updates (:bokeh-pull:`14437`)
