@@ -136,6 +136,17 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _attribution: Panel
   protected _notifications: Panel
 
+  get title(): string {
+    if (this._title == null) {
+      return ""
+    } else if (isString(this._title.text)) {
+      return this._title.text
+    } else {
+      // this._title.text is instance of BaseText
+      return this._title.text.text
+    }
+  }
+
   get toolbar_panel(): ToolbarPanelView | null {
     return this._toolbar != null ? this.views.find_one(this._toolbar) : null
   }

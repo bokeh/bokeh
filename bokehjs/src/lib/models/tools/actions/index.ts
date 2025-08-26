@@ -1,5 +1,6 @@
 export {ActionTool}     from "./action_tool"
 export {CopyTool}       from "./copy_tool"
+export {CsvTool}        from "./csv_tool"
 export {CustomAction}   from "./custom_action"
 export {FullscreenTool} from "./fullscreen_tool"
 export {HelpTool}       from "./help_tool"

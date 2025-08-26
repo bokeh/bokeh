@@ -32,6 +32,7 @@ import type {UndoTool} from "./actions/undo_tool"
 import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
+import type {CsvTool} from "./actions/csv_tool"
 
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
@@ -71,6 +72,7 @@ export type ToolAliases = {
   redo:         RedoTool
   reset:        ResetTool
   help:         HelpTool
+  csv:          CsvTool
 }
 
 export type EventRole = EventType | "multi"
@@ -186,7 +188,13 @@ export abstract class Tool extends Model {
 
   abstract tool_button(): ToolButton
 
+  _menu_item?: MenuItem
+
   menu_item(): MenuItem {
+    if (this._menu_item != null) {
+      return this._menu_item
+    }
+
     const item = new MenuItem({
       icon: this.computed_icon,
       label: this.tool_name,
@@ -200,6 +208,8 @@ export abstract class Tool extends Model {
     if (submenu != null) {
       item.menu = new Menu({items: submenu})
     }
+
+    this._menu_item = item
     return item
   }
 

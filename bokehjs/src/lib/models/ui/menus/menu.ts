@@ -44,6 +44,7 @@ export class MenuView extends UIElementView {
   }
   protected _update_menu_items(): void {
     this._menu_items = this._compute_menu_items()
+    void this.build_submenus()
   }
 
   get is_empty(): boolean {
@@ -57,6 +58,10 @@ export class MenuView extends UIElementView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+    await this.build_submenus()
+  }
+
+  async build_submenus(): Promise<void> {
     const menus = this.menu_items
       .filter((item) => item instanceof MenuItem)
       .map((item) => item.menu)

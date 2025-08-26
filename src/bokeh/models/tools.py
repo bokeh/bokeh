@@ -126,6 +126,7 @@ __all__ = (
     'ClickPanTool',
     'CopyTool',
     'CrosshairTool',
+    'CsvTool',
     'CustomAction',
     'CustomJSHover',
     'Drag',
@@ -866,6 +867,17 @@ class SaveTool(ActionTool):
     needed). If a filename is not provided or set to None, the user is prompted
     for a filename at save time.
     """)
+
+class CsvTool(ActionTool):
+    ''' *toolbar icon*: |save_icon|
+
+    The CSV Tool...
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
 
 class CopyTool(ActionTool):
     ''' *toolbar icon*: |copy_icon|
@@ -2178,6 +2190,7 @@ Tool.register_alias("xbox_zoom", lambda: BoxZoomTool(dimensions="width"))
 Tool.register_alias("ybox_zoom", lambda: BoxZoomTool(dimensions="height"))
 Tool.register_alias("auto_box_zoom", lambda: BoxZoomTool(dimensions="auto"))
 Tool.register_alias("save", lambda: SaveTool())
+Tool.register_alias("csv", lambda: CsvTool())
 Tool.register_alias("copy", lambda: CopyTool())
 Tool.register_alias("undo", lambda: UndoTool())
 Tool.register_alias("redo", lambda: RedoTool())
