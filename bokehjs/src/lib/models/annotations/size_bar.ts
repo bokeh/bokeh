@@ -55,6 +55,8 @@ class InternalPlotView extends PlotView {
   protected override _make_layout(): BorderLayout {
     return new InternalBorderLayout()
   }
+
+  override _after_resize(): void {}
 }
 
 namespace InternalPlot {
