@@ -15,7 +15,7 @@ import {Signal0} from "core/signaling"
 import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
-import {copy, clear} from "core/util/array"
+import {copy} from "core/util/array"
 import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
@@ -92,8 +92,6 @@ export class Document implements Equatable {
   /** @experimental */
   views_manager?: ViewManager
 
-  config: DocumentConfig = new DocumentConfig()
-
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 
@@ -101,7 +99,6 @@ export class Document implements Equatable {
   protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: HasProps[]
-  protected _internal_roots: HasProps[] = []
   protected _all_models: Map<ID, HasProps>
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
@@ -113,6 +110,15 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
+
+  private _config?: DocumentConfig
+  get config(): DocumentConfig {
+    assert(this._config != null, "configuration is missing")
+    return this._config
+  }
+  set config(config: DocumentConfig) {
+    this.freeze_all_models(() => this._config = config)
+  }
 
   constructor(options: DocumentOptions = {}) {
     documents.push(this)
@@ -139,6 +145,7 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
+    this.config = new DocumentConfig()
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -151,7 +158,7 @@ export class Document implements Equatable {
 
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
-    for (const root of this.all_roots) {
+    for (const root of this.roots()) {
       if (!this._idle_roots.has(root)) {
         return false
       }
@@ -159,12 +166,17 @@ export class Document implements Equatable {
     return true
   }
 
+  private _notified_idle: boolean = false
   notify_idle(model: HasProps): void {
+    if (this._notified_idle || !this.roots().includes(model)) {
+      return
+    }
     this._idle_roots.add(model)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
       this.event_manager.send_event(new DocumentReady())
       this.idle.emit()
+      this._notified_idle = true
     }
   }
 
@@ -174,7 +186,7 @@ export class Document implements Equatable {
       while (this._roots.length > 0) {
         this.remove_root(this._roots[0], {sync})
       }
-      clear(this._internal_roots)
+      this._config = undefined
     } finally {
       this._pop_all_models_freeze()
     }
@@ -225,10 +237,9 @@ export class Document implements Equatable {
     // roots could be in both docs at once, which isn't allowed.
     const {config} = this
     const roots = copy(this._roots)
-
     this.clear({sync: false})
 
-    for (const root of roots) {
+    for (const root of [...roots, config]) {
       if (root.document != null) {
         throw new Error(`Somehow we didn't detach ${root}`)
       }
@@ -248,6 +259,15 @@ export class Document implements Equatable {
   }
 
   private _hold_models_freeze: boolean = false
+
+  freeze_all_models(fn: () => void): void {
+    this._push_all_models_freeze()
+    try {
+      fn()
+    } finally {
+      this._pop_all_models_freeze()
+    }
+  }
 
   protected _push_all_models_freeze(): void {
     if (this._hold_models_freeze) {
@@ -324,16 +344,12 @@ export class Document implements Equatable {
     this._schedule_recompute_all_models()
   }
 
-  get internal_roots(): HasProps[] {
-    const {notifications} = this.config
-    if (notifications != null && !this._internal_roots.includes(notifications)) {
-      this._internal_roots.push(notifications)
-    }
-    return [...this._internal_roots]
-  }
-
   get all_roots(): HasProps[] {
-    return [...this._roots, ...this.internal_roots]
+    const all_roots = [...this._roots]
+    if (this._config != null) {
+      all_roots.push(this._config)
+    }
+    return all_roots
   }
 
   roots(): HasProps[] {
