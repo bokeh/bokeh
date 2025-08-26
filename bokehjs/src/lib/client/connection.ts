@@ -139,9 +139,13 @@ export class ClientConnection {
   }
 
   protected async _schedule_reconnect(milliseconds: number): Promise<void> {
+    if (this.session == null) {
+      return
+    }
+
     await defer() // avoid connection lost notification on page reload
 
-    const {document} = this.session!
+    const {document} = this.session
     const should_reconnect = document.config.reconnect_session && this._reconnection_attempts_left > 0
     const timeout = should_reconnect ? milliseconds : null
     const event = new ConnectionLost(new WeakRef(this), this.reconnection_attempts, timeout)
