@@ -127,31 +127,49 @@ class Settings(Subcommand):
     )
 
     def invoke(self, args: Namespace) -> None:
-        '''
-
+        ''' Handle the "bokeh settings" command behavior.
         '''
         all_settings = get_all_settings()
 
+        # Case 1: Verbose requested without a specific setting -> print all with details
+        if args.verbose and not args.setting_name:
+            for name, descriptor in all_settings.items():
+                self._print_setting_detail(name, descriptor)
+            return
+
+        # Case 2: Specific setting requested
         if args.setting_name:
             if args.setting_name in all_settings:
+                descriptor = all_settings[args.setting_name]
                 if args.verbose:
-                    self._print_setting_detail(args.setting_name, all_settings[args.setting_name])
+                    # Verbose + setting -> detailed info
+                    self._print_setting_detail(args.setting_name, descriptor)
                 else:
-                    print("To get detailed help for a specific setting, use:")
-                    print("  bokeh settings [-v | --verbose] <setting_name>")
-                    print("\nFor a list of all settings, use:")
-                    print("  bokeh settings")
+                    # Basic info
+                    print()
+                    print(f"Setting: {args.setting_name}")
+                    print("=" * 60)
+                    print(f"Current Value: {descriptor()}")
+                    print(f"Environment Variable: {descriptor.env_var}")
+                    print("\nHelp:")
+                    print(f"{descriptor.help.strip()}")
             else:
+                print()
                 print(f"Setting '{args.setting_name}' not found.")
+                print()
                 print("Available settings:")
                 for name in sorted(all_settings):
                     print(f"  {name}")
-        else:
-            self._print_settings_table(all_settings)
+                print()
+            return
+
+        # Case 3: No args -> print summary table
+        self._print_settings_table(all_settings)
 
     def _print_settings_table(self, all_settings: dict[str, PrioritizedSetting[Any]]) -> None:
         ''' Print all settings in a table format.
         '''
+        print()
         print("Bokeh Settings:")
         print("=" * 80)
         print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
@@ -161,11 +179,13 @@ class Settings(Subcommand):
             print(f"{name:<30} {descriptor.env_var:<35} {descriptor()!s:<25}")
 
         print("-" * 80)
+        print()
 
     def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
         ''' Print detailed help for a specific setting.
         '''
         ''' Print all settings in a table format. '''
+        print()
         print(f"Setting: {setting_name}")
         print("=" * 60)
         print(f"Current Value: {descriptor()}")
@@ -175,6 +195,7 @@ class Settings(Subcommand):
         print(f"Environment Variable: {descriptor.env_var}")
         print("\nHelp:")
         print(f"{descriptor.help.strip()}")
+        print()
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -92,7 +92,7 @@ def test_run_shows_table(capsys: Capture) -> None:
     main(["bokeh", "settings"])
     out, err = capsys.readouterr()
     assert err == ""
-    assert out.startswith("Bokeh Settings:\n")
+    assert out.startswith("\nBokeh Settings:\n")
     assert "Setting" in out and "Environment Variable" in out and "Value" in out
 
     output_settings = parse_settings_table(out)
@@ -112,14 +112,18 @@ def test_run_shows_table(capsys: Capture) -> None:
         assert printed_value.strip() == current_value.strip(), f"Value mismatch for {name}"
 
 
-def test_run_guidance_when_name_without_detail(capsys: Capture) -> None:
+def test_run_basic_info_specific_setting(capsys: Capture) -> None:
     main(["bokeh", "settings", "log_level"])
     out, err = capsys.readouterr()
     assert err == ""
-    assert "To get detailed help for a specific setting, use:" in out
-    assert "  bokeh settings [-v | --verbose] <setting_name>" in out
-    assert "For a list of all settings, use:" in out
-    assert "bokeh settings" in out
+
+    assert "Setting: log_level" in out
+    assert "Current Value:" in out
+    assert "Environment Variable: BOKEH_LOG_LEVEL" in out
+    assert "Help:" in out
+
+    assert "Default Value:" not in out
+    assert "Dev Default:" not in out
 
 
 def test_run_detail_specific_setting(capsys: Capture) -> None:
@@ -133,6 +137,16 @@ def test_run_detail_specific_setting(capsys: Capture) -> None:
     assert "Dev Default: debug" in out
     assert "Help:" in out
 
+
+def test_run_detail_all_settings(capsys: Capture) -> None:
+    main(["bokeh", "settings", "-v"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting: log_level" in out
+    assert "Default Value:" in out
+    assert "Environment Variable:" in out
+    assert "Help:" in out
 
 def test_run_detail_invalid_setting(capsys: Capture) -> None:
     main(["bokeh", "settings", "-v", "__does_not_exist__"])
