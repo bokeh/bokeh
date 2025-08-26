@@ -7,6 +7,7 @@ import {Receiver} from "protocol/receiver"
 import type {ErrorMsg} from "./session"
 import {ClientSession} from "./session"
 import {assert} from "core/util/assert"
+import {defer} from "core/util/defer"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"
@@ -137,7 +138,9 @@ export class ClientConnection {
     }
   }
 
-  protected _schedule_reconnect(milliseconds: number): void {
+  protected async _schedule_reconnect(milliseconds: number): Promise<void> {
+    await defer() // avoid connection lost notification on page reload
+
     const {document} = this.session!
     const should_reconnect = document.config.reconnect_session && this._reconnection_attempts_left > 0
     const timeout = should_reconnect ? milliseconds : null
@@ -265,7 +268,7 @@ export class ClientConnection {
 
     if (!this.closed_permanently) {
       logger.debug(`Pending schedule_reconnect for ${this._number}`)
-      this._schedule_reconnect(this._reconnect_delay())
+      void this._schedule_reconnect(this._reconnect_delay())
     }
 
     reject(new Error(`Lost websocket connection, ${event.code} (${event.reason})`))
