@@ -95,11 +95,8 @@ export class DialogView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible, content} = this.model.properties
+    const {visible} = this.model.properties
     this.connect(visible.change, () => this._toggle(this.model.visible))
-    this.connect(content.change, () => {
-      void this.lazy_initialize().then(() => this.render())
-    })
   }
 
   override remove(): void {
