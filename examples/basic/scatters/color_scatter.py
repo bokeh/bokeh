@@ -11,7 +11,7 @@ import numpy as np
 
 from bokeh.plotting import figure, show
 
-N = 1000
+N = 4000
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
