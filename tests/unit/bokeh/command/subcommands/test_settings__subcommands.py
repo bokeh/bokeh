@@ -148,6 +148,7 @@ def test_run_detail_all_settings(capsys: Capture) -> None:
     assert "Environment Variable:" in out
     assert "Help:" in out
 
+
 def test_run_detail_invalid_setting(capsys: Capture) -> None:
     main(["bokeh", "settings", "-v", "__does_not_exist__"])
     out, err = capsys.readouterr()
@@ -156,6 +157,36 @@ def test_run_detail_invalid_setting(capsys: Capture) -> None:
     assert "Setting '__does_not_exist__' not found." in out
     assert "Available settings:" in out
     assert "log_level" in out
+
+
+def test_run_substring_match(capsys: Capture) -> None:
+    main(["bokeh", "settings", "host"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting: default_server_host" in out
+    assert "Current Value:" in out
+    assert "Environment Variable: BOKEH_DEFAULT_SERVER_HOST" in out
+
+
+def test_run_multiple_matches(capsys: Capture) -> None:
+    main(["bokeh", "settings", "server"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Multiple matches found for 'server':" in out
+    assert "default_server_host" in out
+    assert "default_server_port" in out
+
+
+def test_run_fuzzy_typo_match(capsys: Capture) -> None:
+    main(["bokeh", "settings", "lgo_levl"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Did you mean one of these?" in out
+    assert "log_level" in out
+    assert "py_log_level" in out
 
 #-----------------------------------------------------------------------------
 # Private API

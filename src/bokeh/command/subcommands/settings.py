@@ -83,6 +83,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from argparse import Namespace
 from typing import Any
+from difflib import get_close_matches
 
 # Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset
@@ -139,28 +140,59 @@ class Settings(Subcommand):
 
         # Case 2: Specific setting requested
         if args.setting_name:
-            if args.setting_name in all_settings:
-                descriptor = all_settings[args.setting_name]
+            name = args.setting_name
+            matches = []
+
+            if name in all_settings:
+                matches = [name]
+            else:
+                # substring matches (more intuitive than only difflib)
+                substring_matches = [k for k in all_settings if name.lower() in k.lower()]
+                if len(substring_matches) == 1:
+                    matches = substring_matches
+                elif len(substring_matches) > 1:
+                    print()
+                    print(f"Multiple matches found for '{name}':")
+                    for m in sorted(substring_matches):
+                        print(f"  {m}")
+                    print()
+                    return
+                else:
+                    # fallback to fuzzy (difflib)
+                    close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
+                    if close:
+                        print()
+                        print("Did you mean one of these?")
+                        for c in close:
+                            print(f"  {c}")
+                        print()
+                        return
+
+            if matches:
+                setting_name = matches[0]
+                descriptor = all_settings[setting_name]
                 if args.verbose:
                     # Verbose + setting -> detailed info
-                    self._print_setting_detail(args.setting_name, descriptor)
+                    self._print_setting_detail(setting_name, descriptor)
                 else:
                     # Basic info
                     print()
-                    print(f"Setting: {args.setting_name}")
+                    print(f"Setting: {setting_name}")
                     print("=" * 60)
                     print(f"Current Value: {descriptor()}")
                     print(f"Environment Variable: {descriptor.env_var}")
                     print("\nHelp:")
                     print(f"{descriptor.help.strip()}")
-            else:
-                print()
-                print(f"Setting '{args.setting_name}' not found.")
-                print()
-                print("Available settings:")
-                for name in sorted(all_settings):
-                    print(f"  {name}")
-                print()
+                return
+
+            # no matches at all
+            print()
+            print(f"Setting '{name}' not found.")
+            print()
+            print("Available settings:")
+            for n in sorted(all_settings):
+                print(f"  {n}")
+            print()
             return
 
         # Case 3: No args -> print summary table
