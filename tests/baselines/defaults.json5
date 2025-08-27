@@ -145,6 +145,16 @@
       value: 1.2,
     },
   },
+  DocumentConfig: {
+    __extends__: "Model",
+    reconnect_session: true,
+    notify_connection_status: true,
+    notifications: {
+      type: "object",
+      name: "Notifications",
+      attributes: {},
+    },
+  },
   DataModel: {
     __extends__: "Model",
   },
@@ -7363,6 +7373,9 @@
     tooltip: null,
     disabled: false,
     action: null,
+  },
+  Notifications: {
+    __extends__: "UIElement",
   },
   Panel: {
     __extends__: "Pane",

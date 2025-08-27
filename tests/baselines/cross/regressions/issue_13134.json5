@@ -1,4 +1,16 @@
 {
+  config: {
+    type: "object",
+    name: "DocumentConfig",
+    id: "p1023",
+    attributes: {
+      notifications: {
+        type: "object",
+        name: "Notifications",
+        id: "p1024",
+      },
+    },
+  },
   roots: [
     {
       type: "object",

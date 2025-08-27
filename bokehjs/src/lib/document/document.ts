@@ -22,6 +22,7 @@ import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import {assert} from "core/util/assert"
 import {Model} from "model"
+import {DocumentConfig} from "./config"
 import type {ModelDef} from "./defs"
 import {decode_def} from "./defs"
 import type {BokehEvent, BokehEventType, BokehEventMap} from "core/bokeh_events"
@@ -30,7 +31,6 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
-import {Notifications} from "../models/ui/notifications"
 
 Deserializer.register("model", decode_def)
 
@@ -67,6 +67,7 @@ export type DocJson = {
   version?: string
   title?: string
   defs?: ModelDef[]
+  config?: ModelRep
   roots: ModelRep[]
   callbacks?: {[key: string]: ModelRep[]}
 }
@@ -109,7 +110,15 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
-  protected _notifications: Notifications
+
+  private _config?: DocumentConfig
+  get config(): DocumentConfig {
+    assert(this._config != null, "configuration is missing")
+    return this._config
+  }
+  set config(config: DocumentConfig) {
+    this.freeze_all_models(() => this._config = config)
+  }
 
   constructor(options: DocumentOptions = {}) {
     documents.push(this)
@@ -136,8 +145,7 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
-    this._notifications = new Notifications()
-    this._notifications.attach_document(this)
+    this.config = new DocumentConfig()
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -150,7 +158,7 @@ export class Document implements Equatable {
 
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
-    for (const root of this.all_roots) {
+    for (const root of this.roots()) {
       if (!this._idle_roots.has(root)) {
         return false
       }
@@ -158,12 +166,17 @@ export class Document implements Equatable {
     return true
   }
 
+  private _notified_idle: boolean = false
   notify_idle(model: HasProps): void {
+    if (this._notified_idle || !this.roots().includes(model)) {
+      return
+    }
     this._idle_roots.add(model)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
       this.event_manager.send_event(new DocumentReady())
       this.idle.emit()
+      this._notified_idle = true
     }
   }
 
@@ -173,6 +186,7 @@ export class Document implements Equatable {
       while (this._roots.length > 0) {
         this.remove_root(this._roots[0], {sync})
       }
+      this._config = undefined
     } finally {
       this._pop_all_models_freeze()
     }
@@ -221,10 +235,11 @@ export class Document implements Equatable {
     // we have to remove ALL roots before adding any
     // to the new doc or else models referenced from multiple
     // roots could be in both docs at once, which isn't allowed.
+    const {config} = this
     const roots = copy(this._roots)
     this.clear({sync: false})
 
-    for (const root of roots) {
+    for (const root of [...roots, config]) {
       if (root.document != null) {
         throw new Error(`Somehow we didn't detach ${root}`)
       }
@@ -234,6 +249,8 @@ export class Document implements Equatable {
       throw new Error(`this._all_models still had stuff in it: ${this._all_models}`)
     }
 
+    dest_doc.config = config
+
     for (const root of roots) {
       dest_doc.add_root(root)
     }
@@ -242,6 +259,15 @@ export class Document implements Equatable {
   }
 
   private _hold_models_freeze: boolean = false
+
+  freeze_all_models(fn: () => void): void {
+    this._push_all_models_freeze()
+    try {
+      fn()
+    } finally {
+      this._pop_all_models_freeze()
+    }
+  }
 
   protected _push_all_models_freeze(): void {
     if (this._hold_models_freeze) {
@@ -285,7 +311,7 @@ export class Document implements Equatable {
     this._cancel_recompute_all_models()
 
     let new_all_models_set = new Set<HasProps>()
-    for (const r of this._roots) {
+    for (const r of this.all_roots) {
       new_all_models_set = sets.union(new_all_models_set, r.references())
     }
     const old_all_models_set = new Set(this._all_models.values())
@@ -318,12 +344,12 @@ export class Document implements Equatable {
     this._schedule_recompute_all_models()
   }
 
-  get internal_roots(): HasProps[] {
-    return [this._notifications]
-  }
-
   get all_roots(): HasProps[] {
-    return [...this._roots, ...this.internal_roots]
+    const all_roots = [...this._roots]
+    if (this._config != null) {
+      all_roots.push(this._config)
+    }
+    return all_roots
   }
 
   roots(): HasProps[] {
@@ -494,10 +520,12 @@ export class Document implements Equatable {
 
   to_json(include_defaults: boolean = true): DocJson {
     const serializer = new Serializer({include_defaults})
+    const config = serializer.encode(this.config)
     const roots = serializer.encode(this._roots)
     return {
       version: js_version,
       title: this._title,
+      config,
       roots,
     }
   }
@@ -543,6 +571,12 @@ export class Document implements Equatable {
     doc.on_change(listener, true)
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
+
+    const config = deserializer.decode(doc_json.config)
+    assert(config instanceof DocumentConfig || config == null)
+    if (config != null) {
+      doc.config = config
+    }
 
     const roots = deserializer.decode(doc_json.roots) as Model[]
 
