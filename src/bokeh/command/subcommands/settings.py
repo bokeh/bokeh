@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 '''
-
 To display all available Bokeh settings and their current values,
 type ``bokeh settings`` on the command line.
 
@@ -13,7 +12,7 @@ type ``bokeh settings`` on the command line.
 
     bokeh settings
 
-This will print all settings to standard output, such as:
+This will print all settings to standard output in a table format, such as:
 
 .. code-block:: none
 
@@ -21,51 +20,37 @@ This will print all settings to standard output, such as:
     ==========================================================================
     Setting                      Environment Variable              Value
     --------------------------------------------------------------------------
-    allowed_ws_origin            BOKEH_ALLOW_WS_ORIGIN             []
-    auth_module                  BOKEH_AUTH_MODULE                 None
-    browser                      BOKEH_BROWSER                     None
-    cdn_version                  BOKEH_CDN_VERSION                 None
-    chromedriver_path            BOKEH_CHROMEDRIVER_PATH           None
-    compression_level            BOKEH_COMPRESSION_LEVEL           9
-    cookie_secret                BOKEH_COOKIE_SECRET               None
-    default_server_host          BOKEH_DEFAULT_SERVER_HOST         localhost
-    default_server_port          BOKEH_DEFAULT_SERVER_PORT         5006
-    docs_cdn                     BOKEH_DOCS_CDN                    None
-    docs_version                 BOKEH_DOCS_VERSION                None
-    ico_path                     BOKEH_ICO_PATH                    /path/to/ico
-    ignore_filename              BOKEH_IGNORE_FILENAME             False
     log_level                    BOKEH_LOG_LEVEL                   info
     minified                     BOKEH_MINIFIED                    True
-    nodejs_path                  BOKEH_NODEJS_PATH                 None
-    perform_document_validation  BOKEH_VALIDATE_DOC                True
-    pretty                       BOKEH_PRETTY                      False
-    py_log_level                 BOKEH_PY_LOG_LEVEL                None
-    resources                    BOKEH_RESOURCES                   cdn
-    rootdir                      BOKEH_ROOTDIR                     None
-    secret_key                   BOKEH_SECRET_KEY                  None
-    serialize_include_defaults   BOKEH_SERIALIZE_INCLUDE_DEFAULTS  False
-    sign_sessions                BOKEH_SIGN_SESSIONS               False
-    simple_ids                   BOKEH_SIMPLE_IDS                  True
-    ssl_certfile                 BOKEH_SSL_CERTFILE                None
-    ssl_keyfile                  BOKEH_SSL_KEYFILE                 None
-    ssl_password                 BOKEH_SSL_PASSWORD                None
-    validation_level             BOKEH_VALIDATION_LEVEL            none
-    xsrf_cookies                 BOKEH_XSRF_COOKIES                False
-    --------------------------------------------------------------------------
+    browser                      BOKEH_BROWSER                     None
+    ...
 
-This will display all available Bokeh settings in a table format with their
-current values and environment variables.
+To get detailed help for one or more specific settings, provide their names:
 
-To get detailed help for a specific setting, use the -v option:
+.. code-block:: sh
+
+    bokeh settings log_level minified
+
+This will show the current value, environment variable, and help text for
+each requested setting.
+
+Use the ``-v`` option for verbose output with additional details:
 
 .. code-block:: sh
 
     bokeh settings -v log_level
-    bokeh settings -v minified
+    bokeh settings -v log_level browser
 
-This will show detailed information about the specified setting including its
-help text, default values, and current value.
+If a setting name is not an exact match, substring and fuzzy matching
+will be used to suggest possible candidates:
 
+.. code-block:: sh
+
+    bokeh settings logg
+
+    Did you mean one of these?
+      log_level
+      py_log_level
 '''
 
 #-----------------------------------------------------------------------------
