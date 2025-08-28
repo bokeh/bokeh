@@ -61,9 +61,9 @@ def test_args() -> None:
             action="store_true",
             help="Show detailed help for a specific setting",
         )),
-        ('setting_name', Argument(
-            nargs='?',
-            help="Name of a specific setting to show detailed help for (use with -v)",
+        ('setting_names', Argument(
+            nargs='*',
+            help="One or more specific settings to show info for (use with -v for details)",
         )),
     )
 
@@ -184,9 +184,22 @@ def test_run_fuzzy_typo_match(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
 
+    assert "Setting 'lgo_levl' not found." in out
     assert "Did you mean one of these?" in out
     assert "log_level" in out
     assert "py_log_level" in out
+
+
+def test_run_multiple_inputs(capsys: Capture) -> None:
+    main(["bokeh", "settings", "log_level", "servr_hst"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting: log_level" in out
+
+    assert "Setting 'servr_hst' not found." in out
+    assert "Did you mean one of these?" in out
+    assert "default_server_host" in out
 
 #-----------------------------------------------------------------------------
 # Private API

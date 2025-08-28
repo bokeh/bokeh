@@ -120,9 +120,9 @@ class Settings(Subcommand):
             help="Show detailed help for a specific setting",
         )),
 
-        ('setting_name', Argument(
-            nargs='?',
-            help="Name of a specific setting to show detailed help for (use with -v)",
+        ('setting_names', Argument(
+            nargs='*',
+            help="One or more specific settings to show info for (use with -v for details)",
         )),
 
     )
@@ -133,66 +133,67 @@ class Settings(Subcommand):
         all_settings = get_all_settings()
 
         # Case 1: Verbose requested without a specific setting -> print all with details
-        if args.verbose and not args.setting_name:
+        if args.verbose and not args.setting_names:
             for name, descriptor in all_settings.items():
                 self._print_setting_detail(name, descriptor)
             return
 
         # Case 2: Specific setting requested
-        if args.setting_name:
-            name = args.setting_name
-            matches = []
+        if args.setting_names:
+            for name in args.setting_names:
+                matches = []
 
-            if name in all_settings:
-                matches = [name]
-            else:
-                # substring matches (more intuitive than only difflib)
-                substring_matches = [k for k in all_settings if name.lower() in k.lower()]
-                if len(substring_matches) == 1:
-                    matches = substring_matches
-                elif len(substring_matches) > 1:
-                    print()
-                    print(f"Multiple matches found for '{name}':")
-                    for m in sorted(substring_matches):
-                        print(f"  {m}")
-                    print()
-                    return
+                if name in all_settings:
+                    matches = [name]
                 else:
-                    # fallback to fuzzy (difflib)
-                    close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
-                    if close:
+                    # substring matches (more intuitive than only difflib)
+                    substring_matches = [k for k in all_settings if name.lower() in k.lower()]
+                    if len(substring_matches) == 1:
+                        matches = substring_matches
+                    elif len(substring_matches) > 1:
                         print()
-                        print("Did you mean one of these?")
-                        for c in close:
-                            print(f"  {c}")
+                        print(f"Multiple matches found for '{name}':")
+                        for m in sorted(substring_matches):
+                            print(f"  {m}")
                         print()
-                        return
+                        continue
+                    else:
+                        # fuzzy fallback
+                        close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
+                        if close:
+                            print()
+                            print(f"Setting '{name}' not found.")
+                            print("Did you mean one of these?")
+                            for c in close:
+                                print(f"  {c}")
+                            print()
+                            continue
 
-            if matches:
-                setting_name = matches[0]
-                descriptor = all_settings[setting_name]
-                if args.verbose:
-                    # Verbose + setting -> detailed info
-                    self._print_setting_detail(setting_name, descriptor)
-                else:
-                    # Basic info
+                if matches:
+                    setting_name = matches[0]
+                    descriptor = all_settings[setting_name]
+                    if args.verbose:
+                        # Verbose + setting -> detailed info
+                        self._print_setting_detail(setting_name, descriptor)
+                    else:
+                        # Basic info
+                        print()
+                        print(f"Setting: {setting_name}")
+                        print("=" * 60)
+                        print(f"Current Value: {descriptor()}")
+                        print(f"Environment Variable: {descriptor.env_var}")
+                        print("\nHelp:")
+                        print(f"{descriptor.help.strip()}")
                     print()
-                    print(f"Setting: {setting_name}")
-                    print("=" * 60)
-                    print(f"Current Value: {descriptor()}")
-                    print(f"Environment Variable: {descriptor.env_var}")
-                    print("\nHelp:")
-                    print(f"{descriptor.help.strip()}")
-                return
-
-            # no matches at all
-            print()
-            print(f"Setting '{name}' not found.")
-            print()
-            print("Available settings:")
-            for n in sorted(all_settings):
-                print(f"  {n}")
-            print()
+                else:
+                    # no matches at all
+                    print()
+                    print(f"Setting '{name}' not found.")
+                    print()
+                    print("Available settings:")
+                    for n in sorted(all_settings):
+                        print(f"  {n}")
+                    print()
             return
 
         # Case 3: No args -> print summary table
