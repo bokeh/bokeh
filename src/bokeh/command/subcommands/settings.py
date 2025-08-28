@@ -66,9 +66,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from difflib import get_close_matches
 from argparse import Namespace
 from typing import Any
-from difflib import get_close_matches
 
 # Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset
