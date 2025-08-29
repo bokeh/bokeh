@@ -52,6 +52,7 @@ log = logging.getLogger(__name__)
 from . import errors, warnings
 from .check import (
     check_integrity,
+    is_silenced,
     process_validation_issues,
     silence,
     silenced,
@@ -66,6 +67,7 @@ __all__ = (
     "check_integrity",
     "error",
     "errors",
+    "is_silenced",
     "process_validation_issues",
     "silence",
     "silenced",
