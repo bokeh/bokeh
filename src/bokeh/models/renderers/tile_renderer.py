@@ -25,7 +25,7 @@ from typing import Any
 # Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.override import Override
-from ...core.property.primitive import Bool, Float
+from ...core.property.primitive import Bool, Float, String
 from ..tiles import TileSource, WMTSTileSource
 from .renderer import Renderer
 

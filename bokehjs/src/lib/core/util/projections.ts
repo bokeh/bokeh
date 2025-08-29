@@ -37,6 +37,32 @@ const latlon_bounds = {
   lat: [-85.06, 85.06],
 }
 
+export function compute_web_mercator_projection(data_coordinate_system: string, x: number, y: number): [number, number] {
+  const data_projection = new Projection(data_coordinate_system)
+  const web_mercator_projection = new Projection("GOOGLE")
+
+  const proj = proj4(data_projection, web_mercator_projection)
+
+  if (isFinite(x) && isFinite(y)) {
+    return proj.forward([x, y])
+  } else {
+    return [NaN, NaN]
+  }
+}
+
+export function invert_web_mercator_projection(data_coordinate_system: string, x_web_mercator: number, y_web_mercator: number): [number, number] {
+  const data_projection = new Projection(data_coordinate_system)
+  const web_mercator_projection = new Projection("GOOGLE")
+
+  const proj = proj4(data_projection, web_mercator_projection)
+
+  if (isFinite(x_web_mercator) && isFinite(y_web_mercator)) {
+    return proj.inverse([x_web_mercator, y_web_mercator])
+  } else {
+    return [NaN, NaN]
+  }
+}
+
 const {min, max} = Math
 
 export function clip_mercator(low: number, high: number, dimension: LatLon): [number, number] {

@@ -33,6 +33,9 @@ import {
   LogAxis,
   LogScale,
   MercatorAxis,
+  MercatorLatitudeAxis,
+  MercatorLatitudeScale,
+  MercatorLongitudeAxis,
   Range,
   Range1d,
   TimedeltaAxis,
@@ -59,7 +62,7 @@ const _default_color = "#1f77b4"
 
 const _default_alpha = 1.0
 
-export type AxisType = "auto" | "linear" | "datetime" | "timedelta" | "log" | "mercator" | null
+export type AxisType = "auto" | "linear" | "datetime" | "timedelta" | "log" | "mercator" | "mercator_lat" | "mercator_lon" | null
 export type AxisLocation = Location | null
 
 export namespace Figure {
@@ -654,7 +657,10 @@ export class Figure extends BaseFigure {
         case "datetime":
         case "timedelta":
         case "mercator":
+        case "mercator_lon":
           return new LinearScale()
+        case "mercator_lat":
+          return new MercatorLatitudeScale()
         case "log":
           return new LogScale()
       }
@@ -676,6 +682,12 @@ export class Figure extends BaseFigure {
           this.x_scale = new LogScale()
         } else {
           this.y_scale = new LogScale()
+        }
+      }
+
+      if (axis instanceof MercatorLatitudeAxis) {
+        if (dim == 1) {
+          this.y_scale = new MercatorLatitudeScale()
         }
       }
 
@@ -711,6 +723,12 @@ export class Figure extends BaseFigure {
         axis.ticker.dimension = dimension
         axis.formatter.dimension = dimension
         return axis
+      }
+      case "mercator_lat": {
+        return new MercatorLatitudeAxis()
+      }
+      case "mercator_lon": {
+        return new MercatorLongitudeAxis()
       }
       case "auto":
         if (range instanceof FactorRange) {

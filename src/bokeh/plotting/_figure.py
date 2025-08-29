@@ -811,7 +811,7 @@ RangeLike = Either(
     PandasGroupBy,
 )
 
-AxisType = Nullable(Either(Auto, Enum("linear", "log", "datetime", "timedelta", "mercator")))
+AxisType = Nullable(Either(Auto, Enum("linear", "log", "datetime", "timedelta", "mercator", "mercator_lat", "mercator_lon")))
 
 class FigureOptions(BaseFigureOptions):
 

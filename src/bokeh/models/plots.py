@@ -70,7 +70,7 @@ from ..core.validation.errors import (
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from .annotations import Annotation, Legend, Title
-from .axes import Axis
+from .axes import Axis, MercatorLongitudeAxis, MercatorLatitudeAxis
 from .dom import HTML
 from .glyphs import Glyph
 from .grids import Grid
@@ -436,6 +436,10 @@ class Plot(LayoutDOM):
                 max_zoom=selected_provider.get("max_zoom", 30),
             )
 
+        if isinstance(self.xaxis[0], MercatorLongitudeAxis) and isinstance(self.yaxis[0], MercatorLatitudeAxis):
+            # assume longitude and latitude data input based on axis
+            kwargs["data_coordinate_system"] = "WGS84"
+        # add data coordinate system
         tile_renderer = TileRenderer(tile_source=tile_source, **kwargs)
         self.renderers.append(tile_renderer)
         return tile_renderer
@@ -479,6 +483,7 @@ class Plot(LayoutDOM):
 
         if self.x_scale is not None:
             for rng in x_ranges:
+                # TODO mercator
                 if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.x_scale, LinearScale | LogScale):
                     incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):

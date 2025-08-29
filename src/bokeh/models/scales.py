@@ -38,6 +38,7 @@ __all__ = (
     'CompositeScale',
     'LinearScale',
     'LogScale',
+    'MercatorLatitudeScale',
     'Scale',
 )
 
@@ -98,6 +99,15 @@ class LinearScale(ContinuousScale):
 
 class LogScale(ContinuousScale):
     ''' Represent a log scale transformation between continuous ranges.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+class MercatorLatitudeScale(ContinuousScale):
+    ''' TODO
 
     '''
 

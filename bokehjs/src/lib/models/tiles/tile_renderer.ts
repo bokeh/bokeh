@@ -12,6 +12,7 @@ import {ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import type {Context2d} from "core/util/canvas"
 import {logger} from "core/logging"
+import {compute_web_mercator_projection, invert_web_mercator_projection} from "core/util/projections"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -58,7 +59,9 @@ export class TileRendererView extends RendererView {
     if (!(isFinite(x_start) && isFinite(y_start) && isFinite(x_end) && isFinite(y_end))) {
       logger.warn("tile extent is not fully defined")
     }
-    return [x_start, y_start, x_end, y_end]
+    console.log(`extent x_start ${x_start}, y_start ${y_start}, x_end ${x_end}, y_end ${y_end}`)
+    console.log(`extent projected: ${this._compute_projection([x_start, y_start, x_end, y_end])}`)
+    return this._compute_projection([x_start, y_start, x_end, y_end])
   }
 
   private get x_range(): Range {
@@ -67,6 +70,28 @@ export class TileRendererView extends RendererView {
 
   private get y_range(): Range {
     return this.plot_model.y_range
+  }
+
+  _compute_projection(extent: Extent): Extent {
+    const {data_coordinate_system} = this.model
+
+    const [x_start, y_start, x_end, y_end] = extent
+    const [x_start_proj, y_start_proj] = compute_web_mercator_projection(data_coordinate_system, x_start, y_start)
+    const [x_end_proj] = compute_web_mercator_projection(data_coordinate_system, x_end, y_start)
+    const [, y_end_proj] = compute_web_mercator_projection(data_coordinate_system, x_start, y_end)
+
+    return [x_start_proj, y_start_proj, x_end_proj, y_end_proj]
+  }
+
+  _invert_projection(extent: Extent): Extent {
+    const {data_coordinate_system} = this.model
+    const [x_start_proj, y_start_proj, x_end_proj, y_end_proj] = extent
+
+    const [x_start, y_start] = invert_web_mercator_projection(data_coordinate_system, x_start_proj, y_start_proj)
+    const [x_end] = invert_web_mercator_projection(data_coordinate_system, x_end_proj, y_start_proj)
+    const [, y_end] = invert_web_mercator_projection(data_coordinate_system, x_start_proj, y_end_proj)
+
+    return [x_start, y_start, x_end, y_end]
   }
 
   protected _set_data(): void {
@@ -84,17 +109,19 @@ export class TileRendererView extends RendererView {
     const {width, height} = this.plot_view.frame.bbox
     const zoom_level = this.model.tile_source.get_level_by_extent(this.initial_extent, height, width)
     const new_extent = this.model.tile_source.snap_to_zoom_level(this.initial_extent, height, width, zoom_level)
-    this.x_range.start = new_extent[0]
-    this.y_range.start = new_extent[1]
-    this.x_range.end = new_extent[2]
-    this.y_range.end = new_extent[3]
+    const new_extent_inv = this._invert_projection(new_extent)
+    console.log(`_map_data ${new_extent_inv}`)
+    this.x_range.start = new_extent_inv[0]
+    this.y_range.start = new_extent_inv[1]
+    this.x_range.end = new_extent_inv[2]
+    this.y_range.end = new_extent_inv[3]
     if (this.x_range instanceof Range1d) {
-      this.x_range.reset_start = new_extent[0]
-      this.x_range.reset_end = new_extent[2]
+      this.x_range.reset_start = new_extent_inv[0]
+      this.x_range.reset_end = new_extent_inv[2]
     }
     if (this.y_range instanceof Range1d) {
-      this.y_range.reset_start = new_extent[1]
-      this.y_range.reset_end = new_extent[3]
+      this.y_range.reset_start = new_extent_inv[1]
+      this.y_range.reset_end = new_extent_inv[3]
     }
   }
 
@@ -109,17 +136,19 @@ export class TileRendererView extends RendererView {
     const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z)
     const src = this.model.tile_source.get_image_url(nx, ny, nz)
 
+    const bounds_proj = this._invert_projection(bounds)
+
     const tile: TileData = {
       img: undefined,
       tile_coords: [x, y, z],
       normalized_coords: [nx, ny, nz],
       quadkey,
       cache_key,
-      bounds,
+      bounds: bounds_proj,
       loaded: false,
       finished: false,
-      x_coord: bounds[0],
-      y_coord: bounds[3],
+      x_coord: bounds_proj[0],
+      y_coord: bounds_proj[3],
     }
 
     this.model.tile_source.tiles.set(cache_key, tile)
@@ -159,9 +188,10 @@ export class TileRendererView extends RendererView {
         }
         return tile_source.snap_to_zoom_level(extent, height, width, zoom_level)
       })()
-      this.x_range.setv({start: new_extent[0], end: new_extent[2]})
-      this.y_range.setv({start: new_extent[1], end: new_extent[3]})
       this.extent = new_extent
+      const new_extent_inv = this._invert_projection(new_extent)
+      this.x_range.setv({start: new_extent_inv[0], end: new_extent_inv[2]})
+      this.y_range.setv({start: new_extent_inv[1], end: new_extent_inv[3]})
       this._last_width = width
       this._last_height = height
     }
@@ -209,6 +239,7 @@ export class TileRendererView extends RendererView {
   _draw_tile(ctx: Context2d, tile_key: string): void {
     const tile_data = this.model.tile_source.tiles.get(tile_key) as TileData | undefined
     if (tile_data != null && tile_data.loaded) {
+      console.log(`tiledata bounds ${tile_data.bounds}`)
       const [[sxmin], [symin]] = this.coordinates.map_to_screen([tile_data.bounds[0]], [tile_data.bounds[3]])
       const [[sxmax], [symax]] = this.coordinates.map_to_screen([tile_data.bounds[2]], [tile_data.bounds[1]])
       const sw = sxmax - sxmin
@@ -250,6 +281,7 @@ export class TileRendererView extends RendererView {
     const h = this.plot_view.frame.bbox.height
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w)
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level)
+    console.log(`_prefetch_tiles zoom_level ${zoom_level}, ${tiles}`)
     for (let t = 0, end = Math.min(10, tiles.length); t < end; t++) {
       const [x, y, z] = tiles[t]
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z)
@@ -294,9 +326,11 @@ export class TileRendererView extends RendererView {
       snap_back = true
     }
 
+    const extent_inv = this._invert_projection(extent)
+
     if (snap_back) {
-      this.x_range.setv({start: extent[0], end: extent[2]})
-      this.y_range.setv({start: extent[1], end: extent[3]})
+      this.x_range.setv({start: extent_inv[0], end: extent_inv[2]})
+      this.y_range.setv({start: extent_inv[1], end: extent_inv[3]})
     }
 
     this.extent = extent
@@ -362,6 +396,7 @@ export namespace TileRenderer {
     smoothing: p.Property<boolean>
     tile_source: p.Property<TileSource>
     render_parents: p.Property<boolean>
+    data_coordinate_system: p.Property<string>
   }
 }
 
@@ -378,11 +413,12 @@ export class TileRenderer extends Renderer {
   static {
     this.prototype.default_view = TileRendererView
 
-    this.define<TileRenderer.Props>(({Bool, Float, Ref}) => ({
+    this.define<TileRenderer.Props>(({Bool, Float, Ref, Str}) => ({
       alpha:          [ Float, 1.0 ],
       smoothing:      [ Bool, true ],
       tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
       render_parents: [ Bool, true ],
+      data_coordinate_system: [ Str, "GOOGLE"],
     }))
 
     this.override<TileRenderer.Props>({
