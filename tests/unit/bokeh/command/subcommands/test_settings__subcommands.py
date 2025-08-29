@@ -174,7 +174,6 @@ def test_run_multiple_matches(capsys: Capture) -> None:
     out, err = capsys.readouterr()
     assert err == ""
 
-    assert "Multiple matches found for 'server':" in out
     assert "default_server_host" in out
     assert "default_server_port" in out
 

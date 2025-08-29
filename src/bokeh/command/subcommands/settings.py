@@ -67,6 +67,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from argparse import Namespace
+from dataclasses import dataclass, field
 from difflib import get_close_matches
 from typing import Any
 
@@ -84,6 +85,38 @@ from ..subcommand import Argument, Subcommand
 __all__ = (
     'Settings',
 )
+
+#-----------------------------------------------------------------------------
+# Helpers
+#-----------------------------------------------------------------------------
+
+@dataclass
+class ResolutionResult:
+    exact_matches: list[str] = field(default_factory=list)
+    fuzzy_matches: dict[str, list[str]] = field(default_factory=dict)
+    not_found: list[str] = field(default_factory=list)
+
+
+def resolve_setting_names(input_names: list[str], all_settings: dict[str, Any]) -> ResolutionResult:
+    """Resolve user-supplied setting names into matches against all_settings."""
+    result = ResolutionResult()
+
+    for name in input_names:
+        if name in all_settings:
+            result.exact_matches.append(name)
+            continue
+
+        substring_matches = [k for k in all_settings if name.lower() in k.lower()]
+        if substring_matches:
+            result.exact_matches.extend(substring_matches)
+        else:
+            close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
+            if close:
+                result.fuzzy_matches[name] = close
+            else:
+                result.not_found.append(name)
+
+    return result
 
 #-----------------------------------------------------------------------------
 # General API
@@ -117,72 +150,50 @@ class Settings(Subcommand):
         '''
         all_settings = get_all_settings()
 
-        # Case 1: Verbose requested without a specific setting -> print all with details
         if args.verbose and not args.setting_names:
             for name, descriptor in all_settings.items():
                 self._print_setting_detail(name, descriptor)
-            return
 
-        # Case 2: Specific setting requested
-        if args.setting_names:
-            for name in args.setting_names:
-                matches = []
+        elif args.setting_names:
+            resolved = resolve_setting_names(args.setting_names, all_settings)
+            self._print_resolved_settings(resolved, all_settings, args.verbose)
 
-                if name in all_settings:
-                    matches = [name]
-                else:
-                    # substring matches (more intuitive than only difflib)
-                    substring_matches = [k for k in all_settings if name.lower() in k.lower()]
-                    if len(substring_matches) == 1:
-                        matches = substring_matches
-                    elif len(substring_matches) > 1:
-                        print()
-                        print(f"Multiple matches found for '{name}':")
-                        for m in sorted(substring_matches):
-                            print(f"  {m}")
-                        print()
-                        continue
-                    else:
-                        # fuzzy fallback
-                        close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
-                        if close:
-                            print()
-                            print(f"Setting '{name}' not found.")
-                            print("Did you mean one of these?")
-                            for c in close:
-                                print(f"  {c}")
-                            print()
-                            continue
+        else:
+            self._print_settings_table(all_settings)
 
-                if matches:
-                    setting_name = matches[0]
-                    descriptor = all_settings[setting_name]
-                    if args.verbose:
-                        # Verbose + setting -> detailed info
-                        self._print_setting_detail(setting_name, descriptor)
-                    else:
-                        # Basic info
-                        print()
-                        print(f"Setting: {setting_name}")
-                        print("=" * 60)
-                        print(f"Current Value: {descriptor()}")
-                        print(f"Environment Variable: {descriptor.env_var}")
-                        print("\nHelp:")
-                        print(f"{descriptor.help.strip()}")
-                    print()
-                else:
-                    # no matches at all
-                    print()
-                    print(f"Setting '{name}' not found.")
-                    print()
-                    print("Available settings:")
-                    for n in sorted(all_settings):
-                        print(f"  {n}")
-                    print()
-            return
 
-        # Case 3: No args -> print summary table
-        self._print_settings_table(all_settings)
+    def _print_resolved_settings(
+        self, resolved: ResolutionResult, all_settings: dict[str, PrioritizedSetting[Any]], verbose: bool,
+    ) -> None:
+        """Print results from resolve_setting_names()."""
+
+
+        # Fuzzy matches
+        for name, close in resolved.fuzzy_matches.items():
+            print()
+            print(f"Setting '{name}' not found.")
+            print("Did you mean one of these?")
+            for c in close:
+                print(f"  {c}")
+            print()
+
+        # Not found
+        for name in resolved.not_found:
+            print()
+            print(f"Setting '{name}' not found.")
+            print()
+            print("Available settings:")
+            for n in sorted(all_settings):
+                print(f"  {n}")
+            print()
+
+        to_print = sorted(set(resolved.exact_matches))
+        for setting_name in to_print:
+            descriptor = all_settings[setting_name]
+            if verbose:
+                self._print_setting_detail(setting_name, descriptor)
+            else:
+                self._print_setting_basic(setting_name, descriptor)
 
     def _print_settings_table(self, all_settings: dict[str, PrioritizedSetting[Any]]) -> None:
         ''' Print all settings in a table format.
@@ -199,10 +210,20 @@ class Settings(Subcommand):
         print("-" * 80)
         print()
 
+    def _print_setting_basic(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
+        ''' Print basic info for a specific setting. '''
+        print()
+        print(f"Setting: {setting_name}")
+        print("=" * 60)
+        print(f"Current Value: {descriptor()}")
+        print(f"Environment Variable: {descriptor.env_var}")
+        print("\nHelp:")
+        print(f"{descriptor.help.strip()}")
+        print()
+
     def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
         ''' Print detailed help for a specific setting.
         '''
-        ''' Print all settings in a table format. '''
         print()
         print(f"Setting: {setting_name}")
         print("=" * 60)
