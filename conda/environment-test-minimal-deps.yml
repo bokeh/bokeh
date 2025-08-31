@@ -62,7 +62,7 @@ dependencies:
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon
-    - sphinxext-opengraph
+    - sphinxext-opengraph >= 0.11.0
     # tests
     - ruff ==0.11.6
     - types-boto3

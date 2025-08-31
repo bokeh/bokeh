@@ -42,4 +42,4 @@ dependencies:
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon
-    - sphinxext-opengraph
+    - sphinxext-opengraph >= 0.11.0

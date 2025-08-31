@@ -74,7 +74,7 @@ dependencies:
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon
-    - sphinxext-opengraph
+    - sphinxext-opengraph >= 0.11.0
     # tests
     - pandas-stubs >=2.2
     - ruff ==0.12.3
