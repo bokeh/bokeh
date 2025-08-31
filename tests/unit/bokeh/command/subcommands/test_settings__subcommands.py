@@ -132,9 +132,11 @@ def test_run_detail_specific_setting(capsys: Capture) -> None:
     assert err == ""
 
     assert "Setting: log_level" in out
-    assert "Environment Variable: BOKEH_LOG_LEVEL" in out
+    assert "Current Value: info" in out
+    assert "Source: Global default" in out
     assert "Default Value: info" in out
     assert "Dev Default: debug" in out
+    assert "Environment Variable: BOKEH_LOG_LEVEL" in out
     assert "Help:" in out
 
 
@@ -144,7 +146,10 @@ def test_run_detail_all_settings(capsys: Capture) -> None:
     assert err == ""
 
     assert "Setting: log_level" in out
+    assert "Current Value:" in out
+    assert "Source:" in out
     assert "Default Value:" in out
+    assert "Dev Default:" in out
     assert "Environment Variable:" in out
     assert "Help:" in out
 

@@ -228,6 +228,7 @@ class Settings(Subcommand):
         print(f"Setting: {setting_name}")
         print("=" * 60)
         print(f"Current Value: {descriptor()}")
+        print(f"Source: {descriptor.provenance_display}")
         print(f"Default Value: {descriptor.default}")
         if descriptor.dev_default is not _Unset:
             print(f"Dev Default: {descriptor.dev_default}")
