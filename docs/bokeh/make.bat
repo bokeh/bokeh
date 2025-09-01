@@ -30,6 +30,7 @@ if "%1" == "clean" (
 	rmdir %BUILDDIR% /s /q
 	del /q /s source\docs\gallery\*
 	del /q /s source\docs\examples\*
+	del /q /s source\_images\icons\*.svg
 	goto end
 )
 
@@ -38,6 +39,7 @@ if "%1" == "all" (
 )
 
 if "%1" == "html" (
+	xcopy ..\..\bokehjs\src\less\icons\* source\_images\icons\ /y
 	%SPHINXBUILD% -W -b html %ALLSPHINXOPTS% %BUILDDIR%\html
 	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h /y
 	if errorlevel 1 exit /b 1

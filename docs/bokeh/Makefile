@@ -17,7 +17,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf source/docs/gallery/*
 	-rm -rf source/docs/examples/*
-	-rm -rf source/_images/icons/*
+	-rm -rf source/_images/icons/*.svg
 
 html:
 	@start=$$(date +%s) \
