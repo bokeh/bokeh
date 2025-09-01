@@ -43,6 +43,7 @@ __silencers__: set[Warning] = set()
 
 __all__ = (
     'check_integrity',
+    'is_silenced',
     'silence',
     'silenced',
 )
