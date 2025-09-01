@@ -384,7 +384,7 @@ class Document:
             patch: PatchJson = deserializer.deserialize(patch_json)
         except UnknownReferenceError as error:
             if self.models.seen(error.id):
-                logging.warning(f"""\
+                logging.debug(f"""\
 Dropping a patch because it contains a previously known reference (id={error.id!r}). \
 Most of the time this is harmless and usually a result of updating a model on one \
 side of a communications channel while it was being removed on the other end.\

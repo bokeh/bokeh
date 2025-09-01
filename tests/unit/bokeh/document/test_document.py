@@ -990,7 +990,7 @@ class TestDocument:
             references=[],
         )
 
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.DEBUG):
             assert len(caplog.records) == 0
             doc.apply_json_patch(patch)
             assert len(caplog.records) == 1
