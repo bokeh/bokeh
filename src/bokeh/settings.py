@@ -117,8 +117,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from enum import Enum, auto
 import os
+from enum import Enum, auto
 from os.path import join
 from pathlib import Path
 from typing import (

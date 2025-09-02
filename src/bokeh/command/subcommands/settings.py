@@ -72,6 +72,9 @@ from difflib import get_close_matches
 from jinja2 import Template
 from typing import Any
 
+# External imports
+from jinja2 import Template
+
 # Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset
 from bokeh.util.settings import get_all_settings
