@@ -69,7 +69,6 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 from dataclasses import dataclass, field
 from difflib import get_close_matches
-from jinja2 import Template
 from typing import Any
 
 # External imports
