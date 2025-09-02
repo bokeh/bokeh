@@ -69,6 +69,7 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 from dataclasses import dataclass, field
 from difflib import get_close_matches
+from jinja2 import Template
 from typing import Any
 
 # Bokeh imports
@@ -87,40 +88,57 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
-# Helpers
-#-----------------------------------------------------------------------------
-
-@dataclass
-class ResolutionResult:
-    exact_matches: list[str] = field(default_factory=list)
-    fuzzy_matches: dict[str, list[str]] = field(default_factory=dict)
-    not_found: list[str] = field(default_factory=list)
-
-
-def resolve_setting_names(input_names: list[str], all_settings: dict[str, Any]) -> ResolutionResult:
-    """Resolve user-supplied setting names into matches against all_settings."""
-    result = ResolutionResult()
-
-    for name in input_names:
-        if name in all_settings:
-            result.exact_matches.append(name)
-            continue
-
-        substring_matches = [k for k in all_settings if name.lower() in k.lower()]
-        if substring_matches:
-            result.exact_matches.extend(substring_matches)
-        else:
-            close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
-            if close:
-                result.fuzzy_matches[name] = close
-            else:
-                result.not_found.append(name)
-
-    return result
-
-#-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+SETTINGS_TABLE_TEMPLATE = Template("""
+Bokeh Settings:
+{{ "=" * 80 }}
+{{ "{:<30} {:<35} {:<25}".format("Setting", "Environment Variable", "Value") }}
+{{ "-" * 80 }}
+{%- for name, env_var, value in rows %}
+{{ "{:<30} {:<35} {:<25}".format(name, env_var, value) }}
+{%- endfor %}
+{{ "-" * 80 }}
+
+""")
+
+SETTING_TEMPLATE = Template("""
+Setting: {{ name }}
+{{ "=" * 60 }}
+Current Value: {{ current_value }}
+{%- if verbose %}
+Source: {{ source }}
+Default Value: {{ default }}
+{%- if dev_default is not none %}
+Dev Default: {{ dev_default }}
+{%- endif %}
+{%- endif %}
+Environment Variable: {{ env_var }}
+
+Help:
+{{ help }}
+
+""")
+
+FUZZY_MATCH_TEMPLATE = Template("""
+Setting '{{ name }}' not found.
+Did you mean one of these?
+{%- for c in close %}
+  {{ c }}
+{%- endfor %}
+
+""")
+
+NOT_FOUND_TEMPLATE = Template("""
+Setting '{{ name }}' not found.
+
+Available settings:
+{%- for n in all_names %}
+  {{ n }}
+{%- endfor %}
+
+""")
 
 class Settings(Subcommand):
     ''' Subcommand to print information about Bokeh settings.
@@ -152,7 +170,7 @@ class Settings(Subcommand):
 
         if args.verbose and not args.setting_names:
             for name, descriptor in all_settings.items():
-                self._print_setting_detail(name, descriptor)
+                self._print_setting(name, descriptor, verbose=True)
 
         elif args.setting_names:
             resolved = resolve_setting_names(args.setting_names, all_settings)
@@ -167,79 +185,71 @@ class Settings(Subcommand):
     ) -> None:
         """Print results from resolve_setting_names()."""
 
-
         # Fuzzy matches
         for name, close in resolved.fuzzy_matches.items():
-            print()
-            print(f"Setting '{name}' not found.")
-            print("Did you mean one of these?")
-            for c in close:
-                print(f"  {c}")
-            print()
+            print(FUZZY_MATCH_TEMPLATE.render(name=name, close=close))
 
         # Not found
         for name in resolved.not_found:
-            print()
-            print(f"Setting '{name}' not found.")
-            print()
-            print("Available settings:")
-            for n in sorted(all_settings):
-                print(f"  {n}")
-            print()
+            print(NOT_FOUND_TEMPLATE.render(name=name, all_names=sorted(all_settings)))
 
+        # Exact matches
         to_print = sorted(set(resolved.exact_matches))
         for setting_name in to_print:
             descriptor = all_settings[setting_name]
-            if verbose:
-                self._print_setting_detail(setting_name, descriptor)
-            else:
-                self._print_setting_basic(setting_name, descriptor)
+            self._print_setting(setting_name, descriptor, verbose)
 
     def _print_settings_table(self, all_settings: dict[str, PrioritizedSetting[Any]]) -> None:
         ''' Print all settings in a table format.
         '''
-        print()
-        print("Bokeh Settings:")
-        print("=" * 80)
-        print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
-        print("-" * 80)
+        rows = [(name, desc.env_var, str(desc())) for name, desc in all_settings.items()]
+        print(SETTINGS_TABLE_TEMPLATE.render(rows=rows))
 
-        for name, descriptor in all_settings.items():
-            print(f"{name:<30} {descriptor.env_var:<35} {descriptor()!s:<25}")
-
-        print("-" * 80)
-        print()
-
-    def _print_setting_basic(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
-        ''' Print basic info for a specific setting. '''
-        print()
-        print(f"Setting: {setting_name}")
-        print("=" * 60)
-        print(f"Current Value: {descriptor()}")
-        print(f"Environment Variable: {descriptor.env_var}")
-        print("\nHelp:")
-        print(f"{descriptor.help.strip()}")
-        print()
-
-    def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
-        ''' Print detailed help for a specific setting.
-        '''
-        print()
-        print(f"Setting: {setting_name}")
-        print("=" * 60)
-        print(f"Current Value: {descriptor()}")
-        print(f"Source: {descriptor.provenance_display}")
-        print(f"Default Value: {descriptor.default}")
-        if descriptor.dev_default is not _Unset:
-            print(f"Dev Default: {descriptor.dev_default}")
-        print(f"Environment Variable: {descriptor.env_var}")
-        print("\nHelp:")
-        print(f"{descriptor.help.strip()}")
-        print()
+    def _print_setting(self, setting_name: str, descriptor: PrioritizedSetting[Any], verbose: bool) -> None:
+        ''' Print info (basic or detailed) for a specific setting using one template. '''
+        context = {
+            "name": setting_name,
+            "current_value": descriptor(),
+            "source": descriptor.provenance_display,
+            "default": descriptor.default,
+            "dev_default": descriptor.dev_default if descriptor.dev_default is not _Unset else None,
+            "env_var": descriptor.env_var,
+            "help": descriptor.help.strip(),
+            "verbose": verbose,
+        }
+        print(SETTING_TEMPLATE.render(**context))
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@dataclass
+class ResolutionResult:
+    exact_matches: list[str] = field(default_factory=list)
+    fuzzy_matches: dict[str, list[str]] = field(default_factory=dict)
+    not_found: list[str] = field(default_factory=list)
+
+
+def resolve_setting_names(input_names: list[str], all_settings: dict[str, Any]) -> ResolutionResult:
+    """Resolve user-supplied setting names into matches against all_settings."""
+    result = ResolutionResult()
+
+    for name in input_names:
+        if name in all_settings:
+            result.exact_matches.append(name)
+            continue
+
+        substring_matches = [k for k in all_settings if name.lower() in k.lower()]
+        if substring_matches:
+            result.exact_matches.extend(substring_matches)
+        else:
+            close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
+            if close:
+                result.fuzzy_matches[name] = close
+            else:
+                result.not_found.append(name)
+
+    return result
 
 #-----------------------------------------------------------------------------
 # Private API
