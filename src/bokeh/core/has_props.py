@@ -52,7 +52,7 @@ else:
 
 # Bokeh imports
 from ..settings import settings
-from ..util.strings import append_docstring, nice_join
+from ..util.strings import append_docstring
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -377,6 +377,8 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         if not matches:
             matches, text = sorted(properties), "possible"
+
+        from ..util.strings import nice_join
 
         raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 

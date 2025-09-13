@@ -73,7 +73,6 @@ from ..core.validation.errors import (
 )
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
-from ..util.strings import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .dom import HTML
@@ -302,6 +301,8 @@ class Plot(LayoutDOM):
 
         '''
         if place not in Place:
+            from ..util.strings import nice_join
+
             raise ValueError(
                 f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}",
             )
@@ -347,6 +348,8 @@ class Plot(LayoutDOM):
             if not isinstance(tool, Tool):
                 raise ValueError("All arguments to remove_tool must be Tool subclasses.")
             elif tool not in self.toolbar.tools:
+                from ..util.strings import nice_join
+
                 raise ValueError(f"Invalid tool {tool} specified. Available tools are {nice_join(self.toolbar.tools)}")
             self.toolbar.tools.remove(tool)
 

@@ -56,7 +56,6 @@ from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
 from ..themes import Theme, built_in_themes, default as default_theme
 from ..util.serialization import make_id
-from ..util.strings import nice_join
 from ..util.version import __version__
 from .callbacks import (
     Callback,
@@ -230,6 +229,8 @@ class Document:
             try:
                 theme = built_in_themes[theme]
             except KeyError:
+                from ..util.strings import nice_join
+
                 raise ValueError(f"{theme} is not a built-in theme; available themes are {nice_join(built_in_themes)}")
 
         if not isinstance(theme, Theme):

@@ -93,7 +93,6 @@ from ..core.property_aliases import IconLike
 from ..core.validation import error
 from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
-from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback, CustomJS
 from .common.properties import GlyphRendererOf
@@ -235,6 +234,9 @@ class Tool(Model):
             matches, text = difflib.get_close_matches(name.lower(), known_names), "similar"
             if not matches:
                 matches, text = known_names, "possible"
+
+            from ..util.strings import nice_join
+
             raise ValueError(f"unexpected tool name '{name}', {text} tools are {nice_join(matches)}")
 
     @classmethod

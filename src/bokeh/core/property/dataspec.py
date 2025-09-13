@@ -26,7 +26,6 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
-from ...util.strings import nice_join
 from .. import enums
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
@@ -430,6 +429,8 @@ class UnitsSpec(NumberSpec):
 
     def __init__(self, default, units_enum, units_default, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
+
+        from ...util.strings import nice_join
 
         units_type = NotSerialized(Enum(units_enum), default=units_default, help=f"""
         Units to use for the associated property: {nice_join(units_enum)}

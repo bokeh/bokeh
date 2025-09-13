@@ -50,7 +50,6 @@ from typing import Sequence
 # Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
-from bokeh.util.strings import nice_join
 
 # Bokeh imports
 from . import subcommands
@@ -92,6 +91,8 @@ def main(argv: Sequence[str]) -> None:
 
     '''
     if len(argv) == 1:
+        from bokeh.util.strings import nice_join
+
         die(f"Must specify subcommand, one of: {nice_join(x.name for x in subcommands.all)}")
 
     parser = argparse.ArgumentParser(
