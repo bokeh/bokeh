@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib.util
 from os.path import isfile
-from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -33,6 +32,8 @@ from tornado.web import RequestHandler
 from ..util.serialization import make_globally_unique_id
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from ..core.types import PathLike
 
 #-----------------------------------------------------------------------------

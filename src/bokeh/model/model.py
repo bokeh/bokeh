@@ -30,7 +30,6 @@ from ..core.has_props import HasProps, _default_resolver, abstract
 from ..core.property._sphinx import type_link
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
-from ..core.types import ID
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -47,6 +46,7 @@ if TYPE_CHECKING:
 
     from ..core.has_props import Setter
     from ..core.query import SelectorType
+    from ..core.types import ID
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
     from ..models.callbacks import (

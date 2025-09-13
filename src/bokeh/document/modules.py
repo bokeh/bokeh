@@ -24,10 +24,11 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 import weakref
-from types import ModuleType
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from .document import Document
 
 #-----------------------------------------------------------------------------

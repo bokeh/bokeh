@@ -33,7 +33,6 @@ from typing import (
 from weakref import WeakKeyDictionary
 
 # Bokeh imports
-from ..core.types import ID
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
@@ -44,6 +43,7 @@ from ..util.serialization import (
 )
 
 if TYPE_CHECKING:
+    from ..core.types import ID
     from ..document.document import DocJson
 
 #-----------------------------------------------------------------------------

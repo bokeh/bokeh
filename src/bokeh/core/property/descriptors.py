@@ -91,7 +91,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from types import FunctionType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -478,6 +477,8 @@ class PropertyDescriptor(Generic[T]):
 
     @classmethod
     def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
+        from types import FunctionType
+
         from .instance import InstanceDefault
         return isinstance(value, FunctionType | InstanceDefault)
 

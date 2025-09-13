@@ -25,11 +25,12 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Callable, Sequence
 
 # Bokeh imports
-from ..core.types import ID
 from ..util.tornado import _CallbackGroup
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
+
+    from ..core.types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants

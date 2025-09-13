@@ -53,7 +53,6 @@ from ..core.serialization import (
     UnknownReferenceError,
 )
 from ..core.templates import FILE
-from ..core.types import ID
 from ..core.validation import check_integrity, process_validation_issues
 from ..events import Event
 from ..model import Model
@@ -83,6 +82,7 @@ if TYPE_CHECKING:
     from ..application.application import SessionContext, SessionDestroyedCallback
     from ..core.has_props import Setter
     from ..core.query import SelectorType
+    from ..core.types import ID
     from ..server.callbacks import (
         NextTickCallback,
         PeriodicCallback,

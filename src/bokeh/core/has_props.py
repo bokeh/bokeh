@@ -67,7 +67,6 @@ from .serialization import (
     Serializable,
     Serializer,
 )
-from .types import ID
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -778,6 +777,7 @@ class ModelDef(TypedDict):
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model
+    from .types import ID
 
     ref = Ref(id=ID(cls.__qualified_model__))
     serializer.add_ref(cls, ref)

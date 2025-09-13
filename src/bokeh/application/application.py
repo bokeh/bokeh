@@ -40,13 +40,13 @@ from typing import (
 )
 
 # Bokeh imports
-from ..core.types import ID
 from ..document import Document
 from ..settings import settings
 
 if TYPE_CHECKING:
     from tornado.httputil import HTTPServerRequest
 
+    from ..core.types import ID
     from ..server.session import ServerSession
     from .handlers.handler import Handler
 

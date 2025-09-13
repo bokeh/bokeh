@@ -18,14 +18,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 # Bokeh imports
 from bokeh import __version__
 
 # Bokeh imports
-from ...core.types import ID
 from ..message import Message
+
+if TYPE_CHECKING:
+    from ...core.types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants

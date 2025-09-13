@@ -26,10 +26,8 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
-from ..core.types import ID
-
 if TYPE_CHECKING:
+    from ..core.types import ID
     from ..protocol.message import Message
     from .connection import ClientConnection
 

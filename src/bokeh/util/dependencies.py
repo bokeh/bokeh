@@ -22,8 +22,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from importlib import import_module
-from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -28,9 +28,9 @@ import yaml
 
 # Bokeh imports
 from ..core.has_props import HasProps
-from ..core.types import PathLike
 
 if TYPE_CHECKING:
+    from ..core.types import PathLike
     from ..model import Model
 
 #-----------------------------------------------------------------------------

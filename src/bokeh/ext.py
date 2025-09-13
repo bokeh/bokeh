@@ -20,12 +20,15 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from os import fspath
 from subprocess import Popen
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from . import __version__
-from .core.types import PathLike
 from .settings import settings
 from .util.compiler import _nodejs_path
+
+if TYPE_CHECKING:
+    from .core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants

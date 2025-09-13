@@ -37,12 +37,7 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import quote_plus
 
-## External imports
-if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
 # Bokeh imports
-from ..core.types import ID
 from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
 from ..util.browser import NEW_PARAM, BrowserLike, BrowserTarget
@@ -51,6 +46,9 @@ from .states import ErrorReason
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
+
+    from ..core.types import ID
     from ..document.events import (
         DocumentPatchedEvent,
         SessionCallbackAdded,

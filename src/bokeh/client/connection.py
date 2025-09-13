@@ -33,7 +33,6 @@ from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
-from ..core.types import ID
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
@@ -51,6 +50,7 @@ from .states import (
 from .websocket import WebSocketClientConnectionWrapper
 
 if TYPE_CHECKING:
+    from ..core.types import ID
     from ..document import Document
     from ..document.events import DocumentChangedEvent
     from ..protocol.message import Message

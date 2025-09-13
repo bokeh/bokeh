@@ -33,11 +33,7 @@ from typing import (
     cast,
 )
 
-if TYPE_CHECKING:
-    from selenium.webdriver.remote.webdriver import WebDriver
-
 # Bokeh imports
-from ..core.types import PathLike
 from ..document import Document
 from ..embed import file_html
 from ..model import Model
@@ -48,7 +44,9 @@ from .util import default_filename
 
 if TYPE_CHECKING:
     from PIL import Image
+    from selenium.webdriver.remote.webdriver import WebDriver
 
+    from ..core.types import PathLike
     from ..models.plots import Plot
     from ..models.ui import UIElement
 

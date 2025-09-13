@@ -23,10 +23,10 @@ from typing import TYPE_CHECKING
 # Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
 from bokeh.application.handlers.handler import Handler
-from bokeh.core.types import PathLike
 from bokeh.io.doc import curdoc, set_curdoc
 
 if TYPE_CHECKING:
+    from bokeh.core.types import PathLike
     from bokeh.document import Document
 
 # -----------------------------------------------------------------------------

@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 import gc
 import os
 from pprint import pformat
-from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -765,6 +764,8 @@ class BokehTornado(TornadoApplication):
             #     import pprint
             #     for i in range(10):
             #         print(i, objs[i], gc.get_referents(objs[i]))
+
+        from types import ModuleType
 
         objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
         log.debug(f"  uncollected modules: {len(objs)}")
