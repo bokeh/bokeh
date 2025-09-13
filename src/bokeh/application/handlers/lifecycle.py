@@ -22,12 +22,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
-from ...document import Document
-from ..application import ServerContext, SessionContext
 from .handler import Handler
+
+if TYPE_CHECKING:
+    from ...document import Document
+    from ..application import ServerContext, SessionContext
+
 
 #-----------------------------------------------------------------------------
 # Globals and constants

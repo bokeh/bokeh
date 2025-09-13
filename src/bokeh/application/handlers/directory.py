@@ -61,8 +61,6 @@ from typing import TYPE_CHECKING, Any, Coroutine
 from jinja2 import Environment, FileSystemLoader, Template
 
 # Bokeh imports
-from ...document import Document
-from ..application import ServerContext, SessionContext
 from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler
@@ -76,7 +74,9 @@ if TYPE_CHECKING:
     from tornado.httputil import HTTPServerRequest
 
     from ...core.types import PathLike
+    from ...document import Document
     from ...themes import Theme
+    from ..application import ServerContext, SessionContext
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -29,15 +29,17 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
-from ..models.ui import UIElement
-from ..resources import Resources, ResourcesLike
+from ..resources import Resources
 from ..settings import settings
-from ..themes import Theme
-from .state import State, curstate
+from .state import curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
+    from ..models.ui import UIElement
+    from ..resources import ResourcesLike
+    from ..themes import Theme
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants

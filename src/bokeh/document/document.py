@@ -54,8 +54,6 @@ from ..core.serialization import (
 )
 from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
-from ..events import Event
-from ..model import Model
 from ..themes import Theme, built_in_themes, default as default_theme
 from ..util.serialization import make_id
 from ..util.strings import nice_join
@@ -74,7 +72,6 @@ from .events import (
     RootRemovedEvent,
     TitleChangedEvent,
 )
-from .json import DocJson, PatchJson
 from .models import DocumentModelManager
 from .modules import DocumentModuleManager
 
@@ -83,6 +80,8 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..core.types import ID
+    from ..events import Event
+    from ..model import Model
     from ..server.callbacks import (
         NextTickCallback,
         PeriodicCallback,
@@ -90,6 +89,7 @@ if TYPE_CHECKING:
         TimeoutCallback,
     )
     from .events import DocumentChangeCallback
+    from .json import DocJson, PatchJson
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -735,6 +735,8 @@ side of a communications channel while it was being removed on the other end.\
             None
 
         '''
+        from ..model import Model
+
         if isinstance(selector, type) and issubclass(selector, Model):
             selector = dict(type=selector)
         for obj in self.select(selector):
@@ -758,6 +760,9 @@ side of a communications channel while it was being removed on the other end.\
             DocJson
 
         '''
+        from ..model import Model
+        from .json import DocJson
+
         data_models = [ model for model in Model.model_class_reverse_map.values() if is_DataModel(model) ]
 
         serializer = Serializer(deferred=deferred)

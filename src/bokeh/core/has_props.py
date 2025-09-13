@@ -50,9 +50,6 @@ if TYPE_CHECKING:
 else:
     from functools import lru_cache
 
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self
-
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring, nice_join
@@ -69,6 +66,8 @@ from .serialization import (
 )
 
 if TYPE_CHECKING:
+    from typing_extensions import NotRequired, Self
+
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property

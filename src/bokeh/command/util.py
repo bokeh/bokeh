@@ -26,18 +26,14 @@ import os
 import sys
 from typing import TYPE_CHECKING, Iterator
 
-if TYPE_CHECKING:
-    # External imports
-    from typing_extensions import Never
-
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import (
-    DirectoryHandler,
-    Handler,
-    NotebookHandler,
-    ScriptHandler,
-)
+from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
+
+if TYPE_CHECKING:
+    from typing_extensions import Never
+
+    from bokeh.application.handlers import Handler
 
 #-----------------------------------------------------------------------------
 # Globals and constants

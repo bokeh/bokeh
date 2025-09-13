@@ -34,12 +34,9 @@ from typing import (
 )
 
 # Bokeh imports
-from ..document import Document
 from ..embed import file_html
-from ..model import Model
-from ..resources import INLINE, Resources
-from ..themes import Theme
-from .state import State, curstate
+from ..resources import INLINE
+from .state import curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
@@ -47,8 +44,13 @@ if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
     from ..core.types import PathLike
+    from ..document import Document
+    from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
+    from ..resources import Resources
+    from ..themes import Theme
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -486,6 +488,8 @@ return [...collect_svgs(Bokeh.index)]
 """
 
 def _SVG_SCRIPT(obj: Model | Document) -> str:
+    from ..document import Document
+
     if isinstance(obj, Document):
         ids = [root.id for root in obj.roots]
     else:

@@ -29,7 +29,7 @@ from ..models import Legend, LegendItem
 from ..util.strings import nice_join
 
 if TYPE_CHECKING:
-    from .._specs import DataSpec
+    from ..core.property.dataspec import DataSpec
     from ..models import GlyphRenderer, Plot
     from ..models.glyph import Glyph
 

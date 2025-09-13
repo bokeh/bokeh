@@ -42,7 +42,6 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..application import Application
-from ..document import Document
 from ..model import Model
 from ..resources import Resources
 from ..settings import settings
@@ -52,7 +51,6 @@ from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
-from .session import ServerSession
 from .urls import per_app_patterns, toplevel_patterns
 from .views.ico_handler import IcoHandler
 from .views.root_handler import RootHandler
@@ -64,6 +62,7 @@ if TYPE_CHECKING:
     from ..core.types import ID
     from ..protocol import Protocol
     from .auth_provider import AuthProvider
+    from .session import ServerSession
     from .urls import RouteContext, URLRoutes
 
 #-----------------------------------------------------------------------------
@@ -754,6 +753,9 @@ class BokehTornado(TornadoApplication):
         # pprint.pprint(Counter([str(type(x)) for x in gc.get_objects() if "DataFrame" in str(type(x))]).most_common(30))
 
         all_objs = gc.get_objects()
+
+        from ..document import Document
+        from .session import ServerSession
 
         for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
             objs = [x for x in all_objs if isinstance(x, typ)]

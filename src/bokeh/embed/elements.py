@@ -40,13 +40,13 @@ from ..core.templates import (
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
 from ..util.serialization import make_globally_unique_css_safe_id
-from .util import RenderItem
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 
 if TYPE_CHECKING:
     from ..core.types import ID
     from ..document.document import DocJson
     from .bundle import Bundle
+    from .util import RenderItem
 
 #-----------------------------------------------------------------------------
 # Globals and constants

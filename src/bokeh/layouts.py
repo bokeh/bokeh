@@ -38,8 +38,8 @@ from typing import (
 )
 
 # Bokeh imports
-from .core.enums import Location, LocationType, SizingModeType
-from .core.property.singletons import Undefined, UndefinedType
+from .core.enums import Location
+from .core.property.singletons import Undefined
 from .models import (
     Column,
     CopyTool,
@@ -59,6 +59,12 @@ from .models import (
     UIElement,
 )
 
+if TYPE_CHECKING:
+    from .core.enums import LocationType, SizingModeType
+    from .core.property.singletons import UndefinedType
+
+    ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -71,9 +77,6 @@ __all__ = (
     'row',
     'Spacer',
 )
-
-if TYPE_CHECKING:
-    ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
 
 #-----------------------------------------------------------------------------
 # General API

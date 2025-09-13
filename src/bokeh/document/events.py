@@ -66,7 +66,7 @@ from typing import (
 )
 
 # Bokeh imports
-from ..core.serialization import Serializable, Serializer
+from ..core.serialization import Serializable
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -83,6 +83,7 @@ if TYPE_CHECKING:
     import pandas as pd
 
     from ..core.has_props import Setter
+    from ..core.serialization import Serializer
     from ..model import Model
     from ..models.sources import DataDict
     from ..protocol.message import BufferRef

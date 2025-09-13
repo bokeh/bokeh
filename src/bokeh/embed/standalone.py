@@ -44,7 +44,6 @@ from ..core.templates import (
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..resources import Resources, ResourcesLike
-from ..themes import Theme
 from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
 from .util import (
@@ -61,6 +60,12 @@ if TYPE_CHECKING:
 
     from ..core.types import ID
     from ..document.document import DocJson
+    from ..themes import Theme
+
+    ModelLike: TypeAlias = Model | Document
+    ModelLikeCollection: TypeAlias = Sequence[ModelLike] | dict[str, ModelLike]
+
+    ThemeLike: TypeAlias = None | Theme | type[FromCurdoc]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,14 +78,9 @@ __all__ = (
     'json_item',
 )
 
-ModelLike: TypeAlias = Model | Document
-ModelLikeCollection: TypeAlias = Sequence[ModelLike] | dict[str, ModelLike]
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-ThemeLike: TypeAlias = None | Theme | type[FromCurdoc]
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed

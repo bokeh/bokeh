@@ -46,7 +46,6 @@ from typing import (
 )
 
 # Bokeh imports
-from ...document import Document
 from ...io.doc import curdoc, patch_curdoc
 from .code_runner import CodeRunner
 from .handler import Handler
@@ -55,6 +54,7 @@ if TYPE_CHECKING:
     from types import ModuleType
 
     from ...core.types import PathLike
+    from ...document import Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -40,7 +40,6 @@ from typing import (
 # Bokeh imports
 from ...util.dependencies import uses_pandas
 from ...util.strings import nice_join
-from ..has_props import HasProps
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import PropertyDescriptor
@@ -53,6 +52,7 @@ from .singletons import (
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
+    from ..has_props import HasProps
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -355,6 +355,8 @@ class Property(PropertyDescriptorFactory[T]):
                     break
             else:
                 error = e
+
+        from ..has_props import HasProps
 
         if error is None:
             value = self.transform(value)
