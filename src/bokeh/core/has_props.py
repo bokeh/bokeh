@@ -706,7 +706,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         old_dict = self.themed_values()
 
         # if the same theme is set again, it should reuse the same dict
-        if old_dict is property_values:  # lgtm [py/comparison-using-is]
+        if old_dict is property_values:
             return
 
         removed: set[str] = set()

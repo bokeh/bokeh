@@ -61,7 +61,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
         # depending on Python version, leading / may be present or not
         path = self.path.split("?")[0].removeprefix("/")
         try:
-            with open(HTML_ROOT / path, mode="rb") as f:  # lgtm [py/path-injection]
+            with open(HTML_ROOT / path, mode="rb") as f:
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()

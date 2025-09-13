@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import base64
-import datetime  # lgtm [py/import-and-import-from]
+import datetime
 import re
 import tempfile
 from io import BytesIO

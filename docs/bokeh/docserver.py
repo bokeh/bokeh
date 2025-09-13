@@ -92,7 +92,7 @@ if __name__ == "__main__":
     browser.start()
 
     try:
-        input("Press <ENTER> to exit...\n")  # lgtm [py/use-of-input]
+        input("Press <ENTER> to exit...\n")
     except KeyboardInterrupt:
         pass
 

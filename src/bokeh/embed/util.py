@@ -163,7 +163,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
                 doc = _create_temp_doc(objs)
 
             # we are using all the roots of a single doc, just use doc as-is
-            pass  # lgtm [py/unnecessary-pass]
+            pass
 
         # models have mixed docs, just make a quick clone
         else:

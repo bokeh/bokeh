@@ -472,7 +472,7 @@ class PrioritizedSetting(Generic[T]):
         # are shared among all instances, it is usually not avised to store any
         # data directly on them. But in our case we only ever have one single
         # instance of a Settings object.
-        self._user_value = value  # lgtm [py/mutable-descriptor]
+        self._user_value = value
 
     def unset_value(self) -> None:
         ''' Unset the previous user value such that the priority is reset.

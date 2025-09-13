@@ -51,7 +51,7 @@ T = TypeVar("T")
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias(Property[T]): # lgtm [py/missing-call-to-init]
+class Alias(Property[T]):
     """
     Alias another property of a model.
 
