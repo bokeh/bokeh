@@ -102,7 +102,6 @@ from typing import (
 )
 
 # Bokeh imports
-from ...util.deprecation import deprecated
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -199,6 +198,8 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
 """
 
     def _warn(self) -> None:
+        from ...util.deprecation import deprecated
+
         deprecated(self.alias.since, self.name, self.aliased_name, self.alias.extra)
 
     def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:

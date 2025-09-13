@@ -136,7 +136,6 @@ from typing import (
 import yaml
 
 # Bokeh imports
-from .util.deprecation import deprecated
 from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
@@ -808,6 +807,8 @@ class Settings:
         .. deprecated:: 3.4.0
             Use ``bokehjs_path()`` method instead.
         '''
+        from .util.deprecation import deprecated
+
         deprecated((3, 4, 0), "bokehjsdir()", "bokehjs_path() method")
         return str(self.bokehjs_path())
 

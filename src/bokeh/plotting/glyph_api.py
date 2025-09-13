@@ -22,7 +22,6 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..models import glyphs
-from ..util.deprecation import deprecated
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
@@ -141,6 +140,8 @@ Examples:
 
         """
         if "size" in kwargs:
+            from ..util.deprecation import deprecated
+
             deprecated((3, 4, 0), "circle() method with size value", "scatter(size=...) instead")
             if "radius" in kwargs:
                 raise ValueError("can only provide one of size or radius")
@@ -1143,6 +1144,8 @@ Examples:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
         if marker_type == "circle" and "radius" in kwargs:
+            from ..util.deprecation import deprecated
+
             deprecated((3, 4, 0), "scatter(radius=...)", "circle(radius=...) instead")
             if "size" in kwargs:
                 raise ValueError("can only provide one of size or radius")

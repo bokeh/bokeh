@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...util.dataclasses import Unspecified
-from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.strings import nice_join
 from .. import enums
@@ -286,11 +285,15 @@ class NumberSpec(DataSpec):
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
         else:
+            from ...util.deprecation import deprecated
+
             deprecated((3, 7, 0), "NumberSpec(..., accept_datetime=False)", "FloatSpec()")
 
         if accept_datetime:
             self.accepts(Datetime, convert_datetime_type)
         else:
+            from ...util.deprecation import deprecated
+
             deprecated((3, 7, 0), "NumberSpec(..., accept_timedelta=False)", "FloatSpec()")
 
 class AlphaSpec(FloatSpec):
