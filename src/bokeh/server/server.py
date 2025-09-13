@@ -48,10 +48,10 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..core import properties as p
 from ..core.properties import (
     Bool,
     Int,
+    List,
     Nullable,
     String,
 )
@@ -530,7 +530,7 @@ class _ServerOpts(Options):
     A path to a Jinja2 template to use for the index "/"
     """)  # type: ignore[assignment]
 
-    allow_websocket_origin: list[str] | None = Nullable(p.List(String), help="""
+    allow_websocket_origin: list[str] | None = Nullable(List(String), help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external
