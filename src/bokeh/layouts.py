@@ -58,7 +58,6 @@ from .models import (
     ToolProxy,
     UIElement,
 )
-from .util.warnings import warn
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -364,6 +363,8 @@ def gridplot(
         if n == 0:
             return Undefined
         elif n > 1:
+            from .util.warnings import warn
+
             warn(f"found multiple competing values for 'toolbar.{name}' property; using the latest value")
         return values[-1]
 

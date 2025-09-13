@@ -43,7 +43,6 @@ from ..embed import file_html
 from ..model import Model
 from ..resources import INLINE, Resources
 from ..themes import Theme
-from ..util.warnings import warn
 from .state import State, curstate
 from .util import default_filename
 
@@ -355,6 +354,8 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
         # Defer this import, it is expensive
         from ..models.plots import Plot
         if not isinstance(obj, Plot):
+            from ..util.warnings import warn
+
             warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
         else:
             with _resized(obj, width, height):

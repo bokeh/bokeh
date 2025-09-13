@@ -44,7 +44,6 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..core.types import ID
 from ..util.serialization import make_id
-from ..util.warnings import warn
 from .state import curstate
 
 if TYPE_CHECKING:
@@ -313,6 +312,8 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         document = state.document
 
     if not document:
+        from ..util.warnings import warn
+
         warn("No document to push")
         return
 
@@ -320,6 +321,8 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         handle = state.last_comms_handle
 
     if not handle:
+        from ..util.warnings import warn
+
         warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 

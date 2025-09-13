@@ -33,7 +33,7 @@ from bokeh.core.property.vectorization import (
     field,
     value,
 )
-from bokeh.util.deprecation import BokehDeprecationWarning
+from bokeh.util.warnings import BokehDeprecationWarning
 from tests.support.util.api import verify_all
 
 # Module under test

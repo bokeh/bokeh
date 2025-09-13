@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING, Any, Sequence
 # Bokeh imports
 from ..models.graphs import StaticLayoutProvider
 from ..models.renderers import GraphRenderer
-from ..util.warnings import warn
 
 if TYPE_CHECKING:
     import networkx as nx
@@ -86,6 +85,8 @@ def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[flo
             node_dict[attr_key] = values
 
         if 'index' in node_attr_keys:
+            from ..util.warnings import warn
+
             warn("Converting node attributes labeled 'index' are skipped. "
                  "If you want to convert these attributes, please re-label with other names.")
 
@@ -106,6 +107,8 @@ def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[flo
             edge_dict[attr_key] = values
 
         if 'start' in edge_attr_keys or 'end' in edge_attr_keys:
+            from ..util.warnings import warn
+
             warn("Converting edge attributes labeled 'start' or 'end' are skipped. "
                  "If you want to convert these attributes, please re-label them with other names.")
 
@@ -123,6 +126,8 @@ def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[flo
 
             node_keys = graph_renderer.node_renderer.data_source.data['index']
             if set(node_keys) != set(layout_function.keys()):
+                from ..util.warnings import warn
+
                 warn("Node keys in 'layout_function' don't match node keys in the graph. "
                      "These nodes may not be displayed correctly.")
 

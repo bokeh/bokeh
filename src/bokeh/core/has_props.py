@@ -56,7 +56,6 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring, nice_join
-from ..util.warnings import BokehUserWarning, warn
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -150,6 +149,8 @@ class _ModelResolver:
             # update the mapping of view model names to classes, checking for any duplicates
             previous = self._known_models.get(cls.__qualified_model__, None)
             if previous is not None and not hasattr(cls, "__implementation__"):
+                from ..util.warnings import BokehUserWarning, warn
+
                 warn(f"Duplicate qualified model definition of '{cls.__qualified_model__}'. " \
                      f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).", BokehUserWarning)
             self._known_models[cls.__qualified_model__] = cls
@@ -221,6 +222,8 @@ class MetaHasProps(type):
         own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
         redeclared = own_properties.keys() & base_properties.keys()
         if redeclared:
+            from ..util.warnings import warn
+
             warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
                  "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
                  "the parent class. Override() can be used to change a default value of a base class property.",
@@ -229,6 +232,8 @@ class MetaHasProps(type):
         # Check for no-op Overrides
         unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
         if unused_overrides:
+            from ..util.warnings import warn
+
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning)
 
     @property

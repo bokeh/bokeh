@@ -880,9 +880,11 @@ settings = Settings()
 _secret_key = settings.secret_key()
 if _secret_key is not None and len(_secret_key) < 32:
     from .util.warnings import warn
+
     warn("BOKEH_SECRET_KEY is recommended to have at least 32 bytes of entropy chosen with a cryptographically-random algorithm")
 del _secret_key
 
 if settings.sign_sessions() and settings.secret_key() is None:
     from .util.warnings import warn
+
     warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to True")

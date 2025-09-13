@@ -34,11 +34,7 @@ from typing import (
 )
 
 # Bokeh imports
-from ..util.dataclasses import (
-    NotRequired,
-    Unspecified,
-    entries,
-)
+from ..util.dataclasses import NotRequired, Unspecified, entries
 
 #-----------------------------------------------------------------------------
 # Globals and constants

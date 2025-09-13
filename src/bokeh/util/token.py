@@ -39,7 +39,6 @@ from typing import Any, TypeAlias
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
-from .warnings import warn
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -254,6 +253,8 @@ def _get_sysrandom() -> tuple[Any, bool]:
         using_sysrandom = True
         return sysrandom, using_sysrandom
     except NotImplementedError:
+        from .warnings import warn
+
         warn('A secure pseudo-random number generator is not available '
              'on your system. Falling back to Mersenne Twister.')
         if settings.secret_key() is None:
