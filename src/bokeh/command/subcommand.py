@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
+from dataclasses import dataclass
 from typing import (
     Any,
     ClassVar,
@@ -36,7 +37,6 @@ from typing import (
 from ..util.dataclasses import (
     NotRequired,
     Unspecified,
-    dataclass,
     entries,
 )
 

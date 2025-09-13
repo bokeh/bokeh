@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass, field, fields
+from dataclasses import fields
 from typing import (
     Any,
     Iterable,
@@ -36,10 +36,7 @@ from typing import (
 __all__ = (
     "NotRequired",
     "Unspecified",
-    "dataclass",
     "entries",
-    "field",
-    "fields",
     "is_dataclass",
 )
 

@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,7 +38,6 @@ from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
 from ..themes.theme import Theme
-from ..util.dataclasses import dataclass, field
 from ..util.serialization import (
     make_globally_unique_css_safe_id,
     make_globally_unique_id,

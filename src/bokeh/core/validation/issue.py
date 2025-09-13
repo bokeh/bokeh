@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from typing import ClassVar
-
-# Bokeh imports
-from ...util.dataclasses import dataclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants

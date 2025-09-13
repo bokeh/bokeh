@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Sequence,
@@ -35,7 +36,7 @@ from ..models.renderers import ContourRenderer, GlyphRenderer
 from ..models.sources import ColumnDataSource
 from ..palettes import interp_palette
 from ..plotting._renderer import _process_sequence_literals
-from ..util.dataclasses import dataclass, entries
+from ..util.dataclasses import entries
 
 if TYPE_CHECKING:
     from contourpy._contourpy import FillReturn_OuterOffset, LineReturn_ChunkCombinedNan

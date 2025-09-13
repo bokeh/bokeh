@@ -24,6 +24,7 @@ import datetime as dt
 import gzip
 import sys
 from array import array as TypedArray
+from dataclasses import dataclass
 from math import isinf, isnan
 from types import SimpleNamespace
 from typing import (
@@ -46,12 +47,7 @@ import numpy as np
 
 # Bokeh imports
 from ..settings import settings
-from ..util.dataclasses import (
-    Unspecified,
-    dataclass,
-    entries,
-    is_dataclass,
-)
+from ..util.dataclasses import Unspecified, entries, is_dataclass
 from ..util.dependencies import uses_pandas
 from ..util.serialization import (
     array_encoding_disabled,

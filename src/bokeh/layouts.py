@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -57,7 +58,6 @@ from .models import (
     ToolProxy,
     UIElement,
 )
-from .util.dataclasses import dataclass
 from .util.warnings import warn
 
 #-----------------------------------------------------------------------------

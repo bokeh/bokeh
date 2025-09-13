@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from dataclasses import dataclass
+
 # Module under test
 import bokeh.util.dataclasses as dc # isort:skip
 
@@ -27,7 +30,7 @@ import bokeh.util.dataclasses as dc # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dc.dataclass
+@dataclass
 class X:
     f0: int
     f1: list[int]
