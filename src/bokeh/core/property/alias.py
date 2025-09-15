@@ -25,16 +25,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import ClassVar, TypeVar
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 
 # Bokeh imports
-from ...util.deprecation import Version
 from .bases import Property
-from .descriptors import (
-    AliasPropertyDescriptor,
-    DeprecatedAliasPropertyDescriptor,
-    PropertyDescriptor,
-)
+from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescriptor
+
+if TYPE_CHECKING:
+    from ...util.deprecation import Version
+    from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,7 +50,7 @@ T = TypeVar("T")
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias(Property[T]): # lgtm [py/missing-call-to-init]
+class Alias(Property[T]):
     """
     Alias another property of a model.
 

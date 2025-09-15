@@ -26,19 +26,14 @@ import os
 import sys
 from typing import TYPE_CHECKING, Iterator
 
-if TYPE_CHECKING:
-    # External imports
-    from typing_extensions import Never
-
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import (
-    DirectoryHandler,
-    Handler,
-    NotebookHandler,
-    ScriptHandler,
-)
-from bokeh.util.warnings import warn
+from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
+
+if TYPE_CHECKING:
+    from typing_extensions import Never
+
+    from bokeh.application.handlers import Handler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -131,6 +126,8 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
             handler = NotebookHandler(filename=path, argv=argv)
         elif path.endswith(".py"):
             if path.endswith("main.py"):
+                from bokeh.util.warnings import warn
+
                 warn(DIRSTYLE_MAIN_WARNING)
             handler = ScriptHandler(filename=path, argv=argv)
         else:

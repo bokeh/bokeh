@@ -29,17 +29,17 @@ from typing import (
 )
 
 # Bokeh imports
-from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import DEFAULT_JUPYTER_URL, ProxyUrlFunc, run_notebook_hook
+from .notebook import DEFAULT_JUPYTER_URL, run_notebook_hook
 from .saving import save
 from .state import curstate
 
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
+    from ..models.ui import UIElement
     from ..util.browser import BrowserLike, BrowserTarget
-    from .notebook import CommsHandle
+    from .notebook import CommsHandle, ProxyUrlFunc
     from .state import State
 
 #-----------------------------------------------------------------------------
@@ -151,6 +151,8 @@ def show(
         ``push_notebook``, None otherwise.
 
     '''
+    from ..models.ui import UIElement
+
     state = curstate()
 
     if isinstance(obj, UIElement) or isinstance(obj, Sequence):

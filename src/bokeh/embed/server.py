@@ -24,10 +24,6 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import quote_plus, urlparse
 
-## External imports
-if TYPE_CHECKING:
-    from jinja2 import Template
-
 # Bokeh imports
 from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
@@ -38,6 +34,8 @@ from .elements import html_page_for_render_items
 from .util import RenderItem
 
 if TYPE_CHECKING:
+    from jinja2 import Template
+
     from ..core.types import ID
     from ..model import Model
     from ..resources import Resources

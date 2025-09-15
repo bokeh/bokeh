@@ -26,13 +26,16 @@ import os
 import sys
 import traceback
 from os.path import basename
-from types import CodeType, ModuleType
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 # Bokeh imports
-from ...core.types import PathLike
 from ...util.serialization import make_globally_unique_id
 from .handler import handle_exception
+
+if TYPE_CHECKING:
+    from types import CodeType, ModuleType
+
+    from ...core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -172,6 +175,8 @@ class CodeRunner:
             Module
 
         '''
+        from types import ModuleType
+
         self.reset_run_errors()
 
         if self._code is None:

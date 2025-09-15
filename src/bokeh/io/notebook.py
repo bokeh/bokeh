@@ -37,18 +37,15 @@ from typing import (
 )
 from uuid import uuid4
 
-## External imports
-if TYPE_CHECKING:
-    from ipykernel.comm import Comm
-
 # Bokeh imports
-from ..core.types import ID
 from ..util.serialization import make_id
-from ..util.warnings import warn
 from .state import curstate
 
 if TYPE_CHECKING:
+    from ipykernel.comm import Comm
+
     from ..application.application import Application
+    from ..core.types import ID
     from ..document.document import Document
     from ..document.events import (
         ColumnDataChangedEvent,
@@ -313,6 +310,8 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         document = state.document
 
     if not document:
+        from ..util.warnings import warn
+
         warn("No document to push")
         return
 
@@ -320,6 +319,8 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         handle = state.last_comms_handle
 
     if not handle:
+        from ..util.warnings import warn
+
         warn("Cannot find a last shown plot to update. Call output_notebook() and show(..., notebook_handle=True) before push_notebook()")
         return
 
@@ -554,6 +555,7 @@ def show_app(
 
     from tornado.ioloop import IOLoop
 
+    from ..core.types import ID
     from ..server.server import Server
 
     loop = IOLoop.current()

@@ -48,13 +48,11 @@ import sys
 import traceback
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
-from ...document import Document
-from ..application import ServerContext, SessionContext
-
 if TYPE_CHECKING:
     from tornado.httputil import HTTPServerRequest
 
+    from ...document import Document
+    from ..application import ServerContext, SessionContext
     from .code_runner import CodeRunner
 
 #-----------------------------------------------------------------------------

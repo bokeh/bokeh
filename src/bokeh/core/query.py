@@ -23,14 +23,15 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
     TypeAlias,
 )
 
-# Bokeh imports
-from ..model import Model
+if TYPE_CHECKING:
+    from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants

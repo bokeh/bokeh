@@ -73,8 +73,6 @@ from ..core.validation.errors import (
 )
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
-from ..util.strings import nice_join
-from ..util.warnings import warn
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .dom import HTML
@@ -303,6 +301,8 @@ class Plot(LayoutDOM):
 
         '''
         if place not in Place:
+            from ..util.strings import nice_join
+
             raise ValueError(
                 f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}",
             )
@@ -348,6 +348,8 @@ class Plot(LayoutDOM):
             if not isinstance(tool, Tool):
                 raise ValueError("All arguments to remove_tool must be Tool subclasses.")
             elif tool not in self.toolbar.tools:
+                from ..util.strings import nice_join
+
                 raise ValueError(f"Invalid tool {tool} specified. Available tools are {nice_join(self.toolbar.tools)}")
             self.toolbar.tools.remove(tool)
 
@@ -992,6 +994,8 @@ Before legend properties can be set, you must add a Legend explicitly, or call a
 class _legend_attr_splat(_list_attr_splat):
     def __setattr__(self, attr, value):
         if not len(self):
+            from ..util.warnings import warn
+
             warn(_LEGEND_EMPTY_WARNING % attr)
         return super().__setattr__(attr, value)
 

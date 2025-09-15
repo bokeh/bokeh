@@ -39,7 +39,6 @@ import atexit
 import signal
 import socket
 import sys
-from types import FrameType
 from typing import TYPE_CHECKING, Any, Mapping
 
 # External imports
@@ -49,10 +48,10 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..core import properties as p
 from ..core.properties import (
     Bool,
     Int,
+    List,
     Nullable,
     String,
 )
@@ -62,6 +61,8 @@ from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
 
 if TYPE_CHECKING:
+    from types import FrameType
+
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID
@@ -529,7 +530,7 @@ class _ServerOpts(Options):
     A path to a Jinja2 template to use for the index "/"
     """)  # type: ignore[assignment]
 
-    allow_websocket_origin: list[str] | None = Nullable(p.List(String), help="""
+    allow_websocket_origin: list[str] | None = Nullable(List(String), help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external

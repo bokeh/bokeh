@@ -38,12 +38,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 # Bokeh imports
 from ...document import Document
 from ...util.callback_manager import _check_callback
 from .handler import Handler, handle_exception
+
+if TYPE_CHECKING:
+    from ...document import Document
+
+    ModifyDoc = Callable[[Document], None]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -60,8 +65,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-ModifyDoc = Callable[[Document], None]
 
 class FunctionHandler(Handler):
     ''' A Handler that accepts a plain python function to use for modifying

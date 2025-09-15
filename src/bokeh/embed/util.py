@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -32,18 +33,17 @@ from typing import (
 from weakref import WeakKeyDictionary
 
 # Bokeh imports
-from ..core.types import ID
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
 from ..themes.theme import Theme
-from ..util.dataclasses import dataclass, field
 from ..util.serialization import (
     make_globally_unique_css_safe_id,
     make_globally_unique_id,
 )
 
 if TYPE_CHECKING:
+    from ..core.types import ID
     from ..document.document import DocJson
 
 #-----------------------------------------------------------------------------
@@ -163,7 +163,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
                 doc = _create_temp_doc(objs)
 
             # we are using all the roots of a single doc, just use doc as-is
-            pass  # lgtm [py/unnecessary-pass]
+            pass
 
         # models have mixed docs, just make a quick clone
         else:

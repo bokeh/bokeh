@@ -22,7 +22,6 @@ from functools import wraps
 from inspect import Parameter, Signature, signature
 
 # Bokeh imports
-from ..util.deprecation import deprecated
 from ._docstring import generate_docstring
 from ._renderer import create_renderer
 
@@ -55,6 +54,8 @@ def marker_method():
 
         @wraps(func)
         def wrapped(self, *args, **kwargs):
+            from ..util.deprecation import deprecated
+
             deprecated((3, 4, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
             if len(args) > len(glyphclass._args):
                 raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")

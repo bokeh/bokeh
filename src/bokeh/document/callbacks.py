@@ -28,18 +28,16 @@ from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
-from ..core.enums import HoldPolicy, HoldPolicyType
+from ..core.enums import HoldPolicy
 from ..events import (
     _CONCRETE_EVENT_CLASSES,
     DocumentEvent,
     Event,
     ModelEvent,
 )
-from ..model import Model
 from ..models.callbacks import Callback as JSEventCallback
 from ..util.callback_manager import _check_callback
 from .events import (
-    DocumentPatchedEvent,
     MessageSentEvent,
     ModelChangedEvent,
     RootAddedEvent,
@@ -52,10 +50,17 @@ from .locking import UnlockedDocumentProxy
 
 if TYPE_CHECKING:
     from ..application.application import SessionDestroyedCallback
+    from ..core.enums import HoldPolicyType
     from ..core.has_props import Setter
+    from ..model import Model
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .events import DocumentChangeCallback, DocumentChangedEvent, Invoker
+    from .events import (
+        DocumentChangeCallback,
+        DocumentChangedEvent,
+        DocumentPatchedEvent,
+        Invoker,
+    )
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -22,21 +22,24 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath, expanduser
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 # External imports
 from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
-from ..core.types import PathLike
-from ..models.ui import UIElement
-from ..resources import Resources, ResourcesLike
+from ..resources import Resources
 from ..settings import settings
-from ..themes import Theme
-from ..util.warnings import warn
-from .state import State, curstate
+from .state import curstate
 from .util import default_filename
+
+if TYPE_CHECKING:
+    from ..core.types import PathLike
+    from ..models.ui import UIElement
+    from ..resources import ResourcesLike
+    from ..themes import Theme
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -139,6 +142,8 @@ def _get_save_resources(state: State, resources: ResourcesLike | None, suppress_
         return state.file.resources
 
     if not suppress_warning:
+        from ..util.warnings import warn
+
         warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
 
     return Resources(mode=settings.resources())
@@ -151,6 +156,8 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
         return state.file.title
 
     if not suppress_warning:
+        from ..util.warnings import warn
+
         warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
 
     return DEFAULT_TITLE

@@ -33,25 +33,24 @@ from typing import (
     cast,
 )
 
-if TYPE_CHECKING:
-    from selenium.webdriver.remote.webdriver import WebDriver
-
 # Bokeh imports
-from ..core.types import PathLike
-from ..document import Document
 from ..embed import file_html
-from ..model import Model
-from ..resources import INLINE, Resources
-from ..themes import Theme
-from ..util.warnings import warn
-from .state import State, curstate
+from ..resources import INLINE
+from .state import curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
     from PIL import Image
+    from selenium.webdriver.remote.webdriver import WebDriver
 
+    from ..core.types import PathLike
+    from ..document import Document
+    from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
+    from ..resources import Resources
+    from ..themes import Theme
+    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -355,6 +354,8 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
         # Defer this import, it is expensive
         from ..models.plots import Plot
         if not isinstance(obj, Plot):
+            from ..util.warnings import warn
+
             warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
         else:
             with _resized(obj, width, height):
@@ -487,6 +488,8 @@ return [...collect_svgs(Bokeh.index)]
 """
 
 def _SVG_SCRIPT(obj: Model | Document) -> str:
+    from ..document import Document
+
     if isinstance(obj, Document):
         ids = [root.id for root in obj.roots]
     else:

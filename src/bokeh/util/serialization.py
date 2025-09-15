@@ -38,13 +38,14 @@ from typing import TYPE_CHECKING, Any, TypeGuard
 import numpy as np
 
 # Bokeh imports
-from ..core.types import ID
 from ..settings import settings
 from .strings import format_docstring
 
 if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
+
+    from ..core.types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -259,6 +260,8 @@ def make_id() -> ID:
     '''
     global _simple_id
 
+    from ..core.types import ID
+
     if settings.simple_ids():
         with _simple_id_lock:
             _simple_id += 1
@@ -276,6 +279,8 @@ def make_globally_unique_id() -> ID:
         str
 
     '''
+    from ..core.types import ID
+
     return ID(str(uuid.uuid4()))
 
 def make_globally_unique_css_safe_id() -> ID:
@@ -289,6 +294,8 @@ def make_globally_unique_css_safe_id() -> ID:
         str
 
     '''
+    from ..core.types import ID
+
     max_iter = 100
 
     for _i in range(0, max_iter):

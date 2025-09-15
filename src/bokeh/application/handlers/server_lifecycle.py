@@ -23,13 +23,17 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from types import ModuleType
+from typing import TYPE_CHECKING
 
 # Bokeh imports
-from ...core.types import PathLike
 from ...util.callback_manager import _check_callback
 from .code_runner import CodeRunner
 from .lifecycle import LifecycleHandler
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+    from ...core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants

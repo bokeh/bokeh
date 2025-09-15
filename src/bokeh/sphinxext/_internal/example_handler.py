@@ -23,10 +23,10 @@ from typing import TYPE_CHECKING
 # Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
 from bokeh.application.handlers.handler import Handler
-from bokeh.core.types import PathLike
 from bokeh.io.doc import curdoc, set_curdoc
 
 if TYPE_CHECKING:
+    from bokeh.core.types import PathLike
     from bokeh.document import Document
 
 # -----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ class ExampleHandler(Handler):
         # so we have to patch them all. Assumption is that no other patching
         # has occurred, i.e. we can just save the funcs being patched once,
         # from io, and use those as the originals to replace everywhere
-        import bokeh.io as io  # lgtm [py/import-and-import-from]
+        import bokeh.io as io
         import bokeh.plotting as p
 
         mods = [io, p]
@@ -115,7 +115,7 @@ class ExampleHandler(Handler):
         return old_io, old_doc
 
     def _unmonkeypatch(self, old_io, old_doc):
-        import bokeh.io as io  # lgtm [py/import-and-import-from]
+        import bokeh.io as io
         import bokeh.plotting as p
 
         mods = [io, p]

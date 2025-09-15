@@ -91,7 +91,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from types import FunctionType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -102,7 +101,6 @@ from typing import (
 )
 
 # Bokeh imports
-from ...util.deprecation import deprecated
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -199,6 +197,8 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
 """
 
     def _warn(self) -> None:
+        from ...util.deprecation import deprecated
+
         deprecated(self.alias.since, self.name, self.aliased_name, self.alias.extra)
 
     def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
@@ -477,6 +477,8 @@ class PropertyDescriptor(Generic[T]):
 
     @classmethod
     def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
+        from types import FunctionType
+
         from .instance import InstanceDefault
         return isinstance(value, FunctionType | InstanceDefault)
 

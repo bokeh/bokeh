@@ -25,12 +25,20 @@ from inspect import Parameter, Signature, isclass
 from typing import TYPE_CHECKING, Any, Iterable
 
 # Bokeh imports
-from ..core import properties as p
 from ..core.has_props import HasProps, _default_resolver, abstract
+from ..core.properties import (
+    AnyRef,
+    Bool,
+    Dict,
+    Instance,
+    List,
+    Nullable,
+    Set,
+    String,
+)
 from ..core.property._sphinx import type_link
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
-from ..core.types import ID
 from ..events import Event
 from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -47,6 +55,7 @@ if TYPE_CHECKING:
 
     from ..core.has_props import Setter
     from ..core.query import SelectorType
+    from ..core.types import ID
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
     from ..models.callbacks import (
@@ -137,7 +146,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def id(self) -> ID:
         return self._id
 
-    name = p.Nullable(p.String, help="""
+    name = Nullable(String, help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -156,7 +165,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    tags = p.List(p.AnyRef, help="""
+    tags = List(AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -180,7 +189,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    js_event_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")), help="""
+    js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.Callback")), help="""
     A mapping of event names to lists of ``CustomJS`` callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -192,7 +201,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         plot.js_on_event('tap', callback)
     """)
 
-    js_property_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")), help="""
+    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.Callback")), help="""
     A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -206,13 +215,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    subscribed_events = p.Set(p.String, help="""
+    subscribed_events = Set(String, help="""
     Collection of events that are subscribed to by Python callbacks. This is
     the set of events that will be communicated from BokehJS back to Python
     for this model.
     """)
 
-    syncable: bool = p.Bool(default=True, help="""
+    syncable: bool = Bool(default=True, help="""
     Indicates whether this model should be synchronized back to a Bokeh server when
     updated in a web browser. Setting to ``False`` may be useful to reduce network
     traffic when dealing with frequently updated objects whose updated values we

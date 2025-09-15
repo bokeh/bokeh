@@ -55,16 +55,12 @@ from os.path import (
     exists,
     join,
 )
-from types import ModuleType
 from typing import TYPE_CHECKING, Any, Coroutine
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
 
 # Bokeh imports
-from ...core.types import PathLike
-from ...document import Document
-from ..application import ServerContext, SessionContext
 from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler
@@ -73,9 +69,14 @@ from .server_lifecycle import ServerLifecycleHandler
 from .server_request_handler import ServerRequestHandler
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from tornado.httputil import HTTPServerRequest
 
+    from ...core.types import PathLike
+    from ...document import Document
     from ...themes import Theme
+    from ..application import ServerContext, SessionContext
 
 #-----------------------------------------------------------------------------
 # Globals and constants

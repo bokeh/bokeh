@@ -30,12 +30,16 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from types import ModuleType
+from typing import TYPE_CHECKING
 
 # Bokeh imports
-from ...core.types import PathLike
 from ...util.dependencies import import_required
 from .code import CodeHandler
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+    from ...core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants

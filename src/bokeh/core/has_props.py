@@ -50,13 +50,9 @@ if TYPE_CHECKING:
 else:
     from functools import lru_cache
 
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self
-
 # Bokeh imports
 from ..settings import settings
-from ..util.strings import append_docstring, nice_join
-from ..util.warnings import BokehUserWarning, warn
+from ..util.strings import append_docstring
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -68,9 +64,10 @@ from .serialization import (
     Serializable,
     Serializer,
 )
-from .types import ID
 
 if TYPE_CHECKING:
+    from typing_extensions import NotRequired, Self
+
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property
@@ -150,6 +147,8 @@ class _ModelResolver:
             # update the mapping of view model names to classes, checking for any duplicates
             previous = self._known_models.get(cls.__qualified_model__, None)
             if previous is not None and not hasattr(cls, "__implementation__"):
+                from ..util.warnings import BokehUserWarning, warn
+
                 warn(f"Duplicate qualified model definition of '{cls.__qualified_model__}'. " \
                      f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).", BokehUserWarning)
             self._known_models[cls.__qualified_model__] = cls
@@ -221,6 +220,8 @@ class MetaHasProps(type):
         own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
         redeclared = own_properties.keys() & base_properties.keys()
         if redeclared:
+            from ..util.warnings import warn
+
             warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
                  "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
                  "the parent class. Override() can be used to change a default value of a base class property.",
@@ -229,6 +230,8 @@ class MetaHasProps(type):
         # Check for no-op Overrides
         unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
         if unused_overrides:
+            from ..util.warnings import warn
+
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning)
 
     @property
@@ -374,6 +377,8 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         if not matches:
             matches, text = sorted(properties), "possible"
+
+        from ..util.strings import nice_join
 
         raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 
@@ -701,7 +706,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         old_dict = self.themed_values()
 
         # if the same theme is set again, it should reuse the same dict
-        if old_dict is property_values:  # lgtm [py/comparison-using-is]
+        if old_dict is property_values:
             return
 
         removed: set[str] = set()
@@ -773,6 +778,7 @@ class ModelDef(TypedDict):
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model
+    from .types import ID
 
     ref = Ref(id=ID(cls.__qualified_model__))
     serializer.add_ref(cls, ref)

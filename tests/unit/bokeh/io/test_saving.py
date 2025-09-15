@@ -75,7 +75,7 @@ def test__get_save_args_default_resources() -> None:
     _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
     assert resources == r
 
-@patch('bokeh.io.saving.warn')
+@patch('bokeh.util.warnings.warn')
 def test__get_save_args_missing_resources(mock_warn: MagicMock) -> None:
     curstate().reset()
     _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
@@ -99,7 +99,7 @@ def test__get_save_args_default_title() -> None:
     _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
     assert title == "title"
 
-@patch('bokeh.io.saving.warn')
+@patch('bokeh.util.warnings.warn')
 def test__get_save_args_missing_title(mock_warn: MagicMock) -> None:
     curstate().reset()
     _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)

@@ -22,12 +22,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 # Bokeh imports
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
-from .descriptors import PropertyDescriptor
+
+if TYPE_CHECKING:
+    from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants

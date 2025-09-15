@@ -19,16 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import (
-    Init,
-    Property,
-    SingleParameterizedProperty,
-    TypeOrInst,
-)
+from .bases import SingleParameterizedProperty
+
+if TYPE_CHECKING:
+    from .bases import Init, Property, TypeOrInst
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -37,20 +37,17 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import quote_plus
 
-## External imports
-if TYPE_CHECKING:
-    from tornado.ioloop import IOLoop
-
 # Bokeh imports
-from ..core.types import ID
-from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
-from ..util.browser import NEW_PARAM, BrowserLike, BrowserTarget
+from ..util.browser import NEW_PARAM
 from ..util.token import generate_jwt_token, generate_session_id
-from .states import ErrorReason
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
+
+    from ..core.types import ID
+    from ..document import Document
     from ..document.events import (
         DocumentPatchedEvent,
         SessionCallbackAdded,
@@ -60,7 +57,10 @@ if TYPE_CHECKING:
     from ..protocol.messages.patch_doc import patch_doc
     from ..protocol.messages.server_info_reply import ServerInfo
     from ..server.callbacks import DocumentCallbackGroup
+    from ..util.browser import BrowserLike, BrowserTarget
     from .connection import ClientConnection
+    from .states import ErrorReason
+
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -409,6 +409,8 @@ class ClientSession:
 
         '''
         if not self.connected:
+            from .states import ErrorReason
+
             if self.error_reason is ErrorReason.HTTP_ERROR:
                 if self.error_code == 404:
                     raise OSError(f"Check your application path! The given Path is not valid: {self.url}")
@@ -428,6 +430,8 @@ class ClientSession:
         self.check_connection_errors()
 
         if self.document is None:
+            from ..document import Document
+
             doc = Document()
         else:
             doc = self.document
@@ -452,6 +456,8 @@ class ClientSession:
         '''
         if self.document is None:
             if document is None:
+                from ..document import Document
+
                 doc = Document()
             else:
                 doc = document

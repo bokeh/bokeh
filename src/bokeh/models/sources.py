@@ -51,7 +51,6 @@ from ..core.properties import (
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..model import Model
 from ..util.serialization import convert_datetime_array
-from ..util.warnings import BokehUserWarning, warn
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
@@ -128,6 +127,15 @@ class ColumnarDataSource(DataSource):
     selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
     An instance of a ``SelectionPolicy`` that determines how selections are set.
     """)
+
+def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
+    from ..util.warnings import BokehUserWarning, warn
+
+    current_lengths = ', '.join(sorted(str((k, len(v))) for k, v in data.items()))
+    warn(
+        f"ColumnDataSource's columns must be of the same length. Current lengths: {current_lengths}",
+        BokehUserWarning,
+    )
 
 class ColumnDataSource(ColumnarDataSource):
     ''' Maps names of columns to sequences or arrays.
@@ -211,10 +219,7 @@ class ColumnDataSource(ColumnarDataSource):
         EagerDataFrame, lambda x: ColumnDataSource._data_from_df(x),
      ).accepts(
         PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x),
-    ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
-                 lambda obj, name, data: warn(
-                    "ColumnDataSource's columns must be of the same length. " +
-                    f"Current lengths: {', '.join(sorted(str((k, len(v))) for k, v in data.items()))}", BokehUserWarning))
+    ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1, _cds_lengths_warning)
 
     @overload
     def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: Any) -> None: ...
@@ -447,6 +452,8 @@ class ColumnDataSource(ColumnarDataSource):
         try:
             del self.data[name]
         except (ValueError, KeyError):
+            from ..util.warnings import warn
+
             warn(f"Unable to find column '{name}' in data source")
 
     def stream(self, new_data: DataDict, rollover: int | None = None) -> None:

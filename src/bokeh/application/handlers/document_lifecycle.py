@@ -21,9 +21,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
-from ..application import SessionContext
 from .lifecycle import LifecycleHandler
+
+if TYPE_CHECKING:
+    from ..application import SessionContext
 
 #-----------------------------------------------------------------------------
 # Globals and constants

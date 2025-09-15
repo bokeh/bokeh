@@ -79,7 +79,6 @@ from typing import (
 
 # Bokeh imports
 from .. import colors, palettes
-from ..util.strings import nice_join
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -249,9 +248,13 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
     if not (values and
             (all(isinstance(value, str) and value for value in values) or
              all(isinstance(value, int) for value in values))):
+        from ..util.strings import nice_join
+
         raise ValueError(f"expected a non-empty heterogenous sequence of strings or integers, got {nice_join(values)}")
 
     if len(values) != len(set(values)):
+        from ..util.strings import nice_join
+
         raise ValueError(f"enumeration items must be unique, got {nice_join(values)}")
 
     attrs: dict[str, Any] = {value: value for value in values if isinstance(value, str)}

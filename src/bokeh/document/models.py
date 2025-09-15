@@ -32,11 +32,11 @@ from typing import (
 )
 
 # Bokeh imports
-from ..core.types import ID
-from ..model import Model
 from ..util.datatypes import MultiValuedDict
 
 if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..model import Model
     from .document import Document
 
 #-----------------------------------------------------------------------------

@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import calendar
 import datetime as dt
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
@@ -39,7 +40,6 @@ from ...protocol import Protocol
 from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
-from ...util.dataclasses import dataclass
 from ..protocol_handler import ProtocolHandler
 from .auth_request_handler import AuthRequestHandler
 

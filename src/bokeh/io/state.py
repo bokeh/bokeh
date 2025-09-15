@@ -49,12 +49,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
 
 # Bokeh imports
-from ..core.types import PathLike
-from ..document import Document
 from ..resources import Resources, ResourcesMode
 
 if TYPE_CHECKING:
-    from ..core.types import ID
+    from ..core.types import ID, PathLike
+    from ..document import Document
     from ..server.server import Server
     from .notebook import CommsHandle, NotebookType
 
@@ -201,6 +200,8 @@ class State:
             None
 
         '''
+        from ..document import Document
+
         self._reset_with_doc(Document())
 
     # Private methods ---------------------------------------------------------

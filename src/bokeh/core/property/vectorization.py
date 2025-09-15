@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -30,7 +31,7 @@ from typing import (
 )
 
 # Bokeh imports
-from ...util.dataclasses import NotRequired, Unspecified, dataclass
+from ...util.dataclasses import NotRequired, Unspecified
 from ..serialization import (
     AnyRep,
     Deserializer,

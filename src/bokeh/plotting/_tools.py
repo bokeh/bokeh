@@ -45,7 +45,6 @@ from ..models.tools import (
     Scroll,
     Tap,
 )
-from ..util.warnings import warn
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -148,6 +147,8 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
 
     repeated_tools = [ str(obj) for obj in _collect_repeated_tools(tool_objs) ]
     if repeated_tools:
+        from ..util.warnings import warn
+
         warn(f"{','.join(repeated_tools)} are being repeated")
 
     if tooltips is not None:

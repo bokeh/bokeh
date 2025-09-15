@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,8 +38,8 @@ from typing import (
 )
 
 # Bokeh imports
-from .core.enums import Location, LocationType, SizingModeType
-from .core.property.singletons import Undefined, UndefinedType
+from .core.enums import Location
+from .core.property.singletons import Undefined
 from .models import (
     Column,
     CopyTool,
@@ -57,8 +58,12 @@ from .models import (
     ToolProxy,
     UIElement,
 )
-from .util.dataclasses import dataclass
-from .util.warnings import warn
+
+if TYPE_CHECKING:
+    from .core.enums import LocationType, SizingModeType
+    from .core.property.singletons import UndefinedType
+
+    ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,9 +77,6 @@ __all__ = (
     'row',
     'Spacer',
 )
-
-if TYPE_CHECKING:
-    ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -364,6 +366,8 @@ def gridplot(
         if n == 0:
             return Undefined
         elif n > 1:
+            from .util.warnings import warn
+
             warn(f"found multiple competing values for 'toolbar.{name}' property; using the latest value")
         return values[-1]
 

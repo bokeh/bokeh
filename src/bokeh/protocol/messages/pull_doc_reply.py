@@ -21,11 +21,11 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, TypedDict
 
 # Bokeh imports
-from ...core.types import ID
 from ..exceptions import ProtocolError
 from ..message import Message
 
 if TYPE_CHECKING:
+    from ...core.types import ID
     from ...document.document import DocJson, Document
 
 #-----------------------------------------------------------------------------

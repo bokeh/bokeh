@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 from typing import Any, TypeVar
 
 # Bokeh imports
-from ...util.strings import nice_join
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
     Init,
@@ -96,6 +95,8 @@ class Either(ParameterizedProperty[Any]):
 
         if any(param.is_valid(value) for param in self.type_params):
             return
+
+        from ...util.strings import nice_join
 
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValueError(msg)

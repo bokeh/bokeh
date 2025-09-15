@@ -53,7 +53,6 @@ from ...core.properties import (
 )
 from ...core.property_aliases import IconLike
 from ...events import ModelEvent
-from ...util.deprecation import deprecated
 from ..dom import HTML
 from ..formatters import TickFormatter
 from ..ui import Tooltip
@@ -614,6 +613,8 @@ def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
     .. deprecated:: 3.4.0
         Use ``PaletteSelect`` widget instead.
     '''
+    from ...util.deprecation import deprecated
+
     deprecated((3, 4, 0), "ColorMap widget", "PaletteSelect widget")
     return PaletteSelect(*args, **kwargs)
 

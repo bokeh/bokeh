@@ -20,11 +20,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from traceback import format_exception
-from typing import Any, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 # Bokeh imports
-from ...core.types import ID
 from ..message import Message
+
+if TYPE_CHECKING:
+    from ...core.types import ID
 
 #-----------------------------------------------------------------------------
 # Globals and constants

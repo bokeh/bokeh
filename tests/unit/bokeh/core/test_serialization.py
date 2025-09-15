@@ -22,6 +22,7 @@ import gzip
 import sys
 from array import array as TypedArray
 from base64 import b64decode
+from dataclasses import dataclass
 from math import inf, nan
 from types import SimpleNamespace
 from typing import Any, Sequence
@@ -62,7 +63,7 @@ from bokeh.core.serialization import (
     TypedArrayRep,
 )
 from bokeh.model import Model
-from bokeh.util.dataclasses import NotRequired, Unspecified, dataclass
+from bokeh.util.dataclasses import NotRequired, Unspecified
 from bokeh.util.warnings import BokehUserWarning
 
 #-----------------------------------------------------------------------------

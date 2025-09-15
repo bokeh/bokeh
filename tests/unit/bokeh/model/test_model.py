@@ -23,7 +23,7 @@ from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
 from bokeh.models import CustomJS
 from bokeh.plotting import *  # noqa: F403
-from bokeh.util.deprecation import BokehDeprecationWarning
+from bokeh.util.warnings import BokehDeprecationWarning
 
 from bokeh.document import document # isort:skip
 
