@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 # Bokeh imports
-from ..core.properties import field, value
+from ..core.property.vectorization import field, value
 from ..models import Legend, LegendItem
 
 if TYPE_CHECKING:

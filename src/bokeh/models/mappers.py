@@ -29,23 +29,20 @@ from typing import Any
 from .. import palettes
 from ..core.enums import Palette
 from ..core.has_props import abstract
-from ..core.properties import (
+from ..core.property.color import Color
+from ..core.property.container import List, Seq, Tuple
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.factors import FactorSeq
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import (
     Bool,
-    Color,
-    Either,
-    Enum,
-    FactorSeq,
     Float,
-    HatchPatternType,
-    Instance,
     Int,
-    List,
-    MarkerType,
-    Nullable,
-    Seq,
     String,
-    Tuple,
 )
+from ..core.property.visual import HatchPatternType, MarkerType
 from ..core.validation import error, warning
 from ..core.validation.errors import WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH
 from ..core.validation.warnings import PALETTE_LENGTH_FACTORS_MISMATCH

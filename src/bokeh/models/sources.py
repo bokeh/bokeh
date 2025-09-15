@@ -31,24 +31,16 @@ import numpy as np
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (
-    JSON,
-    Any as AnyVal,
-    AnyRef,
-    Bool,
-    ColumnData,
-    Dict,
-    Enum,
-    Instance,
-    InstanceDefault,
-    Int,
-    Nullable,
-    Readonly,
-    Required,
-    Seq,
-    String,
-)
+from ..core.property.any import Any as AnyVal, AnyRef
+from ..core.property.container import ColumnData, Dict, Seq
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.json import JSON
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, Int, String
+from ..core.property.readonly import Readonly
+from ..core.property.required import Required
 from ..model import Model
 from ..util.serialization import convert_datetime_array
 from .callbacks import CustomJS

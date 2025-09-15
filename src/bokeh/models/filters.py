@@ -22,18 +22,12 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (
-    AnyRef,
-    Bool,
-    Instance,
-    Int,
-    NonEmpty,
-    Nullable,
-    Required,
-    RestrictedDict,
-    Seq,
-    String,
-)
+from ..core.property.any import AnyRef
+from ..core.property.container import NonEmpty, RestrictedDict, Seq
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, Int, String
+from ..core.property.required import Required
 from ..model import Model
 
 #-----------------------------------------------------------------------------

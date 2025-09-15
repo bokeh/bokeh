@@ -26,21 +26,14 @@ from typing import Any
 # Bokeh imports
 from ...core.enums import CalendarPosition
 from ...core.has_props import HasProps, abstract
-from ...core.properties import (
-    Bool,
-    Date,
-    Datetime,
-    Either,
-    Enum,
-    Int,
-    List,
-    Nullable,
-    Override,
-    Positive,
-    String,
-    Time,
-    Tuple,
-)
+from ...core.property.container import List, Tuple
+from ...core.property.datetime import Date, Datetime, Time
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.nullable import Nullable
+from ...core.property.numeric import Positive
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, Int, String
 from .inputs import InputWidget
 
 #-----------------------------------------------------------------------------

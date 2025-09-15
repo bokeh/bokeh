@@ -27,17 +27,14 @@ from typing import Any
 # Bokeh imports
 from ...core.enums import ToolIcon
 from ...core.has_props import abstract
-from ...core.properties import (
-    Color,
-    Either,
-    Enum,
-    FontSize,
-    Int,
-    Required,
-    String,
-)
 from ...core.property.bases import Init
+from ...core.property.color import Color
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.primitive import Int, String
+from ...core.property.required import Required
 from ...core.property.singletons import Intrinsic
+from ...core.property.visual import FontSize
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------

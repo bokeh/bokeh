@@ -22,13 +22,11 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...core.properties import (
-    Auto,
-    Either,
-    Instance,
-    Int,
-    Required,
-)
+from ...core.property.auto import Auto
+from ...core.property.either import Either
+from ...core.property.instance import Instance
+from ...core.property.primitive import Int
+from ...core.property.required import Required
 from ...core.property_aliases import Anchor
 from ..nodes import Coordinate, Node
 from .panes import Pane

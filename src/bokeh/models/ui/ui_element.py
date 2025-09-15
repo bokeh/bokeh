@@ -25,17 +25,12 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import (
-    Bool,
-    Dict,
-    Either,
-    Enum,
-    Instance,
-    List,
-    Nullable,
-    Seq,
-    String,
-)
+from ...core.property.container import Dict, List, Seq
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Bool, String
 from ...model import Model
 from ..css import Styles, StyleSheet
 from ..nodes import Node

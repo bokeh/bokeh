@@ -23,15 +23,12 @@ from typing import Any
 
 # Bokeh imports
 from ...core.enums import Movable, Resizable
-from ...core.properties import (
-    Bool,
-    Either,
-    Enum,
-    Instance,
-    Nullable,
-    Required,
-    String,
-)
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Bool, String
+from ...core.property.required import Required
 from ..dom import DOMNode
 from ..nodes import Node
 from .ui_element import UIElement

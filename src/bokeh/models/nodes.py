@@ -23,15 +23,12 @@ from typing import Any, ClassVar
 # Bokeh imports
 from ..core.enums import ImplicitTarget, ImplicitTargetType
 from ..core.has_props import abstract
-from ..core.properties import (
-    Either,
-    Enum,
-    Instance,
-    Int,
-    Required,
-    String,
-)
 from ..core.property.aliases import CoordinateLike
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance
+from ..core.property.primitive import Int, String
+from ..core.property.required import Required
 from ..model import Model
 
 #-----------------------------------------------------------------------------

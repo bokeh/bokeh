@@ -7,4 +7,5 @@ banned-module-level-imports = [
     "PIL",
     "selenium",
     "typing_extensions",
+    "bokeh.core.properties",
 ]

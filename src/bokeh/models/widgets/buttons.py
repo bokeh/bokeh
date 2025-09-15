@@ -26,18 +26,14 @@ from typing import TYPE_CHECKING, Any, Callable
 # Bokeh imports
 from ...core.enums import ButtonType
 from ...core.has_props import HasProps, abstract
-from ...core.properties import (
-    Bool,
-    Either,
-    Enum,
-    Instance,
-    List,
-    Nullable,
-    Override,
-    Required,
-    String,
-    Tuple,
-)
+from ...core.property.container import List, Tuple
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, String
+from ...core.property.required import Required
 from ...events import ButtonClick, MenuItemClick
 from ..callbacks import Callback
 from ..dom import DOMNode

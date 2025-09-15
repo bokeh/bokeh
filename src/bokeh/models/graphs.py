@@ -22,16 +22,10 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (
-    Dict,
-    Either,
-    Float,
-    Instance,
-    Int,
-    Len,
-    Seq,
-    String,
-)
+from ..core.property.container import Dict, Len, Seq
+from ..core.property.either import Either
+from ..core.property.instance import Instance
+from ..core.property.primitive import Float, Int, String
 from ..model import Model
 from .expressions import CoordinateTransform
 

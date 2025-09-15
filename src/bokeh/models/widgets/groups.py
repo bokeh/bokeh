@@ -25,14 +25,10 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import (
-    Bool,
-    Enum,
-    Int,
-    List,
-    Nullable,
-    String,
-)
+from ...core.property.container import List
+from ...core.property.enum import Enum
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Bool, Int, String
 from .buttons import ButtonLike
 from .widget import Widget
 

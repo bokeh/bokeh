@@ -26,17 +26,12 @@ from typing import TYPE_CHECKING, Any, Iterable
 
 # Bokeh imports
 from ..core.has_props import HasProps, _default_resolver, abstract
-from ..core.properties import (
-    AnyRef,
-    Bool,
-    Dict,
-    Instance,
-    List,
-    Nullable,
-    Set,
-    String,
-)
 from ..core.property._sphinx import type_link
+from ..core.property.any import AnyRef
+from ..core.property.container import Dict, List, Set
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, String
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event

@@ -23,7 +23,9 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ...core.properties import Float, Instance, Seq
+from ...core.property.container import Seq
+from ...core.property.instance import Instance
+from ...core.property.numeric import Float
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 

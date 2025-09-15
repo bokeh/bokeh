@@ -22,7 +22,8 @@ from typing import Any
 
 # Bokeh imports
 from ..core.enums import OutputBackend
-from ..core.properties import Bool, Enum
+from ..core.property.enum import Enum
+from ..core.property.primitive import Bool
 from .ui import UIElement
 
 #-----------------------------------------------------------------------------

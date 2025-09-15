@@ -31,23 +31,20 @@ from ...core.enums import (
     RoundingFunction,
 )
 from ...core.has_props import abstract
-from ...core.properties import (
+from ...core.property.container import List
+from ...core.property.dataspec import ColorSpec, FontStyleSpec, TextAlignSpec
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.nullable import Nullable
+from ...core.property.override import Override
+from ...core.property.primitive import (
     Bool,
-    ColorSpec,
-    Either,
-    Enum,
     Float,
-    FontStyleSpec,
-    Instance,
-    InstanceDefault,
     Int,
-    List,
-    Nullable,
-    Override,
-    Required,
     String,
-    TextAlignSpec,
 )
+from ...core.property.required import Required
 from ...core.property.singletons import Intrinsic
 from ...model import Model
 from ..comparisons import Comparison

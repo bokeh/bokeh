@@ -26,13 +26,9 @@ from typing import Any
 # Bokeh imports
 from ...core.enums import Orientation
 from ...core.has_props import abstract
-from ...core.properties import (
-    Bool,
-    Enum,
-    Int,
-    Nullable,
-    String,
-)
+from ...core.property.enum import Enum
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Bool, Int, String
 from .widget import Widget
 
 #-----------------------------------------------------------------------------

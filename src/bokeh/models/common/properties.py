@@ -21,12 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.properties import (
-    CoordinateLike,
-    Either,
-    Instance,
-    TypeOfAttr,
-)
+from ...core.property.aliases import CoordinateLike
+from ...core.property.constraints import TypeOfAttr
+from ...core.property.either import Either
+from ...core.property.instance import Instance
 from ...model import Model
 from ..glyph import Glyph
 from ..nodes import Node

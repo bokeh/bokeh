@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...core.properties import Instance, InstanceDefault
+from ...core.property.instance import Instance, InstanceDefault
 from ...core.validation import error
 from ...core.validation.errors import MALFORMED_GRAPH_SOURCE
 from ..glyphs import MultiLine, Scatter

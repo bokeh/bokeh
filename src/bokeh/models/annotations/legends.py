@@ -36,31 +36,25 @@ from ...core.enums import (
     VAlign,
 )
 from ...core.has_props import abstract
-from ...core.properties import (
-    Auto,
-    Bool,
-    CoordinateLike,
+from ...core.property.aliases import CoordinateLike
+from ...core.property.auto import Auto
+from ...core.property.container import (
     Dict,
-    Either,
-    Enum,
-    Float,
-    Include,
-    Instance,
-    InstanceDefault,
-    Int,
     List,
-    NonNegative,
-    Nullable,
-    NullStringSpec,
-    Override,
-    Positive,
     Seq,
-    String,
-    TextLike,
     Tuple,
-    value,
 )
-from ...core.property.vectorization import Field
+from ...core.property.dataspec import NullStringSpec
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.include import Include
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.nullable import Nullable
+from ...core.property.numeric import Int, NonNegative, Positive
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, Float, String
+from ...core.property.text_like import TextLike
+from ...core.property.vectorization import Field, value
 from ...core.property_aliases import AutoAnchor, BorderRadius, Padding
 from ...core.property_mixins import (
     FillProps,

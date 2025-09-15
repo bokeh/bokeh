@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 import numpy as np
 
 # Bokeh imports
-from ..core.properties import ColorSpec
+from ..core.property.dataspec import ColorSpec
 from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
 from ._legends import pop_legend_kwarg, update_legend
 

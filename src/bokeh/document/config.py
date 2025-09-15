@@ -22,12 +22,9 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.properties import (
-    Bool,
-    Instance,
-    InstanceDefault,
-    Nullable,
-)
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool
 from ..model import Model
 from ..models.ui.notifications import Notifications
 

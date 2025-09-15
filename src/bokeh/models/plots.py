@@ -41,26 +41,22 @@ from ..core.enums import (
     ResetPolicy,
     WindowAxis,
 )
-from ..core.properties import (
+from ..core.property.container import Dict, List, Tuple
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.include import Include
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
+from ..core.property.override import Override
+from ..core.property.primitive import (
     Bool,
-    Dict,
-    Either,
-    Enum,
     Float,
-    Include,
-    Instance,
-    InstanceDefault,
     Int,
-    List,
     Null,
-    Nullable,
-    Override,
-    Readonly,
     String,
-    Struct,
-    Tuple,
 )
-from ..core.property.struct import Optional
+from ..core.property.readonly import Readonly
+from ..core.property.struct import Optional, Struct
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning

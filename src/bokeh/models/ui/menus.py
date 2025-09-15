@@ -22,16 +22,12 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...core.properties import (
-    Bool,
-    Either,
-    Instance,
-    List,
-    Null,
-    Nullable,
-    Required,
-    String,
-)
+from ...core.property.container import List
+from ...core.property.either import Either
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Bool, Null, String
+from ...core.property.required import Required
 from ...core.property_aliases import IconLike
 from ...model import Model
 from ..callbacks import Callback

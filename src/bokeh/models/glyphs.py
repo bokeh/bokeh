@@ -48,33 +48,32 @@ from ..core.enums import (
     StepMode,
 )
 from ..core.has_props import abstract
-from ..core.properties import (
+from ..core.property.container import Dict, Tuple
+from ..core.property.dataspec import (
     AngleSpec,
-    Bool,
     DataSpec,
-    Dict,
     DistanceSpec,
-    Either,
-    Enum,
-    Float,
     FloatSpec,
-    Include,
-    Instance,
-    InstanceDefault,
-    Int,
     MarkerSpec,
     NullDistanceSpec,
     NumberSpec,
-    Override,
-    Regex,
-    Size,
     SizeSpec,
-    String,
     StringSpec,
-    Tuple,
-    field,
-    value,
 )
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.include import Include
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.numeric import Size
+from ..core.property.override import Override
+from ..core.property.primitive import (
+    Bool,
+    Float,
+    Int,
+    String,
+)
+from ..core.property.string import Regex
+from ..core.property.vectorization import field, value
 from ..core.property_aliases import (
     Anchor,
     BorderRadius,
