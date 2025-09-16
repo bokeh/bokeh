@@ -61,9 +61,9 @@ def test_args() -> None:
             action="store_true",
             help="Show detailed help for a specific setting",
         )),
-        ('setting_name', Argument(
-            nargs='?',
-            help="Name of a specific setting to show detailed help for (use with -v)",
+        ('setting_names', Argument(
+            nargs='*',
+            help="One or more specific settings to show info for (use with -v for details)",
         )),
     )
 
@@ -92,7 +92,7 @@ def test_run_shows_table(capsys: Capture) -> None:
     main(["bokeh", "settings"])
     out, err = capsys.readouterr()
     assert err == ""
-    assert out.startswith("Bokeh Settings:\n")
+    assert out.startswith("\nBokeh Settings:\n")
     assert "Setting" in out and "Environment Variable" in out and "Value" in out
 
     output_settings = parse_settings_table(out)
@@ -112,14 +112,18 @@ def test_run_shows_table(capsys: Capture) -> None:
         assert printed_value.strip() == current_value.strip(), f"Value mismatch for {name}"
 
 
-def test_run_guidance_when_name_without_detail(capsys: Capture) -> None:
+def test_run_basic_info_specific_setting(capsys: Capture) -> None:
     main(["bokeh", "settings", "log_level"])
     out, err = capsys.readouterr()
     assert err == ""
-    assert "To get detailed help for a specific setting, use:" in out
-    assert "  bokeh settings [-v | --verbose] <setting_name>" in out
-    assert "For a list of all settings, use:" in out
-    assert "bokeh settings" in out
+
+    assert "Setting: log_level" in out
+    assert "Current Value:" in out
+    assert "Environment Variable: BOKEH_LOG_LEVEL" in out
+    assert "Help:" in out
+
+    assert "Default Value:" not in out
+    assert "Dev Default:" not in out
 
 
 def test_run_detail_specific_setting(capsys: Capture) -> None:
@@ -128,9 +132,25 @@ def test_run_detail_specific_setting(capsys: Capture) -> None:
     assert err == ""
 
     assert "Setting: log_level" in out
-    assert "Environment Variable: BOKEH_LOG_LEVEL" in out
+    assert "Current Value: info" in out
+    assert "Source: Global default" in out
     assert "Default Value: info" in out
     assert "Dev Default: debug" in out
+    assert "Environment Variable: BOKEH_LOG_LEVEL" in out
+    assert "Help:" in out
+
+
+def test_run_detail_all_settings(capsys: Capture) -> None:
+    main(["bokeh", "settings", "-v"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting: log_level" in out
+    assert "Current Value:" in out
+    assert "Source:" in out
+    assert "Default Value:" in out
+    assert "Dev Default:" in out
+    assert "Environment Variable:" in out
     assert "Help:" in out
 
 
@@ -142,6 +162,48 @@ def test_run_detail_invalid_setting(capsys: Capture) -> None:
     assert "Setting '__does_not_exist__' not found." in out
     assert "Available settings:" in out
     assert "log_level" in out
+
+
+def test_run_substring_match(capsys: Capture) -> None:
+    main(["bokeh", "settings", "host"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting: default_server_host" in out
+    assert "Current Value:" in out
+    assert "Environment Variable: BOKEH_DEFAULT_SERVER_HOST" in out
+
+
+def test_run_multiple_matches(capsys: Capture) -> None:
+    main(["bokeh", "settings", "server"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "default_server_host" in out
+    assert "default_server_port" in out
+
+
+def test_run_fuzzy_typo_match(capsys: Capture) -> None:
+    main(["bokeh", "settings", "lgo_levl"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting 'lgo_levl' not found." in out
+    assert "Did you mean one of these?" in out
+    assert "log_level" in out
+    assert "py_log_level" in out
+
+
+def test_run_multiple_inputs(capsys: Capture) -> None:
+    main(["bokeh", "settings", "log_level", "servr_hst"])
+    out, err = capsys.readouterr()
+    assert err == ""
+
+    assert "Setting: log_level" in out
+
+    assert "Setting 'servr_hst' not found." in out
+    assert "Did you mean one of these?" in out
+    assert "default_server_host" in out
 
 #-----------------------------------------------------------------------------
 # Private API

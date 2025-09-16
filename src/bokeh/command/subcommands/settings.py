@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 '''
-
 To display all available Bokeh settings and their current values,
 type ``bokeh settings`` on the command line.
 
@@ -13,7 +12,7 @@ type ``bokeh settings`` on the command line.
 
     bokeh settings
 
-This will print all settings to standard output, such as:
+This will print all settings to standard output in a table format, such as:
 
 .. code-block:: none
 
@@ -21,51 +20,37 @@ This will print all settings to standard output, such as:
     ==========================================================================
     Setting                      Environment Variable              Value
     --------------------------------------------------------------------------
-    allowed_ws_origin            BOKEH_ALLOW_WS_ORIGIN             []
-    auth_module                  BOKEH_AUTH_MODULE                 None
-    browser                      BOKEH_BROWSER                     None
-    cdn_version                  BOKEH_CDN_VERSION                 None
-    chromedriver_path            BOKEH_CHROMEDRIVER_PATH           None
-    compression_level            BOKEH_COMPRESSION_LEVEL           9
-    cookie_secret                BOKEH_COOKIE_SECRET               None
-    default_server_host          BOKEH_DEFAULT_SERVER_HOST         localhost
-    default_server_port          BOKEH_DEFAULT_SERVER_PORT         5006
-    docs_cdn                     BOKEH_DOCS_CDN                    None
-    docs_version                 BOKEH_DOCS_VERSION                None
-    ico_path                     BOKEH_ICO_PATH                    /path/to/ico
-    ignore_filename              BOKEH_IGNORE_FILENAME             False
     log_level                    BOKEH_LOG_LEVEL                   info
     minified                     BOKEH_MINIFIED                    True
-    nodejs_path                  BOKEH_NODEJS_PATH                 None
-    perform_document_validation  BOKEH_VALIDATE_DOC                True
-    pretty                       BOKEH_PRETTY                      False
-    py_log_level                 BOKEH_PY_LOG_LEVEL                None
-    resources                    BOKEH_RESOURCES                   cdn
-    rootdir                      BOKEH_ROOTDIR                     None
-    secret_key                   BOKEH_SECRET_KEY                  None
-    serialize_include_defaults   BOKEH_SERIALIZE_INCLUDE_DEFAULTS  False
-    sign_sessions                BOKEH_SIGN_SESSIONS               False
-    simple_ids                   BOKEH_SIMPLE_IDS                  True
-    ssl_certfile                 BOKEH_SSL_CERTFILE                None
-    ssl_keyfile                  BOKEH_SSL_KEYFILE                 None
-    ssl_password                 BOKEH_SSL_PASSWORD                None
-    validation_level             BOKEH_VALIDATION_LEVEL            none
-    xsrf_cookies                 BOKEH_XSRF_COOKIES                False
-    --------------------------------------------------------------------------
+    browser                      BOKEH_BROWSER                     None
+    ...
 
-This will display all available Bokeh settings in a table format with their
-current values and environment variables.
+To get detailed help for one or more specific settings, provide their names:
 
-To get detailed help for a specific setting, use the -v option:
+.. code-block:: sh
+
+    bokeh settings log_level minified
+
+This will show the current value, environment variable, and help text for
+each requested setting.
+
+Use the ``-v`` option for verbose output with additional details:
 
 .. code-block:: sh
 
     bokeh settings -v log_level
-    bokeh settings -v minified
+    bokeh settings -v log_level browser
 
-This will show detailed information about the specified setting including its
-help text, default values, and current value.
+If a setting name is not an exact match, substring and fuzzy matching
+will be used to suggest possible candidates:
 
+.. code-block:: sh
+
+    bokeh settings logg
+
+    Did you mean one of these?
+      log_level
+      py_log_level
 '''
 
 #-----------------------------------------------------------------------------
@@ -82,7 +67,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from argparse import Namespace
+from dataclasses import dataclass, field
+from difflib import get_close_matches
 from typing import Any
+
+# External imports
+from jinja2 import Template
 
 # Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset
@@ -103,6 +93,55 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+SETTINGS_TABLE_TEMPLATE = Template("""
+Bokeh Settings:
+{{ "=" * 80 }}
+{{ "{:<30} {:<35} {:<25}".format("Setting", "Environment Variable", "Value") }}
+{{ "-" * 80 }}
+{%- for name, env_var, value in rows %}
+{{ "{:<30} {:<35} {:<25}".format(name, env_var, value) }}
+{%- endfor %}
+{{ "-" * 80 }}
+
+""")
+
+SETTING_TEMPLATE = Template("""
+Setting: {{ name }}
+{{ "=" * 60 }}
+Current Value: {{ current_value }}
+{%- if verbose %}
+Source: {{ source }}
+Default Value: {{ default }}
+{%- if dev_default is not none %}
+Dev Default: {{ dev_default }}
+{%- endif %}
+{%- endif %}
+Environment Variable: {{ env_var }}
+
+Help:
+{{ help }}
+
+""")
+
+FUZZY_MATCH_TEMPLATE = Template("""
+Setting '{{ name }}' not found.
+Did you mean one of these?
+{%- for c in close %}
+  {{ c }}
+{%- endfor %}
+
+""")
+
+NOT_FOUND_TEMPLATE = Template("""
+Setting '{{ name }}' not found.
+
+Available settings:
+{%- for n in all_names %}
+  {{ n }}
+{%- endfor %}
+
+""")
+
 class Settings(Subcommand):
     ''' Subcommand to print information about Bokeh settings.
 
@@ -119,66 +158,100 @@ class Settings(Subcommand):
             help="Show detailed help for a specific setting",
         )),
 
-        ('setting_name', Argument(
-            nargs='?',
-            help="Name of a specific setting to show detailed help for (use with -v)",
+        ('setting_names', Argument(
+            nargs='*',
+            help="One or more specific settings to show info for (use with -v for details)",
         )),
 
     )
 
     def invoke(self, args: Namespace) -> None:
-        '''
-
+        ''' Handle the "bokeh settings" command behavior.
         '''
         all_settings = get_all_settings()
 
-        if args.setting_name:
-            if args.setting_name in all_settings:
-                if args.verbose:
-                    self._print_setting_detail(args.setting_name, all_settings[args.setting_name])
-                else:
-                    print("To get detailed help for a specific setting, use:")
-                    print("  bokeh settings [-v | --verbose] <setting_name>")
-                    print("\nFor a list of all settings, use:")
-                    print("  bokeh settings")
-            else:
-                print(f"Setting '{args.setting_name}' not found.")
-                print("Available settings:")
-                for name in sorted(all_settings):
-                    print(f"  {name}")
+        if args.verbose and not args.setting_names:
+            for name, descriptor in all_settings.items():
+                self._print_setting(name, descriptor, verbose=True)
+
+        elif args.setting_names:
+            resolved = resolve_setting_names(args.setting_names, all_settings)
+            self._print_resolved_settings(resolved, all_settings, args.verbose)
+
         else:
             self._print_settings_table(all_settings)
+
+
+    def _print_resolved_settings(
+        self, resolved: ResolutionResult, all_settings: dict[str, PrioritizedSetting[Any]], verbose: bool,
+    ) -> None:
+        """Print results from resolve_setting_names()."""
+
+        # Fuzzy matches
+        for name, close in resolved.fuzzy_matches.items():
+            print(FUZZY_MATCH_TEMPLATE.render(name=name, close=close))
+
+        # Not found
+        for name in resolved.not_found:
+            print(NOT_FOUND_TEMPLATE.render(name=name, all_names=sorted(all_settings)))
+
+        # Exact matches
+        to_print = sorted(set(resolved.exact_matches))
+        for setting_name in to_print:
+            descriptor = all_settings[setting_name]
+            self._print_setting(setting_name, descriptor, verbose)
 
     def _print_settings_table(self, all_settings: dict[str, PrioritizedSetting[Any]]) -> None:
         ''' Print all settings in a table format.
         '''
-        print("Bokeh Settings:")
-        print("=" * 80)
-        print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
-        print("-" * 80)
+        rows = [(name, desc.env_var, str(desc())) for name, desc in all_settings.items()]
+        print(SETTINGS_TABLE_TEMPLATE.render(rows=rows))
 
-        for name, descriptor in all_settings.items():
-            print(f"{name:<30} {descriptor.env_var:<35} {descriptor()!s:<25}")
-
-        print("-" * 80)
-
-    def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
-        ''' Print detailed help for a specific setting.
-        '''
-        ''' Print all settings in a table format. '''
-        print(f"Setting: {setting_name}")
-        print("=" * 60)
-        print(f"Current Value: {descriptor()}")
-        print(f"Default Value: {descriptor.default}")
-        if descriptor.dev_default is not _Unset:
-            print(f"Dev Default: {descriptor.dev_default}")
-        print(f"Environment Variable: {descriptor.env_var}")
-        print("\nHelp:")
-        print(f"{descriptor.help.strip()}")
+    def _print_setting(self, setting_name: str, descriptor: PrioritizedSetting[Any], verbose: bool) -> None:
+        ''' Print info (basic or detailed) for a specific setting using one template. '''
+        context = {
+            "name": setting_name,
+            "current_value": descriptor(),
+            "source": descriptor.provenance_display,
+            "default": descriptor.default,
+            "dev_default": descriptor.dev_default if descriptor.dev_default is not _Unset else None,
+            "env_var": descriptor.env_var,
+            "help": descriptor.help.strip(),
+            "verbose": verbose,
+        }
+        print(SETTING_TEMPLATE.render(**context))
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@dataclass
+class ResolutionResult:
+    exact_matches: list[str] = field(default_factory=list)
+    fuzzy_matches: dict[str, list[str]] = field(default_factory=dict)
+    not_found: list[str] = field(default_factory=list)
+
+
+def resolve_setting_names(input_names: list[str], all_settings: dict[str, Any]) -> ResolutionResult:
+    """Resolve user-supplied setting names into matches against all_settings."""
+    result = ResolutionResult()
+
+    for name in input_names:
+        if name in all_settings:
+            result.exact_matches.append(name)
+            continue
+
+        substring_matches = [k for k in all_settings if name.lower() in k.lower()]
+        if substring_matches:
+            result.exact_matches.extend(substring_matches)
+        else:
+            close = get_close_matches(name, all_settings.keys(), n=3, cutoff=0.6)
+            if close:
+                result.fuzzy_matches[name] = close
+            else:
+                result.not_found.append(name)
+
+    return result
 
 #-----------------------------------------------------------------------------
 # Private API
