@@ -4,7 +4,7 @@ Network graphs
 ==============
 
 Bokeh lets you create network graph visualizations and configure
-interactions between edges and nodes
+interactions between edges and nodes.
 
 Overview
 --------
