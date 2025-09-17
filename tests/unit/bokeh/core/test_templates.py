@@ -62,7 +62,7 @@ def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
     html = file_html(p, resources=Resources(resource_mode))
     return html.split('\n')
 
-pinned_template_sha256 = "6019c4cb80495c17303e1b5b05c27aac64e8ef35f41b2d2b9aabcbbe5cf5d3b1"
+pinned_template_sha256 = "9bcfc2a1515403eb002238ba6c83c5d3ef5eb7f0d27154bc77f8514ccc39ee9b"
 
 def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the
@@ -70,7 +70,7 @@ def test_autoload_template_has_changed() -> None:
     plots into notebooks is working as expected. In particular, this test was
     created as part of https://github.com/bokeh/bokeh/issues/7125.
     """
-    with open(join(TOP_PATH, "_templates/autoload_nb_js.js"), mode="rb") as f:
+    with open(join(TOP_PATH, "_templates/autoload_nb_js.js.jinja"), mode="rb") as f:
         current_template_sha256 = compute_sha256(_crlf_cr_2_lf_bin(f.read()))
         assert pinned_template_sha256 == current_template_sha256, """\
             It seems that the template autoload_nb_js.js has changed.
