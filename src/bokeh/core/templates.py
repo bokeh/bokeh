@@ -110,20 +110,20 @@ AUTOLOAD_TAG: Template
 AUTOLOAD_REQUEST_TAG: Template
 
 _templates: dict[str, Callable[[], Template]] = dict(
-    JS_RESOURCES=lambda: get_env().get_template("js_resources.html"),
-    CSS_RESOURCES=lambda: get_env().get_template("css_resources.html"),
-    SCRIPT_TAG=lambda: get_env().get_template("script_tag.html"),
-    PLOT_DIV=lambda: get_env().get_template("plot_div.html"),
-    ROOT_DIV=lambda: get_env().get_template("root_div.html"),
-    DOC_JS=lambda: get_env().get_template("doc_js.js"),
-    DOC_NB_JS=lambda: get_env().get_template("doc_nb_js.js"),
-    FILE=lambda: get_env().get_template("file.html"),
-    MACROS=lambda: get_env().get_template("macros.html"),
-    NOTEBOOK_LOAD=lambda: get_env().get_template("notebook_load.html"),
-    AUTOLOAD_JS=lambda: get_env().get_template("autoload_js.js"),
-    AUTOLOAD_NB_JS=lambda: get_env().get_template("autoload_nb_js.js"),
-    AUTOLOAD_TAG=lambda: get_env().get_template("autoload_tag.html"),
-    AUTOLOAD_REQUEST_TAG=lambda: get_env().get_template("autoload_request_tag.html"),
+    JS_RESOURCES=lambda: get_env().get_template("js_resources.html.jinja"),
+    CSS_RESOURCES=lambda: get_env().get_template("css_resources.html.jinja"),
+    SCRIPT_TAG=lambda: get_env().get_template("script_tag.html.jinja"),
+    PLOT_DIV=lambda: get_env().get_template("plot_div.html.jinja"),
+    ROOT_DIV=lambda: get_env().get_template("root_div.html.jinja"),
+    DOC_JS=lambda: get_env().get_template("doc_js.js.jinja"),
+    DOC_NB_JS=lambda: get_env().get_template("doc_nb_js.js.jinja"),
+    FILE=lambda: get_env().get_template("file.html.jinja"),
+    MACROS=lambda: get_env().get_template("macros.html.jinja"),
+    NOTEBOOK_LOAD=lambda: get_env().get_template("notebook_load.html.jinja"),
+    AUTOLOAD_JS=lambda: get_env().get_template("autoload_js.js.jinja"),
+    AUTOLOAD_NB_JS=lambda: get_env().get_template("autoload_nb_js.js.jinja"),
+    AUTOLOAD_TAG=lambda: get_env().get_template("autoload_tag.html.jinja"),
+    AUTOLOAD_REQUEST_TAG=lambda: get_env().get_template("autoload_request_tag.html.jinja"),
 )
 
 @lru_cache(None)
