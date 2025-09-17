@@ -26,24 +26,16 @@ import numpy as np
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
-from ..core.properties import (
-    Auto,
-    Datetime,
-    Either,
-    Enum,
-    Float,
-    Instance,
-    InstanceDefault,
-    Int,
-    List,
-    Nullable,
-    Seq,
-    String,
-    TextLike,
-    TimeDelta,
-    Tuple,
-)
+from ..core.property.auto import Auto
+from ..core.property.container import List, Seq, Tuple
 from ..core.property.data_frame import EagerSeries, PandasGroupBy
+from ..core.property.datetime import Datetime, TimeDelta
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Float, Int, String
+from ..core.property.text_like import TextLike
 from ..models import (
     ColumnDataSource,
     CoordinateMapping,

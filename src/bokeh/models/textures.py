@@ -26,12 +26,10 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import TextureRepetition
 from ..core.has_props import abstract
-from ..core.properties import (
-    Enum,
-    Image,
-    Required,
-    String,
-)
+from ..core.property.enum import Enum
+from ..core.property.primitive import String
+from ..core.property.required import Required
+from ..core.property.visual import Image
 from ..model import Model
 
 #-----------------------------------------------------------------------------

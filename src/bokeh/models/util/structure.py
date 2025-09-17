@@ -39,7 +39,7 @@ from itertools import permutations
 from typing import TYPE_CHECKING
 
 # Bokeh imports
-from bokeh.core.properties import UnsetValueError
+from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.layouts import column
 from bokeh.models import (
     BoxZoomTool,

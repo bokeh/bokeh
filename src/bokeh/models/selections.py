@@ -22,13 +22,9 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (
-    Dict,
-    Int,
-    List,
-    Seq,
-    Struct,
-)
+from ..core.property.container import Dict, List, Seq
+from ..core.property.primitive import Int
+from ..core.property.struct import Struct
 from ..model import Model
 
 #-----------------------------------------------------------------------------

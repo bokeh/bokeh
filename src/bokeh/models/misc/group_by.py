@@ -23,7 +23,9 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Instance, List, Required
+from ...core.property.container import List
+from ...core.property.instance import Instance
+from ...core.property.required import Required
 from ...model import Model
 
 #-----------------------------------------------------------------------------

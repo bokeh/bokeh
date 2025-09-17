@@ -24,18 +24,14 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.properties import (
-    Auto,
-    Either,
-    Float,
-    Include,
-    Instance,
-    Int,
-    Nullable,
-    Override,
-    Seq,
-    Tuple,
-)
+from ..core.property.auto import Auto
+from ..core.property.container import Seq, Tuple
+from ..core.property.either import Either
+from ..core.property.include import Include
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.override import Override
+from ..core.property.primitive import Float, Int
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from .axes import Axis
 from .renderers import GuideRenderer

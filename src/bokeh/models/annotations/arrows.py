@@ -26,16 +26,13 @@ from typing import Any
 # Bokeh imports
 from ...core.enums import CoordinateUnits
 from ...core.has_props import abstract
-from ...core.properties import (
-    Enum,
-    Include,
-    Instance,
-    InstanceDefault,
-    Nullable,
-    NumberSpec,
-    Override,
-    field,
-)
+from ...core.property.dataspec import NumberSpec
+from ...core.property.enum import Enum
+from ...core.property.include import Include
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.nullable import Nullable
+from ...core.property.override import Override
+from ...core.property.vectorization import field
 from ...core.property_mixins import FillProps, HatchProps, LineProps
 from ..graphics import Marking
 from .annotation import DataAnnotation

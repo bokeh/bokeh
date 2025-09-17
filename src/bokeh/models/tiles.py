@@ -24,17 +24,17 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ..core.properties import (
-    AnyRef,
+from ..core.property.any import AnyRef
+from ..core.property.container import Dict
+from ..core.property.nullable import Nullable
+from ..core.property.override import Override
+from ..core.property.primitive import (
     Bool,
-    Dict,
     Float,
     Int,
-    Nullable,
-    Override,
-    Required,
     String,
 )
+from ..core.property.required import Required
 from ..model import Model
 
 #-----------------------------------------------------------------------------

@@ -27,26 +27,23 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import Align, AxisLabelStandoffMode, LabelOrientation
 from ..core.has_props import abstract
-from ..core.properties import (
-    Auto,
-    Datetime,
-    Dict,
-    Either,
-    Enum,
-    Factor,
+from ..core.property.auto import Auto
+from ..core.property.container import Dict, Seq, Tuple
+from ..core.property.datetime import Datetime
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.factors import Factor
+from ..core.property.include import Include
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
+from ..core.property.override import Override
+from ..core.property.primitive import (
     Float,
-    Include,
-    Instance,
-    InstanceDefault,
     Int,
     Null,
-    Nullable,
-    Override,
-    Seq,
     String,
-    TextLike,
-    Tuple,
 )
+from ..core.property.text_like import TextLike
 from ..core.property_mixins import (
     ScalarFillProps,
     ScalarHatchProps,

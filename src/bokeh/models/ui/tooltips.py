@@ -25,19 +25,15 @@ from typing import Any
 
 # Bokeh imports
 from ...core.enums import Anchor, TooltipAttachment
-from ...core.properties import (
-    Auto,
-    Bool,
-    Either,
-    Enum,
-    Float,
-    Instance,
-    Nullable,
-    Override,
-    Required,
-    String,
-    Tuple,
-)
+from ...core.property.auto import Auto
+from ...core.property.container import Tuple
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, Float, String
+from ...core.property.required import Required
 from ..dom import DOMNode
 from ..nodes import Coordinate
 from ..selectors import Selector

@@ -30,24 +30,19 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
-from ..core.properties import (
-    Auto,
-    Bool,
-    Datetime,
-    Either,
-    Enum,
-    FactorSeq,
-    Float,
-    Instance,
-    List,
-    MinMaxBounds,
-    Null,
-    Nullable,
-    Override,
-    Readonly,
-    Required,
-    TimeDelta,
-)
+from ..core.property.auto import Auto
+from ..core.property.container import List
+from ..core.property.datetime import Datetime, TimeDelta
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.factors import FactorSeq
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.override import Override
+from ..core.property.primitive import Bool, Float, Null
+from ..core.property.readonly import Readonly
+from ..core.property.required import Required
+from ..core.property.visual import MinMaxBounds
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model

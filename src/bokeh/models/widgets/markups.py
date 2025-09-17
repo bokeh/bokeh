@@ -31,7 +31,7 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, String
+from ...core.property.primitive import Bool, String
 from .widget import Widget
 
 #-----------------------------------------------------------------------------

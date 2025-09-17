@@ -90,35 +90,31 @@ from .enums import (
     TextBaseline,
 )
 from .has_props import HasProps
-from .properties import (
-    Alpha,
+from .property.color import Alpha, Color
+from .property.container import Dict
+from .property.dataspec import (
     AlphaSpec,
-    Color,
     ColorSpec,
-    DashPattern,
     DashPatternSpec,
-    Dict,
-    Enum,
-    Float,
     FloatSpec,
-    FontSize,
     FontSizeSpec,
     FontStyleSpec,
     HatchPatternSpec,
-    Instance,
-    Int,
     IntSpec,
     LineCapSpec,
     LineJoinSpec,
-    Nullable,
     NumberSpec,
-    Size,
-    String,
     StringSpec,
     TextAlignSpec,
     TextBaselineSpec,
-    value,
 )
+from .property.enum import Enum
+from .property.instance import Instance
+from .property.nullable import Nullable
+from .property.numeric import Size
+from .property.primitive import Float, Int, String
+from .property.vectorization import value
+from .property.visual import DashPattern, FontSize
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -35,19 +35,14 @@ from ..core.enums import (
     TimedeltaResolutionType,
 )
 from ..core.has_props import abstract
-from ..core.properties import (
-    AnyRef,
-    Auto,
-    Bool,
-    Dict,
-    Either,
-    Enum,
-    Instance,
-    Int,
-    Nullable,
-    Seq,
-    String,
-)
+from ..core.property.any import AnyRef
+from ..core.property.auto import Auto
+from ..core.property.container import Dict, Seq
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, Int, String
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model

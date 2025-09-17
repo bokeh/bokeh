@@ -26,18 +26,14 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import BuiltinFormatter
 from ..core.has_props import HasProps, abstract
-from ..core.properties import (
-    Bool,
-    Dict,
-    Either,
-    Enum,
-    Instance,
-    List,
-    Nullable,
-    Required,
-    String,
-)
 from ..core.property.bases import Init
+from ..core.property.container import Dict, List
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, String
+from ..core.property.required import Required
 from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import NOT_A_PROPERTY_OF

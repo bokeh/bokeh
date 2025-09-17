@@ -24,15 +24,10 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (
-    Bool,
-    Dict,
-    Either,
-    Int,
-    Required,
-    String,
-    Tuple,
-)
+from ..core.property.container import Dict, Tuple
+from ..core.property.either import Either
+from ..core.property.primitive import Bool, Int, String
+from ..core.property.required import Required
 from ..model import Model
 
 #-----------------------------------------------------------------------------

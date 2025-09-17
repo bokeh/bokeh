@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ....core.properties import Instance
+from ....core.property.instance import Instance
 from .html_annotation import HTMLAnnotation
 
 #-----------------------------------------------------------------------------

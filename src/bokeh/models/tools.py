@@ -59,36 +59,32 @@ from ..core.enums import (
     TooltipFieldFormatter,
 )
 from ..core.has_props import abstract
-from ..core.properties import (
-    Alpha,
-    AnyRef,
-    Auto,
-    Bool,
-    Color,
-    Date,
-    Datetime,
-    DeprecatedAlias,
+from ..core.property.alias import DeprecatedAlias
+from ..core.property.any import AnyRef
+from ..core.property.auto import Auto
+from ..core.property.color import Alpha, Color
+from ..core.property.container import (
     Dict,
-    Either,
-    Enum,
-    Float,
-    Instance,
-    InstanceDefault,
-    Int,
     List,
-    NonNegative,
-    Null,
-    Nullable,
-    Override,
-    Percent,
-    Positive,
-    Required,
     Seq,
-    String,
-    Struct,
     Tuple,
 )
-from ..core.property.struct import Optional
+from ..core.property.datetime import Date, Datetime
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
+from ..core.property.numeric import NonNegative, Percent, Positive
+from ..core.property.override import Override
+from ..core.property.primitive import (
+    Bool,
+    Float,
+    Int,
+    Null,
+    String,
+)
+from ..core.property.required import Required
+from ..core.property.struct import Optional, Struct
 from ..core.property_aliases import IconLike
 from ..core.validation import error
 from ..core.validation.errors import NO_RANGE_TOOL_RANGES

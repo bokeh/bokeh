@@ -23,14 +23,11 @@ from typing import Any
 
 # Bokeh imports
 from ...core.enums import Location
-from ...core.properties import (
-    Bool,
-    CSSLength,
-    Either,
-    Enum,
-    Float,
-    Required,
-)
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.primitive import Bool, Float
+from ...core.property.required import Required
+from ...core.property.visual import CSSLength
 from .panes import Pane
 
 #-----------------------------------------------------------------------------

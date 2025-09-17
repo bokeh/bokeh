@@ -27,24 +27,23 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import (
-    Bool,
-    Color,
-    Datetime,
-    Either,
-    Enum,
-    Float,
-    Instance,
-    Int,
-    Nullable,
-    Override,
-    Readonly,
-    Required,
-    Seq,
-    String,
-    Tuple,
-)
+from ...core.property.color import Color
+from ...core.property.container import Seq, Tuple
+from ...core.property.datetime import Datetime
 from ...core.property.descriptors import UnsetValueError
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.override import Override
+from ...core.property.primitive import (
+    Bool,
+    Float,
+    Int,
+    String,
+)
+from ...core.property.readonly import Readonly
+from ...core.property.required import Required
 from ...core.property.singletons import Undefined
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END

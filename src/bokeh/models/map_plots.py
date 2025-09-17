@@ -26,20 +26,19 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import MapType
 from ..core.has_props import abstract
-from ..core.properties import (
-    JSON,
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.json import JSON
+from ..core.property.nullable import Nullable
+from ..core.property.override import Override
+from ..core.property.primitive import (
     Bool,
     Bytes,
-    Enum,
     Float,
-    Instance,
-    InstanceDefault,
     Int,
-    Nullable,
-    Override,
-    Required,
     String,
 )
+from ..core.property.required import Required
 from ..core.validation import error, warning
 from ..core.validation.errors import (
     INCOMPATIBLE_MAP_RANGE_TYPE,

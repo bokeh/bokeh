@@ -27,12 +27,9 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (
-    AnyRef,
-    Bool,
-    Dict,
-    String,
-)
+from ..core.property.any import AnyRef
+from ..core.property.container import Dict
+from ..core.property.primitive import Bool, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------

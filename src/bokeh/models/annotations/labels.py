@@ -32,20 +32,15 @@ from ...core.enums import (
     VerticalAlign,
 )
 from ...core.has_props import abstract
-from ...core.properties import (
-    Angle,
-    AngleSpec,
-    Bool,
-    Enum,
-    Float,
-    Include,
-    NullStringSpec,
-    NumberSpec,
-    Override,
-    Required,
-    TextLike,
-    field,
-)
+from ...core.property.dataspec import AngleSpec, NullStringSpec, NumberSpec
+from ...core.property.enum import Enum
+from ...core.property.include import Include
+from ...core.property.numeric import Angle
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, Float
+from ...core.property.required import Required
+from ...core.property.text_like import TextLike
+from ...core.property.vectorization import field
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,

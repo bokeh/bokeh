@@ -30,7 +30,7 @@ from typing import (
 import numpy as np
 
 # Bokeh imports
-from ..core.properties import Datetime
+from ..core.property.datetime import Datetime
 from ..core.property.singletons import Intrinsic
 from ..models import (
     Axis,

@@ -26,17 +26,12 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import (
-    Dict,
-    Either,
-    Float,
-    List,
-    Nullable,
-    Override,
-    Required,
-    String,
-    Tuple,
-)
+from ...core.property.container import Dict, List, Tuple
+from ...core.property.either import Either
+from ...core.property.nullable import Nullable
+from ...core.property.override import Override
+from ...core.property.primitive import Float, String
+from ...core.property.required import Required
 from ...model import Model
 
 #-----------------------------------------------------------------------------

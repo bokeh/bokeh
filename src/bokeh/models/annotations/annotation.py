@@ -25,7 +25,8 @@ from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Instance, InstanceDefault, Override
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.override import Override
 from ..renderers.renderer import CompositeRenderer
 from ..sources import ColumnDataSource, DataSource
 

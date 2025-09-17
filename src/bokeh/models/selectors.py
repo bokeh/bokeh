@@ -25,8 +25,9 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Required, String
 from ..core.property.bases import Init
+from ..core.property.primitive import String
+from ..core.property.required import Required
 from ..core.property.singletons import Intrinsic
 from ..model import Model
 

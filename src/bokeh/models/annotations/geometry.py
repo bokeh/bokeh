@@ -31,24 +31,18 @@ from ...core.enums import (
     Movable,
     Resizable,
 )
-from ...core.properties import (
-    Bool,
-    CoordinateLike,
-    Enum,
-    Float,
-    Include,
-    Instance,
-    InstanceDefault,
-    NonNegative,
-    Null,
-    Nullable,
-    Override,
-    Positive,
-    Required,
-    Seq,
-    UnitsSpec,
-    field,
-)
+from ...core.property.aliases import CoordinateLike
+from ...core.property.container import Seq
+from ...core.property.dataspec import UnitsSpec
+from ...core.property.enum import Enum
+from ...core.property.include import Include
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.nullable import Nullable
+from ...core.property.numeric import NonNegative, Positive
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, Float, Null
+from ...core.property.required import Required
+from ...core.property.vectorization import field
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,

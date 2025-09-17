@@ -26,17 +26,14 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
-from ..core.properties import (
-    AnyRef,
-    Auto,
-    Bool,
-    Dict,
-    Either,
-    Instance,
-    Required,
-    String,
-)
+from ..core.property.any import AnyRef
+from ..core.property.auto import Auto
 from ..core.property.bases import Init
+from ..core.property.container import Dict
+from ..core.property.either import Either
+from ..core.property.instance import Instance
+from ..core.property.primitive import Bool, String
+from ..core.property.required import Required
 from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF

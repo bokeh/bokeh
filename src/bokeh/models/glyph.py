@@ -32,7 +32,8 @@ from typing import Any
 
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
-from ..core.properties import Instance, List
+from ..core.property.container import List
+from ..core.property.instance import Instance
 from ..model import Model
 from .graphics import Decoration
 

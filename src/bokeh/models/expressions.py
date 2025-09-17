@@ -47,21 +47,15 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import Direction
 from ..core.has_props import abstract
-from ..core.properties import (
-    AngleSpec,
-    AnyRef,
-    Bool,
-    Dict,
-    Enum,
-    Float,
-    Instance,
-    Nullable,
-    NumberSpec,
-    Required,
-    Seq,
-    String,
-    field,
-)
+from ..core.property.any import AnyRef
+from ..core.property.container import Dict, Seq
+from ..core.property.dataspec import AngleSpec, NumberSpec
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, Float, String
+from ..core.property.required import Required
+from ..core.property.vectorization import field
 from ..model import Model
 
 #-----------------------------------------------------------------------------

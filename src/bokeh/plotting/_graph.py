@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 import sys
 
 # Bokeh imports
-from ..core.properties import field
+from ..core.property.vectorization import field
 from ..models import (
     Circle,
     ColumnarDataSource,

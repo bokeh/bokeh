@@ -26,19 +26,14 @@ from typing import Any
 # Bokeh imports
 from ..core.enums import JitterRandomDistribution, StepMode
 from ..core.has_props import abstract
-from ..core.properties import (
-    AnyRef,
-    Bool,
-    Dict,
-    Either,
-    Enum,
-    Float,
-    Instance,
-    Nullable,
-    Required,
-    Seq,
-    String,
-)
+from ..core.property.any import AnyRef
+from ..core.property.container import Dict, Seq
+from ..core.property.either import Either
+from ..core.property.enum import Enum
+from ..core.property.instance import Instance
+from ..core.property.nullable import Nullable
+from ..core.property.primitive import Bool, Float, String
+from ..core.property.required import Required
 from ..model import Model
 from .sources import ColumnarDataSource
 

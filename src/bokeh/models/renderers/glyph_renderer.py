@@ -27,15 +27,12 @@ from typing import TYPE_CHECKING, Any, Literal
 from bokeh.core.property.vectorization import Field
 
 # Bokeh imports
-from ...core.properties import (
-    Auto,
-    Bool,
-    Either,
-    Instance,
-    InstanceDefault,
-    Nullable,
-    Required,
-)
+from ...core.property.auto import Auto
+from ...core.property.either import Either
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Bool
+from ...core.property.required import Required
 from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
