@@ -25,13 +25,8 @@ import io
 import os
 from contextlib import contextmanager
 from os.path import abspath, expanduser, splitext
-from tempfile import mkstemp
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterator,
-    cast,
-)
+from tempfile import NamedTemporaryFile
+from typing import TYPE_CHECKING, Iterator, cast
 
 # Bokeh imports
 from ..embed import file_html
@@ -40,6 +35,8 @@ from .state import curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
+    from tempfile import _TemporaryFileWrapper
+
     from PIL import Image
     from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -261,8 +258,8 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        with open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(html)
+        with tmp as f:
+            f.write(html.encode("utf-8"))
 
         if driver is not None:
             web_driver = driver
@@ -273,7 +270,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         else:
             web_driver = webdriver_control.get(scale_factor=scale_factor)
         web_driver.maximize_window()
-        web_driver.get(f"file://{tmp.path}")
+        web_driver.get(f"file://{tmp.name}")
         wait_until_render_complete(web_driver, timeout)
         [width, height, dpr] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
@@ -291,11 +288,11 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        with open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(html)
+        with tmp as f:
+            f.write(html.encode("utf-8"))
 
         web_driver = driver if driver is not None else webdriver_control.get()
-        web_driver.get(f"file://{tmp.path}")
+        web_driver.get(f"file://{tmp.name}")
         wait_until_render_complete(web_driver, timeout)
         svgs = cast(list[str], web_driver.execute_script(_SVG_SCRIPT(obj)))
 
@@ -308,11 +305,11 @@ def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, time
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        with open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(html)
+        with tmp as f:
+            f.write(html.encode("utf-8"))
 
         web_driver = driver if driver is not None else webdriver_control.get()
-        web_driver.get(f"file://{tmp.path}")
+        web_driver.get(f"file://{tmp.name}")
         wait_until_render_complete(web_driver, timeout)
         svgs = cast(list[str], web_driver.execute_script(_SVGS_SCRIPT))
 
@@ -524,49 +521,17 @@ else
   doc.idle.connect(done);
 """
 
-
-class _TempFile:
-    _closed: bool = False
-
-    fd: int
-    path: str
-
-    def __init__(self, *, prefix: str = "tmp", suffix: str = "") -> None:
-        # XXX: selenium has issues with /tmp directory (or equivalent), so try using the
-        # current directory first, if writable, and otherwise fall back to the system
-        # default tmp directory.
-        try:
-            self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix, dir=os.getcwd())
-        except OSError:
-            self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
-
-    def __enter__(self) -> _TempFile:
-        return self
-
-    def __exit__(self, exc: Any, value: Any, tb: Any) -> None:
-        self.close()
-
-    def __del__(self) -> None:
-        self.close()
-
-    def close(self) -> None:
-        if self._closed:
-            return
-
-        try:
-            os.close(self.fd)
-        except OSError:
-            pass
-
-        try:
-            os.unlink(self.path)
-        except OSError:
-            pass
-
-        self._closed = True
-
-def _tmp_html() -> _TempFile:
-    return _TempFile(prefix="bokeh", suffix=".html")
+@contextmanager
+def _tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
+    # according to https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
+    # in order for named temp files to be safely re-openable on Windows, we need
+    # to set delete=False, so explicitly this context manager is for explicitly
+    # managing the unlink after we are done.
+    tmp = NamedTemporaryFile(mode="wb", prefix="bokeh", suffix=".html", delete=False)
+    try:
+        yield tmp
+    finally:
+        os.unlink(tmp.name)
 
 #-----------------------------------------------------------------------------
 # Code
