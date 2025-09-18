@@ -258,8 +258,8 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        tmp.write(html.encode("utf-8"))
-        tmp.close()
+        with tmp as f:
+            f.write(html.encode("utf-8"))
 
         if driver is not None:
             web_driver = driver
@@ -288,8 +288,8 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        tmp.write(html.encode("utf-8"))
-        tmp.close()
+        with tmp as f:
+            f.write(html.encode("utf-8"))
 
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.get(f"file://{tmp.name}")
@@ -305,8 +305,8 @@ def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, time
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        tmp.write(html.encode("utf-8"))
-        tmp.close()
+        with tmp as f:
+            f.write(html.encode("utf-8"))
 
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.get(f"file://{tmp.name}")
@@ -528,8 +528,10 @@ def _tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
     # to set delete=False, so explicitly this context manager is for explicitly
     # managing the unlink after we are done.
     tmp = NamedTemporaryFile(mode="wb", prefix="bokeh", suffix=".html", delete=False)
-    yield tmp
-    os.unlink(tmp.name)
+    try:
+        yield tmp
+    finally:
+        os.unlink(tmp.name)
 
 #-----------------------------------------------------------------------------
 # Code
