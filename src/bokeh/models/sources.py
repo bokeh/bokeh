@@ -589,7 +589,7 @@ class ColumnDataSource(ColumnarDataSource):
         # slightly awkward that we have to call convert_datetime_array here ourselves
         # but the downstream code expects things to already be ms-since-epoch
         for key, values in new_data.items():
-            if pd and isinstance(values, pd.Series | pd.Index):
+            if pd and isinstance(values, (pd.Series, pd.Index)):
                 values = values.values
             old_values = self.data[key]
             # Apply the transformation if the new data contains datetimes
