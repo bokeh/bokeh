@@ -22,6 +22,8 @@ export type ElementCommonAttrs = {
   id: Element["id"]
   title: HTMLElement["title"]
   tabIndex: HTMLOrSVGElement["tabIndex"]
+  role: ARIARole
+  "aria-hidden": "true" | "false"
 }
 
 export type HTMLAttrs<_T extends HTMLElementName, ElementSpecificAttrs> = ElementOurAttrs & Optional<ElementCommonAttrs> & Optional<ElementSpecificAttrs>
@@ -806,3 +808,98 @@ export function has_focus(el: Element): boolean {
     return false
   }
 }
+
+export type ARIARole =
+  // Structural roles
+  | "toolbar"
+  | "tooltip"
+  | "feed"
+  | "math"
+  | "presentation"
+  | "none"
+  | "note"
+  | "application"
+  | "article"      // use <article>
+  | "cell"         // use <td>
+  | "columnheader" // use <th scope="col">
+  | "definition"   // use <dfn>
+  | "directory"
+  | "document"
+  | "figure"       // use <figure> instead
+  | "group"
+  | "heading"      // use h1 through h6
+  | "img"          // use <img> or <picture> instead
+  | "list"         // either <ul> or <ol> instead
+  | "listitem"     // <li> instead
+  | "meter"        // <meter> instead
+  | "row"          // the <tr> with <table>
+  | "rowgroup"     // <thead>, <tfoot> and <tbody>
+  | "rowheader"    // <th scope="row">
+  | "separator"    // <hr> if it doesn't have focus
+  | "table"        // <table>
+  | "term"         // <dfn>
+  | "associationlist"
+  | "associationlistitemkey"
+  | "associationlistitemvalue"
+  | "blockquote"
+  | "caption"
+  | "code"
+  | "deletion"
+  | "emphasis"
+  | "insertion"
+  | "paragraph"
+  | "strong"
+  | "subscript"
+  | "superscript"
+  | "time"
+
+  // Widget roles
+  | "button"
+  | "checkbox"
+  | "gridcell"
+  | "link"
+  | "menuitem"
+  | "menuitemcheckbox"
+  | "menuitemradio"
+  | "option"
+  | "progressbar"
+  | "radio"
+  | "scrollbar"
+  | "searchbox"
+  | "separator"  // when focusable
+  | "slider"
+  | "spinbutton"
+  | "switch"
+  | "tab"
+  | "tabpanel"
+  | "textbox"
+  | "treeitem"
+
+  // Composite widget roles
+  | "combobox"
+  | "menu"
+  | "menubar"
+  | "tablist"
+  | "tree"
+  | "treegrid"
+
+  // Landmark roles
+  | "banner"        // document <header>
+  | "complementary" // <aside>
+  | "contentinfo"   // document <footer>
+  | "form"          // <form>
+  | "main"          // <main>
+  | "navigation"    // <nav>
+  | "region"        // <section>
+  | "search"        // <search>
+
+  // Live region roles
+  | "alert"
+  | "log"
+  | "marquee"
+  | "status"
+  | "timer"
+
+  // Window roles
+  | "alertdialog"
+  | "dialog"

@@ -1,6 +1,6 @@
 import {View} from "./view"
 import type {SerializableState} from "./view"
-import type {StyleSheet, StyleSheetLike} from "./dom"
+import type {StyleSheet, StyleSheetLike, ARIARole} from "./dom"
 import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
@@ -10,13 +10,14 @@ import base_css from "styles/base.css"
 export type RenderingTarget = HTMLElement | ShadowRoot
 
 export interface DOMView extends View {
-  constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
+  constructor: Function & {tag_name: keyof HTMLElementTagNameMap, aria_role?: ARIARole}
 }
 
 export abstract class DOMView extends View {
   declare parent: DOMView | null
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
+  static aria_role?: ARIARole
 
   el: ChildNode
   shadow_el?: ShadowRoot
@@ -80,7 +81,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    return create_element(this.constructor.tag_name, {})
+    return create_element(this.constructor.tag_name, {role: this.constructor.aria_role})
   }
 
   reposition(_displayed?: boolean): void {}

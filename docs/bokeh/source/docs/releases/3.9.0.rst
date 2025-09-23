@@ -1,0 +1,8 @@
+.. _release-3-9-0:
+
+3.9.0
+=====
+
+Bokeh version ``3.9.0`` (November 2025) is a minor milestone of Bokeh project.
+
+* Added support for ARIA ``role`` attribute to ``Switch`` component (:bokeh-pull:`14341`)
