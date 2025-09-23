@@ -39,8 +39,8 @@ export class SwitchView extends ToggleInputView {
     this._update_active()
     this._update_disabled()
 
-    this.el.addEventListener("click", () => this._toggle_active())
-    this.el.addEventListener("keydown", (event) => {
+    this.body_el.addEventListener("click", () => this._toggle_active())
+    this.body_el.addEventListener("keydown", (event) => {
       switch (event.key as Keys) {
         case "Enter":
         case " ": {
