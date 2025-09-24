@@ -303,9 +303,6 @@ export function replace_placeholders(content: string | {html: string}, data_sour
     has_html = true
   }
 
-  // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
-  str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
-
   str = process_placeholders(str, (type, name, format, _, spec) => {
     const value = get_value(type, name, data_source, i, special_vars)
 
@@ -352,15 +349,15 @@ export function replace_placeholders(content: string | {html: string}, data_sour
  * - full names: @{one two} (@{anything except curly brackets}
  * - optional formatting: $x{format}, ${x}{format}, @x{format}, @{one two}{format}
  */
-const regex = /((?:[$@][\p{Letter}\p{Number}_]+)|(?:[$@]\{(?:[^{}]+)\}))(?:\{([^{}]+)\})?/gu
+const regex = /(@\$|@|\$)((?:[\p{Letter}\p{Number}_]+)|(?:\{(?:[^{}]+)\}))(?:\{([^{}]+)\})?/gu
 
 export type PlaceholderReplacer = (type: PlaceholderType, name: string, format: string | undefined, i: number, spec: string) => string | null | undefined
 
 export function process_placeholders(text: string, fn: PlaceholderReplacer): string {
   let i = 0 // this var is used for testing purposes
-  return text.replace(regex, (_match, spec: string, format: string | undefined) => {
-    const type = spec[0] as "@" | "$"
-    const name = spec.substring(1).replace(/^{/, "").replace(/}$/, "").trim()
+  return text.replace(regex, (_match: string, type: PlaceholderType, content: string, format: string | undefined) => {
+    const name = content.replace(/^{/, "").replace(/}$/, "").trim()
+    const spec = `${type}${content}`
     return fn(type, name, format, i++, spec) ?? MISSING
   })
 }
