@@ -24,7 +24,7 @@ depending on the ``layout_provider``, which will dictate the placement of the no
 Edge and node renderers
 -----------------------
 
-By default, the glyph used in ``node_renderer`` is ``Circle``. 
+By default, the glyph used in ``node_renderer`` is ``Circle``.
 You can replace it by any instance of ``XYGlyph``, like ``Ellipse``, ``Rect`` or even
 :class:`~bokeh.models.Scatter`.
 
