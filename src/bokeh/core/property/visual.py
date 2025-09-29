@@ -164,7 +164,7 @@ class Image(Property[str]):
         import numpy as np
         import PIL.Image
 
-        if isinstance(value, str | Path | PIL.Image.Image):
+        if isinstance(value, (str, Path, PIL.Image.Image)):
             return
 
         if isinstance(value, np.ndarray):
@@ -198,7 +198,7 @@ class Image(Property[str]):
             return data_image("svg+xml", "utf8", quote(value.read_text()))
 
         # tempfile doesn't implement IO interface (https://bugs.python.org/issue33762)
-        if isinstance(value, Path | BinaryIO | tempfile._TemporaryFileWrapper):
+        if isinstance(value, (Path, BinaryIO, tempfile._TemporaryFileWrapper)):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):
