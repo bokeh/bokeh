@@ -60,8 +60,6 @@ export class TileRendererView extends RendererView {
     if (!(isFinite(x_start) && isFinite(y_start) && isFinite(x_end) && isFinite(y_end))) {
       logger.warn("tile extent is not fully defined")
     }
-    console.log(`extent x_start ${x_start}, y_start ${y_start}, x_end ${x_end}, y_end ${y_end}`)
-    console.log(`extent projected: ${this._compute_projection([x_start, y_start, x_end, y_end])}`)
     return this._compute_projection([x_start, y_start, x_end, y_end])
   }
 
@@ -239,16 +237,13 @@ export class TileRendererView extends RendererView {
   _draw_tile(ctx: Context2d, tile_key: string): void {
     const tile_data = this.model.tile_source.tiles.get(tile_key) as TileData | undefined
     if (tile_data != null && tile_data.loaded) {
-      console.log(`tiledata bounds ${tile_data.bounds}`)
       const tile_extent = bounds_to_extent(tile_data.bounds)
       const [[sxmin], [symin]] = this.coordinates.map_to_screen([tile_extent[0]], [tile_extent[1]])
       const [[sxmax], [symax]] = this.coordinates.map_to_screen([tile_extent[2]], [tile_extent[3]])
-      console.log(`tiledata sxmin ${sxmin}, symin ${symin}; sxmax ${sxmax}, symax ${symax}`)
       const sw = sxmax - sxmin
       const sh = symax - symin
       const sx = sxmin
       const sy = symin
-      console.log(`tiledata sw ${sw}, sh ${sh}; sx ${sx}, sy ${sy}`)
       const old_smoothing = ctx.imageSmoothingEnabled
       ctx.imageSmoothingEnabled = this.model.smoothing
       ctx.drawImage(tile_data.img, sx, sy, sw, sh)
@@ -284,8 +279,6 @@ export class TileRendererView extends RendererView {
     const h = this.plot_view.frame.bbox.height
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w)
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level)
-    console.log(`_prefetch_tiles zoom_level ${zoom_level}, extent ${extent}`)
-    console.log(tiles)
     for (let t = 0, end = Math.min(10, tiles.length); t < end; t++) {
       const [x, y, z] = tiles[t]
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z)
@@ -315,8 +308,6 @@ export class TileRendererView extends RendererView {
 
     let extent = this.get_extent()
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0])
-    console.log(`_update extent ${extent} this.extent ${this.extent} zooming_out ${zooming_out}`)
-    console.log(`_update delta this.extent ${(this.extent[2] - this.extent[0])} delta extent ${(extent[2] - extent[0])}`)
     const w = this.plot_view.frame.bbox.width
     const h = this.plot_view.frame.bbox.height
     let zoom_level = tile_source.get_level_by_extent(extent, h, w)
