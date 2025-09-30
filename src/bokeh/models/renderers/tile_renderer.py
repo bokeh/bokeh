@@ -23,9 +23,14 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...core.property.instance import Instance, InstanceDefault
-from ...core.property.override import Override
-from ...core.property.primitive import Bool, Float, String
+from ...core.properties import (
+    Bool,
+    Float,
+    Instance,
+    InstanceDefault,
+    Override,
+    String,
+)
 from ..tiles import TileSource, WMTSTileSource
 from .renderer import Renderer
 
@@ -64,6 +69,10 @@ class TileRenderer(Renderer):
 
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
+    """)
+
+    data_coordinate_system = String(default="GOOGLE", help="""
+    The coordinate system corresponding to the provided data. Other options can be found under (http://proj4js.org/).
     """)
 
     level = Override(default="image")
