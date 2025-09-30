@@ -37,11 +37,19 @@ const latlon_bounds = {
   lat: [-85.06, 85.06],
 }
 
+function clip_to_bounds(v: number, bounds: [number, number]): number {
+  return min(max(v, bounds[0]), bounds[1])
+}
+
 export function compute_web_mercator_projection(data_coordinate_system: string, x: number, y: number): [number, number] {
   const data_projection = new Projection(data_coordinate_system)
   const web_mercator_projection = new Projection("GOOGLE")
 
   const proj = proj4(data_projection, web_mercator_projection)
+
+  if (data_coordinate_system == "GOOGLE") {
+    return [x, y]
+  }
 
   if (isFinite(x) && isFinite(y)) {
     return proj.forward([x, y])
@@ -54,10 +62,16 @@ export function invert_web_mercator_projection(data_coordinate_system: string, x
   const data_projection = new Projection(data_coordinate_system)
   const web_mercator_projection = new Projection("GOOGLE")
 
+  const x_web_mercator_clipped = clip_to_bounds(x_web_mercator, mercator_bounds["lon"] as [number, number])
+  const y_web_mercator_clipped = clip_to_bounds(y_web_mercator, mercator_bounds["lat"] as [number, number])
+
   const proj = proj4(data_projection, web_mercator_projection)
+  if (data_coordinate_system == "GOOGLE") {
+    return [x_web_mercator_clipped, y_web_mercator_clipped]
+  }
 
   if (isFinite(x_web_mercator) && isFinite(y_web_mercator)) {
-    return proj.inverse([x_web_mercator, y_web_mercator])
+    return proj.inverse([x_web_mercator_clipped, y_web_mercator_clipped])
   } else {
     return [NaN, NaN]
   }

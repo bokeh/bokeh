@@ -1,6 +1,7 @@
 import type {Tile} from "./tile_source"
-import type {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
+import type {Extent, Bounds} from "./tile_utils"
+import {bounds_to_extent, extent_to_bounds} from "./tile_utils"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
 import type {Range} from "../ranges/range"
@@ -110,7 +111,6 @@ export class TileRendererView extends RendererView {
     const zoom_level = this.model.tile_source.get_level_by_extent(this.initial_extent, height, width)
     const new_extent = this.model.tile_source.snap_to_zoom_level(this.initial_extent, height, width, zoom_level)
     const new_extent_inv = this._invert_projection(new_extent)
-    console.log(`_map_data ${new_extent_inv}`)
     this.x_range.start = new_extent_inv[0]
     this.y_range.start = new_extent_inv[1]
     this.x_range.end = new_extent_inv[2]
@@ -136,7 +136,7 @@ export class TileRendererView extends RendererView {
     const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z)
     const src = this.model.tile_source.get_image_url(nx, ny, nz)
 
-    const bounds_proj = this._invert_projection(bounds)
+    const bounds_proj = extent_to_bounds(this._invert_projection(bounds_to_extent(bounds)))
 
     const tile: TileData = {
       img: undefined,
@@ -240,12 +240,15 @@ export class TileRendererView extends RendererView {
     const tile_data = this.model.tile_source.tiles.get(tile_key) as TileData | undefined
     if (tile_data != null && tile_data.loaded) {
       console.log(`tiledata bounds ${tile_data.bounds}`)
-      const [[sxmin], [symin]] = this.coordinates.map_to_screen([tile_data.bounds[0]], [tile_data.bounds[3]])
-      const [[sxmax], [symax]] = this.coordinates.map_to_screen([tile_data.bounds[2]], [tile_data.bounds[1]])
+      const tile_extent = bounds_to_extent(tile_data.bounds)
+      const [[sxmin], [symin]] = this.coordinates.map_to_screen([tile_extent[0]], [tile_extent[1]])
+      const [[sxmax], [symax]] = this.coordinates.map_to_screen([tile_extent[2]], [tile_extent[3]])
+      console.log(`tiledata sxmin ${sxmin}, symin ${symin}; sxmax ${sxmax}, symax ${symax}`)
       const sw = sxmax - sxmin
       const sh = symax - symin
       const sx = sxmin
       const sy = symin
+      console.log(`tiledata sw ${sw}, sh ${sh}; sx ${sx}, sy ${sy}`)
       const old_smoothing = ctx.imageSmoothingEnabled
       ctx.imageSmoothingEnabled = this.model.smoothing
       ctx.drawImage(tile_data.img, sx, sy, sw, sh)
@@ -281,7 +284,8 @@ export class TileRendererView extends RendererView {
     const h = this.plot_view.frame.bbox.height
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w)
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level)
-    console.log(`_prefetch_tiles zoom_level ${zoom_level}, ${tiles}`)
+    console.log(`_prefetch_tiles zoom_level ${zoom_level}, extent ${extent}`)
+    console.log(tiles)
     for (let t = 0, end = Math.min(10, tiles.length); t < end; t++) {
       const [x, y, z] = tiles[t]
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z)
@@ -311,6 +315,8 @@ export class TileRendererView extends RendererView {
 
     let extent = this.get_extent()
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0])
+    console.log(`_update extent ${extent} this.extent ${this.extent} zooming_out ${zooming_out}`)
+    console.log(`_update delta this.extent ${(this.extent[2] - this.extent[0])} delta extent ${(extent[2] - extent[0])}`)
     const w = this.plot_view.frame.bbox.width
     const h = this.plot_view.frame.bbox.height
     let zoom_level = tile_source.get_level_by_extent(extent, h, w)
