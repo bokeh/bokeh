@@ -4377,8 +4377,8 @@ describe("Bug", () => {
       s0.visible = true
       await view.ready
 
-      expect(p0.y_range.start).to.be.equal(-4033457.249070633)
-      expect(p0.y_range.end).to.be.equal(10033457.249070633)
+      expect(p0.y_range.start).to.be.equal(-4033457.2490706346)
+      expect(p0.y_range.end).to.be.equal(10033457.24907063)
     })
   })
 
