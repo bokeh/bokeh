@@ -23,14 +23,9 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
-from ...core.properties import (
-    Bool,
-    Float,
-    Instance,
-    InstanceDefault,
-    Override,
-    String,
-)
+from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.override import Override
+from ...core.property.primitive import Bool, Float, String
 from ..tiles import TileSource, WMTSTileSource
 from .renderer import Renderer
 
