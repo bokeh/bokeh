@@ -437,7 +437,8 @@ class Plot(LayoutDOM):
                 max_zoom=selected_provider.get("max_zoom", 30),
             )
 
-        if isinstance(self.xaxis[0], MercatorLongitudeAxis) and isinstance(self.yaxis[0], MercatorLatitudeAxis):
+        if (len(self.xaxis) > 0 and isinstance(self.xaxis[0], MercatorLongitudeAxis)
+                and len(self.yaxis) > 0 and isinstance(self.yaxis[0], MercatorLatitudeAxis)):
             # assume longitude and latitude data input based on axis
             kwargs["data_coordinate_system"] = "WGS84"
         # add data coordinate system
