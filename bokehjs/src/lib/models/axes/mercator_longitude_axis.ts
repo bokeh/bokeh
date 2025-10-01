@@ -9,11 +9,7 @@ export class MercatorLongitudeAxisView extends LinearAxisView {
 
 export namespace MercatorLongitudeAxis {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = LinearAxis.Props & {
-
-
-  }
+  export type Props = LinearAxis.Props & {}
 }
 
 export interface MercatorLongitudeAxis extends MercatorLongitudeAxis.Attrs {}

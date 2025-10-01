@@ -30,6 +30,10 @@ class LogScale(ContinuousScale):
     ...
 
 @dataclass
+class MercatorLatitudeScale(ContinuousScale):
+    ...
+
+@dataclass
 class CategoricalScale(Scale):
     ...
 

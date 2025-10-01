@@ -428,7 +428,8 @@ class MercatorAxis(LinearAxis):
     formatter = Override(default=InstanceDefault(MercatorTickFormatter))
 
 class MercatorLatitudeAxis(ContinuousAxis):
-    ''' An axis...
+    ''' An axis that picks nice numbers for tick locations on a
+    Mercator latitude scale.
 
     '''
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -439,7 +440,8 @@ class MercatorLatitudeAxis(ContinuousAxis):
     formatter = Override(default=InstanceDefault(BasicTickFormatter))
 
 class MercatorLongitudeAxis(LinearAxis):
-    ''' An axis
+    ''' An axis that picks nice numbers for tick locations on a
+    Mercator longitude scale.
 
     '''
     def __init__(self, *args: Any, **kwargs: Any) -> None:

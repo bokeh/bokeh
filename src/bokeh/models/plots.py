@@ -70,7 +70,7 @@ from ..core.validation.errors import (
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from .annotations import Annotation, Legend, Title
-from .axes import Axis, MercatorLongitudeAxis, MercatorLatitudeAxis
+from .axes import Axis, MercatorLatitudeAxis, MercatorLongitudeAxis
 from .dom import HTML
 from .glyphs import Glyph
 from .grids import Grid
@@ -86,6 +86,7 @@ from .scales import (
     CategoricalScale,
     LinearScale,
     LogScale,
+    MercatorLatitudeScale,
     Scale,
 )
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
@@ -483,7 +484,6 @@ class Plot(LayoutDOM):
 
         if self.x_scale is not None:
             for rng in x_ranges:
-                # TODO mercator
                 if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.x_scale, LinearScale | LogScale):
                     incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
@@ -491,7 +491,7 @@ class Plot(LayoutDOM):
 
         if self.y_scale is not None:
             for rng in y_ranges:
-                if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.y_scale, LinearScale | LogScale):
+                if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.y_scale, LinearScale | LogScale | MercatorLatitudeScale):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")

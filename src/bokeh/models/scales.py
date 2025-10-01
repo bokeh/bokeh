@@ -107,7 +107,7 @@ class LogScale(ContinuousScale):
         super().__init__(*args, **kwargs)
 
 class MercatorLatitudeScale(ContinuousScale):
-    ''' TODO
+    ''' Represents a mercator latitude scale transformation between continuous ranges.
 
     '''
 
