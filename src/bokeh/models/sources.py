@@ -562,6 +562,11 @@ class ColumnDataSource(ColumnarDataSource):
 
         oldkeys = set(self.data.keys())
 
+        # stream on empty source
+        if len(oldkeys) == 0:
+            self.data.update({k: [] for k in newkeys})
+            oldkeys = set(self.data.keys())
+
         if newkeys != oldkeys:
             missing = sorted(oldkeys - newkeys)
             extra = sorted(newkeys - oldkeys)
