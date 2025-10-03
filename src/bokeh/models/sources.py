@@ -507,7 +507,9 @@ class ColumnDataSource(ColumnarDataSource):
                 in this case the Series index is used as column names
 
                 All columns of the data source must be present in ``new_data``,
-                with identical-length append data.
+                with identical-length append data. In case the data source has
+                no columns at all, the extra columns in ``new_data`` will not
+                raise an exception because of mismatched columns.
 
             rollover (int, optional) : A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,

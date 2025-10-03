@@ -243,6 +243,8 @@ new data to the browser instead of sending the entire dataset.
 The :func:`~bokeh.models.sources.ColumnDataSource.stream` method takes a
 ``new_data`` parameter. This parameter expects a dict that maps column names
 to the sequences of data that you want appended to the respective columns.
+You may start with an empty ColumnDataSource to initialize the columns by
+the data itself.
 
 The method takes an additional, optional argument ``rollover``. This is the
 maximum length of data to keep. When there is more data than defined by your
