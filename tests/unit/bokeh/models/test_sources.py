@@ -340,6 +340,32 @@ class TestColumnDataSource:
         source.stream(dict(foo=[]))
         assert source.data["foo"] is array
 
+    def test_stream_to_empty_cds(self) -> None:
+        source = ColumnDataSource()
+        source.stream(dict(foo=[1]))
+
+        assert source.data["foo"] == [1]
+
+    def test_stream_to_empty_cds_dict(self) -> None:
+        source1 = ColumnDataSource(data=dict())
+        source1.stream(dict(foo=[1]))
+
+        assert source1.data["foo"] == [1]
+
+        source2 = ColumnDataSource(data=dict())
+        source2.stream(dict(foo=[1, 2], bar=[3, 4]))
+
+        assert source2.data["foo"] == [1, 2]
+        assert source2.data["bar"] == [3, 4]
+
+    def test_empty_stream_to_empty_cds(self) -> None:
+        source = ColumnDataSource()
+        source.stream(dict())
+        assert len(source.data.keys()) == 0
+        source.stream(dict(foo=[1]))
+
+        assert source.data["foo"] == [1]
+
     def test__df_index_name_with_named_index(self) -> None:
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         assert bms.ColumnDataSource._df_index_name(df) == "c"

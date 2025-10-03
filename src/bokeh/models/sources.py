@@ -506,8 +506,12 @@ class ColumnDataSource(ColumnarDataSource):
                 a pandas DataFrame, or a pandas Series in case of a single row -
                 in this case the Series index is used as column names
 
-                All columns of the data source must be present in ``new_data``,
-                with identical-length append data.
+                All columns in ``new_data`` must be the same length. In case
+                data source is not empty, the column names in ``new_data``
+                must match those of the data source exactly (otherwise an
+                exception is raised). If the data source is empty then
+                ``new_data`` replaces the empty ``.data`` dict of the
+                data source.
 
             rollover (int, optional) : A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
@@ -562,7 +566,10 @@ class ColumnDataSource(ColumnarDataSource):
 
         oldkeys = set(self.data.keys())
 
-        if newkeys != oldkeys:
+        # stream to empty source
+        if len(oldkeys) == 0:
+            self.data.update({k: [] for k in newkeys})
+        elif newkeys != oldkeys:
             missing = sorted(oldkeys - newkeys)
             extra = sorted(newkeys - oldkeys)
             if missing and extra:
