@@ -347,10 +347,16 @@ class TestColumnDataSource:
         assert source.data["foo"] == [1]
 
     def test_stream_to_empty_cds_dict(self) -> None:
-        source = ColumnDataSource(data=dict())
-        source.stream(dict(foo=[1]))
+        source1 = ColumnDataSource(data=dict())
+        source1.stream(dict(foo=[1]))
 
-        assert source.data["foo"] == [1]
+        assert source1.data["foo"] == [1]
+
+        source2 = ColumnDataSource(data=dict())
+        source2.stream(dict(foo=[1, 2], bar=[3, 4]))
+
+        assert source2.data["foo"] == [1, 2]
+        assert source2.data["bar"] == [3, 4]
 
     def test_empty_stream_to_empty_cds(self) -> None:
         source = ColumnDataSource()
