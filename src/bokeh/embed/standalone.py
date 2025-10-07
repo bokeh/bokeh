@@ -457,12 +457,12 @@ def _check_models_or_docs(models: ModelLike | ModelLikeCollection) -> ModelLikeC
         models = [models]
 
     # Check for sequence
-    if isinstance(models, Sequence) and all(isinstance(x, Model | Document) for x in models):
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
         input_type_valid = True
 
     if isinstance(models, dict) and \
         all(isinstance(x, str) for x in models.keys()) and \
-        all(isinstance(x, Model | Document) for x in models.values()):
+        all(isinstance(x, (Model, Document)) for x in models.values()):
         input_type_valid = True
 
     if not input_type_valid:

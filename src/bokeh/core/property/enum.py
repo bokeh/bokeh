@@ -65,7 +65,7 @@ class Enum(Either):
     def __init__(self, enum: int, *values: int, default: Init[int] = ..., help: str | None = ...) -> None: ...
 
     def __init__(self, enum: str | int | enums.Enumeration, *values: str | int, default: Init[str | int] = Intrinsic, help: str | None = None) -> None:
-        if isinstance(enum, str | int):
+        if isinstance(enum, (str, int)):
             self._enum = enums.enumeration(enum, *values)
         elif values:
             raise ValueError("unexpected enum values")

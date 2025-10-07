@@ -543,7 +543,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
 
         for name, patch in patches.items():
             for ind, value in patch:
-                if isinstance(ind, int | slice):
+                if isinstance(ind, (int, slice)):
                     self[name][ind] = value
                 else:
                     shape = self[name][ind[0]][tuple(ind[1:])].shape
