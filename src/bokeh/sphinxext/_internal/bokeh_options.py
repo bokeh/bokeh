@@ -79,7 +79,7 @@ class BokehOptionsDirective(BokehDirective):
         m = py_sig_re.match(sig)
         if m is None:
             raise SphinxError(f"Unable to parse signature for bokeh-options: {sig!r}")
-        _, options_name, __, ___ = m.groups()
+        options_name = m.group(1)
 
         module_name = self.options["module"]
 
