@@ -111,6 +111,7 @@ filterwarnings = [
     '''ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated and scheduled for removal in a future version:DeprecationWarning:dateutil''',
     '''ignore:\s*Pyarrow will become a required dependency of pandas:DeprecationWarning''',
     '''ignore:Exception ignored in. <.*>:pytest.PytestUnraisableExceptionWarning''',
+    '''ignore:'asyncio\.iscoroutinefunction' is deprecated and slated for removal in Python 3\.16; use inspect\.iscoroutinefunction\(\) instead''',
 ]
 
 [tool.coverage.run]
