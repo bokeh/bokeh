@@ -15,8 +15,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-# TODO: Python 3.13 compatibility, remove nbconvert can be ran on Python 3.13
-pytest.importorskip("nbconvert")
 
 # External imports
 import nbconvert
