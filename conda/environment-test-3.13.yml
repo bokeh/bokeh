@@ -22,7 +22,7 @@ dependencies:
 
   # tests
   - beautifulsoup4
-  # - channels  # Not yet available for Python 3.13
+  - channels
   - click
   - colorama
   - colorcet
@@ -32,7 +32,7 @@ dependencies:
   - ipython
   - isort 5.8
   - json5
-  # - nbconvert >=5.4 # Not yet available for Python 3.13
+  - nbconvert >=5.4
   - networkx
   - nodejs 20.*
   - pre-commit
@@ -55,12 +55,12 @@ dependencies:
 
   # examples
   - flask >=1.0
-  # - h5py # Not yet available for Python 3.13
+  - h5py
   - icalendar
-  # - notebook # Not yet available for Python 3.13
+  - notebook
   - pyshp
   - scikit-learn
-  #- squarify
+  - squarify
   - sympy
 
   # pip dependencies
@@ -88,5 +88,3 @@ dependencies:
     - types-toml
     - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
     - vermin
-    # move the following back to conda sections above when python 3.12 conda-forge packages available
-    - squarify
