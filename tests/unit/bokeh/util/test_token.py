@@ -209,13 +209,13 @@ class Test__get_sysrandom:
             expected = True
         except NotImplementedError:
             expected = False
-        _random, using_sysrandom = _get_sysrandom()
+        _, using_sysrandom = _get_sysrandom()
         assert using_sysrandom == expected
 
     @patch('random.SystemRandom', new_callable=_nie)
     def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom: MagicMock) -> None:
         with pytest.warns(UserWarning) as warns:
-            random, using_sysrandom = _get_sysrandom()
+            _, using_sysrandom = _get_sysrandom()
             assert not using_sysrandom
             assert len(warns) == 2
             assert warns[0].message.args[0] == _MERSENNE_MSG
@@ -230,7 +230,7 @@ class Test__get_sysrandom:
     def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom: MagicMock) -> None:
         with envset(BOKEH_SECRET_KEY="foo"):
             with pytest.warns(UserWarning) as warns:
-                random, using_sysrandom = _get_sysrandom()
+                _, using_sysrandom = _get_sysrandom()
                 assert not using_sysrandom
                 assert len(warns) == 1
                 assert warns[0].message.args[0] == _MERSENNE_MSG

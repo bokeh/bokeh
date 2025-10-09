@@ -249,7 +249,7 @@ class BokehPlotDirective(BokehDirective):
         if not hasattr(self.env, 'solved_sampledata'):
             self.env.solved_sampledata = []
 
-        file, lineno =  self.get_source_info()
+        file, _ = self.get_source_info()
         # collect links to all standalone examples
 
         if '/docs/examples/' in file and file not in self.env.solved_sampledata:

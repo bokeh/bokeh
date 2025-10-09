@@ -121,7 +121,7 @@ class TestProperty:
         for x in [1, 1.2, "a", np.arange(4), None, False, True, {}, []]:
                 assert p.matches(x, x) is True
                 assert p.matches(x, "junk") is False
-        out, err = capsys.readouterr()
+        _, err = capsys.readouterr()
         assert err == ""
 
     def test_matches_compatible_arrays(self, capsys: Capture) -> None:
@@ -133,7 +133,7 @@ class TestProperty:
         for x in [1, 1.2, "a", np.arange(4), None, False]:
                 assert p.matches(a, x) is False
                 assert p.matches(x, b) is False
-        out, err = capsys.readouterr()
+        _, err = capsys.readouterr()
         assert err == ""
 
     def test_matches_incompatible_arrays(self, capsys: Capture) -> None:
@@ -141,9 +141,9 @@ class TestProperty:
         a = np.arange(5)
         b = np.arange(5).astype(str)
         assert p.matches(a, b) is False
-        out, err = capsys.readouterr()
+        _, _err = capsys.readouterr()
         # no way to suppress FutureWarning in this case
-        # assert err == ""
+        # assert _err == ""
 
     def test_matches_dicts_with_array_values(self, capsys: Capture) -> None:
         p = bcpb.Property()
@@ -159,7 +159,7 @@ class TestProperty:
         assert p.matches(d1, dict(foo=np.arange(11))) is False
         assert p.matches(d1, dict(bar=np.arange(10))) is False
         assert p.matches(d1, dict(bar=10)) is False
-        out, err = capsys.readouterr()
+        _, err = capsys.readouterr()
         assert err == ""
 
     def test_matches_non_dict_containers_with_array_false(self, capsys: Capture) -> None:
@@ -174,7 +174,7 @@ class TestProperty:
         assert p.matches(t1, t1) is True  # because object identity
         assert p.matches(t1, t2) is False
 
-        out, err = capsys.readouterr()
+        _, err = capsys.readouterr()
         assert err == ""
 
     def test_matches_dicts_with_series_values(self, capsys: Capture) -> None:
@@ -191,7 +191,7 @@ class TestProperty:
         assert p.matches(d1.foo, np.arange(11)) is False
         assert p.matches(d1.foo, np.arange(10)+1) is False
         assert p.matches(d1.foo, 10) is False
-        out, err = capsys.readouterr()
+        _, err = capsys.readouterr()
         assert err == ""
 
     def test_matches_dicts_with_index_values(self, capsys: Capture) -> None:
@@ -208,7 +208,7 @@ class TestProperty:
         assert p.matches(d1.index, np.arange(11)) is False
         assert p.matches(d1.index, np.arange(10)+1) is False
         assert p.matches(d1.index, 10) is False
-        out, err = capsys.readouterr()
+        _, err = capsys.readouterr()
         assert err == ""
 
     def test_validation_on(self) -> None:

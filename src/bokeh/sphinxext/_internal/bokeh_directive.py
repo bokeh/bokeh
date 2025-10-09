@@ -34,13 +34,13 @@ from sphinx.util.nodes import nested_parse_with_titles
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-# taken from Sphinx autodoc
+# taken from Sphinx autodoc, all we use is the "thing name", e.g. model name
 py_sig_re = re.compile(
-    r"""^ ([\w.]*\.)?            # class name(s)
-          (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional: arguments
-           (?:\s* -> \s* (.*))?  # return annotation
-          )? $                   # and nothing more
+    r"""^ (?:[\w.]*\.)?            # class name(s)
+          (\w+)  \s*               # thing name
+          (?: \((?:.*)\)           # optional: arguments
+           (?:\s* -> \s* (?:.*))?  # return annotation
+          )? $                     # and nothing more
           """,
     re.VERBOSE,
 )
