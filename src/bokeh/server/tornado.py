@@ -47,7 +47,6 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
-from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
@@ -820,5 +819,3 @@ BokehTornado.__doc__ = format_docstring(
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
     DEFAULT_SESSION_TOKEN_EXPIRATION=DEFAULT_SESSION_TOKEN_EXPIRATION,
 )
-
-fixup_windows_event_loop_policy()
