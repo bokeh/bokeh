@@ -84,7 +84,7 @@ def test___version___defined() -> None:
 
 def test_license(capsys: Capture) -> None:
     b.license()
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert out == _LICENSE
 
 class TestWarnings:

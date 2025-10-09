@@ -90,7 +90,7 @@ class BokehModelDirective(BokehDirective):
         m = py_sig_re.match(sig)
         if m is None:
             raise SphinxError(f"Unable to parse signature for bokeh-model: {sig!r}")
-        name_prefix, model_name, arglist, retann = m.groups()
+        model_name = m.group(1)
 
         if getenv("BOKEH_SPHINX_QUICK") == "1":
             return self.parse(f"{model_name}\n{'-'*len(model_name)}\n", f"<bokeh-model: {model_name}>")

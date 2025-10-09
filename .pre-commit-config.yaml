@@ -6,7 +6,7 @@ default_stages: [pre-push]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.6
+    rev: v0.14.0
     hooks:
       - id: ruff
         stages: [pre-commit]

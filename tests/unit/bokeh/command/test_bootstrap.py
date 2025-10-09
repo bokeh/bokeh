@@ -70,7 +70,7 @@ def test_error(capsys: Capture) -> None:
     Info.invoke = err
     with pytest.raises(SystemExit):
         main(["bokeh", "info"])
-    out, err = capsys.readouterr()
+    _, err = capsys.readouterr()
     assert err == 'ERROR: foo\n'
     Info.invoke = old_invoke
 
