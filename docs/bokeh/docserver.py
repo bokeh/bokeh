@@ -39,8 +39,6 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
 
-from bokeh.util.tornado import fixup_windows_event_loop_policy
-
 IOLOOP = None
 HOST = "localhost"
 PORT = 5009
@@ -78,8 +76,6 @@ def serve_http():
 
 
 if __name__ == "__main__":
-    fixup_windows_event_loop_policy()
-
     print(f"\nStarting Bokeh plot server on port {PORT}...")
     print(f"Visit {VISIT_URL} to see plots\n")
 

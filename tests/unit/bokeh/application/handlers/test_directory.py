@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING
 
 # External imports
 import jinja2
+import nbformat
 
 # Bokeh imports
 from bokeh.core.templates import FILE
@@ -139,8 +140,6 @@ class Test_DirectoryHandler:
         assert len(doc.roots) == 2
 
     def test_directory_empty_mainipynb(self) -> None:
-        nbformat = pytest.importorskip("nbformat")  # Python 3.13
-
         doc = Document()
         source = nbformat.v4.new_notebook()
         result: dict[str, Handler] = {}
@@ -159,8 +158,6 @@ class Test_DirectoryHandler:
         assert not doc.roots
 
     def test_directory_mainipynb_adds_roots(self) -> None:
-        nbformat = pytest.importorskip("nbformat")  # Python 3.13
-
         doc = Document()
         source = nbformat.v4.new_notebook()
         code = script_adds_two_roots('SomeModelInNbTestDirectory',
@@ -189,7 +186,6 @@ class Test_DirectoryHandler:
             if handler.failed:
                 raise RuntimeError(handler.error)
 
-        nbformat = pytest.importorskip("nbformat")  # Python 3.13
         source = nbformat.v4.new_notebook()
 
         with_directory_contents({

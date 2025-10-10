@@ -136,7 +136,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}

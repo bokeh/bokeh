@@ -3,7 +3,7 @@ channels:
   - conda-forge/label/python_rc
   - conda-forge
 dependencies:
-  - python=3.13
+  - python=3.14
 
   # runtime
   - contourpy >=1.2

@@ -46,6 +46,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: JavaScript",
     "Topic :: Office/Business",
     "Topic :: Office/Business :: Financial",
@@ -110,6 +111,10 @@ filterwarnings = [
     '''ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated and scheduled for removal in a future version:DeprecationWarning:dateutil''',
     '''ignore:\s*Pyarrow will become a required dependency of pandas:DeprecationWarning''',
     '''ignore:Exception ignored in. <.*>:pytest.PytestUnraisableExceptionWarning''',
+    '''ignore:'asyncio\.iscoroutinefunction' is deprecated and slated for removal in Python 3\.16; use inspect\.iscoroutinefunction\(\) instead''', # https://github.com/bokeh/bokeh/issues/14664
+    '''ignore:'asyncio.[gs]et_event_loop_policy' is deprecated and slated for removal in Python 3\.16''',                                           # https://github.com/bokeh/bokeh/issues/14664
+    '''ignore:Implicitly cleaning up <HTTPError 404. 'File Not Found.'>:ResourceWarning''',                             # only on Windows and Python 3.14
+    '''ignore:coroutine 'SelectorThread\.__init__\.<locals>\.thread_manager_anext' was never awaited:RuntimeWarning''', # only on Windows and Python 3.14
 ]
 
 [tool.coverage.run]
@@ -117,7 +122,7 @@ source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 
