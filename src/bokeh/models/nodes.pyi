@@ -13,7 +13,7 @@ from typing import ClassVar, Literal
 from .._types import CoordinateLike
 from ..core.has_props import abstract
 from ..model import Model
-from .glyphs import Glyph
+from .glyph import Glyph
 from .renderers import GlyphRenderer
 
 ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]

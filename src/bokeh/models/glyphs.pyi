@@ -15,12 +15,12 @@ from .._specs import (
     DistanceSpec,
     FloatSpec,
     MarkerSpec,
-    NonNegative,
     NullDistanceSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
 )
+from .._types import NonNegative
 from ..core.enums import (
     DirectionType as Direction,
     HexTileOrientationType as HexTileOrientation,
