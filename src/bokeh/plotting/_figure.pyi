@@ -107,6 +107,8 @@ RangeLike: TypeAlias = (
 
 AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
 
+DEFAULT_TOOLS: str
+
 @dataclass(init=False)
 class FigureOptions(BaseFigureOptions):
 

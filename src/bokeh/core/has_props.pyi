@@ -45,6 +45,11 @@ def is_abstract(cls: type[HasProps]) -> bool: ...
 
 def is_DataModel(cls: type[HasProps]) -> bool: ...
 
+class _ModelResolver:
+    ...
+
+_default_resolver: _ModelResolver
+
 class MetaHasProps(type):
 
     __properties__: dict[str, Property[Any]]

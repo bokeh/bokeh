@@ -72,7 +72,7 @@ from ..model import Model
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .dom import HTML
-from .glyphs import Glyph
+from .glyph import Glyph
 from .grids import Grid
 from .layouts import GridCommon, LayoutDOM
 from .ranges import (

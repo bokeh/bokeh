@@ -18,6 +18,7 @@ from typing import (
 # External imports
 import numpy as np
 import numpy.typing as npt
+import re
 
 if TYPE_CHECKING:
     import PIL.Image
@@ -29,6 +30,8 @@ from .bases import Property
 
 DashPatternType: TypeAlias = enums.DashPatternType | str | Sequence[int]
 DashPattern: TypeAlias = Property[DashPatternType]
+
+CSS_LENGTH_RE: re.Pattern
 
 ImageType: TypeAlias = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
 Image: TypeAlias = Property[ImageType]

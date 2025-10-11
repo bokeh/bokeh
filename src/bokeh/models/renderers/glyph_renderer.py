@@ -188,9 +188,11 @@ class GlyphRenderer(DataRenderer):
         from ...core.property.vectorization import Field
         from ..annotations import ColorBar
         from ..glyphs import (
-            FillGlyph,
             Image,
             ImageStack,
+        )
+        from ..glyph import (
+            FillGlyph,
             LineGlyph,
             TextGlyph,
         )

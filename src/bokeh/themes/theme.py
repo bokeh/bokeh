@@ -188,7 +188,7 @@ class Theme:
         self._by_class_cache = {}
 
     def _add_glyph_defaults(self, cls: type[HasProps], props: dict[str, Any]) -> None:
-        from ..models.glyphs import Glyph
+        from ..models.glyph import Glyph
         if issubclass(cls, Glyph):
             if hasattr(cls, "line_alpha"):
                 props.update(self._line_defaults)

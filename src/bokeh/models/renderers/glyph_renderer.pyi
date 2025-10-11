@@ -17,7 +17,7 @@ from typing import (
 # Bokeh imports
 from ...core.enums import AutoType as Auto
 from ..annotations import ColorBar
-from ..glyphs import Glyph
+from ..glyph import Glyph
 from ..graphics import Decoration, Marking
 from ..sources import CDSView, DataSource
 from .renderer import DataRenderer
