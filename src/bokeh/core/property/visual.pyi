@@ -18,7 +18,8 @@ from typing import (
 # External imports
 import numpy as np
 import numpy.typing as npt
-import re
+
+import re # isort:skip
 
 if TYPE_CHECKING:
     import PIL.Image

@@ -36,10 +36,7 @@ from .._specs import (
     TextAnchorArg,
     TextBaselineArg,
 )
-from .._types import (
-    Color,
-    NonNegative,
-)
+from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
