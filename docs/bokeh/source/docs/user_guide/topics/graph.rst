@@ -6,14 +6,29 @@ Network graphs
 Bokeh lets you create network graph visualizations and configure
 interactions between edges and nodes.
 
+Overview
+--------
+
+Graph drawing is done using the ``GraphRenderer`` model.
+
+In order to create a network visualization, you need to specify:
+- node data and glyphs using the ``node_renderer`` attribute
+- edge data and glyphs using the ``edge_renderer`` attribute
+- the layout strategy using the ``layout_provider`` attribute
+
+While the positions of the nodes could theorically be stored in the ``node_renderer``,
+this approach allows for more flexibility. The same graph data can be viewed differently
+depending on the ``layout_provider``, which will dictate the placement of the nodes.
+
+
 Edge and node renderers
 -----------------------
 
-The ``GraphRenderer`` model maintains separate sub-``GlyphRenderers``
-for graph nodes and edges. This lets you customize nodes by modifying
-the ``node_renderer`` property of the ``GraphRenderer``. You can replace
-the default Circle node glyph with any instance of the XYGlyph such as
-Rect or Ellipse glyph. You can similarly modify the style properties
+By default, the glyph used in ``node_renderer`` is ``Circle``.
+You can replace it by any instance of ``XYGlyph``, like ``Ellipse``, ``Rect`` or even
+:class:`~bokeh.models.Scatter`.
+
+Similarly, you can modify the style properties
 of edges through the ``edge_renderer`` property. To work with edge
 glyphs, use the ``multi_line`` glyph method.
 
