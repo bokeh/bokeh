@@ -435,10 +435,10 @@ def _write_collection(items: list[str], filename: PathLike | None, ext: str) -> 
 def _log_console(driver: WebDriver) -> None:
     levels = {'WARNING', 'ERROR', 'SEVERE'}
     try:
-        web_logs = driver.get_log('browser')
+        driver_logs = driver.get_log('browser')
     except Exception:
         return
-    messages = [web_log.get("message") for web_log in web_logs if web_log.get('level') in levels]
+    messages = [driver_log.get("message") for driver_log in driver_logs if driver_log.get('level') in levels]
     if len(messages) > 0:
         log.warning("There were browser warnings and/or errors that may have affected your export")
         for message in messages:
