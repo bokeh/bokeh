@@ -5,6 +5,8 @@ import type {LatLon} from "../enums"
 import type {Arrayable} from "../types"
 import {infer_type} from "../types"
 
+const {min, max} = Math
+
 const mercator = new Projection("GOOGLE")
 const wgs84    = new Projection("WGS84")
 
@@ -37,7 +39,44 @@ const latlon_bounds = {
   lat: [-85.06, 85.06],
 }
 
-const {min, max} = Math
+function clip_to_bounds(v: number, bounds: [number, number]): number {
+  return min(max(v, bounds[0]), bounds[1])
+}
+
+export function compute_web_mercator_projection(data_coordinate_system: string, x: number, y: number): [number, number] {
+  if (data_coordinate_system == "GOOGLE") {
+    return [x, y]
+  }
+
+  const data_projection = new Projection(data_coordinate_system)
+  const web_mercator_projection = new Projection("GOOGLE")
+  const proj = proj4(data_projection, web_mercator_projection)
+
+  if (isFinite(x) && isFinite(y)) {
+    return proj.forward([x, y])
+  } else {
+    return [NaN, NaN]
+  }
+}
+
+export function invert_web_mercator_projection(data_coordinate_system: string, x_web_mercator: number, y_web_mercator: number): [number, number] {
+  const x_web_mercator_clipped = clip_to_bounds(x_web_mercator, mercator_bounds.lon as [number, number])
+  const y_web_mercator_clipped = clip_to_bounds(y_web_mercator, mercator_bounds.lat as [number, number])
+
+  if (data_coordinate_system == "GOOGLE") {
+    return [x_web_mercator_clipped, y_web_mercator_clipped]
+  }
+
+  const data_projection = new Projection(data_coordinate_system)
+  const web_mercator_projection = new Projection("GOOGLE")
+  const proj = proj4(data_projection, web_mercator_projection)
+
+  if (isFinite(x_web_mercator) && isFinite(y_web_mercator)) {
+    return proj.inverse([x_web_mercator_clipped, y_web_mercator_clipped])
+  } else {
+    return [NaN, NaN]
+  }
+}
 
 export function clip_mercator(low: number, high: number, dimension: LatLon): [number, number] {
   const [vmin, vmax] = mercator_bounds[dimension]

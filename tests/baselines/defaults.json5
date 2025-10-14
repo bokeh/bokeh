@@ -2179,6 +2179,28 @@
       },
     },
   },
+  MercatorLatitudeAxis: {
+    __extends__: "ContinuousAxis",
+    ticker: {
+      type: "object",
+      name: "BasicTicker",
+      attributes: {
+        mantissas: [
+          1,
+          2,
+          5,
+        ],
+      },
+    },
+    formatter: {
+      type: "object",
+      name: "BasicTickFormatter",
+      attributes: {},
+    },
+  },
+  MercatorLongitudeAxis: {
+    __extends__: "LinearAxis",
+  },
   TimedeltaAxis: {
     __extends__: "LinearAxis",
     ticker: {
@@ -6121,6 +6143,7 @@
     alpha: 1.0,
     smoothing: true,
     render_parents: true,
+    data_coordinate_system: "GOOGLE",
   },
   CategoricalScale: {
     __extends__: "Scale",
@@ -6143,6 +6166,9 @@
     __extends__: "ContinuousScale",
   },
   LogScale: {
+    __extends__: "ContinuousScale",
+  },
+  MercatorLatitudeScale: {
     __extends__: "ContinuousScale",
   },
   Scale: {

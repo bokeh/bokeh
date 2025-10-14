@@ -46,6 +46,9 @@ from ..models import (
     LogAxis,
     LogScale,
     MercatorAxis,
+    MercatorLatitudeAxis,
+    MercatorLatitudeScale,
+    MercatorLongitudeAxis,
     Range,
     Range1d,
     Scale,
@@ -104,15 +107,17 @@ def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Seri
                 pass
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
+AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "mercator_lat", "mercator_lon", "auto"]
 AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
 Dim: TypeAlias = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
-    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "timedelta", "mercator", "auto", None]:
+    if isinstance(range_input, DataRange1d | Range1d) and axis_type in ["linear", "datetime", "timedelta", "mercator", "mercator_lon", "auto", None]:
         return LinearScale()
     elif isinstance(range_input, DataRange1d | Range1d) and axis_type == "log":
         return LogScale()
+    elif isinstance(range_input, DataRange1d | Range1d) and axis_type == "mercator_lat":
+        return MercatorLatitudeScale()
     elif isinstance(range_input, FactorRange):
         return CategoricalScale()
     else:
@@ -155,6 +160,10 @@ def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) ->
             return TimedeltaAxis, {}
         case "mercator":
             return MercatorAxis, dict(dimension='lon' if dim == 0 else 'lat')
+        case "mercator_lat":
+            return MercatorLatitudeAxis, {}
+        case "mercator_lon":
+            return MercatorLongitudeAxis, {}
         case "auto":
             if isinstance(range_input, FactorRange):
                 return CategoricalAxis, {}

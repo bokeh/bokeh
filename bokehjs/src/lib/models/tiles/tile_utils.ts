@@ -12,6 +12,15 @@ export type Bounds = [number, number, number, number]
 
 export type Extent = [number, number, number, number]
 
+// y axis in web mercator is inverted (values increase from north to south)
+export function bounds_to_extent(bounds: Bounds): Extent {
+  return [bounds[0], bounds[3], bounds[2], bounds[1]]
+}
+
+export function extent_to_bounds(extent: Extent): Bounds {
+  return [extent[0], extent[3], extent[2], extent[1]]
+}
+
 export function geographic_extent_to_meters(extent: Extent): Extent {
   const [g_xmin, g_ymin, g_xmax, g_ymax] = extent
   const [m_xmin, m_ymin] = geographic_to_meters(g_xmin, g_ymin)

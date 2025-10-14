@@ -84,6 +84,8 @@ __all__ = (
     'LinearAxis',
     'LogAxis',
     'MercatorAxis',
+    'MercatorLatitudeAxis',
+    'MercatorLongitudeAxis',
     'TimedeltaAxis',
 )
 
@@ -424,6 +426,26 @@ class MercatorAxis(LinearAxis):
     ticker = Override(default=InstanceDefault(MercatorTicker))
 
     formatter = Override(default=InstanceDefault(MercatorTickFormatter))
+
+class MercatorLatitudeAxis(ContinuousAxis):
+    ''' An axis that picks nice numbers for tick locations on a
+    Mercator latitude scale.
+
+    '''
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    ticker = Override(default=InstanceDefault(BasicTicker))
+
+    formatter = Override(default=InstanceDefault(BasicTickFormatter))
+
+class MercatorLongitudeAxis(LinearAxis):
+    ''' An axis that picks nice numbers for tick locations on a
+    Mercator longitude scale.
+
+    '''
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API
