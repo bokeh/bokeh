@@ -14,7 +14,7 @@ from .._types import Color
 from ..core.enums import MarkerTypeType as MarkerType, PaletteType as Palette
 from ..core.has_props import abstract
 from ..core.property.visual import HatchPatternType as HatchPattern
-from .glyphs import Glyph
+from .glyph import Glyph
 from .ranges import FactorSeq
 from .renderers import GlyphRenderer
 from .transforms import Transform

@@ -15,7 +15,7 @@ import pathlib
 from typing import TypedDict
 
 __all__ = (
-    "PARALLEL_SAFE"
+    "PARALLEL_SAFE",
     "REPO_TOP",
 )
 

@@ -105,6 +105,10 @@ class DatetimeTicker(CompositeTicker):
     ...
 
 @dataclass
+class TimedeltaTicker(CompositeTicker):
+    ...
+
+@dataclass
 class BinnedTicker(Ticker):
 
     mapper: ScanningColorMapper = ...

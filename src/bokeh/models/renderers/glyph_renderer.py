@@ -187,13 +187,8 @@ class GlyphRenderer(DataRenderer):
         '''
         from ...core.property.vectorization import Field
         from ..annotations import ColorBar
-        from ..glyphs import (
-            FillGlyph,
-            Image,
-            ImageStack,
-            LineGlyph,
-            TextGlyph,
-        )
+        from ..glyph import FillGlyph, LineGlyph, TextGlyph
+        from ..glyphs import Image, ImageStack
         from ..mappers import ColorMapper
 
         if isinstance(self.glyph, FillGlyph):

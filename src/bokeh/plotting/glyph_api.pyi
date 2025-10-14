@@ -25,7 +25,6 @@ from .._specs import (
     LineCapArg,
     LineJoinArg,
     MarkerArg,
-    NonNegative,
     NullDistanceArg,
     Number1dArg,
     Number3dArg,
@@ -37,7 +36,7 @@ from .._specs import (
     TextAnchorArg,
     TextBaselineArg,
 )
-from .._types import Color
+from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
@@ -1035,3 +1034,5 @@ class GlyphAPI:
         angle: AngleArg = ...,
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
+
+_MARKER_SHORTCUTS: dict[str, str]

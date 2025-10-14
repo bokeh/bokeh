@@ -45,6 +45,7 @@ from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback, CustomJS
 from .dom import DOMElement
+from .glyph import XYGlyph
 from .glyphs import (
     HStrip,
     Line,
@@ -53,7 +54,6 @@ from .glyphs import (
     Patches,
     Rect,
     VStrip,
-    XYGlyph,
 )
 from .misc.group_by import GroupBy
 from .ranges import Range

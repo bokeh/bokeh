@@ -36,6 +36,7 @@ from .formatters import (
     LogTickFormatter,
     MercatorTickFormatter,
     TickFormatter,
+    TimedeltaTickFormatter,
 )
 from .labeling import LabelingPolicy
 from .ranges import Factor
@@ -47,6 +48,7 @@ from .tickers import (
     LogTicker,
     MercatorTicker,
     Ticker,
+    TimedeltaTicker,
 )
 
 @abstract
@@ -132,3 +134,10 @@ class MercatorAxis(LinearAxis):
     ticker: MercatorTicker = ...
 
     formatter: MercatorTickFormatter = ...
+
+@dataclass
+class TimedeltaAxis(LinearAxis):
+
+    ticker: TimedeltaTicker = ...
+
+    formatter: TimedeltaTickFormatter = ...

@@ -67,7 +67,7 @@ from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
-    from .models.renderer import ContourRenderer
+    from ..models.renderers.contour_renderer import ContourRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
