@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a base class for all Bokeh Server Protocol message types.
+# -----------------------------------------------------------------------------
+"""Provide a base class for all Bokeh Server Protocol message types.
 
 Boker messages are comprised of a sequence of JSON fragments. Specified as
 Python JSON-like data, messages have the general form:
@@ -42,19 +42,20 @@ monitoring or instrumentation tools.
 
 The ``content`` fragment is defined by the specific message type.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import json
@@ -63,6 +64,7 @@ from typing import (
     Any,
     ClassVar,
     Generic,
+    NotRequired,
     TypeAlias,
     TypedDict,
     TypeVar,
@@ -77,26 +79,30 @@ from ..core.serialization import Buffer, Serialized
 from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
+# Issue 13883: Self requires typing_extensions for Python < 3.11
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
+    if sys.version_info >= (3, 11):
+        from typing import NotRequired
+    else:
+        from typing_extensions import NotRequired
 
+if TYPE_CHECKING:
     from ..client.websocket import WebSocketClientConnectionWrapper
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Message',
-)
+__all__ = ("Message",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Header(TypedDict):
     msgid: ID
@@ -104,8 +110,10 @@ class Header(TypedDict):
     reqid: NotRequired[ID]
     num_buffers: NotRequired[int]
 
+
 class BufferHeader(TypedDict):
     id: ID
+
 
 Content = TypeVar("Content")
 
@@ -113,15 +121,17 @@ Metadata: TypeAlias = dict[str, Any]
 
 BufferRef: TypeAlias = tuple[BufferHeader, bytes]
 
+
 class Empty(TypedDict):
     pass
 
+
 class Message(Generic[Content]):
-    ''' The Message base class encapsulates creating, assembling, and
+    """The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
     provide hooks
 
-    '''
+    """
 
     msgtype: ClassVar[str]
 
@@ -137,7 +147,7 @@ class Message(Generic[Content]):
     _buffers: list[Buffer]
 
     def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
-        ''' Initialize a new message from header, metadata, and content
+        """Initialize a new message from header, metadata, and content
         dictionaries.
 
         To assemble a message from existing JSON fragments, use the
@@ -153,7 +163,7 @@ class Message(Generic[Content]):
 
             content (JSON-like) :
 
-        '''
+        """
         self.header = header
         self.metadata = metadata
         self.content = content
@@ -164,7 +174,7 @@ class Message(Generic[Content]):
 
     @classmethod
     def assemble(cls, header_json: str, metadata_json: str, content_json: str) -> Message[Content]:
-        ''' Creates a new message, assembled from JSON fragments.
+        """Creates a new message, assembled from JSON fragments.
 
         Args:
             header_json (``JSON``) :
@@ -179,7 +189,7 @@ class Message(Generic[Content]):
         Raises:
             MessageError
 
-        '''
+        """
 
         try:
             header = json.loads(header_json)
@@ -205,7 +215,7 @@ class Message(Generic[Content]):
         return msg
 
     def add_buffer(self, buffer: Buffer) -> None:
-        ''' Associate a buffer header and payload with this message.
+        """Associate a buffer header and payload with this message.
 
         Args:
             buffer (Buffer) : a buffer
@@ -216,17 +226,17 @@ class Message(Generic[Content]):
         Raises:
             MessageError
 
-        '''
-        if 'num_buffers' in self._header:
-            self._header['num_buffers'] += 1
+        """
+        if "num_buffers" in self._header:
+            self._header["num_buffers"] += 1
         else:
-            self._header['num_buffers'] = 1
+            self._header["num_buffers"] = 1
 
         self._header_json = None
         self._buffers.append(buffer)
 
     def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
-        ''' Add a buffer header and payload that we read from the socket.
+        """Add a buffer header and payload that we read from the socket.
 
         This differs from add_buffer() because we're validating vs.
         the header's num_buffers, instead of filling in the header.
@@ -240,14 +250,14 @@ class Message(Generic[Content]):
 
         Raises:
             ProtocolError
-        '''
+        """
         num_buffers = self.header.get("num_buffers", 0)
         if num_buffers <= len(self._buffers):
             raise ProtocolError(f"too many buffers received expecting {num_buffers}")
         self._buffers.append(Buffer(buf_header["id"], buf_payload))
 
     async def write_buffers(self, conn: WebSocketClientConnectionWrapper, locked: bool = True) -> int:
-        ''' Write any buffer headers and payloads to the given connection.
+        """Write any buffer headers and payloads to the given connection.
 
         Args:
             conn (object) :
@@ -259,7 +269,7 @@ class Message(Generic[Content]):
         Returns:
             int : number of bytes sent
 
-        '''
+        """
         if conn is None:
             raise ValueError("Cannot write_buffers to connection None")
         sent = 0
@@ -273,7 +283,7 @@ class Message(Generic[Content]):
 
     @classmethod
     def create_header(cls, request_id: ID | None = None) -> Header:
-        ''' Return a message header fragment dict.
+        """Return a message header fragment dict.
 
         Args:
             request_id (str or None) :
@@ -282,17 +292,17 @@ class Message(Generic[Content]):
         Returns:
             dict : a message header
 
-        '''
+        """
         header = Header(
-            msgid   = bkserial.make_id(),
-            msgtype = cls.msgtype,
+            msgid=bkserial.make_id(),
+            msgtype=cls.msgtype,
         )
         if request_id is not None:
-            header['reqid'] = request_id
+            header["reqid"] = request_id
         return header
 
     async def send(self, conn: WebSocketClientConnectionWrapper) -> int:
-        ''' Send the message on the given connection.
+        """Send the message on the given connection.
 
         Args:
             conn (WebSocketHandler) : a WebSocketHandler to send messages
@@ -300,7 +310,7 @@ class Message(Generic[Content]):
         Returns:
             int : number of bytes sent
 
-        '''
+        """
         if conn is None:
             raise ValueError("Cannot send to connection None")
 
@@ -311,13 +321,13 @@ class Message(Generic[Content]):
             sent += len(self.header_json)
 
             # uncomment this to make it a lot easier to reproduce lock-related bugs
-            #await asyncio.sleep(0.1)
+            # await asyncio.sleep(0.1)
 
             await conn.write_message(self.metadata_json, locked=False)
             sent += len(self.metadata_json)
 
             # uncomment this to make it a lot easier to reproduce lock-related bugs
-            #await asyncio.sleep(0.1)
+            # await asyncio.sleep(0.1)
 
             await conn.write_message(self.content_json, locked=False)
             sent += len(self.content_json)
@@ -328,16 +338,13 @@ class Message(Generic[Content]):
 
     @property
     def complete(self) -> bool:
-        ''' Returns whether all required parts of a message are present.
+        """Returns whether all required parts of a message are present.
 
         Returns:
             bool : True if the message is complete, False otherwise
 
-        '''
-        return self.header is not None and \
-               self.metadata is not None and \
-               self.content is not None and \
-               self.header.get('num_buffers', 0) == len(self._buffers)
+        """
+        return self.header is not None and self.metadata is not None and self.content is not None and self.header.get("num_buffers", 0) == len(self._buffers)
 
     @property
     def payload(self) -> Serialized[Content]:
@@ -400,10 +407,11 @@ class Message(Generic[Content]):
     def buffers(self) -> list[Buffer]:
         return list(self._buffers)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
