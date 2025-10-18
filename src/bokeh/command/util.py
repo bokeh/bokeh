@@ -24,7 +24,14 @@ import contextlib
 import errno
 import os
 import sys
-from typing import Never, TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator
+
+# Issue 13883: Self requires typing_extensions for Python < 3.11
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from typing import Never
+    else:
+        from typing_extensions import Never
 
 # Bokeh imports
 from bokeh.application import Application

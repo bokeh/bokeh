@@ -38,8 +38,6 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
-    NotRequired,
-    Self,
     TypeAlias,
     TypedDict,
     TypeVar,
@@ -53,6 +51,13 @@ if TYPE_CHECKING:
     def lru_cache(arg: int | None) -> Callable[[F], F]: ...
 else:
     from functools import lru_cache
+
+# Issue 13883: Self requires typing_extensions for Python < 3.11
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from typing import Self
+    else:
+        from typing_extensions import Self
 
 # Bokeh imports
 from ..settings import settings

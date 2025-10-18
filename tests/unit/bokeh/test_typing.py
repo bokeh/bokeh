@@ -32,10 +32,14 @@ pytest
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import assert_type, Literal
+from typing import Literal
 
-# External imports
-from typing_extensions import assert_type  # for Python 3.10
+# Issue 13883: Self requires typing_extensions for Python < 3.11
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from typing import assert_type
+    else:
+        from typing_extensions import assert_type
 
 # Bokeh imports
 from bokeh.models.annotations import LegendItem
