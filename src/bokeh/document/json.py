@@ -28,6 +28,7 @@ from typing import (
     TypedDict,
     NotRequired,
 )
+import sys
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
 if TYPE_CHECKING:

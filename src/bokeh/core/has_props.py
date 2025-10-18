@@ -44,6 +44,7 @@ from typing import (
     overload,
 )
 from weakref import WeakSet
+import sys
 
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])

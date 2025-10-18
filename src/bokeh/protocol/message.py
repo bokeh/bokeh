@@ -69,6 +69,7 @@ from typing import (
     TypedDict,
     TypeVar,
 )
+import sys
 
 # Bokeh imports
 import bokeh.util.serialization as bkserial

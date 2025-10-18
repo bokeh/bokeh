@@ -3,6 +3,7 @@
 # Standard library imports
 from types import SimpleNamespace
 from typing import NamedTuple, TypedDict
+import sys
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
 if TYPE_CHECKING:

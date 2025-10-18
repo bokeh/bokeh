@@ -34,6 +34,7 @@ from typing import (
     TypedDict,
 )
 from urllib.parse import urljoin
+import sys
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
 if TYPE_CHECKING:

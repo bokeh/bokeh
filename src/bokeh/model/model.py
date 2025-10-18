@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from inspect import Parameter, Signature, isclass
 from typing import TYPE_CHECKING, Any, Iterable
+import sys
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
 if TYPE_CHECKING:

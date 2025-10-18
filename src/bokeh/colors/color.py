@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import colorsys
+import sys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
