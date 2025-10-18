@@ -1,24 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+""" """
 
-'''
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import hashlib
@@ -31,6 +30,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Iterator,
+    NotRequired,
     Sequence,
     TypedDict,
 )
@@ -46,29 +46,29 @@ from ..util.compiler import bundle_models
 from .util import contains_tex_string
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
-
     from ..resources import Hashes
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'Bundle',
-    'bundle_for_objs_and_resources',
+    "Bundle",
+    "bundle_for_objs_and_resources",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Artifact:
     pass
+
 
 class ScriptRef(Artifact):
     def __init__(self, url: str, type: str = "text/javascript") -> None:
@@ -93,15 +93,13 @@ class Style(Artifact):
 
 
 class Bundle:
-
     js_files: list[URL]
     js_raw: list[str]
     css_files: list[URL]
     css_raw: list[str]
     hashes: Hashes
 
-    def __init__(self, js_files: list[URL] = [], js_raw: list[str] = [],
-            css_files: list[URL] = [], css_raw: list[str] = [], hashes: Hashes = {}):
+    def __init__(self, js_files: list[URL] = [], js_raw: list[str] = [], css_files: list[URL] = [], css_raw: list[str] = [], hashes: Hashes = {}):
         self.js_files = js_files[:]
         self.js_raw = js_raw[:]
         self.css_files = css_files[:]
@@ -142,8 +140,9 @@ class Bundle:
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
+
 def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, resources: Resources | None) -> Bundle:
-    ''' Generate rendered CSS and JS resources suitable for the given
+    """Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
     Args:
@@ -154,19 +153,19 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
     Returns:
         Bundle
 
-    '''
+    """
     if objs is not None:
-        all_objs    = _all_objs(objs)
+        all_objs = _all_objs(objs)
         use_widgets = _use_widgets(all_objs)
-        use_tables  = _use_tables(all_objs)
-        use_gl      = _use_gl(all_objs)
+        use_tables = _use_tables(all_objs)
+        use_gl = _use_gl(all_objs)
         use_mathjax = _use_mathjax(all_objs)
     else:
         # XXX: force all components on server and in notebook, because we don't know in advance what will be used
-        all_objs    = None
+        all_objs = None
         use_widgets = True
-        use_tables  = True
-        use_gl      = True
+        use_tables = True
+        use_gl = True
         use_mathjax = True
 
     js_files: list[URL] = []
@@ -176,10 +175,14 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
 
     if resources is not None:
         components = list(resources.components)
-        if not use_widgets: components.remove("bokeh-widgets")
-        if not use_tables:  components.remove("bokeh-tables")
-        if not use_gl:      components.remove("bokeh-gl")
-        if not use_mathjax: components.remove("bokeh-mathjax")
+        if not use_widgets:
+            components.remove("bokeh-widgets")
+        if not use_tables:
+            components.remove("bokeh-tables")
+        if not use_gl:
+            components.remove("bokeh-gl")
+        if not use_mathjax:
+            components.remove("bokeh-mathjax")
 
         resources = resources.clone(components=components)
 
@@ -192,9 +195,9 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
         extensions = _bundle_extensions(all_objs if objs else None, resources)
         mode = resources.mode
         if mode == "inline":
-            js_raw.extend([ Resources._inline(bundle.artifact_path) for bundle in extensions ])
+            js_raw.extend([Resources._inline(bundle.artifact_path) for bundle in extensions])
         elif mode == "server":
-            js_files.extend([ bundle.server_url for bundle in extensions ])
+            js_files.extend([bundle.server_url for bundle in extensions])
         elif mode == "cdn":
             for bundle in extensions:
                 if bundle.cdn_url is not None:
@@ -202,18 +205,20 @@ def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, re
                 else:
                     js_raw.append(Resources._inline(bundle.artifact_path))
         else:
-            js_files.extend([ URL(str(bundle.artifact_path)) for bundle in extensions ])
+            js_files.extend([URL(str(bundle.artifact_path)) for bundle in extensions])
 
-    models = [ obj.__class__ for obj in all_objs ] if all_objs else None
+    models = [obj.__class__ for obj in all_objs] if all_objs else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
 
     return Bundle(js_files, js_raw, css_files, css_raw, resources.hashes if resources else {})
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]], bool]) -> bool:
     names: set[str] = set()
@@ -235,9 +240,10 @@ def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]],
 
     return False
 
+
 @dataclass(frozen=True)
 class URL:
-    """ Opaque type for representing URLs. """
+    """Opaque type for representing URLs."""
 
     url: str
 
@@ -248,11 +254,13 @@ class URL:
     def __str__(self) -> str:
         return self.url
 
+
 @dataclass(frozen=True)
 class ExtensionEmbed:
     artifact_path: Path
     server_url: URL
     cdn_url: URL | None = None
+
 
 class Pkg(TypedDict):
     name: NotRequired[str]
@@ -260,9 +268,11 @@ class Pkg(TypedDict):
     module: NotRequired[str]
     main: NotRequired[str]
 
+
 _default_cdn_host = URL("https://unpkg.com")
 
 extension_dirs: dict[str, Path] = {}
+
 
 def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[ExtensionEmbed]:
     names: set[str] = set()
@@ -342,6 +352,7 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
 
     return bundles
 
+
 def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
     all_objs: set[HasProps] = set()
 
@@ -354,8 +365,9 @@ def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
 
     return all_objs
 
+
 def _any(objs: set[HasProps], query: Callable[[HasProps], bool]) -> bool:
-    ''' Whether any of a collection of objects satisfies a given query predicate
+    """Whether any of a collection of objects satisfies a given query predicate
 
     Args:
         objs (set[HasProps]) :
@@ -365,11 +377,12 @@ def _any(objs: set[HasProps], query: Callable[[HasProps], bool]) -> bool:
     Returns:
         True, if ``query(obj)`` is True for some object in ``objs``, else False
 
-    '''
+    """
     return any(query(x) for x in objs)
 
+
 def _use_tables(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a TableWidget
+    """Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
         objs (seq[HasProps or Document]) :
@@ -377,12 +390,14 @@ def _use_tables(all_objs: set[HasProps]) -> bool:
     Returns:
         bool
 
-    '''
+    """
     from ..models.widgets import TableWidget
+
     return _any(all_objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(all_objs)
 
+
 def _use_widgets(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a any Widget
+    """Whether a collection of Bokeh objects contains a any Widget
 
     Args:
         objs (seq[HasProps or Document]) :
@@ -390,9 +405,11 @@ def _use_widgets(all_objs: set[HasProps]) -> bool:
     Returns:
         bool
 
-    '''
+    """
     from ..models.widgets import Widget
+
     return _any(all_objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(all_objs)
+
 
 def _model_requires_mathjax(model: HasProps) -> bool:
     """Whether a model requires MathJax to be loaded
@@ -435,20 +452,22 @@ def _model_requires_mathjax(model: HasProps) -> bool:
 
     return False
 
+
 def _use_mathjax(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a model requesting MathJax
+    """Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
         objs (seq[HasProps or Document]) :
     Returns:
         bool
-    '''
+    """
     from ..models.glyphs import MathTextGlyph
     from ..models.text import MathText
 
     return _any(all_objs, lambda obj: isinstance(obj, MathTextGlyph | MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(all_objs)
 
+
 def _use_gl(all_objs: set[HasProps]) -> bool:
-    ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
+    """Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
         objs (seq[HasProps or Document]) :
@@ -456,21 +475,30 @@ def _use_gl(all_objs: set[HasProps]) -> bool:
     Returns:
         bool
 
-    '''
+    """
     from ..models.plots import Plot
+
     return _any(all_objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
+
 
 def _ext_use_tables(all_objs: set[HasProps]) -> bool:
     from ..models.widgets import TableWidget
+
     return _query_extensions(all_objs, lambda cls: issubclass(cls, TableWidget))
+
 
 def _ext_use_widgets(all_objs: set[HasProps]) -> bool:
     from ..models.widgets import Widget
+
     return _query_extensions(all_objs, lambda cls: issubclass(cls, Widget))
+
 
 def _ext_use_mathjax(all_objs: set[HasProps]) -> bool:
     from ..models.text import MathText
+
     return _query_extensions(all_objs, lambda cls: issubclass(cls, MathText))
-#-----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

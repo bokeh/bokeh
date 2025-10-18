@@ -1,28 +1,30 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a base class for all objects (called Bokeh Models) that can go in
+# -----------------------------------------------------------------------------
+"""Provide a base class for all objects (called Bokeh Models) that can go in
 a Bokeh |Document|.
 
-'''
-#-----------------------------------------------------------------------------
+"""
+
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from inspect import Parameter, Signature, isclass
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import Self, TYPE_CHECKING, Any, Iterable
 
 # Bokeh imports
 from ..core.has_props import HasProps, _default_resolver, abstract
@@ -46,8 +48,6 @@ from .util import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..core.types import ID
@@ -59,28 +59,24 @@ if TYPE_CHECKING:
     )
     from ..util.callback_manager import PropertyCallback
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Model',
-)
+__all__ = ("Model",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
-    ''' Base class for all objects stored in Bokeh |Document| instances.
-
-    '''
-
+    """Base class for all objects stored in Bokeh |Document| instances."""
 
     # a canonical order for positional args that can be
     # used for any functions derived from this class
@@ -94,7 +90,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         if cls.__module__.startswith("bokeh.models"):
             assert "__init__" in cls.__dict__, str(cls)
-            parameters = [x[0] for x in  cls.parameters()]
+            parameters = [x[0] for x in cls.parameters()]
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
 
@@ -130,9 +126,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     __repr__ = __str__
 
     def destroy(self) -> None:
-        ''' Clean up references to the document and property
-
-        '''
+        """Clean up references to the document and property"""
         self._document = None
         self._temp_document = None
         self._property_values.clear()
@@ -141,7 +135,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def id(self) -> ID:
         return self._id
 
-    name = Nullable(String, help="""
+    name = Nullable(
+        String,
+        help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -158,9 +154,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         that are provided, nor is the name used directly by Bokeh for any
         reason.
 
-    """)
+    """,
+    )
 
-    tags = List(AnyRef, help="""
+    tags = List(
+        AnyRef,
+        help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -182,9 +181,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         that are provided, nor are the tags used directly by Bokeh for any
         reason.
 
-    """)
+    """,
+    )
 
-    js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.Callback")), help="""
+    js_event_callbacks = Dict(
+        String,
+        List(Instance("bokeh.models.callbacks.Callback")),
+        help="""
     A mapping of event names to lists of ``CustomJS`` callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -194,9 +197,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         callback = CustomJS(code="console.log('tap event occurred')")
         plot.js_on_event('tap', callback)
-    """)
+    """,
+    )
 
-    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.Callback")), help="""
+    js_property_callbacks = Dict(
+        String,
+        List(Instance("bokeh.models.callbacks.Callback")),
+        help="""
     A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -208,15 +215,21 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         callback = CustomJS(code="console.log('stuff')")
         plot.x_range.js_on_change('start', callback)
 
-    """)
+    """,
+    )
 
-    subscribed_events = Set(String, help="""
+    subscribed_events = Set(
+        String,
+        help="""
     Collection of events that are subscribed to by Python callbacks. This is
     the set of events that will be communicated from BokehJS back to Python
     for this model.
-    """)
+    """,
+    )
 
-    syncable: bool = Bool(default=True, help="""
+    syncable: bool = Bool(
+        default=True,
+        help="""
     Indicates whether this model should be synchronized back to a Bokeh server when
     updated in a web browser. Setting to ``False`` may be useful to reduce network
     traffic when dealing with frequently updated objects whose updated values we
@@ -227,7 +240,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         on this object from triggering. However, any JS-side callbacks will still
         work.
 
-    """)
+    """,
+    )
 
     # Properties --------------------------------------------------------------
 
@@ -239,7 +253,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     @classmethod
     def clear_extensions(cls) -> None:
-        """ Clear any currently defined custom extensions.
+        """Clear any currently defined custom extensions.
 
         Serialization calls will result in any currently defined custom
         extensions being included with the generated Document, whether or not
@@ -252,13 +266,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     @classmethod
     @without_property_validation
     def parameters(cls: type[Model]) -> list[Parameter]:
-        ''' Generate Python ``Parameter`` values suitable for functions that are
+        """Generate Python ``Parameter`` values suitable for functions that are
         derived from the glyph.
 
         Returns:
             list(Parameter)
 
-        '''
+        """
         arg_params = []
         no_more_defaults = False
 
@@ -288,7 +302,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             arg_params.insert(0, (param, typ, descriptor.__doc__))
 
         # these are not really useful, and should also really be private, just skip them
-        omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+        omissions = {"js_event_callbacks", "js_property_callbacks", "subscribed_events"}
 
         kwarg_params = []
 
@@ -342,7 +356,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         self.js_event_callbacks[event_name] = all_callbacks
 
     def js_link(self, attr: str, other: Model, other_attr: str, attr_selector: int | str | None = None) -> None:
-        ''' Link two Bokeh model properties using JavaScript.
+        """Link two Bokeh model properties using JavaScript.
 
         This is a convenience method that simplifies adding a
         :class:`~bokeh.models.CustomJS` callback to update one Bokeh model
@@ -404,7 +418,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                     )
                 )
 
-        '''
+        """
         descriptor = self.lookup(attr, raises=False)
         if descriptor is None:
             raise ValueError(f"{attr!r} is not a property of self ({self!r})")
@@ -424,7 +438,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         self.js_on_change(attr, cb)
 
     def js_on_change(self, event: str, *callbacks: JSChangeCallback) -> None:
-        ''' Attach a :class:`~bokeh.models.CustomJS` callback to an arbitrary
+        """Attach a :class:`~bokeh.models.CustomJS` callback to an arbitrary
         BokehJS model event.
 
         On the BokehJS side, change events for model properties have the
@@ -447,12 +461,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
             source.js_on_change('streaming', callback)
 
-        '''
+        """
         if len(callbacks) == 0:
             raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
 
         # handle any CustomJS callbacks here
         from bokeh.models.callbacks import CustomCode
+
         if not all(isinstance(x, CustomCode) for x in callbacks):
             raise ValueError("not all callback values are CustomCode instances")
 
@@ -467,10 +482,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             if callback in self.js_property_callbacks[event]:
                 continue
             self.js_property_callbacks[event].append(callback)
-        self.trigger('js_property_callbacks', old, self.js_property_callbacks)
+        self.trigger("js_property_callbacks", old, self.js_property_callbacks)
 
     def on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
-        ''' Add a callback on this object to trigger when ``attr`` changes.
+        """Add a callback on this object to trigger when ``attr`` changes.
 
         Args:
             attr (str) : an attribute name on this object
@@ -485,18 +500,16 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
                 widget.on_change('value', callback1, callback2, ..., callback_n)
 
-        '''
+        """
         descriptor = self.lookup(attr)
         super().on_change(descriptor.name, *callbacks)
 
     def references(self) -> set[Model]:
-        ''' Returns all ``Models`` that this object has references to.
-
-        '''
+        """Returns all ``Models`` that this object has references to."""
         return set(collect_models(self))
 
     def select(self, selector: SelectorType) -> Iterable[Model]:
-        ''' Query this object and all of its references for objects that
+        """Query this object and all of its references for objects that
         match the given selector.
 
         Args:
@@ -505,12 +518,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Returns:
             seq[Model]
 
-        '''
+        """
         from ..core.query import find
+
         return find(self.references(), selector)
 
     def select_one(self, selector: SelectorType) -> Model | None:
-        ''' Query this object and all of its references for objects that
+        """Query this object and all of its references for objects that
         match the given selector.  Raises an error if more than one object
         is found.  Returns single matching object, or None if nothing is found
         Args:
@@ -518,7 +532,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         Returns:
             Model
-        '''
+        """
         result = list(self.select(selector))
         if len(result) > 1:
             raise ValueError(f"Found more than one object matching {selector}: {result!r}")
@@ -527,7 +541,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         return result[0]
 
     def set_select(self, selector: type[Model] | SelectorType, updates: dict[str, Any]) -> None:
-        ''' Update objects that match a given selector with the specified
+        """Update objects that match a given selector with the specified
         attribute/value updates.
 
         Args:
@@ -537,7 +551,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Returns:
             None
 
-        '''
+        """
         if isclass(selector) and issubclass(selector, Model):
             selector = dict(type=selector)
         for obj in self.select(selector):
@@ -560,11 +574,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         return rep
 
-    def trigger(self, attr: str, old: Any, new: Any,
-            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
-        '''
-
-        '''
+    def trigger(self, attr: str, old: Any, new: Any, hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
+        """ """
 
         # The explicit assumption here is that hinted events do not need to
         # go through all the same invalidation steps. Currently this is the
@@ -574,9 +585,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         # could specify explicitly whether to do normal invalidation or not)
         if hint is None:
             dirty_count = 0
+
             def mark_dirty(_: HasProps):
                 nonlocal dirty_count
                 dirty_count += 1
+
             if self._document is not None:
                 visit_value_and_its_immediate_references(new, mark_dirty)
                 visit_value_and_its_immediate_references(old, mark_dirty)
@@ -587,12 +600,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc: Document) -> None:
-        ''' Attach a model to a Bokeh |Document|.
+        """Attach a model to a Bokeh |Document|.
 
         This private interface should only ever called by the Document
         implementation to set the private ._document field properly
 
-        '''
+        """
         if self.document is doc:  # nothing to do
             return
 
@@ -604,25 +617,26 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         self._update_event_callbacks()
 
     def _detach_document(self) -> None:
-        ''' Detach a model from a Bokeh |Document|.
+        """Detach a model from a Bokeh |Document|.
 
         This private interface should only ever called by the Document
         implementation to unset the private ._document field properly
 
-        '''
+        """
         self.document = None
         default_theme.apply_to_model(self)
 
     def _repr_html_(self) -> str:
         return html_repr(self)
 
-    def _sphinx_height_hint(self) -> int|None:
+    def _sphinx_height_hint(self) -> int | None:
         return None
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

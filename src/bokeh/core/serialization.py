@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-""" Serialization and deserialization utilities. """
+# -----------------------------------------------------------------------------
+"""Serialization and deserialization utilities."""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import base64
@@ -35,6 +36,7 @@ from typing import (
     Generic,
     Literal,
     NoReturn,
+    NotRequired,
     Sequence,
     TypeAlias,
     TypedDict,
@@ -63,14 +65,12 @@ from .types import ID
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import NotRequired
-
     from ..core.has_props import Setter
     from ..model import Model
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
     "Buffer",
@@ -83,44 +83,54 @@ __all__ = (
 
 _MAX_SAFE_INT = 2**53 - 1
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 AnyRep: TypeAlias = Any
 
+
 class Ref(TypedDict):
     id: ID
+
 
 class RefRep(TypedDict):
     type: Literal["ref"]
     id: ID
 
+
 class SymbolRep(TypedDict):
     type: Literal["symbol"]
     name: str
+
 
 class NumberRep(TypedDict):
     type: Literal["number"]
     value: Literal["nan", "-inf", "+inf"] | float
 
+
 class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: NotRequired[list[AnyRep]]
 
+
 ArrayRepLike: TypeAlias = ArrayRep | list[AnyRep]
+
 
 class SetRep(TypedDict):
     type: Literal["set"]
     entries: NotRequired[list[AnyRep]]
 
+
 class MapRep(TypedDict):
     type: Literal["map"]
     entries: NotRequired[list[tuple[AnyRep, AnyRep]]]
 
+
 class BytesRep(TypedDict):
     type: Literal["bytes"]
     data: Buffer | Ref | str
+
 
 class SliceRep(TypedDict):
     type: Literal["slice"]
@@ -128,10 +138,12 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
+
 class ObjectRep(TypedDict):
     type: Literal["object"]
     name: str
     attributes: NotRequired[dict[str, AnyRep]]
+
 
 class ObjectRefRep(TypedDict):
     type: Literal["object"]
@@ -139,12 +151,14 @@ class ObjectRefRep(TypedDict):
     id: ID
     attributes: NotRequired[dict[str, AnyRep]]
 
+
 ModelRep = ObjectRefRep
 
 ByteOrder: TypeAlias = Literal["little", "big"]
 
-DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
+DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"]  # "uint64", "int64"
 NDDataType: TypeAlias = Literal["bool"] | DataType | Literal["object"]
+
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]
@@ -152,12 +166,14 @@ class TypedArrayRep(TypedDict):
     order: ByteOrder
     dtype: DataType
 
+
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
     array: BytesRep | ArrayRepLike
     order: ByteOrder
     dtype: NDDataType
     shape: list[int]
+
 
 @dataclass
 class Buffer:
@@ -182,33 +198,41 @@ class Buffer:
     def to_base64(self) -> str:
         return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
 
+
 T = TypeVar("T")
+
 
 @dataclass
 class Serialized(Generic[T]):
     content: T
     buffers: list[Buffer] | None = None
 
+
 Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
+
 
 class SerializationError(ValueError):
     pass
 
+
 class Serializable:
-    """ A mixin for making a type serializable. """
+    """A mixin for making a type serializable."""
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
-        """ Converts this object to a serializable representation. """
+        """Converts this object to a serializable representation."""
         raise NotImplementedError()
+
 
 ObjID = int
 
+
 class Serializer:
-    """ Convert built-in and custom types into serializable representations.
-        Not all built-in types are supported (e.g., decimal.Decimal due to
-        lacking support for fixed point arithmetic in JavaScript).
+    """Convert built-in and custom types into serializable representations.
+    Not all built-in types are supported (e.g., decimal.Decimal due to
+    lacking support for fixed point arithmetic in JavaScript).
     """
+
     _encoders: ClassVar[dict[type[Any], Encoder]] = {}
 
     @classmethod
@@ -409,16 +433,22 @@ class Serializer:
                     return "float64"
                 case "B" | "H" | "I" | "L" | "Q":
                     match obj.itemsize:
-                        case 1: return "uint8"
-                        case 2: return "uint16"
-                        case 4: return "uint32"
-                        #case 8: return "uint64"
+                        case 1:
+                            return "uint8"
+                        case 2:
+                            return "uint16"
+                        case 4:
+                            return "uint32"
+                        # case 8: return "uint64"
                 case "b" | "h" | "i" | "l" | "q":
                     match obj.itemsize:
-                        case 1: return "int8"
-                        case 2: return "int16"
-                        case 4: return "int32"
-                        #case 8: return "int64"
+                        case 1:
+                            return "int8"
+                        case 2:
+                            return "int16"
+                        case 4:
+                            return "int32"
+                        # case 8: return "int64"
             self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
         return TypedArrayRep(
@@ -470,6 +500,7 @@ class Serializer:
         # avoid importing pandas here unless it is actually in use
         if uses_pandas(obj):
             import pandas as pd
+
             if isinstance(obj, pd.Series | pd.Index | pd.api.extensions.ExtensionArray):
                 return self._encode_ndarray(transform_series(obj))
             elif obj is pd.NA:
@@ -484,17 +515,19 @@ class Serializer:
     def error(self, message: str) -> NoReturn:
         raise SerializationError(message)
 
+
 class DeserializationError(ValueError):
     pass
 
-class UnknownReferenceError(DeserializationError):
 
+class UnknownReferenceError(DeserializationError):
     def __init__(self, id: ID) -> None:
         super().__init__(f"can't resolve reference '{id}'")
         self.id = id
 
+
 class Deserializer:
-    """ Convert from serializable representations to built-in and custom types. """
+    """Convert from serializable representations to built-in and custom types."""
 
     _decoders: ClassVar[dict[str, Decoder]] = {}
 
@@ -592,7 +625,7 @@ class Deserializer:
 
     def _decode_symbol(self, obj: SymbolRep) -> float:
         name = obj["name"]
-        self.error(f"can't resolve named symbol '{name}'") # TODO: implement symbol resolution
+        self.error(f"can't resolve named symbol '{name}'")  # TODO: implement symbol resolution
 
     def _decode_number(self, obj: NumberRep) -> float:
         value = obj["value"]
@@ -600,15 +633,15 @@ class Deserializer:
 
     def _decode_array(self, obj: ArrayRep) -> list[Any]:
         entries = obj.get("entries", [])
-        return [ self._decode(entry) for entry in entries ]
+        return [self._decode(entry) for entry in entries]
 
     def _decode_set(self, obj: SetRep) -> set[Any]:
         entries = obj.get("entries", [])
-        return { self._decode(entry) for entry in entries }
+        return {self._decode(entry) for entry in entries}
 
     def _decode_map(self, obj: MapRep) -> dict[Any, Any]:
         entries = obj.get("entries", [])
-        return { self._decode(key): self._decode(val) for key, val in entries }
+        return {self._decode(key): self._decode(val) for key, val in entries}
 
     def _decode_bytes(self, obj: BytesRep) -> bytes | memoryview[int]:
         data = obj["data"]
@@ -616,7 +649,7 @@ class Deserializer:
         if isinstance(data, str):
             return gzip.decompress(base64.b64decode(data))
         elif isinstance(data, Buffer):
-            buffer = data # in case of decode(encode(obj))
+            buffer = data  # in case of decode(encode(obj))
         else:
             id = data["id"]
 
@@ -647,8 +680,8 @@ class Deserializer:
             int16="h",
             uint32="I",
             int32="i",
-            #uint64="Q",
-            #int64="q",
+            # uint64="Q",
+            # int64="q",
             float32="f",
             float64="d",
         )
@@ -713,6 +746,7 @@ class Deserializer:
         # general HasProps machinery that sets properties, so call it explicitly
         if not instance._initialized:
             from .has_props import HasProps
+
             HasProps.__init__(instance)
 
         if attributes is not None:
@@ -724,6 +758,7 @@ class Deserializer:
 
     def _resolve_type(self, type: str) -> type[Model]:
         from ..model import Model
+
         cls = Model.model_class_reverse_map.get(type)
         if cls is not None:
             if issubclass(cls, Model):
@@ -733,7 +768,8 @@ class Deserializer:
         else:
             if type == "Figure":
                 from ..plotting import figure
-                return figure # XXX: helps with push_session(); this needs a better resolution scheme
+
+                return figure  # XXX: helps with push_session(); this needs a better resolution scheme
             else:
                 self.error(f"can't resolve type '{type}'")
 
@@ -743,14 +779,15 @@ class Deserializer:
         else:
             raise error
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

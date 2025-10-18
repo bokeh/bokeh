@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a base class for objects that can have declarative, typed,
+# -----------------------------------------------------------------------------
+"""Provide a base class for objects that can have declarative, typed,
 serializable properties.
 
 .. note::
@@ -13,19 +13,20 @@ serializable properties.
     classes or their methods will be applicable to any standard usage or to
     anyone who is not directly developing on Bokeh's own infrastructure.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import difflib
@@ -37,6 +38,8 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
+    NotRequired,
+    Self,
     TypeAlias,
     TypedDict,
     TypeVar,
@@ -46,6 +49,7 @@ from weakref import WeakSet
 
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])
+
     def lru_cache(arg: int | None) -> Callable[[F], F]: ...
 else:
     from functools import lru_cache
@@ -66,32 +70,30 @@ from .serialization import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self
-
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property
     from .property.dataspec import DataSpec
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'abstract',
-    'HasProps',
-    'MetaHasProps',
-    'NonQualified',
-    'Qualified',
+    "abstract",
+    "HasProps",
+    "MetaHasProps",
+    "NonQualified",
+    "Qualified",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
     Setter: TypeAlias = ClientSession | ServerSession
@@ -100,22 +102,25 @@ C = TypeVar("C", bound=type["HasProps"])
 
 _abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
-def abstract(cls: C) -> C:
-    ''' A decorator to mark abstract base classes derived from |HasProps|.
 
-    '''
+def abstract(cls: C) -> C:
+    """A decorator to mark abstract base classes derived from |HasProps|."""
     if not issubclass(cls, HasProps):
         raise TypeError(f"{cls.__name__} is not a subclass of HasProps")
     _abstract_classes.add(cls)
     cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
 
+
 def is_abstract(cls: type[HasProps]) -> bool:
     return cls in _abstract_classes
 
+
 def is_DataModel(cls: type[HasProps]) -> bool:
     from ..model import DataModel
+
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
+
 
 def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Any]:
     overridden_defaults: dict[str, Any] = {}
@@ -126,6 +131,7 @@ def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Any]:
                 overridden_defaults[name] = prop.default
     return overridden_defaults
 
+
 def _generators(class_dict: dict[str, Any]):
     generators: dict[str, PropertyDescriptorFactory[Any]] = {}
     for name, generator in tuple(class_dict.items()):
@@ -134,8 +140,9 @@ def _generators(class_dict: dict[str, Any]):
             generators[name] = generator
     return generators
 
+
 class _ModelResolver:
-    """ A class responsible for tracking of models and how to resolve them. """
+    """A class responsible for tracking of models and how to resolve them."""
 
     _known_models: dict[str, type[HasProps]]
 
@@ -149,8 +156,11 @@ class _ModelResolver:
             if previous is not None and not hasattr(cls, "__implementation__"):
                 from ..util.warnings import BokehUserWarning, warn
 
-                warn(f"Duplicate qualified model definition of '{cls.__qualified_model__}'. " \
-                     f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).", BokehUserWarning)
+                warn(
+                    f"Duplicate qualified model definition of '{cls.__qualified_model__}'. "
+                    f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).",
+                    BokehUserWarning,
+                )
             self._known_models[cls.__qualified_model__] = cls
 
     def remove(self, cls: type[HasProps]) -> None:
@@ -162,16 +172,18 @@ class _ModelResolver:
 
     def clear_extensions(self) -> None:
         def is_extension(obj: type[HasProps]) -> bool:
-            return getattr(obj, "__implementation__", None) is not None or \
-                   getattr(obj, "__javascript__", None) is not None or \
-                   getattr(obj, "__css__", None) is not None
+            return (
+                getattr(obj, "__implementation__", None) is not None or getattr(obj, "__javascript__", None) is not None or getattr(obj, "__css__", None) is not None
+            )
 
         self._known_models = {key: val for key, val in self._known_models.items() if not is_extension(val)}
 
+
 _default_resolver = _ModelResolver()
 
+
 class MetaHasProps(type):
-    ''' Specialize the construction of |HasProps| classes.
+    """Specialize the construction of |HasProps| classes.
 
     This class is a `metaclass`_ for |HasProps| that is responsible for
     creating and adding the ``PropertyDescriptor`` instances that delegate
@@ -179,16 +191,14 @@ class MetaHasProps(type):
 
     .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
 
-    '''
+    """
 
     __properties__: dict[str, Property[Any]]
     __overridden_defaults__: dict[str, Any]
     __themed_values__: dict[str, Any]
 
     def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]):
-        '''
-
-        '''
+        """ """
         overridden_defaults = _overridden_defaults(class_dict)
         generators = _generators(class_dict)
 
@@ -222,10 +232,12 @@ class MetaHasProps(type):
         if redeclared:
             from ..util.warnings import warn
 
-            warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
-                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
-                 "the parent class. Override() can be used to change a default value of a base class property.",
-                 RuntimeWarning)
+            warn(
+                f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
+                "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
+                "the parent class. Override() can be used to change a default value of a base class property.",
+                RuntimeWarning,
+            )
 
         # Check for no-op Overrides
         unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
@@ -238,19 +250,22 @@ class MetaHasProps(type):
     def model_class_reverse_map(cls) -> dict[str, type[HasProps]]:
         return _default_resolver.known_models
 
+
 class Local:
-    """Don't register this class in model registry. """
+    """Don't register this class in model registry."""
+
 
 class Qualified:
-    """Resolve this class by a fully qualified name. """
+    """Resolve this class by a fully qualified name."""
+
 
 class NonQualified:
-    """Resolve this class by a non-qualified name. """
+    """Resolve this class by a non-qualified name."""
+
 
 class HasProps(Serializable, metaclass=MetaHasProps):
-    ''' Base class for all class types that have Bokeh properties.
+    """Base class for all class types that have Bokeh properties."""
 
-    '''
     _initialized: bool = False
 
     _property_values: dict[str, Any]
@@ -260,7 +275,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
     __qualified_model__: ClassVar[str]
-    __implementation__: ClassVar[Any] # TODO: specific type
+    __implementation__: ClassVar[Any]  # TODO: specific type
     __data_model__: ClassVar[bool]
 
     @classmethod
@@ -274,6 +289,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             cls.__view_module__ = cls.__module__
 
         if "__qualified_model__" not in cls.__dict__:
+
             def qualified():
                 module = cls.__view_module__
                 model = cls.__view_model__
@@ -293,9 +309,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         _default_resolver.add(cls)
 
     def __init__(self, **properties: Any) -> None:
-        '''
-
-        '''
+        """ """
         super().__init__()
         self._property_values = {}
         self._unstable_default_values = {}
@@ -308,17 +322,17 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             setattr(self, name, value)
 
         initialized = set(properties.keys())
-        for name in self.properties(_with_props=True): # avoid set[] for deterministic behavior
+        for name in self.properties(_with_props=True):  # avoid set[] for deterministic behavior
             if name in initialized:
                 continue
             desc = self.lookup(name)
             if desc.has_unstable_default(self):
-                desc._get(self) # this fills-in `_unstable_*_values`
+                desc._get(self)  # this fills-in `_unstable_*_values`
 
         self._initialized = True
 
     def __setattr__(self, name: str, value: Any) -> None:
-        ''' Intercept attribute setting on HasProps in order to special case
+        """Intercept attribute setting on HasProps in order to special case
         a few situations:
 
         * short circuit all property machinery for ``_private`` attributes
@@ -331,7 +345,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         if name.startswith("_"):
             return super().__setattr__(name, value)
 
@@ -340,13 +354,13 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             return super().__setattr__(name, value)
 
         descriptor = getattr(self.__class__, name, None)
-        if isinstance(descriptor, property): # Python property
+        if isinstance(descriptor, property):  # Python property
             return super().__setattr__(name, value)
 
         self._raise_attribute_error_with_matches(name, properties)
 
     def __getattr__(self, name: str) -> Any:
-        ''' Intercept attribute setting on HasProps in order to special case
+        """Intercept attribute setting on HasProps in order to special case
         a few situations:
 
         * short circuit all property machinery for ``_private`` attributes
@@ -358,7 +372,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             Any
 
-        '''
+        """
         if name.startswith("_"):
             return super().__getattribute__(name)
 
@@ -367,7 +381,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             return super().__getattribute__(name)
 
         descriptor = getattr(self.__class__, name, None)
-        if isinstance(descriptor, property): # Python property
+        if isinstance(descriptor, property):  # Python property
             return super().__getattribute__(name)
 
         self._raise_attribute_error_with_matches(name, properties)
@@ -397,7 +411,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     # [1] https://docs.python.org/3/reference/datamodel.html#object.__hash__
     #
     def equals(self, other: HasProps) -> bool:
-        ''' Structural equality of models.
+        """Structural equality of models.
 
         Args:
             other (HasProps) : the other instance to compare to
@@ -405,7 +419,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             True, if properties are structurally equal, otherwise False
 
-        '''
+        """
         if not isinstance(other, self.__class__):
             return False
         else:
@@ -427,7 +441,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
-        ''' Set a property value on this object from JSON.
+        """Set a property value on this object from JSON.
 
         Args:
             name (str) : name of the attribute to set
@@ -447,16 +461,16 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         if name in self.properties(_with_props=True):
-            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore # TODO: log.trace()
+            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}")  # type: ignore # TODO: log.trace()
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def update(self, **kwargs: Any) -> None:
-        ''' Updates the object's properties from the given keyword arguments.
+        """Updates the object's properties from the given keyword arguments.
 
         Returns:
             None
@@ -478,7 +492,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 # update properties together:
                 r.update(start=10, end=20)
 
-        '''
+        """
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -492,7 +506,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @classmethod
     def lookup(cls, name: str, *, raises: bool = True) -> PropertyDescriptor[Any] | None:
-        ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
+        """Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
         Args:
@@ -502,7 +516,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             PropertyDescriptor : descriptor for property named ``name``
 
-        '''
+        """
         attr = getattr(cls, name, None)
         if attr is not None or (attr is None and not raises):
             return attr
@@ -521,7 +535,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     @classmethod
     @lru_cache(None)
     def properties(cls, *, _with_props: bool = False) -> set[str] | dict[str, Property[Any]]:
-        ''' Collect the names of properties on this class.
+        """Collect the names of properties on this class.
 
         .. warning::
             In a future version of Bokeh, this method will return a dictionary
@@ -531,7 +545,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             property names
 
-        '''
+        """
         props: dict[str, Property[Any]] = {}
         for c in reversed(cls.__mro__):
             props.update(getattr(c, "__properties__", {}))
@@ -544,13 +558,13 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     @classmethod
     @lru_cache(None)
     def descriptors(cls) -> list[PropertyDescriptor[Any]]:
-        """ List of property descriptors in the order of definition. """
-        return [ cls.lookup(name) for name, _ in cls.properties(_with_props=True).items() ]
+        """List of property descriptors in the order of definition."""
+        return [cls.lookup(name) for name, _ in cls.properties(_with_props=True).items()]
 
     @classmethod
     @lru_cache(None)
     def properties_with_refs(cls) -> dict[str, Property[Any]]:
-        ''' Collect the names of all properties on this class that also have
+        """Collect the names of all properties on this class that also have
         references.
 
         This method *always* traverses the class hierarchy and includes
@@ -559,13 +573,13 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             set[str] : names of properties that have references
 
-        '''
+        """
         return {k: v for k, v in cls.properties(_with_props=True).items() if v.has_ref}
 
     @classmethod
     @lru_cache(None)
     def dataspecs(cls) -> dict[str, DataSpec]:
-        ''' Collect the names of all ``DataSpec`` properties on this class.
+        """Collect the names of all ``DataSpec`` properties on this class.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
@@ -573,12 +587,13 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             set[str] : names of ``DataSpec`` properties
 
-        '''
+        """
         from .property.dataspec import DataSpec  # avoid circular import
+
         return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
-        ''' Collect a dict mapping property names to their values.
+        """Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
@@ -597,26 +612,26 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
            dict : mapping from property names to their values
 
-        '''
-        return self.query_properties_with_values(lambda prop: prop.serialized,
-            include_defaults=include_defaults, include_undefined=include_undefined)
+        """
+        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
     def _overridden_defaults(cls) -> dict[str, Any]:
-        ''' Returns a dictionary of defaults that have been overridden.
+        """Returns a dictionary of defaults that have been overridden.
 
         .. note::
             This is an implementation detail of ``Property``.
 
-        '''
+        """
         defaults: dict[str, Any] = {}
         for c in reversed(cls.__mro__):
             defaults.update(getattr(c, "__overridden_defaults__", {}))
         return defaults
 
-    def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
-            include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
-        ''' Query the properties values of |HasProps| instances with a
+    def query_properties_with_values(
+        self, query: Callable[[PropertyDescriptor[Any]], bool], *, include_defaults: bool = True, include_undefined: bool = False
+    ) -> dict[str, Any]:
+        """Query the properties values of |HasProps| instances with a
         predicate.
 
         Args:
@@ -631,7 +646,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             dict : mapping of property names and values for matching properties
 
-        '''
+        """
         themed_keys: set[str] = set()
         result: dict[str, Any] = {}
 
@@ -677,7 +692,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         return result
 
     def themed_values(self) -> dict[str, Any] | None:
-        ''' Get any theme-provided overrides.
+        """Get any theme-provided overrides.
 
         Results are returned as a dict from property name to value, or
         ``None`` if no theme overrides any values for this instance.
@@ -685,11 +700,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             dict or None
 
-        '''
-        return getattr(self, '__themed_values__', None)
+        """
+        return getattr(self, "__themed_values__", None)
 
     def apply_theme(self, property_values: dict[str, Any]) -> None:
-        ''' Apply a set of theme values which will be used rather than
+        """Apply a set of theme values which will be used rather than
         defaults, but will not override application-set values.
 
         The passed-in dictionary may be kept around as-is and shared with
@@ -702,7 +717,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         old_dict = self.themed_values()
 
         # if the same theme is set again, it should reuse the same dict
@@ -720,9 +735,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             old_values[k] = getattr(self, k)
 
         if len(property_values) > 0:
-            setattr(self, '__themed_values__', property_values)
-        elif hasattr(self, '__themed_values__'):
-            delattr(self, '__themed_values__')
+            setattr(self, "__themed_values__", property_values)
+        elif hasattr(self, "__themed_values__"):
+            delattr(self, "__themed_values__")
 
         # Property container values might be cached even if unmodified. Invalidate
         # any cached values that are not modified at this point.
@@ -737,37 +752,41 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 descriptor.trigger_if_changed(self, v)
 
     def unapply_theme(self) -> None:
-        ''' Remove any themed values and restore defaults.
+        """Remove any themed values and restore defaults.
 
         Returns:
             None
 
-        '''
+        """
         self.apply_theme(property_values={})
 
     def clone(self, **overrides: Any) -> Self:
-        ''' Duplicate a ``HasProps`` object.
+        """Duplicate a ``HasProps`` object.
 
         This creates a shallow clone of the original model, i.e. any mutable
         containers or child models will not be duplicated. Allows to override
         particular properties while cloning.
 
-        '''
+        """
         attrs = self.properties_with_values(include_defaults=False, include_undefined=True)
         existing = {key: val for key, val in attrs.items() if val is not Undefined}
         properties = {**existing, **overrides}
         return self.__class__(**properties)
 
-KindRef = Any # TODO
+
+KindRef = Any  # TODO
+
 
 class PropertyDef(TypedDict):
     name: str
     kind: KindRef
     default: NotRequired[Any]
 
+
 class OverrideDef(TypedDict):
     name: str
     default: Any
+
 
 class ModelDef(TypedDict):
     type: Literal["model"]
@@ -775,6 +794,7 @@ class ModelDef(TypedDict):
     extends: NotRequired[Ref | None]
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]
+
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model
@@ -787,7 +807,7 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
         return ref
 
     # TODO: consider supporting mixin models
-    bases: list[type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
+    bases: list[type[HasProps]] = [base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel]
     if len(bases) == 0:
         extends = None
     elif len(bases) == 1:
@@ -802,7 +822,7 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
     # TODO: don't use unordered sets
     for prop_name in cls.__properties__:
         descriptor = cls.lookup(prop_name)
-        kind = "Any" # TODO: serialize kinds
+        kind = "Any"  # TODO: serialize kinds
         default = descriptor.property._default
 
         if default is Undefined:
@@ -832,19 +852,20 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
 
     return modeldef
 
+
 Serializer.register(MetaHasProps, _HasProps_to_serializable)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-_ABSTRACT_ADMONITION = '''
+_ABSTRACT_ADMONITION = """
     .. note::
         This is an abstract base class used to help organize the hierarchy of Bokeh
         model types. **It is not useful to instantiate on its own.**
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

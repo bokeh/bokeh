@@ -2,10 +2,7 @@
 
 # Standard library imports
 from types import SimpleNamespace
-from typing import NamedTuple, TypedDict
-
-# External imports
-from typing_extensions import NotRequired
+from typing import NamedTuple, NotRequired, TypedDict
 
 # Bokeh imports
 from bokeh.core.property.struct import struct
@@ -24,11 +21,13 @@ class BorderRadiusTD(TypedDict):
     bottom_right: NotRequired[int]
     bottom_left: NotRequired[int]
 
+
 class BorderRadiusNT(NamedTuple):
     top_left: int = 0
     top_right: int = 0
     bottom_right: int = 0
     bottom_left: int = 0
+
 
 rect0 = Rect(x=0, y=0, width=1, height=1, fill_color=Spectral7[0], border_radius=30)
 rect1 = Rect(x=1, y=1, width=1, height=1, fill_color=Spectral7[1], border_radius=dict(top_left=30, top_right=20, bottom_right=10))

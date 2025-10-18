@@ -1,57 +1,56 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide utility functions for implementing the ``bokeh`` command.
+# -----------------------------------------------------------------------------
+"""Provide utility functions for implementing the ``bokeh`` command."""
 
-'''
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import contextlib
 import errno
 import os
 import sys
-from typing import TYPE_CHECKING, Iterator
+from typing import Never, TYPE_CHECKING, Iterator
 
 # Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
 
 if TYPE_CHECKING:
-    from typing_extensions import Never
-
     from bokeh.application.handlers import Handler
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'build_single_handler_application',
-    'build_single_handler_applications',
-    'die',
-    'report_server_init_errors',
+    "build_single_handler_application",
+    "build_single_handler_applications",
+    "die",
+    "report_server_init_errors",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def die(message: str, status: int = 1) -> Never:
-    ''' Print an error message and exit.
+    """Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the
     process will terminate.
@@ -61,9 +60,10 @@ def die(message: str, status: int = 1) -> Never:
 
         status (int) : the exit status to pass to ``sys.exit``
 
-    '''
+    """
     print(f"ERROR: {message}", file=sys.stderr)
     sys.exit(status)
+
 
 DIRSTYLE_MAIN_WARNING = """
 It looks like you might be running the main.py of a directory app directly.
@@ -75,8 +75,9 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
+
 def build_single_handler_application(path: str, argv: list[str] | None = None) -> Application:
-    ''' Return a Bokeh application built using a single handler for a script,
+    """Return a Bokeh application built using a single handler for a script,
     notebook, or directory.
 
     In general a Bokeh :class:`~bokeh.application.application.Application` may
@@ -111,7 +112,7 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
         If ``path`` ends with a file ``main.py`` then a warning will be printed
         regarding running directory-style apps by passing the directory instead.
 
-    '''
+    """
     argv = argv or []
     path = os.path.abspath(os.path.expanduser(path))
     handler: Handler
@@ -142,8 +143,9 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
 
     return application
 
+
 def build_single_handler_applications(paths: list[str], argvs: dict[str, list[str]] | None = None) -> dict[str, Application]:
-    ''' Return a dictionary mapping routes to Bokeh applications built using
+    """Return a dictionary mapping routes to Bokeh applications built using
     single handlers, for specified files or directories.
 
     This function iterates over ``paths`` and ``argvs`` and calls
@@ -163,7 +165,7 @@ def build_single_handler_applications(paths: list[str], argvs: dict[str, list[st
     Raises:
         RuntimeError
 
-    '''
+    """
     applications: dict[str, Application] = {}
     argvs = argvs or {}
 
@@ -173,9 +175,9 @@ def build_single_handler_applications(paths: list[str], argvs: dict[str, list[st
         route = application.handlers[0].url_path()
 
         if not route:
-            if '/' in applications:
+            if "/" in applications:
                 raise RuntimeError(f"Don't know the URL path to use for {path}")
-            route = '/'
+            route = "/"
         applications[route] = application
 
     return applications
@@ -183,7 +185,7 @@ def build_single_handler_applications(paths: list[str], argvs: dict[str, list[st
 
 @contextlib.contextmanager
 def report_server_init_errors(address: str | None = None, port: int | None = None, **kwargs: str) -> Iterator[None]:
-    ''' A context manager to help print more informative error messages when a
+    """A context manager to help print more informative error messages when a
     ``Server`` cannot be started due to a network problem.
 
     Args:
@@ -202,7 +204,7 @@ def report_server_init_errors(address: str | None = None, port: int | None = Non
         critical error will be logged and the process will terminate with a
         call to ``sys.exit(1)``
 
-    '''
+    """
     try:
         yield
     except OSError as e:
@@ -225,14 +227,15 @@ def report_server_init_errors(address: str | None = None, port: int | None = Non
                 log.critical(message)
         sys.exit(1)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
