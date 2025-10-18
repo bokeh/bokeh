@@ -1,28 +1,31 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-""" Serialization and deserialization utilities. """
+# -----------------------------------------------------------------------------
+"""Serialization and deserialization utilities."""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import base64
 import datetime as dt
+import gzip
 import sys
 from array import array as TypedArray
+from dataclasses import dataclass
 from math import isinf, isnan
 from types import SimpleNamespace
 from typing import (
@@ -44,12 +47,8 @@ from typing import (
 import numpy as np
 
 # Bokeh imports
-from ..util.dataclasses import (
-    Unspecified,
-    dataclass,
-    entries,
-    is_dataclass,
-)
+from ..settings import settings
+from ..util.dataclasses import Unspecified, entries, is_dataclass
 from ..util.dependencies import uses_pandas
 from ..util.serialization import (
     array_encoding_disabled,
@@ -61,19 +60,23 @@ from ..util.serialization import (
     transform_array,
     transform_series,
 )
-from ..util.warnings import BokehUserWarning, warn
 from .types import ID
+
+# Issue 13883: Self requires typing_extensions for Python < 3.11
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from typing import NotRequired
+    else:
+        from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import NotRequired
-
     from ..core.has_props import Setter
     from ..model import Model
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
     "Buffer",
@@ -86,44 +89,54 @@ __all__ = (
 
 _MAX_SAFE_INT = 2**53 - 1
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 AnyRep: TypeAlias = Any
 
+
 class Ref(TypedDict):
     id: ID
+
 
 class RefRep(TypedDict):
     type: Literal["ref"]
     id: ID
 
+
 class SymbolRep(TypedDict):
     type: Literal["symbol"]
     name: str
+
 
 class NumberRep(TypedDict):
     type: Literal["number"]
     value: Literal["nan", "-inf", "+inf"] | float
 
+
 class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: NotRequired[list[AnyRep]]
 
+
 ArrayRepLike: TypeAlias = ArrayRep | list[AnyRep]
+
 
 class SetRep(TypedDict):
     type: Literal["set"]
     entries: NotRequired[list[AnyRep]]
 
+
 class MapRep(TypedDict):
     type: Literal["map"]
     entries: NotRequired[list[tuple[AnyRep, AnyRep]]]
 
+
 class BytesRep(TypedDict):
     type: Literal["bytes"]
     data: Buffer | Ref | str
+
 
 class SliceRep(TypedDict):
     type: Literal["slice"]
@@ -131,10 +144,12 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
+
 class ObjectRep(TypedDict):
     type: Literal["object"]
     name: str
     attributes: NotRequired[dict[str, AnyRep]]
+
 
 class ObjectRefRep(TypedDict):
     type: Literal["object"]
@@ -142,12 +157,14 @@ class ObjectRefRep(TypedDict):
     id: ID
     attributes: NotRequired[dict[str, AnyRep]]
 
+
 ModelRep = ObjectRefRep
 
 ByteOrder: TypeAlias = Literal["little", "big"]
 
-DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
+DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"]  # "uint64", "int64"
 NDDataType: TypeAlias = Literal["bool"] | DataType | Literal["object"]
+
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]
@@ -155,12 +172,14 @@ class TypedArrayRep(TypedDict):
     order: ByteOrder
     dtype: DataType
 
+
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
     array: BytesRep | ArrayRepLike
     order: ByteOrder
     dtype: NDDataType
     shape: list[int]
+
 
 @dataclass
 class Buffer:
@@ -174,36 +193,52 @@ class Buffer:
     def to_bytes(self) -> bytes:
         return self.data.tobytes() if isinstance(self.data, memoryview) else self.data
 
+    def to_compressed_bytes(self) -> bytes:
+        level = settings.compression_level()
+        # we do not want the result to be different depending on mtime, since that is
+        # irrelevant and also makes things harder to test, but Python 3.11 and 3.12 have
+        # bug where using mtime=0 results in the Gzip header OS field varies by platforam
+        # instead of getting set to a fixed value of 255. So, for now use mtime=1 instead.
+        return gzip.compress(self.to_bytes(), mtime=1, compresslevel=level)
+
     def to_base64(self) -> str:
-        return base64.b64encode(self.data).decode("utf-8")
+        return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
+
 
 T = TypeVar("T")
+
 
 @dataclass
 class Serialized(Generic[T]):
     content: T
     buffers: list[Buffer] | None = None
 
+
 Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
+
 
 class SerializationError(ValueError):
     pass
 
+
 class Serializable:
-    """ A mixin for making a type serializable. """
+    """A mixin for making a type serializable."""
 
     def to_serializable(self, serializer: Serializer) -> AnyRep:
-        """ Converts this object to a serializable representation. """
+        """Converts this object to a serializable representation."""
         raise NotImplementedError()
+
 
 ObjID = int
 
+
 class Serializer:
-    """ Convert built-in and custom types into serializable representations.
-        Not all built-in types are supported (e.g., decimal.Decimal due to
-        lacking support for fixed point arithmetic in JavaScript).
+    """Convert built-in and custom types into serializable representations.
+    Not all built-in types are supported (e.g., decimal.Decimal due to
+    lacking support for fixed point arithmetic in JavaScript).
     """
+
     _encoders: ClassVar[dict[type[Any], Encoder]] = {}
 
     @classmethod
@@ -213,12 +248,14 @@ class Serializer:
 
     _references: dict[ObjID, Ref]
     _deferred: bool
+    _check_circular: bool
     _circular: dict[ObjID, Any]
     _buffers: list[Buffer]
 
-    def __init__(self, *, references: set[Model] = set(), deferred: bool = True) -> None:
+    def __init__(self, *, references: set[Model] = set(), deferred: bool = True, check_circular: bool = False) -> None:
         self._references = {id(obj): obj.ref for obj in references}
         self._deferred = deferred
+        self._check_circular = check_circular
         self._circular = {}
         self._buffers = []
 
@@ -245,14 +282,15 @@ class Serializer:
             return ref
 
         ident = id(obj)
-        if ident in self._circular:
+        if self._check_circular and ident in self._circular:
             self.error("circular reference")
 
         self._circular[ident] = obj
         try:
             return self._encode(obj)
         finally:
-            del self._circular[ident]
+            if ident in self._circular:
+                del self._circular[ident]
 
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
@@ -308,6 +346,8 @@ class Serializer:
         if -_MAX_SAFE_INT < obj <= _MAX_SAFE_INT:
             return obj
         else:
+            from ..util.warnings import BokehUserWarning, warn
+
             warn("out of range integer may result in loss of precision", BokehUserWarning)
             return self._encode_float(float(obj))
 
@@ -399,16 +439,22 @@ class Serializer:
                     return "float64"
                 case "B" | "H" | "I" | "L" | "Q":
                     match obj.itemsize:
-                        case 1: return "uint8"
-                        case 2: return "uint16"
-                        case 4: return "uint32"
-                        #case 8: return "uint64"
+                        case 1:
+                            return "uint8"
+                        case 2:
+                            return "uint16"
+                        case 4:
+                            return "uint32"
+                        # case 8: return "uint64"
                 case "b" | "h" | "i" | "l" | "q":
                     match obj.itemsize:
-                        case 1: return "int8"
-                        case 2: return "int16"
-                        case 4: return "int32"
-                        #case 8: return "int64"
+                        case 1:
+                            return "int8"
+                        case 2:
+                            return "int16"
+                        case 4:
+                            return "int32"
+                        # case 8: return "int64"
             self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
         return TypedArrayRep(
@@ -460,6 +506,7 @@ class Serializer:
         # avoid importing pandas here unless it is actually in use
         if uses_pandas(obj):
             import pandas as pd
+
             if isinstance(obj, pd.Series | pd.Index | pd.api.extensions.ExtensionArray):
                 return self._encode_ndarray(transform_series(obj))
             elif obj is pd.NA:
@@ -474,17 +521,19 @@ class Serializer:
     def error(self, message: str) -> NoReturn:
         raise SerializationError(message)
 
+
 class DeserializationError(ValueError):
     pass
 
-class UnknownReferenceError(DeserializationError):
 
+class UnknownReferenceError(DeserializationError):
     def __init__(self, id: ID) -> None:
         super().__init__(f"can't resolve reference '{id}'")
         self.id = id
 
+
 class Deserializer:
-    """ Convert from serializable representations to built-in and custom types. """
+    """Convert from serializable representations to built-in and custom types."""
 
     _decoders: ClassVar[dict[str, Decoder]] = {}
 
@@ -582,7 +631,7 @@ class Deserializer:
 
     def _decode_symbol(self, obj: SymbolRep) -> float:
         name = obj["name"]
-        self.error(f"can't resolve named symbol '{name}'") # TODO: implement symbol resolution
+        self.error(f"can't resolve named symbol '{name}'")  # TODO: implement symbol resolution
 
     def _decode_number(self, obj: NumberRep) -> float:
         value = obj["value"]
@@ -590,23 +639,23 @@ class Deserializer:
 
     def _decode_array(self, obj: ArrayRep) -> list[Any]:
         entries = obj.get("entries", [])
-        return [ self._decode(entry) for entry in entries ]
+        return [self._decode(entry) for entry in entries]
 
     def _decode_set(self, obj: SetRep) -> set[Any]:
         entries = obj.get("entries", [])
-        return { self._decode(entry) for entry in entries }
+        return {self._decode(entry) for entry in entries}
 
     def _decode_map(self, obj: MapRep) -> dict[Any, Any]:
         entries = obj.get("entries", [])
-        return { self._decode(key): self._decode(val) for key, val in entries }
+        return {self._decode(key): self._decode(val) for key, val in entries}
 
-    def _decode_bytes(self, obj: BytesRep) -> bytes:
+    def _decode_bytes(self, obj: BytesRep) -> bytes | memoryview[int]:
         data = obj["data"]
 
         if isinstance(data, str):
-            return base64.b64decode(data)
+            return gzip.decompress(base64.b64decode(data))
         elif isinstance(data, Buffer):
-            buffer = data # in case of decode(encode(obj))
+            buffer = data  # in case of decode(encode(obj))
         else:
             id = data["id"]
 
@@ -637,8 +686,8 @@ class Deserializer:
             int16="h",
             uint32="I",
             int32="i",
-            #uint64="Q",
-            #int64="q",
+            # uint64="Q",
+            # int64="q",
             float32="f",
             float64="d",
         )
@@ -682,6 +731,8 @@ class Deserializer:
         id = obj["id"]
         instance = self._references.get(id)
         if instance is not None:
+            from ..util.warnings import BokehUserWarning, warn
+
             warn(f"reference already known '{id}'", BokehUserWarning)
             return instance
 
@@ -701,6 +752,7 @@ class Deserializer:
         # general HasProps machinery that sets properties, so call it explicitly
         if not instance._initialized:
             from .has_props import HasProps
+
             HasProps.__init__(instance)
 
         if attributes is not None:
@@ -712,6 +764,7 @@ class Deserializer:
 
     def _resolve_type(self, type: str) -> type[Model]:
         from ..model import Model
+
         cls = Model.model_class_reverse_map.get(type)
         if cls is not None:
             if issubclass(cls, Model):
@@ -721,7 +774,8 @@ class Deserializer:
         else:
             if type == "Figure":
                 from ..plotting import figure
-                return figure # XXX: helps with push_session(); this needs a better resolution scheme
+
+                return figure  # XXX: helps with push_session(); this needs a better resolution scheme
             else:
                 self.error(f"can't resolve type '{type}'")
 
@@ -731,14 +785,15 @@ class Deserializer:
         else:
             raise error
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
