@@ -63,11 +63,10 @@ from ..util.serialization import (
 from .types import ID
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
-if TYPE_CHECKING:
-    if sys.version_info >= (3, 11):
-        from typing import NotRequired
-    else:
-        from typing_extensions import NotRequired
+if sys.version_info >= (3, 11):
+    from typing import NotRequired
+else:
+    from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     import numpy.typing as npt

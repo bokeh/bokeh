@@ -28,11 +28,10 @@ from re import match
 from typing import TYPE_CHECKING, TypeAlias, cast
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
-if TYPE_CHECKING:
-    if sys.version_info >= (3, 11):
-        from typing import Self
-    else:
-        from typing_extensions import Self
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer

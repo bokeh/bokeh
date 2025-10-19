@@ -36,11 +36,10 @@ from typing import Literal
 import sys
 
 # Issue 13883: Self requires typing_extensions for Python < 3.11
-if TYPE_CHECKING:
-    if sys.version_info >= (3, 11):
-        from typing import assert_type
-    else:
-        from typing_extensions import assert_type
+if sys.version_info >= (3, 11):
+    from typing import assert_type
+else:
+    from typing_extensions import assert_type
 
 # Bokeh imports
 from bokeh.models.annotations import LegendItem
