@@ -18,8 +18,10 @@ dependencies = [
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=6.2; sys_platform != 'emscripten'",
+    "typing_extensions >=4.0; python_version < '3.11'",  # Add this line
     "xyzservices >=2021.09.1",
 ]
+
 authors = [
   {email = "info@bokeh.org"},
   {name = "Bokeh Team"}
