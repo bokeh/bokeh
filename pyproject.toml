@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "setuptools-git-versioning", "colorama", "typing_extensions>=4.0; python_version < '3.11'"]
+requires = ["setuptools>=77", "setuptools-git-versioning", "colorama"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -18,7 +18,7 @@ dependencies = [
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=6.2; sys_platform != 'emscripten'",
-    "typing_extensions >=4.0; python_version < '3.11'",  # Add this line
+    "typing_extensions >=4.0",
     "xyzservices >=2021.09.1",
 ]
 
