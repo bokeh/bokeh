@@ -36,7 +36,7 @@ from typing import (
 from urllib.parse import urljoin
 import sys
 
-# Issue 13883: Self requires typing_extensions for Python < 3.11
+# Issue 13883: NotRequired requires typing_extensions for Python < 3.11
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
         from typing import NotRequired
