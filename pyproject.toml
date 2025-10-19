@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "setuptools-git-versioning", "colorama"]
+requires = ["setuptools>=77", "setuptools-git-versioning", "colorama", "typing_extensions>=4.0; python_version < '3.11'"]
 build-backend = "setuptools.build_meta"
 
 [project]
