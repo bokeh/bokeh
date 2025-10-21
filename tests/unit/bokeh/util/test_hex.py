@@ -82,21 +82,23 @@ class Test_cartesian_to_axial:
 
 
 class Test_hexbin:
-    # hexbin requires pandas
 
     def test_gaussian_pointytop(self) -> None:
         bins = buh.hexbin(x, y, 2)
-        assert list(bins.q) == [0,0,1,1,1,2,2]
-        assert list(bins.r) == [-1,0,-2,-1,0,-2,-1]
-        assert list(bins.counts) == [9,54,1,313,98,3,22]
+        np.testing.assert_array_equal(bins.q, [0, 0, 1, 1, 1, 2, 2])
+        np.testing.assert_array_equal(bins.r, [0, -1, 0, -2, -1, -2, -1])
+        np.testing.assert_array_equal(bins.counts, [54, 9, 98, 1, 313, 3, 22])
 
-        assert bins.equals(buh.hexbin(x, y, 2, "pointytop"))
+        pointy_bins = buh.hexbin(x, y, 2, "pointytop")
+        np.testing.assert_array_equal(bins.q, pointy_bins.q)
+        np.testing.assert_array_equal(bins.r, pointy_bins.r)
+        np.testing.assert_array_equal(bins.counts, pointy_bins.counts)
 
     def test_gaussian_flattop(self) -> None:
         bins = buh.hexbin(x, y, 2, "flattop")
-        assert list(bins.q) == [0, 0, 1, 1, 1, 2]
-        assert list(bins.r) == [-1, 0, -2, -1, 0, -2]
-        assert list(bins.counts) == [95, 57, 14, 324, 8, 2]
+        np.testing.assert_array_equal(bins.q, [0, 0, 1, 1, 1, 2])
+        np.testing.assert_array_equal(bins.r, [0, -1, 0, -2, -1, -2])
+        np.testing.assert_array_equal(bins.counts, [57, 95, 8, 14, 324, 2])
 
 #-----------------------------------------------------------------------------
 # Dev API
