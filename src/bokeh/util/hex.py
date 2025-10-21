@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -103,11 +104,11 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
 
     '''
     if orientation == "pointytop":
-        x = size * np.sqrt(3) * (q + r/2.0) / aspect_scale
+        x = size * math.sqrt(3) * (q + r/2.0) / aspect_scale
         y = -size * 3/2.0 * r
     else:
         x = size * 3/2.0 * q
-        y = -size * np.sqrt(3) * (r + q/2.0) * aspect_scale
+        y = -size * math.sqrt(3) * (r + q/2.0) * aspect_scale
 
     return (x, y)
 
@@ -150,8 +151,8 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
         (array[int], array[int])
 
     '''
-    HEX_FLAT = [2.0/3.0, 0.0, -1.0/3.0, np.sqrt(3.0)/3.0]
-    HEX_POINTY = [np.sqrt(3.0)/3.0, -1.0/3.0, 0.0, 2.0/3.0]
+    HEX_FLAT = [2.0/3.0, 0.0, -1.0/3.0, math.sqrt(3.0)/3.0]
+    HEX_POINTY = [math.sqrt(3.0)/3.0, -1.0/3.0, 0.0, 2.0/3.0]
 
     coords = HEX_FLAT if orientation == 'flattop' else HEX_POINTY
 
