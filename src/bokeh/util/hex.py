@@ -46,7 +46,7 @@ __all__ = (
     'axial_to_cartesian',
     'cartesian_to_axial',
     'hexbin',
-    'HexBinData',
+    'HexBinResult',
 )
 
 #-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ __all__ = (
 
 
 @dataclass
-class HexBinData:
+class HexBinResult:
     q: npt.NDArray[np.integer]
     r: npt.NDArray[np.integer]
     counts: npt.NDArray[np.integer]
@@ -178,7 +178,7 @@ def hexbin(
     size: float,
     orientation: HexTileOrientationType = "pointytop",
     aspect_scale: float = 1,
-) -> HexBinData:
+) -> HexBinResult:
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 
     For more sophisticated use cases, e.g. weighted binning or scaling
@@ -233,7 +233,7 @@ def hexbin(
 
     unique_qr, counts = np.unique(qr.view(np.void), return_counts=True)
     unique_qr = unique_qr.view(dtype)
-    return HexBinData(q=unique_qr["q"], r=unique_qr["r"], counts=counts)
+    return HexBinResult(q=unique_qr["q"], r=unique_qr["r"], counts=counts)
 
 #-----------------------------------------------------------------------------
 # Dev API
