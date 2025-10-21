@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 # External imports
@@ -32,11 +33,9 @@ import numpy as np
 
 # Bokeh imports
 from ..core.enums import HexTileOrientationType
-from .dependencies import import_required
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,11 +45,20 @@ __all__ = (
     'axial_to_cartesian',
     'cartesian_to_axial',
     'hexbin',
+    'HexBinData',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+
+@dataclass
+class HexBinData:
+    q: np.ndarray
+    r: np.ndarray
+    counts: np.ndarray
+
 
 def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
@@ -161,7 +169,7 @@ def hexbin(
     size: float,
     orientation: HexTileOrientationType = "pointytop",
     aspect_scale: float = 1,
-) -> pd.DataFrame:
+) -> HexBinData:
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 
     For more sophisticated use cases, e.g. weighted binning or scaling
@@ -208,13 +216,15 @@ def hexbin(
         Hex binning only functions on linear scales, i.e. not on log plots.
 
     '''
-    pd: Any = import_required('pandas','hexbin requires pandas to be installed')
-
     q, r = cartesian_to_axial(x, y, size, orientation, aspect_scale=aspect_scale)
 
-    df = pd.DataFrame(dict(r=r, q=q))
+    dtype = [("q", q.dtype), ("r", r.dtype)]
+    qr = np.empty(q.shape[0], dtype=dtype)
+    qr["q"], qr["r"] = q, r
 
-    return df.groupby(['q', 'r']).size().reset_index(name='counts')
+    unique_qr, counts = np.unique(qr.view(np.void), return_counts=True)
+    unique_qr = unique_qr.view(dtype)
+    return HexBinData(q=unique_qr["q"], r=unique_qr["r"], counts=counts)
 
 #-----------------------------------------------------------------------------
 # Dev API
