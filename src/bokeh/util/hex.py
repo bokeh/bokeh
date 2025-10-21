@@ -60,6 +60,14 @@ class HexBinData:
     r: np.ndarray
     counts: np.ndarray
 
+    def __getitem__(self, key: str) -> npt.NDArray:
+        if key not in ("q", "r", "counts"):
+            raise KeyError(f"Invalid key {key!r}, must be one of 'q', 'r', or 'counts'")
+        from .warnings import warn, BokehUserWarning
+
+        warn(f"Use obj.{key} instead of obj['{key}']", BokehUserWarning)
+        return getattr(self, key)
+
 
 def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
