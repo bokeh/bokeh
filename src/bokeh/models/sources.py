@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import asdict, is_dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -237,8 +238,10 @@ class ColumnDataSource(ColumnarDataSource):
                 raw_data = self._data_from_df(raw_data)
             elif isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
+            elif is_dataclass(raw_data):
+                raw_data = asdict(raw_data)
             else:
-                raise ValueError(f"expected a dict or eager dataframe support by Narwhals, got {raw_data}")
+                raise ValueError(f"expected a dict, dataclass, or eager dataframe support by Narwhals, got {raw_data}")
         super().__init__(**kwargs)
         self.data.update(raw_data)
 
