@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from dataclasses import dataclass
+
 # External imports
 from pandas import DataFrame, Series
 from pandas.core.groupby import GroupBy
@@ -35,6 +38,7 @@ import bokeh.core.property.instance as bcpi # isort:skip
 
 ALL = (
     'Instance',
+    'InstanceDataclass',
     'InstanceDefault',
     'Object',
 )
@@ -195,6 +199,23 @@ class Test_Instance:
         assert isinstance(obj.m, _TestModel)
         for prop in default.properties():
             assert getattr(obj.m, prop) == getattr(default, prop)
+
+class Test_DataclassInstance:
+    def helper(self, instance=True):
+        @dataclass
+        class Helper:
+            a: list
+            b: list
+
+        return Helper([1, 2, 3], [4, 5, 6]) if instance else Helper
+
+    def test_valid(self) -> None:
+        prop = bcpi.InstanceDataclass()
+        assert prop.is_valid(self.helper())
+
+    def test_invalid(self) -> None:
+        prop = bcpi.InstanceDataclass()
+        assert not prop.is_valid(self.helper(instance=False))
 
 #-----------------------------------------------------------------------------
 # Dev API
