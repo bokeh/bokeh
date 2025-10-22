@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 import io
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 # External imports
@@ -38,6 +39,11 @@ import bokeh.models.sources as bms # isort:skip
 #-----------------------------------------------------------------------------
 
 df = pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
+
+@dataclass
+class DataClassData:
+    a: list[int]
+    b: list[int]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -73,6 +79,20 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(data=data)
         assert ds.data == data
         assert set(ds.column_names) == set(data.keys())
+        assert ds.length == 1
+
+    def test_init_dataclass_arg(self) -> None:
+        data = DataClassData(a=[1], b=[2])
+        ds = bms.ColumnDataSource(data)
+        assert ds.data == asdict(data)
+        assert set(ds.column_names) == set(asdict(data))
+        assert ds.length == 1
+
+    def test_init_dataclass_data_kwarg(self) -> None:
+        data = DataClassData(a=[1], b=[2])
+        ds = bms.ColumnDataSource(data=data)
+        assert ds.data == asdict(data)
+        assert set(ds.column_names) == set(asdict(data))
         assert ds.length == 1
 
     def test_init_dataframe_arg(self) -> None:
