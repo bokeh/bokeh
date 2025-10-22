@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import types
+from dataclasses import is_dataclass
 from importlib import import_module
 from typing import (
     Any,
@@ -46,6 +47,7 @@ from .singletons import Undefined
 
 __all__ = (
     'Instance',
+    'InstanceDataclass',
     'InstanceDefault',
     'Object',
 )
@@ -152,6 +154,22 @@ class InstanceDefault(Generic[I]):
     def __repr__(self) -> str:
         kwargs = ", ".join(f"{key}={val}" for key, val in self._kwargs.items())
         return f"<Instance: {self._model.__qualified_model__}({kwargs})>"
+
+class InstanceDataclass(Property["dataclass"]):
+    """ Accept instance of dataclass.
+
+    This property only exists to support type validation, e.g. for "accepts"
+    clauses. It is not serializable itself, and is not useful to add to
+    Bokeh models directly.
+
+    """
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+        if is_dataclass(value) and not isinstance(value, type):
+            return
+
+        msg = "" if not detail else f"expected object to be dataclass, got {value!r}"
+        raise ValueError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API
