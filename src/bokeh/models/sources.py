@@ -34,9 +34,10 @@ import numpy as np
 from ..core.has_props import abstract
 from ..core.property.any import Any as AnyVal, AnyRef
 from ..core.property.container import ColumnData, Dict, Seq
+from ..core.property.data_class import Dataclass
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..core.property.enum import Enum
-from ..core.property.instance import Instance, InstanceDataclass, InstanceDefault
+from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.json import JSON
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
@@ -213,7 +214,7 @@ class ColumnDataSource(ColumnarDataSource):
      ).accepts(
         PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x),
      ).accepts(
-        InstanceDataclass, lambda x: ColumnDataSource(asdict(x)),
+        Dataclass, lambda x: ColumnDataSource(asdict(x)),
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1, _cds_lengths_warning)
 
     @overload

@@ -41,7 +41,7 @@ import bokeh.models.sources as bms # isort:skip
 df = pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
 
 @dataclass
-class DataClassData:
+class DataclassData:
     a: list[int]
     b: list[int]
 
@@ -82,14 +82,14 @@ class TestColumnDataSource:
         assert ds.length == 1
 
     def test_init_dataclass_arg(self) -> None:
-        data = DataClassData(a=[1], b=[2])
+        data = DataclassData(a=[1], b=[2])
         ds = bms.ColumnDataSource(data)
         assert ds.data == asdict(data)
         assert set(ds.column_names) == set(asdict(data))
         assert ds.length == 1
 
     def test_init_dataclass_data_kwarg(self) -> None:
-        data = DataClassData(a=[1], b=[2])
+        data = DataclassData(a=[1], b=[2])
         ds = bms.ColumnDataSource(data=data)
         assert ds.data == asdict(data)
         assert set(ds.column_names) == set(asdict(data))
