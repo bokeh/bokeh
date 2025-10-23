@@ -22,7 +22,6 @@ from dataclasses import dataclass
 # Bokeh imports
 from tests.support.util.api import verify_all
 
-
 # Module under test
 import bokeh.core.property.data_class as bcpd # isort:skip
 
@@ -45,12 +44,12 @@ class DataclassData:
 
 class Test_Dataclass:
     def test_valid(self) -> None:
-        prop = bcpd.InstanceDataclass()
+        prop = bcpd.Dataclass()
         dc = DataclassData([1, 2, 3], [4, 5, 6])
         assert prop.is_valid(dc)
 
     def test_invalid(self) -> None:
-        prop = bcpd.InstanceDataclass()
+        prop = bcpd.Dataclass()
         assert not prop.is_valid(DataclassData)
 
 #-----------------------------------------------------------------------------
