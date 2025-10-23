@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from dataclasses import is_dataclass
-from typing import Any
+from typing import Any, TypeVar
 
 # Bokeh imports
 from .bases import Property
@@ -34,12 +34,13 @@ __all__ = (
     'Dataclass',
 )
 
+T = TypeVar("T", bound=object)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Dataclass(Property["dataclass"]):
+class Dataclass(Property[T]):
     """ Accept instance of dataclass.
 
     This property only exists to support type validation, e.g. for "accepts"
