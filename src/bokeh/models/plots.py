@@ -23,14 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from contextlib import contextmanager
 from typing import (
+    TYPE_CHECKING,
     Any,
     Generator,
     Literal,
     overload,
 )
-
-# External imports
-import xyzservices
 
 # Bokeh imports
 from ..core.enums import (
@@ -92,6 +90,9 @@ from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
 from .ui import StyledElement
+
+if TYPE_CHECKING:
+    import xyzservices
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -406,6 +407,7 @@ class Plot(LayoutDOM):
 
         '''
         if not isinstance(tile_source, TileSource):
+            import xyzservices
 
             if isinstance(tile_source, xyzservices.TileProvider):
                 selected_provider = tile_source
@@ -479,14 +481,14 @@ class Plot(LayoutDOM):
 
         if self.x_scale is not None:
             for rng in x_ranges:
-                if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.x_scale, LinearScale | LogScale):
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
                     incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
                     incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
 
         if self.y_scale is not None:
             for rng in y_ranges:
-                if isinstance(rng, DataRange1d | Range1d) and not isinstance(self.y_scale, LinearScale | LogScale):
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
                     incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")

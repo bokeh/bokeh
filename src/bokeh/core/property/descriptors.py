@@ -480,7 +480,7 @@ class PropertyDescriptor(Generic[T]):
         from types import FunctionType
 
         from .instance import InstanceDefault
-        return isinstance(value, FunctionType | InstanceDefault)
+        return isinstance(value, (FunctionType, InstanceDefault))
 
     def _get(self, obj: HasProps) -> T:
         """ Internal implementation of instance attribute access for the

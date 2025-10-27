@@ -9,15 +9,13 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import (
+    TYPE_CHECKING,
     Any,
     Generator,
     Sequence,
     TypeVar,
     overload,
 )
-
-# External imports
-import xyzservices
 
 # Bokeh imports
 from .._types import Readonly
@@ -51,6 +49,9 @@ from .sources import ColumnarDataSource
 from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar
 from .ui import StyledElement
+
+if TYPE_CHECKING:
+    import xyzservices
 
 GlyphType = TypeVar("GlyphType", bound=Glyph)
 

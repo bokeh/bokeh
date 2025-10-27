@@ -8,4 +8,5 @@ banned-module-level-imports = [
     "selenium",
     "typing_extensions",
     "bokeh.core.properties",
+    "xyzservices",
 ]
