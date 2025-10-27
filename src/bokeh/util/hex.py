@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 # External imports
 import numpy as np
@@ -53,14 +53,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-
 @dataclass
 class HexBinResult:
     q: npt.NDArray[np.integer]
     r: npt.NDArray[np.integer]
     counts: npt.NDArray[np.integer]
 
-    def __getitem__(self, key: str) -> npt.NDArray[np.integer]:
+    def __getitem__(self, key: Literal["q", "r", "counts"]) -> npt.NDArray[np.integer]:
         if key not in ("q", "r", "counts"):
             raise KeyError(f"Invalid key {key!r}, must be one of 'q', 'r', or 'counts'")
         from .warnings import BokehUserWarning, warn
