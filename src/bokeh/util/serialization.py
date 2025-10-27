@@ -33,7 +33,6 @@ import sys
 import uuid
 from functools import lru_cache
 from threading import Lock
-from types import ModuleType
 from typing import TYPE_CHECKING, Any, TypeGuard
 
 # External imports
@@ -45,6 +44,8 @@ from .dependencies import _is_installed, uses_pandas
 from .strings import format_docstring
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     import numpy.typing as npt
     import pandas as pd
 
