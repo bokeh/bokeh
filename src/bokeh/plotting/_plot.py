@@ -32,7 +32,6 @@ import numpy as np
 # Bokeh imports
 from ..core.property.datetime import Datetime
 from ..core.property.singletons import Intrinsic
-from ..util.dependencies import uses_pandas
 from ..models import (
     Axis,
     CategoricalAxis,
@@ -52,6 +51,7 @@ from ..models import (
     Scale,
     TimedeltaAxis,
 )
+from ..util.dependencies import uses_pandas
 
 if TYPE_CHECKING:
     import pandas as pd

@@ -44,8 +44,8 @@ from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..core.property.readonly import Readonly
 from ..core.property.required import Required
-from ..util.dependencies import uses_pandas
 from ..model import Model
+from ..util.dependencies import uses_pandas
 from ..util.serialization import convert_datetime_array
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter

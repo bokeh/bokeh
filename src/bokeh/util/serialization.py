@@ -33,6 +33,7 @@ import sys
 import uuid
 from functools import lru_cache
 from threading import Lock
+from types import ModuleType
 from typing import TYPE_CHECKING, Any, TypeGuard
 
 # External imports
@@ -40,7 +41,7 @@ import numpy as np
 
 # Bokeh imports
 from ..settings import settings
-from .dependencies import uses_pandas, _is_installed
+from .dependencies import _is_installed, uses_pandas
 from .strings import format_docstring
 
 if TYPE_CHECKING:
@@ -54,7 +55,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 @lru_cache(None)
-def _compute_datetime_types(pandas_imported) -> set[type]:
+def _compute_datetime_types(pandas_imported: bool) -> set[type]:
 
     result = {dt.time, dt.datetime, np.datetime64}
     if pandas_imported:
@@ -179,6 +180,7 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
         float : milliseconds
 
     '''
+    pd: ModuleType | None
     if uses_pandas(obj):
         import pandas as pd
     else:
