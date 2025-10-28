@@ -240,7 +240,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: 'test-core'
+          test-env: 'core'
           source-tree: 'delete'
 
       - name: List installed software
