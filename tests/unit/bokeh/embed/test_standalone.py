@@ -44,6 +44,7 @@ from bokeh.settings import settings
 from bokeh.themes import Theme
 
 if TYPE_CHECKING:
+    from selenium.webdriver.common.by import By
     from selenium.webdriver.remote.webdriver import WebDriver
 
 # Module under test
@@ -82,7 +83,7 @@ PAGE = Template("""
 </body>
 """)
 
-CSS_SELECTOR = "css selector"
+CSS_SELECTOR: By.CSS_SELECTOR = "css selector"  # type: ignore[valid-type]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -105,7 +106,7 @@ class Test_autoload_static:
         assert attrs["src"] == "some/path"
 
     @pytest.mark.selenium
-    def test_by_css_selector(self):
+    def test_by_css_selector(self) -> None:
         # Should match upstream, this is to avoid importing it
         pytest.importorskip("selenium")
         from selenium.webdriver.common.by import By

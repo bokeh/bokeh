@@ -20,7 +20,6 @@ import pytest ; pytest
 # Standard library imports
 from subprocess import PIPE, Popen
 from sys import executable as python
-from typing import Sequence
 
 # Bokeh imports
 from bokeh.util.dependencies import _is_installed
@@ -30,7 +29,7 @@ from tests.support.util.project import ls_modules
 # Tests
 #-----------------------------------------------------------------------------
 
-SKIP: Sequence[str] = []
+SKIP: list[str] = []
 
 # Raises ImportError if not installed
 if not _is_installed("selenium"):
