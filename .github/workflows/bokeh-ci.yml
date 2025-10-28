@@ -261,7 +261,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           env_vars: OS
-          flags: unit,minimal
+          flags: unit,core
           verbose: true
 
   documentation:

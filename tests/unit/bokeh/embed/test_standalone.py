@@ -46,7 +46,6 @@ from bokeh.themes import Theme
 if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
-
 # Module under test
 import bokeh.embed.standalone as bes # isort:skip
 

@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.util.dependencies import _is_installed
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
@@ -35,8 +36,10 @@ ALL = (
     'PandasGroupBy',
 )
 
-pd = pytest.importorskip("pandas")
-pytestmark = pd
+if _is_installed("pandas"):
+    import pandas as pd
+else:
+    pytest.skip("Pandas is not installed", allow_module_level=True)
 
 #-----------------------------------------------------------------------------
 # General API

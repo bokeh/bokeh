@@ -910,7 +910,7 @@ class TestDataTable:
         assert set(table.source.data) == {'A', 'B'}
         assert source is not table.source
 
-    @pytest.mark.parametrize("typ", (dict, *(pd.DataFrame if pd else ()), ColumnDataSource))
+    @pytest.mark.parametrize("typ", (dict, *((pd.DataFrame,) if pd else ()), ColumnDataSource))
     def test_from_data_with_columns(self, typ):
         data = typ({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
         table = DataTable.from_data(data, columns=['A', 'B'])
