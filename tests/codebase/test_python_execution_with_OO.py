@@ -23,6 +23,7 @@ from sys import executable as python
 from typing import Sequence
 
 # Bokeh imports
+from bokeh.util.dependencies import _is_installed
 from tests.support.util.project import ls_modules
 
 #-----------------------------------------------------------------------------
@@ -30,6 +31,14 @@ from tests.support.util.project import ls_modules
 #-----------------------------------------------------------------------------
 
 SKIP: Sequence[str] = []
+
+# Raises ImportError if not installed
+if not _is_installed("selenium"):
+    SKIP.append("bokeh.io.webdriver")
+if not _is_installed("bokeh_sampledata"):
+    SKIP.append("bokeh.sampledata")
+if not _is_installed("sphinx"):
+    SKIP.append("bokeh.sphinxext")
 
 def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)

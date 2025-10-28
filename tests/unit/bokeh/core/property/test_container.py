@@ -18,7 +18,6 @@ import pytest ; pytest
 
 # External imports
 import numpy as np
-import pandas as pd
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -283,6 +282,7 @@ class Test_Seq:
         assert not prop.is_valid(_TestModel())
 
     def test_with_pandas_valid(self) -> None:
+        pd = pytest.importorskip("pandas")
         prop = bcpc.Seq(Int)
 
         df = pd.DataFrame([1, 2])

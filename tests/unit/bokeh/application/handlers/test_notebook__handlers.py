@@ -17,8 +17,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-import nbconvert
-import nbformat
 from packaging import version
 
 # Bokeh imports
@@ -39,6 +37,8 @@ import bokeh.application.handlers.notebook as bahn # isort:skip
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+nbconvert = pytest.importorskip("nbconvert")
+nbformat = pytest.importorskip("nbformat")
 
 def with_script_contents(contents, func):
     def with_file_object(f):

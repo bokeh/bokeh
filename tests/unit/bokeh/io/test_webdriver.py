@@ -12,6 +12,9 @@ from __future__ import annotations # isort:skip
 
 import pytest ; pytest
 
+if not pytest.importorskip("selenium"):
+    pytest.skip('selenium not installed', allow_module_level=True)
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------

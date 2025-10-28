@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-import pandas as pd
-
 # Bokeh imports
 from tests.support.util.api import verify_all
 
@@ -37,6 +34,9 @@ ALL = (
     'PandasDataFrame',
     'PandasGroupBy',
 )
+
+pd = pytest.importorskip("pandas")
+pytestmark = pd
 
 #-----------------------------------------------------------------------------
 # General API

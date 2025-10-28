@@ -65,6 +65,7 @@ def driver(pytestconfig: config.Config) -> Iterator[WebDriver]:
     ''' Select and configure a Selenium webdriver for integration tests.
 
     '''
+    pytest.importorskip("selenium")
     driver_name: str = pytestconfig.getoption('driver', 'chrome').lower()
 
     def chrome() -> WebDriver:

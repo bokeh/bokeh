@@ -32,7 +32,6 @@ if TYPE_CHECKING:
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
 from bokeh.io.state import curstate
-from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
 from bokeh.models import (
     Circle,
@@ -45,6 +44,7 @@ from bokeh.models import (
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.themes import Theme
+from bokeh.util.dependencies import _is_installed
 
 # Module under test
 import bokeh.io.export as bie # isort:skip
@@ -53,8 +53,10 @@ import bokeh.io.export as bie # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
 def webdriver(request: pytest.FixtureRequest):
+    from bokeh.io.webdriver import webdriver_control
     driver = webdriver_control.create(request.param)
     try:
         yield driver
@@ -64,6 +66,7 @@ def webdriver(request: pytest.FixtureRequest):
 
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
 def webdriver_with_scale_factor(request: pytest.FixtureRequest):
+    from bokeh.io.webdriver import webdriver_control
     driver = webdriver_control.create(request.param, scale_factor=2.5)
     try:
         yield driver
@@ -76,6 +79,11 @@ def disable_max_image_pixels():
     PIL.Image.MAX_IMAGE_PIXELS = None
     yield
     PIL.Image.MAX_IMAGE_PIXELS = max_image_pixels
+
+
+if not _is_installed("selenium"):
+    pytest.skip("Selenium not installed", allow_module_level=True)
+
 
 #-----------------------------------------------------------------------------
 # General API
