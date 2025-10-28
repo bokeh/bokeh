@@ -10,7 +10,10 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+from bokeh.models import ColumnDataSource
+
 import logging # isort:skip
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -255,7 +258,10 @@ def _convert_data_source(kwargs: Attrs) -> bool:
 
 def _pop_renderer_args(kwargs: Attrs) -> Attrs:
     result = {attr: kwargs.pop(attr) for attr in RENDERER_ARGS if attr in kwargs}
-    result['data_source'] = kwargs.pop('source', ColumnDataSource())
+    if 'source' in kwargs:
+        result['data_source'] = kwargs.pop('source')
+    else:
+        result['data_source'] = ColumnDataSource()
     return result
 
 def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:
