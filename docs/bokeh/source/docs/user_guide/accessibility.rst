@@ -25,7 +25,7 @@ Bokeh provides several color palettes that are colorblind-friendly:
 .. code-block:: python
 
     from bokeh.palettes import Colorblind8, TolRainbow, Category10_8
-    
+
     # Colorblind-friendly palettes
     palette = Colorblind8
     palette = TolRainbow
@@ -50,10 +50,10 @@ Provide text descriptions for plots when possible:
 .. code-block:: python
 
     from bokeh.models import Div
-    
+
     # Add descriptive text near your plot
     description = Div(text="""
-    <p>This scatter plot shows the relationship between X and Y variables. 
+    <p>This scatter plot shows the relationship between X and Y variables.
     Each point represents an observation, with size indicating magnitude.</p>
     """)
 
@@ -75,10 +75,10 @@ Disable unnecessary interactive tools when they don't add value:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    
+
     # Only include necessary tools
     p = figure(tools="pan,wheel_zoom,reset", active_scroll="wheel_zoom")
-    
+
     # Or disable all tools for static plots
     p = figure(tools="")
 
@@ -97,9 +97,9 @@ Set appropriate limits for pan and zoom interactions:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    
+
     p = figure(x_range=(0, 100), y_range=(0, 100))
-    
+
     # Set explicit data bounds
     p.x_range.bounds = (0, 100)
     p.y_range.bounds = (0, 100)
@@ -116,7 +116,7 @@ Consider providing data in tabular form alongside visualizations:
 
     from bokeh.models import DataTable, TableColumn
     from bokeh.models import ColumnDataSource
-    
+
     # Create a data table
     source = ColumnDataSource(data)
     columns = [
@@ -133,9 +133,9 @@ Use different textures or patterns when color alone is insufficient:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    
+
     p = figure()
-    
+
     # Use different marker types
     p.circle(x1, y1, size=10, color="blue", legend_label="Category A")
     p.square(x2, y2, size=10, color="blue", legend_label="Category B")
@@ -172,28 +172,28 @@ Accessible Bar Chart
     from bokeh.models import Div, ColumnDataSource
     from bokeh.layouts import column
     from bokeh.palettes import Colorblind8
-    
+
     # Create accessible bar chart
     categories = ['A', 'B', 'C', 'D']
     values = [10, 25, 15, 30]
-    
+
     source = ColumnDataSource(data=dict(categories=categories, values=values))
-    
-    p = figure(x_range=categories, 
+
+    p = figure(x_range=categories,
                height=400,
                toolbar_location=None,
                title="Accessible Bar Chart Example")
-    
+
     p.vbar(x='categories', top='values', width=0.9, source=source,
            color=Colorblind8[0], line_color='white')
-    
+
     # Descriptive text
     description = Div(text="""
     <h3>Bar Chart: Category Values</h3>
-    <p>This bar chart shows values for four categories (A, B, C, D). 
+    <p>This bar chart shows values for four categories (A, B, C, D).
     Category D has the highest value at 30, followed by Category B at 25.</p>
     """)
-    
+
     # Combine plot and description
     layout = column(description, p)
     show(layout)
