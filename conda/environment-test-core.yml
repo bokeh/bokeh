@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.13
+  - nodejs 20.*
 
   # required dependencies
   - contourpy >=1.2
