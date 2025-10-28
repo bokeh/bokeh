@@ -11,6 +11,8 @@
 from __future__ import annotations
 
 import logging # isort:skip
+from bokeh.models import HoverTool, Plot, Tool
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,7 +22,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import itertools
 import re
-from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -170,15 +171,15 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> tuple[list[Tool], dict[
     tool_map: dict[str, Tool] = {}
 
     if not isinstance(tools, str):
-        temp_tool_str = ""
+        temp_tool_str = []
         for tool in tools:
             if isinstance(tool, Tool):
                 tool_objs.append(tool)
             elif isinstance(tool, str):
-                temp_tool_str += tool + ','
+                temp_tool_str.append(tool)
             else:
                 raise ValueError("tool should be a string or an instance of Tool class")
-        tools = temp_tool_str
+        tools = ",".join(temp_tool_str)
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
@@ -192,20 +193,22 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> tuple[list[Tool], dict[
     return tool_objs, tool_map
 
 def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
-    @dataclass(frozen=True)
-    class Item:
-        obj: Tool
-        properties: dict[str, Any]
-
     key: Callable[[Tool], str] = lambda obj: obj.__class__.__name__
-
+    # Pre-collect properties for all objects by group to avoid repeated calls
     for _, group in itertools.groupby(sorted(tool_objs, key=key), key=key):
-        rest = [ Item(obj, obj.properties_with_values()) for obj in group ]
-        while len(rest) > 1:
-            head, *rest = rest
-            for item in rest:
-                if item.properties == head.properties:
-                    yield item.obj
+        grouped = list(group)
+        n = len(grouped)
+        if n > 1:
+            # Precompute all properties once for this group
+            props = [_RepeatedToolItem(obj, obj.properties_with_values()) for obj in grouped]
+            i = 0
+            while i < len(props) - 1:
+                head = props[i]
+                for j in range(i+1, len(props)):
+                    item = props[j]
+                    if item.properties == head.properties:
+                        yield item.obj
+                i += 1
 
 #-----------------------------------------------------------------------------
 # Code
