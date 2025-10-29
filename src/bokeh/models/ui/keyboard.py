@@ -25,16 +25,13 @@ from typing import Any
 
 # Bokeh imports
 from ...core.enums import enumeration
-from ...core.properties import (
-    Either,
-    Enum,
-    Instance,
-    Int,
-    Nullable,
-    Required,
-    Seq,
-    String,
-)
+from ...core.property.container import Seq
+from ...core.property.either import Either
+from ...core.property.enum import Enum
+from ...core.property.instance import Instance
+from ...core.property.nullable import Nullable
+from ...core.property.primitive import Int, String
+from ...core.property.required import Required
 from ...model import Model
 from ...util.helpers import flatten
 from ..callbacks import Callback
