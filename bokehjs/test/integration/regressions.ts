@@ -4749,7 +4749,7 @@ describe("Bug", () => {
 
       const actions0 = new PlotActions(pv0)
       await actions0.hover(xy(0.25, 0))
-      await actions0.scroll(xy(0, 0), 150)
+      await actions0.scroll(xy(0, 0), 250)
 
       await view.ready
     })
