@@ -4702,38 +4702,54 @@ describe("Bug", () => {
 
   describe("in issue #14549", () => {
     it("doesn't prevent hover action upon bbox change", async () => {
-      function plot(title: string) {
-        const hover = new HoverTool({
-          tooltips: [
-            ["i",  "$index"],
-            ["sx", "$sx"   ],
-            ["sy", "$sy"   ],
-          ],
-        })
-        const wheel_pan = new WheelPanTool({dimension: "width"})
+      const div = new Div({text: "some text"})
+      const source = new ColumnDataSource({data: {x: [0, 0.25, 0.5, 0.75, 1.0], y:[0, 0, 0, 0, 0]}})
 
-        const p = fig([200, 200], {
-          title,
-          x_range: [-5, 5],
-          y_range: [-5, 5],
-          tools: [hover, wheel_pan],
-          active_scroll: wheel_pan,
-        })
-        p.scatter({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+      function hover_cb(_model: HoverTool, options: any) {
+        const {index} = options
+        let idx = []
+        if (typeof index !== 'undefined') {
+            idx = index.line_indices
+        }
 
-        return p
+        const _data: any = source.data
+        const _y = _data["x"][idx]
+
+        const y = new Intl.NumberFormat('en-IN', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 2
+        }).format(_y)
+
+        div.text = `${y}`
       }
 
-      const div = new Div({text: "some text"})
-      const p0 = plot("initial hover")
-      const {view} = await display(row([div, p0]))
+      const hover = new HoverTool({
+        mode: "vline",
+        tooltips: [
+          ["i",  "$index"],
+          ["sx", "$sx"   ],
+          ["sy", "$sy"   ],
+        ],
+        callback: hover_cb,
+      })
+      const wheel_pan = new WheelPanTool({dimension: "width"})
 
-      const pv0 = view.owner.get_one(p0)
+      const p = fig([200, 200], {
+        title: "hover",
+        x_range: [-0.1, 1],
+        y_range: [-1, 1],
+        tools: [hover, wheel_pan],
+        active_scroll: wheel_pan,
+      })
+      p.line({x: {field: "x"}, y: {field: "y"}, color: "red", source})
+
+      const {view} = await display(row([div, p]))
+
+      const pv0 = view.owner.get_one(p)
 
       const actions0 = new PlotActions(pv0)
-      await actions0.hover(xy(0, 0))
-
-      div.text = "som"
+      await actions0.hover(xy(0.25, 0))
+      await actions0.scroll(xy(0, 0), 150)
 
       await view.ready
     })
