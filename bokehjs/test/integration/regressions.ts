@@ -4699,4 +4699,43 @@ describe("Bug", () => {
       ctx.drawImage(image, 0, 0, 200, 200)
     })
   })
+
+  describe("in issue #14549", () => {
+    it("doesn't prevent hover action upon bbox change", async () => {
+      function plot(title: string) {
+        const hover = new HoverTool({
+          tooltips: [
+            ["i",  "$index"],
+            ["sx", "$sx"   ],
+            ["sy", "$sy"   ],
+          ],
+        })
+        const wheel_pan = new WheelPanTool({dimension: "width"})
+
+        const p = fig([200, 200], {
+          title,
+          x_range: [-5, 5],
+          y_range: [-5, 5],
+          tools: [hover, wheel_pan],
+          active_scroll: wheel_pan,
+        })
+        p.scatter({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+
+        return p
+      }
+
+      const div = new Div({text: "some text"})
+      const p0 = plot("initial hover")
+      const {view} = await display(row([div, p0]))
+
+      const pv0 = view.owner.get_one(p0)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(0, 0))
+
+      div.text = "som"
+
+      await view.ready
+    })
+  })
 })
