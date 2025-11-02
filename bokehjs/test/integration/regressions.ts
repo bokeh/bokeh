@@ -4702,8 +4702,18 @@ describe("Bug", () => {
 
   describe("in issue #14549", () => {
     it("doesn't prevent hover action upon bbox change", async () => {
+      function linspace(start: number, stop: number, num: number, endpoint = true) {
+        const div = endpoint ? (num - 1) : num;
+        const step = (stop - start) / div;
+        return Array.from({length: num}, (_, i) => start + step * i);
+      }
+
+      const n = 1000
+      const x = linspace(0, 20, n)
+      const y = x
+
       const div = new Div({text: "some text"})
-      const source = new ColumnDataSource({data: {x: [0, 0.25, 0.5, 0.75, 1.0], y:[0, 0, 0, 0, 0]}})
+      const source = new ColumnDataSource({data: {x: x, y: y}})
 
       function hover_cb(_model: HoverTool, options: any) {
         const {index} = options
@@ -4736,19 +4746,18 @@ describe("Bug", () => {
 
       const p = fig([200, 200], {
         title: "hover",
-        x_range: [-0.1, 1],
-        y_range: [-1, 1],
         tools: [hover, wheel_pan],
         active_scroll: wheel_pan,
+        sizing_mode: "stretch_both",
       })
       p.line({x: {field: "x"}, y: {field: "y"}, color: "red", source})
 
-      const {view} = await display(row([div, p]))
+      const {view} = await display(row([div, p], {sizing_mode: "stretch_both"}))
 
       const pv0 = view.owner.get_one(p)
 
       const actions0 = new PlotActions(pv0)
-      await actions0.hover(xy(0.25, 0))
+      await actions0.hover(xy(0, 0))
       await actions0.scroll(xy(0, 0), 250)
 
       await view.ready
