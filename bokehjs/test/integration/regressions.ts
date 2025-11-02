@@ -4703,9 +4703,9 @@ describe("Bug", () => {
   describe("in issue #14549", () => {
     it("doesn't prevent hover action upon bbox change", async () => {
       function linspace(start: number, stop: number, num: number, endpoint = true) {
-        const div = endpoint ? (num - 1) : num;
-        const step = (stop - start) / div;
-        return Array.from({length: num}, (_, i) => start + step * i);
+        const div = endpoint ? (num - 1) : num
+        const step = (stop - start) / div
+        return Array.from({length: num}, (_, i) => start + step * i)
       }
 
       const n = 1000
@@ -4713,21 +4713,21 @@ describe("Bug", () => {
       const y = x
 
       const div = new Div({text: "some text"})
-      const source = new ColumnDataSource({data: {x: x, y: y}})
+      const source = new ColumnDataSource({data: {x, y}})
 
       function hover_cb(_model: HoverTool, options: any) {
         const {index} = options
         let idx = []
-        if (typeof index !== 'undefined') {
-            idx = index.line_indices
+        if (typeof index !== "undefined") {
+          idx = index.line_indices
         }
 
         const _data: any = source.data
-        const _y = _data["x"][idx]
+        const _y = _data.x[idx]
 
-        const y = new Intl.NumberFormat('en-IN', {
+        const y = new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 1,
-          maximumFractionDigits: 2
+          maximumFractionDigits: 2,
         }).format(_y)
 
         div.text = `${y}`
