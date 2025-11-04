@@ -53,7 +53,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace, cumsum, reversed} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum, reversed, map} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -4702,12 +4702,6 @@ describe("Bug", () => {
 
   describe("in issue #14549", () => {
     it("doesn't prevent hover action upon bbox change", async () => {
-      function linspace(start: number, stop: number, num: number, endpoint = true) {
-        const div = endpoint ? (num - 1) : num
-        const step = (stop - start) / div
-        return Array.from({length: num}, (_, i) => start + step * i)
-      }
-
       const n = 1000
       const x = linspace(0, 20, n)
       const y = x
@@ -4715,20 +4709,15 @@ describe("Bug", () => {
       const div = new Div({text: "some text"})
       const source = new ColumnDataSource({data: {x, y}})
 
-      function hover_cb(_model: HoverTool, options: any) {
+      function hover_cb(_model: HoverTool, options: {index: Selection}) {
         const {index} = options
-        let idx = []
-        if (typeof index !== "undefined") {
-          idx = index.line_indices
-        }
+        const idx = index.line_indices
+        const _y = source.get_column("y")??[idx]
 
-        const _data: any = source.data
-        const _y = _data.x[idx]
-
-        const y = new Intl.NumberFormat("en-IN", {
+        const y = map(_y, (x: number) => new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 1,
           maximumFractionDigits: 2,
-        }).format(_y)
+        }).format(x))
 
         div.text = `${y}`
       }
