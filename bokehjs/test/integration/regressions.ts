@@ -4712,7 +4712,8 @@ describe("Bug", () => {
       function hover_cb(_model: HoverTool, options: {index: Selection}) {
         const {index} = options
         const idx = index.line_indices
-        const _y = subselect(source.get_column("x")!, idx)[0]
+        const _y_data = source.get_column("y")!
+        const _y = subselect(_y_data, idx)[0]
 
         const y = new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 1,
