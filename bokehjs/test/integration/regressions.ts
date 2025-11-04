@@ -53,7 +53,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace, cumsum, reversed, map} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum, reversed, subselect} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -4712,12 +4712,12 @@ describe("Bug", () => {
       function hover_cb(_model: HoverTool, options: {index: Selection}) {
         const {index} = options
         const idx = index.line_indices
-        const _y = source.get_column("y")??[idx]
+        const _y = subselect(source.get_column("x")!, idx)[0]
 
-        const y = map(_y, (x: number) => new Intl.NumberFormat("en-IN", {
+        const y = new Intl.NumberFormat("en-IN", {
           minimumFractionDigits: 1,
           maximumFractionDigits: 2,
-        }).format(x))
+        }).format(_y)
 
         div.text = `${y}`
       }
