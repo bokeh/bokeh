@@ -74,7 +74,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 #: A default set of tools configured if no configuration is provided
-DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
+DEFAULT_TOOLS = "pan,wheel_zoom,auto_box_zoom,save,reset,help"
 
 __all__ = (
     'figure',
