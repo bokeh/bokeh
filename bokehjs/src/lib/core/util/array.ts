@@ -12,7 +12,7 @@ import {min, min_by, max_by, includes, filter} from "./arrayable"
 export {
   map, reduce, min, min_by, max, max_by, sum, cumsum, every, some,
   find, find_last, find_index, find_last_index, sorted_index,
-  is_empty, includes, contains, sort_by,
+  is_empty, includes, contains, sort_by, subselect,
 } from "./arrayable"
 
 const {slice} = Array.prototype

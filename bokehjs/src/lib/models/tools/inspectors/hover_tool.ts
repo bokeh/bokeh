@@ -9,6 +9,7 @@ import {Signal} from "core/signaling"
 import type {Arrayable, Color, Dict} from "core/types"
 import type {MoveEvent} from "core/ui_events"
 import {assert, unreachable} from "core/util/assert"
+import type {BBox} from "core/util/bbox"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import {entries} from "core/util/object"
@@ -129,6 +130,7 @@ export class HoverToolView extends InspectToolView {
   declare model: HoverTool
 
   protected _current_sxy: [number, number, InspectDims] | null = null
+  protected _current_bbox: BBox | null = null
 
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
@@ -184,7 +186,11 @@ export class HoverToolView extends InspectToolView {
     this.connect(this.plot_view.repainted, () => {
       if (this.model.active && this._current_sxy != null) {
         const [sx, sy, dims] = this._current_sxy
-        this._inspect(sx, sy, dims)
+        // Avoid triggering inspections if the bbox moves below, as this can lead to infinite
+        // loops if bbox changes are caused by the inspection itself.
+        if (this._current_bbox != null && this._current_bbox.equals(this.plot_view.frame.bbox)) {
+          this._inspect(sx, sy, dims)
+        }
       }
     })
 
@@ -282,6 +288,7 @@ export class HoverToolView extends InspectToolView {
 
     if (dims != null) {
       this._current_sxy = [sx, sy, dims]
+      this._current_bbox = this.plot_view.frame.bbox.clone()
       this._inspect(sx, sy, dims)
     } else {
       this._clear()
@@ -290,6 +297,7 @@ export class HoverToolView extends InspectToolView {
 
   override _move_exit(): void {
     this._current_sxy = null
+    this._current_bbox = null
     this._clear()
   }
 

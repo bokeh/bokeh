@@ -1,6 +1,5 @@
 name: bk-test
 channels:
-  - conda-forge/label/python_rc
   - conda-forge
 dependencies:
   - python=3.14

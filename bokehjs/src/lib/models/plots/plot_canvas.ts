@@ -1397,14 +1397,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _paint_outline(ctx: Context2d, frame_box: BBox): void {
     const {outline_line} = this.visuals
     if (outline_line.doit) {
-      outline_line.set_value(ctx)
-      const {x, y, width, height} = this._shrink_to_canvas(frame_box)
-      ctx.strokeRect(x, y, width, height)
-      // TODO This should be equivalent, but results in a lot of trivial image
-      // differences in frame corners. Switch to this approach when migrating
-      // to newer version of Chromium in integration tests.
-      // ctx.rect_bbox(this._shrink_to_canvas(frame_box))
-      // outline_line.apply(ctx)
+      ctx.rect_bbox(this._shrink_to_canvas(frame_box))
+      outline_line.apply(ctx)
     }
   }
 

@@ -53,7 +53,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace, cumsum, reversed} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum, reversed, subselect} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -4697,6 +4697,60 @@ describe("Bug", () => {
       const url = URL.createObjectURL(blob)
       const image = await load_image(url)
       ctx.drawImage(image, 0, 0, 200, 200)
+    })
+  })
+
+  describe("in issue #14549", () => {
+    it("doesn't prevent hover action upon bbox change", async () => {
+      const n = 1000
+      const x = linspace(0, 20, n)
+      const y = x
+
+      const div = new Div({text: "some text"})
+      const source = new ColumnDataSource({data: {x, y}})
+
+      function hover_cb(_model: HoverTool, options: {index: Selection}) {
+        const {index} = options
+        const idx = index.line_indices
+        const _y_data = source.get_column("y")!
+        const _y = subselect(_y_data, idx)[0]
+
+        const y = new Intl.NumberFormat("en-IN", {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 2,
+        }).format(_y)
+
+        div.text = `${y}`
+      }
+
+      const hover = new HoverTool({
+        mode: "vline",
+        tooltips: [
+          ["i",  "$index"],
+          ["sx", "$sx"   ],
+          ["sy", "$sy"   ],
+        ],
+        callback: hover_cb,
+      })
+      const wheel_pan = new WheelPanTool({dimension: "width"})
+
+      const p = fig([200, 200], {
+        title: "hover",
+        tools: [hover, wheel_pan],
+        active_scroll: wheel_pan,
+        sizing_mode: "stretch_both",
+      })
+      p.line({x: {field: "x"}, y: {field: "y"}, color: "red", source})
+
+      const {view} = await display(row([div, p], {sizing_mode: "stretch_both"}))
+
+      const pv0 = view.owner.get_one(p)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(0, 0))
+      await actions0.scroll(xy(0, 0), 250)
+
+      await view.ready
     })
   })
 })
