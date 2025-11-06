@@ -9,7 +9,7 @@ import {isNumber, isArray} from "core/util/types"
 import {enumerate} from "core/util/iterator"
 import type * as p from "core/properties"
 
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, View} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {DOMElementView} from "core/dom_view"
 import type {Layoutable, Percent} from "core/layout"
@@ -104,9 +104,8 @@ export abstract class LayoutDOMView extends PaneView {
     ], () => this.invalidate_layout())
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.child_views
+  override children(): View[] {
+    return [...super.children(), ...this.child_views]
   }
 
   abstract get child_models(): UIElement[]
