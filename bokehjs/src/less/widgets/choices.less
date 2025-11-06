@@ -5,12 +5,12 @@
 
 
 :host {
-  // TODO: remove alpha value if not necessary
-  --light: rgba(0,126,255,.08);
-  --light-border: rgba(0,126,255,.24);
-  --light-text: #007eff;
+  // Alpha value necessary to see text with the current color defined
+  --light: rgba(0,126,255,.08);  // Could be potencially replaced with _colors@blue-100
+  --light-border: rgba(0,126,255,.24);  // Could be potencially replaced with _colors@blue-200
+  --light-text: #007eff;  // Could be potencially replaced with _colors@blue-600
 
-  --solid: #1f77b4;
+  --solid: #1f77b4;  // Could be potencially replaced with _colors@blue-500
 }
 
 .choices {
