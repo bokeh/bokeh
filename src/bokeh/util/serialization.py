@@ -44,8 +44,6 @@ from .dependencies import _is_installed, uses_pandas
 from .strings import format_docstring
 
 if TYPE_CHECKING:
-    from types import ModuleType
-
     import numpy.typing as npt
     import pandas as pd
 
@@ -181,45 +179,42 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
         float : milliseconds
 
     '''
-    pd: ModuleType | None
     if uses_pandas(obj):
         import pandas as pd
-    else:
-        pd = None
 
-    # Pandas NaT
-    if pd and obj is pd.NaT:
-        return np.nan
+        # Pandas NaT
+        if obj is pd.NaT:
+            return np.nan
 
-    # Pandas Period
-    if pd and isinstance(obj, pd.Period):
-        return obj.to_timestamp().value / 10**6.0
+        # Pandas Period
+        if isinstance(obj, pd.Period):
+            return obj.to_timestamp().value / 10**6.0
 
-    # Pandas Timestamp
-    if pd and isinstance(obj, pd.Timestamp):
-        return obj.value / 10**6.0
+        # Pandas Timestamp
+        if isinstance(obj, pd.Timestamp):
+            return obj.value / 10**6.0
 
-    # Pandas Timedelta
-    elif pd and isinstance(obj, pd.Timedelta):
-        return obj.value / 10**6.0
+        # Pandas Timedelta
+        if isinstance(obj, pd.Timedelta):
+            return obj.value / 10**6.0
 
     # Datetime (datetime is a subclass of date)
-    elif isinstance(obj, dt.datetime):
+    if isinstance(obj, dt.datetime):
         diff = obj.replace(tzinfo=dt.timezone.utc) - DT_EPOCH
         return diff.total_seconds() * 1000
 
     # XXX (bev) ideally this would not be here "dates are not datetimes"
     # Date
-    elif isinstance(obj, dt.date):
+    if isinstance(obj, dt.date):
         return convert_date_to_datetime(obj)
 
     # NumPy datetime64
-    elif isinstance(obj, np.datetime64):
+    if isinstance(obj, np.datetime64):
         epoch_delta = obj - NP_EPOCH
         return float(epoch_delta / NP_MS_DELTA)
 
     # Time
-    elif isinstance(obj, dt.time):
+    if isinstance(obj, dt.time):
         return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond/1000.0
 
     raise ValueError(f"unknown datetime object: {obj!r}")
