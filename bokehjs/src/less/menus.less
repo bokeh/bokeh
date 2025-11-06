@@ -67,14 +67,7 @@
     border: 0;
   }
 
-  &.bk-disabled {
-    color: var(--disabled-color);
-    cursor: not-allowed;
-
-    .bk-icon {
-      color: var(--icon-color-disabled);
-    }
-  }
+  .bk-disabled(inherit, inherit, var(--disabled-color), var(--icon-color-disabled));
 
   &:first-of-type {
     border-top-left-radius: var(--border-radius);
