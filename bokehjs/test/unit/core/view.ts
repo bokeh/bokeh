@@ -12,9 +12,8 @@ class SomeModelView extends View {
 
   protected _children_views: ViewStorage<HasProps> = new Map()
 
-  override *children() {
-    yield* super.children()
-    yield* this._children_views.values()
+  override children(): View[] {
+    return [...super.children(), ...this._children_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
