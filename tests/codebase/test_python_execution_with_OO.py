@@ -22,7 +22,7 @@ from subprocess import PIPE, Popen
 from sys import executable as python
 
 # Bokeh imports
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 from tests.support.util.project import ls_modules
 
 #-----------------------------------------------------------------------------
@@ -32,11 +32,11 @@ from tests.support.util.project import ls_modules
 SKIP: list[str] = []
 
 # Raises ImportError if not installed
-if not _is_installed("selenium"):
+if not is_installed("selenium"):
     SKIP.append("bokeh.io.webdriver")
-if not _is_installed("bokeh_sampledata"):
+if not is_installed("bokeh_sampledata"):
     SKIP.append("bokeh.sampledata")
-if not _is_installed("sphinx"):
+if not is_installed("sphinx"):
     SKIP.append("bokeh.sphinxext")
 
 def test_python_execution_with_OO() -> None:

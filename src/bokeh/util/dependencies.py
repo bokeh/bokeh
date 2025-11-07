@@ -93,7 +93,7 @@ def uses_pandas(obj: Any) -> bool:
 
     Use this before conditional ``import pandas as pd``.
     """
-    if not _is_installed("pandas"):
+    if not is_installed("pandas"):
         return False
     module = type(obj).__module__
     return module is not None and module.startswith("pandas.")
@@ -103,7 +103,7 @@ def uses_pandas(obj: Any) -> bool:
 #-----------------------------------------------------------------------------
 
 @cache
-def _is_installed(mod_name: str) -> bool:
+def is_installed(mod_name: str) -> bool:
     mod_name, *_ = mod_name.split(".")
     return find_spec(mod_name) is not None
 

@@ -37,7 +37,7 @@ from bokeh.models import (
     MercatorAxis,
     Range1d,
 )
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 
 # Module under test
 import bokeh.plotting._plot as bpp # isort:skip
@@ -46,7 +46,7 @@ import bokeh.plotting._plot as bpp # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-if _is_installed("pandas"):
+if is_installed("pandas"):
     import pandas as pd
     df = pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
 

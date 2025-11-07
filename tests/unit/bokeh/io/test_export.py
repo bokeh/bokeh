@@ -44,7 +44,7 @@ from bokeh.models import (
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.themes import Theme
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 
 # Module under test
 import bokeh.io.export as bie # isort:skip
@@ -81,7 +81,7 @@ def disable_max_image_pixels():
     PIL.Image.MAX_IMAGE_PIXELS = max_image_pixels
 
 
-if not _is_installed("selenium"):
+if not is_installed("selenium"):
     pytest.skip("Selenium not installed", allow_module_level=True)
 
 

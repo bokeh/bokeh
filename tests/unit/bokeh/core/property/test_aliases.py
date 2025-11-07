@@ -23,7 +23,7 @@ import datetime
 import numpy as np
 
 # Bokeh imports
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
@@ -58,7 +58,7 @@ class Test_CoordinateLike:
         assert prop.is_valid(datetime.datetime.now())
         assert prop.is_valid(datetime.time(10,12))
         assert prop.is_valid(np.datetime64("2020-01-11"))
-        if _is_installed("pandas"):
+        if is_installed("pandas"):
             import pandas as pd
             assert prop.is_valid(pd.Timestamp("2010-01-11"))
         assert prop.is_valid("")

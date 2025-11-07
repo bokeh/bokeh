@@ -22,7 +22,7 @@ from subprocess import run
 from sys import executable as python
 
 # Bokeh imports
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 from tests.support.util.project import ls_modules, verify_clean_imports
 
 #-----------------------------------------------------------------------------
@@ -39,11 +39,11 @@ TORNADO_ALLOWED = [
 ]
 
 # Raises ImportError if not installed
-if not _is_installed("selenium"):
+if not is_installed("selenium"):
     TORNADO_ALLOWED.append("bokeh.io.webdriver")
-if not _is_installed("bokeh_sampledata"):
+if not is_installed("bokeh_sampledata"):
     TORNADO_ALLOWED.append("bokeh.sampledata")
-if not _is_installed("sphinx"):
+if not is_installed("sphinx"):
     TORNADO_ALLOWED.append("bokeh.sphinxext")
 
 MODULES = ls_modules(skip_prefixes=TORNADO_ALLOWED)

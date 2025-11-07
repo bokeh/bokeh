@@ -28,7 +28,7 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.models import ColumnDataSource, DataTable, Selection
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 from bokeh.util.serialization import convert_datetime_array
 
 # Module under test
@@ -38,7 +38,7 @@ import bokeh.models.sources as bms # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-if _is_installed("pandas"):
+if is_installed("pandas"):
     import pandas as pd
     df = pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
 else:
@@ -445,7 +445,7 @@ class TestColumnDataSource:
 
 
 class TestColumnDataSourcePandas:
-    __test__ = _is_installed("pandas")
+    __test__ = is_installed("pandas")
 
     def test_init_dataframe_arg(self) -> None:
         data = dict(a=[1, 2], b=[2, 3])

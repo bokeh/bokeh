@@ -40,7 +40,7 @@ import numpy as np
 
 # Bokeh imports
 from ..settings import settings
-from .dependencies import _is_installed, uses_pandas
+from .dependencies import is_installed, uses_pandas
 from .strings import format_docstring
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ def _compute_datetime_types(pandas_imported: bool) -> set[type]:
 
 def __getattr__(name: str) -> Any:
     if name == "DATETIME_TYPES":
-        return _compute_datetime_types(_is_installed("pandas") and "pandas" in sys.modules)
+        return _compute_datetime_types(is_installed("pandas") and "pandas" in sys.modules)
     raise AttributeError
 
 BINARY_ARRAY_TYPES = {
@@ -121,7 +121,7 @@ def is_datetime_type(obj: Any) -> TypeGuard[dt.time | dt.datetime | np.datetime6
         bool : True if ``obj`` is a datetime type
 
     '''
-    _dt_tuple = tuple(_compute_datetime_types(_is_installed("pandas") and "pandas" in sys.modules))
+    _dt_tuple = tuple(_compute_datetime_types(is_installed("pandas") and "pandas" in sys.modules))
 
     return isinstance(obj, _dt_tuple)
 

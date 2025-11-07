@@ -24,7 +24,7 @@ from math import inf, nan
 import numpy as np
 
 # Bokeh imports
-from bokeh.util.dependencies import _is_installed
+from bokeh.util.dependencies import is_installed
 from tests.support.util.env import envset
 
 # Module under test
@@ -34,7 +34,7 @@ import bokeh.util.serialization as bus # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-if _is_installed("pandas"):
+if is_installed("pandas"):
     import pandas as pd
     pandas_1x = pd.__version__.startswith("1")
 
@@ -95,7 +95,7 @@ def test_binary_array_types() -> None:
         assert dtype in bus.BINARY_ARRAY_TYPES
 
 def test_datetime_types() -> None:
-    if _is_installed("pandas"):
+    if is_installed("pandas"):
         # Four of the types are pandas specific
         assert len(bus.DATETIME_TYPES) == 7
     else:
