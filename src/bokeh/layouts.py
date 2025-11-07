@@ -14,9 +14,6 @@
 from __future__ import annotations
 
 import logging # isort:skip
-from bokeh.models import Tool, ToolProxy
-from typing import NamedTuple
-
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -34,6 +31,7 @@ from typing import (
     Iterable,
     Iterator,
     Literal,
+    NamedTuple,
     Sequence,
     TypeAlias,
     TypeVar,
@@ -617,15 +615,13 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
     if ignore is None:
         ignore = {"overlay", "renderers"}
 
-    ignore_set = ignore  # for local lookup
-
     for tool in tools:
         if isinstance(tool, ToolProxy):
             computed.append(tool)
         else:
             props = tool.properties_with_values()
             # Faster ignore/removal by dictionary comprehension
-            filtered_props = {k: v for k, v in props.items() if k not in ignore_set}
+            filtered_props = {k: v for k, v in props.items() if k not in ignore}
             by_type[tool.__class__].append(ToolEntry(tool, filtered_props))
 
     for cls, entries in by_type.items():
