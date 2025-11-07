@@ -10,10 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-from bokeh.models import ColumnDataSource
-
 import logging # isort:skip
-
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
