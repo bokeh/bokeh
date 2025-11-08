@@ -1,7 +1,32 @@
-import numpy as np
-from functools import wraps
-from bokeh.util.dependencies import import_optional
+#-----------------------------------------------------------------------------
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+from functools import wraps
+
+# External imports
+import numpy as np
+
+# Bokeh imports
+from ..util.dependencies import import_optional
+
+# Optional imports
 cartopy = import_optional("cartopy")
 
 
