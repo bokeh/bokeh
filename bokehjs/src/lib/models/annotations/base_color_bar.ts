@@ -63,8 +63,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     return this._orientation
   }
 
-  override children(): View[] {
-    return [...super.children(), this._axis_view, this._title_view]
+  override children_views(): View[] {
+    return [...super.children_views(), this._axis_view, this._title_view]
   }
 
   override initialize(): void {

@@ -104,8 +104,8 @@ export abstract class LayoutDOMView extends PaneView {
     ], () => this.invalidate_layout())
   }
 
-  override children(): View[] {
-    return [...super.children(), ...this.child_views]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.child_views]
   }
 
   abstract get child_models(): UIElement[]

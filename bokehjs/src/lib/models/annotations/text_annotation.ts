@@ -24,8 +24,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _text_view: BaseTextView
 
-  override children(): View[] {
-    return [...super.children(), this._text_view]
+  override children_views(): View[] {
+    return [...super.children_views(), this._text_view]
   }
 
   override async lazy_initialize(): Promise<void> {

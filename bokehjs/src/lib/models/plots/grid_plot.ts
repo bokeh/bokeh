@@ -89,8 +89,8 @@ export class GridPlotView extends LayoutDOMView {
     await build_views(this._tool_views, tools, {parent: this})
   }
 
-  override children(): View[] {
-    return [...super.children(), ...this._tool_views.values()]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this._tool_views.values()]
   }
 
   get child_models(): UIElement[] {

@@ -69,9 +69,9 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph
   }
 
-  override children(): View[] {
+  override children_views(): View[] {
     const _hover_glyph = this.hover_glyph != null ? [this.hover_glyph]:[]
-    return [...super.children(), this.cds_view, this.glyph, this.selection_glyph, this.nonselection_glyph, ..._hover_glyph,
+    return [...super.children_views(), this.cds_view, this.glyph, this.selection_glyph, this.nonselection_glyph, ..._hover_glyph,
             this.muted_glyph, this.decimated_glyph]
   }
 

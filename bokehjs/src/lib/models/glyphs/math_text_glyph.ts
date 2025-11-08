@@ -20,8 +20,8 @@ export abstract class MathTextGlyphView extends TextView {
     super.remove()
   }
 
-  override children(): View[] {
-    return [...super.children(), ...this._label_views.values()]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this._label_views.values()]
   }
 
   override has_finished(): boolean {

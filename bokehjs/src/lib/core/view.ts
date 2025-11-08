@@ -118,7 +118,12 @@ export abstract class View implements ISignalable, Equatable {
     return Object.is(this, that)
   }
 
-  public children(): View[] {
+  /** @deprecated use children_views */
+  public *children(): IterViews {
+    yield* this.children_views()
+  }
+
+  public children_views(): View[] {
     return []
   }
 

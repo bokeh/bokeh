@@ -100,9 +100,9 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
-  override children(): View[] {
+  override children_views(): View[] {
     const this_axis_label_view = this._axis_label_view != null ? [this._axis_label_view] : []
-    return [...super.children(), ...this_axis_label_view, ...this._major_label_views.values()]
+    return [...super.children_views(), ...this_axis_label_view, ...this._major_label_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {

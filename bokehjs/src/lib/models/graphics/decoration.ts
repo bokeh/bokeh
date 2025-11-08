@@ -14,8 +14,8 @@ export class DecorationView extends View {
 
   marking: MarkingView
 
-  override children(): View[] {
-    return [...super.children(), this.marking]
+  override children_views(): View[] {
+    return [...super.children_views(), this.marking]
   }
 
   override async lazy_initialize(): Promise<void> {

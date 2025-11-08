@@ -44,11 +44,11 @@ export abstract class InputWidgetView extends ControlView {
     yield this.input_el
   }
 
-  override children(): View[] {
+  override children_views(): View[] {
     const {title, description} = this
     const title_view = title instanceof View ? [title]:[]
     const description_view = description instanceof View ? [description]:[]
-    return [...super.children(), ...title_view, ...description_view]
+    return [...super.children_views(), ...title_view, ...description_view]
   }
 
   override async lazy_initialize(): Promise<void> {

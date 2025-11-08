@@ -24,8 +24,8 @@ export class TemplateView extends DOMElementView {
     await build_views(this._action_views, this.actions)
   }
 
-  override children(): View[] {
-    return [...super.children(), ...this.action_views]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.action_views]
   }
 
   override async lazy_initialize(): Promise<void> {

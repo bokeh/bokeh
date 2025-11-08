@@ -62,8 +62,8 @@ export class DialogView extends UIElementView {
   protected _title: ViewOf<UIElementLike>
   protected _content: ViewOf<UIElementLike>
 
-  override children(): View[] {
-    return [...super.children(), this._title, this._content]
+  override children_views(): View[] {
+    return [...super.children_views(), this._title, this._content]
   }
 
   protected readonly _position = new InlineStyleSheet()

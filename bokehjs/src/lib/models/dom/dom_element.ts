@@ -24,8 +24,8 @@ export abstract class DOMElementView extends DOMNodeView {
 
   readonly child_views: ViewStorage<DOMNode | UIElement> = new Map()
 
-  override children(): View[] {
-    return [...super.children(), ...this.child_views.values()]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.child_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {

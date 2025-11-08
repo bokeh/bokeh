@@ -17,11 +17,11 @@ export class WhiskerView extends UpperLowerView {
   protected lower_head: ArrowHeadView | null
   protected upper_head: ArrowHeadView | null
 
-  override children(): View[] {
+  override children_views(): View[] {
     const {lower_head, upper_head} = this
     const lower_head_view = lower_head != null? [lower_head]:[]
     const upper_head_view = upper_head != null? [upper_head]:[]
-    return [...super.children(), ...lower_head_view, ...upper_head_view]
+    return [...super.children_views(), ...lower_head_view, ...upper_head_view]
   }
 
   override async lazy_initialize(): Promise<void> {

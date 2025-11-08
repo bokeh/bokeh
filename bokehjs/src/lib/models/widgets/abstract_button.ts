@@ -26,10 +26,10 @@ export abstract class AbstractButtonView extends ControlView {
     yield this.button_el
   }
 
-  override children(): View[] {
+  override children_views(): View[] {
     const this_label_view = this.label_view != null ? [this.label_view]:[]
     const this_icon_view = this.icon_view != null ? [this.icon_view]:[]
-    return [...super.children(), ...this_label_view, ...this_icon_view]
+    return [...super.children_views(), ...this_label_view, ...this_icon_view]
   }
 
   override async lazy_initialize(): Promise<void> {

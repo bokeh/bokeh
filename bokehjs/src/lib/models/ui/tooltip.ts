@@ -67,9 +67,9 @@ export class TooltipView extends UIElementView {
 
   protected _element_view: ViewOf<DOMNode | UIElement> | null = null
 
-  override children(): View[] {
+  override children_views(): View[] {
     const this_element_view = this._element_view != null ? [this._element_view] : []
-    return [...super.children(), ...this_element_view]
+    return [...super.children_views(), ...this_element_view]
   }
 
   override async lazy_initialize(): Promise<void> {

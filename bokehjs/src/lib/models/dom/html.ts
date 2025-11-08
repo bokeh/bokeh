@@ -32,8 +32,8 @@ export class HTMLView extends DOMElementView {
     await build_views(this._refs, this.refs)
   }
 
-  override children(): View[] {
-    return [...super.children(), ...this._refs.values()]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this._refs.values()]
   }
 
   override async lazy_initialize(): Promise<void> {

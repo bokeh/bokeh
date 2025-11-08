@@ -28,8 +28,8 @@ export class GraphRendererView extends DataRendererView {
     return this.node_view.glyph
   }
 
-  override children(): View[] {
-    return [...super.children(), this.edge_view, this.node_view]
+  override children_views(): View[] {
+    return [...super.children_views(), this.edge_view, this.node_view]
   }
 
   override async lazy_initialize(): Promise<void> {

@@ -25,8 +25,8 @@ export abstract class CompositeRendererView extends RendererView {
     return this.computed_element_views
   }
 
-  override children(): View[] {
-    return [...super.children(), ...this.renderer_views, ...this.element_views]
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.renderer_views, ...this.element_views]
   }
 
   override async lazy_initialize(): Promise<void> {

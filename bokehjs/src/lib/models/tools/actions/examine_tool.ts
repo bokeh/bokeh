@@ -16,8 +16,8 @@ export class ExamineToolView extends ActionToolView {
 
   dialog: DialogView
 
-  override children(): View[] {
-    return [...super.children(), this.dialog]
+  override children_views(): View[] {
+    return [...super.children_views(), this.dialog]
   }
 
   override async lazy_initialize(): Promise<void> {

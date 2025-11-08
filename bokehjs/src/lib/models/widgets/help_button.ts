@@ -11,8 +11,8 @@ export class HelpButtonView extends AbstractButtonView {
 
   protected tooltip: TooltipView
 
-  override children(): View[] {
-    return [...super.children(), this.tooltip]
+  override children_views(): View[] {
+    return [...super.children_views(), this.tooltip]
   }
 
   override async lazy_initialize(): Promise<void> {
