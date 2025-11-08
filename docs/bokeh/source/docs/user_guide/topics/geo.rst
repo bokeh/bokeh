@@ -108,6 +108,34 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
     Lines, MultiLines, Polygons, or MultiPolygons). *Properties with clashing names
     will be overridden when the GeoJSON is converted and should be avoided*.
 
+.. _ug_topics_geo_projections:
+
+World Projections
+-----------------
+
+The `Cartopy`_ project offers the opportunity to display geographical information based on
+world projections. In Bokeh it is possible to display these projections. The example below
+uses 4 different projections and shows the coastlines of the world.
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/cartopy_projections.py
+    :source-position: below
+
+The coastlines used in the example above are one feature offered by `Cartopy`_. In the example
+below further features are added to a projection.
+The ocean, the land, borders and province borders as well as rivers and lakes are added
+to a map of Europe. The `scale` argument can be used to draw more precise information for a feature.
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/europe.py
+    :source-position: below
+
+The states feature can be used to add information of states/provinces of a country to a map. In the
+default resolution only the states of the USA are available. This feature is used to draw a colored
+map of the USA in the example below.
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/us_states.py
+    :source-position: below
+
+.. _Cartopy: https://cartopy.readthedocs.io
 .. _GeoJSON: http://geojson.org
 .. _github: https://github.com/bokeh/bokeh
 .. _Google API Key: https://developers.google.com/maps/documentation/javascript/get-api-key
