@@ -10,13 +10,10 @@ To run this example make sure `Cartopy` is installed.
 .. _Cartopy: https://cartopy.readthedocs.io
 '''
 from cartopy.crs import PlateCarree
+
 from bokeh.palettes import Category20
 from bokeh.plotting import figure, show
-from bokeh.plotting.geo_feature import (
-    add_borders,
-    add_coastlines,
-    add_states,
-)
+from bokeh.plotting.geo_feature import add_borders, add_coastlines, add_states
 
 projection = PlateCarree()
 

@@ -10,6 +10,7 @@ possible projections. To run this example make sure `Cartopy` is installed.
 .. _Cartopy: https://cartopy.readthedocs.io
 '''
 import cartopy.crs as ccrs
+
 from bokeh.layouts import grid
 from bokeh.plotting import figure, show
 from bokeh.plotting.geo_feature import add_coastlines, add_projection_boundary

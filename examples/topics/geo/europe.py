@@ -10,17 +10,11 @@ To run this example make sure `Cartopy` is installed.
 .. _Cartopy: https://cartopy.readthedocs.io
 '''
 from cartopy.crs import EuroPP
+
 from bokeh.plotting import figure, show
-from bokeh.plotting.geo_feature import (
-    add_borders,
-    add_coastlines,
-    add_lakes,
-    add_land,
-    add_ocean,
-    add_projection_boundary,
-    add_provinces,
-    add_rivers,
-)
+from bokeh.plotting.geo_feature import (add_borders, add_coastlines, add_lakes,
+                                        add_land, add_ocean, add_projection_boundary,
+                                        add_provinces, add_rivers)
 
 projection = EuroPP()
 
