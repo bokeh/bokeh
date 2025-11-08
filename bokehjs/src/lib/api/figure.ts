@@ -51,7 +51,7 @@ import {GlyphAPI} from "./glyph_api"
 
 export type ToolName = keyof ToolAliases
 
-const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
+const _default_tools: ToolName[] = ["pan", "wheel_zoom", "auto_box_zoom", "save", "reset", "help"]
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 

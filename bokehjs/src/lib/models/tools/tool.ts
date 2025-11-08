@@ -62,6 +62,7 @@ export type ToolAliases = {
   ybox_select:  BoxSelectTool
   poly_select:  PolySelectTool
   lasso_select: LassoSelectTool
+  auto_box_zoom:BoxZoomTool
   box_zoom:     BoxZoomTool
   xbox_zoom:    BoxZoomTool
   ybox_zoom:    BoxZoomTool
