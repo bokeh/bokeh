@@ -17,6 +17,7 @@ dependencies:
   - yaml
 
   # docs
+  - cartopy
   - colorcet
   - firefox >=96
   - geckodriver

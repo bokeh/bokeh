@@ -53,6 +53,7 @@ dependencies:
   - typing_extensions >=4.0.0
 
   # examples
+  - cartopy
   - flask >=1.0
   - h5py
   - icalendar
