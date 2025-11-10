@@ -115,6 +115,27 @@ export class DataCubeProvider extends TableDataProvider {
     this.groupingInfos = groupingInfos
     this.toggledGroupsByLevel = groupingInfos.map(() => ({}))
 
+    const row_indices: (number[] | number)[] = this.target.get_array("row_indices")
+    const labels: string[] = this.target.get_array("labels")
+
+    const parents: number[][] = [];
+    const parent_labels: string[] = [];
+    row_indices.forEach((indices: number[] | number, i: number) => {
+      if (typeof indices === "number") {
+        this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false;
+      } else {
+        while (parents.length > 0 && !indices.every((index) => parents[parents.length - 1].includes(index))) {
+          parents.pop()
+          parent_labels.pop()
+        }
+        if (parent_labels.length > 0) {
+          this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false
+        }
+        parents.push(indices)
+        parent_labels.push(labels[i])
+      }
+    })
+
     this.refresh()
   }
 
@@ -153,7 +174,7 @@ export class DataCubeProvider extends TableDataProvider {
     const totals: GroupTotals<number> = {avg: {}, max: {}, min: {}, sum: {}} as any
     const data = dict(this.source.data)
     const names = [...data.keys()]
-    const items = group.rows.map((i) => {
+    const items = group.rows.map((i: number) => {
       return names.reduce((obj, name) => ({...obj, [name]: data.get(name)![i]}), {})
     })
 

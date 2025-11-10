@@ -9,7 +9,31 @@ source = ColumnDataSource(data=dict(
     px=[10, 20, 30, 40, 50, 60, 70],
 ))
 
-target = ColumnDataSource(data=dict(row_indices=[], labels=[]))
+# fmt: off
+target = ColumnDataSource(data=dict(
+    row_indices = [
+        [0],
+            [0],
+                0,
+        [1, 2, 3],
+            [1, 2],
+                1,
+                2,
+            [3],
+                3,
+        [4],
+            [4],
+                4,
+        [5],
+            [5],
+                5,
+        [6],
+            [6],
+                6,
+    ],
+    labels=[*'ABCEDFGHHJKKLLLMNO'],
+))
+# fmt: on
 
 formatter = StringFormatter(font_style='bold')
 
