@@ -118,11 +118,11 @@ export class DataCubeProvider extends TableDataProvider {
     const row_indices: (number[] | number)[] = this.target.get_array("row_indices")
     const labels: string[] = this.target.get_array("labels")
 
-    const parents: number[][] = [];
-    const parent_labels: string[] = [];
+    const parents: number[][] = []
+    const parent_labels: string[] = []
     row_indices.forEach((indices: number[] | number, i: number) => {
       if (typeof indices === "number") {
-        this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false;
+        this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false
       } else {
         while (parents.length > 0 && !indices.every((index) => parents[parents.length - 1].includes(index))) {
           parents.pop()
