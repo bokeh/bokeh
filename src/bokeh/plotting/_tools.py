@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 import logging # isort:skip
-from bokeh.models import HoverTool, Plot, Tool
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import itertools
 import re
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -192,15 +192,18 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> tuple[list[Tool], dict[
 
     return tool_objs, tool_map
 
+@dataclass(frozen=True)
+class Item:
+    obj: Tool
+    properties: dict[str, Any]
+
 def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
     key: Callable[[Tool], str] = lambda obj: obj.__class__.__name__
-    # Pre-collect properties for all objects by group to avoid repeated calls
     for _, group in itertools.groupby(sorted(tool_objs, key=key), key=key):
         grouped = list(group)
         n = len(grouped)
         if n > 1:
-            # Precompute all properties once for this group
-            props = [_RepeatedToolItem(obj, obj.properties_with_values()) for obj in grouped]
+            props = [Item(obj, obj.properties_with_values()) for obj in grouped]
             i = 0
             while i < len(props) - 1:
                 head = props[i]
