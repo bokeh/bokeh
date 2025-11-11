@@ -31,7 +31,6 @@ from typing import (
     Iterable,
     Iterator,
     Literal,
-    NamedTuple,
     Sequence,
     TypeAlias,
     TypeVar,
@@ -602,13 +601,14 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 T = TypeVar("T", bound=Tool)
 MergeFn: TypeAlias = Callable[[type[T], list[T]], Tool | ToolProxy | None]
 
+@dataclass
+class ToolEntry:
+    tool: Tool
+    props: Any
+
 def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None,
         ignore: set[str] | None = None) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
-    class ToolEntry(NamedTuple):
-        tool: Tool
-        props: Any
-
     by_type: defaultdict[type[Tool], list[ToolEntry]] = defaultdict(list)
     computed: list[Tool | ToolProxy] = []
 
@@ -620,7 +620,6 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
             computed.append(tool)
         else:
             props = tool.properties_with_values()
-            # Faster ignore/removal by dictionary comprehension
             filtered_props = {k: v for k, v in props.items() if k not in ignore}
             by_type[tool.__class__].append(ToolEntry(tool, filtered_props))
 
