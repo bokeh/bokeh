@@ -203,14 +203,12 @@ def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
         n = len(grouped)
         if n > 1:
             props = [Item(obj, obj.properties_with_values()) for obj in grouped]
-            i = 0
-            while i < len(props) - 1:
+            for i in range(len(props)):
                 head = props[i]
                 for j in range(i+1, len(props)):
                     item = props[j]
                     if item.properties == head.properties:
                         yield item.obj
-                i += 1
 
 #-----------------------------------------------------------------------------
 # Code
