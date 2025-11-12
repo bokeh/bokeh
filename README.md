@@ -5,7 +5,9 @@
 
 ----
 
-[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics and affords high-performance interactivity across large or streaming datasets. Bokeh can help anyone who wants to create interactive plots, dashboards, and data applications quickly and easily.
+[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics and affords high-performance interactivity across large or streaming datasets. Bokeh can help anyone who wants to create interactive plots, dashboards, and data applications quickly and easily.
+
+---
 
 <table>
 
@@ -133,119 +135,81 @@
 
 </tr>
 
-
 </table>
 
 *Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development.*
 
 ![4x9 image grid of Bokeh plots](https://user-images.githubusercontent.com/1078448/190840954-dc243c99-9295-44de-88e9-fafd0f4f7f8a.jpg)
 
-## Installation
+---
 
-To install Bokeh and its required dependencies using `pip`, enter the following command at a Bash or Windows command prompt:
-```
+## 🚀 Getting Started (New Section)
+
+Here’s a quick guide for developers who want to set up Bokeh locally and explore its features.
+
+### 🧩 Clone the Repository
+```bash
+git clone https://github.com/bokeh/bokeh.git
+cd bokeh
+🛠️ Create a Virtual Environment
+bash
+Copy code
+python -m venv venv
+source venv/bin/activate   # Mac/Linux
+venv\Scripts\activate      # Windows
+📦 Install Dependencies
+bash
+Copy code
+pip install -r requirements.txt
+✅ Verify Installation
+bash
+Copy code
+pytest tests
+▶️ Run Example Application
+bash
+Copy code
+bokeh serve --show examples/app/sliders
+💡 Example Usage (New Section)
+Here’s a quick example of how to create an interactive line chart with Bokeh.
+
+python
+Copy code
+from bokeh.plotting import figure, show
+
+# Create a figure
+p = figure(title="Simple Line Example", x_axis_label='X-Axis', y_axis_label='Y-Axis')
+
+# Add a line renderer
+p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], legend_label="Temp.", line_width=2, color="navy")
+
+# Show the result
+show(p)
+This will open a new browser tab displaying your first interactive plot 🎉.
+
+📦 Installation
+To install Bokeh and its required dependencies using pip, enter the following command:
+
+bash
+Copy code
 pip install bokeh
-```
+To install using conda:
 
-To install using `conda`, enter the following command at a Bash or Windows command prompt:
-
-```
+bash
+Copy code
 conda install bokeh
-```
+Refer to the installation documentation
+for more details.
 
-Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for more details.
+📚 Resources
+Once Bokeh is installed, check out the First Steps Guide.
 
-## Resources
+Visit the full documentation site
+to view the User’s Guide or check out the Bokeh tutorial repository
+to learn in live Jupyter Notebooks.
 
-Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
+Community support is available on Project Discourse.
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [checkout the Bokeh tutorial repository](https://github.com/bokeh/tutorial/) to learn about Bokeh in live Jupyter Notebooks.
+If you would like to contribute to Bokeh, please review the Contributor Guide
+and request an invitation to the Bokeh Dev Slack workspace.
 
-Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
-If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
-
-*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/HEAD/docs/CODE_OF_CONDUCT.md).*
-
-## Support
-
-### Fiscal Support
-
-The Bokeh project is grateful for [individual contributions](https://opencollective.com/bokeh), as well as for present and past monetary support from the organizations and companies listed below:
-
-<table align="center">
-<tr>
-
-  <td>
-    <a href="https://www.numfocus.org/">
-    <img src="https://static.bokeh.org/sponsor/numfocus.svg"
-         alt="NumFocus Logo" width="200"/>
-    </a>
-  </td>
-
-  <td>
-    <a href="https://chanzuckerberg.com/">
-    <img src="https://static.bokeh.org/sponsor/czi.svg"
-         alt="CZI Logo" width="200"/>
-    </a>
-  </td>
-
-  <td colspan="2">
-    <a href="https://www.blackstone.com/the-firm/">
-    <img src="https://static.bokeh.org/sponsor/blackstone.png"
-         alt="Blackstone Logo" width="400"/>
-    </a>
-  </td>
-
- </tr>
- <tr>
-
-  <td>
-    <a href="https://tidelift.com/">
-    <img src="https://static.bokeh.org/sponsor/tidelift.svg"
-         alt="TideLift Logo" width="200"/>
-    </a>
-  </td>
-
-  <td>
-    <a href="https://www.anaconda.com/">
-    <img src="https://static.bokeh.org/sponsor/anaconda.png"
-         alt="Anaconda Logo" width="200"/>
-    </a>
-  </td>
-
-  <td>
-    <a href="https://www.nvidia.com">
-    <img src="https://static.bokeh.org/sponsor/nvidia.png"
-         alt="NVidia Logo" width="200"/>
-    </a>
-  </td>
-
-  <td>
-    <a href="https://developer.nvidia.com/rapids">
-    <img src="https://static.bokeh.org/sponsor/rapids.png"
-         alt="Rapids Logo" width="200"/>
-    </a>
-  </td>
-
-</tr>
-</table>
-
-If your company uses Bokeh and is able to sponsor the project, please contact <a href="info@bokeh.org">info@bokeh.org</a>
-
-*Bokeh is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit charity in the United States. NumFOCUS provides Bokeh with fiscal, legal, and administrative support to help ensure the health and sustainability of the project. Visit [numfocus.org](https://numfocus.org) for more information.*
-
-*Donations to Bokeh are managed by NumFOCUS. For donors in the United States, your gift is tax-deductible to the extent provided by law. As with any donation, you should consult with your tax adviser about your particular tax situation.*
-
-### In-kind Support
-
-Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management. The Bokeh project is grateful to the following companies for their donation of services:
-
-* [Amazon Web Services](https://aws.amazon.com/)
-* [GitGuardian](https://gitguardian.com/)
-* [GitHub](https://github.com/)
-* [makepath](https://makepath.com/)
-* [Pingdom](https://www.pingdom.com/website-monitoring)
-* [Slack](https://slack.com)
-* [QuestionScout](https://www.questionscout.com/)
-* [1Password](https://1password.com/)
