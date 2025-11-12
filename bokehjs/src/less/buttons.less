@@ -2,75 +2,71 @@
 
 :host {
 
-  // hover = darken(color, 4%);
-  // hover-border = darken(border, 8%);
-  // active = darken(color, 8%);
-  // active-border = darken(border, 12%);
-  // disabled = darken(desaturate(color, 30%), 10%);
-  // disabled-border = border;
+  --file: var(--default-color);
+  --file-border: var(--default-border-color);
+  --file-hover: var(--default-hover-color);
+  --file-hover-border: var(--default-hover-color);
+  --file-active: var(--default-active-color);
+  --file-active-border: var(--default-active-color);
+  --file-disabled: var(--default-disabled-color);
+  --file-disabled-border: var(--default-disabled-border-color);
+  --file-outline: var(--default-outline-color);
 
-  --file: #fff;
-  --file-border: #ccc;
-  --file-hover: #f5f5f5;
-  --file-hover-border: #b8b8b8;
-  --file-active: #ebebeb;
-  --file-active-border: #adadad;
-  --file-disabled: #e6e6e6;
-  --file-disabled-border: #ccc;
+  --default: var(--default-color);
+  --default-border: var(--default-border-color);
+  --default-hover: var(--default-hover-color);
+  --default-hover-border: var(--default-hover-color);
+  --default-active: var(--default-active-color);
+  --default-active-border: var(--default-active-color);
+  --default-disabled: var(--default-disabled-color);
+  --default-disabled-border: var(--default-disabled-border-color);
+  --default-outline: var(--default-outline-color);
 
-  --default: #fff;
-  --default-border: #ccc;
-  --default-hover: #f5f5f5;
-  --default-hover-border: #b8b8b8;
-  --default-active: #ebebeb;
-  --default-active-border: #adadad;
-  --default-disabled: #e6e6e6;
-  --default-disabled-border: #ccc;
+  --primary: var(--primary-color);
+  --primary-border: var(--primary-color);
+  --primary-hover: var(--primary-hover-color);
+  --primary-hover-border: var(--primary-hover-color);
+  --primary-active: var(--primary-color);
+  --primary-active-border: var(--primary-color);
+  --primary-disabled: var(--primary-disabled-color);
+  --primary-disabled-border: var(--primary-disabled-color);
 
-  --primary: #428bca;
-  --primary-border: #357ebd;
-  --primary-hover: #3681c1;
-  --primary-hover-border: #2c699e;
-  --primary-active: #3276b1;
-  --primary-active-border: #285e8e;
-  --primary-disabled: #506f89;
-  --primary-disabled-border: #357ebd;
+  --success: var(--success-color);
+  --success-border: var(--success-color);
+  --success-hover: var(--success-hover-color);
+  --success-hover-border: var(--success-hover-color);
+  --success-active: var(--success-color);
+  --success-active-border: var(--success-color);
+  --success-disabled: var(--success-disabled-color);
+  --success-disabled-border: var(--success-disabled-color);
 
-  --success: #5cb85c;
-  --success-border: #4cae4c;
-  --success-hover: #4eb24e;
-  --success-hover-border: #409240;
-  --success-active: #47a447;
-  --success-active-border: #398439;
-  --success-disabled: #667b66;
-  --success-disabled-border: #4cae4c;
+  --warning: var(--warning-color);
+  --warning-border: var(--warning-color);
+  --warning-hover: var(--warning-hover-color);
+  --warning-hover-border: var(--warning-hover-color);
+  --warning-active: var(--warning-color);
+  --warning-active-border: var(--warning-color);
+  --warning-disabled: var(--warning-disabled-color);
+  --warning-disabled-border: var(--warning-disabled-color);
 
-  --warning: #f0ad4e;
-  --warning-border: #eea236;
-  --warning-hover: #eea43b;
-  --warning-hover-border: #e89014;
-  --warning-active: #ed9c28;
-  --warning-active-border: #d58512;
-  --warning-disabled: #c89143;
-  --warning-disabled-border: #eea236;
+  --danger: var(--danger-color);
+  --danger-border: var(--danger-color);
+  --danger-hover: var(--danger-hover-color);
+  --danger-hover-border: var(--danger-hover-color);
+  --danger-active: var(--danger-color);
+  --danger-active-border: var(--danger-color);
+  --danger-disabled: var(--danger-disabled-color);
+  --danger-disabled-border: var(--danger-disabled-color);
 
-  --danger: #d9534f;
-  --danger-border: #d43f3a;
-  --danger-hover: #d5433e;
-  --danger-hover-border: #bd2d29;
-  --danger-active: #d2322d;
-  --danger-active-border: #ac2925;
-  --danger-disabled: #a55350;
-  --danger-disabled-border: #d43f3a;
-
-  --light: #fff;
-  --light-border: #ccc;
-  --light-hover: #f5f5f5;
-  --light-hover-border: #b8b8b8;
-  --light-active: #ebebeb;
-  --light-active-border: #adadad;
-  --light-disabled: #e6e6e6;
-  --light-disabled-border: #ccc;
+  --light: var(--default-color);
+  --light-border: var(--default-color);
+  --light-hover: var(--default-hover-color);
+  --light-hover-border: var(--default-hover-color);
+  --light-active: var(--default-active-color);
+  --light-active-border: var(--default-active-color);
+  --light-disabled: var(--default-disabled-color);
+  --light-disabled-border: var(--default-disabled-color);
+  --light-outline: var(--default-outline-color);
 }
 
 .bk-btn, ::file-selector-button {
@@ -120,6 +116,7 @@
   @active-border;
   @disabled-background;
   @disabled-border;
+  @outline-color;
 ) {
   color: @color;
   background-color: @background;
@@ -128,6 +125,7 @@
   &:hover {
     background-color: @hover-background;
     border-color: @hover-border;
+    text-decoration: underline;
   }
 
   .bk-active& {
@@ -142,8 +140,16 @@
     }
   }
 
-  &:focus, &:active {
-    outline: var(--outline);
+  &:focus {
+    background-color: @hover-background;
+    border-color: @hover-border;
+    outline: 2px solid @outline-color;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    background-color: @active-background;
+    border-color: @active-border;
   }
 }
 
@@ -158,6 +164,7 @@
     var(--file-active-border);
     var(--file-disabled);
     var(--file-disabled-border);
+    var(--file-outline);
   );
 }
 
@@ -172,6 +179,7 @@
     var(--default-active-border);
     var(--default-disabled);
     var(--default-disabled-border);
+    var(--default-outline);
   );
 }
 
@@ -186,6 +194,7 @@
     var(--primary-active-border);
     var(--primary-disabled);
     var(--primary-disabled-border);
+    var(--primary-hover-border);
   );
 }
 
@@ -200,6 +209,7 @@
     var(--success-active-border);
     var(--success-disabled);
     var(--success-disabled-border);
+    var(--success-hover-border);
   );
 }
 
@@ -214,6 +224,7 @@
     var(--warning-active-border);
     var(--warning-disabled);
     var(--warning-disabled-border);
+    var(--warning-hover-border);
   );
 }
 
@@ -228,6 +239,7 @@
     var(--danger-active-border);
     var(--danger-disabled);
     var(--danger-disabled-border);
+    var(--danger-hover-border);
   );
 }
 
@@ -242,6 +254,7 @@
     var(--light-active-border);
     var(--light-disabled);
     var(--light-disabled-border);
+    var(--light-outline);
   );
   border-color: transparent;
 }
