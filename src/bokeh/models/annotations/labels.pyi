@@ -19,7 +19,11 @@ from ...core.enums import (
     TextAlignType as TextAlign,
     VerticalAlignType as VerticalAlign,
 )
-from ...core.property_aliases import BorderRadius, Padding, TextAnchor
+from ...core.property_aliases import (
+    BorderRadiusType as BorderRadius,
+    PaddingType as Padding,
+    TextAnchor,
+)
 from ...core.property_mixins import (
     BackgroundFillProps,
     BackgroundHatchProps,
@@ -121,3 +125,5 @@ class Title(TextAnnotation):
     vertical_align: VerticalAlign = ...
     align: TextAlign = ...
     standoff: float = ...
+
+    offset: float = ...
