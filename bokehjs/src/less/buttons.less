@@ -145,6 +145,7 @@
     border-color: @hover-border;
     outline: 2px solid @outline-color;
     outline-offset: 2px;
+    z-index: 100;
   }
 
   &:active {
@@ -317,5 +318,25 @@
   .bk-dropdown-toggle {
     flex: 0 0 0;
     padding: var(--padding-vertical) calc(var(--padding-horizontal)/2);
+  }
+
+  &.bk-vertical > .bk-btn:not(.bk-active, :active), &.bk-horizontal > .bk-btn:not(.bk-active, :active) {
+    color: var(--color);
+    background-color: var(--default);
+    border-color: var(--default-border);
+  }
+
+  &.bk-vertical > .bk-btn:focus, &.bk-horizontal > .bk-btn:focus{
+    outline: 2px solid var(--highlight-color);
+    outline-offset: -2px;
+    color: var(--color);
+    background-color: var(--default);
+    border-color: var(--default-border);
+  }
+
+  &.bk-vertical > .bk-btn:hover, &.bk-horizontal > .bk-btn:hover{
+    color: var(--color);
+    background-color: var(--default-hover);
+    border-color: var(--default-hover-border);
   }
 }
