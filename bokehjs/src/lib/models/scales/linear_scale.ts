@@ -1,5 +1,7 @@
 import {ContinuousScale} from "./continuous_scale"
 import type * as p from "core/properties"
+import {ScreenArray} from "core/types"
+import type {Arrayable} from "core/types"
 
 export namespace LinearScale {
   export type Attrs = p.AttrsOf<Props>
@@ -41,5 +43,15 @@ export class LinearScale extends ContinuousScale {
     const factor = (target_end - target_start)/(source_end - source_start)
     const offset = -(factor * source_start) + target_start
     return [factor, offset]
+  }
+
+  override v_compute(xs: Arrayable<number>): ScreenArray {
+    // performance implementation avoiding s_compute
+    const [factor, offset] = this._linear_compute_state()
+    const result = new ScreenArray(xs.length)
+    for (let i = 0; i < result.length; i++) {
+      result[i] = factor*xs[i] + offset
+    }
+    return result
   }
 }
