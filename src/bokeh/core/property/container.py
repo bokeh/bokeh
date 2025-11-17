@@ -92,6 +92,10 @@ class Seq(ContainerProperty[T]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, True)
 
+        from .any import Any as _Any
+        if self._is_seq(value) and isinstance(self.item_type, _Any):
+            return
+
         if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
             return
 
@@ -279,6 +283,20 @@ class ColumnData(Dict):
                 return PropertyValueColumnData(value)
         else:
             return value
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+        self._check_data(value)
+
+    def _check_data(self, value):
+        value_is_valid = self.values_type.is_valid
+        for (k, v) in value.items():
+            self._check_seq(v)
+        x = None
+
+    def _check_seq(self, v):
+        value_is_valid = self.values_type.is_valid
+        value_is_valid(v)
 
 class Tuple(ContainerProperty):
     """ Accept Python tuple values.
