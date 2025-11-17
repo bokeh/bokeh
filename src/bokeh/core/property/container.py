@@ -284,20 +284,6 @@ class ColumnData(Dict):
         else:
             return value
 
-    def validate(self, value: Any, detail: bool = True) -> None:
-        super().validate(value, detail)
-        self._check_data(value)
-
-    def _check_data(self, value):
-        value_is_valid = self.values_type.is_valid
-        for (k, v) in value.items():
-            self._check_seq(v)
-        x = None
-
-    def _check_seq(self, v):
-        value_is_valid = self.values_type.is_valid
-        value_is_valid(v)
-
 class Tuple(ContainerProperty):
     """ Accept Python tuple values.
 
