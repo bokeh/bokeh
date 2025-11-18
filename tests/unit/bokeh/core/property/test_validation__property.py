@@ -10,11 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ;
-
-from bokeh.core.property.any import Any
-
-pytest
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -59,6 +55,7 @@ from bokeh.core.properties import (
     StringSpec,
     Tuple,
 )
+from bokeh.core.property.any import Any
 from bokeh.core.property.bases import validation_on
 from tests.support.util.api import verify_all
 
