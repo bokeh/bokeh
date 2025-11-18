@@ -113,12 +113,12 @@ export class DataCubeProvider extends TableDataProvider {
     this.groupingInfos = groupingInfos
     this.toggledGroupsByLevel = groupingInfos.map(() => ({}))
 
-    const row_indices: (number[] | number)[] = this.target.get_array("row_indices")
-    const labels: string[] = this.target.get_array("labels")
+    const row_indices = this.target.get_array<number[] | number>("row_indices")
+    const labels = this.target.get_array<string>("labels")
 
     const parents: number[][] = []
     const parent_labels: string[] = []
-    row_indices.forEach((indices: number[] | number, i: number) => {
+    row_indices.forEach((indices, i) => {
       if (typeof indices === "number") {
         this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false
       } else {
@@ -236,7 +236,7 @@ export class DataCubeProvider extends TableDataProvider {
 
     return item instanceof Group
       ? item as Item
-      : Object.assign({[DTINDEX_NAME]: item}, this.source.get_row(item))
+      : {[DTINDEX_NAME]: item, ...this.source.get_row(item)}
   }
 
   getItemMetadata(i: number): RowMetadata<Item> {
