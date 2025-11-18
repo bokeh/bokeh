@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
+from .any import Any as AnyVal
 from .bases import (
     ContainerProperty,
     Init,
@@ -92,8 +93,7 @@ class Seq(ContainerProperty[T]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, True)
 
-        from .any import Any as _Any
-        if self._is_seq(value) and isinstance(self.item_type, _Any):
+        if self._is_seq(value) and self._should_skip_item_validation():
             return
 
         if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
@@ -109,6 +109,9 @@ class Seq(ContainerProperty[T]):
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValueError(msg)
+
+    def _should_skip_item_validation(self):
+        return isinstance(self.item_type, AnyVal)
 
     @classmethod
     def _is_seq(cls, value: Any) -> bool:
