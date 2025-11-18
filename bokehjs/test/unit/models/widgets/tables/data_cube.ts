@@ -90,7 +90,7 @@ describe("data_cube module", () => {
       }})
       const provider = new DataCubeProvider(source, view, columns, target)
       provider.setGrouping(grouping)
-      expect(provider.toggledGroupsByLevel).to.be.equal([{blue: false, green: false, red: false}])
+      expect(provider.toggledGroupsByLevel).to.be.equal([{blue: false, green: false, red: false}, {}])
     })
   })
 })
