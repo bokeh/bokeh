@@ -328,15 +328,18 @@
 
   &.bk-vertical > .bk-btn:focus, &.bk-horizontal > .bk-btn:focus{
     outline: 2px solid var(--highlight-color);
-    outline-offset: -2px;
-    color: var(--color);
-    background-color: var(--default);
+    outline-offset: 0px;
     border-color: var(--default-border);
   }
 
-  &.bk-vertical > .bk-btn:hover, &.bk-horizontal > .bk-btn:hover{
+  &.bk-vertical > .bk-btn:hover:not(.bk-active, :active), &.bk-horizontal > .bk-btn:hover:not(.bk-active, :active){
     color: var(--color);
     background-color: var(--default-hover);
     border-color: var(--default-hover-border);
+  }
+
+  &.bk-vertical > .bk-btn-default:active,  &.bk-vertical > .bk-btn-default.bk-active, &.bk-horizontal > .bk-btn-default:active,  &.bk-horizontal > .bk-btn-default.bk-active {
+    color: var(--inverted-color);
+    background-color: var(--primary-color);
   }
 }
