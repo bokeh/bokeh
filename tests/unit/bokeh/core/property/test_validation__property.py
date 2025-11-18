@@ -168,12 +168,12 @@ class TestValidateDetailDefault:
         p = List(Float)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected an element of List\(Float\), got 'junk'")
+        assert matches(str(e.value), r"expected sequence List\(Float\), got 'junk' of type <class 'str'>")
     def test_Seq(self) -> None:
         p = Seq(Float)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected an element of Seq\(Float\), got 'junk'")
+        assert matches(str(e.value), r"expected sequence Seq\(Float\), got 'junk' of type <class 'str'>")
     def test_Dict(self) -> None:
         p = Dict(String, Float)
         with pytest.raises(ValueError) as e:
