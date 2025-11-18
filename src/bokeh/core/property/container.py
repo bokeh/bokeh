@@ -93,10 +93,11 @@ class Seq(ContainerProperty[T]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, True)
 
-        if self._is_seq(value) and self._should_skip_item_validation():
-            return
+        if not self._is_seq(value):
+            msg = "" if not detail else f"expected sequence {self}, got {type(value)!r}"
+            raise ValueError(msg)
 
-        if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
+        if self._should_skip_item_validation() or all(self.item_type.is_valid(item) for item in value):
             return
 
         if self._is_seq(value):
