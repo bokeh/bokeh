@@ -259,6 +259,21 @@ class Test_Seq:
         assert prop.is_valid([1, 2])
         assert prop.is_valid(np.array([1, 2]))
 
+        prop_any = bcpc.Seq(Any)
+
+        assert prop_any.is_valid(())
+        assert prop_any.is_valid([])
+        assert prop_any.is_valid(np.array([1,2,3]))
+
+        assert prop_any.is_valid((1, 2))
+        assert prop_any.is_valid([1, 2])
+        assert prop_any.is_valid(np.array([1, 2]))
+
+        assert prop_any.is_valid((1, "x"))
+        assert prop_any.is_valid([1, "x"])
+        assert prop_any.is_valid(np.array([1, "x"]))
+
+
     def test_invalid(self) -> None:
         prop = bcpc.Seq(Int)
 
@@ -280,6 +295,27 @@ class Test_Seq:
 
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
+
+        prop_any = bcpc.Seq(Any)
+
+        assert not prop_any.is_valid(None)
+        assert not prop_any.is_valid(False)
+        assert not prop_any.is_valid(True)
+        assert not prop_any.is_valid(0)
+        assert not prop_any.is_valid(1)
+        assert not prop_any.is_valid(0.0)
+        assert not prop_any.is_valid(1.0)
+        assert not prop_any.is_valid(1.0+1.0j)
+        assert not prop_any.is_valid("")
+
+        assert not prop_any.is_valid(set())
+        assert not prop_any.is_valid({})
+
+        assert not prop_any.is_valid({1, 2})
+        assert not prop_any.is_valid({1: 2})
+
+        assert not prop_any.is_valid(_TestHasProps())
+        assert not prop_any.is_valid(_TestModel())
 
     def test_with_pandas_valid(self) -> None:
         pd = pytest.importorskip("pandas")

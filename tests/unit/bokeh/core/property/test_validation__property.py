@@ -10,7 +10,11 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
+import pytest ;
+
+from bokeh.core.property.any import Any
+
+pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -174,6 +178,11 @@ class TestValidateDetailDefault:
         with pytest.raises(ValueError) as e:
             p.validate("junk")
         assert matches(str(e.value), r"expected sequence Seq\(Float\), got 'junk' of type <class 'str'>")
+    def test_Seq_Any(self) -> None:
+        p = Seq(Any)
+        with pytest.raises(ValueError) as e:
+            p.validate("junk")
+        assert matches(str(e.value), r"expected sequence Seq\(Any\), got 'junk' of type <class 'str'>")
     def test_Dict(self) -> None:
         p = Dict(String, Float)
         with pytest.raises(ValueError) as e:
@@ -355,6 +364,11 @@ class TestValidateDetailExplicit:
         assert (str(e.value) == "") == (not detail)
     def test_Seq(self, detail) -> None:
         p = Seq(Float)
+        with pytest.raises(ValueError) as e:
+            p.validate("junk", detail)
+        assert (str(e.value) == "") == (not detail)
+    def test_Seq_Any(self, detail) -> None:
+        p = Seq(Any)
         with pytest.raises(ValueError) as e:
             p.validate("junk", detail)
         assert (str(e.value) == "") == (not detail)
