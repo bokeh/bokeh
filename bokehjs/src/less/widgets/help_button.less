@@ -1,0 +1,15 @@
+.icon-variant(
+  @icon-color;
+) {
+  & > .bk-BuiltinIcon {
+    background-color: @icon-color;
+  }
+}
+
+&.bk-btn-default, &.bk-btn-light {
+  .icon-variant(var(--color));
+}
+
+&.bk-btn-primary, &.bk-btn-success, &.bk-btn-warning, &.bk-btn-danger {
+  .icon-variant(var(--inverted-color));
+}

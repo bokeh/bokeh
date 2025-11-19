@@ -5,6 +5,9 @@ import {BuiltinIcon} from "../ui/icons/builtin_icon"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+
+import help_button_css from "styles/widgets/help_button.css"
 
 export class HelpButtonView extends AbstractButtonView {
   declare model: HelpButton
@@ -25,6 +28,10 @@ export class HelpButtonView extends AbstractButtonView {
   override remove(): void {
     this.tooltip.remove()
     super.remove()
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), help_button_css]
   }
 
   override render(): void {
