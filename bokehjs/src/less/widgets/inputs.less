@@ -20,7 +20,7 @@
   resize: none;
 
   &:focus {
-    border-color: var(--focus-border-color);
+    border-color: red;
     outline: 0;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
   }
@@ -128,6 +128,12 @@ select[multiple], select[size], textarea {
     & > *:not(:first-child) {
       margin-left: 5px;
     }
+  }
+
+  > label:focus-within{
+    outline: 2px solid var(--focus-border-color);
+    outline-offset: -1px;
+    border-radius: 5px;
   }
 
   >.bk-spin-wrapper {

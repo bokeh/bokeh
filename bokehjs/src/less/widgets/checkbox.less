@@ -1,10 +1,41 @@
-  // XXX: this is horrible, but at least looks good by default
-  input[type="checkbox"], input[type="radio"] {
-    margin: 0;
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--primary-color);
 
-    & + * {
-      position: relative;
-      top: -2px;
-      margin-left: 3px;
-    }
+  &:focus {
+    outline: none;
   }
+
+  // XXX: this is horrible, but at least looks good by default
+  & + * {
+    position: relative;
+    top: -2px;
+    margin-left: 3px;
+  }
+
+  &+span {
+    margin-right: 3px;
+  }
+
+  &+span:hover {
+    text-decoration: underline;
+  }
+
+  &[disabled]+span {
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+input[type="checkbox"] {
+  &:hover:not([disabled]) {
+    accent-color: var(--primary-hover-color);
+    outline: 2px solid var(--primary-hover-color);
+    outline-offset: -1px;
+  }
+}
+
+input[type="radio"] {
+  &:hover:not([disabled]) {
+    box-shadow: 0 0 8px var(--primary-hover-color);
+  }
+}
