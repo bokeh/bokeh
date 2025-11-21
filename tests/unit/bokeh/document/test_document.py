@@ -731,8 +731,9 @@ class TestDocument:
         #doc.add_root(obj2)
         #doc.add_root(obj3)
 
-        json = doc.to_json()
-        assert json["defs"] == [
+        json = doc.to_json().content
+        defs = json["defs"]
+        assert defs == [
             ModelDef(
                 type="model",
                 name="test_document.SomeDataModel",
@@ -796,8 +797,8 @@ class TestDocument:
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
         d = document.Document()
-        json = d.to_json()
-        assert json['version'] == __version__
+        json = d.to_json().content
+        assert json["version"] == __version__
 
     def test_patch_integer_property(self) -> None:
         d = document.Document()

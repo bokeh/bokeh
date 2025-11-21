@@ -91,9 +91,7 @@ class patch_doc(Message[PatchJson]):
         doc.models.flush_synced(lambda model: not serializer.has_ref(model))
 
         msg = cls(header, metadata, patch_json)
-
-        for buffer in serializer.buffers:
-            msg.add_buffer(buffer)
+        msg.add_buffers(*serializer.buffers)
 
         return msg
 

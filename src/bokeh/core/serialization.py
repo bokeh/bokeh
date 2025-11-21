@@ -24,7 +24,7 @@ import datetime as dt
 import gzip
 import sys
 from array import array as TypedArray
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import isinf, isnan
 from types import SimpleNamespace
 from typing import (
@@ -187,7 +187,7 @@ T = TypeVar("T")
 @dataclass
 class Serialized(Generic[T]):
     content: T
-    buffers: list[Buffer] | None = None
+    buffers: list[Buffer] = field(default_factory=list[Buffer])
 
 Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]

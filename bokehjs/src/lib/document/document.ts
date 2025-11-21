@@ -554,14 +554,14 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Document {
+  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>, buffers: Map<ID, ArrayBuffer> = new Map()): Document {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
 
     const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
       const deserializer = new Deserializer(resolver)
-      deserializer.decode(doc_json.defs)
+      deserializer.decode(doc_json.defs, buffers)
     }
 
     const doc = new Document({resolver})
@@ -572,17 +572,17 @@ export class Document implements Equatable {
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
-    const config = deserializer.decode(doc_json.config)
+    const config = deserializer.decode(doc_json.config, buffers)
     assert(config instanceof DocumentConfig || config == null)
     if (config != null) {
       doc.config = config
     }
 
-    const roots = deserializer.decode(doc_json.roots) as Model[]
+    const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
 
     const callbacks = (() => {
       if (doc_json.callbacks != null) {
-        return deserializer.decode(doc_json.callbacks) as {[key: string]: DocumentEventCallback[]}
+        return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
       } else {
         return {}
       }

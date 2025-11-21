@@ -137,6 +137,10 @@ class DocumentCallbackManager:
         self.on_message("bokeh_event", self.trigger_event)
 
     @property
+    def js_event_callbacks(self) -> dict[str, list[JSEventCallback]]:
+        return self._js_event_callbacks
+
+    @property
     def session_callbacks(self) -> list[SessionCallback]:
         ''' A list of all the session callbacks for this document.
 

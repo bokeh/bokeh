@@ -7,6 +7,7 @@ import {Receiver} from "protocol/receiver"
 import type {ErrorMsg} from "./session"
 import {ClientSession} from "./session"
 import {assert} from "core/util/assert"
+import type {ID} from "core/types"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"
@@ -182,26 +183,26 @@ export class ClientConnection {
     }
   }
 
-  protected async _pull_doc_json(): Promise<DocJson> {
+  protected async _pull_doc_json(): Promise<{doc_json: DocJson, buffers: Map<ID, ArrayBuffer>}> {
     const message = Message.create("PULL-DOC-REQ", {}, {})
     const reply = await this.send_with_reply<{doc: DocJson}>(message)
     if (!("doc" in reply.content)) {
       throw new Error("No 'doc' field in PULL-DOC-REPLY")
     }
-    return reply.content.doc
+    return {doc_json: reply.content.doc, buffers: reply.buffers}
   }
 
   protected async _repull_session_doc(resolve: SessionResolver, reject: Rejecter): Promise<void> {
     logger.debug(this.session != null ? "Repulling session" : "Pulling session for first time")
     try {
-      const doc_json = await this._pull_doc_json()
+      const {doc_json, buffers} = await this._pull_doc_json()
       if (this.session == null) {
         if (this.closed_permanently) {
           logger.debug("Got new document after connection was already closed")
           reject(new Error("The connection has been closed"))
         } else {
           const events: DocumentEvent[] = []
-          const document = Document.from_json(doc_json, events)
+          const document = Document.from_json(doc_json, events, buffers)
 
           this.session = new ClientSession(this, document)
 

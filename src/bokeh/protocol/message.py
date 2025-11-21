@@ -225,6 +225,10 @@ class Message(Generic[Content]):
         self._header_json = None
         self._buffers.append(buffer)
 
+    def add_buffers(self, *buffers: Buffer) -> None:
+        for buffer in buffers:
+            self.add_buffer(buffer)
+
     def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
         ''' Add a buffer header and payload that we read from the socket.
 
