@@ -1,9 +1,9 @@
-.. _bokeh.plotting.geo_feature:
+.. _bokeh.plotting._geo_feature:
 
-geo features
+Geo Features
 ============
 
-.. automodule:: bokeh.plotting.geo_feature
+.. automodule:: bokeh.plotting._geo_feature
     :members:
     :undoc-members:
     :show-inheritance:

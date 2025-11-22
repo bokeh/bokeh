@@ -17,9 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import TYPE_CHECKING, Unpack
-
 # External imports
 import numpy as np
 
@@ -28,27 +25,17 @@ try:
     import cartopy.feature as cfeature
 except ModuleNotFoundError as e:
     raise ModuleNotFoundError(
-        "The module 'geo_feature' requires the optional dependency 'cartopy'."
+        "The module 'bokeh.plotting._geo_feature' requires the optional dependency 'cartopy'."
         "To use this module, please install 'cartopy'.",
     ) from e
 
-# Bokeh imports
-from ..models import Plot
-
-if TYPE_CHECKING:
-    from ..glyph_api import LineArgs, MultiLineArgs, MultiPolygonsArgs
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def add_line_geometries(
-        p: Plot,
-        projection: ccrs.Projection,
-        geometries_collection: cfeature.NaturalEarthFeature,
-        **line_kwargs: Unpack[MultiLineArgs],
-    ) -> Plot:
-    """Adds line geometries to a map with respect to a given projection.
+def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
+    """ Adds line geometries to a map with respect to a given projection.
     The lines are added by the :func:`~bokeh.plotting.figure.multi_line` function.
 
     Args:
@@ -70,7 +57,7 @@ def add_line_geometries(
             import cartopy.feature as cfeature
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_line_geometries
+            from bokeh.plotting._geo_feature import add_line_geometries
 
             p = figure()
             p = add_line_geometries(p, ccrs.PlateCarree(), cfeature.BORDERS)
@@ -81,13 +68,8 @@ def add_line_geometries(
     return p
 
 
-def add_polygon_geometries(
-        p: Plot,
-        projection: ccrs.Projection,
-        geometries_collection: cfeature.NaturalEarthFeature,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> Plot:
-    """Adds polygon geometries to a map with respect to a given projection.
+def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
+    """ Adds polygon geometries to a map with respect to a given projection.
     The polygons are added by the :func:`~bokeh.plotting.figure.multi_polygons`
     function to allow holes and islands. To draw the border of the geometries,
     set `draw_polygon_border` to `True`.
@@ -115,7 +97,7 @@ def add_polygon_geometries(
             import cartopy.feature as cfeature
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_polygon_geometries
+            from bokeh.plotting._geo_feature import add_polygon_geometries
 
             p = figure()
             p = add_polygon_geometries(p, ccrs.PlateCarree(), cfeature.LAND)
@@ -126,18 +108,13 @@ def add_polygon_geometries(
     xs, ys, poly_kwargs = _collect_polygon_geometries(projection, geometries_collection, **poly_kwargs)
     p.multi_polygons(xs, ys, **poly_kwargs)
     if draw_border:
-        xs, ys = _collect_lines_from_ploygons(xs, ys)
+        xs, ys = _collect_lines_from_polygons(xs, ys)
         p.multi_line(xs, ys, color=border_color)
     return p
 
 
-def add_borders(
-        p:Plot,
-        projection:ccrs.Projection,
-        scale: str="110m",
-        **line_kwargs: Unpack[MultiLineArgs],
-    ) -> Plot:
-    """Adds the borders of countries to a map with respect to a given projection.
+def add_borders(p, projection, scale="110m", **line_kwargs):
+    """ Adds the borders of countries to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -157,7 +134,7 @@ def add_borders(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_borders
+            from bokeh.plotting._geo_feature import add_borders
 
             p = figure()
             p = add_borders(p, ccrs.PlateCarree())
@@ -168,13 +145,8 @@ def add_borders(
     return add_line_geometries(p, projection, borders, **line_kwargs)
 
 
-def add_coastlines(
-        p: Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **line_kwargs: Unpack[MultiLineArgs],
-    ) -> Plot:
-    """Adds coastlines to a map with respect to a given projection.
+def add_coastlines(p, projection, scale="110m", **line_kwargs):
+    """ Adds coastlines to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -194,7 +166,7 @@ def add_coastlines(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_coastlines
+            from bokeh.plotting._geo_feature import add_coastlines
 
             p = figure()
             p = add_coastlines(p, ccrs.PlateCarree())
@@ -205,13 +177,8 @@ def add_coastlines(
     return add_line_geometries(p, projection, coastline, **line_kwargs)
 
 
-def add_land(
-        p: Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> Plot:
-    """Adds land geometries including islands to a map with respect to a
+def add_land(p, projection, scale="110m", **poly_kwargs):
+    """ Adds land geometries including islands to a map with respect to a
     given projection.
 
     Args:
@@ -236,7 +203,7 @@ def add_land(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_land
+            from bokeh.plotting._geo_feature import add_land
 
             p = figure()
             p = add_land(p, ccrs.PlateCarree())
@@ -247,13 +214,8 @@ def add_land(
     return add_polygon_geometries(p, projection, land, **poly_kwargs)
 
 
-def add_lakes(
-        p: Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> Plot:
-    """Adds lakes to a map with respect to a given projection.
+def add_lakes(p, projection, scale="110m", **poly_kwargs):
+    """ Adds lakes to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -277,7 +239,7 @@ def add_lakes(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_lakes
+            from bokeh.plotting._geo_feature import add_lakes
 
             p = figure()
             p = add_lakes(p, ccrs.PlateCarree())
@@ -288,13 +250,8 @@ def add_lakes(
     return add_polygon_geometries(p, projection, lakes, **poly_kwargs)
 
 
-def add_ocean(
-        p:Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> Plot:
-    """Adds ocean to a map with respect to a given projection.
+def add_ocean(p, projection, scale="110m", **poly_kwargs):
+    """ Adds ocean to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -318,7 +275,7 @@ def add_ocean(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_ocean
+            from bokeh.plotting._geo_feature import add_ocean
 
             p = figure()
             p = add_ocean(p, ccrs.PlateCarree())
@@ -329,13 +286,8 @@ def add_ocean(
     return add_polygon_geometries(p, projection, ocean, **poly_kwargs)
 
 
-def add_rivers(
-        p:Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **line_kwargs: Unpack[MultiLineArgs],
-    ) -> Plot:
-    """Adds rivers to a map with respect to a given projection.
+def add_rivers(p, projection, scale="110m", **line_kwargs):
+    """ Adds rivers to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -355,7 +307,7 @@ def add_rivers(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_rivers
+            from bokeh.plotting._geo_feature import add_rivers
 
             p = figure()
             p = add_rivers(p, ccrs.PlateCarree())
@@ -366,12 +318,8 @@ def add_rivers(
     return add_line_geometries(p, projection, rivers, **line_kwargs)
 
 
-def add_projection_boundary(
-        p:Plot,
-        projection: ccrs.Projection,
-        **line_kwargs: Unpack[LineArgs],
-    ) -> Plot:
-    """Adds the boundary of a given projection to a map.
+def add_projection_boundary(p, projection, **line_kwargs):
+    """ Adds the boundary of a given projection to a map.
 
     Args:
         p (Plot): Object which should be extended.
@@ -391,7 +339,7 @@ def add_projection_boundary(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_projection_boundary
+            from bokeh.plotting._geo_feature import add_projection_boundary
 
             p = figure()
             p = add_projection_boundary(p, ccrs.EckertIII())
@@ -403,13 +351,8 @@ def add_projection_boundary(
     return p
 
 
-def add_provinces(
-        p:Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **line_kwargs: Unpack[MultiLineArgs],
-    ) -> Plot:
-    """Adds the borders of provinces to a map with respect to a given projection.
+def add_provinces(p, projection, scale="110m", **line_kwargs):
+    """ Adds the borders of provinces to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -429,7 +372,7 @@ def add_provinces(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_provinces
+            from bokeh.plotting._geo_feature import add_provinces
 
             p = figure()
             p = add_provinces(p, ccrs.PlateCarree())
@@ -440,13 +383,8 @@ def add_provinces(
     return add_line_geometries(p, projection, provinces, **line_kwargs)
 
 
-def add_states(
-        p: Plot,
-        projection: ccrs.Projection,
-        scale: str ="110m",
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> Plot:
-    """Adds states and provinces to a map for a given projection.
+def add_states(p, projection, scale="110m", **poly_kwargs):
+    """ Adds states and provinces as multi-polygons to a map for a given projection.
 
     Args:
         p (Plot): Object which should be extended.
@@ -470,7 +408,7 @@ def add_states(
             import cartopy.crs as ccrs
 
             from bokeh.plotting import figure, show
-            from bokeh.plotting.geo_feature import add_states
+            from bokeh.plotting._geo_feature import add_states
 
             p = figure()
             p = add_states(p, ccrs.PlateCarree(), draw_polygon_border=True)
@@ -483,11 +421,8 @@ def add_states(
 # Private API
 #-----------------------------------------------------------------------------
 
-def _collect_line_geometries(
-        projection: ccrs.Projection,
-        geometries_collection: cfeature.NaturalEarthFeature,
-    ) -> tuple[list[np.array], list[np.array]]:
-    """Collects the x and y elements for lines geometries of a NaturalEarthFeature
+def _collect_line_geometries(projection, geometries_collection):
+    """ Collects the x and y elements for line geometries of a NaturalEarthFeature
     and transforms the coordinates to fit to a given projection.
 
     Args:
@@ -502,7 +437,7 @@ def _collect_line_geometries(
             import cartopy.crs as ccrs
             import cartopy.feature as cfeature
 
-            from bokeh.plotting.geo_feature import _collect_line_geometries
+            from bokeh.plotting._geo_feature import _collect_line_geometries
 
             xs, ys = _collect_line_geometries(ccrs.Mollweide(), cfeature.BORDERS)
     """
@@ -517,12 +452,8 @@ def _collect_line_geometries(
     return xs, ys
 
 
-def _collect_polygon_geometries(
-        projection: ccrs.Projection,
-        geometries_collection: cfeature.NaturalEarthFeature,
-        **kwargs,
-    )  -> tuple[list[list[np.array]], list[list[np.array]], dict]:
-    """Collects the x and y elements for multi-polygon geometries of a NaturalEarthFeature
+def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
+    """ Collects the x and y elements for multi-polygon geometries of a NaturalEarthFeature
     and transforms the coordinates to fit to a given projection.
     If a color palette of list of colors is given, for each geometry the consecutive color
     is selected and the Keyword Arguments are returned with an updated list for colors.
@@ -542,7 +473,7 @@ def _collect_polygon_geometries(
             import cartopy.crs as ccrs
             import cartopy.feature as cfeature
 
-            from bokeh.plotting.geo_feature import _collect_polygon_geometries
+            from bokeh.plotting._geo_feature import _collect_polygon_geometries
 
             xs, ys, _ = _collect_polygon_geometries(ccrs.Mollweide(), cfeature.LAKES)
     """
@@ -574,11 +505,8 @@ def _collect_polygon_geometries(
     return xs, ys, kwargs
 
 
-def _collect_lines_from_ploygons(
-        polygon_xs:list[list[np.array]],
-        polygon_ys:list[list[np.array]],
-    ) -> tuple[list[np.array], list[np.array]]:
-    """Collects the outline borders of a multi-polygon and returns is as a list.
+def _collect_lines_from_polygons(polygon_xs, polygon_ys):
+    """ Collects the outline borders of a multi-polygon and returns it as a list.
     This can safe some time, if multi-polygons are already transformed to fit to
     a projection and afterwards the borders are needed.
 
