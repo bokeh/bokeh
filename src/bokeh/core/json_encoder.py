@@ -158,16 +158,9 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
     if pretty and indent is None:
         indent = 2
 
-    content: Any
-    buffers: list[Buffer]
-    if isinstance(obj, Serialized):
-        content = obj.content
-        buffers = obj.buffers or []
-    else:
-        content = obj
-        buffers = []
+    content = obj.content if isinstance(obj, Serialized) else obj
 
-    encoder = PayloadEncoder(buffers=buffers, indent=indent, separators=separators)
+    encoder = PayloadEncoder(indent=indent, separators=separators)
     return encoder.encode(content)
 
 #-----------------------------------------------------------------------------
@@ -175,20 +168,14 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
 #-----------------------------------------------------------------------------
 
 class PayloadEncoder(JSONEncoder):
-    def __init__(self, *, buffers: list[Buffer] = [], threshold: int = 100,
-            indent: int | None = None, separators: tuple[str, str] | None = None):
+    def __init__(self, *, indent: int | None = None, separators: tuple[str, str] | None = None):
         super().__init__(sort_keys=False, allow_nan=False, indent=indent, separators=separators)
-        self._buffers = {buf.id: buf for buf in buffers}
-        self._threshold = threshold
 
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, Buffer):
-            if obj.id in self._buffers: # TODO: and len(obj.data) > self._threshold:
-                return obj.ref
-            else:
-                return obj.to_base64()
+    def default(self, o: Any) -> Any:
+        if isinstance(o, Buffer):
+            return o.ref
         else:
-            return super().default(obj)
+            return super().default(o)
 
 #-----------------------------------------------------------------------------
 # Private API
