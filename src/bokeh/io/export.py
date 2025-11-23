@@ -475,7 +475,7 @@ function* collect_svgs(views) {
       yield* collect_svgs(view.child_views.values())
     }
     if (view instanceof PlotView && view.model.output_backend == "svg") {
-      const {ctx} = view.canvas_view.compose()
+      const {ctx} = view.export("svg")
       yield ctx.get_serialized_svg(true)
     }
   }
