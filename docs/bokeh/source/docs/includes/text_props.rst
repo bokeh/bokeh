@@ -17,6 +17,9 @@
 ``text_outline_color``
     color to use to provide a stroked outline to text
 
+``text_outline_width``
+    width to use for a stroked outline if a ``text_outline_color`` is given
+
 ``text_alpha``
     floating point between 0 (transparent) and 1 (opaque)
 
