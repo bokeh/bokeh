@@ -96,13 +96,6 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     target: "ES2020",
     exports: ["tslib"],
     detect_cycles: argv.detectCycles,
-    overrides: {
-      // https://github.com/bokeh/bokeh/issues/12142
-      "mathjax-full/js/components/version.js": `\
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.VERSION = "0.0.0";
-`,
-    },
   })
 
   if (!argv.rebuild) {
