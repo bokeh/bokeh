@@ -52,13 +52,13 @@ export class DropdownView extends AbstractButtonView {
   protected _update_chevron(new_chevron: HTMLElement): void {
     if (!this.model.is_split) {
       const previous_chevron = this.button_el.lastElementChild
-      if (previous_chevron) {
+      if (previous_chevron !== null) {
         this.button_el.removeChild(previous_chevron)
       }
       this.button_el.append(new_chevron)
     } else {
       const previous_chevron = this.group_el.lastElementChild
-      if (previous_chevron) {
+      if (previous_chevron !== null) {
         this.group_el.removeChild(previous_chevron)
       }
       const toggle = this._render_button(new_chevron)
@@ -73,9 +73,7 @@ export class DropdownView extends AbstractButtonView {
       this._open = true
       display(this.menu_el)
       const first_menu_item = this.menu_el.firstElementChild as HTMLElement
-      if (first_menu_item) {
-        first_menu_item.focus()
-      }
+      first_menu_item.focus()
 
       const new_chevron = div({class: [chevrons.chevron, chevrons.up]})
       this._update_chevron(new_chevron)
