@@ -1,0 +1,23 @@
+@import "./_mixins.less";
+
+:host {
+  --chevron-size: 12px;
+}
+
+&.bk-btn-default, &.bk-btn-light {
+  > .bk-chevron.bk-down { .icon-mask(var(--bokeh-icon-chevron-down), var(--color)); }
+  > .bk-chevron.bk-up   { .icon-mask(var(--bokeh-icon-chevron-up), var(--color)); }
+}
+
+&.bk-btn-primary, &.bk-btn-success, &.bk-btn-warning, &.bk-btn-danger {
+  > .bk-chevron.bk-down { .icon-mask(var(--bokeh-icon-chevron-down), var(--inverted-color)); }
+  > .bk-chevron.bk-up   { .icon-mask(var(--bokeh-icon-chevron-up), var(--inverted-color)); }
+}
+
+.bk-chevron {
+  display: inline-block;
+  vertical-align: middle;
+  width: var(--chevron-size);
+  height: var(--chevron-size);
+  background-position: center center;
+}

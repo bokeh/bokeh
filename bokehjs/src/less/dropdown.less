@@ -34,8 +34,35 @@
   & > :not(.bk-divider) {
     padding: var(--padding-vertical) var(--padding-horizontal);
 
-    &:hover, &.bk-active {
-      background-color: var(--surface-background-color);
+    &:focus-visible, &.bk-active {
+      background-color: var(--default-active);
+    }
+    &:hover {
+      background-color: var(--hover-color);
+      text-decoration: underline;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--highlight-color);
+      outline-offset: -2px;
+      border-color: var(--default-border-color);
+    }
+    &.bk-active {
+      background-image: var(--bokeh-icon-check);
+      background-position: right 0.5em center;
+      background-size: 16px 16px;
+      background-repeat: no-repeat;
     }
   }
+
+}
+
+.bk-btn:focus{
+  outline: 2px solid var(--highlight-color);
+  outline-offset: 0px;
+  border-color: var(--default-border-color);
+}
+
+.bk-btn:not(.bk-dropdown-toggle) > .bk-chevron {
+  margin-left: 10px;
+  margin-right: -5px;
 }

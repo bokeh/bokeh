@@ -8,16 +8,18 @@ import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import * as buttons from "styles/buttons.css"
 import dropdown_css, * as dropdown from "styles/dropdown.css"
-import carets_css, * as carets from "styles/caret.css"
+import chevrons_css, * as chevrons from "styles/chevron.css"
+import icons_css from "styles/icons.css"
 
 export class DropdownView extends AbstractButtonView {
   declare model: Dropdown
 
   protected _open: boolean = false
   protected menu_el: HTMLElement
+  protected _active: number
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), dropdown_css, carets_css]
+    return [...super.stylesheets(), dropdown_css, icons_css, chevrons_css]
   }
 
   override connect_signals(): void {
@@ -30,12 +32,12 @@ export class DropdownView extends AbstractButtonView {
   override render(): void {
     super.render()
 
-    const caret = div({class: [carets.caret, carets.down]})
+    const chevron = div({class: [chevrons.chevron, chevrons.down]})
 
     if (!this.model.is_split) {
-      this.button_el.append(caret)
+      this.button_el.append(chevron)
     } else {
-      const toggle = this._render_button(caret)
+      const toggle = this._render_button(chevron)
       toggle.classList.add(buttons.dropdown_toggle)
       toggle.addEventListener("click", () => this._toggle_menu())
       this.group_el.append(toggle)
@@ -47,10 +49,36 @@ export class DropdownView extends AbstractButtonView {
     undisplay(this.menu_el)
   }
 
+  protected _update_chevron(new_chevron: HTMLElement): void {
+    if (!this.model.is_split) {
+      const previous_chevron = this.button_el.lastElementChild
+      if (previous_chevron) {
+        this.button_el.removeChild(previous_chevron)
+      }
+      this.button_el.append(new_chevron)
+    } else {
+      const previous_chevron = this.group_el.lastElementChild
+      if (previous_chevron) {
+        this.group_el.removeChild(previous_chevron)
+      }
+      const toggle = this._render_button(new_chevron)
+      toggle.classList.add(buttons.dropdown_toggle)
+      toggle.addEventListener("click", () => this._toggle_menu())
+      this.group_el.append(toggle)
+    }
+  }
+
   protected _show_menu(): void {
     if (!this._open) {
       this._open = true
       display(this.menu_el)
+      const first_menu_item = this.menu_el.firstElementChild as HTMLElement
+      if (first_menu_item) {
+        first_menu_item.focus()
+      }
+
+      const new_chevron = div({class: [chevrons.chevron, chevrons.up]})
+      this._update_chevron(new_chevron)
 
       const listener = (event: MouseEvent) => {
         if (!event.composedPath().includes(this.el)) {
@@ -65,6 +93,8 @@ export class DropdownView extends AbstractButtonView {
   protected _hide_menu(): void {
     if (this._open) {
       this._open = false
+      const new_chevron = div({class: [chevrons.chevron, chevrons.down]})
+      this._update_chevron(new_chevron)
       undisplay(this.menu_el)
     }
   }
@@ -93,12 +123,13 @@ export class DropdownView extends AbstractButtonView {
     const item = this.model.menu[i]
     if (item != null) {
       const value_or_callback = isString(item) ? item : item[1]
-
+      this._active = i
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick(value_or_callback))
       } else {
         void execute(value_or_callback, this.model, {index: i})
       }
+      this.rebuild_menu()
     }
   }
 
@@ -110,8 +141,17 @@ export class DropdownView extends AbstractButtonView {
         return div({class: dropdown.divider})
       } else {
         const label = isString(item) ? item : item[0]
-        const el = div(label)
+        let el = div({tabIndex: 0}, label)
+        if (this._active === i) {
+          el = div({class: [dropdown.active], tabIndex: 0}, label)
+        }
         el.addEventListener("click", () => this._item_click(i))
+        el.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.keyCode === 13) {
+            event.preventDefault()
+            this._item_click(i)
+          }
+        })
         return el
       }
     })
