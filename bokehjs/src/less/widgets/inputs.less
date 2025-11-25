@@ -25,9 +25,18 @@
     outline: 0;
   }
 
+  &:hover {
+    background-color: var(--hover-color);
+    border-color: var(--hover-boder-color);
+  }
+
   .placeholder(var(--placeholder-color));
 
   .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
+
+  &[disabled], &.bk-disabled {
+    border-color: var(--disabled-background-color);
+  }
 }
 
 .bk-input-container {
