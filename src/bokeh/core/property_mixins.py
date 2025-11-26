@@ -367,7 +367,7 @@ class ScalarTextProps(HasProps):
 
     text_color = Nullable(Color, default="#444444", help=_color_help % "fill text")
     text_outline_color = Nullable(Color, default=None, help=_color_help % "outline text")
-    text_outline_width = FloatSpec(default=1, help=_line_width_help)
+    text_outline_width = Float(default=1, help=_line_width_help)
     text_alpha = Alpha(help=_alpha_help % "fill text")
     text_font = String(default="helvetica", help=_text_font_help)
     text_font_size = FontSize("16px") # XXX not great XXX why?

@@ -33,12 +33,7 @@ from ....core.enums import (
 )
 from ....core.property.aliases import CoordinateLike
 from ....core.property.color import Alpha, Color
-from ....core.property.dataspec import (
-    AngleSpec,
-    FloatSpec,
-    NullStringSpec,
-    NumberSpec,
-)
+from ....core.property.dataspec import AngleSpec, NullStringSpec, NumberSpec
 from ....core.property.enum import Enum
 from ....core.property.include import Include
 from ....core.property.nullable import Nullable
@@ -340,8 +335,8 @@ class HTMLTitle(HTMLTextAnnotation):
     A color to use for an outline stroke.
     """)
 
-    text_outline_width = FloatSpec(default=1, help="""
-    A width for the outline stroke in units of pixels if an outline color for the text is defined.
+    text_outline_width = Float(default=1, help="""
+    A width for the outline stroke in pixels when an outline color is defined for the text.
     """)
 
     text_alpha = Alpha(help="""
