@@ -128,6 +128,7 @@ available at [http://contributor-covenant.org/version/1/4][version]
 
 |Date| Change|
 |------|---------------------------|
-|2019-03-01 | Updated reporting email to conduct@bokeh.org |
-|2020-05-03 | Link to conduct subcommittee and NF CoC form for escalation|
+|2025-11-26 | Added AI contributions policy |
 |2020-05-04 | Typos and minor word edits |
+|2020-05-03 | Link to conduct subcommittee and NF CoC form for escalation|
+|2019-03-01 | Updated reporting email to conduct@bokeh.org |
