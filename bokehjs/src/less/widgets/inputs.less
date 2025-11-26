@@ -82,6 +82,10 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
+
+  .bk-input[disabled]:not(:first-child,:last-child), .bk-input.bk-disabled:not(:first-child,:last-child) {
+    border: var(--border);
+  }
 }
 
 input[type=file].bk-input {
@@ -120,6 +124,10 @@ select:open:not([multiple]), select:open:not([size]) {
     background-size: 16px 16px;
     background-repeat: no-repeat;
     padding-right: calc(var(--padding-horizontal) + 8px);
+  }
+
+  &.bk-input:hover {
+    background-color: var(--background-color);
   }
 }
 
