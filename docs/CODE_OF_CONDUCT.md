@@ -76,29 +76,6 @@ address, posting via an official social media account, or acting as an appointed
 representative at an online or offline event. Representation of a project may be
 further defined and clarified by project maintainers.
 
-### AI Generated Contributions Policy
-
-Due to the burden put on maintainers, users submitting multiple low quality pull
-requests, or AI generated comments, reviews, issues, or pull requests, where the
-user does not show a good understanding of what they are posting, might be banned
-from the organisation. Some examples of poor etiquette are:
-
-- Opening a PR without a corresponding issue or for issues which are not yet triaged
-and the "triage" label is not removed;
-- Claiming to work on many issues at the same time;
-- Claiming issues or opening pull requests where another person has already
-  claimed it or where there's already a PR fixing the issue;
-- Opening AI generated pull requests without understanding them;
-- Leaving AI generated comments on issues and pull requests.
-
-For more context, you can check out this blog post on [
-The Cost of AI in Open Source Maintenance
-](https://adrin.info/the-cost-of-ai-in-open-source-maintenance.html).
-
-If this happens to you and you believe it's been a mistake, you can reach us on
-[conduct.bokeh.org](https://conduct.bokeh.org).
-
-
 ### Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
@@ -128,7 +105,6 @@ available at [http://contributor-covenant.org/version/1/4][version]
 
 |Date| Change|
 |------|---------------------------|
-|2025-11-26 | Added AI contributions policy |
 |2020-05-04 | Typos and minor word edits |
 |2020-05-03 | Link to conduct subcommittee and NF CoC form for escalation|
 |2019-03-01 | Updated reporting email to conduct@bokeh.org |
