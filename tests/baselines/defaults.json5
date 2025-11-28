@@ -99,6 +99,7 @@
   ScalarTextProps: {
     text_color: "#444444",
     text_outline_color: null,
+    text_outline_width: 1,
     text_alpha: 1.0,
     text_font: "helvetica",
     text_font_size: "16px",
@@ -115,6 +116,10 @@
     text_outline_color: {
       type: "value",
       value: null,
+    },
+    text_outline_width: {
+      type: "value",
+      value: 1,
     },
     text_alpha: {
       type: "value",
@@ -979,6 +984,7 @@
     y_offset: 0,
     text_color: "#444444",
     text_outline_color: null,
+    text_outline_width: 1,
     text_alpha: 1.0,
     text_font: "helvetica",
     text_font_size: "16px",
@@ -1025,6 +1031,10 @@
     text_outline_color: {
       type: "value",
       value: null,
+    },
+    text_outline_width: {
+      type: "value",
+      value: 1,
     },
     text_alpha: {
       type: "value",
@@ -1126,6 +1136,7 @@
     text_font_style: "bold",
     text_color: "#444444",
     text_outline_color: null,
+    text_outline_width: 1,
     text_alpha: 1.0,
   },
   ToolbarPanel: {
@@ -1190,6 +1201,10 @@
     text_outline_color: {
       type: "value",
       value: null,
+    },
+    text_outline_width: {
+      type: "value",
+      value: 1,
     },
     text_alpha: {
       type: "value",
@@ -1286,6 +1301,7 @@
     border_radius: 0,
     text_color: "#444444",
     text_outline_color: null,
+    text_outline_width: 1,
     text_alpha: 1.0,
     text_font: "helvetica",
     text_font_size: "16px",
@@ -1333,6 +1349,7 @@
     title_standoff: 2,
     title_text_color: "#444444",
     title_text_outline_color: null,
+    title_text_outline_width: 1,
     title_text_alpha: 1.0,
     title_text_font: "helvetica",
     title_text_font_size: "13px",
@@ -1352,6 +1369,7 @@
     },
     major_label_text_color: "#444444",
     major_label_text_outline_color: null,
+    major_label_text_outline_width: 1,
     major_label_text_alpha: 1.0,
     major_label_text_font: "helvetica",
     major_label_text_font_size: "11px",
@@ -1412,6 +1430,7 @@
     title: null,
     title_text_color: "#444444",
     title_text_outline_color: null,
+    title_text_outline_width: 1,
     title_text_alpha: 1.0,
     title_text_font: "helvetica",
     title_text_font_size: "13px",
@@ -1434,6 +1453,7 @@
     padding: 10,
     major_label_text_color: "#444444",
     major_label_text_outline_color: null,
+    major_label_text_outline_width: 1,
     major_label_text_alpha: 1.0,
     major_label_text_font: "helvetica",
     major_label_text_font_size: "11px",
@@ -1516,6 +1536,7 @@
     title: null,
     title_text_color: "#444444",
     title_text_outline_color: null,
+    title_text_outline_width: 1,
     title_text_alpha: 1.0,
     title_text_font: "helvetica",
     title_text_font_size: "13px",
@@ -1566,6 +1587,7 @@
     item_background_policy: "none",
     label_text_color: "#444444",
     label_text_outline_color: null,
+    label_text_outline_width: 1,
     label_text_alpha: 1.0,
     label_text_font: "helvetica",
     label_text_font_size: "13px",
@@ -1625,6 +1647,7 @@
     label: "@{value} @{unit}",
     label_text_color: "#444444",
     label_text_outline_color: null,
+    label_text_outline_width: 1,
     label_text_alpha: 1.0,
     label_text_font: "helvetica",
     label_text_font_size: "13px",
@@ -1638,6 +1661,7 @@
     title: "",
     title_text_color: "#444444",
     title_text_outline_color: null,
+    title_text_outline_width: 1,
     title_text_alpha: 1.0,
     title_text_font: "helvetica",
     title_text_font_size: "13px",
@@ -1758,6 +1782,7 @@
     axis_label_align: "center",
     axis_label_text_color: "#444444",
     axis_label_text_outline_color: null,
+    axis_label_text_outline_width: 1,
     axis_label_text_alpha: 1.0,
     axis_label_text_font: "helvetica",
     axis_label_text_font_size: "13px",
@@ -1777,6 +1802,7 @@
     },
     major_label_text_color: "#444444",
     major_label_text_outline_color: null,
+    major_label_text_outline_width: 1,
     major_label_text_alpha: 1.0,
     major_label_text_font: "helvetica",
     major_label_text_font_size: "11px",
@@ -1842,6 +1868,7 @@
     separator_line_dash_offset: 0,
     group_text_color: "grey",
     group_text_outline_color: null,
+    group_text_outline_width: 1,
     group_text_alpha: 1.0,
     group_text_font: "helvetica",
     group_text_font_size: "11px",
@@ -1852,6 +1879,7 @@
     group_label_orientation: "parallel",
     subgroup_text_color: "#444444",
     subgroup_text_outline_color: null,
+    subgroup_text_outline_width: 1,
     subgroup_text_alpha: 1.0,
     subgroup_text_font: "helvetica",
     subgroup_text_font_size: "11px",
@@ -4894,6 +4922,10 @@
     text_outline_color: {
       type: "value",
       value: null,
+    },
+    text_outline_width: {
+      type: "value",
+      value: 1,
     },
     text_alpha: {
       type: "value",

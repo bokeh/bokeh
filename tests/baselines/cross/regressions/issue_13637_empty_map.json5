@@ -273,6 +273,7 @@
             border_radius: 0,
             text_color: "#444444",
             text_outline_color: null,
+            text_outline_width: 1,
             text_alpha: 1.0,
             text_font: "helvetica",
             text_font_size: "13px",
