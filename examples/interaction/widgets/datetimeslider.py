@@ -11,4 +11,3 @@ datetime_slider.js_on_change("value", CustomJS(code="""
 """))
 
 show(datetime_slider)
-
