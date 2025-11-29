@@ -398,7 +398,7 @@ class DatetimeSlider(NumericalSlider):
 
     @property
     def value_as_datetime(self) -> datetime | None:
-        ''' 
+        '''
         Convenience property to retrieve the value as a datetime object.
         '''
         if self.value is None:
