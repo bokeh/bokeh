@@ -122,6 +122,37 @@ class TestDateSlider:
             value=convert_date_to_datetime(end))
         assert s.value_as_date == end
 
+class TestDatetimeSlider:
+    def test_value_and_value_throttled(self) -> None:
+        start = datetime(2021, 1, 1)
+        end = datetime(2021, 12, 31)
+        value = convert_date_to_datetime(datetime(2021, 2, 1))
+
+        s0 = mws.DatetimeSlider(start=start, end=end)
+        with pytest.raises(UnsetValueError):
+            s0.value
+        with pytest.raises(UnsetValueError):
+            s0.value_throttled
+
+        s1 = mws.DatetimeSlider(start=start, end=end, value=value)
+        assert s1.value == value
+        assert s1.value_throttled == value
+
+    def test_value_as_datetime_when_set_as_datetime(self) -> None:
+        start = datetime(2017, 8, 9, 0, 0).astimezone(timezone.utc)
+        end = datetime(2017, 8, 10, 0, 0).astimezone(timezone.utc)
+        s = mws.DatetimeSlider(start=start, end=end, value=start)
+        assert s.value_as_datetime == start
+
+    def test_value_as_datetime_when_set_as_timestamp(self) -> None:
+        start = datetime(2017, 8, 9, 0, 0).astimezone(timezone.utc)
+        end = datetime(2017, 8, 10, 0, 0).astimezone(timezone.utc)
+        s = mws.DatetimeSlider(start=start, end=end,
+            # Bokeh serializes as ms since epoch, if they get set as numbers (e.g.)
+            # by client side update, this is the units they will be
+            value=convert_datetime_type(start))
+        assert s.value_as_datetime == start
+
 class TestDateRangeSlider:
     def test_value_and_value_throttled(self) -> None:
         start = datetime(2021, 1, 1)

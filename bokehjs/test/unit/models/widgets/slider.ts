@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 import {display} from "../../_util"
 
-import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
+import {Slider, RangeSlider, DateSlider, DatetimeSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
 import {build_view} from "@bokehjs/core/build_views"
@@ -74,6 +74,37 @@ describe("DateSlider", () => {
     const slider = new DateSlider({format})
     const view = await build_view(slider, {parent: null})
     expect(view.pretty(1599402993268)).to.be.equal("2020")
+  })
+})
+
+describe("DatetimeSliderView", () => {
+  it("should pass through step in milliseconds directly to the slider element", async () => {
+    const start = 1451606400000 // 01 Jan 2016
+    const end = 1451952000000 // 05 Jan 2016
+    const value = 1451779200000 // 03 Jan 2016
+    const step = 3_600_000 // 1 hour
+    const slider = new DatetimeSlider({start, end, value, step})
+    const {view} = await display(slider, null)
+
+    const [next_step] = view._steps()
+    expect(next_step).to.be.equal([3_600_000, 3_600_000])
+  })
+})
+
+describe("DatetimeSlider", () => {
+  it("should support string format", async () => {
+    const datetime = 1648211696000  // 2022-03-25 12:34:56
+
+    const slider = new DatetimeSlider({format: "%Y %B %d %H:%M:%S"})
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(datetime)).to.be.equal("2022 March 25 12:34:56")
+  })
+
+  it("should support TickFormatter format", async () => {
+    const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
+    const slider = new DatetimeSlider({format})
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(1648211696000)).to.be.equal("2022")
   })
 })
 

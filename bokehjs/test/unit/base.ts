@@ -126,6 +126,7 @@ describe("default model resolver", () => {
       "DatetimePicker",
       "DatetimeRangePicker",
       "DatetimeRangeSlider",
+      "DatetimeSlider",
       "DatetimeTickFormatter",
       "DatetimeTicker",
       "DaysTicker",

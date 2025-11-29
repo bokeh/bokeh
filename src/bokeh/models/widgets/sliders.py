@@ -389,6 +389,49 @@ class DateRangeSlider(NumericalSlider):
 
     format = Override(default="%d %b %Y")
 
+class DatetimeSlider(NumericalSlider):
+    """ Slider-based date selection widget. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    @property
+    def value_as_datetime(self) -> datetime | None:
+        ''' 
+        Convenience property to retrieve the value as a datetime object.
+        '''
+        if self.value is None:
+            return None
+
+        if isinstance(self.value, numbers.Number):
+            return datetime.fromtimestamp(self.value / 1000, tz=timezone.utc)
+
+        return self.value
+
+    value = Required(Datetime, help="""
+    Initial or selected value.
+    """)
+
+    value_throttled = Readonly(Required(Datetime), help="""
+    Initial or selected value, throttled to report only on mouseup.
+    """)
+
+    start = Required(Datetime, help="""
+    The minimum allowable value.
+    """)
+
+    end = Required(Datetime, help="""
+    The maximum allowable value.
+    """)
+
+    step = Int(default=3_600_000, help="""
+    The step between consecutive values, in units of milliseconds.
+    Default is one hour.
+    """)
+
+    format = Override(default="%d %b %Y %H:%M:%S")
+
 class DatetimeRangeSlider(NumericalSlider):
     """ Slider-based datetime range selection widget. """
 
