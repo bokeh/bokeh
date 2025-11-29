@@ -7846,6 +7846,27 @@
     },
     step: 3600000,
   },
+  DatetimeSlider: {
+    __extends__: "NumericalSlider",
+    format: "%d %b %Y %H:%M:%S",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 3600000,
+  },
   NumericalSlider: {
     __extends__: "AbstractSlider",
     format: "",
