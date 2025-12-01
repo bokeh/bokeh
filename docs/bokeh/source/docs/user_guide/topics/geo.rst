@@ -135,8 +135,13 @@ map of the USA in the example below.
 .. bokeh-plot:: __REPO__/examples/topics/geo/us_states.py
     :source-position: below
 
+The three examples above demonstrate how to draw world maps using plain Bokeh. The `Geoviews`_ project
+also offers the opportunity to generate similar results using Bokeh as a backend. `Geoviews`_ provides
+a higher level API and some additional user friendly options.
+
 .. _Cartopy: https://cartopy.readthedocs.io
 .. _GeoJSON: http://geojson.org
+.. _Geoviews: https://geoviews.org/
 .. _github: https://github.com/bokeh/bokeh
 .. _Google API Key: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Discourse: https://discourse.bokeh.org
