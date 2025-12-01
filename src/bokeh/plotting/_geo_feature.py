@@ -34,6 +34,17 @@ except ModuleNotFoundError as e:
 # General API
 #-----------------------------------------------------------------------------
 
+GEO_FEATURE_COLORS = {
+    "LAND": "#EFEFDB",
+    "STATES": "#EFEFDB",
+    "RIVERS": "#9FDBF3",
+    "OCEAN": "#9FDBF3",
+    "LAKES": "#9FDBF3",
+    "BORDERS": "#CCCCCC",
+    "MAP_BOUNDARYS": "#000000",
+    "COASTLINES": "#000000",
+}
+
 def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     """ Adds line geometries to a map with respect to a given projection.
     The lines are added by the :func:`~bokeh.plotting.figure.multi_line` function.
@@ -41,7 +52,7 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -77,7 +88,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -104,7 +115,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
             show(p)
     """
     draw_border = poly_kwargs.pop("draw_polygon_border", False)
-    border_color= poly_kwargs.pop("polygon_border_color", "black")
+    border_color= poly_kwargs.pop("polygon_border_color", GEO_FEATURE_COLORS["BORDERS"])
     xs, ys, poly_kwargs = _collect_polygon_geometries(projection, geometries_collection, **poly_kwargs)
     p.multi_polygons(xs, ys, **poly_kwargs)
     if draw_border:
@@ -119,7 +130,7 @@ def add_borders(p, projection, scale="110m", **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -140,7 +151,7 @@ def add_borders(p, projection, scale="110m", **line_kwargs):
             p = add_borders(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", "lightgray")
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["BORDERS"])
     borders = cfeature.BORDERS.with_scale(scale)
     return add_line_geometries(p, projection, borders, **line_kwargs)
 
@@ -151,7 +162,7 @@ def add_coastlines(p, projection, scale="110m", **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -172,7 +183,7 @@ def add_coastlines(p, projection, scale="110m", **line_kwargs):
             p = add_coastlines(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", "black")
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["COASTLINES"])
     coastline = cfeature.COASTLINE.with_scale(scale)
     return add_line_geometries(p, projection, coastline, **line_kwargs)
 
@@ -184,7 +195,7 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -209,7 +220,7 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
             p = add_land(p, ccrs.PlateCarree())
             show(p)
     """
-    poly_kwargs.setdefault("color", "#EFEFDB")
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS['LAND'])
     land = cfeature.LAND.with_scale(scale)
     return add_polygon_geometries(p, projection, land, **poly_kwargs)
 
@@ -220,7 +231,7 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -245,7 +256,7 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
             p = add_lakes(p, ccrs.PlateCarree())
             show(p)
     """
-    poly_kwargs.setdefault("color", "#9FDBF3")
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS["LAKES"])
     lakes = cfeature.LAKES.with_scale(scale)
     return add_polygon_geometries(p, projection, lakes, **poly_kwargs)
 
@@ -256,7 +267,7 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -281,7 +292,7 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
             p = add_ocean(p, ccrs.PlateCarree())
             show(p)
     """
-    poly_kwargs.setdefault("color", "#9FDBF3")
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS["OCEAN"])
     ocean = cfeature.OCEAN.with_scale(scale)
     return add_polygon_geometries(p, projection, ocean, **poly_kwargs)
 
@@ -292,7 +303,7 @@ def add_rivers(p, projection, scale="110m", **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -313,7 +324,7 @@ def add_rivers(p, projection, scale="110m", **line_kwargs):
             p = add_rivers(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", "#9FDBF3")
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["RIVERS"])
     rivers = cfeature.RIVERS.with_scale(scale)
     return add_line_geometries(p, projection, rivers, **line_kwargs)
 
@@ -324,7 +335,7 @@ def add_projection_boundary(p, projection, **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -345,7 +356,7 @@ def add_projection_boundary(p, projection, **line_kwargs):
             p = add_projection_boundary(p, ccrs.EckertIII())
             show(p)
     """
-    line_kwargs.setdefault("color", "black")
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["MAP_BOUNDARYS"])
     x, y = np.array(projection.boundary.xy)
     p.line(x, y, **line_kwargs)
     return p
@@ -357,7 +368,7 @@ def add_provinces(p, projection, scale="110m", **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -378,7 +389,7 @@ def add_provinces(p, projection, scale="110m", **line_kwargs):
             p = add_provinces(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", "lightgray")
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["BORDERS"])
     provinces = cfeature.NaturalEarthFeature('cultural', 'admin_1_states_provinces_lines', scale)
     return add_line_geometries(p, projection, provinces, **line_kwargs)
 
@@ -389,7 +400,7 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m") Scale of the feature resolution. Valid strings are "110m",
+        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -414,6 +425,7 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
             p = add_states(p, ccrs.PlateCarree(), draw_polygon_border=True)
             show(p)
     """
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS["STATES"])
     states = cfeature.STATES.with_scale(scale)
     return add_polygon_geometries(p, projection, states, **poly_kwargs)
 
