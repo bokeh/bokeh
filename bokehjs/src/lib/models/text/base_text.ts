@@ -14,6 +14,8 @@ export abstract class BaseTextView extends View {
   clone_graphics(): GraphicsBox {
     return this.graphics()
   }
+
+  abstract html(): Node
 }
 
 export namespace BaseText {
