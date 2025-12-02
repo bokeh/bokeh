@@ -26,6 +26,7 @@ export class PasswordInputView extends TextInputView {
       input_el.type = is_visible ? "password" : "text"
     })
     this.shadow_el.append(this.toggle_el)
+    //testing commits
   }
 }
 
