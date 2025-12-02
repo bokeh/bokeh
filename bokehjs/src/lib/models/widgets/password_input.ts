@@ -9,6 +9,7 @@ export class PasswordInputView extends TextInputView {
   declare model: PasswordInput
 
   toggle_el: HTMLElement
+  version_label: HTMLElement
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), password_input_css, icons_css]
@@ -17,6 +18,17 @@ export class PasswordInputView extends TextInputView {
   override render(): void {
     super.render()
     this.input_el.type = "password"
+    
+    // Add visible version label
+    // this.version_label = div({
+    //   style: {
+    //     color: "red",
+    //     fontSize: "12px",
+    //     fontWeight: "bold",
+    //     marginBottom: "5px"
+    //   }
+    // }, "🔴 USING LOCAL VERSION v5")
+    // this.shadow_el.prepend(this.version_label)
 
     this.toggle_el = div({class: "bk-toggle"})
     this.toggle_el.addEventListener("click", () => {
@@ -25,8 +37,8 @@ export class PasswordInputView extends TextInputView {
       toggle_el.classList.toggle("bk-visible", !is_visible)
       input_el.type = is_visible ? "password" : "text"
     })
-    this.shadow_el.append(this.toggle_el)
-    //testing commits
+    
+    this.input_el.parentElement?.append(this.toggle_el)
   }
 }
 
