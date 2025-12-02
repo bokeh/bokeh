@@ -24,6 +24,11 @@ import {default_provider} from "./providers"
 export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   declare model: MathText
 
+  override html(): HTMLElement {
+    // TODO switch to tex2html(), but this requires stylesheets
+    return this.provider.MathJax!.tex2svg(this.text)
+  }
+
   graphics(): GraphicsBox {
     return this
   }

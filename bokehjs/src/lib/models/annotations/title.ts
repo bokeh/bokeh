@@ -12,9 +12,12 @@ import type {StyleSheetLike} from "core/dom"
 import {div} from "core/dom"
 import * as title_css from "styles/title.css"
 import {SideLayout} from "core/layout/side_panel"
-import {BaseText} from "models/text/base_text"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
+import type {View} from "core/build_views"
+import type {BaseTextView} from "models/text/base_text"
+import {BaseText} from "models/text/base_text"
+import {build_view} from "core/build_views"
 
 export class TitleView extends AnnotationView {
   declare model: Title
@@ -29,6 +32,32 @@ export class TitleView extends AnnotationView {
     this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
+  protected _text_view: BaseTextView
+
+  override children_views(): View[] {
+    return [...super.children_views(), this._text_view]
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._init_text()
+  }
+
+  override has_finished(): boolean {
+    return super.has_finished() && this._text_view.has_finished()
+  }
+
+  override remove(): void {
+    this._text_view.remove()
+    super.remove()
+  }
+
+  protected async _init_text(): Promise<void> {
+    const {text} = this.model
+    const _text = isString(text) ? parse_delimited_string(text) : text
+    this._text_view = await build_view(_text, {parent: this})
+  }
+
   override get is_dual_renderer(): boolean {
     return true
   }
@@ -40,10 +69,7 @@ export class TitleView extends AnnotationView {
   override render(): void {
     super.render()
 
-    const {text} = this.model
-    const label = isString(text) ? parse_delimited_string(text) : text
-
-    const label_el = div({class: title_css.label}, label.text) // TODO math text
+    const label_el = div({class: title_css.label}, this._text_view.html())
     this.shadow_el.append(label_el)
   }
 

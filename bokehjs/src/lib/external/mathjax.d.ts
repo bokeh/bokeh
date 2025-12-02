@@ -18,6 +18,7 @@ declare namespace MathJax {
     display: boolean         // True means display mode, false is inline mode
   }
 
+  function tex2html(formula: string, options?: ConvertOptions, macros?: TeXMacros): HTMLElement
   function tex2svg(formula: string, options?: ConvertOptions, macros?: TeXMacros): HTMLElement
   function ascii2svg(_formula: string, options?: ConvertOptions): HTMLElement
   function mathml2svg(formula: string, options?: ConvertOptions): HTMLElement
