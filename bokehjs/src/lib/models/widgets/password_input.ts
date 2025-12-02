@@ -9,7 +9,6 @@ export class PasswordInputView extends TextInputView {
   declare model: PasswordInput
 
   toggle_el: HTMLElement
-  version_label: HTMLElement
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), password_input_css, icons_css]
