@@ -287,7 +287,7 @@ export class LegendView extends AnnotationView {
     .${legend_css.title} {
       font: ${title_styles.font};
       color: ${title_styles.color};
-      -webkit-text-stroke: 1px ${title_styles.outline_color};
+      -webkit-text-stroke: ${title_styles.outline_width}px ${title_styles.outline_color};
       writing-mode: ${writing_mode};
       rotate: ${rotate}deg;
     }
@@ -298,7 +298,7 @@ export class LegendView extends AnnotationView {
     .${legend_css.item} .${legend_css.label} {
       font: ${label_styles.font};
       color: ${label_styles.color};
-      -webkit-text-stroke: 1px ${label_styles.outline_color};
+      -webkit-text-stroke: ${label_styles.outline_width}px ${label_styles.outline_color};
     }
     `)
 
