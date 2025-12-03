@@ -3,7 +3,7 @@ import type {BaseText} from "../text/base_text"
 import {MathTextView} from "../text/math_text"
 import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, View} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {enumerate} from "core/util/iterator"
 
@@ -20,9 +20,8 @@ export abstract class MathTextGlyphView extends TextView {
     super.remove()
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this._label_views.values()
+  override children_views(): View[] {
+    return [...super.children_views(), ...this._label_views.values()]
   }
 
   override has_finished(): boolean {

@@ -25,7 +25,7 @@ import {Grid} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {SidePanel} from "core/layout/side_panel"
-import type {IterViews} from "core/build_views"
+import type {View} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
@@ -63,10 +63,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     return this._orientation
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this._axis_view
-    yield this._title_view
+  override children_views(): View[] {
+    return [...super.children_views(), this._axis_view, this._title_view]
   }
 
   override initialize(): void {

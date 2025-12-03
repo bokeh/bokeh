@@ -14,7 +14,6 @@ dependencies = [
     "narwhals>=1.13",
     "numpy >=1.16",
     "packaging >=16.8",
-    "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=6.2; sys_platform != 'emscripten'",

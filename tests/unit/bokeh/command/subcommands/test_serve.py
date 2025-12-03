@@ -30,10 +30,6 @@ from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
 
-# External imports
-import requests
-import requests_unixsocket
-
 # Bokeh imports
 from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
@@ -516,6 +512,8 @@ def test_dev_with_multiple_apps() -> None:
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
 def test_unix_socket() -> None:
+    requests = pytest.importorskip("requests")
+    requests_unixsocket = pytest.importorskip("requests_unixsocket")
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
         file_name = "test.socket"
 
@@ -563,6 +561,7 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
     assert '*' in out
 
 def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
+    requests = pytest.importorskip("requests")
     pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
     with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
         port = check_port(nbsr)
@@ -572,6 +571,7 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
         assert r.status_code == 200
 
 def test_actual_port_printed_out() -> None:
+    requests = pytest.importorskip("requests")
     with run_bokeh_serve(["--port", "0"]) as (_, nbsr):
         port = check_port(nbsr)
         assert port > 0
@@ -601,8 +601,10 @@ def test_auth_module_printed() -> None:
     with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
         assert_pattern(nbsr, pat)
 
+
 class TestIco:
     def test_default(self) -> None:
+        requests = pytest.importorskip("requests")
         with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
             port = check_port(nbsr)
             assert port > 0
@@ -611,6 +613,7 @@ class TestIco:
             assert r.headers["content-type"] == "image/x-icon"
 
     def test_explicit_option(self) -> None:
+        requests = pytest.importorskip("requests")
         with run_bokeh_serve(["--port", "0", "--ico-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (_, nbsr):
             port = check_port(nbsr)
             assert port > 0
@@ -620,6 +623,7 @@ class TestIco:
             assert r.content == (Path(HERE) / "favicon-dev.ico").read_bytes()
 
     def test_explicit_envvar(self) -> None:
+        requests = pytest.importorskip("requests")
         with envset(BOKEH_ICO_PATH=join(HERE, "favicon-dev.ico")):
             with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
                 port = check_port(nbsr)
@@ -630,6 +634,7 @@ class TestIco:
                 assert r.content == (Path(HERE) / "favicon-dev.ico").read_bytes()
 
     def test_none_option(self) -> None:
+        requests = pytest.importorskip("requests")
         with run_bokeh_serve(["--port", "0", "--ico-path", "none", "--glob", APPS]) as (_, nbsr):
             port = check_port(nbsr)
             assert port > 0
@@ -637,6 +642,7 @@ class TestIco:
             assert r.status_code == 404
 
     def test_none_envvar(self) -> None:
+        requests = pytest.importorskip("requests")
         with envset(BOKEH_ICO_PATH="none"):
             with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
                 port = check_port(nbsr)

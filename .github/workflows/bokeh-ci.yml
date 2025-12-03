@@ -12,8 +12,8 @@ defaults:
     shell: bash -l {0}
 
 env:
-  CHROME_VER: "118.0.5993.88"
-  CHROME_REV: "chromium_2670"
+  CHROME_VER: "141.0.7390.54"
+  CHROME_REV: "chromium_3265"
 
 jobs:
   build:
@@ -221,6 +221,47 @@ jobs:
         with:
           env_vars: OS
           flags: unit,minimal
+          verbose: true
+
+  core-deps:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+    env:
+      OS: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'core'
+          source-tree: 'delete'
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Run tests
+        run: |
+          COLOR="--color=yes"
+          COVERAGE="--cov=bokeh --cov-report=xml"
+          POLICY="--last-failed --last-failed-no-failures none"
+          pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v4
+        with:
+          env_vars: OS
+          flags: unit,core
           verbose: true
 
   documentation:

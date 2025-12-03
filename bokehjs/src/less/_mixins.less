@@ -66,3 +66,17 @@
   background-position: center center;
   background-repeat: no-repeat;
 }
+
+.bk-disabled(@disabled-opacity, @disabled-background-color, @disabled-color, @icon-color-disabled) {
+  &[disabled], &.bk-disabled {
+    background-color: @disabled-background-color;
+    color: @disabled-color;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: @disabled-opacity;
+
+    .bk-icon {
+      color: @icon-color-disabled;
+    }
+  }
+}

@@ -67,6 +67,7 @@ from typing import (
 
 # Bokeh imports
 from ..core.serialization import Serializable
+from ..util.dependencies import uses_pandas
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -515,9 +516,10 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         self.attr = attr
 
 
-        import pandas as pd
-        if isinstance(data, pd.DataFrame):
-            data = {c: data[c] for c in data.columns}
+        if uses_pandas(data):
+            import pandas as pd
+            if isinstance(data, pd.DataFrame):
+                data = {c: data[c] for c in data.columns}
 
         self.data = data
         self.rollover = rollover

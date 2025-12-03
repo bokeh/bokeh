@@ -19,9 +19,6 @@ import pytest ; pytest
 # Standard library imports
 from unittest.mock import MagicMock, patch
 
-# External imports
-import pandas as pd
-
 # Bokeh imports
 from bokeh.core.properties import Any, ColumnData, Instance
 from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer
@@ -314,6 +311,7 @@ class TestColumnsStreamedEvent:
         assert e.rollover == 200
 
     def test_pandas_data(self) -> None:
+        pd = pytest.importorskip("pandas")
         doc = Document()
         m = SomeModel()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})

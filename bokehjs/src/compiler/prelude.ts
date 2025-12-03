@@ -157,7 +157,7 @@ const loader = `\
 })
 `
 
-export function prelude_esm(): string {
+export function prelude_esm(_minified: boolean): string {
   return `\
 ${comment(license)}
 const main = ${loader}\
@@ -168,10 +168,10 @@ export function postlude_esm(): string {
   return "export default main;"
 }
 
-export function plugin_prelude_esm(): string {
+export function plugin_prelude_esm(minified: boolean): string {
   return `\
 ${comment(license)}
-import main from "./bokeh.esm.js";
+import main from "./bokeh.esm${minified ? ".min" : ""}.js";
 
 const plugin = (function(modules, entry, aliases, externals) {
   main.register_plugin(modules, entry, aliases);

@@ -19,15 +19,12 @@ import pytest ; pytest
 # Standard library imports
 import json
 from collections import OrderedDict
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock, patch
 
 # External imports
-import bs4
 import numpy as np
 from jinja2 import Template
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
 
 # Bokeh imports
 import bokeh.resources as resources
@@ -45,6 +42,10 @@ from bokeh.resources import (
 )
 from bokeh.settings import settings
 from bokeh.themes import Theme
+
+if TYPE_CHECKING:
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.remote.webdriver import WebDriver
 
 # Module under test
 import bokeh.embed.standalone as bes # isort:skip
@@ -82,6 +83,8 @@ PAGE = Template("""
 </body>
 """)
 
+CSS_SELECTOR: By.CSS_SELECTOR = "css selector"  # type: ignore[valid-type]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -93,6 +96,7 @@ class Test_autoload_static:
         assert len(r) == 2
 
     def test_script_attrs(self, test_plot: figure) -> None:
+        bs4 = pytest.importorskip("bs4")
         _, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "html.parser")
         scripts = html.find_all(name='script')
@@ -100,6 +104,14 @@ class Test_autoload_static:
         attrs = scripts[0].attrs
         assert set(attrs) == {"src", "id"}
         assert attrs["src"] == "some/path"
+
+    @pytest.mark.selenium
+    def test_by_css_selector(self) -> None:
+        # Should match upstream, this is to avoid importing it
+        pytest.importorskip("selenium")
+        from selenium.webdriver.common.by import By
+
+        assert By.CSS_SELECTOR == CSS_SELECTOR
 
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
@@ -117,7 +129,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
+        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
         assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") is None
@@ -141,7 +153,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
+        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
         for x in scripts:
             print(x.get_attribute("src"))
         assert len(scripts) == 4
@@ -164,7 +176,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
+        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
         for x in scripts:
             print(x.get_attribute("src"))
         assert len(scripts) == 5
@@ -187,7 +199,7 @@ class Test_autoload_static:
 
         driver.get(url)
 
-        scripts = driver.find_elements(By.CSS_SELECTOR, 'head script')
+        scripts = driver.find_elements(CSS_SELECTOR, 'head script')
         assert len(scripts) == 5
         for script in scripts:
             assert script.get_attribute("crossorigin") is None
@@ -247,6 +259,7 @@ class Test_components:
         assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
 
     def test_result_attrs(self, test_plot: figure) -> None:
+        bs4 = pytest.importorskip("bs4")
         script, _ = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.find_all(name='script')
@@ -256,6 +269,7 @@ class Test_components:
     @patch('bokeh.embed.util.make_globally_unique_css_safe_id', new=stable_id)
     @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
     def test_div_attrs(self, test_plot: figure) -> None:
+        bs4 = pytest.importorskip("bs4")
         _, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(div, "html.parser")
 
@@ -280,6 +294,7 @@ class Test_components:
         assert "&#x27;foo&#x27;" in script
 
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot: figure) -> None:
+        bs4 = pytest.importorskip("bs4")
         script, _ = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.find_all(name='script')

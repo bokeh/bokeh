@@ -4,7 +4,7 @@ import type * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import type {BaseTextView} from "models/text/base_text"
 import {BaseText} from "models/text/base_text"
-import type {IterViews} from "core/build_views"
+import type {View} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {GraphicsBox} from "core/graphics"
 import {isString} from "core/util/types"
@@ -24,9 +24,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _text_view: BaseTextView
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this._text_view
+  override children_views(): View[] {
+    return [...super.children_views(), this._text_view]
   }
 
   override async lazy_initialize(): Promise<void> {
