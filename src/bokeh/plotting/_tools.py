@@ -170,15 +170,15 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> tuple[list[Tool], dict[
     tool_map: dict[str, Tool] = {}
 
     if not isinstance(tools, str):
-        temp_tool_str = []
+        temp_tool_str = ""
         for tool in tools:
             if isinstance(tool, Tool):
                 tool_objs.append(tool)
             elif isinstance(tool, str):
-                temp_tool_str.append(tool)
+                temp_tool_str += tool + ','
             else:
                 raise ValueError("tool should be a string or an instance of Tool class")
-        tools = ",".join(temp_tool_str)
+        tools = temp_tool_str
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
@@ -198,17 +198,14 @@ class Item:
 
 def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
     key: Callable[[Tool], str] = lambda obj: obj.__class__.__name__
+
     for _, group in itertools.groupby(sorted(tool_objs, key=key), key=key):
-        grouped = list(group)
-        n = len(grouped)
-        if n > 1:
-            props = [Item(obj, obj.properties_with_values()) for obj in grouped]
-            for i in range(len(props)):
-                head = props[i]
-                for j in range(i+1, len(props)):
-                    item = props[j]
-                    if item.properties == head.properties:
-                        yield item.obj
+        rest = [ Item(obj, obj.properties_with_values()) for obj in group ]
+        while len(rest) > 1:
+            head, *rest = rest
+            for item in rest:
+                if item.properties == head.properties:
+                    yield item.obj
 
 #-----------------------------------------------------------------------------
 # Code
