@@ -1597,6 +1597,28 @@ class Step(XYGlyph, LineGlyph):
     * ``center``: Draw step levels centered on each x-coordinate
     """)
 
+    pad_before = Float(default=0, help="""
+    The fraction of a step to pad before the first data point.
+
+    When set to a value greater than 0, the step line extends before the
+    first x-coordinate by ``pad_before`` times the step width (distance
+    between the first two x-coordinates).
+
+    For example, ``pad_before=0.5`` extends the line by half the step width
+    before the first point.
+    """)
+
+    pad_after = Float(default=0, help="""
+    The fraction of a step to pad after the last data point.
+
+    When set to a value greater than 0, the step line extends after the
+    last x-coordinate by ``pad_after`` times the step width (distance
+    between the last two x-coordinates).
+
+    For example, ``pad_after=0.5`` extends the line by half the step width
+    after the last point.
+    """)
+
 class Text(XYGlyph, TextGlyph):
     ''' Render text.
 

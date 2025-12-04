@@ -49,15 +49,40 @@ export class StepView extends XYGlyphView {
   protected _paint_consecutive(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     const {sx, sy} = {...this, ...data}
     const mode = this.model.mode
+    const pad_before = this.model.pad_before
+    const pad_after = this.model.pad_after
 
     this.visuals.line.set_value(ctx)
 
     let drawing = false
     let prev_finite = false
-    const i = indices[0]
-    let is_finite = isFinite(sx[i] + sy[i])
-    if (mode == "center") {
-      drawing = this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
+    const first_i = indices[0]
+    const last_i = indices[indices.length - 1]
+    let is_finite = isFinite(sx[first_i] + sy[first_i])
+
+    // Calculate step width for padding (use first step width as reference)
+    let step_width = 0
+    if (indices.length > 1 && isFinite(sx[first_i]) && isFinite(sx[first_i + 1])) {
+      step_width = sx[first_i + 1] - sx[first_i]
+    }
+
+    // Handle pad_before for mode "before" and "after"
+    if (pad_before > 0 && is_finite && step_width != 0) {
+      switch (mode) {
+        case "before":
+          drawing = this._render_xy(ctx, drawing, sx[first_i] - pad_before * step_width, sy[first_i])
+          break
+        case "after":
+          drawing = this._render_xy(ctx, drawing, sx[first_i] - pad_before * step_width, sy[first_i])
+          break
+        case "center":
+          drawing = this._render_xy(ctx, drawing, sx[first_i] - pad_before * step_width, sy[first_i])
+          break
+      }
+    }
+
+    if (mode == "center" && pad_before == 0) {
+      drawing = this._render_xy(ctx, drawing, is_finite ? sx[first_i] : NaN, sy[first_i])
     }
 
     for (let k = 0; k < indices.length; k++) {
@@ -94,11 +119,37 @@ export class StepView extends XYGlyphView {
       prev_finite = is_finite
       is_finite = next_finite
     }
+
+    // Draw the final point and handle pad_after
     if (drawing) {
-      const i = indices[indices.length-1]
-      if (this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])) {
-        ctx.stroke()
+      const i = last_i
+      const last_finite = isFinite(sx[i] + sy[i])
+
+      // Calculate step width for pad_after (use last step width as reference)
+      let last_step_width = step_width
+      if (indices.length > 1 && isFinite(sx[i]) && isFinite(sx[i - 1])) {
+        last_step_width = sx[i] - sx[i - 1]
       }
+
+      if (pad_after > 0 && last_finite && last_step_width != 0) {
+        switch (mode) {
+          case "before":
+            this._render_xy(ctx, drawing, sx[i], sy[i])
+            this._render_xy(ctx, drawing, sx[i] + pad_after * last_step_width, sy[i])
+            break
+          case "after":
+            this._render_xy(ctx, drawing, sx[i], sy[i])
+            this._render_xy(ctx, drawing, sx[i] + pad_after * last_step_width, sy[i])
+            break
+          case "center":
+            this._render_xy(ctx, drawing, sx[i], sy[i])
+            this._render_xy(ctx, drawing, sx[i] + pad_after * last_step_width, sy[i])
+            break
+        }
+      } else {
+        this._render_xy(ctx, drawing, last_finite ? sx[i] : NaN, sy[i])
+      }
+      ctx.stroke()
     }
   }
 
@@ -131,6 +182,8 @@ export namespace Step {
 
   export type Props = XYGlyph.Props & {
     mode: p.Property<StepMode>
+    pad_before: p.Property<number>
+    pad_after: p.Property<number>
   } & Mixins
 
   export type Mixins = mixins.LineScalar
@@ -154,8 +207,10 @@ export class Step extends XYGlyph {
     this.prototype.default_view = StepView
 
     this.mixins<Step.Mixins>(mixins.LineScalar)
-    this.define<Step.Props>(() => ({
+    this.define<Step.Props>(({Float}) => ({
       mode: [ StepMode, "before" ],
+      pad_before: [ Float, 0 ],
+      pad_after: [ Float, 0 ],
     }))
   }
 }

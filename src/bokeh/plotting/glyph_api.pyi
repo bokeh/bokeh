@@ -437,6 +437,8 @@ class StepArgs(GlyphArgs, LineVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     mode: StepMode
+    pad_before: float
+    pad_after: float
 
 class TeXArgs(GlyphArgs, TextVisuals, total=False):
     macros: dict[str, str | tuple[str, int]]

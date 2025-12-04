@@ -62,13 +62,20 @@ export class StepGL extends SingleLineGL {
     const sx = this.glyph.sx
     const sy = this.glyph.sy
     const mode = this.glyph.model.mode
+    const pad_before = this.glyph.model.pad_before
+    const pad_after = this.glyph.model.pad_after
 
     let npoints = sx.length
 
     const is_closed = (npoints > 2 && sx[0] == sx[npoints-1] && sy[0] == sy[npoints-1] &&
                        isFinite(sx[0]) && isFinite(sy[0]))
 
-    const nstep_points = mode == "center" ? 3*npoints-2 : 2*npoints-1
+    // Calculate additional points for padding
+    const has_pad_before = pad_before > 0 && npoints > 1 && isFinite(sx[0] + sy[0]) && isFinite(sx[1] + sy[1])
+    const has_pad_after = pad_after > 0 && npoints > 1 && isFinite(sx[npoints-1] + sy[npoints-1]) && isFinite(sx[npoints-2] + sy[npoints-2])
+    const extra_points = (has_pad_before ? 1 : 0) + (has_pad_after ? 1 : 0)
+
+    const nstep_points = (mode == "center" ? 3*npoints-2 : 2*npoints-1) + extra_points
 
     if (this._points == null) {
       this._points = new Float32Buffer(this.regl_wrapper)
@@ -79,6 +86,14 @@ export class StepGL extends SingleLineGL {
     // to be NaN for it to be rendered correctly.
     let is_finite = isFinite(sx[0] + sy[0])
     let j = 2
+
+    // Handle pad_before
+    if (has_pad_before) {
+      const step_width = sx[1] - sx[0]
+      points_array[j++] = sx[0] - pad_before * step_width
+      points_array[j++] = sy[0]
+    }
+
     points_array[j++] = is_finite ? sx[0] : NaN
     points_array[j++] = sy[0]
 
@@ -120,6 +135,14 @@ export class StepGL extends SingleLineGL {
       }
       is_finite = next_finite
     }
+
+    // Handle pad_after
+    if (has_pad_after) {
+      const step_width = sx[npoints-1] - sx[npoints-2]
+      points_array[j++] = sx[npoints-1] + pad_after * step_width
+      points_array[j++] = sy[npoints-1]
+    }
+
     assert(j == nstep_points*2 + 2)
 
     npoints = nstep_points
