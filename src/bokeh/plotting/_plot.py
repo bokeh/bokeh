@@ -51,6 +51,7 @@ from ..models import (
     Scale,
     TimedeltaAxis,
 )
+from ..util.dependencies import uses_pandas
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -78,16 +79,19 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Series[Any] | GroupBy | None) -> Range:
-    import pandas as pd
-    from pandas.core.groupby import GroupBy
+    if uses_pandas(range_input):
+        import pandas as pd
+        from pandas.core.groupby import GroupBy
+    else:
+        pd = GroupBy = None
 
     if range_input is None:
         return DataRange1d()
-    if isinstance(range_input, GroupBy):
+    if GroupBy and isinstance(range_input, GroupBy):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
-    if isinstance(range_input, pd.Series):
+    if pd and isinstance(range_input, pd.Series):
         range_input = range_input.values
     if isinstance(range_input, (Sequence, np.ndarray)):
         if all(isinstance(x, str) for x in range_input):

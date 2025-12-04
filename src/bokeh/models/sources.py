@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from dataclasses import asdict, is_dataclass
 from typing import (
     TYPE_CHECKING,
@@ -44,6 +45,7 @@ from ..core.property.primitive import Bool, Int, String
 from ..core.property.readonly import Readonly
 from ..core.property.required import Required
 from ..model import Model
+from ..util.dependencies import uses_pandas
 from ..util.serialization import convert_datetime_array
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
@@ -233,13 +235,17 @@ class ColumnDataSource(ColumnarDataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data: DataDict = kwargs.pop("data", {})
 
-        import narwhals.stable.v1 as nw
-        import pandas as pd
-
         if not isinstance(raw_data, dict):
+            import narwhals.stable.v1 as nw
+
+            if uses_pandas(raw_data):
+                import pandas as pd
+            else:
+                pd = None
+
             if nw.dependencies.is_into_dataframe(raw_data):
                 raw_data = self._data_from_df(raw_data)
-            elif isinstance(raw_data, pd.core.groupby.GroupBy):
+            elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             elif is_dataclass(raw_data):
                 raw_data = asdict(raw_data)
@@ -552,11 +558,11 @@ class ColumnDataSource(ColumnarDataSource):
             source.stream(new_data)
 
         '''
-        import pandas as pd
+        pd = sys.modules.get("pandas")
 
         needs_length_check = True
 
-        if isinstance(new_data, (pd.Series, pd.DataFrame)):
+        if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
             if isinstance(new_data, pd.Series):
                 new_data = new_data.to_frame().T
 
@@ -587,7 +593,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         if needs_length_check:
             lengths: set[int] = set()
-            arr_types = (np.ndarray, pd.Series)
+            arr_types = (np.ndarray, pd.Series) if pd else (np.ndarray,)
             for _, x in new_data.items():
                 if isinstance(x, arr_types):
                     if len(x.shape) != 1:

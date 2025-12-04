@@ -19,9 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import json
 
-# External imports
-import bs4
-
 # Module under test
 import bokeh.embed.server as bes # isort:skip
 
@@ -61,6 +58,7 @@ class TestServerDocument:
         assert 'resources=none' in r
 
     def test_general(self) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:8081/foo/bar/sliders"
         r = bes.server_document(url=url)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
@@ -76,6 +74,7 @@ class TestServerDocument:
         assert request in script.string
 
     def test_script_attrs_arguments_provided(self) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:5006"
         r = bes.server_document(arguments=dict(foo=10))
         assert 'foo=10' in r
@@ -90,6 +89,7 @@ class TestServerDocument:
         assert request in script.string
 
     def test_script_attrs_url_provided_absolute_resources(self) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:8081/foo/bar/sliders"
         r = bes.server_document(url=url)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
@@ -105,6 +105,7 @@ class TestServerDocument:
         assert request in script.string
 
     def test_script_attrs_url_provided(self) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:8081/foo/bar/sliders"
         r = bes.server_document(url=url, relative_urls=True)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
@@ -134,6 +135,7 @@ class TestServerSession:
         assert isinstance(r, str)
 
     def test_script_attrs_session_id_provided(self, test_plot) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:5006"
         r = bes.server_session(test_plot, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
@@ -162,6 +164,7 @@ class TestServerSession:
         assert 'resources=none' in r
 
     def test_model_none(self) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:5006"
         r = bes.server_session(None, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
@@ -176,6 +179,7 @@ class TestServerSession:
         assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
     def test_general(self, test_plot) -> None:
+        bs4 = pytest.importorskip("bs4")
         url = "http://localhost:5006"
         r = bes.server_session(test_plot, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")

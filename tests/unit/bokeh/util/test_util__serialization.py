@@ -22,10 +22,9 @@ from math import inf, nan
 
 # External imports
 import numpy as np
-import pandas as pd
-import pytz
 
 # Bokeh imports
+from bokeh.util.dependencies import is_installed
 from tests.support.util.env import envset
 
 # Module under test
@@ -35,7 +34,10 @@ import bokeh.util.serialization as bus # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-pandas_1x = pd.__version__.startswith("1")
+if is_installed("pandas"):
+    import pandas as pd
+    pandas_1x = pd.__version__.startswith("1")
+
 
 #-----------------------------------------------------------------------------
 # General API
@@ -93,13 +95,18 @@ def test_binary_array_types() -> None:
         assert dtype in bus.BINARY_ARRAY_TYPES
 
 def test_datetime_types() -> None:
-    assert len(bus.DATETIME_TYPES) == 7
+    if is_installed("pandas"):
+        # Four of the types are pandas specific
+        assert len(bus.DATETIME_TYPES) == 7
+    else:
+        assert len(bus.DATETIME_TYPES) == 3
 
 def test_is_timedelta_type_non_pandas_types() -> None:
     assert bus.is_timedelta_type(datetime.timedelta(3000))
     assert bus.is_timedelta_type(np.timedelta64(3000, 'ms'))
 
 def test_is_timedelta_type_pandas_types() -> None:
+    pd = pytest.importorskip("pandas")
     assert bus.is_timedelta_type(pd.Timedelta("3000ms"))
 
 def test_convert_timedelta_type_non_pandas_types() -> None:
@@ -107,6 +114,7 @@ def test_convert_timedelta_type_non_pandas_types() -> None:
     assert bus.convert_timedelta_type(np.timedelta64(3000, 'ms')) == 3000.
 
 def test_convert_timedelta_type_pandas_types() -> None:
+    pd = pytest.importorskip("pandas")
     assert bus.convert_timedelta_type(pd.Timedelta("3000ms")) == 3000.0
 
 def test_is_datetime_type_non_pandas_types() -> None:
@@ -115,6 +123,7 @@ def test_is_datetime_type_non_pandas_types() -> None:
     assert bus.is_datetime_type(np.datetime64("2011-05-11"))
 
 def test_is_datetime_type_pandas_types() -> None:
+    pd = pytest.importorskip("pandas")
     assert bus.is_datetime_type(pd.Timestamp(3000000))
     assert bus.is_datetime_type(pd.Period('1900', 'A-DEC' if pandas_1x else 'Y-DEC'))
     assert bus.is_datetime_type(pd.NaT)
@@ -128,6 +137,7 @@ def test_convert_datetime_type_non_pandas_types() -> None:
     assert bus.convert_datetime_type(np.datetime64("2016-05-11")) == 1462924800000.0
 
 def test_convert_datetime_type_pandas_types() -> None:
+    pd = pytest.importorskip("pandas")
     assert bus.convert_datetime_type(pd.Timestamp(3000000)) == 3.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC' if pandas_1x else 'Y-DEC')) == -2208988800000.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC' if pandas_1x else 'Y-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
@@ -169,6 +179,7 @@ def test_convert_datetime_array_NaT() -> None:
 def test_convert_datetime_type_with_tz() -> None:
     # This ensures datetimes are sent to BokehJS timezone-naive
     # see https://github.com/bokeh/bokeh/issues/6480
+    pytz = pytest.importorskip("pytz")
     for tz in pytz.all_timezones:
         assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz))) == 1462924800000.0
 
@@ -182,6 +193,8 @@ def test_transform_array(dt) -> None:
     assert isinstance(out, np.ndarray)
 
 def test_transform_series() -> None:
+    pd = pytest.importorskip("pandas")
+
     # default int seems to be int64, can't be encoded!
     df = pd.Series([1, 3, 5, 6, 8])
     out = bus.transform_series(df)

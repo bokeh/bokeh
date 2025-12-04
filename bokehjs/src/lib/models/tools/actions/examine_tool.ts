@@ -5,7 +5,7 @@ import type {DialogView} from "../../ui/dialog"
 import {Dialog} from "../../ui/dialog"
 import {Examiner, HTMLPrinter} from "../../ui/examiner"
 import {HTML} from "../../dom/html"
-import type {IterViews} from "core/build_views"
+import type {View} from "core/build_views"
 import {build_view} from "core/build_views"
 import {div} from "core/dom"
 
@@ -16,9 +16,8 @@ export class ExamineToolView extends ActionToolView {
 
   dialog: DialogView
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this.dialog
+  override children_views(): View[] {
+    return [...super.children_views(), this.dialog]
   }
 
   override async lazy_initialize(): Promise<void> {

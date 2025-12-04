@@ -46,6 +46,7 @@
 *.tmp
 .vscode
 .idea
+.spyproject
 
 # compressed / binary files
 *.bz2

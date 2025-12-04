@@ -332,7 +332,11 @@ class HTMLTitle(HTMLTextAnnotation):
     """)
 
     text_outline_color = Nullable(Color, default=None, help="""
-    A color to use to fill text with.
+    A color to use for an outline stroke.
+    """)
+
+    text_outline_width = Float(default=1, help="""
+    A width for the outline stroke in pixels when an outline color is defined for the text.
     """)
 
     text_alpha = Alpha(help="""

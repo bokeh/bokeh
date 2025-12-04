@@ -4,6 +4,7 @@
   --input-min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
   --focus-border-color: var(--input-focus-border-color);
   --focus-halo-color: var(--input-focus-halo-color);
+  --disabled-opacity: 1;
 }
 
 .bk-input {
@@ -26,11 +27,7 @@
 
   .placeholder(var(--placeholder-color));
 
-  &[disabled], &.bk-disabled {
-    cursor: not-allowed;
-    background-color: var(--disabled-background-color);
-    opacity: 1;
-  }
+  .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
 }
 
 .bk-input-container {

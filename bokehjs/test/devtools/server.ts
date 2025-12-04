@@ -128,7 +128,7 @@ type BuildOptions = {dev?: boolean, resources?: Resources}
 
 async function build_example(path: string, options: BuildOptions = {}): Promise<string | null> {
   const code = `\
-__file__ = "${path}"
+__file__ = r"${path}"
 
 import random
 random.seed(1)

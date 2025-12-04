@@ -89,7 +89,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       height: max-content;
 
       color: ${ctx.fillStyle};
-      -webkit-text-stroke: 1px ${ctx.strokeStyle};
+      -webkit-text-stroke: ${ctx.lineWidth}px ${ctx.strokeStyle};
       font: ${ctx.font};
       white-space: pre;
 

@@ -63,8 +63,6 @@ from bokeh.models import (
 )
 
 if TYPE_CHECKING:
-    import pandas as pd
-
     from ...core.types import ID
     from ...model import Model
 
@@ -209,7 +207,7 @@ class _BokehStructureGraph:
     def _obj_props_to_df2(self, obj: Model):
         """ Returns a pandas dataframe of the properties of a bokeh model
 
-        Each row contains  an attribute, its type (a bokeh property), and its docstring.
+        Each row contains an attribute, its type (a bokeh property), and its docstring.
 
         """
         obj_dict = obj.properties_with_values()
@@ -300,22 +298,22 @@ class _BokehStructureGraph:
         self._edge_source = edge_source
         return p2
 
-    def _make_prop_dict(self) -> pd.DataFrame:
+    def _make_prop_dict(self) -> dict:
         """ Returns a dataframe containing all the properties of all the submodels of the model being
         analyzed. Used as datasource to show attributes.
 
         """
-        import pandas as pd
-        df = pd.DataFrame()
+        dct = dict(id=[], model=[], values=[], types=[], props=[])
         for x in self._graph.nodes(data=True):
             M = self._model.select_one(dict(id=x[0]))
-            Z = pd.DataFrame(self._obj_props_to_df2(M))
-            Z["id"] = x[0]
-            Z["model"] = str(M)
-            Z["values"] = Z["values"].map(lambda x: str(x))
-            Z["types"] = Z["types"].map(lambda x: str(x))
-            df = pd.concat([df, Z])
-        return df
+            Z = self._obj_props_to_df2(M)
+            n_items = len(Z["values"])
+            dct["id"].extend([str(x[0])] * n_items)
+            dct["model"].extend([str(M)] * n_items)
+            dct["values"].extend(list(map(str, Z["values"])))
+            dct["types"].extend(list(map(str, Z["types"])))
+            dct["props"].extend(Z["props"])
+        return dct
 
     def _make_data_table(self) -> DataTable:
         """ Builds the datatable portion of the final plot.

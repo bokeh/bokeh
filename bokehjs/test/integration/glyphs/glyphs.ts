@@ -727,6 +727,24 @@ describe("Glyph models", () => {
       }
       await display(row([p("canvas"), p("svg")]))
     })
+
+    it("with variable text_outline_width", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 4], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["Very thin outline", "Default outline", "Bigger outline"],
+          text_outline_width: [0.5, 1, 2],
+          text_outline_color: "black", text_color: "yellow",
+          text_font_size: "30px", text_font_style: "bold",
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
   })
 
   describe("should support Text-like glyphs", () => {

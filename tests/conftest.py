@@ -19,11 +19,14 @@ from inspect import iscoroutinefunction
 
 # External imports
 import _pytest
-import pandas as pd
 import pytest
 from narwhals.stable.v1.typing import IntoDataFrame
 
-pandas_1x = pd.__version__.startswith("1")
+if importlib.util.find_spec("pandas") is not None:
+    import pandas as pd
+    pandas_1x = pd.__version__.startswith("1")
+else:
+    pd = pandas_1x = None
 
 def pytest_collection_modifyitems(items: list[_pytest.nodes.Item]) -> None:
     for item in items:
@@ -76,11 +79,14 @@ def pyarrow_table_constructor(obj) -> IntoDataFrame:
     return pa.table(obj)  # type: ignore[no-any-return]
 
 
-constructors = [pandas_constructor]
-
-if not pandas_1x:
+constructors = []
+if pandas_1x is False:
+    constructors.append(pandas_constructor)
     constructors.append(pandas_nullable_constructor)
-if importlib.util.find_spec('pyarrow') is not None:
+elif pandas_1x is True:
+    constructors.append(pandas_constructor)
+
+if pd and importlib.util.find_spec('pyarrow') is not None:
     constructors.extend([pandas_pyarrow_constructor, pyarrow_table_constructor])
 if importlib.util.find_spec('polars') is not None:
     constructors.append(polars_eager_constructor)

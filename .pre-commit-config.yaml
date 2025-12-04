@@ -8,7 +8,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.0
     hooks:
-      - id: ruff
+      - id: ruff-check
         stages: [pre-commit]
 
   - repo: https://github.com/abravalheri/validate-pyproject

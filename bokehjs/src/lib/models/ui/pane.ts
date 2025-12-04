@@ -1,7 +1,7 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {HTML} from "../dom/html"
-import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
+import type {ViewStorage, BuildResult, View, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
@@ -21,9 +21,8 @@ export class PaneView extends UIElementView {
     return this.elements.map((element) => this._element_views.get(element)).filter((view) => view != null)
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.element_views
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.element_views]
   }
 
   override async lazy_initialize(): Promise<void> {

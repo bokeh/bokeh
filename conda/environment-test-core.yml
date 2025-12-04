@@ -1,0 +1,25 @@
+name: bk-test
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - nodejs 20.*
+
+  # required dependencies
+  - contourpy >=1.2
+  - jinja2 >=2.7
+  - narwhals>=1.13
+  - numpy >=1.20.0
+  - packaging >=16.8
+  - pillow >=7.1.0
+  - pyyaml >=3.10
+  - tornado >=6.2
+  - xyzservices >=2021.09.1
+
+  # tests
+  - pytest >=7.0
+  - pytest-asyncio ==0.21.1 # https://github.com/bokeh/bokeh/issues/13578
+  - pytest-cov >=1.8.1
+  - pytest-html
+  - pytest-xdist
+  - pytest-timeout

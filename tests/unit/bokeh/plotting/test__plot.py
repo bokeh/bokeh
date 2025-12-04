@@ -22,7 +22,6 @@ from pathlib import Path
 
 # External imports
 import numpy as np
-import pandas as pd
 
 # Bokeh imports
 from bokeh.models import (
@@ -38,6 +37,7 @@ from bokeh.models import (
     MercatorAxis,
     Range1d,
 )
+from bokeh.util.dependencies import is_installed
 
 # Module under test
 import bokeh.plotting._plot as bpp # isort:skip
@@ -46,7 +46,9 @@ import bokeh.plotting._plot as bpp # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-df= pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
+if is_installed("pandas"):
+    import pandas as pd
+    df = pd.read_csv(Path(__file__).parents[1] / "auto-mpg.csv")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -108,12 +110,14 @@ class Test_get_range:
         assert r.factors == list(f)
 
     def test_with_series(self) -> None:
+        pd = pytest.importorskip("pandas")
         r = bpp.get_range(pd.Series([20, 30]))
         assert isinstance(r, Range1d)
         assert r.start == 20
         assert r.end == 30
 
     def test_with_too_long_series(self) -> None:
+        pd = pytest.importorskip("pandas")
         with pytest.raises(ValueError):
             bpp.get_range(pd.Series([20, 30, 40]))
 
@@ -137,6 +141,7 @@ class Test_get_range:
         assert r.end == 10
 
     def test_with_pandas_group(self) -> None:
+        pytest.importorskip("pandas")
         df.origin = df.origin.apply(str)
         g = df.groupby('origin')
         r = bpp.get_range(g)
