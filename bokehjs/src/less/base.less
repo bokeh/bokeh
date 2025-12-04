@@ -23,9 +23,9 @@
   --border-color: #colors[border];
   --divider-color: #colors[divider];
   --shortcut-color: #colors[disabled];
-  // TODO: should highlight-color be #colors[accent] (mauve-500)?
   --highlight-color: #colors[highlight];
   --active-bg: #colors[active-background];
+  --active-border: #colors[active-border];
   --active-fg: #colors[primary];
   --inactive-bg: #colors[surface];
   --inactive-fg: #colors[placeholder];
@@ -36,8 +36,8 @@
   --placeholder-color: #colors[placeholder];
   --surface-background-color: #colors[surface];
   --disabled-background-color: #colors[surface];
-  --input-focus-border-color: #colors[highlight]; // same as rgb(101, 162, 203)
-  --input-focus-halo-color: rgba(101, 162, 203, 0.6); // same as fade(#colors[highlight], 60%)
+  --input-focus-border-color: #colors[input-border];
+  --input-focus-halo-color: fade(#colors[input-border], 60%);
 
   // Border, box shadow, outline
   --border-style: solid;
@@ -53,6 +53,11 @@
   --outline-style: dotted;
   --outline-width: 1px;
   --outline: var(--outline-color) var(--outline-style) var(--outline-width);
+
+  // Tools (tool buttons and toolbar)
+  --button-width: 30px;
+  --button-height: 30px;
+  --button-color: lightgray;
 }
 
 :host {

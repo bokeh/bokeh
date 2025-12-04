@@ -1,9 +1,6 @@
 @import "./_mixins.less";
 
 :host {
-  --button-width: 30px;
-  --button-height: 30px;
-  --button-color: lightgray;
   --button-border: 2px;
 
   --active-tool-border: var(--button-border) solid transparent;
@@ -130,7 +127,7 @@
 }
 
 .tool-button-border-active(@side) {
-  border-@{side}-color: var(--highlight-color);
+  border-@{side}-color: var(--active-border);
 }
 
 :host(.bk-above) {

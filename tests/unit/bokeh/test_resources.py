@@ -23,7 +23,6 @@ import subprocess
 import sys
 
 # External imports
-import bs4
 from packaging.version import Version as V
 
 # Bokeh imports
@@ -349,6 +348,7 @@ class TestResources:
             pytest.fail(f"resources import failed with {env} set")
 
     def test_render_js_cdn_release(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        bs4 = pytest.importorskip("bs4")
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         r = resources.CDN.clone()
@@ -365,6 +365,7 @@ class TestResources:
 
     @pytest.mark.parametrize('v', ["1.8.0.rc1", "1.8.0.dev6"])
     def test_render_js_cdn_dev_release(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
+        bs4 = pytest.importorskip("bs4")
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.CDN.render_js()
@@ -375,6 +376,7 @@ class TestResources:
             assert "integrity" not in script.attrs
 
     def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        bs4 = pytest.importorskip("bs4")
         monkeypatch.setattr(buv, "__version__", "2.0.0+foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0+foo")
         r = resources.CDN.clone()
@@ -391,6 +393,7 @@ class TestResources:
 
     @pytest.mark.parametrize('v', ["2.0.0", "2.0.0+foo", "1.8.0.rc1", "1.8.0.dev6"])
     def test_render_js_inline(self, v, monkeypatch: pytest.MonkeyPatch) -> None:
+        bs4 = pytest.importorskip("bs4")
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.INLINE.render_js()

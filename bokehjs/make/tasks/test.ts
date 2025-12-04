@@ -75,7 +75,7 @@ function sys_path(): string {
 // - bokehjs/test/devtools/devtools.ts
 // - .github/workflows/bokehjs-ci.yml
 // - .github/workflows/bokeh-ci.yml
-const supported_chromium_revision = "r2670" // 118.0.5993.88
+const supported_chromium_revision = "r3265" // 141.0.7390.54
 
 function chrome(): string {
   const bokeh_chrome = process.env.BOKEH_CHROME

@@ -255,7 +255,7 @@ def _convert_data_source(kwargs: Attrs) -> bool:
 
 def _pop_renderer_args(kwargs: Attrs) -> Attrs:
     result = {attr: kwargs.pop(attr) for attr in RENDERER_ARGS if attr in kwargs}
-    result['data_source'] = kwargs.pop('source', ColumnDataSource())
+    result['data_source'] = kwargs.pop('source') if 'source' in kwargs else ColumnDataSource()
     return result
 
 def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:

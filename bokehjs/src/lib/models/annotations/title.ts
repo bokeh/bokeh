@@ -84,9 +84,7 @@ export class TitleView extends TextAnnotationView {
 
   protected override _get_size(): Size {
     const offset = (value: number) => {
-      // XXX: The magic 2px is for backwards compatibility. This will be removed at
-      // some point, but currently there is no point breaking half of visual tests.
-      return value == 0 ? 0 : 2 + value + this.model.standoff
+      return value == 0 ? 0 : value + this.model.standoff
     }
     const {width, height} = super._get_size()
     if (this.panel!.is_horizontal) {

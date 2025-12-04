@@ -98,11 +98,7 @@
     margin-left: var(--close-icon-space-away-from-tab-text);
   }
 
-  &.bk-disabled { // TODO: same as elsewhere, so use a mixin
-    cursor: not-allowed;
-    pointer-events: none;
-    opacity: var(--disabled-opacity);
-  }
+  .bk-disabled(var(--disabled-opacity), inherit, inherit, inherit);
 }
 
 :host(.bk-above) .bk-tab {

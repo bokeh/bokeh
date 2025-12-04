@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 
 # External imports
 import numpy as np
-import pandas as pd
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
@@ -178,6 +177,7 @@ class TestProperty:
         assert err == ""
 
     def test_matches_dicts_with_series_values(self, capsys: Capture) -> None:
+        pd = pytest.importorskip("pandas")
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -195,6 +195,7 @@ class TestProperty:
         assert err == ""
 
     def test_matches_dicts_with_index_values(self, capsys: Capture) -> None:
+        pd = pytest.importorskip("pandas")
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -235,6 +236,7 @@ class TestProperty:
         assert mock_hv.called
 
     def test_pandas_na(self):
+        pd = pytest.importorskip("pandas")
         # Property.matches handles this as False could change in the future.
         # pd.NA raises a TypeError when bool(pd.NA == pd.NA)
         assert bcpb.Property().matches(pd.NA, pd.NA) is False

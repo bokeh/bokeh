@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-import bs4
-
 # Module under test
 import bokeh.model.docs as bmd # isort:skip
 
@@ -33,6 +30,7 @@ import bokeh.model.docs as bmd # isort:skip
 # very basic test of valid HTML and top level structure
 def test_html_repr() -> None:
     from bokeh.models import Range1d
+    bs4 = pytest.importorskip("bs4")
     html = bs4.BeautifulSoup(bmd.html_repr(Range1d()), "html.parser")
     elts = list(html.children)
     assert len(elts) == 4

@@ -1,7 +1,7 @@
 import {Renderer, RendererView} from "./renderer"
 import {UIElement} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
-import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
+import type {ViewStorage, BuildResult, View, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
@@ -25,10 +25,8 @@ export abstract class CompositeRendererView extends RendererView {
     return this.computed_element_views
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.renderer_views
-    yield* this.element_views
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.renderer_views, ...this.element_views]
   }
 
   override async lazy_initialize(): Promise<void> {

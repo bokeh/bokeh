@@ -18,7 +18,6 @@ import pytest ; pytest
 
 # External imports
 import numpy as np
-import pandas as pd
 
 # Module under test
 import bokeh.util.dependencies as dep # isort:skip
@@ -50,6 +49,7 @@ class Test_import_required:
         assert 'nope' in str(excinfo.value)
 
 def test_uses_pandas() -> None:
+    pd = pytest.importorskip("pandas")
     assert dep.uses_pandas(1) is False
     assert dep.uses_pandas([]) is False
     assert dep.uses_pandas(np.sqrt(3)) is False

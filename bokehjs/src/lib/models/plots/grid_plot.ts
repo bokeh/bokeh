@@ -7,7 +7,7 @@ import {TracksSizing, GridChild, GridSpacing} from "../common/kinds"
 import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
 import {ActionTool} from "../tools/actions/action_tool"
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, View} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {Location} from "core/enums"
 import type * as p from "core/properties"
@@ -89,9 +89,8 @@ export class GridPlotView extends LayoutDOMView {
     await build_views(this._tool_views, tools, {parent: this})
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this._tool_views.values()
+  override children_views(): View[] {
+    return [...super.children_views(), ...this._tool_views.values()]
   }
 
   get child_models(): UIElement[] {

@@ -50,7 +50,8 @@ class NumericalRange(Range):
 @dataclass
 class Range1d(NumericalRange):
 
-    def __init__(self, start: Value, end: Value) -> None: ...
+    # TODO this conflicts with the default __init__ and needs multiple overrides
+    # def __init__(self, start: Value, end: Value) -> None: ...
 
     reset_start: Value | None = ...
 
@@ -94,7 +95,8 @@ class DataRange1d(DataRange):
 @dataclass
 class FactorRange(Range):
 
-    def __init__(self, factors: FactorSeq) -> None: ...
+    # TODO this conflicts with the default __init__ and needs multiple overrides
+    # def __init__(self, factors: FactorSeq) -> None: ...
 
     factors: FactorSeq = ...
 

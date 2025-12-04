@@ -5,7 +5,7 @@ import {Signal} from "core/signaling"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {InlineStyleSheet, px, div, bounding_box, dom_ready} from "core/dom"
 import {isString} from "core/util/types"
-import type {IterViews, ViewOf} from "core/build_views"
+import type {View, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import type {XY, LRTB} from "core/util/bbox"
@@ -62,10 +62,8 @@ export class DialogView extends UIElementView {
   protected _title: ViewOf<UIElementLike>
   protected _content: ViewOf<UIElementLike>
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this._title
-    yield this._content
+  override children_views(): View[] {
+    return [...super.children_views(), this._title, this._content]
   }
 
   protected readonly _position = new InlineStyleSheet()

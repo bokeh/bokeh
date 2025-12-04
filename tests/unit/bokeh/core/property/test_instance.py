@@ -16,10 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from pandas import DataFrame, Series
-from pandas.core.groupby import GroupBy
-
 # Bokeh imports
 from bokeh.core.has_props import HasProps
 from tests.support.util.api import verify_all
@@ -68,6 +64,9 @@ class Test_InstanceDefault:
 class Test_Object:
 
     def test_valid(self) -> None:
+        pd = pytest.importorskip("pandas")
+        Series, DataFrame, GroupBy = pd.Series, pd.DataFrame, pd.core.groupby.GroupBy
+
         prop0 = bcpi.Object(Series)
         assert prop0.is_valid(Series([1, 2, 3]))
         prop1 = bcpi.Object("pandas.Series")
@@ -84,6 +83,9 @@ class Test_Object:
         assert prop5.is_valid(GroupBy(DataFrame()))
 
     def test_invalid(self) -> None:
+        pd = pytest.importorskip("pandas")
+        Series, DataFrame, GroupBy = pd.Series, pd.DataFrame, pd.core.groupby.GroupBy
+
         prop0 = bcpi.Object(Series)
         assert not prop0.is_valid(DataFrame())
         assert not prop0.is_valid(GroupBy(DataFrame()))

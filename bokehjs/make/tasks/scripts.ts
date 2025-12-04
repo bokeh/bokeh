@@ -123,16 +123,6 @@ exports.VERSION = "0.0.0";
     plugin: preludes.plugin_postlude(),
   }
 
-  const esm_prelude = {
-    main: preludes.prelude_esm(),
-    plugin: preludes.plugin_prelude_esm(),
-  }
-
-  const esm_postlude = {
-    main: preludes.postlude_esm(),
-    plugin: preludes.plugin_postlude_esm(),
-  }
-
   function bundle(options: AssemblyOptions, outputs: string[]) {
     bundles
       .map((bundle) => bundle.assemble(options))
@@ -142,9 +132,21 @@ exports.VERSION = "0.0.0";
   bundle({prelude, postlude, minified: false}, outputs)
   bundle({prelude, postlude, minified: true}, outputs.map(min_js))
 
-  const esm = {prelude: esm_prelude, postlude: esm_postlude}
-  bundle({...esm, minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
-  bundle({...esm, minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
+  const esm_settings = (minified: boolean) => {
+    return {
+      prelude: {
+        main: preludes.prelude_esm(minified),
+        plugin: preludes.plugin_prelude_esm(minified),
+      },
+      postlude: {
+        main: preludes.postlude_esm(),
+        plugin: preludes.plugin_postlude_esm(),
+      },
+    }
+  }
+
+  bundle({...esm_settings(false), minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
+  bundle({...esm_settings(true), minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
 
   if (!status) {
     throw new BuildError("scripts:bundle", "unable to bundle modules")

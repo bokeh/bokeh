@@ -2,7 +2,7 @@ import type * as p from "core/properties"
 import {ButtonType} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {prepend, nbsp, text, button, div} from "core/dom"
-import type {ViewOf, IterViews} from "core/build_views"
+import type {ViewOf, View} from "core/build_views"
 import {build_view} from "core/build_views"
 import {isString} from "core/util/types"
 
@@ -26,14 +26,10 @@ export abstract class AbstractButtonView extends ControlView {
     yield this.button_el
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    if (this.label_view != null) {
-      yield this.label_view
-    }
-    if (this.icon_view != null) {
-      yield this.icon_view
-    }
+  override children_views(): View[] {
+    const this_label_view = this.label_view != null ? [this.label_view]:[]
+    const this_icon_view = this.icon_view != null ? [this.icon_view]:[]
+    return [...super.children_views(), ...this_label_view, ...this_icon_view]
   }
 
   override async lazy_initialize(): Promise<void> {

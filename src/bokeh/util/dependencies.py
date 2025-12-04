@@ -21,7 +21,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from functools import cache
 from importlib import import_module
+from importlib.util import find_spec
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -91,12 +93,19 @@ def uses_pandas(obj: Any) -> bool:
 
     Use this before conditional ``import pandas as pd``.
     """
+    if not is_installed("pandas"):
+        return False
     module = type(obj).__module__
     return module is not None and module.startswith("pandas.")
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@cache
+def is_installed(mod_name: str) -> bool:
+    mod_name, *_ = mod_name.split(".")
+    return find_spec(mod_name) is not None
 
 #-----------------------------------------------------------------------------
 # Private API

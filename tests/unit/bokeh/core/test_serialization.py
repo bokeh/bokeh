@@ -30,7 +30,6 @@ from unittest.mock import patch
 
 # External imports
 import numpy as np
-import pandas as pd
 
 # Bokeh imports
 from bokeh.colors import RGB
@@ -857,6 +856,7 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_pd_series(self) -> None:
+        pd = pytest.importorskip("pandas")
         encoder = Serializer()
         val = pd.Series([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
@@ -908,12 +908,14 @@ class TestSerializer:
         assert isinstance(rep, float)
 
     def test_pd_timestamp(self) -> None:
+        pd = pytest.importorskip("pandas")
         encoder = Serializer()
         val = pd.Timestamp('April 28, 1948')
         rep = encoder.encode(val)
         assert rep == -684115200000
 
     def test_pd_NA(self) -> None:
+        pd = pytest.importorskip("pandas")
         encoder = Serializer()
         assert encoder.encode(pd.NA) is None
 

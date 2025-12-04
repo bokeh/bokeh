@@ -20,16 +20,24 @@ import pytest ; pytest
 # Standard library imports
 from subprocess import PIPE, Popen
 from sys import executable as python
-from typing import Sequence
 
 # Bokeh imports
+from bokeh.util.dependencies import is_installed
 from tests.support.util.project import ls_modules
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
-SKIP: Sequence[str] = []
+SKIP: list[str] = []
+
+# Raises ImportError if not installed
+if not is_installed("selenium"):
+    SKIP.append("bokeh.io.webdriver")
+if not is_installed("bokeh_sampledata"):
+    SKIP.append("bokeh.sampledata")
+if not is_installed("sphinx"):
+    SKIP.append("bokeh.sphinxext")
 
 def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)

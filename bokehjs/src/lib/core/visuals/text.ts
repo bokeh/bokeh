@@ -48,6 +48,7 @@ export class Text extends VisualProperties {
   declare ComputedValues: {
     color:         string
     outline_color: string
+    outline_width: number
     font:          string
     text_align:    TextAlign
     text_baseline: TextBaseline
@@ -58,6 +59,7 @@ export class Text extends VisualProperties {
     return {
       color:         this.get_text_color(),
       outline_color: this.get_text_outline_color(),
+      outline_width: this.get_text_outline_width(),
       alpha:         this.get_text_alpha(),
       font:          this.get_text_font(),
       font_size:     this.get_text_font_size(),
@@ -71,10 +73,12 @@ export class Text extends VisualProperties {
   computed_values(): this["ComputedValues"] {
     const color = this.get_text_color()
     const outline_color = this.get_text_outline_color()
+    const outline_width = this.get_text_outline_width()
     const alpha = this.get_text_alpha()
     return {
       color:         color2css(color, alpha),
       outline_color: color2css(outline_color, alpha),
+      outline_width,
       font:          this.font_value(),
       text_align:    this.get_text_align(),
       text_baseline: this.get_text_baseline(),
@@ -119,6 +123,17 @@ export class Text extends VisualProperties {
       return css_color
     }
     return this.text_outline_color.get_value()
+  }
+
+  get_text_outline_width(): number {
+    const css_width = this._get_css_value("text-outline-width")
+    if (css_width != "") {
+      const width = Number(css_width)
+      if (isFinite(width)) {
+        return width
+      }
+    }
+    return this.text_outline_width.get_value()
   }
 
   get_text_alpha(): number {
@@ -187,6 +202,7 @@ export class Text extends VisualProperties {
 export class TextScalar extends VisualUniforms {
   declare readonly text_color:         p.UniformScalar<uint32>
   declare readonly text_outline_color: p.UniformScalar<uint32>
+  declare readonly text_outline_width: p.UniformScalar<number>
   declare readonly text_alpha:         p.UniformScalar<number>
   declare readonly text_font:          p.UniformScalar<string>
   declare readonly text_font_size:     p.UniformScalar<string>
@@ -216,6 +232,7 @@ export class TextScalar extends VisualUniforms {
     return {
       color:         this.text_color.value,
       outline_color: this.text_outline_color.value,
+      outline_width: this.text_outline_width.value,
       alpha:         this.text_alpha.value,
       font:          this.text_font.value,
       font_size:     this.text_font_size.value,
@@ -230,12 +247,14 @@ export class TextScalar extends VisualUniforms {
     const color = this.text_color.value
     const alpha = this.text_alpha.value
     const outline_color = this.text_outline_color.value
+    const outline_width = this.text_outline_width.value
     const font = this.font_value()
     const align = this.text_align.value
     const baseline = this.text_baseline.value
 
     ctx.fillStyle = color2css(color, alpha)
     ctx.strokeStyle = color2css(outline_color, alpha)
+    ctx.lineWidth = outline_width
     ctx.font = font
     ctx.textAlign = align
     ctx.textBaseline = baseline
@@ -252,6 +271,7 @@ export class TextScalar extends VisualUniforms {
 export class TextVector extends VisualUniforms {
   declare readonly text_color:         p.Uniform<uint32>
   declare readonly text_outline_color: p.Uniform<uint32>
+  declare readonly text_outline_width: p.Uniform<number>
   declare readonly text_alpha:         p.Uniform<number>
   declare readonly text_font:          p.Uniform<string>
   declare readonly text_font_size:     p.Uniform<string>
@@ -271,6 +291,7 @@ export class TextVector extends VisualUniforms {
     return {
       color:         this.text_color.get(i),
       outline_color: this.text_outline_color.get(i),
+      outline_width: this.text_outline_width.get(i),
       alpha:         this.text_alpha.get(i),
       font:          this.text_font.get(i),
       font_size:     this.text_font_size.get(i),
@@ -316,6 +337,7 @@ export class TextVector extends VisualUniforms {
 
     const color = this.text_color.get(i)
     const outline_color = this.text_outline_color.get(i)
+    const outline_width = this.text_outline_width.get(i)
     const alpha = this.text_alpha.get(i)
     const font = this.font_value(i)
     const align = this.text_align.get(i)
@@ -323,6 +345,7 @@ export class TextVector extends VisualUniforms {
 
     ctx.fillStyle = color2css(color, alpha)
     ctx.strokeStyle = color2css(outline_color, alpha)
+    ctx.lineWidth = outline_width
     ctx.font = font
     ctx.textAlign = align
     ctx.textBaseline = baseline

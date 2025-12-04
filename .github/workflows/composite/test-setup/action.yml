@@ -62,7 +62,7 @@ runs:
         npm install --location=global npm
 
     - name: Cache node modules
-      if: ${{ inputs.source-tree == 'keep' }}
+      if: ${{ inputs.source-tree == 'keep' && runner.os != 'macOS' }} # TODO remove after https://github.com/actions/runner/issues/449 is fixed
       uses: actions/cache@v4
       with:
         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS

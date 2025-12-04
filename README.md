@@ -249,3 +249,4 @@ Non-monetary support can help with development, collaboration, infrastructure, s
 * [Slack](https://slack.com)
 * [QuestionScout](https://www.questionscout.com/)
 * [1Password](https://1password.com/)
+* [Digital Ocean](https://www.digitalocean.com)
