@@ -144,8 +144,7 @@ def convert_date_to_datetime(obj: dt.date) -> float:
         datetime
 
     '''
-    dt_obj = dt.datetime(obj.year, obj.month, obj.day, tzinfo=dt.timezone.utc)
-    return (dt_obj - DT_EPOCH).total_seconds() * 1000
+    return (dt.datetime.combine(obj, dt.time(), tzinfo=dt.timezone.utc) - DT_EPOCH).total_seconds() * 1000
 
 def convert_timedelta_type(obj: dt.timedelta | np.timedelta64) -> float:
     ''' Convert any recognized timedelta value to floating point absolute
