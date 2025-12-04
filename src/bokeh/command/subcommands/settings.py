@@ -6,54 +6,65 @@
 #-----------------------------------------------------------------------------
 '''
 
-To display all available Bokeh settings and their values,
+To display all available Bokeh settings and their current values,
 type ``bokeh settings`` on the command line.
 
 .. code-block:: sh
 
     bokeh settings
 
-This will print all available settings to standard output, showing their current values,
-environment variables, defaults, and help text:
+This will print all settings to standard output, such as:
 
 .. code-block:: none
 
-    Settings for Bokeh 3.8.0-rc.1
-    ==============================
+    Bokeh Settings:
+    ==========================================================================
+    Setting                      Environment Variable              Value
+    --------------------------------------------------------------------------
+    allowed_ws_origin            BOKEH_ALLOW_WS_ORIGIN             []
+    auth_module                  BOKEH_AUTH_MODULE                 None
+    browser                      BOKEH_BROWSER                     None
+    cdn_version                  BOKEH_CDN_VERSION                 None
+    chromedriver_path            BOKEH_CHROMEDRIVER_PATH           None
+    compression_level            BOKEH_COMPRESSION_LEVEL           9
+    cookie_secret                BOKEH_COOKIE_SECRET               None
+    default_server_host          BOKEH_DEFAULT_SERVER_HOST         localhost
+    default_server_port          BOKEH_DEFAULT_SERVER_PORT         5006
+    docs_cdn                     BOKEH_DOCS_CDN                    None
+    docs_version                 BOKEH_DOCS_VERSION                None
+    ico_path                     BOKEH_ICO_PATH                    /path/to/ico
+    ignore_filename              BOKEH_IGNORE_FILENAME             False
+    log_level                    BOKEH_LOG_LEVEL                   info
+    minified                     BOKEH_MINIFIED                    True
+    nodejs_path                  BOKEH_NODEJS_PATH                 None
+    perform_document_validation  BOKEH_VALIDATE_DOC                True
+    pretty                       BOKEH_PRETTY                      False
+    py_log_level                 BOKEH_PY_LOG_LEVEL                None
+    resources                    BOKEH_RESOURCES                   cdn
+    rootdir                      BOKEH_ROOTDIR                     None
+    secret_key                   BOKEH_SECRET_KEY                  None
+    serialize_include_defaults   BOKEH_SERIALIZE_INCLUDE_DEFAULTS  False
+    sign_sessions                BOKEH_SIGN_SESSIONS               False
+    simple_ids                   BOKEH_SIMPLE_IDS                  True
+    ssl_certfile                 BOKEH_SSL_CERTFILE                None
+    ssl_keyfile                  BOKEH_SSL_KEYFILE                 None
+    ssl_password                 BOKEH_SSL_PASSWORD                None
+    validation_level             BOKEH_VALIDATION_LEVEL            none
+    xsrf_cookies                 BOKEH_XSRF_COOKIES                False
+    --------------------------------------------------------------------------
 
-    allowed_ws_origin
-    -----------------
-    Environment Variable : BOKEH_ALLOW_WS_ORIGIN
-    Current Value        : []
-    Default Value        : []
-    Type                 : List[String]
-    Help                 : A comma-separated list of allowed websocket origins for Bokeh server applications.
+This will display all available Bokeh settings in a table format with their
+current values and environment variables.
 
-    browser
-    -------
-    Environment Variable : BOKEH_BROWSER
-    Current Value        : none (dev mode)
-    Default Value        : None
-    Dev Default Value    : none
-    Type                 : String
-    Help                 : The default browser that Bokeh should use to show documents with.
-
-                          Valid values are any of the predefined browser names understood by the
-                          Python standard library webbrowser module.
-
-You can filter the output to show only settings containing a specific keyword:
+To get detailed help for a specific setting, use the -v option:
 
 .. code-block:: sh
 
-    bokeh settings --filter server
+    bokeh settings -v log_level
+    bokeh settings -v minified
 
-This will show only settings that have "server" in their name or help text.
-
-You can also show only non-default settings (settings that have been changed from their defaults):
-
-.. code-block:: sh
-
-    bokeh settings --non-default
+This will show detailed information about the specified setting including its
+help text, default values, and current value.
 
 '''
 
@@ -70,11 +81,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import textwrap
 from argparse import Namespace
+from typing import Any
 
 # Bokeh imports
-from bokeh.settings import PrioritizedSetting, settings
+from bokeh.settings import PrioritizedSetting, _Unset
+from bokeh.util.settings import get_all_settings
 
 # Bokeh imports
 from ..subcommand import Argument, Subcommand
@@ -92,25 +104,24 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Settings(Subcommand):
-    ''' Subcommand to print information about Bokeh settings and their current values.
+    ''' Subcommand to print information about Bokeh settings.
 
     '''
 
-    #: name for this subcommand
     name = "settings"
 
     help = "Print information about Bokeh settings and their current values"
 
     args = (
 
-        ('--filter', Argument(
-            metavar="KEYWORD",
-            help="Filter settings by keyword (case-insensitive search in name and help text)",
+        (('-v', '--verbose'), Argument(
+            action="store_true",
+            help="Show detailed help for a specific setting",
         )),
 
-        ('--non-default', Argument(
-            action="store_true",
-            help="Show only settings that have been changed from their default values",
+        ('setting_name', Argument(
+            nargs='?',
+            help="Name of a specific setting to show detailed help for (use with -v)",
         )),
 
     )
@@ -119,141 +130,51 @@ class Settings(Subcommand):
         '''
 
         '''
-        # Get version from settings or use a fallback
-        try:
-            from bokeh import __version__
-            version_str = __version__
-        except ImportError:
-            version_str = "development"
-        
-        print(f"Settings for Bokeh {version_str}")
-        print("=" * (len(f"Settings for Bokeh {version_str}")))
-        print()
+        all_settings = get_all_settings()
 
-        # Get all PrioritizedSetting attributes from the settings class
-        setting_items = []
-        for attr_name in dir(settings):
-            # Skip private attributes and methods
-            if attr_name.startswith('_'):
-                continue
-            attr = getattr(settings.__class__, attr_name, None)
-            if isinstance(attr, PrioritizedSetting):
-                setting_items.append((attr_name, attr))
-
-        # Sort settings alphabetically
-        setting_items.sort(key=lambda x: x[0])
-
-        # Filter settings if requested
-        if args.filter:
-            keyword = args.filter.lower()
-            filtered_items = []
-            for name, setting in setting_items:
-                if (keyword in name.lower() or 
-                    keyword in setting.help.lower()):
-                    filtered_items.append((name, setting))
-            setting_items = filtered_items
-
-        # Filter for non-default settings if requested
-        if args.non_default:
-            non_default_items = []
-            for name, setting in setting_items:
-                try:
-                    current_value = getattr(settings, name)()
-                    default_value = setting._default
-                    dev_default_value = getattr(setting, '_dev_default', None)
-                    
-                    # Check if current value differs from default
-                    if settings.dev and dev_default_value is not None:
-                        is_default = current_value == dev_default_value
-                    else:
-                        is_default = current_value == default_value
-                    
-                    if not is_default:
-                        non_default_items.append((name, setting))
-                except Exception:
-                    # Skip settings that can't be evaluated
-                    continue
-            setting_items = non_default_items
-
-        # Display settings
-        for i, (name, setting) in enumerate(setting_items):
-            if i > 0:
-                print()
-            
-            self._print_setting(name, setting)
-
-        if not setting_items:
-            if args.filter:
-                print(f"No settings found matching filter: {args.filter}")
-            elif args.non_default:
-                print("No settings have been changed from their default values.")
+        if args.setting_name:
+            if args.setting_name in all_settings:
+                if args.verbose:
+                    self._print_setting_detail(args.setting_name, all_settings[args.setting_name])
+                else:
+                    print("To get detailed help for a specific setting, use:")
+                    print("  bokeh settings [-v | --verbose] <setting_name>")
+                    print("\nFor a list of all settings, use:")
+                    print("  bokeh settings")
             else:
-                print("No settings found.")
-
-    def _print_setting(self, name: str, setting: PrioritizedSetting) -> None:
-        """Print detailed information about a single setting."""
-        
-        print(name)
-        print("-" * len(name))
-        
-        # Environment variable
-        env_var = getattr(setting, '_env_var', 'Unknown')
-        print(f"Environment Variable : {env_var}")
-        
-        # Current value
-        try:
-            current_value = getattr(settings, name)()
-            current_str = self._format_value(current_value)
-            
-            # Check if we're using dev default
-            dev_default = getattr(setting, '_dev_default', None)
-            if settings.dev and dev_default is not None and current_value == dev_default:
-                current_str += " (dev mode)"
-            
-            print(f"Current Value        : {current_str}")
-        except Exception:
-            print(f"Current Value        : <unable to determine>")
-        
-        # Default value
-        default_value = getattr(setting, '_default', None)
-        print(f"Default Value        : {self._format_value(default_value)}")
-        
-        # Dev default value (if different)
-        dev_default = getattr(setting, '_dev_default', None)
-        if dev_default is not None and dev_default != default_value:
-            print(f"Dev Default Value    : {self._format_value(dev_default)}")
-        
-        # Type
-        type_str = getattr(setting, 'convert_type', 'Unknown')
-        print(f"Type                 : {type_str}")
-        
-        # Help text (wrapped)
-        help_text = getattr(setting, 'help', '').strip()
-        if help_text:
-            print("Help                 :", end="")
-            # Wrap help text to fit nicely
-            wrapper = textwrap.TextWrapper(
-                width=80,
-                initial_indent=" ",
-                subsequent_indent="                      "
-            )
-            wrapped_help = wrapper.fill(help_text)
-            print(wrapped_help)
-
-    def _format_value(self, value) -> str:
-        """Format a setting value for display."""
-        if value is None:
-            return "None"
-        elif isinstance(value, str):
-            return value if value else '""'
-        elif isinstance(value, list):
-            if not value:
-                return "[]"
-            return str(value)
-        elif isinstance(value, bool):
-            return str(value)
+                print(f"Setting '{args.setting_name}' not found.")
+                print("Available settings:")
+                for name in sorted(all_settings):
+                    print(f"  {name}")
         else:
-            return str(value)
+            self._print_settings_table(all_settings)
+
+    def _print_settings_table(self, all_settings: dict[str, PrioritizedSetting[Any]]) -> None:
+        ''' Print all settings in a table format.
+        '''
+        print("Bokeh Settings:")
+        print("=" * 80)
+        print(f"{'Setting':<30} {'Environment Variable':<35} {'Value':<25}")
+        print("-" * 80)
+
+        for name, descriptor in all_settings.items():
+            print(f"{name:<30} {descriptor.env_var:<35} {descriptor()!s:<25}")
+
+        print("-" * 80)
+
+    def _print_setting_detail(self, setting_name: str, descriptor: PrioritizedSetting[Any]) -> None:
+        ''' Print detailed help for a specific setting.
+        '''
+        ''' Print all settings in a table format. '''
+        print(f"Setting: {setting_name}")
+        print("=" * 60)
+        print(f"Current Value: {descriptor()}")
+        print(f"Default Value: {descriptor.default}")
+        if descriptor.dev_default is not _Unset:
+            print(f"Dev Default: {descriptor.dev_default}")
+        print(f"Environment Variable: {descriptor.env_var}")
+        print("\nHelp:")
+        print(f"{descriptor.help.strip()}")
 
 #-----------------------------------------------------------------------------
 # Dev API

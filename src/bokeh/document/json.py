@@ -114,6 +114,7 @@ class DocJson(TypedDict):
     version: NotRequired[str]
     title: NotRequired[str]
     defs: NotRequired[list[ModelDef]]
+    config: NotRequired[ModelDef]
     roots: list[ModelRep]
     callbacks: NotRequired[dict[str, list[ModelRep]]]
 

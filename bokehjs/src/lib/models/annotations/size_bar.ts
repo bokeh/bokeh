@@ -2,7 +2,8 @@ import {BaseBar, BaseBarView} from "./base_bar"
 import type {RadialGlyphView} from "../glyphs/radial_glyph"
 import {RadialGlyph} from "../glyphs/radial_glyph"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import type {Context2d} from "core/util/canvas"
+import type {Context2d, Exportable} from "core/util/canvas"
+import {exportable} from "core/util/canvas"
 import type {Range} from "../ranges/range"
 import type {Scale} from "../scales"
 import {LinearScale} from "../scales"
@@ -13,7 +14,6 @@ import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as uniforms from "core/uniforms"
 import {ColumnDataSource} from "../sources/column_data_source"
-import type {ViewOf} from "core/build_views"
 import type {ElementLike} from "../renderers/composite_renderer"
 import {isString} from "core/util/types"
 import type {Align, Orientation} from "core/enums"
@@ -28,18 +28,24 @@ import {repeat, elementwise} from "core/util/array"
 import {logger} from "core/logging"
 import {Circle} from "../glyphs/circle"
 import {BBox} from "core/util/bbox"
+import type {XY} from "core/util/bbox"
 import {BorderLayout} from "core/layout/border"
+import type {CanvasLayer} from "core/util/canvas"
 
 class InternalBorderLayout extends BorderLayout {
 
+  offset_position: XY = {x: 0, y: 0}
+
   override set_geometry(viewport: BBox): void {
     const {outer, inner} = this._compute(viewport)
+    this.offset_position = {x: viewport.x, y: viewport.y}
     super.set_geometry(outer, inner)
   }
 }
 
 class InternalPlotView extends PlotView {
   declare model: InternalPlot
+  declare layout: InternalBorderLayout
 
   override initialize(): void {
     super.initialize()
@@ -49,6 +55,8 @@ class InternalPlotView extends PlotView {
   protected override _make_layout(): BorderLayout {
     return new InternalBorderLayout()
   }
+
+  override _after_resize(): void {}
 }
 
 namespace InternalPlot {
@@ -70,18 +78,18 @@ class InternalPlot extends Plot {
   }
 }
 
-export class SizeBarView extends BaseBarView {
+export class SizeBarView extends BaseBarView implements Exportable {
   declare model: SizeBar
   declare visuals: SizeBar.Visuals
-  declare layout: BorderLayout
+  declare layout: InternalBorderLayout
 
   protected _major_range: Range
   protected _major_scale: Scale
   protected _minor_range: Range
   protected _minor_scale: Scale
 
-  protected _size_bar: Plot
-  protected _size_bar_view: ViewOf<Plot>
+  protected _size_bar: InternalPlot
+  protected _size_bar_view: InternalPlotView
 
   protected _data_source: ColumnDataSource
   protected _major_axis: LinearAxis
@@ -238,7 +246,7 @@ export class SizeBarView extends BaseBarView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    this._size_bar_view = this._element_views.get(this._size_bar) as ViewOf<Plot>
+    this._size_bar_view = this._element_views.get(this._size_bar) as InternalPlotView
   }
 
   private _last_bbox = new BBox()
@@ -350,6 +358,17 @@ export class SizeBarView extends BaseBarView {
         case "vertical":   return {x: y, y: x, s}
       }
     })()
+  }
+
+  [exportable] = true
+
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    return this._size_bar_view.export(type, hidpi)
+  }
+
+  override get bbox(): BBox {
+    const {bbox, offset_position: {x, y}} = this.layout
+    return bbox.translate(x, y)
   }
 }
 

@@ -36,6 +36,14 @@ export function parse_token(token: string): Token {
   return JSON.parse(atob(payload.replace(/_/g, "/").replace(/-/g, "+")))
 }
 
+// WebSocket close event is emitted before page is destroyed, resulting in an
+// unnecessary reconnect attempt and a UI notification just before page reloads.
+let _prevent_reconnect: boolean = false
+
+addEventListener("beforeunload", () => {
+  _prevent_reconnect = true
+})
+
 export class ClientConnection {
   protected readonly _number = _connection_count++
 
@@ -138,10 +146,15 @@ export class ClientConnection {
   }
 
   protected _schedule_reconnect(milliseconds: number): void {
-    const should_reconnect = this._reconnection_attempts_left > 0
+    if (this.session == null) {
+      return
+    }
+
+    const {document} = this.session
+    const should_reconnect = document.config.reconnect_session && this._reconnection_attempts_left > 0
     const timeout = should_reconnect ? milliseconds : null
     const event = new ConnectionLost(new WeakRef(this), this.reconnection_attempts, timeout)
-    this.session?.document.event_manager.send_event(event)
+    document.event_manager.send_event(event)
 
     if (should_reconnect) {
       setTimeout(() => this._try_reconnect(), milliseconds)
@@ -262,7 +275,7 @@ export class ClientConnection {
     this._pending_replies.forEach((pr) => pr.reject("Disconnected"))
     this._pending_replies.clear()
 
-    if (!this.closed_permanently) {
+    if (!this.closed_permanently && !_prevent_reconnect) {
       logger.debug(`Pending schedule_reconnect for ${this._number}`)
       this._schedule_reconnect(this._reconnect_delay())
     }

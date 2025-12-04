@@ -1,7 +1,7 @@
 import {UIElement, UIElementView} from "./ui_element"
 import type * as p from "core/properties"
 import {dom_ready, span, div, InlineStyleSheet} from "core/dom"
-import {settings} from "core/settings"
+import {Signal} from "core/signaling"
 
 import * as base_css from "styles/base.css"
 import * as icons_css from "styles/icons.css"
@@ -30,13 +30,25 @@ export class NotificationsView extends UIElementView {
   override initialize(): void {
     super.initialize()
 
+    this.model.push.connect((message) => {
+      const dismiss_el = div({class: "close", title: "Close"})
+      const message_el = div({class: message.type}, message.text, dismiss_el)
+      notifications_el.append(message_el)
+      const clear = () => message_el.remove()
+      dismiss_el.addEventListener("click", clear)
+      const timeout = message.timeout ?? 5000
+      if (isFinite(timeout)) {
+        setTimeout(clear, timeout)
+      }
+    })
+
     const {document} = this.model
     if (document == null) {
-      return
+      return // this shouldn't happen
     }
 
     document.on_event("connection_lost", (_, event) => {
-      if (!settings.notifications) {
+      if (!document.config.notify_connection_status) {
         return
       }
       this._connection_el?.remove()
@@ -74,7 +86,7 @@ export class NotificationsView extends UIElementView {
     })
 
     document.on_event("client_reconnected", (_, _event) => {
-      if (!settings.notifications) {
+      if (!document.config.notify_connection_status) {
         return
       }
       this._connection_el?.remove()
@@ -105,10 +117,18 @@ export class Notifications extends UIElement {
     super(attrs)
   }
 
+  readonly push = new Signal<Message, this>(this, "push")
+
   static {
     this.prototype.default_view = NotificationsView
 
     this.define<Notifications.Props>(() => ({
     }))
   }
+}
+
+type Message = {
+  type: "error" | "success"
+  text: string
+  timeout?: number
 }

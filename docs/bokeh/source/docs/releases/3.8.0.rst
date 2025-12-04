@@ -5,5 +5,13 @@
 
 Bokeh version ``3.8.0`` (August 2025) is a minor milestone of Bokeh project.
 
-* added support for session reconnect, connection events and UI notifications (:bokeh-pull:`14201`, :bokeh-pull:`14576`)
+* Added support for filters, sorters and limits to ``HoverTool`` (:bokeh-pull:`14484`)
+* Added support for session reconnect, connection events and UI notifications (:bokeh-pull:`14201`, :bokeh-pull:`14576`)
 * Added support for ``Plot`` side panel layouts and ``SizeBar`` annotation (:bokeh-pull:`14487`)
+* Added support for document configuration (``Document.config``) (:bokeh-pull:`14608`)
+* Added support for ``legend_name`` argument to glyph APIs for easier legend management (:bokeh-pull:`14325`)
+* Added support for compression of buffers in Bokeh's serialization protocol (:bokeh-pull:`14485`)
+* Converted PNG icons to SVG and generally refreshed existing icons (:bokeh-pull:`14518`, :bokeh-pull:`14563`, :bokeh-pull:`14577`)
+* Added preliminary support for theming using CSS variables (:bokeh-pull:`14349`)
+* Various performance improvements in BokehJS (:bokeh-pull:`14556`, :bokeh-pull:`14428`, :bokeh-pull:`14419`)
+* Upgraded bokehjs build system to TypeScript 5.9 (:bokeh-pull:`14589`)

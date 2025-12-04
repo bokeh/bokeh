@@ -2,6 +2,19 @@ import {SVGRenderingContext2D} from "./svg"
 import {BBox} from "./bbox"
 import {div, canvas} from "../dom"
 import type {OutputBackend} from "../enums"
+import {isObject} from "./types"
+
+export const exportable = Symbol("exportable")
+
+export interface Exportable {
+  [exportable]: boolean
+  export(type?: "auto" | "png" | "svg", hidpi?: boolean): CanvasLayer
+  readonly bbox: BBox
+}
+
+export function is_Exportable<T>(obj: T): obj is T & Exportable {
+  return isObject(obj) && exportable in obj
+}
 
 export type CanvasPatternRepetition = "repeat" | "repeat-x" | "repeat-y" | "no-repeat"
 

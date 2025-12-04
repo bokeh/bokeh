@@ -376,5 +376,21 @@ describe("templating module", () => {
         ["@", "x", ":"],
       ])
     })
+
+    it("should handle special @$name case", () => {
+      const found: [string, string, string?][] = []
+      /* eslint-disable no-template-curly-in-string */ // using `@\${name}` results in a different lint error
+      const result = tmpl.process_placeholders("stuff @$name @${name} @${name}{format}", (type, name, format, i) => {
+        found.push([type, name, format])
+        return `${i}`
+      })
+      /* eslint-enable no-template-curly-in-string */
+      expect(result).to.be.equal("stuff 0 1 2")
+      expect(found).to.be.equal([
+        ["@$", "name", undefined],
+        ["@$", "name", undefined],
+        ["@$", "name", "format"],
+      ])
+    })
   })
 })

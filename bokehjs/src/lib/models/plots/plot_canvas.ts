@@ -43,7 +43,7 @@ import {isBoolean, isArray, isString} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
-import {CanvasLayer} from "core/util/canvas"
+import {CanvasLayer, is_Exportable} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
 import {ElementLayout} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
@@ -1443,6 +1443,14 @@ export class PlotView extends LayoutDOMView implements Paintable {
         this._paint_overlays(ctx)
         composite.finish()
       })
+
+      for (const view of this.renderer_views.values()) {
+        if (is_Exportable(view)) {
+          const region = view.export(type, hidpi)
+          const {x, y} = view.bbox.scale(composite.pixel_ratio)
+          composite.ctx.drawImage(region.canvas, x, y)
+        }
+      }
     }
 
     return composite

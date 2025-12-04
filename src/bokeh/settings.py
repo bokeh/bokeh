@@ -521,6 +521,10 @@ class PrioritizedSetting(Generic[T]):
             return "Ico Path"
         raise RuntimeError("unreachable")
 
+    @property
+    def is_set(self) -> bool:
+        return self._user_value is not _Unset and self._user_value != self._default
+
 _config_user_locations: Sequence[Path] = (
     Path.home() / ".bokeh" / "bokeh.yaml",
 )
