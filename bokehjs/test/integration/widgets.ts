@@ -22,6 +22,7 @@ import {
   DatetimePicker, DatetimeRangePicker, MultipleDatetimePicker,
   Paragraph, Div, PreText,
   Progress,
+  MarkdownPanel,
 } from "@bokehjs/models/widgets"
 
 import {
@@ -484,6 +485,11 @@ describe("Widgets", () => {
 
   it("should allow PreText", async () => {
     const obj = new PreText({text: "some text"})
+    await display(obj, [500, 100])
+  })
+
+  it("should allow MarkdownPanel", async () => {
+    const obj = new MarkdownPanel({text: "**Bold text** with some *italic text* and `inline code`."})
     await display(obj, [500, 100])
   })
 

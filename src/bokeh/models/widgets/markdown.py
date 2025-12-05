@@ -4,6 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+"""
+
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -17,50 +20,43 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from . import (
-    buttons,
-    groups,
-    indicators,
-    inputs,
-    markdown,
-    markups,
-    pickers,
-    sliders,
-    tables,
-    widget,
-)
-from .buttons import *
-from .groups import *
-from .indicators import *
-from .inputs import *
-from .markdown import *
-from .markups import *
-from .pickers import *
-from .sliders import *
-from .tables import *
-from .widget import *
+from ...core.property.primitive import Bool, String
+from .widget import Widget
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    *buttons.__all__,
-    *groups.__all__,
-    *indicators.__all__,
-    *inputs.__all__,
-    *markdown.__all__,
-    *markups.__all__,
-    *pickers.__all__,
-    *sliders.__all__,
-    *tables.__all__,
-    *widget.__all__,
+    "MarkdownPanel",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class MarkdownPanel(Widget):
+    """ A panel for displaying Markdown formatted contents.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    text = String(default="", help="""
+    The text with Markdown syntax to display.
+
+    See https://www.markdownlang.com/cheatsheet/ for syntax details.
+    """)
+
+    disable_math = Bool(False, help="""
+    Whether the contents should not be processed as TeX/LaTeX input.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
