@@ -923,7 +923,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
-    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    const result = await build_views(this.renderer_views, this.computed_renderers, {
+      // TODO remove this when border layout is fully migrated to CSS
+      parent: (model) => model instanceof LayoutDOM ? null : this,
+      owner: this.owner,
+    })
     this._update_attribution()
     return result
   }
