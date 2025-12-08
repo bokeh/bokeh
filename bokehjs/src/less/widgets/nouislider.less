@@ -24,15 +24,15 @@
   &:after {
     content: "";
     position: absolute;
-    width: 9px;
-    height: 9px;
     border-radius: 1px;
     background-color: var(--primary-color);
-    top: 7px;
-    left: 12%;
+    width: var(--handle-pointer-side);
+    height: var(--handle-pointer-side);
+    border: none;
+    top: var(--handle-pointer-top);
+    left: var(--handle-pointer-left);
     transform: rotate(-45deg);
   }
-
 }
 
 [disabled] .noUi-handle, [disabled] .noUi-handle:hover, [disabled] .noUi-handle:focus-visible {
@@ -41,11 +41,11 @@
 
   &:after {
     background-color: var(--disabled-color);
-    width: 9px;
-    height: 9px;
+    width: var(--handle-pointer-side);
+    height: var(--handle-pointer-side);
     border: none;
-    top: 7px;
-    left: 12%;
+    top: var(--handle-pointer-top);
+    left: var(--handle-pointer-left);
   }
 }
 
@@ -96,6 +96,10 @@
   --handle-height: 12px;
   --handle-right: calc(-1*var(--handle-width)/2);
   --handle-top: calc(-1*(var(--handle-height) - var(--slider-size))/2 - 1px);
+
+  --handle-pointer-side: calc(var(--handle-width)/sqrt(2));
+  --handle-pointer-top: calc(var(--handle-top) + var(--handle-height) + 0.5px);
+  --handle-pointer-left: calc(-1*var(--handle-pointer-side)/2 - var(--handle-right));
 
   --slider-margin: calc((var(--handle-height) - var(--slider-size))/2 + 1px);
 }
