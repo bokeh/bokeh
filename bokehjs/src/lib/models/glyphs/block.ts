@@ -32,6 +32,9 @@ export class BlockView extends LRTBView {
     const {sx, sy} = this
     const n = sx.length
 
+    const x_reversed = this.renderer.xscale.source_range.is_reversed
+    const y_reversed = this.renderer.yscale.source_range.is_reversed
+
     if (this.inherited_x && this.inherited_width) {
       this._inherit_attr<Block.Data>("sleft")
       this._inherit_attr<Block.Data>("sright")
@@ -42,8 +45,13 @@ export class BlockView extends LRTBView {
       const sright = new ScreenArray(n)
 
       for (let i = 0; i < n; i++) {
-        sleft[i] = sx[i]
-        sright[i] = sx[i] + sw[i]
+        if (x_reversed) {
+          sleft[i] = sx[i] - sw[i]
+          sright[i] = sx[i]
+        } else {
+          sleft[i] = sx[i]
+          sright[i] = sx[i] + sw[i]
+        }
       }
 
       this._define_attr<Block.Data>("sleft", sleft)
@@ -60,8 +68,13 @@ export class BlockView extends LRTBView {
       const sbottom = new ScreenArray(n)
 
       for (let i = 0; i < n; i++) {
-        stop[i] = sy[i] - sh[i]
-        sbottom[i] = sy[i]
+        if (y_reversed) {
+          stop[i] = sy[i]
+          sbottom[i] = sy[i] + sh[i]
+        } else {
+          stop[i] = sy[i] - sh[i]
+          sbottom[i] = sy[i]
+        }
       }
 
       this._define_attr<Block.Data>("stop", stop)
