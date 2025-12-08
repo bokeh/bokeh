@@ -67,8 +67,7 @@ export async function add_document_standalone(document: Document, element: Embed
 
   async function render_model(model: HasProps): Promise<void> {
     if (model.default_view != null) {
-      const view = await render_view(model)
-      index.add(view)
+      await render_view(model)
     } else {
       document.notify_idle(model)
     }
