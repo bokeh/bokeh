@@ -54,6 +54,7 @@ from ..renderers import GlyphRenderer
 from ..tickers import Ticker
 from .annotation import Annotation
 from .dimensional import Dimensional
+from ..ui import UIElement
 
 @abstract
 @dataclass(init=False)
@@ -126,7 +127,7 @@ class LegendItem(Model):
     visible: bool = ...
 
 @dataclass
-class Legend(Annotation, ScalarTitleTextProps, ScalarBorderLineProps, ScalarBackgroundFillProps,
+class Legend(UIElement, ScalarTitleTextProps, ScalarBorderLineProps, ScalarBackgroundFillProps,
              ScalarItemBackgroundFillProps, ScalarInactiveFillProps, ScalarLabelTextProps):
 
     location: LegendLocation | tuple[float, float] = ...

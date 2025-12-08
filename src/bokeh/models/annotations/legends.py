@@ -361,7 +361,8 @@ class LegendItem(Model):
             if self.label.field not in source.column_names:
                 return str(self)
 
-class Legend(Annotation):
+from ..ui.ui_element import UIElement
+class Legend(UIElement):
     ''' Render informational legends for a plot.
 
     See :ref:`ug_basic_annotations_legends` for information on plotting legends.

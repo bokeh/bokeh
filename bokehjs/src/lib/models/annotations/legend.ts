@@ -1,19 +1,19 @@
-import {Annotation, AnnotationView} from "./annotation"
+import {UIElement, UIElementView} from "../ui/ui_element"
 import {LegendItem} from "./legend_item"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import type {VAlign, HAlign} from "core/enums"
-import type * as visuals from "core/visuals"
+import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
-import type {Size} from "core/layout"
-import {SideLayout, SidePanel} from "core/layout/side_panel"
-import {BBox} from "core/util/bbox"
+//import type {Size} from "core/layout"
+import {/*SideLayout, */SidePanel} from "core/layout/side_panel"
+import type {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
 import {dict} from "core/util/object"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
-import type {Context2d, CanvasLayer} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import {LegendItemClick} from "core/bokeh_events"
 import {div, bounding_box, px, empty} from "core/dom"
 import type {StyleSheetLike} from "core/dom"
@@ -23,6 +23,9 @@ import {Padding, BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
+import {CanvasLayer} from "core/util/canvas"
+import type {PlotView} from "models/plots/plot_canvas"
+import type {Paintable} from "core/visuals"
 
 const {ceil} = Math
 
@@ -37,14 +40,25 @@ type Entry = {
   col: number
 }
 
-export class LegendView extends AnnotationView {
+export class LegendView extends UIElementView implements Paintable {
   declare model: Legend
   declare visuals: Legend.Visuals
 
+  request_paint(): void {}
+
+  readonly canvas = {
+    create_layer() {
+      return new CanvasLayer("canvas", true)
+    },
+  }
+
+  /*
   override get is_dual_renderer(): boolean {
     return true
   }
+  */
 
+  /*
   protected override _get_size(): Size {
     const {width, height} = this.bbox
     const {margin} = this.model
@@ -64,7 +78,14 @@ export class LegendView extends AnnotationView {
       this.layout = undefined
     }
   }
+  */
 
+  override initialize(): void {
+    super.initialize()
+    this.visuals = new visuals.Visuals(this) as any
+  }
+
+  /*
   protected _resize_observer: ResizeObserver
 
   override initialize(): void {
@@ -77,19 +98,37 @@ export class LegendView extends AnnotationView {
     this._resize_observer.disconnect()
     super.remove()
   }
+  */
 
   override connect_signals(): void {
     super.connect_signals()
+
+    this.model.document?.idle.connect(() => {
+      const plot_views = new Set<PlotView>()
+      for (const item of this.model.items) {
+        for (const view of this.owner.select(item.renderers)) {
+          plot_views.add(view.plot_view)
+        }
+      }
+      for (const plot_view of plot_views) {
+        plot_view.repainted.connect(() => this._paint_glyphs())
+      }
+
+      this._paint_glyphs()
+    })
+
     this.connect(this.model.change, () => this.rerender())
 
     const {items} = this.model.properties
     this.on_transitive_change(items, () => this._render_items())
   }
 
+  /*
   protected _bbox: BBox = new BBox()
   override get bbox(): BBox {
     return this._bbox
   }
+  */
 
   protected readonly grid_el: HTMLElement = div({class: legend_css.grid})
   protected title_el: HTMLElement = div()
@@ -110,20 +149,18 @@ export class LegendView extends AnnotationView {
   }
 
   protected _paint_glyphs(): void {
-    const {glyph_width, glyph_height} = this.model
-
     const x0 = 0
     const y0 = 0
-    const x1 = glyph_width
-    const y1 = glyph_height
 
     for (const {glyph, item, label} of this.entries) {
       const field = item.get_field_from_label_prop()
-      glyph.resize(glyph_width, glyph_height)
-
       const ctx = glyph.prepare()
+
+      const x1 = glyph.canvas.width
+      const y1 = glyph.canvas.height
+
       for (const renderer of item.renderers) {
-        const view = this.plot_view.views.find_one(renderer)
+        const view = this.owner.find_one(renderer)
         view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
       }
       glyph.finish()
@@ -159,6 +196,7 @@ export class LegendView extends AnnotationView {
   }
 
   protected _render_items(): void {
+    const {glyph_width, glyph_height} = this.model
     this.entries = []
 
     const {click_policy} = this
@@ -168,8 +206,9 @@ export class LegendView extends AnnotationView {
       const labels = item.get_labels_list_from_label_prop()
 
       for (const label of labels) {
-        const glyph = this.plot_view.canvas.create_layer()
+        const glyph = this.canvas.create_layer()
         glyph.el.classList.add(legend_css.glyph)
+        glyph.resize(glyph_width, glyph_height)
 
         const glyph_el = glyph.canvas
         const label_el = div({class: legend_css.label}, `${label}`)
@@ -180,6 +219,7 @@ export class LegendView extends AnnotationView {
         const entry: Entry = {el: item_el, glyph, label_el, item, label, i: i++, row: 0, col: 0}
         this.entries.push(entry)
 
+        // TODO tap
         item_el.addEventListener("pointerdown", () => {
           this.model.trigger_event(new LegendItemClick(this.model, item))
           for (const renderer of item.renderers) {
@@ -412,11 +452,15 @@ export class LegendView extends AnnotationView {
     this._render_items()
   }
 
+  override update_style(): void {}
+
+  /*
   override after_render(): void {
     super.after_render()
     this.update_position()
     this.request_paint()   // paint glyphs
   }
+  */
 
   get location(): {x: HAlign | number, y: VAlign | number} {
     const {location} = this.model
@@ -463,14 +507,14 @@ export class LegendView extends AnnotationView {
   get css_position(): XY<string> {
     const {location} = this
     const {margin} = this.model
-    const panel = this.layout ?? this.plot_view.frame
+    //const panel = this.layout ?? this.plot_view.frame
     const x_pos = (() => {
       const {x} = location
       switch (x) {
         case "left":   return `calc(0% + ${px(margin)})`
         case "center": return "50%"
         case "right":  return `calc(100% - ${px(margin)})`
-        default:       return px(panel.bbox.relative().x_view.compute(x))
+        default:       throw Error("not implemented") // return px(panel.bbox.relative().x_view.compute(x))
       }
     })()
     const y_pos = (() => {
@@ -479,7 +523,7 @@ export class LegendView extends AnnotationView {
         case "top":    return `calc(0% + ${px(margin)})`
         case "center": return "50%"
         case "bottom": return `calc(100% - ${px(margin)})`
-        default:       return px(panel.bbox.relative().y_view.compute(y))
+        default:       throw Error("not implemented") // return px(panel.bbox.relative().y_view.compute(y))
       }
     })()
     return {x: x_pos, y: y_pos}
@@ -490,6 +534,7 @@ export class LegendView extends AnnotationView {
     return visible && items.length != 0 && some(items, (item) => item.visible)
   }
 
+  /*
   override update_position(): void {
     if (this.is_visible) {
       const {x, y} = this.css_position
@@ -512,6 +557,7 @@ export class LegendView extends AnnotationView {
     const canvas_bbox = bounding_box(this.plot_view.canvas.el)
     this._bbox = legend_bbox.relative_to(canvas_bbox)
   }
+  */
 
   get is_interactive(): boolean {
     // this doesn't cover server callbacks
@@ -546,6 +592,7 @@ export class LegendView extends AnnotationView {
     }
   }
 
+  /*
   protected _paint(ctx: Context2d): void {
     if (!this.is_visible) {
       return
@@ -565,6 +612,7 @@ export class LegendView extends AnnotationView {
       ctx.restore()
     }
   }
+  */
 
   protected _draw_legend_box(ctx: Context2d, canvas_bbox: BBox): void {
     ctx.beginPath()
@@ -643,7 +691,7 @@ export class LegendView extends AnnotationView {
 export namespace Legend {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & {
+  export type Props = UIElement.Props & {
     orientation: p.Property<Orientation>
     ncols: p.Property<number | "auto">
     nrows: p.Property<number | "auto">
@@ -676,7 +724,7 @@ export namespace Legend {
     mixins.ItemBackgroundFill  &
     mixins.ItemBackgroundHatch
 
-  export type Visuals = Annotation.Visuals & {
+  export type Visuals = UIElement/*.Visuals*/ & {
     label_text: visuals.Text
     title_text: visuals.Text
     inactive_fill: visuals.Fill
@@ -691,7 +739,7 @@ export namespace Legend {
 
 export interface Legend extends Legend.Attrs {}
 
-export class Legend extends Annotation {
+export class Legend extends UIElement {
   declare properties: Legend.Props
   declare __view_type__: LegendView
 
