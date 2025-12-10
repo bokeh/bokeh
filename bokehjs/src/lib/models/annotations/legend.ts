@@ -406,6 +406,17 @@ export class LegendView extends AnnotationView {
         if (dash.length % 2 !== 0) {
           dash = dash.concat(dash)
         }
+        // Compute extra patterns rules
+        let extra_patterns = ""
+        for (let index = 0; index < dash.length; index++) {
+          if (index !== 0 && index % 2 === 0) {
+            extra_patterns += `,
+            linear-gradient(to right, ${color} ${dash[index]}px, transparent ${dash[index]}px) ${sum(dash.slice(0, index))}px top/var(--border-line-full-length) ${width}px repeat-x,
+            linear-gradient(to right, ${color} ${dash[index]}px, transparent ${dash[index]}px) ${sum(dash.slice(0, index))}px bottom/var(--border-line-full-length) ${width}px repeat-x,
+            linear-gradient(to bottom, ${color} ${dash[index]}px, transparent ${dash[index]}px) right ${sum(dash.slice(0, index))}px/${width}px var(--border-line-full-length) repeat-y,
+            linear-gradient(to bottom, ${color} ${dash[index]}px, transparent ${dash[index]}px) left ${sum(dash.slice(0, index))}px/${width}px var(--border-line-full-length) repeat-y`
+          }
+        }
 
         this.style.append(`
         :host {
@@ -416,11 +427,7 @@ export class LegendView extends AnnotationView {
              linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/var(--border-line-full-length) ${width}px repeat-x,
              linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left bottom/var(--border-line-full-length) ${width}px repeat-x,
              linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) right top/${width}px var(--border-line-full-length) repeat-y,
-             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/${width}px var(--border-line-full-length) repeat-y ${dash.length === 4 ? `,
-             linear-gradient(to right, ${color} ${dash[2]}px, transparent ${dash[2]}px) ${sum(dash.slice(0, 2))}px top/var(--border-line-full-length) ${width}px repeat-x,
-             linear-gradient(to right, ${color} ${dash[2]}px, transparent ${dash[2]}px) ${sum(dash.slice(0, 2))}px bottom/var(--border-line-full-length) ${width}px repeat-x,
-             linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) right ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y,
-             linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) left ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y` : "" },
+             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/${width}px var(--border-line-full-length) repeat-y ${extra_patterns.length > 0 ? `${extra_patterns}` : "" },
              var(--inverted-color);
         }
         `)
