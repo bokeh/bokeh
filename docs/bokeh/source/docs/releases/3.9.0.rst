@@ -7,5 +7,5 @@ Bokeh version ``3.9.0`` (November 2025) is a minor milestone of Bokeh project.
 
 * Added support for ARIA ``role`` attribute to ``Switch`` component (:bokeh-pull:`14341`)
 * Added support for dataclass as input to ``ColumnDataSource`` (:bokeh-pull:`14677`)
-* Added ``text_outline_width`` to Text to support user defiened width of outline borders (:bokeh-pull:`14733`)
+* Added ``text_outline_width`` to ``Text`` to support user defined width of outline borders (:bokeh-pull:`14733`, :bokeh-pull:`14746`)
 * Removed ``pandas`` as a required dependency (:bokeh-pull:`14686`)
