@@ -420,7 +420,8 @@ export class LegendView extends AnnotationView {
              linear-gradient(to right, ${color} ${dash[2]}px, transparent ${dash[2]}px) ${sum(dash.slice(0, 2))}px top/var(--border-line-full-length) ${width}px repeat-x,
              linear-gradient(to right, ${color} ${dash[2]}px, transparent ${dash[2]}px) ${sum(dash.slice(0, 2))}px bottom/var(--border-line-full-length) ${width}px repeat-x,
              linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) right ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y,
-             linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) left ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y;` : ";" }
+             linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) left ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y` : "" },
+             var(--inverted-color);
         }
         `)
       // Empty dash array (solid border) or string case
