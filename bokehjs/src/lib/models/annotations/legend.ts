@@ -9,7 +9,7 @@ import type * as p from "core/properties"
 import type {Size} from "core/layout"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import {every, some} from "core/util/array"
+import {every, some, sum} from "core/util/array"
 import {dict} from "core/util/object"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
@@ -398,15 +398,41 @@ export class LegendView extends AnnotationView {
     // TODO background_hatch (https://github.com/bokeh/bokeh/issues/14312)
 
     if (this.visuals.border_line.doit) {
-      // TODO use background-image to replicate number[] dash patterns
-      const {color, width, dash} = this.visuals.border_line.computed_values()
-      this.style.append(`
-      :host {
-        border-color: ${color};
-        border-width: ${width}px;
-        border-style: ${isString(dash) ? dash : (dash.length < 2 ? "solid" : "dashed")};
+      const {color, width, dash: raw_dash} = this.visuals.border_line.computed_values()
+      let dash = raw_dash
+      // Non-empty dash array case
+      if (!isString(dash) && dash.length > 0) {
+        // Make dash array even
+        if (dash.length % 2 !== 0) {
+          dash = dash.concat(dash)
+        }
+
+        this.style.append(`
+        :host {
+          --border-color: ${color};
+          --border-line-full-length: ${sum(dash)}px;
+
+          background:
+             linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/var(--border-line-full-length) ${width}px repeat-x,
+             linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left bottom/var(--border-line-full-length) ${width}px repeat-x,
+             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) right top/${width}px var(--border-line-full-length) repeat-y,
+             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/${width}px var(--border-line-full-length) repeat-y ${dash.length === 4 ? `,
+             linear-gradient(to right, ${color} ${dash[2]}px, transparent ${dash[2]}px) ${sum(dash.slice(0, 2))}px top/var(--border-line-full-length) ${width}px repeat-x,
+             linear-gradient(to right, ${color} ${dash[2]}px, transparent ${dash[2]}px) ${sum(dash.slice(0, 2))}px bottom/var(--border-line-full-length) ${width}px repeat-x,
+             linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) right ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y,
+             linear-gradient(to bottom, ${color} ${dash[2]}px, transparent ${dash[2]}px) left ${sum(dash.slice(0, 2))}px/${width}px var(--border-line-full-length) repeat-y;` : ";" }
+        }
+        `)
+      // Empty dash array (solid border) or string case
+      } else {
+        this.style.append(`
+        :host {
+          border-color: ${color};
+          border-width: ${width}px;
+          border-style: ${isString(dash) ? `${dash}` : "solid"};
+        }
+        `)
       }
-      `)
     }
 
     this._render_items()
