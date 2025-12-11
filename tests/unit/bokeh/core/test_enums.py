@@ -302,7 +302,7 @@ class Test_bce:
         assert tuple(bce.OutlineShapeName) == ("none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle")
 
     def test_OutputBackend(self) -> None:
-        assert tuple(bce.OutputBackend) == ("canvas", "svg", "webgl")
+        assert tuple(bce.OutputBackend) == ("canvas", "svg", "webgl", "webgpu")
 
     def test_PaddingUnits(self) -> None:
         assert tuple(bce.PaddingUnits) == ("percent", "absolute")

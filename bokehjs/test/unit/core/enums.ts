@@ -162,7 +162,7 @@ describe("enums module", () => {
   })
 
   it("should have OutputBackend", () => {
-    expect([...enums.OutputBackend]).to.be.equal(["canvas", "svg", "webgl"])
+    expect([...enums.OutputBackend]).to.be.equal(["canvas", "svg", "webgl", "webgpu"])
   })
 
   it("should have PaddingUnits", () => {

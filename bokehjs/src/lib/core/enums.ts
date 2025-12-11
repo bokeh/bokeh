@@ -136,7 +136,7 @@ export type Orientation = typeof Orientation["__type__"]
 export const OutlineShapeName = Enum("none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle")
 export type OutlineShapeName = typeof OutlineShapeName["__type__"]
 
-export const OutputBackend = Enum("canvas", "svg", "webgl")
+export const OutputBackend = Enum("canvas", "svg", "webgl", "webgpu")
 export type OutputBackend = typeof OutputBackend["__type__"]
 
 export const PaddingUnits = Enum("percent", "absolute")
