@@ -31,6 +31,7 @@ import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Decoration} from "../graphics/decoration"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
+import type {BaseGPUGlyph, BaseGPUGlyphConstructor} from "./webgpu/base"
 
 const {abs, ceil} = Math
 
@@ -53,14 +54,26 @@ export abstract class GlyphView extends DOMComponentView {
   /** @internal */
   glglyph?: BaseGLGlyph
 
+  /** @internal */
+  gpuglyph?: BaseGPUGlyph
+
   async load_glglyph?(): Promise<typeof BaseGLGlyph>
+  async load_gpuglyph?(): Promise<typeof BaseGPUGlyph>
 
   has_webgl(): this is {glglyph: BaseGLGlyph} {
     return this.glglyph != null && this._can_use_webgl
   }
 
+  has_webgpu(): this is {gpuglyph: BaseGPUGlyph} {
+    return this.gpuglyph != null && this._can_use_webgpu
+  }
+
   private _can_use_webgl: boolean = false
+  private _can_use_webgpu: boolean = false
   protected _compute_can_use_webgl(): boolean {
+    return true
+  }
+  protected _compute_can_use_webgpu(): boolean {
     return true
   }
 
@@ -108,8 +121,11 @@ export abstract class GlyphView extends DOMComponentView {
     await super.lazy_initialize()
     await build_views(this.decorations, this.model.decorations, {parent: this.parent})
 
-    const {webgl} = this.canvas
-    if (webgl != null && this.load_glglyph != null) {
+    const {webgl, webgpu} = this.canvas
+    if (webgpu != null && this.load_gpuglyph != null) {
+      const cls = await this.load_gpuglyph() as BaseGPUGlyphConstructor
+      this.gpuglyph = new cls(webgpu.wrapper, this)
+    } else if (webgl != null && this.load_glglyph != null) {
       const cls = await this.load_glglyph() as BaseGLGlyphConstructor
       this.glglyph = new cls(webgl.regl_wrapper, this)
     }
@@ -124,7 +140,10 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
-    if (this.has_webgl()) {
+    if (this.has_webgpu()) {
+      logger.debug(`Rendering ${indices.length} ${this.model.type} markers via WebGPU`)
+      this.gpuglyph.render(ctx, indices, this.base ?? this)
+    } else if (this.has_webgl()) {
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
@@ -391,7 +410,9 @@ export abstract class GlyphView extends DOMComponentView {
       visual.update()
     }
 
-    if (this.has_webgl()) {
+    if (this.has_webgpu()) {
+      this.gpuglyph.set_visuals_changed()
+    } else if (this.has_webgl()) {
       this.glglyph.set_visuals_changed()
     }
   }
@@ -486,11 +507,16 @@ export abstract class GlyphView extends DOMComponentView {
       decoration.marking.set_data(source, indices)
     }
 
+    if (this.gpuglyph != null) {
+      this._can_use_webgpu = this._compute_can_use_webgpu()
+    }
     if (this.glglyph != null) {
       this._can_use_webgl = this._compute_can_use_webgl()
     }
 
-    if (this.has_webgl()) {
+    if (this.has_webgpu()) {
+      this.gpuglyph.set_data_changed()
+    } else if (this.has_webgl()) {
       this.glglyph.set_data_changed()
     }
 
@@ -559,7 +585,9 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     this._map_data()
-    if (this.has_webgl()) {
+    if (this.has_webgpu()) {
+      this.gpuglyph.set_data_mapped()
+    } else if (this.has_webgl()) {
       this.glglyph.set_data_mapped()
     }
   }

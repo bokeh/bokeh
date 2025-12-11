@@ -321,6 +321,10 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  override get has_webgpu(): boolean {
+    return this.glyph.has_webgpu()
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl, has_webgpu} = this
 
