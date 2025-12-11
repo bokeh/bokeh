@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
-    "types": [],
+    "types": ["@webgpu/types"],
     "paths": {
       "@bokehjs/*": ["../../build/js/lib/*"],
       "*": ["./*"]

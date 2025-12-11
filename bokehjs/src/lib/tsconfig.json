@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "lib": ["es2022", "dom", "dom.iterable"],
-    "types": ["google.maps"],
+    "types": ["google.maps", "@webgpu/types"],
     "paths": {
       "*": ["./*"]
     },

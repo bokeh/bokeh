@@ -62,11 +62,12 @@ task("scripts:glsl", async () => {
   const js_base = paths.build_dir.lib
   const dts_base = paths.build_dir.lib
 
-  for (const glsl_path of scan(lib_base, [".vert", ".frag"])) {
-    const sub_path = relative(lib_base, glsl_path)
+  // Process GLSL shaders (.vert, .frag) and WGSL shaders (.wgsl)
+  for (const shader_path of scan(lib_base, [".vert", ".frag", ".wgsl"])) {
+    const sub_path = relative(lib_base, shader_path)
 
     const js = `\
-const shader = \`\n${read(glsl_path)}\`;
+const shader = \`\n${read(shader_path)}\`;
 export default shader;
 `
     const dts = `\

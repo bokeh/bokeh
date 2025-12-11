@@ -49,6 +49,7 @@
     "@types/proj4": "^2.5.5",
     "@types/semver": "^7.7.1",
     "@types/sprintf-js": "^1.1.4",
+    "@webgpu/types": "^0.1.67",
     "choices.js": "^10.2.0",
     "dompurify": "^3.3.0",
     "fflate": "^0.8.2",
