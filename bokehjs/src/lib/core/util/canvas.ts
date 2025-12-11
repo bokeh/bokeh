@@ -50,6 +50,7 @@ export class CanvasLayer {
 
   constructor(readonly backend: OutputBackend, readonly hidpi: boolean) {
     switch (backend) {
+      case "webgpu":
       case "webgl":
       case "canvas": {
         this._el = this._canvas = canvas({class: "bk-layer"})
@@ -84,7 +85,7 @@ export class CanvasLayer {
   }
 
   get pixel_ratio_changed(): boolean {
-    if (this.hidpi && (this.backend == "canvas" || this.backend == "webgl")) {
+    if (this.hidpi && (this.backend == "canvas" || this.backend == "webgl" || this.backend == "webgpu")) {
       return this.pixel_ratio != devicePixelRatio
     } else {
       return false

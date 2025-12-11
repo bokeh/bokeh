@@ -11,6 +11,7 @@ import type {BBox} from "core/util/bbox"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import type {PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
+import type {WebGPUWrapper} from "../glyphs/webgpu/webgpu_wrapper"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet} from "core/dom"
 import * as canvas_css from "styles/canvas.css"
@@ -30,6 +31,14 @@ import icons_css from "styles/icons.css"
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement
   readonly regl_wrapper: ReglWrapper
+}
+
+export type WebGPUState = {
+  readonly canvas: HTMLCanvasElement
+  readonly device: GPUDevice
+  readonly context: GPUCanvasContext
+  readonly format: GPUTextureFormat
+  readonly wrapper: WebGPUWrapper
 }
 
 async function init_webgl(): Promise<WebGLState | null> {
@@ -72,10 +81,72 @@ const global_webgl: () => Promise<WebGLState | null> = (() => {
   }
 })()
 
+async function init_webgpu(): Promise<WebGPUState | null> {
+  // Check if WebGPU is available
+  if (typeof navigator === "undefined" || !("gpu" in navigator)) {
+    logger.trace("WebGPU is not supported in this browser")
+    return null
+  }
+
+  try {
+    const adapter = await navigator.gpu.requestAdapter()
+    if (adapter == null) {
+      logger.trace("WebGPU adapter not available")
+      return null
+    }
+
+    const device = await adapter.requestDevice()
+
+    const canvas = document.createElement("canvas")
+    const context = canvas.getContext("webgpu")
+    if (context == null) {
+      logger.trace("WebGPU context not available")
+      return null
+    }
+
+    const format = navigator.gpu.getPreferredCanvasFormat()
+    context.configure({
+      device,
+      format,
+      alphaMode: "premultiplied",
+    })
+
+    // Dynamically load the WebGPU wrapper module (like WebGL)
+    const webgpu = await load_module(import("../glyphs/webgpu"))
+    if (webgpu != null) {
+      const wrapper = webgpu.get_webgpu(device, context, format)
+      if (wrapper.has_webgpu) {
+        logger.info("WebGPU initialized successfully")
+        return {canvas, device, context, format, wrapper}
+      } else {
+        logger.trace("WebGPU is supported, but wrapper initialization failed")
+      }
+    } else {
+      logger.trace("WebGPU is supported, but bokehjs(.min).js bundle is not available")
+    }
+  } catch (err) {
+    logger.warn(`WebGPU initialization failed: ${err}`)
+  }
+
+  return null
+}
+
+const global_webgpu: () => Promise<WebGPUState | null> = (() => {
+  let _global_webgpu: WebGPUState | null | undefined
+  return async () => {
+    if (_global_webgpu !== undefined) {
+      return _global_webgpu
+    } else {
+      return _global_webgpu = await init_webgpu()
+    }
+  }
+})()
+
 export class CanvasView extends UIElementView {
   declare model: Canvas
 
   webgl: WebGLState | null = null
+  webgpu: WebGPUState | null = null
 
   underlays_el: HTMLElement
   primary: CanvasLayer
@@ -118,6 +189,11 @@ export class CanvasView extends UIElementView {
       this.webgl = await global_webgl()
       if (settings.force_webgl && this.webgl == null) {
         throw new Error("webgl is not available")
+      }
+    } else if (this.model.output_backend == "webgpu") {
+      this.webgpu = await global_webgpu()
+      if (this.webgpu == null) {
+        logger.warn("WebGPU is not available, falling back to canvas")
       }
     }
   }
@@ -220,7 +296,6 @@ export class CanvasView extends UIElementView {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug("Blitting WebGL canvas")
       ctx.restore()
       ctx.drawImage(webgl.canvas, 0, 0)
       // Set back hidpi transform
@@ -240,6 +315,63 @@ export class CanvasView extends UIElementView {
       // Prepare GL for drawing
       const {regl_wrapper, canvas} = webgl
       regl_wrapper.clear(canvas.width, canvas.height)
+    }
+  }
+
+  prepare_webgpu(frame_box: BBox): void {
+    // Prepare WebGPU for a drawing pass
+    const {webgpu} = this
+    if (webgpu != null) {
+      // Sync canvas size
+      const {width, height} = this.bbox
+      const ratio = this.pixel_ratio
+      const new_width = ratio * width
+      const new_height = ratio * height
+
+      // Reconfigure context if canvas size changed
+      if (webgpu.canvas.width !== new_width || webgpu.canvas.height !== new_height) {
+        webgpu.canvas.width = new_width
+        webgpu.canvas.height = new_height
+        // Must reconfigure context after canvas resize
+        webgpu.context.configure({
+          device: webgpu.device,
+          format: webgpu.format,
+          alphaMode: "premultiplied",
+        })
+      }
+
+      const {x: sx, y: sy, width: w, height: h} = frame_box
+      const {xview} = this.bbox
+      const vx = xview.compute(sx)
+      // WebGPU scissor Y is from top (unlike WebGL which is from bottom),
+      // so use sy directly without the yview flip
+      const vy = sy
+
+      // WebGPU requires integer scissor values. Use floor for origin and ceil for size
+      // to ensure we don't accidentally clip pixels that should be visible.
+      webgpu.wrapper.set_scissor(
+        Math.floor(ratio * vx),
+        Math.floor(ratio * vy),
+        Math.ceil(ratio * w),
+        Math.ceil(ratio * h),
+      )
+      webgpu.wrapper.clear()
+    }
+  }
+
+  blit_webgpu(ctx: Context2d): void {
+    // Blit WebGPU canvas into the 2D canvas
+    const {webgpu} = this
+    if (webgpu != null && webgpu.canvas.width * webgpu.canvas.height > 0 && webgpu.wrapper.should_blit) {
+      ctx.restore()
+      ctx.drawImage(webgpu.canvas, 0, 0)
+      // Set back hidpi transform
+      ctx.save()
+      if (this.model.hidpi) {
+        const ratio = this.pixel_ratio
+        ctx.scale(ratio, ratio)
+        ctx.translate(0.5, 0.5)
+      }
     }
   }
 

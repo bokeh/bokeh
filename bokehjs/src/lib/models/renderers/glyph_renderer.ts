@@ -322,7 +322,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   protected _paint(ctx: Context2d): void {
-    const {has_webgl} = this
+    const {has_webgl, has_webgpu} = this
 
     this.map_data()
 
@@ -383,8 +383,8 @@ export class GlyphRendererView extends DataRendererView {
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
-      // Render decimated during interaction if too many elements and not using GL
+        && !has_webgl && !has_webgpu && lod_threshold != null && all_indices.length > lod_threshold) {
+      // Render decimated during interaction if too many elements and not using GPU
       indices = [...this.decimated]
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph
