@@ -741,13 +741,16 @@ class figure(Plot, GlyphAPI):
     def borders(self, projection, scale="110m", **line_kwargs):
         """ Adds the borders of countries to a map with respect to a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_line` function.
 
         Example:
@@ -769,13 +772,16 @@ class figure(Plot, GlyphAPI):
     def coastlines(self, projection, scale="110m", **line_kwargs):
         """ Adds coastlines to a map with respect to a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_line` function.
 
         Example:
@@ -798,6 +804,9 @@ class figure(Plot, GlyphAPI):
         """ Adds land geometries including islands to a map with respect to a
         given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
@@ -808,7 +817,7 @@ class figure(Plot, GlyphAPI):
             draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_polygons` function.
 
         Example:
@@ -830,6 +839,9 @@ class figure(Plot, GlyphAPI):
     def lakes(self, projection, scale="110m", **poly_kwargs):
         """ Adds lakes to a map with respect to a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
@@ -840,7 +852,7 @@ class figure(Plot, GlyphAPI):
             draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_polygons` function.
 
         Example:
@@ -862,6 +874,9 @@ class figure(Plot, GlyphAPI):
     def ocean(self, projection, scale="110m", **poly_kwargs):
         """ Adds ocean to a map with respect to a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
@@ -872,7 +887,7 @@ class figure(Plot, GlyphAPI):
             draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_polygons` function.
 
         Example:
@@ -894,13 +909,16 @@ class figure(Plot, GlyphAPI):
     def rivers(self, projection, scale="110m", **line_kwargs):
         """ Adds rivers to a map with respect to a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_line` function.
 
         Example:
@@ -922,13 +940,16 @@ class figure(Plot, GlyphAPI):
     def projection_boundary(self, projection, **line_kwargs):
         """ Adds the boundary of a given projection to a map.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.line` function.
 
         Example:
@@ -950,13 +971,16 @@ class figure(Plot, GlyphAPI):
     def provinces(self, projection, scale="110m", **line_kwargs):
         """ Adds the borders of provinces to a map with respect to a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_line` function.
 
         Example:
@@ -978,6 +1002,9 @@ class figure(Plot, GlyphAPI):
     def states(self, projection, scale="110m", **poly_kwargs):
         """ Adds states and provinces as multi-polygons to a map for a given projection.
 
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
             scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
@@ -988,7 +1015,7 @@ class figure(Plot, GlyphAPI):
             draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
         .. note::
-            This functions allows all keyword arguments defined by the
+            This functions allows all parameters and keyword arguments defined by the
             :func:`~bokeh.plotting.figure.multi_polygons` function.
 
         Example:

@@ -17,16 +17,22 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from dataclasses import dataclass
+
 # External imports
 import numpy as np
+
+# Bokeh imports
+from ..colors import ColorLike
 
 try:
     import cartopy.crs as ccrs
     import cartopy.feature as cfeature
 except ModuleNotFoundError as e:
     raise ModuleNotFoundError(
-        "The module 'bokeh.plotting._geo_feature' requires the optional dependency 'cartopy'."
-        "To use this module, please install 'cartopy'.",
+        "The module 'bokeh.plotting._geo_feature' requires the optional dependency 'Cartopy'."
+        "To use this module, please install 'Cartopy'.",
     ) from e
 
 
@@ -34,16 +40,17 @@ except ModuleNotFoundError as e:
 # General API
 #-----------------------------------------------------------------------------
 
-GEO_FEATURE_COLORS = {
-    "LAND": "#EFEFDB",
-    "STATES": "#EFEFDB",
-    "RIVERS": "#9FDBF3",
-    "OCEAN": "#9FDBF3",
-    "LAKES": "#9FDBF3",
-    "BORDERS": "#CCCCCC",
-    "MAP_BOUNDARYS": "#000000",
-    "COASTLINES": "#000000",
-}
+@dataclass
+class GEO_FEATURE_COLORS:
+    LAND: ColorLike = "#EFEFDB"
+    STATES: ColorLike = "#EFEFDB"
+    RIVERS: ColorLike = "#9FDBF3"
+    OCEAN: ColorLike = "#9FDBF3"
+    LAKES: ColorLike = "#9FDBF3"
+    BORDERS: ColorLike = "#CCCCCC"
+    MAP_BOUNDARYS: ColorLike = "#000000"
+    COASTLINES: ColorLike = "#000000"
+
 
 def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     """ Adds line geometries to a map with respect to a given projection.
@@ -56,7 +63,7 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
             "50m" and "10m".
 
     .. note::
-        This functions allows all keyword arguments defined by the
+        This functions allows all parameters and keyword arguments defined by the
         :func:`~bokeh.plotting.figure.multi_line` function.
 
     Example:
@@ -96,7 +103,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
         draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
             .. note::
-                This functions allows all keyword arguments defined by the
+                This functions allows all parameters and keyword arguments defined by the
                 :func:`~bokeh.plotting.figure.multi_polygons` function.
 
     Example:
@@ -115,7 +122,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
             show(p)
     """
     draw_border = poly_kwargs.pop("draw_polygon_border", False)
-    border_color= poly_kwargs.pop("polygon_border_color", GEO_FEATURE_COLORS["BORDERS"])
+    border_color= poly_kwargs.pop("polygon_border_color", GEO_FEATURE_COLORS.BORDERS)
     xs, ys, poly_kwargs = _collect_polygon_geometries(projection, geometries_collection, **poly_kwargs)
     p.multi_polygons(xs, ys, **poly_kwargs)
     if draw_border:
@@ -134,7 +141,7 @@ def add_borders(p, projection, scale="110m", **line_kwargs):
             "50m" and "10m".
 
     .. note::
-        This functions allows all keyword arguments defined by the
+        This functions allows all parameters and keyword arguments defined by the
         :func:`~bokeh.plotting.figure.multi_line` function.
 
     Example:
@@ -151,7 +158,7 @@ def add_borders(p, projection, scale="110m", **line_kwargs):
             p = add_borders(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["BORDERS"])
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS.BORDERS)
     borders = cfeature.BORDERS.with_scale(scale)
     return add_line_geometries(p, projection, borders, **line_kwargs)
 
@@ -166,7 +173,7 @@ def add_coastlines(p, projection, scale="110m", **line_kwargs):
             "50m" and "10m".
 
     .. note::
-        This functions allows all keyword arguments defined by the
+        This functions allows all parameters and keyword arguments defined by the
         :func:`~bokeh.plotting.figure.multi_line` function.
 
     Example:
@@ -183,7 +190,7 @@ def add_coastlines(p, projection, scale="110m", **line_kwargs):
             p = add_coastlines(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["COASTLINES"])
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS.COASTLINES)
     coastline = cfeature.COASTLINE.with_scale(scale)
     return add_line_geometries(p, projection, coastline, **line_kwargs)
 
@@ -203,7 +210,7 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
         draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
             .. note::
-                This functions allows all keyword arguments defined by the
+                This functions allows all parameters and keyword arguments defined by the
                 :func:`~bokeh.plotting.figure.multi_polygons` function.
 
     Example:
@@ -220,7 +227,7 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
             p = add_land(p, ccrs.PlateCarree())
             show(p)
     """
-    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS['LAND'])
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS.LAND)
     land = cfeature.LAND.with_scale(scale)
     return add_polygon_geometries(p, projection, land, **poly_kwargs)
 
@@ -239,7 +246,7 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
         draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
             .. note::
-                This functions allows all keyword arguments defined by the
+                This functions allows all parameters and keyword arguments defined by the
                 :func:`~bokeh.plotting.figure.multi_polygons` function.
 
     Example:
@@ -256,7 +263,7 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
             p = add_lakes(p, ccrs.PlateCarree())
             show(p)
     """
-    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS["LAKES"])
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS.LAKES)
     lakes = cfeature.LAKES.with_scale(scale)
     return add_polygon_geometries(p, projection, lakes, **poly_kwargs)
 
@@ -275,7 +282,7 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
         draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
             .. note::
-                This functions allows all keyword arguments defined by the
+                This functions allows all parameters and keyword arguments defined by the
                 :func:`~bokeh.plotting.figure.multi_polygons` function.
 
     Example:
@@ -292,7 +299,7 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
             p = add_ocean(p, ccrs.PlateCarree())
             show(p)
     """
-    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS["OCEAN"])
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS.OCEAN)
     ocean = cfeature.OCEAN.with_scale(scale)
     return add_polygon_geometries(p, projection, ocean, **poly_kwargs)
 
@@ -307,7 +314,7 @@ def add_rivers(p, projection, scale="110m", **line_kwargs):
             "50m" and "10m".
 
     .. note::
-        This functions allows all keyword arguments defined by the
+        This functions allows all parameters and keyword arguments defined by the
         :func:`~bokeh.plotting.figure.multi_line` function.
 
     Example:
@@ -324,7 +331,7 @@ def add_rivers(p, projection, scale="110m", **line_kwargs):
             p = add_rivers(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["RIVERS"])
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS.RIVERS)
     rivers = cfeature.RIVERS.with_scale(scale)
     return add_line_geometries(p, projection, rivers, **line_kwargs)
 
@@ -339,7 +346,7 @@ def add_projection_boundary(p, projection, **line_kwargs):
             "50m" and "10m".
 
     .. note::
-        This functions allows all keyword arguments defined by the
+        This functions allows all parameters and keyword arguments defined by the
         :func:`~bokeh.plotting.figure.line` function.
 
     Example:
@@ -356,7 +363,7 @@ def add_projection_boundary(p, projection, **line_kwargs):
             p = add_projection_boundary(p, ccrs.EckertIII())
             show(p)
     """
-    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["MAP_BOUNDARYS"])
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS.MAP_BOUNDARYS)
     x, y = np.array(projection.boundary.xy)
     p.line(x, y, **line_kwargs)
     return p
@@ -372,7 +379,7 @@ def add_provinces(p, projection, scale="110m", **line_kwargs):
             "50m" and "10m".
 
     .. note::
-        This functions allows all keyword arguments defined by the
+        This functions allows all parameters and keyword arguments defined by the
         :func:`~bokeh.plotting.figure.multi_line` function.
 
     Example:
@@ -389,7 +396,7 @@ def add_provinces(p, projection, scale="110m", **line_kwargs):
             p = add_provinces(p, ccrs.PlateCarree())
             show(p)
     """
-    line_kwargs.setdefault("color", GEO_FEATURE_COLORS["BORDERS"])
+    line_kwargs.setdefault("color", GEO_FEATURE_COLORS.BORDERS)
     provinces = cfeature.NaturalEarthFeature('cultural', 'admin_1_states_provinces_lines', scale)
     return add_line_geometries(p, projection, provinces, **line_kwargs)
 
@@ -408,7 +415,7 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
         draw_polygon_color (str, "black"): Sets the color of the geometry border.
 
             .. note::
-                This functions allows all keyword arguments defined by the
+                This functions allows all parameters and keyword arguments defined by the
                 :func:`~bokeh.plotting.figure.multi_polygons` function.
 
     Example:
@@ -425,7 +432,7 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
             p = add_states(p, ccrs.PlateCarree(), draw_polygon_border=True)
             show(p)
     """
-    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS["STATES"])
+    poly_kwargs.setdefault("color", GEO_FEATURE_COLORS.STATES)
     states = cfeature.STATES.with_scale(scale)
     return add_polygon_geometries(p, projection, states, **poly_kwargs)
 
