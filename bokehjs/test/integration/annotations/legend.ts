@@ -410,4 +410,32 @@ describe("Legend annotation", () => {
 
     expect(clicked).to.be.equal(items)
   })
+
+  it("should support title and label outline_color and outline_width", async () => {
+    const p = fig([200, 200])
+
+    const r0 = p.scatter({x: [1, 2, 3], y: [3, 4, 5], size: 10, marker: "circle", color: "red"})
+    const r1 = p.scatter({x: [1, 2, 3], y: [2, 3, 4], size: 15, marker: "circle", color: "blue"})
+    const r2 = p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20, marker: "circle", color: "green"})
+
+    const items = [
+      new LegendItem({label: "Item #0", renderers: [r0]}),
+      new LegendItem({label: "Item #1", renderers: [r1]}),
+      new LegendItem({label: "Item #2", renderers: [r2]}),
+    ]
+
+    const legend = new Legend({
+      items,
+      title: "Outline color/width",
+      title_text_outline_color: "yellow",
+      title_text_outline_width: 0.5,
+      title_text_font_style: "bold",
+      label_text_outline_color: "red",
+      label_text_outline_width: 1.0,
+      label_text_font_style: "bold",
+    })
+    p.add_layout(legend)
+
+    await display(p)
+  })
 })
