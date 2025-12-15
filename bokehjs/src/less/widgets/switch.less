@@ -11,6 +11,16 @@
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 0.5em;
+  border-radius: 5px;
+  border: transparent solid;
+
+  &(:focus-within) {
+    outline: 2px solid var(--input-focus-border-color);
+  }
+
+  &(:hover) {
+    text-decoration: underline;
+  }
 }
 
 .bk-icon {
@@ -28,7 +38,28 @@
 }
 
 :host(.bk-disabled) {
-  cursor: default;
+  cursor: not-allowed;
+  outline: none;
+  text-decoration: none;
+
+  & .bk-label {
+    color: var(--disabled-color);
+  }
+
+  & .bk-body {
+    cursor: not-allowed;
+  }
+
+  & .bk-knob:before {
+    content: "";
+    width: 10px;
+    height: 2px;
+    background-color: var(--inverted-color);
+  }
+
+  & .bk-knob:focus-visible {
+    outline: none;
+  }
 }
 
 .bk-bar {
@@ -49,13 +80,40 @@
   border-radius: 8px;
   background-color: var(--inactive-fg);
   transition-property: left, background-color;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 :host(.bk-active) .bk-bar {
   background-color: var(--active-bg);
 }
 
-:host(.bk-active) .bk-knob {
-  left: calc(100% - var(--switch-size));
-  background-color: var(--active-fg);
+:host(.bk-active) {
+  & .bk-knob {
+    left: calc(100% - var(--switch-size));
+    background-color: var(--active-fg);
+  }
+
+  & .bk-knob:focus-visible {
+    outline: var(--active-switch-focus-outline-color) solid 2px;
+  }
+}
+
+:host(.bk-active:hover) {
+  & .bk-knob {
+    outline: var(--active-switch-focus-outline-color) solid 2px;
+  }
+}
+
+:host(:not(.bk-active, .bk-disabled)) {
+  & .bk-knob:focus-visible {
+    outline: var(--inactive-switch-focus-outline-color) solid 2px;
+  }
+}
+
+:host(:not(.bk-active, .bk-disabled):hover) {
+  & .bk-knob {
+    outline: var(--inactive-switch-focus-outline-color) solid 2px;
+  }
 }
