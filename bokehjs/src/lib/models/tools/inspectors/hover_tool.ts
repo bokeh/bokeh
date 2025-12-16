@@ -1,4 +1,4 @@
-import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
+import type {ViewStorage, View, ViewOf} from "core/build_views"
 import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
 import {display, div, empty, span, undisplay} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
@@ -138,12 +138,9 @@ export class HoverToolView extends InspectToolView {
   protected _template_el?: HTMLElement
   protected _template_view?: ViewOf<DOMElement>
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this._ttviews.values()
-    if (this._template_view != null) {
-      yield this._template_view
-    }
+  override children_views(): View[] {
+    const this_template_view = this._template_view != null ? [this._template_view]: []
+    return [...super.children_views(), ...this._ttviews.values(), ...this_template_view]
   }
 
   protected async _update_filters(): Promise<void> {

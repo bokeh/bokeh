@@ -9,7 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor, WindowAxis} from "core/enums"
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, View} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
@@ -100,9 +100,8 @@ export abstract class GlyphView extends DOMComponentView {
 
   readonly decorations: ViewStorage<Decoration> = new Map()
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.decorations.values()
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.decorations.values()]
   }
 
   override async lazy_initialize(): Promise<void> {

@@ -158,6 +158,7 @@ export class TextBox extends GraphicsBox {
   text: string
   color: string
   outline_color: string
+  outline_width: number
   font: string
   line_height: number
   //padding: Padding
@@ -168,6 +169,7 @@ export class TextBox extends GraphicsBox {
     const color = v.color
     const alpha = v.alpha
     const outline_color = v.outline_color
+    const outline_width = v.outline_width
     const style = v.font_style
     let size = v.font_size
     const face = v.font
@@ -188,6 +190,7 @@ export class TextBox extends GraphicsBox {
     this.font = font
     this.color = color2css(color, alpha)
     this.outline_color = color2css(outline_color, alpha)
+    this.outline_width = outline_width
     this.line_height = v.line_height
 
     const align = v.align
@@ -414,6 +417,7 @@ export class TextBox extends GraphicsBox {
     ctx.save()
     ctx.fillStyle = this.color
     ctx.strokeStyle = this.outline_color
+    ctx.lineWidth = this.outline_width
     ctx.font = this.font
     ctx.textAlign = "left"
     ctx.textBaseline = "alphabetic"

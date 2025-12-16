@@ -36,7 +36,10 @@ from bokeh.layouts import row
 from bokeh.models import (
     Circle,
     ColumnDataSource,
+    DataRange1d,
     Div,
+    Legend,
+    LegendItem,
     Plot,
     Range1d,
     Rect,
@@ -323,6 +326,32 @@ def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
 
     assert svgs0 == svgs2
     assert svgs1 == svgs2
+
+@pytest.mark.selenium
+def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
+    def plot(color: str):
+        return Plot(
+            x_range=DataRange1d(), y_range=DataRange1d(),
+            width=100, height=100,
+            min_border=0,
+            toolbar_location=None,
+            outline_line_color=None,
+            border_fill_color=None,
+            output_backend="svg",
+            renderers=[],
+            center=[Legend(items=[LegendItem(label=f"Legend Item: {color}")])],
+        )
+
+    layout = row([plot("red"), plot("blue")])
+
+    with silenced(MISSING_RENDERERS):
+        svgs = bie.get_svgs(layout, driver=webdriver)
+
+    assert len(svgs) == 2
+
+    # can't compare svg output, because of random defs IDs (clip-path, etc.)
+    assert "Legend Item: red" in svgs[0]
+    assert "Legend Item: blue" in svgs[1]
 
 def test_get_layout_html_resets_plot_dims() -> None:
     initial_height, initial_width = 200, 250

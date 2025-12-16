@@ -4,7 +4,6 @@ import {Tooltip} from "../ui/tooltip"
 import {HTML, HTMLView} from "../dom/html"
 
 import {isString} from "core/util/types"
-import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
 import {div, label} from "core/dom"
@@ -45,16 +44,11 @@ export abstract class InputWidgetView extends ControlView {
     yield this.input_el
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-
+  override children_views(): View[] {
     const {title, description} = this
-    if (title instanceof View) {
-      yield title
-    }
-    if (description instanceof View) {
-      yield description
-    }
+    const title_view = title instanceof View ? [title]:[]
+    const description_view = description instanceof View ? [description]:[]
+    return [...super.children_views(), ...title_view, ...description_view]
   }
 
   override async lazy_initialize(): Promise<void> {

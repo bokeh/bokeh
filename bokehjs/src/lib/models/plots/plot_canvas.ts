@@ -29,14 +29,13 @@ import {Panel} from "../ui/panel"
 import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
-import type {ViewStorage, IterViews, ViewOf, BuildResult} from "core/build_views"
+import type {ViewStorage, View, ViewOf, BuildResult} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
-import type {View} from "core/view"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray, isString} from "core/util/types"
@@ -203,10 +202,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
   /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.renderer_views.values()
-    yield* this.tool_views.values()
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
   }
 
   get child_models(): LayoutDOM[] {

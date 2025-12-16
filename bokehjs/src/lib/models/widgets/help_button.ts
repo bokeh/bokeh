@@ -2,7 +2,7 @@ import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import type {TooltipView} from "../ui/tooltip"
 import {Tooltip} from "../ui/tooltip"
 import {BuiltinIcon} from "../ui/icons/builtin_icon"
-import type {IterViews} from "core/build_views"
+import type {View} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import type {StyleSheetLike} from "core/dom"
@@ -14,9 +14,8 @@ export class HelpButtonView extends AbstractButtonView {
 
   protected tooltip: TooltipView
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this.tooltip
+  override children_views(): View[] {
+    return [...super.children_views(), this.tooltip]
   }
 
   override async lazy_initialize(): Promise<void> {

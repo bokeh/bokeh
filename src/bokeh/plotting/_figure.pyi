@@ -13,9 +13,11 @@ from typing import (
     Literal,
     Sequence,
     TypeAlias,
+    Unpack,
 )
 
 # External imports
+import cartopy.crs as ccrs
 import numpy as np
 import numpy.typing as npt
 
@@ -44,6 +46,8 @@ from ..models.glyphs import (
     HBar,
     HexTile,
     Line,
+    MultiLine,
+    MultiPolygons,
     VArea,
     VBar,
 )
@@ -61,7 +65,12 @@ from ..models.tools import (
     Tap,
     Tool,
 )
-from .glyph_api import GlyphAPI
+from .glyph_api import (
+    GlyphAPI,
+    LineArgs,
+    MultiLineArgs,
+    MultiPolygonsArgs,
+)
 
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries
@@ -166,5 +175,68 @@ class figure(Plot, GlyphAPI, FigureOptions):
         levels: npt.ArrayLike | None = None,
         **visuals: Any,
     ) -> ContourRenderer: ...
+
+    def borders(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def coastlines(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def land(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
+    def lakes(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
+    def ocean(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
+    def rivers(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def projection_boundary(
+        self,
+        projection: ccrs.Projection,
+        **line_kwargs: Unpack[LineArgs],
+    ) -> GlyphRenderer[Line]: ...
+
+    def provinces(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def states(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
 
 def markers() -> None: ...

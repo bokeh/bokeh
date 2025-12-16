@@ -1,8 +1,6 @@
 import type * as p from "core/properties"
 import {span} from "core/dom"
-import {dict} from "core/util/object"
 import {is_nullish} from "core/util/types"
-import {assert} from "core/util/assert"
 import type {Formatter, Column, GroupTotals, RowMetadata, ColumnMetadata} from "@bokeh/slickgrid"
 import {Grid as SlickGrid, Group} from "@bokeh/slickgrid"
 import type {Item} from "./definitions"
@@ -115,6 +113,27 @@ export class DataCubeProvider extends TableDataProvider {
     this.groupingInfos = groupingInfos
     this.toggledGroupsByLevel = groupingInfos.map(() => ({}))
 
+    const row_indices = this.target.get_array<number[] | number>("row_indices")
+    const labels = this.target.get_array<string>("labels")
+
+    const parents: number[][] = []
+    const parent_labels: string[] = []
+    row_indices.forEach((indices, i) => {
+      if (typeof indices === "number") {
+        this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false
+      } else {
+        while (parents.length > 0 && !indices.every((index) => parents[parents.length - 1].includes(index))) {
+          parents.pop()
+          parent_labels.pop()
+        }
+        if (parent_labels.length > 0) {
+          this.toggledGroupsByLevel[parent_labels.length - 1][parent_labels.join(this.groupingDelimiter)] = false
+        }
+        parents.push(indices)
+        parent_labels.push(labels[i])
+      }
+    })
+
     this.refresh()
   }
 
@@ -123,10 +142,9 @@ export class DataCubeProvider extends TableDataProvider {
     const groupsByValue: Map<any, Group<number>> = new Map()
     const level = parent_group != null ? parent_group.level + 1 : 0
     const {comparer, getter} = this.groupingInfos[level]
+    const column = this.source.get(getter)
 
     for (const row of rows) {
-      const column = dict(this.source.data).get(getter)
-      assert(column != null)
       const value = column[row]
       let group = groupsByValue.get(value)
 
@@ -151,16 +169,11 @@ export class DataCubeProvider extends TableDataProvider {
 
   private calculateTotals(group: Group<number>, aggregators: RowAggregator[]): GroupTotals<number> {
     const totals: GroupTotals<number> = {avg: {}, max: {}, min: {}, sum: {}} as any
-    const data = dict(this.source.data)
-    const names = [...data.keys()]
-    const items = group.rows.map((i) => {
-      return names.reduce((obj, name) => ({...obj, [name]: data.get(name)![i]}), {})
-    })
 
     for (const aggregator of aggregators) {
       aggregator.init()
-      for (const item of items) {
-        aggregator.accumulate(item)
+      for (const row of group.rows) {
+        aggregator.accumulate(this.source.get_row(row))
       }
       aggregator.storeResult(totals)
     }
@@ -202,9 +215,7 @@ export class DataCubeProvider extends TableDataProvider {
 
   refresh(): void {
     const groups = this.extractGroups(this.view.indices)
-    const data = dict(this.source.data)
-    const labels = data.get(this.columns[0].field!)
-    assert(labels != null)
+    const labels = this.source.get(this.columns[0].field!)
 
     if (groups.length != 0) {
       this.addTotals(groups)
@@ -222,11 +233,10 @@ export class DataCubeProvider extends TableDataProvider {
 
   override getItem(i: number): Item {
     const item = this.rows[i]
-    const data = dict(this.source.data)
 
     return item instanceof Group
       ? item as Item
-      : [...data.keys()].reduce((obj, name) => ({...obj, [name]: data.get(name)![item]}), {[DTINDEX_NAME]: item})
+      : {[DTINDEX_NAME]: item, ...this.source.get_row(item)}
   }
 
   getItemMetadata(i: number): RowMetadata<Item> {

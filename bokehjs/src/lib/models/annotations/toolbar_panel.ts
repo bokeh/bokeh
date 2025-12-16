@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
-import type {IterViews} from "core/build_views"
+import type {View} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {Size, Layoutable} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
@@ -24,9 +24,8 @@ export class ToolbarPanelView extends AnnotationView {
     return super.has_finished() && this.toolbar_view.has_finished()
   }
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield this.toolbar_view
+  override children_views(): View[] {
+    return [...super.children_views(), this.toolbar_view]
   }
 
   toolbar_view: ToolbarView

@@ -4,7 +4,7 @@ import {ArrowHead, TeeHead} from "./arrow_head"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Indices} from "core/types"
 import type {Context2d} from "core/util/canvas"
-import type {IterViews} from "core/build_views"
+import type {View} from "core/build_views"
 import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -17,16 +17,11 @@ export class WhiskerView extends UpperLowerView {
   protected lower_head: ArrowHeadView | null
   protected upper_head: ArrowHeadView | null
 
-  override *children(): IterViews {
-    yield* super.children()
-
+  override children_views(): View[] {
     const {lower_head, upper_head} = this
-    if (lower_head != null) {
-      yield lower_head
-    }
-    if (upper_head != null) {
-      yield upper_head
-    }
+    const lower_head_view = lower_head != null? [lower_head]:[]
+    const upper_head_view = upper_head != null? [upper_head]:[]
+    return [...super.children_views(), ...lower_head_view, ...upper_head_view]
   }
 
   override async lazy_initialize(): Promise<void> {

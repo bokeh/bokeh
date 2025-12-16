@@ -4,7 +4,7 @@ import type {ViewManager} from "./view_manager"
 import {difference} from "./util/array"
 import {assert} from "./util/assert"
 
-export type {IterViews, ViewOf} from "./view"
+export type {IterViews, ViewOf, View} from "./view"
 
 export type ViewStorage<T extends HasProps> = Map<T, ViewOf<T>>
 export type Options<T extends View> = {

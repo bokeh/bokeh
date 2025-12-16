@@ -39,9 +39,10 @@ export abstract class Scale<T = number> extends Transform<T, number> {
   }
 
   v_compute(xs: Arrayable<T>): ScreenArray {
-    const result = new ScreenArray(xs.length)
+    const n = xs.length
+    const result = new ScreenArray(n)
     const {s_compute} = this
-    for (let i = 0; i < xs.length; i++) {
+    for (let i = 0; i < n; i++) {
       result[i] = s_compute(xs[i])
     }
     return result
@@ -52,9 +53,10 @@ export abstract class Scale<T = number> extends Transform<T, number> {
   }
 
   v_invert(sxs: Arrayable<number>): FloatArray {
-    const result = new Float64Array(sxs.length)
+    const n = sxs.length
+    const result = new Float64Array(n)
     const {s_invert} = this
-    for (let i = 0; i < sxs.length; i++) {
+    for (let i = 0; i < n; i++) {
       result[i] = s_invert(sxs[i])
     }
     return result

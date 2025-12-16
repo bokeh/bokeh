@@ -82,5 +82,15 @@ describe("data_cube module", () => {
       provider.refresh()
       expect(target.get("row_indices")).to.be.equal([[5], [3, 4], [0, 1, 2]])
     })
+
+    it("Respect 'target' on initial creation", () => {
+      const target = new ColumnDataSource({data: {
+        row_indices: [[5], 5, [3, 4], 4, 3, [0, 1, 2], 2, 0, 1],
+        labels: ["blue", "wide", "green", "narrow", "wide", "red", "narrow", "wide", "wide"],
+      }})
+      const provider = new DataCubeProvider(source, view, columns, target)
+      provider.setGrouping(grouping)
+      expect(provider.toggledGroupsByLevel).to.be.equal([{blue: false, green: false, red: false}, {}])
+    })
   })
 })

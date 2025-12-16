@@ -25,6 +25,7 @@ import io
 import os
 from contextlib import contextmanager
 from os.path import abspath, expanduser, splitext
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterator, cast
 
@@ -475,7 +476,7 @@ function* collect_svgs(views) {
       yield* collect_svgs(view.child_views.values())
     }
     if (view instanceof PlotView && view.model.output_backend == "svg") {
-      const {ctx} = view.canvas_view.compose()
+      const {ctx} = view.export("svg")
       yield ctx.get_serialized_svg(true)
     }
   }
@@ -527,7 +528,7 @@ def _tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
     # in order for named temp files to be safely re-openable on Windows, we need
     # to set delete=False, so explicitly this context manager is for explicitly
     # managing the unlink after we are done.
-    tmp = NamedTemporaryFile(mode="wb", prefix="bokeh", suffix=".html", delete=False)
+    tmp = NamedTemporaryFile(mode="wb", dir=Path.home(), prefix="bokeh", suffix=".html", delete=False)
     try:
         yield tmp
     finally:

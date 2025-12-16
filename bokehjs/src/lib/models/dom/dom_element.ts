@@ -1,7 +1,7 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
 import {StylesLike} from "../ui/styled_element"
 import {UIElement} from "../ui/ui_element"
-import type {ViewStorage, BuildResult, IterViews} from "core/build_views"
+import type {ViewStorage, BuildResult, View} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type {RenderingTarget} from "core/dom_view"
 import {isString} from "core/util/types"
@@ -24,9 +24,8 @@ export abstract class DOMElementView extends DOMNodeView {
 
   readonly child_views: ViewStorage<DOMNode | UIElement> = new Map()
 
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.child_views.values()
+  override children_views(): View[] {
+    return [...super.children_views(), ...this.child_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
