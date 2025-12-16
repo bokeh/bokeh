@@ -12,7 +12,6 @@ dependencies:
   - libiconv
   - nodejs 20.*
   - python-build
-  - ripgrep=0.10.0
   - setuptools
   - yaml
 

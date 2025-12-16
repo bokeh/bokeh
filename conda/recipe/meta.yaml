@@ -28,7 +28,6 @@ requirements:
     - python
     - python-dateutil
     - pyyaml
-    - ripgrep
     - setuptools >=62.3.3
     - yaml
 
