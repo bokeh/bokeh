@@ -6,12 +6,12 @@ dependencies:
 
   # build
   - boto3
-  - build
   - colorama
-  - conda-build=3.22.0
-  - conda-verify=3.4.2
+  - conda-build 25.11*
+  - conda-verify 3.4*
   - libiconv
   - nodejs 20.*
+  - python-build
   - ripgrep=0.10.0
   - setuptools
   - yaml
