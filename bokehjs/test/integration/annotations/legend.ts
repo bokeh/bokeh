@@ -34,7 +34,7 @@ async function show_with_exported(plot: Plot) {
 }
 
 describe("Legend annotation", () => {
-  it("should support various combinations of locations and orientations", async () => {
+  it("should support various combinations of locations and orientations and border dash patterns", async () => {
     const random = new Random(1)
 
     const p = fig([600, 600])
@@ -67,16 +67,16 @@ describe("Legend annotation", () => {
       return new Legend({items, background_fill_alpha: 0.7, ...attrs})
     }
 
-    p.add_layout(legend({location: "center_left", orientation: "vertical", item_background_policy: "even", title: "even"}))
-    p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "odd", title: "odd"}))
-    p.add_layout(legend({location: "top_center", orientation: "horizontal", item_background_policy: "even", title: "even"}))
-    p.add_layout(legend({location: "top_right", orientation: "horizontal", item_background_policy: "odd", title: "odd"}))
-    p.add_layout(legend({location: "bottom_right", orientation: "horizontal", item_background_policy: "even", title: "even"}))
-    p.add_layout(legend({location: [0, 0], orientation: "vertical", item_background_policy: "odd", title: "odd"}))
+    p.add_layout(legend({border_line_dash: "solid", location: "center_left", orientation: "vertical", item_background_policy: "even", title: "even"}))
+    p.add_layout(legend({border_line_dash: "dotdash", location: "center", orientation: "vertical", item_background_policy: "odd", title: "odd"}))
+    p.add_layout(legend({border_line_dash: "dashdot", location: "top_center", orientation: "horizontal", item_background_policy: "even", title: "even"}))
+    p.add_layout(legend({border_line_dash: "dashed", location: "top_right", orientation: "horizontal", item_background_policy: "odd", title: "odd"}))
+    p.add_layout(legend({border_line_dash: "dotted", location: "bottom_right", orientation: "horizontal", item_background_policy: "even", title: "even"}))
+    p.add_layout(legend({border_line_dash: [], location: [0, 0], orientation: "vertical", item_background_policy: "odd", title: "odd"}))
 
-    p.add_layout(legend({location: "center", orientation: "horizontal", item_background_policy: "even", title: "even"}), "above")
-    p.add_layout(legend({location: "center", orientation: "horizontal", item_background_policy: "odd", title: "odd"}), "below")
-    p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "even", title: "even"}), "left")
+    p.add_layout(legend({border_line_dash: [4], location: "center", orientation: "horizontal", item_background_policy: "even", title: "even"}), "above")
+    p.add_layout(legend({border_line_dash: [2, 4, 3, 4], location: "center", orientation: "horizontal", item_background_policy: "odd", title: "odd"}), "below")
+    p.add_layout(legend({border_line_dash: [2, 4, 3, 4, 4, 4, 5, 4, 6, 4, 7, 4, 8, 4, 9, 4, 10, 4], location: "center", orientation: "vertical", item_background_policy: "even", title: "even"}), "left")
     p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "odd", title: "odd"}), "right")
 
     await show_with_exported(p)
