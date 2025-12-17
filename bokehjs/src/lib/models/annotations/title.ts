@@ -28,7 +28,7 @@ export class TitleView extends AnnotationView {
 
   override initialize(): void {
     super.initialize()
-    this._resize_observer = new ResizeObserver((_entries) => this.request_layout())
+    this._resize_observer = new ResizeObserver(() => this.request_layout())
     this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
@@ -48,6 +48,7 @@ export class TitleView extends AnnotationView {
   }
 
   override remove(): void {
+    this._resize_observer.disconnect()
     this._text_view.remove()
     super.remove()
   }
