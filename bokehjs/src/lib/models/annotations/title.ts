@@ -75,22 +75,19 @@ export class TitleView extends AnnotationView {
 
   override update_layout(): void {
     this.layout = new SideLayout(this.panel!, () => this.get_size())
-    this._apply_visuals(this.layer.ctx)
+    this._apply_visuals()
   }
 
   protected _paint(_ctx: Context2d): void {
   }
 
   override update_position(): void {
+    // do nothing and remove at some point
   }
 
   protected override _get_size(): Size {
     const {width, height} = this.el.getBoundingClientRect()
     return {width, height}
-  }
-
-  get angle(): number {
-    return this.panel!.get_label_angle_heuristic("parallel")
   }
 
   get padding(): LRTB<number> {
@@ -101,41 +98,17 @@ export class TitleView extends AnnotationView {
     return resolve.border_radius(this.model.border_radius)
   }
 
-  protected _apply_visuals(ctx: Context2d): void {
-    this.visuals.text.set_value(ctx)
-
-    this.style.replace(`
-    :host {
-      color: ${ctx.fillStyle};
-      -webkit-text-stroke: 1px ${ctx.strokeStyle};
-      font: ${ctx.font};
-    }
-    `)
-
-    const justify_content = (() => {
-      switch (this.model.align) {
-        case "left": return "flex-start"
-        case "center": return "center"
-        case "right": return "flex-end"
-      }
-    })()
-
-    const align_items = (() => {
-      switch (this.model.vertical_align) {
-        case "top": return "flex-start"
-        case "middle": return "center"
-        case "bottom": return "flex-end"
-      }
-    })()
-
+  protected _apply_visuals(): void {
+    const text_styles = this.visuals.text.computed_values()
     this.style.append(`
     :host {
-      justify-self: ${justify_content};
-      align-self: ${align_items};
+      font: ${text_styles.font};
+      color: ${text_styles.color};
+      -webkit-text-stroke: ${text_styles.outline_width}px ${text_styles.outline_color};
     }
     `)
 
-    /*
+    // can't simply use `rotate`, because rotation doesn't affect layout
     const {writing_mode, rotate} = (() => {
       switch (this.panel!.face_adjusted_side) {
         case "above": return {writing_mode: "horizontal-tb", rotate: 0}
@@ -144,19 +117,34 @@ export class TitleView extends AnnotationView {
         case "right": return {writing_mode: "vertical-rl",   rotate: 0}
       }
     })()
-    */
-
-    const {angle} = this
-    if (angle != 0) {
-      // TODO this doesn't consider `align`
-      this.style.append(`
-      :host {
-        writing-mode: vertical-rl;
-        rotate: 180deg;
-        align-self: end;
-      }
-      `)
+    this.style.append(`
+    :host {
+      writing-mode: ${writing_mode};
+      rotate: ${rotate}deg;
     }
+    `)
+
+    const justify_self = (() => {
+      switch (this.model.align) {
+        case "left":   return "flex-start"
+        case "center": return "center"
+        case "right":  return "flex-end"
+      }
+    })()
+
+    const align_self = (() => {
+      switch (this.model.vertical_align) {
+        case "top":    return "flex-start"
+        case "middle": return "center"
+        case "bottom": return "flex-end"
+      }
+    })()
+    this.style.append(`
+    :host {
+      justify-self: ${justify_self};
+      align-self: ${align_self};
+    }
+    `)
 
     const margin = (() => {
       const hmargin = this.model.offset
@@ -200,22 +188,24 @@ export class TitleView extends AnnotationView {
     `)
 
     if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
+      const {color} = this.visuals.background_fill.computed_values()
       this.style.append(`
       .${title_css.label} {
-        background-color: ${ctx.fillStyle};
+        background-color: ${color};
       }
       `)
     }
 
+    // TODO background_hatch (https://github.com/bokeh/bokeh/issues/14312)
+
     if (this.visuals.border_line.doit) {
-      // attempt to support vector-style ("8 4 8") line dashing for css mode
-      this.visuals.border_line.set_value(ctx)
+      // TODO use background-image to replicate number[] dash patterns
+      const {color, width, dash} = this.visuals.border_line.computed_values()
       this.style.append(`
       .${title_css.label} {
-        border-style: ${ctx.getLineDash().length < 2 ? "solid" : "dashed"};
-        border-width: ${ctx.lineWidth}px;
-        border-color: ${ctx.strokeStyle};
+        border-color: ${color};
+        border-width: ${width}px;
+        border-style: ${isString(dash) ? dash : (dash.length < 2 ? "solid" : "dashed")};
       }
       `)
     }
