@@ -7,7 +7,7 @@ dependencies:
   # build
   - boto3
   - colorama
-  - conda-build 25.11*
+  - conda-build 24*    # pre .conda format
   - conda-verify 3.4*
   - libiconv
   - nodejs 20.*
