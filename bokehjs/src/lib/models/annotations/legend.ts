@@ -4,6 +4,7 @@ import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import type {VAlign, HAlign} from "core/enums"
 import type * as visuals from "core/visuals"
+import {resolve_line_dash} from "core/visuals/line"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {Size} from "core/layout"
@@ -400,7 +401,13 @@ export class LegendView extends AnnotationView {
 
     if (this.visuals.border_line.doit) {
       const {color, width, dash: raw_dash} = this.visuals.border_line.computed_values()
+      const invalid_css_border_style = ["dotdash", "dashdot"]
       let dash = raw_dash
+      // Invalid string dash to use CSS/border-style approach
+      if (isString(dash) && invalid_css_border_style.includes(dash)) {
+        // Convert to array representation
+        dash = resolve_line_dash(dash)
+      }
       // Non-empty dash array case
       if (!isString(dash) && dash.length > 0) {
         // Make dash array even
@@ -432,7 +439,7 @@ export class LegendView extends AnnotationView {
              var(--background-color, --inverted-color);
         }
         `)
-      // Empty dash array (solid border) or string case
+      // Empty dash array (solid border) or border-style supported string case
       } else {
         this.style.append(`
         :host {
