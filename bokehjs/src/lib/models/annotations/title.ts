@@ -2,14 +2,14 @@ import {Annotation, AnnotationView} from "./annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
 import type * as p from "core/properties"
-import type {LRTB, Corners} from "core/util/bbox"
+import type {LRTB, Corners, BBox} from "core/util/bbox"
 import type * as visuals from "core/visuals"
 import * as resolve from "../common/resolve"
 import * as mixins from "core/property_mixins"
 import {Padding, BorderRadius} from "../common/kinds"
 import type {Context2d} from "core/util/canvas"
 import type {StyleSheetLike} from "core/dom"
-import {div} from "core/dom"
+import {div, bounding_box, extents} from "core/dom"
 import * as title_css from "styles/title.css"
 import {SideLayout} from "core/layout/side_panel"
 import {isString} from "core/util/types"
@@ -18,6 +18,7 @@ import type {View} from "core/build_views"
 import type {BaseTextView} from "models/text/base_text"
 import {BaseText} from "models/text/base_text"
 import {build_view} from "core/build_views"
+import {round_rect} from "../common/painting"
 
 export class TitleView extends AnnotationView {
   declare model: Title
@@ -25,6 +26,7 @@ export class TitleView extends AnnotationView {
   declare layout: Layoutable
 
   protected _resize_observer: ResizeObserver
+  protected label_el: HTMLElement
 
   override initialize(): void {
     super.initialize()
@@ -59,10 +61,6 @@ export class TitleView extends AnnotationView {
     this._text_view = await build_view(_text, {parent: this})
   }
 
-  override get is_dual_renderer(): boolean {
-    return true
-  }
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), title_css.default]
   }
@@ -70,8 +68,8 @@ export class TitleView extends AnnotationView {
   override render(): void {
     super.render()
 
-    const label_el = div({class: title_css.label}, this._text_view.html())
-    this.shadow_el.append(label_el)
+    this.label_el = div({class: title_css.label}, this._text_view.html())
+    this.shadow_el.append(this.label_el)
   }
 
   override update_layout(): void {
@@ -79,7 +77,63 @@ export class TitleView extends AnnotationView {
     this._apply_visuals()
   }
 
-  protected _paint(_ctx: Context2d): void {
+  protected _paint(ctx: Context2d): void {
+    if (!this.parent.is_forcing_paint) {
+      return
+    }
+
+    ctx.save()
+    const canvas_bbox = bounding_box(this.plot_view.canvas.el)
+    this._paint_box(ctx, canvas_bbox)
+    this._paint_title(ctx, canvas_bbox)
+    ctx.restore()
+  }
+
+  protected _paint_box(ctx: Context2d, canvas_bbox: BBox): void {
+    ctx.beginPath()
+    const bbox = bounding_box(this.label_el).relative_to(canvas_bbox)
+    round_rect(ctx, bbox, this.border_radius)
+
+    this.visuals.background_fill.apply(ctx)
+    this.visuals.background_hatch.apply(ctx)
+    this.visuals.border_line.apply(ctx)
+  }
+
+  protected _paint_title(ctx: Context2d, canvas_bbox: BBox): void {
+    if (!this.visuals.text.doit) {
+      return
+    }
+
+    const text_box = this._text_view.graphics()
+    const text_bbox = bounding_box(this.label_el).relative_to(canvas_bbox)
+
+    let {x: sx, y: sy} = text_bbox
+    const {padding, border} = extents(this.label_el)
+
+    switch (this.panel!.face_adjusted_side) {
+      case "above":
+      case "below": {
+        sx += padding.left + border.left
+        sy += padding.top + border.top
+        break
+      }
+      case "left": {
+        sx += padding.left + border.left
+        sy += text_bbox.height - padding.bottom - border.bottom
+        break
+      }
+      case "right": {
+        sx += text_bbox.width - padding.right - border.right
+        sy += padding.top + border.top
+        break
+      }
+      default:
+    }
+
+    text_box.position = {sx, sy, x_anchor: "left", y_anchor: "top"}
+    text_box.visuals = this.visuals.text.values()
+    text_box.angle = this.panel!.get_label_angle_heuristic("parallel")
+    text_box.paint(ctx)
   }
 
   override update_position(): void {
