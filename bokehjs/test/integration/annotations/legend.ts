@@ -6,7 +6,7 @@ import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
 import type {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
-import type {Orientation} from "@bokehjs/core/enums"
+import type {Orientation, LineDash} from "@bokehjs/core/enums"
 import {Location} from "@bokehjs/core/enums"
 import {linspace} from "@bokehjs/core/util/array"
 import {LegendItemClick} from "@bokehjs/core/bokeh_events"
@@ -440,7 +440,7 @@ describe("Legend annotation", () => {
   })
 
   describe("should support as border_line_dash pattern value", () => {
-    function plot(dash_pattern: DashPattern) {
+    function plot(dash_pattern: LineDash | number[]) {
       const p = fig([200, 200])
       const x = [1, 2, 3, 4, 5]
       const y1 = [2, 3, 4, 5, 6]
@@ -451,45 +451,43 @@ describe("Legend annotation", () => {
 
       p.legend.location = "top_left"
       p.legend.border_line_color = "black"
-      
       p.legend.border_line_dash = dash_pattern
-      
+
       return p
     }
 
     it("solid", async () => {
       const p = plot("solid")
-      p.legend.border_line_dash = "solid"
       await show_with_exported(p)
     })
 
     it("dotdash", async () => {
-      p.legend.border_line_dash = "dotdash"
+      const p = plot("dotdash")
       await show_with_exported(p)
     })
 
     it("dashdot", async () => {
-      p.legend.border_line_dash = "dashdot"
+      const p = plot("dashdot")
       await show_with_exported(p)
     })
 
     it("dashed", async () => {
-      p.legend.border_line_dash = "dashed"
+      const p = plot("dashed")
       await show_with_exported(p)
     })
 
     it("dotted", async () => {
-      p.legend.border_line_dash = "dotted"
+      const p = plot("dotted")
       await show_with_exported(p)
     })
 
-    it("Custom 0", async () => {
-      p.legend.border_line_dash = [2, 4, 3, 4]
+    it("Custom pattern 2, 4, 3, 4 (even number of items)", async () => {
+      const p = plot([2, 4, 3, 4])
       await show_with_exported(p)
     })
 
-    it("Custom 1", async () => {
-      p.legend.border_line_dash = [2, 4, 3, 4, 4, 4, 5, 4, 6, 4, 7, 4, 8, 4, 9, 4, 10, 4]
+    it("Custom pattern 2, 4, 9, 4, 10 (odd number of items)", async () => {
+      const p = plot([2, 4, 9, 4, 10])
       await show_with_exported(p)
     })
   })
