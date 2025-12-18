@@ -440,22 +440,25 @@ describe("Legend annotation", () => {
   })
 
   describe("should support as border_line_dash pattern value", () => {
-    const p = fig([200, 200])
-    const x = [1, 2, 3, 4, 5]
-    const y1 = [2, 3, 4, 5, 6]
-    const y2 = [3, 4, 5, 6, 7]
+    function plot(dash_pattern: DashPattern) {
+      const p = fig([200, 200])
+      const x = [1, 2, 3, 4, 5]
+      const y1 = [2, 3, 4, 5, 6]
+      const y2 = [3, 4, 5, 6, 7]
 
-    p.line(x, y1, {legend_label: "Temp.", line_color: "blue"})
-    p.line(x, y2, {legend_label: "Objects", line_color: "red"})
+      p.line(x, y1, {legend_label: "Temp.", line_color: "blue"})
+      p.line(x, y2, {legend_label: "Objects", line_color: "red"})
 
-    p.legend.location = "top_left"
-    p.legend.border_line_color = "black"
-
-    it("default", async () => {
-      await show_with_exported(p)
-    })
+      p.legend.location = "top_left"
+      p.legend.border_line_color = "black"
+      
+      p.legend.border_line_dash = dash_pattern
+      
+      return p
+    }
 
     it("solid", async () => {
+      const p = plot("solid")
       p.legend.border_line_dash = "solid"
       await show_with_exported(p)
     })
