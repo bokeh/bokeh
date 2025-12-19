@@ -11,6 +11,10 @@ export abstract class BaseTextView extends View {
   abstract graphics(): GraphicsBox
 
   abstract html(): Node
+
+  get is_empty(): boolean {
+    return this.model.text.length == 0
+  }
 }
 
 export namespace BaseText {
