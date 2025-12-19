@@ -78,25 +78,31 @@ export class TitleView extends AnnotationView {
   }
 
   protected _paint(ctx: Context2d): void {
-    if (!this.parent.is_forcing_paint) {
+    const do_paint = this.parent.is_forcing_paint
+    this.label_el.style.visibility = do_paint ? "hidden" : ""
+
+    if (!do_paint || this._text_view.is_empty) {
       return
     }
 
-    ctx.save()
     const canvas_bbox = bounding_box(this.plot_view.canvas.el)
     this._paint_box(ctx, canvas_bbox)
     this._paint_title(ctx, canvas_bbox)
-    ctx.restore()
   }
 
   protected _paint_box(ctx: Context2d, canvas_bbox: BBox): void {
+    const {background_fill, background_hatch, border_line} = this.visuals
+    if (!(background_fill.doit || background_hatch.doit || border_line.doit)) {
+      return
+    }
+
     ctx.beginPath()
     const bbox = bounding_box(this.label_el).relative_to(canvas_bbox)
     round_rect(ctx, bbox, this.border_radius)
 
-    this.visuals.background_fill.apply(ctx)
-    this.visuals.background_hatch.apply(ctx)
-    this.visuals.border_line.apply(ctx)
+    background_fill.apply(ctx)
+    background_hatch.apply(ctx)
+    border_line.apply(ctx)
   }
 
   protected _paint_title(ctx: Context2d, canvas_bbox: BBox): void {
