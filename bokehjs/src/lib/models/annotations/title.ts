@@ -81,7 +81,12 @@ export class TitleView extends AnnotationView {
     const do_paint = this.parent.is_forcing_paint
     this.label_el.style.visibility = do_paint ? "hidden" : ""
 
-    if (!do_paint || this._text_view.is_empty) {
+    if (!do_paint) {
+      this._text_view.mark_finished()
+      return
+    }
+
+    if (this._text_view.is_empty) {
       return
     }
 
