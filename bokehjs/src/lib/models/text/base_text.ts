@@ -15,6 +15,8 @@ export abstract class BaseTextView extends View {
   get is_empty(): boolean {
     return this.model.text.length == 0
   }
+
+  async fetch_assets?(): Promise<void>
 }
 
 export namespace BaseText {

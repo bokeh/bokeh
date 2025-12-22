@@ -371,6 +371,26 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     this.parent.request_layout()
   }
 
+  async fetch_image(): Promise<void> {
+    await this.request_image()
+
+    if (!this._has_finished && (this.provider.status == "failed" || this.svg_image != null)) {
+      this.finish()
+    }
+  }
+
+  override async fetch_assets(): Promise<void> {
+    if (this.has_finished() && this.svg_image != null) {
+      return
+    }
+    if (this.provider.status == "not_started" || this.provider.status == "loading") {
+      this.provider.ready.connect(() => this.fetch_image())
+    }
+    if (this.provider.status == "loaded") {
+      void this.fetch_image()
+    }
+  }
+
   /**
    * Takes a Canvas' Context2d and if the image has already
    * been loaded draws the image in it otherwise draws the model's text.
