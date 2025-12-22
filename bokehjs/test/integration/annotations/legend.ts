@@ -440,7 +440,7 @@ describe("Legend annotation", () => {
   })
 
   describe("should support as border_line_dash pattern value", () => {
-    function plot(dash_pattern: LineDash | number[]) {
+    function plot(dash_pattern: LineDash | number[], border_width: number = 1) {
       const p = fig([200, 200])
       const x = [1, 2, 3, 4, 5]
       const y1 = [2, 3, 4, 5, 6]
@@ -452,6 +452,7 @@ describe("Legend annotation", () => {
       p.legend.location = "top_left"
       p.legend.border_line_color = "black"
       p.legend.border_line_dash = dash_pattern
+      p.legend.border_line_width = border_width
 
       return p
     }
@@ -486,8 +487,18 @@ describe("Legend annotation", () => {
       await show_with_exported(p)
     })
 
+    it("Custom pattern 2, 4, 3, 4 (even number of items) with border_line_width 2", async () => {
+      const p = plot([2, 4, 3, 4], 2)
+      await show_with_exported(p)
+    })
+
     it("Custom pattern 2, 4, 9, 4, 10 (odd number of items)", async () => {
       const p = plot([2, 4, 9, 4, 10])
+      await show_with_exported(p)
+    })
+
+    it("Custom pattern 2, 4, 9, 4, 10 (odd number of items) with border_line_width 3", async () => {
+      const p = plot([2, 4, 9, 4, 10], 3)
       await show_with_exported(p)
     })
   })
