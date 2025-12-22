@@ -79,10 +79,11 @@ export class TitleView extends AnnotationView {
 
   protected _paint(ctx: Context2d): void {
     const do_paint = this.parent.is_forcing_paint
-    this.label_el.style.visibility = do_paint ? "hidden" : ""
+    //this.label_el.style.visibility = do_paint ? "hidden" : ""
 
     if (!do_paint) {
-      this._text_view.mark_finished()
+      this._text_view.graphics().visuals = this.visuals.text.values()
+      void this._text_view.fetch_assets?.()
       return
     }
 
