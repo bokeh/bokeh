@@ -4,12 +4,13 @@ import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import type {VAlign, HAlign} from "core/enums"
 import type * as visuals from "core/visuals"
+import {resolve_line_dash} from "core/visuals/line"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {Size} from "core/layout"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import {every, some} from "core/util/array"
+import {every, some, sum} from "core/util/array"
 import {dict} from "core/util/object"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
@@ -391,6 +392,7 @@ export class LegendView extends AnnotationView {
       const {color} = this.visuals.background_fill.computed_values()
       this.style.append(`
       :host {
+        --background-color: ${color};
         background-color: ${color};
       }
       `)
@@ -398,15 +400,55 @@ export class LegendView extends AnnotationView {
     // TODO background_hatch (https://github.com/bokeh/bokeh/issues/14312)
 
     if (this.visuals.border_line.doit) {
-      // TODO use background-image to replicate number[] dash patterns
-      const {color, width, dash} = this.visuals.border_line.computed_values()
-      this.style.append(`
-      :host {
-        border-color: ${color};
-        border-width: ${width}px;
-        border-style: ${isString(dash) ? dash : (dash.length < 2 ? "solid" : "dashed")};
+      const {color, width, dash: raw_dash} = this.visuals.border_line.computed_values()
+      const invalid_css_border_style = ["dotdash", "dashdot"]
+      let dash = raw_dash
+      // Invalid string dash to use CSS/border-style approach
+      if (isString(dash) && invalid_css_border_style.includes(dash)) {
+        // Convert to array representation
+        dash = resolve_line_dash(dash)
       }
-      `)
+      // Non-empty dash array case
+      if (!isString(dash) && dash.length > 0) {
+        // Make dash array even
+        if (dash.length % 2 !== 0) {
+          dash = dash.concat(dash)
+        }
+        // Compute extra patterns rules
+        let extra_patterns = ""
+        for (let index = 0; index < dash.length; index++) {
+          if (index !== 0 && index % 2 === 0) {
+            extra_patterns += `,
+            linear-gradient(to right, ${color} ${dash[index]}px, transparent ${dash[index]}px) ${sum(dash.slice(0, index))}px top/var(--border-line-full-length) ${width}px repeat-x,
+            linear-gradient(to right, ${color} ${dash[index]}px, transparent ${dash[index]}px) ${sum(dash.slice(0, index))}px bottom/var(--border-line-full-length) ${width}px repeat-x,
+            linear-gradient(to bottom, ${color} ${dash[index]}px, transparent ${dash[index]}px) right ${sum(dash.slice(0, index))}px/${width}px var(--border-line-full-length) repeat-y,
+            linear-gradient(to bottom, ${color} ${dash[index]}px, transparent ${dash[index]}px) left ${sum(dash.slice(0, index))}px/${width}px var(--border-line-full-length) repeat-y`
+          }
+        }
+
+        this.style.append(`
+        :host {
+          --border-color: ${color};
+          --border-line-full-length: ${sum(dash)}px;
+
+          background:
+             linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/var(--border-line-full-length) ${width}px repeat-x,
+             linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left bottom/var(--border-line-full-length) ${width}px repeat-x,
+             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) right top/${width}px var(--border-line-full-length) repeat-y,
+             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/${width}px var(--border-line-full-length) repeat-y ${extra_patterns.length > 0 ? `${extra_patterns}` : "" },
+             var(--background-color, --inverted-color);
+        }
+        `)
+      // Empty dash array (solid border) or border-style supported string case
+      } else {
+        this.style.append(`
+        :host {
+          border-color: ${color};
+          border-width: ${width}px;
+          border-style: ${isString(dash) ? `${dash}` : "solid"};
+        }
+        `)
+      }
     }
 
     this._render_items()
