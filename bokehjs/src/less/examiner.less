@@ -161,18 +161,26 @@
     </svg>');
 }
 
-.expander/*.open*/ {
+.expander {
   width: 6px;
   height: 6px;
   mask-image: var(--open-image);
   -webkit-mask-image: var(--open-image);
 }
 
-.expander.closed {
-  width: 6px;
-  height: 6px;
-  mask-image: var(--closed-image);
-  -webkit-mask-image: var(--closed-image);
+.branch {
+  display: contents;
+}
+
+.branch.collapsed {
+  > .prop {
+    display: none;
+  }
+
+  .expander {
+    mask-image: var(--closed-image);
+    -webkit-mask-image: var(--closed-image);
+  }
 }
 
 .base {
