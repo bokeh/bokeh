@@ -27,6 +27,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "target": "ES2022",
     "lib": ["es2022", "dom", "dom.iterable"],
     "types": ["google.maps"],
