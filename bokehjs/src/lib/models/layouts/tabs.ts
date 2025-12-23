@@ -107,12 +107,18 @@ export class TabsView extends LayoutDOMView {
     const {active} = this.model
 
     const headers = this.model.tabs.map((tab, i) => {
-      const tab_el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: 0}, tab.title)
+      const tab_el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: tab.disabled ? -1 : 0}, tab.title)
       tab_el.addEventListener("click", (event) => {
         if (this.model.disabled) {
           return
         }
         if (event.target == event.currentTarget) {
+          this.change_active(i)
+        }
+      })
+      tab_el.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.keyCode === 13) {
+          event.preventDefault()
           this.change_active(i)
         }
       })
