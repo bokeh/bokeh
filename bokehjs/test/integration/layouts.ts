@@ -577,12 +577,12 @@ describe("Tabs", () => {
 
   it("should allow tabs header location left with overflow", async () => {
     const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location right with overflow", async () => {
     const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location above with overflow and active off-screen", async () => {
@@ -600,13 +600,13 @@ describe("Tabs", () => {
   it("should allow tabs header location left with overflow and active off-screen", async () => {
     const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location right with overflow and active off-screen", async () => {
     const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location above with disabled=true", async () => {
