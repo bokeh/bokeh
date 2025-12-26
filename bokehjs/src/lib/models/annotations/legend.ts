@@ -357,7 +357,16 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO inactive_hatch (https://github.com/bokeh/bokeh/issues/14312)
+
+    if (this.visuals.inactive_hatch.doit) {
+      const {scale, pattern} = this.visuals.inactive_hatch.computed_values()
+      this.style.append(`
+      .${legend_css.item} {
+        --item-background-inactive-hatch: url(${pattern});
+        --item-background-inactive-hatch-scale: ${scale}px;
+      }
+      `)
+    }
 
     const grid_auto_flow = (() => {
       switch (this.model.title_location) {
