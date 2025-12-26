@@ -109,6 +109,22 @@ export class Hatch extends VisualProperties {
     }
   }
 
+  declare ComputedValues: {
+    scale:   number
+    pattern: string | null
+  }
+
+  computed_values(): this["ComputedValues"] {
+    let pattern = null
+    if (this._hatch_image !== null && this._hatch_image instanceof HTMLCanvasElement) {
+      pattern = this._hatch_image.toDataURL("image/svg+xml")
+    }
+    return {
+      scale: this.get_hatch_scale(),
+      pattern,
+    }
+  }
+
   get_hatch_color(): Color | null {
     const css_color = this._get_css_value("hatch-color")
     if (css_color != "") {

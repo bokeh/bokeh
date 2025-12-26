@@ -338,7 +338,16 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO item_background_hatch (https://github.com/bokeh/bokeh/issues/14312)
+
+    if (this.visuals.item_background_hatch.doit) {
+      const {scale, pattern} = this.visuals.item_background_hatch.computed_values()
+      this.style.append(`
+      .${legend_css.item} {
+        --item-background-hatch: url(${pattern});
+        --item-background-hatch-scale: ${scale}px;
+      }
+      `)
+    }
 
     if (this.visuals.inactive_fill.doit) {
       const {color} = this.visuals.inactive_fill.computed_values()
