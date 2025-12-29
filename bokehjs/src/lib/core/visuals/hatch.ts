@@ -111,13 +111,13 @@ export class Hatch extends VisualProperties {
 
   declare ComputedValues: {
     scale:   number
-    pattern: string | null
+    pattern: string
   }
 
   computed_values(): this["ComputedValues"] {
-    let pattern = null
+    let pattern = ""
     if (this._hatch_image !== null && this._hatch_image instanceof HTMLCanvasElement) {
-      pattern = this._hatch_image.toDataURL("image/svg+xml")
+      pattern = this._hatch_image.toDataURL("image/png")
     }
     return {
       scale: this.get_hatch_scale(),
