@@ -503,7 +503,7 @@ describe("Legend annotation", () => {
     })
   })
 
-  describe("should support as item_background_hash and inactive_hash and background_hash patterns values like", () => {
+  describe("should support as item_background_hatch and inactive_hatch and background_hatch patterns values like", () => {
     function plot(hash_pattern: HatchPatternType) {
       const p = fig([200, 200])
       const x = [1, 2, 3, 4, 5]
@@ -515,6 +515,7 @@ describe("Legend annotation", () => {
 
       p.legend.location = "top_left"
       p.legend.border_line_color = "black"
+      p.legend.click_policy = "hide"
       p.legend.item_background_policy = "odd"
       p.legend.item_background_hatch_color = "green"
       p.legend.item_background_hatch_scale = 5
