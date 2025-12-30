@@ -29,6 +29,7 @@ from typing import (
 )
 
 # Bokeh imports
+from ..models.dom import DOMNode
 from ..util.browser import NEW_PARAM, get_browser_controller
 from .notebook import DEFAULT_JUPYTER_URL, run_notebook_hook
 from .saving import save
@@ -55,7 +56,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(
-    obj: UIElement | Sequence[UIElement] | Application | ModifyDoc,
+    obj: UIElement | Sequence[UIElement] | DOMNode | Application | ModifyDoc,
     browser: str | None = None,
     new: BrowserTarget = "tab",
     notebook_handle: bool = False,
@@ -68,7 +69,7 @@ def show(
     cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (UIElement or UIElement[] or Application or callable) :
+        obj (UIElement or UIElement[] or DOMNode or Application or callable) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -155,7 +156,7 @@ def show(
 
     state = curstate()
 
-    if isinstance(obj, UIElement) or isinstance(obj, Sequence):
+    if isinstance(obj, UIElement) or isinstance(obj, DOMNode) or isinstance(obj, Sequence):
         return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
     def is_application(obj: Any) -> TypeGuard[Application]:
@@ -180,18 +181,19 @@ def show(
 _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be one of:
 
 * a UIElement (e.g. a plot, figure, widget or layout)
+* a DOMNode (e.g. a Div)
 * a Bokeh Application
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: UIElement | Sequence[UIElement], state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file_with_state(obj: UIElement | Sequence[UIElement] | DOMNode, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj: UIElement | Sequence[UIElement], state: State, browser: str | None,
+def _show_with_state(obj: UIElement | Sequence[UIElement] | DOMNode, state: State, browser: str | None,
         new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
