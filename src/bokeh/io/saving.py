@@ -36,6 +36,7 @@ from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
+    from ..models.dom import DOMNode
     from ..models.ui import UIElement
     from ..resources import ResourcesLike
     from ..themes import Theme
@@ -55,7 +56,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None, resources: ResourcesLike | None = None,
+def save(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -66,7 +67,7 @@ def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None,
     ``/foo/myplot.html``)
 
     Args:
-        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, use the default state configuration.
@@ -162,7 +163,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: UIElement | Sequence[UIElement], filename: PathLike, resources: Resources | None,
+def _save_helper(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], filename: PathLike, resources: Resources | None,
         title: str | None, template: Template | str | None, theme: Theme | None = None) -> None:
     '''
 

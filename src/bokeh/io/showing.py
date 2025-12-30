@@ -56,7 +56,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(
-    obj: UIElement | Sequence[UIElement] | DOMNode | Application | ModifyDoc,
+    obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode] | Application | ModifyDoc,
     browser: str | None = None,
     new: BrowserTarget = "tab",
     notebook_handle: bool = False,
@@ -69,7 +69,7 @@ def show(
     cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (UIElement or UIElement[] or DOMNode or Application or callable) :
+        obj (UIElement or UIElement[] or DOMNode or DOMNode[] or Application or callable) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -186,14 +186,14 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: UIElement | Sequence[UIElement] | DOMNode, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file_with_state(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj: UIElement | Sequence[UIElement] | DOMNode, state: State, browser: str | None,
+def _show_with_state(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], state: State, browser: str | None,
         new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 
