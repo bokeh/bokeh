@@ -33,7 +33,7 @@ class SomeModelView extends DOMComponentView implements visuals.Paintable {
       },
       create_layer_svg(): CanvasLayer {
         return new CanvasLayer("svg", true)
-      }
+      },
     }
   }
 }
