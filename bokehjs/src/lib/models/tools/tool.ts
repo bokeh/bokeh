@@ -246,6 +246,21 @@ export abstract class Tool extends Model {
     return [sxlim, sylim]
   }
 
+  _compute_overlay_limits(sxlim: [number, number], sylim: [number, number],
+      dims: Dimensions): [[number, number], [number, number]] {
+    const s_offset = 2
+
+    if (dims == "width") {
+      sylim[0] -= s_offset // top
+      sylim[1] += s_offset // bottom
+    } else if (dims == "height") {
+      sxlim[0] -= s_offset // left
+      sxlim[1] += s_offset // right
+    }
+
+    return [sxlim, sylim]
+  }
+
   // utility function to return a tool name, modified
   // by the active dimensions. Used by tools that have dimensions
   protected _get_dim_tooltip(dims: Dimensions | "auto"): string {
