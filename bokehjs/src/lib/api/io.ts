@@ -8,7 +8,7 @@ import {dom_ready, contains} from "core/dom"
 import {isString, isArray} from "core/util/types"
 
 import type {UIElement} from "models/ui/ui_element"
-import {DOMNode} from "models/dom/dom_node"
+import type {DOMNode} from "models/dom/dom_node"
 
 declare type Jq = any
 declare const $: Jq
