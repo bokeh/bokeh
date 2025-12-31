@@ -17,45 +17,9 @@ import {render, Component} from "preact"
 import type {VNode} from "preact"
 import {signal, computed} from "@preact/signals"
 
-export class HTMLPrinter {
-  protected readonly visited = new WeakSet()
-  protected depth = 0
+import {Kinds} from "core/kinds"
 
-  constructor(readonly click?: (obj: unknown) => void, readonly max_items: number = 5, readonly max_depth: number = 3) {}
-
-  to_html(obj: unknown): VNode<HTMLElement> {
-    if (isObject(obj)) {
-      if (this.visited.has(obj)) {
-        return <span>circular</span>
-      } else {
-        this.visited.add(obj)
-      }
-    }
-
-    if (obj == null) {
-      return this.null()
-    } else if (isBoolean(obj)) {
-      return this.boolean(obj)
-    } else if (isNumber(obj)) {
-      return this.number(obj)
-    } else if (isString(obj)) {
-      return this.string(obj)
-    } else if (isSymbol(obj)) {
-      return this.symbol(obj)
-    } else if (obj instanceof HasProps) {
-      return this.model(obj)
-    } else if (obj instanceof p.Property) {
-      return this.property(obj)
-    } else if (isPlainObject(obj)) {
-      return this.object(obj)
-    } else if (isArray(obj)) {
-      return this.array(obj)
-    } else if (isIterable(obj)) {
-      return this.iterable(obj)
-    } else {
-      return <span>{to_string(obj)}</span>
-    }
-  }
+export abstract class BasePrinter {
 
   null(): VNode<HTMLElement> {
     return <span class={pretty.nullish}>null</span>
@@ -92,6 +56,125 @@ export class HTMLPrinter {
 
   symbol(val: symbol): VNode<HTMLElement> {
     return <span class={pretty.symbol}>{val.toString()}</span>
+  }
+}
+
+export class KindPrinter extends BasePrinter {
+
+  to_html(obj: unknown): VNode<HTMLElement> {
+    if (obj == null) {
+      return this.null()
+    } else if (isBoolean(obj)) {
+      return this.boolean(obj)
+    } else if (isNumber(obj)) {
+      return this.number(obj)
+    } else if (isString(obj)) {
+      return this.string(obj)
+    } else if (isSymbol(obj)) {
+      return this.symbol(obj)
+    } else if (obj instanceof Kinds.Ref) {
+      return this.ref(obj)
+    } else if (obj instanceof Kinds.Nullable) {
+      return this.nullable(obj)
+    } else if (obj instanceof Kinds.List) {
+      return this.list(obj)
+    } else if (obj instanceof Kinds.Dict) {
+      return this.dict(obj)
+    } else if (obj instanceof Kinds.Tuple) {
+      return this.tuple(obj)
+    } else if (obj instanceof Kinds.Or) {
+      return this.or(obj)
+    } else if (obj instanceof Kinds.Enum) {
+      return this.enum(obj)
+    } else if (obj instanceof Kinds.Primitive) {
+      return this.primitive(obj.toString().toLocaleLowerCase())
+    } else {
+      return <span>{obj.toString()}</span>
+    }
+  }
+
+  primitive(obj: string): VNode<HTMLElement> {
+    return <span class={pretty.primitive}>{obj}</span>
+  }
+
+  ref(obj: Kinds.Ref<object>): VNode<HTMLElement> {
+    return <span class={pretty.type}>{obj.type_name}</span>
+  }
+
+  nullable(obj: Kinds.Nullable<unknown>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>{this.to_html(obj.base_type)}{T(" | ")}{this.null()}</span>
+  }
+
+  list(obj: Kinds.List<unknown>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>{this.to_html(obj.item_type)}{T("[")}{T("]")}</span>
+  }
+
+  dict(obj: Kinds.Dict<unknown>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>{T("{")}{this.primitive("str")}{T(": ")}{this.to_html(obj.item_type)}{T("}")}</span>
+  }
+
+  tuple(obj: Kinds.Tuple<[unknown]>): VNode<HTMLElement> {
+    const T = this.token
+    const types = obj.types.map((tp) => this.to_html(tp))
+    return <span>{T("[")}{interleave(types, () => T(", "))}{T("]")}</span>
+  }
+
+  or(obj: Kinds.Or<[unknown]>): VNode<HTMLElement> {
+    const T = this.token
+    const types = obj.types.map((tp) => this.to_html(tp))
+    return <span>{interleave(types, () => T(" | "))}</span>
+  }
+
+  enum(obj: Kinds.Enum<string | number>): VNode<HTMLElement> {
+    const T = this.token
+    const types = [...obj.values].map((val) => this.to_html(val))
+    return <span>Enum{T("(")}{interleave(types, () => T(", "))}{T(")")}</span>
+  }
+}
+
+export class HTMLPrinter extends BasePrinter {
+  protected readonly visited = new WeakSet()
+  protected depth = 0
+
+  constructor(readonly click?: (obj: unknown) => void, readonly max_items: number = 5, readonly max_depth: number = 3) {
+    super()
+  }
+
+  to_html(obj: unknown): VNode<HTMLElement> {
+    if (isObject(obj)) {
+      if (this.visited.has(obj)) {
+        return <span>circular</span>
+      } else {
+        this.visited.add(obj)
+      }
+    }
+
+    if (obj == null) {
+      return this.null()
+    } else if (isBoolean(obj)) {
+      return this.boolean(obj)
+    } else if (isNumber(obj)) {
+      return this.number(obj)
+    } else if (isString(obj)) {
+      return this.string(obj)
+    } else if (isSymbol(obj)) {
+      return this.symbol(obj)
+    } else if (obj instanceof HasProps) {
+      return this.model(obj)
+    } else if (obj instanceof p.Property) {
+      return this.property(obj)
+    } else if (isPlainObject(obj)) {
+      return this.object(obj)
+    } else if (isArray(obj)) {
+      return this.array(obj)
+    } else if (isIterable(obj)) {
+      return this.iterable(obj)
+    } else {
+      return <span>{to_string(obj)}</span>
+    }
   }
 
   array(obj: unknown[]): VNode<HTMLElement> {
@@ -299,7 +382,7 @@ export class ExaminerVDOMView extends UIElementView {
         const {prop} = this.props
         const connections = receivers_for_sender.get(prop.obj) ?? []
 
-        const kind = prop.kind.toString()
+        const kind = new KindPrinter().to_html(prop.kind)
         const value = prop.is_unset ? <span>unset</span> : to_html(prop.get_value())
 
         const listeners = connections.filter((connection) => connection.signal == prop.change).length

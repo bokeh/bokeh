@@ -81,11 +81,14 @@ export namespace Kinds {
       return value instanceof this.obj_type
     }
 
-    override toString(): string {
-      const tp = this.obj_type
+    get type_name(): string {
       // NOTE: `__name__` is injected by a compiler transform
-      const name = (tp as any).__name__ ?? tp.toString()
-      return `Ref(${name})`
+      const tp = this.obj_type
+      return (tp as any).__name__ ?? tp.toString()
+    }
+
+    override toString(): string {
+      return `Ref(${this.type_name})`
     }
 
     may_have_refs(): boolean {
