@@ -3041,12 +3041,9 @@ describe("Bug", () => {
       const input_el = view.choice_el.input.element
       await mouse_click(input_el)
       input_el.value = "B" // Can't enter value with a synthetic event.
+      view.choice_el.input._onInput()
       await paint()
-      view.choice_el.input.isFocussed = true // Can't focus in headless.
-
-      const init = {key: "B", code: "KeyB", keyCode: 66, shiftKey: true, bubbles: true, composed: true}
-      input_el.dispatchEvent(new KeyboardEvent("keyup", init))
-      input_el.focus()
+      view.choice_el._onInput()
       await paint()
     })
   })
