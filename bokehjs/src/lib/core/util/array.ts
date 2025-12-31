@@ -8,6 +8,7 @@ import {randomIn} from "./math"
 import {assert} from "./assert"
 import {isInteger} from "./types"
 import {min, min_by, max_by, includes, filter} from "./arrayable"
+import * as iter from "./iterator"
 
 export {
   map, reduce, min, min_by, max, max_by, sum, cumsum, every, some,
@@ -350,4 +351,8 @@ export function resize<T>(array: T[], new_length: number, fill_value?: T): T[] {
     }
     return array.concat(suffix)
   }
+}
+
+export function interleave<T>(seq: Iterable<T>, separator: () => T): T[] {
+  return [...iter.interleave(seq, separator)]
 }

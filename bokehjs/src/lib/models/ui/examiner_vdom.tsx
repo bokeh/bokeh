@@ -6,7 +6,7 @@ import {to_string} from "core/util/pretty"
 import {isBoolean, isNumber, isString, isSymbol, isArray, isIterable, isObject, isPlainObject} from "core/util/types"
 import type {PlainObject} from "core/types"
 import {entries, keys} from "core/util/object"
-import {interleave} from "core/util/iterator"
+import {interleave} from "core/util/array"
 import {receivers_for_sender} from "core/signaling"
 import {diagnostics} from "core/diagnostics"
 
@@ -372,13 +372,6 @@ export class ExaminerVDOMView extends UIElementView {
     type PropItemProps = {prop: p.Property}
     class PropItem extends Component<PropItemProps> {
       render(): VNode<HTMLElement> {
-        function to_html(obj: unknown) {
-          // TODO to_html(); fails with insertBefore() on undefined
-          //const printer = new HTMLPrinter()
-          //return printer.to_html(obj)
-          return `${obj}`
-        }
-
         const {prop} = this.props
         const connections = receivers_for_sender.get(prop.obj) ?? []
 
