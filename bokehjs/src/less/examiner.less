@@ -217,3 +217,20 @@
 .underline {
   text-decoration: underline;
 }
+
+// TODO use this instead of el.animate()
+.value.animated {
+  animation-name: highlight;
+  animation-duration: 2s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: #def189;
+  }
+  100% {
+    background-color: initial;
+  }
+}

@@ -370,6 +370,52 @@ export class ExaminerVDOMView extends UIElementView {
       }
     }
 
+    type PropValueProps = {prop: p.Property}
+    class PropValue extends Component<PropValueProps> {
+      constructor(props: PropValueProps) {
+        super(props)
+        this.state = {
+          value_changed: new Date(),
+        }
+      }
+
+      protected _value_el: HTMLElement | null = null
+
+      highlight(el: Element): void {
+        for (const animation of el.getAnimations()) {
+          animation.cancel()
+        }
+        el.animate([
+          {backgroundColor: "#def189"},
+          {backgroundColor: "initial"},
+        ], {duration: 2000})
+      }
+
+      readonly listener = ((obj: unknown): void => {
+        if (obj === this.props.prop && this._value_el != null) {
+          this.setState({value_changed: new Date()})
+          this.highlight(this._value_el)
+        }
+      }).bind(this)
+
+      override componentDidMount(): void {
+        diagnostics.connect(this.listener)
+      }
+
+      override componentWillUnmount(): void {
+        diagnostics.disconnect(this.listener)
+      }
+
+      render(): VNode<HTMLElement> {
+        const {prop} = this.props
+        return (
+          <span class="value" ref={(el) => { this._value_el = el }}>
+            {prop.is_unset ? <span>unset</span> : to_html(prop.get_value())}
+          </span>
+        )
+      }
+    }
+
     type PropItemProps = {prop: p.Property}
     class PropItem extends Component<PropItemProps> {
       render(): VNode<HTMLElement> {
@@ -377,7 +423,7 @@ export class ExaminerVDOMView extends UIElementView {
         const connections = receivers_for_sender.get(prop.obj) ?? []
 
         const kind = new KindPrinter().to_html(prop.kind)
-        const value = prop.is_unset ? <span>unset</span> : to_html(prop.get_value())
+        const value = <PropValue prop={prop}></PropValue>
 
         const listeners = connections.filter((connection) => connection.signal == prop.change).length
 
@@ -504,9 +550,6 @@ export class ExaminerVDOMView extends UIElementView {
 
     type WatchesListProps = {}
     class WatchesList extends Component<WatchesListProps> {
-      constructor(props: WatchesListProps) {
-        super(props)
-      }
       render(): VNode<HTMLElement> {
         const props = [...watched_props.value]
         const entries = (() => {
@@ -516,7 +559,7 @@ export class ExaminerVDOMView extends UIElementView {
             return props.map((prop) => (
               <div class={cls("prop", prop.dirty ? "dirty" : null)}>
                 <span>{to_html(prop)}</span>
-                <span>{prop.is_unset ? <span>unset</span> : to_html(prop.get_value())}</span>
+                <PropValue prop={prop}></PropValue>
               </div>
             ))
           }
@@ -547,20 +590,6 @@ export class ExaminerVDOMView extends UIElementView {
             </div>
           </div>
         )
-      }
-
-      readonly listener = ((obj: unknown): void => {
-        if (!(obj instanceof p.Property)) {
-          return
-        }
-      }).bind(this)
-
-      override componentDidMount(): void {
-        diagnostics.connect(this.listener)
-      }
-
-      override componentWillUnmount(): void {
-        diagnostics.disconnect(this.listener)
       }
     }
 
