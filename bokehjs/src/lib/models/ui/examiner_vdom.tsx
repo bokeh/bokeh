@@ -269,13 +269,14 @@ export class ExaminerVDOMView extends UIElementView {
     const show_internal = signal(true)
     const watched_props = signal(new Set<p.Property>())
 
-    function cls(...classes: (string | null | undefined | (string | undefined | null)[])[]): string {
-      const unique = classes
+    type CSSClass = string | null | undefined
+    function cls(...classes: (CSSClass | CSSClass[])[]): string {
+      const transformed = classes
         .flatMap((cls) => isArray(cls) ? cls : [cls])
         .filter((cls) => cls != null)
         .map((cls) => cls.trim())
         .filter((cls) => cls.length != 0)
-      return [...new Set(unique)].join(" ")
+      return [...new Set(transformed)].join(" ")
     }
 
     function click(obj: unknown) {
@@ -392,11 +393,27 @@ export class ExaminerVDOMView extends UIElementView {
         const internal = prop.internal ? "internal" : null
         const hidden = !prop.dirty && !show_initial.value || prop.internal && !show_internal.value ? "hidden" : null
 
+        const pattern = props_filter.value
+        const {attr} = prop
+
+        const i = attr.indexOf(pattern)
+        const attr_el = (() => {
+          if (i == -1) {
+            return <span>{attr}</span>
+          } else {
+            const j = i + pattern.length
+            const prefix = attr.substring(0, i)
+            const infix = attr.substring(i, j)
+            const suffix = attr.substring(j)
+            return <><span>{prefix}</span><span class="underline">{infix}</span><span>{suffix}</span></>
+          }
+        })()
+
         return (
           <div class={cls("prop", dirty, internal, hidden)}>
             <div class="prop-attr" tabIndex={0}>
               {watch_el}
-              <span class="attr">{prop.attr}</span>
+              {attr_el}
               {prop.internal ? <span class="tag">internal</span> : null}
             </div>
             <div class="prop-conns">
