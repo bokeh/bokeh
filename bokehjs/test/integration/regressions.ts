@@ -3044,7 +3044,7 @@ describe("Bug", () => {
       const init = {key: "B", code: "KeyB", keyCode: 66, shiftKey: true, bubbles: true, composed: true}
       input_el.dispatchEvent(new KeyboardEvent("keyup", init))
       await paint()
-      input_el.dispatchEvent(new Event('input', { bubbles: true }));
+      input_el.dispatchEvent(new Event("input", {bubbles: true}))
       await paint()
     })
   })
