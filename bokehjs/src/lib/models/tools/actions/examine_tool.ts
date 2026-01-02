@@ -11,6 +11,8 @@ import {div} from "core/dom"
 
 import pretty_css from "styles/pretty.css"
 
+import {render} from "preact"
+
 export class ExamineToolView extends ActionToolView {
   declare model: ExamineTool
 
@@ -26,9 +28,15 @@ export class ExamineToolView extends ActionToolView {
     const target = this.parent.model
     const printer = new HTMLPrinter()
 
+    const title_el = div()
+    render(printer.to_html(target), title_el)
+    // NOTE because preact prepends during render
+    // TODO add support for VNode to HTML model
+    title_el.prepend("Examine ")
+
     const dialog = new Dialog({
       stylesheets: [pretty_css],
-      title: new HTML({html: div("Examine ", printer.to_html(target))}),
+      title: new HTML({html: title_el}),
       content: new Examiner({target}),
       visible: false,
       close_action: "hide",
