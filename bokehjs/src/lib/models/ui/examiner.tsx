@@ -647,7 +647,7 @@ export class ExaminerView extends UIElementView {
       if (target != null) {
         return target.references()
       } else {
-        return this.model.document?.all_models ?? []
+        return this.model.document?.all_models ?? new Set()
       }
     })()
 
