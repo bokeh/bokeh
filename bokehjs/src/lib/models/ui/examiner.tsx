@@ -280,8 +280,8 @@ function compute_attrs(model: HasProps): Attrs[] {
   return bases.map(([base, attrs]) => [base, attrs.map((attr) => model.property(attr))])
 }
 
-export class ExaminerVDOMView extends UIElementView {
-  declare model: ExaminerVDOM
+export class ExaminerView extends UIElementView {
+  declare model: Examiner
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), pretty_css, examiner_css]
@@ -650,27 +650,27 @@ export class ExaminerVDOMView extends UIElementView {
   }
 }
 
-export namespace ExaminerVDOM {
+export namespace Examiner {
   export type Attrs = p.AttrsOf<Props>
   export type Props = UIElement.Props & {
     target: p.Property<HasProps | null>
   }
 }
 
-export interface ExaminerVDOM extends ExaminerVDOM.Attrs {}
+export interface Examiner extends Examiner.Attrs {}
 
-export class ExaminerVDOM extends UIElement {
-  declare properties: ExaminerVDOM.Props
-  declare __view_type__: ExaminerVDOMView
+export class Examiner extends UIElement {
+  declare properties: Examiner.Props
+  declare __view_type__: ExaminerView
 
-  constructor(attrs?: Partial<ExaminerVDOM.Attrs>) {
+  constructor(attrs?: Partial<Examiner.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = ExaminerVDOMView
+    this.prototype.default_view = ExaminerView
 
-    this.define<ExaminerVDOM.Props>(({Ref, Nullable}) => ({
+    this.define<Examiner.Props>(({Ref, Nullable}) => ({
       target: [ Nullable(Ref(HasProps)), null ],
     }))
   }

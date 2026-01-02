@@ -35,7 +35,6 @@ from .ui_element import UIElement
 
 __all__ = (
     "Examiner",
-    "ExaminerVDOM",
 )
 
 #-----------------------------------------------------------------------------
@@ -47,18 +46,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Examiner(UIElement):
-    """ A diagnostic tool for examining documents, models, properties, etc. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    target = Nullable(Instance(HasProps), help="""
-    The model and its references to inspect. If not specified, then all models
-    in the document the examiner model belongs to will be inspected.
-    """)
-
-class ExaminerVDOM(UIElement):
     """ A diagnostic tool for examining documents, models, properties, etc. """
 
     # explicit __init__ to support Init signatures

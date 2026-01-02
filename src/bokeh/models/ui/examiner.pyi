@@ -16,8 +16,3 @@ from .ui_element import UIElement
 class Examiner(UIElement):
 
     target: HasProps | None = ...
-
-@dataclass
-class ExaminerVDOM(UIElement):
-
-    target: HasProps | None = ...
