@@ -132,7 +132,7 @@ export class KindPrinter extends BasePrinter {
 
   nullable(obj: Kinds.Nullable<unknown>): VNode<HTMLElement> {
     const T = this.token
-    return <span>{this.to_html(obj.base_type)}{T(" | ")}{this.null()}</span>
+    return <span>{this.to_html(obj.base_type)}{T("?")}</span>
   }
 
   list(obj: Kinds.List<unknown>): VNode<HTMLElement> {
