@@ -12,6 +12,7 @@ import {diagnostics} from "core/diagnostics"
 
 import examiner_css from "styles/examiner.css"
 import pretty_css, * as pretty from "styles/pretty.css"
+import icons_css from "styles/icons.css"
 
 import {render, Component} from "preact"
 import type {VNode} from "preact"
@@ -284,7 +285,7 @@ export class ExaminerView extends UIElementView {
   declare model: Examiner
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), pretty_css, examiner_css]
+    return [...super.stylesheets(), pretty_css, examiner_css, icons_css]
   }
 
   override render(): void {
@@ -591,6 +592,12 @@ export class ExaminerView extends UIElementView {
 
     type WatchesListProps = {}
     class WatchesList extends Component<WatchesListProps> {
+      remove_watch(prop: p.Property): void {
+        const watched = watched_props.value
+        watched.delete(prop)
+        watched_props.value = new Set(watched)
+      }
+
       render(): VNode<HTMLElement> {
         const props = [...watched_props.value]
         const entries = (() => {
@@ -599,8 +606,9 @@ export class ExaminerView extends UIElementView {
           } else {
             return props.map((prop) => (
               <div class={cls("prop", prop.dirty ? "dirty" : null)}>
-                <span>{to_html(prop)}</span>
-                <PropValue prop={prop}></PropValue>
+                <div>{to_html(prop)}</div>
+                <div><PropValue prop={prop}></PropValue></div>
+                <div class="btn btn-delete" onClick={() => this.remove_watch(prop)}></div>
               </div>
             ))
           }
