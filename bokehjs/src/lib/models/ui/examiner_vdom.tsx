@@ -19,6 +19,16 @@ import {signal, computed} from "@preact/signals"
 
 import {Kinds} from "core/kinds"
 
+function highlight(el: Element): void {
+  for (const animation of el.getAnimations()) {
+    animation.cancel()
+  }
+  el.animate([
+    {backgroundColor: "#def189"},
+    {backgroundColor: "initial"},
+  ], {duration: 2000})
+}
+
 export abstract class BasePrinter {
 
   null(): VNode<HTMLElement> {
@@ -290,7 +300,38 @@ export class ExaminerVDOMView extends UIElementView {
       return printer.to_html(obj)
     }
 
-    class ModelRef extends Component<{model: HasProps}> {
+    type ModelItemProps = {model: HasProps}
+    class ModelItem extends Component<ModelItemProps> {
+      constructor(props: ModelItemProps) {
+        super(props)
+        this.state = {
+          value_changed: new Date(),
+        }
+      }
+
+      protected _model_el: HTMLElement | null = null
+
+      readonly listener = ((obj: unknown): void => {
+        if (!(obj instanceof p.Property && this._model_el != null)) {
+          return
+        }
+        const {model} = this.props
+        for (const prop of model) {
+          if (prop == obj) {
+            this.setState({value_changed: new Date()})
+            highlight(this._model_el)
+          }
+        }
+      }).bind(this)
+
+      override componentDidMount(): void {
+        diagnostics.connect(this.listener)
+      }
+
+      override componentWillUnmount(): void {
+        diagnostics.disconnect(this.listener)
+      }
+
       render(): VNode<HTMLElement> {
         const {model} = this.props
         const root = model.is_root ? <span class="tag">root</span> : null
@@ -300,7 +341,11 @@ export class ExaminerVDOMView extends UIElementView {
           }
         }
         const active = current_model.value == model ? "active" : null
-        return <span class={cls("model-ref", active)} tabIndex={0} onKeyDown={key_down}>{to_html(model)}{root}</span>
+        return (
+          <span class={cls("model-ref", active)} tabIndex={0} onKeyDown={key_down} ref={(el) => { this._model_el = el }}>
+            {to_html(model)}{root}
+          </span>
+        )
       }
     }
 
@@ -363,7 +408,7 @@ export class ExaminerVDOMView extends UIElementView {
           <div class="models-panel">
             <ModelsToolbar></ModelsToolbar>
             <div class="models-list">{
-              this.models_list.value.map((model) => <ModelRef model={model}></ModelRef>)
+              this.models_list.value.map((model) => <ModelItem model={model}></ModelItem>)
             }</div>
           </div>
         )
@@ -381,20 +426,10 @@ export class ExaminerVDOMView extends UIElementView {
 
       protected _value_el: HTMLElement | null = null
 
-      highlight(el: Element): void {
-        for (const animation of el.getAnimations()) {
-          animation.cancel()
-        }
-        el.animate([
-          {backgroundColor: "#def189"},
-          {backgroundColor: "initial"},
-        ], {duration: 2000})
-      }
-
       readonly listener = ((obj: unknown): void => {
         if (obj === this.props.prop && this._value_el != null) {
           this.setState({value_changed: new Date()})
-          this.highlight(this._value_el)
+          highlight(this._value_el)
         }
       }).bind(this)
 
