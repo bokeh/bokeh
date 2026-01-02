@@ -29,6 +29,25 @@ function highlight(el: Element): void {
   ], {duration: 2000})
 }
 
+function emphasize(text: string, pattern: string): VNode<HTMLElement> {
+  const i = text.indexOf(pattern)
+  if (i == -1) {
+    return <span>{text}</span>
+  } else {
+    const j = i + pattern.length
+    const prefix = text.substring(0, i)
+    const infix = text.substring(i, j)
+    const suffix = text.substring(j)
+    return (
+      <>
+        <span>{prefix}</span>
+        <span class="underline">{infix}</span>
+        <span>{suffix}</span>
+      </>
+    )
+  }
+}
+
 export abstract class BasePrinter {
 
   null(): VNode<HTMLElement> {
@@ -400,8 +419,8 @@ export class ExaminerVDOMView extends UIElementView {
         super(props)
       }
       readonly models_list = computed(() => {
-        const text = models_filter.value
-        return this.props.models.filter((model) => model.constructor.__qualified__.includes(text))
+        const pattern = models_filter.value
+        return this.props.models.filter((model) => model.constructor.__qualified__.includes(pattern))
       })
       render(): VNode<HTMLElement> {
         return (
@@ -477,24 +496,11 @@ export class ExaminerVDOMView extends UIElementView {
         const pattern = props_filter.value
         const {attr} = prop
 
-        const i = attr.indexOf(pattern)
-        const attr_el = (() => {
-          if (i == -1) {
-            return <span>{attr}</span>
-          } else {
-            const j = i + pattern.length
-            const prefix = attr.substring(0, i)
-            const infix = attr.substring(i, j)
-            const suffix = attr.substring(j)
-            return <><span>{prefix}</span><span class="underline">{infix}</span><span>{suffix}</span></>
-          }
-        })()
-
         return (
           <div class={cls("prop", dirty, internal, hidden)}>
             <div class="prop-attr" tabIndex={0}>
               {watch_el}
-              {attr_el}
+              {emphasize(attr, pattern)}
               {prop.internal ? <span class="tag">internal</span> : null}
             </div>
             <div class="prop-conns">
