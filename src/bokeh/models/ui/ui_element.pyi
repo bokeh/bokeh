@@ -7,7 +7,7 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Sequence, TypeAlias
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
@@ -40,3 +40,5 @@ class UIElement(StyledElement):
     visible: bool = ...
 
     context_menu: Menu | Auto | None = ...
+
+UIElementLike: TypeAlias = UIElement | Sequence[UIElement]

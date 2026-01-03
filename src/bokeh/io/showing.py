@@ -29,7 +29,6 @@ from typing import (
 )
 
 # Bokeh imports
-from ..models.dom import DOMNode
 from ..util.browser import NEW_PARAM, get_browser_controller
 from .notebook import DEFAULT_JUPYTER_URL, run_notebook_hook
 from .saving import save
@@ -38,7 +37,8 @@ from .state import curstate
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
-    from ..models.ui import UIElement
+    from ..models.dom import DOMNodeLike
+    from ..models.ui import UIElementLike
     from ..util.browser import BrowserLike, BrowserTarget
     from .notebook import CommsHandle, ProxyUrlFunc
     from .state import State
@@ -56,7 +56,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(
-    obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode] | Application | ModifyDoc,
+    obj: UIElementLike | DOMNodeLike | Application | ModifyDoc,
     browser: str | None = None,
     new: BrowserTarget = "tab",
     notebook_handle: bool = False,
@@ -152,6 +152,7 @@ def show(
         ``push_notebook``, None otherwise.
 
     '''
+    from ..models.dom import DOMNode
     from ..models.ui import UIElement
 
     state = curstate()
@@ -186,14 +187,14 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file_with_state(obj: UIElementLike | DOMNodeLike, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], state: State, browser: str | None,
+def _show_with_state(obj: UIElementLike | DOMNodeLike, state: State, browser: str | None,
         new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 

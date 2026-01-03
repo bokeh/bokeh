@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath, expanduser
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 # External imports
 from jinja2 import Template
@@ -36,8 +36,8 @@ from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
-    from ..models.dom import DOMNode
-    from ..models.ui import UIElement
+    from ..models.dom import DOMNodeLike
+    from ..models.ui import UIElementLike
     from ..resources import ResourcesLike
     from ..themes import Theme
     from .state import State
@@ -56,7 +56,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], filename: PathLike | None = None, resources: ResourcesLike | None = None,
+def save(obj: UIElementLike | DOMNodeLike, filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -163,7 +163,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: UIElement | Sequence[UIElement] | DOMNode | Sequence[DOMNode], filename: PathLike, resources: Resources | None,
+def _save_helper(obj: UIElementLike | DOMNodeLike, filename: PathLike, resources: Resources | None,
         title: str | None, template: Template | str | None, theme: Theme | None = None) -> None:
     '''
 
