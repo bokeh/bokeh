@@ -114,9 +114,30 @@ export class OpaqueKindPrinter extends BasePrinter {
 }
 
 export class KindPrinter extends BasePrinter {
-  // TODO implement precedence
+
+  private _precedence_queue: number[] = []
 
   to_html(obj: unknown): VNode<HTMLElement> {
+    const p_prev = this._precedence_queue.at(-1)
+
+    const p = this.precedence(obj)
+    this._precedence_queue.push(p)
+
+    try {
+      const rep = this._to_html(obj)
+
+      if (p_prev === undefined || p >= p_prev) {
+        return rep
+      } else {
+        const T = this.token
+        return <>{T("(")}{rep}{T(")")}</>
+      }
+    } finally {
+      this._precedence_queue.pop()
+    }
+  }
+
+  protected _to_html(obj: unknown): VNode<HTMLElement> {
     if (obj == null) {
       return this.null()
     } else if (isBoolean(obj)) {
@@ -163,6 +184,16 @@ export class KindPrinter extends BasePrinter {
       return this.primitive(obj.toString().toLocaleLowerCase())
     } else {
       return <span>{obj.toString()}</span>
+    }
+  }
+
+  precedence(kind: unknown): number {
+    if (kind instanceof Kinds.Or || kind instanceof Kinds.Enum || kind instanceof Kinds.Tuple) {
+      return 0
+    } else if (kind instanceof Kinds.And) {
+      return 1
+    } else {
+      return 2
     }
   }
 
