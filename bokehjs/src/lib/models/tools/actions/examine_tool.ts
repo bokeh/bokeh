@@ -38,7 +38,7 @@ export class ExamineToolView extends ActionToolView {
     const dialog = new Dialog({
       stylesheets: [pretty_css],
       title: new HTML({html: title_el}),
-      content: new Examiner({target}),
+      content: new Examiner({target, stylesheets: [":host { width: 100%; height: 100%; }"]}),
       visible: false,
       close_action: "hide",
     })
