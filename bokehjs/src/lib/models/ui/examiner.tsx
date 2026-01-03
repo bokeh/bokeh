@@ -18,6 +18,7 @@ import {render, Component} from "preact"
 import type {VNode} from "preact"
 import {signal, computed} from "@preact/signals"
 
+import type {Kind} from "core/kinds"
 import {Kinds} from "core/kinds"
 
 function highlight(el: Element): void {
@@ -474,6 +475,52 @@ export class ExaminerView extends UIElementView {
       }
     }
 
+    type PropEditorProps = {prop: p.Property}
+    class PropEditor extends Component<PropEditorProps> {
+      constructor(props: PropEditorProps) {
+        super(props)
+      }
+
+      editors(kind: Kind<unknown>): VNode<HTMLElement> {
+        if (kind instanceof Kinds.Int) {
+          return <input type="number" step="1"></input>
+        } else if (kind instanceof Kinds.Float) {
+          return <input type="number"></input>
+        } else if (kind instanceof Kinds.Str) {
+          return <input type="text"></input>
+        } else if (kind instanceof Kinds.Enum) {
+          return <select>
+            {[...kind.values].map((value) => <option>{value}</option>)}
+          </select>
+        } else if (kind instanceof Kinds.Nullable) {
+          return (
+            <div class="col">
+              {this.editors(kind.base_type)}
+              <label><input type="radio"></input>null</label>
+            </div>
+          )
+        } else {
+          return <div>Not supported</div>
+        }
+      }
+
+      protected _editor_el: HTMLElement | null = null
+
+      render(): VNode<HTMLElement> {
+        const {prop} = this.props
+        return (
+          <div popover ref={(el) =>{ this._editor_el = el }} onToggle={() => console.log("XXX")}>
+            <div>Editing {to_html(prop)}</div>
+            {this.editors(prop.kind)}
+          </div>
+        )
+      }
+
+      override componentDidMount(): void {
+        this._editor_el?.showPopover()
+      }
+    }
+
     type PropValueProps = {prop: p.Property}
     class PropValue extends Component<PropValueProps> {
       constructor(props: PropValueProps) {
@@ -511,13 +558,21 @@ export class ExaminerView extends UIElementView {
     }
 
     type PropItemProps = {prop: p.Property}
-    class PropItem extends Component<PropItemProps> {
+    class PropItem extends Component<PropItemProps, {editing: boolean}> {
+      protected _editor_el: VNode<HTMLElement> | null = null
+
+      constructor(props: PropItemProps) {
+        super(props)
+        this.state = {editing: false}
+      }
+
+      edit_value(): void {
+        this.setState({editing: true})
+      }
+
       render(): VNode<HTMLElement> {
         const {prop} = this.props
         const connections = receivers_for_sender.get(prop.obj) ?? []
-
-        const kind = new KindPrinter().to_html(prop.kind)
-        const value = <PropValue prop={prop}></PropValue>
 
         const listeners = connections.filter((connection) => connection.signal == prop.change).length
 
@@ -546,8 +601,14 @@ export class ExaminerView extends UIElementView {
             <div class="prop-conns">
               {listeners != 0 ? <span class="tag">{`${listeners}`}</span> : null}
             </div>
-            <div class="prop-kind">{kind}</div>
-            <div class="prop-value">{value}</div>
+            <div class="prop-kind">
+              {new KindPrinter().to_html(prop.kind)}
+            </div>
+            <div class="prop-value">
+              <PropValue prop={prop}></PropValue>
+              <div class="btn btn-edit" onClick={() => this.edit_value()}></div>
+              {this.state.editing ? <PropEditor prop={prop}></PropEditor> : null}
+            </div>
           </div>
         )
       }

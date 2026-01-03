@@ -220,6 +220,10 @@
   }
 }
 
+.prop-value {
+  gap: 1em;
+}
+
 .underline {
   text-decoration: underline;
 }
@@ -256,4 +260,15 @@
 
 .btn-delete {
   .icon-mask(var(--bokeh-icon-trash));
+}
+
+.btn-edit {
+  .icon-mask(var(--bokeh-icon-pencil));
+  visibility: hidden;
+}
+
+.prop-value:hover {
+  .btn-edit {
+    visibility: visible;
+  }
 }
