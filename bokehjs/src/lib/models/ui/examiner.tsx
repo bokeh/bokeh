@@ -192,7 +192,7 @@ export class KindPrinter extends BasePrinter {
   enum(obj: Kinds.Enum<string | number>): VNode<HTMLElement> {
     const T = this.token
     const types = [...obj.values].map((val) => this.to_html(val))
-    return <span>Enum{T("(")}{interleave(types, () => T(", "))}{T(")")}</span>
+    return <span>{interleave(types, () => T(" | "))}</span>
   }
 
   struct(obj: Kinds.Struct<{[key: string]: unknown}>): VNode<HTMLElement> {
