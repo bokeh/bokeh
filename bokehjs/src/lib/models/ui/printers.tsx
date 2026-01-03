@@ -4,6 +4,7 @@ import {isBoolean, isNumber, isString, isSymbol, isArray, isIterable, isObject, 
 import type {PlainObject} from "core/types"
 import {entries} from "core/util/object"
 import {interleave} from "core/util/array"
+import {css4_parse} from "core/util/color"
 import {Kinds, Kind} from "core/kinds"
 import * as p from "core/properties"
 import * as pretty from "styles/pretty.css"
@@ -42,7 +43,19 @@ export abstract class BasePrinter {
       }
     })()
 
-    return <span class={pretty.string}>{str}</span>
+    const rep = <span class={pretty.string}>{str}</span>
+
+    const color = css4_parse(val)
+    if (color == null) {
+      return rep
+    } else {
+      return (
+        <span class={pretty.color}>
+          <span class={pretty.swatch} style={{backgroundColor: val}}></span>
+          {rep}
+        </span>
+      )
+    }
   }
 
   symbol(val: symbol): VNode<HTMLElement> {
