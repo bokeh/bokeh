@@ -90,6 +90,7 @@ export abstract class BasePrinter {
 }
 
 export class KindPrinter extends BasePrinter {
+  // TODO implement precedence
 
   to_html(obj: unknown): VNode<HTMLElement> {
     if (obj == null) {
@@ -106,16 +107,26 @@ export class KindPrinter extends BasePrinter {
       return this.ref(obj)
     } else if (obj instanceof Kinds.Nullable) {
       return this.nullable(obj)
+    } else if (obj instanceof Kinds.Opt) {
+      return this.opt(obj)
     } else if (obj instanceof Kinds.List) {
       return this.list(obj)
+    } else if (obj instanceof Kinds.Set) {
+      return this.set(obj)
     } else if (obj instanceof Kinds.Dict) {
       return this.dict(obj)
+    } else if (obj instanceof Kinds.Mapping) {
+      return this.mapping(obj)
     } else if (obj instanceof Kinds.Tuple) {
       return this.tuple(obj)
     } else if (obj instanceof Kinds.Or) {
       return this.or(obj)
+    } else if (obj instanceof Kinds.And) {
+      return this.and(obj)
     } else if (obj instanceof Kinds.Enum) {
       return this.enum(obj)
+    } else if (obj instanceof Kinds.Struct) {
+      return this.struct(obj)
     } else if (obj instanceof Kinds.Primitive) {
       return this.primitive(obj.toString().toLocaleLowerCase())
     } else {
@@ -136,14 +147,28 @@ export class KindPrinter extends BasePrinter {
     return <span>{this.to_html(obj.base_type)}{T("?")}</span>
   }
 
+  opt(obj: Kinds.Opt<unknown>): VNode<HTMLElement> {
+    return this.nullable(obj)
+  }
+
   list(obj: Kinds.List<unknown>): VNode<HTMLElement> {
     const T = this.token
     return <span>{this.to_html(obj.item_type)}{T("[")}{T("]")}</span>
   }
 
+  set(obj: Kinds.Set<unknown>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>{T("{")}{this.to_html(obj.item_type)}{T("}")}</span>
+  }
+
   dict(obj: Kinds.Dict<unknown>): VNode<HTMLElement> {
     const T = this.token
     return <span>{T("{")}{this.primitive("str")}{T(": ")}{this.to_html(obj.item_type)}{T("}")}</span>
+  }
+
+  mapping(obj: Kinds.Mapping<unknown, unknown>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>{T("{")}{this.to_html(obj.key_type)}{T(" => ")}{this.to_html(obj.item_type)}{T("}")}</span>
   }
 
   tuple(obj: Kinds.Tuple<[unknown]>): VNode<HTMLElement> {
@@ -158,10 +183,24 @@ export class KindPrinter extends BasePrinter {
     return <span>{interleave(types, () => T(" | "))}</span>
   }
 
+  and(obj: Kinds.And<unknown, unknown>): VNode<HTMLElement> {
+    const T = this.token
+    const types = obj.types.map((tp) => this.to_html(tp))
+    return <span>{interleave(types, () => T(" & "))}</span>
+  }
+
   enum(obj: Kinds.Enum<string | number>): VNode<HTMLElement> {
     const T = this.token
     const types = [...obj.values].map((val) => this.to_html(val))
     return <span>Enum{T("(")}{interleave(types, () => T(", "))}{T(")")}</span>
+  }
+
+  struct(obj: Kinds.Struct<{[key: string]: unknown}>): VNode<HTMLElement> {
+    const T = this.token
+    const fields = entries(obj.struct_type).map(([name, kind]) => {
+      return <span>{name}{T(": ")}{this.to_html(kind)}</span>
+    })
+    return <span>{T("{")}{interleave(fields, () => T(", "))}{T("}")}</span>
   }
 }
 
