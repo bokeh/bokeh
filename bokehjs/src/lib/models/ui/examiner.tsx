@@ -6,7 +6,7 @@ import {isArray} from "core/util/types"
 import {keys} from "core/util/object"
 import {receivers_for_sender} from "core/signaling"
 import {diagnostics} from "core/diagnostics"
-import {ValuePrinter, KindPrinter} from "./printers"
+import {ValuePrinter, KindPrinter, OpaqueKindPrinter} from "./printers"
 
 import examiner_css from "styles/examiner.css"
 import pretty_css from "styles/pretty.css"
@@ -346,6 +346,8 @@ export class ExaminerView extends UIElementView {
         const pattern = props_filter.value
         const {attr} = prop
 
+        const kind_printer = opaque_types.value ? new OpaqueKindPrinter() : new KindPrinter()
+
         return (
           <div class={cls("prop", dirty, internal, hidden)}>
             <div class="prop-attr" tabIndex={0}>
@@ -357,7 +359,7 @@ export class ExaminerView extends UIElementView {
               {listeners != 0 ? <span class="tag">{`${listeners}`}</span> : null}
             </div>
             <div class="prop-kind">
-              {opaque_types.value ? prop.kind.toString() : new KindPrinter().to_html(prop.kind)}
+              {kind_printer.to_html(prop.kind)}
             </div>
             <div class="prop-value">
               <PropValue prop={prop}></PropValue>

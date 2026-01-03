@@ -4,7 +4,7 @@ import {isBoolean, isNumber, isString, isSymbol, isArray, isIterable, isObject, 
 import type {PlainObject} from "core/types"
 import {entries} from "core/util/object"
 import {interleave} from "core/util/array"
-import {Kinds} from "core/kinds"
+import {Kinds, Kind} from "core/kinds"
 import * as p from "core/properties"
 import * as pretty from "styles/pretty.css"
 
@@ -50,6 +50,69 @@ export abstract class BasePrinter {
   }
 }
 
+export class OpaqueKindPrinter extends BasePrinter {
+  to_html(obj: unknown): VNode<HTMLElement> {
+    if (obj == null) {
+      return this.null()
+    } else if (isBoolean(obj)) {
+      return this.boolean(obj)
+    } else if (isNumber(obj)) {
+      return this.number(obj)
+    } else if (isString(obj)) {
+      return this.string(obj)
+    } else if (isSymbol(obj)) {
+      return this.symbol(obj)
+    } else if (obj instanceof Kinds.Ref) {
+      return this.ref(obj)
+    } else if (obj instanceof Kinds.Struct) {
+      return this.struct(obj)
+    } else if (obj instanceof Kinds.PartialStruct) {
+      return this.partial_struct(obj)
+    } else if (obj instanceof Kinds.Func) {
+      return this.func(obj)
+    } else if (obj instanceof Kind) {
+      return this.kind(obj)
+    } else {
+      return <span>{obj.toString()}</span>
+    }
+  }
+
+  ref(obj: Kinds.Ref<object>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>{obj.kind_name}{T("(")}<span class={pretty.type}>{obj.type_name}</span>{T(")")}</span>
+  }
+
+  struct(obj: Kinds.Struct<{[key: string]: unknown}>): VNode<HTMLElement> {
+    const T = this.token
+    const args = entries(obj.struct_type).map(([key, val]) => <>{this.to_html(key)}{T(": ")}{this.to_html(val)}</>)
+    return <span>{obj.kind_name}{T("({")}{args}{T("})")}</span>
+  }
+
+  partial_struct(obj: Kinds.PartialStruct<{[key: string]: unknown}>): VNode<HTMLElement> {
+    const T = this.token
+    const args = entries(obj.struct_type).map(([key, val]) => <>{this.to_html(key)}{T("?: ")}{this.to_html(val)}</>)
+    return <span>{obj.kind_name}{T("({")}{args}{T("})")}</span>
+  }
+
+  func(obj: Kinds.Func<unknown[], unknown>): VNode<HTMLElement> {
+    const T = this.token
+    const args = obj.args_types?.map((arg) => this.to_html(arg)) ?? []
+    const ret = obj.ret_type === undefined ? <span>Void</span> : this.to_html(obj.ret_type)
+    return <span>{obj.kind_name}{T("(")}{T("(")}{interleave(args, () => T(", "))}{T(")")}{T(", ")}{ret}{T(")")}</span>
+  }
+
+  kind(obj: Kind<unknown>): VNode<HTMLElement> {
+    const T = this.token
+    const {kind_name, kind_args} = obj
+    if (kind_args.length == 0) {
+      return <span>{kind_name}</span>
+    } else {
+      const args = kind_args.map((arg) => this.to_html(arg))
+      return <span>{kind_name}{T("(")}{interleave(args, () => T(", "))}{T(")")}</span>
+    }
+  }
+}
+
 export class KindPrinter extends BasePrinter {
   // TODO implement precedence
 
@@ -88,6 +151,14 @@ export class KindPrinter extends BasePrinter {
       return this.enum(obj)
     } else if (obj instanceof Kinds.Struct) {
       return this.struct(obj)
+    } else if (obj instanceof Kinds.PartialStruct) {
+      return this.partial_struct(obj)
+    } else if (obj instanceof Kinds.Func) {
+      return this.func(obj)
+    } else if (obj instanceof Kinds.Regex) {
+      return this.regex(obj)
+    } else if (obj instanceof Kinds.PrefixedStr) {
+      return this.prefixed_str(obj)
     } else if (obj instanceof Kinds.Primitive) {
       return this.primitive(obj.toString().toLocaleLowerCase())
     } else {
@@ -162,6 +233,32 @@ export class KindPrinter extends BasePrinter {
       return <span>{name}{T(": ")}{this.to_html(kind)}</span>
     })
     return <span>{T("{")}{interleave(fields, () => T(", "))}{T("}")}</span>
+  }
+
+  partial_struct(obj: Kinds.Struct<{[key: string]: unknown}>): VNode<HTMLElement> {
+    const T = this.token
+    const fields = entries(obj.struct_type).map(([name, kind]) => {
+      return <span>{name}{T("?: ")}{this.to_html(kind)}</span>
+    })
+    return <span>{T("{")}{interleave(fields, () => T(", "))}{T("}")}</span>
+  }
+
+  func(obj: Kinds.Func<unknown[], unknown>): VNode<HTMLElement> {
+    const T = this.token
+    const args = obj.args_types?.map((arg) => this.to_html(arg)) ?? []
+    const ret = obj.ret_type === undefined ? this.primitive("void") : this.to_html(obj.ret_type)
+    return <span>{T("(")}{interleave(args, () => T(", "))}{T(")")}{T(" => ")}{ret}</span>
+  }
+
+  regex(obj: Kinds.Regex): VNode<HTMLElement> {
+    const T = this.token
+    const {source, flags} = obj.regex
+    return <span>{T("/")}{source}{T("/")}{flags}</span>
+  }
+
+  prefixed_str(obj: Kinds.PrefixedStr<string>): VNode<HTMLElement> {
+    const T = this.token
+    return <span>PrefixedStr{T("(")}{this.to_html(obj.prefix)}{T(")")}</span>
   }
 }
 

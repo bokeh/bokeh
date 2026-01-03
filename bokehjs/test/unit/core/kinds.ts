@@ -166,7 +166,7 @@ describe("core/kinds module", () => {
   it("should support PartialStruct kind", () => {
     const tp = k.PartialStruct({a: k.Int, b: k.Str, c: k.List(k.Int)})
 
-    expect(`${tp}`).to.be.equal("Struct({a?: Int, b?: Str, c?: List(Int)})")
+    expect(`${tp}`).to.be.equal("PartialStruct({a?: Int, b?: Str, c?: List(Int)})")
 
     expect(tp.valid({})).to.be.true
     expect(tp.valid({a: 0})).to.be.true
