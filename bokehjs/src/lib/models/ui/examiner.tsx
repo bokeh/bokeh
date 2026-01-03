@@ -337,6 +337,7 @@ export class ExaminerView extends UIElementView {
     const group_props = signal(true)
     const show_initial = signal(true)
     const show_internal = signal(true)
+    const opaque_types = signal(false)
     const watched_props = signal(new Set<p.Property>())
 
     type CSSClass = string | null | undefined
@@ -442,12 +443,17 @@ export class ExaminerView extends UIElementView {
             <span class="checkbox">
               <input type="checkbox" checked={show_initial.value}
                 onChange={(event) => show_initial.value = event.currentTarget.checked}></input>
-              <span>Initial?</span>
+              <span>Show initial</span>
             </span>
             <span class="checkbox">
               <input type="checkbox" checked={show_internal.value}
                 onChange={(event) => show_internal.value = event.currentTarget.checked}></input>
-              <span>Internal?</span>
+              <span>Show internal</span>
+            </span>
+            <span class="checkbox">
+              <input type="checkbox" checked={opaque_types.value}
+                onChange={(event) => opaque_types.value = event.currentTarget.checked}></input>
+              <span>Opaque types</span>
             </span>
           </div>
         )
@@ -602,7 +608,7 @@ export class ExaminerView extends UIElementView {
               {listeners != 0 ? <span class="tag">{`${listeners}`}</span> : null}
             </div>
             <div class="prop-kind">
-              {new KindPrinter().to_html(prop.kind)}
+              {opaque_types.value ? prop.kind.toString() : new KindPrinter().to_html(prop.kind)}
             </div>
             <div class="prop-value">
               <PropValue prop={prop}></PropValue>
