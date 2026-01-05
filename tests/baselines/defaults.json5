@@ -4868,6 +4868,8 @@
     line_dash: [],
     line_dash_offset: 0,
     mode: "before",
+    pad_before: 0,
+    pad_after: 0,
   },
   TeXGlyph: {
     __extends__: "MathTextGlyph",
