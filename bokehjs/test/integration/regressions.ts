@@ -4767,11 +4767,12 @@ describe("Bug", () => {
         p.block({x: xdata, y: ydata, width: 1, height: 1})
         return p
       }
+
       const fig0 = _fig(range_original, range_original)
       const fig1 = _fig(range_original, range_reversed)
       const fig2 = _fig(range_reversed, range_original)
       const fig3 = _fig(range_reversed, range_reversed)
-     
+
       await display(grid([[fig0, fig1], [fig2, fig3]]))
     })
   })
