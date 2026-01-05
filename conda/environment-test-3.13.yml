@@ -34,7 +34,7 @@ dependencies:
   - json5
   # - nbconvert >=5.4 # Not yet available for Python 3.13
   - networkx
-  - nodejs 20.*
+  - nodejs 24.*
   - pre-commit
   - psutil
   - pygments
