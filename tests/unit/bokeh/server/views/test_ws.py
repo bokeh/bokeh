@@ -22,14 +22,14 @@ from collections.abc import Callable
 from typing import Generator
 
 # External imports
-from tornado.httpclient import HTTPRequest, HTTPClientError
+from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.websocket import WebSocketClosedError, websocket_connect
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.server.tornado import BokehTornado
+from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.token import generate_jwt_token, generate_session_id
 
