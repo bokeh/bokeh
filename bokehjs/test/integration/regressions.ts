@@ -4753,4 +4753,31 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #14750", () => {
+    it("renders blocks correctly with reversed axes", async () => {
+      const xdata = [1, 2, 3]
+      const ydata = [1, 2, 3]
+
+      const range_original = new Range1d({start: -0.5, end: 4.5})
+      const range_reversed = new Range1d({start: 4.5, end: -0.5})
+
+      const ranges = [
+        [range_original, range_original],
+        [range_original, range_reversed],
+        [range_reversed, range_original],
+        [range_reversed, range_reversed],
+      ]
+
+      const figs: Figure[] = []
+      for (const r of ranges) {
+        const p = fig([200, 200], {x_range: r[0], y_range: r[1]})
+        p.block({x: xdata, y: ydata, width: 1, height: 1})
+        figs.push(p)
+      }
+
+      await display(grid([[figs[0], figs[1]], [figs[2], figs[3]]]))
+    })
+  })
+
 })
