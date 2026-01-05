@@ -419,7 +419,7 @@ class Bezier(Glyph, LineGlyph):
     """)
 
 class Block(LRTBGlyph):
-    ''' Render rectangular regions, given a corner coordinate, width, and height.
+    ''' Render rectangular regions, given a origin (x,y), width, and height.
 
     '''
 
@@ -432,11 +432,11 @@ class Block(LRTBGlyph):
     _args = ('x', 'y', 'width', 'height')
 
     x = NumberSpec(default=field("x"), help="""
-    The x-coordinates of each block's corner.
+    The x-coordinates of each block's origin.
     """)
 
     y = NumberSpec(default=field("y"), help="""
-    The y-coordinates of each block's corner.
+    The y-coordinates of each block's origin.
     """)
 
     width = DistanceSpec(default=1, help="""
