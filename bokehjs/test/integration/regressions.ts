@@ -4779,5 +4779,4 @@ describe("Bug", () => {
       await display(grid([[figs[0], figs[1]], [figs[2], figs[3]]]))
     })
   })
-
 })
