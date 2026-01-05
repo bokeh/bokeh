@@ -257,6 +257,11 @@ export class CanvasView extends UIElementView {
     return new CanvasLayer(output_backend, hidpi)
   }
 
+  create_layer_svg(): CanvasLayer {
+    const {hidpi} = this.model
+    return new CanvasLayer("svg", hidpi)
+  }
+
   to_blob(): Promise<Blob> {
     return this.compose().to_blob()
   }

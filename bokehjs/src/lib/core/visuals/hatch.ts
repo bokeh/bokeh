@@ -10,11 +10,13 @@ import {dict} from "../util/object"
 export interface Hatch extends Readonly<mixins.Hatch> {}
 export class Hatch extends VisualProperties {
   protected _hatch_image: CanvasImageSource | null
+  protected _hatch_svg: CanvasImageSource | null
   protected _update_iteration: number = 0
 
   override update(): void {
     this._update_iteration++
     this._hatch_image = null
+    this._hatch_svg = null
 
     if (!this.doit) {
       return
@@ -28,6 +30,10 @@ export class Hatch extends VisualProperties {
 
     const finalize = (image: CanvasImageSource) => {
       this._hatch_image = image
+    }
+
+    const finalize_svg = (image_svg: CanvasImageSource) => {
+      this._hatch_svg = image_svg
     }
 
     const textures = dict(this.get_hatch_extra())
@@ -50,6 +56,9 @@ export class Hatch extends VisualProperties {
       const layer = this.obj.canvas.create_layer()
       const image = get_pattern(layer, pattern, color, alpha, scale, weight)
       finalize(image)
+      const svg_layer = this.obj.canvas.create_layer_svg()
+      const image_svg = get_pattern(svg_layer, pattern, color, alpha, scale, weight)
+      finalize_svg(image_svg)
     }
   }
 
@@ -106,6 +115,22 @@ export class Hatch extends VisualProperties {
         case "repeat_y":  return "repeat-y"
         case "no_repeat": return "no-repeat"
       }
+    }
+  }
+
+  declare ComputedValues: {
+    scale:   number
+    pattern: string
+  }
+
+  computed_values(): this["ComputedValues"] {
+    let pattern = ""
+    if (this._hatch_svg !== null && this._hatch_svg instanceof SVGElement) {
+      pattern = `data:image/svg+xml;base64,${btoa(new XMLSerializer().serializeToString(this._hatch_svg))}`
+    }
+    return {
+      scale: this.get_hatch_scale(),
+      pattern,
     }
   }
 

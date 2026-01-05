@@ -338,7 +338,16 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO item_background_hatch (https://github.com/bokeh/bokeh/issues/14312)
+
+    if (this.visuals.item_background_hatch.doit) {
+      const {scale, pattern} = this.visuals.item_background_hatch.computed_values()
+      this.style.append(`
+      .${legend_css.item} {
+        --item-background-hatch: url(${pattern});
+        --item-background-hatch-scale: ${scale}px;
+      }
+      `)
+    }
 
     if (this.visuals.inactive_fill.doit) {
       const {color} = this.visuals.inactive_fill.computed_values()
@@ -348,7 +357,16 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO inactive_hatch (https://github.com/bokeh/bokeh/issues/14312)
+
+    if (this.visuals.inactive_hatch.doit) {
+      const {scale, pattern} = this.visuals.inactive_hatch.computed_values()
+      this.style.append(`
+      .${legend_css.item} {
+        --item-background-inactive-hatch: url(${pattern});
+        --item-background-inactive-hatch-scale: ${scale}px;
+      }
+      `)
+    }
 
     const grid_auto_flow = (() => {
       switch (this.model.title_location) {
@@ -397,7 +415,18 @@ export class LegendView extends AnnotationView {
       }
       `)
     }
-    // TODO background_hatch (https://github.com/bokeh/bokeh/issues/14312)
+
+    if (this.visuals.background_hatch.doit) {
+      const {scale, pattern} = this.visuals.background_hatch.computed_values()
+      this.style.append(`
+      :host {
+        --background-hatch: url(${pattern});
+        --background-hatch-scale: ${scale}px;
+        background-image: var(--background-hatch);
+        background-size: var(--background-hatch-scale);
+      }
+      `)
+    }
 
     if (this.visuals.border_line.doit) {
       const {color, width, dash: raw_dash} = this.visuals.border_line.computed_values()
@@ -436,7 +465,7 @@ export class LegendView extends AnnotationView {
              linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left bottom/var(--border-line-full-length) ${width}px repeat-x,
              linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) right top/${width}px var(--border-line-full-length) repeat-y,
              linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/${width}px var(--border-line-full-length) repeat-y ${extra_patterns.length > 0 ? `${extra_patterns}` : "" },
-             var(--background-color, --inverted-color);
+             ${this.visuals.background_hatch.doit ? "var(--background-hatch) left top/var(--background-hatch-scale) repeat," : ""} var(--background-color, --inverted-color);
         }
         `)
       // Empty dash array (solid border) or border-style supported string case

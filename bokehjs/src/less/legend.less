@@ -54,6 +54,8 @@
 
 .bk-item.bk-styled {
   background-color: var(--item-background-color);
+  background-image: var(--item-background-hatch);
+  background-size: var(--item-background-hatch-scale);
 }
 
 :host(.bk-interactive) .bk-item {
@@ -76,5 +78,7 @@
 .bk-item.bk-inactive {
   .bk-overlay {
     background-color: var(--item-background-inactive-color);
+    background-image: var(--item-background-inactive-hatch);
+    background-size: var(--item-background-inactive-hatch-scale);
   }
 }
