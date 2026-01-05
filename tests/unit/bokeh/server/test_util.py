@@ -73,6 +73,11 @@ def test_check_allowlist_accepts_all_on_star() -> None:
     assert util.check_allowlist("foobarbaz:5006", ['*:*']) is True
     assert util.check_allowlist("foobarbaz:5006", ['*:5006']) is True
 
+def test_check_allowlist_rejects_subdomain_matches() -> None:
+    assert util.check_allowlist("example.com.bad.com", ["example.com"]) is False
+    assert util.check_allowlist("example.com.bad.com:80", ["example.com:80"]) is False
+    assert util.check_allowlist("example.com.bad.com:80", ["example.com:*"]) is False
+
 def test_create_hosts_allowlist_no_host() -> None:
     hosts = util.create_hosts_allowlist(None, 1000)
     assert hosts == ["localhost:1000"]
@@ -118,6 +123,7 @@ def test_match_host() -> None:
         assert util.match_host('alice:80', 'alice') is True
         assert util.match_host('alice', 'bob') is False
         assert util.match_host('foo.example.com', 'foo.example.com.net') is False
+        assert util.match_host('example.com.bad.com', 'example.com') is False
         assert util.match_host('alice', '*') is True
         assert util.match_host('alice', '*:*') is True
         assert util.match_host('alice:80', '*') is True
