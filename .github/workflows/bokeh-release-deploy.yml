@@ -8,6 +8,9 @@ on:
         description: "Version to deploy a release for (e.g. 3.0.0, 2.4.0.dev8)"
         required: true
 
+permissions:
+  id-token: write  # Required for OIDC and trusted providers for npm publishing
+
 defaults:
   run:
     shell: bash -l {0}
@@ -57,7 +60,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: python -m release deploy $BOKEH_VERSION
