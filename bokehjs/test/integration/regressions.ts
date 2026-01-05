@@ -4755,7 +4755,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14750", () => {
-    it("renders blocks correctly with reversed axes", async () => {
+    it("doesn't allow to render Block glyph with reversed axes", async () => {
       const xdata = [1, 2, 3]
       const ydata = [1, 2, 3]
 
