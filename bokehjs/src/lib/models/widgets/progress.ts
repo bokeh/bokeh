@@ -43,7 +43,7 @@ export class ProgressView extends IndicatorView {
 
     this.label_el = div({class: progress_css.label})
     this.value_el = div({class: progress_css.value})
-    this.bar_el = div({class: progress_css.bar}, this.value_el, this.label_el)
+    this.bar_el = div({class: progress_css.bar}, this.value_el)
 
     this._update_value()
     this._update_disabled()
@@ -52,6 +52,7 @@ export class ProgressView extends IndicatorView {
     this._update_label_location()
 
     this.shadow_el.append(this.bar_el)
+    this.shadow_el.append(this.label_el)
   }
 
   protected _update_value(): void {
@@ -64,6 +65,9 @@ export class ProgressView extends IndicatorView {
 
     this.class_list.toggle(progress_css.indeterminate, indeterminate)
     this.value_el.style.setProperty("--progress", `${indeterminate ? 0 : percent}%`)
+    if (percent == 100) {
+      this.value_el.style.setProperty("--value-color", "var(--success-color)")
+    }
 
     const replacer: PlaceholderReplacer = (_, name, format) => {
       const val = (() => {

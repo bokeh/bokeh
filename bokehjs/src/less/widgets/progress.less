@@ -1,5 +1,6 @@
 :host {
   --progress: 0%;
+  --value-color: var(--primary-color, --active-fg)
 }
 
 .bk-bar {
@@ -8,15 +9,18 @@
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  background-color: var(--active-bg);
+  background-color: var(--inactive-bg, --active-bg);
   border: var(--border);
-  border-radius: var(--border-radius);
+  border-width: 1.5px;
+  border-color: var(--default-outline-color);
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .bk-value {
   position: absolute;
-  background-color: var(--active-fg);
+  background-color: var(--value-color);
+  border-radius: 8px;
 }
 
 :host(.bk-disabled) {
@@ -34,7 +38,7 @@
     width: 100%;
     height: max-content;
     min-width: 3em;
-    min-height: 0.5em;
+    min-height: 0.8em;
   }
 
   .bk-value {
@@ -45,10 +49,11 @@
 }
 
 :host(.bk-vertical) {
+  display: flex;
+
   .bk-bar {
     width: max-content;
-    height: 100%;
-    min-width: 0.5em;
+    min-width: 0.8em;
     min-height: 3em;
   }
 
@@ -76,6 +81,8 @@
 .bk-label {
   position: relative;
   padding: 0.25em;
+  font-size: 10px;
+  color: var(--disabled-color);
 }
 
 .bk-label.bk-hidden {
