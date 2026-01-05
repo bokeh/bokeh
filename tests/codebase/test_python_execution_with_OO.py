@@ -43,7 +43,7 @@ def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)
     which can cause problems if docstrings are naively formatted.
 
-    This test ensures that the all modules are importable, even with -OO set.
+    This test ensures that all modules are importable, even with -OO set.
 
     If you encounter a new problem with docstrings being formatted, try
     using format_docstring.

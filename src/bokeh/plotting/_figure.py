@@ -172,6 +172,18 @@ class figure(Plot, GlyphAPI):
 
     * :func:`~bokeh.plotting.figure.hexbin`
 
+    To simplify plotting of geographical maps the figure class offers some helper functions:
+
+    * :func:`~bokeh.plotting.figure.borders`
+    * :func:`~bokeh.plotting.figure.coastlines`
+    * :func:`~bokeh.plotting.figure.land`
+    * :func:`~bokeh.plotting.figure.lakes`
+    * :func:`~bokeh.plotting.figure.ocean`
+    * :func:`~bokeh.plotting.figure.rivers`
+    * :func:`~bokeh.plotting.figure.projection_boundary`
+    * :func:`~bokeh.plotting.figure.provinces`
+    * :func:`~bokeh.plotting.figure.states`
+
     In addition to all the ``figure`` property attributes, the following
     options are also accepted:
 
@@ -725,6 +737,302 @@ class figure(Plot, GlyphAPI):
         contour_renderer = from_contour(x, y, z, levels, **visuals)
         self.renderers.append(contour_renderer)
         return contour_renderer
+
+    def borders(self, projection, scale="110m", **line_kwargs):
+        """ Adds the borders of countries to a map with respect to a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_line` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.borders(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_borders
+        self = add_borders(self, projection, scale, **line_kwargs)
+
+    def coastlines(self, projection, scale="110m", **line_kwargs):
+        """ Adds coastlines to a map with respect to a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_line` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.coastlines(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_coastlines
+        self = add_coastlines(self, projection, scale, **line_kwargs)
+
+    def land(self, projection, scale="110m", **poly_kwargs):
+        """ Adds land geometries including islands to a map with respect to a
+        given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        Keyword Arguments:
+            draw_polygon_border (bool, False): Enables the plotting of the geometry border.
+            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_polygons` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.land(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_land
+        self = add_land(self, projection, scale, **poly_kwargs)
+
+    def lakes(self, projection, scale="110m", **poly_kwargs):
+        """ Adds lakes to a map with respect to a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        Keyword Arguments:
+            draw_polygon_border (bool, False): Enables the plotting of the geometry border.
+            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_polygons` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.lakes(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_lakes
+        self = add_lakes(self, projection, scale, **poly_kwargs)
+
+    def ocean(self, projection, scale="110m", **poly_kwargs):
+        """ Adds ocean to a map with respect to a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        Keyword Arguments:
+            draw_polygon_border (bool, False): Enables the plotting of the geometry border.
+            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_polygons` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.ocean(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_ocean
+        self = add_ocean(self, projection, scale, **poly_kwargs)
+
+    def rivers(self, projection, scale="110m", **line_kwargs):
+        """ Adds rivers to a map with respect to a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_line` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.rivers(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_rivers
+        self = add_rivers(self, projection, scale, **line_kwargs)
+
+    def projection_boundary(self, projection, **line_kwargs):
+        """ Adds the boundary of a given projection to a map.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.line` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.projection_boundary(ccrs.EckertIII())
+                show(p)
+        """
+        from ._geo_feature import add_projection_boundary
+        self = add_projection_boundary(self, projection, **line_kwargs)
+
+    def provinces(self, projection, scale="110m", **line_kwargs):
+        """ Adds the borders of provinces to a map with respect to a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_line` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.provinces(ccrs.PlateCarree())
+                show(p)
+        """
+        from ._geo_feature import add_provinces
+        self = add_provinces(self, projection, scale, **line_kwargs)
+
+    def states(self, projection, scale="110m", **poly_kwargs):
+        """ Adds states and provinces as multi-polygons to a map for a given projection.
+
+        .. note::
+            This function requires the optional package `Cartopy <https://cartopy.readthedocs.io>`__.
+
+        Args:
+            projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
+            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+                "50m" and "10m".
+
+        Keyword Arguments:
+            draw_polygon_border (bool, False): Enables the plotting of the geometry border.
+            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+
+        .. note::
+            This functions allows all parameters and keyword arguments defined by the
+            :func:`~bokeh.plotting.figure.multi_polygons` function.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import cartopy.crs as ccrs
+
+                from bokeh.plotting import figure, show
+
+                p = figure()
+                p.states(ccrs.PlateCarree(), draw_polygon_border=True)
+                show(p)
+        """
+        from ._geo_feature import add_states
+        self = add_states(self, projection, scale, **poly_kwargs)
 
 def markers() -> None:
     ''' Prints a list of valid marker types for scatter()
