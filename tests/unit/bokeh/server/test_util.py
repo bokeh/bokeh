@@ -129,6 +129,8 @@ def test_match_host() -> None:
         assert util.match_host('alice:80', '*') is True
         assert util.match_host('alice:80', '*:80') is True
         assert util.match_host('alice:8080', '*:80') is False
+        assert util.match_host("192.168.0.1:80", '*:80') is True
+        assert util.match_host("192.168.0.1:8080", '*:80') is False
 
 #-----------------------------------------------------------------------------
 # Dev API

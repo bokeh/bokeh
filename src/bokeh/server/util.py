@@ -217,6 +217,7 @@ def match_host(host: str, pattern: str) -> bool:
         False
 
     '''
+    # This is for a wildcard match without any port restriction
     if pattern == "*":
         return True
 
@@ -232,6 +233,10 @@ def match_host(host: str, pattern: str) -> bool:
 
     if pattern_port is not None and host_port != pattern_port:
         return False
+
+    # This is for a wildcard match including any port restriction
+    if pattern == "*":
+        return True
 
     host_parts = host.split('.')
     pattern_parts = pattern.split('.')

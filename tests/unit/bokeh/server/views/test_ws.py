@@ -76,6 +76,7 @@ GOOD_ORIGIN_CASES = (
     pytest.param(["*"],                "http://example.com",      id="global wildcard"),
     pytest.param(["example.*"],        "http://example.com",      id="partial wildcard"),
     pytest.param(["example.com:*"],    "http://example.com",      id="port wildcard"),
+    pytest.param(["*:81"],             "http://example.com:81",   id="host wildcard"),
     pytest.param(["example.com:80"],   "http://example.com",      id="implicit port 80"),
     pytest.param(["example.com:8080"], "http://example.com:8080", id="explicit port"),
     pytest.param(["example.com"],      "http://example.com",      id="exact match"),
@@ -97,9 +98,11 @@ async def test_ws_handler_accepts_allowed_origins(
 
 BAD_ORIGIN_CASES = (
     pytest.param(["example.com"],    "http://example.com.bad.com", id="subdomain rejection"),
-    pytest.param(["example.com"],    "http://foo.com",             id="exact name mismatch"),
+    pytest.param(["example.com"],    "http://foo.com",             id="exact host mismatch"),
+    pytest.param(["example.com:80"], "http://foo.com:80",          id="exact host mismatch with port"),
     pytest.param(["example.com.*"],  "http://example.com",         id="pattern mismatch"),
-    pytest.param(["example.com:80"], "http://example.com:8080",    id="port mismatch"),
+    pytest.param(["example.com:80"], "http://example.com:8080",    id="port mismatch with exact host"),
+    pytest.param(["*:81"],           "http://example.com:8080",    id="port mismatch with wildcard host"),
 )
 
 
