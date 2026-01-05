@@ -419,7 +419,7 @@ class Bezier(Glyph, LineGlyph):
     """)
 
 class Block(LRTBGlyph):
-    ''' Render rectangular regions, given a origin (x,y), width, and height.
+    ''' Render rectangular regions, given an origin (x,y), width, and height.
 
     '''
 
