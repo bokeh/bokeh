@@ -6,17 +6,17 @@ dependencies:
 
   # build
   - boto3
-  - build
   - colorama
-  - conda-build=3.22.0
-  - conda-verify=3.4.2
+  - conda-build 24*    # pre .conda format
+  - conda-verify 3.4*
   - libiconv
   - nodejs 20.*
-  - ripgrep=0.10.0
+  - python-build
   - setuptools
   - yaml
 
   # docs
+  - cartopy
   - colorcet
   - firefox >=96
   - geckodriver

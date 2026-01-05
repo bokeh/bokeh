@@ -11,6 +11,7 @@ export interface Paintable {
   request_paint(): void
   readonly canvas: {
     create_layer(): CanvasLayer
+    create_layer_svg(): CanvasLayer
   }
 }
 

@@ -14,8 +14,8 @@ export function resolve_line_dash(line_dash: LineDash | string | number[]): numb
   } else {
     switch (line_dash) {
       case "solid":   return []
-      case "dashed":  return [6]
-      case "dotted":  return [2, 4]
+      case "dashed":  return [3, 2]
+      case "dotted":  return [2, 1]
       case "dotdash": return [2, 4, 6, 4]
       case "dashdot": return [6, 4, 2, 4]
       default:
