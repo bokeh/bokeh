@@ -19,6 +19,9 @@ import type {BaseTextView} from "models/text/base_text"
 import {BaseText} from "models/text/base_text"
 import {build_view} from "core/build_views"
 import {round_rect} from "../common/painting"
+import * as styles from "core/styles"
+
+type FlexAlign = "flex-start" | "center" | "flex-end"
 
 export class TitleView extends AnnotationView {
   declare model: Title
@@ -157,6 +160,19 @@ export class TitleView extends AnnotationView {
     return {width, height}
   }
 
+  get margin(): LRTB<number> {
+    const hmargin = this.model.offset
+    const vmargin = this.model.standoff/2
+
+    // TODO this isn't fully backwards compatible
+    switch (this.panel!.face_adjusted_side) {
+      case "above":
+      case "below": return {left: hmargin, right: hmargin, top: vmargin, bottom: vmargin}
+      case "left":  return {left: vmargin, right: vmargin, top: hmargin, bottom: hmargin}
+      case "right": return {left: vmargin, right: vmargin, top: hmargin, bottom: hmargin}
+    }
+  }
+
   get padding(): LRTB<number> {
     return resolve.padding(this.model.padding)
   }
@@ -165,117 +181,38 @@ export class TitleView extends AnnotationView {
     return resolve.border_radius(this.model.border_radius)
   }
 
+  get justify_self(): FlexAlign {
+    switch (this.model.align) {
+      case "left":   return "flex-start"
+      case "center": return "center"
+      case "right":  return "flex-end"
+    }
+  }
+
+  get align_self(): FlexAlign {
+    switch (this.model.vertical_align) {
+      case "top":    return "flex-start"
+      case "middle": return "center"
+      case "bottom": return "flex-end"
+    }
+  }
+
   protected _apply_visuals(): void {
-    const text_styles = this.visuals.text.computed_values()
+    styles.apply_text(this.style, ":host", this.visuals.text)
+    styles.apply_rotation(this.style, ":host", this.panel!.face_adjusted_side)
+
     this.style.append(`
     :host {
-      font: ${text_styles.font};
-      color: ${text_styles.color};
-      -webkit-text-stroke: ${text_styles.outline_width}px ${text_styles.outline_color};
+      justify-self: ${this.justify_self};
+      align-self: ${this.align_self};
     }
     `)
 
-    // can't simply use `rotate`, because rotation doesn't affect layout
-    const {writing_mode, rotate} = (() => {
-      switch (this.panel!.face_adjusted_side) {
-        case "above": return {writing_mode: "horizontal-tb", rotate: 0}
-        case "below": return {writing_mode: "horizontal-tb", rotate: 0}
-        case "left":  return {writing_mode: "vertical-rl",   rotate: 180}
-        case "right": return {writing_mode: "vertical-rl",   rotate: 0}
-      }
-    })()
-    this.style.append(`
-    :host {
-      writing-mode: ${writing_mode};
-      rotate: ${rotate}deg;
-    }
-    `)
+    styles.apply_padding(this.style, ":host", this.margin)
+    styles.apply_padding(this.style, `.${title_css.label}`, this.padding)
 
-    const justify_self = (() => {
-      switch (this.model.align) {
-        case "left":   return "flex-start"
-        case "center": return "center"
-        case "right":  return "flex-end"
-      }
-    })()
-
-    const align_self = (() => {
-      switch (this.model.vertical_align) {
-        case "top":    return "flex-start"
-        case "middle": return "center"
-        case "bottom": return "flex-end"
-      }
-    })()
-    this.style.append(`
-    :host {
-      justify-self: ${justify_self};
-      align-self: ${align_self};
-    }
-    `)
-
-    const margin = (() => {
-      const hmargin = this.model.offset
-      const vmargin = this.model.standoff/2
-
-      // TODO this isn't fully backwards compatible
-      switch (this.panel!.face_adjusted_side) {
-        case "above":
-        case "below": return {left: hmargin, right: hmargin, top: vmargin, bottom: vmargin}
-        case "left":  return {left: vmargin, right: vmargin, top: hmargin, bottom: hmargin}
-        case "right": return {left: vmargin, right: vmargin, top: hmargin, bottom: hmargin}
-      }
-    })()
-    this.style.append(`
-    :host {
-      padding-left: ${margin.left}px;
-      padding-right: ${margin.right}px;
-      padding-top: ${margin.top}px;
-      padding-bottom: ${margin.bottom}px;
-    }
-    `)
-
-    const {padding} = this
-    this.style.append(`
-    .${title_css.label} {
-      padding-left: ${padding.left}px;
-      padding-right: ${padding.right}px;
-      padding-top: ${padding.top}px;
-      padding-bottom: ${padding.bottom}px;
-    }
-    `)
-
-    const {border_radius} = this
-    this.style.append(`
-    .${title_css.label} {
-      border-top-left-radius: ${border_radius.top_left}px;
-      border-top-right-radius: ${border_radius.top_right}px;
-      border-bottom-right-radius: ${border_radius.bottom_right}px;
-      border-bottom-left-radius: ${border_radius.bottom_left}px;
-    }
-    `)
-
-    if (this.visuals.background_fill.doit) {
-      const {color} = this.visuals.background_fill.computed_values()
-      this.style.append(`
-      .${title_css.label} {
-        background-color: ${color};
-      }
-      `)
-    }
-
-    // TODO background_hatch (https://github.com/bokeh/bokeh/issues/14312)
-
-    if (this.visuals.border_line.doit) {
-      // TODO use background-image to replicate number[] dash patterns
-      const {color, width, dash} = this.visuals.border_line.computed_values()
-      this.style.append(`
-      .${title_css.label} {
-        border-color: ${color};
-        border-width: ${width}px;
-        border-style: ${isString(dash) ? dash : (dash.length < 2 ? "solid" : "dashed")};
-      }
-      `)
-    }
+    styles.apply_border_radius(this.style, `.${title_css.label}`, this.border_radius)
+    styles.apply_box_styles(this.style, `.${title_css.label}`, this.visuals)
   }
 }
 
