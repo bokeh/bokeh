@@ -57,8 +57,7 @@ export class StepView extends XYGlyphView {
     }
   }
 
-  // Public - webgl uses the same path generation
-  public build_step_path(indices: number[], data?: Partial<Step.Data>): {xs: number[], ys: number[]} {
+  protected _build_step_path(indices: number[], data?: Partial<Step.Data>): {xs: number[], ys: number[]} {
     // Builds the step path points for the given indices, including padding
     const {sx, sy} = {...this, ...data}
     const {mode, pad_before, pad_after} = this.model
@@ -72,7 +71,6 @@ export class StepView extends XYGlyphView {
     const first_i = indices[0]
     const last_i = indices[indices.length - 1]
 
-    // pad_before
     if (pad_before != 0) {
       const pad_sx = this.renderer.xscale.s_compute(this.x[first_i] - pad_before) // screen units
       xs.push(pad_sx)
@@ -138,7 +136,6 @@ export class StepView extends XYGlyphView {
       }
     }
 
-    // pad_after
     if (pad_after != 0) {
       const pad_sx = this.renderer.xscale.s_compute(this.x[last_i] + pad_after) // screen units
       xs.push(pad_sx)
@@ -151,7 +148,7 @@ export class StepView extends XYGlyphView {
   protected _paint_consecutive(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     this.visuals.line.set_value(ctx)
 
-    const {xs, ys} = this.build_step_path(indices, data)
+    const {xs, ys} = this._build_step_path(indices, data)
 
     let drawing = false
     for (let i = 0; i < xs.length; i++) {
