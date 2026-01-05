@@ -4762,21 +4762,17 @@ describe("Bug", () => {
       const range_original = new Range1d({start: -0.5, end: 4.5})
       const range_reversed = new Range1d({start: 4.5, end: -0.5})
 
-      const ranges = [
-        [range_original, range_original],
-        [range_original, range_reversed],
-        [range_reversed, range_original],
-        [range_reversed, range_reversed],
-      ]
-
-      const figs: Figure[] = []
-      for (const r of ranges) {
-        const p = fig([200, 200], {x_range: r[0], y_range: r[1]})
+      function _fig(x_range: Range1d, y_range: Range1d) {
+        const p = fig([200, 200], {x_range, y_range})
         p.block({x: xdata, y: ydata, width: 1, height: 1})
-        figs.push(p)
+        return p
       }
-
-      await display(grid([[figs[0], figs[1]], [figs[2], figs[3]]]))
+      const fig0 = _fig(range_original, range_original)
+      const fig1 = _fig(range_original, range_reversed)
+      const fig2 = _fig(range_reversed, range_original)
+      const fig3 = _fig(range_reversed, range_reversed)
+     
+      await display(grid([[fig0, fig1], [fig2, fig3]]))
     })
   })
 })
