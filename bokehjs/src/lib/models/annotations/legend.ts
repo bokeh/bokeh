@@ -4,13 +4,12 @@ import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import type {VAlign, HAlign} from "core/enums"
 import type * as visuals from "core/visuals"
-import {resolve_line_dash} from "core/visuals/line"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {Size} from "core/layout"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import {every, some, sum} from "core/util/array"
+import {every, some} from "core/util/array"
 import {dict} from "core/util/object"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
@@ -24,6 +23,7 @@ import {Padding, BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
+import {apply_border_radius, apply_padding, apply_box_styles} from "core/styles"
 
 const {ceil} = Math
 
@@ -391,94 +391,9 @@ export class LegendView extends AnnotationView {
       }
     })())
 
-    const {padding, border_radius} = this
-    this.style.append(`
-    :host {
-      padding-left: ${padding.left}px;
-      padding-right: ${padding.right}px;
-      padding-top: ${padding.top}px;
-      padding-bottom: ${padding.bottom}px;
-
-      border-top-left-radius: ${border_radius.top_left}px;
-      border-top-right-radius: ${border_radius.top_right}px;
-      border-bottom-right-radius: ${border_radius.bottom_right}px;
-      border-bottom-left-radius: ${border_radius.bottom_left}px;
-    }
-    `)
-
-    if (this.visuals.background_fill.doit) {
-      const {color} = this.visuals.background_fill.computed_values()
-      this.style.append(`
-      :host {
-        --background-color: ${color};
-        background-color: ${color};
-      }
-      `)
-    }
-
-    if (this.visuals.background_hatch.doit) {
-      const {scale, pattern} = this.visuals.background_hatch.computed_values()
-      this.style.append(`
-      :host {
-        --background-hatch: url(${pattern});
-        --background-hatch-scale: ${scale}px;
-        background-image: var(--background-hatch);
-        background-size: var(--background-hatch-scale);
-      }
-      `)
-    }
-
-    if (this.visuals.border_line.doit) {
-      const {color, width, dash: raw_dash} = this.visuals.border_line.computed_values()
-      const invalid_css_border_style = ["dotdash", "dashdot"]
-      let dash = raw_dash
-      // Invalid string dash to use CSS/border-style approach
-      if (isString(dash) && invalid_css_border_style.includes(dash)) {
-        // Convert to array representation
-        dash = resolve_line_dash(dash)
-      }
-      // Non-empty dash array case
-      if (!isString(dash) && dash.length > 0) {
-        // Make dash array even
-        if (dash.length % 2 !== 0) {
-          dash = dash.concat(dash)
-        }
-        // Compute extra patterns rules
-        let extra_patterns = ""
-        for (let index = 0; index < dash.length; index++) {
-          if (index !== 0 && index % 2 === 0) {
-            extra_patterns += `,
-            linear-gradient(to right, ${color} ${dash[index]}px, transparent ${dash[index]}px) ${sum(dash.slice(0, index))}px top/var(--border-line-full-length) ${width}px repeat-x,
-            linear-gradient(to right, ${color} ${dash[index]}px, transparent ${dash[index]}px) ${sum(dash.slice(0, index))}px bottom/var(--border-line-full-length) ${width}px repeat-x,
-            linear-gradient(to bottom, ${color} ${dash[index]}px, transparent ${dash[index]}px) right ${sum(dash.slice(0, index))}px/${width}px var(--border-line-full-length) repeat-y,
-            linear-gradient(to bottom, ${color} ${dash[index]}px, transparent ${dash[index]}px) left ${sum(dash.slice(0, index))}px/${width}px var(--border-line-full-length) repeat-y`
-          }
-        }
-
-        this.style.append(`
-        :host {
-          --border-color: ${color};
-          --border-line-full-length: ${sum(dash)}px;
-
-          background:
-             linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/var(--border-line-full-length) ${width}px repeat-x,
-             linear-gradient(to right, ${color} ${dash[0]}px, transparent ${dash[0]}px) left bottom/var(--border-line-full-length) ${width}px repeat-x,
-             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) right top/${width}px var(--border-line-full-length) repeat-y,
-             linear-gradient(to bottom, ${color} ${dash[0]}px, transparent ${dash[0]}px) left top/${width}px var(--border-line-full-length) repeat-y ${extra_patterns.length > 0 ? `${extra_patterns}` : "" },
-             ${this.visuals.background_hatch.doit ? "var(--background-hatch) left top/var(--background-hatch-scale) repeat," : ""} var(--background-color, --inverted-color);
-        }
-        `)
-      // Empty dash array (solid border) or border-style supported string case
-      } else {
-        this.style.append(`
-        :host {
-          border-color: ${color};
-          border-width: ${width}px;
-          border-style: ${isString(dash) ? `${dash}` : "solid"};
-        }
-        `)
-      }
-    }
+    apply_padding(this.style, ":host", this.padding)
+    apply_border_radius(this.style, ":host", this.border_radius)
+    apply_box_styles(this.style, ":host", this.visuals)
 
     this._render_items()
   }
