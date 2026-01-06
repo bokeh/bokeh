@@ -81,13 +81,17 @@ def verify_google_credentials(config: Config, system: System, *, token: str) -> 
     pass
 
 
-@collect_credential(token="NPM_TOKEN")
-def verify_npm_credentials(config: Config, system: System, *, token: str) -> None:
-    system.run("npm set registry 'https://registry.npmjs.org'")
-    system.run(f"npm set //registry.npmjs.org/:_authToken {token}")
-    out = system.run("npm whoami")
-    if out.strip() != "bokeh-service":
-        raise RuntimeError(*out.strip().split("\n"))
+def verify_npm_credentials(config: Config, system: System) -> ActionReturn:
+    service = "npm"
+    return PASSED(f"Verification of {service} credentials is not currently supported")
+
+    # NOTE no token, because we use trusted providers to deploy npm packages
+    # TODO restore this when OICD support is added to npm whoami
+    # out = system.run("npm whoami")
+    # if out.strip() == "bokeh-service":
+    #     return PASSED(f"Verified {service} credentials")
+    # else:
+    #     return FAILED(f"Could NOT verify {service} credentials")
 
 
 @collect_credential(access_key_id="AWS_ACCESS_KEY_ID", secret_access_key="AWS_SECRET_ACCESS_KEY")

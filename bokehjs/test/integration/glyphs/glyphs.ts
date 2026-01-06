@@ -483,7 +483,7 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
-  it("should support Step with pad_before andpad_after", async () => {
+  it("should support Step with pad_before and pad_after", async () => {
     const x0 = [0, 1, 2]
 
     function p(output_backend: OutputBackend) {

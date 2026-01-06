@@ -4753,4 +4753,27 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #14750", () => {
+    it("doesn't allow to render Block glyph with reversed axes", async () => {
+      const xdata = [1, 2, 3]
+      const ydata = [1, 2, 3]
+
+      const range_original = new Range1d({start: -0.5, end: 4.5})
+      const range_reversed = new Range1d({start: 4.5, end: -0.5})
+
+      function _fig(x_range: Range1d, y_range: Range1d) {
+        const p = fig([200, 200], {x_range, y_range})
+        p.block({x: xdata, y: ydata, width: 1, height: 1})
+        return p
+      }
+
+      const fig0 = _fig(range_original, range_original)
+      const fig1 = _fig(range_original, range_reversed)
+      const fig2 = _fig(range_reversed, range_original)
+      const fig3 = _fig(range_reversed, range_reversed)
+
+      await display(grid([[fig0, fig1], [fig2, fig3]]))
+    })
+  })
 })
