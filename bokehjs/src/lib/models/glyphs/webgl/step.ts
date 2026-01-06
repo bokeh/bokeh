@@ -21,24 +21,28 @@ export class StepGL extends SingleLineGL {
 
     const mode = this.glyph.model.mode
     const n = main_show.length
-    const expected_full_length = mode == "center" ? (n+1)/3: n/2
+    const {pad_before, pad_after} = this.glyph.model
+    const num_pad_points = (pad_before != 0 ? 1 : 0) + (pad_after != 0 ? 1 : 0)
+    const nstep_points = n - 1 - num_pad_points
+    const expected_full_length = mode == "center" ? (nstep_points + 2)/3 : (nstep_points + 1)/2
 
     if (indices.length != expected_full_length) {
-      const main_show_array = main_show.get_sized_array(n)
+      const main_show_array = main_show.get_sized_array(n)   // equal to npoints+1
 
       if (this._show == null) {
         this._show = new Uint8Buffer(this.regl_wrapper)
       }
-      const show_array = this._show.get_sized_array(n)   // equal to npoints+1
+      const show_array = this._show.get_sized_array(n)
       show_array.fill(0)
 
       const offset = mode == "center" ? 1 : 0
+      const idx_offset = pad_before != 0 ? 1 : 0
 
       if (indices.length > 1) {
         for (let k = 0; k < indices.length; k++) {
           const i = indices[k]
           const inext = indices[k+1]
-          const idx = i*(2+offset)+1
+          const idx = i*(2+offset)+1 + idx_offset
           if (i == inext-1) {
             show_array[idx] = main_show_array[idx]
             show_array[idx+1] = main_show_array[idx+1]
@@ -70,20 +74,18 @@ export class StepGL extends SingleLineGL {
                        isFinite(sx[0]) && isFinite(sy[0]))
 
     const nstep_points = mode == "center" ? 3*npoints-2 : 2*npoints-1
-    const has_pad_before = pad_before != 0
-    const has_pad_after = pad_after != 0
-    const total_points = nstep_points + (has_pad_before ? 1 : 0) + (has_pad_after ? 1 : 0)
+    const total_points = nstep_points + (pad_before != 0 ? 1 : 0) + (pad_after != 0 ? 1 : 0)
 
     if (this._points == null) {
       this._points = new Float32Buffer(this.regl_wrapper)
     }
-    const points_array = this._points.get_sized_array((nstep_points+2)*2)
+    const points_array = this._points.get_sized_array((total_points+2)*2)
 
     // WebGL renderer needs just one of (x, y) coordinates of inserted step points
     // to be NaN for it to be rendered correctly.
     let j = 2
 
-    if (has_pad_before) {
+    if (pad_before != 0) {
       const pad_sx = this.glyph.renderer.xscale.s_compute(this.glyph.x[0] - pad_before)
       points_array[j++] = pad_sx
       points_array[j++] = sy[0]
@@ -132,7 +134,7 @@ export class StepGL extends SingleLineGL {
       is_finite = next_finite
     }
 
-    if (has_pad_after) {
+    if (pad_after != 0) {
       const pad_sx = this.glyph.renderer.xscale.s_compute(this.glyph.x[npoints - 1] + pad_after)
       points_array[j++] = pad_sx
       points_array[j++] = sy[npoints - 1]
