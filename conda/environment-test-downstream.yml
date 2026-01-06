@@ -20,4 +20,4 @@ dependencies:
   - pytest >=7.0
   - pytest-timeout
   - scipy
-  - nodejs 20.*
+  - nodejs 24.*
