@@ -11,3 +11,4 @@ Bokeh version ``3.9.0`` (November 2025) is a minor milestone of Bokeh project.
 * Added ``text_outline_width`` to ``Text`` to support user defined width of outline borders (:bokeh-pull:`14733`, :bokeh-pull:`14746`)
 * Removed ``pandas`` as a required dependency (:bokeh-pull:`14686`)
 * Fixed issue where ``Block`` glyph did not render correctly with reversed axes (:bokeh-pull:`14750`)
+* Fixed issue where ``CategoricalSlider`` displayed "undefined" in the tooltip (:bokeh-pull:`14774`)
