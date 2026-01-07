@@ -1778,8 +1778,8 @@ describe("Bug", () => {
       expect_not_null(el)
       expect(slider.value).to.be.equal("0")
 
-      // The expectation is that no errors accumulate during sliding
-      for (let c of categories.slice(1)) {
+      // The expectation is that no errors accumulate during sliding.
+      for (const c of categories.slice(1)) {
         el.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
         await view.ready
         // After an event the tooltip and the slider value should be updated.
