@@ -36,10 +36,9 @@ from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
-    from ..models.dom import DOMNodeLike
-    from ..models.ui import UIElementLike
     from ..resources import ResourcesLike
     from ..themes import Theme
+    from .showing import Showable
     from .state import State
 
 #-----------------------------------------------------------------------------
@@ -56,7 +55,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: UIElementLike | DOMNodeLike, filename: PathLike | None = None, resources: ResourcesLike | None = None,
+def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -163,7 +162,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: UIElementLike | DOMNodeLike, filename: PathLike, resources: Resources | None,
+def _save_helper(obj: Showable, filename: PathLike, resources: Resources | None,
         title: str | None, template: Template | str | None, theme: Theme | None = None) -> None:
     '''
 

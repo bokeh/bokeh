@@ -7,7 +7,6 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import Sequence, TypeAlias
 
 # Bokeh imports
 from ..core.enums import BuiltinFormatterType as BuiltinFormatter
@@ -112,5 +111,3 @@ class HTML(DOMElement):
     html: str | list[str | DOMNode | UIElement] = ...
 
     refs: list[str | DOMNode | UIElement] = ...
-
-DOMNodeLike: TypeAlias = DOMNode | Sequence[DOMNode]
