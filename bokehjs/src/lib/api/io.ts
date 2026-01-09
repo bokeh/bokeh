@@ -11,8 +11,9 @@ import type {UIElement} from "models/ui/ui_element"
 import type {DOMNode} from "models/dom/dom_node"
 
 declare type Jq = any
-declare type Showable = UIElement | DOMNode | Array<UIElement | DOMNode>
 declare const $: Jq
+
+export type Showable = UIElement | DOMNode | Array<UIElement | DOMNode>
 
 export async function show<T extends UIElement>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
 export async function show<T extends DOMNode>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
