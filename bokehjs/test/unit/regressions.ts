@@ -1986,7 +1986,7 @@ describe("Bug", () => {
   describe("in issue #14568", () => {
     it("should support zooming with respect to bounds when using FactorRanges", async () => {
       const factors = ["A", "B", "C"]
-      const x_range = new FactorRange({factors: factors, start: 0, end: 3})
+      const x_range = new FactorRange({factors, start: 0, end: 3})
       const y_range = new Range1d({start: 0, end: 3})
 
       const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}, maintain_focus: false})
