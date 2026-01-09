@@ -1,12 +1,12 @@
 #colors() {
-  background: @white;
-  text: @black;
+  background: light-dark(@white, @black);
+  text: light-dark(@black, @white);
 
-  default: @white;
+  default: light-dark(@white, @gray-700);
   default-border: @gray-200;
-  default-hover: @gray-100;
-  default-active: @gray-50;
-  default-disabled: @gray-100;
+  default-hover: light-dark(@gray-100, @gray-600);
+  default-active: light-dark(@gray-50, @gray-900);
+  default-disabled: light-dark(@gray-100, @gray-700);
   default-outline: @gray-600;
 
   primary: @blue-500;
@@ -28,13 +28,14 @@
   danger-hover: @red-600;
   danger-disabled: @red-400;
 
-  hover: @gray-100;
+  hover: light-dark(@gray-100, @gray-600);
   hover-border: @gray-500;
-  surface: @gray-100;
+  surface: light-dark(@gray-100, @gray-700);
   divider: @gray-200;
   border: @gray-300;
   placeholder: @gray-400;
   disabled: @gray-500;
+  inverted: @white;
 
   icon: @gray-500;
   icon-disabled: @gray-200;
@@ -43,11 +44,11 @@
   active-background: @blue-200;
   input-border: @mauve-500;
 
-  active-tool-background: @gray-100;
+  active-tool-background: light-dark(@gray-100, @gray-700);
   active-border: @blue-600;
   disabled-tool: @gray-50;
 
-  tooltip-background: @gray-700;
+  tooltip-background: light-dark(@gray-100, @gray-700);
   tooltip-border: @gray-400;
 
   inactive-switch-focus-outline: @gray-700;
