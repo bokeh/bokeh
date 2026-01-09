@@ -15,9 +15,8 @@ declare const $: Jq
 
 export type Showable = UIElement | DOMNode | Array<UIElement | DOMNode>
 
-export async function show<T extends UIElement>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
-export async function show<T extends DOMNode>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
-export async function show<T1 extends UIElement, T2 extends DOMNode>(obj: Array<T1 | T2>, target?: EmbedTarget | string): Promise<Array<ViewOf<T1 | T2>>>
+export async function show<T extends UIElement | DOMNode>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
+export async function show<T extends UIElement | DOMNode>(obj: T[], target?: EmbedTarget | string): Promise<ViewOf<T>[]>
 export async function show(obj: Document, target?: EmbedTarget | string): Promise<ViewOf<HasProps>[]>
 export async function show(obj: UIElement | Document, target?: EmbedTarget | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
 
