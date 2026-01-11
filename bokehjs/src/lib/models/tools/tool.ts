@@ -247,15 +247,13 @@ export abstract class Tool extends Model {
   }
 
   _compute_overlay_limits(sxlim: [number, number], sylim: [number, number],
-      dims: Dimensions): [[number, number], [number, number]] {
-    const s_offset = 2
-
+      dims: Dimensions, line_width: number): [[number, number], [number, number]] {
     if (dims == "width") {
-      sylim[0] -= s_offset // top
-      sylim[1] += s_offset // bottom
+      sylim[0] -= line_width // top
+      sylim[1] += line_width // bottom
     } else if (dims == "height") {
-      sxlim[0] -= s_offset // left
-      sxlim[1] += s_offset // right
+      sxlim[0] -= line_width // left
+      sxlim[1] += line_width // right
     }
 
     return [sxlim, sylim]
