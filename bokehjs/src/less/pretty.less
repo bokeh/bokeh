@@ -9,3 +9,21 @@
 .bk-array { color: initial; }
 .bk-object { color: initial; }
 .bk-iterable { color: initial; }
+
+.bk-primitive { color: #007500; }
+.bk-type { color: #1a1aa6; }
+
+.bk-color {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25em;
+
+  .bk-swatch {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 1px solid black;
+  }
+}

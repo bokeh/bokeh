@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.13
-  - nodejs 20.*
+  - nodejs 24.*
 
   # required dependencies
   - contourpy >=1.2
@@ -23,3 +23,4 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - pytest-timeout
+  - pytest-tornado

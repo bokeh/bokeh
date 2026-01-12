@@ -1768,7 +1768,7 @@ describe("Bug", () => {
     })
   })
 
-  describe("in issue #13965", () => {
+  describe("in issue #13965 and #14645", () => {
     it("doesn't allow to correctly index categories in CategoricalSlider", async () => {
       const categories = range(0, 20).map((i) => `${i}`)
       const slider = new CategoricalSlider({categories, value: "0"})
@@ -1776,11 +1776,16 @@ describe("Bug", () => {
 
       const el = view.shadow_el.querySelector(".noUi-handle")
       expect_not_null(el)
+      expect(slider.value).to.be.equal("0")
 
       // The expectation is that no errors accumulate during sliding.
-      for (const _ of categories) {
+      for (const c of categories.slice(1)) {
         el.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
         await view.ready
+        // After an event the tooltip and the slider value should be updated.
+        // The displayed string shouldn't be "undefiend".
+        expect(el.ariaValueText).to.be.equal(c)
+        expect(slider.value).to.be.equal(c)
       }
     })
   })

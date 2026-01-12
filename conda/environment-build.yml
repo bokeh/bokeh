@@ -7,7 +7,7 @@ dependencies:
   - conda-build 24*    # pre .conda format
   - conda-verify 3.4*
   - libiconv
-  - nodejs 20.*
+  - nodejs 24.*
   - python-build
   - setuptools
   - yaml
