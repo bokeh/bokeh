@@ -34,8 +34,12 @@ export class DropdownView extends AbstractButtonView {
 
     const {menu} = this.model.properties
     this.on_change(menu, async () => {
+      const menu_open = this.menu.is_open
       await this._build_menu()
       this.rerender()
+      if (menu_open) {
+        this._toggle_menu()
+      }
     })
   }
 
