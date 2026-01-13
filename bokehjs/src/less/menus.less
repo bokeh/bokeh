@@ -4,13 +4,13 @@
   position: absolute;
 
   display: inline-grid;
-  grid-template-columns: repeat(5, max-content);
+  grid-template-columns: var(--menu-template-columns, repeat(5, max-content));
   grid-template-rows: auto;
 
   .no-user-select();
   cursor: pointer;
 
-  width: auto;
+  width: var(--menu-width, auto);
   height: auto;
 
   z-index: var(--bokeh-top-level);
