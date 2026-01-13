@@ -1,0 +1,38 @@
+%import common.WS
+%import common.CNAME
+
+%ignore WS
+
+UNIVERSAL: "*"
+
+IDENTIFIER: CNAME
+
+TYPE: IDENTIFIER | UNIVERSAL
+
+VALUE: "True" | "False"
+
+NAME_SELECTOR: "#" IDENTIFIER
+
+TAG_SELECTOR: "." IDENTIFIER
+
+prop_selector: "[" IDENTIFIER "=" VALUE "]"
+
+tags: TAG_SELECTOR*
+
+props: prop_selector*
+
+selector: TYPE [NAME_SELECTOR] tags props
+
+?combinator_selector: descendant_selector | child_selector | adjacent_sibling_selector | general_sibling_selector | selector
+
+descendant_selector: selector selector
+
+child_selector: selector ">" selector
+
+adjacent_sibling_selector: selector "+" selector
+
+general_sibling_selector: selector "~" selector
+
+?grouping_selector: combinator_selector ("," combinator_selector)*
+
+?start: grouping_selector

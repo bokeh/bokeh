@@ -21,10 +21,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, overload
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, overload
 
 # External imports
 import yaml
+from lark import (
+    Lark,
+    Token,
+    Transformer,
+    UnexpectedCharacters,
+    UnexpectedEOF,
+    UnexpectedToken,
+)
 
 # Bokeh imports
 from ..core.has_props import HasProps
@@ -46,6 +56,103 @@ __all__ = (
     'Theme',
 )
 
+@dataclass
+class Selector:
+
+    type: str
+    name: str | None
+    tags: list[str]
+    props: list[tuple[str, Any]]
+
+    def __str__(self) -> str:
+        type = self.type
+        name = f"#{self.name}" if self.name is not None else ""
+        tags = "".join([f".{tag}" for tag in self.tags])
+        props = "".join([f"[{name}={value!r}]" for [name, value] in self.props])
+        return f"{type}{name}{tags}{props}"
+
+@dataclass
+class Combinator:
+
+    type: Literal["descendant", "child", "adjacent_sibling", "general_sibling"]
+    left: Selector
+    right: Selector
+
+    def __str__(self) -> str:
+        match self.type:
+            case "descendant":
+                op = " "
+            case "child":
+                op = " > "
+            case "adjacent_sibling":
+                op = " + "
+            case "general_sibling":
+                op = " ~ "
+        return f"{self.left}{op}{self.right}"
+
+@dataclass
+class Grouping:
+
+    selectors: list[Selector | Combinator]
+
+    def __str__(self) -> str:
+        return ", ".join([f"{selector}" for selector in self.selectors])
+
+SelectorLike: TypeAlias = Selector | Combinator | Grouping
+
+class TreeToSelector(Transformer):
+
+    def TYPE(self, type: Token) -> str:
+        return type.value
+
+    def NAME_SELECTOR(self, name: Token) -> str:
+        return name.value[1:]
+
+    def TAG_SELECTOR(self, tag: Token) -> str:
+        return tag.value[1:]
+
+    def tags(self, tags: list[str]) -> list[str]:
+        return tags
+
+    def prop_selector(self, args: tuple[Token, Token]):
+        name, value = args
+        return (name.value, value.value)
+
+    def props(self, props: list[tuple[str, Any]]) -> list[tuple[str, Any]]:
+        return props
+
+    def selector(self, args: tuple[str, str | None, list[str], list[tuple[str, Any]]]):
+        type, name, tags, props = args
+        return Selector(type, name, tags, props)
+
+    def descendant_selector(self, args: tuple[Selector, Selector]):
+        left, right = args
+        return Combinator("descendant", left, right)
+
+    def child_selector(self, args: tuple[Selector, Selector]):
+        left, right = args
+        return Combinator("child", left, right)
+
+    def adjacent_sibling_selector(self, args: tuple[Selector, Selector]):
+        left, right = args
+        return Combinator("adjacent_sibling", left, right)
+
+    def general_sibling_selector(self, args: tuple[Selector, Selector]):
+        left, right = args
+        return Combinator("general_sibling", left, right)
+
+    def grouping_selector(self, selectors: list[Selector | Combinator]):
+        return Grouping(selectors)
+
+with open(Path(__file__).parent / "selector.lark") as f:
+    _selector_parser = Lark(f, parser="lalr", maybe_placeholders=True, transformer=TreeToSelector(visit_tokens=True))
+
+def parse_selector(selector: str) -> SelectorLike | None:
+    try:
+        return _selector_parser.parse(selector)
+    except (UnexpectedCharacters, UnexpectedEOF, UnexpectedToken):
+        return None
+
 #-----------------------------------------------------------------------------
 # General API
 #----------------------------------------------------------------------------
@@ -53,6 +160,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@dataclass
+class ThemeSpec:
+    attrs: dict[SelectorLike, dict[str, Any]]
+    vars: dict[str, Any]
 
 # Note: in DirectoryHandler and in general we assume this is an
 # immutable object, because we share it among sessions and we
@@ -166,6 +278,8 @@ class Theme:
         if json is None:
             raise ValueError("Theme requires json or a filename to construct")
 
+        #self._process_theme(json)
+
         self._json = json
 
         if 'attrs' not in self._json:
@@ -186,6 +300,57 @@ class Theme:
         # (including those merged in from base classes) for that
         # class.
         self._by_class_cache = {}
+
+    @classmethod
+    def from_file(cls, filename: PathLike) -> Theme:
+        """ """
+        with open(filename, "rb") as f:
+            json = yaml.safe_load(f)
+            # empty docs result in None rather than {}, fix it.
+            if json is None:
+                json = {}
+
+        return cls.from_json(json=json)
+
+    @classmethod
+    def from_json(cls, filename: str | dict[str, Any]) -> Theme:
+        """ """
+        return Theme()
+
+    @classmethod
+    def _process_theme(cls, json: dict[str, Any]) -> ThemeSpec:
+        attrs = json.get("attrs", {})
+        vars = json.get("vars", {})
+
+        if not isinstance(attrs, dict):
+            log.warning("expected theme 'attrs' field to be a dictionary of ...")
+
+        if not isinstance(vars, dict):
+            log.warning("expected theme 'vars' field be a dictionary of ...")
+
+        resolved_attrs: dict[SelectorLike, dict[str, Any]] = {}
+        resolved_vars: dict[str, Any] = {}
+
+        for selector, props in attrs:
+            if not isinstance(selector, str):
+                log.warning("expected a string selector; ignoring")
+                continue
+            if not isinstance(props, dict):
+                log.warning("expected a dict of properties; ignoring")
+                continue
+
+            expr = parse_selector(selector)
+            if expr is None:
+                log.warning(f"invalid selector {selector!r}; ignoring")
+                continue
+
+            for attr, value in props:
+                if not isinstance(attr, str):
+                    log.warning("expected a property name; ignoring")
+
+            resolved_attrs[expr] = props
+
+        return ThemeSpec(resolved_attrs, resolved_vars)
 
     def _add_glyph_defaults(self, cls: type[HasProps], props: dict[str, Any]) -> None:
         from ..models.glyph import Glyph
