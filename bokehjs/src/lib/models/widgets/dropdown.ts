@@ -18,7 +18,6 @@ export class DropdownView extends AbstractButtonView {
 
   protected _open: boolean = false
   protected menu: MenuView
-  protected _active: number
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), dropdown_css, carets_css]
@@ -83,7 +82,6 @@ export class DropdownView extends AbstractButtonView {
 
     const item = this.model.menu[i]
     if (item != null) {
-      this._active = i
       const value_or_callback = isString(item) ? item : item[1]
 
       if (isString(value_or_callback)) {
@@ -102,9 +100,6 @@ export class DropdownView extends AbstractButtonView {
         const label = isString(item) ? item : item[0]
         const menu_item = new MenuItem({
           label,
-          checked: () => {
-            return this._active === i
-          },
           action: () => { this._item_click(i) },
         })
         return menu_item
