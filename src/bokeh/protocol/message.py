@@ -217,17 +217,16 @@ class Message(Generic[Content]):
             MessageError
 
         '''
-        if 'num_buffers' in self._header:
-            self._header['num_buffers'] += 1
-        else:
-            self._header['num_buffers'] = 1
-
-        self._header_json = None
-        self._buffers.append(buffer)
+        self.add_buffers(buffer)
 
     def add_buffers(self, *buffers: Buffer) -> None:
-        for buffer in buffers:
-            self.add_buffer(buffer)
+        if "num_buffers" in self._header:
+            self._header["num_buffers"] += len(buffers)
+        else:
+            self._header["num_buffers"] = len(buffers)
+
+        self._header_json = None
+        self._buffers.extend(buffers)
 
     def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
         ''' Add a buffer header and payload that we read from the socket.

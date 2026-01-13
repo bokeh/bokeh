@@ -771,7 +771,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Convert this document to a JSON-serializable object.
 
         Args:
-            deferred (bool) : encode buffers as references or inline (base64)
+            deferred (bool) : encode buffers lazily as references or immediately as inline (base64)
 
         Return:
             Serialized[DocJson] | DocJson
