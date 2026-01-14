@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "lib": ["es2022", "dom", "dom.iterable"],
     "types": ["node"],
     "baseUrl": ".",

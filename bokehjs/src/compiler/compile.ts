@@ -9,7 +9,7 @@ import type {Path} from "./sys.js"
 import {rename} from "./sys.js"
 import * as transforms from "./transforms.js"
 
-import * as tsconfig_json from "./tsconfig.ext.json"
+import tsconfig_json from "./tsconfig.ext.json" with {type: "json"}
 
 function parse_patched_tsconfig(base_dir: string, preconfigure: ts.CompilerOptions) {
   // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.

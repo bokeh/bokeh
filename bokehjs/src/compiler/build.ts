@@ -13,7 +13,7 @@ import {Linker} from "./linker.js"
 import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
 import * as preludes from "./prelude.js"
 
-import tsconfig_json from "./tsconfig.ext.json" // with {type: "json"}
+import tsconfig_json from "./tsconfig.ext.json" with {type: "json"}
 
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk

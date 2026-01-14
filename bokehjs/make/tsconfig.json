@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "module": "esnext",
     "lib": ["es2022"],
     "types": ["node"],
     "baseUrl": ".",
