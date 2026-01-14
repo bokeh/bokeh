@@ -4,7 +4,7 @@ import {Coordinate} from "../../coordinates/coordinate"
 import type {Scale} from "../../scales/scale"
 import type {IconLike} from "../../common/kinds"
 import type {FactorLike} from "../../ranges/factor_range"
-import type {KeyBinding} from "core/keyboard"
+import type {InternalKeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
@@ -174,17 +174,17 @@ export class BoxSelectToolView extends RegionSelectToolView {
     this._select(geometry, final, mode)
   }
 
-  override key_bindings(): KeyBinding[] {
+  override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Start box selection", keys: ["s", "b"], command: "select_box", action: () => {}},
+      {description: "Start box selection", keys: ["s", "b"], command: "select_box", action: () => {}, origin: this.model},
       /*
-      {keys: ["ArrowUp"], action: () => {}},
-      {keys: ["ArrowDown"], action: () => {}},
-      {keys: ["ArrowLeft"], action: () => {}},
-      {keys: ["ArrowRight"], action: () => {}},
-      {keys: ["Enter"], action: () => select_and_clear_annotation},
-      {keys: ["Shift+Enter"], action: () => select_and_persist_annotation},
+      {keys: ["ArrowUp"], action: () => {}, origin: this.model},
+      {keys: ["ArrowDown"], action: () => {}, origin: this.model},
+      {keys: ["ArrowLeft"], action: () => {}, origin: this.model},
+      {keys: ["ArrowRight"], action: () => {}, origin: this.model},
+      {keys: ["Enter"], action: () => select_and_clear_annotation, origin: this.model},
+      {keys: ["Shift+Enter"], action: () => select_and_persist_annotation, origin: this.model},
       */
     ]
   }
