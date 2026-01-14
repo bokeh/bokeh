@@ -60,24 +60,31 @@ for (const workspace of ["", ...workspaces]) {
   }
 }
 
-const {register} = require("ts-node")
-
 process.on("uncaughtException", function(err) {
   console.error(err)
   process.exit(1)
 })
 
-register({project: "./make/tsconfig.json", cache: false, logError: true})
+function compile() {
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  const {status} = cp.spawnSync(npx, ["tsc", "--project", "./make/tsconfig.json"], {stdio: "inherit", shell: is_windows})
+  if (status !== 0) {
+    process.exit(status)
+  }
+}
+
+compile()
 
 const tsconfig_paths = require("tsconfig-paths")
 
 tsconfig_paths.register({
   baseUrl: __dirname,
   paths: {
-    "@compiler/*": ["../src/compiler/*"],
+    "@compiler/*": ["./_build/src/compiler/*"],
   },
 })
 
 if (require.main != null) {
-  require("./main")
+  require("./_build/make/main")
 }
