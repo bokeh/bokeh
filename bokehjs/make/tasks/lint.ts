@@ -13,8 +13,18 @@ async function eslint(dir: string): Promise<void> {
   const {fix} = argv
   const eslint = new ESLint({cache: true, fix})
 
-  const {include} = (await import(join(dir, "tsconfig.json"))) as {include: string[]}
-  const files = glob(...include.map((pat) => normalize(join(dir, pat))))
+  const {default: tsconfig_json} = (await import(join(dir, "tsconfig.json"), {with: {type: "json"}}))
+  const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
+
+  const included_files = new Set(glob(...(tsconfig.include ?? []).map((pat) => normalize(join(dir, pat)))))
+  const excluded_files = new Set(glob(...(tsconfig.exclude ?? []).map((pat) => normalize(join(dir, pat)))))
+
+  const files = []
+  for (const file of included_files) {
+    if (!excluded_files.has(file)) {
+      files.push(file)
+    }
+  }
 
   const results = await eslint.lintFiles(files)
 
