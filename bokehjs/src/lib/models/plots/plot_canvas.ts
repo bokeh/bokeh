@@ -64,7 +64,7 @@ import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
 import type {StyledElement} from "../ui/styled_element"
-import type {KeyBinding} from "core/keyboard"
+import type {InternalKeyBinding} from "core/keyboard"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"
@@ -423,7 +423,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
-    this.canvas_view.ui_event_bus.add_key_bindings(this.key_bindings())
+    this.canvas_view.ui_event_bus.add_key_bindings(this.key_bindings)
 
     this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
 
@@ -1560,18 +1560,11 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.trigger_ranges_update_event()
   }
 
-  key_bindings(): KeyBinding[] {
-    const bindings: KeyBinding[] = [ ]
-    for (const {description, key, command, when, action, priority} of this.model.key_bindings) {
-      bindings.push({
-        description,
-        keys: isArray(key) ? key : [key],
-        command: command ?? undefined,
-        when: when ?? undefined,
-        action,
-        priority,
-      })
-    }
-    return bindings
+  override get computed_key_bindings(): InternalKeyBinding[] {
+    return [...super.computed_key_bindings, ...this.canvas.ui_event_bus.key_bindings]
+  }
+
+  override get key_bindings(): InternalKeyBinding[] {
+    return [...super.key_bindings, ...this.model.key_bindings.map((kb) => kb.to_internal(this.model))]
   }
 }

@@ -1,5 +1,6 @@
 import {Model} from "../model"
 import {Notifications} from "models/ui/notifications"
+import type {KeyBinding} from "models/ui/key_binding"
 import type * as p from "core/properties"
 
 export namespace DocumentConfig {
@@ -9,6 +10,7 @@ export namespace DocumentConfig {
     reconnect_session: p.Property<boolean>
     notify_connection_status: p.Property<boolean>
     notifications: p.Property<Notifications | null>
+    key_bindings: p.Property<KeyBinding[]>
   }
 }
 
@@ -22,10 +24,11 @@ export class DocumentConfig extends Model {
   }
 
   static {
-    this.define<DocumentConfig.Props>(({Bool, Ref, Nullable}) => ({
+    this.define<DocumentConfig.Props>(({Bool, Ref, Nullable, List, AnyRef}) => ({
       reconnect_session: [ Bool, true ],
       notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
+      key_bindings: [ List(AnyRef()), [] ], // TODO Ref(KeyBinding)
     }))
   }
 }

@@ -33,7 +33,7 @@ import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
-import type {KeyCombination, KeySequence, KeyBinding} from "core/keyboard"
+import type {KeyCombination, KeySequence, InternalKeyBinding} from "core/keyboard"
 
 import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
@@ -127,8 +127,8 @@ export abstract class ToolView extends View {
   _keydown?(e: KeyEvent): void | boolean
   _keyup?(e: KeyEvent): void | boolean
 
-  key_bindings(): KeyBinding[] {
-    const bindings: KeyBinding[] = []
+  key_bindings(): InternalKeyBinding[] {
+    const bindings: InternalKeyBinding[] = []
     const {toggle_key} = this.model
     if (toggle_key != null) {
       const tool_name = this.model.tool_name.toLocaleLowerCase().replace(/ /g, "_")
@@ -138,6 +138,7 @@ export abstract class ToolView extends View {
         keys: ["a", ...key_seq],
         command: `activate_${tool_name}`,
         action: () => { this.model.active = !this.model.active },
+        origin: this.model,
       })
     }
     return bindings

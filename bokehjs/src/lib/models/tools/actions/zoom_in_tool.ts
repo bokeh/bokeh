@@ -1,6 +1,6 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
 import {tool_icon_zoom_in} from "styles/icons.css"
-import type {KeyBinding} from "core/keyboard"
+import type {InternalKeyBinding} from "core/keyboard"
 
 export class ZoomInToolView extends ZoomBaseToolView {
   declare model: ZoomBaseTool
@@ -9,11 +9,11 @@ export class ZoomInToolView extends ZoomBaseToolView {
     return this.model.factor
   }
 
-  override key_bindings(): KeyBinding[] {
+  override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Zoom In", keys: ["+"], command: "zoom_in", action: () => this.doit()},
-      {description: "Zoom In", keys: ["z", "i"], command: "zoom_in", action: () => this.doit()},
+      {description: "Zoom In", keys: ["+"], command: "zoom_in", action: () => this.doit(), origin: this.model},
+      {description: "Zoom In", keys: ["z", "i"], command: "zoom_in", action: () => this.doit(), origin: this.model},
     ]
   }
 }

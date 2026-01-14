@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from typing import Sequence, TypeAlias
 
 # Bokeh imports
@@ -14,11 +15,12 @@ from ..callbacks import Callback
 
 KeyCombination: TypeAlias = str # TODO
 
+@dataclass
 class KeyBinding(Model):
 
     description: str = ...
 
-    key: KeyCombination | Sequence[KeyCombination] = ...
+    keys: KeyCombination | Sequence[KeyCombination] = ...
 
     command: str | None = ...
 

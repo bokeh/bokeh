@@ -159,6 +159,7 @@
       name: "Notifications",
       attributes: {},
     },
+    key_bindings: [],
   },
   DataModel: {
     __extends__: "Model",
@@ -7385,7 +7386,7 @@
       type: "symbol",
       name: "unset",
     },
-    key: {
+    keys: {
       type: "symbol",
       name: "unset",
     },

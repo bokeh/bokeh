@@ -3,7 +3,7 @@ import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
 import type {IconLike} from "../../common/kinds"
-import type {KeyBinding} from "core/keyboard"
+import type {InternalKeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
 import {assert} from "core/util/assert"
@@ -174,19 +174,19 @@ export class PanToolView extends GestureToolView {
     }
   }
 
-  override key_bindings(): KeyBinding[] {
+  override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
 
-      {description: "Pan left",  keys: ["ArrowLeft"],  command: "pan_left",  action: () => this._pan_by("left")},
-      {description: "Pan right", keys: ["ArrowRight"], command: "pan_right", action: () => this._pan_by("right")},
-      {description: "Pan up",    keys: ["ArrowUp"],    command: "pan_up",    action: () => this._pan_by("up")},
-      {description: "Pan down",  keys: ["ArrowDown"],  command: "pan_down",  action: () => this._pan_by("down")},
+      {description: "Pan left",  keys: ["ArrowLeft"],  command: "pan_left",  action: () => this._pan_by("left"), origin: this.model},
+      {description: "Pan right", keys: ["ArrowRight"], command: "pan_right", action: () => this._pan_by("right"), origin: this.model},
+      {description: "Pan up",    keys: ["ArrowUp"],    command: "pan_up",    action: () => this._pan_by("up"), origin: this.model},
+      {description: "Pan down",  keys: ["ArrowDown"],  command: "pan_down",  action: () => this._pan_by("down"), origin: this.model},
 
-      {description: "Pan left",  keys: ["p", "l"], action: () => this._pan_by("left")},
-      {description: "Pan right", keys: ["p", "r"], action: () => this._pan_by("right")},
-      {description: "Pan up",    keys: ["p", "u"], action: () => this._pan_by("up")},
-      {description: "Pan down",  keys: ["p", "d"], action: () => this._pan_by("down")},
+      {description: "Pan left",  keys: ["p", "l"], action: () => this._pan_by("left"), origin: this.model},
+      {description: "Pan right", keys: ["p", "r"], action: () => this._pan_by("right"), origin: this.model},
+      {description: "Pan up",    keys: ["p", "u"], action: () => this._pan_by("up"), origin: this.model},
+      {description: "Pan down",  keys: ["p", "d"], action: () => this._pan_by("down"), origin: this.model},
     ]
   }
 }

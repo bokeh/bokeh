@@ -22,10 +22,12 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+from ..core.property.container import List
 from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool
 from ..model import Model
+from ..models.ui import KeyBinding
 from ..models.ui.notifications import Notifications
 
 #-----------------------------------------------------------------------------
@@ -68,6 +70,10 @@ class DocumentConfig(Model):
     # TODO needs a base class, e.g. NotificationsBase
     notifications = Nullable(Instance(Notifications), default=InstanceDefault(Notifications), help="""
     Allows to configure or replace the notifications UI and logic.
+    """)
+
+    key_bindings = List(Instance(KeyBinding), default=[], help="""
+    Allows to define global custom key bindings.
     """)
 
 #-----------------------------------------------------------------------------

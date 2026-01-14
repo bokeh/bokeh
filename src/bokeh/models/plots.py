@@ -917,9 +917,6 @@ class Plot(LayoutDOM):
 
     key_bindings = List(Instance(KeyBinding), default=[], help="""
     Allows to define custom key bindings.
-
-    .. note::
-        This feature is experimental and may change in the short term.
     """)
 
     context_menu = Override(default="auto")
