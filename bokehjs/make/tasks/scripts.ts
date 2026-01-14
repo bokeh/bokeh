@@ -1,20 +1,21 @@
-import {join, relative} from "path"
-import cp from "child_process"
-import fs from "fs"
+import {join, relative} from "node:path"
+import cp from "node:child_process"
+//import fs from "node:fs"
 
-import {task, passthrough, BuildError} from "../task"
+import {task, passthrough, BuildError} from "../task.js"
 
-import {rename, read, write, scan} from "@compiler/sys"
-import {wrap_css_modules} from "@compiler/styles"
-import {compile_typescript} from "@compiler/compiler"
-import type {AssemblyOptions} from "@compiler/linker"
-import {Linker} from "@compiler/linker"
-import * as preludes from "@compiler/prelude"
+import {rename, read, write, scan} from "#compiler/sys.js"
+import {wrap_css_modules} from "#compiler/styles.js"
+import {compile_typescript} from "#compiler/compiler.js"
+import type {AssemblyOptions} from "#compiler/linker.js"
+import {Linker} from "#compiler/linker.js"
+import * as preludes from "#compiler/prelude.js"
 
-import {argv} from "../main"
-import * as paths from "../paths"
+import {argv} from "../args.js"
+import * as paths from "../paths.js"
 
-import pkg from "../../package.json"
+//import pkg from "../../package.json"
+const pkg = {version: "3.9.0-dev.7"}
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
@@ -157,6 +158,7 @@ task("lib:build", ["scripts:bundle"])
 
 export const build_scripts = task("scripts:build", ["lib:build"])
 
+/*
 task("packages:prepare", ["scripts:bundle"], async () => {
   const bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"]
   const suffixes = ["", ".esm"]
@@ -191,3 +193,4 @@ task("packages:prepare", ["scripts:bundle"], async () => {
     }
   }
 })
+*/

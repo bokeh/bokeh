@@ -1,9 +1,10 @@
-import yargs from "yargs"
-import {resolve} from "path"
+import {resolve} from "node:path"
 
-import {read} from "./sys"
-import {init, build} from "./build"
-import {compile_and_resolve_deps} from "./compile"
+import yargs from "yargs"
+
+import {read} from "./sys.js"
+import {init, build} from "./build.js"
+import {compile_and_resolve_deps} from "./compile.js"
 
 const argv = yargs(process.argv.slice(2)).options({
   code: {type: "string"},

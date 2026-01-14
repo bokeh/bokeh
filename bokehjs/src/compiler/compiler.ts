@@ -1,11 +1,11 @@
 import chalk from "chalk"
 import ts from "typescript"
 
-import {dirname, join, relative} from "path"
+import {dirname, join, relative} from "node:path"
 
-import * as transforms from "./transforms"
-import type {Path} from "./sys"
-import {BuildError} from "./error"
+import * as transforms from "./transforms.js"
+import type {Path} from "./sys.js"
+import {BuildError} from "./error.js"
 
 export type CompileConfig = {
   tslib_dir?: Path

@@ -1,6 +1,6 @@
-import {resolve, join} from "path"
+import {resolve, join} from "node:path"
 
-import {argv} from "./main"
+import {argv} from "./args.js"
 
 export const base_dir = resolve("./")
 export const make_dir = join(base_dir, "make")

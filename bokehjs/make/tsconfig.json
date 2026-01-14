@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
     "lib": ["es2022"],
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@compiler/*": ["../src/compiler/*"]
+      "#compiler/*": ["../src/compiler/*"]
     },
     "outDir": "./_build"
   },

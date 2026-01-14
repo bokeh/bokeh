@@ -1,7 +1,7 @@
 import * as ts from "typescript"
 
-import crypto from "crypto"
-import {parse, format, normalize} from "path"
+import crypto from "node:crypto"
+import {parse, format, normalize} from "node:path"
 
 export type Path = string
 

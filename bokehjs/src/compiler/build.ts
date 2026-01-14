@@ -1,19 +1,19 @@
 import type * as ts from "typescript"
 
-import * as cp from "child_process"
-import {join, dirname, basename, relative} from "path"
+import * as cp from "node:child_process"
+import {join, dirname, basename, relative} from "node:path"
 
-import type {Path} from "./sys"
-import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file} from "./sys"
+import type {Path} from "./sys.js"
+import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file} from "./sys.js"
 import {
   compile_files, read_tsconfig, parse_tsconfig, is_failed,
   default_transformers, compiler_host, report_diagnostics,
-} from "./compiler"
-import {Linker} from "./linker"
-import {collect_styles, compile_styles, wrap_css_modules} from "./styles"
-import * as preludes from "./prelude"
+} from "./compiler.js"
+import {Linker} from "./linker.js"
+import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
+import * as preludes from "./prelude.js"
 
-import * as tsconfig_json from "./tsconfig.ext.json"
+import tsconfig_json from "./tsconfig.ext.json" // with {type: "json"}
 
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk

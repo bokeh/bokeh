@@ -1,11 +1,11 @@
-import {task, run, log} from "../task"
-import {keep_alive, debounce} from "./_util"
+import {task, run, log} from "../task.js"
+import {keep_alive, debounce} from "./_util.js"
 
-import {build_scripts} from "./scripts"
-import {build_defaults, build_unit, build_integration} from "./test"
+import {build_scripts} from "./scripts.js"
+import {build_defaults, build_unit, build_integration} from "./test.js"
 
-import * as paths from "../paths"
-import {argv} from "../main"
+import * as paths from "../paths.js"
+import {argv} from "../args.js"
 
 import chokidar from "chokidar"
 import chalk from "chalk"

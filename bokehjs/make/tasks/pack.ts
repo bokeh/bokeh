@@ -1,8 +1,8 @@
-import cp from "child_process"
-import fs from "fs"
-import os from "os"
-import path from "path"
-import {task, BuildError} from "../task"
+import cp from "node:child_process"
+import fs from "node:fs"
+import os from "node:os"
+import path from "node:path"
+import {task, BuildError} from "../task.js"
 
 function npm_pack() {
   const dist = "build/dist"

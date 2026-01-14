@@ -1,7 +1,7 @@
 import del from "del"
 
-import {task} from "../task"
-import {build_dir} from "../paths"
+import {task} from "../task.js"
+import {build_dir} from "../paths.js"
 
 task("clean:all", async () => {
   await del(build_dir.all)

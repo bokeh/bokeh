@@ -1,7 +1,7 @@
-const crypto = require("crypto")
-const cp = require("child_process")
-const fs = require("fs")
-const {join, dirname, basename} = require("path")
+import crypto from "node:crypto"
+import cp from "node:child_process"
+import fs from "node:fs"
+import {join, dirname, basename} from "node:path"
 
 function npm_install() {
   const is_windows = process.platform == "win32"
@@ -22,7 +22,7 @@ const {engines, workspaces} = require("../package.json")
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
 
-const semver = require("semver")
+import semver from "semver"
 
 if (!semver.satisfies(node_version, engines.node)) {
   console.log(`node ${engines.node} is required. Current version is ${node_version}.`)
@@ -76,15 +76,4 @@ function compile() {
 
 compile()
 
-const tsconfig_paths = require("tsconfig-paths")
-
-tsconfig_paths.register({
-  baseUrl: __dirname,
-  paths: {
-    "@compiler/*": ["./_build/src/compiler/*"],
-  },
-})
-
-if (require.main != null) {
-  require("./_build/make/main")
-}
+void import("./_build/make/main.js")

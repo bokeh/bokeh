@@ -1,9 +1,9 @@
-import assert from "assert"
-import os from "os"
-import type {ChildProcess} from "child_process"
-import {Socket} from "net"
+import assert from "node:assert"
+import os from "node:os"
+import type {ChildProcess} from "node:child_process"
+import {Socket} from "node:net"
 
-import {BuildError} from "../task"
+import {BuildError} from "../task.js"
 
 export const platform = (() => {
   switch (os.type()) {
