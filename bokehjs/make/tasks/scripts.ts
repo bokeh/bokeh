@@ -1,6 +1,6 @@
 import {join, relative} from "node:path"
 import cp from "node:child_process"
-//import fs from "node:fs"
+import fs from "node:fs"
 
 import {task, passthrough, BuildError} from "../task.js"
 
@@ -14,8 +14,10 @@ import * as preludes from "#compiler/prelude.js"
 import {argv} from "../args.js"
 import * as paths from "../paths.js"
 
-//import pkg from "../../package.json"
-const pkg = {version: "3.9.0-dev.7"}
+// Don't use imports here, because TS will copy package.json to make/_build
+// and that will mess up node's module resolution.
+const pkg_file = fs.readFileSync("./make/package.json", {encoding: "utf-8"})
+const pkg = JSON.parse(pkg_file) as {version: string}
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
@@ -157,40 +159,3 @@ exports.VERSION = "0.0.0";
 task("lib:build", ["scripts:bundle"])
 
 export const build_scripts = task("scripts:build", ["lib:build"])
-
-/*
-task("packages:prepare", ["scripts:bundle"], async () => {
-  const bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"]
-  const suffixes = ["", ".esm"]
-  const pkgs_dir = paths.build_dir.packages
-
-  for (const suffix of suffixes) {
-    const root = `@bokeh/bokeh${suffix}`
-
-    for (const bundle of bundles) {
-      const name = `@bokeh/${bundle}${suffix}`
-      const main = `${bundle}${suffix}.min.js`
-
-      const spec = {
-        name,
-        version: pkg.version,
-        description: pkg.description,
-        keywords: pkg.keywords,
-        license: pkg.license,
-        repository: pkg.repository,
-        main,
-        module: suffix == ".esm" ? main : undefined,
-        // TODO: types
-        dependencies: name != root ? [{[root]: `^${pkg.version}`}] : [],
-      }
-
-      const pkg_dir = join(pkgs_dir, name)
-
-      const json = JSON.stringify(spec, undefined, 2)
-      write(join(pkg_dir, "package.json"), json)
-
-      await fs.promises.copyFile(join(paths.build_dir.js, main), join(pkg_dir, main))
-    }
-  }
-})
-*/

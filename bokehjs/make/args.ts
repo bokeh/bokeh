@@ -1,6 +1,6 @@
 import yargs from "yargs"
 
-export const argv = yargs().help(false).options({
+export const argv = yargs(process.argv.slice(2)).help(false).options({
   // paths
   "build-dir": {type: "string"},
   // lint

@@ -17,7 +17,8 @@ if (!fs.existsSync("node_modules/")) {
   npm_install()
 }
 
-const {engines, workspaces} = require("../package.json")
+import pkg_json from "../package.json" with {type: "json"}
+const {engines, workspaces} = pkg_json
 
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
