@@ -6,8 +6,8 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("ContinuousTicker Model", () => {
 
   class MyTicker extends ContinuousTicker {
-    min_interval: number
-    max_interval: number | null
+    min_interval: number = 0
+    max_interval: number | null = null
 
     get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
       return 100
