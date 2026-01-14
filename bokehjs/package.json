@@ -33,7 +33,7 @@
     "./test"
   ],
   "scripts": {
-    "prepare": "node ./prepare.js",
+    "prepare": "node ./prepare.mjs",
     "build": "node make build",
     "dev-build": "node make dev-build"
   },
