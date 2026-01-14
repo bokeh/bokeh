@@ -5,9 +5,11 @@
     "jsxImportSource": "preact",
     "lib": ["es2022", "dom", "dom.iterable"],
     "types": ["google.maps"],
-    "baseUrl": ".",
-    "rootDir": ".",
+    "paths": {
+      "*": ["./*"]
+    },
     "outDir": "../../build/js/lib",
+    "rootDir": ".",
     "rootDirs": [".", "../../build/dts/"],
     "incremental": true,
     "tsBuildInfoFile": "../../build/js/bokehjs.tsbuildinfo"

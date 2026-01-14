@@ -29,7 +29,6 @@
     "esModuleInterop": true,
     "target": "ES2022",
     "lib": ["es2022", "dom", "dom.iterable"],
-    "baseUrl": ".",
     "outDir": "./dist/lib"
   },
   "include": ["./**/*.ts"]

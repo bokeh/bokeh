@@ -309,7 +309,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   }
 
   const preconfigure: ts.CompilerOptions = {
-    baseUrl: base_dir,
     paths: {
       "@bokehjs/*": [
         join(bokehjs_dir, "js/lib/*"),
@@ -362,7 +361,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const {files} = tsconfig2
 
-  const transformers = default_transformers(options)
+  const transformers = default_transformers(dirname(tsconfig_path), options)
   const host = compiler_host(new Map(), options, tslib_dir)
 
   print(`Compiling TypeScript (${magenta(count_files(files))})`)

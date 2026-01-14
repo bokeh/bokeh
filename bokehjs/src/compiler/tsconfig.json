@@ -2,7 +2,6 @@
   "compilerOptions": {
     "lib": ["es2022"],
     "types": ["node"],
-    "baseUrl": ".",
     "outDir": "../../build/js/compiler",
     "incremental": true,
     "tsBuildInfoFile": "../../build/js/compiler/compiler.tsbuildinfo"

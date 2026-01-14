@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "lib": ["esnext"],
-    "baseUrl": ".",
     "outDir": "./_build"
   },
   "extends": "../../tsconfig.base",

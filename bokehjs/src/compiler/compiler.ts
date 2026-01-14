@@ -82,7 +82,7 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib
   return host
 }
 
-export function default_transformers(options: ts.CompilerOptions): ts.CustomTransformers {
+export function default_transformers(base_path: Path, options: ts.CompilerOptions): ts.CustomTransformers {
   const transformers: Required<ts.CustomTransformers> = {
     before: [],
     after: [],
@@ -92,8 +92,8 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
   const insert_class_name = transforms.insert_class_name()
   transformers.before.push(insert_class_name)
 
-  const base = options.baseUrl
-  if (base != null) {
+  const base = base_path
+  {
     const relativize_modules = transforms.relativize_modules((file, module_path) => {
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
@@ -166,7 +166,7 @@ function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
 
   const {files, options} = tsconfig
 
-  const transformers = default_transformers(tsconfig.options)
+  const transformers = default_transformers(dirname(tsconfig_path), tsconfig.options)
   const inputs = config.inputs?.(files) ?? new Map()
   const host = compiler_host(inputs, options, config.tslib_dir)
 

@@ -46,7 +46,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   })()
 
   const host = compiler_host(inputs, tsconfig.options, tslib_dir)
-  const transformers = default_transformers(tsconfig.options)
+  const transformers = default_transformers(base_dir, tsconfig.options)
 
   const outputs: Outputs = new Map()
   host.writeFile = (name: Path, data: string) => {
