@@ -208,6 +208,7 @@ describe("default model resolver", () => {
       "IntersectionFilter",
       "InversionFilter",
       "Jitter",
+      "KeyBinding",
       "Label",
       "LabelSet",
       "LabelingPolicy",

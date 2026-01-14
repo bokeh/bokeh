@@ -4,7 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" """
+""" Various functions missing from the standard library.
+
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -18,25 +20,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
 
-# Bokeh imports
-from ..core.property.container import List
-from ..core.property.instance import Instance, InstanceDefault
-from ..core.property.nullable import Nullable
-from ..core.property.primitive import Bool
-from ..model import Model
-from ..models.ui import KeyBinding
-from ..models.ui.notifications import Notifications
+# Standard library imports
+from functools import reduce
+from typing import Callable, Iterable, TypeVar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "DocumentConfig",
+    "flatten",
 )
+
+T = TypeVar("T")
+U = TypeVar("U")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -46,35 +44,15 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class DocumentConfig(Model):
-    """ Allows to configure various aspects of the document, its models and the application. """
+def flatten(array: Iterable[list[T]]) -> list[T]:
+    """ Combine a list of lists into a single list.
+    """
+    return reduce(list.__add__, array, [])
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    reconnect_session = Bool(default=True, help="""
-    Whether to use the session reconnection logic.
-
-    If enabled, when a session is disconnected, Bokeh will attempt to restore the
-    connection. This setting allows to user to completely disable this mechanism.
-    """)
-
-    notify_connection_status = Bool(default=True, help="""
-    Whether to inform the user about connection status in the UI.
-
-    It may be useful to disable the default notification system in Bokeh, if a
-    custom system is being used otherwise.
-    """)
-
-    # TODO needs a base class, e.g. NotificationsBase
-    notifications = Nullable(Instance(Notifications), default=InstanceDefault(Notifications), help="""
-    Allows to configure or replace the notifications UI and logic.
-    """)
-
-    key_bindings = List(Instance(KeyBinding), default=[], help="""
-    Allows to define global custom key bindings.
-    """)
+def flat_map(fn: Callable[[T], list[U]], array: list[T]) -> list[U]:
+    """ Combine results of a list producing function into a single list.
+    """
+    return flatten(map(fn, array))
 
 #-----------------------------------------------------------------------------
 # Private API

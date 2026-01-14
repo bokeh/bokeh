@@ -4,10 +4,11 @@ import {Coordinate} from "../../coordinates/coordinate"
 import type {Scale} from "../../scales/scale"
 import type {IconLike} from "../../common/kinds"
 import type {FactorLike} from "../../ranges/factor_range"
+import type {InternalKeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
-import type {PanEvent, KeyEvent} from "core/ui_events"
+import type {PanEvent} from "core/ui_events"
 import type {HitTestRect} from "core/geometry"
 import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
@@ -150,24 +151,13 @@ export class BoxSelectToolView extends RegionSelectToolView {
     this._base_point = null
   }
 
-  override _keyup(ev: KeyEvent): void {
-    if (!this.model.active) {
+  protected override _stop_or_clear_selection(): void {
+    if (this._is_selecting) {
+      this._stop()
       return
     }
 
-    if (ev.key == "Escape") {
-      if (this._is_selecting) {
-        this._stop()
-        return
-      }
-
-      if (this.model.overlay.visible) {
-        this._clear_overlay()
-        return
-      }
-    }
-
-    super._keyup(ev)
+    super._stop_or_clear_selection()
   }
 
   override _clear_selection(): void {
@@ -182,6 +172,21 @@ export class BoxSelectToolView extends RegionSelectToolView {
     const {greedy} = this.model
     const geometry: HitTestRect = {type: "rect", sx0, sx1, sy0, sy1, greedy}
     this._select(geometry, final, mode)
+  }
+
+  override key_bindings(): InternalKeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      {description: "Start box selection", keys: ["s", "b"], command: "select_box", action: () => {}, origin: this.model},
+      /*
+      {keys: ["ArrowUp"], action: () => {}, origin: this.model},
+      {keys: ["ArrowDown"], action: () => {}, origin: this.model},
+      {keys: ["ArrowLeft"], action: () => {}, origin: this.model},
+      {keys: ["ArrowRight"], action: () => {}, origin: this.model},
+      {keys: ["Enter"], action: () => select_and_clear_annotation, origin: this.model},
+      {keys: ["Shift+Enter"], action: () => select_and_persist_annotation, origin: this.model},
+      */
+    ]
   }
 }
 
@@ -279,4 +284,6 @@ export class BoxSelectTool extends RegionSelectTool {
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
+
+  override readonly toggle_key = ["b" as const, "s" as const]
 }

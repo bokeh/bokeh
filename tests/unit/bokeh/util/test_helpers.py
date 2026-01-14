@@ -4,60 +4,24 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various UI elements such as buttons, menus, and tooltips.
-"""
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from . import (
-    dialogs,
-    examiner,
-    floating,
-    icons,
-    keyboard,
-    menus,
-    panels,
-    panes,
-    tooltips,
-    ui_element,
-)
-from .dialogs import *
-from .examiner import *
-from .floating import *
-from .icons import *
-from .keyboard import *
-from .menus import *
-from .panels import *
-from .panes import *
-from .tooltips import *
-from .ui_element import *
+# Module under test
+import bokeh.util.helpers as buh # isort:skip
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
-
-__all__ = (
-    *dialogs.__all__,
-    *icons.__all__,
-    *examiner.__all__,
-    *floating.__all__,
-    *keyboard.__all__,
-    *menus.__all__,
-    *panels.__all__,
-    *panes.__all__,
-    *tooltips.__all__,
-    *ui_element.__all__,
-)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -66,6 +30,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def test_flatten() -> None:
+    assert buh.flatten([]) == []
+    assert buh.flatten([[1, 2, 3], [4, 5], [6], []]) == [1, 2, 3, 4, 5, 6]
+
+def test_flat_map() -> None:
+    assert buh.flat_map(lambda n: ["a"]*n, [1, 2, 3]) == ["a", "a", "a", "a", "a", "a"]
 
 #-----------------------------------------------------------------------------
 # Private API

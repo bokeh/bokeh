@@ -3,10 +3,12 @@ import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
 import type {IconLike} from "../../common/kinds"
+import type {InternalKeyBinding} from "core/keyboard"
 import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
 import {assert} from "core/util/assert"
 import {Dimensions} from "core/enums"
+import type {PanDirection} from "core/enums"
 import type {SXY} from "core/util/bbox"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
@@ -23,10 +25,7 @@ export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number
 export class PanToolView extends GestureToolView {
   declare model: PanTool
 
-  protected pan_info?: RangeInfo & {
-    sdx: number
-    sdy: number
-  }
+  protected pan_info?: RangeInfo
 
   protected state: {last_dx: number, last_dy: number, dims: Dimensions} | null = null
 
@@ -151,6 +150,45 @@ export class PanToolView extends GestureToolView {
     this.pan_info = {xrs, yrs, sdx, sdy}
     this.plot_view.update_range(this.pan_info, {panning: true})
   }
+
+  protected _pan_by(direction: PanDirection) {
+    const {dimensions} = this.model
+    const do_pan = (() => {
+      switch (direction) {
+        case "west":
+        case "east":
+        case "left":
+        case "right":
+          return dimensions == "width" || dimensions == "both"
+        case "north":
+        case "south":
+        case "up":
+        case "down": {
+          return dimensions == "height" || dimensions == "both"
+        }
+      }
+    })()
+
+    if (do_pan) {
+      this.plot_view.pan_by(direction)
+    }
+  }
+
+  override key_bindings(): InternalKeyBinding[] {
+    return [
+      ...super.key_bindings(),
+
+      {description: "Pan left",  keys: ["ArrowLeft"],  command: "pan_left",  action: () => this._pan_by("left"), origin: this.model},
+      {description: "Pan right", keys: ["ArrowRight"], command: "pan_right", action: () => this._pan_by("right"), origin: this.model},
+      {description: "Pan up",    keys: ["ArrowUp"],    command: "pan_up",    action: () => this._pan_by("up"), origin: this.model},
+      {description: "Pan down",  keys: ["ArrowDown"],  command: "pan_down",  action: () => this._pan_by("down"), origin: this.model},
+
+      {description: "Pan left",  keys: ["p", "l"], action: () => this._pan_by("left"), origin: this.model},
+      {description: "Pan right", keys: ["p", "r"], action: () => this._pan_by("right"), origin: this.model},
+      {description: "Pan up",    keys: ["p", "u"], action: () => this._pan_by("up"), origin: this.model},
+      {description: "Pan down",  keys: ["p", "d"], action: () => this._pan_by("down"), origin: this.model},
+    ]
+  }
 }
 
 export namespace PanTool {
@@ -238,4 +276,6 @@ export class PanTool extends GestureTool {
       }),
     ]
   }
+
+  override readonly toggle_key = "p"
 }

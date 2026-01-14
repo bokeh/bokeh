@@ -89,7 +89,7 @@ from .scales import (
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
-from .ui import StyledElement
+from .ui import KeyBinding, StyledElement
 
 if TYPE_CHECKING:
     import xyzservices
@@ -913,6 +913,10 @@ class Plot(LayoutDOM):
 
     .. note::
         This feature is experimental and may change in the short term.
+    """)
+
+    key_bindings = List(Instance(KeyBinding), default=[], help="""
+    Allows to define custom key bindings.
     """)
 
     context_menu = Override(default="auto")

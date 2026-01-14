@@ -1,17 +1,20 @@
 import {UIGestures} from "./ui_gestures"
 import {Signal, Signal0} from "./signaling"
-import type {Keys} from "./dom"
+import type {NonModifierKey, Key} from "./keyboard"
+import {parse, unparse} from "./keyboard"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
 import type {ViewStorage} from "./build_views"
 import {getDeltaY} from "./util/wheel"
-import {reversed, is_empty} from "./util/array"
+import {reversed, is_empty, sort_by} from "./util/array"
 import {isObject, isBoolean} from "./util/types"
 import type {PlotView} from "../models/plots/plot"
 import type {Tool, ToolView} from "../models/tools/tool"
 import type {ToolLike} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
+import {execute, execute_sync} from "./util/callbacks"
+import type {InternalKeyBinding} from "./keyboard"
 
 import type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 export type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
@@ -97,12 +100,15 @@ export type ScrollEvent = {
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
 
+type KeyState = {
+  key: Key
+  modifiers: KeyModifiers
+}
+
 export type KeyEvent = {
   type: "keyup" | "keydown"
-  key: Keys
-  modifiers: KeyModifiers
   native: KeyboardEvent
-}
+} & KeyState
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "pressup" | "scroll"
 
@@ -137,6 +143,9 @@ export class UIEventBus {
 
   readonly focus:        Signal0<this>         = new Signal0(this, "focus")
   readonly blur:         Signal0<this>         = new Signal0(this, "blur")
+
+  readonly key_strokes: Signal<string, this>   = new Signal(this, "key_strokes")
+  readonly notifications: Signal<string, this> = new Signal(this, "notifications")
 
   readonly hit_area: HTMLElement
   readonly ui_gestures: UIGestures
@@ -198,6 +207,15 @@ export class UIEventBus {
   }
 
   protected readonly _tools: ViewStorage<ToolLike<Tool>> = new Map()
+  protected readonly _key_bindings: InternalKeyBinding[] = []
+
+  get key_bindings(): InternalKeyBinding[] {
+    return [...this._key_bindings]
+  }
+
+  add_key_bindings(bindings: InternalKeyBinding[]): void {
+    this._key_bindings.push(...bindings)
+  }
 
   register_tool(tool_view: ToolView): void {
     const {model: tool} = tool_view
@@ -206,6 +224,7 @@ export class UIEventBus {
       throw new Error(`${tool} already registered`)
     } else {
       this._tools.set(tool, tool_view)
+      this.add_key_bindings(tool_view.key_bindings())
     }
   }
 
@@ -715,9 +734,18 @@ export class UIEventBus {
   }
 
   protected _key_event(event: KeyboardEvent): KeyEvent {
+    function normalize(key: string): Key {
+      switch (key) {
+        case "Control":
+        case "Ctl":
+          return "Ctrl"
+        default:
+          return key as Key
+      }
+    }
     return {
       type: event.type as KeyEvent["type"],
-      key: event.key as Keys,
+      key: normalize(event.key),
       modifiers: this._get_modifiers(event),
       native: event,
     }
@@ -800,9 +828,152 @@ export class UIEventBus {
     this.trigger(this.keydown, this._key_event(event))
   }
 
+  protected _key_state: "cmd" | "seq" | "none" = "none"
+  protected _key_buffer: string = ""
+  protected _cmd_start: NonModifierKey = ":"
+  protected _seq_index: number = 0
+  protected _collected_bindings: InternalKeyBinding[] = []
+
   on_key_up(event: KeyboardEvent): void {
+    const ev = this._key_event(event)
+    const target = this.canvas_view.model
+
     // NOTE: keyup event triggered unconditionally
-    this.trigger(this.keyup, this._key_event(event))
+    this.trigger(this.keyup, ev)
+
+    /*
+    const no_modifiers = (ev: KeyEvent) => {
+      const {ctrl, shift, alt} = ev.modifiers
+      return !ctrl && !shift && !alt
+    }
+    */
+
+    const is_alphabetic = (key: NonModifierKey): boolean => {
+      return key.length == 1 && (key == "_" || ("a" <= key && key <= "z") || ("A" <= key && key <= "Z") || ("0" <= key && key <= "9"))
+    }
+
+    const find_cmd = (cmd: string): InternalKeyBinding | null => {
+      for (const binding of this._key_bindings) {
+        if (binding.command == cmd) {
+          return binding
+        }
+      }
+      return null
+    }
+
+    switch (ev.key) {
+      case "Ctrl":
+      case "Shift":
+      case "Alt":
+      case "Meta":
+      case "Tab": // TODO temporarily disabled
+        return
+      default:
+    }
+
+    if (this._key_state == "cmd") {
+      if (ev.key == "Enter") {
+        const binding = find_cmd(this._key_buffer.slice(this._cmd_start.length))
+        if (binding != null) {
+          if (binding.when == null || execute_sync(binding.when, target) !== false) {
+            void execute(binding.action, target)
+          }
+        } else {
+          this.notifications.emit(`${this._key_buffer} command not found`)
+        }
+        this._key_state = "none"
+        this._key_buffer = ""
+      } else if (ev.key == "Backspace") {
+        if (this._key_buffer.length == 0) {
+          this._key_state = "none"
+        } else {
+          this._key_buffer = this._key_buffer.slice(0, -1)
+        }
+      } else if (is_alphabetic(ev.key)) {
+        this._key_buffer += ev.key
+      }
+
+      this.key_strokes.emit(this._key_buffer)
+      return
+    }
+
+    function matches(value: KeyState, expected: KeyState) {
+      return (
+        value.key == expected.key &&
+        value.modifiers.ctrl == expected.modifiers.ctrl &&
+        value.modifiers.shift == expected.modifiers.shift &&
+        value.modifiers.alt == expected.modifiers.alt
+      )
+    }
+
+    function prioritized(bindings: InternalKeyBinding[]): InternalKeyBinding[] {
+      return sort_by(bindings, (binding) => binding.priority ?? 0)
+    }
+
+    if (this._key_state == "none") {
+      if (matches(ev, parse(this._cmd_start))) {
+        this._key_state = "cmd"
+        this._key_buffer = this._cmd_start
+        this.key_strokes.emit(this._key_buffer)
+        return
+      }
+    }
+
+    this._key_buffer += `${unparse(ev)} `
+
+    const bindings = (() => {
+      if (this._key_state == "seq") {
+        return this._collected_bindings
+      } else {
+        return this._key_bindings
+      }
+    })()
+
+    const i = this._seq_index
+    const collected: InternalKeyBinding[] = []
+
+    for (const binding of bindings) {
+      const {keys} = binding
+
+      if (i >= keys.length) {
+        continue
+      }
+      const key = keys[i]
+      const normalized = parse(key)
+      if (matches(normalized, ev)) {
+        collected.push(binding)
+      }
+    }
+
+    this._collected_bindings = collected
+
+    const reset_state = (): void => {
+      this._key_state = "none"
+      this._key_buffer = ""
+      this.key_strokes.emit(this._key_buffer)
+      this._seq_index = 0
+    }
+
+    if (collected.length == 0) {
+      this.notifications.emit(`unknown key sequence: ${this._key_buffer}`)
+      reset_state()
+    } else {
+      const longer = collected.filter((binding) => binding.keys.length-1 > i)
+      if (longer.length != 0) {
+        this._key_state = "seq"
+        this._seq_index += 1
+      } else {
+        for (const binding of prioritized(collected)) {
+          if (binding.keys.length-1 == i) {
+            if (binding.when == null || execute_sync(binding.when, target) !== false) {
+              void execute(binding.action, target)
+              break
+            }
+          }
+        }
+        reset_state()
+      }
+    }
   }
 
   on_focus(): void {

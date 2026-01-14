@@ -32,6 +32,7 @@ import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
 import {StyledElement} from "../ui/styled_element"
+import {KeyBinding} from "../ui/key_binding"
 
 import {PlotView} from "./plot_canvas"
 export {PlotView}
@@ -101,6 +102,8 @@ export namespace Plot {
     hold_render: p.Property<boolean>
 
     attribution: p.Property<(string | HTML)[]>
+
+    key_bindings: p.Property<KeyBinding[]>
   } & Mixins
 
   export type Mixins =
@@ -212,6 +215,8 @@ export class Plot extends LayoutDOM {
       hold_render:       [ Bool, false ],
 
       attribution:       [ List(Or(Str, Ref(HTML))), [] ],
+
+      key_bindings:      [ List(Ref(KeyBinding)), [] ],
     }))
 
     this.override<Plot.Props>({

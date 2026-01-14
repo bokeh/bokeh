@@ -337,4 +337,6 @@ export class BoxZoomTool extends GestureTool {
       }),
     ]
   }
+
+  override readonly toggle_key = ["b" as const, "z" as const]
 }

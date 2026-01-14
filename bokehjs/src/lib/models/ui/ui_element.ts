@@ -10,6 +10,7 @@ import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
+import type {InternalKeyBinding} from "core/keyboard"
 import {isNumber} from "core/util/types"
 import {defer} from "core/util/defer"
 import type * as p from "core/properties"
@@ -248,6 +249,14 @@ export abstract class UIElementView extends StyledElementView {
       const {x, y} = value
       return {x: x + offset, y: y + offset}
     }
+  }
+
+  get computed_key_bindings(): InternalKeyBinding[] {
+    return []
+  }
+
+  get key_bindings(): InternalKeyBinding[] {
+    return []
   }
 }
 

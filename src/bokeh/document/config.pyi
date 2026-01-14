@@ -7,6 +7,7 @@
 
 # Bokeh imports
 from ..model import Model
+from ..models.ui import KeyBinding
 from ..models.ui.notifications import Notifications
 
 class DocumentConfig(Model):
@@ -16,3 +17,5 @@ class DocumentConfig(Model):
     notify_connection_status: bool = ...
 
     notifications: Notifications | None = ...
+
+    key_bindings: list[KeyBinding] = ...

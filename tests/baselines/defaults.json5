@@ -159,6 +159,7 @@
       name: "Notifications",
       attributes: {},
     },
+    key_bindings: [],
   },
   DataModel: {
     __extends__: "Model",
@@ -5890,6 +5891,7 @@
     reset_policy: "standard",
     hold_render: false,
     attribution: [],
+    key_bindings: [],
   },
   DataRange: {
     __extends__: "NumericalRange",
@@ -7377,6 +7379,24 @@
       type: "symbol",
       name: "unset",
     },
+  },
+  KeyBinding: {
+    __extends__: "Model",
+    description: {
+      type: "symbol",
+      name: "unset",
+    },
+    keys: {
+      type: "symbol",
+      name: "unset",
+    },
+    command: null,
+    when: null,
+    action: {
+      type: "symbol",
+      name: "unset",
+    },
+    priority: 0,
   },
   ActionItem: {
     __extends__: "MenuItem",

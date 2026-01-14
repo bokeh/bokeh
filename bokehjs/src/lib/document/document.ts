@@ -31,6 +31,7 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
+import type {InternalKeyBinding} from "core/keyboard"
 
 Deserializer.register("model", decode_def)
 
@@ -118,6 +119,10 @@ export class Document implements Equatable {
   }
   set config(config: DocumentConfig) {
     this.freeze_all_models(() => this._config = config)
+  }
+
+  get computed_key_bindings(): InternalKeyBinding[] {
+    return this.config.key_bindings.map((kb) => kb.to_internal(this))
   }
 
   constructor(options: DocumentOptions = {}) {

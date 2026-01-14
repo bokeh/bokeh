@@ -11,6 +11,7 @@ import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
+import {update_ranges} from "../tools/gestures/pan_tool"
 import type {Selection} from "../selections/selection"
 import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -35,7 +36,7 @@ import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
-import type {Side, RenderLevel} from "core/enums"
+import type {Side, RenderLevel, PanDirection} from "core/enums"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray, isString} from "core/util/types"
@@ -63,6 +64,7 @@ import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
 import type {StyledElement} from "../ui/styled_element"
+import type {InternalKeyBinding} from "core/keyboard"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"
@@ -421,6 +423,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
+    this.canvas_view.ui_event_bus.add_key_bindings(this.key_bindings)
 
     this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
 
@@ -1057,6 +1060,18 @@ export class PlotView extends LayoutDOMView implements Paintable {
         }
       })
     }
+
+    const notification = new Div({children: [], style: {display: "none"}})
+    this._notifications.elements = [...this._notifications.elements, notification]
+
+    this.canvas.ui_event_bus.key_strokes.connect((keys) => {
+      notification.children = [keys]
+      notification.style = {display: keys.length == 0 ? "none" : "block"}
+    })
+
+    this.canvas.ui_event_bus.notifications.connect((message) => {
+      this.notify_about(message, "warning")
+    })
   }
 
   protected _update_touch_action(): void {
@@ -1484,11 +1499,20 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected _messages: Map<string, number> = new Map()
 
-  notify_about(message: string): void {
+  notify_about(message: string, type: "message" | "info" | "success" | "warning" | "error" = "message"): void {
     if (this._messages.has(message)) {
       return
     }
-    const el = new Div({children: [message]})
+    const bg = (() => {
+      switch (type) {
+        case "message": return "white"
+        case "info":    return "rgb(207, 244, 252)"
+        case "success": return "rgb(209, 231, 221)"
+        case "warning": return "rgb(255, 243, 205)"
+        case "error":   return "rgb(248, 215, 218)"
+      }
+    })()
+    const el = new Div({children: [message], style: {background_color: bg}})
     const timer = setTimeout(() => {
       this._messages.delete(message)
       this._notifications.elements = this._notifications.elements.filter((item) => item != el)
@@ -1501,5 +1525,46 @@ export class PlotView extends LayoutDOMView implements Paintable {
   override serializable_children(): View[] {
     // TODO temporarily remove CanvasPanel views to reduce baseline noise
     return super.serializable_children().filter((view) => view.model instanceof CartesianFrame || !(view.model instanceof CanvasPanel))
+  }
+
+  pan_by(direction: PanDirection, factor: number = 0.1): void {
+    const {x, y} = (() => {
+      switch (direction) {
+        case "left":
+        case "west":
+          return {x: -1, y: 0}
+        case "right":
+        case "east":
+          return {x: +1, y: 0}
+        case "up":
+        case "north":
+          return {x: 0, y: -1}
+        case "down":
+        case "south":
+          return {x: 0, y: +1}
+      }
+    })()
+
+    const {frame} = this
+
+    const sdx = x*factor*frame.bbox.width
+    const sdy = y*factor*frame.bbox.height
+
+    const bbox = frame.bbox.translate(sdx, sdy)
+
+    const xrs = update_ranges(frame.x_scales, bbox.x0, bbox.x1)
+    const yrs = update_ranges(frame.y_scales, bbox.y0, bbox.y1)
+
+    this.update_range({xrs, yrs, sdx, sdy}, {panning: true})
+    this.state.push("pan", {range: {xrs, yrs}})
+    this.trigger_ranges_update_event()
+  }
+
+  override get computed_key_bindings(): InternalKeyBinding[] {
+    return [...super.computed_key_bindings, ...this.canvas.ui_event_bus.key_bindings]
+  }
+
+  override get key_bindings(): InternalKeyBinding[] {
+    return [...super.key_bindings, ...this.model.key_bindings.map((kb) => kb.to_internal(this.model))]
   }
 }

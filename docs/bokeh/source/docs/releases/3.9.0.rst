@@ -5,6 +5,7 @@
 
 Bokeh version ``3.9.0`` (November 2025) is a minor milestone of Bokeh project.
 
+* Redesigned key binding management and added support for customizable bindings (:bokeh-pull:`14172`)
 * Added support for ARIA ``role`` attribute to ``Switch`` component (:bokeh-pull:`14341`)
 * Added support for dataclass as input to ``ColumnDataSource`` (:bokeh-pull:`14677`)
 * Added ``figure`` methods to plot geographic features using Cartopy (:bokeh-pull:`14706`)
