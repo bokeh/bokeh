@@ -279,10 +279,14 @@ export class Linker {
 
     if (this.builtins) {
       this.external_modules.add("module")
+      this.external_modules.add("node:module")
+
       this.external_modules.add("constants")
+      this.external_modules.add("node:constants")
 
       for (const lib of module.builtinModules) {
         this.external_modules.add(lib)
+        this.external_modules.add(`node:${lib}`)
       }
     }
 
