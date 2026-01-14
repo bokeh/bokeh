@@ -23,11 +23,13 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 from ..core.enums import ColorScheme
+from ..core.property.container import List
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool
 from ..model import Model
+from ..models.ui import KeyBinding
 from ..models.ui.notifications import Notifications
 
 #-----------------------------------------------------------------------------
@@ -74,6 +76,10 @@ class DocumentConfig(Model):
 
     color_scheme = Enum(ColorScheme, default="auto", help="""
     Allows to configure UI color scheme to use (auto, light or dark).
+    """)
+
+    key_bindings = List(Instance(KeyBinding), default=[], help="""
+    Allows to define global custom key bindings.
     """)
 
 #-----------------------------------------------------------------------------

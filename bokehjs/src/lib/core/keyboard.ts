@@ -1,4 +1,5 @@
 import type {Model} from "model"
+import type {Document} from "document"
 import {Enum, List} from "core/kinds"
 import type {ExecutableLike, SyncExecutableLike} from "core/util/callbacks"
 
@@ -67,13 +68,14 @@ export type KeyCombination = typeof KeyCombination["__type__"]
 export const KeySequence = List(KeyCombination)
 export type KeySequence = typeof KeySequence["__type__"]
 
-export type KeyBinding = {
+export type InternalKeyBinding = {
   description: string
   keys: KeySequence
-  command?: string
-  when?: SyncExecutableLike<Model, [], boolean>
+  command?: string | null
+  when?: SyncExecutableLike<Model, [], boolean> | null
   action: ExecutableLike<Model, [], void>
-  priority?: number
+  priority?: number | null
+  origin: Document | Model
 }
 
 export type KeyModifiers = {

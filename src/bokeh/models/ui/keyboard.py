@@ -114,7 +114,7 @@ class KeyBinding(Model):
     Descriptive explanation of the binding.
     """)
 
-    key = Required(Either(Enum(KeyCombination), Seq(Enum(KeyCombination))), help="""
+    keys = Required(Either(Enum(KeyCombination), Seq(Enum(KeyCombination))), help="""
     A single key combination or a sequence of key combinations.
     """)
 

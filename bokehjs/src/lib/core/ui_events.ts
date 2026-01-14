@@ -14,7 +14,7 @@ import type {ToolLike} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 import {execute, execute_sync} from "./util/callbacks"
-import type {KeyBinding} from "./keyboard"
+import type {InternalKeyBinding} from "./keyboard"
 
 import type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 export type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
@@ -207,13 +207,13 @@ export class UIEventBus {
   }
 
   protected readonly _tools: ViewStorage<ToolLike<Tool>> = new Map()
-  protected readonly _key_bindings: KeyBinding[] = []
+  protected readonly _key_bindings: InternalKeyBinding[] = []
 
-  get key_bindings(): readonly KeyBinding[] {
-    return this._key_bindings
+  get key_bindings(): InternalKeyBinding[] {
+    return [...this._key_bindings]
   }
 
-  add_key_bindings(bindings: KeyBinding[]): void {
+  add_key_bindings(bindings: InternalKeyBinding[]): void {
     this._key_bindings.push(...bindings)
   }
 
@@ -832,7 +832,7 @@ export class UIEventBus {
   protected _key_buffer: string = ""
   protected _cmd_start: NonModifierKey = ":"
   protected _seq_index: number = 0
-  protected _collected_bindings: KeyBinding[] = []
+  protected _collected_bindings: InternalKeyBinding[] = []
 
   on_key_up(event: KeyboardEvent): void {
     const ev = this._key_event(event)
@@ -852,7 +852,7 @@ export class UIEventBus {
       return key.length == 1 && (key == "_" || ("a" <= key && key <= "z") || ("A" <= key && key <= "Z") || ("0" <= key && key <= "9"))
     }
 
-    const find_cmd = (cmd: string): KeyBinding | null => {
+    const find_cmd = (cmd: string): InternalKeyBinding | null => {
       for (const binding of this._key_bindings) {
         if (binding.command == cmd) {
           return binding
@@ -906,7 +906,7 @@ export class UIEventBus {
       )
     }
 
-    function prioritized(bindings: KeyBinding[]): KeyBinding[] {
+    function prioritized(bindings: InternalKeyBinding[]): InternalKeyBinding[] {
       return sort_by(bindings, (binding) => binding.priority ?? 0)
     }
 
@@ -930,14 +930,15 @@ export class UIEventBus {
     })()
 
     const i = this._seq_index
-    const collected: KeyBinding[] = []
+    const collected: InternalKeyBinding[] = []
 
     for (const binding of bindings) {
       const {keys} = binding
+
       if (i >= keys.length) {
         continue
       }
-      const key = binding.keys[i]
+      const key = keys[i]
       const normalized = parse(key)
       if (matches(normalized, ev)) {
         collected.push(binding)
