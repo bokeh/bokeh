@@ -1,7 +1,7 @@
-import cp = require("child_process")
-import assert = require("assert")
-import fs = require("fs")
-import path = require("path")
+import cp from "node:child_process"
+import assert from "node:assert"
+import fs from "node:fs"
+import path from "node:path"
 
 import {PNG} from "pngjs"
 

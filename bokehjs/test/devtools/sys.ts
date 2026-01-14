@@ -1,4 +1,4 @@
-import os = require("os")
+import os from "node:os"
 
 export const platform = (() => {
   const platform = os.platform()

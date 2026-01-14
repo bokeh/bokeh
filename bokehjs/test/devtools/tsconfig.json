@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "lib": ["esnext"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "./_build"
   },
   "extends": "../../tsconfig.base",
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["./_build"]
 }

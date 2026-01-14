@@ -1,17 +1,18 @@
 import type {Protocol} from "devtools-protocol"
-import CDP = require("chrome-remote-interface")
+import CDP from "chrome-remote-interface"
 
-import fs from "fs"
-import path from "path"
-import readline from "readline"
+import fs from "node:fs"
+import path from "node:path"
+import readline from "node:readline"
+
 import chalk from "chalk"
 import yargs from "yargs"
 import {Bar, Presets} from "cli-progress"
 
-import type {Box, State} from "./baselines"
-import {create_baseline, diff_baseline, load_baselines} from "./baselines"
-import {diff_image} from "./image"
-import {platform} from "./sys"
+import type {Box, State} from "./baselines.js"
+import {create_baseline, diff_baseline, load_baselines} from "./baselines.js"
+import {diff_image} from "./image.js"
+import {platform} from "./sys.js"
 
 const MAX_INT32 = 2147483647
 export class Random {

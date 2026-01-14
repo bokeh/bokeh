@@ -1,13 +1,13 @@
-import fs from "fs"
-import {spawn} from "child_process"
-import {join, resolve, dirname} from "path"
+import fs from "node:fs"
+import {spawn} from "node:child_process"
+import {join, resolve, dirname} from "node:path"
 
 import yargs from "yargs"
 import express from "express"
 import cors from "cors"
 import nunjucks from "nunjucks"
 
-import * as sys from "./sys"
+import * as sys from "./sys.js"
 
 const app = express()
 
