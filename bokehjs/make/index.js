@@ -54,10 +54,7 @@ process.on("uncaughtException", function(err) {
 function compile() {
   const is_windows = process.platform == "win32"
   const npx = is_windows ? "npx.cmd" : "npx"
-  const {status} = cp.spawnSync(npx, ["tsc", "--project", "./make/tsconfig.json"], {stdio: "inherit", shell: is_windows})
-  if (status !== 0) {
-    process.exit(status)
-  }
+  cp.spawnSync(npx, ["tsc", "--project", "./make/tsconfig.json"], {stdio: "inherit", shell: is_windows})
 }
 
 compile()

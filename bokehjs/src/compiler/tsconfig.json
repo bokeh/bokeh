@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "lib": ["es2022", "dom", "dom.iterable"],
+    "lib": ["es2022"],
     "types": ["node"],
     "baseUrl": ".",
     "outDir": "../../build/js/compiler",
