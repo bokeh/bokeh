@@ -18,22 +18,7 @@ if (!fs.existsSync("node_modules/")) {
 }
 
 import pkg_json from "../package.json" with {type: "json"}
-const {engines, workspaces} = pkg_json
-
-const node_version = process.version
-const npm_version = cp.execSync("npm --version").toString().trim()
-
-import semver from "semver"
-
-if (!semver.satisfies(node_version, engines.node)) {
-  console.log(`node ${engines.node} is required. Current version is ${node_version}.`)
-  process.exit(1)
-}
-
-if (!semver.satisfies(npm_version, engines.npm)) {
-  console.log(`npm ${engines.npm} is required. Current version is ${npm_version}.`)
-  process.exit(1)
-}
+const {workspaces} = pkg_json
 
 function is_up_to_date(file) {
   const hash_file = join(dirname(file), `.${basename(file)}`)
@@ -77,4 +62,5 @@ function compile() {
 
 compile()
 
-void import("./_build/make/main.js")
+const {main} = await import("./_build/make/main.js")
+void main(pkg_json)
