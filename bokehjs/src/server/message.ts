@@ -1,8 +1,8 @@
-import type {PlainObject, ID} from "../lib/core/types"
-import {Buffer} from "../lib/core/serialization"
-import {unique_id} from "../lib/core/util/string"
-import {assert} from "../lib/core/util/assert"
-import type {Ref} from "../lib/core/util/refs"
+import type {PlainObject, ID} from "../lib/core/types.js"
+import {Buffer} from "../lib/core/serialization/buffer.js"
+import {unique_id} from "../lib/core/util/string.js"
+import {assert} from "../lib/core/util/assert.js"
+import type {Ref} from "../lib/core/util/refs.js"
 
 export type Socket = {
   send(data: unknown): void

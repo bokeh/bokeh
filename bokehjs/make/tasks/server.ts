@@ -6,7 +6,7 @@ import {task, task2, success, BuildError} from "../task.js"
 import {find_port, retry, terminate, keep_alive} from "./_util.js"
 
 async function server(host?: string, port?: number, inspect?: boolean): Promise<ChildProcess> {
-  const args = ["--no-warnings", "./src/server", "server"]
+  const args = ["--no-warnings", "--loader", "./src/server/loader.mjs", "./src/server", "server"]
 
   if (host != null) {
     args.push(`--host=${host}`)

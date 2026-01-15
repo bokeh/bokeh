@@ -1,6 +1,6 @@
-import {Message} from "./message"
-import {isString} from "../lib/core/util/types"
-import {assert} from "../lib/core/util/assert"
+import {Message} from "./message.js"
+import {isString} from "../lib/core/util/types.js"
+import {assert} from "../lib/core/util/assert.js"
 
 export type Fragment = string | ArrayBuffer
 
