@@ -13,7 +13,8 @@ async function eslint(dir: string): Promise<void> {
   const {fix} = argv
   const eslint = new ESLint({cache: true, fix})
 
-  const {default: tsconfig_json} = (await import(join(dir, "tsconfig.json"), {with: {type: "json"}}))
+  const tsconfig_url = `file://${join(dir, "tsconfig.json")}`
+  const {default: tsconfig_json} = await import(tsconfig_url, {with: {type: "json"}})
   const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
 
   const included_files = new Set(glob(...(tsconfig.include ?? []).map((pat) => normalize(join(dir, pat)))))
