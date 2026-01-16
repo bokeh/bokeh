@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "strictPropertyInitialization": false,
     "lib": ["es2022", "dom", "dom.iterable"],
     "baseUrl": ".",
     "outDir": "../../build/server",

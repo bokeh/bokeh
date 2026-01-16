@@ -20,7 +20,7 @@ export interface Kind<T> {
 }
 
 export abstract class Kind<T> {
-  __type__: T
+  declare __type__: T
 
   coerce?(value: unknown): unknown
 
