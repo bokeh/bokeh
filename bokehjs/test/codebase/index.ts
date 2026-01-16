@@ -1,1 +1,1 @@
-import "./size"
+import "./size.js"

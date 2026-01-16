@@ -20,7 +20,7 @@
     "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "module": "ES2022",
+    "module": "esnext",
     "moduleResolution": "node",
     "isolatedModules": true,
     "verbatimModuleSyntax": false,

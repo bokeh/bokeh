@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "strictPropertyInitialization": false,
-    "module": "esnext",
     "lib": ["es2022", "dom", "dom.iterable"],
     "baseUrl": ".",
     "outDir": "../../build/server",
