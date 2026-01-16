@@ -46,7 +46,6 @@ export namespace HasProps {
 
 export interface HasProps extends HasProps.Attrs, ISignalable {
   constructor: Function & {
-    __name__: string
     __module__?: string
     __qualified__: string
   }
@@ -73,14 +72,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return this.document?.roots().includes(this) ?? false
   }
 
-  static __name__: string
   static __module__?: string
 
   static get __qualified__(): string {
     let qualified = _qualified_names.get(this)
     if (qualified == null) {
-      const {__module__, __name__} = this
-      qualified = __module__ != null ? `${__module__}.${__name__}` : __name__
+      const {__module__, name} = this
+      qualified = __module__ != null ? `${__module__}.${name}` : name
       _qualified_names.set(this, qualified)
     }
     return qualified

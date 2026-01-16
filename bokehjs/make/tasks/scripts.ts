@@ -22,92 +22,95 @@ const pkg_file = fs.readFileSync("./make/package.json", {encoding: "utf-8"})
 const pkg = JSON.parse(pkg_file) as {version: string}
 
 task("scripts:version", async () => {
-  const version_js_path = join(paths.build_dir.lib, "version.js")
-  const version_js = fs.readFileSync(version_js_path, {encoding: "utf-8"})
-  const version_js_updated = version_js.replace("VERSION", pkg.version)
-  fs.writeFileSync(version_js_path, version_js_updated)
+  function version(lib_dir: string) {
+    const version_js_path = join(lib_dir, "version.js")
+    const version_js = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+    const version_js_updated = version_js.replace("VERSION", pkg.version)
+    fs.writeFileSync(version_js_path, version_js_updated)
+  }
+  version(paths.build_dir.lib)
 })
 
 task("scripts:styles", ["styles:compile"], async () => {
-  const css_dir = paths.build_dir.css
-  const js_dir = paths.build_dir.lib
-  const dts_dir = paths.build_dir.lib
-  const dts_internal_dir = join(paths.build_dir.all, "dts")
-
-  wrap_css_modules(css_dir, js_dir, dts_dir, dts_internal_dir)
+  function styles(lib_dir: string) {
+    const css_dir = paths.build_dir.css
+    const js_dir = lib_dir
+    const dts_dir = lib_dir
+    const dts_internal_dir = join(paths.build_dir.all, "dts")
+    wrap_css_modules(css_dir, js_dir, dts_dir, dts_internal_dir)
+  }
+  styles(paths.build_dir.lib)
+  styles(join(paths.build_dir.esm, "lib"))
 })
 
 task("scripts:grammar", async () => {
-  function compile_grammar(ne_path: string, js_path: string) {
-    const is_windows = process.platform == "win32"
-    const npx = is_windows ? "npx.cmd" : "npx"
-    const {status, stdout, stderr} = cp.spawnSync(`${npx} nearleyc "${ne_path}" -o "${js_path}"`, {stdio: "pipe", encoding: "utf-8", shell: true})
-    if (status !== 0) {
-      console.error(stdout)
-      console.error(stderr)
-      throw new BuildError("pack", `failed to run '${npx} nearleyc'`)
+  function grammar(lib_dir: string) {
+    function compile_grammar(ne_path: string, js_path: string) {
+      const is_windows = process.platform == "win32"
+      const npx = is_windows ? "npx.cmd" : "npx"
+      const {status, stdout, stderr} = cp.spawnSync(`${npx} nearleyc "${ne_path}" -o "${js_path}"`, {stdio: "pipe", encoding: "utf-8", shell: true})
+      if (status !== 0) {
+        console.error(stdout)
+        console.error(stderr)
+        throw new BuildError("pack", `failed to run '${npx} nearleyc'`)
+      }
+    }
+
+    const base = paths.src_dir.grammar
+    for (const ne_path of scan(base, [".ne"])) {
+      const sub_path = relative(base, ne_path)
+      const js_path = rename(join(lib_dir, sub_path), {ext: ".js"})
+      write(js_path, "") // make sure path exists before running nearleyc
+      compile_grammar(ne_path, js_path)
     }
   }
-
-  const base = paths.src_dir.grammar
-  for (const ne_path of scan(base, [".ne"])) {
-    const sub_path = relative(base, ne_path)
-    const js_path = rename(join(paths.build_dir.lib, sub_path), {ext: ".js"})
-    write(js_path, "") // make sure path exists before running nearleyc
-    compile_grammar(ne_path, js_path)
-  }
+  grammar(paths.build_dir.lib)
+  grammar(join(paths.build_dir.esm, "lib"))
 })
 
 task("scripts:glsl", async () => {
-  const lib_base = paths.src_dir.lib
+  async function glsl(lib_dir: string) {
+    const lib_base = paths.src_dir.lib
 
-  const js_base = paths.build_dir.lib
-  const dts_base = paths.build_dir.lib
+    const js_base = lib_dir
+    const dts_base = lib_dir
 
-  // preserveAll: true disables identifier mangling, limiting minification to
-  // stripping comments and compressing whitespace. This is required because regl
-  // binds uniforms/attributes by name at runtime, and glyph code prepends
-  // #define directives (e.g. USE_CIRCLE, HATCH) that must match the shader source.
-  const minifier = new GlslMinify({
-    output: "sourceOnly",
-    preserveAll: true,
-  })
+    // preserveAll: true disables identifier mangling, limiting minification to
+    // stripping comments and compressing whitespace. This is required because regl
+    // binds uniforms/attributes by name at runtime, and glyph code prepends
+    // #define directives (e.g. USE_CIRCLE, HATCH) that must match the shader source.
+    const minifier = new GlslMinify({
+      output: "sourceOnly",
+      preserveAll: true,
+    })
 
-  for (const glsl_path of scan(lib_base, [".vert", ".frag"])) {
-    const sub_path = relative(lib_base, glsl_path)
-    const source = read(glsl_path)!
-    // Join backslash-continued lines so the minifier doesn't corrupt them.
-    const joined = source.replace(/\\\s*\n\s*/g, "")
-    const minified = await minifier.execute(joined)
+    for (const glsl_path of scan(lib_base, [".vert", ".frag"])) {
+      const sub_path = relative(lib_base, glsl_path)
+      const source = read(glsl_path)!
+      // Join backslash-continued lines so the minifier doesn't corrupt them.
+      const joined = source.replace(/\\\s*\n\s*/g, "")
+      const minified = await minifier.execute(joined)
 
-    const js = `\
+      const js = `\
 const shader = \`\n${minified.sourceCode}\`;
 export default shader;
 `
-    const dts = `\
+      const dts = `\
 declare const shader: string;
 export default shader;
 `
 
-    write(`${join(js_base, sub_path)}.js`, js)
-    write(`${join(dts_base, sub_path)}.d.ts`, dts)
+      write(`${join(js_base, sub_path)}.js`, js)
+      write(`${join(dts_base, sub_path)}.d.ts`, dts)
+    }
   }
+
+  await glsl(paths.build_dir.lib)
+  await glsl(join(paths.build_dir.esm, "lib"))
 })
 
 task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
-})
-
-// This doesn't apply necessary transforms to produce output usable by scripts:bundle. This
-// is used only for experimentation with third-party bundlers like esbuild. However, you can
-// enable tsgo as a faster LSP in your editor/IDE.
-task("scripts:compile:tsgo", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
-  const {status} = cp.spawnSync(npx, ["tsgo", "--project", "./src/lib/tsconfig.json"], {stdio: "inherit", shell: is_windows})
-  if (status != 0) {
-    throw new BuildError("typescript", "compilation failed with tsgo")
-  }
 })
 
 function min_js(js: string): string {
@@ -115,7 +118,7 @@ function min_js(js: string): string {
 }
 
 task("scripts:bundle", [passthrough("scripts:compile"), "scripts:version"], async () => {
-  const {bokehjs, gl, api, widgets, tables, mathjax} = paths.lib
+  const {bokehjs, gl, api, widgets, tables, mathjax} = paths.bundles
   const packages = [bokehjs, gl, api, widgets, tables, mathjax]
 
   const linker = new Linker({
@@ -181,7 +184,3 @@ exports.VERSION = "0.0.0";
     throw new BuildError("scripts:bundle", "unable to bundle modules")
   }
 })
-
-task("lib:build", ["scripts:bundle"])
-
-export const build_scripts = task("scripts:build", ["lib:build"])

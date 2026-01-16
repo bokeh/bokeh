@@ -79,25 +79,17 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 }
 
-function is_static(node: ts.Node): boolean {
-  return ts.canHaveModifiers(node) && ts.getModifiers(node)?.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword) != null
-}
-
 export function insert_class_name() {
-  function has__name__(node: ts.ClassDeclaration): boolean {
-    return node.members.find((member) => ts.isPropertyDeclaration(member) && member.name.getText() == "__name__" && is_static(member)) != null
-  }
-
   return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context
 
     function visit(node: ts.Node): ts.VisitResult<ts.Node> {
       node = ts.visitEachChild(node, visit, context)
 
-      if (ts.isClassDeclaration(node) && node.name != null && !has__name__(node)) {
+      if (ts.isClassDeclaration(node) && node.name != null) {
         const property = factory.createPropertyDeclaration(
           factory.createModifiersFromModifierFlags(ts.ModifierFlags.Static),
-          "__name__",
+          "name",
           undefined,
           undefined,
           factory.createStringLiteral(node.name.text))
