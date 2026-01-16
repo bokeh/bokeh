@@ -1,7 +1,9 @@
 export class AssertionError extends Error {}
 export class UnreachableError extends Error {}
 
-export function assert(condition: boolean | (() => boolean), message?: string): asserts condition {
+export function assert(condition: boolean, message?: string): asserts condition
+export function assert(condition: () => boolean, message?: string): void
+export function assert(condition: boolean | (() => boolean), message?: string): void {
   if (condition === true || (condition !== false && condition())) {
     return
   }
@@ -11,9 +13,15 @@ export function assert(condition: boolean | (() => boolean), message?: string): 
 
 declare const DEBUG: boolean | undefined
 
-export function assert_debug(condition: boolean | (() => boolean), message?: string): asserts condition {
-  if (typeof DEBUG !== "undefined" && DEBUG) {
-    assert(condition, message)
+export function assert_debug(condition: boolean, message?: string): asserts condition
+export function assert_debug(condition: () => boolean, message?: string): void
+export function assert_debug(condition: boolean | (() => boolean), message?: string): void {
+  if (typeof DEBUG !== "undefined" && DEBUG === true) {
+    if (typeof condition === "boolean") {
+      assert(condition, message)
+    } else {
+      assert(condition, message)
+    }
   }
 }
 

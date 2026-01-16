@@ -16,7 +16,8 @@
     "./src/compiler"
   ],
   "devDependencies": {
-    "@types/eslint": "^8.56.7",
+    "@eslint/js": "^9.18.0",
+    "@stylistic/eslint-plugin": "^2.12.1",
     "@types/node": "^22.7.4",
     "@types/which": "^3.0.3",
     "@types/yargs": "^17.0.32",
@@ -26,10 +27,11 @@
     "chokidar": "^4.0.0",
     "del": "^6.1.1",
     "esbuild": "^0.27.2",
-    "eslint": "^8.56.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
     "semver": "^7.6.2",
     "typescript": "~5.9.2",
-    "typescript-eslint": "^7.16.0",
+    "typescript-eslint": "^8.21.0",
     "which": "^3.0.1",
     "yargs": "^17.7.2"
   }
