@@ -20,6 +20,7 @@
     "@types/node": "^22.7.4",
     "@types/which": "^3.0.3",
     "@types/yargs": "^17.0.32",
+    "@typescript/native-preview": "^7.0.0-dev.20260115.1",
     "acorn": "^8.12.1",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.0",

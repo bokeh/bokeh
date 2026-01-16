@@ -83,6 +83,18 @@ task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar"], a
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
 })
 
+// This doesn't apply necessary transforms to produce output usable by scripts:bundle. This
+// is used only for experimentation with third-party bundlers like esbuild. However, you can
+// enable tsgo as a faster LSP in your editor/IDE.
+task("scripts:compile:tsgo", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  const {status} = cp.spawnSync(npx, ["tsgo", "--project", "./src/lib/tsconfig.json"], {stdio: "inherit", shell: is_windows})
+  if (status != 0) {
+    throw new BuildError("typescript", "compilation failed with tsgo")
+  }
+})
+
 function min_js(js: string): string {
   return rename(js, {ext: ".min.js"})
 }
