@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from .widget import Widget
 
 @dataclass
-class MarkdownPanel(Widget):
+class Markdown(Widget):
 
     text: str = ...
 

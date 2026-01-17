@@ -7672,7 +7672,7 @@
     active: false,
     label: "",
   },
-  MarkdownPanel: {
+  Markdown: {
     __extends__: "Widget",
     text: "",
     disable_math: false,

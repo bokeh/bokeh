@@ -5,8 +5,8 @@ import {div} from "core/dom"
 import {Marked} from "marked"
 import Purify from "dompurify"
 
-export class MarkdownPanelView extends WidgetView {
-  declare model: MarkdownPanel
+export class MarkdownView extends WidgetView {
+  declare model: Markdown
 
   protected readonly _markdown = new Marked()
 
@@ -35,7 +35,7 @@ export class MarkdownPanelView extends WidgetView {
   }
 }
 
-export namespace MarkdownPanel {
+export namespace Markdown {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Widget.Props & {
@@ -44,20 +44,20 @@ export namespace MarkdownPanel {
   }
 }
 
-export interface MarkdownPanel extends MarkdownPanel.Attrs {}
+export interface Markdown extends Markdown.Attrs {}
 
-export class MarkdownPanel extends Widget {
-  declare properties: MarkdownPanel.Props
-  declare __view_type__: MarkdownPanelView
+export class Markdown extends Widget {
+  declare properties: Markdown.Props
+  declare __view_type__: MarkdownView
 
-  constructor(attrs?: Partial<MarkdownPanel.Attrs>) {
+  constructor(attrs?: Partial<Markdown.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = MarkdownPanelView
+    this.prototype.default_view = MarkdownView
 
-    this.define<MarkdownPanel.Props>(({Str, Bool}) => ({
+    this.define<Markdown.Props>(({Str, Bool}) => ({
       text: [ Str, "" ],
       disable_math: [ Bool, false ],
     }))

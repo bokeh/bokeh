@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""
+""" Component for displaying Markdown formatted contents.
 
 """
 
@@ -32,15 +32,15 @@ from .widget import Widget
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "MarkdownPanel",
+    "Markdown",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class MarkdownPanel(Widget):
-    """ A panel for displaying Markdown formatted contents.
+class Markdown(Widget):
+    """ A component for displaying Markdown formatted contents.
 
     """
 
