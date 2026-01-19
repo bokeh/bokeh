@@ -2,7 +2,8 @@ import {Model} from "../../model"
 import type * as p from "core/properties"
 import type {Selection} from "../selections/selection"
 import {View} from "core/view"
-import {Indices, Arrayable} from "core/types"
+import {Indices} from "core/types"
+import type {Arrayable} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
@@ -144,7 +145,7 @@ export class CDSView extends Model {
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    return selection_full.map((i) => this.indices_map[i]!) // XXX ?? NaN
+    return selection_full.map((i) => this.indices_map[i]) // XXX ?? NaN
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
@@ -154,7 +155,7 @@ export class CDSView extends Model {
   get_reference(array: Arrayable, value?: unknown): number {
     const {_indices, indices_map} = this
     const n = _indices.length
-    for(let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
       if (array[_indices[i]] == value) {
         return indices_map[_indices[i]]
       }
