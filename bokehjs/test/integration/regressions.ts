@@ -4779,7 +4779,6 @@ describe("Bug", () => {
 
   describe("in issue #14417", () => {
     it("allows scrolling tab headers when there are many tabs", async () => {
-      // Create many tabs to force scrolling
       const tab_panels = []
       for (let i = 0; i < 20; i++) {
         const p = fig([200, 200])
@@ -4790,19 +4789,15 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 600, tabs_location: "above"})
       const {view} = await display(tabs, [650, 300])
 
-      // Check that headers_wrapper element exists
       const headers_wrapper = (view as any).headers_wrapper_el
       expect(headers_wrapper).to.be.instanceof(HTMLElement)
 
-      // Check that wrapper has overflow
       const wrapper_styles = window.getComputedStyle(headers_wrapper)
       expect(wrapper_styles.overflowX).to.be.equal("auto")
 
-      // Check that scrolling is enabled (scrollWidth > clientWidth)
       const has_scroll = headers_wrapper.scrollWidth > headers_wrapper.clientWidth
       expect(has_scroll).to.be.true
 
-      // Verify all tab headers are inside the wrapper
       const header_els = (view as any).header_els
       expect(header_els.length).to.be.equal(20)
       for (const header of header_els) {
