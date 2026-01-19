@@ -20,11 +20,10 @@ const pkg_file = fs.readFileSync("./make/package.json", {encoding: "utf-8"})
 const pkg = JSON.parse(pkg_file) as {version: string}
 
 task("scripts:version", async () => {
-  const js = `export const version = "${pkg.version}";\n`
-  const dts = "export declare const version: string;\n"
-
-  write(join(paths.build_dir.lib, "version.js"), js)
-  write(join(paths.build_dir.lib, "version.d.ts"), dts)
+  const version_js_path = join(paths.build_dir.lib, "version.js")
+  const version_js = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+  const version_js_updated = version_js.replace("VERSION", pkg.version)
+  fs.writeFileSync(version_js_path, version_js_updated)
 })
 
 task("scripts:styles", ["styles:compile"], async () => {
@@ -80,7 +79,7 @@ export default shader;
   }
 })
 
-task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar", "scripts:version"], async () => {
+task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
 })
 
@@ -88,7 +87,7 @@ function min_js(js: string): string {
   return rename(js, {ext: ".min.js"})
 }
 
-task("scripts:bundle", [passthrough("scripts:compile")], async () => {
+task("scripts:bundle", [passthrough("scripts:compile"), "scripts:version"], async () => {
   const {bokehjs, gl, api, widgets, tables, mathjax} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables, mathjax]
 
