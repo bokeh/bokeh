@@ -4776,4 +4776,54 @@ describe("Bug", () => {
       await display(grid([[fig0, fig1], [fig2, fig3]]))
     })
   })
+
+  describe("in issue #14417", () => {
+    it("allows scrolling tab headers when there are many tabs", async () => {
+      // Create many tabs to force scrolling
+      const tab_panels = []
+      for (let i = 0; i < 20; i++) {
+        const p = fig([200, 200])
+        p.circle([1, 2, 3, 4, 5], [i+1, i+2, i+3, i+4, i+5], {size: 10, color: "navy", alpha: 0.5})
+        tab_panels.push(new TabPanel({child: p, title: `Tab ${i + 1}`}))
+      }
+
+      const tabs = new Tabs({tabs: tab_panels, width: 600, tabs_location: "above"})
+      const {view} = await display(tabs, [650, 300])
+
+      // Check that headers_wrapper element exists
+      expect(view.headers_wrapper_el).to.be.instanceof(HTMLElement)
+
+      // Check that wrapper has overflow
+      const wrapper_styles = window.getComputedStyle(view.headers_wrapper_el)
+      expect(wrapper_styles.overflowX).to.be.equal("auto")
+
+      // Check that scrolling is enabled (scrollWidth > clientWidth)
+      const has_scroll = view.headers_wrapper_el.scrollWidth > view.headers_wrapper_el.clientWidth
+      expect(has_scroll).to.be.true
+
+      // Verify all tab headers are inside the wrapper
+      expect(view.header_els.length).to.be.equal(20)
+      for (const header of view.header_els) {
+        expect(header.parentElement).to.be.equal(view.headers_wrapper_el)
+      }
+    })
+
+    it("supports scrollable headers for vertical tabs", async () => {
+      const tab_panels = []
+      for (let i = 0; i < 15; i++) {
+        const p = fig([200, 200])
+        p.scatter([1, 2, 3], [4, 5, 6], {size: 8})
+        tab_panels.push(new TabPanel({child: p, title: `Long Tab Name ${i + 1}`}))
+      }
+
+      const tabs = new Tabs({tabs: tab_panels, height: 400, tabs_location: "left"})
+      const {view} = await display(tabs, [400, 450])
+
+      expect(view.headers_wrapper_el).to.be.instanceof(HTMLElement)
+
+      const wrapper_styles = window.getComputedStyle(view.headers_wrapper_el)
+      expect(wrapper_styles.overflowY).to.be.equal("auto")
+    })
+  })
 })
+

@@ -540,6 +540,12 @@ Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 
 More information can be found in the reference guide entry for |Tabs|.
 
+.. note::
+    When displaying a large number of tabs, the tab headers will automatically
+    become scrollable if they exceed the available width (for horizontal tabs)
+    or height (for vertical tabs). This allows you to navigate through many tabs
+    without affecting the layout of the plots or other content.
+
 .. _ug_interaction_widgets_examples_textareainput:
 
 TextAreaInput
