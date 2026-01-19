@@ -22,6 +22,7 @@ export class TabsView extends LayoutDOMView {
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
   protected header_el: HTMLElement
+  protected headers_wrapper_el: HTMLElement
   protected header_els: HTMLElement[]
 
   override connect_signals(): void {
@@ -99,6 +100,8 @@ export class TabsView extends LayoutDOMView {
     super.render()
 
     this.header_el = div({class: tabs.header})
+    this.headers_wrapper_el = div({class: tabs.headers_wrapper})
+    this.header_el.append(this.headers_wrapper_el)
     this.shadow_el.append(this.header_el)
     this._update_headers()
   }
@@ -156,8 +159,8 @@ export class TabsView extends LayoutDOMView {
     })
 
     this.header_els = headers
-    empty(this.header_el)
-    this.header_el.append(...headers)
+    empty(this.headers_wrapper_el)
+    this.headers_wrapper_el.append(...headers)
   }
 
   change_active(i: number): void {
