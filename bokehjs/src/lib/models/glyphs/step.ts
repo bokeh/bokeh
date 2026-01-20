@@ -211,10 +211,10 @@ export class Step extends XYGlyph {
     this.prototype.default_view = StepView
 
     this.mixins<Step.Mixins>(mixins.LineScalar)
-    this.define<Step.Props>(({Float}) => ({
+    this.define<Step.Props>(({Float, NonNegative}) => ({
       mode: [ StepMode, "before" ],
-      pad_before: [ Float, 0 ],
-      pad_after: [ Float, 0 ],
+      pad_before: [ NonNegative(Float), 0 ],
+      pad_after: [ NonNegative(Float), 0 ],
     }))
   }
 }

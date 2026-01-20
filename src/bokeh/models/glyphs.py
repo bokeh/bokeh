@@ -64,7 +64,7 @@ from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.include import Include
 from ..core.property.instance import Instance, InstanceDefault
-from ..core.property.numeric import Size
+from ..core.property.numeric import NonNegative, Size
 from ..core.property.override import Override
 from ..core.property.primitive import (
     Bool,
@@ -1598,11 +1598,11 @@ class Step(XYGlyph, LineGlyph):
     * ``center``: Draw step levels centered on each x-coordinate
     """)
 
-    pad_before = Float(default=0, help="""
+    pad_before = NonNegative(Float, default=0, help="""
     Extends the step plot by this amount before the first x-coordinate.
     """)
 
-    pad_after = Float(default=0, help="""
+    pad_after = NonNegative(Float, default=0, help="""
     Extends the step plot by this amount after the last x-coordinate.
     """)
 
