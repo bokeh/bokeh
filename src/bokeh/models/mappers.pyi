@@ -6,104 +6,140 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Sequence
+from abc import abstractmethod
+from typing import Sequence, Unpack
 
 # Bokeh imports
 from .._types import Color
 from ..core.enums import MarkerTypeType as MarkerType, PaletteType as Palette
-from ..core.has_props import abstract
 from ..core.property.visual import HatchPatternType as HatchPattern
 from .glyph import Glyph
 from .ranges import FactorSeq
 from .renderers import GlyphRenderer
-from .transforms import Transform
+from .transforms import Transform, TransformInit
 
-@abstract
-@dataclass(init=False)
-class Mapper(Transform):
+class MapperInit(TransformInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
-class ColorMapper(Mapper):
+class Mapper(Transform):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[MapperInit]) -> None: ...
 
-    palette: Sequence[Color] | Palette = ...
+class ColorMapperInit(MapperInit, total=False):
+    palette: Sequence[Color] | Palette
+    nan_color: Color
+
+class ColorMapper(Mapper):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[ColorMapperInit]) -> None: ...
+
+    @property
+    def palette(self) -> Sequence[Color]: ...
+    @palette.setter
+    def palette(self, palette: Sequence[Color] | Palette) -> None: ...
 
     nan_color: Color = ...
 
-@abstract
-@dataclass(init=False)
+class CategoricalMapperInit(MapperInit, total=False):
+    factors: FactorSeq
+    start: int
+    end: int | None
+
 class CategoricalMapper(Mapper):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[CategoricalMapperInit]) -> None: ...
 
     factors: FactorSeq = ...
-
     start: int = ...
-
     end: int | None = ...
 
-@dataclass
-class CategoricalColorMapper(CategoricalMapper, ColorMapper):
+class CategoricalColorMapperInit(CategoricalMapperInit, ColorMapperInit, total=False):
     ...
 
-@dataclass
+class CategoricalColorMapper(CategoricalMapper, ColorMapper):
+    def __init__(self, **kwargs: Unpack[CategoricalColorMapperInit]) -> None: ...
+
+class CategoricalMarkerMapperInit(CategoricalMapperInit, total=False):
+    markers: Sequence[MarkerType]
+    default_value: MarkerType
+
 class CategoricalMarkerMapper(CategoricalMapper):
+    def __init__(self, **kwargs: Unpack[CategoricalMarkerMapperInit]) -> None: ...
 
     markers: Sequence[MarkerType] = ...
-
     default_value: MarkerType = ...
 
-@dataclass
+class CategoricalPatternMapperInit(CategoricalMapperInit, total=False):
+    patterns: Sequence[HatchPattern]
+    default_value: HatchPattern
+
 class CategoricalPatternMapper(CategoricalMapper):
+    def __init__(self, **kwargs: Unpack[CategoricalPatternMapperInit]) -> None: ...
 
     patterns: Sequence[HatchPattern] = ...
-
     default_value: HatchPattern = ...
 
-@abstract
-@dataclass(init=False)
+class ContinuousColorMapperInit(ColorMapperInit, total=False):
+    domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
+    low: float | None
+    high: float | None
+    low_color: Color | None
+    high_color: Color | None
+
 class ContinuousColorMapper(ColorMapper):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[ContinuousColorMapperInit]) -> None: ...
 
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]] = ...
-
     low: float | None = ...
-
     high: float | None = ...
-
     low_color: Color | None = ...
-
     high_color: Color | None = ...
 
-@dataclass
+class LinearColorMapperInit(ContinuousColorMapperInit, total=False):
+    ...
+
 class LinearColorMapper(ContinuousColorMapper):
+    def __init__(self, **kwargs: Unpack[LinearColorMapperInit]) -> None: ...
+
+class LogColorMapperInit(ContinuousColorMapperInit, total=False):
     ...
 
-@dataclass
 class LogColorMapper(ContinuousColorMapper):
+    def __init__(self, **kwargs: Unpack[LogColorMapperInit]) -> None: ...
+
+class ScanningColorMapperInit(ContinuousColorMapperInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
 class ScanningColorMapper(ContinuousColorMapper):
-    ...
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[ScanningColorMapperInit]) -> None: ...
 
-@dataclass
+class EqHistColorMapperInit(ScanningColorMapperInit, total=False):
+    bins: int
+    rescale_discrete_levels: bool
+
 class EqHistColorMapper(ScanningColorMapper):
+    def __init__(self, **kwargs: Unpack[EqHistColorMapperInit]) -> None: ...
 
     bins: int = ...
-
     rescale_discrete_levels: bool = ...
 
-@abstract
-@dataclass(init=False)
-class StackColorMapper(ColorMapper):
+class StackColorMapperInit(ColorMapperInit, total=False):
     ...
 
-@dataclass
+class StackColorMapper(ColorMapper):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[StackColorMapperInit]) -> None: ...
+
+class WeightedStackColorMapperInit(StackColorMapperInit, total=False):
+    alpha_mapper: ContinuousColorMapper
+    color_baseline: float | None
+    stack_labels: Sequence[str] | None
+
 class WeightedStackColorMapper(StackColorMapper):
+    def __init__(self, **kwargs: Unpack[WeightedStackColorMapperInit]) -> None: ...
 
     alpha_mapper: ContinuousColorMapper = ...
-
     color_baseline: float | None = ...
-
     stack_labels: Sequence[str] | None = ...

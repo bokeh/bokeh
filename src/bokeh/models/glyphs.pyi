@@ -6,7 +6,8 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
 from .._specs import (
@@ -31,7 +32,6 @@ from ..core.enums import (
     StepModeType as StepMode,
     TeXDisplayType as TeXDisplay,
 )
-from ..core.has_props import abstract
 from ..core.property_aliases import (
     Anchor,
     BorderRadius,
@@ -40,493 +40,639 @@ from ..core.property_aliases import (
 )
 from ..core.property_mixins import (
     BackgroundFillProps,
+    BackgroundFillPropsInit,
     BackgroundHatchProps,
+    BackgroundHatchPropsInit,
     BorderLineProps,
+    BorderLinePropsInit,
     FillProps,
+    FillPropsInit,
     HatchProps,
+    HatchPropsInit,
     ImageProps,
+    ImagePropsInit,
     LineProps,
+    LinePropsInit,
     ScalarFillProps,
+    ScalarFillPropsInit,
     ScalarHatchProps,
+    ScalarHatchPropsInit,
     ScalarLineProps,
+    ScalarLinePropsInit,
     TextProps,
+    TextPropsInit,
 )
 from .callbacks import CustomJS
 from .glyph import (
     ConnectedXYGlyph,
+    ConnectedXYGlyphInit,
     Glyph,
+    GlyphInit,
     RadialGlyph,
+    RadialGlyphInit,
     XYGlyph,
+    XYGlyphInit,
 )
 from .mappers import ColorMapper, StackColorMapper
 
-@abstract
-@dataclass(init=False)
+class MarkerInit(XYGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    hit_dilation: NonNegative[float]
+    size: SizeSpec
+    angle: AngleSpec
+
 class Marker(XYGlyph, LineProps, FillProps, HatchProps):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[MarkerInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     hit_dilation: NonNegative[float] = ...
-
     size: SizeSpec = ...
-
     angle: AngleSpec = ...
 
-@abstract
-@dataclass(init=False)
+class LRTBGlyphInit(GlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    border_radius: BorderRadius
+
 class LRTBGlyph(Glyph, LineProps, FillProps, HatchProps):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[LRTBGlyphInit]) -> None: ...
 
     border_radius: BorderRadius = ...
 
-@dataclass
+class AnnularWedgeInit(XYGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    inner_radius: DistanceSpec
+    outer_radius: DistanceSpec
+    start_angle: AngleSpec
+    end_angle: AngleSpec
+    direction: Direction
+
 class AnnularWedge(XYGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[AnnularWedgeInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     inner_radius: DistanceSpec = ...
-
     outer_radius: DistanceSpec = ...
-
     start_angle: AngleSpec = ...
-
     end_angle: AngleSpec = ...
-
     direction: Direction = ...
 
-@dataclass
+class AnnulusInit(XYGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    inner_radius: DistanceSpec
+    outer_radius: DistanceSpec
+
 class Annulus(XYGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[AnnulusInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     inner_radius: DistanceSpec = ...
-
     outer_radius: DistanceSpec = ...
 
-@dataclass
+class ArcInit(XYGlyphInit, LinePropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    radius: DistanceSpec
+    start_angle: AngleSpec
+    end_angle: AngleSpec
+    direction: Direction
+
 class Arc(XYGlyph, LineProps):
+    def __init__(self, **kwargs: Unpack[ArcInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     radius: DistanceSpec = ...
-
     start_angle: AngleSpec = ...
-
     end_angle: AngleSpec = ...
-
     direction: Direction = ...
 
-@dataclass
+class BezierInit(GlyphInit, LinePropsInit, total=False):
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
+    cx0: NumberSpec
+    cy0: NumberSpec
+    cx1: NumberSpec
+    cy1: NumberSpec
+
 class Bezier(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[BezierInit]) -> None: ...
 
     x0: NumberSpec = ...
-
     y0: NumberSpec = ...
-
     x1: NumberSpec = ...
-
     y1: NumberSpec = ...
-
     cx0: NumberSpec = ...
-
     cy0: NumberSpec = ...
-
     cx1: NumberSpec = ...
-
     cy1: NumberSpec = ...
 
-@dataclass
+class BlockInit(LRTBGlyphInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    width: DistanceSpec
+    height: DistanceSpec
+
 class Block(LRTBGlyph):
+    def __init__(self, **kwargs: Unpack[BlockInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     width: DistanceSpec = ...
-
     height: DistanceSpec = ...
 
-@dataclass
+class CircleInit(RadialGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    radius: DistanceSpec
+    radius_dimension: RadiusDimension
+    hit_dilation: NonNegative[float]
+
 class Circle(RadialGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[CircleInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     radius: DistanceSpec = ...
-
     radius_dimension: RadiusDimension = ...
-
     hit_dilation: NonNegative[float] = ...
 
-@dataclass
+class EllipseInit(XYGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    width: DistanceSpec
+    height: DistanceSpec
+    angle: AngleSpec
+
 class Ellipse(XYGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[EllipseInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     width: DistanceSpec = ...
-
     height: DistanceSpec = ...
-
     angle: AngleSpec = ...
 
-@dataclass
+class HAreaInit(GlyphInit, ScalarFillPropsInit, HatchPropsInit, total=False):
+    x1: NumberSpec
+    x2: NumberSpec
+    y: NumberSpec
+
 class HArea(Glyph, ScalarFillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[HAreaInit]) -> None: ...
 
     x1: NumberSpec = ...
-
     x2: NumberSpec = ...
-
     y: NumberSpec = ...
 
-@dataclass
+class HAreaStepInit(GlyphInit, ScalarFillPropsInit, HatchPropsInit, total=False):
+    x1: NumberSpec
+    x2: NumberSpec
+    y: NumberSpec
+    step_mode: StepMode
+
 class HAreaStep(Glyph, ScalarFillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[HAreaStepInit]) -> None: ...
 
     x1: NumberSpec = ...
-
     x2: NumberSpec = ...
-
     y: NumberSpec = ...
-
     step_mode: StepMode = ...
 
-@dataclass
+class HBarInit(LRTBGlyphInit, total=False):
+    y: NumberSpec
+    height: DistanceSpec
+    left: NumberSpec
+    right: NumberSpec
+
 class HBar(LRTBGlyph):
+    def __init__(self, **kwargs: Unpack[HBarInit]) -> None: ...
 
     y: NumberSpec = ...
-
     height: DistanceSpec = ...
-
     left: NumberSpec = ...
-
     right: NumberSpec = ...
 
-@dataclass
+class HSpanInit(GlyphInit, LinePropsInit, total=False):
+    y: NumberSpec
+
 class HSpan(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[HSpanInit]) -> None: ...
 
     y: NumberSpec = ...
 
-@dataclass
+class HStripInit(GlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    y0: NumberSpec
+    y1: NumberSpec
+
 class HStrip(Glyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[HStripInit]) -> None: ...
 
     y0: NumberSpec = ...
-
     y1: NumberSpec = ...
 
-@dataclass
+class HexTileInit(GlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    size: float
+    aspect_scale: float
+    r: NumberSpec
+    q: NumberSpec
+    scale: NumberSpec
+    orientation: HexTileOrientation
+
 class HexTile(Glyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[HexTileInit]) -> None: ...
 
     size: float = ...
-
     aspect_scale: float = ...
-
     r: NumberSpec = ...
-
     q: NumberSpec = ...
-
     scale: NumberSpec = ...
-
     orientation: HexTileOrientation = ...
 
-@abstract
-@dataclass(init=False)
+class ImageBaseInit(XYGlyphInit, ImagePropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: bool
+    origin: ImageOrigin
+    anchor: Anchor
+
 class ImageBase(XYGlyph, ImageProps):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[ImageBaseInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     dw: DistanceSpec = ...
-
     dh: DistanceSpec = ...
-
     dilate: bool = ...
-
     origin: ImageOrigin = ...
-
     anchor: Anchor = ...
 
-@dataclass
+class ImageInit(ImageBaseInit, total=False):
+    image: NumberSpec
+    color_mapper: ColorMapper | Palette
+
 class Image(ImageBase):
+    def __init__(self, **kwargs: Unpack[ImageInit]) -> None: ...
 
     image: NumberSpec = ...
 
-    color_mapper: ColorMapper | Palette = ...
+    @property
+    def color_mapper(self) -> ColorMapper: ...
+    @color_mapper.setter
+    def color_mapper(self, color_mapper: ColorMapper | Palette) -> None: ...
 
-@dataclass
+class ImageRGBAInit(ImageBaseInit, total=False):
+    image: NumberSpec
+
 class ImageRGBA(ImageBase):
+    def __init__(self, **kwargs: Unpack[ImageRGBAInit]) -> None: ...
 
     image: NumberSpec = ...
 
-@dataclass
+class ImageStackInit(ImageBaseInit, total=False):
+    image: NumberSpec
+    color_mapper: StackColorMapper
+
 class ImageStack(ImageBase):
+    def __init__(self, **kwargs: Unpack[ImageStackInit]) -> None: ...
 
     image: NumberSpec = ...
-
     color_mapper: StackColorMapper = ...
 
-@dataclass
+class ImageURLInit(XYGlyphInit, total=False):
+    url: StringSpec
+    x: NumberSpec
+    y: NumberSpec
+    w: NullDistanceSpec
+    h: NullDistanceSpec
+    angle: AngleSpec
+    global_alpha: NumberSpec
+    dilate: bool
+    anchor: Anchor
+    retry_attempts: int
+    retry_timeout: int
+
 class ImageURL(XYGlyph):
+    def __init__(self, **kwargs: Unpack[ImageURLInit]) -> None: ...
 
     url: StringSpec = ...
-
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     w: NullDistanceSpec = ...
-
     h: NullDistanceSpec = ...
-
     angle: AngleSpec = ...
-
     global_alpha: NumberSpec = ...
-
     dilate: bool = ...
-
     anchor: Anchor = ...
-
     retry_attempts: int = ...
-
     retry_timeout: int = ...
 
-@dataclass
+class LineInit(ConnectedXYGlyphInit, ScalarLinePropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+
 class Line(ConnectedXYGlyph, ScalarLineProps):
+    def __init__(self, **kwargs: Unpack[LineInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
 
-@dataclass
+class MultiLineInit(GlyphInit, LinePropsInit, total=False):
+    xs: NumberSpec
+    ys: NumberSpec
+
 class MultiLine(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[MultiLineInit]) -> None: ...
 
     xs: NumberSpec = ...
-
     ys: NumberSpec = ...
 
-@dataclass
+class MultiPolygonsInit(GlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    xs: NumberSpec
+    ys: NumberSpec
+
 class MultiPolygons(Glyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[MultiPolygonsInit]) -> None: ...
 
     xs: NumberSpec = ...
-
     ys: NumberSpec = ...
 
-@dataclass
+class NgonInit(RadialGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    radius: DistanceSpec
+    angle: AngleSpec
+    n: NumberSpec
+    radius_dimension: RadiusDimension
+
 class Ngon(RadialGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[NgonInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     radius: DistanceSpec = ...
-
     angle: AngleSpec = ...
-
     n: NumberSpec = ...
-
     radius_dimension: RadiusDimension = ...
 
-@dataclass
+class PatchInit(ConnectedXYGlyphInit, ScalarLinePropsInit, ScalarFillPropsInit, ScalarHatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+
 class Patch(ConnectedXYGlyph, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
+    def __init__(self, **kwargs: Unpack[PatchInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
 
-@dataclass
+class PatchesInit(GlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    xs: NumberSpec
+    ys: NumberSpec
+
 class Patches(Glyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[PatchesInit]) -> None: ...
 
     xs: NumberSpec = ...
-
     ys: NumberSpec = ...
 
-@dataclass
+class QuadInit(LRTBGlyphInit, total=False):
+    left: NumberSpec
+    right: NumberSpec
+    bottom: NumberSpec
+    top: NumberSpec
+
 class Quad(LRTBGlyph):
+    def __init__(self, **kwargs: Unpack[QuadInit]) -> None: ...
 
     left: NumberSpec = ...
-
     right: NumberSpec = ...
-
     bottom: NumberSpec = ...
-
     top: NumberSpec = ...
 
-@dataclass
+class QuadraticInit(GlyphInit, LinePropsInit, total=False):
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
+    cx: NumberSpec
+    cy: NumberSpec
+
 class Quadratic(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[QuadraticInit]) -> None: ...
 
     x0: NumberSpec = ...
-
     y0: NumberSpec = ...
-
     x1: NumberSpec = ...
-
     y1: NumberSpec = ...
-
     cx: NumberSpec = ...
-
     cy: NumberSpec = ...
 
-@dataclass
+class RayInit(XYGlyphInit, LinePropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    angle: AngleSpec
+    length: DistanceSpec
+
 class Ray(XYGlyph, LineProps):
+    def __init__(self, **kwargs: Unpack[RayInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     angle: AngleSpec = ...
-
     length: DistanceSpec = ...
 
-@dataclass
+class RectInit(XYGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    width: DistanceSpec
+    height: DistanceSpec
+    angle: AngleSpec
+    border_radius: BorderRadius
+    dilate: bool
+
 class Rect(XYGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[RectInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     width: DistanceSpec = ...
-
     height: DistanceSpec = ...
-
     angle: AngleSpec = ...
-
     border_radius: BorderRadius = ...
-
     dilate: bool = ...
 
-@dataclass
+class ScatterInit(MarkerInit, total=False):
+    marker: MarkerSpec
+    defs: dict[str, CustomJS]
+
 class Scatter(Marker):
+    def __init__(self, **kwargs: Unpack[ScatterInit]) -> None: ...
 
     marker: MarkerSpec = ...
-
     defs: dict[str, CustomJS] = ...
 
-@dataclass
+class SegmentInit(GlyphInit, LinePropsInit, total=False):
+    x0: NumberSpec
+    y0: NumberSpec
+    x1: NumberSpec
+    y1: NumberSpec
+
 class Segment(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[SegmentInit]) -> None: ...
 
     x0: NumberSpec = ...
-
     y0: NumberSpec = ...
-
     x1: NumberSpec = ...
-
     y1: NumberSpec = ...
 
-@dataclass
+class StepInit(XYGlyphInit, ScalarLinePropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    mode: StepMode
+    pad_before: NonNegative[float]
+    pad_after: NonNegative[float]
+
 class Step(XYGlyph, ScalarLineProps):
+    def __init__(self, **kwargs: Unpack[StepInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     mode: StepMode = ...
+    pad_before: NonNegative[float] = ...
+    pad_after: NonNegative[float] = ...
 
-    pad_before: float = ...
+class TextInit(XYGlyphInit, TextPropsInit, BackgroundFillPropsInit, BackgroundHatchPropsInit, BorderLinePropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: FloatSpec
+    y_offset: FloatSpec
+    anchor: DataSpec[TextAnchor]
+    padding: Padding
+    border_radius: BorderRadius
+    outline_shape: DataSpec[OutlineShapeName]
 
-    pad_after: float = ...
-
-@dataclass
 class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
+    def __init__(self, **kwargs: Unpack[TextInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     text: StringSpec = ...
-
     angle: AngleSpec = ...
-
     x_offset: FloatSpec = ...
-
     y_offset: FloatSpec = ...
-
     anchor: DataSpec[TextAnchor] = ...
-
     padding: Padding = ...
-
     border_radius: BorderRadius = ...
-
     outline_shape: DataSpec[OutlineShapeName] = ...
 
-@abstract
-@dataclass(init=False)
+class MathTextGlyphInit(TextInit, total=False):
+    ...
+
 class MathTextGlyph(Text):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[MathTextGlyphInit]) -> None: ...
+
+class MathMLGlyphInit(MathTextGlyphInit, total=False):
     ...
 
-@dataclass
 class MathMLGlyph(MathTextGlyph):
-    ...
+    def __init__(self, **kwargs: Unpack[MathMLGlyphInit]) -> None: ...
 
-@dataclass
+class TeXGlyphInit(MathTextGlyphInit, total=False):
+    macros: dict[str, str | tuple[str, int]]
+    display: TeXDisplay
+
 class TeXGlyph(MathTextGlyph):
+    def __init__(self, **kwargs: Unpack[TeXGlyphInit]) -> None: ...
 
     macros: dict[str, str | tuple[str, int]] = ...
-
     display: TeXDisplay = ...
 
-@dataclass
+class VAreaInit(GlyphInit, ScalarFillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y1: NumberSpec
+    y2: NumberSpec
+
 class VArea(Glyph, ScalarFillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[VAreaInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y1: NumberSpec = ...
-
     y2: NumberSpec = ...
 
-@dataclass
+class VAreaStepInit(GlyphInit, ScalarFillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y1: NumberSpec
+    y2: NumberSpec
+    step_mode: StepMode
+
 class VAreaStep(Glyph, ScalarFillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[VAreaStepInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y1: NumberSpec = ...
-
     y2: NumberSpec = ...
-
     step_mode: StepMode = ...
 
-@dataclass
+class VBarInit(LRTBGlyphInit, total=False):
+    x: NumberSpec
+    width: DistanceSpec
+    bottom: NumberSpec
+    top: NumberSpec
+
 class VBar(LRTBGlyph):
+    def __init__(self, **kwargs: Unpack[VBarInit]) -> None: ...
 
     x: NumberSpec = ...
-
     width: DistanceSpec = ...
-
     bottom: NumberSpec = ...
-
     top: NumberSpec = ...
 
-@dataclass
+class VSpanInit(GlyphInit, LinePropsInit, total=False):
+    x: NumberSpec
+
 class VSpan(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[VSpanInit]) -> None: ...
 
     x: NumberSpec = ...
 
-@dataclass
+class VStripInit(GlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x0: NumberSpec
+    x1: NumberSpec
+
 class VStrip(Glyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[VStripInit]) -> None: ...
 
     x0: NumberSpec = ...
-
     x1: NumberSpec = ...
 
-@dataclass
+class WedgeInit(XYGlyphInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+    x: NumberSpec
+    y: NumberSpec
+    radius: DistanceSpec
+    start_angle: AngleSpec
+    end_angle: AngleSpec
+    direction: Direction
+
 class Wedge(XYGlyph, LineProps, FillProps, HatchProps):
+    def __init__(self, **kwargs: Unpack[WedgeInit]) -> None: ...
 
     x: NumberSpec = ...
-
     y: NumberSpec = ...
-
     radius: DistanceSpec = ...
-
     start_angle: AngleSpec = ...
-
     end_angle: AngleSpec = ...
-
     direction: Direction = ...

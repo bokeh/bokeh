@@ -6,36 +6,49 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from .transforms import Transform
+from .transforms import Transform, TransformInit
 
-@abstract
-@dataclass(init=False)
+class ScaleInit(TransformInit, total=False):
+    ...
+
 class Scale(Transform):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[ScaleInit]) -> None: ...
+
+class ContinuousScaleInit(ScaleInit, total=False):
     ...
 
-@dataclass
 class ContinuousScale(Scale):
+    def __init__(self, **kwargs: Unpack[ContinuousScaleInit]) -> None: ...
+
+class LinearScaleInit(ContinuousScaleInit, total=False):
     ...
 
-@dataclass
 class LinearScale(ContinuousScale):
+    def __init__(self, **kwargs: Unpack[LinearScaleInit]) -> None: ...
+
+class LogScaleInit(ContinuousScaleInit, total=False):
     ...
 
-@dataclass
 class LogScale(ContinuousScale):
+    def __init__(self, **kwargs: Unpack[LogScaleInit]) -> None: ...
+
+class CategoricalScaleInit(ScaleInit, total=False):
     ...
 
-@dataclass
 class CategoricalScale(Scale):
-    ...
+    def __init__(self, **kwargs: Unpack[CategoricalScaleInit]) -> None: ...
 
-@dataclass
+class CompositeScaleInit(ScaleInit, total=False):
+    source_scale: Scale
+    target_scale: Scale
+
 class CompositeScale(Scale):
+    def __init__(self, **kwargs: Unpack[CompositeScaleInit]) -> None: ...
 
     source_scale: Scale = ...
-
     target_scale: Scale = ...

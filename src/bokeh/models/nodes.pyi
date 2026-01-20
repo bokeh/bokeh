@@ -6,100 +6,94 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import ClassVar, Literal
+from abc import abstractmethod
+from typing import ClassVar, Literal, Unpack
 
 # Bokeh imports
 from .._types import CoordinateLike
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 from .glyph import Glyph
 from .renderers import GlyphRenderer
 
 ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
 
-@dataclass
 class BoxNodes:
 
     def __init__(self, target: Model | ImplicitTarget) -> None: ...
 
     @property
     def left(self) -> Node: ...
-
     @property
     def right(self) -> Node: ...
-
     @property
     def top(self) -> Node: ...
-
     @property
     def bottom(self) -> Node: ...
 
     @property
     def top_left(self) -> Node: ...
-
     @property
     def top_center(self) -> Node: ...
-
     @property
     def top_right(self) -> Node: ...
-
     @property
     def center_left(self) -> Node: ...
-
     @property
     def center(self) -> Node: ...
-
     @property
     def center_right(self) -> Node: ...
-
     @property
     def bottom_left(self) -> Node: ...
-
     @property
     def bottom_center(self) -> Node: ...
-
     @property
     def bottom_right(self) -> Node: ...
 
     @property
     def width(self) -> Node: ...
-
     @property
     def height(self) -> Node: ...
 
-@abstract
-@dataclass(init=False)
-class Coordinate(Model):
+class CoordinateInit(ModelInit, total=False):
     ...
 
-@dataclass
+class Coordinate(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[CoordinateInit]) -> None: ...
+
+class XYInit(CoordinateInit, total=False):
+    x: CoordinateLike
+    y: CoordinateLike
+
 class XY(Coordinate):
+    def __init__(self, **kwargs: Unpack[XYInit]) -> None: ...
 
     x: CoordinateLike = ...
-
     y: CoordinateLike = ...
 
-@dataclass
-class Indexed(Coordinate):
-
+class IndexedInit(CoordinateInit, total=False):
     index: int
-
     renderer: GlyphRenderer[Glyph]
 
-@dataclass
+class Indexed(Coordinate):
+    def __init__(self, **kwargs: Unpack[IndexedInit]) -> None: ...
+
+    index: int = ...
+    renderer: GlyphRenderer[Glyph] = ...
+
+class NodeInit(CoordinateInit, total=False):
+    target: Model | ImplicitTarget
+    symbol: str
+    offset: int
+
 class Node(Coordinate):
+    def __init__(self, **kwargs: Unpack[NodeInit]) -> None: ...
 
     target: Model | ImplicitTarget = ...
-
     symbol: str = ...
-
     offset: int = ...
 
     canvas: ClassVar[BoxNodes] = ...
-
     plot: ClassVar[BoxNodes] = ...
-
     frame: ClassVar[BoxNodes] = ...
-
     parent: ClassVar[BoxNodes] = ...

@@ -6,21 +6,24 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import Unpack
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
 from ...core.property_aliases import Anchor
 from ..nodes import Coordinate, Node
-from .panes import Pane
+from .panes import Pane, PaneInit
 
-@dataclass
+class PanelInit(PaneInit, total=False):
+    position: Coordinate
+    anchor: Anchor
+    width: Auto | int | Node
+    height: Auto | int | Node
+
 class Panel(Pane):
+    def __init__(self, **kwargs: Unpack[PanelInit]) -> None: ...
 
     position: Coordinate = ...
-
     anchor: Anchor = ...
-
     width: Auto | int | Node = ...
-
     height: Auto | int | Node = ...

@@ -6,68 +6,86 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any, Sequence
+from abc import abstractmethod
+from typing import Any, Sequence, Unpack
 
 # Bokeh imports
 from ..core.enums import (
     JitterRandomDistributionType as JitterRandomDistribution,
     StepModeType as StepMode,
 )
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 from .ranges import Range
 from .sources import ColumnarDataSource
 
-@abstract
-@dataclass(init=False)
-class Transform(Model):
+class TransformInit(ModelInit, total=False):
     ...
 
-@dataclass
+class Transform(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[TransformInit]) -> None: ...
+
+class CustomJSTransformInit(TransformInit, total=False):
+    args: dict[str, Any]
+    func: str
+    v_func: str
+
 class CustomJSTransform(Transform):
+    def __init__(self, **kwargs: Unpack[CustomJSTransformInit]) -> None: ...
 
     args: dict[str, Any] = ...
-
     func: str = ...
-
     v_func: str = ...
 
-@dataclass
+class DodgeInit(TransformInit, total=False):
+    value: float
+    range: Range | None
+
 class Dodge(Transform):
+    def __init__(self, **kwargs: Unpack[DodgeInit]) -> None: ...
 
     value: float = ...
-
     range: Range | None = ...
 
-@dataclass
+class JitterInit(TransformInit, total=False):
+    mean: float
+    width: float
+    distribution: JitterRandomDistribution
+    range: Range | None
+
 class Jitter(Transform):
+    def __init__(self, **kwargs: Unpack[JitterInit]) -> None: ...
 
     mean: float = ...
-
     width: float = ...
-
     distribution: JitterRandomDistribution = ...
-
     range: Range | None = ...
 
-@abstract
-@dataclass(init=False)
+class InterpolatorInit(TransformInit, total=False):
+    x: str | Sequence[float] | None
+    y: str | Sequence[float] | None
+    data: ColumnarDataSource | None
+    clip: bool
+
 class Interpolator(Transform):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[InterpolatorInit]) -> None: ...
 
     x: str | Sequence[float] | None = ...
-
     y: str | Sequence[float] | None = ...
-
     data: ColumnarDataSource | None = ...
-
     clip: bool = ...
 
-@dataclass
-class LinearInterpolator(Interpolator):
+class LinearInterpolatorInit(InterpolatorInit, total=False):
     ...
 
-@dataclass
+class LinearInterpolator(Interpolator):
+    def __init__(self, **kwargs: Unpack[LinearInterpolatorInit]) -> None: ...
+
+class StepInterpolatorInit(InterpolatorInit, total=False):
+    mode: StepMode
+
 class StepInterpolator(Interpolator):
+    def __init__(self, **kwargs: Unpack[StepInterpolatorInit]) -> None: ...
 
     mode: StepMode = ...

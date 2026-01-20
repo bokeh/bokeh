@@ -6,33 +6,45 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
 from ..._types import Color, FontSize
 from ...core.enums import ToolIconType as ToolIcon
-from ...core.has_props import abstract
-from .ui_element import UIElement
+from .ui_element import UIElement, UIElementInit
 
-@abstract
-@dataclass(init=False)
+class IconInit(UIElementInit, total=False):
+    size: int | FontSize
+
 class Icon(UIElement):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[IconInit]) -> None: ...
 
     size: int | FontSize = ...
 
-@dataclass
+class BuiltinIconInit(IconInit, total=False):
+    icon_name: ToolIcon | str
+    color: Color
+
 class BuiltinIcon(Icon):
+    def __init__(self, **kwargs: Unpack[BuiltinIconInit]) -> None: ...
 
     icon_name: ToolIcon | str = ...
-
     color: Color = ...
 
-@dataclass
+class SVGIconInit(IconInit, total=False):
+    svg: str
+
 class SVGIcon(Icon):
+    def __init__(self, **kwargs: Unpack[SVGIconInit]) -> None: ...
 
     svg: str = ...
 
-@dataclass
+class TablerIconInit(IconInit, total=False):
+    icon_name: str
+
 class TablerIcon(Icon):
+    def __init__(self, **kwargs: Unpack[TablerIconInit]) -> None: ...
 
     icon_name: str = ...

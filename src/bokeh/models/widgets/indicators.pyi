@@ -6,36 +6,40 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Literal
+from abc import abstractmethod
+from typing import Literal, Unpack
 
 # Bokeh imports
 from ...core.enums import OrientationType as Orientation
-from ...core.has_props import abstract
-from .widget import Widget
+from .widget import Widget, WidgetInit
 
-@abstract
-@dataclass(init=False)
+class IndicatorInit(WidgetInit, total=False):
+    ...
+
 class Indicator(Widget):
-    pass
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[IndicatorInit]) -> None: ...
 
-@dataclass()
+class ProgressInit(IndicatorInit, total=False):
+    mode: Literal["determinate", "indeterminate"]
+    value: int
+    min: int
+    max: int
+    reversed: bool
+    orientation: Orientation
+    label: str | None
+    label_location: Literal["none", "inline"]
+    description: str | None
+
 class Progress(Indicator):
+    def __init__(self, **kwargs: Unpack[ProgressInit]) -> None: ...
 
     mode: Literal["determinate", "indeterminate"] = ...
-
     value: int = ...
-
     min: int = ...
-
     max: int = ...
-
     reversed: bool = ...
-
     orientation: Orientation = ...
-
     label: str | None = ...
-
     label_location: Literal["none", "inline"] = ...
-
     description: str | None = ...

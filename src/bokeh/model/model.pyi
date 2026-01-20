@@ -6,17 +6,19 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
 from inspect import Parameter
 from typing import (
     Any,
     Final,
     Iterable,
     Self,
+    TypedDict,
+    Unpack,
+    overload,
 )
 
 # Bokeh imports
-from ..core.has_props import HasProps, Setter, abstract
+from ..core.has_props import HasProps, Setter
 from ..core.property.validation import without_property_validation
 from ..core.query import SelectorType
 from ..core.serialization import ObjectRefRep, Ref, Serializer
@@ -35,27 +37,36 @@ from ..util.callback_manager import (
 )
 from .util import HasDocumentRef
 
-@abstract
-@dataclass(init=False)
-class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
+class ModelInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
-    def destroy(self) -> None: ...
+class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
 
     id: Final[ID] = ...
 
+    @overload
+    def __init__(self, **kwargs: Unpack[ModelInit]) -> None: ...
+    @overload
+    def __init__(self, id: ID | None = None) -> None: ...
+
+    @overload
+    def __new__(cls, **kwargs: Unpack[ModelInit]) -> Self: ...
+    @overload
+    def __new__(cls, id: ID | None = None) -> Self: ...
+
     name: str | None = ...
-
     tags: list[Any] = ...
-
     js_event_callbacks: dict[str, list[JSEventCallback]] = ...
-
     js_property_callbacks: dict[str, list[JSEventCallback]] = ...
-
     subscribed_events: set[str] = ...
-
     syncable: bool = ...
 
-    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self: ...
+    def destroy(self) -> None: ...
 
     @property
     def ref(self) -> Ref: ...

@@ -6,13 +6,15 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ...core.has_props import abstract
-from ..layouts import LayoutDOM
+from ..layouts import LayoutDOM, LayoutDOMInit
 
-@abstract
-@dataclass(init=False)
-class Widget(LayoutDOM):
+class WidgetInit(LayoutDOMInit, total=False):
     ...
+
+class Widget(LayoutDOM):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[WidgetInit]) -> None: ...

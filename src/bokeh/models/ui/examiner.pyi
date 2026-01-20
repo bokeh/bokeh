@@ -6,13 +6,16 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import Unpack
 
 # Bokeh imports
 from ...core.has_props import HasProps
-from .ui_element import UIElement
+from .ui_element import UIElement, UIElementInit
 
-@dataclass
+class ExaminerInit(UIElementInit, total=False):
+    target: HasProps | None
+
 class Examiner(UIElement):
+    def __init__(self, **kwargs: Unpack[ExaminerInit]) -> None: ...
 
     target: HasProps | None = ...

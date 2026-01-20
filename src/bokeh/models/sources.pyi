@@ -6,13 +6,14 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
     Sequence,
     TypeAlias,
+    Unpack,
     overload,
 )
 
@@ -25,8 +26,8 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from .._types import JSON
-from ..core.has_props import Setter, abstract
-from ..model import Model
+from ..core.has_props import Setter
+from ..model.model import Model, ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
@@ -39,32 +40,39 @@ Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
 Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
 
-@abstract
-@dataclass(init=False)
+class DataSourceInit(ModelInit, total=False):
+    selected: Selection
+
 class DataSource(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[DataSourceInit]) -> None: ...
 
     selected: Selection = ...
 
-@abstract
-@dataclass(init=False)
+class ColumnarDataSourceInit(DataSourceInit, total=False):
+    default_values: dict[str, Any]
+    selection_policy: SelectionPolicy
+
 class ColumnarDataSource(DataSource):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[ColumnarDataSourceInit]) -> None: ...
 
     default_values: dict[str, Any] = ...
-
     selection_policy: SelectionPolicy = ...
 
-@dataclass
+class ColumnDataSourceInit(ColumnarDataSourceInit, total=False):
+    data: DataDictLike
+
 class ColumnDataSource(ColumnarDataSource):
-
-    # TODO asymmetric get/set
-    data: DataDictLike = ...
-
     @overload
-    def __init__(self, data: DataDictLike, **kwargs: Any) -> None: ...
+    def __init__(self, **kwargs: Unpack[ColumnDataSourceInit]) -> None: ...
     @overload
-    def __init__(self, **kwargs: Any) -> None: ...
+    def __init__(self, data: DataDictLike, /, **kwargs: Unpack[ColumnDataSourceInit]) -> None: ...
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+    @property
+    def data(self) -> DataDict: ...
+    @data.setter
+    def data(self, data: DataDictLike) -> None: ...
 
     @property
     def column_names(self) -> list[str]: ...
@@ -88,41 +96,55 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-@dataclass
+class CDSViewInit(ModelInit, total=False):
+    filter: Filter
+
 class CDSView(Model):
+    def __init__(self, **kwargs: Unpack[CDSViewInit]) -> None: ...
 
     filter: Filter = ...
 
-@dataclass
+class GeoJSONDataSourceInit(ColumnarDataSourceInit, total=False):
+    geojson: JSON
+
 class GeoJSONDataSource(ColumnarDataSource):
+    def __init__(self, **kwargs: Unpack[GeoJSONDataSourceInit]) -> None: ...
 
     geojson: JSON = ...
 
-@abstract
-@dataclass(init=False)
+class WebDataSourceInit(ColumnDataSourceInit, total=False):
+    adapter: CustomJS | None
+    max_size: int | None
+    mode: Literal["replace", "append"]
+    data_url: str
+
 class WebDataSource(ColumnDataSource):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[WebDataSourceInit]) -> None: ...
 
     adapter: CustomJS | None = ...
-
     max_size: int | None = ...
-
     mode: Literal["replace", "append"] = ...
-
     data_url: str = ...
 
-@dataclass
-class ServerSentDataSource(WebDataSource):
+class ServerSentDataSourceInit(WebDataSourceInit, total=False):
     ...
 
-@dataclass
+class ServerSentDataSource(WebDataSource):
+    def __init__(self, **kwargs: Unpack[ServerSentDataSourceInit]) -> None: ...
+
+class AjaxDataSourceInit(WebDataSourceInit, total=False):
+    polling_interval: int | None
+    method: Literal["POST", "GET"]
+    if_modified: bool
+    content_type: str
+    http_headers: dict[str, str]
+
 class AjaxDataSource(WebDataSource):
+    def __init__(self, **kwargs: Unpack[AjaxDataSourceInit]) -> None: ...
 
     polling_interval: int | None = ...
-
     method: Literal["POST", "GET"] = ...
-
     if_modified: bool = ...
-
     content_type: str = ...
-
     http_headers: dict[str, str] = ...

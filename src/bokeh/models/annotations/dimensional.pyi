@@ -6,52 +6,71 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ...core.has_props import abstract
-from ...model import Model
+from ...model.model import Model, ModelInit
 
-@abstract
-@dataclass(init=False)
+class DimensionalInit(ModelInit, total=False):
+    ticks: list[float]
+    include: list[str] | None
+    exclude: list[str]
+
 class Dimensional(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[DimensionalInit]) -> None: ...
 
     ticks: list[float] = ...
-
     include: list[str] | None = ...
-
     exclude: list[str] = ...
 
     def is_known(self, unit: str) -> bool: ...
 
-@dataclass
+class CustomDimensionalInit(DimensionalInit, total=False):
+    basis: dict[str, tuple[float, str] | tuple[float, str, str]]
+
 class CustomDimensional(Dimensional):
+    def __init__(self, **kwargs: Unpack[CustomDimensionalInit]) -> None: ...
 
     basis: dict[str, tuple[float, str] | tuple[float, str, str]] = ...
 
-@dataclass
+class MetricInit(DimensionalInit, total=False):
+    base_unit: str
+    full_unit: str | None
+
 class Metric(Dimensional):
+    def __init__(self, **kwargs: Unpack[MetricInit]) -> None: ...
 
     base_unit: str = ...
-
     full_unit: str | None = ...
 
-@dataclass
+class ReciprocalMetricInit(MetricInit, total=False):
+    ...
+
 class ReciprocalMetric(Metric):
+    def __init__(self, **kwargs: Unpack[ReciprocalMetricInit]) -> None: ...
+
+class MetricLengthInit(MetricInit, total=False):
     ...
 
-@dataclass
 class MetricLength(Metric):
+    def __init__(self, **kwargs: Unpack[MetricLengthInit]) -> None: ...
+
+class ReciprocalMetricLengthInit(ReciprocalMetricInit, total=False):
     ...
 
-@dataclass
 class ReciprocalMetricLength(ReciprocalMetric):
+    def __init__(self, **kwargs: Unpack[ReciprocalMetricLengthInit]) -> None: ...
+
+class ImperialLengthInit(CustomDimensionalInit, total=False):
     ...
 
-@dataclass
 class ImperialLength(CustomDimensional):
+    def __init__(self, **kwargs: Unpack[ImperialLengthInit]) -> None: ...
+
+class AngularInit(CustomDimensionalInit, total=False):
     ...
 
-@dataclass
 class Angular(CustomDimensional):
-    ...
+    def __init__(self, **kwargs: Unpack[AngularInit]) -> None: ...

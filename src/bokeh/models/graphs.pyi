@@ -6,64 +6,87 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Sequence
+from abc import abstractmethod
+from typing import Sequence, Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
-from .expressions import CoordinateTransform
+from ..model.model import Model, ModelInit
+from .expressions import CoordinateTransform, CoordinateTransformInit
 
-@abstract
-@dataclass(init=False)
+class LayoutProviderInit(ModelInit, total=False):
+    ...
+
 class LayoutProvider(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[LayoutProviderInit]) -> None: ...
 
     @property
     def node_coordinates(self) -> NodeCoordinates: ...
-
     @property
     def edge_coordinates(self) -> EdgeCoordinates: ...
 
-@dataclass
+class StaticLayoutProviderInit(LayoutProviderInit, total=False):
+    graph_layout: dict[int | str, Sequence[float]]
+
 class StaticLayoutProvider(LayoutProvider):
+    def __init__(self, **kwargs: Unpack[StaticLayoutProviderInit]) -> None: ...
 
     graph_layout: dict[int | str, Sequence[float]] = ...
 
-@abstract
-@dataclass(init=False)
+class GraphCoordinatesInit(CoordinateTransformInit, total=False):
+    layout: LayoutProvider
+
 class GraphCoordinates(CoordinateTransform):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[GraphCoordinatesInit]) -> None: ...
 
     layout: LayoutProvider = ...
 
-@dataclass
+class NodeCoordinatesInit(GraphCoordinatesInit, total=False):
+    ...
+
 class NodeCoordinates(GraphCoordinates):
+    def __init__(self, **kwargs: Unpack[NodeCoordinatesInit]) -> None: ...
+
+class EdgeCoordinatesInit(GraphCoordinatesInit, total=False):
     ...
 
-@dataclass
 class EdgeCoordinates(GraphCoordinates):
+    def __init__(self, **kwargs: Unpack[EdgeCoordinatesInit]) -> None: ...
+
+class GraphHitTestPolicyInit(ModelInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
 class GraphHitTestPolicy(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[GraphHitTestPolicyInit]) -> None: ...
+
+class EdgesOnlyInit(GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class EdgesOnly(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[EdgesOnlyInit]) -> None: ...
+
+class NodesOnlyInit(GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class NodesOnly(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[NodesOnlyInit]) -> None: ...
+
+class NodesAndLinkedEdgesInit(GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class NodesAndLinkedEdges(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[NodesAndLinkedEdgesInit]) -> None: ...
+
+class EdgesAndLinkedNodesInit(GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class EdgesAndLinkedNodes(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[EdgesAndLinkedNodesInit]) -> None: ...
+
+class NodesAndAdjacentNodesInit(GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class NodesAndAdjacentNodes(GraphHitTestPolicy):
-    ...
+    def __init__(self, **kwargs: Unpack[NodesAndAdjacentNodesInit]) -> None: ...

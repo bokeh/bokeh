@@ -6,30 +6,39 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any
+from abc import abstractmethod
+from typing import Any, Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 
-@abstract
-@dataclass(init=False)
+class LabelingPolicyInit(ModelInit, total=False):
+    ...
+
 class LabelingPolicy(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[LabelingPolicyInit]) -> None: ...
+
+class AllLabelsInit(LabelingPolicyInit, total=False):
     ...
 
-@dataclass
 class AllLabels(LabelingPolicy):
-    ...
+    def __init__(self, **kwargs: Unpack[AllLabelsInit]) -> None: ...
 
-@dataclass
+class NoOverlapInit(LabelingPolicyInit, total=False):
+    min_distance: int
+
 class NoOverlap(LabelingPolicy):
+    def __init__(self, **kwargs: Unpack[NoOverlapInit]) -> None: ...
 
     min_distance: int = ...
 
-@dataclass
+class CustomLabelingPolicyInit(LabelingPolicyInit, total=False):
+    args: dict[str, Any]
+    code: str
+
 class CustomLabelingPolicy(LabelingPolicy):
+    def __init__(self, **kwargs: Unpack[CustomLabelingPolicyInit]) -> None: ...
 
     args: dict[str, Any] = ...
-
     code: str = ...

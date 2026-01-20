@@ -6,15 +6,18 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import Unpack
 
 # Bokeh imports
 from ..core.enums import OutputBackendType as OutputBackend
-from .ui import UIElement
+from .ui import UIElement, UIElementInit
 
-@dataclass
+class CanvasInit(UIElementInit, total=False):
+    hidpi: bool
+    output_backend: OutputBackend
+
 class Canvas(UIElement):
+    def __init__(self, **kwargs: Unpack[CanvasInit]) -> None: ...
 
     hidpi: bool = ...
-
     output_backend: OutputBackend = ...

@@ -7,18 +7,17 @@
 
 # Standard library imports
 from contextlib import contextmanager
-from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
     Generator,
     Sequence,
     TypeVar,
+    Unpack,
     overload,
 )
 
 # Bokeh imports
-from .._types import Readonly
 from ..core.enums import (
     LocationType as Location,
     OutputBackendType as OutputBackend,
@@ -29,11 +28,17 @@ from ..core.enums import (
 from ..core.property_aliases import LRTB
 from ..core.property_mixins import (
     ScalarBackgroundFillProps as BackgroundFill,
+    ScalarBackgroundFillPropsInit as BackgroundFillInit,
     ScalarBackgroundHatchProps as BackgroundHatch,
+    ScalarBackgroundHatchPropsInit as BackgroundHatchInit,
     ScalarBorderFillProps as BorderFill,
+    ScalarBorderFillPropsInit as BorderFillInit,
     ScalarBorderHatchProps as BorderHatch,
+    ScalarBorderHatchPropsInit as BorderHatchInit,
     ScalarBorderLineProps as BorderLine,
+    ScalarBorderLinePropsInit as BorderLineInit,
     ScalarOutlineLineProps as OutlineLine,
+    ScalarOutlineLinePropsInit as OutlineLineInit,
 )
 from ..model import Model
 from .annotations import Legend, Title
@@ -41,14 +46,19 @@ from .axes import Axis
 from .dom import HTML
 from .glyph import Glyph
 from .grids import Grid
-from .layouts import GridCommon, LayoutDOM
+from .layouts import (
+    GridCommon,
+    GridCommonInit,
+    LayoutDOM,
+    LayoutDOMInit,
+)
 from .ranges import Range
 from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale
 from .sources import ColumnarDataSource
 from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar
-from .ui import StyledElement
+from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
     import xyzservices
@@ -67,100 +77,109 @@ class LegendListAttrSplat(list[Legend], Legend):
 class HoverListAttrSplat(list[HoverTool], HoverTool):
     pass
 
-@dataclass
+class PlotInit(LayoutDOMInit, BackgroundFillInit, BackgroundHatchInit, BorderLineInit, BorderFillInit, BorderHatchInit, OutlineLineInit, total=False):
+    x_range: Range
+    y_range: Range
+    x_scale: Scale
+    y_scale: Scale
+    extra_x_ranges: dict[str, Range]
+    extra_y_ranges: dict[str, Range]
+    extra_x_scales: dict[str, Scale]
+    extra_y_scales: dict[str, Scale]
+    window_axis: WindowAxis
+    hidpi: bool
+    title: Title | str | None
+    title_location: Location | None
+    renderers: list[Renderer]
+    toolbar: Toolbar
+    toolbar_location: Location | None
+    toolbar_sticky: bool
+    toolbar_inner: bool
+    left: list[Renderer | StyledElement]
+    right: list[Renderer | StyledElement]
+    above: list[Renderer | StyledElement]
+    below: list[Renderer | StyledElement]
+    center: list[Renderer | StyledElement]
+    width: int | None
+    height: int | None
+    frame_width: int | None
+    frame_height: int | None
+    frame_align: bool | LRTB[bool]
+    min_border_top: int | None
+    min_border_bottom: int | None
+    min_border_left: int | None
+    min_border_right: int | None
+    min_border: int | None
+    lod_factor: int
+    lod_threshold: int | None
+    lod_interval: int
+    lod_timeout: int
+    output_backend: OutputBackend
+    match_aspect: bool
+    aspect_scale: float
+    reset_policy: ResetPolicy
+    hold_render: bool
+    attribution: list[HTML | str]
+
 class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, BorderHatch, OutlineLine):
+    def __init__(self, **kwargs: Unpack[PlotInit]) -> None: ...
 
     x_range: Range = ...
-
     y_range: Range = ...
-
     x_scale: Scale = ...
-
     y_scale: Scale = ...
-
     extra_x_ranges: dict[str, Range] = ...
-
     extra_y_ranges: dict[str, Range] = ...
-
     extra_x_scales: dict[str, Scale] = ...
-
     extra_y_scales: dict[str, Scale] = ...
-
     window_axis: WindowAxis = ...
-
     hidpi: bool = ...
 
-    title: Title | str | None = ...
+    @property
+    def title(self) -> Title | None: ...
+    @title.setter
+    def title(self, title: Title | str | None) -> None: ...
 
     title_location: Location | None = ...
-
     renderers: list[Renderer] = ...
-
     toolbar: Toolbar = ...
-
     toolbar_location: Location | None = ...
-
     toolbar_sticky: bool = ...
-
     toolbar_inner: bool = ...
-
     left: list[Renderer | StyledElement] = ...
-
     right: list[Renderer | StyledElement] = ...
-
     above: list[Renderer | StyledElement] = ...
-
     below: list[Renderer | StyledElement] = ...
-
     center: list[Renderer | StyledElement] = ...
-
     width: int | None = ...
-
     height: int | None = ...
-
     frame_width: int | None = ...
-
     frame_height: int | None = ...
-
     frame_align: bool | LRTB[bool] = ...
-
-    inner_width: Readonly[int] = ...
-
-    inner_height: Readonly[int] = ...
-
-    outer_width: Readonly[int] = ...
-
-    outer_height: Readonly[int] = ...
-
     min_border_top: int | None = ...
-
     min_border_bottom: int | None = ...
-
     min_border_left: int | None = ...
-
     min_border_right: int | None = ...
-
     min_border: int | None = ...
-
     lod_factor: int = ...
-
     lod_threshold: int | None = ...
-
     lod_interval: int = ...
-
     lod_timeout: int = ...
-
     output_backend: OutputBackend = ...
-
     match_aspect: bool = ...
-
     aspect_scale: float = ...
-
     reset_policy: ResetPolicy = ...
-
     hold_render: bool = ...
-
     attribution: list[HTML | str] = ...
+
+    @property
+    def inner_width(self) -> int: ...
+    @property
+    def inner_height(self) -> int: ...
+    @property
+    def outer_width(self) -> int: ...
+    @property
+    def outer_height(self) -> int: ...
 
     def select(self, *args: Any, **kwargs: Any) -> Sequence[Model]: ...
 
@@ -214,11 +233,14 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @contextmanager
     def hold(self, *, render: bool) -> Generator[None, None, None]: ...
 
-@dataclass
-class GridPlot(LayoutDOM, GridCommon):
+class GridPlotInit(GridCommonInit, LayoutDOMInit, total=False):
+    toolbar: Toolbar
+    toolbar_location: Location | None
+    children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]
+
+class GridPlot(GridCommon, LayoutDOM):
+    def __init__(self, **kwargs: Unpack[PlotInit]) -> None: ...
 
     toolbar: Toolbar = ...
-
     toolbar_location: Location | None = ...
-
     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]] = ...

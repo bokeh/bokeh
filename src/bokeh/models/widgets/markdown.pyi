@@ -6,14 +6,17 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import Unpack
 
 # Bokeh imports
-from .widget import Widget
+from .widget import Widget, WidgetInit
 
-@dataclass
+class MarkdownInit(WidgetInit, total=False):
+    text: str
+    disable_math: bool
+
 class Markdown(Widget):
+    def __init__(self, **kwargs: Unpack[MarkdownInit]) -> None: ...
 
     text: str = ...
-
     disable_math: bool = ...

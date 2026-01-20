@@ -6,13 +6,16 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import Unpack
 
 # Bokeh imports
 from ...tools import Toolbar
-from .html_annotation import HTMLAnnotation
+from .html_annotation import HTMLAnnotation, HTMLAnnotationInit
 
-@dataclass
+class ToolbarPanelInit(HTMLAnnotationInit, total=False):
+    toolbar: Toolbar
+
 class ToolbarPanel(HTMLAnnotation):
+    def __init__(self, **kwargs: Unpack[ToolbarPanelInit]) -> None: ...
 
     toolbar: Toolbar = ...

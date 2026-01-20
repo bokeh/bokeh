@@ -6,19 +6,22 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import Unpack
 
 # Bokeh imports
 from ..tiles import TileSource
-from .renderer import Renderer
+from .renderer import Renderer, RendererInit
 
-@dataclass
+class TileRendererInit(RendererInit, total=False):
+    tile_source: TileSource
+    alpha: float
+    smoothing: bool
+    render_parents: bool
+
 class TileRenderer(Renderer):
+    def __init__(self, **kwargs: Unpack[TileRendererInit]) -> None: ...
 
     tile_source: TileSource = ...
-
     alpha: float = ...
-
     smoothing: bool = ...
-
     render_parents: bool = ...

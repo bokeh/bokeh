@@ -6,29 +6,39 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ...core.has_props import abstract
-from .widget import Widget
+from .widget import Widget, WidgetInit
 
-@abstract
-@dataclass(init=False)
+class MarkupInit(WidgetInit, total=False):
+    text: str
+    disable_math: bool
+
 class Markup(Widget):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[MarkupInit]) -> None: ...
 
     text: str = ...
-
     disable_math: bool = ...
 
-@dataclass
-class Paragraph(Markup):
+class ParagraphInit(MarkupInit, total=False):
     ...
 
-@dataclass
+class Paragraph(Markup):
+    def __init__(self, **kwargs: Unpack[ParagraphInit]) -> None: ...
+
+class DivInit(MarkupInit, total=False):
+    render_as_text: bool
+
 class Div(Markup):
+    def __init__(self, **kwargs: Unpack[DivInit]) -> None: ...
 
     render_as_text: bool = ...
 
-@dataclass
-class PreText(Paragraph):
+class PreTextInit(ParagraphInit, total=False):
     ...
+
+class PreText(Paragraph):
+    def __init__(self, **kwargs: Unpack[PreTextInit]) -> None: ...

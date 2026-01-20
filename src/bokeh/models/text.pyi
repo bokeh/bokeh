@@ -6,38 +6,52 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 
-@abstract
-@dataclass(init=False)
+class BaseTextInit(ModelInit, total=False):
+    text: str
+
 class BaseText(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[BaseTextInit]) -> None: ...
 
     text: str = ...
 
-@abstract
-@dataclass(init=False)
+class MathTextInit(BaseTextInit, total=False):
+    ...
+
 class MathText(BaseText):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[MathTextInit]) -> None: ...
+
+class AsciiInit(MathTextInit, total=False):
     ...
 
-@dataclass
 class Ascii(MathText):
+    def __init__(self, **kwargs: Unpack[AsciiInit]) -> None: ...
+
+class MathMLInit(MathTextInit, total=False):
     ...
 
-@dataclass
 class MathML(MathText):
-    ...
+    def __init__(self, **kwargs: Unpack[MathMLInit]) -> None: ...
 
-@dataclass
+class TeXInit(MathTextInit, total=False):
+    macros: dict[str, str | tuple[str, int]]
+    inline: bool
+
 class TeX(MathText):
+    def __init__(self, **kwargs: Unpack[TeXInit]) -> None: ...
 
     macros: dict[str, str | tuple[str, int]] = ...
-
     inline: bool = ...
 
-@dataclass
-class PlainText(BaseText):
+class PlainTextInit(BaseTextInit, total=False):
     ...
+
+class PlainText(BaseText):
+    def __init__(self, **kwargs: Unpack[PlainTextInit]) -> None: ...

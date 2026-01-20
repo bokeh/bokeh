@@ -6,78 +6,104 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any, Sequence
+from abc import abstractmethod
+from typing import Any, Sequence, Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 
-@abstract
-@dataclass(init=False)
-class Filter(Model):
-
-    def __invert__(self) -> Filter: ...
-
-    def __and__(self, other: Filter) -> Filter: ...
-
-    def __or__(self, other: Filter) -> Filter: ...
-
-    def __sub__(self, other: Filter) -> Filter: ...
-
-    def __xor__(self, other: Filter) -> Filter: ...
-
-@dataclass
-class AllIndices(Filter):
+class FilterInit(ModelInit, total=False):
     ...
 
-@dataclass
+class Filter(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[FilterInit]) -> None: ...
+
+    def __invert__(self) -> Filter: ...
+    def __and__(self, other: Filter) -> Filter: ...
+    def __or__(self, other: Filter) -> Filter: ...
+    def __sub__(self, other: Filter) -> Filter: ...
+    def __xor__(self, other: Filter) -> Filter: ...
+
+class AllIndicesInit(FilterInit, total=False):
+    ...
+
+class AllIndices(Filter):
+    def __init__(self, **kwargs: Unpack[AllIndicesInit]) -> None: ...
+
+class InversionFilterInit(FilterInit, total=False):
+    operand: Filter
+
 class InversionFilter(Filter):
+    def __init__(self, **kwargs: Unpack[InversionFilterInit]) -> None: ...
 
     operand: Filter = ...
 
-@abstract
-@dataclass(init=False)
+class CompositeFilterInit(FilterInit, total=False):
+    operands: Sequence[Filter]
+
 class CompositeFilter(Filter):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[CompositeFilterInit]) -> None: ...
 
     operands: Sequence[Filter] = ...
 
-@dataclass
+class IntersectionFilterInit(CompositeFilterInit, total=False):
+    ...
+
 class IntersectionFilter(CompositeFilter):
+    def __init__(self, **kwargs: Unpack[IntersectionFilterInit]) -> None: ...
+
+class UnionFilterInit(CompositeFilterInit, total=False):
     ...
 
-@dataclass
 class UnionFilter(CompositeFilter):
+    def __init__(self, **kwargs: Unpack[UnionFilterInit]) -> None: ...
+
+class DifferenceFilterInit(CompositeFilterInit, total=False):
     ...
 
-@dataclass
 class DifferenceFilter(CompositeFilter):
+    def __init__(self, **kwargs: Unpack[DifferenceFilterInit]) -> None: ...
+
+class SymmetricDifferenceFilterInit(CompositeFilterInit, total=False):
     ...
 
-@dataclass
 class SymmetricDifferenceFilter(CompositeFilter):
-    ...
+    def __init__(self, **kwargs: Unpack[SymmetricDifferenceFilterInit]) -> None: ...
 
-@dataclass
+class IndexFilterInit(FilterInit, total=False):
+    indices: Sequence[int] | None
+
 class IndexFilter(Filter):
+    def __init__(self, **kwargs: Unpack[IndexFilterInit]) -> None: ...
 
     indices: Sequence[int] | None = ...
 
-@dataclass
+class BooleanFilterInit(FilterInit, total=False):
+    booleans: Sequence[bool] | None
+
 class BooleanFilter(Filter):
+    def __init__(self, **kwargs: Unpack[BooleanFilterInit]) -> None: ...
 
     booleans: Sequence[bool] | None = ...
 
-@dataclass
+class GroupFilterInit(FilterInit, total=False):
+    column_name: str
+    group: Any
+
 class GroupFilter(Filter):
+    def __init__(self, **kwargs: Unpack[GroupFilterInit]) -> None: ...
 
     column_name: str = ...
-
     group: Any = ...
 
-@dataclass
+class CustomJSFilterInit(FilterInit, total=False):
+    args: dict[str, Any]
+    code: str
+
 class CustomJSFilter(Filter):
+    def __init__(self, **kwargs: Unpack[CustomJSFilterInit]) -> None: ...
 
     args: dict[str, Any] = ...
-
     code: str = ...

@@ -6,26 +6,35 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
 from ..core.enums import TextureRepetitionType as TextureRepetition
-from ..core.has_props import abstract
 from ..core.property.visual import ImageType as Image
-from ..model import Model
+from ..model.model import Model, ModelInit
 
-@abstract
-@dataclass(init=False)
+class TextureInit(ModelInit, total=False):
+    repetition: TextureRepetition
+
 class Texture(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[TextureInit]) -> None: ...
 
     repetition: TextureRepetition = ...
 
-@dataclass
+class CanvasTextureInit(TextureInit, total=False):
+    code: str
+
 class CanvasTexture(Texture):
+    def __init__(self, **kwargs: Unpack[CanvasTextureInit]) -> None: ...
 
     code: str = ...
 
-@dataclass
+class ImageURLTextureInit(TextureInit, total=False):
+    url: Image
+
 class ImageURLTexture(Texture):
+    def __init__(self, **kwargs: Unpack[ImageURLTextureInit]) -> None: ...
 
     url: Image = ...

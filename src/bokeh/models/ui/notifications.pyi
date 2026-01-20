@@ -5,8 +5,14 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Unpack
+
 # Bokeh imports
-from bokeh.models import UIElement
+from bokeh.models import UIElement, UIElementInit
+
+class NotificationsInit(UIElementInit, total=False):
+    ...
 
 class Notifications(UIElement):
-    pass
+    def __init__(self, **kwargs: Unpack[NotificationsInit]) -> None: ...

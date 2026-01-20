@@ -6,12 +6,11 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Sequence, TypedDict
+from abc import abstractmethod
+from typing import Sequence, TypedDict, Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 
 class ImageIndex(TypedDict):
    index: int
@@ -19,26 +18,35 @@ class ImageIndex(TypedDict):
    j: int
    flat_index: int
 
-@dataclass
+class SelectionInit(ModelInit, total=False):
+    indices: Sequence[int]
+    line_indices: Sequence[int]
+    multiline_indices: dict[int, Sequence[int]]
+    image_indices: list[ImageIndex]
+
 class Selection(Model):
+    def __init__(self, **kwargs: Unpack[SelectionInit]) -> None: ...
 
     indices: Sequence[int] = ...
-
     line_indices: Sequence[int] = ...
-
     multiline_indices: dict[int, Sequence[int]] = ...
-
     image_indices: list[ImageIndex] = ...
 
-@abstract
-@dataclass(init=False)
+class SelectionPolicyInit(ModelInit, total=False):
+    ...
+
 class SelectionPolicy(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[SelectionPolicyInit]) -> None: ...
+
+class IntersectRenderersInit(SelectionPolicyInit, total=False):
     ...
 
-@dataclass
 class IntersectRenderers(SelectionPolicy):
+    def __init__(self, **kwargs: Unpack[IntersectRenderersInit]) -> None: ...
+
+class UnionRenderersInit(SelectionPolicyInit, total=False):
     ...
 
-@dataclass
 class UnionRenderers(SelectionPolicy):
-    ...
+    def __init__(self, **kwargs: Unpack[UnionRenderersInit]) -> None: ...

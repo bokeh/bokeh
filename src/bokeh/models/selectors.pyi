@@ -6,30 +6,41 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, ModelInit
 
-@abstract
-@dataclass(init=False)
+class SelectorInit(ModelInit, total=False):
+    query: str
+
 class Selector(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[SelectorInit]) -> None: ...
 
     query: str = ...
 
-@dataclass
+class ByIDInit(SelectorInit, total=False):
+    ...
+
 class ByID(Selector):
+    def __init__(self, **kwargs: Unpack[ByIDInit]) -> None: ...
+
+class ByClassInit(SelectorInit, total=False):
     ...
 
-@dataclass
 class ByClass(Selector):
+    def __init__(self, **kwargs: Unpack[ByClassInit]) -> None: ...
+
+class ByCSSInit(SelectorInit, total=False):
     ...
 
-@dataclass
 class ByCSS(Selector):
+    def __init__(self, **kwargs: Unpack[ByCSSInit]) -> None: ...
+
+class ByXPathInit(SelectorInit, total=False):
     ...
 
-@dataclass
 class ByXPath(Selector):
-    ...
+    def __init__(self, **kwargs: Unpack[ByXPathInit]) -> None: ...

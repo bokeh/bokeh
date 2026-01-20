@@ -6,13 +6,15 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ....core.has_props import abstract
-from ..annotation import Annotation
+from ..annotation import Annotation, AnnotationInit
 
-@abstract
-@dataclass(init=False)
-class HTMLAnnotation(Annotation):
+class HTMLAnnotationInit(AnnotationInit, total=False):
     ...
+
+class HTMLAnnotation(Annotation):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[HTMLAnnotationInit]) -> None: ...

@@ -6,50 +6,62 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Unpack
 
 # Bokeh imports
-from ...core.has_props import abstract
 from ...core.property_aliases import IconLikeType as IconLike
-from ...model import Model
+from ...model.model import Model, ModelInit
 from ..callbacks import Callback
-from .ui_element import UIElement
+from .ui_element import UIElement, UIElementInit
 
-@abstract
-@dataclass(init=False)
+class MenuItemInit(ModelInit, total=False):
+    checked: bool | None
+    icon: IconLike | None
+    label: str
+    shortcut: str | None
+    menu: Menu | None
+    tooltip: str | None
+    disabled: bool
+    action: Callback | None
+
 class MenuItem(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[MenuItemInit]) -> None: ...
 
     checked: bool | None = ...
-
     icon: IconLike | None = ...
-
     label: str = ...
-
     shortcut: str | None = ...
-
     menu: Menu | None = ...
-
     tooltip: str | None = ...
-
     disabled: bool = ...
-
     action: Callback | None = ...
 
-@dataclass
+class ActionItemInit(MenuItemInit, total=False):
+    ...
+
 class ActionItem(MenuItem):
+    def __init__(self, **kwargs: Unpack[ActionItemInit]) -> None: ...
+
+class CheckableItemInit(ActionItemInit, total=False):
     ...
 
-@dataclass
 class CheckableItem(ActionItem):
+    def __init__(self, **kwargs: Unpack[CheckableItemInit]) -> None: ...
+
+class DividerItemInit(ModelInit, total=False):
     ...
 
-@dataclass
 class DividerItem(Model):
-    ...
+    def __init__(self, **kwargs: Unpack[DividerItemInit]) -> None: ...
 
-@dataclass
+class MenuInit(UIElementInit, total=False):
+    items: list[MenuItem | DividerItem | None]
+    reversed: bool
+
 class Menu(UIElement):
+    def __init__(self, **kwargs: Unpack[MenuInit]) -> None: ...
 
     items: list[MenuItem | DividerItem | None] = ...
-
     reversed: bool = ...
