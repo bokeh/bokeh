@@ -1,4 +1,4 @@
-import {task} from "../task"
+import {task} from "../task.js"
 
 task("build", ["scripts:build", "compiler:build", "examples:build", "pack"])
 task("build:all", ["build", "test:build"])

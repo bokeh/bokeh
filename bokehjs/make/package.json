@@ -1,6 +1,10 @@
 {
   "name": "@bokeh/make",
   "version": "3.9.0-dev.8",
+  "type": "module",
+  "imports": {
+    "#compiler/*.js": "./_build/src/compiler/*.js"
+  },
   "private": true,
   "description": "Internal package for bokehjs' build system",
   "license": "BSD-3-Clause",
@@ -16,14 +20,14 @@
     "@types/node": "^22.7.4",
     "@types/which": "^3.0.3",
     "@types/yargs": "^17.0.32",
+    "@typescript/native-preview": "^7.0.0-dev.20260115.1",
     "acorn": "^8.12.1",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.0",
     "del": "^6.1.1",
+    "esbuild": "^0.27.2",
     "eslint": "^8.56.0",
     "semver": "^7.6.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^7.16.0",
     "which": "^3.0.1",

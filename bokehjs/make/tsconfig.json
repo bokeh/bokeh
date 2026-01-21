@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
     "lib": ["es2022"],
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
-      "@compiler/*": ["../src/compiler/*"]
-    }
+      "#compiler/*": ["../src/compiler/*"]
+    },
+    "outDir": "./_build"
   },
   "extends": "../tsconfig.base",
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["./_build"]
 }

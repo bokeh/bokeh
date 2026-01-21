@@ -4,9 +4,10 @@
     "jsxFactory": "_DOM.createSVGElement",
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": [],
-    "baseUrl": ".",
     "paths": {
-      "@bokehjs/*": ["../../build/js/lib/*"]
+      "@bokehjs/*": ["../../build/js/lib/*"],
+      "assertions": ["./assertions.ts"],
+      "_util": ["./_util.ts"]
     },
     "outDir": "../../build/test"
   },

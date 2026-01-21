@@ -1,20 +1,21 @@
-import type {ChildProcess} from "child_process"
-import {spawn} from "child_process"
-import {join, delimiter, basename, extname, dirname} from "path"
+import type {ChildProcess} from "node:child_process"
+import {spawn} from "node:child_process"
+import {join, delimiter, basename, extname, dirname} from "node:path"
+import fs from "node:fs"
+import os from "node:os"
+
 import chalk from "chalk"
 import which from "which"
-import fs from "fs"
-import os from "os"
 
-import {argv} from "../main"
-import {task, task2, success, passthrough, BuildError} from "../task"
-import * as paths from "../paths"
-import {platform, find_port, retry, terminate, keep_alive} from "./_util"
-import {start_server as start_js_server} from "./server"
+import {argv} from "../args.js"
+import {task, task2, success, passthrough, BuildError} from "../task.js"
+import * as paths from "../paths.js"
+import {platform, find_port, retry, terminate, keep_alive} from "./_util.js"
+import {start_server as start_js_server} from "./server.js"
 
-import {Linker} from "@compiler/linker"
-import * as preludes from "@compiler/prelude"
-import {compile_typescript} from "@compiler/compiler"
+import {Linker} from "#compiler/linker.js"
+import * as preludes from "#compiler/prelude.js"
+import {compile_typescript} from "#compiler/compiler.js"
 
 function node(files: string[]): Promise<void> {
   const env = {

@@ -1,6 +1,7 @@
 {
   "name": "@bokeh/test",
   "version": "3.9.0-dev.8",
+  "type": "module",
   "private": true,
   "description": "Internal package for bokehjs' testing framework and tests",
   "license": "BSD-3-Clause",
@@ -33,7 +34,6 @@
     "pngjs": "^7.0.0",
     "sinon": "^18.0.0",
     "source-map-support": "^0.5.21",
-    "ts-node": "^10.9.2",
     "yargs": "^17.7.2"
   }
 }

@@ -1,6 +1,7 @@
 {
   "name": "@bokeh/server",
   "version": "3.9.0-dev.8",
+  "type": "module",
   "private": true,
   "description": "Internal package for bokehjs' server",
   "license": "BSD-3-Clause",
@@ -13,8 +14,6 @@
     "@types/ws": "^8.5.10",
     "@types/yargs": "^17.0.32",
     "chalk": "^4.1.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "ws": "^8.18.0",
     "yargs": "^17.7.2"
   }

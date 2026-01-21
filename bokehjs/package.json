@@ -33,7 +33,7 @@
     "./test"
   ],
   "scripts": {
-    "prepare": "node ./prepare.js",
+    "prepare": "node ./prepare.mjs",
     "build": "node make build",
     "dev-build": "node make dev-build"
   },
@@ -47,6 +47,7 @@
     "@types/google.maps": "^3.55.5",
     "@types/nearley": "^2.11.5",
     "@types/proj4": "^2.5.5",
+    "@types/semver": "^7.7.1",
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
     "dompurify": "^3.3.0",

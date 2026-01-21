@@ -2,9 +2,9 @@
   "compilerOptions": {
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": [],
-    "baseUrl": ".",
     "paths": {
-      "@bokehjs/*": ["../../build/js/lib/*"]
+      "@bokehjs/*": ["../../build/js/lib/*"],
+      "*": ["./*"]
     },
     "outDir": "../../build/test"
   },

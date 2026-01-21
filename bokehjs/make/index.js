@@ -1,7 +1,7 @@
-const crypto = require("crypto")
-const cp = require("child_process")
-const fs = require("fs")
-const {join, dirname, basename} = require("path")
+import crypto from "node:crypto"
+import cp from "node:child_process"
+import fs from "node:fs"
+import {join, dirname, basename} from "node:path"
 
 function npm_install() {
   const is_windows = process.platform == "win32"
@@ -17,22 +17,8 @@ if (!fs.existsSync("node_modules/")) {
   npm_install()
 }
 
-const {engines, workspaces} = require("../package.json")
-
-const node_version = process.version
-const npm_version = cp.execSync("npm --version").toString().trim()
-
-const semver = require("semver")
-
-if (!semver.satisfies(node_version, engines.node)) {
-  console.log(`node ${engines.node} is required. Current version is ${node_version}.`)
-  process.exit(1)
-}
-
-if (!semver.satisfies(npm_version, engines.npm)) {
-  console.log(`npm ${engines.npm} is required. Current version is ${npm_version}.`)
-  process.exit(1)
-}
+import pkg_json from "../package.json" with {type: "json"}
+const {workspaces} = pkg_json
 
 function is_up_to_date(file) {
   const hash_file = join(dirname(file), `.${basename(file)}`)
@@ -60,24 +46,18 @@ for (const workspace of ["", ...workspaces]) {
   }
 }
 
-const {register} = require("ts-node")
-
 process.on("uncaughtException", function(err) {
   console.error(err)
   process.exit(1)
 })
 
-register({project: "./make/tsconfig.json", cache: false, logError: true})
-
-const tsconfig_paths = require("tsconfig-paths")
-
-tsconfig_paths.register({
-  baseUrl: __dirname,
-  paths: {
-    "@compiler/*": ["../src/compiler/*"],
-  },
-})
-
-if (require.main != null) {
-  require("./main")
+function compile() {
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  cp.spawnSync(npx, ["tsc", "--project", "./make/tsconfig.json"], {stdio: "inherit", shell: is_windows})
 }
+
+compile()
+
+const {main} = await import("./_build/make/main.js")
+void main(pkg_json)

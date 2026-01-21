@@ -1,6 +1,6 @@
 import chalk from "chalk"
 
-import {BuildError} from "@compiler/error"
+import {BuildError} from "#compiler/error.js"
 export {BuildError}
 
 function join(items: string[], sep0: string, sep1: string): string {

@@ -1,48 +1,31 @@
-import {join} from "path"
+import cp from "node:child_process"
+import {join} from "node:path"
 
-import {task, BuildError} from "../task"
-import {compile_typescript} from "@compiler/compiler"
-import {Linker} from "@compiler/linker"
-import * as preludes from "@compiler/prelude"
+import * as esbuild from "esbuild"
 
-import {argv} from "../main"
-import {src_dir, build_dir} from "../paths"
+import {task, BuildError, passthrough} from "../task.js"
+import {src_dir, build_dir} from "../paths.js"
 
 task("compiler:ts", async () => {
-  compile_typescript(join(src_dir.compiler, "tsconfig.json"))
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  const {status} = cp.spawnSync(npx, ["tsc", "--project", join(src_dir.compiler, "tsconfig.json")], {stdio: "inherit", shell: is_windows})
+  if (status !== 0) {
+    throw new BuildError("typescript", "compilation of *.ts and *.tsx files failed")
+  }
 })
 
-task("compiler:build", ["compiler:ts"], async () => {
+task("compiler:build", [passthrough("compiler:ts")], async () => {
   const entries = [join(build_dir.compiler, "main.js")]
-  const bases = [build_dir.compiler, "./node_modules"]
-  const externals = ["@microsoft/typescript-etw", "fsevents"]
-  const builtins = true
-  const minify = false
-  const es_modules = false
-  const apply_transforms = false
-  const cache = argv.cache ? join(build_dir.js, "compiler.json") : undefined
+  const outfile = join(build_dir.js, "compiler.js")
 
-  const linker = new Linker({entries, bases, externals, builtins, minify, es_modules, apply_transforms, cache})
-
-  if (!argv.rebuild) {
-    linker.load_cache()
-  }
-  const {bundles: [bundle], status} = await linker.link()
-  linker.store_cache()
-
-  const prelude = {
-    main: preludes.prelude(),
-    plugin: preludes.plugin_prelude(),
-  }
-
-  const postlude = {
-    main: preludes.postlude(),
-    plugin: preludes.plugin_postlude(),
-  }
-
-  bundle.assemble({prelude, postlude}).write(join(build_dir.js, "compiler.js"))
-
-  if (!status) {
-    throw new BuildError("compiler:build", "unable to bundle modules")
-  }
+  await esbuild.build({
+    entryPoints: entries,
+    outfile,
+    platform: "node",
+    bundle: true,
+    minify: true,
+    treeShaking: true,
+    sourcemap: true,
+  })
 })

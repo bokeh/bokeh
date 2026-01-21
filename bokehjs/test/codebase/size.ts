@@ -1,8 +1,9 @@
-import fs from "fs"
-import {join, normalize} from "path"
+import fs from "node:fs"
+import {join, normalize} from "node:path"
+
 import chalk from "chalk"
 
-const build_dir = normalize(`${__dirname}/../..`) // build/test/codebase -> build
+const build_dir = normalize(`${import.meta.dirname}/../..`) // build/test/codebase -> build
 
 const LIMITS = new Map([
   // es2020

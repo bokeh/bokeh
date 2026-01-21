@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "lib": ["es2022"],
-    "baseUrl": ".",
+    "lib": ["es2022", "dom", "dom.iterable"],
     "outDir": "../../build/server",
     "paths": {
       "core/*": ["../../build/js/lib/core/*"]
     }
   },
   "extends": "../../tsconfig.base",
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["./_build"]
 }

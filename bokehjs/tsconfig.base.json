@@ -29,6 +29,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "esnext"
   }
 }
