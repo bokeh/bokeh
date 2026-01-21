@@ -1,0 +1,6 @@
+Tabs bbox=[0, 0, 335, 400]
+  Figure bbox=[136, 0, 200, 200]
+    Canvas bbox=[0, 0, 200, 200]
+    CartesianFrame bbox=[29, 5, 166, 173]
+    GlyphRenderer bbox=[37, 13, 150, 157]
+      Scatter bbox=[37, 13, 150, 157]
