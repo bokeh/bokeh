@@ -476,14 +476,14 @@ export class GlyphRendererView extends DataRendererView {
     ctx.restore()
   }
 
-  get_reference_point(field: string | null, value?: unknown): number {
+  get_reference_point(field: string | null, value?: unknown): number | null {
     if (field != null) {
       const array = this.model.data_source.get_column(field)
       if (array != null) {
-        return this.model.view.get_reference(array, value)
+        return this.model.view.get_reference_point(array, value)
       }
     }
-    return 0
+    return null
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
@@ -492,13 +492,20 @@ export class GlyphRendererView extends DataRendererView {
     }
     const subset_index = (() => {
       if (index == null) {
-        return this.get_reference_point(field, label)
+        const ref_point = this.get_reference_point(field, label)
+        if (ref_point == null) {
+          // fallback to first index
+          return 0
+        }
+        return ref_point
       } else {
         const {indices_map} = this.model.view
-        return indices_map[index]
+        return indices_map[index] as number | undefined
       }
     })()
-    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    if (subset_index != null && subset_index >= 0) {
+      this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    }
   }
 
   hit_test(geometry: Geometry): HitTestResult {

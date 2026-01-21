@@ -152,7 +152,7 @@ export class CDSView extends Model {
     return indices.map((i) => this._indices[i])
   }
 
-  get_reference(array: Arrayable, value?: unknown): number {
+  get_reference_point(array: Arrayable, value?: unknown): number | null {
     const {_indices, indices_map} = this
     const n = _indices.length
     for (let i = 0; i < n; i++) {
@@ -160,7 +160,7 @@ export class CDSView extends Model {
         return indices_map[_indices[i]]
       }
     }
-    return 0
+    return null
   }
 
   /** @deprecated */
