@@ -4782,7 +4782,7 @@ describe("Bug", () => {
       const tab_panels = []
       for (let i = 0; i < 20; i++) {
         const p = fig([200, 200])
-        p.circle([1, 2, 3, 4, 5], [i+1, i+2, i+3, i+4, i+5], {radius: 0.2, color: "navy", alpha: 0.5})
+        p.circle([1, 2, 3, 4, 5], [i+1, i+2, i+3, i+4, i+5], 5, {color: "navy", alpha: 0.5})
         tab_panels.push(new TabPanel({child: p, title: `Tab ${i + 1}`}))
       }
 
@@ -4814,7 +4814,7 @@ describe("Bug", () => {
       }
 
       const tabs = new Tabs({tabs: tab_panels, height: 400, tabs_location: "left"})
-      await display(tabs, [335, 400])
+      const {view} = await display(tabs, [335, 400])
 
       const headers_wrapper = (view as any).headers_wrapper_el
       expect(headers_wrapper).to.be.instanceof(HTMLElement)
