@@ -9,12 +9,10 @@
 from inspect import Parameter
 from typing import (
     Any,
-    Final,
     Iterable,
     Self,
     TypedDict,
     Unpack,
-    overload,
 )
 
 # Bokeh imports
@@ -47,17 +45,15 @@ class ModelInit(TypedDict, total=False):
 
 class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
 
-    id: Final[ID] = ...
+    # TODO Final[ID]
+    id: ID = ...
 
-    @overload
     def __init__(self, **kwargs: Unpack[ModelInit]) -> None: ...
-    @overload
-    def __init__(self, id: ID | None = None) -> None: ...
 
-    @overload
-    def __new__(cls, **kwargs: Unpack[ModelInit]) -> Self: ...
-    @overload
-    def __new__(cls, id: ID | None = None) -> Self: ...
+    # Don't override __new__, because then you will have to overload it every time
+    # you overload __init__ with a custom signature (in e.g. ranges or figure).
+    @classmethod
+    def _new(cls, id: ID) -> Self | None: ...
 
     name: str | None = ...
     tags: list[Any] = ...

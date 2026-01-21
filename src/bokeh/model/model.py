@@ -100,6 +100,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
+    @classmethod
+    def _new(cls, id: ID) -> Self:
+        return cls.__new__(cls, id=id)
+
     def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self:
         obj = super().__new__(cls)
 
