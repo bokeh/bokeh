@@ -69,6 +69,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return this.constructor.__qualified__
   }
 
+  get is_root(): boolean {
+    return this.document?.roots().includes(this) ?? false
+  }
+
   static __name__: string
   static __module__?: string
 

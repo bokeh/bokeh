@@ -1,32 +1,47 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {ButtonClick, MenuItemClick} from "core/bokeh_events"
 import type {StyleSheetLike} from "core/dom"
-import {div, display, undisplay, empty} from "core/dom"
+import {div} from "core/dom"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import * as buttons from "styles/buttons.css"
-import dropdown_css, * as dropdown from "styles/dropdown.css"
+import dropdown_css from "styles/dropdown.css"
 import chevrons_css, * as chevrons from "styles/chevron.css"
 import icons_css from "styles/icons.css"
+import {DividerItem, Menu, MenuItem} from "../ui/menus"
+import type {MenuView} from "../ui/menus/menu"
+import {build_view} from "core/build_views"
 
 export class DropdownView extends AbstractButtonView {
   declare model: Dropdown
 
   protected _open: boolean = false
-  protected menu_el: HTMLElement
-  protected _active: number
+  protected menu: MenuView
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), dropdown_css, icons_css, chevrons_css]
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    await this._build_menu()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {menu} = this.model.properties
-    this.on_change(menu, () => this.rebuild_menu())
+    this.on_change(menu, async () => {
+      const menu_open = this.menu.is_open
+      await this._build_menu()
+      this.rerender()
+      if (menu_open) {
+        this._toggle_menu()
+      }
+    })
   }
 
   override render(): void {
@@ -36,17 +51,14 @@ export class DropdownView extends AbstractButtonView {
 
     if (!this.model.is_split) {
       this.button_el.append(chevron)
+      this.button_el.addEventListener("blur", () => this._hide_menu())
     } else {
       const toggle = this._render_button(chevron)
       toggle.classList.add(buttons.dropdown_toggle)
       toggle.addEventListener("click", () => this._toggle_menu())
+      toggle.addEventListener("blur", () => this._hide_menu())
       this.group_el.append(toggle)
     }
-
-    this.menu_el = div({class: [dropdown.menu, dropdown.below]})
-    this.shadow_el.append(this.menu_el)
-    this.rebuild_menu()
-    undisplay(this.menu_el)
   }
 
   protected _update_chevron(new_chevron: HTMLElement): void {
@@ -64,45 +76,34 @@ export class DropdownView extends AbstractButtonView {
       const toggle = this._render_button(new_chevron)
       toggle.classList.add(buttons.dropdown_toggle)
       toggle.addEventListener("click", () => this._toggle_menu())
+      toggle.addEventListener("blur", () => this._hide_menu())
       this.group_el.append(toggle)
     }
   }
 
-  protected _show_menu(): void {
-    if (!this._open) {
-      this._open = true
-      display(this.menu_el)
-      const first_menu_item = this.menu_el.firstElementChild as HTMLElement
-      first_menu_item.focus()
-
-      const new_chevron = div({class: [chevrons.chevron, chevrons.up]})
-      this._update_chevron(new_chevron)
-
-      const listener = (event: MouseEvent) => {
-        if (!event.composedPath().includes(this.el)) {
-          document.removeEventListener("click", listener)
-          this._hide_menu()
-        }
-      }
-      document.addEventListener("click", listener)
-    }
-  }
-
-  protected _hide_menu(): void {
-    if (this._open) {
-      this._open = false
-      const new_chevron = div({class: [chevrons.chevron, chevrons.down]})
-      this._update_chevron(new_chevron)
-      undisplay(this.menu_el)
-    }
+  protected async _build_menu(): Promise<void> {
+    const menu_with_items = this.to_menu()
+    this.menu = await build_view(menu_with_items, {parent: this})
   }
 
   protected _toggle_menu(): void {
-    if (this._open) {
-      this._hide_menu()
-    } else {
+    if (!this.menu.is_open) {
       this._show_menu()
+    } else {
+      this._hide_menu()
     }
+  }
+
+  protected _show_menu(): void {
+    const new_chevron = div({class: [chevrons.chevron, chevrons.up]})
+    this._update_chevron(new_chevron)
+    this.menu.show({x: 0, y: this.button_el.offsetHeight})
+  }
+
+  protected _hide_menu(): void {
+    const new_chevron = div({class: [chevrons.chevron, chevrons.down]})
+    this._update_chevron(new_chevron)
+    this.menu.hide()
   }
 
   override click(): void {
@@ -121,39 +122,29 @@ export class DropdownView extends AbstractButtonView {
     const item = this.model.menu[i]
     if (item != null) {
       const value_or_callback = isString(item) ? item : item[1]
-      this._active = i
+
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick(value_or_callback))
       } else {
         void execute(value_or_callback, this.model, {index: i})
       }
-      this.rebuild_menu()
     }
   }
 
-  rebuild_menu(): void {
-    empty(this.menu_el)
-
+  to_menu(): Menu {
     const items = this.model.menu.map((item, i) => {
       if (item == null) {
-        return div({class: dropdown.divider})
+        return new DividerItem()
       } else {
         const label = isString(item) ? item : item[0]
-        let el = div({tabIndex: 0}, label)
-        if (this._active === i) {
-          el = div({class: [dropdown.active], tabIndex: 0}, label)
-        }
-        el.addEventListener("click", () => this._item_click(i))
-        el.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.keyCode === 13) {
-            event.preventDefault()
-            this._item_click(i)
-          }
+        const menu_item = new MenuItem({
+          label,
+          action: () => { this._item_click(i) },
         })
-        return el
+        return menu_item
       }
     })
-    this.menu_el.append(...items)
+    return new Menu({items})
   }
 }
 

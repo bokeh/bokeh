@@ -38,6 +38,7 @@ from bokeh.core.serialization import (
     MapRep,
     ObjectRefRep,
     Ref,
+    Serialized,
     UnknownReferenceError,
 )
 from bokeh.core.types import ID
@@ -732,7 +733,8 @@ class TestDocument:
         #doc.add_root(obj3)
 
         json = doc.to_json()
-        assert json["defs"] == [
+        assert isinstance(json, Serialized)
+        assert json.content["defs"] == [
             ModelDef(
                 type="model",
                 name="test_document.SomeDataModel",
@@ -796,8 +798,8 @@ class TestDocument:
     def test_serialization_has_version(self) -> None:
         from bokeh import __version__
         d = document.Document()
-        json = d.to_json()
-        assert json['version'] == __version__
+        json = d.to_json().content
+        assert json["version"] == __version__
 
     def test_patch_integer_property(self) -> None:
         d = document.Document()

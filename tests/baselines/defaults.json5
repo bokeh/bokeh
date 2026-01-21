@@ -7672,6 +7672,11 @@
     active: false,
     label: "",
   },
+  Markdown: {
+    __extends__: "Widget",
+    text: "",
+    disable_math: false,
+  },
   Div: {
     __extends__: "Markup",
     render_as_text: false,

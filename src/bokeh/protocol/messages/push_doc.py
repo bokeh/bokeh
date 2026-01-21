@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, TypedDict
 
 # Bokeh imports
+from ...core.serialization import Serialized
 from ..exceptions import ProtocolError
 from ..message import Message
 
@@ -68,9 +69,13 @@ class push_doc(Message[PushDoc]):
 
         '''
         header = cls.create_header()
-        content = PushDoc(doc=document.to_json())
+
+        serialized = document.to_json()
+        content = PushDoc(doc=serialized.content)
 
         msg = cls(header, metadata, content)
+        msg.add_buffers(*serialized.buffers)
+
         return msg
 
     def push_to_document(self, doc: Document) -> None:
@@ -80,9 +85,10 @@ class push_doc(Message[PushDoc]):
             ProtocolError
 
         '''
-        if 'doc' not in self.content:
+        if "doc" not in self.content:
             raise ProtocolError("No doc in PUSH-DOC")
-        doc.replace_with_json(self.content['doc'])
+        doc_json = Serialized(self.content["doc"], self.buffers)
+        doc.replace_with_json(doc_json)
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "3.9.0-dev.7",
+  "version": "3.9.0-dev.8",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -33,27 +33,32 @@
     "./test"
   ],
   "scripts": {
-    "prepare": "node ./prepare.js",
+    "prepare": "node ./prepare.mjs",
     "build": "node make build",
     "dev-build": "node make dev-build"
   },
   "main": "build/js/lib/bokeh.js",
   "types": "build/js/lib/bokeh.d.ts",
   "dependencies": {
-    "@types/nearley": "^2.11.5",
     "@bokeh/numbro": "^1.6.2",
     "@bokeh/slickgrid": "~2.4.4103",
+    "@preact/signals": "^2.5.1",
     "@types/geojson": "^7946.0.13",
     "@types/google.maps": "^3.55.5",
+    "@types/nearley": "^2.11.5",
     "@types/proj4": "^2.5.5",
+    "@types/semver": "^7.7.1",
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
+    "dompurify": "^3.3.0",
     "fflate": "^0.8.2",
     "flatbush": "^4.5.0",
     "flatpickr": "^4.6.13",
+    "marked": "^17.0.1",
     "mathjax-full": "^3.2.2",
     "nearley": "^2.20.1",
     "nouislider": "^15.7.1",
+    "preact": "^10.28.0",
     "proj4": "^2.11.0",
     "regl": "^2.1.0",
     "sprintf-js": "^1.1.3",

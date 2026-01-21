@@ -124,7 +124,7 @@ export class CDSView extends Model {
   private _indices: number[]
 
   _indices_map_to_subset(): void {
-    this._indices = [...this.indices]
+    this._indices = this.indices.ones()
     this.indices_map = new Map()
 
     const {_indices, indices_map} = this

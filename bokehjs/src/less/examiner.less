@@ -1,3 +1,5 @@
+@import "./_mixins.less";
+
 :host {
   --common-padding: 3px;
 
@@ -7,6 +9,10 @@
   --panel-border-color: var(--border-color);
   --muted-bg-color: #f1f3f4;
   --muted-color: #5f6368;
+
+  --btn-size: 16px;
+  --btn-color: var(--shortcut-color);
+
 }
 
 .ref {
@@ -94,13 +100,13 @@
 
 .watches-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr max-content;
   column-gap: 1em;
   padding: var(--common-padding);
 }
 
 .nothing {
-  grid-column: 1 / span 2;
+  grid-column: 1 / span 3;
   font-style: italic;
   text-align: center;
 }
@@ -161,18 +167,26 @@
     </svg>');
 }
 
-.expander/*.open*/ {
+.expander {
   width: 6px;
   height: 6px;
   mask-image: var(--open-image);
   -webkit-mask-image: var(--open-image);
 }
 
-.expander.closed {
-  width: 6px;
-  height: 6px;
-  mask-image: var(--closed-image);
-  -webkit-mask-image: var(--closed-image);
+.branch {
+  display: contents;
+}
+
+.branch.collapsed {
+  > .prop {
+    display: none;
+  }
+
+  .expander {
+    mask-image: var(--closed-image);
+    -webkit-mask-image: var(--closed-image);
+  }
 }
 
 .base {
@@ -203,5 +217,58 @@
 .prop-attr {
   &:focus-visible {
     outline: var(--common-outline);
+  }
+}
+
+.prop-value {
+  gap: 1em;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+// { TODO use this instead of el.animate()
+.value.animated {
+  animation-name: highlight;
+  animation-duration: 2s;
+  animation-iteration-count: 1;
+  animation-timing-function: ease;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: #def189;
+  }
+  100% {
+    background-color: initial;
+  }
+}
+// }
+
+.btn {
+  width: var(--btn-size);
+  height: var(--btn-size);
+
+  cursor: pointer;
+
+  background-color: var(--btn-color);
+  &:hover {
+    background-color: red;
+  }
+}
+
+.btn-delete {
+  .icon-mask(var(--bokeh-icon-trash));
+}
+
+.btn-edit {
+  .icon-mask(var(--bokeh-icon-pencil));
+  visibility: hidden;
+}
+
+.prop-value:hover {
+  .btn-edit {
+    visibility: visible;
   }
 }

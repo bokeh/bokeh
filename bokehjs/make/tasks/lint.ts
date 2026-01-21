@@ -1,20 +1,31 @@
-import {join, normalize} from "path"
+import {join, normalize} from "node:path"
 
 import {ESLint} from "eslint"
 import chalk from "chalk"
 
-import {argv} from "../main"
-import {task, log, BuildError} from "../task"
-import * as paths from "../paths"
+import {argv} from "../args.js"
+import {task, log, BuildError} from "../task.js"
+import * as paths from "../paths.js"
 
-import {glob} from "@compiler/sys"
+import {glob} from "#compiler/sys.js"
 
 async function eslint(dir: string): Promise<void> {
   const {fix} = argv
   const eslint = new ESLint({cache: true, fix})
 
-  const {include} = (await import(join(dir, "tsconfig.json"))) as {include: string[]}
-  const files = glob(...include.map((pat) => normalize(join(dir, pat))))
+  const tsconfig_url = `file://${join(dir, "tsconfig.json")}`
+  const {default: tsconfig_json} = await import(tsconfig_url, {with: {type: "json"}})
+  const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
+
+  const included_files = new Set(glob(...(tsconfig.include ?? []).map((pat) => normalize(join(dir, pat)))))
+  const excluded_files = new Set(glob(...(tsconfig.exclude ?? []).map((pat) => normalize(join(dir, pat)))))
+
+  const files = []
+  for (const file of included_files) {
+    if (!excluded_files.has(file)) {
+      files.push(file)
+    }
+  }
 
   const results = await eslint.lintFiles(files)
 
