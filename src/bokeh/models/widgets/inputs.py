@@ -77,6 +77,7 @@ __all__ = (
     'Switch',
     'TextAreaInput',
     'TextInput',
+    'ThemeSwitch',
     'ColorMap',
 )
 
@@ -334,6 +335,13 @@ class Switch(ToggleInput):
 
     off_icon = Nullable(IconLike, default=None, help="""
     """)
+
+class ThemeSwitch(Switch):
+    """ A switch widget to change between themes (light and dark). """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.

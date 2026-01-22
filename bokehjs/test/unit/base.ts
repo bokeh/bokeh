@@ -367,6 +367,7 @@ describe("default model resolver", () => {
       "TextEditor",
       "TextInput",
       "Texture",
+      "ThemeSwitch",
       "TickFormatter",
       "Ticker",
       "TileRenderer",
