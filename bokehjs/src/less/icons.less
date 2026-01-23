@@ -1,212 +1,81 @@
 @import "./_mixins.less";
 
-.bk-tool-icon-copy             { .mask-image(var(--bokeh-icon-copy)); }
-.bk-tool-icon-open             { .mask-image(var(--bokeh-icon-open)); }
-.bk-tool-icon-replace-mode     { .mask-image(var(--bokeh-icon-replace-mode)); }
-.bk-tool-icon-toggle-mode      { .mask-image(var(--bokeh-icon-toggle-mode)); }
-.bk-tool-icon-append-mode      { .mask-image(var(--bokeh-icon-append-mode)); }
-.bk-tool-icon-intersect-mode   { .mask-image(var(--bokeh-icon-intersect-mode)); }
-.bk-tool-icon-subtract-mode    { .mask-image(var(--bokeh-icon-subtract-mode)); }
-.bk-tool-icon-xor-mode         { .mask-image(var(--bokeh-icon-xor-mode)); }
-.bk-tool-icon-invert-selection { .mask-image(var(--bokeh-icon-invert-selection)); }
-.bk-tool-icon-clear-selection  { .mask-image(var(--bokeh-icon-clear-selection)); }
-.bk-tool-icon-box-select       { .mask-image(var(--bokeh-icon-box-select)); }
-.bk-tool-icon-x-box-select     { .mask-image(var(--bokeh-icon-x-box-select)); }
-.bk-tool-icon-y-box-select     { .mask-image(var(--bokeh-icon-y-box-select)); }
-.bk-tool-icon-box-zoom         { .mask-image(var(--bokeh-icon-box-zoom)); }
-.bk-tool-icon-x-box-zoom       { .mask-image(var(--bokeh-icon-x-box-zoom)); }
-.bk-tool-icon-y-box-zoom       { .mask-image(var(--bokeh-icon-y-box-zoom)); }
-.bk-tool-icon-auto-box-zoom    { .mask-image(var(--bokeh-icon-auto-box-zoom)); }
-.bk-tool-icon-zoom-in          { .mask-image(var(--bokeh-icon-zoom-in)); }
-.bk-tool-icon-zoom-out         { .mask-image(var(--bokeh-icon-zoom-out)); }
-.bk-tool-icon-help             { .mask-image(var(--bokeh-icon-help)); }
-.bk-tool-icon-hover            { .mask-image(var(--bokeh-icon-hover)); }
-.bk-tool-icon-crosshair        { .mask-image(var(--bokeh-icon-crosshair)); }
-.bk-tool-icon-lasso-select     { .mask-image(var(--bokeh-icon-lasso-select)); }
-.bk-tool-icon-pan              { .mask-image(var(--bokeh-icon-pan)); }
-.bk-tool-icon-x-pan            { .mask-image(var(--bokeh-icon-x-pan)); }
-.bk-tool-icon-y-pan            { .mask-image(var(--bokeh-icon-y-pan)); }
-.bk-tool-icon-pan-left         { .mask-image(var(--bokeh-icon-pan-left)); }
-.bk-tool-icon-pan-right        { .mask-image(var(--bokeh-icon-pan-right)); }
-.bk-tool-icon-pan-up           { .mask-image(var(--bokeh-icon-pan-up)); }
-.bk-tool-icon-pan-down         { .mask-image(var(--bokeh-icon-pan-down)); }
-.bk-tool-icon-range            { .mask-image(var(--bokeh-icon-range)); }
-.bk-tool-icon-polygon-select   { .mask-image(var(--bokeh-icon-polygon-select)); }
-.bk-tool-icon-redo             { .mask-image(var(--bokeh-icon-redo)); }
-.bk-tool-icon-reset            { .mask-image(var(--bokeh-icon-reset)); }
-.bk-tool-icon-save             { .mask-image(var(--bokeh-icon-save)); }
-.bk-tool-icon-tap-select       { .mask-image(var(--bokeh-icon-tap-select)); }
-.bk-tool-icon-undo             { .mask-image(var(--bokeh-icon-undo)); }
-.bk-tool-icon-wheel-pan        { .mask-image(var(--bokeh-icon-wheel-pan)); }
-.bk-tool-icon-wheel-zoom       { .mask-image(var(--bokeh-icon-wheel-zoom)); }
-.bk-tool-icon-box-edit         { .mask-image(var(--bokeh-icon-box-edit)); }
-.bk-tool-icon-freehand-draw    { .mask-image(var(--bokeh-icon-freehand-draw)); }
-.bk-tool-icon-poly-draw        { .mask-image(var(--bokeh-icon-poly-draw)); }
-.bk-tool-icon-point-draw       { .mask-image(var(--bokeh-icon-point-draw)); }
-.bk-tool-icon-poly-edit        { .mask-image(var(--bokeh-icon-poly-edit)); }
-.bk-tool-icon-line-edit        { .mask-image(var(--bokeh-icon-line-edit)); }
-.bk-tool-icon-settings         { .mask-image(var(--bokeh-icon-settings)); }
-.bk-tool-icon-unknown          { .mask-image(var(--bokeh-icon-unknown)); }
-.bk-tool-icon-fullscreen       { .mask-image(var(--bokeh-icon-fullscreen)); }
-
-.bk-tool-icon-chevron-up    { .mask-image(var(--bokeh-icon-chevron-up)); }
-.bk-tool-icon-chevron-down  { .mask-image(var(--bokeh-icon-chevron-down)); }
-.bk-tool-icon-chevron-left  { .mask-image(var(--bokeh-icon-chevron-left)); }
-.bk-tool-icon-chevron-right { .mask-image(var(--bokeh-icon-chevron-right)); }
-
-.bk-tool-icon-caret-up    { .mask-image(var(--bokeh-icon-caret-up)); }
-.bk-tool-icon-caret-down  { .mask-image(var(--bokeh-icon-caret-down)); }
-.bk-tool-icon-caret-left  { .mask-image(var(--bokeh-icon-caret-left)); }
-.bk-tool-icon-caret-right { .mask-image(var(--bokeh-icon-caret-right)); }
-
-.bk-tool-icon-see-on  { .mask-image(var(--bokeh-icon-see-on)); }
-.bk-tool-icon-see-off { .mask-image(var(--bokeh-icon-see-off)); }
-
-.bk-tool-icon-x-grip { .mask-image(var(--bokeh-icon-x-grip)); }
-.bk-tool-icon-y-grip { .mask-image(var(--bokeh-icon-y-grip)); }
-
+.bk-tool-icon-append-mode       { .mask-image(var(--bokeh-icon-append-mode)); }
 .bk-tool-icon-arrow-down-to-bar { .mask-image(var(--bokeh-icon-arrow-down-to-bar)); }
 .bk-tool-icon-arrow-up-from-bar { .mask-image(var(--bokeh-icon-arrow-up-from-bar)); }
-
-.bk-tool-icon-minimize { .mask-image(var(--bokeh-icon-minimize)); }
-.bk-tool-icon-maximize { .mask-image(var(--bokeh-icon-maximize)); }
-
-.bk-tool-icon-pin      { .mask-image(var(--bokeh-icon-pin)); }
-.bk-tool-icon-unpin    { .mask-image(var(--bokeh-icon-unpin)); }
-
-.bk-tool-icon-pointer  { .mask-image(var(--bokeh-icon-hand-pointing));  }
-.bk-tool-icon-delete   { .mask-image(var(--bokeh-icon-trash)); }
-
-.bk-tool-icon-bold   { .mask-image(var(--bokeh-icon-bold));   }
-.bk-tool-icon-italic { .mask-image(var(--bokeh-icon-italic)); }
-
-.bk-tool-icon-text-align-left   { .mask-image(var(--bokeh-icon-text-align-left));   }
+.bk-tool-icon-auto-box-zoom     { .mask-image(var(--bokeh-icon-auto-box-zoom)); }
+.bk-tool-icon-bold              { .mask-image(var(--bokeh-icon-bold));   }
+.bk-tool-icon-box-edit          { .mask-image(var(--bokeh-icon-box-edit)); }
+.bk-tool-icon-box-select        { .mask-image(var(--bokeh-icon-box-select)); }
+.bk-tool-icon-box-zoom          { .mask-image(var(--bokeh-icon-box-zoom)); }
+.bk-tool-icon-caret-down        { .mask-image(var(--bokeh-icon-caret-down)); }
+.bk-tool-icon-caret-left        { .mask-image(var(--bokeh-icon-caret-left)); }
+.bk-tool-icon-caret-right       { .mask-image(var(--bokeh-icon-caret-right)); }
+.bk-tool-icon-caret-up          { .mask-image(var(--bokeh-icon-caret-up)); }
+.bk-tool-icon-check             { .mask-image(var(--bokeh-icon-check));  }
+.bk-tool-icon-chevron-down      { .mask-image(var(--bokeh-icon-chevron-down)); }
+.bk-tool-icon-chevron-left      { .mask-image(var(--bokeh-icon-chevron-left)); }
+.bk-tool-icon-chevron-right     { .mask-image(var(--bokeh-icon-chevron-right)); }
+.bk-tool-icon-chevron-up        { .mask-image(var(--bokeh-icon-chevron-up)); }
+.bk-tool-icon-clear-selection   { .mask-image(var(--bokeh-icon-clear-selection)); }
+.bk-tool-icon-copy              { .mask-image(var(--bokeh-icon-copy)); }
+.bk-tool-icon-crosshair         { .mask-image(var(--bokeh-icon-crosshair)); }
+.bk-tool-icon-dark-theme        { .mask-image(var(--bokeh-icon-dark-theme)); }
+.bk-tool-icon-delete            { .mask-image(var(--bokeh-icon-trash)); }
+.bk-tool-icon-freehand-draw     { .mask-image(var(--bokeh-icon-freehand-draw)); }
+.bk-tool-icon-fullscreen        { .mask-image(var(--bokeh-icon-fullscreen)); }
+.bk-tool-icon-help              { .mask-image(var(--bokeh-icon-help)); }
+.bk-tool-icon-hover             { .mask-image(var(--bokeh-icon-hover)); }
+.bk-tool-icon-intersect-mode    { .mask-image(var(--bokeh-icon-intersect-mode)); }
+.bk-tool-icon-invert-selection  { .mask-image(var(--bokeh-icon-invert-selection)); }
+.bk-tool-icon-italic            { .mask-image(var(--bokeh-icon-italic)); }
+.bk-tool-icon-lasso-select      { .mask-image(var(--bokeh-icon-lasso-select)); }
+.bk-tool-icon-light-theme       { .mask-image(var(--bokeh-icon-light-theme)); }
+.bk-tool-icon-line-edit         { .mask-image(var(--bokeh-icon-line-edit)); }
+.bk-tool-icon-list              { .mask-image(var(--bokeh-icon-list)); }
+.bk-tool-icon-maximize          { .mask-image(var(--bokeh-icon-maximize)); }
+.bk-tool-icon-minimize          { .mask-image(var(--bokeh-icon-minimize)); }
+.bk-tool-icon-open              { .mask-image(var(--bokeh-icon-open)); }
+.bk-tool-icon-pan               { .mask-image(var(--bokeh-icon-pan)); }
+.bk-tool-icon-pan-down          { .mask-image(var(--bokeh-icon-pan-down)); }
+.bk-tool-icon-pan-left          { .mask-image(var(--bokeh-icon-pan-left)); }
+.bk-tool-icon-pan-right         { .mask-image(var(--bokeh-icon-pan-right)); }
+.bk-tool-icon-pan-up            { .mask-image(var(--bokeh-icon-pan-up)); }
+.bk-tool-icon-pin               { .mask-image(var(--bokeh-icon-pin)); }
+.bk-tool-icon-point-draw        { .mask-image(var(--bokeh-icon-point-draw)); }
+.bk-tool-icon-pointer           { .mask-image(var(--bokeh-icon-hand-pointing));  }
+.bk-tool-icon-poly-draw         { .mask-image(var(--bokeh-icon-poly-draw)); }
+.bk-tool-icon-poly-edit         { .mask-image(var(--bokeh-icon-poly-edit)); }
+.bk-tool-icon-polygon-select    { .mask-image(var(--bokeh-icon-polygon-select)); }
+.bk-tool-icon-range             { .mask-image(var(--bokeh-icon-range)); }
+.bk-tool-icon-redo              { .mask-image(var(--bokeh-icon-redo)); }
+.bk-tool-icon-replace-mode      { .mask-image(var(--bokeh-icon-replace-mode)); }
+.bk-tool-icon-reset             { .mask-image(var(--bokeh-icon-reset)); }
+.bk-tool-icon-save              { .mask-image(var(--bokeh-icon-save)); }
+.bk-tool-icon-see-off           { .mask-image(var(--bokeh-icon-see-off)); }
+.bk-tool-icon-see-on            { .mask-image(var(--bokeh-icon-see-on)); }
+.bk-tool-icon-settings          { .mask-image(var(--bokeh-icon-settings)); }
+.bk-tool-icon-square            { .mask-image(var(--bokeh-icon-square));  }
+.bk-tool-icon-square-check      { .mask-image(var(--bokeh-icon-square-check));  }
+.bk-tool-icon-subtract-mode     { .mask-image(var(--bokeh-icon-subtract-mode)); }
+.bk-tool-icon-tap-select        { .mask-image(var(--bokeh-icon-tap-select)); }
 .bk-tool-icon-text-align-center { .mask-image(var(--bokeh-icon-text-align-center)); }
+.bk-tool-icon-text-align-left   { .mask-image(var(--bokeh-icon-text-align-left));   }
 .bk-tool-icon-text-align-right  { .mask-image(var(--bokeh-icon-text-align-right));  }
-
-.bk-tool-icon-check { .mask-image(var(--bokeh-icon-check));  }
-.bk-tool-icon-square { .mask-image(var(--bokeh-icon-square));  }
-.bk-tool-icon-square-check { .mask-image(var(--bokeh-icon-square-check));  }
-
-.bk-tool-icon-list { .mask-image(var(--bokeh-icon-list)); }
-
-.bk-tool-icon-light-theme { .mask-image(var(--bokeh-icon-light-theme)); }
-.bk-tool-icon-dark-theme { .mask-image(var(--bokeh-icon-dark-theme)); }
-
-:host {
-  // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
-  --bokeh-icon-question-mark: data-uri("icons/question-mark.svg");
-  --bokeh-icon-help: data-uri("icons/help.svg");
-  --bokeh-icon-x: data-uri("icons/x.svg");
-  --bokeh-icon-settings: data-uri("icons/settings.svg");
-  --bokeh-icon-unknown: data-uri("icons/unknown.svg");
-  --bokeh-icon-fullscreen: data-uri("icons/fullscreen.svg");
-
-  --bokeh-icon-save: data-uri("icons/save.svg");
-  --bokeh-icon-copy: data-uri("icons/copy.svg");
-  --bokeh-icon-open: data-uri("icons/open.svg");
-
-  --bokeh-icon-tap-select: data-uri("icons/tap.svg");
-  --bokeh-icon-lasso-select: data-uri("icons/lasso-select.svg");
-  --bokeh-icon-polygon-select: data-uri("icons/polygon-select.svg");
-
-  --bokeh-icon-pan: data-uri("icons/pan.svg");
-  --bokeh-icon-x-pan: data-uri("icons/x-pan.svg");
-  --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
-
-  --bokeh-icon-pan-left: data-uri("icons/pan_left.svg");
-  --bokeh-icon-pan-right: data-uri("icons/pan_right.svg");
-  --bokeh-icon-pan-up: data-uri("icons/pan_up.svg");
-  --bokeh-icon-pan-down: data-uri("icons/pan_down.svg");
-
-  --bokeh-icon-wheel-pan: data-uri("icons/wheel-pan.svg");
-
-  --bokeh-icon-box-select: data-uri("icons/box-select.svg");
-  --bokeh-icon-x-box-select: data-uri("icons/x-box-select.svg");
-  --bokeh-icon-y-box-select: data-uri("icons/y-box-select.svg");
-
-  --bokeh-icon-box-zoom: data-uri("icons/box-zoom.svg");
-  --bokeh-icon-x-box-zoom: data-uri("icons/x-box-zoom.svg");
-  --bokeh-icon-y-box-zoom: data-uri("icons/y-box-zoom.svg");
-  --bokeh-icon-auto-box-zoom: data-uri("icons/auto-box-zoom.svg");
-
-  --bokeh-icon-wheel-zoom: data-uri("icons/wheel-zoom.svg");
-
-  --bokeh-icon-box-edit: data-uri("icons/box-edit.svg");
-  --bokeh-icon-poly-edit: data-uri("icons/poly-edit.svg");
-  --bokeh-icon-line-edit: data-uri("icons/line-edit.svg");
-
-  --bokeh-icon-clear-selection: data-uri("icons/clear-selection.svg");
-  --bokeh-icon-invert-selection: data-uri("icons/invert-selection.svg");
-
-  --bokeh-icon-point-draw: data-uri("icons/point-draw.svg");
-  --bokeh-icon-poly-draw: data-uri("icons/poly-draw.svg");
-  --bokeh-icon-freehand-draw: data-uri("icons/freehand-draw.svg");
-
-  --bokeh-icon-append-mode: data-uri("icons/append-mode.svg");
-  --bokeh-icon-intersect-mode: data-uri("icons/intersect-mode.svg");
-  --bokeh-icon-subtract-mode: data-uri("icons/subtract-mode.svg");
-  --bokeh-icon-xor-mode: data-uri("icons/xor-mode.svg");
-  --bokeh-icon-replace-mode: data-uri("icons/replace-mode.svg");
-  --bokeh-icon-toggle-mode: data-uri("icons/toggle-mode.svg");
-
-  --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
-  --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
-
-  --bokeh-icon-undo: data-uri("icons/undo.svg");
-  --bokeh-icon-redo: data-uri("icons/redo.svg");
-  --bokeh-icon-reset: data-uri("icons/reset.svg");
-
-  --bokeh-icon-hover: data-uri("icons/hover.svg");
-  --bokeh-icon-crosshair: data-uri("icons/crosshair.svg");
-
-  --bokeh-icon-chevron-up: data-uri("icons/chevron-up.svg");
-  --bokeh-icon-chevron-down: data-uri("icons/chevron-down.svg");
-  --bokeh-icon-chevron-left: data-uri("icons/chevron-left.svg");
-  --bokeh-icon-chevron-right: data-uri("icons/chevron-right.svg");
-
-  --bokeh-icon-caret-up: data-uri("icons/caret-up.svg");
-  --bokeh-icon-caret-down: data-uri("icons/caret-down.svg");
-  --bokeh-icon-caret-left: data-uri("icons/caret-left.svg");
-  --bokeh-icon-caret-right: data-uri("icons/caret-right.svg");
-
-  --bokeh-icon-see-on: data-uri("icons/see-on.svg");
-  --bokeh-icon-see-off: data-uri("icons/see-off.svg");
-
-  --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
-
-  --bokeh-icon-x-grip: data-uri("icons/x-grip.svg");
-  --bokeh-icon-y-grip: data-uri("icons/y-grip.svg");
-
-  --bokeh-icon-arrow-down-to-bar: data-uri("icons/arrow-down-to-bar.svg");
-  --bokeh-icon-arrow-up-from-bar: data-uri("icons/arrow-up-from-bar.svg");
-
-  --bokeh-icon-minimize: data-uri("icons/minimize.svg");
-  --bokeh-icon-maximize: data-uri("icons/maximize.svg");
-
-  --bokeh-icon-pin: data-uri("icons/pin.svg");
-  --bokeh-icon-unpin: data-uri("icons/unpin.svg");
-
-  --bokeh-icon-hand-pointing: data-uri("icons/hand-pointing.svg");
-  --bokeh-icon-trash: data-uri("icons/trash.svg");
-
-  --bokeh-icon-bold: data-uri("icons/bold.svg");
-  --bokeh-icon-italic: data-uri("icons/italic.svg");
-
-  --bokeh-icon-text-align-left: data-uri("icons/text-align-left.svg");
-  --bokeh-icon-text-align-center: data-uri("icons/text-align-center.svg");
-  --bokeh-icon-text-align-right: data-uri("icons/text-align-right.svg");
-
-  --bokeh-icon-check: data-uri("icons/check.svg");
-  --bokeh-icon-square: data-uri("icons/square.svg");
-  --bokeh-icon-square-check: data-uri("icons/square-check.svg");
-
-  --bokeh-icon-list: data-uri("icons/list.svg");
-
-  --bokeh-icon-range: data-uri("icons/range.svg");
-
-  --bokeh-icon-light-theme: data-uri("icons/light-theme.svg");
-  --bokeh-icon-dark-theme: data-uri("icons/dark-theme.svg");
-
-  --bokeh-icon-pencil: data-uri("icons/pencil.svg");
-}
+.bk-tool-icon-toggle-mode       { .mask-image(var(--bokeh-icon-toggle-mode)); }
+.bk-tool-icon-undo              { .mask-image(var(--bokeh-icon-undo)); }
+.bk-tool-icon-unknown           { .mask-image(var(--bokeh-icon-unknown)); }
+.bk-tool-icon-unpin             { .mask-image(var(--bokeh-icon-unpin)); }
+.bk-tool-icon-wheel-pan         { .mask-image(var(--bokeh-icon-wheel-pan)); }
+.bk-tool-icon-wheel-zoom        { .mask-image(var(--bokeh-icon-wheel-zoom)); }
+.bk-tool-icon-x-box-select      { .mask-image(var(--bokeh-icon-x-box-select)); }
+.bk-tool-icon-x-box-zoom        { .mask-image(var(--bokeh-icon-x-box-zoom)); }
+.bk-tool-icon-x-grip            { .mask-image(var(--bokeh-icon-x-grip)); }
+.bk-tool-icon-x-pan             { .mask-image(var(--bokeh-icon-x-pan)); }
+.bk-tool-icon-xor-mode          { .mask-image(var(--bokeh-icon-xor-mode)); }
+.bk-tool-icon-y-box-select      { .mask-image(var(--bokeh-icon-y-box-select)); }
+.bk-tool-icon-y-box-zoom        { .mask-image(var(--bokeh-icon-y-box-zoom)); }
+.bk-tool-icon-y-grip            { .mask-image(var(--bokeh-icon-y-grip)); }
+.bk-tool-icon-y-pan             { .mask-image(var(--bokeh-icon-y-pan)); }
+.bk-tool-icon-zoom-in           { .mask-image(var(--bokeh-icon-zoom-in)); }
+.bk-tool-icon-zoom-out          { .mask-image(var(--bokeh-icon-zoom-out)); }

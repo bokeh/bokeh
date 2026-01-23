@@ -59,6 +59,10 @@ const _minimization_area: HTMLElement = (() => {
 export class DialogView extends UIElementView {
   declare model: Dialog
 
+  override get is_top_level(): boolean {
+    return true
+  }
+
   protected _title: ViewOf<UIElementLike>
   protected _content: ViewOf<UIElementLike>
 

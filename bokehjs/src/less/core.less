@@ -1,0 +1,18 @@
+:host {
+  box-sizing: border-box;
+  font-family: var(--base-font);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  color-scheme: var(--bokeh-color-scheme, normal);
+}
+
+*, *:before, *:after {
+  // box-sizing is not inherited by default, so force it to get consistent results
+  box-sizing: inherit;
+  font-family: inherit;
+}
+
+pre, code, tt {
+  font-family: var(--mono-font);
+  margin: 0;
+}

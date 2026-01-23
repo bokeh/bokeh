@@ -4,7 +4,8 @@ import type {Orientation} from "../enums"
 import {isString} from "./types"
 
 import panes_css/*, * as panes*/ from "styles/panes.css"
-import base_css from "styles/base.css"
+import vars_css from "styles/vars.css"
+import core_css from "styles/core.css"
 
 export type Options = {
   target: HTMLElement
@@ -91,7 +92,8 @@ export class DropPane { //extends DOMComponentView {
   }
 
   stylesheets(): StyleSheetLike[] {
-    return [base_css, /*...super.stylesheets(), */ panes_css, ...this.extra_stylesheets]
+    /* ...super.stylesheets() */
+    return [vars_css, core_css, panes_css, ...this.extra_stylesheets]
   }
 
   empty(): void {

@@ -1,0 +1,148 @@
+@import "_colors.less";
+
+:host {
+  --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
+  --mono-font: var(--bokeh-mono-font, monospace);
+  --font-size: var(--bokeh-font-size, 12px);
+
+  --line-height: calc(20 / 14);
+  --line-height-computed: calc(var(--font-size) * var(--line-height));
+
+  --border-radius: 4px;
+
+  --padding-vertical: 6px;
+  --padding-horizontal: 12px;
+
+  --bokeh-top-level: 10000; // used for z-index of menus, dropdowns, etc.
+
+  // Colors
+  --color: #colors[text];
+  --inherit-color: light-dark(black, var(--color)); // used to prevent too many baselines updates. --color should be used directly instead in the future
+  --background-color: #colors[background];
+  --inherit-background-color: light-dark(transparent, var(--background-color)); // used to prevent too many baselines updates. --background-color should be used directly instead in the future
+  --hover-color: #colors[hover];
+  --disabled-color: #colors[disabled];
+  --border-color: #colors[border];
+  --divider-color: #colors[divider];
+  --shortcut-color: #colors[disabled];
+  --highlight-color: #colors[highlight];
+  --active-bg: #colors[active-background];
+  --active-border: #colors[active-border];
+  --active-fg: #colors[primary];
+  --inactive-bg: #colors[surface];
+  --inactive-fg: #colors[placeholder];
+  --icon-color: var(--bokeh-icon-color, #colors[icon]);
+  --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
+  --error: #colors[error];
+  --inverted-color: #colors[inverted]; // the color for when the background is dark
+  --placeholder-color: #colors[placeholder];
+  --surface-background-color: #colors[surface];
+  --disabled-background-color: #colors[surface];
+  --input-focus-border-color: #colors[input-border];
+  --input-focus-halo-color: fade(#colors[input-border], 60%);
+
+  // Border, box shadow, outline
+  --border-style: solid;
+  --border-width: 1px;
+  --border: var(--border-color) var(--border-style) var(--border-width);
+  --box-shadow-color: rgba(0, 0, 0, 0.175);
+  --box-shadow-inset: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color); // symmetric about the x-axis
+  --box-shadow: 2px 4px 8px var(--box-shadow-color);
+  --divider-width: 1px;
+  --divider: 1px var(--divider-color) solid;
+  --outline-color: #colors[border];
+  --outline-style: dotted;
+  --outline-width: 1px;
+  --outline: var(--outline-color) var(--outline-style) var(--outline-width);
+
+  // Tools (tool buttons and toolbar)
+  --button-width: 30px;
+  --button-height: 30px;
+  --button-color: lightgray;
+
+  // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
+  --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
+  --bokeh-icon-append-mode: data-uri("icons/append-mode.svg");
+  --bokeh-icon-arrow-down-to-bar: data-uri("icons/arrow-down-to-bar.svg");
+  --bokeh-icon-arrow-up-from-bar: data-uri("icons/arrow-up-from-bar.svg");
+  --bokeh-icon-auto-box-zoom: data-uri("icons/auto-box-zoom.svg");
+  --bokeh-icon-bold: data-uri("icons/bold.svg");
+  --bokeh-icon-box-edit: data-uri("icons/box-edit.svg");
+  --bokeh-icon-box-select: data-uri("icons/box-select.svg");
+  --bokeh-icon-box-zoom: data-uri("icons/box-zoom.svg");
+  --bokeh-icon-caret-down: data-uri("icons/caret-down.svg");
+  --bokeh-icon-caret-left: data-uri("icons/caret-left.svg");
+  --bokeh-icon-caret-right: data-uri("icons/caret-right.svg");
+  --bokeh-icon-caret-up: data-uri("icons/caret-up.svg");
+  --bokeh-icon-check: data-uri("icons/check.svg");
+  --bokeh-icon-chevron-down: data-uri("icons/chevron-down.svg");
+  --bokeh-icon-chevron-left: data-uri("icons/chevron-left.svg");
+  --bokeh-icon-chevron-right: data-uri("icons/chevron-right.svg");
+  --bokeh-icon-chevron-up: data-uri("icons/chevron-up.svg");
+  --bokeh-icon-clear-selection: data-uri("icons/clear-selection.svg");
+  --bokeh-icon-copy: data-uri("icons/copy.svg");
+  --bokeh-icon-crosshair: data-uri("icons/crosshair.svg");
+  --bokeh-icon-dark-theme: data-uri("icons/dark-theme.svg");
+  --bokeh-icon-freehand-draw: data-uri("icons/freehand-draw.svg");
+  --bokeh-icon-fullscreen: data-uri("icons/fullscreen.svg");
+  --bokeh-icon-hand-pointing: data-uri("icons/hand-pointing.svg");
+  --bokeh-icon-help: data-uri("icons/help.svg");
+  --bokeh-icon-hover: data-uri("icons/hover.svg");
+  --bokeh-icon-intersect-mode: data-uri("icons/intersect-mode.svg");
+  --bokeh-icon-invert-selection: data-uri("icons/invert-selection.svg");
+  --bokeh-icon-italic: data-uri("icons/italic.svg");
+  --bokeh-icon-lasso-select: data-uri("icons/lasso-select.svg");
+  --bokeh-icon-light-theme: data-uri("icons/light-theme.svg");
+  --bokeh-icon-line-edit: data-uri("icons/line-edit.svg");
+  --bokeh-icon-list: data-uri("icons/list.svg");
+  --bokeh-icon-maximize: data-uri("icons/maximize.svg");
+  --bokeh-icon-minimize: data-uri("icons/minimize.svg");
+  --bokeh-icon-open: data-uri("icons/open.svg");
+  --bokeh-icon-pan-down: data-uri("icons/pan_down.svg");
+  --bokeh-icon-pan-left: data-uri("icons/pan_left.svg");
+  --bokeh-icon-pan-right: data-uri("icons/pan_right.svg");
+  --bokeh-icon-pan-up: data-uri("icons/pan_up.svg");
+  --bokeh-icon-pan: data-uri("icons/pan.svg");
+  --bokeh-icon-pencil: data-uri("icons/pencil.svg");
+  --bokeh-icon-pin: data-uri("icons/pin.svg");
+  --bokeh-icon-point-draw: data-uri("icons/point-draw.svg");
+  --bokeh-icon-poly-draw: data-uri("icons/poly-draw.svg");
+  --bokeh-icon-poly-edit: data-uri("icons/poly-edit.svg");
+  --bokeh-icon-polygon-select: data-uri("icons/polygon-select.svg");
+  --bokeh-icon-question-mark: data-uri("icons/question-mark.svg");
+  --bokeh-icon-range: data-uri("icons/range.svg");
+  --bokeh-icon-redo: data-uri("icons/redo.svg");
+  --bokeh-icon-replace-mode: data-uri("icons/replace-mode.svg");
+  --bokeh-icon-reset: data-uri("icons/reset.svg");
+  --bokeh-icon-save: data-uri("icons/save.svg");
+  --bokeh-icon-see-off: data-uri("icons/see-off.svg");
+  --bokeh-icon-see-on: data-uri("icons/see-on.svg");
+  --bokeh-icon-settings: data-uri("icons/settings.svg");
+  --bokeh-icon-square-check: data-uri("icons/square-check.svg");
+  --bokeh-icon-square: data-uri("icons/square.svg");
+  --bokeh-icon-subtract-mode: data-uri("icons/subtract-mode.svg");
+  --bokeh-icon-tap-select: data-uri("icons/tap.svg");
+  --bokeh-icon-text-align-center: data-uri("icons/text-align-center.svg");
+  --bokeh-icon-text-align-left: data-uri("icons/text-align-left.svg");
+  --bokeh-icon-text-align-right: data-uri("icons/text-align-right.svg");
+  --bokeh-icon-toggle-mode: data-uri("icons/toggle-mode.svg");
+  --bokeh-icon-trash: data-uri("icons/trash.svg");
+  --bokeh-icon-undo: data-uri("icons/undo.svg");
+  --bokeh-icon-unknown: data-uri("icons/unknown.svg");
+  --bokeh-icon-unpin: data-uri("icons/unpin.svg");
+  --bokeh-icon-wheel-pan: data-uri("icons/wheel-pan.svg");
+  --bokeh-icon-wheel-zoom: data-uri("icons/wheel-zoom.svg");
+  --bokeh-icon-x-box-select: data-uri("icons/x-box-select.svg");
+  --bokeh-icon-x-box-zoom: data-uri("icons/x-box-zoom.svg");
+  --bokeh-icon-x-grip: data-uri("icons/x-grip.svg");
+  --bokeh-icon-x-pan: data-uri("icons/x-pan.svg");
+  --bokeh-icon-x: data-uri("icons/x.svg");
+  --bokeh-icon-xor-mode: data-uri("icons/xor-mode.svg");
+  --bokeh-icon-y-box-select: data-uri("icons/y-box-select.svg");
+  --bokeh-icon-y-box-zoom: data-uri("icons/y-box-zoom.svg");
+  --bokeh-icon-y-grip: data-uri("icons/y-grip.svg");
+  --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
+  --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
+  --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
+}
