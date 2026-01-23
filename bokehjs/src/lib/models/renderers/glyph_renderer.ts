@@ -477,12 +477,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   get_reference_point(field: string | null, value?: unknown): number {
-    const ref_point = this._get_reference_point(field, value)
-    if (ref_point == null) {
-      // fallback to first index
-      return 0
-    }
-    return ref_point
+    return this._get_reference_point(field, value) ?? 0 // fall back to first index
   }
 
   _get_reference_point(field: string | null, value?: unknown): number | null {
