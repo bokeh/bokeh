@@ -10,7 +10,7 @@ import {ColumnDataSource, Row} from "@bokehjs/models"
 
 import {
   Button, Toggle, Dropdown,
-  Checkbox, Switch,
+  Checkbox, Switch, ThemeSwitch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
   PaletteSelect,
@@ -198,6 +198,60 @@ describe("Widgets", () => {
 
   it("should allow Switch with active=true and label", async () => {
     const obj = new Switch({active: true, label: "Display:"})
+    await display(obj, [100, 30])
+  })
+
+  it("should allow ThemeSwitch with active=false", async () => {
+    const obj = new ThemeSwitch({
+      active: false,
+      stylesheets: [`
+        :host {
+          background-color: light-dark(white, black);
+          color: light-dark(black, white);
+        }
+      `],
+    })
+    await display(obj, [100, 30])
+  })
+
+  it("should allow ThemeSwitch with active=true", async () => {
+    const obj = new ThemeSwitch({
+      active: true,
+      stylesheets: [`
+        :host {
+          background-color: light-dark(white, black);
+          color: light-dark(black, white);
+        }
+      `],
+    })
+    await display(obj, [100, 30])
+  })
+
+  it("should allow ThemeSwitch with active=false and label", async () => {
+    const obj = new ThemeSwitch({
+      active: false,
+      label: "Theme:",
+      stylesheets: [`
+        :host {
+          background-color: light-dark(white, black);
+          color: light-dark(black, white);
+        }
+      `],
+    })
+    await display(obj, [100, 30])
+  })
+
+  it("should allow ThemeSwitch with active=true and label", async () => {
+    const obj = new ThemeSwitch({
+      active: true,
+      label: "Theme:",
+      stylesheets: [`
+        :host {
+          background-color: light-dark(white, black);
+          color: light-dark(black, white);
+        }
+      `],
+    })
     await display(obj, [100, 30])
   })
 

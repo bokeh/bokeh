@@ -343,6 +343,10 @@ class ThemeSwitch(Switch):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+    on_icon = Override(default="light_theme")
+
+    off_icon = Override(default="dark_theme")
+
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.
 
