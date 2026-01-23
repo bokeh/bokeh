@@ -12,7 +12,7 @@ import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
 import {keys, values, entries, extend, is_empty, dict} from "./util/object"
-import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive, isTypedArray} from "./util/types"
+import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
@@ -599,10 +599,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         }
       }
     } else if (isIterable(value)) {
-      if (isTypedArray(value)) {
-        return
-      }
-
       for (const elem of value) {
         HasProps._value_record_references(elem, refs, {recursive})
       }
