@@ -22,43 +22,45 @@ from ...core.enums import (
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     BackgroundFillProps,
-    BackgroundFillPropsInit,
     BackgroundHatchProps,
-    BackgroundHatchPropsInit,
     BorderLineProps,
-    BorderLinePropsInit,
     ScalarBackgroundFillProps,
-    ScalarBackgroundFillPropsInit,
     ScalarBackgroundHatchProps,
-    ScalarBackgroundHatchPropsInit,
     ScalarBorderLineProps,
-    ScalarBorderLinePropsInit,
     ScalarTextProps,
-    ScalarTextPropsInit,
     TextProps,
-    TextPropsInit,
+    _BackgroundFillPropsInit,
+    _BackgroundHatchPropsInit,
+    _BorderLinePropsInit,
+    _ScalarBackgroundFillPropsInit,
+    _ScalarBackgroundHatchPropsInit,
+    _ScalarBorderLinePropsInit,
+    _ScalarTextPropsInit,
+    _TextPropsInit,
 )
 from .annotation import (
     Annotation,
-    AnnotationInit,
     DataAnnotation,
-    DataAnnotationInit,
+    _AnnotationInit,
+    _DataAnnotationInit,
 )
 
-class TextAnnotationInit(AnnotationInit, ScalarTextPropsInit, ScalarBackgroundFillPropsInit, ScalarBackgroundHatchPropsInit, ScalarBorderLinePropsInit, total=False):
+class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
+        _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
     text: TextLike
     padding: Padding
     border_radius: BorderRadius
 
-class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps, ScalarBackgroundHatchProps, ScalarBorderLineProps):
+class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps,
+        ScalarBackgroundHatchProps, ScalarBorderLineProps):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[TextAnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TextAnnotationInit]) -> None: ...
 
     text: TextLike = ...
     padding: Padding = ...
     border_radius: BorderRadius = ...
 
-class LabelInit(TextAnnotationInit, total=False):
+class _LabelInit(_TextAnnotationInit, total=False):
     anchor: TextAnchor
     x: Coordinate
     y: Coordinate
@@ -72,7 +74,7 @@ class LabelInit(TextAnnotationInit, total=False):
     editable: bool
 
 class Label(TextAnnotation):
-    def __init__(self, **kwargs: Unpack[LabelInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_LabelInit]) -> None: ...
 
     anchor: TextAnchor = ...
     x: Coordinate = ...
@@ -86,7 +88,7 @@ class Label(TextAnnotation):
     direction: Direction = ...
     editable: bool = ...
 
-class LabelSetInit(DataAnnotationInit, TextPropsInit, BackgroundFillPropsInit, BackgroundHatchPropsInit, BorderLinePropsInit, total=False):
+class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     x_units: CoordinateUnits
     y: NumberSpec
@@ -97,7 +99,7 @@ class LabelSetInit(DataAnnotationInit, TextPropsInit, BackgroundFillPropsInit, B
     y_offset: NumberSpec
 
 class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
-    def __init__(self, **kwargs: Unpack[LabelSetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_LabelSetInit]) -> None: ...
 
     x: NumberSpec = ...
     x_units: CoordinateUnits = ...
@@ -108,13 +110,13 @@ class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchPr
     x_offset: NumberSpec = ...
     y_offset: NumberSpec = ...
 
-class TitleInit(TextAnnotationInit, total=False):
+class _TitleInit(_TextAnnotationInit, total=False):
     vertical_align: VerticalAlign
     align: TextAlign
     standoff: float
 
 class Title(TextAnnotation):
-    def __init__(self, **kwargs: Unpack[TitleInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TitleInit]) -> None: ...
 
     vertical_align: VerticalAlign = ...
     align: TextAlign = ...

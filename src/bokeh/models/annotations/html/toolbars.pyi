@@ -10,12 +10,12 @@ from typing import Unpack
 
 # Bokeh imports
 from ...tools import Toolbar
-from .html_annotation import HTMLAnnotation, HTMLAnnotationInit
+from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
 
-class ToolbarPanelInit(HTMLAnnotationInit, total=False):
+class _ToolbarPanelInit(_HTMLAnnotationInit, total=False):
     toolbar: Toolbar
 
 class ToolbarPanel(HTMLAnnotation):
-    def __init__(self, **kwargs: Unpack[ToolbarPanelInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ToolbarPanelInit]) -> None: ...
 
     toolbar: Toolbar = ...

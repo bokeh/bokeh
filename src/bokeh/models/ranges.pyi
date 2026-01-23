@@ -22,7 +22,7 @@ from ..core.enums import (
     StartEndType as StartEnd,
 )
 from ..core.property.visual import Bounds, MinMaxBoundsType as MinMaxBounds
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 
 Value: TypeAlias = float | DateTime | TimeDelta
 
@@ -37,25 +37,25 @@ L3Factor: TypeAlias = tuple[str, str, str]
 Factor: TypeAlias = L1Factor | L2Factor | L3Factor
 FactorSeq: TypeAlias = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
 
-class RangeInit(ModelInit, total=False):
+class _RangeInit(_ModelInit, total=False):
     ...
 
 class Range(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[RangeInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_RangeInit]) -> None: ...
 
-class NumericalRangeInit(RangeInit, total=False):
+class _NumericalRangeInit(_RangeInit, total=False):
     start: Value
     end: Value
 
 class NumericalRange(Range):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[NumericalRangeInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_NumericalRangeInit]) -> None: ...
 
     start: Value = ...
     end: Value = ...
 
-class Range1dInit(NumericalRangeInit, total=False):
+class _Range1dInit(_NumericalRangeInit, total=False):
     reset_start: Value | None
     reset_end: Value | None
     bounds: MinMaxBounds | None
@@ -64,9 +64,9 @@ class Range1dInit(NumericalRangeInit, total=False):
 
 class Range1d(NumericalRange):
     @overload
-    def __init__(self, start: Value, end: Value, /, **kwargs: Unpack[Range1dInit]) -> None: ...
+    def __init__(self, start: Value, end: Value, /, **kwargs: Unpack[_Range1dInit]) -> None: ...
     @overload
-    def __init__(self, **kwargs: Unpack[Range1dInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_Range1dInit]) -> None: ...
 
     reset_start: Value | None = ...
     reset_end: Value | None = ...
@@ -74,16 +74,16 @@ class Range1d(NumericalRange):
     min_interval: Interval | None = ...
     max_interval: Interval | None = ...
 
-class DataRangeInit(NumericalRangeInit, total=False):
+class _DataRangeInit(_NumericalRangeInit, total=False):
     renderers: list[Model] | Auto | None
 
 class DataRange(NumericalRange):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[DataRangeInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DataRangeInit]) -> None: ...
 
     renderers: list[Model] | Auto | None = ...
 
-class DataRange1dInit(DataRangeInit, total=False):
+class _DataRange1dInit(_DataRangeInit, total=False):
     range_padding: Interval
     range_padding_units: PaddingUnits
     bounds: MinMaxBounds | None
@@ -96,7 +96,7 @@ class DataRange1dInit(DataRangeInit, total=False):
     only_visible: bool
 
 class DataRange1d(DataRange):
-    def __init__(self, **kwargs: Unpack[DataRange1dInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DataRange1dInit]) -> None: ...
 
     range_padding: Interval = ...
     range_padding_units: PaddingUnits = ...
@@ -109,7 +109,7 @@ class DataRange1d(DataRange):
     default_span: Interval = ...
     only_visible: bool = ...
 
-class FactorRangeInit(RangeInit, total=False):
+class _FactorRangeInit(_RangeInit, total=False):
     factors: FactorSeq
     factor_padding: float
     subgroup_padding: float
@@ -122,9 +122,9 @@ class FactorRangeInit(RangeInit, total=False):
 
 class FactorRange(Range):
     @overload
-    def __init__(self, factors: FactorSeq, /, **kwargs: Unpack[FactorRangeInit]) -> None: ...
+    def __init__(self, factors: FactorSeq, /, **kwargs: Unpack[_FactorRangeInit]) -> None: ...
     @overload
-    def __init__(self, **kwargs: Unpack[FactorRangeInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_FactorRangeInit]) -> None: ...
 
     factors: FactorSeq = ...
     factor_padding: float = ...

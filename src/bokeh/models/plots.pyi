@@ -28,17 +28,17 @@ from ..core.enums import (
 from ..core.property_aliases import LRTB
 from ..core.property_mixins import (
     ScalarBackgroundFillProps as BackgroundFill,
-    ScalarBackgroundFillPropsInit as BackgroundFillInit,
     ScalarBackgroundHatchProps as BackgroundHatch,
-    ScalarBackgroundHatchPropsInit as BackgroundHatchInit,
     ScalarBorderFillProps as BorderFill,
-    ScalarBorderFillPropsInit as BorderFillInit,
     ScalarBorderHatchProps as BorderHatch,
-    ScalarBorderHatchPropsInit as BorderHatchInit,
     ScalarBorderLineProps as BorderLine,
-    ScalarBorderLinePropsInit as BorderLineInit,
     ScalarOutlineLineProps as OutlineLine,
-    ScalarOutlineLinePropsInit as OutlineLineInit,
+    _ScalarBackgroundFillPropsInit as _BackgroundFillInit,
+    _ScalarBackgroundHatchPropsInit as _BackgroundHatchInit,
+    _ScalarBorderFillPropsInit as _BorderFillInit,
+    _ScalarBorderHatchPropsInit as _BorderHatchInit,
+    _ScalarBorderLinePropsInit as _BorderLineInit,
+    _ScalarOutlineLinePropsInit as _OutlineLineInit,
 )
 from ..model import Model
 from .annotations import Legend, Title
@@ -48,9 +48,9 @@ from .glyph import Glyph
 from .grids import Grid
 from .layouts import (
     GridCommon,
-    GridCommonInit,
     LayoutDOM,
-    LayoutDOMInit,
+    _GridCommonInit,
+    _LayoutDOMInit,
 )
 from .ranges import Range
 from .renderers import GlyphRenderer, Renderer, TileRenderer
@@ -77,7 +77,7 @@ class LegendListAttrSplat(list[Legend], Legend):
 class HoverListAttrSplat(list[HoverTool], HoverTool):
     pass
 
-class PlotInit(LayoutDOMInit, BackgroundFillInit, BackgroundHatchInit, BorderLineInit, BorderFillInit, BorderHatchInit, OutlineLineInit, total=False):
+class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
     x_range: Range
     y_range: Range
     x_scale: Scale
@@ -122,7 +122,7 @@ class PlotInit(LayoutDOMInit, BackgroundFillInit, BackgroundHatchInit, BorderLin
     attribution: list[HTML | str]
 
 class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, BorderHatch, OutlineLine):
-    def __init__(self, **kwargs: Unpack[PlotInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...
 
     x_range: Range = ...
     y_range: Range = ...
@@ -233,13 +233,13 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @contextmanager
     def hold(self, *, render: bool) -> Generator[None, None, None]: ...
 
-class GridPlotInit(GridCommonInit, LayoutDOMInit, total=False):
+class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
     toolbar: Toolbar
     toolbar_location: Location | None
     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]
 
 class GridPlot(GridCommon, LayoutDOM):
-    def __init__(self, **kwargs: Unpack[PlotInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...
 
     toolbar: Toolbar = ...
     toolbar_location: Location | None = ...

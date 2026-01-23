@@ -26,32 +26,32 @@ from ....core.enums import (
 from ....core.property_aliases import BorderRadius, Padding
 from ....core.property_mixins import (
     BackgroundFillProps,
-    BackgroundFillPropsInit,
     BorderLineProps,
-    BorderLinePropsInit,
     ScalarBackgroundFillProps,
-    ScalarBackgroundFillPropsInit,
     ScalarBackgroundHatchProps,
-    ScalarBackgroundHatchPropsInit,
     ScalarBorderLineProps,
-    ScalarBorderLinePropsInit,
     ScalarTextProps,
-    ScalarTextPropsInit,
+    _BackgroundFillPropsInit,
+    _BorderLinePropsInit,
+    _ScalarBackgroundFillPropsInit,
+    _ScalarBackgroundHatchPropsInit,
+    _ScalarBorderLinePropsInit,
+    _ScalarTextPropsInit,
 )
-from ..annotation import DataAnnotation, DataAnnotationInit
-from .html_annotation import HTMLAnnotation, HTMLAnnotationInit
+from ..annotation import DataAnnotation, _DataAnnotationInit
+from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
 
-class HTMLTextAnnotationInit(HTMLAnnotationInit, ScalarBackgroundFillPropsInit, ScalarBackgroundHatchPropsInit, ScalarBorderLinePropsInit, total=False):
+class _HTMLTextAnnotationInit(_HTMLAnnotationInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
     padding: Padding
     border_radius: BorderRadius
 
 class HTMLTextAnnotation(HTMLAnnotation, ScalarBackgroundFillProps, ScalarBackgroundHatchProps, ScalarBorderLineProps):
-    def __init__(self, **kwargs: Unpack[HTMLTextAnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HTMLTextAnnotationInit]) -> None: ...
 
     padding: Padding = ...
     border_radius: BorderRadius = ...
 
-class HTMLLabelInit(HTMLTextAnnotationInit, ScalarTextPropsInit, total=False):
+class _HTMLLabelInit(_HTMLTextAnnotationInit, _ScalarTextPropsInit, total=False):
     x: CoordinateLike
     x_units: CoordinateUnits
     y: CoordinateLike
@@ -63,7 +63,7 @@ class HTMLLabelInit(HTMLTextAnnotationInit, ScalarTextPropsInit, total=False):
     y_offset: float
 
 class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
-    def __init__(self, **kwargs: Unpack[HTMLLabelInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HTMLLabelInit]) -> None: ...
 
     x: CoordinateLike = ...
     x_units: CoordinateUnits = ...
@@ -75,7 +75,7 @@ class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
     x_offset: float = ...
     y_offset: float = ...
 
-class HTMLLabelSetInit(HTMLAnnotationInit, DataAnnotationInit, BackgroundFillPropsInit, BorderLinePropsInit, total=False):
+class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     x_units: CoordinateUnits
     y: NumberSpec
@@ -86,7 +86,7 @@ class HTMLLabelSetInit(HTMLAnnotationInit, DataAnnotationInit, BackgroundFillPro
     y_offset: NumberSpec
 
 class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLineProps):
-    def __init__(self, **kwargs: Unpack[HTMLLabelSetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HTMLLabelSetInit]) -> None: ...
 
     x: NumberSpec = ...
     x_units: CoordinateUnits = ...
@@ -97,7 +97,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLi
     x_offset: NumberSpec = ...
     y_offset: NumberSpec = ...
 
-class HTMLTitleInit(HTMLTextAnnotationInit, total=False):
+class _HTMLTitleInit(_HTMLTextAnnotationInit, total=False):
     text: str
     vertical_align: VerticalAlign
     align: TextAlign
@@ -113,7 +113,7 @@ class HTMLTitleInit(HTMLTextAnnotationInit, total=False):
     text_alpha: Alpha
 
 class HTMLTitle(HTMLTextAnnotation):
-    def __init__(self, **kwargs: Unpack[HTMLTitleInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HTMLTitleInit]) -> None: ...
 
     text: str = ...
     vertical_align: VerticalAlign = ...

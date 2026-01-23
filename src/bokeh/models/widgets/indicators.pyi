@@ -11,16 +11,16 @@ from typing import Literal, Unpack
 
 # Bokeh imports
 from ...core.enums import OrientationType as Orientation
-from .widget import Widget, WidgetInit
+from .widget import Widget, _WidgetInit
 
-class IndicatorInit(WidgetInit, total=False):
+class _IndicatorInit(_WidgetInit, total=False):
     ...
 
 class Indicator(Widget):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[IndicatorInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_IndicatorInit]) -> None: ...
 
-class ProgressInit(IndicatorInit, total=False):
+class _ProgressInit(_IndicatorInit, total=False):
     mode: Literal["determinate", "indeterminate"]
     value: int
     min: int
@@ -32,7 +32,7 @@ class ProgressInit(IndicatorInit, total=False):
     description: str | None
 
 class Progress(Indicator):
-    def __init__(self, **kwargs: Unpack[ProgressInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ProgressInit]) -> None: ...
 
     mode: Literal["determinate", "indeterminate"] = ...
     value: int = ...

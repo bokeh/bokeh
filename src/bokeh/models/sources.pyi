@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .._types import JSON
 from ..core.has_props import Setter
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
@@ -40,34 +40,34 @@ Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
 Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
 
-class DataSourceInit(ModelInit, total=False):
+class _DataSourceInit(_ModelInit, total=False):
     selected: Selection
 
 class DataSource(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[DataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DataSourceInit]) -> None: ...
 
     selected: Selection = ...
 
-class ColumnarDataSourceInit(DataSourceInit, total=False):
+class _ColumnarDataSourceInit(_DataSourceInit, total=False):
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
 
 class ColumnarDataSource(DataSource):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[ColumnarDataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ColumnarDataSourceInit]) -> None: ...
 
     default_values: dict[str, Any] = ...
     selection_policy: SelectionPolicy = ...
 
-class ColumnDataSourceInit(ColumnarDataSourceInit, total=False):
+class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
     data: DataDictLike
 
 class ColumnDataSource(ColumnarDataSource):
     @overload
-    def __init__(self, **kwargs: Unpack[ColumnDataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ColumnDataSourceInit]) -> None: ...
     @overload
-    def __init__(self, data: DataDictLike, /, **kwargs: Unpack[ColumnDataSourceInit]) -> None: ...
+    def __init__(self, data: DataDictLike, /, **kwargs: Unpack[_ColumnDataSourceInit]) -> None: ...
 
     @property
     def data(self) -> DataDict: ...
@@ -96,23 +96,23 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class CDSViewInit(ModelInit, total=False):
+class _CDSViewInit(_ModelInit, total=False):
     filter: Filter
 
 class CDSView(Model):
-    def __init__(self, **kwargs: Unpack[CDSViewInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_CDSViewInit]) -> None: ...
 
     filter: Filter = ...
 
-class GeoJSONDataSourceInit(ColumnarDataSourceInit, total=False):
+class _GeoJSONDataSourceInit(_ColumnarDataSourceInit, total=False):
     geojson: JSON
 
 class GeoJSONDataSource(ColumnarDataSource):
-    def __init__(self, **kwargs: Unpack[GeoJSONDataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GeoJSONDataSourceInit]) -> None: ...
 
     geojson: JSON = ...
 
-class WebDataSourceInit(ColumnDataSourceInit, total=False):
+class _WebDataSourceInit(_ColumnDataSourceInit, total=False):
     adapter: CustomJS | None
     max_size: int | None
     mode: Literal["replace", "append"]
@@ -120,20 +120,20 @@ class WebDataSourceInit(ColumnDataSourceInit, total=False):
 
 class WebDataSource(ColumnDataSource):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[WebDataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_WebDataSourceInit]) -> None: ...
 
     adapter: CustomJS | None = ...
     max_size: int | None = ...
     mode: Literal["replace", "append"] = ...
     data_url: str = ...
 
-class ServerSentDataSourceInit(WebDataSourceInit, total=False):
+class _ServerSentDataSourceInit(_WebDataSourceInit, total=False):
     ...
 
 class ServerSentDataSource(WebDataSource):
-    def __init__(self, **kwargs: Unpack[ServerSentDataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ServerSentDataSourceInit]) -> None: ...
 
-class AjaxDataSourceInit(WebDataSourceInit, total=False):
+class _AjaxDataSourceInit(_WebDataSourceInit, total=False):
     polling_interval: int | None
     method: Literal["POST", "GET"]
     if_modified: bool
@@ -141,7 +141,7 @@ class AjaxDataSourceInit(WebDataSourceInit, total=False):
     http_headers: dict[str, str]
 
 class AjaxDataSource(WebDataSource):
-    def __init__(self, **kwargs: Unpack[AjaxDataSourceInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_AjaxDataSourceInit]) -> None: ...
 
     polling_interval: int | None = ...
     method: Literal["POST", "GET"] = ...

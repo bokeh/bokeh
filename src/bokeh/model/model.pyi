@@ -35,7 +35,7 @@ from ..util.callback_manager import (
 )
 from .util import HasDocumentRef
 
-class ModelInit(TypedDict, total=False):
+class _ModelInit(TypedDict, total=False):
     name: str | None
     tags: list[Any]
     js_event_callbacks: dict[str, list[JSEventCallback]]
@@ -48,7 +48,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     # TODO Final[ID]
     id: ID = ...
 
-    def __init__(self, **kwargs: Unpack[ModelInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ModelInit]) -> None: ...
 
     # Don't override __new__, because then you will have to overload it every time
     # you overload __init__ with a custom signature (in e.g. ranges or figure).

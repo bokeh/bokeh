@@ -51,7 +51,7 @@ from ..models.glyphs import (
     VBar,
 )
 from ..models.graphs import LayoutProvider
-from ..models.plots import Plot, PlotInit
+from ..models.plots import Plot, _PlotInit
 from ..models.ranges import Range
 from ..models.renderers import ContourRenderer, GlyphRenderer, GraphRenderer
 from ..models.scales import Scale
@@ -74,7 +74,7 @@ from .glyph_api import (
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries
 
-class BaseFigureOptions(PlotInit, total=False):
+class BaseFigureOptions(_PlotInit, total=False):
     tools: str | Sequence[str | Tool]
     x_minor_ticks: Auto | int
     y_minor_ticks: Auto | int

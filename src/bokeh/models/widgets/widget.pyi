@@ -10,11 +10,11 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from ..layouts import LayoutDOM, LayoutDOMInit
+from ..layouts import LayoutDOM, _LayoutDOMInit
 
-class WidgetInit(LayoutDOMInit, total=False):
+class _WidgetInit(_LayoutDOMInit, total=False):
     ...
 
 class Widget(LayoutDOM):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[WidgetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_WidgetInit]) -> None: ...

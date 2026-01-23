@@ -9,10 +9,10 @@
 from typing import Unpack
 
 # Bokeh imports
-from bokeh.models import UIElement, UIElementInit
+from bokeh.models.ui.ui_element import UIElement, _UIElementInit
 
-class NotificationsInit(UIElementInit, total=False):
+class _NotificationsInit(_UIElementInit, total=False):
     ...
 
 class Notifications(UIElement):
-    def __init__(self, **kwargs: Unpack[NotificationsInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_NotificationsInit]) -> None: ...

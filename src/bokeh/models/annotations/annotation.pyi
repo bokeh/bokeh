@@ -10,21 +10,21 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from ..renderers.renderer import CompositeRenderer, CompositeRendererInit
+from ..renderers.renderer import CompositeRenderer, _CompositeRendererInit
 from ..sources import DataSource
 
-class AnnotationInit(CompositeRendererInit, total=False):
+class _AnnotationInit(_CompositeRendererInit, total=False):
     ...
 
 class Annotation(CompositeRenderer):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[AnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_AnnotationInit]) -> None: ...
 
-class DataAnnotationInit(AnnotationInit, total=False):
+class _DataAnnotationInit(_AnnotationInit, total=False):
     source: DataSource
 
 class DataAnnotation(Annotation):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[DataAnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DataAnnotationInit]) -> None: ...
 
     source: DataSource = ...

@@ -10,12 +10,12 @@ from typing import Unpack
 
 # Bokeh imports
 from ...core.has_props import HasProps
-from .ui_element import UIElement, UIElementInit
+from .ui_element import UIElement, _UIElementInit
 
-class ExaminerInit(UIElementInit, total=False):
+class _ExaminerInit(_UIElementInit, total=False):
     target: HasProps | None
 
 class Examiner(UIElement):
-    def __init__(self, **kwargs: Unpack[ExaminerInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ExaminerInit]) -> None: ...
 
     target: HasProps | None = ...

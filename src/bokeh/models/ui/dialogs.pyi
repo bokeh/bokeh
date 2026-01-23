@@ -12,9 +12,9 @@ from typing import Literal, Unpack
 from ...core.enums import MovableType as Movable, ResizableType as Resizable
 from ..dom import DOMNode
 from ..nodes import Node
-from .ui_element import UIElement, UIElementInit
+from .ui_element import UIElement, _UIElementInit
 
-class DialogInit(UIElementInit, total=False):
+class _DialogInit(_UIElementInit, total=False):
     title: str | DOMNode | UIElement | None
     content: str | DOMNode | UIElement
     pinnable: bool
@@ -32,7 +32,7 @@ class DialogInit(UIElementInit, total=False):
     right_limit: Node | None
 
 class Dialog(UIElement):
-    def __init__(self, **kwargs: Unpack[DialogInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DialogInit]) -> None: ...
 
     title: str | DOMNode | UIElement | None = ...
     content: str | DOMNode | UIElement = ...

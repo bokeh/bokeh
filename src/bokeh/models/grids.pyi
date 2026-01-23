@@ -17,10 +17,10 @@ from ..core.property_mixins import (
     ScalarMinorGridLineProps,
 )
 from .axes import Axis
-from .renderers import GuideRenderer, GuideRendererInit
+from .renderers.renderer import GuideRenderer, _GuideRendererInit
 from .tickers import Ticker
 
-class GridInit(GuideRendererInit, total=False):
+class _GridInit(_GuideRendererInit, total=False):
     dimension: Literal[0, 1]
     bounds: Auto | tuple[float, float]
     cross_bounds: Auto | tuple[float, float]
@@ -28,7 +28,7 @@ class GridInit(GuideRendererInit, total=False):
     ticker: Ticker | Sequence[float] | None
 
 class Grid(GuideRenderer, ScalarGridLineProps, ScalarMinorGridLineProps, ScalarBandFillProps, ScalarBandHatchProps):
-    def __init__(self, **kwargs: Unpack[GridInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GridInit]) -> None: ...
 
     dimension: Literal[0, 1] = ...
     bounds: Auto | tuple[float, float] = ...

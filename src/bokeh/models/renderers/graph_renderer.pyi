@@ -13,9 +13,9 @@ from ..glyph import XYGlyph
 from ..glyphs import MultiLine, Patches
 from ..graphs import GraphHitTestPolicy, LayoutProvider
 from .glyph_renderer import GlyphRenderer
-from .renderer import DataRenderer, DataRendererInit
+from .renderer import DataRenderer, _DataRendererInit
 
-class GraphRendererInit(DataRendererInit, total=False):
+class _GraphRendererInit(_DataRendererInit, total=False):
     layout_provider: LayoutProvider
     node_renderer: GlyphRenderer[XYGlyph]
     edge_renderer: GlyphRenderer[MultiLine | Patches]
@@ -23,7 +23,7 @@ class GraphRendererInit(DataRendererInit, total=False):
     inspection_policy: GraphHitTestPolicy
 
 class GraphRenderer(DataRenderer):
-    def __init__(self, **kwargs: Unpack[GraphRendererInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GraphRendererInit]) -> None: ...
 
     layout_provider: LayoutProvider = ...
     node_renderer: GlyphRenderer[XYGlyph] = ...

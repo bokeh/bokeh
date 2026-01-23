@@ -10,16 +10,16 @@ from typing import Unpack
 
 # Bokeh imports
 from ..tiles import TileSource
-from .renderer import Renderer, RendererInit
+from .renderer import Renderer, _RendererInit
 
-class TileRendererInit(RendererInit, total=False):
+class _TileRendererInit(_RendererInit, total=False):
     tile_source: TileSource
     alpha: float
     smoothing: bool
     render_parents: bool
 
 class TileRenderer(Renderer):
-    def __init__(self, **kwargs: Unpack[TileRendererInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TileRendererInit]) -> None: ...
 
     tile_source: TileSource = ...
     alpha: float = ...

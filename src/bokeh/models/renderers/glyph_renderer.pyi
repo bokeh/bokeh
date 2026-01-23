@@ -20,11 +20,11 @@ from ..annotations import ColorBar
 from ..glyph import Glyph
 from ..graphics import Decoration, Marking
 from ..sources import CDSView, DataSource
-from .renderer import DataRenderer, DataRendererInit
+from .renderer import DataRenderer, _DataRendererInit
 
 GlyphType = TypeVar("GlyphType", bound=Glyph)
 
-class GlyphRendererInit(DataRendererInit, Generic[GlyphType], total=False):
+class _GlyphRendererInit(_DataRendererInit, Generic[GlyphType], total=False):
     data_source: DataSource
     view: CDSView
     glyph: GlyphType
@@ -35,7 +35,7 @@ class GlyphRendererInit(DataRendererInit, Generic[GlyphType], total=False):
     muted: bool
 
 class GlyphRenderer(DataRenderer, Generic[GlyphType]):
-    def __init__(self, **kwargs: Unpack[GlyphRendererInit[GlyphType]]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GlyphRendererInit[GlyphType]]) -> None: ...
 
     data_source: DataSource = ...
     view: CDSView = ...

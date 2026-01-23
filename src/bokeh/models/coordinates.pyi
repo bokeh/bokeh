@@ -9,11 +9,11 @@
 from typing import Unpack
 
 # Bokeh imports
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 from .ranges import Range
 from .scales import Scale
 
-class CoordinateMappingInit(ModelInit, total=False):
+class _CoordinateMappingInit(_ModelInit, total=False):
     x_source: Range
     y_source: Range
     x_scale: Scale
@@ -22,7 +22,7 @@ class CoordinateMappingInit(ModelInit, total=False):
     y_target: Range
 
 class CoordinateMapping(Model):
-    def __init__(self, **kwargs: Unpack[CoordinateMappingInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_CoordinateMappingInit]) -> None: ...
 
     x_source: Range = ...
     y_source: Range = ...

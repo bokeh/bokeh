@@ -10,25 +10,25 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from ...model.model import Model, ModelInit
+from ...model.model import Model, _ModelInit
 
-class GroupByInit(ModelInit, total=False):
+class _GroupByInit(_ModelInit, total=False):
     ...
 
 class GroupBy(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[GroupByInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GroupByInit]) -> None: ...
 
-class GroupByModelsInit(GroupByInit, total=False):
+class _GroupByModelsInit(_GroupByInit, total=False):
     groups: list[list[Model]]
 
 class GroupByModels(GroupBy):
-    def __init__(self, **kwargs: Unpack[GroupByModelsInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GroupByModelsInit]) -> None: ...
 
     groups: list[list[Model]] = ...
 
-class GroupByNameInit(GroupByInit, total=False):
+class _GroupByNameInit(_GroupByInit, total=False):
     ...
 
 class GroupByName(GroupBy):
-    def __init__(self, **kwargs: Unpack[GroupByNameInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GroupByNameInit]) -> None: ...

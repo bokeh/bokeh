@@ -11,66 +11,66 @@ from typing import TypedDict, Unpack
 
 # Bokeh imports
 from ..core.has_props import HasProps
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 from .graphics import Decoration
 
-class GlyphInit(ModelInit, total=False):
+class _GlyphInit(_ModelInit, total=False):
     decorations: list[Decoration]
 
 class Glyph(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[GlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GlyphInit]) -> None: ...
 
     decorations: list[Decoration] = ...
 
-class XYGlyphInit(GlyphInit, total=False):
+class _XYGlyphInit(_GlyphInit, total=False):
     ...
 
 class XYGlyph(Glyph):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[XYGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_XYGlyphInit]) -> None: ...
 
-class RadialGlyphInit(XYGlyphInit, total=False):
+class _RadialGlyphInit(_XYGlyphInit, total=False):
     ...
 
 class RadialGlyph(XYGlyph):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[RadialGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_RadialGlyphInit]) -> None: ...
 
-class ConnectedXYGlyphInit(XYGlyphInit, total=False):
+class _ConnectedXYGlyphInit(_XYGlyphInit, total=False):
     ...
 
 class ConnectedXYGlyph(XYGlyph):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[ConnectedXYGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ConnectedXYGlyphInit]) -> None: ...
 
-class LineGlyphInit(TypedDict, total=False):
+class _LineGlyphInit(TypedDict, total=False):
     ...
 
 class LineGlyph(HasProps):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[LineGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_LineGlyphInit]) -> None: ...
 
-class FillGlyphInit(TypedDict, total=False):
+class _FillGlyphInit(TypedDict, total=False):
     ...
 
 class FillGlyph(HasProps):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[FillGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_FillGlyphInit]) -> None: ...
 
-class TextGlyphInit(TypedDict, total=False):
+class _TextGlyphInit(TypedDict, total=False):
     ...
 
 class TextGlyph(HasProps):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[TextGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TextGlyphInit]) -> None: ...
 
-class HatchGlyphInit(TypedDict, total=False):
+class _HatchGlyphInit(TypedDict, total=False):
     ...
 
 class HatchGlyph(HasProps):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[HatchGlyphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HatchGlyphInit]) -> None: ...
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -12,29 +12,29 @@ from typing import Unpack
 # Bokeh imports
 from ..core.enums import TextureRepetitionType as TextureRepetition
 from ..core.property.visual import ImageType as Image
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 
-class TextureInit(ModelInit, total=False):
+class _TextureInit(_ModelInit, total=False):
     repetition: TextureRepetition
 
 class Texture(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[TextureInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TextureInit]) -> None: ...
 
     repetition: TextureRepetition = ...
 
-class CanvasTextureInit(TextureInit, total=False):
+class _CanvasTextureInit(_TextureInit, total=False):
     code: str
 
 class CanvasTexture(Texture):
-    def __init__(self, **kwargs: Unpack[CanvasTextureInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_CanvasTextureInit]) -> None: ...
 
     code: str = ...
 
-class ImageURLTextureInit(TextureInit, total=False):
+class _ImageURLTextureInit(_TextureInit, total=False):
     url: Image
 
 class ImageURLTexture(Texture):
-    def __init__(self, **kwargs: Unpack[ImageURLTextureInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ImageURLTextureInit]) -> None: ...
 
     url: Image = ...

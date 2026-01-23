@@ -13,15 +13,15 @@ from ...plotting.contour import ContourData
 from ..annotations import ContourColorBar
 from ..glyph import Glyph
 from .glyph_renderer import GlyphRenderer
-from .renderer import DataRenderer, DataRendererInit
+from .renderer import DataRenderer, _DataRendererInit
 
-class ContourRendererInit(DataRendererInit, total=False):
+class _ContourRendererInit(_DataRendererInit, total=False):
     line_renderer: GlyphRenderer[Glyph]
     fill_renderer: GlyphRenderer[Glyph]
     levels: Sequence[float]
 
 class ContourRenderer(DataRenderer):
-    def __init__(self, **kwargs: Unpack[ContourRendererInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ContourRendererInit]) -> None: ...
 
     line_renderer: GlyphRenderer[Glyph] = ...
     fill_renderer: GlyphRenderer[Glyph] = ...

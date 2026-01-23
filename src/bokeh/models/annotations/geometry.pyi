@@ -25,47 +25,47 @@ from ...core.enums import (
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
-    LinePropsInit,
     ScalarAboveFillProps,
-    ScalarAboveFillPropsInit,
     ScalarAboveHatchProps,
-    ScalarAboveHatchPropsInit,
     ScalarBelowFillProps,
-    ScalarBelowFillPropsInit,
     ScalarBelowHatchProps,
-    ScalarBelowHatchPropsInit,
     ScalarFillProps,
-    ScalarFillPropsInit,
     ScalarHatchProps,
-    ScalarHatchPropsInit,
     ScalarHoverFillProps,
-    ScalarHoverFillPropsInit,
     ScalarHoverHatchProps,
-    ScalarHoverHatchPropsInit,
     ScalarHoverLineProps,
-    ScalarHoverLinePropsInit,
     ScalarLineProps,
-    ScalarLinePropsInit,
+    _LinePropsInit,
+    _ScalarAboveFillPropsInit,
+    _ScalarAboveHatchPropsInit,
+    _ScalarBelowFillPropsInit,
+    _ScalarBelowHatchPropsInit,
+    _ScalarFillPropsInit,
+    _ScalarHatchPropsInit,
+    _ScalarHoverFillPropsInit,
+    _ScalarHoverHatchPropsInit,
+    _ScalarHoverLinePropsInit,
+    _ScalarLinePropsInit,
 )
-from ...model.model import Model, ModelInit
+from ...model.model import Model, _ModelInit
 from ..nodes import BoxNodes
 from .annotation import (
     Annotation,
-    AnnotationInit,
     DataAnnotation,
-    DataAnnotationInit,
+    _AnnotationInit,
+    _DataAnnotationInit,
 )
 from .arrows import ArrowHead
 
-class AreaVisualsInit(ModelInit, ScalarLinePropsInit, ScalarFillPropsInit, ScalarHatchPropsInit,
-        ScalarHoverLinePropsInit, ScalarHoverFillPropsInit, ScalarHoverHatchPropsInit, total=False):
+class _AreaVisualsInit(_ModelInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
+        _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
     ...
 
 class AreaVisuals(Model, ScalarLineProps, ScalarFillProps, ScalarHatchProps,
         ScalarHoverLineProps, ScalarHoverFillProps, ScalarHoverHatchProps):
-    def __init__(self, **kwargs: Unpack[AreaVisualsInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_AreaVisualsInit]) -> None: ...
 
-class BoxInteractionHandlesInit(ModelInit, total=False):
+class _BoxInteractionHandlesInit(_ModelInit, total=False):
     all: AreaVisuals
     move: AreaVisuals | None
     resize: AreaVisuals | None
@@ -81,7 +81,7 @@ class BoxInteractionHandlesInit(ModelInit, total=False):
     bottom_right: AreaVisuals | None
 
 class BoxInteractionHandles(Model):
-    def __init__(self, **kwargs: Unpack[BoxInteractionHandlesInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_BoxInteractionHandlesInit]) -> None: ...
 
     all: AreaVisuals = ...
     move: AreaVisuals | None = ...
@@ -97,7 +97,7 @@ class BoxInteractionHandles(Model):
     bottom_left: AreaVisuals | None = ...
     bottom_right: AreaVisuals | None = ...
 
-class BoxAnnotationInit(AnnotationInit, AreaVisualsInit, total=False):
+class _BoxAnnotationInit(_AnnotationInit, _AreaVisualsInit, total=False):
     left: Coordinate | None
     right: Coordinate | None
     top: Coordinate | None
@@ -124,7 +124,7 @@ class BoxAnnotationInit(AnnotationInit, AreaVisualsInit, total=False):
     inverted: bool
 
 class BoxAnnotation(Annotation, AreaVisuals):
-    def __init__(self, **kwargs: Unpack[BoxAnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_BoxAnnotationInit]) -> None: ...
 
     @property
     def left(self) -> Coordinate: ...
@@ -175,22 +175,22 @@ class BoxAnnotation(Annotation, AreaVisuals):
     @property
     def nodes(self) -> BoxNodes: ...
 
-class BandInit(DataAnnotationInit, ScalarLinePropsInit, ScalarFillPropsInit, ScalarHatchPropsInit, total=False):
+class _BandInit(_DataAnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     lower: CoordinateSpec
     upper: CoordinateSpec
     base: CoordinateSpec
     dimension: Dimension
 
 class Band(DataAnnotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
-    def __init__(self, **kwargs: Unpack[BandInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_BandInit]) -> None: ...
 
     lower: CoordinateSpec = ...
     upper: CoordinateSpec = ...
     base: CoordinateSpec = ...
     dimension: Dimension = ...
 
-class PolyAnnotationInit(AnnotationInit, ScalarLinePropsInit, ScalarFillPropsInit, ScalarHatchPropsInit,
-        ScalarHoverLinePropsInit, ScalarHoverFillPropsInit, ScalarHoverHatchPropsInit, total=False):
+class _PolyAnnotationInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
+        _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
     xs: Sequence[CoordinateLike]
     xs_units: CoordinateUnits
     ys: Sequence[CoordinateLike]
@@ -199,7 +199,7 @@ class PolyAnnotationInit(AnnotationInit, ScalarLinePropsInit, ScalarFillPropsIni
 
 class PolyAnnotation(Annotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps,
         ScalarHoverLineProps, ScalarHoverFillProps, ScalarHoverHatchProps):
-    def __init__(self, **kwargs: Unpack[PolyAnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_PolyAnnotationInit]) -> None: ...
 
     xs: Sequence[CoordinateLike] = ...
     xs_units: CoordinateUnits = ...
@@ -207,32 +207,32 @@ class PolyAnnotation(Annotation, ScalarLineProps, ScalarFillProps, ScalarHatchPr
     ys_units: CoordinateUnits = ...
     editable: bool = ...
 
-class SlopeInit(AnnotationInit, ScalarLinePropsInit, ScalarAboveFillPropsInit,
-        ScalarAboveHatchPropsInit, ScalarBelowFillPropsInit, ScalarBelowHatchPropsInit, total=False):
+class _SlopeInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarAboveFillPropsInit,
+        _ScalarAboveHatchPropsInit, _ScalarBelowFillPropsInit, _ScalarBelowHatchPropsInit, total=False):
     gradient: float | None
     y_intercept: float | None
 
 class Slope(Annotation, ScalarLineProps, ScalarAboveFillProps, ScalarAboveHatchProps, ScalarBelowFillProps, ScalarBelowHatchProps):
-    def __init__(self, **kwargs: Unpack[SlopeInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_SlopeInit]) -> None: ...
 
     gradient: float | None = ...
     y_intercept: float | None = ...
 
-class SpanInit(AnnotationInit, ScalarLinePropsInit, ScalarHoverLinePropsInit, total=False):
+class _SpanInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarHoverLinePropsInit, total=False):
     location: CoordinateLike | None
     location_units: CoordinateUnits
     dimension: Dimension
     editable: bool
 
 class Span(Annotation, ScalarLineProps, ScalarHoverLineProps):
-    def __init__(self, **kwargs: Unpack[SpanInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_SpanInit]) -> None: ...
 
     location: CoordinateLike | None = ...
     location_units: CoordinateUnits = ...
     dimension: Dimension = ...
     editable: bool = ...
 
-class WhiskerInit(DataAnnotationInit, LinePropsInit, total=False):
+class _WhiskerInit(_DataAnnotationInit, _LinePropsInit, total=False):
     lower: CoordinateSpec
     lower_head: ArrowHead | None
     upper: CoordinateSpec
@@ -241,7 +241,7 @@ class WhiskerInit(DataAnnotationInit, LinePropsInit, total=False):
     dimension: Dimension
 
 class Whisker(DataAnnotation, LineProps):
-    def __init__(self, **kwargs: Unpack[WhiskerInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_WhiskerInit]) -> None: ...
 
     lower: CoordinateSpec = ...
     lower_head: ArrowHead | None = ...

@@ -12,50 +12,50 @@ from typing import Unpack
 # Bokeh imports
 from .._types import JSON, Bytes
 from ..core.enums import MapTypeType as MapType
-from ..model.model import Model, ModelInit
-from .plots import Plot, PlotInit
+from ..model.model import Model, _ModelInit
+from .plots import Plot, _PlotInit
 
-class MapOptionsInit(ModelInit, total=False):
+class _MapOptionsInit(_ModelInit, total=False):
     lat: float
     lng: float
     zoom: int
 
 class MapOptions(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[MapOptionsInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_MapOptionsInit]) -> None: ...
 
     lat: float = ...
     lng: float = ...
     zoom: int = ...
 
-class MapPlotInit(PlotInit, total=False):
+class _MapPlotInit(_PlotInit, total=False):
     ...
 
 class MapPlot(Plot):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[MapPlotInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_MapPlotInit]) -> None: ...
 
-class GMapOptionsInit(MapOptionsInit, total=False):
+class _GMapOptionsInit(_MapOptionsInit, total=False):
     map_type: MapType
     scale_control: bool
     styles: JSON | None
     tilt: int
 
 class GMapOptions(MapOptions):
-    def __init__(self, **kwargs: Unpack[GMapOptionsInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GMapOptionsInit]) -> None: ...
 
     map_type: MapType = ...
     scale_control: bool = ...
     styles: JSON | None = ...
     tilt: int = ...
 
-class GMapPlotInit(MapPlotInit, total=False):
+class _GMapPlotInit(_MapPlotInit, total=False):
     map_options: GMapOptions
     api_key: Bytes | str
     api_version: str
 
 class GMapPlot(MapPlot):
-    def __init__(self, **kwargs: Unpack[GMapPlotInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GMapPlotInit]) -> None: ...
 
     map_options: GMapOptions = ...
 

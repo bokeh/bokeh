@@ -11,7 +11,7 @@ from typing import ClassVar, Literal, Unpack
 
 # Bokeh imports
 from .._types import CoordinateLike
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 from .glyph import Glyph
 from .renderers import GlyphRenderer
 
@@ -54,40 +54,40 @@ class BoxNodes:
     @property
     def height(self) -> Node: ...
 
-class CoordinateInit(ModelInit, total=False):
+class _CoordinateInit(_ModelInit, total=False):
     ...
 
 class Coordinate(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[CoordinateInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_CoordinateInit]) -> None: ...
 
-class XYInit(CoordinateInit, total=False):
+class _XYInit(_CoordinateInit, total=False):
     x: CoordinateLike
     y: CoordinateLike
 
 class XY(Coordinate):
-    def __init__(self, **kwargs: Unpack[XYInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_XYInit]) -> None: ...
 
     x: CoordinateLike = ...
     y: CoordinateLike = ...
 
-class IndexedInit(CoordinateInit, total=False):
+class _IndexedInit(_CoordinateInit, total=False):
     index: int
     renderer: GlyphRenderer[Glyph]
 
 class Indexed(Coordinate):
-    def __init__(self, **kwargs: Unpack[IndexedInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_IndexedInit]) -> None: ...
 
     index: int = ...
     renderer: GlyphRenderer[Glyph] = ...
 
-class NodeInit(CoordinateInit, total=False):
+class _NodeInit(_CoordinateInit, total=False):
     target: Model | ImplicitTarget
     symbol: str
     offset: int
 
 class Node(Coordinate):
-    def __init__(self, **kwargs: Unpack[NodeInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_NodeInit]) -> None: ...
 
     target: Model | ImplicitTarget = ...
     symbol: str = ...

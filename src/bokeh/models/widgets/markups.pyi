@@ -10,35 +10,35 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from .widget import Widget, WidgetInit
+from .widget import Widget, _WidgetInit
 
-class MarkupInit(WidgetInit, total=False):
+class _MarkupInit(_WidgetInit, total=False):
     text: str
     disable_math: bool
 
 class Markup(Widget):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[MarkupInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_MarkupInit]) -> None: ...
 
     text: str = ...
     disable_math: bool = ...
 
-class ParagraphInit(MarkupInit, total=False):
+class _ParagraphInit(_MarkupInit, total=False):
     ...
 
 class Paragraph(Markup):
-    def __init__(self, **kwargs: Unpack[ParagraphInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ParagraphInit]) -> None: ...
 
-class DivInit(MarkupInit, total=False):
+class _DivInit(_MarkupInit, total=False):
     render_as_text: bool
 
 class Div(Markup):
-    def __init__(self, **kwargs: Unpack[DivInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DivInit]) -> None: ...
 
     render_as_text: bool = ...
 
-class PreTextInit(ParagraphInit, total=False):
+class _PreTextInit(_ParagraphInit, total=False):
     ...
 
 class PreText(Paragraph):
-    def __init__(self, **kwargs: Unpack[PreTextInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_PreTextInit]) -> None: ...

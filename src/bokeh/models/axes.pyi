@@ -18,25 +18,25 @@ from ..core.enums import (
 )
 from ..core.property_mixins import (
     ScalarAxisLabelTextProps as AxisLabelText,
-    ScalarAxisLabelTextPropsInit as AxisLabelTextInit,
     ScalarAxisLineProps as AxisLine,
-    ScalarAxisLinePropsInit as AxisLineInit,
     ScalarBackgroundFillProps as BackgroundFill,
-    ScalarBackgroundFillPropsInit as BackgroundFillInit,
     ScalarBackgroundHatchProps as BackgroundHatch,
-    ScalarBackgroundHatchPropsInit as BackgroundHatchInit,
     ScalarGroupTextProps as GroupText,
-    ScalarGroupTextPropsInit as GroupTextInit,
     ScalarMajorLabelTextProps as MajorLabelText,
-    ScalarMajorLabelTextPropsInit as MajorLabelTextInit,
     ScalarMajorTickLineProps as MajorTickLine,
-    ScalarMajorTickLinePropsInit as MajorTickLineInit,
     ScalarMinorTickLineProps as MinorTickLine,
-    ScalarMinorTickLinePropsInit as MinorTickLineInit,
     ScalarSeparatorLineProps as SeparatorLine,
-    ScalarSeparatorLinePropsInit as SeparatorLineInit,
     ScalarSubgroupTextProps as SubgroupText,
-    ScalarSubgroupTextPropsInit as SubgroupTextInit,
+    _ScalarAxisLabelTextPropsInit as _AxisLabelTextInit,
+    _ScalarAxisLinePropsInit as _AxisLineInit,
+    _ScalarBackgroundFillPropsInit as _BackgroundFillInit,
+    _ScalarBackgroundHatchPropsInit as _BackgroundHatchInit,
+    _ScalarGroupTextPropsInit as _GroupTextInit,
+    _ScalarMajorLabelTextPropsInit as _MajorLabelTextInit,
+    _ScalarMajorTickLinePropsInit as _MajorTickLineInit,
+    _ScalarMinorTickLinePropsInit as _MinorTickLineInit,
+    _ScalarSeparatorLinePropsInit as _SeparatorLineInit,
+    _ScalarSubgroupTextPropsInit as _SubgroupTextInit,
 )
 from .formatters import (
     BasicTickFormatter,
@@ -49,7 +49,7 @@ from .formatters import (
 )
 from .labeling import LabelingPolicy
 from .ranges import Factor
-from .renderers import GuideRenderer, GuideRendererInit
+from .renderers.renderer import GuideRenderer, _GuideRendererInit
 from .tickers import (
     BasicTicker,
     CategoricalTicker,
@@ -60,8 +60,8 @@ from .tickers import (
     TimedeltaTicker,
 )
 
-class AxisInit(GuideRendererInit, AxisLabelTextInit, MajorLabelTextInit, AxisLineInit, MajorTickLineInit,
-        MinorTickLineInit, BackgroundFillInit, BackgroundHatchInit, total=False):
+class _AxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit,
+        _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -83,7 +83,7 @@ class AxisInit(GuideRendererInit, AxisLabelTextInit, MajorLabelTextInit, AxisLin
 
 class Axis(GuideRenderer, AxisLabelText, MajorLabelText, AxisLine, MajorTickLine, MinorTickLine, BackgroundFill, BackgroundHatch):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[AxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_AxisInit]) -> None: ...
 
     dimension: Auto | Literal[0, 1] = ...
     face: Auto | Literal["front", "back"] = ...
@@ -104,73 +104,73 @@ class Axis(GuideRenderer, AxisLabelText, MajorLabelText, AxisLine, MajorTickLine
     minor_tick_out: int = ...
     fixed_location: None | float | Factor = ...
 
-class ContinuousAxisInit(AxisInit, total=False):
+class _ContinuousAxisInit(_AxisInit, total=False):
     ...
 
 class ContinuousAxis(Axis):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[ContinuousAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ContinuousAxisInit]) -> None: ...
 
-class LinearAxisInit(ContinuousAxisInit, total=False):
+class _LinearAxisInit(_ContinuousAxisInit, total=False):
     ticker: BasicTicker
     formatter: BasicTickFormatter
 
 class LinearAxis(ContinuousAxis):
-    def __init__(self, **kwargs: Unpack[LinearAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_LinearAxisInit]) -> None: ...
 
     ticker: BasicTicker = ...
     formatter: BasicTickFormatter = ...
 
-class LogAxisInit(ContinuousAxisInit, total=False):
+class _LogAxisInit(_ContinuousAxisInit, total=False):
     ticker: LogTicker
     formatter: LogTickFormatter
 
 class LogAxis(ContinuousAxis):
-    def __init__(self, **kwargs: Unpack[LogAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_LogAxisInit]) -> None: ...
 
     ticker: LogTicker = ...
     formatter: LogTickFormatter = ...
 
-class CategoricalAxisInit(AxisInit, SeparatorLineInit, GroupTextInit, SubgroupTextInit, total=False):
+class _CategoricalAxisInit(_AxisInit, _SeparatorLineInit, _GroupTextInit, _SubgroupTextInit, total=False):
     ticker: CategoricalTicker
     formatter: CategoricalTickFormatter
     group_label_orientation: LabelOrientation | float
     subgroup_label_orientation: LabelOrientation | float
 
 class CategoricalAxis(Axis, SeparatorLine, GroupText, SubgroupText):
-    def __init__(self, **kwargs: Unpack[CategoricalAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_CategoricalAxisInit]) -> None: ...
 
     ticker: CategoricalTicker = ...
     formatter: CategoricalTickFormatter = ...
     group_label_orientation: LabelOrientation | float = ...
     subgroup_label_orientation: LabelOrientation | float = ...
 
-class DatetimeAxisInit(LinearAxisInit, total=False):
+class _DatetimeAxisInit(_LinearAxisInit, total=False):
     ticker: DatetimeTicker
     formatter: DatetimeTickFormatter
 
 class DatetimeAxis(LinearAxis):
-    def __init__(self, **kwargs: Unpack[DatetimeAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_DatetimeAxisInit]) -> None: ...
 
     ticker: DatetimeTicker = ...
     formatter: DatetimeTickFormatter = ...
 
-class MercatorAxisInit(LinearAxisInit, total=False):
+class _MercatorAxisInit(_LinearAxisInit, total=False):
     ticker: MercatorTicker
     formatter: MercatorTickFormatter
 
 class MercatorAxis(LinearAxis):
-    def __init__(self, **kwargs: Unpack[MercatorAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_MercatorAxisInit]) -> None: ...
 
     ticker: MercatorTicker = ...
     formatter: MercatorTickFormatter = ...
 
-class TimedeltaAxisInit(LinearAxisInit, total=False):
+class _TimedeltaAxisInit(_LinearAxisInit, total=False):
     ticker: TimedeltaTicker
     formatter: TimedeltaTickFormatter
 
 class TimedeltaAxis(LinearAxis):
-    def __init__(self, **kwargs: Unpack[TimedeltaAxisInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TimedeltaAxisInit]) -> None: ...
 
     ticker: TimedeltaTicker = ...
     formatter: TimedeltaTickFormatter = ...

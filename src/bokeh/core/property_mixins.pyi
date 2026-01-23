@@ -44,7 +44,7 @@ from .property.visual import DashPatternType as DashPattern
 
 ## Vector
 
-class FillPropsInit(TypedDict, total=False):
+class _FillPropsInit(TypedDict, total=False):
     fill_color: ColorSpec
     fill_alpha: AlphaSpec
 
@@ -52,7 +52,7 @@ class FillProps(HasProps):
     fill_color: ColorSpec = ...
     fill_alpha: AlphaSpec = ...
 
-class HatchPropsInit(TypedDict, total=False):
+class _HatchPropsInit(TypedDict, total=False):
     hatch_color: ColorSpec
     hatch_alpha: AlphaSpec
     hatch_scale: FloatSpec
@@ -68,13 +68,13 @@ class HatchProps(HasProps):
     hatch_weight: FloatSpec = ...
     hatch_extra: dict[str, Texture] = ...
 
-class ImagePropsInit(TypedDict, total=False):
+class _ImagePropsInit(TypedDict, total=False):
     global_alpha: AlphaSpec
 
 class ImageProps(HasProps):
     global_alpha: AlphaSpec = ...
 
-class LinePropsInit(TypedDict, total=False):
+class _LinePropsInit(TypedDict, total=False):
     line_color: ColorSpec
     line_alpha: AlphaSpec
     line_width: FloatSpec
@@ -92,7 +92,7 @@ class LineProps(HasProps):
     line_dash: DashPatternSpec = ...
     line_dash_offset: IntSpec = ...
 
-class TextPropsInit(TypedDict, total=False):
+class _TextPropsInit(TypedDict, total=False):
     text_color: ColorSpec
     text_outline_color: ColorSpec
     text_outline_width: FloatSpec
@@ -118,7 +118,7 @@ class TextProps(HasProps):
 
 # background_
 
-class BackgroundFillPropsInit(TypedDict, total=False):
+class _BackgroundFillPropsInit(TypedDict, total=False):
     background_fill_color: ColorSpec
     background_fill_alpha: AlphaSpec
 
@@ -126,7 +126,7 @@ class BackgroundFillProps(HasProps):
     background_fill_color: ColorSpec = ...
     background_fill_alpha: AlphaSpec = ...
 
-class BackgroundHatchPropsInit(TypedDict, total=False):
+class _BackgroundHatchPropsInit(TypedDict, total=False):
     background_hatch_color: ColorSpec
     background_hatch_alpha: AlphaSpec
     background_hatch_scale: FloatSpec
@@ -144,7 +144,7 @@ class BackgroundHatchProps(HasProps):
 
 # border_
 
-class BorderLinePropsInit(TypedDict, total=False):
+class _BorderLinePropsInit(TypedDict, total=False):
     border_line_color: ColorSpec
     border_line_alpha: AlphaSpec
     border_line_width: FloatSpec
@@ -164,7 +164,7 @@ class BorderLineProps(HasProps):
 
 # body_
 
-class BodyLinePropsInit(TypedDict, total=False):
+class _BodyLinePropsInit(TypedDict, total=False):
     body_line_color: ColorSpec
     body_line_alpha: AlphaSpec
     body_line_width: FloatSpec
@@ -184,7 +184,7 @@ class BodyLineProps(HasProps):
 
 # body_
 
-class GlyphLinePropsInit(TypedDict, total=False):
+class _GlyphLinePropsInit(TypedDict, total=False):
     glyph_line_color: ColorSpec
     glyph_line_alpha: AlphaSpec
     glyph_line_width: FloatSpec
@@ -202,7 +202,7 @@ class GlyphLineProps(HasProps):
     glyph_line_dash: DashPatternSpec = ...
     glyph_line_dash_offset: IntSpec = ...
 
-class GlyphFillPropsInit(TypedDict, total=False):
+class _GlyphFillPropsInit(TypedDict, total=False):
     glyph_fill_color: ColorSpec
     glyph_fill_alpha: AlphaSpec
 
@@ -210,7 +210,7 @@ class GlyphFillProps(HasProps):
     glyph_fill_color: ColorSpec = ...
     glyph_fill_alpha: AlphaSpec = ...
 
-class GlyphHatchPropsInit(TypedDict, total=False):
+class _GlyphHatchPropsInit(TypedDict, total=False):
     glyph_hatch_color: ColorSpec
     glyph_hatch_alpha: AlphaSpec
     glyph_hatch_scale: FloatSpec
@@ -228,7 +228,7 @@ class GlyphHatchProps(HasProps):
 
 # Scalar
 
-class ScalarFillPropsInit(TypedDict, total=False):
+class _ScalarFillPropsInit(TypedDict, total=False):
     fill_color: Color | None
     fill_alpha: Alpha
 
@@ -236,7 +236,7 @@ class ScalarFillProps(HasProps):
     fill_color: Color | None = ...
     fill_alpha: Alpha = ...
 
-class ScalarHatchPropsInit(TypedDict, total=False):
+class _ScalarHatchPropsInit(TypedDict, total=False):
     hatch_color: Color | None
     hatch_alpha: Alpha
     hatch_scale: Size
@@ -252,13 +252,13 @@ class ScalarHatchProps(HasProps):
     hatch_weight: Size = ...
     hatch_extra: dict[str, Texture] = ...
 
-class ScalarImagePropsInit(TypedDict, total=False):
+class _ScalarImagePropsInit(TypedDict, total=False):
     global_alpha: Alpha
 
 class ScalarImageProps(HasProps):
     global_alpha: Alpha = ...
 
-class ScalarLinePropsInit(TypedDict, total=False):
+class _ScalarLinePropsInit(TypedDict, total=False):
     line_color: Color | None
     line_alpha: Alpha
     line_width: float
@@ -276,7 +276,7 @@ class ScalarLineProps(HasProps):
     line_dash: DashPattern = ...
     line_dash_offset: int = ...
 
-class ScalarTextPropsInit(TypedDict, total=False):
+class _ScalarTextPropsInit(TypedDict, total=False):
     text_color: Color | None
     text_outline_color: Color | None
     text_outline_width: float
@@ -302,7 +302,7 @@ class ScalarTextProps(HasProps):
 
 # above_
 
-class ScalarAboveFillPropsInit(TypedDict, total=False):
+class _ScalarAboveFillPropsInit(TypedDict, total=False):
     above_fill_color: Color | None
     above_fill_alpha: Alpha
 
@@ -310,7 +310,7 @@ class ScalarAboveFillProps(HasProps):
     above_fill_color: Color | None = ...
     above_fill_alpha: Alpha = ...
 
-class ScalarAboveHatchPropsInit(TypedDict, total=False):
+class _ScalarAboveHatchPropsInit(TypedDict, total=False):
     above_hatch_color: Color | None
     above_hatch_alpha: Alpha
     above_hatch_scale: Size
@@ -328,7 +328,7 @@ class ScalarAboveHatchProps(HasProps):
 
 # axis_label_
 
-class ScalarAxisLabelTextPropsInit(TypedDict, total=False):
+class _ScalarAxisLabelTextPropsInit(TypedDict, total=False):
     axis_label_text_color: Color | None
     axis_label_text_outline_color: Color | None
     axis_label_text_outline_width: float
@@ -354,7 +354,7 @@ class ScalarAxisLabelTextProps(HasProps):
 
 # axis_
 
-class ScalarAxisLinePropsInit(TypedDict, total=False):
+class _ScalarAxisLinePropsInit(TypedDict, total=False):
     axis_line_color: Color | None
     axis_line_alpha: Alpha
     axis_line_width: float
@@ -374,7 +374,7 @@ class ScalarAxisLineProps(HasProps):
 
 # background_
 
-class ScalarBackgroundFillPropsInit(TypedDict, total=False):
+class _ScalarBackgroundFillPropsInit(TypedDict, total=False):
     background_fill_color: Color | None
     background_fill_alpha: Alpha
 
@@ -382,7 +382,7 @@ class ScalarBackgroundFillProps(HasProps):
     background_fill_color: Color | None = ...
     background_fill_alpha: Alpha = ...
 
-class ScalarBackgroundHatchPropsInit(TypedDict, total=False):
+class _ScalarBackgroundHatchPropsInit(TypedDict, total=False):
     background_hatch_color: Color | None
     background_hatch_alpha: Alpha
     background_hatch_scale: Size
@@ -400,7 +400,7 @@ class ScalarBackgroundHatchProps(HasProps):
 
 # band_
 
-class ScalarBandFillPropsInit(TypedDict, total=False):
+class _ScalarBandFillPropsInit(TypedDict, total=False):
     band_fill_color: Color | None
     band_fill_alpha: Alpha
 
@@ -408,7 +408,7 @@ class ScalarBandFillProps(HasProps):
     band_fill_color: Color | None = ...
     band_fill_alpha: Alpha = ...
 
-class ScalarBandHatchPropsInit(TypedDict, total=False):
+class _ScalarBandHatchPropsInit(TypedDict, total=False):
     band_hatch_color: Color | None
     band_hatch_alpha: Alpha
     band_hatch_scale: Size
@@ -426,7 +426,7 @@ class ScalarBandHatchProps(HasProps):
 
 # bar_
 
-class ScalarBarLinePropsInit(TypedDict, total=False):
+class _ScalarBarLinePropsInit(TypedDict, total=False):
     bar_line_color: Color | None
     bar_line_alpha: Alpha
     bar_line_width: float
@@ -446,7 +446,7 @@ class ScalarBarLineProps(HasProps):
 
 # below_
 
-class ScalarBelowFillPropsInit(TypedDict, total=False):
+class _ScalarBelowFillPropsInit(TypedDict, total=False):
     below_fill_color: Color | None
     below_fill_alpha: Alpha
 
@@ -454,7 +454,7 @@ class ScalarBelowFillProps(HasProps):
     below_fill_color: Color | None = ...
     below_fill_alpha: Alpha = ...
 
-class ScalarBelowHatchPropsInit(TypedDict, total=False):
+class _ScalarBelowHatchPropsInit(TypedDict, total=False):
     below_hatch_color: Color | None
     below_hatch_alpha: Alpha
     below_hatch_scale: Size
@@ -472,7 +472,7 @@ class ScalarBelowHatchProps(HasProps):
 
 # border_
 
-class ScalarBorderLinePropsInit(TypedDict, total=False):
+class _ScalarBorderLinePropsInit(TypedDict, total=False):
     border_line_color: Color | None
     border_line_alpha: Alpha
     border_line_width: float
@@ -490,7 +490,7 @@ class ScalarBorderLineProps(HasProps):
     border_line_dash: DashPattern = ...
     border_line_dash_offset: int = ...
 
-class ScalarBorderFillPropsInit(TypedDict, total=False):
+class _ScalarBorderFillPropsInit(TypedDict, total=False):
     border_fill_color: Color | None
     border_fill_alpha: Alpha
 
@@ -498,7 +498,7 @@ class ScalarBorderFillProps(HasProps):
     border_fill_color: Color | None = ...
     border_fill_alpha: Alpha = ...
 
-class ScalarBorderHatchPropsInit(TypedDict, total=False):
+class _ScalarBorderHatchPropsInit(TypedDict, total=False):
     border_hatch_color: Color | None
     border_hatch_alpha: Alpha
     border_hatch_scale: Size
@@ -516,7 +516,7 @@ class ScalarBorderHatchProps(HasProps):
 
 # grid_
 
-class ScalarGridLinePropsInit(TypedDict, total=False):
+class _ScalarGridLinePropsInit(TypedDict, total=False):
     grid_line_color: Color | None
     grid_line_alpha: Alpha
     grid_line_width: float
@@ -536,7 +536,7 @@ class ScalarGridLineProps(HasProps):
 
 # group_
 
-class ScalarGroupTextPropsInit(TypedDict, total=False):
+class _ScalarGroupTextPropsInit(TypedDict, total=False):
     group_text_color: Color | None
     group_text_outline_color: Color | None
     group_text_outline_width: float
@@ -562,7 +562,7 @@ class ScalarGroupTextProps(HasProps):
 
 # hover_
 
-class ScalarHoverFillPropsInit(TypedDict, total=False):
+class _ScalarHoverFillPropsInit(TypedDict, total=False):
     hover_fill_color: Color | None
     hover_fill_alpha: Alpha
 
@@ -570,7 +570,7 @@ class ScalarHoverFillProps(HasProps):
     hover_fill_color: Color | None
     hover_fill_alpha: Alpha
 
-class ScalarHoverHatchPropsInit(TypedDict, total=False):
+class _ScalarHoverHatchPropsInit(TypedDict, total=False):
     hover_hatch_color: Color | None
     hover_hatch_alpha: Alpha
     hover_hatch_scale: Size
@@ -586,7 +586,7 @@ class ScalarHoverHatchProps(HasProps):
     hover_hatch_weight: Size = ...
     hover_hatch_extra: dict[str, Texture] = ...
 
-class ScalarHoverLinePropsInit(TypedDict, total=False):
+class _ScalarHoverLinePropsInit(TypedDict, total=False):
     hover_line_color: Color | None
     hover_line_alpha: Alpha
     hover_line_width: float
@@ -606,7 +606,7 @@ class ScalarHoverLineProps(HasProps):
 
 # inactive_
 
-class ScalarInactiveFillPropsInit(TypedDict, total=False):
+class _ScalarInactiveFillPropsInit(TypedDict, total=False):
     inactive_fill_color: Color | None
     inactive_fill_alpha: Alpha
 
@@ -616,7 +616,7 @@ class ScalarInactiveFillProps(HasProps):
 
 # item_background_
 
-class ScalarItemBackgroundFillPropsInit(TypedDict, total=False):
+class _ScalarItemBackgroundFillPropsInit(TypedDict, total=False):
     item_background_fill_color: Color | None
     item_background_fill_alpha: Alpha
 
@@ -626,7 +626,7 @@ class ScalarItemBackgroundFillProps(HasProps):
 
 # label_
 
-class ScalarLabelTextPropsInit(TypedDict, total=False):
+class _ScalarLabelTextPropsInit(TypedDict, total=False):
     label_text_color: Color | None
     label_text_outline_color: Color | None
     label_text_outline_width: float
@@ -652,7 +652,7 @@ class ScalarLabelTextProps(HasProps):
 
 # major_label_
 
-class ScalarMajorLabelTextPropsInit(TypedDict, total=False):
+class _ScalarMajorLabelTextPropsInit(TypedDict, total=False):
     major_label_text_color: Color | None
     major_label_text_outline_color: Color | None
     major_label_text_outline_width: float
@@ -678,7 +678,7 @@ class ScalarMajorLabelTextProps(HasProps):
 
 # major_tick_
 
-class ScalarMajorTickLinePropsInit(TypedDict, total=False):
+class _ScalarMajorTickLinePropsInit(TypedDict, total=False):
     major_tick_line_color: Color | None
     major_tick_line_alpha: Alpha
     major_tick_line_width: float
@@ -698,7 +698,7 @@ class ScalarMajorTickLineProps(HasProps):
 
 # minor_grid_
 
-class ScalarMinorGridLinePropsInit(TypedDict, total=False):
+class _ScalarMinorGridLinePropsInit(TypedDict, total=False):
     minor_grid_line_color: Color | None
     minor_grid_line_alpha: Alpha
     minor_grid_line_width: float
@@ -718,7 +718,7 @@ class ScalarMinorGridLineProps(HasProps):
 
 # minor_tick_
 
-class ScalarMinorTickLinePropsInit(TypedDict, total=False):
+class _ScalarMinorTickLinePropsInit(TypedDict, total=False):
     minor_tick_line_color: Color | None
     minor_tick_line_alpha: Alpha
     minor_tick_line_width: float
@@ -738,7 +738,7 @@ class ScalarMinorTickLineProps(HasProps):
 
 # outline_
 
-class ScalarOutlineLinePropsInit(TypedDict, total=False):
+class _ScalarOutlineLinePropsInit(TypedDict, total=False):
     outline_line_color: Color | None
     outline_line_alpha: Alpha
     outline_line_width: float
@@ -758,7 +758,7 @@ class ScalarOutlineLineProps(HasProps):
 
 # separator_
 
-class ScalarSeparatorLinePropsInit(TypedDict, total=False):
+class _ScalarSeparatorLinePropsInit(TypedDict, total=False):
     separator_line_color: Color | None
     separator_line_alpha: Alpha
     separator_line_width: float
@@ -778,7 +778,7 @@ class ScalarSeparatorLineProps(HasProps):
 
 # subgroup_
 
-class ScalarSubgroupTextPropsInit(TypedDict, total=False):
+class _ScalarSubgroupTextPropsInit(TypedDict, total=False):
     subgroup_text_color: Color | None
     subgroup_text_outline_color: Color | None
     subgroup_text_alpha: Alpha
@@ -802,7 +802,7 @@ class ScalarSubgroupTextProps(HasProps):
 
 # title_
 
-class ScalarTitleTextPropsInit(TypedDict, total=False):
+class _ScalarTitleTextPropsInit(TypedDict, total=False):
     title_text_color: Color | None
     title_text_outline_color: Color | None
     title_text_outline_width: float

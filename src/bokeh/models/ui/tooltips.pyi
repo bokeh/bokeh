@@ -17,9 +17,9 @@ from ...core.enums import (
 from ..dom import DOMNode
 from ..nodes import Coordinate
 from ..selectors import Selector
-from .ui_element import UIElement, UIElementInit
+from .ui_element import UIElement, _UIElementInit
 
-class TooltipInit(UIElementInit, total=False):
+class _TooltipInit(_UIElementInit, total=False):
     position: Anchor | tuple[float, float] | Coordinate | None
     target: UIElement | Selector | Auto
     content: str | DOMNode | UIElement
@@ -29,7 +29,7 @@ class TooltipInit(UIElementInit, total=False):
     interactive: bool
 
 class Tooltip(UIElement):
-    def __init__(self, **kwargs: Unpack[TooltipInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TooltipInit]) -> None: ...
 
     position: Anchor | tuple[float, float] | Coordinate | None = ...
     target: UIElement | Selector | Auto = ...

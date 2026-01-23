@@ -10,11 +10,11 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from ..annotation import Annotation, AnnotationInit
+from ..annotation import Annotation, _AnnotationInit
 
-class HTMLAnnotationInit(AnnotationInit, total=False):
+class _HTMLAnnotationInit(_AnnotationInit, total=False):
     ...
 
 class HTMLAnnotation(Annotation):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[HTMLAnnotationInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HTMLAnnotationInit]) -> None: ...

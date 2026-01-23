@@ -14,51 +14,51 @@ from ..._specs import NumberSpec
 from ...core.enums import CoordinateUnitsType as CoordinateUnits
 from ...core.property_mixins import (
     BodyLineProps,
-    BodyLinePropsInit,
     FillProps,
-    FillPropsInit,
     HatchProps,
-    HatchPropsInit,
     LineProps,
-    LinePropsInit,
+    _BodyLinePropsInit,
+    _FillPropsInit,
+    _HatchPropsInit,
+    _LinePropsInit,
 )
-from ..graphics import Marking, MarkingInit
-from .annotation import DataAnnotation, DataAnnotationInit
+from ..graphics import Marking, _MarkingInit
+from .annotation import DataAnnotation, _DataAnnotationInit
 
-class ArrowHeadInit(MarkingInit, total=False):
+class _ArrowHeadInit(_MarkingInit, total=False):
     size: NumberSpec
 
 class ArrowHead(Marking):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[ArrowHeadInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ArrowHeadInit]) -> None: ...
 
     size: NumberSpec = ...
 
-class OpenHeadInit(ArrowHeadInit, LinePropsInit, total=False):
+class _OpenHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
     ...
 
 class OpenHead(ArrowHead, LineProps):
     ...
 
-class NormalHeadInit(ArrowHeadInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+class _NormalHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
     ...
 
 class NormalHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
-class TeeHeadInit(ArrowHeadInit, LinePropsInit, total=False):
+class _TeeHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
     ...
 
 class TeeHead(ArrowHead, LineProps):
     ...
 
-class VeeHeadInit(ArrowHeadInit, LinePropsInit, FillPropsInit, HatchPropsInit, total=False):
+class _VeeHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
     ...
 
 class VeeHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
-class ArrowInit(DataAnnotationInit, BodyLinePropsInit, total=False):
+class _ArrowInit(_DataAnnotationInit, _BodyLinePropsInit, total=False):
     x_start: NumberSpec
     y_start: NumberSpec
     start_units: CoordinateUnits

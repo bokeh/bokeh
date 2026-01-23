@@ -10,44 +10,44 @@ from abc import abstractmethod
 from typing import Unpack
 
 # Bokeh imports
-from ..model.model import Model, ModelInit
+from ..model.model import Model, _ModelInit
 
-class StyleSheetInit(ModelInit, total=False):
+class _StyleSheetInit(_ModelInit, total=False):
     ...
 
 class StyleSheet(Model):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[StyleSheetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_StyleSheetInit]) -> None: ...
 
-class InlineStyleSheetInit(StyleSheetInit, total=False):
+class _InlineStyleSheetInit(_StyleSheetInit, total=False):
     css: str
 
 class InlineStyleSheet(StyleSheet):
-    def __init__(self, **kwargs: Unpack[InlineStyleSheetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_InlineStyleSheetInit]) -> None: ...
 
     css: str = ...
 
-class ImportedStyleSheetInit(StyleSheetInit, total=False):
+class _ImportedStyleSheetInit(_StyleSheetInit, total=False):
     url: str
 
 class ImportedStyleSheet(StyleSheet):
-    def __init__(self, **kwargs: Unpack[ImportedStyleSheetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ImportedStyleSheetInit]) -> None: ...
 
     url: str = ...
 
-class GlobalInlineStyleSheetInit(InlineStyleSheetInit, total=False):
+class _GlobalInlineStyleSheetInit(_InlineStyleSheetInit, total=False):
     ...
 
 class GlobalInlineStyleSheet(InlineStyleSheet):
-    def __init__(self, **kwargs: Unpack[GlobalInlineStyleSheetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GlobalInlineStyleSheetInit]) -> None: ...
 
-class GlobalImportedStyleSheetInit(ImportedStyleSheetInit, total=False):
+class _GlobalImportedStyleSheetInit(_ImportedStyleSheetInit, total=False):
     ...
 
 class GlobalImportedStyleSheet(ImportedStyleSheet):
-    def __init__(self, **kwargs: Unpack[GlobalImportedStyleSheetInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GlobalImportedStyleSheetInit]) -> None: ...
 
-class StylesInit(ModelInit, total=False):
+class _StylesInit(_ModelInit, total=False):
     align_content: str | None
     align_items: str | None
     align_self: str | None
@@ -363,7 +363,7 @@ class StylesInit(ModelInit, total=False):
     z_index: str | None
 
 class Styles(Model):
-    def __init__(self, **kwargs: Unpack[StylesInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_StylesInit]) -> None: ...
 
     align_content: str | None = ...
     align_items: str | None = ...

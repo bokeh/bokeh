@@ -12,39 +12,39 @@ from typing import Unpack
 # Bokeh imports
 from ..._types import Color, FontSize
 from ...core.enums import ToolIconType as ToolIcon
-from .ui_element import UIElement, UIElementInit
+from .ui_element import UIElement, _UIElementInit
 
-class IconInit(UIElementInit, total=False):
+class _IconInit(_UIElementInit, total=False):
     size: int | FontSize
 
 class Icon(UIElement):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[IconInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_IconInit]) -> None: ...
 
     size: int | FontSize = ...
 
-class BuiltinIconInit(IconInit, total=False):
+class _BuiltinIconInit(_IconInit, total=False):
     icon_name: ToolIcon | str
     color: Color
 
 class BuiltinIcon(Icon):
-    def __init__(self, **kwargs: Unpack[BuiltinIconInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_BuiltinIconInit]) -> None: ...
 
     icon_name: ToolIcon | str = ...
     color: Color = ...
 
-class SVGIconInit(IconInit, total=False):
+class _SVGIconInit(_IconInit, total=False):
     svg: str
 
 class SVGIcon(Icon):
-    def __init__(self, **kwargs: Unpack[SVGIconInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_SVGIconInit]) -> None: ...
 
     svg: str = ...
 
-class TablerIconInit(IconInit, total=False):
+class _TablerIconInit(_IconInit, total=False):
     icon_name: str
 
 class TablerIcon(Icon):
-    def __init__(self, **kwargs: Unpack[TablerIconInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TablerIconInit]) -> None: ...
 
     icon_name: str = ...

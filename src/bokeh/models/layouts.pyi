@@ -23,15 +23,12 @@ from ..core.enums import (
 )
 from ..core.has_props import HasProps
 from ..core.property_aliases import GridSpacing, TracksSizing
-from ..model.model import Model, ModelInit
-from .ui import (
-    Pane,
-    PaneInit,
-    Tooltip,
-    UIElement,
-)
+from ..model.model import Model, _ModelInit
+from .ui.panes import Pane, _PaneInit
+from .ui.tooltips import Tooltip
+from .ui.ui_element import UIElement
 
-class LayoutDOMInit(PaneInit, total=False):
+class _LayoutDOMInit(_PaneInit, total=False):
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -50,7 +47,7 @@ class LayoutDOMInit(PaneInit, total=False):
 
 class LayoutDOM(Pane):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[LayoutDOMInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_LayoutDOMInit]) -> None: ...
 
     disabled: bool = ...
     width: NonNegative[int] | None = ...
@@ -68,30 +65,30 @@ class LayoutDOM(Pane):
     align: Auto | Align | tuple[Align, Align] = ...
     resizable: bool | Dimensions = ...
 
-class SpacerInit(LayoutDOMInit, total=False):
+class _SpacerInit(_LayoutDOMInit, total=False):
     ...
 
 class Spacer(LayoutDOM):
-    def __init__(self, **kwargs: Unpack[SpacerInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_SpacerInit]) -> None: ...
 
-class GridCommonInit(LayoutDOMInit, total=False):
+class _GridCommonInit(_LayoutDOMInit, total=False):
     rows: TracksSizing | None
     cols: TracksSizing | None
     spacing: GridSpacing
 
 class GridCommon(HasProps):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[GridCommonInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GridCommonInit]) -> None: ...
 
     rows: TracksSizing | None = ...
     cols: TracksSizing | None = ...
     spacing: GridSpacing = ...
 
-class GridBoxInit(GridCommonInit, LayoutDOMInit, total=False):
+class _GridBoxInit(_GridCommonInit, _LayoutDOMInit, total=False):
     children: list[tuple[UIElement, int, int] | tuple[UIElement, int, int, int, int]]
 
 class GridBox(LayoutDOM, GridCommon):
-    def __init__(self, **kwargs: Unpack[GridBoxInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GridBoxInit]) -> None: ...
 
     children: list[tuple[UIElement, int, int] | tuple[UIElement, int, int, int, int]] = ...
 
@@ -105,13 +102,13 @@ class VBoxChild(TypedDict):
     row: NotRequired[int]
     span: NotRequired[int]
 
-class HBoxInit(LayoutDOMInit, total=False):
+class _HBoxInit(_LayoutDOMInit, total=False):
     children: list[HBoxChild] | list[UIElement]
     cols: TracksSizing | None
     spacing: NonNegative[int]
 
 class HBox(LayoutDOM):
-    def __init__(self, **kwargs: Unpack[HBoxInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_HBoxInit]) -> None: ...
 
     @property
     def children(self) -> list[HBoxChild]: ...
@@ -121,13 +118,13 @@ class HBox(LayoutDOM):
     cols: TracksSizing | None = ...
     spacing: NonNegative[int] = ...
 
-class VBoxInit(LayoutDOMInit, total=False):
+class _VBoxInit(_LayoutDOMInit, total=False):
     children: list[VBoxChild] | list[UIElement]
     rows: TracksSizing | None
     spacing: NonNegative[int]
 
 class VBox(LayoutDOM):
-    def __init__(self, **kwargs: Unpack[VBoxInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_VBoxInit]) -> None: ...
 
     @property
     def children(self) -> list[VBoxChild]: ...
@@ -137,30 +134,30 @@ class VBox(LayoutDOM):
     rows: TracksSizing | None = ...
     spacing: NonNegative[int] = ...
 
-class FlexBoxInit(LayoutDOMInit, total=False):
+class _FlexBoxInit(_LayoutDOMInit, total=False):
     children: list[UIElement]
     spacing: NonNegative[int]
 
 class FlexBox(LayoutDOM):
     @abstractmethod
-    def __init__(self, **kwargs: Unpack[FlexBoxInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_FlexBoxInit]) -> None: ...
 
     children: list[UIElement] = ...
     spacing: NonNegative[int] = ...
 
-class RowInit(FlexBoxInit, total=False):
+class _RowInit(_FlexBoxInit, total=False):
     ...
 
 class Row(FlexBox):
-    def __init__(self, **kwargs: Unpack[RowInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_RowInit]) -> None: ...
 
-class ColumnInit(FlexBoxInit, total=False):
+class _ColumnInit(_FlexBoxInit, total=False):
     ...
 
 class Column(FlexBox):
-    def __init__(self, **kwargs: Unpack[ColumnInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ColumnInit]) -> None: ...
 
-class TabPanelInit(ModelInit, total=False):
+class _TabPanelInit(_ModelInit, total=False):
     title: str
     tooltip: Tooltip | None
     child: UIElement
@@ -168,7 +165,7 @@ class TabPanelInit(ModelInit, total=False):
     disabled: bool
 
 class TabPanel(Model):
-    def __init__(self, **kwargs: Unpack[TabPanelInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TabPanelInit]) -> None: ...
 
     title: str = ...
     tooltip: Tooltip | None = ...
@@ -176,13 +173,13 @@ class TabPanel(Model):
     closable: bool = ...
     disabled: bool = ...
 
-class TabsInit(LayoutDOMInit, total=False):
+class _TabsInit(_LayoutDOMInit, total=False):
     tabs: list[TabPanel] | list[tuple[str, UIElement]]
     tabs_location: Location
     active: int
 
 class Tabs(LayoutDOM):
-    def __init__(self, **kwargs: Unpack[TabsInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_TabsInit]) -> None: ...
 
     @property
     def tabs(self) -> list[TabPanel]: ...
@@ -192,25 +189,25 @@ class Tabs(LayoutDOM):
     tabs_location: Location = ...
     active: int = ...
 
-class GroupBoxInit(LayoutDOMInit, total=False):
+class _GroupBoxInit(_LayoutDOMInit, total=False):
     title: str | None
     child: UIElement
     checkable: bool
 
 class GroupBox(LayoutDOM):
-    def __init__(self, **kwargs: Unpack[GroupBoxInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GroupBoxInit]) -> None: ...
 
     title: str | None = ...
     child: UIElement = ...
     checkable: bool = ...
 
-class ScrollBoxInit(LayoutDOMInit, total=False):
+class _ScrollBoxInit(_LayoutDOMInit, total=False):
     child: UIElement
     horizontal_scrollbar: ScrollbarPolicy
     vertical_scrollbar: ScrollbarPolicy
 
 class ScrollBox(LayoutDOM):
-    def __init__(self, **kwargs: Unpack[ScrollBoxInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_ScrollBoxInit]) -> None: ...
 
     child: UIElement = ...
     horizontal_scrollbar: ScrollbarPolicy = ...
