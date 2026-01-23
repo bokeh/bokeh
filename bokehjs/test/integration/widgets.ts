@@ -238,7 +238,7 @@ describe("Widgets", () => {
         }
       `],
     })
-    await display(obj, [100, 30])
+    await display(obj, [150, 30])
   })
 
   it("should allow ThemeSwitch with active=true and label", async () => {
@@ -252,7 +252,7 @@ describe("Widgets", () => {
         }
       `],
     })
-    await display(obj, [100, 30])
+    await display(obj, [150, 30])
   })
 
   describe("should support Progress indicator widget", () => {
