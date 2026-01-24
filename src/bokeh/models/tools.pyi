@@ -13,13 +13,12 @@ from typing import (
     Callable,
     ClassVar,
     Literal,
-    NotRequired,
     Sequence,
     TypedDict,
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import Unpack
+    from typing_extensions import NotRequired, Unpack
 
 # Bokeh imports
 from .._types import (
