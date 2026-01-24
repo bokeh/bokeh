@@ -7,7 +7,10 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Callable, TypedDict, Unpack
+from typing import TYPE_CHECKING, Callable, TypedDict
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ...core.enums import ButtonTypeType as ButtonType

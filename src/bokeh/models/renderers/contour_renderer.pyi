@@ -6,7 +6,10 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Sequence, Unpack
+from typing import TYPE_CHECKING, Any, Sequence
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ...plotting.contour import ContourData

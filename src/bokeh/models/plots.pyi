@@ -13,9 +13,11 @@ from typing import (
     Generator,
     Sequence,
     TypeVar,
-    Unpack,
     overload,
 )
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.enums import (

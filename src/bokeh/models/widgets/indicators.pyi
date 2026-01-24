@@ -7,7 +7,10 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Literal, Unpack
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ...core.enums import OrientationType as Orientation

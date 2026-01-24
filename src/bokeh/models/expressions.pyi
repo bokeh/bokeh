@@ -7,7 +7,10 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import Any, Sequence, Unpack
+from typing import TYPE_CHECKING, Any, Sequence
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from .._specs import AngleSpec, NumberSpec

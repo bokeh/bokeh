@@ -7,7 +7,10 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import ClassVar, Literal, Unpack
+from typing import TYPE_CHECKING, ClassVar, Literal
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from .._types import CoordinateLike
