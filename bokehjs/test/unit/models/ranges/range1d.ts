@@ -5,101 +5,112 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("range1d module", () => {
 
   describe("default creation", () => {
-    const r = new Range1d()
 
     it("should have start = 0", () => {
+      const r = new Range1d()
       expect(r.start).to.be.equal(0)
     })
 
     it("should have end = 1", () => {
+      const r = new Range1d()
       expect(r.end).to.be.equal(1)
     })
 
     it("should have min = 0", () => {
+      const r = new Range1d()
       expect(r.min).to.be.equal(0)
     })
 
     it("should have max = 1", () => {
+      const r = new Range1d()
       expect(r.max).to.be.equal(1)
     })
   })
 
   describe("update start, less than end", () => {
-    const r = new Range1d()
-    r.start = -1
-
     it("should have min = -1", () => {
+      const r = new Range1d()
+      r.start = -1
       expect(r.min).to.be.equal(-1)
     })
 
     it("should have max = 1", () => {
+      const r = new Range1d()
+      r.start = -1
       expect(r.max).to.be.equal(1)
     })
   })
 
   describe("update start, greater than end", () => {
-    const r = new Range1d()
-    r.start = 2
-
     it("should have min = 1", () => {
+      const r = new Range1d()
+      r.start = 2
       expect(r.min).to.be.equal(1)
     })
 
     it("should have max = 2", () => {
+      const r = new Range1d()
+      r.start = 2
       expect(r.max).to.be.equal(2)
     })
   })
 
   describe("update end, greater than start", () => {
-    const r = new Range1d()
-    r.end = 2
-
     it("should have min = 0", () => {
+      const r = new Range1d()
+      r.end = 2
       expect(r.min).to.be.equal(0)
     })
 
     it("should have max = 2", () => {
+      const r = new Range1d()
+      r.end = 2
       expect(r.max).to.be.equal(2)
     })
   })
 
   describe("update end, less than start", () => {
-    const r = new Range1d()
-    r.end = -1.1
-
     it("should have min = -1.1", () => {
+      const r = new Range1d()
+      r.end = -1.1
       expect(r.min).to.be.equal(-1.1)
     })
 
     it("should have max = 0", () => {
+      const r = new Range1d()
+      r.end = -1.1
       expect(r.max).to.be.equal(0)
     })
   })
 
   describe("update both, positive", () => {
-    const r = new Range1d()
-    r.end = 1.1
-    r.start = 2.1
-
     it("should have min = 1.1", () => {
+      const r = new Range1d()
+      r.end = 1.1
+      r.start = 2.1
       expect(r.min).to.be.equal(1.1)
     })
 
     it("should have max = 2.1", () => {
+      const r = new Range1d()
+      r.end = 1.1
+      r.start = 2.1
       expect(r.max).to.be.equal(2.1)
     })
   })
 
   describe("update both, negative", () => {
-    const r = new Range1d()
-    r.end = -1.1
-    r.start = -2.1
-
     it("should have min = -2.1", () => {
+      const r = new Range1d()
+      r.end = -1.1
+      r.start = -2.1
       expect(r.min).to.be.equal(-2.1)
     })
 
     it("should have max = -1.1", () => {
+      const r = new Range1d()
+      r.end = -1.1
+      r.start = -2.1
       expect(r.max).to.be.equal(-1.1)
     })
   })
@@ -144,9 +155,5 @@ describe("range1d module", () => {
       expect(r.start).to.be.equal(-2.2)
       expect(r.end).to.be.equal(-1.2)
     })
-  })
-
-  describe("changing model attribute", () => {
-
   })
 })
