@@ -10,7 +10,7 @@ dependencies:
   - narwhals>=1.13
   - numpy >=1.20.0
   - packaging >=16.8
-  - pandas >=1.2
+  - pandas 3*
   - polars >=1.0
   - pyarrow>=14.0
   - pillow >=4.0
