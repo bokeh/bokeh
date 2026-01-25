@@ -498,7 +498,7 @@ export class GlyphRendererView extends DataRendererView {
       if (index == null) {
         return this.get_reference_point(field, label)
       } else {
-        return this.model.view.get_index(index)
+        return this.model.view.get_subset_index(index)
       }
     })()
     if (subset_index != null) {

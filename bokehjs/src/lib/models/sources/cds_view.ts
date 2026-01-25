@@ -140,13 +140,13 @@ export class CDSView extends Model {
     this.indices_map = indices_map
   }
 
-  get_index(index: number): number | undefined {
+  get_subset_index(index: number): number | undefined {
     const subset_index = this.indices_map[index] as number | undefined
     return subset_index !== undefined && subset_index != -1 ? subset_index : undefined
   }
 
-  has_index(index: number): boolean {
-    return this.get_index(index) !== undefined
+  has_subset_index(index: number): boolean {
+    return this.get_subset_index(index) !== undefined
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
@@ -154,7 +154,7 @@ export class CDSView extends Model {
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    return selection_full.map((i) => this.get_index(i)!) // XXX ?? NaN
+    return selection_full.map((i) => this.get_subset_index(i)!) // XXX ?? NaN
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
@@ -166,7 +166,7 @@ export class CDSView extends Model {
     const n = _indices.length
     for (let i = 0; i < n; i++) {
       if (array[_indices[i]] == value) {
-        return this.get_index(_indices[i])
+        return this.get_subset_index(_indices[i])
       }
     }
     return null
