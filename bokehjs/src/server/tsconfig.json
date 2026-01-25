@@ -7,6 +7,6 @@
     }
   },
   "extends": "../../tsconfig.base",
-  "include": ["./**/*.ts"],
+  "include": ["./**/*.ts", "../lib/es.d.ts"],
   "exclude": ["./_build"]
 }
