@@ -480,7 +480,7 @@ export class GlyphRendererView extends DataRendererView {
     return this._get_reference_point(field, value) ?? 0 // fall back to first index
   }
 
-  _get_reference_point(field: string | null, value?: unknown): number | null {
+  _get_reference_point(field: string | null, value?: unknown): number | undefined | null {
     if (field != null) {
       const array = this.model.data_source.get_column(field)
       if (array != null) {
@@ -498,8 +498,7 @@ export class GlyphRendererView extends DataRendererView {
       if (index == null) {
         return this.get_reference_point(field, label)
       } else {
-        const {indices_map} = this.model.view
-        return indices_map[index] as number | undefined
+        return this.model.view.get_index(index)
       }
     })()
     if (subset_index != null && subset_index >= 0) {
