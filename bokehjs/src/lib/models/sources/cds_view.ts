@@ -146,8 +146,7 @@ export class CDSView extends Model {
   }
 
   has_index(index: number): boolean {
-    const subset_index = this.indices_map[index] as number | undefined
-    return subset_index !== undefined && subset_index != -1
+    return this.get_index(index) !== undefined
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {

@@ -501,7 +501,7 @@ export class GlyphRendererView extends DataRendererView {
         return this.model.view.get_index(index)
       }
     })()
-    if (subset_index != null && subset_index >= 0) {
+    if (subset_index != null) {
       this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
     }
   }
