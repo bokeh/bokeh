@@ -1989,20 +1989,20 @@ describe("Bug", () => {
       const x_range = new FactorRange({factors, start: 0, end: 3, bounds: [0, 3]})
       const y_range = new Range1d({start: 0, end: 3})
 
-      const wheel_zoom = new WheelZoomTool({modifiers: {ctrl: true}, maintain_focus: false})
-      const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom]})
+      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
       p.scatter({x: factors, y: [1, 2, 3], size: 20})
+
       const {view} = await display(p)
 
       expect(x_range.start).to.be.equal(0)
       expect(x_range.end).to.be.equal(3)
 
-      const actions1 = new PlotActions(view)
-      await actions1.scroll_down(xy(2, 2), 1)
+      const actions = new PlotActions(view)
+      await actions.scroll_down(xy(2, 2), 1)
       await view.ready
 
-      expect(x_range.start).to.be.equal(0)
-      expect(x_range.end).to.be.equal(3)
+      expect(x_range.interval).to.be.equal([0, 3])
     })
   })
 })
