@@ -74,7 +74,7 @@ class _SpacerInit(_LayoutDOMInit, total=False):
 class Spacer(LayoutDOM):
     def __init__(self, **kwargs: Unpack[_SpacerInit]) -> None: ...
 
-class _GridCommonInit(_LayoutDOMInit, total=False):
+class _GridCommonInit(TypedDict, total=False):
     rows: TracksSizing | None
     cols: TracksSizing | None
     spacing: GridSpacing
