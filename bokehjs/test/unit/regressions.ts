@@ -1984,7 +1984,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14568", () => {
-    it("should support zooming with respect to bounds when using FactorRanges", async () => {
+    it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
       const x_range = new FactorRange({factors, start: 0, end: 3, bounds: [0, 3]})
       const y_range = new Range1d({start: 0, end: 3})
@@ -1995,8 +1995,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      expect(x_range.start).to.be.equal(0)
-      expect(x_range.end).to.be.equal(3)
+      expect(x_range.interval).to.be.equal([0, 3])
 
       const actions = new PlotActions(view)
       await actions.scroll_down(xy(2, 2), 1)
