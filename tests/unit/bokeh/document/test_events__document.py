@@ -21,6 +21,7 @@ from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Any, ColumnData, Instance
+from bokeh.core.property.bases import Property
 from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer
 from bokeh.document import Document
 from bokeh.model import Model
@@ -317,7 +318,7 @@ class TestColumnsStreamedEvent:
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
         e = bde.ColumnsStreamedEvent(doc, m, "data", df, 200, "setter", "invoker")
         assert isinstance(e.data, dict)
-        assert e.data == {c: df[c] for c in df.columns}
+        assert Property().matches(e.data, {c: df[c] for c in df.columns}) # can't use == with pandas' types
 
 # ColumnsPatchedEvent ---------------------------------------------------------
 
