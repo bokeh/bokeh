@@ -1,6 +1,6 @@
-import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "path"
-import module from "module"
-import crypto from "crypto"
+import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "node:path"
+import module from "node:module"
+import crypto from "node:crypto"
 
 import ts from "typescript"
 import * as terser from "terser"
@@ -9,13 +9,13 @@ import chalk from "chalk"
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
-import type {Path} from "./sys"
-import {read, write, file_exists, directory_exists, rename} from "./sys"
-import {report_diagnostics} from "./compiler"
-import * as transforms from "./transforms"
-import {BuildError} from "./error"
-import type {Graph} from "./graph"
-import {detect_cycles} from "./graph"
+import type {Path} from "./sys.js"
+import {read, write, file_exists, directory_exists, rename} from "./sys.js"
+import {report_diagnostics} from "./compiler.js"
+import * as transforms from "./transforms.js"
+import {BuildError} from "./error.js"
+import type {Graph} from "./graph.js"
+import {detect_cycles} from "./graph.js"
 
 const root_path = process.cwd()
 
@@ -279,10 +279,14 @@ export class Linker {
 
     if (this.builtins) {
       this.external_modules.add("module")
+      this.external_modules.add("node:module")
+
       this.external_modules.add("constants")
+      this.external_modules.add("node:constants")
 
       for (const lib of module.builtinModules) {
         this.external_modules.add(lib)
+        this.external_modules.add(`node:${lib}`)
       }
     }
 

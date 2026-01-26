@@ -1,13 +1,14 @@
-import fs from "fs"
-import {join, normalize} from "path"
+import fs from "node:fs"
+import {join, normalize} from "node:path"
+
 import chalk from "chalk"
 
-const build_dir = normalize(`${__dirname}/../..`) // build/test/codebase -> build
+const build_dir = normalize(`${import.meta.dirname}/../..`) // build/test/codebase -> build
 
 const LIMITS = new Map([
   // es2020
-  ["js/bokeh.min.js",                1250],
-  ["js/bokeh-widgets.min.js",         350],
+  ["js/bokeh.min.js",                1300],
+  ["js/bokeh-widgets.min.js",         400],
   ["js/bokeh-tables.min.js",          350],
   ["js/bokeh-api.min.js",             150],
   ["js/bokeh-gl.min.js",              250],

@@ -430,6 +430,10 @@ class Step(XYGlyph, ScalarLineProps):
 
     mode: StepMode = ...
 
+    pad_before: float = ...
+
+    pad_after: float = ...
+
 @dataclass
 class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
 

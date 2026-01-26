@@ -143,7 +143,7 @@ describe("CDSView", () => {
     it("sets indices_map, a mapping from full data set indices to subset indices", async () => {
       const view = new CDSView({filter: new IntersectionFilter({operands: [filter1, filter2]})})
       await build(view, source)
-      expect(view.indices_map).to.be.equal(new Map([[1, 0], [2, 1]]))
+      expect(view.indices_map).to.be.equal([-1, 0, 1])
     })
   })
 
@@ -203,5 +203,23 @@ describe("CDSView", () => {
     expect([...view.indices]).to.be.equal([])
     source.data = data2
     expect([...view.indices]).to.be.equal([0])
+  })
+
+  it("should get subset indices", async  () => {
+    const view = new CDSView({filter: new IntersectionFilter({operands: [filter1, filter2]})})
+    await build(view, source)
+    expect(view.get_subset_index(-2)).to.be.equal(undefined)
+    expect(view.get_subset_index(1)).to.be.equal(0)
+    expect(view.get_subset_index(0)).to.be.equal(undefined)
+    expect(view.get_subset_index(5)).to.be.equal(undefined)
+  })
+
+  it("should has subset indices", async  () => {
+    const view = new CDSView({filter: new IntersectionFilter({operands: [filter1, filter2]})})
+    await build(view, source)
+    expect(view.has_subset_index(-2)).to.be.equal(false)
+    expect(view.has_subset_index(1)).to.be.equal(true)
+    expect(view.has_subset_index(0)).to.be.equal(false)
+    expect(view.has_subset_index(5)).to.be.equal(false)
   })
 })

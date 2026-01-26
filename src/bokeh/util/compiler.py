@@ -448,7 +448,7 @@ def _run_npmjs(argv: list[str], input: dict[str, Any] | None = None) -> str:
 def _version(run_app: Callable[[list[str], dict[str, Any] | None], str]) -> str | None:
     try:
         version = run_app(["--version"], None)  # explicit None to make mypy happy
-    except RuntimeError:
+    except (RuntimeError, FileNotFoundError):
         return None
     else:
         return version.strip()

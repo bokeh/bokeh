@@ -229,6 +229,7 @@ describe("default model resolver", () => {
       "LogTickFormatter",
       "LogTicker",
       "MapOptions",
+      "Markdown",
       "Marking",
       "Markup",
       "MathML",
