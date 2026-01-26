@@ -245,7 +245,7 @@ export class RangeManager {
       if (rng.bounds != null) {
         const [min, max] = rng.computed_bounds
         // Make sure the "new_interval" isn't larger than the distance between the bounds, otherwise
-        // the a bound could be ignored, see issue #14568
+        // the bound could be ignored, see issue #14568
         const new_interval = Math.min(
           Math.abs(range_info.end - range_info.start),
           Math.abs(max - min),
