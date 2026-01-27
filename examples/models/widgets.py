@@ -216,7 +216,7 @@ This is an <b>on</b> or <b>off</b> style of widget.
 Right click on the widget to display the context menu.
 """), position="right"))
 
-theme_switch_0 = w.ThemeSwitch(active=True, stylesheets=[":host { background-color: light-dark(white, black); color: light-dark(black, white);}"])
+theme_switch_0 = w.ThemeSwitch(active=True)
 
 progress = w.Progress(value=0, min=0, max=179, label="Processing item @{index} of @{total} (@{percent}%)", width_policy="max")
 progress_disabled = w.Progress(value=30, min=0, max=100, disabled=True, width_policy="max")

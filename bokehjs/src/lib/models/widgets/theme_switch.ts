@@ -19,6 +19,10 @@ export class ThemeSwitchView extends SwitchView {
   protected _update_theme(): void {
     const theme = this.model.active? "light": "dark"
     document.documentElement.style.setProperty("--color-scheme", theme)
+
+    // TODO: Check a better way to achive this (document body background color change)
+    const body_bg_color = this.model.active? "#fff": "#18191D"
+    document.body.style.setProperty("background-color", body_bg_color)
   }
 }
 

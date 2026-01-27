@@ -32,7 +32,7 @@
   --icon-color: var(--bokeh-icon-color, #colors[icon]);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
   --error: #colors[error];
-  --inverted-color: #colors[background]; // the color for when the background is dark
+  --inverted-color: #colors[inverted]; // the color for when the background is dark
   --placeholder-color: #colors[placeholder];
   --surface-background-color: #colors[surface];
   --disabled-background-color: #colors[surface];
@@ -61,7 +61,7 @@
 }
 
 :host {
-  color-scheme: var(--color-scheme);
+  color-scheme: var(--color-scheme, light);
   box-sizing: border-box;
   font-family: var(--base-font);
   font-size: var(--font-size);
