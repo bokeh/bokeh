@@ -460,6 +460,15 @@ class TestColumnDataSourcePandas:
         assert set(ds.column_names) - set(df.columns) == {"index"}
         assert ds.length == 2
 
+    def test_init_produces_writable_arrays_with_Pandas3_CoW(self) -> None:
+        data = dict(a=[1, 2], b=[2, 3])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        a = ds.data["a"]
+        b = ds.data["b"]
+        assert isinstance(a, np.ndarray) and a.flags.writeable is True
+        assert isinstance(b, np.ndarray) and b.flags.writeable is True
+
     def test_init_dataframe_column_categoricalindex(self) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
         data = [[0,2], [1,3]]

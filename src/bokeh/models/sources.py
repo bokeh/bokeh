@@ -23,6 +23,7 @@ from dataclasses import asdict, is_dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    Mapping,
     Sequence,
     TypeAlias,
     overload,
@@ -53,6 +54,7 @@ from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
     import pandas as pd
+    from pandas.core.groupby import GroupBy
 
     from ..core.has_props import Setter
 
@@ -82,7 +84,7 @@ if TYPE_CHECKING:
 
     Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
-    Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
+    Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Any]]]
 
 @abstract
 class DataSource(Model):
@@ -220,7 +222,7 @@ class ColumnDataSource(ColumnarDataSource):
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1, _cds_lengths_warning)
 
     @overload
-    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: Any) -> None: ...
+    def __init__(self, data: DataDict | pd.DataFrame | GroupBy[Any], **kwargs: Any) -> None: ...
     @overload
     def __init__(self, **kwargs: Any) -> None: ...
 
@@ -323,7 +325,15 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 _df = _df.with_row_index()
 
-        tmp_data = {c: v.to_numpy() for c, v in _df.to_dict(as_series=True).items()}
+        def to_numpy(series: nw.Series[Any]) -> npt.NDArray[Any]:
+            arr = series.to_numpy()
+            try:
+                arr.flags.writeable = True # override Pandas copy-on-write behavior
+            except ValueError:
+                pass
+            return arr
+
+        tmp_data = {c: to_numpy(v) for c, v in _df.to_dict(as_series=True).items()}
 
         new_data: DataDict = {}
         for k, v in tmp_data.items():
@@ -332,7 +342,7 @@ class ColumnDataSource(ColumnarDataSource):
         return new_data
 
     @staticmethod
-    def _data_from_groupby(group: pd.core.groupby.GroupBy) -> DataDict:
+    def _data_from_groupby(group: GroupBy[Any]) -> DataDict:
         ''' Create a ``dict`` of columns from a Pandas ``GroupBy``,
         suitable for creating a ``ColumnDataSource``.
 

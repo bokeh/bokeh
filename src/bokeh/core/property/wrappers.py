@@ -82,7 +82,7 @@ if TYPE_CHECKING:
 
     from ...document import Document
     from ...document.events import DocumentPatchedEvent
-    from ...models.sources import ColumnarDataSource
+    from ...models.sources import ColumnarDataSource, Patches
     from ..has_props import HasProps, Setter
     from .descriptors import PropertyDescriptor
 
@@ -514,7 +514,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _patch(self, doc: Document, source: ColumnarDataSource, patches, setter: Setter | None = None) -> None:
+    def _patch(self, doc: Document, source: ColumnarDataSource, patches: Patches, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing patch events
         on ``ColumnDataSource`` columns.
 
@@ -544,8 +544,15 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         for name, patch in patches.items():
             for ind, value in patch:
                 if isinstance(ind, (int, slice)):
-                    self[name][ind] = value
+                    array = self[name]
+                    if isinstance(array, MutableSequence):
+                        array[ind] = value
+                    elif isinstance(array, np.ndarray) and array.flags.writeable:
+                        array[ind] = value
+                    else:
+                        logging.warning("attempted to patch an immutable sequence")
                 else:
+                    # TODO check for mutability
                     shape = self[name][ind[0]][tuple(ind[1:])].shape
                     self[name][ind[0]][tuple(ind[1:])] = np.asarray(value).reshape(shape)
 

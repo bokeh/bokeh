@@ -11,6 +11,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
+    Mapping,
     Sequence,
     TypeAlias,
     overload,
@@ -40,7 +41,7 @@ DataDictLike: TypeAlias = DataDict | pd.DataFrame | GroupBy[Any]
 
 Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
-Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
+Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Any]]]
 
 class _DataSourceInit(_ModelInit, total=False):
     selected: Selection
