@@ -62,9 +62,16 @@ export abstract class DOMView extends View {
     this.r_after_render()
   }
 
+  readonly is_vdom: boolean = false
+
   render_to(target: Node): void {
+    if (this.is_vdom) {
+      target.appendChild(this.el)
+    }
     this.render()
-    target.appendChild(this.el)
+    if (!this.is_vdom) {
+      target.appendChild(this.el)
+    }
   }
 
   after_render(): void {
@@ -195,6 +202,7 @@ export abstract class DOMComponentView extends DOMElementView {
   }
 
   render(): void {
+    assert(!this.is_vdom, "only non-VDOM components")
     this.empty()
     this._update_stylesheets()
     this._apply_html_attributes()
@@ -215,8 +223,12 @@ export abstract class DOMComponentView extends DOMElementView {
     yield* this.user_stylesheets()
   }
 
+  get type_class(): string {
+    return `bk-${this.model.type.replace(/\./g, "-")}`
+  }
+
   protected *_css_classes(): Iterable<string> {
-    yield `bk-${this.model.type.replace(/\./g, "-")}`
+    yield this.type_class
     yield* this.css_classes()
   }
 

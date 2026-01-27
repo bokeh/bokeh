@@ -13,6 +13,7 @@ export abstract class ToggleInputView extends WidgetView {
     return [...super.stylesheets(), toggle_input_css.default]
   }
 
+  /*
   override connect_signals(): void {
     super.connect_signals()
 
@@ -25,6 +26,7 @@ export abstract class ToggleInputView extends WidgetView {
   protected abstract _update_active(): void
 
   protected abstract _update_disabled(): void
+  */
 
   protected _toggle_active(): void {
     if (!this.model.disabled) {

@@ -1173,7 +1173,9 @@ type CSSStylesSnake = {
 
 export type CSSVariables = {[key in `--${string}`]?: string | null}
 
-export type CSSStyles = CSSStylesCamel & CSSStylesDashed & CSSStylesSnake & CSSVariables
+export type CSSProps = CSSStylesCamel & CSSStylesDashed & CSSVariables
+
+export type CSSStyles = CSSStylesSnake & CSSProps
 
 export type CSSStylesLike = CSSStyles | Dict<string | null> | Styles
 

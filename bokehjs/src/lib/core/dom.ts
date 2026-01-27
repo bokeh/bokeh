@@ -10,10 +10,10 @@ export type Optional<T> = {[P in keyof T]?: T[P] | null | undefined}
 
 export type HTMLElementName = keyof HTMLElementTagNameMap
 
-export type CSSClass = string
+export type CSSClass = string | null | undefined
 
 export type ElementOurAttrs = {
-  class?: CSSClass | (CSSClass | null | undefined)[]
+  class?: CSSClass | CSSClass[]
   style?: CSSStyles | string
   data?: PlainObject<string | null | undefined>
 }
@@ -697,6 +697,8 @@ export abstract class StyleSheet {
   uninstall(): void {
     this.el.remove()
   }
+
+  abstract to_native(): CSSStyleSheet
 }
 
 export class InlineStyleSheet extends StyleSheet {
@@ -749,6 +751,12 @@ export class InlineStyleSheet extends StyleSheet {
   remove(): void {
     this.el.remove()
   }
+
+  to_native(): CSSStyleSheet {
+    const sheet = new CSSStyleSheet()
+    sheet.replaceSync(this.css)
+    return sheet
+  }
 }
 
 export class GlobalInlineStyleSheet extends InlineStyleSheet {
@@ -773,6 +781,12 @@ export class ImportedStyleSheet extends StyleSheet {
 
   remove(): void {
     this.el.remove()
+  }
+
+  to_native(): CSSStyleSheet {
+    const sheet = new CSSStyleSheet()
+    sheet.replaceSync(`@import "${this.el.href}"`)
+    return sheet
   }
 }
 
