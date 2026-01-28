@@ -202,56 +202,22 @@ describe("Widgets", () => {
   })
 
   it("should allow ThemeSwitch with active=false", async () => {
-    const obj = new ThemeSwitch({
-      active: false,
-      stylesheets: [`
-        :host {
-          background-color: light-dark(white, black);
-          color: light-dark(black, white);
-        }
-      `],
-    })
+    const obj = new ThemeSwitch({active: false})
     await display(obj, [100, 30])
   })
 
   it("should allow ThemeSwitch with active=true", async () => {
-    const obj = new ThemeSwitch({
-      active: true,
-      stylesheets: [`
-        :host {
-          background-color: light-dark(white, black);
-          color: light-dark(black, white);
-        }
-      `],
-    })
+    const obj = new ThemeSwitch({active: true})
     await display(obj, [100, 30])
   })
 
   it("should allow ThemeSwitch with active=false and label", async () => {
-    const obj = new ThemeSwitch({
-      active: false,
-      label: "Theme:",
-      stylesheets: [`
-        :host {
-          background-color: light-dark(white, black);
-          color: light-dark(black, white);
-        }
-      `],
-    })
+    const obj = new ThemeSwitch({active: false, label: "Theme:"})
     await display(obj, [150, 30])
   })
 
   it("should allow ThemeSwitch with active=true and label", async () => {
-    const obj = new ThemeSwitch({
-      active: true,
-      label: "Theme:",
-      stylesheets: [`
-        :host {
-          background-color: light-dark(white, black);
-          color: light-dark(black, white);
-        }
-      `],
-    })
+    const obj = new ThemeSwitch({active: true, label: "Theme:"})
     await display(obj, [150, 30])
   })
 

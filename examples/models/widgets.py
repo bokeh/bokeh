@@ -366,8 +366,9 @@ widgets = Column(children=[
         ]),
         tabs,
     ]),
-    table,
-])
+    table],
+    stylesheets=[":host { background-color: var(--background-color); }"],
+)
 
 tooltip_2 = Tooltip(content=HTML("""\
 This example shows all widgets available in Bokeh.<br>To learn more about using widgets, see Bokeh's
