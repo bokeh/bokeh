@@ -156,7 +156,7 @@ export abstract class Property<T = unknown> {
 
   initialize(initial_value: T | Unset = unset): void {
     if (this._initialized) {
-      throw new Error("already initialized")
+      throw new Error(`${this} is already initialized`)
     }
 
     let attr_value: T | Unset = unset
@@ -200,7 +200,7 @@ export abstract class Property<T = unknown> {
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new UnsetValueError(`${this.obj}.${this.attr} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -262,9 +262,12 @@ export abstract class Property<T = unknown> {
     this.on_update?.(attr_value, this.obj)
   }
 
+  to_full_string(): string {
+    return `Prop(${this}, value: ${valueToString(this._value)})`
+  }
+
   toString(): string {
-    /*${this.name}*/
-    return `Prop(${this.obj}.${this.attr}, value: ${valueToString(this._value)})`
+    return `${this.obj}.${this.attr}`
   }
 
   // ----- customizable policies
@@ -275,7 +278,7 @@ export abstract class Property<T = unknown> {
 
   validate(value: unknown): void {
     if (!this.valid(value)) {
-      throw new ValidationError(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
+      throw new ValidationError(`${this} given invalid value: ${valueToString(value)}`)
     }
   }
 
@@ -317,7 +320,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new Error(`${this} is unset`)
     }
   }
 
@@ -411,7 +414,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new Error(`${this} is unset`)
     }
   }
 
@@ -576,7 +579,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
         delete this._value.units
       }
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new Error(`${this} is unset`)
     }
   }
 }
