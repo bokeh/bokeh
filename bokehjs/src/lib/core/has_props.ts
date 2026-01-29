@@ -18,8 +18,8 @@ import {serialize} from "./serialization"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
-import type {Equatable, Comparator} from "./util/eq"
-import {equals, is_equal} from "./util/eq"
+import type {Equatable} from "./util/eq"
+import {equals, Comparator} from "./util/eq"
 import type {Printable, Printer} from "./util/pretty"
 import {pretty} from "./util/pretty"
 import type {Cloneable} from "./util/cloneable"
@@ -469,8 +469,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const changing   = this._changing
     this._changing = true
 
+    const cmp = new Comparator({no_fail: true})
     for (const [prop, value] of changes) {
-      if (check_eq === false || prop.is_unset || !is_equal(prop.get_value(), value)) {
+      if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
       }
