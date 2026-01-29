@@ -37,8 +37,17 @@ export namespace DataRange1d {
     follow_interval: p.Property<number | null>
     default_span: p.Property<number>
     only_visible: p.Property<boolean>
+  } & Internal
 
+  export type Internal = {
     scale_hint: p.Property<"log" | "auto">
+    _initial_start: p.Property<number | null>
+    _initial_end: p.Property<number | null>
+    _initial_range_padding: p.Property<number>
+    _initial_range_padding_units: p.Property<PaddingUnits>
+    _initial_follow: p.Property<StartEnd | null>
+    _initial_follow_interval: p.Property<number | null>
+    _initial_default_span: p.Property<number>
   }
 }
 
@@ -62,36 +71,19 @@ export class DataRange1d extends DataRange {
       only_visible:        [ Bool, false ],
     }))
 
-    this.internal<DataRange1d.Props>(({Enum}) => ({
+    this.internal<DataRange1d.Internal, DataRange1d>(({Enum, Float, Nullable}) => ({
       scale_hint: [ Enum("log", "auto"), "auto" ],
+      _initial_start: [ Nullable(Float), (obj) => isNaN(obj.start) ? null : obj.start ],
+      _initial_end: [ Nullable(Float), (obj) => isNaN(obj.end) ? null : obj.end ],
+      _initial_range_padding: [ Float, (obj) => obj.range_padding ],
+      _initial_range_padding_units: [ PaddingUnits, (obj) => obj.range_padding_units ],
+      _initial_follow: [ Nullable(StartEnd), (obj) => obj.follow ],
+      _initial_follow_interval: [ Nullable(Float), (obj) => obj.follow_interval ],
+      _initial_default_span: [ Float, (obj) => obj.default_span ],
     }))
   }
 
-  protected _initial_start: number | null
-  protected _initial_end: number | null
-  protected _initial_range_padding: number
-  protected _initial_range_padding_units: PaddingUnits
-  protected _initial_follow: StartEnd | null
-  protected _initial_follow_interval: number | null
-  protected _initial_default_span: number
-
-  protected _plot_bounds: Map<PlotView, Rect>
-
-  override have_updated_interactively: boolean = false
-
-  override initialize(): void {
-    super.initialize()
-
-    this._initial_start = isNaN(this.start) ? null : this.start
-    this._initial_end = isNaN(this.end) ? null : this.end
-    this._initial_range_padding = this.range_padding
-    this._initial_range_padding_units = this.range_padding_units
-    this._initial_follow = this.follow
-    this._initial_follow_interval = this.follow_interval
-    this._initial_default_span = this.default_span
-
-    this._plot_bounds = new Map()
-  }
+  protected readonly _plot_bounds: Map<PlotView, Rect> = new Map()
 
   get min(): number {
     return Math.min(this.start, this.end)
@@ -300,7 +292,7 @@ export class DataRange1d extends DataRange {
 
     let needs_emit = false
     if (this.bounds == "auto") {
-      this._computed_bounds = [start, end]
+      this.computed_bounds = [start, end]
       needs_emit = true
     }
 

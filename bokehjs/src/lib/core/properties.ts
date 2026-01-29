@@ -106,28 +106,28 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P, HP extends HasProps = HasProps> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HP) => T))?, PropertyOptions<T>?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T, HP> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HP) => T))?, PropertyOptions<T, HP>?] : never
 }
 
-export type DefaultsOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
+export type DefaultsOf<P, HP extends HasProps = HasProps> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HP) => T) : never
 }
 
-export type OptionsOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? PropertyOptions<T> : never
+export type OptionsOf<P, HP extends HasProps = HasProps> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? PropertyOptions<T, HP> : never
 }
 
 type DefaultFn<T> = (obj: HasProps) => T
 
-export type PropertyOptions<T> = {
+export type PropertyOptions<T, HP extends HasProps> = {
   internal?: boolean
   readonly?: boolean
-  convert?(value: T, obj: HasProps): T | undefined
-  on_update?(value: T, obj: HasProps): void
+  convert?(value: T, obj: HP): T | undefined
+  on_update?(value: T, obj: HP): void
 }
 
-export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, kind: Kind<T>, default_value: DefaultFn<T>, options?: PropertyOptions<T>): Property<T>
+export interface PropertyConstructor<T, HP extends HasProps> {
+  new (obj: HP, attr: string, kind: Kind<T>, default_value: DefaultFn<T>, options?: PropertyOptions<T, HP>): Property<T>
   readonly prototype: Property<T>
 }
 
@@ -239,7 +239,7 @@ export abstract class Property<T = unknown> {
               readonly attr: string,
               readonly kind: Kind<T>,
               readonly default_value: DefaultFn<T>,
-              options: PropertyOptions<T> = {}) {
+              options: PropertyOptions<T, HasProps> = {}) {
     this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
     this.readonly = options.readonly ?? false

@@ -21,15 +21,15 @@ export abstract class NumericalRange extends Range {
   }
 
   static {
-    this.define<NumericalRange.Props>(({Float}) => ({
+    this.define<NumericalRange.Props, NumericalRange>(({Float}) => ({
       start: [ Float, p.unset, {
-        convert(value: number, obj: NumericalRange): number {
+        convert(value: number, obj): number {
           const [lower, upper] = obj.computed_bounds
           return clamp(value, lower, upper)
         },
       }],
       end:   [ Float, p.unset, {
-        convert(value: number, obj: NumericalRange): number {
+        convert(value: number, obj): number {
           const [lower, upper] = obj.computed_bounds
           return clamp(value, lower, upper)
         },
