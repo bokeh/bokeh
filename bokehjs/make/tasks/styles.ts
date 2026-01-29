@@ -1,6 +1,6 @@
-import {collect_styles, compile_styles} from "@compiler/styles"
-import {task, BuildError} from "../task"
-import * as paths from "../paths"
+import {collect_styles, compile_styles} from "#compiler/styles.js"
+import {task, BuildError} from "../task.js"
+import * as paths from "../paths.js"
 
 task("styles:compile", async () => {
   const less_dir = paths.src_dir.less

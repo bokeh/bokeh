@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
     "lib": ["esnext"],
     "types": ["node"],
-    "baseUrl": ".",
     "outDir": "../../build/test/codebase"
   },
   "extends": "../../tsconfig.base",

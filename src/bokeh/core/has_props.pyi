@@ -8,19 +8,21 @@
 # Standard library imports
 from functools import lru_cache
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Iterable,
     Literal,
     NoReturn,
-    NotRequired,
-    Self,
     TypeAlias,
     TypedDict,
     TypeVar,
     overload,
 )
+
+if TYPE_CHECKING:
+    from typing_extensions import NotRequired, Self
 
 # Bokeh imports
 from ..client.session import ClientSession

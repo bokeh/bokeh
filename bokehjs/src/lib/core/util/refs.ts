@@ -1,5 +1,5 @@
 import type {Attrs} from "../types"
-import {isPlainObject, isObject} from "./types"
+import {isPlainObject, isObject, isTypedArray} from "./types"
 
 export type Struct = {
   id: string
@@ -36,6 +36,9 @@ export function may_have_refs(obj: object): boolean {
   const type = obj.constructor
   if (is_HasRefs(type)) {
     return type[has_refs]
+  }
+  if (isTypedArray(obj)) {
+    return false
   }
   return true
 }

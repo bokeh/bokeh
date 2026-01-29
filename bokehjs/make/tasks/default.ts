@@ -1,3 +1,3 @@
-import {task} from "../task"
+import {task} from "../task.js"
 
 task("default", ["build"])

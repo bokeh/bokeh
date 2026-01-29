@@ -819,7 +819,7 @@ def test__server_multiple_processes() -> None:
             else mock.call(3),
         ]
 
-def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop) -> None:
+def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop: MSL) -> None:
     application = Application()
     loop = IOLoop.current()
     with pytest.raises(RuntimeError):
@@ -830,7 +830,7 @@ async def test__actual_port_number(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, port=0) as server:
         port = server.port
-        assert port > 0
+        assert port is not None and port > 0
         await http_get(server.io_loop, url(server))
 
 def test__ioloop_not_forcibly_stopped() -> None:

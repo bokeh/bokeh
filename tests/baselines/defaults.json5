@@ -4868,6 +4868,8 @@
     line_dash: [],
     line_dash_offset: 0,
     mode: "before",
+    pad_before: 0,
+    pad_after: 0,
   },
   TeXGlyph: {
     __extends__: "MathTextGlyph",
@@ -7671,6 +7673,11 @@
     __extends__: "Widget",
     active: false,
     label: "",
+  },
+  Markdown: {
+    __extends__: "Widget",
+    text: "",
+    disable_math: false,
   },
   Div: {
     __extends__: "Markup",

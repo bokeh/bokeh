@@ -6,55 +6,72 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ...core.enums import RenderLevelType as RenderLevel
-from ...core.has_props import abstract
-from ...model import Model
+from ...model.model import Model, _ModelInit
 from ..coordinates import CoordinateMapping
 from ..dom import DOMNode
-from ..ui import Menu, StyledElement, UIElement
+from ..ui.menus import Menu
+from ..ui.ui_element import StyledElement, UIElement, _StyledElementInit
 
-@dataclass
+class _RendererGroupInit(_ModelInit, total=False):
+    visible: bool
+
 class RendererGroup(Model):
+    def __init__(self, **kwargs: Unpack[_RendererGroupInit]) -> None: ...
 
     visible: bool = ...
 
-@abstract
-@dataclass(init=False)
+class _RendererInit(_StyledElementInit, total=False):
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+
 class Renderer(StyledElement):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_RendererInit]) -> None: ...
 
     level: RenderLevel = ...
-
     visible: bool = ...
-
     coordinates: CoordinateMapping | None = ...
-
     x_range_name: str = ...
-
     y_range_name: str = ...
-
     group: RendererGroup | None = ...
-
     propagate_hover: bool = ...
-
     context_menu: Menu | None = ...
 
-@abstract
-@dataclass(init=False)
+class _CompositeRendererInit(_RendererInit, total=False):
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+
 class CompositeRenderer(Renderer):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_CompositeRendererInit]) -> None: ...
 
     renderers: list[Renderer] = ...
-
     elements: list[UIElement | DOMNode] = ...
 
-@abstract
-@dataclass(init=False)
-class DataRenderer(Renderer):
+class _DataRendererInit(_RendererInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
-class GuideRenderer(Renderer):
+class DataRenderer(Renderer):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_DataRendererInit]) -> None: ...
+
+class _GuideRendererInit(_RendererInit, total=False):
     ...
+
+class GuideRenderer(Renderer):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_GuideRendererInit]) -> None: ...

@@ -8,16 +8,19 @@ import {dom_ready, contains} from "core/dom"
 import {isString, isArray} from "core/util/types"
 
 import type {UIElement} from "models/ui/ui_element"
+import type {DOMNode} from "models/dom/dom_node"
 
 declare type Jq = any
 declare const $: Jq
 
-export async function show<T extends UIElement>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
-export async function show<T extends UIElement>(obj: T[], target?: EmbedTarget | string): Promise<ViewOf<T>[]>
+export type Showable = UIElement | DOMNode | Array<UIElement | DOMNode>
+
+export async function show<T extends UIElement | DOMNode>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
+export async function show<T extends UIElement | DOMNode>(obj: T[], target?: EmbedTarget | string): Promise<ViewOf<T>[]>
 export async function show(obj: Document, target?: EmbedTarget | string): Promise<ViewOf<HasProps>[]>
 export async function show(obj: UIElement | Document, target?: EmbedTarget | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
 
-export async function show(obj: Document | UIElement | UIElement[], target?: EmbedTarget | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
+export async function show(obj: Document | Showable, target?: EmbedTarget | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
   const doc = (() => {
     if (obj instanceof Document) {
       return obj

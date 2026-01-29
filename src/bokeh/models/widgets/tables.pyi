@@ -6,8 +6,11 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any, Literal
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Any, Literal
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
@@ -17,8 +20,7 @@ from ...core.enums import (
     NumeralLanguageType as NumeralLanguage,
     RoundingFunctionType as RoundingFunction,
 )
-from ...core.has_props import abstract
-from ...model import Model
+from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
 from ..sources import (
     CDSView,
@@ -26,208 +28,278 @@ from ..sources import (
     DataDictLike,
     DataSource,
 )
-from .widget import Widget
+from .widget import Widget, _WidgetInit
 
-@abstract
-@dataclass(init=False)
+class _CellFormatterInit(_ModelInit, total=False):
+    ...
+
 class CellFormatter(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_CellFormatterInit]) -> None: ...
+
+class _CellEditorInit(_ModelInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
 class CellEditor(Model):
-    ...
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_CellEditorInit]) -> None: ...
 
-@abstract
-@dataclass(init=False)
+class _RowAggregatorInit(_ModelInit, total=False):
+    field_: str
+
 class RowAggregator(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_RowAggregatorInit]) -> None: ...
 
     field_: str = ...
 
-@dataclass
+class _StringFormatterInit(_CellFormatterInit, total=False):
+    font_style: FontStyleSpec
+    text_align: TextAlignSpec
+    text_color: ColorSpec
+    background_color: ColorSpec
+    nan_format: str
+    null_format: str
+
 class StringFormatter(CellFormatter):
+    def __init__(self, **kwargs: Unpack[_StringFormatterInit]) -> None: ...
 
     font_style: FontStyleSpec = ...
-
     text_align: TextAlignSpec = ...
-
     text_color: ColorSpec = ...
-
     background_color: ColorSpec = ...
-
     nan_format: str = ...
-
     null_format: str = ...
 
-@dataclass
+class _ScientificFormatterInit(_StringFormatterInit, total=False):
+    precision: int
+    power_limit_high: int
+    power_limit_low: int
+
 class ScientificFormatter(StringFormatter):
+    def __init__(self, **kwargs: Unpack[_ScientificFormatterInit]) -> None: ...
 
     precision: int = ...
-
     power_limit_high: int = ...
-
     power_limit_low: int = ...
 
-@dataclass
+class _NumberFormatterInit(_StringFormatterInit, total=False):
+    format: str
+    language: NumeralLanguage
+    rounding: RoundingFunction
+
 class NumberFormatter(StringFormatter):
+    def __init__(self, **kwargs: Unpack[_NumberFormatterInit]) -> None: ...
 
     format: str = ...
-
     language: NumeralLanguage = ...
-
     rounding: RoundingFunction = ...
 
-@dataclass
+class _BooleanFormatterInit(_CellFormatterInit, total=False):
+    icon: Literal["check", "check-circle", "check-circle-o", "check-square", "check-square-o"]
+
 class BooleanFormatter(CellFormatter):
+    def __init__(self, **kwargs: Unpack[_BooleanFormatterInit]) -> None: ...
 
     icon: Literal["check", "check-circle", "check-circle-o", "check-square", "check-square-o"] = ...
 
-@dataclass
+class _DateFormatterInit(_StringFormatterInit, total=False):
+    format: DateFormat | str
+
 class DateFormatter(StringFormatter):
+    def __init__(self, **kwargs: Unpack[_DateFormatterInit]) -> None: ...
 
     format: DateFormat | str = ...
 
-@dataclass
+class _HTMLTemplateFormatterInit(_CellFormatterInit, total=False):
+    template: str
+
 class HTMLTemplateFormatter(CellFormatter):
+    def __init__(self, **kwargs: Unpack[_HTMLTemplateFormatterInit]) -> None: ...
 
     template: str = ...
 
-@dataclass
+class _StringEditorInit(_CellEditorInit, total=False):
+    completions: list[str]
+
 class StringEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_StringEditorInit]) -> None: ...
 
     completions: list[str] = ...
 
-@dataclass
-class TextEditor(CellEditor):
+class _TextEditorInit(_CellEditorInit, total=False):
     ...
 
-@dataclass
+class TextEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_TextEditorInit]) -> None: ...
+
+class _SelectEditorInit(_CellEditorInit, total=False):
+    options: list[str]
+
 class SelectEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_SelectEditorInit]) -> None: ...
 
     options: list[str] = ...
 
-@dataclass
+class _PercentEditorInit(_CellEditorInit, total=False):
+    ...
+
 class PercentEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_PercentEditorInit]) -> None: ...
+
+class _CheckboxEditorInit(_CellEditorInit, total=False):
     ...
 
-@dataclass
 class CheckboxEditor(CellEditor):
-    ...
+    def __init__(self, **kwargs: Unpack[_CheckboxEditorInit]) -> None: ...
 
-@dataclass
+class _IntEditorInit(_CellEditorInit, total=False):
+    step: int
+
 class IntEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_IntEditorInit]) -> None: ...
 
     step: int = ...
 
-@dataclass
+class _NumberEditorInit(_CellEditorInit, total=False):
+    step: float
+
 class NumberEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_NumberEditorInit]) -> None: ...
 
     step: float = ...
 
-@dataclass
+class _TimeEditorInit(_CellEditorInit, total=False):
+    ...
+
 class TimeEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_TimeEditorInit]) -> None: ...
+
+class _DateEditorInit(_CellEditorInit, total=False):
     ...
 
-@dataclass
 class DateEditor(CellEditor):
+    def __init__(self, **kwargs: Unpack[_DateEditorInit]) -> None: ...
+
+class _AvgAggregatorInit(_RowAggregatorInit, total=False):
     ...
 
-@dataclass
 class AvgAggregator(RowAggregator):
+    def __init__(self, **kwargs: Unpack[_AvgAggregatorInit]) -> None: ...
+
+class _MinAggregatorInit(_RowAggregatorInit, total=False):
     ...
 
-@dataclass
 class MinAggregator(RowAggregator):
+    def __init__(self, **kwargs: Unpack[_MinAggregatorInit]) -> None: ...
+
+class _MaxAggregatorInit(_RowAggregatorInit, total=False):
     ...
 
-@dataclass
 class MaxAggregator(RowAggregator):
+    def __init__(self, **kwargs: Unpack[_MaxAggregatorInit]) -> None: ...
+
+class _SumAggregatorInit(_RowAggregatorInit, total=False):
     ...
 
-@dataclass
 class SumAggregator(RowAggregator):
-    ...
+    def __init__(self, **kwargs: Unpack[_SumAggregatorInit]) -> None: ...
 
-@dataclass
+class _TableColumnInit(_ModelInit, total=False):
+    field: str
+    title: str | None
+    width: int
+    formatter: CellFormatter
+    editor: CellEditor
+    sortable: bool
+    default_sort: Literal["ascending", "descending"]
+    visible: bool
+    sorter: Comparison | None
+
 class TableColumn(Model):
+    def __init__(self, **kwargs: Unpack[_TableColumnInit]) -> None: ...
 
     field: str = ...
-
     title: str | None = ...
-
     width: int = ...
-
     formatter: CellFormatter = ...
-
     editor: CellEditor = ...
-
     sortable: bool = ...
-
     default_sort: Literal["ascending", "descending"] = ...
-
     visible: bool = ...
-
     sorter: Comparison | None = ...
 
-@abstract
-@dataclass(init=False)
+class _TableWidgetInit(_WidgetInit, total=False):
+    source: DataSource
+    view: CDSView
+
 class TableWidget(Widget):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_TableWidgetInit]) -> None: ...
 
     source: DataSource = ...
-
     view: CDSView = ...
 
-@dataclass
+class _DataTableInit(_TableWidgetInit, total=False):
+    autosize_mode: AutosizeMode
+    auto_edit: bool
+    columns: list[TableColumn]
+    fit_columns: bool | None
+    frozen_columns: int | None
+    frozen_rows: int | None
+    sortable: bool
+    reorderable: bool
+    editable: bool
+    selectable: bool | Literal["checkbox"]
+    index_position: int | None
+    index_header: str
+    index_width: int
+    scroll_to_selection: bool
+    header_row: bool
+    row_height: int
+
 class DataTable(TableWidget):
+    def __init__(self, **kwargs: Unpack[_DataTableInit]) -> None: ...
 
     autosize_mode: AutosizeMode = ...
-
     auto_edit: bool = ...
-
     columns: list[TableColumn] = ...
-
     fit_columns: bool | None = ...
-
     frozen_columns: int | None = ...
-
     frozen_rows: int | None = ...
-
     sortable: bool = ...
-
     reorderable: bool = ...
-
     editable: bool = ...
-
     selectable: bool | Literal["checkbox"] = ...
-
     index_position: int | None = ...
-
     index_header: str = ...
-
     index_width: int = ...
-
     scroll_to_selection: bool = ...
-
     header_row: bool = ...
-
     row_height: int = ...
 
     @staticmethod
     def from_data(data: ColumnDataSource | DataDictLike, columns: list[str] | None = None,
-                  formatters: dict[str, CellFormatter] = {}, **kwargs: Any) -> DataTable: ...
+        formatters: dict[str, CellFormatter] = {}, **kwargs: Any) -> DataTable: ...
 
-@dataclass
+class _GroupingInfoInit(_ModelInit, total=False):
+    getter: str
+    aggregators: list[RowAggregator]
+    collapsed: bool
+
 class GroupingInfo(Model):
+    def __init__(self, **kwargs: Unpack[_GroupingInfoInit]) -> None: ...
 
     getter: str = ...
-
     aggregators: list[RowAggregator] = ...
-
     collapsed: bool = ...
 
-@dataclass
+class _DataCubeInit(_DataTableInit, total=False):
+    grouping: list[GroupingInfo]
+    target: DataSource
+
 class DataCube(DataTable):
+    def __init__(self, **kwargs: Unpack[_DataCubeInit]) -> None: ...
 
     grouping: list[GroupingInfo] = ...
-
     target: DataSource = ...

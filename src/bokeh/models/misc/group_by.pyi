@@ -6,22 +6,32 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from ...core.has_props import abstract
-from ...model import Model
+from ...model.model import Model, _ModelInit
 
-@abstract
-@dataclass(init=False)
-class GroupBy(Model):
+class _GroupByInit(_ModelInit, total=False):
     ...
 
-@dataclass
+class GroupBy(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_GroupByInit]) -> None: ...
+
+class _GroupByModelsInit(_GroupByInit, total=False):
+    groups: list[list[Model]]
+
 class GroupByModels(GroupBy):
+    def __init__(self, **kwargs: Unpack[_GroupByModelsInit]) -> None: ...
 
     groups: list[list[Model]] = ...
 
-@dataclass
-class GroupByName(GroupBy):
+class _GroupByNameInit(_GroupByInit, total=False):
     ...
+
+class GroupByName(GroupBy):
+    def __init__(self, **kwargs: Unpack[_GroupByNameInit]) -> None: ...
