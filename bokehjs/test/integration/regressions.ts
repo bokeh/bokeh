@@ -2041,7 +2041,7 @@ describe("Bug", () => {
         inline: true,
         active: 0,
         styles: {
-          background_color: "red",
+          "--background-color": "red",
         },
       })
       await display(radio_group, [400, 50])

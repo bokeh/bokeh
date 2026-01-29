@@ -201,24 +201,84 @@ describe("Widgets", () => {
     await display(obj, [100, 30])
   })
 
-  it("should allow ThemeSwitch with active=false", async () => {
-    const obj = new ThemeSwitch({active: false})
-    await display(obj, [100, 30])
-  })
+  describe("should support ThemeSwitch widget", () => {
+    it("with active=false and widgets following a dark color scheme", async () => {
+      const theme_switch = new ThemeSwitch({active: false})
+      const w0 = new Button({label: "Button"})
+      const w1 = new Toggle({label: "Toggle"})
+      const w2 = new Dropdown({label: "Dropdown"})
+      const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+      const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+      const w5 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+      const w6 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+      const w7 = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
+      const w8 = new PasswordInput({value: "foo"})
+      const w9 = new AutocompleteInput({
+        placeholder: "Enter value ...",
+        completions: ["aaa", "aab", "aac", "baa", "caa"],
+      })
+      const w10 = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"]})
+      const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
+      const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5})
+      const w_columns = [
+        column([theme_switch, w0, w1, w2, w3, w4, w5, w6]),
+        column([w5, w6, w7, w8, w9, w10, w11, w12]),
+      ]
+      const layout = new Row({children: w_columns})
+      await display(layout, [540, 350])
+    })
 
-  it("should allow ThemeSwitch with active=true", async () => {
-    const obj = new ThemeSwitch({active: true})
-    await display(obj, [100, 30])
-  })
+    it("with active=false and widgets following a dark color scheme inside a layout with a stylesheet", async () => {
+      const theme_switch = new ThemeSwitch({active: false})
+      const w0 = new Button({label: "Button"})
+      const w1 = new Toggle({label: "Toggle"})
+      const w2 = new Dropdown({label: "Dropdown"})
+      const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+      const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+      const w5 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+      const w6 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+      const w7 = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
+      const w8 = new PasswordInput({value: "foo"})
+      const w9 = new AutocompleteInput({
+        placeholder: "Enter value ...",
+        completions: ["aaa", "aab", "aac", "baa", "caa"],
+      })
+      const w10 = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"]})
+      const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
+      const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5})
+      const w_columns = [
+        column([theme_switch, w0, w1, w2, w3, w4, w5, w6]),
+        column([w5, w6, w7, w8, w9, w10, w11, w12]),
+      ]
+      const layout = new Row({children: w_columns, stylesheets: [":host { background-color: var(--background-color); }"]})
+      await display(layout, [540, 350])
+    })
 
-  it("should allow ThemeSwitch with active=false and label", async () => {
-    const obj = new ThemeSwitch({active: false, label: "Theme:"})
-    await display(obj, [150, 30])
-  })
-
-  it("should allow ThemeSwitch with active=true and label", async () => {
-    const obj = new ThemeSwitch({active: true, label: "Theme:"})
-    await display(obj, [150, 30])
+    it("with active=true and widgets following a light color scheme", async () => {
+      const theme_switch = new ThemeSwitch({active: true})
+      const w0 = new Button({label: "Button"})
+      const w1 = new Toggle({label: "Toggle"})
+      const w2 = new Dropdown({label: "Dropdown"})
+      const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+      const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+      const w5 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+      const w6 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+      const w7 = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
+      const w8 = new PasswordInput({value: "foo"})
+      const w9 = new AutocompleteInput({
+        placeholder: "Enter value ...",
+        completions: ["aaa", "aab", "aac", "baa", "caa"],
+      })
+      const w10 = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"]})
+      const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
+      const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5})
+      const w_columns = [
+        column([theme_switch, w0, w1, w2, w3, w4, w5, w6]),
+        column([w5, w6, w7, w8, w9, w10, w11, w12]),
+      ]
+      const layout = new Row({children: w_columns})
+      await display(layout, [540, 350])
+    })
   })
 
   describe("should support Progress indicator widget", () => {
