@@ -1,4 +1,4 @@
-import {Model} from "../../model"
+import {HasProps} from "core/has_props"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
@@ -6,7 +6,7 @@ import type * as p from "core/properties"
 export namespace AreaVisuals {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {} & Mixins
+  export type Props = HasProps.Props & {} & Mixins
 
   export type Mixins =
     mixins.Line & mixins.Fill & mixins.Hatch &
@@ -24,7 +24,7 @@ export namespace AreaVisuals {
 
 export interface AreaVisuals extends AreaVisuals.Attrs {}
 
-export class AreaVisuals extends Model {
+export class AreaVisuals extends HasProps {
   declare properties: AreaVisuals.Props
 
   constructor(attrs?: Partial<AreaVisuals.Attrs>) {

@@ -31,6 +31,7 @@ from ...core.enums import (
     Movable,
     Resizable,
 )
+from ...core.has_props import HasProps
 from ...core.property.aliases import CoordinateLike
 from ...core.property.container import Seq
 from ...core.property.dataspec import UnitsSpec
@@ -74,7 +75,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AreaVisuals(Model):
+class AreaVisuals(HasProps):
     """ Allows to style line, fill and hatch visuals. """
 
     # explicit __init__ to support Init signatures

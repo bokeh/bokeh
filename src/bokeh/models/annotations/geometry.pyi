@@ -60,11 +60,11 @@ from .annotation import (
 )
 from .arrows import ArrowHead
 
-class _AreaVisualsInit(_ModelInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
+class _AreaVisualsInit(_ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
     ...
 
-class AreaVisuals(Model, ScalarLineProps, ScalarFillProps, ScalarHatchProps,
+class AreaVisuals(ScalarLineProps, ScalarFillProps, ScalarHatchProps,
         ScalarHoverLineProps, ScalarHoverFillProps, ScalarHoverHatchProps):
     def __init__(self, **kwargs: Unpack[_AreaVisualsInit]) -> None: ...
 
@@ -100,7 +100,7 @@ class BoxInteractionHandles(Model):
     bottom_left: AreaVisuals | None = ...
     bottom_right: AreaVisuals | None = ...
 
-class _BoxAnnotationInit(_AnnotationInit, _AreaVisualsInit, total=False):
+class _BoxAnnotationInit(_AnnotationInit, total=False): #_AreaVisualsInit,
     left: Coordinate | None
     right: Coordinate | None
     top: Coordinate | None
