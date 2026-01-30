@@ -102,8 +102,8 @@ class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _Bord
     above: list[Renderer | StyledElement]
     below: list[Renderer | StyledElement]
     center: list[Renderer | StyledElement]
-    width: int | None
-    height: int | None
+    #width: int | None
+    #height: int | None
     frame_width: int | None
     frame_height: int | None
     frame_align: bool | LRTB[bool]
