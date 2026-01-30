@@ -21,3 +21,10 @@ class _HTMLAnnotationInit(_AnnotationInit, total=False):
 class HTMLAnnotation(Annotation):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_HTMLAnnotationInit]) -> None: ...
+
+class _HTMLDataAnnotationInit(_HTMLAnnotationInit, total=False):
+    ...
+
+class HTMLDataAnnotation(HTMLAnnotation):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_HTMLDataAnnotationInit]) -> None: ...

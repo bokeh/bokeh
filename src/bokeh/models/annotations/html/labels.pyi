@@ -41,8 +41,12 @@ from ....core.property_mixins import (
     _ScalarBorderLinePropsInit,
     _ScalarTextPropsInit,
 )
-from ..annotation import DataAnnotation, _DataAnnotationInit
-from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
+from .html_annotation import (
+    HTMLAnnotation,
+    HTMLDataAnnotation,
+    _HTMLAnnotationInit,
+    _HTMLDataAnnotationInit,
+)
 
 class _HTMLTextAnnotationInit(_HTMLAnnotationInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
     padding: Padding
@@ -78,7 +82,7 @@ class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
     x_offset: float = ...
     y_offset: float = ...
 
-class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
+class _HTMLLabelSetInit(_HTMLDataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     x_units: CoordinateUnits
     y: NumberSpec
@@ -88,7 +92,7 @@ class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFil
     x_offset: NumberSpec
     y_offset: NumberSpec
 
-class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLineProps):
+class HTMLLabelSet(HTMLDataAnnotation, BackgroundFillProps, BorderLineProps):
     def __init__(self, **kwargs: Unpack[_HTMLLabelSetInit]) -> None: ...
 
     x: NumberSpec = ...

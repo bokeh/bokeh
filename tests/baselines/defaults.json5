@@ -6780,7 +6780,6 @@
       type: "object",
       name: "BoxAnnotation",
       attributes: {
-        syncable: false,
         line_color: "black",
         line_alpha: 1.0,
         line_width: 2,
@@ -6790,6 +6789,7 @@
         ],
         fill_color: "lightgrey",
         fill_alpha: 0.5,
+        syncable: false,
         level: "overlay",
         visible: false,
         left: {
@@ -6834,7 +6834,6 @@
       type: "object",
       name: "BoxAnnotation",
       attributes: {
-        syncable: false,
         line_color: "black",
         line_alpha: 1.0,
         line_width: 2,
@@ -6844,6 +6843,7 @@
         ],
         fill_color: "lightgrey",
         fill_alpha: 0.5,
+        syncable: false,
         level: "overlay",
         visible: false,
         left: {
@@ -7107,7 +7107,6 @@
       type: "object",
       name: "BoxAnnotation",
       attributes: {
-        syncable: false,
         line_color: "black",
         line_alpha: 1.0,
         line_width: 0.5,
@@ -7117,6 +7116,7 @@
         ],
         fill_color: "lightgrey",
         fill_alpha: 0.5,
+        syncable: false,
         level: "overlay",
         propagate_hover: true,
         left: {
