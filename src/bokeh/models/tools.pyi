@@ -334,7 +334,7 @@ class _ResetToolInit(_PlotActionToolInit, total=False):
 class ResetTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_ResetToolInit]) -> None: ...
 
-class _TapToolInit(_TapInit, _SelectToolInit, total=False):
+class _TapToolInit(_SelectToolInit, total=False):
     mode: SelectionMode
     behavior: Literal["select", "inspect"]
     gesture: Literal["tap", "doubletap"]
@@ -409,7 +409,7 @@ class ZoomOutTool(ZoomBaseTool):
 
     maintain_focus: bool = ...
 
-class _BoxSelectToolInit(_DragInit, _RegionSelectToolInit, total=False):
+class _BoxSelectToolInit(_RegionSelectToolInit, total=False):
     dimensions: Dimensions
     overlay: BoxAnnotation
     origin: Literal["corner", "center"]
@@ -421,7 +421,7 @@ class BoxSelectTool(Drag, RegionSelectTool):
     overlay: BoxAnnotation = ...
     origin: Literal["corner", "center"] = ...
 
-class _LassoSelectToolInit(_DragInit, _RegionSelectToolInit, total=False):
+class _LassoSelectToolInit(_RegionSelectToolInit, total=False):
     overlay: PolyAnnotation
 
 class LassoSelectTool(Drag, RegionSelectTool):
@@ -429,7 +429,7 @@ class LassoSelectTool(Drag, RegionSelectTool):
 
     overlay: PolyAnnotation = ...
 
-class _PolySelectToolInit(_TapInit, _RegionSelectToolInit, total=False):
+class _PolySelectToolInit(_RegionSelectToolInit, total=False):
     overlay: PolyAnnotation
 
 class PolySelectTool(Tap, RegionSelectTool):
@@ -533,7 +533,7 @@ class PolyTool(EditTool):
 
     vertex_renderer: GlyphRenderer[XYGlyph] | None = ...
 
-class _BoxEditToolInit(_EditToolInit, _DragInit, _TapInit, total=False):
+class _BoxEditToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[LRTBGlyph | Rect | HStrip | VStrip]]
     dimensions: Dimensions
     num_objects: int
@@ -545,7 +545,7 @@ class BoxEditTool(EditTool, Drag, Tap):
     dimensions: Dimensions = ...
     num_objects: int = ...
 
-class _PointDrawToolInit(_EditToolInit, _DragInit, _TapInit, total=False):
+class _PointDrawToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[XYGlyph]]
     add: bool
     drag: bool
@@ -559,7 +559,7 @@ class PointDrawTool(EditTool, Drag, Tap):
     drag: bool = ...
     num_objects: int = ...
 
-class _PolyDrawToolInit(_PolyToolInit, _DragInit, _TapInit, total=False):
+class _PolyDrawToolInit(_PolyToolInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     drag: bool
     num_objects: int
@@ -571,7 +571,7 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     drag: bool = ...
     num_objects: int = ...
 
-class _FreehandDrawToolInit(_EditToolInit, _DragInit, _TapInit, total=False):
+class _FreehandDrawToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     num_objects: int
 
@@ -581,7 +581,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     renderers: list[GlyphRenderer[MultiLine | Patches]] = ...
     num_objects: int = ...
 
-class _PolyEditToolInit(_PolyToolInit, _DragInit, _TapInit, total=False):
+class _PolyEditToolInit(_PolyToolInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
 
 class PolyEditTool(PolyTool, Drag, Tap):
@@ -589,7 +589,7 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     renderers: list[GlyphRenderer[MultiLine | Patches]] = ...
 
-class _LineEditToolInit(_EditToolInit, _DragInit, _TapInit, total=False):
+class _LineEditToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[Line]]
     intersection_renderer: GlyphRenderer[Line]
     dimensions: Dimensions
