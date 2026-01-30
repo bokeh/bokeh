@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import wraps
+from typing import Any, Callable, TypeVar
 
 # Bokeh imports
 from .bases import Property
@@ -75,7 +76,9 @@ class validate:
         Property._should_validate = self.old
 
 
-def without_property_validation(input_function):
+T = TypeVar("T", bound=Callable[..., Any])
+
+def without_property_validation(input_function: T) -> T:
     """ Turn off property validation during update callbacks
 
     Example:
