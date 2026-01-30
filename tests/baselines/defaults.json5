@@ -629,7 +629,6 @@
     base_unit: "m",
   },
   AreaVisuals: {
-    __extends__: "Model",
     line_color: "black",
     line_alpha: 1.0,
     line_width: 1,
@@ -964,6 +963,31 @@
   },
   HTMLAnnotation: {
     __extends__: "Annotation",
+  },
+  HTMLDataAnnotation: {
+    __extends__: "Annotation",
+    source: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {
+            indices: [],
+            line_indices: [],
+          },
+        },
+        selection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+        },
+      },
+    },
   },
   HTMLLabel: {
     __extends__: "HTMLTextAnnotation",
