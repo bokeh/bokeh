@@ -76,7 +76,7 @@ from .glyph_api import (
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries
 
-class BaseFigureOptions(_PlotInit, total=False):
+class _BaseFigureInit(_PlotInit, total=False):
     tools: str | Sequence[str | Tool]
     x_minor_ticks: Auto | int
     y_minor_ticks: Auto | int
@@ -105,14 +105,18 @@ AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "
 
 DEFAULT_TOOLS: str
 
-class FigureOptions(BaseFigureOptions, total=False):
+class _FigureInit(_BaseFigureInit, total=False):
     x_range: RangeLike
     y_range: RangeLike
     x_axis_type: AxisType
     y_axis_type: AxisType
 
+# TODO This is incorrect, because *FigureOptions are models in _figure.py.
+BaseFigureOptions: TypeAlias = _BaseFigureInit
+FigureOptions: TypeAlias = _FigureInit
+
 class figure(Plot, GlyphAPI):
-    def __init__(self, **kwargs: Unpack[FigureOptions]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_FigureInit]) -> None: ...
 
     def subplot(self,
         *,
