@@ -24,6 +24,8 @@ from typing import Any
 
 # Bokeh imports
 from ....core.has_props import abstract
+from ....core.property.instance import Instance, InstanceDefault
+from ...sources import ColumnDataSource, DataSource
 from ..annotation import Annotation
 
 #-----------------------------------------------------------------------------
@@ -52,6 +54,20 @@ class HTMLAnnotation(Annotation):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+@abstract
+class HTMLDataAnnotation(Annotation):
+    """ Base class for data driven HTML-based annotations.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
