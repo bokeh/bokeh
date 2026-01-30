@@ -235,7 +235,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  target?: "ES2022" | "ES2020" | "ES2017" | "ES2015"
+  target?: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015"
   es_modules?: boolean
   minify?: boolean
   plugin?: boolean
@@ -256,7 +256,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2022" | "ES2020" | "ES2017" | "ES2015" | null
+  readonly target: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015" | null
   readonly es_modules: boolean
   readonly minify: boolean
   readonly plugin: boolean
@@ -439,6 +439,7 @@ export class Linker {
           const source = print(module)
           const ecma = (() => {
             switch (this.target) {
+              case "ES2024": return 2020 // TODO: 2024
               case "ES2022": return 2020 // TODO: 2022
               case null:
               case "ES2020": return 2020
@@ -841,9 +842,10 @@ export ${export_type} yaml;
     if (changed) {
       let collected: string[] | null = null
       if ((this.target != null && resolution == "ESM") || type == "json") {
-        const {ES2022, ES2020, ES2017, ES2015} = ts.ScriptTarget
+        const {ES2024, ES2022, ES2020, ES2017, ES2015} = ts.ScriptTarget
         const target = (() => {
           switch (this.target) {
+            case "ES2024": return ES2024
             case "ES2022": return ES2022
             case null:
             case "ES2020": return ES2020
