@@ -180,6 +180,7 @@ class _TabsInit(_LayoutDOMInit, total=False):
     tabs: list[TabPanel] | list[tuple[str, UIElement]]
     tabs_location: Location
     active: int
+    link_layouts: bool
 
 class Tabs(LayoutDOM):
     def __init__(self, **kwargs: Unpack[_TabsInit]) -> None: ...
@@ -191,6 +192,7 @@ class Tabs(LayoutDOM):
 
     tabs_location: Location = ...
     active: int = ...
+    link_layouts: bool = ...
 
 class _GroupBoxInit(_LayoutDOMInit, total=False):
     title: str | None

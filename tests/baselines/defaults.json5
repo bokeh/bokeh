@@ -5573,6 +5573,7 @@
     tabs: [],
     tabs_location: "above",
     active: 0,
+    link_layouts: true,
   },
   VBox: {
     __extends__: "LayoutDOM",

@@ -594,6 +594,10 @@ class Tabs(LayoutDOM):
     The index of the active tab.
     """)
 
+    link_layouts = Bool(default=True, help="""
+    Configures whether layouts across panels are linked together.
+    """)
+
 class GroupBox(LayoutDOM):
     ''' A panel that allows to group UI elements.
 
