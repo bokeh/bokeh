@@ -4,6 +4,7 @@ import fs from "node:fs"
 
 import * as esbuild from "esbuild"
 import type {Plugin} from "esbuild"
+import MagicString from "magic-string"
 
 import {task, passthrough, BuildError} from "../task.js"
 import * as paths from "../paths.js"
@@ -22,12 +23,28 @@ task("scripts:compile:tsgo", ["scripts:styles", "scripts:glsl", "scripts:grammar
   }
 })
 
+//import * as oxc from "oxc-parser"
+//const result = oxc.parseSync("file.js", "source", {})
+//result.module.staticImports
+
 task("scripts:version:esm", async () => {
   function version(lib_dir: string) {
-    const version_js_path = join(lib_dir, "version.js")
-    const version_js = fs.readFileSync(version_js_path, {encoding: "utf-8"})
-    const version_js_updated = version_js.replace("VERSION", pkg.version)
-    fs.writeFileSync(version_js_path, version_js_updated)
+    const version_js = "version.js"
+    const version_js_path = join(lib_dir, version_js)
+    const version_map_path = join(lib_dir, `${version_js}.map`)
+
+    const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+    const str = new MagicString(source, {filename: version_js})
+    str.replace("VERSION", pkg.version)
+
+    const map = str.generateMap({
+      source: version_js,
+      file: `${version_js}.map`,
+      includeContent: true,
+    })
+
+    fs.writeFileSync(version_js_path, str.toString())
+    fs.writeFileSync(version_map_path, map.toString())
   }
   version(join(paths.build_dir.esm, "lib"))
 })
