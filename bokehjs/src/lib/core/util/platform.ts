@@ -19,7 +19,7 @@ export const is_little_endian = (() => {
 
 export const BYTE_ORDER: ByteOrder = is_little_endian ? "little" : "big"
 
-export function to_big_endian(values: Uint32Array): Uint32Array {
+export function to_big_endian(values: Uint32Array): void {
   if (is_little_endian) {
     const bytes = new Uint8Array(values.buffer)
     const n_bytes = bytes.length
@@ -31,8 +31,5 @@ export function to_big_endian(values: Uint32Array): Uint32Array {
       bytes[i+1] = bytes[i+2]
       bytes[i+2] = temp_byte
     }
-    return new Uint32Array(bytes.buffer)
-  } else {
-    return values
   }
 }
