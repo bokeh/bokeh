@@ -41,8 +41,13 @@ export class LinearColorMapper extends ContinuousColorMapper {
     })()
     */
 
-    const [low, high] = (this.low == null && this.high == null)
-      ? minmax(data) : [this.low ?? min(data), this.high ?? max(data)]
+    const [low, high] = (() => {
+      if (this.low == null && this.high == null) {
+        return minmax(data)
+      } else {
+        return [this.low ?? min(data), this.high ?? max(data)]
+      }
+    })()
 
     const norm_factor = 1 / (high - low)
     const normed_interval = 1 / n
