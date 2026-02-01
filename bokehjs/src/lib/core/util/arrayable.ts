@@ -8,7 +8,7 @@ export function minmax(array: Arrayable<number>): [number, number] {
   let min = +Infinity
   let max = -Infinity
   const length = array.length
-  for (let i=0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     const value = array[i]
     if (value < min) {
       min = value
