@@ -1,6 +1,6 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import type {Arrayable} from "core/types"
-import {min, max} from "core/util/arrayable"
+import {min, max, minmax} from "core/util/arrayable"
 import {clamp} from "core/util/math"
 import type * as p from "core/properties"
 
@@ -27,8 +27,22 @@ export class LinearColorMapper extends ContinuousColorMapper {
   }
 
   protected scan(data: Arrayable<number>, n: number): LinearScanData {
-    const low = this.low != null ? this.low : min(data)
-    const high = this.high != null ? this.high : max(data)
+    /*
+    const [low, high] = (() => {
+      if (this.low == null && this.high == null) {
+        return minmax(data)
+      } else if (this.low == null) {
+        return [min(data), this.high!]
+      } else if (this.high == null) {
+        return [this.low, max(data)]
+      } else {
+        return [this.low, this.high]
+      }
+    })()
+    */
+
+    const [low, high] = (this.low == null && this.high == null)
+      ? minmax(data) : [this.low ?? min(data), this.high ?? max(data)]
 
     const norm_factor = 1 / (high - low)
     const normed_interval = 1 / n
