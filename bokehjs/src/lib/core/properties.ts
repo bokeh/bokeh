@@ -700,9 +700,9 @@ export class ColorSpec extends DataSpec<types.Color | null> {
   override v_materialize(colors: Arrayable<types.Color | null> | NDArray): ColorArray {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
-        const c_array = colors.slice()
-        to_big_endian(c_array)
-        return c_array
+        const colors_copy = colors.slice()
+        to_big_endian(colors_copy)
+        return colors_copy
       } else if (colors.dtype == "uint8" && colors.dimension == 1) {
         const [n] = colors.shape
         const array = new RGBAArray(4*n)
