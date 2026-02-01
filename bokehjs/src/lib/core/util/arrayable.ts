@@ -1,9 +1,48 @@
 import type {Arrayable, ArrayableNew, FloatArray, TypedArray} from "../types"
 import {clamp} from "./math"
 import {assert, assert_debug} from "./assert"
-export {min, max, minmax} from "./iterator"
 
 const {floor} = Math
+
+export function minmax(array: Arrayable<number>): [number, number] {
+  let min = +Infinity
+  let max = -Infinity
+  const length = array.length
+  for (let i=0; i < length; i++) {
+    const value = array[i]
+    if (value < min) {
+      min = value
+    }
+    if (value > max) {
+      max = value
+    }
+  }
+  return [min, max]
+}
+
+export function min(array: Arrayable<number>): number {
+  let min = Infinity
+  const length = array.length
+  for (let i=0; i < length; i++) {
+    const value = array[i]
+    if (value < min) {
+      min = value
+    }
+  }
+  return min
+}
+
+export function max(array: Arrayable<number>): number {
+  let max = -Infinity
+  const length = array.length
+  for (let i=0; i < length; i++) {
+    const value = array[i]
+    if (value > max) {
+      max = value
+    }
+  }
+  return max
+}
 
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
