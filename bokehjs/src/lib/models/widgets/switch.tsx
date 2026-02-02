@@ -10,47 +10,13 @@ import * as toggle_css from "styles/widgets/toggle_input.css"
 
 import type {VNode, TargetedEvent} from "preact"
 import {Component} from "preact"
-import {signal} from "@preact/signals"
-import type {Signal} from "@preact/signals"
 
 export class SwitchView extends ToggleInputView {
-  declare model: Switch
+  declare readonly model: Switch
+  declare readonly signals: p.SignalsOf<Switch.Props>
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), icons_css.default, switch_css.default]
-  }
-
-  override connect_signals(): void {
-    super.connect_signals()
-
-    this.connect(this.model.change, () => {
-      this.signals.active.value = this.model.active
-      this.signals.disabled.value = this.model.disabled
-      this.signals.label.value = this.model.label
-      this.signals.on_icon.value = this.model.on_icon
-      this.signals.off_icon.value = this.model.off_icon
-    })
-  }
-
-  // TODO readonly; initialize in-place
-  signals: {
-    active: Signal<Switch.Attrs["active"]>
-    disabled: Signal<Switch.Attrs["disabled"]>
-    label: Signal<Switch.Attrs["label"]>
-    on_icon: Signal<Switch.Attrs["on_icon"]>
-    off_icon: Signal<Switch.Attrs["off_icon"]>
-  }
-
-  override initialize(): void {
-    super.initialize()
-
-    this.signals = {
-      active: signal(this.model.active),
-      disabled: signal(this.model.disabled),
-      label: signal(this.model.label),
-      on_icon: signal(this.model.on_icon),
-      off_icon: signal(this.model.off_icon),
-    }
   }
 
   override component(): VNode {

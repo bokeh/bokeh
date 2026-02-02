@@ -6,62 +6,34 @@ import checkbox_css from "styles/widgets/checkbox.css"
 import * as toggle_css from "styles/widgets/toggle_input.css"
 
 import type {VNode} from "preact"
-import {signal} from "@preact/signals"
-import type {Signal} from "@preact/signals"
 
 export class CheckboxView extends ToggleInputView {
-  declare model: Checkbox
+  declare readonly model: Checkbox
+  declare readonly signals: p.SignalsOf<Checkbox.Props>
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), checkbox_css]
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-
-    this.connect(this.model.change, () => {
-      this.signals.active.value = this.model.active
-      this.signals.label.value = this.model.label
-      this.signals.disabled.value = this.model.disabled
-      // Checkbox
-      //   ----
-      // ToggleInput
-      //   active
-      //   label
-      // LayoutDOM
-      //   disabled
-      // Pane
-      //  elements
-      // UIElement
-      //   visible
-      //   context_menu
-      // StyledElement
-      //   html_attributes
-      //   html_id
-      //   css_classes
-      //   css_variables
-      //   styles
-      //   stylesheets
-    })
-  }
-
-  // TODO readonly; initialize in-place
-  signals: {
-    active: Signal<Checkbox.Attrs["active"]>
-    label: Signal<Checkbox.Attrs["label"]>
-    disabled: Signal<Checkbox.Attrs["disabled"]>
-  }
-
-  override initialize(): void {
-    super.initialize()
-
-    this.signals = {
-      active: signal(this.model.active),
-      label: signal(this.model.label),
-      disabled: signal(this.model.disabled),
-    }
-  }
-
+  // Checkbox
+  //   ----
+  // ToggleInput
+  //   active
+  //   label
+  // LayoutDOM
+  //   disabled
+  // Pane
+  //  elements
+  // UIElement
+  //   visible
+  //   context_menu
+  // StyledElement
+  //   html_attributes
+  //   html_id
+  //   css_classes
+  //   css_variables
+  //   styles
+  //   stylesheets
   override component(): VNode {
     const classes = [...this._css_classes()]
     const stylesheets = this.resolved_stylesheets

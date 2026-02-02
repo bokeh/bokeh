@@ -12,6 +12,7 @@ import core_css from "styles/core.css"
 
 import type {VNode} from "preact"
 import {render} from "preact"
+import type {Signal} from "@preact/signals"
 
 export type RenderingTarget = HTMLElement | ShadowRoot
 
@@ -20,7 +21,21 @@ export interface DOMView extends View {
 }
 
 export abstract class DOMView extends View {
-  declare parent: DOMView | null
+  declare readonly parent: DOMView | null
+
+  readonly signals: {readonly [key: string]: Signal<unknown>} = {}
+
+  constructor(options: View.Options) {
+    super(options)
+
+    for (const prop of this.model) {
+      Object.defineProperty(this.signals, prop.attr, {
+        get() { return prop.signal },
+        configurable: false,
+        enumerable: true,
+      })
+    }
+  }
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
   static aria_role?: ARIARole
