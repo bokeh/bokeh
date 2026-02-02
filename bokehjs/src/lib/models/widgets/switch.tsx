@@ -1,16 +1,15 @@
 import {ToggleInput, ToggleInputView} from "./toggle_input"
 import {IconLike} from "../common/kinds"
-import type {StyleSheetLike, Keys} from "core/dom"
-import {InlineStyleSheet} from "core/dom"
+import type {Keys} from "core/dom"
 import {ShadowComponent, Icon, cls} from "core/vdom"
-import {isString} from "core/util/types"
+import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
 import * as icons_css from "styles/icons.css"
 import * as switch_css from "styles/widgets/switch.css"
 import * as toggle_css from "styles/widgets/toggle_input.css"
 
 import type {VNode, TargetedEvent} from "preact"
-import {Component, render} from "preact"
+import {Component} from "preact"
 import {signal} from "@preact/signals"
 import type {Signal} from "@preact/signals"
 
@@ -54,7 +53,7 @@ export class SwitchView extends ToggleInputView {
     }
   }
 
-  override render(): void {
+  override component(): VNode {
     const view = this
 
     type SwitchProps = {
@@ -68,10 +67,7 @@ export class SwitchView extends ToggleInputView {
     }
 
     const classes = [...this._css_classes()]
-
-    const stylesheets = [...this._stylesheets()]
-      .map((sheet) => isString(sheet) ? new InlineStyleSheet(sheet) : sheet)
-      .map((sheet) => sheet.to_native())
+    const stylesheets = this.resolved_stylesheets
 
     class ShadowSwitch extends Component<SwitchProps> {
       render(): VNode {
@@ -104,11 +100,8 @@ export class SwitchView extends ToggleInputView {
       }
     }
 
-    const el = <ShadowSwitch></ShadowSwitch>
-    render(el, this.el.parentNode!, this.el) // TODO preact-root-fragment
+    return <ShadowSwitch></ShadowSwitch>
   }
-
-  override readonly is_vdom = true
 }
 
 export namespace Switch {

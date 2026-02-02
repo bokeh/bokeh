@@ -1,5 +1,6 @@
 import type {CSSProps} from "./css"
 import {ToolIcon} from "./enums"
+import type {StyleSheet} from "./stylesheets"
 import {isArray, isPlainObject} from "./util/types"
 import {omit} from "./util/object"
 import type {IconLike} from "../models/common/kinds"
@@ -30,15 +31,21 @@ export function cls(...classes: CSSClasses[]): string {
 
 export type ShadowComponentProps = HTMLAttributes<HTMLDivElement> & {
   //component: string
-  stylesheets?: CSSStyleSheet[]
+  stylesheets?: StyleSheet[]
 }
 export class ShadowComponent extends Component<ShadowComponentProps> {
   render(): VNode {
     const attach_shadow = (el: HTMLElement | null): void => {
       if (el != null) {
         const shadow_el = el.shadowRoot ?? el.attachShadow({mode: "open"})
-        shadow_el.adoptedStyleSheets = this.props.stylesheets ?? []
-        render(this.props.children, shadow_el)
+        const {stylesheets=[]} = this.props
+        const contents = (
+          <>
+            {stylesheets.map((sheet) => sheet.to_vdom())}
+            {this.props.children}
+          </>
+        )
+        render(contents, shadow_el)
       }
     }
     //const classes = cls(`bk-${this.props.component}`, this.props.class)

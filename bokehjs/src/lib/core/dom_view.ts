@@ -1,12 +1,17 @@
 import {View} from "./view"
 import type {SerializableState} from "./view"
-import type {StyleSheet, StyleSheetLike, ARIARole} from "./dom"
-import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
+import type {StyleSheet, StyleSheetLike} from "./stylesheets"
+import {InlineStyleSheet} from "./stylesheets"
+import type {ARIARole} from "./dom"
+import {create_element, empty, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
 import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
+
+import type {VNode} from "preact"
+import {render} from "preact"
 
 export type RenderingTarget = HTMLElement | ShadowRoot
 
@@ -62,16 +67,9 @@ export abstract class DOMView extends View {
     this.r_after_render()
   }
 
-  readonly is_vdom: boolean = false
-
   render_to(target: Node): void {
-    if (this.is_vdom) {
-      target.appendChild(this.el)
-    }
     this.render()
-    if (!this.is_vdom) {
-      target.appendChild(this.el)
-    }
+    target.appendChild(this.el)
   }
 
   after_render(): void {
@@ -201,11 +199,31 @@ export abstract class DOMComponentView extends DOMElementView {
     }
   }
 
+  override render_to(target: Node): void {
+    if (this.is_vdom) {
+      target.appendChild(this.el)
+    }
+    this.render()
+    target.appendChild(this.el)
+    if (this.is_vdom) {
+      target.appendChild(this.el)
+    }
+  }
+
+  get is_vdom(): boolean {
+    return this.component != null
+  }
+
+  component?(): VNode
+
   render(): void {
-    assert(!this.is_vdom, "only non-VDOM components")
-    this.empty()
-    this._update_stylesheets()
-    this._apply_html_attributes()
+    if (this.component != null) {
+      render(this.component(), this.el.parentNode!, this.el) // TODO preact-root-fragment
+    } else {
+      this.empty()
+      this._update_stylesheets()
+      this._apply_html_attributes()
+    }
   }
 
   protected _applied_html_attributes: string[] = []
@@ -223,6 +241,10 @@ export abstract class DOMComponentView extends DOMElementView {
     yield* this.user_stylesheets()
   }
 
+  get resolved_stylesheets(): StyleSheet[] {
+    return [...this._stylesheets()].map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+  }
+
   get type_class(): string {
     return `bk-${this.model.type.replace(/\./g, "-")}`
   }
@@ -235,8 +257,8 @@ export abstract class DOMComponentView extends DOMElementView {
   protected *_css_variables(): Iterable<[string, string]> {}
 
   protected _applied_stylesheets: StyleSheet[] = []
-  protected _apply_stylesheets(stylesheets: StyleSheetLike[]): void {
-    const resolved_stylesheets = stylesheets.map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+  protected _apply_stylesheets(): void {
+    const {resolved_stylesheets} = this
     this._applied_stylesheets.push(...resolved_stylesheets)
     resolved_stylesheets.forEach((stylesheet) => stylesheet.install(this.shadow_el))
   }
@@ -250,7 +272,7 @@ export abstract class DOMComponentView extends DOMElementView {
   protected _update_stylesheets(): void {
     this._applied_stylesheets.forEach((stylesheet) => stylesheet.uninstall())
     this._applied_stylesheets = []
-    this._apply_stylesheets([...this._stylesheets()])
+    this._apply_stylesheets()
   }
 
   protected _update_css_classes(): void {
