@@ -325,19 +325,14 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 _df = _df.with_row_index()
 
-        def to_numpy(series: nw.Series[Any]) -> npt.NDArray[Any]:
-            arr = series.to_numpy()
+        new_data: DataDict = {}
+        for column, series in _df.to_dict(as_series=True).items():
+            array = series.to_numpy()
             try:
-                arr.flags.writeable = True # override Pandas copy-on-write behavior
+                array.flags.writeable = True # override Pandas copy-on-write behavior
             except ValueError:
                 pass
-            return arr
-
-        tmp_data = {c: to_numpy(v) for c, v in _df.to_dict(as_series=True).items()}
-
-        new_data: DataDict = {}
-        for k, v in tmp_data.items():
-            new_data[k] = v
+            new_data[column] = array
 
         return new_data
 
