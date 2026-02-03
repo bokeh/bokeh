@@ -7,6 +7,7 @@ import {create_element, empty, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
+import {create_root_fragment} from "./vdom"
 import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
 
@@ -219,8 +220,7 @@ export abstract class DOMComponentView extends DOMElementView {
       target.appendChild(this.el)
     }
     this.render()
-    target.appendChild(this.el)
-    if (this.is_vdom) {
+    if (!this.is_vdom) {
       target.appendChild(this.el)
     }
   }
@@ -233,7 +233,7 @@ export abstract class DOMComponentView extends DOMElementView {
 
   render(): void {
     if (this.component != null) {
-      render(this.component(), this.el.parentNode!, this.el) // TODO preact-root-fragment
+      render(this.component(), create_root_fragment(this.el.parentNode!, this.el))
     } else {
       this.empty()
       this._update_stylesheets()

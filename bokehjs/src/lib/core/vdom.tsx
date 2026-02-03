@@ -6,7 +6,7 @@ import {omit} from "./util/object"
 import type {IconLike} from "../models/common/kinds"
 
 import type {Signalish, SignalLike} from "preact"
-import type {VNode, HTMLAttributes} from "preact"
+import type {VNode, HTMLAttributes, ContainerNode} from "preact"
 import {Component, render} from "preact"
 
 export function is_SignalLike<T>(obj: Signalish<T>): obj is SignalLike<T> {
@@ -76,4 +76,40 @@ export class Icon extends Component<IconProps> {
     }
     return <div role="img" class={cls(classes, icon_class)} style={style}></div>
   }
+}
+
+type InternalContainerNode = ContainerNode & {
+  readonly ownerDocument: Document
+  readonly nextSibling: ContainerNode | null
+}
+
+/**
+ * This is inspired by create-root-fragment library.
+ */
+export function create_root_fragment(parent: ContainerNode, replace_node: ContainerNode, ...replace_nodes: ContainerNode[]): ContainerNode {
+  replace_nodes = [replace_node, ...replace_nodes]
+
+  const sibling = (replace_nodes.at(-1) as InternalContainerNode).nextSibling
+  const node: InternalContainerNode = {
+    nodeType: 1,
+    parentNode: parent,
+    firstChild: replace_nodes[0],
+    childNodes: replace_nodes,
+    nextSibling: sibling,
+    ownerDocument: (parent as InternalContainerNode).ownerDocument,
+    insertBefore(c: ContainerNode, r: ContainerNode | null): ContainerNode {
+      return parent.insertBefore(c, r ?? sibling)
+    },
+    appendChild(c: ContainerNode) {
+      return parent.appendChild(c)
+    },
+    removeChild(c: ContainerNode) {
+      return parent.removeChild(c)
+    },
+    contains(c: ContainerNode) {
+      return parent.contains(c)
+    },
+  }
+
+  return (parent as any).__k = node
 }
