@@ -21,29 +21,14 @@ export function minmax(array: Arrayable<number>): [number, number] {
 }
 
 export function min(array: Arrayable<number>): number {
-  let min = Infinity
-  const length = array.length
-  for (let i=0; i < length; i++) {
-    const value = array[i]
-    if (value < min) {
-      min = value
-    }
-  }
+  const [min,] = minmax(array)
   return min
 }
 
 export function max(array: Arrayable<number>): number {
-  let max = -Infinity
-  const length = array.length
-  for (let i=0; i < length; i++) {
-    const value = array[i]
-    if (value > max) {
-      max = value
-    }
-  }
+  const [, max] = minmax(array)
   return max
 }
-
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
 }
