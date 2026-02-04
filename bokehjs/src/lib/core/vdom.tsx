@@ -9,6 +9,8 @@ import type {Signalish, SignalLike} from "preact"
 import type {VNode, HTMLAttributes, ContainerNode} from "preact"
 import {Component, render} from "preact"
 
+export type {VNode} from "preact"
+
 export function is_SignalLike<T>(obj: Signalish<T>): obj is SignalLike<T> {
   return isPlainObject(obj) && "value" in obj
 }
