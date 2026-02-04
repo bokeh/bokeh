@@ -77,6 +77,9 @@ from typing import (
 # External imports
 import numpy as np
 
+# Bokeh imports
+from ...util.warnings import BokehUserWarning, warn
+
 if TYPE_CHECKING:
     import numpy.typing as npt
 
@@ -542,17 +545,23 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         old = self._saved_copy()
 
         for name, patch in patches.items():
+            array = self[name]
+            if isinstance(array, MutableSequence):
+                pass
+            elif isinstance(array, np.ndarray):
+                if array.flags.writeable:
+                    pass
+                else:
+                    warn("attempted to patch an immutable numpy array (flags.writable is False)", BokehUserWarning)
+                    continue
+            else:
+                warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
+                continue
+
             for ind, value in patch:
                 if isinstance(ind, (int, slice)):
-                    array = self[name]
-                    if isinstance(array, MutableSequence):
-                        array[ind] = value
-                    elif isinstance(array, np.ndarray) and array.flags.writeable:
-                        array[ind] = value
-                    else:
-                        logging.warning("attempted to patch an immutable sequence")
+                    array[ind] = value
                 else:
-                    # TODO check for mutability
                     shape = self[name][ind[0]][tuple(ind[1:])].shape
                     self[name][ind[0]][tuple(ind[1:])] = np.asarray(value).reshape(shape)
 
