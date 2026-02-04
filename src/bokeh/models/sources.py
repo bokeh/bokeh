@@ -80,11 +80,13 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series | pd.Index]
+    Value: TypeAlias = Any
+
+    DataDict: TypeAlias = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
     Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
-    Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Any]]]
+    Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Value]]]
 
 @abstract
 class DataSource(Model):
