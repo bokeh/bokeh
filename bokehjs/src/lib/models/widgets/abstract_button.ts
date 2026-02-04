@@ -1,4 +1,5 @@
 import type * as p from "core/properties"
+import {i18n} from "core/i18n"
 import {ButtonType} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {prepend, nbsp, text, button, div} from "core/dom"
@@ -40,7 +41,7 @@ export abstract class AbstractButtonView extends ControlView {
     this.label_view?.remove()
     const label = (() => {
       const {label} = this.model
-      return isString(label) ? new Text({content: label}) : label
+      return isString(label) ? new Text({content: i18n.t(label)}) : label
     })()
     this.label_view = await this.owner.build_view(label, this)
   }

@@ -56,6 +56,7 @@ __all__ = (
     'ButtonLike',
     'Dropdown',
     'HelpButton',
+    'LanguageDropdown',
     'Toggle',
 )
 
@@ -207,6 +208,23 @@ class Dropdown(AbstractButton):
         ''' Set up a JavaScript handler for button or menu item clicks. '''
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)
+
+
+class LanguageDropdown(Dropdown):
+    ''' A language dropdown button.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    label = Override(default="")
+
+    icon = Override(default=lambda: BuiltinIcon("world", size=18))
+
+    button_type = Override(default="default")
+
 
 class HelpButton(AbstractButton):
     """ A button with a help symbol that displays additional text when hovered

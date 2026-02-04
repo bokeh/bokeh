@@ -7499,6 +7499,19 @@
       name: "unset",
     },
   },
+  LanguageDropdown: {
+    __extends__: "Dropdown",
+    button_type: "default",
+    label: "",
+    icon: {
+      type: "object",
+      name: "BuiltinIcon",
+      attributes: {
+        size: 18,
+        icon_name: "world",
+      },
+    },
+  },
   Toggle: {
     __extends__: "AbstractButton",
     label: "Toggle",

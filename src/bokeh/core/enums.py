@@ -692,6 +692,7 @@ type ToolIconType = Literal[
     "unpin",
     "wheel_pan",
     "wheel_zoom",
+    "world",
     "x_box_select",
     "x_box_zoom",
     "x_grip",
