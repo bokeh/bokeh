@@ -22,7 +22,15 @@ const toString = Object.prototype.toString
 export class EqNotImplemented extends Error {}
 
 export type ComparatorOptions = {
+  /**
+   * Compare the structure of objects even if an identity check would be more
+   * robust (default: false)
+   */
   structural?: boolean
+  /**
+   * Don't throw any exceptions if values don't support equality, but simply
+   * return they aren't equal (default: false)
+   */
   no_fail?: boolean
 }
 
