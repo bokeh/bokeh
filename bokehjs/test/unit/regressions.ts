@@ -20,6 +20,7 @@ import {
   CustomJS,
   DataRange1d,
   EqHistColorMapper,
+  FactorRange,
   GlyphRenderer,
   HoverTool,
   Image,
@@ -1979,6 +1980,28 @@ describe("Bug", () => {
       await view.ready
 
       expect(source.selected.indices).to.be.equal([0, 3])
+    })
+  })
+
+  describe("in issue #14568", () => {
+    it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
+      const factors = ["A", "B", "C"]
+      const x_range = new FactorRange({factors, start: 0, end: 3, bounds: [0, 3]})
+      const y_range = new Range1d({start: 0, end: 3})
+
+      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
+      p.scatter({x: factors, y: [1, 2, 3], size: 20})
+
+      const {view} = await display(p)
+
+      expect(x_range.interval).to.be.equal([0, 3])
+
+      const actions = new PlotActions(view)
+      await actions.scroll_down(xy(2, 2), 1)
+      await view.ready
+
+      expect(x_range.interval).to.be.equal([0, 3])
     })
   })
 })

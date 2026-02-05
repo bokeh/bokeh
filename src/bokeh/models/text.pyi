@@ -6,38 +6,55 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, _ModelInit
 
-@abstract
-@dataclass(init=False)
+class _BaseTextInit(_ModelInit, total=False):
+    text: str
+
 class BaseText(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_BaseTextInit]) -> None: ...
 
     text: str = ...
 
-@abstract
-@dataclass(init=False)
+class _MathTextInit(_BaseTextInit, total=False):
+    ...
+
 class MathText(BaseText):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_MathTextInit]) -> None: ...
+
+class _AsciiInit(_MathTextInit, total=False):
     ...
 
-@dataclass
 class Ascii(MathText):
+    def __init__(self, **kwargs: Unpack[_AsciiInit]) -> None: ...
+
+class _MathMLInit(_MathTextInit, total=False):
     ...
 
-@dataclass
 class MathML(MathText):
-    ...
+    def __init__(self, **kwargs: Unpack[_MathMLInit]) -> None: ...
 
-@dataclass
+class _TeXInit(_MathTextInit, total=False):
+    macros: dict[str, str | tuple[str, int]]
+    inline: bool
+
 class TeX(MathText):
+    def __init__(self, **kwargs: Unpack[_TeXInit]) -> None: ...
 
     macros: dict[str, str | tuple[str, int]] = ...
-
     inline: bool = ...
 
-@dataclass
-class PlainText(BaseText):
+class _PlainTextInit(_BaseTextInit, total=False):
     ...
+
+class PlainText(BaseText):
+    def __init__(self, **kwargs: Unpack[_PlainTextInit]) -> None: ...

@@ -94,6 +94,30 @@ export class BoxZoomToolView extends GestureToolView {
     return [[left, right], [bottom, top]]
   }
 
+  protected _get_dimensions(base_point: Point, curr_point: Point): Dimensions {
+    const {dimensions} = this.model
+    if (dimensions == "auto") {
+      const [bx, by] = base_point
+      const [cx, cy] = curr_point
+
+      const dx = Math.abs(bx - cx)
+      const dy = Math.abs(by - cy)
+
+      const tol_d = 15
+      const tol_aspect_ratio = 3
+
+      if (dx < tol_d && dy > tol_d && dy > tol_aspect_ratio*dx) {
+        return "height"
+      } else if (dx > tol_d && dy < tol_d && dx > tol_aspect_ratio*dy) {
+        return "width"
+      } else {
+        return "both"
+      }
+    } else {
+      return dimensions
+    }
+  }
+
   protected _compute_limits(base_point: Point, curr_point: Point): [Point, Point] {
     const {frame} = this.plot_view
 
@@ -103,29 +127,7 @@ export class BoxZoomToolView extends GestureToolView {
       base_point = [cx - (dx - cx), cy - (dy - cy)]
     }
 
-    const dims = (() => {
-      const {dimensions} = this.model
-      if (dimensions == "auto") {
-        const [bx, by] = base_point
-        const [cx, cy] = curr_point
-
-        const dx = Math.abs(bx - cx)
-        const dy = Math.abs(by - cy)
-
-        const tol_d = 15
-        const tol_aspect_ratio = 3
-
-        if (dx < tol_d && dy > tol_d && dy > tol_aspect_ratio*dx) {
-          return "height"
-        } else if (dx > tol_d && dy < tol_d && dx > tol_aspect_ratio*dy) {
-          return "width"
-        } else {
-          return "both"
-        }
-      } else {
-        return dimensions
-      }
-    })()
+    const dims = this._get_dimensions(base_point, curr_point)
 
     if (this.model.match_aspect && dims == "both") {
       return this._match_aspect(base_point, curr_point, frame)
@@ -146,7 +148,10 @@ export class BoxZoomToolView extends GestureToolView {
       return
     }
 
-    const [[left, right], [top, bottom]] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
+    const [sxlim, sylim] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
+    const dims = this._get_dimensions(this._base_point, [ev.sx, ev.sy])
+    const {line_width} = this.model.overlay
+    const [[left, right], [top, bottom]] = this.model._compute_overlay_limits(sxlim, sylim, dims, line_width)
     this.model.overlay.update({left, right, top, bottom})
   }
 

@@ -3,6 +3,7 @@ import type * as p from "core/properties"
 import type {Selection} from "../selections/selection"
 import {View} from "core/view"
 import {Indices} from "core/types"
+import type {Arrayable} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
@@ -92,7 +93,7 @@ export namespace CDSView {
     filter: p.Property<Filter>
     // internal
     indices: p.Property<Indices>
-    indices_map: p.Property<Map<number, number>>
+    indices_map: p.Property<Arrayable<number>>
     masked: p.Property<Indices | null>
   }
 }
@@ -114,9 +115,9 @@ export class CDSView extends Model {
       filter: [ Ref(Filter), () => new AllIndices() ],
     }))
 
-    this.internal<CDSView.Props>(({Int, Mapping, Ref, Nullable}) => ({
+    this.internal<CDSView.Props>(({Ref, Int, Arrayable, Nullable}) => ({
       indices:     [ Ref(Indices) ],
-      indices_map: [ Mapping(Int, Int), new Map() ],
+      indices_map: [ Arrayable(Int), [] ],
       masked:      [ Nullable(Ref(Indices)), null ],
     }))
   }
@@ -125,14 +126,27 @@ export class CDSView extends Model {
 
   _indices_map_to_subset(): void {
     this._indices = this.indices.ones()
-    this.indices_map = new Map()
 
-    const {_indices, indices_map} = this
+    const {_indices} = this
+    // _indices are sorted thus we can use the last value
+    const n_map = _indices.length > 0 ? _indices.at(-1)! + 1 : 0
+    const indices_map = new Array(n_map).fill(-1)
+
     const n = _indices.length
-
     for (let i = 0; i < n; i++) {
-      indices_map.set(_indices[i], i)
+      indices_map[_indices[i]] = i
     }
+
+    this.indices_map = indices_map
+  }
+
+  get_subset_index(index: number): number | undefined {
+    const subset_index = this.indices_map[index] as number | undefined
+    return subset_index !== undefined && subset_index != -1 ? subset_index : undefined
+  }
+
+  has_subset_index(index: number): boolean {
+    return this.get_subset_index(index) !== undefined
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
@@ -140,11 +154,22 @@ export class CDSView extends Model {
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    return selection_full.map((i) => this.indices_map.get(i)!) // XXX ?? NaN
+    return selection_full.map((i) => this.get_subset_index(i)!) // XXX ?? NaN
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
     return indices.map((i) => this._indices[i])
+  }
+
+  get_reference_point(array: Arrayable, value?: unknown): number | undefined | null {
+    const {_indices} = this
+    const n = _indices.length
+    for (let i = 0; i < n; i++) {
+      if (array[_indices[i]] == value) {
+        return this.get_subset_index(_indices[i])
+      }
+    }
+    return null
   }
 
   /** @deprecated */

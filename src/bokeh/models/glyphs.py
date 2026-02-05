@@ -64,7 +64,7 @@ from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.include import Include
 from ..core.property.instance import Instance, InstanceDefault
-from ..core.property.numeric import Size
+from ..core.property.numeric import NonNegative, Size
 from ..core.property.override import Override
 from ..core.property.primitive import (
     Bool,
@@ -1593,9 +1593,17 @@ class Step(XYGlyph, LineGlyph):
     Where the step "level" should be drawn in relation to the x and y
     coordinates. The parameter can assume one of three values:
 
-    * ``before``: (default) Draw step levels before each x-coordinate (no step before the first point)
-    * ``after``:  Draw step levels after each x-coordinate (no step after the last point)
+    * ``before``: (default) Draw step levels before each x-coordinate (no step before the first point unless pad_before is set)
+    * ``after``:  Draw step levels after each x-coordinate (no step after the last point unless pad_after is set)
     * ``center``: Draw step levels centered on each x-coordinate
+    """)
+
+    pad_before = NonNegative(Float, default=0, help="""
+    Extends the step plot by this amount before the first x-coordinate.
+    """)
+
+    pad_after = NonNegative(Float, default=0, help="""
+    Extends the step plot by this amount after the last x-coordinate.
     """)
 
 class Text(XYGlyph, TextGlyph):

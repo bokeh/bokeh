@@ -220,7 +220,7 @@ def test_transform_series() -> None:
 
     # string array
     arr = pd.array(['hello', 'world'])
-    assert isinstance(arr, pd.arrays.StringArray)
+    assert isinstance(arr, (pd.arrays.StringArray, pd.arrays.ArrowStringArray))
     out = bus.transform_series(arr)
     assert isinstance(out, np.ndarray)
 

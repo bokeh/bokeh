@@ -10,6 +10,7 @@ Bokeh version ``3.9.0`` (February 2026) is a minor milestone of Bokeh project.
 * Added ``figure`` methods to plot geographic features using Cartopy (:bokeh-pull:`14706`)
 * Added ``text_outline_width`` to ``Text`` to support user defined width of outline borders (:bokeh-pull:`14733`, :bokeh-pull:`14746`)
 * Removed ``pandas`` as a required dependency (:bokeh-pull:`14686`)
+* Added ``pad_before`` and ``pad_after`` properties to ``Step`` glyph (:bokeh-pull:`14758`)
 * Fixed issue where ``Block`` glyph did not render correctly with reversed axes (:bokeh-pull:`14750`)
 * Fixed issue where ``CategoricalSlider`` displayed "undefined" in the tooltip (:bokeh-pull:`14774`)
 * Added support for Markdown formatted contents display with ``Markdown`` widget (:bokeh-pull:`14780`)

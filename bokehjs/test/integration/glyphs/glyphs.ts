@@ -457,6 +457,44 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
+  it("should support Step with pad_before", async () => {
+    const x0 = [0, 1, 2]
+
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.step({x: x0, y: [0.2, 1.2, 0.0], line_width: 5, line_cap: "round", mode: "before", line_color: "red", pad_before: 0.25})
+      p.step({x: x0, y: [0.1, 1.1, 0.1], line_width: 5, line_cap: "round", mode: "center", line_color: "green", pad_before: 0.25})
+      p.step({x: x0, y: [0.0, 1.0, 0.2], line_width: 5, line_cap: "round", mode: "after", line_color: "blue", pad_before: 0.25})
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Step with pad_after", async () => {
+    const x0 = [0, 1, 2]
+
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.step({x: x0, y: [0.2, 1.2, 0.0], line_width: 5, line_cap: "round", mode: "before", line_color: "red", pad_after: 0.25})
+      p.step({x: x0, y: [0.1, 1.1, 0.1], line_width: 5, line_cap: "round", mode: "center", line_color: "green", pad_after: 0.25})
+      p.step({x: x0, y: [0.0, 1.0, 0.2], line_width: 5, line_cap: "round", mode: "after", line_color: "blue", pad_after: 0.25})
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Step with pad_before and pad_after", async () => {
+    const x0 = [0, 1, 2]
+
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.step({x: x0, y: [0.2, 1.2, 0.0], line_width: 5, line_cap: "round", mode: "before", line_color: "red", pad_before: 0.25, pad_after: 0.25})
+      p.step({x: x0, y: [0.1, 1.1, 0.1], line_width: 5, line_cap: "round", mode: "center", line_color: "green", pad_before: 0.25, pad_after: 0.25})
+      p.step({x: x0, y: [0.0, 1.0, 0.2], line_width: 5, line_cap: "round", mode: "after", line_color: "blue", pad_before: 0.25, pad_after: 0.25})
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
   it("should support MathMLGlyph", async () => {
     const p = fig([200, 200])
     p.mathml({

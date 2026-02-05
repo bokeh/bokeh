@@ -6,26 +6,36 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, _ModelInit
 
-@abstract
-@dataclass(init=False)
-class Comparison(Model):
+class _ComparisonInit(_ModelInit, total=False):
     ...
 
-@dataclass
+class Comparison(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_ComparisonInit]) -> None: ...
+
+class _CustomJSCompareInit(_ComparisonInit, total=False):
+    args: dict[str, Any]
+    code: str
+
 class CustomJSCompare(Comparison):
+    def __init__(self, **kwargs: Unpack[_CustomJSCompareInit]) -> None: ...
 
     args: dict[str, Any] = ...
-
     code: str = ...
 
-@dataclass
+class _NanCompareInit(_ComparisonInit, total=False):
+    ascending_first: bool
+
 class NanCompare(Comparison):
+    def __init__(self, **kwargs: Unpack[_NanCompareInit]) -> None: ...
 
     ascending_first: bool = ...
