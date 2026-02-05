@@ -12,7 +12,7 @@ import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
 
 import type {VNode} from "preact"
-import {render} from "preact"
+import {render, h} from "preact"
 import type {Signal} from "@preact/signals"
 
 export type RenderingTarget = HTMLElement | ShadowRoot
@@ -233,7 +233,11 @@ export abstract class DOMComponentView extends DOMElementView {
 
   render(): void {
     if (this.component != null) {
-      render(this.component(), create_root_fragment(this.el.parentNode!, this.el))
+      const component = h(this.component.bind(this), {})
+      const parent = this.el.parentNode
+      assert(parent != null, "attempted to render vdom to at detached DOM node")
+      const target = create_root_fragment(parent, this.el)
+      render(component, target)
     } else {
       this.empty()
       this._update_stylesheets()
