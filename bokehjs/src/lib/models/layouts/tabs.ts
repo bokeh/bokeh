@@ -223,7 +223,7 @@ export class Tabs extends LayoutDOM {
       tabs:          [ List(Ref(TabPanel)), [] ],
       tabs_location: [ Location, "above" ],
       active:        [ Int, 0 ],
-      link_layouts:  [ Bool, true ],
+      link_layouts:  [ Bool, false ],
     }))
   }
 }
