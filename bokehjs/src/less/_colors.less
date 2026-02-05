@@ -1,7 +1,6 @@
 #colors() {
   background: light-dark(@white, @black);
-  text: light-dark(#000, @white); // following design system this should be @black for the light case.
-                                  // Leaving it as #000 to decrease baseline changes when using --color var
+  text: light-dark(@black, @white);
 
   primary: @blue-500;
   accent: @mauve-500;
