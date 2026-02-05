@@ -21,7 +21,7 @@ export function minmax(array: Arrayable<number>): [number, number] {
 }
 
 export function min(array: Arrayable<number>): number {
-  const [min,] = minmax(array)
+  const [min] = minmax(array)
   return min
 }
 
@@ -29,6 +29,7 @@ export function max(array: Arrayable<number>): number {
   const [, max] = minmax(array)
   return max
 }
+
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
 }
