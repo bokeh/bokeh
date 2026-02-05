@@ -5,19 +5,10 @@ import inputs_css from "styles/widgets/inputs.css"
 import checkbox_css from "styles/widgets/checkbox.css"
 
 export abstract class ToggleInputGroupView extends ControlView {
-  declare model: ToggleInputGroup
+  declare readonly model: ToggleInputGroup
+  declare readonly signals: p.SignalsOf<ToggleInputGroup.Props>
 
-  protected _inputs: HTMLInputElement[]
-  *controls() {
-    yield* this._inputs
-  }
-
-  override connect_signals(): void {
-    super.connect_signals()
-
-    const {labels, inline} = this.model.properties
-    this.on_change([labels, inline], () => this.rerender())
-  }
+  *controls() {}
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), inputs_css, checkbox_css]
