@@ -289,7 +289,9 @@ class BaseServer:
     def _sigterm(self, signum: int, frame: FrameType | None) -> None:
         print(f"Received signal {signum}, shutting down")
         # Tell self._loop.start() to return.
-        self._loop.add_callback_from_signal(self._loop.stop)
+        # Use add_callback instead of deprecated add_callback_from_signal
+        # (deprecated in Tornado 6.4, to be removed in 7.0)
+        self._loop.add_callback(self._loop.stop)
 
     @property
     def port(self) -> int | None:
