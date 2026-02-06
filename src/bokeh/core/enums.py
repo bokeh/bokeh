@@ -511,7 +511,7 @@ OutlineShapeNameType = Literal["none", "box", "rectangle", "square", "circle", "
 OutlineShapeName = enumeration(OutlineShapeNameType)
 
 #: Specify an output backend to render a plot area onto
-OutputBackendType = Literal["canvas", "svg", "webgl"]
+OutputBackendType = Literal["canvas", "svg", "webgl", "webgl2"]
 OutputBackend = enumeration(OutputBackendType)
 
 #: Whether range padding should be interpreted a percentage or and absolute quantity
