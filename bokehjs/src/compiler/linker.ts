@@ -327,7 +327,7 @@ export class Linker {
     const [entries] = this.resolve(this.entries)
     const [main, ...plugins] = entries
 
-    const dirnames = plugins.map((plugin) => dirname(plugin.file))
+    const dirnames = plugins.map((plugin) => dirname(plugin.file) + sep)
     const is_excluded = (module: ModuleInfo) => {
       return dirnames.find((e) => module.file.startsWith(e)) != null
     }
