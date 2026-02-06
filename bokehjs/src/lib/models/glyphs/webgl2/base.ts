@@ -17,6 +17,10 @@ export abstract class BaseGL2Glyph {
 
   constructor(protected readonly webgl2_wrapper: WebGL2Wrapper, readonly glyph: GlyphView) {}
 
+  get gpu_transform(): boolean {
+    return true
+  }
+
   set_data_changed(): void {
     const {data_size} = this.glyph
     if (data_size != this.nvertices) {

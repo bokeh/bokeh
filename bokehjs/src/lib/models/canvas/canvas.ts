@@ -11,6 +11,7 @@ import type {BBox} from "core/util/bbox"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import type {PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
+import type {WebGL2Wrapper} from "../glyphs/webgl2/webgl2_wrapper"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet} from "core/dom"
 import * as canvas_css from "styles/canvas.css"
@@ -30,6 +31,12 @@ import icons_css from "styles/icons.css"
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement
   readonly regl_wrapper: ReglWrapper
+}
+
+export type WebGL2State = {
+  readonly canvas: HTMLCanvasElement
+  readonly gl: WebGL2RenderingContext
+  readonly wrapper: WebGL2Wrapper
 }
 
 async function init_webgl(): Promise<WebGLState | null> {
@@ -72,10 +79,51 @@ const global_webgl: () => Promise<WebGLState | null> = (() => {
   }
 })()
 
+async function init_webgl2(): Promise<WebGL2State | null> {
+  const canvas = document.createElement("canvas")
+  const gl = canvas.getContext("webgl2", {
+    alpha: true,
+    antialias: false,
+    depth: false,
+    premultipliedAlpha: true,
+  })
+
+  if (gl != null) {
+    const webgl2 = await load_module(import("../glyphs/webgl2"))
+    if (webgl2 != null) {
+      const wrapper = webgl2.get_webgl2(gl)
+      if (wrapper.has_webgl2) {
+        logger.info("WebGL2 initialized successfully")
+        return {canvas, gl, wrapper}
+      } else {
+        logger.trace("WebGL2 is supported, but wrapper initialization failed")
+      }
+    } else {
+      logger.trace("WebGL2 is supported, but bokehjs(.min).js bundle is not available")
+    }
+  } else {
+    logger.trace("WebGL2 is not supported")
+  }
+
+  return null
+}
+
+const global_webgl2: () => Promise<WebGL2State | null> = (() => {
+  let _global_webgl2: WebGL2State | null | undefined
+  return async () => {
+    if (_global_webgl2 !== undefined) {
+      return _global_webgl2
+    } else {
+      return _global_webgl2 = await init_webgl2()
+    }
+  }
+})()
+
 export class CanvasView extends UIElementView {
   declare model: Canvas
 
   webgl: WebGLState | null = null
+  webgl2: WebGL2State | null = null
 
   underlays_el: HTMLElement
   primary: CanvasLayer
@@ -118,6 +166,11 @@ export class CanvasView extends UIElementView {
       this.webgl = await global_webgl()
       if (settings.force_webgl && this.webgl == null) {
         throw new Error("webgl is not available")
+      }
+    } else if (this.model.output_backend == "webgl2") {
+      this.webgl2 = await global_webgl2()
+      if (this.webgl2 == null) {
+        logger.warn("WebGL2 is not available, falling back to canvas")
       }
     }
   }
@@ -240,6 +293,44 @@ export class CanvasView extends UIElementView {
       // Prepare GL for drawing
       const {regl_wrapper, canvas} = webgl
       regl_wrapper.clear(canvas.width, canvas.height)
+    }
+  }
+
+  prepare_webgl2(frame_box: BBox): void {
+    const {webgl2} = this
+    if (webgl2 != null) {
+      const {width, height} = this.bbox
+      const ratio = this.pixel_ratio
+      webgl2.canvas.width = ratio * width
+      webgl2.canvas.height = ratio * height
+
+      const {x: sx, y: sy, width: w, height: h} = frame_box
+      const {xview} = this.bbox
+      const vx = xview.compute(sx)
+      // WebGL2 scissor Y is from bottom, so flip
+      const vy = sy
+
+      webgl2.wrapper.set_scissor(
+        Math.floor(ratio * vx),
+        Math.floor(ratio * vy),
+        Math.ceil(ratio * w),
+        Math.ceil(ratio * h),
+      )
+      webgl2.wrapper.clear()
+    }
+  }
+
+  blit_webgl2(ctx: Context2d): void {
+    const {webgl2} = this
+    if (webgl2 != null && webgl2.canvas.width * webgl2.canvas.height > 0 && webgl2.wrapper.should_blit) {
+      ctx.restore()
+      ctx.drawImage(webgl2.canvas, 0, 0)
+      ctx.save()
+      if (this.model.hidpi) {
+        const ratio = this.pixel_ratio
+        ctx.scale(ratio, ratio)
+        ctx.translate(0.5, 0.5)
+      }
     }
   }
 

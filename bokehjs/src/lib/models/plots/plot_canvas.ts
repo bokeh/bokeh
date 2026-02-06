@@ -1288,6 +1288,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _paint_primary(ctx: Context2d): void {
     const frame_box = this.frame.bbox
     this.canvas_view.prepare_webgl(frame_box)
+    this.canvas_view.prepare_webgl2(frame_box)
 
     this._paint_empty(ctx, frame_box)
     this._paint_outline(ctx, frame_box)
@@ -1325,6 +1326,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
       if (renderer_view.has_webgl) {
         this.canvas_view.blit_webgl(ctx)
+      }
+      if (renderer_view.has_webgl2) {
+        this.canvas_view.blit_webgl2(ctx)
       }
     }
   }

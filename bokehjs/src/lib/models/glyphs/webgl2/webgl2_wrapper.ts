@@ -41,9 +41,9 @@ export class WebGL2Wrapper {
     // Rectangle geometry for instanced rendering (4 vertices for a quad)
     const rect_data = new Float32Array([
       -0.5, -0.5,  // bottom-left  (vertex 0)
-       0.5, -0.5,  // bottom-right (vertex 1)
-      -0.5,  0.5,  // top-left     (vertex 2)
-       0.5,  0.5,  // top-right    (vertex 3)
+      0.5, -0.5,   // bottom-right (vertex 1)
+      -0.5, 0.5,   // top-left     (vertex 2)
+      0.5, 0.5,    // top-right    (vertex 3)
     ])
 
     this._rect_geometry = gl.createBuffer()
@@ -144,7 +144,7 @@ export class WebGL2Wrapper {
     const inject_defines = (source: string): string => {
       const trimmed = source.trimStart()
       const version_line_end = trimmed.indexOf("\n") + 1
-      return trimmed.slice(0, version_line_end) + define_block + "\n" + trimmed.slice(version_line_end)
+      return `${trimmed.slice(0, version_line_end)}${define_block}\n${trimmed.slice(version_line_end)}`
     }
 
     const vert_shader = this._compile_shader(gl.VERTEX_SHADER, inject_defines(marker_vert))
@@ -183,7 +183,7 @@ export class WebGL2Wrapper {
   // Create a UBO buffer
   create_uniform_buffer(data: ArrayBuffer): WebGLBuffer {
     const gl = this._gl
-    const buffer = gl.createBuffer()!
+    const buffer = gl.createBuffer()
     gl.bindBuffer(gl.UNIFORM_BUFFER, buffer)
     gl.bufferData(gl.UNIFORM_BUFFER, data, gl.DYNAMIC_DRAW)
     gl.bindBuffer(gl.UNIFORM_BUFFER, null)

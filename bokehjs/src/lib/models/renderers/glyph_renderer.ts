@@ -77,6 +77,7 @@ export class GlyphRendererView extends DataRendererView {
 
   protected all_indices: Indices
   protected decimated: Indices
+  private _gpu_fast_indices: number[] | null = null
 
   protected last_dtrender: number
 
@@ -321,9 +322,32 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
-  protected _paint(ctx: Context2d): void {
-    const {has_webgl} = this
+  override get has_webgl2(): boolean {
+    return this.glyph.has_webgl2()
+  }
 
+  protected _paint(ctx: Context2d): void {
+    const {has_webgl, has_webgl2} = this
+
+    // Fast path: when the GPU glyph uses GPU-side coordinate transforms,
+    // skip map_data() and all CPU index management and draw all markers directly.
+    // The GPU handles viewport culling via clip space.
+    if (has_webgl2 && this.glyph.gl2glyph!.gpu_transform) {
+      const {selected, inspected} = this.model.data_source
+      if (selected.is_empty() && inspected.is_empty()) {
+        ctx.save()
+        const glyph = this.model.muted ? this.muted_glyph : this.glyph
+        const n = this.all_indices.count
+        if (this._gpu_fast_indices == null || this._gpu_fast_indices.length != n) {
+          this._gpu_fast_indices = new Array(n)
+        }
+        glyph.paint(ctx, this._gpu_fast_indices)
+        ctx.restore()
+        return
+      }
+    }
+
+    // Normal path: compute screen coordinates for canvas 2d rendering
     this.map_data()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
@@ -383,8 +407,8 @@ export class GlyphRendererView extends DataRendererView {
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
-      // Render decimated during interaction if too many elements and not using GL
+        && !has_webgl && !has_webgl2 && lod_threshold != null && all_indices.length > lod_threshold) {
+      // Render decimated during interaction if too many elements and not using GPU
       indices = [...this.decimated]
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph
@@ -510,6 +534,14 @@ export class GlyphRendererView extends DataRendererView {
   hit_test(geometry: Geometry): HitTestResult {
     if (!this.model.visible) {
       return null
+    }
+
+    // When using the GPU fast path, map_data() is skipped during rendering,
+    // so sx/sy may be stale. Recompute them for accurate hit testing.
+    // This only runs once per selection action, not every frame.
+    const {has_webgl2} = this
+    if (has_webgl2 && this.glyph.gl2glyph!.gpu_transform) {
+      this.glyph.map_data()
     }
 
     const hit_test_result = this.glyph.hit_test(geometry)

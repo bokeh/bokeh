@@ -50,6 +50,7 @@ export class CanvasLayer {
 
   constructor(readonly backend: OutputBackend, readonly hidpi: boolean) {
     switch (backend) {
+      case "webgl2":
       case "webgl":
       case "canvas": {
         this._el = this._canvas = canvas({class: "bk-layer"})

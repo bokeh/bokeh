@@ -160,6 +160,10 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return false
   }
 
+  get has_webgl2(): boolean {
+    return false
+  }
+
   /*
   get visible(): boolean {
     const {visible, group} = this.model

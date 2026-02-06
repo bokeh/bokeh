@@ -5,7 +5,9 @@ import type * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {LinearScale} from "../scales/linear_scale"
 import type {CircleGL} from "./webgl/circle"
+import type {CircleGL2} from "./webgl2/circle"
 
 export interface CircleView extends Circle.Data {}
 
@@ -16,9 +18,22 @@ export class CircleView extends RadialGlyphView {
   /** @internal */
   declare glglyph?: CircleGL
 
+  /** @internal */
+  declare gl2glyph?: CircleGL2
+
   override async load_glglyph() {
     const {CircleGL} = await import("./webgl/circle")
     return CircleGL
+  }
+
+  override async load_gl2glyph() {
+    const {CircleGL2} = await import("./webgl2/circle")
+    return CircleGL2
+  }
+
+  protected override _compute_can_use_webgl2(): boolean {
+    const {xscale, yscale} = this.renderer
+    return xscale instanceof LinearScale && yscale instanceof LinearScale
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Circle.Data>): void {
