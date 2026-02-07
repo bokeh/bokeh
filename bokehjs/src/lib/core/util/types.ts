@@ -21,11 +21,11 @@ export function is_nullish(obj: unknown): obj is null | undefined {
 }
 
 export function isBoolean(obj: unknown): obj is boolean {
-  return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
+  return obj === true || obj === false || typeof obj === "boolean" || obj instanceof Boolean
 }
 
 export function isNumber(obj: unknown): obj is number {
-  return toString.call(obj) === "[object Number]"
+  return typeof obj === "number" || obj instanceof Number
 }
 
 export function isInteger(obj: unknown): obj is number {
@@ -33,7 +33,7 @@ export function isInteger(obj: unknown): obj is number {
 }
 
 export function isString(obj: unknown): obj is string {
-  return toString.call(obj) === "[object String]"
+  return typeof obj === "string" || obj instanceof String
 }
 
 export function isSymbol(obj: unknown): obj is symbol {
