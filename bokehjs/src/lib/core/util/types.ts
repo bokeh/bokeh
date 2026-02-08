@@ -5,8 +5,6 @@
 
 import type {Arrayable, TypedArray, Dict} from "../types"
 
-const {toString} = Object.prototype
-
 export function is_undefined(obj: unknown): obj is undefined {
   return typeof obj === "undefined"
 }
@@ -47,16 +45,7 @@ export function isPrimitive(obj: unknown): obj is Primitive {
 }
 
 export function isFunction(obj: unknown): obj is Function {
-  const rep = toString.call(obj)
-  switch (rep) {
-    case "[object Function]":
-    case "[object AsyncFunction]":
-    case "[object GeneratorFunction]":
-    case "[object AsyncGeneratorFunction]":
-      return true
-    default:
-      return false
-  }
+  return typeof obj == "function" || obj instanceof Function
 }
 
 export function isArray<T>(obj: unknown): obj is T[] {
