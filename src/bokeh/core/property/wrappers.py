@@ -547,17 +547,25 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         for name, patch in patches.items():
             array = self[name]
 
-            if isinstance(array, MutableSequence):
-                pass
+            # The generic type of PropertyValueColumnData doesn't respect
+            # the implementation of validation in Seq(), so this first
+            # type check is necessary.
+            if isinstance(array, Sequence):
+                if isinstance(array, MutableSequence):
+                    pass
+                else:
+                    warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
+                    continue
             elif isinstance(array, np.ndarray):
                 if array.flags.writeable:
                     pass
                 else:
                     warn("attempted to patch an immutable numpy array (flags.writable is False)", BokehUserWarning)
                     continue
-            else:
-                warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
-                continue
+            # No else: branch here, because there is no universal type check
+            # for mutable container like objects that Seq() permits, so
+            # let's try our luck and if it doesn't work out, then the whole
+            # patch gets discarded.
 
             for ind, value in patch:
                 if isinstance(ind, (int, slice)):
