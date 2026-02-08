@@ -48,6 +48,7 @@ describe("core/util/types module", () => {
     expect(isNumber("0")).to.be.false
     expect(isNumber("Infinity")).to.be.false
     expect(isNumber(new X())).to.be.false
+    /* eslint-disable no-new-wrappers */
     expect(isNumber(new Number(5))).to.be.true
   })
 
@@ -65,6 +66,7 @@ describe("core/util/types module", () => {
     expect(isNumber("0")).to.be.false
     expect(isNumber("Infinity")).to.be.false
     expect(isInteger(new X())).to.be.false
+    /* eslint-disable no-new-wrappers */
     expect(isNumber(new Number(5))).to.be.true
   })
 
