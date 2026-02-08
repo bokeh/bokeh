@@ -11,10 +11,12 @@ import {
   LogAxis,
   LogScale,
   NoOverlap,
+  PanTool,
   Plot,
   Range1d,
   TeX,
   Toolbar,
+  WheelZoomTool,
 } from "@bokehjs/models"
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -275,9 +277,9 @@ import {radians} from "@bokehjs/core/util/math"
         p.extra_y_ranges = {["y"]: new Range1d({start: 0.9, end: 3.1})}
         p.add_layout(new LinearAxis({x_range_name: "x", fixed_location: 1.5}), "below")
         p.add_layout(new LinearAxis({y_range_name: "y", fixed_location: 2.5}), "right")
-        p.add_layout(new Toolbar({tools: []}), "above")
-        p.add_layout(new Toolbar({tools: []}), "left")
-        p.add_layout(new Toolbar({tools: []}), "below")
+        p.add_layout(new Toolbar({tools: [new PanTool(), new WheelZoomTool()]}), "above")
+        p.add_layout(new Toolbar({tools: [new PanTool(), new WheelZoomTool()]}), "left")
+        p.add_layout(new Toolbar({tools: [new PanTool(), new WheelZoomTool()]}), "below")
         await display(p)
       })
     })
