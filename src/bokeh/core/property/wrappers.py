@@ -546,6 +546,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
 
         for name, patch in patches.items():
             array = self[name]
+
             if isinstance(array, MutableSequence):
                 pass
             elif isinstance(array, np.ndarray):
@@ -562,8 +563,10 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                 if isinstance(ind, (int, slice)):
                     array[ind] = value
                 else:
-                    shape = self[name][ind[0]][tuple(ind[1:])].shape
-                    self[name][ind[0]][tuple(ind[1:])] = np.asarray(value).reshape(shape)
+                    i, j = ind[0], tuple(ind[1:])
+                    shape = array[i][j].shape
+                    reshaped = np.asarray(value).reshape(shape)
+                    array[i][j] = reshaped
 
         from ...document.events import ColumnsPatchedEvent
         self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
