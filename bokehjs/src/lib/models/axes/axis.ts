@@ -71,7 +71,7 @@ export abstract class AxisView extends GuideRendererView {
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
 
   override get bbox(): BBox {
-    if (this.model.fixed_location != null){
+    if (this.model.fixed_location != null) {
       return new BBox()
     } else if (this.layout != null) {
       return this.layout.bbox
