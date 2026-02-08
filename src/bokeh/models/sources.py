@@ -333,7 +333,7 @@ class ColumnDataSource(ColumnarDataSource):
             try:
                 array.flags.writeable = True # override Pandas copy-on-write behavior
             except ValueError:
-                pass
+                array = array.copy() # some arrays aren't writable, so just copy them
             new_data[column] = array
 
         return new_data
