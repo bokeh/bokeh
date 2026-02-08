@@ -48,6 +48,7 @@ describe("core/util/types module", () => {
     expect(isNumber("0")).to.be.false
     expect(isNumber("Infinity")).to.be.false
     expect(isNumber(new X())).to.be.false
+    expect(isNumber(new Number(5))).to.be.true
   })
 
   it("should support isInteger() function", () => {
@@ -64,6 +65,7 @@ describe("core/util/types module", () => {
     expect(isNumber("0")).to.be.false
     expect(isNumber("Infinity")).to.be.false
     expect(isInteger(new X())).to.be.false
+    expect(isNumber(new Number(5))).to.be.true
   })
 
   it("should support isString() function", () => {
