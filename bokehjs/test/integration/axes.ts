@@ -16,6 +16,7 @@ import {
   Range1d,
   TeX,
   Toolbar,
+  ToolbarPanel,
   WheelZoomTool,
 } from "@bokehjs/models"
 
@@ -271,15 +272,16 @@ import {radians} from "@bokehjs/core/util/math"
 
     describe("with fixed location", () => {
       it("should be added without effecting the position of the toolbar", async () => {
+        const tools = [new PanTool(), new WheelZoomTool()]
         const p = fig([300, 300], {toolbar_location: "right"})
         p.scatter([1, 2, 3], [1, 2, 3])
         p.extra_x_ranges = {["x"]: new Range1d({start: 0.9, end: 3.1})}
         p.extra_y_ranges = {["y"]: new Range1d({start: 0.9, end: 3.1})}
         p.add_layout(new LinearAxis({x_range_name: "x", fixed_location: 1.5}), "below")
         p.add_layout(new LinearAxis({y_range_name: "y", fixed_location: 2.5}), "right")
-        p.add_layout(new Toolbar({tools: [new PanTool(), new WheelZoomTool()]}), "above")
-        p.add_layout(new Toolbar({tools: [new PanTool(), new WheelZoomTool()]}), "left")
-        p.add_layout(new Toolbar({tools: [new PanTool(), new WheelZoomTool()]}), "below")
+        p.add_layout(new ToolbarPanel({toolbar: new Toolbar({tools, location: "above"})}), "above")
+        p.add_layout(new ToolbarPanel({toolbar: new Toolbar({tools, location: "left"})}), "left")
+        p.add_layout(new ToolbarPanel({toolbar: new Toolbar({tools, location: "below"})}), "below")
         await display(p)
       })
     })
