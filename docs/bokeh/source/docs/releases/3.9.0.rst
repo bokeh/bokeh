@@ -15,3 +15,4 @@ Bokeh version ``3.9.0`` (February 2026) is a minor milestone of Bokeh project.
 * Fixed issue where ``CategoricalSlider`` displayed "undefined" in the tooltip (:bokeh-pull:`14774`)
 * Added support for Markdown formatted contents display with ``Markdown`` widget (:bokeh-pull:`14780`)
 * Added support for binary protocol to all server messages types (:bokeh-pull:`14725`)
+* Fixed a bug that caused manually positioned plot axes to shift position of toolbars (:bokeh-pull:`14840`)
