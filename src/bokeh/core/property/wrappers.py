@@ -551,15 +551,11 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             # the implementation of validation in Seq(), so this first
             # type check is necessary.
             if isinstance(array, Sequence):
-                if isinstance(array, MutableSequence):
-                    pass
-                else:
+                if not isinstance(array, MutableSequence):
                     warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
                     continue
             elif isinstance(array, np.ndarray):
-                if array.flags.writeable:
-                    pass
-                else:
+                if not array.flags.writeable:
                     warn("attempted to patch an immutable numpy array (flags.writable is False)", BokehUserWarning)
                     continue
             # No else: branch here, because there is no universal type check
