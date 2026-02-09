@@ -34,25 +34,25 @@
         box-sizing: inherit;
       }
     </style>
-    <script type="text/javascript" src="{{ js('bokeh') }}"></script>
-    <script type="text/javascript" src="{{ js('bokeh-gl') }}"></script>
-    <script type="text/javascript" src="{{ js('bokeh-api') }}"></script>
-    <script type="text/javascript" src="{{ js('bokeh-widgets') }}"></script>
-    <script type="text/javascript" src="{{ js('bokeh-tables') }}"></script>
-    <script type="text/javascript" src="{{ js('bokeh-mathjax') }}"></script>
-    <script type="text/javascript">
+    <script src="{{ js('bokeh') }}"></script>
+    <script src="{{ js('bokeh-gl') }}"></script>
+    <script src="{{ js('bokeh-api') }}"></script>
+    <script src="{{ js('bokeh-widgets') }}"></script>
+    <script src="{{ js('bokeh-tables') }}"></script>
+    <script src="{{ js('bokeh-mathjax') }}"></script>
+    <script>
       Bokeh.settings.dev = true
       Bokeh.settings.force_webgl = true
       //Bokeh.settings.force_fields = true
     </script>
-    <script type="text/javascript">
+    <script>
       const {require} = Bokeh
     </script>
   </head>
   <body>
     <div class="container"></div>
     <!-- Preload fonts. Remove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
-    <script type="text/javascript">
+    <script>
       async function preload_fonts() {
         for (let i = 5; i < 36; i++) {
           await document.fonts.load(`normal ${i}px Bokeh`)
@@ -68,7 +68,7 @@
         }
       }
     </script>
-    <script type="text/javascript" src="/static/test/{{ main }}"></script>
+    <script src="/static/test/{{ main }}"></script>
     {%- if run %}
     <script>
       (async () => {

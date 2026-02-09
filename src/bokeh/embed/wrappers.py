@@ -54,7 +54,7 @@ def wrap_in_safely(code: str) -> str:
     '''
     return _SAFELY % dict(code=indent(code, 2))
 
-def wrap_in_script_tag(js: str, type: str="text/javascript", id: str | None = None) -> str:
+def wrap_in_script_tag(js: str, type: str | None = None, id: str | None = None) -> str:
     '''
 
     '''
