@@ -86,11 +86,10 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.serialization import Serializer
     from ..model import Model
-    from ..models.sources import DataDict
+    from ..models.sources import DataDict, Patches
     from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .json import Patches
 
 #-----------------------------------------------------------------------------
 # Globals and constants

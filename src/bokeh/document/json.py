@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
-    from ..models.sources import DataDict
+    from ..models.sources import DataDict, Patches
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,10 +49,6 @@ __all__ = ()
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-Patch: TypeAlias = Any # TODO
-
-Patches: TypeAlias = dict[str, list[Patch]]
 
 class ModelChanged(TypedDict):
     kind: Literal["ModelChanged"]

@@ -23,10 +23,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import inspect
-import os
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -68,6 +64,8 @@ def find_stack_level() -> int:
 
     Inspired by: pandas.util._exceptions.find_stack_level
     """
+    import inspect
+    import os
 
     import bokeh
 

@@ -6,7 +6,7 @@ Renders a ``<script>`` tag for raw JavaScript code.
 
 #}
 
-<script type="{{ type }}"{% if id %} id="{{ id }}"{% endif %}>
+<script{% if type %} type="{{ type }}"{% endif %}{% if id %} id="{{ id }}"{% endif %}>
 {# Already indented in wrappers.py #}
 {{ js_code }}
 </script>

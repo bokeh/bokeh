@@ -162,7 +162,7 @@ The returned ``<script>`` will look something like this:
 
 .. code-block:: html
 
-    <script type="text/javascript">
+    <script>
         (function() {
       const fn = function() {
         Bokeh.safely(function() {
@@ -345,7 +345,7 @@ Running ``python scatter.py`` prints out the following:
 
 .. code-block:: shell
 
-    <script type="text/javascript">
+    <script>
         const docs_json = { DOCUMENT DATA HERE }
         const render_items = [{
           "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",

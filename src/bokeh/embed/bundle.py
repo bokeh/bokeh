@@ -71,13 +71,13 @@ class Artifact:
     pass
 
 class ScriptRef(Artifact):
-    def __init__(self, url: str, type: str = "text/javascript") -> None:
+    def __init__(self, url: str, type: str | None = None) -> None:
         self.url = URL(url)
         self.type = type
 
 
 class Script(Artifact):
-    def __init__(self, content: str, type: str = "text/javascript") -> None:
+    def __init__(self, content: str, type: str | None = None) -> None:
         self.content = content
         self.type = type
 
