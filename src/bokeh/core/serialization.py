@@ -433,7 +433,10 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array_encoding_disabled(array):
+        if array.dtype.kind == 'U':
+            data = self._encode_ndarray_str(array)
+            dtype = "object"
+        elif array_encoding_disabled(array):
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
@@ -447,6 +450,9 @@ class Serializer:
             dtype=dtype,
             order=sys.byteorder,
         )
+
+    def _encode_ndarray_str(self, obj: npt.NDArray[str]) -> list[str]:
+        return obj.flatten().tolist()
 
     def _encode_other(self, obj: Any) -> AnyRep:
         # date/time values that get serialized as milliseconds
