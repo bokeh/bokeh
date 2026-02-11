@@ -14,6 +14,7 @@ export class LanguageDropdownView extends DropdownView {
   }
 
   override render(): void {
+    this.model.menu = i18n.supported_languages()
     super.render()
 
     const lang = this._get_language()
@@ -52,8 +53,6 @@ export class LanguageDropdown extends Dropdown {
     this.override<LanguageDropdown.Props>({
       label: "",
       icon: () => new BuiltinIcon({icon_name: "world", size: 18}),
-      // TODO: Get list of supported languages from module that will handle i18n logic
-      menu: [["English", "en"], ["Español (ES)", "es-ES"], ["Español", "es"]],
       button_type: "default",
     })
   }
