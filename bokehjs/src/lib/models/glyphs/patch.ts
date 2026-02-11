@@ -8,12 +8,21 @@ import * as hittest from "core/hittest"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {Selection} from "../selections/selection"
+import type {PatchGL} from "./webgl/patch"
 
 export interface PatchView extends Patch.Data {}
 
 export class PatchView extends XYGlyphView {
   declare model: Patch
   declare visuals: Patch.Visuals
+
+  /** @internal */
+  declare glglyph?: PatchGL
+
+  override async load_glglyph() {
+    const {PatchGL} = await import("./webgl/patch")
+    return PatchGL
+  }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Patch.Data>): void {
     const {sx, sy} = {...this, ...data}
