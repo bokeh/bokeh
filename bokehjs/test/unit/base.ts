@@ -211,6 +211,7 @@ describe("default model resolver", () => {
       "Label",
       "LabelSet",
       "LabelingPolicy",
+      "LanguageDropdown",
       "LassoSelectTool",
       "LayoutDOM",
       "LayoutProvider",
