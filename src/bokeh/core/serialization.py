@@ -451,7 +451,7 @@ class Serializer:
             order=sys.byteorder,
         )
 
-    def _encode_ndarray_str(self, obj: npt.NDArray[str]) -> list[str]:
+    def _encode_ndarray_str(self, obj: npt.NDArray[np.str_]) -> list[str]:
         return obj.flatten().tolist()
 
     def _encode_other(self, obj: Any) -> AnyRep:
