@@ -2012,8 +2012,7 @@ describe("Bug", () => {
       const p = fig([200, 200], {tools: "reset,pan", x_range})
       p.line(factors, [1, 2, 3])
 
-      const {view} = await display(p)
-      await view.ready
+      await display(p)
 
       expect(x_range.start).to.be.equal(1)
       expect(x_range.end).to.be.equal(3)
