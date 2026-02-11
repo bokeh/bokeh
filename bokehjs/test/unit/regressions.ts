@@ -2006,7 +2006,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14815", () => {
-    it("applies explicit bounds on initial render for FactorRange", async () => {
+    it("doesn't apply explicit bounds on initial render when using FactorRange", async () => {
       const factors = ["a", "b", "c"]
       const x_range = new FactorRange({factors, bounds: [1, 3]})
       const p = fig([200, 200], {tools: "reset,pan", x_range})
