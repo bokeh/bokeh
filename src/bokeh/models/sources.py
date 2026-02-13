@@ -258,6 +258,14 @@ class ColumnDataSource(ColumnarDataSource):
         super().__init__(**kwargs)
         self.data.update(raw_data)
 
+        # Convert any raw datetime64/timedelta64 arrays to ms-since-epoch so
+        # that later streaming operations (np.append) do not hit NumPy 2.0
+        # DTypePromotionError when mixing datetime64 and float64 arrays.
+        # See https://github.com/bokeh/bokeh/issues/14402.
+        for key, values in list(self.data.items()):
+            if isinstance(values, np.ndarray) and values.dtype.kind in ("M", "m"):
+                self.data[key] = convert_datetime_array(values)
+
     @property
     def column_names(self) -> list[str]:
         ''' A list of the column names in this data source.
@@ -620,9 +628,14 @@ class ColumnDataSource(ColumnarDataSource):
             old_values = self.data[key]
             # Apply the transformation if the new data contains datetimes
             # but the current data has already been transformed
-            if (isinstance(values, np.ndarray) and values.dtype.kind.lower() == 'm' and
-                isinstance(old_values, np.ndarray) and old_values.dtype.kind.lower() != 'm'):
+            if isinstance(values, np.ndarray) and values.dtype.kind in ("M", "m"):
                 new_data[key] = convert_datetime_array(values)
+            elif (isinstance(old_values, np.ndarray) and old_values.dtype.kind in ("M", "m") and
+                  isinstance(values, np.ndarray) and values.dtype.kind not in ("M", "m")):
+                # Old data is raw datetime but hasn't been converted yet;
+                # convert it in place so np.append won't fail.
+                self.data[key] = convert_datetime_array(old_values)
+                new_data[key] = values
             else:
                 new_data[key] = values
 

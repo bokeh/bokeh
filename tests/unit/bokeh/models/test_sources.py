@@ -303,6 +303,8 @@ class TestColumnDataSource:
         now = dt.datetime.now()
         dates = np.array([now+dt.timedelta(i) for i in range(1, 10)], dtype='datetime64')
         ds = bms.ColumnDataSource(data=dict(index=dates, b=list(range(1, 10))))
+        # datetime64 arrays should be converted to float ms at init time
+        assert ds.data["index"].dtype.kind == "f"
         ds._document = "doc"
         stuff = {}
         mock_setter = object()
@@ -314,7 +316,9 @@ class TestColumnDataSource:
         # internal implementation of stream
         new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
         ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
-        assert np.array_equal(stuff['args'][2]['index'], new_date)
+        # new datetime data should also be converted since the existing column is float
+        transformed_date = convert_datetime_array(new_date)
+        assert np.array_equal(stuff['args'][2]['index'], transformed_date)
 
     def test__stream_good_datetime64_data_transformed(self) -> None:
         now = dt.datetime.now()
@@ -334,6 +338,41 @@ class TestColumnDataSource:
         ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
         transformed_date = convert_datetime_array(new_date)
         assert np.array_equal(stuff['args'][2]['index'], transformed_date)
+
+    def test_init_converts_datetime64_arrays(self) -> None:
+        """Raw np.datetime64 arrays should be converted at init time."""
+        now = dt.datetime.now()
+        dates = np.array([now + dt.timedelta(i) for i in range(5)], dtype='datetime64')
+        ds = bms.ColumnDataSource(data=dict(dates=dates, values=[1, 2, 3, 4, 5]))
+        # The stored array should be float (ms-since-epoch), not datetime64
+        assert ds.data["dates"].dtype.kind == "f"
+        expected = convert_datetime_array(dates)
+        assert np.array_equal(ds.data["dates"], expected)
+
+    def test_init_converts_timedelta64_arrays(self) -> None:
+        """Raw np.timedelta64 arrays should be converted at init time."""
+        deltas = np.array([1, 2, 3], dtype='timedelta64[s]')
+        ds = bms.ColumnDataSource(data=dict(deltas=deltas))
+        assert ds.data["deltas"].dtype.kind == "f"
+
+    def test_stream_datetime64_to_converted_column_no_error(self) -> None:
+        """Streaming np.datetime64 to a column that was converted at init should work."""
+        now = dt.datetime.now()
+        dates = np.array([now + dt.timedelta(i) for i in range(5)], dtype='datetime64')
+        ds = bms.ColumnDataSource(data=dict(dates=dates, values=list(range(5))))
+
+        # Stream new datetime data -- should not raise DTypePromotionError
+        new_dates = np.array([now + dt.timedelta(10)], dtype='datetime64')
+        ds.stream(dict(dates=new_dates, values=[10]))
+        assert len(ds.data["dates"]) == 6
+        assert ds.data["dates"].dtype.kind == "f"
+
+    def test_stream_datetime64_to_empty_list_no_error(self) -> None:
+        """Streaming np.datetime64 to an initially empty list column should work."""
+        ds = bms.ColumnDataSource(data=dict(dates=[], values=[]))
+        new_dates = np.array([np.datetime64("now")], dtype='datetime64')
+        ds.stream(dict(dates=new_dates, values=[1]))
+        assert len(ds.data["dates"]) == 1
 
     def test_patch_bad_columns(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
