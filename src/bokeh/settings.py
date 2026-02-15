@@ -118,6 +118,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
+import sys
 from enum import Enum, auto
 from os.path import join
 from pathlib import Path
@@ -641,6 +642,14 @@ class Settings:
     different name for ``chromedriver``, like ``chromedriver-binary`` or
     ``chromium.chromedriver`` (or its variant, which is used for example
     by Snap package manager; see https://snapcraft.io/).
+    """)
+
+    color: PrioritizedSetting[bool] = PrioritizedSetting("color", "BOKEH_COLOR", default=sys.stdout.isatty() and sys.stderr.isatty(), convert=convert_bool, help="""
+    Allows to override the default color output behavior.
+
+    By default output to a non-TTY stream won't include color, e.g. when
+    writing logs to a file. This setting allows to override this behavior
+    and force color output.
     """)
 
     compression_level: PrioritizedSetting[int] = PrioritizedSetting("compression_level", "BOKEH_COMPRESSION_LEVEL", default=2, convert=convert_compression, help="""

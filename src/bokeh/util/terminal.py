@@ -24,6 +24,9 @@ log = logging.getLogger(__name__)
 import sys
 from typing import Any
 
+# Bokeh imports
+from .settings import settings
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -55,6 +58,12 @@ __all__ = (
 # provide fallbacks for highlights in case colorama is not installed
 try:
     import colorama
+except ImportError:
+    use_color = False
+else:
+    use_color = settings.color()
+
+if use_color:
     from colorama import Fore, Style
 
     def bright(text: str) -> str:  return f"{Style.BRIGHT}{text}{Style.NORMAL}"
@@ -72,7 +81,7 @@ try:
 
     if sys.platform == "win32":
         colorama.init()
-except ImportError:
+else:
     def bright(text: str) -> str:  return text
     def dim(text: str) -> str:     return text
 

@@ -48,6 +48,7 @@ _expected_settings = (
     'browser',
     'cdn_version',
     'chromedriver_path',
+    'color',
     'compression_level',
     'cookie_secret',
     'default_server_host',
@@ -92,6 +93,7 @@ class TestSettings:
         assert ps._parent == bs.settings
 
     def test_types(self) -> None:
+        assert bs.settings.color.convert_type == "Bool"
         assert bs.settings.ignore_filename.convert_type == "Bool"
         assert bs.settings.minified.convert_type == "Bool"
         assert bs.settings.perform_document_validation.convert_type == "Bool"
@@ -110,8 +112,9 @@ class TestSettings:
 
         assert bs.settings.ico_path.convert_type == "Ico Path"
 
-        default_typed = set(_expected_settings) - {
+        default_typed = {*_expected_settings} - {
             'allowed_ws_origin',
+            'color',
             'compression_level',
             'default_server_port',
             'ico_path',
