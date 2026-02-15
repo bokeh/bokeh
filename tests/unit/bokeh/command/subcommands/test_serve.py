@@ -21,6 +21,7 @@ import argparse
 import contextlib
 import os.path
 import re
+import signal
 import socket
 import subprocess
 import sys
@@ -447,7 +448,8 @@ def find_pattern(nbsr: NBSR, pat: re.Pattern[str]) -> re.Match[str] | None:
         o = nbsr.readline(0.5)
         if not o:
             continue
-        m = pat.search(o.decode())
+        s = o.decode()
+        m = pat.search(s)
         if m is not None:
             return m
     return None
@@ -646,7 +648,21 @@ class TestIco:
                 r = requests.get(f"http://localhost:{port}/favicon.ico")
                 assert r.status_code == 404
 
+@pytest.mark.skipif(sys.platform == "win32", reason="`ioloop.add_signal_handler()` is not available on Windows")
+def test_handling_SIGTERM() -> None:
+    pat_pid = re.compile(r"Starting Bokeh server with process id: (\d+)")
+    pat_term = re.compile(r"Received signal SIGTERM, shutting down")
 
+    with run_bokeh_serve([]) as (_, nbsr):
+        time.sleep(1) # otherwise won't work; can be replaced with breakpoint()
+        match = find_pattern(nbsr, pat_pid)
+        if match is None:
+            pytest.fail("Did not find server PID in process output")
+        pid = int(match.group(1))
+        os.kill(pid, signal.SIGTERM)
+        match = find_pattern(nbsr, pat_term)
+        if match is None:
+            pytest.fail("Did not find SIGTERM confirmation in process output")
 
 #-----------------------------------------------------------------------------
 # Private API
