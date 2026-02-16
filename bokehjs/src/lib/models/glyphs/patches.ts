@@ -81,8 +81,8 @@ export class PatchesView extends GlyphView {
 
       ctx.closePath()
 
-      this.visuals.fill.apply(ctx, i)
-      this.visuals.hatch.apply(ctx, i)
+      this.visuals.fill.apply(ctx, i, "evenodd")
+      this.visuals.hatch.apply(ctx, i, "evenodd")
       this.visuals.line.apply(ctx, i)
     }
   }

@@ -49,8 +49,8 @@ export class PatchView extends XYGlyphView {
 
     ctx.closePath()
 
-    this.visuals.fill.apply(ctx)
-    this.visuals.hatch.apply(ctx)
+    this.visuals.fill.apply(ctx, "evenodd")
+    this.visuals.hatch.apply(ctx, "evenodd")
     this.visuals.line.apply(ctx)
   }
 
