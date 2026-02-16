@@ -65,5 +65,8 @@
     "timezone": "^1.0.23",
     "tslib": "^2.8.1",
     "underscore.template": "^0.1.7"
+  },
+  "devDependencies": {
+    "webpack-glsl-minify": "^1.5.0"
   }
 }
