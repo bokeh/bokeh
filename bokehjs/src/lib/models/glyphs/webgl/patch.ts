@@ -9,8 +9,8 @@ import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
-import {split_rings, build_line_from_ring} from "./polygon_utils"
-import type {RingLineData} from "./polygon_utils"
+import {split_rings, build_line_from_ring} from "core/util/polygon"
+import type {RingLineData} from "core/util/polygon"
 import earcut from "earcut"
 
 export class PatchGL extends BaseGLGlyph {
