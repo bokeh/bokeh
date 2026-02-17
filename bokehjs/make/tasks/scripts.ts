@@ -64,6 +64,10 @@ task("scripts:glsl", async () => {
   const js_base = paths.build_dir.lib
   const dts_base = paths.build_dir.lib
 
+  // preserveAll: true disables identifier mangling, limiting minification to
+  // stripping comments and compressing whitespace. This is required because regl
+  // binds uniforms/attributes by name at runtime, and glyph code prepends
+  // #define directives (e.g. USE_CIRCLE, HATCH) that must match the shader source.
   const minifier = new GlslMinify({
     output: "sourceOnly",
     preserveAll: true,
