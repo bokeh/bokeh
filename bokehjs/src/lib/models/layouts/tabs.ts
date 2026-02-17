@@ -22,8 +22,8 @@ export class TabsView extends LayoutDOMView {
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
   protected header_el: HTMLElement
-  protected headers_wrapper_el: HTMLElement
-  protected header_els: HTMLElement[]
+  headers_wrapper_el: HTMLElement
+  header_els: HTMLElement[]
 
   override connect_signals(): void {
     super.connect_signals()

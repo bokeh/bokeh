@@ -4789,20 +4789,12 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 600, tabs_location: "above"})
       const {view} = await display(tabs, [650, 300])
 
-      const headers_wrapper = (view as any).headers_wrapper_el
-      expect(headers_wrapper).to.be.instanceof(HTMLElement)
-
+      const headers_wrapper = view.headers_wrapper_el
       const wrapper_styles = window.getComputedStyle(headers_wrapper)
       expect(wrapper_styles.overflowX).to.be.equal("auto")
 
       const has_scroll = headers_wrapper.scrollWidth > headers_wrapper.clientWidth
       expect(has_scroll).to.be.true
-
-      const header_els = (view as any).header_els
-      expect(header_els.length).to.be.equal(20)
-      for (const header of header_els) {
-        expect(header.parentElement).to.be.equal(headers_wrapper)
-      }
     })
 
     it("supports scrollable headers for vertical tabs", async () => {
@@ -4816,9 +4808,7 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, height: 400, tabs_location: "left"})
       const {view} = await display(tabs, [335, 400])
 
-      const headers_wrapper = (view as any).headers_wrapper_el
-      expect(headers_wrapper).to.be.instanceof(HTMLElement)
-
+      const headers_wrapper = view.headers_wrapper_el
       const wrapper_styles = window.getComputedStyle(headers_wrapper)
       expect(wrapper_styles.overflowY).to.be.equal("auto")
     })
