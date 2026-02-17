@@ -2,6 +2,8 @@ import {Dropdown, DropdownView} from "./dropdown"
 import {BuiltinIcon} from "../ui/icons/builtin_icon"
 import {MenuItemClick} from "core/bokeh_events"
 import {i18n} from "core/i18n"
+import {isString} from "core/util/types"
+import {Text} from "../dom/text"
 import type * as p from "core/properties"
 
 export class LanguageDropdownView extends DropdownView {
@@ -10,24 +12,32 @@ export class LanguageDropdownView extends DropdownView {
   override connect_signals(): void {
     super.connect_signals()
 
-    this.model.on_event(MenuItemClick, (event) => this._set_language(event.item))
+    this.model.on_event(MenuItemClick, async (event) => await this._set_language(event.item))
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    const lang = i18n.get_locale()
+    await this._set_language(lang)
+    await super.lazy_initialize()
   }
 
   override render(): void {
     this.model.menu = i18n.supported_languages()
     super.render()
-
-    const lang = this._get_language()
-    this._set_language(lang)
   }
 
-  protected _set_language(lang: string): void {
+  override async _rebuild_label(): Promise<void> {
+    this.label_view?.remove()
+    const label = await (async () => {
+      const {label} = this.model
+      return isString(label) ? new Text({content: label}) : label
+    })()
+    this.label_view = await this.owner.build_view(label, this)
+  }
+
+  protected async _set_language(lang: string): Promise<void> {
     this.model.label = lang.toUpperCase()
-    i18n.set_locale(lang)
-  }
-
-  protected _get_language(): string {
-    return i18n.get_locale()
+    await i18n.set_locale(lang)
   }
 }
 
