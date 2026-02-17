@@ -25,7 +25,12 @@ export class PasswordInputView extends TextInputView {
       toggle_el.classList.toggle("bk-visible", !is_visible)
       input_el.type = is_visible ? "password" : "text"
     })
-    this.shadow_el.append(this.toggle_el)
+    const storage = this.shadow_el.querySelector(".bk-input-container")
+    if (storage != null){
+      storage.append(this.toggle_el)
+    } else{
+      this.shadow_el.append(this.toggle_el)
+    }
   }
 }
 
