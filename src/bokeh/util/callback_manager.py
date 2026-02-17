@@ -71,7 +71,9 @@ class EventCallbackManager:
 
     '''
 
-    document: Document | None
+    @property
+    def document(self) -> Document | None: ...
+
     id: ID
     subscribed_events: set[str]
     _event_callbacks: dict[str, list[EventCallback]]
@@ -126,7 +128,9 @@ class PropertyCallbackManager:
 
     '''
 
-    document: Document | None
+    @property
+    def document(self) -> Document | None: ...
+
     _callbacks: dict[str, list[PropertyCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:

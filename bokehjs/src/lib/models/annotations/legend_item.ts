@@ -92,7 +92,7 @@ export class LegendItem extends Model {
     }
 
     const {index} = this
-    if (index != null && this.renderers.every((r) => !r.view.indices_map.has(index))) {
+    if (index != null && this.renderers.every((r) => !r.view.has_subset_index(index))) {
       // this index points to nowhere, so skip this item altogether from its legend
       return []
     }

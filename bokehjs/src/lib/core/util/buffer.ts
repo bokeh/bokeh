@@ -2,20 +2,32 @@ import type {NDDataType} from "../types"
 
 import {gunzipSync, gzipSync} from "fflate"
 
-export function b64encode(data: Uint8Array): string {
-  const chars = Array.from(data).map((b) => String.fromCharCode(b))
-  return btoa(chars.join(""))
-}
-
-export function b64decode(data: string): Uint8Array<ArrayBuffer> {
-  const binary_string = atob(data)
-  const len = binary_string.length
-  const bytes = new Uint8Array(len)
-  for (let i = 0, end = len; i < end; i++) {
-    bytes[i] = binary_string.charCodeAt(i)
+export const b64encode: (data: Uint8Array) => string = (() => {
+  if (typeof Uint8Array.prototype.toBase64 !== "undefined") {
+    return (data) => data.toBase64()
+  } else {
+    return (data) => {
+      const chars = Array.from(data).map((b) => String.fromCharCode(b))
+      return btoa(chars.join(""))
+    }
   }
-  return bytes
-}
+})()
+
+export const b64decode: (data: string) => Uint8Array<ArrayBuffer> = (() => {
+  if (typeof Uint8Array.fromBase64 !== "undefined") {
+    return (data) => Uint8Array.fromBase64(data)
+  } else {
+    return (data) => {
+      const binary_string = atob(data)
+      const len = binary_string.length
+      const bytes = new Uint8Array(len)
+      for (let i = 0, end = len; i < end; i++) {
+        bytes[i] = binary_string.charCodeAt(i)
+      }
+      return bytes
+    }
+  }
+})()
 
 export function buffer_to_base64(buffer: ArrayBufferLike): string {
   const bytes = new Uint8Array(buffer)

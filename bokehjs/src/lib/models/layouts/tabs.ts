@@ -63,21 +63,27 @@ export class TabsView extends LayoutDOMView {
     this.class_list.remove([...Location].map((loc) => tabs[loc]))
     this.class_list.add(tabs[loc])
 
-    const layoutable = new Container<LayoutDOMView>()
-
     for (const view of this.child_views) {
       view.parent_style.append(":host", {grid_area: "stack"})
-
-      if (view instanceof LayoutDOMView && view.layout != null) {
-        layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)
-      }
     }
 
-    if (layoutable.size != 0) {
-      this.layout = new GridAlignmentLayout(layoutable)
-      this.layout.set_sizing()
-    } else {
-      delete this.layout
+    if (this.model.link_layouts) {
+      const layoutable = new Container<LayoutDOMView>()
+
+      for (const view of this.child_views) {
+        view.parent_style.append(":host", {grid_area: "stack"})
+
+        if (view instanceof LayoutDOMView && view.layout != null) {
+          layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)
+        }
+      }
+
+      if (layoutable.size != 0) {
+        this.layout = new GridAlignmentLayout(layoutable)
+        this.layout.set_sizing()
+      } else {
+        delete this.layout
+      }
     }
   }
 
@@ -199,6 +205,7 @@ export namespace Tabs {
     tabs: p.Property<TabPanel[]>
     tabs_location: p.Property<Location>
     active: p.Property<number>
+    link_layouts: p.Property<boolean>
   }
 }
 
@@ -215,10 +222,11 @@ export class Tabs extends LayoutDOM {
   static {
     this.prototype.default_view = TabsView
 
-    this.define<Tabs.Props>(({Int, List, Ref}) => ({
+    this.define<Tabs.Props>(({Int, List, Ref, Bool}) => ({
       tabs:          [ List(Ref(TabPanel)), [] ],
       tabs_location: [ Location, "above" ],
       active:        [ Int, 0 ],
+      link_layouts:  [ Bool, false ],
     }))
   }
 }

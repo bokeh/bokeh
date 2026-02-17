@@ -197,44 +197,28 @@ export function* subsets<T>(seq: T[]): Iterable<T[]> {
   }
 }
 
-export function min(iterable: Iterable<number>): number {
-  let result = Infinity
-
-  for (const value of iterable) {
-    if (!isNaN(value) && value < result) {
-      result = value
-    }
-  }
-
-  return result
-}
-
-export function max(iterable: Iterable<number>): number {
-  let result = -Infinity
-
-  for (const value of iterable) {
-    if (!isNaN(value) && value > result) {
-      result = value
-    }
-  }
-
-  return result
-}
-
 export function minmax(iterable: Iterable<number>): [number, number] {
   let min = +Infinity
   let max = -Infinity
 
   for (const value of iterable) {
-    if (!isNaN(value)) {
-      if (value < min) {
-        min = value
-      }
-      if (value > max) {
-        max = value
-      }
+    if (value < min) {
+      min = value
+    }
+    if (value > max) {
+      max = value
     }
   }
 
   return [min, max]
+}
+
+export function min(iterable: Iterable<number>): number {
+  const [min] = minmax(iterable)
+  return min
+}
+
+export function max(iterable: Iterable<number>): number {
+  const [, max] = minmax(iterable)
+  return max
 }

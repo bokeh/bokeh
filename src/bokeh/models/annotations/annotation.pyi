@@ -6,20 +6,28 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from ...core.has_props import abstract
-from ..renderers.renderer import CompositeRenderer
+from ..renderers.renderer import CompositeRenderer, _CompositeRendererInit
 from ..sources import DataSource
 
-@abstract
-@dataclass(init=False)
-class Annotation(CompositeRenderer):
+class _AnnotationInit(_CompositeRendererInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
+class Annotation(CompositeRenderer):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_AnnotationInit]) -> None: ...
+
+class _DataAnnotationInit(_AnnotationInit, total=False):
+    source: DataSource
+
 class DataAnnotation(Annotation):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_DataAnnotationInit]) -> None: ...
 
     source: DataSource = ...

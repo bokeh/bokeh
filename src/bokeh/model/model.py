@@ -100,6 +100,13 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
+    # Don't override __new__, because then you will have to overload it every time
+    # you overload __init__ with a custom signature (in e.g. ranges or figure) in
+    # declaration files (*.pyi).
+    @classmethod
+    def _new(cls, id: ID) -> Self:
+        return cls.__new__(cls, id=id)
+
     def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self:
         obj = super().__new__(cls)
 

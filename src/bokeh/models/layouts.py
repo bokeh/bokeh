@@ -594,6 +594,14 @@ class Tabs(LayoutDOM):
     The index of the active tab.
     """)
 
+    link_layouts = Bool(default=False, help="""
+    Configures whether layouts across panels are linked together.
+
+    Linking layouts allows for example to align plot axes between different
+    tabs. Note that this can negatively impact UI performance if many
+    complex layouts are involved.
+    """)
+
 class GroupBox(LayoutDOM):
     ''' A panel that allows to group UI elements.
 

@@ -83,7 +83,6 @@ GOOD_ORIGIN_CASES = (
 )
 
 
-@pytest.mark.gen_test
 @pytest.mark.parametrize(("allowed_origins", "request_origin"), GOOD_ORIGIN_CASES)
 async def test_ws_handler_accepts_allowed_origins(
     websocket_url_factory: Callable[[list[str]], str],
@@ -106,7 +105,6 @@ BAD_ORIGIN_CASES = (
 )
 
 
-@pytest.mark.gen_test
 @pytest.mark.parametrize(("allowed_origins", "request_origin"), BAD_ORIGIN_CASES)
 async def test_ws_handler_rejects_disallowed_origins(
     websocket_url_factory: Callable[[list[str]], str],

@@ -72,7 +72,8 @@ export abstract class ColorMapper extends Mapper<Color> {
         const length_divisor = is_NDArray(xs) && xs.dimension == 3 ? xs.shape[2] : 1
         const values = new ColorArray(xs.length / length_divisor)
         self._v_compute(xs, values, palette, colors)
-        return new Uint8ClampedArray(to_big_endian(values).buffer)
+        to_big_endian(values)
+        return new Uint8ClampedArray(values.buffer)
       },
     }
   }

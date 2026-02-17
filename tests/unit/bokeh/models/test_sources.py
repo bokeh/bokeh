@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 import io
+import warnings
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -402,6 +403,49 @@ class TestColumnDataSource:
         assert stuff['args'] == ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
         assert stuff['kw'] == {}
 
+    def test_immutable_data(self) -> None:
+        a = [1, 2, 3, 4]
+        b = (1, 2, 3, 4)
+        c = np.array([1, 2, 3, 4])
+        d = np.array([1, 2, 3, 4])
+        e = np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
+        f = np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
+
+        d.flags.writeable = False
+        f.flags.writeable = False
+
+        ds = ColumnDataSource(data=dict(a=a, b=b, c=c, d=d, e=e, f=f))
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            ds.patch(dict(a=[(1, 2000)]))
+        assert ds.data["a"] == [1, 2000, 3, 4]
+
+        with pytest.warns(UserWarning) as warns_b:
+            ds.patch(dict(b=[(1, 2000)]))
+        assert ds.data["b"] == (1, 2, 3, 4)
+        assert len(warns_b) == 1
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            ds.patch(dict(c=[(1, 2000)]))
+        assert (ds.data["c"] == np.array([1, 2000, 3, 4])).all()
+
+        with pytest.warns(UserWarning) as warns_d:
+            ds.patch(dict(d=[(1, 2000)]))
+        assert (ds.data["d"] == np.array([1, 2, 3, 4])).all()
+        assert len(warns_d) == 1
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            ds.patch(dict(e=[((0, 1), 2000)]))
+        assert (ds.data["e"] == np.array([[1, 2000], [3, 4], [5, 6], [7, 8]])).all()
+
+        with pytest.warns(UserWarning) as warns_f:
+            ds.patch(dict(f=[((0, 1), 2000)]))
+        assert (ds.data["f"] == np.array([[1, 2], [3, 4], [5, 6], [7, 8]])).all()
+        assert len(warns_f) == 1
+
     def test_data_column_lengths(self) -> None:
         # TODO: use this when soft=False
         #
@@ -459,6 +503,15 @@ class TestColumnDataSourcePandas:
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
         assert ds.length == 2
+
+    def test_init_produces_writable_arrays_with_Pandas3_CoW(self) -> None:
+        data = dict(a=[1, 2], b=[2, 3])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        a = ds.data["a"]
+        b = ds.data["b"]
+        assert isinstance(a, np.ndarray) and a.flags.writeable is True
+        assert isinstance(b, np.ndarray) and b.flags.writeable is True
 
     def test_init_dataframe_column_categoricalindex(self) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
