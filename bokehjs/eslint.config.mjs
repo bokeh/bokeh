@@ -18,7 +18,19 @@ export default defineConfig({
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        projectService: true,
+        project: [
+          "./make/tsconfig.json",
+          "./src/lib/tsconfig.json",
+          "./src/compiler/tsconfig.json",
+          "./src/server/tsconfig.json",
+          "./test/tsconfig.json",
+          "./test/unit/tsconfig.json",
+          "./test/defaults/tsconfig.json",
+          "./test/integration/tsconfig.json",
+          "./test/codebase/tsconfig.json",
+          "./test/devtools/tsconfig.json",
+          "./examples/tsconfig.json",
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
