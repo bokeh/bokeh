@@ -1037,8 +1037,8 @@ describe("Bug", () => {
       expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
       expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
 
-      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
-      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
+      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
+      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
 
       expect(getComputedStyle(document.documentElement).getPropertyValue("--global-imported")).to.be.equal("1")
       expect(getComputedStyle(view.el).getPropertyValue("--local-imported")).to.be.equal("1")

@@ -72,7 +72,7 @@ type BoxedAtMost<T>
   = T extends L1Factor ? [L1Factor]
   : T extends L2Factor ? [L1Factor] | L2Factor
   : T extends L3Factor ? [L1Factor] | L2Factor | L3Factor
-: never
+  : never
 
 export function map_one_level(
   factors: L1Factor[],

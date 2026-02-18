@@ -10,21 +10,21 @@ export function to_object<T = any>(obj: PlainObject<T> | Iterable<readonly [Prop
 }
 
 export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[]
-export function keys(obj: {}): string[]
+export function keys(obj: object): string[]
 
 export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[] {
   return obj instanceof Map ? [...obj.keys()] : Object.keys(obj)
 }
 
 export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[]
-export function values(obj: {}): unknown[]
+export function values(obj: object): unknown[]
 
 export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[] {
   return obj instanceof Map ? [...obj.values()] : Object.values(obj)
 }
 
 export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][]
-export function entries(obj: {}): [string, unknown][]
+export function entries(obj: object): [string, unknown][]
 
 export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][] {
   return obj instanceof Map ? [...obj.entries()] : Object.entries(obj)

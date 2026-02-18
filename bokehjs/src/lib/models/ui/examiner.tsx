@@ -210,7 +210,7 @@ export class ExaminerView extends UIElementView {
     }
 
     type ModelsListProps = {models: HasProps[]}
-    class ModelsList extends Component<ModelsListProps, {}> {
+    class ModelsList extends Component<ModelsListProps> {
       constructor(props: ModelsListProps) {
         super(props)
       }
@@ -395,11 +395,7 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type PropsListProps = {}
-    class PropsList extends Component<PropsListProps> {
-      constructor(props: PropsListProps) {
-        super(props)
-      }
+    class PropsList extends Component {
       readonly model_props = computed(() => {
         const model = current_model.value
         return model != null ? compute_attrs(model) : []
@@ -417,11 +413,7 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type PropsPanelProps = {}
-    class PropsPanel extends Component<PropsPanelProps> {
-      constructor(props: PropsPanelProps) {
-        super(props)
-      }
+    class PropsPanel extends Component {
       render(): VNode<HTMLElement> {
         return (
           <div class="props-panel">
@@ -447,8 +439,7 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type WatchesListProps = {}
-    class WatchesList extends Component<WatchesListProps> {
+    class WatchesList extends Component {
       remove_watch(prop: p.Property): void {
         const watched = watched_props.value
         watched.delete(prop)

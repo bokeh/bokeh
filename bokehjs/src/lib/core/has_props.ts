@@ -34,7 +34,7 @@ type AttrsLike = Dict<unknown>
 
 export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = {}
+  export type Props = object
 
   export type SetOptions = {
     check_eq?: boolean
