@@ -23,19 +23,9 @@ export default defineConfig({
       },
     },
     rules: {
-      "@stylistic/space-in-parens": ["error", "never"],
-      "@stylistic/member-delimiter-style": ["error", {
-        multiline: {
-          delimiter: "none",
-          requireLast: true,
-        },
-        singleline: {
-          delimiter: "comma",
-          requireLast: false,
-        },
-      }],
-      "@stylistic/semi": ["error", "never"],
-      "@stylistic/type-annotation-spacing": ["error"],
+      // Stylistic ESLint rules
+      "@stylistic/block-spacing": ["error", "always"],
+      "@stylistic/brace-style": ["error", "1tbs", {allowSingleLine: true}],
       "@stylistic/comma-dangle": ["error", {
         arrays: "always-multiline",
         objects: "always-multiline",
@@ -47,8 +37,14 @@ export default defineConfig({
         tuples: "always-multiline",
       }],
       "@stylistic/comma-spacing": ["error", {before: false, after: true}],
-      "dot-notation": "error",
       "@stylistic/eol-last": ["error", "always"],
+      "@stylistic/function-call-spacing": ["error", "never"],
+      "@stylistic/generator-star-spacing": ["error", {
+        before: false,
+        after: true,
+        anonymous: {before: false, after: true},
+        method: {before: true, after: false},
+      }],
       "@stylistic/indent": ["error", 2, {
         SwitchCase: 1,
         outerIIFEBody: 1,
@@ -63,13 +59,61 @@ export default defineConfig({
         flatTernaryExpressions: true,
         offsetTernaryExpressions: true,
       }],
+      "@stylistic/key-spacing": ["error", {
+        beforeColon: false,
+        afterColon: true,
+        mode: "minimum",
+      }],
+      "@stylistic/keyword-spacing": ["error", {
+        before: true,
+        after: true,
+      }],
+      "@stylistic/member-delimiter-style": ["error", {
+        multiline: {
+          delimiter: "none",
+          requireLast: true,
+        },
+        singleline: {
+          delimiter: "comma",
+          requireLast: false,
+        },
+      }],
+      "@stylistic/no-floating-decimal": ["error"],
+      "@stylistic/no-multiple-empty-lines": ["error", {max: 1, maxBOF: 0, maxEOF: 0}],
+      "@stylistic/no-trailing-spaces": ["error"],
+      "@stylistic/no-whitespace-before-property": ["error"],
+      "@stylistic/object-curly-spacing": ["error", "never"],
+      "@stylistic/quote-props": ["error", "as-needed"],
+      "@stylistic/quotes": ["error", "double", {
+        avoidEscape: true,
+        allowTemplateLiterals: "avoidEscape",
+      }],
+      "@stylistic/semi": ["error", "never"],
+      "@stylistic/space-before-blocks": ["error", "always"],
+      "@stylistic/space-before-function-paren": ["error", {
+        anonymous: "never",
+        named: "never",
+        asyncArrow: "always",
+      }],
+      "@stylistic/space-in-parens": ["error", "never"],
+      "@stylistic/space-unary-ops": ["error", {
+        words: true,
+        nonwords: false,
+        overrides: {},
+      }],
+      "@stylistic/type-annotation-spacing": ["error"],
+      "@stylistic/yield-star-spacing": ["error", {before: false, after: true}],
 
+      // TypeScript ESLint rules
+      "@typescript-eslint/consistent-type-assertions": "error",
+      "@typescript-eslint/consistent-type-imports": ["error", {
+        prefer: "type-imports",
+        fixStyle: "separate-type-imports",
+      }],
       "@typescript-eslint/no-empty-object-type": ["error", {
         allowInterfaces: "with-single-extends",
       }],
-      // TODO "@typescript-eslint/no-unsafe-function-type": ["error"],
-      "@typescript-eslint/no-wrapper-object-types": ["error"],
-
+      "@typescript-eslint/no-floating-promises": ["error", {ignoreVoid: true}],
       "@typescript-eslint/no-restricted-types": ["error", {
         "types": {
           "DeprecatedOldAPI": {
@@ -78,13 +122,11 @@ export default defineConfig({
           },
         },
       }],
-
-      "@typescript-eslint/consistent-type-assertions": "error",
-      "@typescript-eslint/consistent-type-imports": ["error", {
-        prefer: "type-imports",
-        fixStyle: "separate-type-imports",
-      }],
       "@typescript-eslint/no-unnecessary-condition": ["error", {allowConstantLoopConditions: true}],
+      "@typescript-eslint/no-unnecessary-type-assertion": ["error"],
+      "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
+      // TODO "@typescript-eslint/no-unsafe-function-type": ["error"],
+      "@typescript-eslint/no-wrapper-object-types": ["error"],
       "@typescript-eslint/strict-boolean-expressions": ["error", {
         allowAny: true,
         allowString: false,
@@ -94,67 +136,25 @@ export default defineConfig({
         allowNullableString: false,
         allowNullableNumber: false,
       }],
-      "@typescript-eslint/no-unnecessary-type-assertion": ["error"],
-      "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
       "@typescript-eslint/switch-exhaustiveness-check": ["error", {
         allowDefaultCaseForExhaustiveSwitch: true,
         considerDefaultExhaustiveForUnions: true,
       }],
-      "no-self-assign": ["error", {
-        props: false,
-      }],
-      "@typescript-eslint/no-floating-promises": ["error", {ignoreVoid: true}],
+
+      // ESLint rules
+      "curly": ["error", "all"],
+      "dot-notation": "error",
+      "guard-for-in": ["error"],
       "no-debugger": "error",
-      "no-floating-decimal": ["error"],
-      "no-multiple-empty-lines": ["error", {max: 1, maxBOF: 0, maxEOF: 0}],
       "no-new-wrappers": "error",
+      "no-self-assign": ["error", {props: false}],
       "no-template-curly-in-string": "error",
       "no-throw-literal": "error",
-      "no-trailing-spaces": ["error"],
       "no-var": "error",
       "object-shorthand": "error",
       "prefer-const": ["error", {destructuring: "all"}],
       "prefer-exponentiation-operator": "error",
-      "quote-props": ["error", "as-needed"],
-      "object-curly-spacing": ["error", "never"],
-      "space-before-blocks": ["error", "always"],
-      "space-before-function-paren": ["error", {
-        anonymous: "never",
-        named: "never",
-        asyncArrow: "always",
-      }],
-      "keyword-spacing": ["error", {
-        before: true,
-        after: true,
-      }],
-      "func-call-spacing": ["error", "never"],
-      "no-whitespace-before-property": ["error"],
-      "block-spacing": ["error", "always"],
-      "key-spacing": ["error", {
-        beforeColon: false,
-        afterColon: true,
-        mode: "minimum",
-      }],
-      "space-unary-ops": ["error", {
-        words: true,
-        nonwords: false,
-        overrides: {},
-      }],
-      "guard-for-in": ["error"],
-      quotes: ["error", "double", {
-        avoidEscape: true,
-        allowTemplateLiterals: false,
-      }],
-      "brace-style": ["error", "1tbs", {allowSingleLine: true}],
-      curly: ["error", "all"],
       "prefer-template": ["error"],
-      "generator-star-spacing": ["error", {
-        before: false,
-        after: true,
-        anonymous: {before: false, after: true},
-        method: {before: true, after: false},
-      }],
-      "yield-star-spacing": ["error", {before: false, after: true}],
     },
   }, {
     files: ['**/*.js'],
