@@ -21,7 +21,7 @@ export function trap(fn: () => void): TrapOutput {
     error: "",
   }
   function join(...args: unknown[]): string {
-    return args.map((arg) => `${arg}`).join(" ") + "\n"
+    return `${args.map((arg) => `${arg}`).join(" ")}\n`
   }
   // XXX: stubbing both console and logger, and including logger's name manually is a hack,
   // but that's be best we can do (at least for now) while preserving logger's ability to
