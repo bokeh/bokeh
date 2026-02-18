@@ -59,6 +59,7 @@ export function use_theme(theme: Theme | null = null): void {
 // Property base class
 //
 
+/* eslint-disable @stylistic/indent */
 export type UniformsOf<Props> = {
   [Key in keyof Props as
     Props[Key] extends BaseCoordinateSpec<any> ? never   :
@@ -90,6 +91,7 @@ export type InheritedAttrsOf<Props> = {
     Props[Key] extends VectorSpec<any, any> ? `inherited_${Key}` :
     Props[Key] extends ScalarSpec<any, any> ? `inherited_${Key}` : never]: boolean
 }
+/* eslint-enable @stylistic/indent */
 
 export type InheritedScreenOf<Props> = {
   [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean

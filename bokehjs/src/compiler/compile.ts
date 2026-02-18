@@ -57,7 +57,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   return {outputs, ...compile_files(files, tsconfig.options, transformers, host)}
 }
 
-function compile_javascript(base_dir: string, file: string, code: string): { output?: string } & TSOutput {
+function compile_javascript(base_dir: string, file: string, code: string): {output?: string} & TSOutput {
   const tsconfig = parse_patched_tsconfig(base_dir, {})
   if (tsconfig.diagnostics != null) {
     return {diagnostics: tsconfig.diagnostics}
