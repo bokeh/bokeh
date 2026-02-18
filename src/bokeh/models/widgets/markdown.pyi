@@ -6,14 +6,20 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from .widget import Widget
+from .widget import Widget, _WidgetInit
 
-@dataclass
+class _MarkdownInit(_WidgetInit, total=False):
+    text: str
+    disable_math: bool
+
 class Markdown(Widget):
+    def __init__(self, **kwargs: Unpack[_MarkdownInit]) -> None: ...
 
     text: str = ...
-
     disable_math: bool = ...

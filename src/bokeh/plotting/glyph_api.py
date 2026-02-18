@@ -46,7 +46,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class GlyphAPI:
-    """ """
+    """ Convenience API for bundling glyph renderers. """
 
     @property
     def plot(self) -> Plot | None:

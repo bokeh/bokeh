@@ -6,6 +6,7 @@ import {Signal0} from "core/signaling"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import {every, sum} from "core/util/array"
+import {clamp} from "core/util/math"
 import {isArray, isNumber, isString} from "core/util/types"
 
 export type FactorLevel = 1 | 2 | 3
@@ -403,7 +404,13 @@ export class FactorRange extends Range {
   private configure(): void {
     this.mapper = FactorMapper.for(this)
 
-    const [start, end] = this.compute_bounds(this.mapper.inner_padding)
+    let [start, end] = this.compute_bounds(this.mapper.inner_padding)
+
+    if (this.bounds != "auto" && this.bounds != null) {
+      const [lower, upper] = this.computed_bounds
+      start = clamp(start, lower, upper)
+      end = clamp(end, lower, upper)
+    }
 
     this.setv({start, end}, {silent: true})
 

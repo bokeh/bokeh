@@ -6,8 +6,10 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal, Sequence
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.enums import AutoType as Auto
@@ -18,18 +20,25 @@ from ..core.property_mixins import (
     ScalarMinorGridLineProps,
 )
 from .axes import Axis
-from .renderers import GuideRenderer
+from .renderers.renderer import GuideRenderer, _GuideRendererInit
 from .tickers import Ticker
 
-@dataclass
+class _GridInit(_GuideRendererInit, total=False):
+    dimension: Literal[0, 1]
+    bounds: Auto | tuple[float, float]
+    cross_bounds: Auto | tuple[float, float]
+    axis: Axis | None
+    ticker: Ticker | Sequence[float] | None
+
 class Grid(GuideRenderer, ScalarGridLineProps, ScalarMinorGridLineProps, ScalarBandFillProps, ScalarBandHatchProps):
+    def __init__(self, **kwargs: Unpack[_GridInit]) -> None: ...
 
     dimension: Literal[0, 1] = ...
-
     bounds: Auto | tuple[float, float] = ...
-
     cross_bounds: Auto | tuple[float, float] = ...
-
     axis: Axis | None = ...
 
-    ticker: Ticker | None = ...
+    @property
+    def ticker(self) -> Ticker | None: ...
+    @ticker.setter
+    def ticker(self, ticker: Ticker | Sequence[float] | None) -> None: ...

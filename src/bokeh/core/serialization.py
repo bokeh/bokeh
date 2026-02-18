@@ -433,7 +433,10 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array_encoding_disabled(array):
+        if array.dtype.kind == 'U':
+            data = obj.flatten().tolist()
+            dtype = "object"
+        elif array_encoding_disabled(array):
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
@@ -701,7 +704,7 @@ class Deserializer:
         attributes = obj.get("attributes")
 
         cls = self._resolve_type(name)
-        instance = cls.__new__(cls, id=id)
+        instance = cls._new(id)
 
         if instance is None:
             self.error(f"can't instantiate {name}(id={id})")

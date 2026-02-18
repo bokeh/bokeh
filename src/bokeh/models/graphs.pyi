@@ -6,64 +6,90 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Sequence
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Sequence
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from ..core.has_props import abstract
-from ..model import Model
-from .expressions import CoordinateTransform
+from ..model.model import Model, _ModelInit
+from .expressions import CoordinateTransform, _CoordinateTransformInit
 
-@abstract
-@dataclass(init=False)
+class _LayoutProviderInit(_ModelInit, total=False):
+    ...
+
 class LayoutProvider(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_LayoutProviderInit]) -> None: ...
 
     @property
     def node_coordinates(self) -> NodeCoordinates: ...
-
     @property
     def edge_coordinates(self) -> EdgeCoordinates: ...
 
-@dataclass
+class _StaticLayoutProviderInit(_LayoutProviderInit, total=False):
+    graph_layout: dict[int | str, Sequence[float]]
+
 class StaticLayoutProvider(LayoutProvider):
+    def __init__(self, **kwargs: Unpack[_StaticLayoutProviderInit]) -> None: ...
 
     graph_layout: dict[int | str, Sequence[float]] = ...
 
-@abstract
-@dataclass(init=False)
+class _GraphCoordinatesInit(_CoordinateTransformInit, total=False):
+    layout: LayoutProvider
+
 class GraphCoordinates(CoordinateTransform):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_GraphCoordinatesInit]) -> None: ...
 
     layout: LayoutProvider = ...
 
-@dataclass
+class _NodeCoordinatesInit(_GraphCoordinatesInit, total=False):
+    ...
+
 class NodeCoordinates(GraphCoordinates):
+    def __init__(self, **kwargs: Unpack[_NodeCoordinatesInit]) -> None: ...
+
+class _EdgeCoordinatesInit(_GraphCoordinatesInit, total=False):
     ...
 
-@dataclass
 class EdgeCoordinates(GraphCoordinates):
+    def __init__(self, **kwargs: Unpack[_EdgeCoordinatesInit]) -> None: ...
+
+class _GraphHitTestPolicyInit(_ModelInit, total=False):
     ...
 
-@abstract
-@dataclass(init=False)
 class GraphHitTestPolicy(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_GraphHitTestPolicyInit]) -> None: ...
+
+class _EdgesOnlyInit(_GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class EdgesOnly(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[_EdgesOnlyInit]) -> None: ...
+
+class _NodesOnlyInit(_GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class NodesOnly(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[_NodesOnlyInit]) -> None: ...
+
+class _NodesAndLinkedEdgesInit(_GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class NodesAndLinkedEdges(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[_NodesAndLinkedEdgesInit]) -> None: ...
+
+class _EdgesAndLinkedNodesInit(_GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class EdgesAndLinkedNodes(GraphHitTestPolicy):
+    def __init__(self, **kwargs: Unpack[_EdgesAndLinkedNodesInit]) -> None: ...
+
+class _NodesAndAdjacentNodesInit(_GraphHitTestPolicyInit, total=False):
     ...
 
-@dataclass
 class NodesAndAdjacentNodes(GraphHitTestPolicy):
-    ...
+    def __init__(self, **kwargs: Unpack[_NodesAndAdjacentNodesInit]) -> None: ...

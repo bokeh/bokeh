@@ -10,7 +10,7 @@ dependencies:
   - narwhals>=1.13
   - numpy >=1.20.0
   - packaging >=16.8
-  - pandas >=1.2
+  - pandas 3*
   - polars >=1.0
   - pyarrow>=14.0
   - pillow >=4.0
@@ -39,7 +39,7 @@ dependencies:
   - pygments
   - pygraphviz
   - pytest >=7.0
-  - pytest-asyncio ==0.21.1 # https://github.com/bokeh/bokeh/issues/13578
+  - pytest-asyncio
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist

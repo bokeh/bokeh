@@ -657,7 +657,7 @@ describe("Tabs", () => {
     await display(obj, [200, 150])
   })
 
-  it("should allow axis alignment across tabs", async () => {
+  async function linked_tabs(link_layouts: boolean) {
     const tabs = new Tabs({
       tabs: [
         new TabPanel({title: "Tab 0", child: plot(10**0, 10**0, "red")}),
@@ -665,8 +665,17 @@ describe("Tabs", () => {
         new TabPanel({title: "Tab 2", child: plot(10**4, 10**4, "blue")}),
       ],
       tabs_location: "above",
+      link_layouts,
     })
     await display(tabs, [250, 250])
+  }
+
+  it("should allow axis alignment across tabs", async () => {
+    await linked_tabs(true)
+  })
+
+  it("should allow to disable axis alignment across tabs", async () => {
+    await linked_tabs(false)
   })
 })
 

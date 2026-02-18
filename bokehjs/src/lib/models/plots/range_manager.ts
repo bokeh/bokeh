@@ -244,8 +244,12 @@ export class RangeManager {
       // Also ensure that range keeps the same delta when panning/scrolling
       if (rng.bounds != null) {
         const [min, max] = rng.computed_bounds
-        const new_interval = Math.abs(range_info.end - range_info.start)
-
+        // Make sure the "new_interval" isn't larger than the distance between the bounds, otherwise
+        // the bound could be ignored, see issue #14568
+        const new_interval = Math.min(
+          Math.abs(range_info.end - range_info.start),
+          Math.abs(max - min),
+        )
         if (rng.is_reversed) {
           if (min > range_info.end) {
             hit_bound = true

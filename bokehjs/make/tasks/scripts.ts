@@ -2,6 +2,8 @@ import {join, relative} from "node:path"
 import cp from "node:child_process"
 import fs from "node:fs"
 
+import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
+
 import {task, passthrough, BuildError} from "../task.js"
 
 import {rename, read, write, scan} from "#compiler/sys.js"
@@ -62,11 +64,24 @@ task("scripts:glsl", async () => {
   const js_base = paths.build_dir.lib
   const dts_base = paths.build_dir.lib
 
+  // preserveAll: true disables identifier mangling, limiting minification to
+  // stripping comments and compressing whitespace. This is required because regl
+  // binds uniforms/attributes by name at runtime, and glyph code prepends
+  // #define directives (e.g. USE_CIRCLE, HATCH) that must match the shader source.
+  const minifier = new GlslMinify({
+    output: "sourceOnly",
+    preserveAll: true,
+  })
+
   for (const glsl_path of scan(lib_base, [".vert", ".frag"])) {
     const sub_path = relative(lib_base, glsl_path)
+    const source = read(glsl_path)!
+    // Join backslash-continued lines so the minifier doesn't corrupt them.
+    const joined = source.replace(/\\\s*\n\s*/g, "")
+    const minified = await minifier.execute(joined)
 
     const js = `\
-const shader = \`\n${read(glsl_path)}\`;
+const shader = \`\n${minified.sourceCode}\`;
 export default shader;
 `
     const dts = `\

@@ -264,7 +264,7 @@ class Test_components:
         html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.find_all(name='script')
         assert len(scripts) == 1
-        assert scripts[0].attrs == {'type': 'text/javascript'}
+        assert scripts[0].attrs == {}
 
     @patch('bokeh.embed.util.make_globally_unique_css_safe_id', new=stable_id)
     @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)

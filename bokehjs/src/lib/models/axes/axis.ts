@@ -71,8 +71,9 @@ export abstract class AxisView extends GuideRendererView {
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
 
   override get bbox(): BBox {
-    // TODO Fixed axes should not participate in layout at all.
-    if (this.layout != null && this.model.fixed_location == null) {
+    if (this.model.fixed_location != null) {
+      return new BBox()
+    } else if (this.layout != null) {
       return this.layout.bbox
     } else if (this.is_renderable) {
       const {extents} = this
