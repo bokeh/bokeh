@@ -249,10 +249,11 @@ class Property(PropertyDescriptorFactory[T]):
 
         if uses_pandas(new) or uses_pandas(old):
             import pandas as pd
+            from pandas.api.extensions import ExtensionArray
 
-            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
-                return np.array_equal(new, old)
-            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+            if (isinstance(new, pd.Series) or isinstance(old, pd.Series)) or \
+               (isinstance(new, pd.Index) or isinstance(old, pd.Index)) or \
+               (isinstance(new, ExtensionArray) or isinstance(old, ExtensionArray)):
                 return np.array_equal(new, old)
 
         try:
