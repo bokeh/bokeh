@@ -1,6 +1,6 @@
 import type {ChildProcess} from "node:child_process"
 import {spawn} from "node:child_process"
-import {join, delimiter, basename, extname, dirname} from "node:path"
+import {join, relative, delimiter, basename, extname, dirname} from "node:path"
 import fs from "node:fs"
 import os from "node:os"
 
@@ -290,12 +290,19 @@ function compile(name: string, options?: {auto_index?: boolean}) {
       const imports = ['export * from "../framework"']
 
       for (const file of files) {
-        if (file.startsWith(base_dir) && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
+        // Match files under the suite's own directory and any sibling
+        // directories included by its tsconfig (e.g. integration includes
+        // cross_backend/).  We check the broader "test/" prefix rather
+        // than just base_dir so sibling modules get auto-indexed too.
+        // Only files emitted by compile_typescript (governed by the
+        // tsconfig "include" globs) will appear in `files`, so this
+        // predicate won't pull in unrelated suites.
+        if (file.startsWith("test/") && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
           const ext = extname(file)
           const name = basename(file, ext)
           if (!name.startsWith("_") && !name.endsWith(".d") && name != "index") {
-            const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
-            const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
+            const rel = relative(base_dir, dirname(file))
+            const module = rel == "" ? `./${name}` : `./${join(rel, name)}`
             imports.push(`import "${module}"`)
           }
         }

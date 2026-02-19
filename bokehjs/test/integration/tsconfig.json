@@ -13,6 +13,7 @@
     "../framework.ts",
     "../interactive.ts",
     "../*.d.ts",
-    "./**/*.ts"
+    "./**/*.ts",
+    "../cross_backend/**/*.ts"
   ]
 }

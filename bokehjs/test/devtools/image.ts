@@ -1,5 +1,8 @@
 import {PNG} from "pngjs"
 
+import type {Box} from "./baselines.js"
+export type {Box}
+
 export type ImageDiff = {pixels: number, percent: number, diff: Buffer}
 
 function rgba2hsla(r: number, g: number, b: number, a: number): [number, number, number, number] {
@@ -62,6 +65,109 @@ function resize_image(image: PNG, width: number, height: number): PNG {
   }
 
   return resized
+}
+
+export function crop_image(image: Buffer, box: Box): Buffer {
+  const img = PNG.sync.read(image)
+  // Clamp to image bounds to avoid corrupt data from out-of-range bitblt
+  const x = Math.max(0, Math.min(box.x, img.width))
+  const y = Math.max(0, Math.min(box.y, img.height))
+  const w = Math.min(box.width, img.width - x)
+  const h = Math.min(box.height, img.height - y)
+  if (w <= 0 || h <= 0) {
+    throw new Error(`crop_image: degenerate crop region (${w}x${h}) from box {x:${box.x}, y:${box.y}, w:${box.width}, h:${box.height}} on ${img.width}x${img.height} image`)
+  }
+  const cropped = new PNG({width: w, height: h})
+  PNG.bitblt(img, cropped, x, y, w, h, 0, 0)
+  return PNG.sync.write(cropped)
+}
+
+export type CrossCompareResult = {
+  pixels: number
+  percent: number
+  avg_distance: number
+  max_distance: number
+  diff: Buffer
+}
+
+// Per-pixel distance below which differences are considered anti-aliasing noise
+const DEFAULT_MIN_DISTANCE = 0.05
+
+export function cross_compare_images(
+  composite: Buffer,
+  bbox_a: Box,
+  bbox_b: Box,
+  min_distance: number = DEFAULT_MIN_DISTANCE,
+): CrossCompareResult | null {
+  const img_a = crop_image(composite, bbox_a)
+  const img_b = crop_image(composite, bbox_b)
+
+  let a_png: PNG = PNG.sync.read(img_a)
+  let b_png: PNG = PNG.sync.read(img_b)
+
+  // Resize to common dimensions if the two crops differ in size
+  if (a_png.width != b_png.width || a_png.height != b_png.height) {
+    const width = Math.max(a_png.width, b_png.width)
+    const height = Math.max(a_png.height, b_png.height)
+    a_png = resize_image(a_png, width, height)
+    b_png = resize_image(b_png, width, height)
+  }
+
+  const {width, height} = a_png
+  const diff_png = new PNG({width, height})
+
+  const a32 = image_data(a_png)
+  const b32 = image_data(b_png)
+  const c32 = image_data(diff_png)
+
+  c32.fill(encode(0, 0, 0))
+
+  const len = width * height
+  let pixels = 0
+  let total_distance = 0
+  let max_distance = 0
+
+  for (let i = 0; i < len; i++) {
+    const a = a32[i]
+    const b = b32[i]
+
+    if (a != b) {
+      const [r0, g0, b0, a0] = decode(a)
+      const [r1, g1, b1, a1] = decode(b)
+
+      // Euclidean distance in RGBA space, normalized to 0..1
+      // RGB channels are 0..255 from decode(), alpha is already 0..1
+      const dr = (r0 - r1) / 255
+      const dg = (g0 - g1) / 255
+      const db = (b0 - b1) / 255
+      const da = a0 - a1
+      const dist = Math.sqrt((dr * dr + dg * dg + db * db + da * da) / 4)
+
+      // Render *all* differing pixels to the heatmap (blue=small, red=large)
+      // so anti-aliasing noise is visible for debugging, but only count pixels
+      // above min_distance toward the reported failure metrics.
+      const intensity = Math.round(dist * 255)
+      c32[i] = encode(intensity, 0, 255 - intensity)
+
+      if (dist > min_distance) {
+        pixels++
+        total_distance += dist
+        max_distance = Math.max(max_distance, dist)
+      }
+    }
+  }
+
+  if (pixels == 0) {
+    return null
+  } else {
+    return {
+      pixels,
+      percent: pixels / (width * height) * 100,
+      avg_distance: total_distance / pixels,
+      max_distance,
+      diff: PNG.sync.write(diff_png),
+    }
+  }
 }
 
 export function diff_image(existing: Buffer, current: Buffer, verbose: boolean = false): ImageDiff | null {

@@ -23,6 +23,7 @@ declare type It = ItDecl & {
   dpr: (dpr: number) => Decl
   scale: (scale: number) => Decl
   no_image: Decl
+  cross: (threshold?: number) => Decl
 }
 
 declare const describe: Decl

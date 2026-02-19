@@ -11,7 +11,7 @@ import {Bar, Presets} from "cli-progress"
 
 import type {Box, State} from "./baselines.js"
 import {create_baseline, diff_baseline, load_baselines} from "./baselines.js"
-import {diff_image} from "./image.js"
+import {diff_image, crop_image, cross_compare_images} from "./image.js"
 import {platform} from "./sys.js"
 
 const MAX_INT32 = 2147483647
@@ -122,7 +122,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean}
+type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean, cross_compare?: boolean, cross_threshold?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -301,6 +301,25 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         existing_png?: Buffer
       }
 
+      type CrossResult = {
+        name: string
+        description: string[]
+        pixels: number
+        percent: number
+        avg_distance: number
+        max_distance: number
+        threshold: number
+        passed: boolean
+        files_dir: string
+      }
+
+      const cross_results: CrossResult[] = []
+
+      // Cross-backend results directory.  This is relative to cwd, which
+      // must be the bokehjs/ directory (the same assumption the rest of
+      // the devtools test runner makes for baseline paths).
+      const cross_dir = path.join("test", "cross_backend", "results", platform)
+
       type TestCase = [Suite[], Test, Status]
 
       function* iter({suites, tests}: Suite, parents: Suite[] = []): Iterable<TestCase> {
@@ -329,16 +348,18 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         shuffle(all_tests, random)
       }
 
-      function show_tree(suites: Suite[], test: Test): string[] {
+      function show_tree_from_descriptions(descs: string[]): string[] {
         const output = []
-        let depth = 0
-        for (const suite of [...suites, test]) {
-          const is_last = depth == suites.length
-          const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-          output.push(`${prefix} ${suite.description}`)
-          depth++
+        for (let i = 0; i < descs.length; i++) {
+          const is_last = i == descs.length - 1
+          const prefix = i == 0 ? chalk.red("\u2717") : `${" ".repeat(i)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
+          output.push(`${prefix} ${descs[i]}`)
         }
         return output
+      }
+
+      function show_tree(suites: Suite[], test: Test): string[] {
+        return show_tree_from_descriptions(descriptions(suites, test))
       }
 
       const invalid_chars = ['"']
@@ -716,6 +737,92 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                       })()
                     }
                   }
+
+                  if (test.cross_compare ?? false) {
+                    await (async () => {
+                      const {bbox} = result
+                      if (bbox == null) {
+                        return
+                      }
+
+                      // Use the later (stable) state for accurate child bboxes,
+                      // falling back to the early state from the test result.
+                      let state = result.state
+                      const later_output = await evaluate<State | null>(`Tests.get_state(${seq})`)
+                      if (later_output instanceof Value && later_output.value != null) {
+                        state = later_output.value
+                      }
+                      if (state == null) {
+                        return
+                      }
+
+                      // Capture a screenshot if one wasn't already taken (e.g. no baselines_root)
+                      let image = status.image
+                      if (image == null) {
+                        const screenshot_data = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                        image = Buffer.from(screenshot_data.data, "base64")
+                      }
+
+                      // Child bboxes from serializable_state() are relative to their
+                      // parent view.  This works as screenshot-local coordinates because
+                      // display() wraps the top-level view tightly in the viewport
+                      // element with no extra padding.
+                      if (state.children != null && state.children.length >= 2) {
+                        const child_bboxes = state.children
+                          .filter((c) => c.bbox != null)
+                          .map((c) => c.bbox!)
+
+                        if (child_bboxes.length >= 2) {
+                          const cross_cmp = cross_compare_images(
+                            image,
+                            child_bboxes[0],
+                            child_bboxes[1],
+                          )
+
+                          // Always write diagnostic images to disk for inspection
+                          await fs.promises.mkdir(cross_dir, {recursive: true})
+
+                          // Build a standardized filename from the test description hierarchy.
+                          // e.g. ["Cross-backend comparison", "Circle", "circle with line dashing"]
+                          //   -> "Comparison_Circle_with_line_dashing"
+                          // NOTE: assumes cross_display() uses ["canvas", "webgl"] order (the default)
+                          const parts = description(suites, test, "\x00").split("\x00")
+                          const cross_name = encode(
+                            parts
+                              .map((p) => p.replace(/^Cross-backend comparison$/i, "Comparison").replace(/^all /i, ""))
+                              .filter((p) => p.length > 0)
+                              .join("_"),
+                          )
+                          // COUPLING: this order must match the default `backends` parameter
+                          // of cross_display() in test/cross_backend/_util.ts.  If that
+                          // default ever changes, update this array to match.
+                          const backend_names = ["canvas", "webgl"]
+                          await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_${backend_names[0]}.png`), crop_image(image, child_bboxes[0]))
+                          await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_${backend_names[1]}.png`), crop_image(image, child_bboxes[1]))
+                          // null means all per-pixel differences were below the anti-aliasing noise threshold
+                          if (cross_cmp != null) {
+                            await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_diff.png`), cross_cmp.diff)
+                          }
+
+                          // Record cross-compare result separately — never touch baseline status
+                          const cross_threshold = test.cross_threshold ?? 0
+                          const pixels = cross_cmp?.pixels ?? 0
+                          const passed = pixels <= cross_threshold
+                          cross_results.push({
+                            name: cross_name,
+                            description: descriptions(suites, test),
+                            pixels,
+                            percent: cross_cmp?.percent ?? 0,
+                            avg_distance: cross_cmp?.avg_distance ?? 0,
+                            max_distance: cross_cmp?.max_distance ?? 0,
+                            threshold: cross_threshold,
+                            passed,
+                            files_dir: cross_dir,
+                          })
+                        }
+                      }
+                    })()
+                  }
                 }
               } finally {
                 const output = await evaluate(`Tests.clear(${seq})`)
@@ -795,6 +902,56 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         if (files.size != 0) {
           fail(`there are outdated baselines:\n${[...files].join("\n")}`)
         }
+      }
+
+      // -- Cross-backend comparison report (separate from baseline results) --
+      // NOTE: cross-backend failures are advisory only — they do not increment
+      // the `failed` counter or affect the process exit code.  This is intentional
+      // while thresholds are being tuned; make failures blocking once stable.
+      if (cross_results.length > 0) {
+        const cross_failed = cross_results.filter((r) => !r.passed)
+        const cross_passed = cross_results.filter((r) => r.passed)
+
+        // Print cross-compare failures to console
+        for (const r of cross_failed) {
+          const tree = show_tree_from_descriptions(r.description)
+          tree.push(
+            `cross-backend diff: ${r.pixels}px (${r.percent.toFixed(2)}%) avg_dist=${r.avg_distance.toFixed(4)} max_dist=${r.max_distance.toFixed(4)} threshold=${r.threshold}`,
+          )
+          tree.push(`  see: ${r.files_dir}/${r.name}_*.png`)
+          console.log("")
+          console.log(tree.join("\n"))
+        }
+
+        // Write cross-testing report.json
+        await fs.promises.mkdir(cross_dir, {recursive: true})
+        const cross_report = {
+          generated: new Date().toISOString(),
+          platform,
+          summary: {
+            total: cross_results.length,
+            passed: cross_passed.length,
+            failed: cross_failed.length,
+          },
+          results: cross_results.map((r) => ({
+            name: r.name,
+            description: r.description,
+            pixels: r.pixels,
+            percent: r.percent,
+            avg_distance: r.avg_distance,
+            max_distance: r.max_distance,
+            threshold: r.threshold,
+            passed: r.passed,
+          })),
+        }
+        await fs.promises.writeFile(
+          path.join(cross_dir, "report.json"),
+          JSON.stringify(cross_report, null, 2),
+        )
+
+        // Print cross-compare summary line
+        const cross_summary = `\ncross-backend: ${chalk.green(`${cross_passed.length} passed`)}, ${chalk.red(`${cross_failed.length} failed`)} of ${cross_results.length} comparisons`
+        console.log(cross_summary)
       }
 
       const passed = num_selected_tests - failed - skipped
