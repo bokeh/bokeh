@@ -465,6 +465,71 @@ class Server(BaseServer):
 
         super().__init__(io_loop, tornado_app, http_server)
 
+    @classmethod
+    def from_settings(cls, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+            io_loop: IOLoop | None = None, http_server_kwargs: dict[str, Any] | None = None, **kwargs: Any) -> Server:
+        ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global 
+        settings module, if they were not explicitly supplied as keyword arguments.
+
+        Args:
+            applications (dict[str, Application] or Application or callable) :
+                See :class:`~bokeh.server.server.Server`.
+
+            io_loop (IOLoop, optional) :
+                See :class:`~bokeh.server.server.Server`.
+
+            http_server_kwargs (dict, optional) :
+                See :class:`~bokeh.server.server.Server`.
+
+        Any additional keyword arguments are passed directly to
+        :class:`~bokeh.server.server.Server`, and take precedence over
+        values derived from environment variables.
+
+        Returns:
+            Server
+
+        Raises:
+            ValueError
+                If ``sign_sessions`` is True but no ``secret_key`` is available.
+        
+        '''
+
+        from ..server.auth_provider import AuthModule, NullAuth
+        from ..settings import settings as _settings
+
+        # --- auth_provider ---
+        # `settings.auth_module()`` yields a path string, but `Server` expects an AuthProvider instance.
+        if 'auth_provider' not in kwargs:
+            auth_module_path = _settings.auth_module()
+            kwargs['auth_provider'] = AuthModule(auth_module_path) if auth_module_path else NullAuth()
+
+        # --- session signing ---
+        # secret_key is handled explicitly because the accessor name differs from setting name.
+        if 'secret_key' not in kwargs:
+            kwargs['secret_key'] = _settings.secret_key_bytes()
+
+        if 'sign_sessions' not in kwargs:
+            kwargs['sign_sessions'] = _settings.sign_sessions()
+
+        if kwargs['sign_sessions'] and not kwargs['secret_key']:
+            raise ValueError("A 'secret_key' must be set when 'sign_sessions' is enabled.")
+
+        # --- SSL ---
+        for key in ('ssl_certfile', 'ssl_keyfile', 'ssl_password'):
+            if key not in kwargs:
+                kwargs[key] = getattr(_settings, key)()
+
+        # --- cookie / XSRF ---
+        for key in ('cookie_secret', 'xsrf_cookies'):
+            if key not in kwargs:
+                kwargs[key] = getattr(_settings, key)()
+
+        # --- misc ---
+        if 'ico_path' not in kwargs:
+            kwargs['ico_path'] = _settings.ico_path()
+
+        return cls(applications, io_loop=io_loop, http_server_kwargs=http_server_kwargs, **kwargs)
+
     @property
     def port(self) -> int | None:
         ''' The configured port number that the server listens on for HTTP
