@@ -69,8 +69,13 @@ function resize_image(image: PNG, width: number, height: number): PNG {
 
 export function crop_image(image: Buffer, box: Box): Buffer {
   const img = PNG.sync.read(image)
-  const cropped = new PNG({width: box.width, height: box.height})
-  PNG.bitblt(img, cropped, box.x, box.y, box.width, box.height, 0, 0)
+  // Clamp to image bounds to avoid corrupt data from out-of-range bitblt
+  const x = Math.max(0, Math.min(box.x, img.width))
+  const y = Math.max(0, Math.min(box.y, img.height))
+  const w = Math.min(box.width, img.width - x)
+  const h = Math.min(box.height, img.height - y)
+  const cropped = new PNG({width: w, height: h})
+  PNG.bitblt(img, cropped, x, y, w, h, 0, 0)
   return PNG.sync.write(cropped)
 }
 

@@ -290,6 +290,12 @@ function compile(name: string, options?: {auto_index?: boolean}) {
       const imports = ['export * from "../framework"']
 
       for (const file of files) {
+        // Match any file under test/ (not just test/<name>/) so that suites
+        // whose tsconfig includes sibling directories (e.g. integration
+        // including cross_backend/) get their modules auto-indexed too.
+        // The tsconfig "include" array is the real gatekeeper for which
+        // files are compiled; this predicate just needs to be broad enough
+        // to cover all included paths.
         if (file.startsWith("test/") && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
           const ext = extname(file)
           const name = basename(file, ext)

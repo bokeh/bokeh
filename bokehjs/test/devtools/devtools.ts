@@ -315,6 +315,11 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
       const cross_results: CrossResult[] = []
 
+      // Cross-backend results directory.  This is relative to cwd, which
+      // must be the bokehjs/ directory (the same assumption the rest of
+      // the devtools test runner makes for baseline paths).
+      const cross_dir = path.join("test", "cross_backend", "results", platform)
+
       type TestCase = [Suite[], Test, Status]
 
       function* iter({suites, tests}: Suite, parents: Suite[] = []): Iterable<TestCase> {
@@ -343,18 +348,6 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         shuffle(all_tests, random)
       }
 
-      function show_tree(suites: Suite[], test: Test): string[] {
-        const output = []
-        let depth = 0
-        for (const suite of [...suites, test]) {
-          const is_last = depth == suites.length
-          const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-          output.push(`${prefix} ${suite.description}`)
-          depth++
-        }
-        return output
-      }
-
       function show_tree_from_descriptions(descs: string[]): string[] {
         const output = []
         for (let i = 0; i < descs.length; i++) {
@@ -363,6 +356,10 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           output.push(`${prefix} ${descs[i]}`)
         }
         return output
+      }
+
+      function show_tree(suites: Suite[], test: Test): string[] {
+        return show_tree_from_descriptions(descriptions(suites, test))
       }
 
       const invalid_chars = ['"']
@@ -779,7 +776,6 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                           )
 
                           // Always write diagnostic images to disk for inspection
-                          const cross_dir = path.join("test", "cross_backend", "results", platform)
                           await fs.promises.mkdir(cross_dir, {recursive: true})
 
                           // Build a standardized filename from the test description hierarchy.
@@ -793,6 +789,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                               .filter((p) => p.length > 0)
                               .join("_"),
                           )
+                          // COUPLING: this order must match the default `backends` parameter
+                          // of cross_display() in test/cross_backend/_util.ts.  If that
+                          // default ever changes, update this array to match.
                           const backend_names = ["canvas", "webgl"]
                           await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_${backend_names[0]}.png`), crop_image(image, child_bboxes[0]))
                           await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_${backend_names[1]}.png`), crop_image(image, child_bboxes[1]))
@@ -920,7 +919,6 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         }
 
         // Write cross-testing report.json
-        const cross_dir = path.join("test", "cross_backend", "results", platform)
         await fs.promises.mkdir(cross_dir, {recursive: true})
         const cross_report = {
           generated: new Date().toISOString(),

@@ -7,6 +7,8 @@ import type {UIElement} from "@bokehjs/models/ui/ui_element"
 import {Row} from "@bokehjs/models/layouts/index"
 import type {Figure} from "@bokehjs/api/plotting"
 
+// COUPLING: the default `backends` order is assumed by devtools.ts when
+// labelling per-backend screenshots.  Keep them in sync.
 export async function cross_display(
   make_plot: (output_backend: OutputBackend) => UIElement,
   backends: [OutputBackend, OutputBackend] = ["canvas", "webgl"],
