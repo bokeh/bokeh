@@ -27,6 +27,7 @@ export default defineConfig({
           "./test/unit/tsconfig.json",
           "./test/defaults/tsconfig.json",
           "./test/integration/tsconfig.json",
+          "./test/cross_backend/tsconfig.json",
           "./test/codebase/tsconfig.json",
           "./test/devtools/tsconfig.json",
           "./examples/tsconfig.json",

@@ -6,6 +6,7 @@
 /test/baselines/*/report.json
 /test/baselines/*/report.out
 !/test/baselines/*/*.png
+/test/cross_backend/results/
 !*.html
 !*.png
 !*.jpg

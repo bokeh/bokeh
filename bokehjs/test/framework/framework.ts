@@ -36,11 +36,11 @@ export type Test = {
   views: View[]
   el?: HTMLElement
   viewport?: [number, number]
-  threshold?: number
+  threshold?: number  // Max pixel diff: vs baseline (integration) or vs other backend (cross_backend)
   retries?: number
   dpr?: number
   scale?: number
-  no_image?: boolean
+  no_baseline?: boolean  // Skip baseline image comparison (set by it.cross() for cross-backend tests)
 }
 
 export type Suite = {
@@ -71,11 +71,12 @@ type _It = ItFn & {
   allowing: (settings: number | TestSettings) => ItFn
   dpr: (dpr: number) => ItFn
   scale: (scale: number) => ItFn
-  no_image: ItFn
+  no_baseline: ItFn
+  cross: (threshold?: number) => ItFn
 }
 
-function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
-  const test: Test = {description, fn, skip, views: [], no_image}
+function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_baseline: boolean = false): Test {
+  const test: Test = {description, fn, skip, views: [], no_baseline}
   stack[0].tests.push(test)
   return test
 }
@@ -118,8 +119,21 @@ export function skip(description: string, fn: ItFunc | ItAsyncFunc): Test {
   return _it(description, fn, true)
 }
 
-export function no_image(description: string, fn: ItFunc | ItAsyncFunc): Test {
+export function no_baseline(description: string, fn: ItFunc | ItAsyncFunc): Test {
   return _it(description, fn, false, true)
+}
+
+export function cross(threshold: number = 0): ItFn {
+  return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
+    const test = it(description, fn)
+    // Convenience function for cross-backend tests: sets threshold for Canvas vs WebGL
+    // pixel comparison and disables baseline image creation. Note: Cross-backend comparison
+    // only occurs when running the cross_backend test suite (determined by --suite parameter),
+    // not based on this function call.
+    test.threshold = threshold
+    test.no_baseline = true
+    return test
+  }
 }
 
 export const it: _It = ((description: string, fn: ItFunc | ItAsyncFunc): Test => {
@@ -129,7 +143,8 @@ it.skip = skip
 it.allowing = allowing
 it.dpr = dpr
 it.scale = scale
-it.no_image = no_image
+it.no_baseline = no_baseline
+it.cross = cross
 
 export function before_each(fn: Func | AsyncFunc): void {
   stack[0].before_each.push({fn})

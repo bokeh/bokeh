@@ -22,7 +22,8 @@ declare type It = ItDecl & {
   allowing: (settings: number | TestSettings) => Decl
   dpr: (dpr: number) => Decl
   scale: (scale: number) => Decl
-  no_image: Decl
+  no_baseline: Decl
+  cross: (threshold?: number) => Decl
 }
 
 declare const describe: Decl
