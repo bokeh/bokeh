@@ -94,9 +94,9 @@ export class Document implements Equatable {
 
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
+  readonly resolver: ModelResolver
 
   protected readonly _init_timestamp: number
-  protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: HasProps[]
   protected _all_models: Map<ID, HasProps>
@@ -123,7 +123,7 @@ export class Document implements Equatable {
   constructor(options: DocumentOptions = {}) {
     documents.push(this)
     this._init_timestamp = Date.now()
-    this._resolver = options.resolver ?? new ModelResolver(default_resolver)
+    this.resolver = options.resolver ?? new ModelResolver(default_resolver)
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -649,7 +649,7 @@ export class Document implements Equatable {
       this._new_models.add(obj)
       this._all_models.set(obj.id, obj)
     }
-    const deserializer = new Deserializer(this._resolver, this._all_models, finalize)
+    const deserializer = new Deserializer(this.resolver, this._all_models, finalize)
     const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]
 
     for (const event of events) {
