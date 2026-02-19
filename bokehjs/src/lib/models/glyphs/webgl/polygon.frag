@@ -1,6 +1,9 @@
 precision mediump float;
 
+uniform float u_antialias;
+
 varying vec4 v_fill_color;
+varying float v_edge_distance;
 
 // Hatch pattern code is duplicated from marker.frag. Keep both in sync.
 #ifdef HATCH
@@ -24,8 +27,6 @@ const int hatch_left_diagonal_dash = 13;
 const int hatch_horizontal_wave = 14;
 const int hatch_vertical_wave = 15;
 const int hatch_criss_cross = 16;
-
-uniform float u_antialias;
 
 varying float v_hatch_pattern;
 varying float v_hatch_scale;
@@ -181,6 +182,10 @@ void main()
     color = blend_colors(hatch_color, color);
   }
 #endif
+
+  // Edge anti-aliasing: fade alpha near polygon boundary edges.
+  float edge_alpha = smoothstep(0.0, u_antialias, v_edge_distance);
+  color *= edge_alpha;  // premultiplied alpha
 
   gl_FragColor = color;
 }

@@ -2,6 +2,7 @@ precision mediump float;
 
 attribute vec2 a_position;
 attribute vec4 a_fill_color;
+attribute float a_edge_distance;
 
 #ifdef HATCH
 attribute float a_hatch_pattern;
@@ -13,6 +14,7 @@ attribute vec4 a_hatch_color;
 uniform vec2 u_canvas_size;
 
 varying vec4 v_fill_color;
+varying float v_edge_distance;
 
 #ifdef HATCH
 varying float v_hatch_pattern;
@@ -25,6 +27,7 @@ varying vec2 v_hatch_coords;
 void main()
 {
   v_fill_color = a_fill_color;
+  v_edge_distance = a_edge_distance;
 
 #ifdef HATCH
   v_hatch_pattern = a_hatch_pattern;

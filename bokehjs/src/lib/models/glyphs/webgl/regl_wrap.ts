@@ -534,10 +534,14 @@ function regl_polygon(regl: Regl): ReglRenderFunction<t.PolygonGlyphProps> {
       a_fill_color(_, props) {
         return props.fill_color.to_per_vertex_config()
       },
+      a_edge_distance(_, props) {
+        return props.edge_distance.to_per_vertex_config()
+      },
     },
 
     uniforms: {
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
     },
 
     elements: regl.prop<Props, "elements">("elements"),
@@ -585,6 +589,9 @@ ${polygon_fragment_shader}
       },
       a_fill_color(_, props) {
         return props.fill_color.to_per_vertex_config()
+      },
+      a_edge_distance(_, props) {
+        return props.edge_distance.to_per_vertex_config()
       },
       a_hatch_pattern(_, props) {
         return props.hatch_pattern.to_per_vertex_config()

@@ -9,15 +9,19 @@ describe("Patch glyph", () => {
 
       p.patch([1, 2, 3, 2.5, 0.5], [1, 0.5, 1, 2.5, 2.5], {
         fill_color: "skyblue",
-        line_color: "navy",
-        line_width: 2,
+        line_width: 0,
       })
 
       p.patch([4, 6, 7, 6.5, 5, 3.5], [1, 0.5, 2, 3, 3.5, 2], {
         fill_color: "salmon",
-        line_color: "firebrick",
-        line_width: 2,
+        line_width: 0,
         fill_alpha: 0.7,
+      })
+
+      // Fill-only polygon (no outline) to verify edge anti-aliasing
+      p.patch([1.5, 3.5, 5, 4, 2], [4, 3.5, 4, 6, 6], {
+        fill_color: "mediumpurple",
+        line_width: 0,
       })
 
       return p

@@ -9,13 +9,14 @@ import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
 import {resolve_line_dash} from "core/visuals/line"
-import {split_rings, build_line_from_ring} from "core/util/polygon"
-import type {RingLineData} from "core/util/polygon"
+import {split_rings, classify_rings, build_line_from_ring, generate_skirt_geometry, POLYGON_AA_WIDTH} from "core/util/polygon"
+import type {SkirtGeometry, RingLineData} from "core/util/polygon"
 import earcut from "earcut"
 
 export class PatchGL extends BaseGLGlyph {
   // Fill buffers
   private _positions?: Float32Buffer
+  private _edge_distance?: Float32Buffer
   _elements: Elements | null = null
 
   // Per-vertex visual buffers for polygon fill (divisor 0)
@@ -108,14 +109,15 @@ export class PatchGL extends BaseGLGlyph {
             canvas_size,
             positions: main_gl._positions!,
             fill_color: this._pv_fill_color,
+            edge_distance: main_gl._edge_distance!,
             elements: main_gl._elements,
             count: main_gl._triangle_count * 3,
             offset: 0,
+            antialias: POLYGON_AA_WIDTH / transform.pixel_ratio,
             hatch_pattern: this._pv_hatch_patterns,
             hatch_scale: this._pv_hatch_scales,
             hatch_weight: this._pv_hatch_weights,
             hatch_color: this._pv_hatch_rgba,
-            antialias: 1.5 / transform.pixel_ratio,
           })
         } else {
           this.regl_wrapper.polygon()({
@@ -124,9 +126,11 @@ export class PatchGL extends BaseGLGlyph {
             canvas_size,
             positions: main_gl._positions!,
             fill_color: this._pv_fill_color,
+            edge_distance: main_gl._edge_distance!,
             elements: main_gl._elements,
             count: main_gl._triangle_count * 3,
             offset: 0,
+            antialias: POLYGON_AA_WIDTH / transform.pixel_ratio,
           })
         }
       }
@@ -217,32 +221,73 @@ export class PatchGL extends BaseGLGlyph {
     const rings = split_rings(sx, sy)
 
     if (rings.length > 0) {
-      // Build flat coords and hole indices for earcut
-      const flat_coords: number[] = []
-      const hole_indices: number[] = []
+      // Classify rings into groups (outer+holes vs disjoint parts)
+      const groups = classify_rings(rings)
 
-      for (let r = 0; r < rings.length; r++) {
-        if (r > 0) {
-          hole_indices.push(flat_coords.length / 2)
+      let total_nvertices = 0
+      let total_ntriangles = 0
+      let total_coords = 0
+      let total_elements = 0
+
+      // Triangulate each group independently
+      const group_geoms: SkirtGeometry[] = []
+      for (const group of groups) {
+        const {flat_coords, rings: group_rings} = group
+        const hole_indices: number[] = []
+        let offset = 0
+        for (let r = 0; r < group_rings.length; r++) {
+          if (r > 0) {
+            hole_indices.push(offset)
+          }
+          offset += group_rings[r].length / 2
         }
-        for (let j = 0; j < rings[r].length; j++) {
-          flat_coords.push(rings[r][j])
-        }
+
+        const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
+        const geom = generate_skirt_geometry(flat_coords, group_rings, tri_indices, POLYGON_AA_WIDTH)
+
+        group_geoms.push(geom)
+        total_nvertices += geom.nvertices
+        total_ntriangles += geom.ntriangles
+        total_coords += geom.positions.length
+        total_elements += geom.indices.length
       }
 
-      const tri_indices = earcut(flat_coords, hole_indices.length > 0 ? hole_indices : undefined, 2)
-      this._triangle_count = tri_indices.length / 3
-      this._nvertices = flat_coords.length / 2
+      this._triangle_count = total_ntriangles
+      this._nvertices = total_nvertices
 
-      // Create position buffer
+      // Merge all group geometries into single buffers
       if (this._positions == null) {
         this._positions = new Float32Buffer(this.regl_wrapper, 2)
       }
-      const pos_array = this._positions.get_sized_array(flat_coords.length)
-      for (let i = 0; i < flat_coords.length; i++) {
-        pos_array[i] = flat_coords[i]
+      const pos_array = this._positions.get_sized_array(total_coords)
+
+      if (this._edge_distance == null) {
+        this._edge_distance = new Float32Buffer(this.regl_wrapper)
       }
+      const ed_array = this._edge_distance.get_sized_array(total_nvertices)
+
+      const elem_array = new Uint32Array(total_elements)
+      let pos_offset = 0
+      let ed_offset = 0
+      let elem_offset = 0
+      let vertex_offset = 0
+
+      for (const geom of group_geoms) {
+        pos_array.set(geom.positions, pos_offset)
+        pos_offset += geom.positions.length
+
+        ed_array.set(geom.edge_distance, ed_offset)
+        ed_offset += geom.edge_distance.length
+
+        for (let j = 0; j < geom.indices.length; j++) {
+          elem_array[elem_offset + j] = geom.indices[j] + vertex_offset
+        }
+        elem_offset += geom.indices.length
+        vertex_offset += geom.nvertices
+      }
+
       this._positions.update()
+      this._edge_distance.update()
 
       // Create element buffer via regl
       if (this._elements != null) {
@@ -251,11 +296,11 @@ export class PatchGL extends BaseGLGlyph {
       this._elements = this.regl_wrapper.elements({
         usage: "static",
         primitive: "triangles",
-        data: new Uint32Array(tri_indices),
+        data: elem_array,
         type: "uint32",
       })
 
-      // Build line data for all rings (outer boundary + holes)
+      // Build line data for all rings (outer boundary + holes + disjoint)
       this._ring_data = []
       for (const ring of rings) {
         const data = build_line_from_ring(ring)
@@ -267,6 +312,7 @@ export class PatchGL extends BaseGLGlyph {
       this._triangle_count = 0
       this._nvertices = 0
       this._ring_data = []
+      this._edge_distance = undefined
     }
   }
 

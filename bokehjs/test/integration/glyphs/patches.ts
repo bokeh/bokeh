@@ -8,11 +8,11 @@ describe("Patches glyph", () => {
       const p = fig([300, 300], {output_backend, title: output_backend})
 
       p.patches({
-        xs: [[1, 3, 2], [4, 6, 7, 5], [1, 3, 4, 2]],
-        ys: [[1, 1, 3], [1, 0.5, 2.5, 3], [4, 4, 6, 6]],
-        fill_color: ["skyblue", "salmon", "lightgreen"],
-        line_color: ["navy", "firebrick", "darkgreen"],
-        line_width: 2,
+        xs: [[1, 3, 2], [4, 6, 7, 5], [1, 3, 4, 2], [5, 7, 8, 6]],
+        ys: [[1, 1, 3], [1, 0.5, 2.5, 3], [4, 4, 6, 6], [4, 4, 6, 6]],
+        fill_color: ["skyblue", "salmon", "lightgreen", "mediumpurple"],
+        line_color: ["navy", "firebrick", "darkgreen", "mediumpurple"],
+        line_width: [2, 2, 2, 0],
         fill_alpha: 0.7,
       })
 
