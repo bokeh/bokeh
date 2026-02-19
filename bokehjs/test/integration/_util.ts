@@ -1,9 +1,11 @@
 import sinon from "sinon"
 
+import {display as _display} from "../framework"
 export {describe, it, display, fig} from "../framework"
 
 import {Matrix} from "@bokehjs/core/util/matrix"
 import type {UIElement} from "@bokehjs/models/ui/ui_element"
+import type {OutputBackend} from "@bokehjs/core/enums"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
 import {delay} from "@bokehjs/core/util/defer"
@@ -22,6 +24,13 @@ export function row(children: UIElement[], opts?: Partial<Row.Attrs>): Row {
 
 export function column(children: UIElement[], opts?: Partial<Column.Attrs>): Column {
   return new Column({...opts, children})
+}
+
+export async function cross_display(
+  make_plot: (output_backend: OutputBackend) => UIElement,
+  backends: [OutputBackend, OutputBackend] = ["canvas", "webgl"],
+): Promise<void> {
+  await _display(new Row({children: backends.map((b) => make_plot(b))}))
 }
 
 export class DelayedInternalProvider extends MathJaxProvider {

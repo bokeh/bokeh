@@ -10,7 +10,7 @@ import {Bar, Presets} from "cli-progress"
 
 import type {Box, State} from "./baselines"
 import {create_baseline, diff_baseline, load_baselines} from "./baselines"
-import {diff_image} from "./image"
+import {diff_image, crop_image, cross_compare_images} from "./image"
 import {platform} from "./sys"
 
 const MAX_INT32 = 2147483647
@@ -121,7 +121,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean}
+type Test = {description: string, skip: boolean, omit?: boolean, threshold?: number, retries?: number, dpr?: number, scale?: number, no_image?: boolean, cross_compare?: boolean, cross_threshold?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -714,6 +714,84 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                         }
                       })()
                     }
+                  }
+
+                  if (test.cross_compare ?? false) {
+                    await (async () => {
+                      const {bbox} = result
+                      if (bbox == null) {
+                        return
+                      }
+
+                      // Use the later (stable) state for accurate child bboxes,
+                      // falling back to the early state from the test result.
+                      let state = result.state
+                      const later_output = await evaluate<State | null>(`Tests.get_state(${seq})`)
+                      if (later_output instanceof Value && later_output.value != null) {
+                        state = later_output.value
+                      }
+                      if (state == null) {
+                        return
+                      }
+
+                      // Capture a screenshot if one wasn't already taken (e.g. no baselines_root)
+                      let image = status.image
+                      if (image == null) {
+                        const screenshot_data = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                        image = Buffer.from(screenshot_data.data, "base64")
+                      }
+
+                      if (state.children != null && state.children.length >= 2) {
+                        const child_bboxes = state.children
+                          .filter((c) => c.bbox != null)
+                          .map((c) => c.bbox!)
+
+                        if (child_bboxes.length >= 2) {
+                          const cross_result = cross_compare_images(
+                            image,
+                            child_bboxes[0],
+                            child_bboxes[1],
+                          )
+
+                          // Always write diagnostic images to disk for inspection
+                          const cross_dir = path.join("test", "cross_results", platform)
+                          await fs.promises.mkdir(cross_dir, {recursive: true})
+
+                          // Build a standardized filename from the test description hierarchy.
+                          // e.g. ["Cross-backend comparison", "Circle", "circle with line dashing"]
+                          //   -> "Comparison_Circle_with_line_dashing"
+                          // NOTE: assumes cross_display() uses ["canvas", "webgl"] order (the default)
+                          const parts = description(suites, test, "\x00").split("\x00")
+                          const cross_name = encode(
+                            parts
+                              .map((p) => p.replace(/^Cross-backend comparison$/i, "Comparison").replace(/^all /i, ""))
+                              .filter((p) => p.length > 0)
+                              .join("_"),
+                          )
+                          const backend_names = ["canvas", "webgl"]
+                          await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_${backend_names[0]}.png`), crop_image(image, child_bboxes[0]))
+                          await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_${backend_names[1]}.png`), crop_image(image, child_bboxes[1]))
+                          if (cross_result != null) {
+                            await fs.promises.writeFile(path.join(cross_dir, `${cross_name}_diff.png`), cross_result.diff)
+                          }
+
+                          if (cross_result != null) {
+                            const {pixels, percent, avg_distance, max_distance} = cross_result
+                            const cross_threshold = test.cross_threshold ?? 0
+                            if (pixels > cross_threshold) {
+                              status.failure = true
+                              status.image_diff = cross_result.diff
+                              status.errors.push(
+                                `cross-backend diff: ${pixels}px (${percent.toFixed(2)}%) avg_dist=${avg_distance.toFixed(4)} max_dist=${max_distance.toFixed(4)} threshold=${cross_threshold}`,
+                              )
+                              status.errors.push(
+                                `  see: ${cross_dir}/${cross_name}_*.png`,
+                              )
+                            }
+                          }
+                        }
+                      }
+                    })()
                   }
                 }
               } finally {

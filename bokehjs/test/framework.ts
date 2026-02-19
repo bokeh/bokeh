@@ -48,6 +48,8 @@ export type Test = {
   dpr?: number
   scale?: number
   no_image?: boolean
+  cross_compare?: boolean
+  cross_threshold?: number
 }
 
 export type Suite = {
@@ -79,6 +81,7 @@ type _It = ItFn & {
   dpr: (dpr: number) => ItFn
   scale: (scale: number) => ItFn
   no_image: ItFn
+  cross: (threshold?: number) => ItFn
 }
 
 function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
@@ -129,6 +132,15 @@ export function no_image(description: string, fn: ItFunc | ItAsyncFunc): Test {
   return _it(description, fn, false, true)
 }
 
+export function cross(threshold: number = 0): ItFn {
+  return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
+    const test = it(description, fn)
+    test.cross_compare = true
+    test.cross_threshold = threshold
+    return test
+  }
+}
+
 export const it: _It = ((description: string, fn: ItFunc | ItAsyncFunc): Test => {
   return _it(description, fn, false)
 }) as _It
@@ -137,6 +149,7 @@ it.allowing = allowing
 it.dpr = dpr
 it.scale = scale
 it.no_image = no_image
+it.cross = cross
 
 export function before_each(fn: Func | AsyncFunc): void {
   stack[0].before_each.push({fn})

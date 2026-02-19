@@ -4,6 +4,7 @@
 .package.json
 /test/baselines/*/report.json
 /test/baselines/*/report.out
+/test/cross_results/
 !/test/baselines/*/*.png
 !*.html
 !*.png
