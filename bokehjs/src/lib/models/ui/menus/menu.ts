@@ -12,6 +12,7 @@ import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
+import {i18n} from "core/i18n"
 
 import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
@@ -132,20 +133,15 @@ export class MenuView extends UIElementView {
     return [...super.stylesheets(), menus_css, icons_css]
   }
 
-  override render(): void {
-    super.render()
-
-    const items = this.menu_items
+  async _render_items(items: MenuItemLike[]): Promise<void> {
     const entries: {item: MenuItem, el: HTMLElement}[] = []
-
-    if (items.length == 0) {
-      return
-    }
 
     for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
-        const label_el = div({class: menus.label}, item.label)
+        const label_text = this.model.translate_text? await i18n.t(item.label) : item.label
+        const title_text = this.model.translate_text? await i18n.t(item.tooltip ?? "") : item.label
+        const label_el = div({class: menus.label}, label_text)
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
 
@@ -161,7 +157,7 @@ export class MenuView extends UIElementView {
         })()
 
         const item_el = div(
-          {class: menus.item, title: item.tooltip, tabIndex: 0},
+          {class: menus.item, title: title_text, tabIndex: 0},
           check_el, icon_el, label_el, shortcut_el, chevron_el,
         )
 
@@ -239,6 +235,18 @@ export class MenuView extends UIElementView {
     }
   }
 
+  override render(): void {
+    super.render()
+
+    const items = this.menu_items
+
+    if (items.length == 0) {
+      return
+    }
+
+    this._render_items(items)
+  }
+
   protected _show_submenu(target: HTMLElement): void {
     if (this.is_empty) {
       this.hide()
@@ -290,6 +298,7 @@ export namespace Menu {
   export type Props = UIElement.Props & {
     items: p.Property<MenuItemLike[]>
     reversed: p.Property<boolean>
+    translate_text: p.Property<boolean>
   }
 }
 
@@ -309,6 +318,7 @@ export class Menu extends UIElement {
     this.define<Menu.Props>(({Bool, List}) => ({
       items: [ List(MenuItemLike), [] ],
       reversed: [ Bool, false ],
+      translate_text: [ Bool, true ],
     }))
   }
 }

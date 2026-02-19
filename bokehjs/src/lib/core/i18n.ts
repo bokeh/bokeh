@@ -5,6 +5,7 @@
 // For the moment, to explore LanguageDropdown, basic mock implementation created here that also explores the Chrome Translator API
 import type {PlainObject} from "./types"
 import {isString} from "./util/types"
+import {documents} from "../document"
 
 export class I18n {
   _locales_codes: string[]
@@ -12,40 +13,58 @@ export class I18n {
   _languages: [string, string][]
   _source_language: string
   _translator: Translator | undefined
+  _auto_t_enabled: boolean
 
-  constructor(locales_codes: string[], translations: string, languages: [string, string][], source_language: string) {
+  constructor(locales_codes: string[], translations: string, languages: [string, string][], source_language: string, auto_t_enabled: boolean) {
     this._locales_codes = locales_codes
     this._translations = JSON.parse(translations)
     this._languages = languages
     this._source_language = source_language
+    this._auto_t_enabled = auto_t_enabled
+  }
+
+  supported_languages(): [string, string][] {
+    return this._languages
   }
 
   get_locale(): string {
     const default_locale = this._locales_codes.includes(navigator.language)? navigator.language: this._source_language
-    const lang = localStorage.getItem("lang")
-    return isString(lang)? lang: default_locale
+    const current_locale = localStorage.getItem("lang")
+    if (!isString(current_locale)) {
+      localStorage.setItem("lang", default_locale)
+    }
+    return current_locale || default_locale
   }
 
   async set_locale(locale: string): Promise<void> {
     if (this._locales_codes.includes(locale)) {
+      document.documentElement.setAttribute("lang", locale)
       if (localStorage.getItem("lang") !== locale) {
-        document.documentElement.setAttribute("lang", locale)
         localStorage.setItem("lang", locale)
-        const translator_availability = await this.init_translator()
+        const translator_availability = await this._init_translator()
         const download_translator = ["downloadable", "downloading"]
         if (!download_translator.includes(translator_availability)) {
-          // TODO: trigger some sort of event to rerender things?
-          window.location.reload()
+          this._refresh()
         }
       } else if (typeof this._translator === "undefined") {
-        await this.init_translator()
+        await this._init_translator()
       }
     } else {
       throw new Error("I18n.set_locale() expects a locale string available")
     }
   }
 
-  async init_translator(): Promise<string> {
+  async t(key: string): Promise<string> {
+    // TODO: Expose args to allow for interpolation, formatting, nesting, plurals, etc
+    // (maybe by using i18next instead of vanilla implementation over `_t`)
+    if (this._auto_t_enabled){
+      return await this._auto_t(key)
+    } else {
+      return this._t(key)
+    }
+  }
+
+  protected async _init_translator(): Promise<string> {
     let availability = "unavailable"
     // Based on https://developer.mozilla.org/en-US/docs/Web/API/Translator_and_Language_Detector_APIs/Using#complete_example
     if (typeof Translator !== "undefined") {
@@ -65,28 +84,28 @@ export class I18n {
           monitor(monitor: CreateMonitor) {
             monitor.addEventListener("downloadprogress", (e: ProgressEvent) => {
               const progress = Math.floor(e.loaded * 100)
-              if (progress === 100) {
-                // TODO: trigger some sort of event to rerender things?
-                window.location.reload()
-              }
+              console.info(`Downloading ${localStorage.getItem("lang")} - ${progress}`)
             })
           },
         })
+        this._refresh()
+      } else if (availability === "unavailable"){
+        this._translator = undefined
       }
     }
 
     return availability
   }
 
-  async auto_t(key: string): Promise<string> {
-    let translation = this.t(key)
+  protected async _auto_t(key: string): Promise<string> {
+    let translation = this._t(key)
     if (typeof this._translator !== "undefined" && translation === key) {
       translation = await this._translator.translate(key)
     }
     return translation
   }
 
-  t(key: string): string {
+  protected _t(key: string): string {
     const locale_translation = this._translations[this.get_locale()]
     return key.split(".").reduce(
       (current_level, current_key) => current_level?.[current_key],
@@ -94,8 +113,12 @@ export class I18n {
     ) || key
   }
 
-  supported_languages(): [string, string][] {
-    return this._languages
+  protected _refresh(): void {
+    // TODO: There should be a better way to trigger some sort of event to rerender things (i.e labels)
+    for (const model of documents[0].all_models){
+      model.properties.label?.change.emit()
+      model.properties.items?.change.emit()
+    }
   }
 }
 
@@ -124,6 +147,7 @@ export const i18n = new I18n(
     ["Português (BR)", "pt-BR"],
   ],
   "en",
+  true,
 )
 
 // Translator and LanguageDetector API typing

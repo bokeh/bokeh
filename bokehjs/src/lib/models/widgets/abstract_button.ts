@@ -41,7 +41,7 @@ export abstract class AbstractButtonView extends ControlView {
     this.label_view?.remove()
     const label = await (async () => {
       const {label} = this.model
-      return isString(label) ? new Text({content: await i18n.auto_t(label)}) : label
+      return isString(label) ? new Text({content: await i18n.t(label)}) : label
     })()
     this.label_view = await this.owner.build_view(label, this)
   }

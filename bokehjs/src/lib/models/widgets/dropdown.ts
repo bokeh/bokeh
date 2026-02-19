@@ -18,6 +18,7 @@ export class DropdownView extends AbstractButtonView {
 
   protected _open: boolean = false
   protected menu: MenuView
+  protected translate_text: boolean = true
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), dropdown_css, carets_css]
@@ -97,6 +98,7 @@ export class DropdownView extends AbstractButtonView {
   }
 
   to_menu(): Menu {
+    const {translate_text} = this
     const items = this.model.menu.map((item, i) => {
       if (item == null) {
         return new DividerItem()
@@ -109,7 +111,7 @@ export class DropdownView extends AbstractButtonView {
         return menu_item
       }
     })
-    return new Menu({items})
+    return new Menu({items, translate_text})
   }
 }
 

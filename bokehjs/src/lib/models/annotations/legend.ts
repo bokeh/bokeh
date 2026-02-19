@@ -25,6 +25,7 @@ import {Padding, BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
+import {i18n} from "core/i18n"
 
 const {ceil} = Math
 
@@ -160,7 +161,7 @@ export class LegendView extends AnnotationView {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
-  protected _render_items(): void {
+  protected async _render_items(): Promise<void> {
     this.entries = []
 
     const {click_policy} = this
@@ -174,7 +175,7 @@ export class LegendView extends AnnotationView {
         glyph.el.classList.add(legend_css.glyph)
 
         const glyph_el = glyph.canvas
-        const label_el = div({class: legend_css.label}, `${label}`)
+        const label_el = div({class: legend_css.label}, await i18n.t(`${label}`))
         const overlay_el = div({class: legend_css.overlay})
         const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
         item_el.classList.toggle(legend_css.hidden, !item.visible)
