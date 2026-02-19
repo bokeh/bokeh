@@ -5,6 +5,7 @@
 /test/devtools/_build
 /test/baselines/*/report.json
 /test/baselines/*/report.out
+/test/cross_backend/results/
 !/test/baselines/*/*.png
 !*.html
 !*.png
