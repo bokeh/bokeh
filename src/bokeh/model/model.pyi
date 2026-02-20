@@ -11,6 +11,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterable,
+    TypeAlias,
     TypedDict,
 )
 
@@ -26,16 +27,16 @@ from ..core.types import ID
 from ..document import Document
 from ..document.events import DocumentPatchedEvent
 from ..events import Event
-from ..models.callbacks import (
-    Callback as JSEventCallback,
-    CustomCode as JSChangeCallback,
-)
+from ..models.callbacks import Callback, CustomCode
 from ..util.callback_manager import (
     EventCallbackManager,
     PropertyCallback,
     PropertyCallbackManager,
 )
 from .util import HasDocumentRef
+
+JSEventCallback: TypeAlias = Callback
+JSChangeCallback: TypeAlias = CustomCode
 
 class _ModelInit(TypedDict, total=False):
     name: str | None
