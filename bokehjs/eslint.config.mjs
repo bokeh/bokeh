@@ -124,6 +124,7 @@ export default defineConfig({
       }],
       "@typescript-eslint/no-empty-object-type": ["error", {
         allowInterfaces: "with-single-extends",
+        allowWithName: "^.*$",
       }],
       "@typescript-eslint/no-floating-promises": ["error", {ignoreVoid: true}],
       "@typescript-eslint/no-restricted-types": ["error", {
