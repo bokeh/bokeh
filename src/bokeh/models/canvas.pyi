@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 from ..core.enums import OutputBackendType as OutputBackend
 from .ui.ui_element import UIElement, _UIElementInit
 
-class _CanvasInit(_UIElementInit, total=False):
-    hidpi: bool
-    output_backend: OutputBackend
+# class _CanvasInit(_UIElementInit, total=False):
+#     hidpi: bool
+#     output_backend: OutputBackend
 
 class Canvas(UIElement):
     def __init__(self, **kwargs: Unpack[_CanvasInit]) -> None: ...

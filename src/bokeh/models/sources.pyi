@@ -43,8 +43,8 @@ Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
 Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Any]]]
 
-class _DataSourceInit(_ModelInit, total=False):
-    selected: Selection
+# class _DataSourceInit(_ModelInit, total=False):
+#     selected: Selection
 
 class DataSource(Model):
     @abstractmethod
@@ -52,9 +52,9 @@ class DataSource(Model):
 
     selected: Selection = ...
 
-class _ColumnarDataSourceInit(_DataSourceInit, total=False):
-    default_values: dict[str, Any]
-    selection_policy: SelectionPolicy
+# class _ColumnarDataSourceInit(_DataSourceInit, total=False):
+#     default_values: dict[str, Any]
+#     selection_policy: SelectionPolicy
 
 class ColumnarDataSource(DataSource):
     @abstractmethod
@@ -63,8 +63,8 @@ class ColumnarDataSource(DataSource):
     default_values: dict[str, Any] = ...
     selection_policy: SelectionPolicy = ...
 
-class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
-    data: DataDictLike
+# class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
+#     data: DataDictLike
 
 class ColumnDataSource(ColumnarDataSource):
     @overload
@@ -99,27 +99,27 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class _CDSViewInit(_ModelInit, total=False):
-    filter: Filter
+# class _CDSViewInit(_ModelInit, total=False):
+#     filter: Filter
 
 class CDSView(Model):
     def __init__(self, **kwargs: Unpack[_CDSViewInit]) -> None: ...
 
     filter: Filter = ...
 
-class _GeoJSONDataSourceInit(_ColumnarDataSourceInit, total=False):
-    geojson: JSON
+# class _GeoJSONDataSourceInit(_ColumnarDataSourceInit, total=False):
+#     geojson: JSON
 
 class GeoJSONDataSource(ColumnarDataSource):
     def __init__(self, **kwargs: Unpack[_GeoJSONDataSourceInit]) -> None: ...
 
     geojson: JSON = ...
 
-class _WebDataSourceInit(_ColumnDataSourceInit, total=False):
-    adapter: CustomJS | None
-    max_size: int | None
-    mode: Literal["replace", "append"]
-    data_url: str
+# class _WebDataSourceInit(_ColumnDataSourceInit, total=False):
+#     adapter: CustomJS | None
+#     max_size: int | None
+#     mode: Literal["replace", "append"]
+#     data_url: str
 
 class WebDataSource(ColumnDataSource):
     @abstractmethod
@@ -130,18 +130,18 @@ class WebDataSource(ColumnDataSource):
     mode: Literal["replace", "append"] = ...
     data_url: str = ...
 
-class _ServerSentDataSourceInit(_WebDataSourceInit, total=False):
-    ...
+# class _ServerSentDataSourceInit(_WebDataSourceInit, total=False):
+#     ...
 
 class ServerSentDataSource(WebDataSource):
     def __init__(self, **kwargs: Unpack[_ServerSentDataSourceInit]) -> None: ...
 
-class _AjaxDataSourceInit(_WebDataSourceInit, total=False):
-    polling_interval: int | None
-    method: Literal["POST", "GET"]
-    if_modified: bool
-    content_type: str
-    http_headers: dict[str, str]
+# class _AjaxDataSourceInit(_WebDataSourceInit, total=False):
+#     polling_interval: int | None
+#     method: Literal["POST", "GET"]
+#     if_modified: bool
+#     content_type: str
+#     http_headers: dict[str, str]
 
 class AjaxDataSource(WebDataSource):
     def __init__(self, **kwargs: Unpack[_AjaxDataSourceInit]) -> None: ...

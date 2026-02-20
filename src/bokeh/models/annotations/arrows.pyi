@@ -28,8 +28,8 @@ from ...core.property_mixins import (
 from ..graphics import Marking, _MarkingInit
 from .annotation import DataAnnotation, _DataAnnotationInit
 
-class _ArrowHeadInit(_MarkingInit, total=False):
-    size: NumberSpec
+# class _ArrowHeadInit(_MarkingInit, total=False):
+#     size: NumberSpec
 
 class ArrowHead(Marking):
     @abstractmethod
@@ -37,39 +37,39 @@ class ArrowHead(Marking):
 
     size: NumberSpec = ...
 
-class _OpenHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
-    ...
+# class _OpenHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
+#     ...
 
 class OpenHead(ArrowHead, LineProps):
     ...
 
-class _NormalHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
-    ...
+# class _NormalHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+#     ...
 
 class NormalHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
-class _TeeHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
-    ...
+# class _TeeHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
+#     ...
 
 class TeeHead(ArrowHead, LineProps):
     ...
 
-class _VeeHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
-    ...
+# class _VeeHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+#     ...
 
 class VeeHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
-class _ArrowInit(_DataAnnotationInit, _BodyLinePropsInit, total=False):
-    x_start: NumberSpec
-    y_start: NumberSpec
-    start_units: CoordinateUnits
-    start: ArrowHead | None
-    x_end: NumberSpec
-    y_end: NumberSpec
-    end_units: CoordinateUnits
-    end: ArrowHead | None
+# class _ArrowInit(_DataAnnotationInit, _BodyLinePropsInit, total=False):
+#     x_start: NumberSpec
+#     y_start: NumberSpec
+#     start_units: CoordinateUnits
+#     start: ArrowHead | None
+#     x_end: NumberSpec
+#     y_end: NumberSpec
+#     end_units: CoordinateUnits
+#     end: ArrowHead | None
 
 class Arrow(DataAnnotation, BodyLineProps):
 

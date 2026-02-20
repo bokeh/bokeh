@@ -15,16 +15,16 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..model.model import Model, _ModelInit
 
-class _ComparisonInit(_ModelInit, total=False):
-    ...
+# class _ComparisonInit(_ModelInit, total=False):
+#     ...
 
 class Comparison(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ComparisonInit]) -> None: ...
 
-class _CustomJSCompareInit(_ComparisonInit, total=False):
-    args: dict[str, Any]
-    code: str
+# class _CustomJSCompareInit(_ComparisonInit, total=False):
+#     args: dict[str, Any]
+#     code: str
 
 class CustomJSCompare(Comparison):
     def __init__(self, **kwargs: Unpack[_CustomJSCompareInit]) -> None: ...
@@ -32,8 +32,8 @@ class CustomJSCompare(Comparison):
     args: dict[str, Any] = ...
     code: str = ...
 
-class _NanCompareInit(_ComparisonInit, total=False):
-    ascending_first: bool
+# class _NanCompareInit(_ComparisonInit, total=False):
+#     ascending_first: bool
 
 class NanCompare(Comparison):
     def __init__(self, **kwargs: Unpack[_NanCompareInit]) -> None: ...

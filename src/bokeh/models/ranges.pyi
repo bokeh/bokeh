@@ -40,16 +40,16 @@ L3Factor: TypeAlias = tuple[str, str, str]
 Factor: TypeAlias = L1Factor | L2Factor | L3Factor
 FactorSeq: TypeAlias = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
 
-class _RangeInit(_ModelInit, total=False):
-    ...
+# class _RangeInit(_ModelInit, total=False):
+#     ...
 
 class Range(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_RangeInit]) -> None: ...
 
-class _NumericalRangeInit(_RangeInit, total=False):
-    start: Value
-    end: Value
+# class _NumericalRangeInit(_RangeInit, total=False):
+#     start: Value
+#     end: Value
 
 class NumericalRange(Range):
     @abstractmethod
@@ -58,12 +58,12 @@ class NumericalRange(Range):
     start: Value = ...
     end: Value = ...
 
-class _Range1dInit(_NumericalRangeInit, total=False):
-    reset_start: Value | None
-    reset_end: Value | None
-    bounds: MinMaxBounds | None
-    min_interval: Interval | None
-    max_interval: Interval | None
+# class _Range1dInit(_NumericalRangeInit, total=False):
+#     reset_start: Value | None
+#     reset_end: Value | None
+#     bounds: MinMaxBounds | None
+#     min_interval: Interval | None
+#     max_interval: Interval | None
 
 class Range1d(NumericalRange):
     @overload
@@ -77,8 +77,8 @@ class Range1d(NumericalRange):
     min_interval: Interval | None = ...
     max_interval: Interval | None = ...
 
-class _DataRangeInit(_NumericalRangeInit, total=False):
-    renderers: list[Model] | Auto | None
+# class _DataRangeInit(_NumericalRangeInit, total=False):
+#     renderers: list[Model] | Auto | None
 
 class DataRange(NumericalRange):
     @abstractmethod
@@ -86,17 +86,17 @@ class DataRange(NumericalRange):
 
     renderers: list[Model] | Auto | None = ...
 
-class _DataRange1dInit(_DataRangeInit, total=False):
-    range_padding: Interval
-    range_padding_units: PaddingUnits
-    bounds: MinMaxBounds | None
-    min_interval: Interval | None
-    max_interval: Interval | None
-    flipped: bool
-    follow: StartEnd | None
-    follow_interval: Interval | None
-    default_span: Interval
-    only_visible: bool
+# class _DataRange1dInit(_DataRangeInit, total=False):
+#     range_padding: Interval
+#     range_padding_units: PaddingUnits
+#     bounds: MinMaxBounds | None
+#     min_interval: Interval | None
+#     max_interval: Interval | None
+#     flipped: bool
+#     follow: StartEnd | None
+#     follow_interval: Interval | None
+#     default_span: Interval
+#     only_visible: bool
 
 class DataRange1d(DataRange):
     def __init__(self, **kwargs: Unpack[_DataRange1dInit]) -> None: ...
@@ -112,16 +112,16 @@ class DataRange1d(DataRange):
     default_span: Interval = ...
     only_visible: bool = ...
 
-class _FactorRangeInit(_RangeInit, total=False):
-    factors: FactorSeq
-    factor_padding: float
-    subgroup_padding: float
-    group_padding: float
-    range_padding: float
-    range_padding_units: PaddingUnits
-    bounds: MinMaxInterval | None
-    min_interval: float | None
-    max_interval: float | None
+# class _FactorRangeInit(_RangeInit, total=False):
+#     factors: FactorSeq
+#     factor_padding: float
+#     subgroup_padding: float
+#     group_padding: float
+#     range_padding: float
+#     range_padding_units: PaddingUnits
+#     bounds: MinMaxInterval | None
+#     min_interval: float | None
+#     max_interval: float | None
 
 class FactorRange(Range):
     @overload

@@ -16,23 +16,23 @@ if TYPE_CHECKING:
 from ...core.enums import OrientationType as Orientation
 from .widget import Widget, _WidgetInit
 
-class _IndicatorInit(_WidgetInit, total=False):
-    ...
+# class _IndicatorInit(_WidgetInit, total=False):
+#     ...
 
 class Indicator(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_IndicatorInit]) -> None: ...
 
-class _ProgressInit(_IndicatorInit, total=False):
-    mode: Literal["determinate", "indeterminate"]
-    value: int
-    min: int
-    max: int
-    reversed: bool
-    orientation: Orientation
-    label: str | None
-    label_location: Literal["none", "inline"]
-    description: str | None
+# class _ProgressInit(_IndicatorInit, total=False):
+#     mode: Literal["determinate", "indeterminate"]
+#     value: int
+#     min: int
+#     max: int
+#     reversed: bool
+#     orientation: Orientation
+#     label: str | None
+#     label_location: Literal["none", "inline"]
+#     description: str | None
 
 class Progress(Indicator):
     def __init__(self, **kwargs: Unpack[_ProgressInit]) -> None: ...
