@@ -133,14 +133,19 @@ export class MenuView extends UIElementView {
     return [...super.stylesheets(), menus_css, icons_css]
   }
 
-  async _render_items(items: MenuItemLike[]): Promise<void> {
+  async _render_items(): Promise<void> {
+    const items = this.menu_items
     const entries: {item: MenuItem, el: HTMLElement}[] = []
+
+    if (items.length == 0) {
+      return
+    }
 
     for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
         const label_text = this.model.translate_text? await i18n.t(item.label) : item.label
-        const title_text = this.model.translate_text? await i18n.t(item.tooltip ?? "") : item.label
+        const title_text = this.model.translate_text? await i18n.t(item.tooltip ?? "") : item.tooltip
         const label_el = div({class: menus.label}, label_text)
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
@@ -237,14 +242,8 @@ export class MenuView extends UIElementView {
 
   override render(): void {
     super.render()
-
-    const items = this.menu_items
-
-    if (items.length == 0) {
-      return
-    }
-
-    this._render_items(items)
+    // TODO: Check a way to better handle this
+    void this._render_items()
   }
 
   protected _show_submenu(target: HTMLElement): void {

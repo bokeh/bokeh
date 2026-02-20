@@ -29,11 +29,12 @@ export class I18n {
 
   get_locale(): string {
     const default_locale = this._locales_codes.includes(navigator.language)? navigator.language: this._source_language
-    const current_locale = localStorage.getItem("lang")
+    let current_locale = localStorage.getItem("lang")
     if (!isString(current_locale)) {
       localStorage.setItem("lang", default_locale)
+      current_locale = default_locale
     }
-    return current_locale || default_locale
+    return current_locale
   }
 
   async set_locale(locale: string): Promise<void> {
@@ -57,7 +58,7 @@ export class I18n {
   async t(key: string): Promise<string> {
     // TODO: Expose args to allow for interpolation, formatting, nesting, plurals, etc
     // (maybe by using i18next instead of vanilla implementation over `_t`)
-    if (this._auto_t_enabled){
+    if (this._auto_t_enabled) {
       return await this._auto_t(key)
     } else {
       return this._t(key)
@@ -89,7 +90,7 @@ export class I18n {
           },
         })
         this._refresh()
-      } else if (availability === "unavailable"){
+      } else if (availability === "unavailable") {
         this._translator = undefined
       }
     }
@@ -114,10 +115,14 @@ export class I18n {
   }
 
   protected _refresh(): void {
-    // TODO: There should be a better way to trigger some sort of event to rerender things (i.e labels)
-    for (const model of documents[0].all_models){
-      model.properties.label?.change.emit()
-      model.properties.items?.change.emit()
+    // TODO: There should be a better way to trigger some sort of event to rerender things (e.g labels)
+    for (const model of documents[0].all_models) {
+      const properties = ["label", "items", "tooltip", "title"]
+      for (const property of properties) {
+        if (property in model.properties) {
+          model.properties[property].change.emit()
+        }
+      }
     }
   }
 }
