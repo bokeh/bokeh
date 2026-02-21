@@ -17,22 +17,22 @@ from ..dom import DOMNode
 from ..nodes import Node
 from .ui_element import UIElement, _UIElementInit
 
-# class _DialogInit(_UIElementInit, total=False):
-#     title: str | DOMNode | UIElement | None
-#     content: str | DOMNode | UIElement
-#     pinnable: bool
-#     collapsible: bool
-#     minimizable: bool
-#     maximizable: bool
-#     closable: bool
-#     close_action: Literal["hide", "destroy"]
-#     resizable: Resizable
-#     movable: Movable
-#     symmetric: bool
-#     top_limit: Node | None
-#     bottom_limit: Node | None
-#     left_limit: Node | None
-#     right_limit: Node | None
+class _DialogInit(_UIElementInit, total=False):
+    title: str | DOMNode | UIElement | None
+    content: str | DOMNode | UIElement
+    pinnable: bool
+    collapsible: bool
+    minimizable: bool
+    maximizable: bool
+    closable: bool
+    close_action: Literal["hide", "destroy"]
+    resizable: Resizable
+    movable: Movable
+    symmetric: bool
+    top_limit: Node | None
+    bottom_limit: Node | None
+    left_limit: Node | None
+    right_limit: Node | None
 
 class Dialog(UIElement):
     def __init__(self, **kwargs: Unpack[_DialogInit]) -> None: ...

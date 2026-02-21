@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 from ...tools import Toolbar
 from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
 
-# class _ToolbarPanelInit(_HTMLAnnotationInit, total=False):
-#     toolbar: Toolbar
+class _ToolbarPanelInit(_HTMLAnnotationInit, total=False):
+    toolbar: Toolbar
 
 class ToolbarPanel(HTMLAnnotation):
     def __init__(self, **kwargs: Unpack[_ToolbarPanelInit]) -> None: ...

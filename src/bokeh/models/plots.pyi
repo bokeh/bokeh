@@ -79,49 +79,49 @@ class LegendListAttrSplat(list[Legend], Legend):
 class HoverListAttrSplat(list[HoverTool], HoverTool):
     pass
 
-# class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
-#     x_range: Range
-#     y_range: Range
-#     x_scale: Scale
-#     y_scale: Scale
-#     extra_x_ranges: dict[str, Range]
-#     extra_y_ranges: dict[str, Range]
-#     extra_x_scales: dict[str, Scale]
-#     extra_y_scales: dict[str, Scale]
-#     window_axis: WindowAxis
-#     hidpi: bool
-#     title: Title | str | None
-#     title_location: Location | None
-#     renderers: list[Renderer]
-#     toolbar: Toolbar
-#     toolbar_location: Location | None
-#     toolbar_sticky: bool
-#     toolbar_inner: bool
-#     left: list[Renderer | StyledElement]
-#     right: list[Renderer | StyledElement]
-#     above: list[Renderer | StyledElement]
-#     below: list[Renderer | StyledElement]
-#     center: list[Renderer | StyledElement]
-#     #width: int | None
-#     #height: int | None
-#     frame_width: int | None
-#     frame_height: int | None
-#     frame_align: bool | LRTB[bool]
-#     min_border_top: int | None
-#     min_border_bottom: int | None
-#     min_border_left: int | None
-#     min_border_right: int | None
-#     min_border: int | None
-#     lod_factor: int
-#     lod_threshold: int | None
-#     lod_interval: int
-#     lod_timeout: int
-#     output_backend: OutputBackend
-#     match_aspect: bool
-#     aspect_scale: float
-#     reset_policy: ResetPolicy
-#     hold_render: bool
-#     attribution: list[HTML | str]
+class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
+    x_range: Range
+    y_range: Range
+    x_scale: Scale
+    y_scale: Scale
+    extra_x_ranges: dict[str, Range]
+    extra_y_ranges: dict[str, Range]
+    extra_x_scales: dict[str, Scale]
+    extra_y_scales: dict[str, Scale]
+    window_axis: WindowAxis
+    hidpi: bool
+    title: Title | str | None
+    title_location: Location | None
+    renderers: list[Renderer]
+    toolbar: Toolbar
+    toolbar_location: Location | None
+    toolbar_sticky: bool
+    toolbar_inner: bool
+    left: list[Renderer | StyledElement]
+    right: list[Renderer | StyledElement]
+    above: list[Renderer | StyledElement]
+    below: list[Renderer | StyledElement]
+    center: list[Renderer | StyledElement]
+    frame_width: int | None
+    frame_height: int | None
+    frame_align: bool | LRTB[bool]
+    min_border_top: int | None
+    min_border_bottom: int | None
+    min_border_left: int | None
+    min_border_right: int | None
+    min_border: int | None
+    lod_factor: int
+    lod_threshold: int | None
+    lod_interval: int
+    lod_timeout: int
+    output_backend: OutputBackend
+    match_aspect: bool
+    aspect_scale: float
+    reset_policy: ResetPolicy
+    hold_render: bool
+    attribution: list[HTML | str]
+    #width: int | None
+    #height: int | None
 
 class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, BorderHatch, OutlineLine):
     def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...
@@ -235,10 +235,10 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @contextmanager
     def hold(self, *, render: bool) -> Generator[None, None, None]: ...
 
-# class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
-#     toolbar: Toolbar
-#     toolbar_location: Location | None
-#     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]
+class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
+    toolbar: Toolbar
+    toolbar_location: Location | None
+    children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]
 
 class GridPlot(GridCommon, LayoutDOM):
     def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...

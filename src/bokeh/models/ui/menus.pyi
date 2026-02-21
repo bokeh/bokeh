@@ -18,15 +18,15 @@ from ...model.model import Model, _ModelInit
 from ..callbacks import Callback
 from .ui_element import UIElement, _UIElementInit
 
-# class _MenuItemInit(_ModelInit, total=False):
-#     checked: bool | None
-#     icon: IconLike | None
-#     label: str
-#     shortcut: str | None
-#     menu: Menu | None
-#     tooltip: str | None
-#     disabled: bool
-#     action: Callback | None
+class _MenuItemInit(_ModelInit, total=False):
+    checked: bool | None
+    icon: IconLike | None
+    label: str
+    shortcut: str | None
+    menu: Menu | None
+    tooltip: str | None
+    disabled: bool
+    action: Callback | None
 
 class MenuItem(Model):
     @abstractmethod
@@ -41,27 +41,41 @@ class MenuItem(Model):
     disabled: bool = ...
     action: Callback | None = ...
 
-# class _ActionItemInit(_MenuItemInit, total=False):
-#     ...
+class _ActionItemInit(_ModelInit, total=False):
+    checked: bool | None
+    icon: IconLike | None
+    label: str
+    shortcut: str | None
+    menu: Menu | None
+    tooltip: str | None
+    disabled: bool
+    action: Callback | None
 
 class ActionItem(MenuItem):
     def __init__(self, **kwargs: Unpack[_ActionItemInit]) -> None: ...
 
-# class _CheckableItemInit(_ActionItemInit, total=False):
-#     ...
+class _CheckableItemInit(_ModelInit, total=False):
+    checked: bool | None
+    icon: IconLike | None
+    label: str
+    shortcut: str | None
+    menu: Menu | None
+    tooltip: str | None
+    disabled: bool
+    action: Callback | None
 
 class CheckableItem(ActionItem):
     def __init__(self, **kwargs: Unpack[_CheckableItemInit]) -> None: ...
 
-# class _DividerItemInit(_ModelInit, total=False):
-#     ...
+class _DividerItemInit(_ModelInit, total=False):
+    ...
 
 class DividerItem(Model):
     def __init__(self, **kwargs: Unpack[_DividerItemInit]) -> None: ...
 
-# class _MenuInit(_UIElementInit, total=False):
-#     items: list[MenuItem | DividerItem | None]
-#     reversed: bool
+class _MenuInit(_UIElementInit, total=False):
+    items: list[MenuItem | DividerItem | None]
+    reversed: bool
 
 class Menu(UIElement):
     def __init__(self, **kwargs: Unpack[_MenuInit]) -> None: ...

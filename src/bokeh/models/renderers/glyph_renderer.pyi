@@ -27,15 +27,15 @@ from .renderer import DataRenderer, _DataRendererInit
 
 GlyphType = TypeVar("GlyphType", bound=Glyph)
 
-# class _GlyphRendererInit(_DataRendererInit, Generic[GlyphType], total=False):
-#     data_source: DataSource
-#     view: CDSView
-#     glyph: GlyphType
-#     selection_glyph: Auto | GlyphType | None
-#     nonselection_glyph: Auto | GlyphType | None
-#     hover_glyph: GlyphType | None
-#     muted_glyph: Auto | GlyphType | None
-#     muted: bool
+class _GlyphRendererInit(_DataRendererInit, Generic[GlyphType], total=False):
+    data_source: DataSource
+    view: CDSView
+    glyph: GlyphType
+    selection_glyph: Auto | GlyphType | None
+    nonselection_glyph: Auto | GlyphType | None
+    hover_glyph: GlyphType | None
+    muted_glyph: Auto | GlyphType | None
+    muted: bool
 
 class GlyphRenderer(DataRenderer, Generic[GlyphType]):
     def __init__(self, **kwargs: Unpack[_GlyphRendererInit[GlyphType]]) -> None: ...

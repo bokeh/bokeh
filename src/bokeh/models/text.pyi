@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..model.model import Model, _ModelInit
 
-# class _BaseTextInit(_ModelInit, total=False):
-#     text: str
+class _BaseTextInit(_ModelInit, total=False):
+    text: str
 
 class BaseText(Model):
     @abstractmethod
@@ -24,28 +24,29 @@ class BaseText(Model):
 
     text: str = ...
 
-# class _MathTextInit(_BaseTextInit, total=False):
-#     ...
+class _MathTextInit(_ModelInit, total=False):
+    text: str
 
 class MathText(BaseText):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MathTextInit]) -> None: ...
 
-# class _AsciiInit(_MathTextInit, total=False):
-#     ...
+class _AsciiInit(_ModelInit, total=False):
+    text: str
 
 class Ascii(MathText):
     def __init__(self, **kwargs: Unpack[_AsciiInit]) -> None: ...
 
-# class _MathMLInit(_MathTextInit, total=False):
-#     ...
+class _MathMLInit(_ModelInit, total=False):
+    text: str
 
 class MathML(MathText):
     def __init__(self, **kwargs: Unpack[_MathMLInit]) -> None: ...
 
-# class _TeXInit(_MathTextInit, total=False):
-#     macros: dict[str, str | tuple[str, int]]
-#     inline: bool
+class _TeXInit(_ModelInit, total=False):
+    text: str
+    macros: dict[str, str | tuple[str, int]]
+    inline: bool
 
 class TeX(MathText):
     def __init__(self, **kwargs: Unpack[_TeXInit]) -> None: ...
@@ -53,8 +54,8 @@ class TeX(MathText):
     macros: dict[str, str | tuple[str, int]] = ...
     inline: bool = ...
 
-# class _PlainTextInit(_BaseTextInit, total=False):
-#     ...
+class _PlainTextInit(_ModelInit, total=False):
+    text: str
 
 class PlainText(BaseText):
     def __init__(self, **kwargs: Unpack[_PlainTextInit]) -> None: ...

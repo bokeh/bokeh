@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .widget import Widget, _WidgetInit
 
-# class _MarkupInit(_WidgetInit, total=False):
-#     text: str
-#     disable_math: bool
+class _MarkupInit(_WidgetInit, total=False):
+    text: str
+    disable_math: bool
 
 class Markup(Widget):
     @abstractmethod
@@ -26,22 +26,26 @@ class Markup(Widget):
     text: str = ...
     disable_math: bool = ...
 
-# class _ParagraphInit(_MarkupInit, total=False):
-#     ...
+class _ParagraphInit(_WidgetInit, total=False):
+    text: str
+    disable_math: bool
 
 class Paragraph(Markup):
     def __init__(self, **kwargs: Unpack[_ParagraphInit]) -> None: ...
 
-# class _DivInit(_MarkupInit, total=False):
-#     render_as_text: bool
+class _DivInit(_WidgetInit, total=False):
+    text: str
+    disable_math: bool
+    render_as_text: bool
 
 class Div(Markup):
     def __init__(self, **kwargs: Unpack[_DivInit]) -> None: ...
 
     render_as_text: bool = ...
 
-# class _PreTextInit(_ParagraphInit, total=False):
-#     ...
+class _PreTextInit(_WidgetInit, total=False):
+    text: str
+    disable_math: bool
 
 class PreText(Paragraph):
     def __init__(self, **kwargs: Unpack[_PreTextInit]) -> None: ...

@@ -16,15 +16,15 @@ if TYPE_CHECKING:
 from ..renderers.renderer import CompositeRenderer, _CompositeRendererInit
 from ..sources import DataSource
 
-# class _AnnotationInit(_CompositeRendererInit, total=False):
-#     ...
+class _AnnotationInit(_CompositeRendererInit, total=False):
+    ...
 
 class Annotation(CompositeRenderer):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_AnnotationInit]) -> None: ...
 
-# class _DataAnnotationInit(_AnnotationInit, total=False):
-#     source: DataSource
+class _DataAnnotationInit(_CompositeRendererInit, total=False):
+    source: DataSource
 
 class DataAnnotation(Annotation):
     @abstractmethod

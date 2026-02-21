@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 from .buttons import ButtonLike, _ButtonLikeInit
 from .widget import Widget, _WidgetInit
 
-# class _AbstractGroupInit(_WidgetInit, total=False):
-#     labels: list[str]
+class _AbstractGroupInit(_WidgetInit, total=False):
+    labels: list[str]
 
 class AbstractGroup(Widget):
     @abstractmethod
@@ -25,8 +25,9 @@ class AbstractGroup(Widget):
 
     labels: list[str] = ...
 
-# class _ToggleButtonGroupInit(_AbstractGroupInit, _ButtonLikeInit, total=False):
-#     orientation: Literal["horizontal", "vertical"]
+class _ToggleButtonGroupInit(_WidgetInit, _ButtonLikeInit, total=False):
+    labels: list[str]
+    orientation: Literal["horizontal", "vertical"]
 
 class ToggleButtonGroup(AbstractGroup, ButtonLike):
     @abstractmethod
@@ -34,8 +35,9 @@ class ToggleButtonGroup(AbstractGroup, ButtonLike):
 
     orientation: Literal["horizontal", "vertical"] = ...
 
-# class _ToggleInputGroupInit(_AbstractGroupInit, total=False):
-#     inline: bool
+class _ToggleInputGroupInit(_WidgetInit, total=False):
+    labels: list[str]
+    inline: bool
 
 class ToggleInputGroup(AbstractGroup):
     @abstractmethod
@@ -43,32 +45,40 @@ class ToggleInputGroup(AbstractGroup):
 
     inline: bool = ...
 
-# class _CheckboxGroupInit(_ToggleInputGroupInit, total=False):
-#     active: list[int]
+class _CheckboxGroupInit(_WidgetInit, total=False):
+    labels: list[str]
+    inline: bool
+    active: list[int]
 
 class CheckboxGroup(ToggleInputGroup):
     def __init__(self, **kwargs: Unpack[_CheckboxGroupInit]) -> None: ...
 
     active: list[int] = ...
 
-# class _RadioGroupInit(_ToggleInputGroupInit, total=False):
-#     active: int | None
+class _RadioGroupInit(_WidgetInit, total=False):
+    labels: list[str]
+    inline: bool
+    active: int | None
 
 class RadioGroup(ToggleInputGroup):
     def __init__(self, **kwargs: Unpack[_RadioGroupInit]) -> None: ...
 
     active: int | None = ...
 
-# class _CheckboxButtonGroupInit(_ToggleButtonGroupInit, total=False):
-#     active: list[int]
+class _CheckboxButtonGroupInit(_WidgetInit, _ButtonLikeInit, total=False):
+    labels: list[str]
+    orientation: Literal["horizontal", "vertical"]
+    active: list[int]
 
 class CheckboxButtonGroup(ToggleButtonGroup):
     def __init__(self, **kwargs: Unpack[_CheckboxButtonGroupInit]) -> None: ...
 
     active: list[int] = ...
 
-# class _RadioButtonGroupInit(_ToggleButtonGroupInit, total=False):
-#     active: int | None
+class _RadioButtonGroupInit(_WidgetInit, _ButtonLikeInit, total=False):
+    labels: list[str]
+    orientation: Literal["horizontal", "vertical"]
+    active: int | None
 
 class RadioButtonGroup(ToggleButtonGroup):
     def __init__(self, **kwargs: Unpack[_RadioButtonGroupInit]) -> None: ...

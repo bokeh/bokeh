@@ -21,11 +21,11 @@ class ImageIndex(TypedDict):
    j: int
    flat_index: int
 
-# class _SelectionInit(_ModelInit, total=False):
-#     indices: Sequence[int]
-#     line_indices: Sequence[int]
-#     multiline_indices: dict[int, Sequence[int]]
-#     image_indices: list[ImageIndex]
+class _SelectionInit(_ModelInit, total=False):
+    indices: Sequence[int]
+    line_indices: Sequence[int]
+    multiline_indices: dict[int, Sequence[int]]
+    image_indices: list[ImageIndex]
 
 class Selection(Model):
     def __init__(self, **kwargs: Unpack[_SelectionInit]) -> None: ...
@@ -35,21 +35,21 @@ class Selection(Model):
     multiline_indices: dict[int, Sequence[int]] = ...
     image_indices: list[ImageIndex] = ...
 
-# class _SelectionPolicyInit(_ModelInit, total=False):
-#     ...
+class _SelectionPolicyInit(_ModelInit, total=False):
+    ...
 
 class SelectionPolicy(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_SelectionPolicyInit]) -> None: ...
 
-# class _IntersectRenderersInit(_SelectionPolicyInit, total=False):
-#     ...
+class _IntersectRenderersInit(_ModelInit, total=False):
+    ...
 
 class IntersectRenderers(SelectionPolicy):
     def __init__(self, **kwargs: Unpack[_IntersectRenderersInit]) -> None: ...
 
-# class _UnionRenderersInit(_SelectionPolicyInit, total=False):
-#     ...
+class _UnionRenderersInit(_ModelInit, total=False):
+    ...
 
 class UnionRenderers(SelectionPolicy):
     def __init__(self, **kwargs: Unpack[_UnionRenderersInit]) -> None: ...

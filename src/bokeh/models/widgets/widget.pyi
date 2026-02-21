@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..layouts import LayoutDOM, _LayoutDOMInit
 
-# class _WidgetInit(_LayoutDOMInit, total=False):
-#     ...
+class _WidgetInit(_LayoutDOMInit, total=False):
+    ...
 
 class Widget(LayoutDOM):
     @abstractmethod

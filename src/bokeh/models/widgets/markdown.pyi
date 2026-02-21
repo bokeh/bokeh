@@ -14,9 +14,9 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .widget import Widget, _WidgetInit
 
-# class _MarkdownInit(_WidgetInit, total=False):
-#     text: str
-#     disable_math: bool
+class _MarkdownInit(_WidgetInit, total=False):
+    text: str
+    disable_math: bool
 
 class Markdown(Widget):
     def __init__(self, **kwargs: Unpack[_MarkdownInit]) -> None: ...
