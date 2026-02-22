@@ -1,4 +1,4 @@
-'''Demonstrates the use of many Bokeh sliders with examples such as a numerical slider, a disabled slider, a date picker,
+"""Demonstrates the use of many Bokeh sliders with examples such as a numerical slider, a disabled slider, a date picker,
 and a color picker.
 
 .. bokeh-example-metadata::
@@ -6,9 +6,10 @@ and a color picker.
     :refs: :ref:`ug_interaction_widgets`
     :keywords: slider
 
-''' # noqa: E501
+""" # noqa: E501
 from datetime import date
 
+from bokeh.colors import ColorLike
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Column, CustomJS, DateRangeSlider,
@@ -19,7 +20,7 @@ slider = Slider(title="Numerical", value=50, start=0, end=96, step=5)
 
 disabled_slider = Slider(title="Disabled", value=50, start=0, end=96, step=5, disabled=True)
 
-range_slider = RangeSlider(title="Numerical range", value=[30, 70], start=0, end=100, step=0.5)
+range_slider = RangeSlider(title="Numerical range", value=(30, 70), start=0, end=100, step=0.5)
 
 date_slider = DateSlider(title="Date", value=date(2014, 1, 1), start=date(2010, 1, 1), end=date(2020, 1, 1), step=1)
 
@@ -30,8 +31,8 @@ only_value_slider = Slider(value=50, start=0, end=96, step=5)
 no_title_slider = Slider(title=None, value=50, start=0, end=96, step=5)
 
 def color_picker():
-    def color_slider(title, color):
-        return Slider(title=title, show_value=False, value=127, start=0, end=255, step=1, orientation="vertical", bar_color=color)
+    def color_slider(title: str, color: ColorLike):
+        return Slider(title=title, show_value=False, value=127, start=0, end=255, step=1, orientation="vertical") # TODO bar_color=color
 
     red   = color_slider("R", "red")
     green = color_slider("G", "green")
@@ -46,9 +47,9 @@ def color_picker():
         div.background = `rgb(${r}, ${g}, ${b})`
     """)
 
-    red.js_on_change('value', cb)
-    green.js_on_change('value', cb)
-    blue.js_on_change('value', cb)
+    red.js_on_change("value", cb)
+    green.js_on_change("value", cb)
+    blue.js_on_change("value", cb)
 
     return Row(children=[red, green, blue, div])
 
