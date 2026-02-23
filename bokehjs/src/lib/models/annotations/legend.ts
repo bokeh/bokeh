@@ -79,6 +79,7 @@ export class LegendView extends AnnotationView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._rebuild_title()
+    await this._rebuild_items()
   }
 
   override remove(): void {
@@ -91,18 +92,13 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.change, () => this.rerender())
 
     const {items, title} = this.model.properties
-    this.on_transitive_change(items, async () => await this._render_items(), {recursive: true})
+    this.on_transitive_change(items, async () => {
+      await this._rebuild_items()
+      this._render_items()
+    }, {recursive: true})
     this.on_transitive_change(title, async () => {
       await this._rebuild_title()
-      // TODO: Only title append code needs to be run
-      this.shadow_el.append(...(() => {
-        switch (this.model.title_location) {
-          case "above": return [this.title_el, this.grid_el]
-          case "below": return [this.grid_el, this.title_el]
-          case "left":  return [this.title_el, this.grid_el]
-          case "right": return [this.grid_el, this.title_el]
-        }
-      })())
+      this._render_title()
     })
   }
 
@@ -178,7 +174,7 @@ export class LegendView extends AnnotationView {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
-  protected async _render_items(): Promise<void> {
+  protected async _rebuild_items(): Promise<void> {
     this.entries = []
 
     const {click_policy} = this
@@ -209,7 +205,9 @@ export class LegendView extends AnnotationView {
         })
       }
     }
+  }
 
+  protected _render_items(): void {
     const vertical = this.model.orientation == "vertical"
 
     const {nc: ncols, nr: nrows} = (() => {
@@ -278,10 +276,21 @@ export class LegendView extends AnnotationView {
     this.grid_el.append(...this.entries.map(({el}) => el))
   }
 
-  async _rebuild_title(): Promise<void> {
+  protected async _rebuild_title(): Promise<void> {
     const title_el = div({class: legend_css.title}, await i18n.t(this.model.title ?? ""))
     this.title_el.remove()
     this.title_el = title_el
+  }
+
+  protected _render_title(): void {
+    this.shadow_el.append(...(() => {
+      switch (this.model.title_location) {
+        case "above": return [this.title_el, this.grid_el]
+        case "below": return [this.grid_el, this.title_el]
+        case "left":  return [this.title_el, this.grid_el]
+        case "right": return [this.grid_el, this.title_el]
+      }
+    })())
   }
 
   override render(): void {
@@ -413,14 +422,7 @@ export class LegendView extends AnnotationView {
     }
     `)
 
-    this.shadow_el.append(...(() => {
-      switch (this.model.title_location) {
-        case "above": return [this.title_el, this.grid_el]
-        case "below": return [this.grid_el, this.title_el]
-        case "left":  return [this.title_el, this.grid_el]
-        case "right": return [this.grid_el, this.title_el]
-      }
-    })())
+    this._render_title()
 
     const {padding, border_radius} = this
     stylesheet.append(`
@@ -512,8 +514,7 @@ export class LegendView extends AnnotationView {
     }
 
     this.self_style.append(stylesheet.css)
-    // TODO: Check a way to better handle this
-    void this._render_items()
+    this._render_items()
   }
 
   override after_render(): void {
@@ -657,8 +658,7 @@ export class LegendView extends AnnotationView {
 
     if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
       if (this._should_rerender_items) {
-        // TODO: Check a way to better handle this
-        void this._render_items()
+        this._render_items()
       }
       this._paint_glyphs()
     } else {
