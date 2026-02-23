@@ -662,9 +662,14 @@ export class LegendView extends AnnotationView {
 
     if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
       if (this._should_rerender_items) {
-        this._render_items()
+        // TODO: Check way to better handle this
+        void this._build_items().then(() => {
+          this._render_items()
+          this._paint_glyphs()
+        })
+      } else {
+        this._paint_glyphs()
       }
-      this._paint_glyphs()
     } else {
       ctx.save()
       const canvas_bbox = bounding_box(this.plot_view.canvas.el)
