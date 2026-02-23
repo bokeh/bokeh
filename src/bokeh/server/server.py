@@ -504,8 +504,8 @@ class Server(BaseServer):
             kwargs['auth_provider'] = AuthModule(auth_module_path) if auth_module_path else NullAuth()
 
         # --- session signing ---
-        # secret_key is handled explicitly because the accessor name differs from setting name.
         if 'secret_key' not in kwargs:
+            # NB: setting name doesn't match accessor method name on this one.
             kwargs['secret_key'] = _settings.secret_key_bytes()
 
         if 'sign_sessions' not in kwargs:
