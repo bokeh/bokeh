@@ -82,6 +82,7 @@ export abstract class ToolButtonView extends UIElementView {
     this._ui_gestures.connect_signals()
     this.connect(this.model.change, () => this.render())
     this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
+    // TODO: Check proper signal to connect to rebuild tooltip
     this.connect(this.model.properties.tooltip.change, async () => await this._rebuild_tooltip())
   }
 

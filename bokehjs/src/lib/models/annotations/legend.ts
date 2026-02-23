@@ -95,7 +95,14 @@ export class LegendView extends AnnotationView {
     this.on_transitive_change(title, async () => {
       await this._rebuild_title()
       // TODO: Only title append code needs to be run
-      this.rerender()
+      this.shadow_el.append(...(() => {
+        switch (this.model.title_location) {
+          case "above": return [this.title_el, this.grid_el]
+          case "below": return [this.grid_el, this.title_el]
+          case "left":  return [this.title_el, this.grid_el]
+          case "right": return [this.grid_el, this.title_el]
+        }
+      })())
     })
   }
 
