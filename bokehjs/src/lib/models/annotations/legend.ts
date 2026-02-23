@@ -78,8 +78,8 @@ export class LegendView extends AnnotationView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await this._rebuild_title()
-    await this._rebuild_items()
+    await this._build_title()
+    await this._build_items()
   }
 
   override remove(): void {
@@ -89,15 +89,19 @@ export class LegendView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.rerender())
+    this.connect(this.model.change, async () => {
+      await this._build_title()
+      await this._build_items()
+      this.rerender()
+    })
 
     const {items, title} = this.model.properties
     this.on_transitive_change(items, async () => {
-      await this._rebuild_items()
+      await this._build_items()
       this._render_items()
     }, {recursive: true})
     this.on_transitive_change(title, async () => {
-      await this._rebuild_title()
+      await this._build_title()
       this._render_title()
     })
   }
@@ -174,7 +178,7 @@ export class LegendView extends AnnotationView {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
-  protected async _rebuild_items(): Promise<void> {
+  protected async _build_items(): Promise<void> {
     this.entries = []
 
     const {click_policy} = this
@@ -276,7 +280,7 @@ export class LegendView extends AnnotationView {
     this.grid_el.append(...this.entries.map(({el}) => el))
   }
 
-  protected async _rebuild_title(): Promise<void> {
+  protected async _build_title(): Promise<void> {
     const title_el = div({class: legend_css.title}, await i18n.t(this.model.title ?? ""))
     this.title_el.remove()
     this.title_el = title_el
