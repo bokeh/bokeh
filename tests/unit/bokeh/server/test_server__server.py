@@ -374,13 +374,13 @@ def test__from_settings_uses_envvars() -> None:
                 Server.from_settings(Application())
                 _, kwargs = init.call_args
     assert isinstance(kwargs['auth_provider'], AuthModule)
-    assert kwargs['sign_sessions'] == True
+    assert kwargs['sign_sessions']
     assert kwargs['secret_key'] is not None
     assert kwargs['ssl_certfile'] == '/path/to/cert.pem'
     assert kwargs['ssl_keyfile'] == '/path/to/key.pem'
     assert kwargs['ssl_password'] == 'hunter2'
     assert kwargs['cookie_secret'] == 'verysecret'
-    assert kwargs['xsrf_cookies'] == True
+    assert kwargs['xsrf_cookies']
 
 def test__from_settings_kwarg_overrides_envvar() -> None:
     """Ensure that a kwarg to Server.from_settings overrides the equivalent envvar setting, if present."""

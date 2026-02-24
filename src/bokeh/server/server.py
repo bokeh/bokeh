@@ -468,7 +468,7 @@ class Server(BaseServer):
     @classmethod
     def from_settings(cls, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
             io_loop: IOLoop | None = None, http_server_kwargs: dict[str, Any] | None = None, **kwargs: Any) -> Server:
-        ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global 
+        ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global
         settings module, if they were not explicitly supplied as keyword arguments.
 
         Args:
@@ -491,7 +491,7 @@ class Server(BaseServer):
         Raises:
             ValueError
                 If ``sign_sessions`` is True but no ``secret_key`` is available.
-        
+
         '''
 
         from ..server.auth_provider import AuthModule, NullAuth
