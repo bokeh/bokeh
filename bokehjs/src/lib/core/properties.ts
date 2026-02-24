@@ -59,6 +59,7 @@ export function use_theme(theme: Theme | null = null): void {
 // Property base class
 //
 
+/* eslint-disable @stylistic/indent */
 export type UniformsOf<Props> = {
   [Key in keyof Props as
     Props[Key] extends BaseCoordinateSpec<any> ? never   :
@@ -90,6 +91,7 @@ export type InheritedAttrsOf<Props> = {
     Props[Key] extends VectorSpec<any, any> ? `inherited_${Key}` :
     Props[Key] extends ScalarSpec<any, any> ? `inherited_${Key}` : never]: boolean
 }
+/* eslint-enable @stylistic/indent */
 
 export type InheritedScreenOf<Props> = {
   [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean
@@ -700,7 +702,9 @@ export class ColorSpec extends DataSpec<types.Color | null> {
   override v_materialize(colors: Arrayable<types.Color | null> | NDArray): ColorArray {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
-        return to_big_endian(colors)
+        const colors_copy = colors.slice()
+        to_big_endian(colors_copy)
+        return colors_copy
       } else if (colors.dtype == "uint8" && colors.dimension == 1) {
         const [n] = colors.shape
         const array = new RGBAArray(4*n)

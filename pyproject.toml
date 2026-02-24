@@ -74,7 +74,7 @@ dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.pytest.ini_options]
 timeout = 300
-asyncio_mode = "strict"
+asyncio_mode = "auto"
 norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"
 markers = [
@@ -121,7 +121,7 @@ source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.10"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 

@@ -89,29 +89,12 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
 directory, run ``node make lint`` to check your code. Run
 ``node make lint --fix`` to have ESLint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.js`.
+more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
 
 .. tip::
-  If you use VSCode, you can use the following configuration for your workspace
-  to use ESLint directly in the editor:
-
-  .. code-block:: json
-
-        "eslint.format.enable": true,
-        "eslint.lintTask.enable": true,
-        "eslint.debug": false,
-        "eslint.quiet": false,
-        "eslint.options": {
-          "cache": true,
-          "extensions": [".ts"],
-          "overrideConfigFile": "./eslint.js"
-        },
-        "eslint.workingDirectories": [
-          "./bokehjs"
-        ]
-
-  This requires the `ESLint extension for VSCode`_ and ESLint version 8 or above
-  to be installed.
+  You can lint the code in your IDE. For example, if you use VSCode, then
+  you need the `ESLint extension for VSCode`_ to be installed. This doesn't
+  require any additional configuration.
 
 .. _contributor_guide_bokehjs_requirements:
 
@@ -124,13 +107,13 @@ should be installed and configured on your system.
 
 Developing BokehJS requires the following minimum versions:
 
-* Node.js 18+
-* npm 8+
-* Chrome/Chromium browser 118+ or equivalent
+* Node.js 24+
+* npm 11+
+* Chrome/Chromium browser 141+ or equivalent
 
 Bokeh officially supports the following platforms for development and testing:
 
-* Linux Ubuntu 22.04+ or equivalent
+* Linux Ubuntu 24.04+ or equivalent
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 

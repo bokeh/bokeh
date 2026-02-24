@@ -43,7 +43,7 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
   }
 }
 
-function handleGridClick(this: SlickGrid<Item>, event: Event, args: { row: number }): void {
+function handleGridClick(this: SlickGrid<Item>, event: Event, args: {row: number}): void {
   const item = this.getDataItem(args.row)
 
   if (item instanceof Group && (event.target as HTMLElement).classList.contains("slick-group-toggle")) {
@@ -86,8 +86,8 @@ export class GroupingInfo extends Model {
     }))
   }
 
-  get comparer(): (a: { value: any }, b: { value: any }) => number {
-    return (a: { value: any }, b: { value: any }): number => {
+  get comparer(): (a: {value: number}, b: {value: number}) => number {
+    return (a, b) => {
       return a.value === b.value ? 0 : a.value > b.value ? 1 : -1
     }
   }

@@ -583,6 +583,21 @@ class TestSerializer:
             dtype="float64",
         )
 
+    def test_ndarray_str(self) -> None:
+        encoder = Serializer()
+        val = np.array(["a", "bb", "ccc"])
+        rep = encoder.encode(val)
+
+        assert len(encoder.buffers) == 0
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["a", "bb", "ccc"],
+            order=sys.byteorder,
+            shape=[3],
+            dtype="object",
+        )
+
     def test_ndarray_object(self) -> None:
         @dataclass
         class X:

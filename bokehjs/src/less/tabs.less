@@ -45,24 +45,40 @@
 }
 
 .bk-header {
-  grid-area: "header";
+  grid-area: header;
+  display: flex;
+  overflow: hidden;
 
+  .no-user-select();
+}
+
+.bk-headers-wrapper {
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
-
-  .no-user-select();
 }
 
 :host(.bk-above), :host(.bk-below) {
   .bk-header {
     flex-direction: row;
   }
+
+  .bk-headers-wrapper {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 }
 
 :host(.bk-left), :host(.bk-right) {
   .bk-header {
     flex-direction: column;
+  }
+
+  .bk-headers-wrapper {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 

@@ -24,7 +24,7 @@ import datetime as dt
 import gzip
 import sys
 from array import array as TypedArray
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import isinf, isnan
 from types import SimpleNamespace
 from typing import (
@@ -187,7 +187,7 @@ T = TypeVar("T")
 @dataclass
 class Serialized(Generic[T]):
     content: T
-    buffers: list[Buffer] | None = None
+    buffers: list[Buffer] = field(default_factory=list[Buffer])
 
 Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
 Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
@@ -433,7 +433,10 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array_encoding_disabled(array):
+        if array.dtype.kind == 'U':
+            data = obj.flatten().tolist()
+            dtype = "object"
+        elif array_encoding_disabled(array):
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
@@ -701,7 +704,7 @@ class Deserializer:
         attributes = obj.get("attributes")
 
         cls = self._resolve_type(name)
-        instance = cls.__new__(cls, id=id)
+        instance = cls._new(id)
 
         if instance is None:
             self.error(f"can't instantiate {name}(id={id})")

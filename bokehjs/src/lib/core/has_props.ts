@@ -34,7 +34,7 @@ type AttrsLike = Dict<unknown>
 
 export namespace HasProps {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = {}
+  export type Props = object
 
   export type SetOptions = {
     check_eq?: boolean
@@ -67,6 +67,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   get type(): string {
     return this.constructor.__qualified__
+  }
+
+  get is_root(): boolean {
+    return this.document?.roots().includes(this) ?? false
   }
 
   static __name__: string

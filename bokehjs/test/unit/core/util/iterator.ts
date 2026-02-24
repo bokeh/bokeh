@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {
   range, reverse, enumerate, take, skip, tail, join, zip,
-  interleave, map, flat_map, no_repeated, every, some, combinations, subsets,
+  interleave, map, flat_map, no_repeated, every, some, combinations, subsets, min, max, minmax,
 } from "@bokehjs/core/util/iterator"
 
 import {AssertionError} from "@bokehjs/core/util/assert"
@@ -150,5 +150,32 @@ describe("core/util/iterator module", () => {
       [1, 2], [1, 3], [2, 3],
       [1, 2, 3],
     ])
+  })
+
+  it("implements min() function", () => {
+    expect(min([])).to.be.equal(Infinity)
+    expect(min([NaN])).to.be.equal(Infinity)
+    expect(min([1, 2, 3])).to.be.equal(1)
+    expect(min([3, 2, 1])).to.be.equal(1)
+    expect(min([1, 2, NaN, 3])).to.be.equal(1)
+    expect(min([3, 2, NaN, 1])).to.be.equal(1)
+  })
+
+  it("implements max() function", () => {
+    expect(max([])).to.be.equal(-Infinity)
+    expect(max([NaN])).to.be.equal(-Infinity)
+    expect(max([1, 2, 3])).to.be.equal(3)
+    expect(max([3, 2, 1])).to.be.equal(3)
+    expect(max([1, 2, NaN, 3])).to.be.equal(3)
+    expect(max([3, 2, NaN, 1])).to.be.equal(3)
+  })
+
+  it("implements minmax() function", () => {
+    expect(minmax([])).to.be.equal([Infinity, -Infinity])
+    expect(minmax([NaN])).to.be.equal([Infinity, -Infinity])
+    expect(minmax([1, 2, 3])).to.be.equal([1, 3])
+    expect(minmax([3, 2, 1])).to.be.equal([1, 3])
+    expect(minmax([1, 2, NaN, 3])).to.be.equal([1, 3])
+    expect(minmax([3, 2, NaN, 1])).to.be.equal([1, 3])
   })
 })

@@ -1,9 +1,10 @@
-import {basename, relative, join} from "path"
+import {basename, relative, join} from "node:path"
+
 import lesscss from "less"
 import chalk from "chalk"
 import CSS from "css"
 
-import {scan, read, write, rename} from "./sys"
+import {scan, read, write, rename} from "./sys.js"
 
 export function collect_styles(styles_dir: string): string[] {
   const paths = []

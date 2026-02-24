@@ -6,58 +6,78 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..._specs import NumberSpec
 from ...core.enums import CoordinateUnitsType as CoordinateUnits
-from ...core.has_props import abstract
 from ...core.property_mixins import (
     BodyLineProps,
     FillProps,
     HatchProps,
     LineProps,
+    _BodyLinePropsInit,
+    _FillPropsInit,
+    _HatchPropsInit,
+    _LinePropsInit,
 )
-from ..graphics import Marking
-from .annotation import DataAnnotation
+from ..graphics import Marking, _MarkingInit
+from .annotation import DataAnnotation, _DataAnnotationInit
 
-@abstract
-@dataclass(init=False)
+class _ArrowHeadInit(_MarkingInit, total=False):
+    size: NumberSpec
+
 class ArrowHead(Marking):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_ArrowHeadInit]) -> None: ...
 
     size: NumberSpec = ...
 
-@dataclass
+class _OpenHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
+    ...
+
 class OpenHead(ArrowHead, LineProps):
     ...
 
-@dataclass
+class _NormalHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+    ...
+
 class NormalHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
-@dataclass
+class _TeeHeadInit(_ArrowHeadInit, _LinePropsInit, total=False):
+    ...
+
 class TeeHead(ArrowHead, LineProps):
     ...
 
-@dataclass
+class _VeeHeadInit(_ArrowHeadInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+    ...
+
 class VeeHead(ArrowHead, LineProps, FillProps, HatchProps):
     ...
 
-@dataclass
+class _ArrowInit(_DataAnnotationInit, _BodyLinePropsInit, total=False):
+    x_start: NumberSpec
+    y_start: NumberSpec
+    start_units: CoordinateUnits
+    start: ArrowHead | None
+    x_end: NumberSpec
+    y_end: NumberSpec
+    end_units: CoordinateUnits
+    end: ArrowHead | None
+
 class Arrow(DataAnnotation, BodyLineProps):
 
     x_start: NumberSpec = ...
-
     y_start: NumberSpec = ...
-
     start_units: CoordinateUnits = ...
-
     start: ArrowHead | None = ...
-
     x_end: NumberSpec = ...
-
     y_end: NumberSpec = ...
-
     end_units: CoordinateUnits = ...
-
     end: ArrowHead | None = ...

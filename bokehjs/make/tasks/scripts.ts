@@ -1,27 +1,31 @@
-import {join, relative} from "path"
-import cp from "child_process"
-import fs from "fs"
+import {join, relative} from "node:path"
+import cp from "node:child_process"
+import fs from "node:fs"
 
-import {task, passthrough, BuildError} from "../task"
+import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
 
-import {rename, read, write, scan} from "@compiler/sys"
-import {wrap_css_modules} from "@compiler/styles"
-import {compile_typescript} from "@compiler/compiler"
-import type {AssemblyOptions} from "@compiler/linker"
-import {Linker} from "@compiler/linker"
-import * as preludes from "@compiler/prelude"
+import {task, passthrough, BuildError} from "../task.js"
 
-import {argv} from "../main"
-import * as paths from "../paths"
+import {rename, read, write, scan} from "#compiler/sys.js"
+import {wrap_css_modules} from "#compiler/styles.js"
+import {compile_typescript} from "#compiler/compiler.js"
+import type {AssemblyOptions} from "#compiler/linker.js"
+import {Linker} from "#compiler/linker.js"
+import * as preludes from "#compiler/prelude.js"
 
-import pkg from "../../package.json"
+import {argv} from "../args.js"
+import * as paths from "../paths.js"
+
+// Don't use imports here, because TS will copy package.json to make/_build
+// and that will mess up node's module resolution.
+const pkg_file = fs.readFileSync("./make/package.json", {encoding: "utf-8"})
+const pkg = JSON.parse(pkg_file) as {version: string}
 
 task("scripts:version", async () => {
-  const js = `export const version = "${pkg.version}";\n`
-  const dts = "export declare const version: string;\n"
-
-  write(join(paths.build_dir.lib, "version.js"), js)
-  write(join(paths.build_dir.lib, "version.d.ts"), dts)
+  const version_js_path = join(paths.build_dir.lib, "version.js")
+  const version_js = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+  const version_js_updated = version_js.replace("VERSION", pkg.version)
+  fs.writeFileSync(version_js_path, version_js_updated)
 })
 
 task("scripts:styles", ["styles:compile"], async () => {
@@ -60,11 +64,24 @@ task("scripts:glsl", async () => {
   const js_base = paths.build_dir.lib
   const dts_base = paths.build_dir.lib
 
+  // preserveAll: true disables identifier mangling, limiting minification to
+  // stripping comments and compressing whitespace. This is required because regl
+  // binds uniforms/attributes by name at runtime, and glyph code prepends
+  // #define directives (e.g. USE_CIRCLE, HATCH) that must match the shader source.
+  const minifier = new GlslMinify({
+    output: "sourceOnly",
+    preserveAll: true,
+  })
+
   for (const glsl_path of scan(lib_base, [".vert", ".frag"])) {
     const sub_path = relative(lib_base, glsl_path)
+    const source = read(glsl_path)!
+    // Join backslash-continued lines so the minifier doesn't corrupt them.
+    const joined = source.replace(/\\\s*\n\s*/g, "")
+    const minified = await minifier.execute(joined)
 
     const js = `\
-const shader = \`\n${read(glsl_path)}\`;
+const shader = \`\n${minified.sourceCode}\`;
 export default shader;
 `
     const dts = `\
@@ -77,15 +94,27 @@ export default shader;
   }
 })
 
-task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar", "scripts:version"], async () => {
+task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
+})
+
+// This doesn't apply necessary transforms to produce output usable by scripts:bundle. This
+// is used only for experimentation with third-party bundlers like esbuild. However, you can
+// enable tsgo as a faster LSP in your editor/IDE.
+task("scripts:compile:tsgo", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  const {status} = cp.spawnSync(npx, ["tsgo", "--project", "./src/lib/tsconfig.json"], {stdio: "inherit", shell: is_windows})
+  if (status != 0) {
+    throw new BuildError("typescript", "compilation failed with tsgo")
+  }
 })
 
 function min_js(js: string): string {
   return rename(js, {ext: ".min.js"})
 }
 
-task("scripts:bundle", [passthrough("scripts:compile")], async () => {
+task("scripts:bundle", [passthrough("scripts:compile"), "scripts:version"], async () => {
   const {bokehjs, gl, api, widgets, tables, mathjax} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables, mathjax]
 
@@ -156,38 +185,3 @@ exports.VERSION = "0.0.0";
 task("lib:build", ["scripts:bundle"])
 
 export const build_scripts = task("scripts:build", ["lib:build"])
-
-task("packages:prepare", ["scripts:bundle"], async () => {
-  const bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"]
-  const suffixes = ["", ".esm"]
-  const pkgs_dir = paths.build_dir.packages
-
-  for (const suffix of suffixes) {
-    const root = `@bokeh/bokeh${suffix}`
-
-    for (const bundle of bundles) {
-      const name = `@bokeh/${bundle}${suffix}`
-      const main = `${bundle}${suffix}.min.js`
-
-      const spec = {
-        name,
-        version: pkg.version,
-        description: pkg.description,
-        keywords: pkg.keywords,
-        license: pkg.license,
-        repository: pkg.repository,
-        main,
-        module: suffix == ".esm" ? main : undefined,
-        // TODO: types
-        dependencies: name != root ? [{[root]: `^${pkg.version}`}] : [],
-      }
-
-      const pkg_dir = join(pkgs_dir, name)
-
-      const json = JSON.stringify(spec, undefined, 2)
-      write(join(pkg_dir, "package.json"), json)
-
-      await fs.promises.copyFile(join(paths.build_dir.js, main), join(pkg_dir, main))
-    }
-  }
-})

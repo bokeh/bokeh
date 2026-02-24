@@ -27,7 +27,7 @@ export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
   return regl_wrapper
 }
 
-type ReglRenderFunction<T = {}> = (props: T) => void
+type ReglRenderFunction<T = object> = (props: T) => void
 
 export class ReglWrapper {
   private _regl: Regl

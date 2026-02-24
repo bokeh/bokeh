@@ -138,8 +138,7 @@ describe("HoverTool", () => {
     const el = hover_view._render_tooltips(r.data_source, vars)
     expect_not_null(el)
 
-    const html =
-`
+    const html = `\
 <div style="display: table; border-spacing: 2px;">
   <div style="display: table-row;">
     <div class="bk-tooltip-row-label" style="display: table-cell;">type: </div>

@@ -6,8 +6,11 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any, Sequence
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Any, Sequence
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.enums import (
@@ -19,129 +22,155 @@ from ..core.enums import (
     ResolutionTypeType as ResolutionType,
     RoundingFunctionType as RoundingFunction,
 )
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, _ModelInit
 from .tickers import Ticker
 
-@abstract
-@dataclass(init=False)
-class TickFormatter(Model):
+class _TickFormatterInit(_ModelInit, total=False):
     ...
 
-@dataclass
+class TickFormatter(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_TickFormatterInit]) -> None: ...
+
+class _BasicTickFormatterInit(_TickFormatterInit, total=False):
+    precision: Auto | int
+    use_scientific: bool
+    power_limit_high: int
+    power_limit_low: int
+
 class BasicTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_BasicTickFormatterInit]) -> None: ...
 
     precision: Auto | int = ...
-
     use_scientific: bool = ...
-
     power_limit_high: int = ...
-
     power_limit_low: int = ...
 
-@dataclass
+class _MercatorTickFormatterInit(_BasicTickFormatterInit, total=False):
+    dimension: LatLon | None
+
 class MercatorTickFormatter(BasicTickFormatter):
+    def __init__(self, **kwargs: Unpack[_MercatorTickFormatterInit]) -> None: ...
 
     dimension: LatLon | None = ...
 
-@dataclass
+class _NumeralTickFormatterInit(_TickFormatterInit, total=False):
+    format: str
+    language: NumeralLanguage
+    rounding: RoundingFunction
+
 class NumeralTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_NumeralTickFormatterInit]) -> None: ...
 
     format: str = ...
-
     language: NumeralLanguage = ...
-
     rounding: RoundingFunction = ...
 
-@dataclass
+class _PrintfTickFormatterInit(_TickFormatterInit, total=False):
+    format: str
+
 class PrintfTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_PrintfTickFormatterInit]) -> None: ...
 
     format: str = ...
 
-@dataclass
+class _LogTickFormatterInit(_TickFormatterInit, total=False):
+    ticker: Ticker | None
+    min_exponent: int
+
 class LogTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_LogTickFormatterInit]) -> None: ...
 
     ticker: Ticker | None = ...
-
     min_exponent: int = ...
 
-@dataclass
-class CategoricalTickFormatter(TickFormatter):
+class _CategoricalTickFormatterInit(_TickFormatterInit, total=False):
     ...
 
-@dataclass
+class CategoricalTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_CategoricalTickFormatterInit]) -> None: ...
+
+class _CustomJSTickFormatterInit(_TickFormatterInit, total=False):
+    args: dict[str, Any]
+    code: str
+
 class CustomJSTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_CustomJSTickFormatterInit]) -> None: ...
 
     args: dict[str, Any] = ...
-
     code: str = ...
 
-@dataclass
+class _DatetimeTickFormatterInit(_TickFormatterInit, total=False):
+    microseconds: str
+    milliseconds: str
+    seconds: str
+    minsec: str
+    minutes: str
+    hourmin: str
+    hours: str
+    days: str
+    months: str
+    years: str
+    strip_leading_zeros: bool | Sequence[ResolutionType]
+    boundary_scaling: bool
+    hide_repeats: bool
+    context: str | DatetimeTickFormatter | None
+    context_which: ContextWhich
+    context_location: Location
+
 class DatetimeTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_DatetimeTickFormatterInit]) -> None: ...
 
     microseconds: str = ...
-
     milliseconds: str = ...
-
     seconds: str = ...
-
     minsec: str = ...
-
     minutes: str = ...
-
     hourmin: str = ...
-
     hours: str = ...
-
     days: str = ...
-
     months: str = ...
-
     years: str = ...
-
     strip_leading_zeros: bool | Sequence[ResolutionType] = ...
-
     boundary_scaling: bool = ...
-
     hide_repeats: bool = ...
-
     context: str | DatetimeTickFormatter | None = ...
-
     context_which: ContextWhich = ...
-
     context_location: Location = ...
 
-@dataclass
+class _TimedeltaTickFormatterInit(_TickFormatterInit, total=False):
+    nanoseconds: str
+    microseconds: str
+    milliseconds: str
+    seconds: str
+    minsec: str
+    minutes: str
+    hourmin: str
+    hours: str
+    days: str
+    strip_leading_zeros: bool | Sequence[ResolutionType]
+    hide_repeats: bool
+    context: str | TimedeltaTickFormatter | None
+    context_which: ContextWhich
+    context_location: Location
+
 class TimedeltaTickFormatter(TickFormatter):
+    def __init__(self, **kwargs: Unpack[_TimedeltaTickFormatterInit]) -> None: ...
 
     nanoseconds: str = ...
-
     microseconds: str = ...
-
     milliseconds: str = ...
-
     seconds: str = ...
-
     minsec: str = ...
-
     minutes: str = ...
-
     hourmin: str = ...
-
     hours: str = ...
-
     days: str = ...
-
     strip_leading_zeros: bool | Sequence[ResolutionType] = ...
-
     hide_repeats: bool = ...
-
     context: str | TimedeltaTickFormatter | None = ...
-
     context_which: ContextWhich = ...
-
     context_location: Location = ...
-
 
 def CONTEXTUAL_DATETIME_FORMATTER() -> DatetimeTickFormatter: ...
 

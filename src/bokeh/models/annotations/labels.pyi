@@ -6,7 +6,11 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..._specs import AngleSpec, NullStringSpec, NumberSpec
@@ -18,7 +22,6 @@ from ...core.enums import (
     TextAlignType as TextAlign,
     VerticalAlignType as VerticalAlign,
 )
-from ...core.has_props import abstract
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     BackgroundFillProps,
@@ -29,68 +32,95 @@ from ...core.property_mixins import (
     ScalarBorderLineProps,
     ScalarTextProps,
     TextProps,
+    _BackgroundFillPropsInit,
+    _BackgroundHatchPropsInit,
+    _BorderLinePropsInit,
+    _ScalarBackgroundFillPropsInit,
+    _ScalarBackgroundHatchPropsInit,
+    _ScalarBorderLinePropsInit,
+    _ScalarTextPropsInit,
+    _TextPropsInit,
 )
-from .annotation import Annotation, DataAnnotation
+from .annotation import (
+    Annotation,
+    DataAnnotation,
+    _AnnotationInit,
+    _DataAnnotationInit,
+)
 
-@abstract
-@dataclass(init=False)
-class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps, ScalarBackgroundHatchProps, ScalarBorderLineProps):
+class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
+        _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
+    text: TextLike
+    padding: Padding
+    border_radius: BorderRadius
+
+class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps,
+        ScalarBackgroundHatchProps, ScalarBorderLineProps):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_TextAnnotationInit]) -> None: ...
 
     text: TextLike = ...
-
     padding: Padding = ...
-
     border_radius: BorderRadius = ...
 
-@dataclass
+class _LabelInit(_TextAnnotationInit, total=False):
+    anchor: TextAnchor
+    x: Coordinate
+    y: Coordinate
+    x_units: CoordinateUnits
+    y_units: CoordinateUnits
+    x_offset: float
+    y_offset: float
+    angle: Angle
+    angle_units: AngleUnits
+    direction: Direction
+    editable: bool
+
 class Label(TextAnnotation):
+    def __init__(self, **kwargs: Unpack[_LabelInit]) -> None: ...
 
     anchor: TextAnchor = ...
-
     x: Coordinate = ...
-
     y: Coordinate = ...
-
     x_units: CoordinateUnits = ...
-
     y_units: CoordinateUnits = ...
-
     x_offset: float = ...
-
     y_offset: float = ...
-
     angle: Angle = ...
-
     angle_units: AngleUnits = ...
-
     direction: Direction = ...
-
     editable: bool = ...
 
-@dataclass
+class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
+    x: NumberSpec
+    x_units: CoordinateUnits
+    y: NumberSpec
+    y_units: CoordinateUnits
+    text: NullStringSpec
+    angle: AngleSpec
+    x_offset: NumberSpec
+    y_offset: NumberSpec
+
 class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
+    def __init__(self, **kwargs: Unpack[_LabelSetInit]) -> None: ...
 
     x: NumberSpec = ...
-
     x_units: CoordinateUnits = ...
-
     y: NumberSpec = ...
-
     y_units: CoordinateUnits = ...
-
     text: NullStringSpec = ...
-
     angle: AngleSpec = ...
-
     x_offset: NumberSpec = ...
-
     y_offset: NumberSpec = ...
 
-@dataclass
+class _TitleInit(_TextAnnotationInit, total=False):
+    vertical_align: VerticalAlign
+    align: TextAlign
+    standoff: float
+
 class Title(TextAnnotation):
+    def __init__(self, **kwargs: Unpack[_TitleInit]) -> None: ...
 
     vertical_align: VerticalAlign = ...
-
     align: TextAlign = ...
-
     standoff: float = ...

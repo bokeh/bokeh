@@ -1,49 +1,47 @@
-import yargs from "yargs"
-import cp from "child_process"
+import cp from "node:child_process"
 
+import semver from "semver"
 import chalk from "chalk"
 const {magenta} = chalk
 
-export const argv = yargs.help(false).options({
-  // paths
-  "build-dir": {type: "string"},
-  // lint
-  fix: {type: "boolean", default: false},
-  // scripts, compiler
-  cache: {type: "boolean", default: true},
-  // scripts, compiler, test
-  rebuild: {type: "boolean", default: false},
-  // scripts
-  detectCycles: {type: "boolean", default: true},
-  // server, test
-  host: {type: "string", default: "127.0.0.1"},
-  // server
-  port: {type: "number", default: 5877},
-  inspect: {type: "boolean", default: false},
-  // test
-  executable: {type: "string", alias: "e"},
-  debug: {type: "boolean", default: false},
-  keyword: {type: "string", array: true, alias: "k"},
-  grep: {type: "string", array: true},
-  ref: {type: "string"},
-  "baselines-root": {type: "string"},
-  randomize: {type: "boolean"},
-  seed: {type: "number"},
-  pedantic: {type: "boolean"},
-  screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
-}).parseSync()
+import {argv} from "./args.js"
 
-import {task, run, log, task_names, show_error, show_failure} from "./task"
-import "./tasks"
+import {task, run, log, task_names, show_error, show_failure} from "./task.js"
+import "./tasks/index.js"
 
-const node_version = process.version
+function node_version(): string {
+  return process.version
+}
 
 function npm_version(): string {
   return cp.execSync("npm --version").toString().trim()
 }
 
-async function main(): Promise<void> {
-  log(`Using nodejs ${magenta(node_version)} and npm ${magenta(npm_version())}`)
+type PackageJson = {
+  engines: {
+    node: string
+    npm: string
+  }
+}
+
+export async function main(pkg_json: PackageJson): Promise<void> {
+  const version = {
+    node: node_version(),
+    npm: npm_version(),
+  }
+
+  log(`Using nodejs ${magenta(version.node)} and npm ${magenta(version.npm)}`)
+
+  if (!semver.satisfies(version.node, pkg_json.engines.node)) {
+    console.error(`node ${pkg_json.engines.node} is required. Current version is ${version.node}.`)
+    process.exit(1)
+  }
+
+  if (!semver.satisfies(version.npm, pkg_json.engines.npm)) {
+    console.error(`npm ${pkg_json.engines.npm} is required. Current version is ${version.npm}.`)
+    process.exit(1)
+  }
+
   const {_} = argv
   if (_.length != 0 && _[0] == "help") {
     log(`tasks: ${task_names().filter((name) => !name.includes(":")).join(", ")}`)
@@ -65,5 +63,3 @@ async function main(): Promise<void> {
 
   process.exit(0)
 }
-
-void main()

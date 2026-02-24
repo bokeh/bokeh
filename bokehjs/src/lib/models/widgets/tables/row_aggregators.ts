@@ -31,7 +31,7 @@ export abstract class RowAggregator extends Model {
   }
 
   abstract init(): void
-  abstract accumulate(item: { [key: string]: any }): void
+  abstract accumulate(item: {[key: string]: unknown}): void
   abstract storeResult(totals: GroupTotals<number>): void
 }
 

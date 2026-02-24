@@ -20,6 +20,7 @@ import {
   CustomJS,
   DataRange1d,
   EqHistColorMapper,
+  FactorRange,
   GlyphRenderer,
   HoverTool,
   Image,
@@ -1036,8 +1037,8 @@ describe("Bug", () => {
       expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
       expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
 
-      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
-      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
+      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
+      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
 
       expect(getComputedStyle(document.documentElement).getPropertyValue("--global-imported")).to.be.equal("1")
       expect(getComputedStyle(view.el).getPropertyValue("--local-imported")).to.be.equal("1")
@@ -1768,7 +1769,7 @@ describe("Bug", () => {
     })
   })
 
-  describe("in issue #13965", () => {
+  describe("in issue #13965 and #14645", () => {
     it("doesn't allow to correctly index categories in CategoricalSlider", async () => {
       const categories = range(0, 20).map((i) => `${i}`)
       const slider = new CategoricalSlider({categories, value: "0"})
@@ -1776,11 +1777,16 @@ describe("Bug", () => {
 
       const el = view.shadow_el.querySelector(".noUi-handle")
       expect_not_null(el)
+      expect(slider.value).to.be.equal("0")
 
       // The expectation is that no errors accumulate during sliding.
-      for (const _ of categories) {
+      for (const c of categories.slice(1)) {
         el.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
         await view.ready
+        // After an event the tooltip and the slider value should be updated.
+        // The displayed string shouldn't be "undefiend".
+        expect(el.ariaValueText).to.be.equal(c)
+        expect(slider.value).to.be.equal(c)
       }
     })
   })
@@ -1974,6 +1980,50 @@ describe("Bug", () => {
       await view.ready
 
       expect(source.selected.indices).to.be.equal([0, 3])
+    })
+  })
+
+  describe("in issue #14568", () => {
+    it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
+      const factors = ["A", "B", "C"]
+      const x_range = new FactorRange({factors, start: 0, end: 3, bounds: [0, 3]})
+      const y_range = new Range1d({start: 0, end: 3})
+
+      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
+      p.scatter({x: factors, y: [1, 2, 3], size: 20})
+
+      const {view} = await display(p)
+
+      expect(x_range.interval).to.be.equal([0, 3])
+
+      const actions = new PlotActions(view)
+      await actions.scroll_down(xy(2, 2), 1)
+      await view.ready
+
+      expect(x_range.interval).to.be.equal([0, 3])
+    })
+  })
+
+  describe("in issue #14815", () => {
+    it("doesn't apply explicit bounds on initial render when using FactorRange", async () => {
+      const factors = ["a", "b", "c"]
+      const x_range = new FactorRange({factors, bounds: [1, 3]})
+      const p = fig([200, 200], {tools: "reset,pan", x_range})
+      p.line(factors, [1, 2, 3])
+
+      await display(p)
+
+      expect(x_range.start).to.be.equal(1)
+      expect(x_range.end).to.be.equal(3)
+
+      const a = x_range.synthetic("a")
+      const b = x_range.synthetic("b")
+      const c = x_range.synthetic("c")
+
+      expect(a).to.be.below(x_range.start)
+      expect(b).to.be.within(x_range.start, x_range.end)
+      expect(c).to.be.within(x_range.start, x_range.end)
     })
   })
 })

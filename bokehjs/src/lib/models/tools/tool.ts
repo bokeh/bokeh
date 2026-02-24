@@ -38,39 +38,40 @@ import {IconLike} from "../common/kinds"
 import type {ToolLike} from "./tool_proxy"
 
 export type ToolAliases = {
-  pan:          PanTool
-  xpan:         PanTool
-  ypan:         PanTool
-  xwheel_pan:   WheelPanTool
-  ywheel_pan:   WheelPanTool
-  wheel_zoom:   WheelZoomTool
-  xwheel_zoom:  WheelZoomTool
-  ywheel_zoom:  WheelZoomTool
-  zoom_in:      ZoomInTool
-  xzoom_in:     ZoomInTool
-  yzoom_in:     ZoomInTool
-  zoom_out:     ZoomOutTool
-  xzoom_out:    ZoomOutTool
-  yzoom_out:    ZoomOutTool
-  click:        TapTool
-  tap:          TapTool
-  crosshair:    CrosshairTool
-  xcrosshair:   CrosshairTool
-  ycrosshair:   CrosshairTool
-  box_select:   BoxSelectTool
-  xbox_select:  BoxSelectTool
-  ybox_select:  BoxSelectTool
-  poly_select:  PolySelectTool
-  lasso_select: LassoSelectTool
-  box_zoom:     BoxZoomTool
-  xbox_zoom:    BoxZoomTool
-  ybox_zoom:    BoxZoomTool
-  hover:        HoverTool
-  save:         SaveTool
-  undo:         UndoTool
-  redo:         RedoTool
-  reset:        ResetTool
-  help:         HelpTool
+  pan:           PanTool
+  xpan:          PanTool
+  ypan:          PanTool
+  xwheel_pan:    WheelPanTool
+  ywheel_pan:    WheelPanTool
+  wheel_zoom:    WheelZoomTool
+  xwheel_zoom:   WheelZoomTool
+  ywheel_zoom:   WheelZoomTool
+  zoom_in:       ZoomInTool
+  xzoom_in:      ZoomInTool
+  yzoom_in:      ZoomInTool
+  zoom_out:      ZoomOutTool
+  xzoom_out:     ZoomOutTool
+  yzoom_out:     ZoomOutTool
+  click:         TapTool
+  tap:           TapTool
+  crosshair:     CrosshairTool
+  xcrosshair:    CrosshairTool
+  ycrosshair:    CrosshairTool
+  box_select:    BoxSelectTool
+  xbox_select:   BoxSelectTool
+  ybox_select:   BoxSelectTool
+  poly_select:   PolySelectTool
+  lasso_select:  LassoSelectTool
+  auto_box_zoom: BoxZoomTool
+  box_zoom:      BoxZoomTool
+  xbox_zoom:     BoxZoomTool
+  ybox_zoom:     BoxZoomTool
+  hover:         HoverTool
+  save:          SaveTool
+  undo:          UndoTool
+  redo:          RedoTool
+  reset:         ResetTool
+  help:          HelpTool
 }
 
 export type EventRole = EventType | "multi"
@@ -241,6 +242,19 @@ export abstract class Tool extends Model {
       sylim = [max([sylim[0], vr.start]), min([sylim[1], vr.end])]
     } else {
       sylim = [vr.start, vr.end]
+    }
+
+    return [sxlim, sylim]
+  }
+
+  _compute_overlay_limits(sxlim: [number, number], sylim: [number, number],
+      dims: Dimensions, line_width: number): [[number, number], [number, number]] {
+    if (dims == "width") {
+      sylim[0] -= line_width // top
+      sylim[1] += line_width // bottom
+    } else if (dims == "height") {
+      sxlim[0] -= line_width // left
+      sxlim[1] += line_width // right
     }
 
     return [sxlim, sylim]

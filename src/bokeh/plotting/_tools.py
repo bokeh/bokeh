@@ -191,12 +191,12 @@ def _resolve_tools(tools: str | Sequence[Tool | str]) -> tuple[list[Tool], dict[
 
     return tool_objs, tool_map
 
-def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
-    @dataclass(frozen=True)
-    class Item:
-        obj: Tool
-        properties: dict[str, Any]
+@dataclass(frozen=True)
+class Item:
+    obj: Tool
+    properties: dict[str, Any]
 
+def _collect_repeated_tools(tool_objs: list[Tool]) -> Iterator[Tool]:
     key: Callable[[Tool], str] = lambda obj: obj.__class__.__name__
 
     for _, group in itertools.groupby(sorted(tool_objs, key=key), key=key):

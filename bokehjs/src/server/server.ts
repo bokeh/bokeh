@@ -1,22 +1,11 @@
-// XXX: for core/util/eq
-// XXX: for core/util/platform
-declare global {
-  // @ts-ignore
-  type Node = any
-  // @ts-ignore
-  const Node: Node
-  // @ts-ignore
-  const navigator: any
-}
-
 import type {IncomingMessage} from "http"
-import WebSocket from "ws"
+import {WebSocketServer} from "ws"
 import yargs from "yargs"
 
-import {version} from "./package.json"
-import {Receiver} from "./receiver"
-import {Message} from "./message"
-import {isString} from "core/util/types"
+import pkg_json from "./package.json" with {type: "json"}
+import {Receiver} from "./receiver.js"
+import {Message} from "./message.js"
+import {isString} from "../lib/core/util/types.js"
 // import {Document} from "document/document"
 
 class Document {}
@@ -80,7 +69,7 @@ function log(_message: string): void {
   //console.log(message)
 }
 
-const wss = new WebSocket.Server({
+const wss = new WebSocketServer({
   host,
   port,
   handleProtocols: (protocols, request: Request) => {
@@ -152,7 +141,7 @@ wss.on("connection", (ws, req: Request) => {
           case "PULL-DOC-REQ":
             return Message.create<PullDoc>("PULL-DOC-REPLY", {}, {
               doc: {
-                version,
+                version: pkg_json.version,
                 title: "NodeJS application",
                 roots: [],
               },
@@ -163,7 +152,7 @@ wss.on("connection", (ws, req: Request) => {
             return Message.create("OK", {}, {})
           case "SERVER-INFO-REQ": {
             return Message.create<ServerInfo>("SERVER-INFO-REPLY", {}, {
-              version_info: {bokeh: version, server: version},
+              version_info: {bokeh: pkg_json.version, server: pkg_json.version},
             })
           }
           default:
@@ -191,5 +180,5 @@ wss.on("connection", (ws, req: Request) => {
 
 const address = `ws://${host}:${port}`
 
-console.log(`BokehJS server ${version} listening on ${address}`)
+console.log(`BokehJS server ${pkg_json.version} listening on ${address}`)
 process.send?.("ready")

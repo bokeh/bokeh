@@ -20,9 +20,8 @@ export type TickSpec<T> = {
 // also support some additional methods: get_interval(), get_min_interval(),
 // and get_max_interval().
 
-export namespace Ticker{
+export namespace Ticker {
   export type Attrs = p.AttrsOf<Props>
-
   export type Props = Model.Props
 }
 

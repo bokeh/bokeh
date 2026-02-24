@@ -3,7 +3,7 @@ export interface Class<T, Args extends any[] = any[]> {
   prototype: T
 }
 
-export type Constructor<T = {}> = new (...args: any[]) => T
+export type Constructor<T = object> = new (...args: any[]) => T
 
 export function extend(ctor: Class<any>, ...mixins: any[]): void {
   for (const mixin of mixins) {

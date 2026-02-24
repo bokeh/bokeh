@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import atexit
 import signal
 import socket
@@ -57,8 +58,6 @@ from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
 
 if TYPE_CHECKING:
-    from types import FrameType
-
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
     from ..core.types import ID
@@ -193,9 +192,14 @@ class BaseServer:
         '''
         if not self._started:
             self.start()
+
         # Install shutdown hooks
         atexit.register(self._atexit)
-        signal.signal(signal.SIGTERM, self._sigterm)
+
+        if sys.platform != "win32":
+            io_loop = asyncio.get_event_loop()
+            io_loop.add_signal_handler(signal.SIGTERM, self._sigterm)
+
         try:
             self._loop.start()
         except KeyboardInterrupt:
@@ -286,10 +290,10 @@ class BaseServer:
         if not self._stopped:
             self.stop(wait=False)
 
-    def _sigterm(self, signum: int, frame: FrameType | None) -> None:
-        print(f"Received signal {signum}, shutting down")
+    def _sigterm(self) -> None:
+        print("Received signal SIGTERM, shutting down")
         # Tell self._loop.start() to return.
-        self._loop.add_callback_from_signal(self._loop.stop)
+        self._loop.stop()
 
     @property
     def port(self) -> int | None:

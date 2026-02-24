@@ -1,5 +1,5 @@
 declare namespace Slick {
-  interface GridOptions<T extends {}> {
+  interface GridOptions<T extends object> {
     autosizeColsMode?: "FCV" | "FVC" | "LFF" | "NOA"
   }
 }

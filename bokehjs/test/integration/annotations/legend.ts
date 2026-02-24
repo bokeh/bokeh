@@ -6,7 +6,7 @@ import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
 import type {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
-import type {Orientation} from "@bokehjs/core/enums"
+import type {HatchPatternType, LineDash, Orientation} from "@bokehjs/core/enums"
 import {Location} from "@bokehjs/core/enums"
 import {linspace} from "@bokehjs/core/util/array"
 import {LegendItemClick} from "@bokehjs/core/bokeh_events"
@@ -409,5 +409,204 @@ describe("Legend annotation", () => {
     }
 
     expect(clicked).to.be.equal(items)
+  })
+
+  it("should support title and label outline_color and outline_width", async () => {
+    const p = fig([200, 200])
+
+    const r0 = p.scatter({x: [1, 2, 3], y: [3, 4, 5], size: 10, marker: "circle", color: "red"})
+    const r1 = p.scatter({x: [1, 2, 3], y: [2, 3, 4], size: 15, marker: "circle", color: "blue"})
+    const r2 = p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20, marker: "circle", color: "green"})
+
+    const items = [
+      new LegendItem({label: "Item #0", renderers: [r0]}),
+      new LegendItem({label: "Item #1", renderers: [r1]}),
+      new LegendItem({label: "Item #2", renderers: [r2]}),
+    ]
+
+    const legend = new Legend({
+      items,
+      title: "Outline color/width",
+      title_text_outline_color: "yellow",
+      title_text_outline_width: 0.5,
+      title_text_font_style: "bold",
+      label_text_outline_color: "red",
+      label_text_outline_width: 1.0,
+      label_text_font_style: "bold",
+    })
+    p.add_layout(legend)
+
+    await display(p)
+  })
+
+  describe("should support as border_line_dash pattern value", () => {
+    function plot(dash_pattern: LineDash | number[], border_width: number = 1) {
+      const p = fig([200, 200])
+      const x = [1, 2, 3, 4, 5]
+      const y1 = [2, 3, 4, 5, 6]
+      const y2 = [3, 4, 5, 6, 7]
+
+      p.line(x, y1, {legend_label: "Temp.", line_color: "blue"})
+      p.line(x, y2, {legend_label: "Objects", line_color: "red"})
+
+      p.legend.location = "top_left"
+      p.legend.border_line_color = "black"
+      p.legend.border_line_dash = dash_pattern
+      p.legend.border_line_width = border_width
+
+      return p
+    }
+
+    it("solid", async () => {
+      const p = plot("solid")
+      await show_with_exported(p)
+    })
+
+    it("dotdash", async () => {
+      const p = plot("dotdash")
+      await show_with_exported(p)
+    })
+
+    it("dashdot", async () => {
+      const p = plot("dashdot")
+      await show_with_exported(p)
+    })
+
+    it("dashed", async () => {
+      const p = plot("dashed")
+      await show_with_exported(p)
+    })
+
+    it("dotted", async () => {
+      const p = plot("dotted")
+      await show_with_exported(p)
+    })
+
+    it("Custom pattern 2, 4, 3, 4 (even number of items)", async () => {
+      const p = plot([2, 4, 3, 4])
+      await show_with_exported(p)
+    })
+
+    it("Custom pattern 2, 4, 3, 4 (even number of items) with border_line_width 2", async () => {
+      const p = plot([2, 4, 3, 4], 2)
+      await show_with_exported(p)
+    })
+
+    it("Custom pattern 2, 4, 9, 4, 10 (odd number of items)", async () => {
+      const p = plot([2, 4, 9, 4, 10])
+      await show_with_exported(p)
+    })
+
+    it("Custom pattern 2, 4, 9, 4, 10 (odd number of items) with border_line_width 3", async () => {
+      const p = plot([2, 4, 9, 4, 10], 3)
+      await show_with_exported(p)
+    })
+  })
+
+  describe("should support as item_background_hatch and inactive_hatch and background_hatch patterns values like", () => {
+    function plot(hash_pattern: HatchPatternType) {
+      const p = fig([200, 200])
+      const x = [1, 2, 3, 4, 5]
+      const y1 = [2, 3, 4, 5, 6]
+      const y2 = [3, 4, 5, 6, 7]
+
+      p.line(x, y1, {legend_label: "Temp.", line_color: "blue", visible: false})
+      p.line(x, y2, {legend_label: "Objects", line_color: "red"})
+
+      p.legend.location = "top_left"
+      p.legend.border_line_color = "black"
+      p.legend.click_policy = "hide"
+      p.legend.item_background_policy = "odd"
+      p.legend.item_background_hatch_color = "green"
+      p.legend.item_background_hatch_scale = 5
+      p.legend.item_background_hatch_pattern = hash_pattern
+      p.legend.inactive_hatch_scale = 5
+      p.legend.inactive_hatch_pattern = hash_pattern
+      p.legend.background_hatch_color = "yellow"
+      p.legend.background_hatch_pattern = hash_pattern
+
+      return p
+    }
+
+    it("dot", async () => {
+      const p = plot("dot")
+      await show_with_exported(p)
+    })
+
+    it("ring", async () => {
+      const p = plot("ring")
+      await show_with_exported(p)
+    })
+
+    it("horizontal_line", async () => {
+      const p = plot("horizontal_line")
+      await show_with_exported(p)
+    })
+
+    it("vertical_line", async () => {
+      const p = plot("vertical_line")
+      await show_with_exported(p)
+    })
+
+    it("cross", async () => {
+      const p = plot("cross")
+      await show_with_exported(p)
+    })
+
+    it("horizontal_dash", async () => {
+      const p = plot("horizontal_dash")
+      await show_with_exported(p)
+    })
+
+    it("vertical_dash", async () => {
+      const p = plot("vertical_dash")
+      await show_with_exported(p)
+    })
+
+    it("spiral", async () => {
+      const p = plot("spiral")
+      await show_with_exported(p)
+    })
+
+    it("right_diagonal_line", async () => {
+      const p = plot("right_diagonal_line")
+      await show_with_exported(p)
+    })
+
+    it("left_diagonal_line", async () => {
+      const p = plot("left_diagonal_line")
+      await show_with_exported(p)
+    })
+
+    it("diagonal_cross", async () => {
+      const p = plot("diagonal_cross")
+      await show_with_exported(p)
+    })
+
+    it("right_diagonal_dash", async () => {
+      const p = plot("right_diagonal_dash")
+      await show_with_exported(p)
+    })
+
+    it("left_diagonal_dash", async () => {
+      const p = plot("left_diagonal_dash")
+      await show_with_exported(p)
+    })
+
+    it("horizontal_wave", async () => {
+      const p = plot("horizontal_wave")
+      await show_with_exported(p)
+    })
+
+    it("vertical_wave", async () => {
+      const p = plot("vertical_wave")
+      await show_with_exported(p)
+    })
+
+    it("criss_cross", async () => {
+      const p = plot("criss_cross")
+      await show_with_exported(p)
+    })
+
   })
 })
