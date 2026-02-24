@@ -53,6 +53,8 @@ from ..core.property.container import List
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..resources import DEFAULT_SERVER_PORT, server_url
+from ..server.auth_provider import AuthModule, NullAuth
+from ..settings import settings
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
@@ -494,22 +496,19 @@ class Server(BaseServer):
 
         '''
 
-        from ..server.auth_provider import AuthModule, NullAuth
-        from ..settings import settings as _settings
-
         # --- auth_provider ---
         # `settings.auth_module()`` yields a path string, but `Server` expects an AuthProvider instance.
         if 'auth_provider' not in kwargs:
-            auth_module_path = _settings.auth_module()
+            auth_module_path = settings.auth_module()
             kwargs['auth_provider'] = AuthModule(auth_module_path) if auth_module_path else NullAuth()
 
         # --- session signing ---
         if 'secret_key' not in kwargs:
             # NB: setting name doesn't match accessor method name on this one.
-            kwargs['secret_key'] = _settings.secret_key_bytes()
+            kwargs['secret_key'] = settings.secret_key_bytes()
 
         if 'sign_sessions' not in kwargs:
-            kwargs['sign_sessions'] = _settings.sign_sessions()
+            kwargs['sign_sessions'] = settings.sign_sessions()
 
         if kwargs['sign_sessions'] and not kwargs['secret_key']:
             raise ValueError("A 'secret_key' must be set when 'sign_sessions' is enabled.")
@@ -517,16 +516,16 @@ class Server(BaseServer):
         # --- SSL ---
         for key in ('ssl_certfile', 'ssl_keyfile', 'ssl_password'):
             if key not in kwargs:
-                kwargs[key] = getattr(_settings, key)()
+                kwargs[key] = getattr(settings, key)()
 
         # --- cookie / XSRF ---
         for key in ('cookie_secret', 'xsrf_cookies'):
             if key not in kwargs:
-                kwargs[key] = getattr(_settings, key)()
+                kwargs[key] = getattr(settings, key)()
 
         # --- misc ---
         if 'ico_path' not in kwargs:
-            kwargs['ico_path'] = _settings.ico_path()
+            kwargs['ico_path'] = settings.ico_path()
 
         return cls(applications, io_loop=io_loop, http_server_kwargs=http_server_kwargs, **kwargs)
 

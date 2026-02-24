@@ -56,7 +56,6 @@ from bokeh.util.token import (
     get_token_payload,
 )
 from tests.support.plugins.managed_server_loop import MSL
-from tests.support.util.env import envset
 
 # Module under test
 import bokeh.server.server as server # isort:skip
@@ -360,16 +359,16 @@ async def test__exclude_cookies(ManagedServerLoop: MSL) -> None:
 
 def test__from_settings_uses_envvars() -> None:
     with tempfile.NamedTemporaryFile(suffix='.py') as f:
-        with envset(
-            BOKEH_AUTH_MODULE=f.name,
-            BOKEH_SIGN_SESSIONS='yes',
-            BOKEH_SECRET_KEY='0' * 32,
-            BOKEH_SSL_CERTFILE='/path/to/cert.pem',
-            BOKEH_SSL_KEYFILE='/path/to/key.pem',
-            BOKEH_SSL_PASSWORD='hunter2',
-            BOKEH_COOKIE_SECRET='verysecret',
-            BOKEH_XSRF_COOKIES='yes',
-        ):
+        with mock.patch('bokeh.server.server.settings') as mock_settings:
+            mock_settings.auth_module.return_value = f.name
+            mock_settings.sign_sessions.return_value = True
+            mock_settings.secret_key_bytes.return_value = b'0' * 32
+            mock_settings.ssl_certfile.return_value = '/path/to/cert.pem'
+            mock_settings.ssl_keyfile.return_value = '/path/to/key.pem'
+            mock_settings.ssl_password.return_value = 'hunter2'
+            mock_settings.cookie_secret.return_value = 'verysecret'
+            mock_settings.xsrf_cookies.return_value = True
+            mock_settings.ico_path.return_value = None
             with mock.patch.object(Server, '__init__', return_value=None) as init:
                 Server.from_settings(Application())
                 _, kwargs = init.call_args
@@ -385,7 +384,16 @@ def test__from_settings_uses_envvars() -> None:
 def test__from_settings_kwarg_overrides_envvar() -> None:
     """Ensure that a kwarg to Server.from_settings overrides the equivalent envvar setting, if present."""
     null_auth = NullAuth()
-    with envset(BOKEH_AUTH_MODULE='/some/auth.py'):
+    with mock.patch('bokeh.server.server.settings') as mock_settings:
+        mock_settings.auth_module.return_value = '/some/auth.py'
+        mock_settings.sign_sessions.return_value = False
+        mock_settings.secret_key_bytes.return_value = None
+        mock_settings.ssl_certfile.return_value = None
+        mock_settings.ssl_keyfile.return_value = None
+        mock_settings.ssl_password.return_value = None
+        mock_settings.cookie_secret.return_value = None
+        mock_settings.xsrf_cookies.return_value = False
+        mock_settings.ico_path.return_value = None
         with mock.patch.object(Server, '__init__', return_value=None) as init:
             Server.from_settings(Application(), auth_provider=null_auth)
             _, kwargs = init.call_args
