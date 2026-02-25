@@ -127,10 +127,12 @@ export class CircleView extends RadialGlyphView {
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
-    const candidates = this.index.indices({x0, x1, y0, y1})
+    const candidates = this.index.indices({x0, x1, y0, y1}).ones()
 
     const indices = []
-    for (const i of candidates) {
+    const {length} = candidates
+    for (let k = 0; k < length; k++) {
+      const i = candidates[k]
       const sx_i = this.sx[i]
       const sy_i = this.sy[i]
       if (sx0 <= sx_i && sx_i <= sx1 && sy0 <= sy_i && sy_i <= sy1) {
