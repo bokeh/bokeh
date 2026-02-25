@@ -14,11 +14,26 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ...core.property_aliases import IconLikeType as IconLike
-from ...model.model import Model, _ModelInit
+from ...model.model import Model
 from ..callbacks import Callback
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import UIElement
 
-class _MenuItemInit(_ModelInit, total=False):
+from ...core.enums import AutoType as Auto
+from ...model.model import JSEventCallback
+from ..css import StyleSheet
+from ..css import Styles
+from ..nodes import Node
+from typing import Any
+from typing import Sequence
+from typing import TypedDict
+
+class _MenuItemInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     checked: bool | None
     icon: IconLike | None
     label: str
@@ -41,7 +56,13 @@ class MenuItem(Model):
     disabled: bool = ...
     action: Callback | None = ...
 
-class _ActionItemInit(_ModelInit, total=False):
+class _ActionItemInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     checked: bool | None
     icon: IconLike | None
     label: str
@@ -54,7 +75,13 @@ class _ActionItemInit(_ModelInit, total=False):
 class ActionItem(MenuItem):
     def __init__(self, **kwargs: Unpack[_ActionItemInit]) -> None: ...
 
-class _CheckableItemInit(_ModelInit, total=False):
+class _CheckableItemInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     checked: bool | None
     icon: IconLike | None
     label: str
@@ -67,13 +94,32 @@ class _CheckableItemInit(_ModelInit, total=False):
 class CheckableItem(ActionItem):
     def __init__(self, **kwargs: Unpack[_CheckableItemInit]) -> None: ...
 
-class _DividerItemInit(_ModelInit, total=False):
-    ...
+class _DividerItemInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class DividerItem(Model):
     def __init__(self, **kwargs: Unpack[_DividerItemInit]) -> None: ...
 
-class _MenuInit(_UIElementInit, total=False):
+class _MenuInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
     items: list[MenuItem | DividerItem | None]
     reversed: bool
 

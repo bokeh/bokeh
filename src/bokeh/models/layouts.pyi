@@ -26,12 +26,36 @@ from ..core.enums import (
 )
 from ..core.has_props import HasProps
 from ..core.property_aliases import GridSpacing, TracksSizing
-from ..model.model import Model, _ModelInit
-from .ui.panes import Pane, _PaneInit
+from ..model.model import Model
+from .ui.panes import Pane
 from .ui.tooltips import Tooltip
 from .ui.ui_element import UIElement
 
-class _LayoutDOMInit(_PaneInit, total=False):
+from ..model.model import JSEventCallback
+from .css import StyleSheet
+from .css import Styles
+from .dom import DOMNode
+from .nodes import Node
+from .ui.menus import Menu
+from typing import Any
+from typing import Sequence
+
+class _LayoutDOMInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -68,7 +92,22 @@ class LayoutDOM(Pane):
     align: Auto | Align | tuple[Align, Align] = ...
     resizable: bool | Dimensions = ...
 
-class _SpacerInit(_PaneInit, total=False):
+class _SpacerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -101,7 +140,22 @@ class GridCommon(HasProps):
     cols: TracksSizing | None = ...
     spacing: GridSpacing = ...
 
-class _GridBoxInit(TypedDict, _PaneInit, total=False):
+class _GridBoxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     rows: TracksSizing | None
     cols: TracksSizing | None
     spacing: GridSpacing
@@ -137,7 +191,22 @@ class VBoxChild(TypedDict):
     row: NotRequired[int]
     span: NotRequired[int]
 
-class _HBoxInit(_PaneInit, total=False):
+class _HBoxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -168,7 +237,22 @@ class HBox(LayoutDOM):
     cols: TracksSizing | None = ...
     spacing: NonNegative[int] = ...
 
-class _VBoxInit(_PaneInit, total=False):
+class _VBoxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -199,7 +283,22 @@ class VBox(LayoutDOM):
     rows: TracksSizing | None = ...
     spacing: NonNegative[int] = ...
 
-class _FlexBoxInit(_PaneInit, total=False):
+class _FlexBoxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -225,7 +324,22 @@ class FlexBox(LayoutDOM):
     children: list[UIElement] = ...
     spacing: NonNegative[int] = ...
 
-class _RowInit(_PaneInit, total=False):
+class _RowInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -247,7 +361,22 @@ class _RowInit(_PaneInit, total=False):
 class Row(FlexBox):
     def __init__(self, **kwargs: Unpack[_RowInit]) -> None: ...
 
-class _ColumnInit(_PaneInit, total=False):
+class _ColumnInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -269,7 +398,13 @@ class _ColumnInit(_PaneInit, total=False):
 class Column(FlexBox):
     def __init__(self, **kwargs: Unpack[_ColumnInit]) -> None: ...
 
-class _TabPanelInit(_ModelInit, total=False):
+class _TabPanelInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     title: str
     tooltip: Tooltip | None
     child: UIElement
@@ -285,7 +420,22 @@ class TabPanel(Model):
     closable: bool = ...
     disabled: bool = ...
 
-class _TabsInit(_PaneInit, total=False):
+class _TabsInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -318,7 +468,22 @@ class Tabs(LayoutDOM):
     active: int = ...
     link_layouts: bool = ...
 
-class _GroupBoxInit(_PaneInit, total=False):
+class _GroupBoxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None
@@ -345,7 +510,22 @@ class GroupBox(LayoutDOM):
     child: UIElement = ...
     checkable: bool = ...
 
-class _ScrollBoxInit(_PaneInit, total=False):
+class _ScrollBoxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
     disabled: bool
     width: NonNegative[int] | None
     height: NonNegative[int] | None

@@ -48,22 +48,8 @@ from ...core.property_mixins import (
     ScalarMajorTickLineProps,
     ScalarMinorTickLineProps,
     ScalarTitleTextProps,
-    _GlyphFillPropsInit,
-    _GlyphHatchPropsInit,
-    _GlyphLinePropsInit,
-    _ScalarBackgroundFillPropsInit,
-    _ScalarBackgroundHatchPropsInit,
-    _ScalarBarLinePropsInit,
-    _ScalarBorderLinePropsInit,
-    _ScalarInactiveFillPropsInit,
-    _ScalarItemBackgroundFillPropsInit,
-    _ScalarLabelTextPropsInit,
-    _ScalarMajorLabelTextPropsInit,
-    _ScalarMajorTickLinePropsInit,
-    _ScalarMinorTickLinePropsInit,
-    _ScalarTitleTextPropsInit,
 )
-from ...model.model import Model, _ModelInit
+from ...model.model import Model
 from ...util.callback_manager import EventCallback as PyEventCallback
 from ..callbacks import Callback as JsEventCallback
 from ..formatters import TickFormatter
@@ -73,10 +59,115 @@ from ..mappers import ColorMapper
 from ..ranges import Range
 from ..renderers import GlyphRenderer
 from ..tickers import Ticker
-from .annotation import Annotation, _AnnotationInit
+from .annotation import Annotation
 from .dimensional import Dimensional
 
-class _BaseColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit, _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
+from ..._specs import AlphaSpec
+from ..._specs import ColorSpec
+from ..._specs import DashPatternSpec
+from ..._specs import FloatSpec
+from ..._specs import HatchPatternSpec
+from ..._specs import IntSpec
+from ..._specs import LineCapSpec
+from ..._specs import LineJoinSpec
+from ..._types import Alpha
+from ..._types import Color
+from ..._types import FontSize
+from ..._types import Size
+from ...core.enums import FontStyleType as FontStyle
+from ...core.enums import LineCapType as LineCap
+from ...core.enums import LineJoinType as LineJoin
+from ...core.enums import RenderLevelType as RenderLevel
+from ...core.enums import TextAlignType as TextAlign
+from ...core.enums import TextBaselineType as TextBaseline
+from ...core.property.visual import DashPatternType as DashPattern
+from ...model.model import JSEventCallback
+from ..coordinates import CoordinateMapping
+from ..css import StyleSheet
+from ..css import Styles
+from ..dom import DOMNode
+from ..nodes import Node
+from ..renderers.renderer import Renderer
+from ..renderers.renderer import RendererGroup
+from ..textures import Texture
+from ..ui.menus import Menu
+from ..ui.ui_element import UIElement
+from typing import Any
+from typing import TypedDict
+
+class _BaseColorBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    bar_line_color: Color | None
+    bar_line_alpha: Alpha
+    bar_line_width: float
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: DashPattern
+    bar_line_dash_offset: int
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
     location: HVAlign | tuple[float, float]
     orientation: Orientation | Auto
     height: Auto | int
@@ -118,7 +209,79 @@ class BaseColorBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, 
     minor_tick_in: int = ...
     minor_tick_out: int = ...
 
-class _ColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit, _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
+class _ColorBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    bar_line_color: Color | None
+    bar_line_alpha: Alpha
+    bar_line_width: float
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: DashPattern
+    bar_line_dash_offset: int
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
     location: HVAlign | tuple[float, float]
     orientation: Orientation | Auto
     height: Auto | int
@@ -149,7 +312,79 @@ class ColorBar(BaseColorBar):
     display_high: float | None = ...
     scale_alpha: float = ...
 
-class _ContourColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit, _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
+class _ContourColorBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    bar_line_color: Color | None
+    bar_line_alpha: Alpha
+    bar_line_width: float
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: DashPattern
+    bar_line_dash_offset: int
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
     location: HVAlign | tuple[float, float]
     orientation: Orientation | Auto
     height: Auto | int
@@ -178,7 +413,13 @@ class ContourColorBar(BaseColorBar):
     line_renderer: GlyphRenderer[Glyph] = ...
     levels: Sequence[float] = ...
 
-class _LegendItemInit(_ModelInit, total=False):
+class _LegendItemInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     label: NullStringSpec
     renderers: list[GlyphRenderer[Glyph]]
     index: int | None
@@ -192,7 +433,62 @@ class LegendItem(Model):
     index: int | None = ...
     visible: bool = ...
 
-class _LegendInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _ScalarItemBackgroundFillPropsInit, _ScalarInactiveFillPropsInit, _ScalarLabelTextPropsInit, total=False):
+class _LegendInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    item_background_fill_color: Color | None
+    item_background_fill_alpha: Alpha
+    inactive_fill_color: Color | None
+    inactive_fill_alpha: Alpha
+    label_text_color: Color | None
+    label_text_outline_color: Color | None
+    label_text_outline_width: float
+    label_text_alpha: Alpha
+    label_text_font: str
+    label_text_font_size: FontSize
+    label_text_font_style: FontStyle
+    label_text_align: TextAlign
+    label_text_baseline: TextBaseline
+    label_text_line_height: float
     location: LegendLocation | tuple[float, float]
     orientation: Orientation
     ncols: int | Auto
@@ -251,7 +547,71 @@ Y: TypeAlias = VAlign | float | CoordinateLike
 Position: TypeAlias = HVAlign | tuple[X, Y]
 PositionUnits: TypeAlias = Literal["data", "screen", "view", "percent"]
 
-class _ScaleBarInit(_AnnotationInit, _ScalarBarLinePropsInit, _ScalarLabelTextPropsInit, _ScalarTitleTextPropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, total=False):
+class _ScaleBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    bar_line_color: Color | None
+    bar_line_alpha: Alpha
+    bar_line_width: float
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: DashPattern
+    bar_line_dash_offset: int
+    label_text_color: Color | None
+    label_text_outline_color: Color | None
+    label_text_outline_width: float
+    label_text_alpha: Alpha
+    label_text_font: str
+    label_text_font_size: FontSize
+    label_text_font_style: FontStyle
+    label_text_align: TextAlign
+    label_text_baseline: TextBaseline
+    label_text_line_height: float
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     range: Range | Auto
     unit: str
     dimensional: Dimensional
@@ -302,7 +662,79 @@ class ScaleBar(Annotation, ScalarBarLineProps, ScalarLabelTextProps, ScalarTitle
     title_standoff: int = ...
     ticker: Ticker = ...
 
-class _BaseBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit, _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
+class _BaseBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    bar_line_color: Color | None
+    bar_line_alpha: Alpha
+    bar_line_width: float
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: DashPattern
+    bar_line_dash_offset: int
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
     location: HVAlign | tuple[float, float]
     orientation: Orientation | Auto
     height: Literal["max"] | int
@@ -344,7 +776,94 @@ class BaseBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, Scala
     minor_tick_in: int = ...
     minor_tick_out: int = ...
 
-class _SizeBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit, _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _GlyphLinePropsInit, _GlyphFillPropsInit, _GlyphHatchPropsInit, total=False):
+class _SizeBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    title_text_color: Color | None
+    title_text_outline_color: Color | None
+    title_text_outline_width: float
+    title_text_alpha: Alpha
+    title_text_font: str
+    title_text_font_size: FontSize
+    title_text_font_style: FontStyle
+    title_text_align: TextAlign
+    title_text_baseline: TextBaseline
+    title_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    bar_line_color: Color | None
+    bar_line_alpha: Alpha
+    bar_line_width: float
+    bar_line_join: LineJoin
+    bar_line_cap: LineCap
+    bar_line_dash: DashPattern
+    bar_line_dash_offset: int
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    glyph_line_color: ColorSpec
+    glyph_line_alpha: AlphaSpec
+    glyph_line_width: FloatSpec
+    glyph_line_join: LineJoinSpec
+    glyph_line_cap: LineCapSpec
+    glyph_line_dash: DashPatternSpec
+    glyph_line_dash_offset: IntSpec
+    glyph_fill_color: ColorSpec
+    glyph_fill_alpha: AlphaSpec
+    glyph_hatch_color: ColorSpec
+    glyph_hatch_alpha: AlphaSpec
+    glyph_hatch_scale: FloatSpec
+    glyph_hatch_pattern: HatchPatternSpec
+    glyph_hatch_weight: FloatSpec
+    glyph_hatch_extra: dict[str, Texture]
     location: HVAlign | tuple[float, float]
     orientation: Orientation | Auto
     height: Literal["max"] | int

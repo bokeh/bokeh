@@ -20,10 +20,41 @@ from ..core.property_mixins import (
     ScalarMinorGridLineProps,
 )
 from .axes import Axis
-from .renderers.renderer import GuideRenderer, _GuideRendererInit
+from .renderers.renderer import GuideRenderer
 from .tickers import Ticker
 
-class _GridInit(_GuideRendererInit, total=False):
+from ..core.enums import RenderLevelType as RenderLevel
+from ..model.model import JSEventCallback
+from .coordinates import CoordinateMapping
+from .css import StyleSheet
+from .css import Styles
+from .nodes import Node
+from .renderers.renderer import RendererGroup
+from .ui.menus import Menu
+from typing import Any
+from typing import TypedDict
+
+class _GridInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
     dimension: Literal[0, 1]
     bounds: Auto | tuple[float, float]
     cross_bounds: Auto | tuple[float, float]

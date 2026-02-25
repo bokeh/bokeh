@@ -35,12 +35,6 @@ from ..core.property_mixins import (
     ScalarBorderHatchProps as BorderHatch,
     ScalarBorderLineProps as BorderLine,
     ScalarOutlineLineProps as OutlineLine,
-    _ScalarBackgroundFillPropsInit as _BackgroundFillInit,
-    _ScalarBackgroundHatchPropsInit as _BackgroundHatchInit,
-    _ScalarBorderFillPropsInit as _BorderFillInit,
-    _ScalarBorderHatchPropsInit as _BorderHatchInit,
-    _ScalarBorderLinePropsInit as _BorderLineInit,
-    _ScalarOutlineLinePropsInit as _OutlineLineInit,
 )
 from ..model import Model
 from .annotations import Legend, Title
@@ -51,8 +45,6 @@ from .grids import Grid
 from .layouts import (
     GridCommon,
     LayoutDOM,
-    _GridCommonInit,
-    _LayoutDOMInit,
 )
 from .ranges import Range
 from .renderers import GlyphRenderer, Renderer, TileRenderer
@@ -67,6 +59,31 @@ if TYPE_CHECKING:
 
 GlyphType = TypeVar("GlyphType", bound=Glyph)
 
+from .._types import Alpha
+from .._types import Color
+from .._types import NonNegative
+from .._types import Size
+from ..core.enums import AlignType as Align
+from ..core.enums import AutoType as Auto
+from ..core.enums import DimensionsType as Dimensions
+from ..core.enums import FlowModeType as FlowMode
+from ..core.enums import LineCapType as LineCap
+from ..core.enums import LineJoinType as LineJoin
+from ..core.enums import SizingModeType as SizingMode
+from ..core.enums import SizingPolicyType as SizingPolicy
+from ..core.property.visual import DashPatternType as DashPattern
+from ..core.property_aliases import GridSpacing
+from ..core.property_aliases import TracksSizing
+from ..model.model import JSEventCallback
+from .css import StyleSheet
+from .css import Styles
+from .dom import DOMNode
+from .nodes import Node
+from .textures import Texture
+from .ui.menus import Menu
+from .ui.ui_element import UIElement
+from typing import TypedDict
+
 class AxisListAttrSplat(list[Axis], Axis):
     pass
 
@@ -79,7 +96,67 @@ class LegendListAttrSplat(list[Legend], Legend):
 class HoverListAttrSplat(list[HoverTool], HoverTool):
     pass
 
-class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
+class _PlotInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    border_fill_color: Color | None
+    border_fill_alpha: Alpha
+    border_hatch_color: Color | None
+    border_hatch_alpha: Alpha
+    border_hatch_scale: Size
+    border_hatch_pattern: str | None
+    border_hatch_weight: Size
+    border_hatch_extra: dict[str, Texture]
+    outline_line_color: Color | None
+    outline_line_alpha: Alpha
+    outline_line_width: float
+    outline_line_join: LineJoin
+    outline_line_cap: LineCap
+    outline_line_dash: DashPattern
+    outline_line_dash_offset: int
     x_range: Range
     y_range: Range
     x_scale: Scale
@@ -235,7 +312,40 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @contextmanager
     def hold(self, *, render: bool) -> Generator[None, None, None]: ...
 
-class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
+class _GridPlotInit(TypedDict, total=False):
+    rows: TracksSizing | None
+    cols: TracksSizing | None
+    spacing: GridSpacing
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     toolbar: Toolbar
     toolbar_location: Location | None
     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]

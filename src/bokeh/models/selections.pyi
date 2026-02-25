@@ -13,7 +13,10 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
+
+from ..model.model import JSEventCallback
+from typing import Any
 
 class ImageIndex(TypedDict):
    index: int
@@ -21,7 +24,13 @@ class ImageIndex(TypedDict):
    j: int
    flat_index: int
 
-class _SelectionInit(_ModelInit, total=False):
+class _SelectionInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     indices: Sequence[int]
     line_indices: Sequence[int]
     multiline_indices: dict[int, Sequence[int]]
@@ -35,21 +44,36 @@ class Selection(Model):
     multiline_indices: dict[int, Sequence[int]] = ...
     image_indices: list[ImageIndex] = ...
 
-class _SelectionPolicyInit(_ModelInit, total=False):
-    ...
+class _SelectionPolicyInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class SelectionPolicy(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_SelectionPolicyInit]) -> None: ...
 
-class _IntersectRenderersInit(_ModelInit, total=False):
-    ...
+class _IntersectRenderersInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class IntersectRenderers(SelectionPolicy):
     def __init__(self, **kwargs: Unpack[_IntersectRenderersInit]) -> None: ...
 
-class _UnionRenderersInit(_ModelInit, total=False):
-    ...
+class _UnionRenderersInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class UnionRenderers(SelectionPolicy):
     def __init__(self, **kwargs: Unpack[_UnionRenderersInit]) -> None: ...

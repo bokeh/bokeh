@@ -13,16 +13,31 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _StyleSheetInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _StyleSheetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class StyleSheet(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_StyleSheetInit]) -> None: ...
 
-class _InlineStyleSheetInit(_ModelInit, total=False):
+class _InlineStyleSheetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     css: str
 
 class InlineStyleSheet(StyleSheet):
@@ -30,7 +45,13 @@ class InlineStyleSheet(StyleSheet):
 
     css: str = ...
 
-class _ImportedStyleSheetInit(_ModelInit, total=False):
+class _ImportedStyleSheetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
 
 class ImportedStyleSheet(StyleSheet):
@@ -38,19 +59,37 @@ class ImportedStyleSheet(StyleSheet):
 
     url: str = ...
 
-class _GlobalInlineStyleSheetInit(_ModelInit, total=False):
+class _GlobalInlineStyleSheetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     css: str
 
 class GlobalInlineStyleSheet(InlineStyleSheet):
     def __init__(self, **kwargs: Unpack[_GlobalInlineStyleSheetInit]) -> None: ...
 
-class _GlobalImportedStyleSheetInit(_ModelInit, total=False):
+class _GlobalImportedStyleSheetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
 
 class GlobalImportedStyleSheet(ImportedStyleSheet):
     def __init__(self, **kwargs: Unpack[_GlobalImportedStyleSheetInit]) -> None: ...
 
-class _StylesInit(_ModelInit, total=False):
+class _StylesInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     align_content: str | None
     align_items: str | None
     align_self: str | None

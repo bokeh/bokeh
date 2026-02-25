@@ -13,12 +13,22 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
-from ...model.model import Model, _ModelInit
+from ...model.model import Model
 from ..css import Styles, StyleSheet
 from ..nodes import Node
 from .menus import Menu
 
-class _StyledElementInit(_ModelInit, total=False):
+from ...model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _StyledElementInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     html_attributes: dict[str, str]
     html_id: str | None
     css_classes: Sequence[str]
@@ -41,7 +51,13 @@ class StyledElement(Model):
     styles: dict[str, str | None] | Styles = ...
     stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]] = ...
 
-class _UIElementInit(_ModelInit, total=False):
+class _UIElementInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     html_attributes: dict[str, str]
     html_id: str | None
     css_classes: Sequence[str]

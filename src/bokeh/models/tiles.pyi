@@ -13,9 +13,18 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _TileSourceInit(_ModelInit, total=False):
+from ..model.model import JSEventCallback
+from typing import TypedDict
+
+class _TileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int
@@ -40,7 +49,13 @@ class TileSource(Model):
     y_origin_offset: float = ...
     initial_resolution: float | None = ...
 
-class _MercatorTileSourceInit(_ModelInit, total=False):
+class _MercatorTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int
@@ -60,7 +75,13 @@ class MercatorTileSource(TileSource):
     snap_to_zoom: bool = ...
     wrap_around: bool = ...
 
-class _TMSTileSourceInit(_ModelInit, total=False):
+class _TMSTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int
@@ -76,7 +97,13 @@ class _TMSTileSourceInit(_ModelInit, total=False):
 class TMSTileSource(MercatorTileSource):
     def __init__(self, **kwargs: Unpack[_TMSTileSourceInit]) -> None: ...
 
-class _WMTSTileSourceInit(_ModelInit, total=False):
+class _WMTSTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int
@@ -92,7 +119,13 @@ class _WMTSTileSourceInit(_ModelInit, total=False):
 class WMTSTileSource(MercatorTileSource):
     def __init__(self, **kwargs: Unpack[_WMTSTileSourceInit]) -> None: ...
 
-class _QUADKEYTileSourceInit(_ModelInit, total=False):
+class _QUADKEYTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int
@@ -108,7 +141,13 @@ class _QUADKEYTileSourceInit(_ModelInit, total=False):
 class QUADKEYTileSource(MercatorTileSource):
     def __init__(self, **kwargs: Unpack[_QUADKEYTileSourceInit]) -> None: ...
 
-class _BBoxTileSourceInit(_ModelInit, total=False):
+class _BBoxTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int

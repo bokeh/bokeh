@@ -13,16 +13,31 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _MarkingInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _MarkingInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Marking(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MarkingInit]) -> None: ...
 
-class _DecorationInit(_ModelInit, total=False):
+class _DecorationInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     marking: Marking
     node: Literal["start", "middle", "end"]
 

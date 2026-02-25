@@ -19,16 +19,31 @@ from ..core.property.visual import HatchPatternType as HatchPattern
 from .glyph import Glyph
 from .ranges import FactorSeq
 from .renderers import GlyphRenderer
-from .transforms import Transform, _TransformInit
+from .transforms import Transform
 
-class _MapperInit(_TransformInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _MapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Mapper(Transform):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MapperInit]) -> None: ...
 
-class _ColorMapperInit(_TransformInit, total=False):
+class _ColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
 
@@ -43,7 +58,13 @@ class ColorMapper(Mapper):
 
     nan_color: Color = ...
 
-class _CategoricalMapperInit(_TransformInit, total=False):
+class _CategoricalMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     factors: FactorSeq
     start: int
     end: int | None
@@ -56,13 +77,24 @@ class CategoricalMapper(Mapper):
     start: int = ...
     end: int | None = ...
 
-class _CategoricalColorMapperInit(_TransformInit, ColorMapper, total=False): # TODO _ColorMapperInit ... class CategoricalColorMapper(CategoricalMapper):
+class _CategoricalColorMapperInit(TypedDict, ColorMapper, total=False): # TODO _ColorMapperInit ... class CategoricalColorMapper(CategoricalMapper):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     factors: FactorSeq
     start: int
     end: int | None
-    def __init__(self, **kwargs: Unpack[_CategoricalColorMapperInit]) -> None: ...
 
-class _CategoricalMarkerMapperInit(_TransformInit, total=False):
+class _CategoricalMarkerMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     factors: FactorSeq
     start: int
     end: int | None
@@ -75,7 +107,13 @@ class CategoricalMarkerMapper(CategoricalMapper):
     markers: Sequence[MarkerType] = ...
     default_value: MarkerType = ...
 
-class _CategoricalPatternMapperInit(_TransformInit, total=False):
+class _CategoricalPatternMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     factors: FactorSeq
     start: int
     end: int | None
@@ -88,7 +126,13 @@ class CategoricalPatternMapper(CategoricalMapper):
     patterns: Sequence[HatchPattern] = ...
     default_value: HatchPattern = ...
 
-class _ContinuousColorMapperInit(_TransformInit, total=False):
+class _ContinuousColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
@@ -107,7 +151,13 @@ class ContinuousColorMapper(ColorMapper):
     low_color: Color | None = ...
     high_color: Color | None = ...
 
-class _LinearColorMapperInit(_TransformInit, total=False):
+class _LinearColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
@@ -119,7 +169,13 @@ class _LinearColorMapperInit(_TransformInit, total=False):
 class LinearColorMapper(ContinuousColorMapper):
     def __init__(self, **kwargs: Unpack[_LinearColorMapperInit]) -> None: ...
 
-class _LogColorMapperInit(_TransformInit, total=False):
+class _LogColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
@@ -131,7 +187,13 @@ class _LogColorMapperInit(_TransformInit, total=False):
 class LogColorMapper(ContinuousColorMapper):
     def __init__(self, **kwargs: Unpack[_LogColorMapperInit]) -> None: ...
 
-class _ScanningColorMapperInit(_TransformInit, total=False):
+class _ScanningColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
@@ -144,7 +206,13 @@ class ScanningColorMapper(ContinuousColorMapper):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ScanningColorMapperInit]) -> None: ...
 
-class _EqHistColorMapperInit(_TransformInit, total=False):
+class _EqHistColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
@@ -161,7 +229,13 @@ class EqHistColorMapper(ScanningColorMapper):
     bins: int = ...
     rescale_discrete_levels: bool = ...
 
-class _StackColorMapperInit(_TransformInit, total=False):
+class _StackColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
 
@@ -169,7 +243,13 @@ class StackColorMapper(ColorMapper):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_StackColorMapperInit]) -> None: ...
 
-class _WeightedStackColorMapperInit(_TransformInit, total=False):
+class _WeightedStackColorMapperInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     palette: Sequence[Color] | Palette
     nan_color: Color
     alpha_mapper: ContinuousColorMapper

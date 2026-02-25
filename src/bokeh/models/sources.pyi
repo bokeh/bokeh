@@ -30,10 +30,13 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .._types import JSON
 from ..core.has_props import Setter
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
+
+from ..model.model import JSEventCallback
+from typing import TypedDict
 
 DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
 
@@ -43,7 +46,13 @@ Index: TypeAlias = int | slice | tuple[int | slice, ...]
 
 Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Any]]]
 
-class _DataSourceInit(_ModelInit, total=False):
+class _DataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
 
 class DataSource(Model):
@@ -52,7 +61,13 @@ class DataSource(Model):
 
     selected: Selection = ...
 
-class _ColumnarDataSourceInit(_ModelInit, total=False):
+class _ColumnarDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
@@ -64,7 +79,13 @@ class ColumnarDataSource(DataSource):
     default_values: dict[str, Any] = ...
     selection_policy: SelectionPolicy = ...
 
-class _ColumnDataSourceInit(_ModelInit, total=False):
+class _ColumnDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
@@ -103,7 +124,13 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class _CDSViewInit(_ModelInit, total=False):
+class _CDSViewInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     filter: Filter
 
 class CDSView(Model):
@@ -111,7 +138,13 @@ class CDSView(Model):
 
     filter: Filter = ...
 
-class _GeoJSONDataSourceInit(_ModelInit, total=False):
+class _GeoJSONDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
@@ -122,7 +155,13 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     geojson: JSON = ...
 
-class _WebDataSourceInit(_ModelInit, total=False):
+class _WebDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
@@ -141,7 +180,13 @@ class WebDataSource(ColumnDataSource):
     mode: Literal["replace", "append"] = ...
     data_url: str = ...
 
-class _ServerSentDataSourceInit(_ModelInit, total=False):
+class _ServerSentDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
@@ -154,7 +199,13 @@ class _ServerSentDataSourceInit(_ModelInit, total=False):
 class ServerSentDataSource(WebDataSource):
     def __init__(self, **kwargs: Unpack[_ServerSentDataSourceInit]) -> None: ...
 
-class _AjaxDataSourceInit(_ModelInit, total=False):
+class _AjaxDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy

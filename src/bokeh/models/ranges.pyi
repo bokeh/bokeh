@@ -25,7 +25,11 @@ from ..core.enums import (
     StartEndType as StartEnd,
 )
 from ..core.property.visual import Bounds, MinMaxBoundsType as MinMaxBounds
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
+
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
 
 Value: TypeAlias = float | DateTime | TimeDelta
 
@@ -40,14 +44,25 @@ L3Factor: TypeAlias = tuple[str, str, str]
 Factor: TypeAlias = L1Factor | L2Factor | L3Factor
 FactorSeq: TypeAlias = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
 
-class _RangeInit(_ModelInit, total=False):
-    ...
+class _RangeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Range(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_RangeInit]) -> None: ...
 
-class _NumericalRangeInit(_ModelInit, total=False):
+class _NumericalRangeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     start: Value
     end: Value
 
@@ -58,7 +73,13 @@ class NumericalRange(Range):
     start: Value = ...
     end: Value = ...
 
-class _Range1dInit(_ModelInit, total=False):
+class _Range1dInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     start: Value
     end: Value
     reset_start: Value | None
@@ -79,7 +100,13 @@ class Range1d(NumericalRange):
     min_interval: Interval | None = ...
     max_interval: Interval | None = ...
 
-class _DataRangeInit(_ModelInit, total=False):
+class _DataRangeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     start: Value
     end: Value
     renderers: list[Model] | Auto | None
@@ -90,7 +117,13 @@ class DataRange(NumericalRange):
 
     renderers: list[Model] | Auto | None = ...
 
-class _DataRange1dInit(_ModelInit, total=False):
+class _DataRange1dInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     start: Value
     end: Value
     renderers: list[Model] | Auto | None
@@ -119,7 +152,13 @@ class DataRange1d(DataRange):
     default_span: Interval = ...
     only_visible: bool = ...
 
-class _FactorRangeInit(_ModelInit, total=False):
+class _FactorRangeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     factors: FactorSeq
     factor_padding: float
     subgroup_padding: float

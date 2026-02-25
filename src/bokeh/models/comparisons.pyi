@@ -13,16 +13,30 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _ComparisonInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import TypedDict
+
+class _ComparisonInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Comparison(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ComparisonInit]) -> None: ...
 
-class _CustomJSCompareInit(_ModelInit, total=False):
+class _CustomJSCompareInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 
@@ -32,7 +46,13 @@ class CustomJSCompare(Comparison):
     args: dict[str, Any] = ...
     code: str = ...
 
-class _NanCompareInit(_ModelInit, total=False):
+class _NanCompareInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ascending_first: bool
 
 class NanCompare(Comparison):

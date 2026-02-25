@@ -20,7 +20,7 @@ from ...core.enums import (
     NumeralLanguageType as NumeralLanguage,
     RoundingFunctionType as RoundingFunction,
 )
-from ...model.model import Model, _ModelInit
+from ...model.model import Model
 from ..comparisons import Comparison
 from ..sources import (
     CDSView,
@@ -28,23 +28,56 @@ from ..sources import (
     DataDictLike,
     DataSource,
 )
-from .widget import Widget, _WidgetInit
+from .widget import Widget
 
-class _CellFormatterInit(_ModelInit, total=False):
-    ...
+from ..._types import NonNegative
+from ...core.enums import AlignType as Align
+from ...core.enums import AutoType as Auto
+from ...core.enums import DimensionsType as Dimensions
+from ...core.enums import FlowModeType as FlowMode
+from ...core.enums import SizingModeType as SizingMode
+from ...core.enums import SizingPolicyType as SizingPolicy
+from ...model.model import JSEventCallback
+from ..css import StyleSheet
+from ..css import Styles
+from ..dom import DOMNode
+from ..nodes import Node
+from ..ui.menus import Menu
+from ..ui.ui_element import UIElement
+from typing import Sequence
+from typing import TypedDict
+
+class _CellFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CellFormatter(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CellFormatterInit]) -> None: ...
 
-class _CellEditorInit(_ModelInit, total=False):
-    ...
+class _CellEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CellEditor(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CellEditorInit]) -> None: ...
 
-class _RowAggregatorInit(_ModelInit, total=False):
+class _RowAggregatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field_: str
 
 class RowAggregator(Model):
@@ -53,7 +86,13 @@ class RowAggregator(Model):
 
     field_: str = ...
 
-class _StringFormatterInit(_ModelInit, total=False):
+class _StringFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     font_style: FontStyleSpec
     text_align: TextAlignSpec
     text_color: ColorSpec
@@ -71,7 +110,13 @@ class StringFormatter(CellFormatter):
     nan_format: str = ...
     null_format: str = ...
 
-class _ScientificFormatterInit(_ModelInit, total=False):
+class _ScientificFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     font_style: FontStyleSpec
     text_align: TextAlignSpec
     text_color: ColorSpec
@@ -89,7 +134,13 @@ class ScientificFormatter(StringFormatter):
     power_limit_high: int = ...
     power_limit_low: int = ...
 
-class _NumberFormatterInit(_ModelInit, total=False):
+class _NumberFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     font_style: FontStyleSpec
     text_align: TextAlignSpec
     text_color: ColorSpec
@@ -107,7 +158,13 @@ class NumberFormatter(StringFormatter):
     language: NumeralLanguage = ...
     rounding: RoundingFunction = ...
 
-class _BooleanFormatterInit(_ModelInit, total=False):
+class _BooleanFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     icon: Literal["check", "check-circle", "check-circle-o", "check-square", "check-square-o"]
 
 class BooleanFormatter(CellFormatter):
@@ -115,7 +172,13 @@ class BooleanFormatter(CellFormatter):
 
     icon: Literal["check", "check-circle", "check-circle-o", "check-square", "check-square-o"] = ...
 
-class _DateFormatterInit(_ModelInit, total=False):
+class _DateFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     font_style: FontStyleSpec
     text_align: TextAlignSpec
     text_color: ColorSpec
@@ -129,7 +192,13 @@ class DateFormatter(StringFormatter):
 
     format: DateFormat | str = ...
 
-class _HTMLTemplateFormatterInit(_ModelInit, total=False):
+class _HTMLTemplateFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     template: str
 
 class HTMLTemplateFormatter(CellFormatter):
@@ -137,7 +206,13 @@ class HTMLTemplateFormatter(CellFormatter):
 
     template: str = ...
 
-class _StringEditorInit(_ModelInit, total=False):
+class _StringEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     completions: list[str]
 
 class StringEditor(CellEditor):
@@ -145,13 +220,24 @@ class StringEditor(CellEditor):
 
     completions: list[str] = ...
 
-class _TextEditorInit(_ModelInit, total=False):
-    ...
+class _TextEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class TextEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_TextEditorInit]) -> None: ...
 
-class _SelectEditorInit(_ModelInit, total=False):
+class _SelectEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     options: list[str]
 
 class SelectEditor(CellEditor):
@@ -159,19 +245,35 @@ class SelectEditor(CellEditor):
 
     options: list[str] = ...
 
-class _PercentEditorInit(_ModelInit, total=False):
-    ...
+class _PercentEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class PercentEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_PercentEditorInit]) -> None: ...
 
-class _CheckboxEditorInit(_ModelInit, total=False):
-    ...
+class _CheckboxEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CheckboxEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_CheckboxEditorInit]) -> None: ...
 
-class _IntEditorInit(_ModelInit, total=False):
+class _IntEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     step: int
 
 class IntEditor(CellEditor):
@@ -179,7 +281,13 @@ class IntEditor(CellEditor):
 
     step: int = ...
 
-class _NumberEditorInit(_ModelInit, total=False):
+class _NumberEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     step: float
 
 class NumberEditor(CellEditor):
@@ -187,43 +295,83 @@ class NumberEditor(CellEditor):
 
     step: float = ...
 
-class _TimeEditorInit(_ModelInit, total=False):
-    ...
+class _TimeEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class TimeEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_TimeEditorInit]) -> None: ...
 
-class _DateEditorInit(_ModelInit, total=False):
-    ...
+class _DateEditorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class DateEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_DateEditorInit]) -> None: ...
 
-class _AvgAggregatorInit(_ModelInit, total=False):
+class _AvgAggregatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field_: str
 
 class AvgAggregator(RowAggregator):
     def __init__(self, **kwargs: Unpack[_AvgAggregatorInit]) -> None: ...
 
-class _MinAggregatorInit(_ModelInit, total=False):
+class _MinAggregatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field_: str
 
 class MinAggregator(RowAggregator):
     def __init__(self, **kwargs: Unpack[_MinAggregatorInit]) -> None: ...
 
-class _MaxAggregatorInit(_ModelInit, total=False):
+class _MaxAggregatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field_: str
 
 class MaxAggregator(RowAggregator):
     def __init__(self, **kwargs: Unpack[_MaxAggregatorInit]) -> None: ...
 
-class _SumAggregatorInit(_ModelInit, total=False):
+class _SumAggregatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field_: str
 
 class SumAggregator(RowAggregator):
     def __init__(self, **kwargs: Unpack[_SumAggregatorInit]) -> None: ...
 
-class _TableColumnInit(_ModelInit, total=False):
+class _TableColumnInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field: str
     title: str | None
     width: int
@@ -247,7 +395,37 @@ class TableColumn(Model):
     visible: bool = ...
     sorter: Comparison | None = ...
 
-class _TableWidgetInit(_WidgetInit, total=False):
+class _TableWidgetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     source: DataSource
     view: CDSView
 
@@ -258,7 +436,37 @@ class TableWidget(Widget):
     source: DataSource = ...
     view: CDSView = ...
 
-class _DataTableInit(_WidgetInit, total=False):
+class _DataTableInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     source: DataSource
     view: CDSView
     autosize_mode: AutosizeMode
@@ -302,7 +510,13 @@ class DataTable(TableWidget):
     def from_data(data: ColumnDataSource | DataDictLike, columns: list[str] | None = None,
         formatters: dict[str, CellFormatter] = {}, **kwargs: Any) -> DataTable: ...
 
-class _GroupingInfoInit(_ModelInit, total=False):
+class _GroupingInfoInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     getter: str
     aggregators: list[RowAggregator]
     collapsed: bool
@@ -314,7 +528,37 @@ class GroupingInfo(Model):
     aggregators: list[RowAggregator] = ...
     collapsed: bool = ...
 
-class _DataCubeInit(_WidgetInit, total=False):
+class _DataCubeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     source: DataSource
     view: CDSView
     autosize_mode: AutosizeMode

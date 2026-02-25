@@ -14,13 +14,27 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ...core.enums import RenderLevelType as RenderLevel
-from ...model.model import Model, _ModelInit
+from ...model.model import Model
 from ..coordinates import CoordinateMapping
 from ..dom import DOMNode
 from ..ui.menus import Menu
-from ..ui.ui_element import StyledElement, UIElement, _StyledElementInit
+from ..ui.ui_element import StyledElement, UIElement
 
-class _RendererGroupInit(_ModelInit, total=False):
+from ...model.model import JSEventCallback
+from ..css import StyleSheet
+from ..css import Styles
+from ..nodes import Node
+from typing import Any
+from typing import Sequence
+from typing import TypedDict
+
+class _RendererGroupInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     visible: bool
 
 class RendererGroup(Model):
@@ -28,7 +42,19 @@ class RendererGroup(Model):
 
     visible: bool = ...
 
-class _RendererInit(_StyledElementInit, total=False):
+class _RendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
     level: RenderLevel
     visible: bool
     coordinates: CoordinateMapping | None
@@ -51,7 +77,19 @@ class Renderer(StyledElement):
     propagate_hover: bool = ...
     context_menu: Menu | None = ...
 
-class _CompositeRendererInit(_StyledElementInit, total=False):
+class _CompositeRendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
     level: RenderLevel
     visible: bool
     coordinates: CoordinateMapping | None
@@ -70,7 +108,19 @@ class CompositeRenderer(Renderer):
     renderers: list[Renderer] = ...
     elements: list[UIElement | DOMNode] = ...
 
-class _DataRendererInit(_StyledElementInit, total=False):
+class _DataRendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
     level: RenderLevel
     visible: bool
     coordinates: CoordinateMapping | None
@@ -84,7 +134,19 @@ class DataRenderer(Renderer):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataRendererInit]) -> None: ...
 
-class _GuideRendererInit(_StyledElementInit, total=False):
+class _GuideRendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
     level: RenderLevel
     visible: bool
     coordinates: CoordinateMapping | None

@@ -14,9 +14,13 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from .._types import CoordinateLike
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 from .glyph import Glyph
 from .renderers import GlyphRenderer
+
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
 
 ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
 
@@ -57,14 +61,25 @@ class BoxNodes:
     @property
     def height(self) -> Node: ...
 
-class _CoordinateInit(_ModelInit, total=False):
-    ...
+class _CoordinateInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Coordinate(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CoordinateInit]) -> None: ...
 
-class _XYInit(_ModelInit, total=False):
+class _XYInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x: CoordinateLike
     y: CoordinateLike
 
@@ -74,7 +89,13 @@ class XY(Coordinate):
     x: CoordinateLike = ...
     y: CoordinateLike = ...
 
-class _IndexedInit(_ModelInit, total=False):
+class _IndexedInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     index: int
     renderer: GlyphRenderer[Glyph]
 
@@ -84,7 +105,13 @@ class Indexed(Coordinate):
     index: int = ...
     renderer: GlyphRenderer[Glyph] = ...
 
-class _NodeInit(_ModelInit, total=False):
+class _NodeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     target: Model | ImplicitTarget
     symbol: str
     offset: int

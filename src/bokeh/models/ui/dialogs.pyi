@@ -15,9 +15,32 @@ if TYPE_CHECKING:
 from ...core.enums import MovableType as Movable, ResizableType as Resizable
 from ..dom import DOMNode
 from ..nodes import Node
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import UIElement
 
-class _DialogInit(_UIElementInit, total=False):
+from ...core.enums import AutoType as Auto
+from ...model.model import JSEventCallback
+from ..css import StyleSheet
+from ..css import Styles
+from .menus import Menu
+from typing import Any
+from typing import Sequence
+from typing import TypedDict
+
+class _DialogInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
     title: str | DOMNode | UIElement | None
     content: str | DOMNode | UIElement
     pinnable: bool

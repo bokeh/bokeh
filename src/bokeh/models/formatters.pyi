@@ -22,17 +22,31 @@ from ..core.enums import (
     ResolutionTypeType as ResolutionType,
     RoundingFunctionType as RoundingFunction,
 )
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 from .tickers import Ticker
 
-class _TickFormatterInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import TypedDict
+
+class _TickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class TickFormatter(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TickFormatterInit]) -> None: ...
 
-class _BasicTickFormatterInit(_ModelInit, total=False):
+class _BasicTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     precision: Auto | int
     use_scientific: bool
     power_limit_high: int
@@ -46,7 +60,13 @@ class BasicTickFormatter(TickFormatter):
     power_limit_high: int = ...
     power_limit_low: int = ...
 
-class _MercatorTickFormatterInit(_ModelInit, total=False):
+class _MercatorTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     precision: Auto | int
     use_scientific: bool
     power_limit_high: int
@@ -58,7 +78,13 @@ class MercatorTickFormatter(BasicTickFormatter):
 
     dimension: LatLon | None = ...
 
-class _NumeralTickFormatterInit(_ModelInit, total=False):
+class _NumeralTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     format: str
     language: NumeralLanguage
     rounding: RoundingFunction
@@ -70,7 +96,13 @@ class NumeralTickFormatter(TickFormatter):
     language: NumeralLanguage = ...
     rounding: RoundingFunction = ...
 
-class _PrintfTickFormatterInit(_ModelInit, total=False):
+class _PrintfTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     format: str
 
 class PrintfTickFormatter(TickFormatter):
@@ -78,7 +110,13 @@ class PrintfTickFormatter(TickFormatter):
 
     format: str = ...
 
-class _LogTickFormatterInit(_ModelInit, total=False):
+class _LogTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticker: Ticker | None
     min_exponent: int
 
@@ -88,13 +126,24 @@ class LogTickFormatter(TickFormatter):
     ticker: Ticker | None = ...
     min_exponent: int = ...
 
-class _CategoricalTickFormatterInit(_ModelInit, total=False):
-    ...
+class _CategoricalTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CategoricalTickFormatter(TickFormatter):
     def __init__(self, **kwargs: Unpack[_CategoricalTickFormatterInit]) -> None: ...
 
-class _CustomJSTickFormatterInit(_ModelInit, total=False):
+class _CustomJSTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 
@@ -104,7 +153,13 @@ class CustomJSTickFormatter(TickFormatter):
     args: dict[str, Any] = ...
     code: str = ...
 
-class _DatetimeTickFormatterInit(_ModelInit, total=False):
+class _DatetimeTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     microseconds: str
     milliseconds: str
     seconds: str
@@ -142,7 +197,13 @@ class DatetimeTickFormatter(TickFormatter):
     context_which: ContextWhich = ...
     context_location: Location = ...
 
-class _TimedeltaTickFormatterInit(_ModelInit, total=False):
+class _TimedeltaTickFormatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     nanoseconds: str
     microseconds: str
     milliseconds: str

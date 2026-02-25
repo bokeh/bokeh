@@ -12,11 +12,21 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 from .ranges import Range
 from .scales import Scale
 
-class _CoordinateMappingInit(_ModelInit, total=False):
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _CoordinateMappingInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x_source: Range
     y_source: Range
     x_scale: Scale

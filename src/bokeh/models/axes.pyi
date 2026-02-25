@@ -30,21 +30,11 @@ from ..core.property_mixins import (
     ScalarMinorTickLineProps as MinorTickLine,
     ScalarSeparatorLineProps as SeparatorLine,
     ScalarSubgroupTextProps as SubgroupText,
-    _ScalarAxisLabelTextPropsInit as _AxisLabelTextInit,
-    _ScalarAxisLinePropsInit as _AxisLineInit,
-    _ScalarBackgroundFillPropsInit as _BackgroundFillInit,
-    _ScalarBackgroundHatchPropsInit as _BackgroundHatchInit,
-    _ScalarGroupTextPropsInit as _GroupTextInit,
-    _ScalarMajorLabelTextPropsInit as _MajorLabelTextInit,
-    _ScalarMajorTickLinePropsInit as _MajorTickLineInit,
-    _ScalarMinorTickLinePropsInit as _MinorTickLineInit,
-    _ScalarSeparatorLinePropsInit as _SeparatorLineInit,
-    _ScalarSubgroupTextPropsInit as _SubgroupTextInit,
 )
 from .formatters import TickFormatter
 from .labeling import LabelingPolicy
 from .ranges import Factor
-from .renderers.renderer import GuideRenderer, _GuideRendererInit
+from .renderers.renderer import GuideRenderer
 from .tickers import Ticker
 
 #from .formatters import (
@@ -66,7 +56,99 @@ from .tickers import Ticker
 #    TimedeltaTicker,
 #)
 
-class _AxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+from .._types import Alpha
+from .._types import Color
+from .._types import FontSize
+from .._types import Size
+from ..core.enums import FontStyleType as FontStyle
+from ..core.enums import LineCapType as LineCap
+from ..core.enums import LineJoinType as LineJoin
+from ..core.enums import RenderLevelType as RenderLevel
+from ..core.enums import TextAlignType as TextAlign
+from ..core.enums import TextBaselineType as TextBaseline
+from ..core.property.visual import DashPatternType as DashPattern
+from ..model.model import JSEventCallback
+from .coordinates import CoordinateMapping
+from .css import StyleSheet
+from .css import Styles
+from .nodes import Node
+from .renderers.renderer import RendererGroup
+from .textures import Texture
+from .ui.menus import Menu
+from typing import Any
+from typing import Sequence
+from typing import TypedDict
+
+class _AxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -109,7 +191,76 @@ class Axis(GuideRenderer, AxisLabelText, MajorLabelText, AxisLine, MajorTickLine
     minor_tick_out: int = ...
     fixed_location: None | float | Factor = ...
 
-class _ContinuousAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+class _ContinuousAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -133,7 +284,76 @@ class ContinuousAxis(Axis):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ContinuousAxisInit]) -> None: ...
 
-class _LinearAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+class _LinearAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -161,7 +381,76 @@ class LinearAxis(ContinuousAxis):
     #ticker: BasicTicker = ...
     #formatter: BasicTickFormatter = ...
 
-class _LogAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+class _LogAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -189,7 +478,102 @@ class LogAxis(ContinuousAxis):
     #ticker: LogTicker = ...
     #formatter: LogTickFormatter = ...
 
-class _CategoricalAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, _SeparatorLineInit, _GroupTextInit, _SubgroupTextInit, total=False):
+class _CategoricalAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
+    separator_line_color: Color | None
+    separator_line_alpha: Alpha
+    separator_line_width: float
+    separator_line_join: LineJoin
+    separator_line_cap: LineCap
+    separator_line_dash: DashPattern
+    separator_line_dash_offset: int
+    group_text_color: Color | None
+    group_text_outline_color: Color | None
+    group_text_outline_width: float
+    group_text_alpha: Alpha
+    group_text_font: str
+    group_text_font_size: FontSize
+    group_text_font_style: FontStyle
+    group_text_align: TextAlign
+    group_text_baseline: TextBaseline
+    group_text_line_height: float
+    subgroup_text_color: Color | None
+    subgroup_text_outline_color: Color | None
+    subgroup_text_alpha: Alpha
+    subgroup_text_font: str
+    subgroup_text_font_size: FontSize
+    subgroup_text_font_style: FontStyle
+    subgroup_text_align: TextAlign
+    subgroup_text_baseline: TextBaseline
+    subgroup_text_line_height: float
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -222,7 +606,76 @@ class CategoricalAxis(Axis, SeparatorLine, GroupText, SubgroupText):
     group_label_orientation: LabelOrientation | float = ...
     subgroup_label_orientation: LabelOrientation | float = ...
 
-class _DatetimeAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+class _DatetimeAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -250,7 +703,76 @@ class DatetimeAxis(LinearAxis):
     #ticker: DatetimeTicker = ...
     #formatter: DatetimeTickFormatter = ...
 
-class _MercatorAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+class _MercatorAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]
@@ -278,7 +800,76 @@ class MercatorAxis(LinearAxis):
     #ticker: MercatorTicker = ...
     #formatter: MercatorTickFormatter = ...
 
-class _TimedeltaAxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit, _MinorTickLineInit, _BackgroundFillInit, _BackgroundHatchInit, total=False):
+class _TimedeltaAxisInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    axis_label_text_color: Color | None
+    axis_label_text_outline_color: Color | None
+    axis_label_text_outline_width: float
+    axis_label_text_alpha: Alpha
+    axis_label_text_font: str
+    axis_label_text_font_size: FontSize
+    axis_label_text_font_style: FontStyle
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: float
+    major_label_text_color: Color | None
+    major_label_text_outline_color: Color | None
+    major_label_text_outline_width: float
+    major_label_text_alpha: Alpha
+    major_label_text_font: str
+    major_label_text_font_size: FontSize
+    major_label_text_font_style: FontStyle
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: float
+    axis_line_color: Color | None
+    axis_line_alpha: Alpha
+    axis_line_width: float
+    axis_line_join: LineJoin
+    axis_line_cap: LineCap
+    axis_line_dash: DashPattern
+    axis_line_dash_offset: int
+    major_tick_line_color: Color | None
+    major_tick_line_alpha: Alpha
+    major_tick_line_width: float
+    major_tick_line_join: LineJoin
+    major_tick_line_cap: LineCap
+    major_tick_line_dash: DashPattern
+    major_tick_line_dash_offset: int
+    minor_tick_line_color: Color | None
+    minor_tick_line_alpha: Alpha
+    minor_tick_line_width: float
+    minor_tick_line_join: LineJoin
+    minor_tick_line_cap: LineCap
+    minor_tick_line_dash: DashPattern
+    minor_tick_line_dash_offset: int
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
     dimension: Auto | Literal[0, 1]
     face: Auto | Literal["front", "back"]
     bounds: Auto | tuple[float, float] | tuple[Datetime, Datetime]

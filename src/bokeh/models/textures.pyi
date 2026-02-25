@@ -15,9 +15,19 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..core.enums import TextureRepetitionType as TextureRepetition
 from ..core.property.visual import ImageType as Image
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _TextureInit(_ModelInit, total=False):
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _TextureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     repetition: TextureRepetition
 
 class Texture(Model):
@@ -26,7 +36,13 @@ class Texture(Model):
 
     repetition: TextureRepetition = ...
 
-class _CanvasTextureInit(_ModelInit, total=False):
+class _CanvasTextureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     repetition: TextureRepetition
     code: str
 
@@ -35,7 +51,13 @@ class CanvasTexture(Texture):
 
     code: str = ...
 
-class _ImageURLTextureInit(_ModelInit, total=False):
+class _ImageURLTextureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     repetition: TextureRepetition
     url: Image
 

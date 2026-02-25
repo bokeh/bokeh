@@ -13,9 +13,19 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _SelectorInit(_ModelInit, total=False):
+from ..model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _SelectorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     query: str
 
 class Selector(Model):
@@ -24,25 +34,49 @@ class Selector(Model):
 
     query: str = ...
 
-class _ByIDInit(_ModelInit, total=False):
+class _ByIDInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     query: str
 
 class ByID(Selector):
     def __init__(self, **kwargs: Unpack[_ByIDInit]) -> None: ...
 
-class _ByClassInit(_ModelInit, total=False):
+class _ByClassInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     query: str
 
 class ByClass(Selector):
     def __init__(self, **kwargs: Unpack[_ByClassInit]) -> None: ...
 
-class _ByCSSInit(_ModelInit, total=False):
+class _ByCSSInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     query: str
 
 class ByCSS(Selector):
     def __init__(self, **kwargs: Unpack[_ByCSSInit]) -> None: ...
 
-class _ByXPathInit(_ModelInit, total=False):
+class _ByXPathInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     query: str
 
 class ByXPath(Selector):

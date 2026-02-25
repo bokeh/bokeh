@@ -15,16 +15,30 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .._specs import AngleSpec, NumberSpec
 from ..core.enums import DirectionType as Direction
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 
-class _ExpressionInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import TypedDict
+
+class _ExpressionInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Expression(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ExpressionInit]) -> None: ...
 
-class _CustomJSExprInit(_ModelInit, total=False):
+class _CustomJSExprInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 
@@ -34,7 +48,13 @@ class CustomJSExpr(Expression):
     args: dict[str, Any] = ...
     code: str = ...
 
-class _CumSumInit(_ModelInit, total=False):
+class _CumSumInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field: str
     include_zero: bool
 
@@ -44,7 +64,13 @@ class CumSum(Expression):
     field: str = ...
     include_zero: bool = ...
 
-class _StackInit(_ModelInit, total=False):
+class _StackInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     fields: Sequence[str]
 
 class Stack(Expression):
@@ -52,14 +78,25 @@ class Stack(Expression):
 
     fields: Sequence[str] = ...
 
-class _ScalarExpressionInit(_ModelInit, total=False):
-    ...
+class _ScalarExpressionInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class ScalarExpression(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ScalarExpressionInit]) -> None: ...
 
-class _MinimumInit(_ModelInit, total=False):
+class _MinimumInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field: str
     initial: float | None
 
@@ -69,7 +106,13 @@ class Minimum(ScalarExpression):
     field: str = ...
     initial: float | None = ...
 
-class _MaximumInit(_ModelInit, total=False):
+class _MaximumInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     field: str
     initial: float | None
 
@@ -79,8 +122,13 @@ class Maximum(ScalarExpression):
     field: str = ...
     initial: float | None = ...
 
-class _CoordinateTransformInit(_ModelInit, total=False):
-    ...
+class _CoordinateTransformInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CoordinateTransform(Expression):
     @abstractmethod
@@ -91,7 +139,13 @@ class CoordinateTransform(Expression):
     @property
     def y(self) -> YComponent: ...
 
-class _PolarTransformInit(_ModelInit, total=False):
+class _PolarTransformInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     radius: NumberSpec
     angle: AngleSpec
     direction: Direction
@@ -103,7 +157,13 @@ class PolarTransform(CoordinateTransform):
     angle: AngleSpec = ...
     direction: Direction = ...
 
-class _XYComponentInit(_ModelInit, total=False):
+class _XYComponentInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     transform: CoordinateTransform
 
 class XYComponent(Expression):
@@ -112,13 +172,25 @@ class XYComponent(Expression):
 
     transform: CoordinateTransform = ...
 
-class _XComponentInit(_ModelInit, total=False):
+class _XComponentInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     transform: CoordinateTransform
 
 class XComponent(XYComponent):
     def __init__(self, **kwargs: Unpack[_XComponentInit]) -> None: ...
 
-class _YComponentInit(_ModelInit, total=False):
+class _YComponentInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     transform: CoordinateTransform
 
 class YComponent(XYComponent):

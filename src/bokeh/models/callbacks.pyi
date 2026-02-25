@@ -16,17 +16,31 @@ if TYPE_CHECKING:
 from ..core.enums import AutoType as Auto
 from ..core.has_props import HasProps
 from ..core.types import PathLike
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 from ..models.ui import Dialog, UIElement
 
-class _CallbackInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import TypedDict
+
+class _CallbackInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Callback(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CallbackInit]) -> None: ...
 
-class _OpenURLInit(_ModelInit, total=False):
+class _OpenURLInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     same_tab: bool
 
@@ -36,14 +50,25 @@ class OpenURL(Callback):
     url: str = ...
     same_tab: bool = ...
 
-class _CustomCodeInit(_ModelInit, total=False):
-    ...
+class _CustomCodeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CustomCode(Callback):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CustomCodeInit]) -> None: ...
 
-class _CustomJSInit(_ModelInit, total=False):
+class _CustomJSInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
     module: Auto | bool
@@ -58,7 +83,13 @@ class CustomJS(CustomCode):
     @classmethod
     def from_file(cls, path: PathLike, **args: Any) -> CustomJS: ...
 
-class _SetValueInit(_ModelInit, total=False):
+class _SetValueInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     obj: HasProps
     attr: str
     value: Any
@@ -70,7 +101,13 @@ class SetValue(Callback):
     attr: str = ...
     value: Any = ...
 
-class _ToggleVisibilityInit(_ModelInit, total=False):
+class _ToggleVisibilityInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     target: UIElement
 
 class ToggleVisibility(Callback):
@@ -78,7 +115,13 @@ class ToggleVisibility(Callback):
 
     target: UIElement = ...
 
-class _OpenDialogInit(_ModelInit, total=False):
+class _OpenDialogInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     dialog: Dialog
 
 class OpenDialog(Callback):
@@ -86,7 +129,13 @@ class OpenDialog(Callback):
 
     dialog: Dialog = ...
 
-class _CloseDialogInit(_ModelInit, total=False):
+class _CloseDialogInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     dialog: Dialog
 
 class CloseDialog(Callback):

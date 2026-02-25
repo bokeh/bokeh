@@ -17,18 +17,32 @@ from ..core.enums import (
     JitterRandomDistributionType as JitterRandomDistribution,
     StepModeType as StepMode,
 )
-from ..model.model import Model, _ModelInit
+from ..model.model import Model
 from .ranges import Range
 from .sources import ColumnarDataSource
 
-class _TransformInit(_ModelInit, total=False):
-    ...
+from ..model.model import JSEventCallback
+from typing import TypedDict
+
+class _TransformInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Transform(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TransformInit]) -> None: ...
 
-class _CustomJSTransformInit(_ModelInit, total=False):
+class _CustomJSTransformInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     func: str
     v_func: str
@@ -40,7 +54,13 @@ class CustomJSTransform(Transform):
     func: str = ...
     v_func: str = ...
 
-class _DodgeInit(_ModelInit, total=False):
+class _DodgeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     value: float
     range: Range | None
 
@@ -50,7 +70,13 @@ class Dodge(Transform):
     value: float = ...
     range: Range | None = ...
 
-class _JitterInit(_ModelInit, total=False):
+class _JitterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     mean: float
     width: float
     distribution: JitterRandomDistribution
@@ -64,7 +90,13 @@ class Jitter(Transform):
     distribution: JitterRandomDistribution = ...
     range: Range | None = ...
 
-class _InterpolatorInit(_ModelInit, total=False):
+class _InterpolatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x: str | Sequence[float] | None
     y: str | Sequence[float] | None
     data: ColumnarDataSource | None
@@ -79,7 +111,13 @@ class Interpolator(Transform):
     data: ColumnarDataSource | None = ...
     clip: bool = ...
 
-class _LinearInterpolatorInit(_ModelInit, total=False):
+class _LinearInterpolatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x: str | Sequence[float] | None
     y: str | Sequence[float] | None
     data: ColumnarDataSource | None
@@ -88,7 +126,13 @@ class _LinearInterpolatorInit(_ModelInit, total=False):
 class LinearInterpolator(Interpolator):
     def __init__(self, **kwargs: Unpack[_LinearInterpolatorInit]) -> None: ...
 
-class _StepInterpolatorInit(_ModelInit, total=False):
+class _StepInterpolatorInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x: str | Sequence[float] | None
     y: str | Sequence[float] | None
     data: ColumnarDataSource | None

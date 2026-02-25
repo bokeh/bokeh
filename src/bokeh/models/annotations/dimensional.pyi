@@ -13,9 +13,19 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ...model.model import Model, _ModelInit
+from ...model.model import Model
 
-class _DimensionalInit(_ModelInit, total=False):
+from ...model.model import JSEventCallback
+from typing import Any
+from typing import TypedDict
+
+class _DimensionalInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -30,7 +40,13 @@ class Dimensional(Model):
 
     def is_known(self, unit: str) -> bool: ...
 
-class _CustomDimensionalInit(_ModelInit, total=False):
+class _CustomDimensionalInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -41,7 +57,13 @@ class CustomDimensional(Dimensional):
 
     basis: dict[str, tuple[float, str] | tuple[float, str, str]] = ...
 
-class _MetricInit(_ModelInit, total=False):
+class _MetricInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -54,7 +76,13 @@ class Metric(Dimensional):
     base_unit: str = ...
     full_unit: str | None = ...
 
-class _ReciprocalMetricInit(_ModelInit, total=False):
+class _ReciprocalMetricInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -64,7 +92,13 @@ class _ReciprocalMetricInit(_ModelInit, total=False):
 class ReciprocalMetric(Metric):
     def __init__(self, **kwargs: Unpack[_ReciprocalMetricInit]) -> None: ...
 
-class _MetricLengthInit(_ModelInit, total=False):
+class _MetricLengthInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -74,7 +108,13 @@ class _MetricLengthInit(_ModelInit, total=False):
 class MetricLength(Metric):
     def __init__(self, **kwargs: Unpack[_MetricLengthInit]) -> None: ...
 
-class _ReciprocalMetricLengthInit(_ModelInit, total=False):
+class _ReciprocalMetricLengthInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -84,7 +124,13 @@ class _ReciprocalMetricLengthInit(_ModelInit, total=False):
 class ReciprocalMetricLength(ReciprocalMetric):
     def __init__(self, **kwargs: Unpack[_ReciprocalMetricLengthInit]) -> None: ...
 
-class _ImperialLengthInit(_ModelInit, total=False):
+class _ImperialLengthInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
@@ -93,7 +139,13 @@ class _ImperialLengthInit(_ModelInit, total=False):
 class ImperialLength(CustomDimensional):
     def __init__(self, **kwargs: Unpack[_ImperialLengthInit]) -> None: ...
 
-class _AngularInit(_ModelInit, total=False):
+class _AngularInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ticks: list[float]
     include: list[str] | None
     exclude: list[str]
