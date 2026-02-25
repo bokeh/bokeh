@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
+import os
 import re
 import ssl
 import sys
@@ -358,9 +359,11 @@ async def test__exclude_cookies(ManagedServerLoop: MSL) -> None:
         assert payload['cookies'] == {'custom2': 'test2'}
 
 def test__from_settings_uses_envvars() -> None:
-    with tempfile.NamedTemporaryFile(suffix='.py') as f:
+    with tempfile.NamedTemporaryFile(suffix='.py', delete=False) as f:
+        auth_path = f.name
+    try:
         with mock.patch('bokeh.server.server.settings') as mock_settings:
-            mock_settings.auth_module.return_value = f.name
+            mock_settings.auth_module.return_value = auth_path
             mock_settings.sign_sessions.return_value = True
             mock_settings.secret_key_bytes.return_value = b'0' * 32
             mock_settings.ssl_certfile.return_value = '/path/to/cert.pem'
@@ -372,6 +375,8 @@ def test__from_settings_uses_envvars() -> None:
             with mock.patch.object(Server, '__init__', return_value=None) as init:
                 Server.from_settings(Application())
                 _, kwargs = init.call_args
+    finally:
+        os.unlink(auth_path)
     assert isinstance(kwargs['auth_provider'], AuthModule)
     assert kwargs['sign_sessions']
     assert kwargs['secret_key'] is not None
