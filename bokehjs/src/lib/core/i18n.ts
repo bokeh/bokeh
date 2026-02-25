@@ -30,7 +30,7 @@ export class I18n {
   get_locale(): string {
     const default_locale = this._locales_codes.includes(navigator.language)? navigator.language: this._source_language
     let current_locale = localStorage.getItem("lang")
-    if (!isString(current_locale)) {
+    if (!isString(current_locale) || !this._locales_codes.includes(current_locale)) {
       localStorage.setItem("lang", default_locale)
       current_locale = default_locale
     }
@@ -125,34 +125,27 @@ export class I18n {
       }
     }
   }
+
+  set_config(locales_codes: string[], translations: string, languages: [string, string][], source_language: string, auto_t_enabled: boolean): void {
+    this._locales_codes = locales_codes
+    this._translations = JSON.parse(translations)
+    this._languages = languages
+    this._source_language = source_language
+    this._auto_t_enabled = auto_t_enabled
+  }
 }
 
-// TODO: arguments (`locales`, `translations`, `languages`, `source_language` ) should come from a call to some `Bokeh.init_i18n` call/settings?
-// What should be set as default values?
+// TODO: What should be set as default values?
 export const i18n = new I18n(
-  ["en", "es-CO", "es-ES", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR"],
+  ["en"],
   `{
-    "en": {"button1":{"label": "Test en"}},
-    "es-CO": {"button1":{"label": "Prueba es-CO"}},
-    "es-ES": {"button1":{"label": "Prueba es-ES"}},
-    "pl-PL": {},
-    "fr-FR": {},
-    "de-DE": {},
-    "hi-IN": {},
-    "pt-BR": {}
+    "en": {}
    }`,
   [
     ["English", "en"],
-    ["Español (ES)", "es-ES"],
-    ["Español (CO)", "es-CO"],
-    ["Polski (PL)", "pl-PL"],
-    ["Français (FR)", "fr-FR"],
-    ["Deutsch (DE)", "de-DE"],
-    ["हिन्दी", "hi-IN"],
-    ["Português (BR)", "pt-BR"],
   ],
   "en",
-  true,
+  false,
 )
 
 // Translator and LanguageDetector API typing

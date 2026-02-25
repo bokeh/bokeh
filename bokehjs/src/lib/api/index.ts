@@ -19,3 +19,5 @@ export {sprintf} from "../core/util/templating"
 export * from "./models"
 
 export {f} from "./expr"
+
+export {i18n} from "../core/i18n"
