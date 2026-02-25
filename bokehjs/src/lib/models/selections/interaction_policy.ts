@@ -54,8 +54,9 @@ export class UnionRenderers extends SelectionPolicy {
     }
     if (hit_test_result_renderers.length > 0) {
       const hit_test_result = hit_test_result_renderers[0]
-      for (const hit_test_result_other of hit_test_result_renderers) {
-        hit_test_result.update_through_union(hit_test_result_other)
+      const {length} = hit_test_result_renderers
+      for (let i = 1; i < length; i++) {
+        hit_test_result.update_through_union(hit_test_result_renderers[i])
       }
       return hit_test_result
     } else {
