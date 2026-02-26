@@ -227,13 +227,13 @@ class LanguageDropdown(Dropdown):
 
     locales_codes = Nullable(List(String))
 
-    translations = Nullable(String())
+    translations = Nullable(String)
 
     languages = Nullable(List(Tuple(String, String)))
 
-    source_language = Nullable(String())
+    source_language = Nullable(String)
 
-    auto_t_enabled = Nullable(Bool())
+    auto_t_enabled = Nullable(Bool)
 
 
 class HelpButton(AbstractButton):
