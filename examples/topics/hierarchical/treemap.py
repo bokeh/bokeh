@@ -18,10 +18,10 @@ data = data[["City", "Region", "Sales"]]
 
 regions = ("West", "Central", "South", "East")
 
-sales_by_city = data.groupby(["Region", "City"]).sum("Sales")
+sales_by_city = data.groupby(["Region", "City"]).sum()
 sales_by_city = sales_by_city.sort_values(by="Sales").reset_index()
 
-sales_by_region = sales_by_city.groupby("Region").sum("Sales").sort_values(by="Sales")
+sales_by_region = sales_by_city.groupby("Region")[["Sales"]].sum().sort_values(by="Sales")
 
 def treemap(df, col, x, y, dx, dy, *, N=100):
     sub_df = df.nlargest(N, col)
