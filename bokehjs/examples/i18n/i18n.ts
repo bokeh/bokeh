@@ -10,8 +10,8 @@ export namespace I18nLines {
   Bokeh.i18n.set_config(
     ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR"],
     `{
-      "en": {"button1":{"label": "Test en"}},
-      "es-CO": {"button1":{"label": "Prueba es-CO"}},
+      "en": {},
+      "es-CO": {},
       "pl-PL": {},
       "fr-FR": {},
       "de-DE": {},

@@ -16,11 +16,7 @@ export class I18n {
   _auto_t_enabled: boolean
 
   constructor(locales_codes: string[], translations: string, languages: [string, string][], source_language: string, auto_t_enabled: boolean) {
-    this._locales_codes = locales_codes
-    this._translations = JSON.parse(translations)
-    this._languages = languages
-    this._source_language = source_language
-    this._auto_t_enabled = auto_t_enabled
+    this.set_config(locales_codes, translations, languages, source_language, auto_t_enabled)
   }
 
   supported_languages(): [string, string][] {
@@ -126,12 +122,15 @@ export class I18n {
     }
   }
 
-  set_config(locales_codes: string[], translations: string, languages: [string, string][], source_language: string, auto_t_enabled: boolean): void {
-    this._locales_codes = locales_codes
-    this._translations = JSON.parse(translations)
-    this._languages = languages
-    this._source_language = source_language
-    this._auto_t_enabled = auto_t_enabled
+  set_config(locales_codes: string[] | null, translations: string | null, languages: [string, string][] | null, source_language: string | null, auto_t_enabled: boolean | null): void {
+    if (locales_codes != null && translations != null && languages != null && source_language != null && auto_t_enabled != null) {
+      this._locales_codes = locales_codes
+      // TODO: Handle possible errors when parsing translations. Probably something to remove when checking i18next usage?
+      this._translations = JSON.parse(translations)
+      this._languages = languages
+      this._source_language = source_language
+      this._auto_t_enabled = auto_t_enabled
+    }
   }
 }
 

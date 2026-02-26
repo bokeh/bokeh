@@ -15,6 +15,14 @@ export class LanguageDropdownView extends DropdownView {
     this.model.on_event(MenuItemClick, async (event) => await this._set_language(event.item))
   }
 
+  override initialize(): void {
+    super.initialize()
+    const {locales_codes, translations, languages, source_language, auto_t_enabled} = this.model
+    i18n.set_config(
+      locales_codes, translations, languages, source_language, auto_t_enabled,
+    )
+  }
+
   override async lazy_initialize(): Promise<void> {
     const lang = i18n.get_locale()
     await this._set_language(lang)
@@ -45,7 +53,13 @@ export class LanguageDropdownView extends DropdownView {
 export namespace LanguageDropdown {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Dropdown.Props
+  export type Props = Dropdown.Props & {
+    locales_codes: p.Property<string[] | null>
+    translations: p.Property<string | null>
+    languages: p.Property<[string, string][] | null>
+    source_language: p.Property<string | null>
+    auto_t_enabled: p.Property<boolean | null>
+  }
 }
 
 export interface LanguageDropdown extends LanguageDropdown.Attrs {}
@@ -60,6 +74,14 @@ export class LanguageDropdown extends Dropdown {
 
   static {
     this.prototype.default_view = LanguageDropdownView
+
+    this.define<LanguageDropdown.Props>(({Bool, Str, List, Tuple, Nullable}) => ({
+      locales_codes: [ Nullable(List(Str)), null ],
+      translations: [ Nullable(Str), null ],
+      languages: [ Nullable(List(Tuple(Str, Str))), null ],
+      source_language: [ Nullable(Str), null ],
+      auto_t_enabled: [ Nullable(Bool), null ],
+    }))
 
     this.override<LanguageDropdown.Props>({
       label: "",
