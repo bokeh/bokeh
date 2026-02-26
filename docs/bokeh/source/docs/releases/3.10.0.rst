@@ -1,0 +1,8 @@
+.. _release-3-10-0:
+
+3.10.0
+======
+
+Bokeh version ``3.10.0`` (TBD) is a minor milestone of Bokeh project.
+
+* Added WebGL rendering support for ``Patch`` and ``Patches`` glyphs (:bokeh-pull:`14853`)
