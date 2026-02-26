@@ -415,7 +415,7 @@ describe("Bug", () => {
           },
         }],
         title: "Bokeh Application",
-        version: "3.1.0",
+        version,
       }
 
       const events0: DocumentEvent[] = []

@@ -319,7 +319,7 @@ async function bundle(name: string): Promise<void> {
     entries: [join(paths.build_dir.test, name, "index.js")],
     bases: [paths.build_dir.test, "./node_modules"],
     cache: join(paths.build_dir.test, `${name}.json`),
-    target: "ES2020",
+    target: "ES2024",
     minify: false,
     externals: [/^@bokehjs\//],
     shims: ["fs", "module"],

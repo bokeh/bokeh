@@ -16,7 +16,8 @@ describe("linear_scale module", () => {
     const scale = mkscale()
 
     it("should compute scale state", () => {
-      expect(scale._linear_compute_state()).to.be.equal([6, 20])
+      const {source_range: source, target_range: target} = scale
+      expect(LinearScale.linear_compute(source.start, source.end, target.start, target.end)).to.be.equal([6, 20])
     })
 
     it("should map values linearly", () => {

@@ -455,7 +455,7 @@ export class Toolbar extends UIElement {
     })
   }
 
-  active_changed: Signal0<this>
+  readonly active_changed: Signal0<this> = new Signal0(this, "active_changed")
 
   get horizontal(): boolean {
     return this.location == "above" || this.location == "below"
@@ -471,15 +471,14 @@ export class Toolbar extends UIElement {
     const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
     this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => {
       this._init_tools()
-      this._activate_tools()
+      this._activate_tools(true)
     })
   }
 
   override initialize(): void {
     super.initialize()
-    this.active_changed = new Signal0(this, "active_changed")
     this._init_tools()
-    this._activate_tools()
+    this._activate_tools(false)
   }
 
   protected _init_tools(): void {
@@ -522,7 +521,7 @@ export class Toolbar extends UIElement {
     this.auxiliaries = new_auxiliaries
   }
 
-  protected _activate_tools(): void {
+  protected _activate_tools(emit: boolean): void {
     if (this.active_inspect == "auto") {
       // do nothing as all tools are active be default
     } else if (this.active_inspect == null) {
@@ -568,7 +567,9 @@ export class Toolbar extends UIElement {
         // XXX: connect once
         this.connect(tool.properties.active.change, () => {
           this._active_change(tool)
-          this.active_changed.emit()
+          if (emit) {
+            this.active_changed.emit()
+          }
         })
       }
     }
@@ -619,7 +620,9 @@ export class Toolbar extends UIElement {
       }
     }
 
-    this.active_changed.emit()
+    if (emit) {
+      this.active_changed.emit()
+    }
   }
 
   _active_change(tool: ToolLike<GestureTool>): void {

@@ -27,6 +27,7 @@
     "cli-progress": "^3.12.0",
     "cors": "^2.8.5",
     "devtools-protocol": "^0.0.1325906",
+    "diff": "^8.0.3",
     "express": "^4.19.2",
     "json5": "^2.2.3",
     "nunjucks": "^3.2.4",
