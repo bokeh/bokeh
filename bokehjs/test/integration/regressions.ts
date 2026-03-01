@@ -4819,7 +4819,7 @@ describe("Bug", () => {
       const p = fig([200, 200])
       const s1 = p.scatter({x: 1, y: 1, size: 30, marker: "diamond", legend_label: "diamond", color: "red"})
       p.scatter({x: 2, y: 1, size: 30, marker: "square", legend_label: "square"})
-      p.legend.click_policy='hide'
+      p.legend.click_policy = "hide"
 
       const {view} = await display(p)
 
