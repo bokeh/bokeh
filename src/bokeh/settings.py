@@ -647,10 +647,12 @@ class Settings:
     In contexts where array buffers are base64-encoded (e.g. to embed inside
     an HTML file), the buffer will first be compressed to save space.
 
-    Valid values are the standard gzip compression levels 0-9.
-    Level 9 will result in the highest compression.
-    Level 1 will result in the least compression, but be faster.
-    Level 0 will result in no compression.
+    Valid values are the standard gzip compression levels 0-9:
+
+    * Level 9 will result in the highest compression.
+    * Level 1 will result in the least compression, but be faster.
+    * Level 0 will result in no compression.
+
     The default is level 2.
     """)
 
