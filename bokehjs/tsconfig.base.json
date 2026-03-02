@@ -28,7 +28,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES2022",
+    "target": "ES2024",
     "module": "esnext"
   }
 }

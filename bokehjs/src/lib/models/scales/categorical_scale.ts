@@ -3,8 +3,6 @@ import {LinearScale} from "./linear_scale"
 import type {FactorRange, FactorLike} from "../ranges/factor_range"
 import type * as p from "core/properties"
 
-const {_linear_compute_state} = LinearScale.prototype
-
 export namespace CategoricalScale {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Scale.Props
@@ -19,16 +17,18 @@ export class CategoricalScale extends Scale<FactorLike> {
     super(attrs)
   }
 
-  override source_range: FactorRange
+  declare source_range: FactorRange
 
   get s_compute(): (x: FactorLike) => number {
-    const [factor, offset] = _linear_compute_state.call(this)
+    const {source_range: source, target_range: target} = this
+    const [factor, offset] = LinearScale.linear_compute(source.start, source.end, target.start, target.end)
     const range = this.source_range
     return (x) => factor*range.synthetic(x) + offset
   }
 
   get s_invert(): (sx: number) => number {
-    const [factor, offset] = _linear_compute_state.call(this)
+    const {source_range: source, target_range: target} = this
+    const [factor, offset] = LinearScale.linear_compute(source.start, source.end, target.start, target.end)
     return (sx) => (sx - offset) / factor
   }
 }

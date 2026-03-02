@@ -18,8 +18,8 @@ import {serialize} from "./serialization"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
-import type {Equatable, Comparator} from "./util/eq"
-import {equals, is_equal} from "./util/eq"
+import type {Equatable} from "./util/eq"
+import {equals, Comparator} from "./util/eq"
 import type {Printable, Printer} from "./util/pretty"
 import {pretty} from "./util/pretty"
 import type {Cloneable} from "./util/cloneable"
@@ -104,9 +104,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   /** @prototype */
   declare _props: {[key: string]: {
-    type: p.PropertyConstructor<unknown>
+    type: p.PropertyConstructor<unknown, HasProps>
     default_value: (self: HasProps) => unknown | p.Unset
-    options: p.PropertyOptions<unknown>
+    options: p.PropertyOptions<unknown, HasProps>
   }}
 
   /** @prototype */
@@ -163,7 +163,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  static internal<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
+  static internal<T, HP extends HasProps = HasProps>(obj: Partial<p.DefineOf<T, HP>> | ((types: typeof kinds) => Partial<p.DefineOf<T, HP>>)): void {
     const _object: any = {}
     for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
       const [type, default_value, options = {}] = prop as any
@@ -200,7 +200,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }
 
-  static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
+  static override<T, HP extends HasProps = HasProps>(obj: Partial<p.DefaultsOf<T, HP>>): void {
     for (const [name, prop] of entries(obj)) {
       const default_value = this._fix_default(prop, name)
       if (!(name in this.prototype._props)) {
@@ -213,7 +213,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  static override_options<T>(obj: Partial<p.OptionsOf<T>>): void {
+  static override_options<T, HP extends HasProps = HasProps>(obj: Partial<p.OptionsOf<T, HP>>): void {
     for (const [name, options] of entries(obj)) {
       if (!(name in this.prototype._props)) {
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
@@ -469,8 +469,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const changing   = this._changing
     this._changing = true
 
+    const cmp = new Comparator({no_fail: true})
     for (const [prop, value] of changes) {
-      if (check_eq === false || prop.is_unset || !is_equal(prop.get_value(), value)) {
+      if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
       }

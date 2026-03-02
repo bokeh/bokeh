@@ -3,6 +3,16 @@ import {is_equal, is_structurally_equal, is_similar} from "@bokehjs/core/util/eq
 import {to_string} from "@bokehjs/core/util/pretty"
 import type {Class} from "@bokehjs/core/class"
 
+import {diffChars} from "diff"
+
+function green(s: string): string {
+  return `\x1b[92m${s}\x1b[0m`
+}
+
+function red(s: string): string {
+  return `\x1b[31m${s}\x1b[0m`
+}
+
 type Constructor<T> = Function & {prototype: T}
 
 type ToFn<T> = {
@@ -136,7 +146,13 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!is_equal(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${to_string(value)} to ${be} equal to ${to_string(expected)}`)
+      const computed_str = to_string(value)
+      const expected_str = to_string(expected)
+      const diff_str = diffChars(computed_str, expected_str).map((part) => {
+        return part.added   ? green(part.value) :
+               part.removed ? red(part.value)   : part.value
+      }).join("")
+      throw new ExpectationError(`expectation failed; computed value must ${be} equal to expected value\n\n  computed: ${computed_str}\n  expected: ${expected_str}\n\n  difference: ${diff_str}`)
     }
   }
 

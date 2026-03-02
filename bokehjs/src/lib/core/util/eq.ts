@@ -21,14 +21,29 @@ const toString = Object.prototype.toString
 
 export class EqNotImplemented extends Error {}
 
+export type ComparatorOptions = {
+  /**
+   * Compare the structure of objects even if an identity check would be more
+   * robust (default: false)
+   */
+  structural?: boolean
+  /**
+   * Don't throw any exceptions if values don't support equality, but simply
+   * return they aren't equal (default: false)
+   */
+  no_fail?: boolean
+}
+
 export class Comparator {
   private readonly a_stack: unknown[] = []
   private readonly b_stack: unknown[] = []
 
   readonly structural: boolean
+  readonly no_fail: boolean
 
-  constructor(options?: {structural?: boolean}) {
-    this.structural = options?.structural ?? false
+  constructor(options: ComparatorOptions = {}) {
+    this.structural = options.structural ?? false
+    this.no_fail = options.no_fail ?? false
   }
 
   eq(a: any, b: any): boolean {
@@ -123,7 +138,11 @@ export class Comparator {
         return this.nodes(a, b)
       }
 
-      throw new EqNotImplemented(`can't compare objects of type ${class_name}`)
+      if (this.no_fail) {
+        return false
+      } else {
+        throw new EqNotImplemented(`can't compare objects of type ${class_name}`)
+      }
     })()
 
     a_stack.pop()
