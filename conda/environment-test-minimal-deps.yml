@@ -65,7 +65,7 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph >= 0.11.0
     # tests
-    - ruff ==0.14.0
+    - ruff ==0.15.*
     - types-boto3
     - types-colorama
     - types-mock

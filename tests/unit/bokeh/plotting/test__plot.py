@@ -122,12 +122,21 @@ class Test_get_range:
             bpp.get_range(pd.Series([20, 30, 40]))
 
     def test_with_string_seq(self) -> None:
-        f = ["foo" ,"end", "baz"]
+        f = ["foo", "end", "baz"]
         for t in [list, tuple]:
             r = bpp.get_range(t(f))
             assert isinstance(r, FactorRange)
             # FactorRange accepts Seq, but get_range always sets a list copy
             assert r.factors == f
+
+    def test_with_pandas_string_array(self) -> None:
+        pytest.importorskip("pandas")
+        import pandas as pd
+        f = ["foo", "end", "baz"]
+        array = pd.array(f, dtype="string")
+        r = bpp.get_range(array)
+        assert isinstance(r, FactorRange)
+        assert r.factors == f
 
     def test_with_float_bounds(self) -> None:
         r = bpp.get_range((1.2, 10))

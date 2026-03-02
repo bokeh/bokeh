@@ -65,7 +65,13 @@ jobs:
 
   examples:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: ['3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -73,8 +79,11 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: ${{ matrix.python-version }}
           source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: Install chromium
         run: |
@@ -124,8 +133,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: examples-report
-          path: examples-report
+          name: examples-report-${{ matrix.python-version }}
+          path: examples-report-${{ matrix.python-version }}
 
   unit-test:
     needs: build
