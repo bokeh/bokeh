@@ -76,7 +76,7 @@
                           type: "ndarray",
                           array: {
                             type: "bytes",
-                            data: "H4sIAAEAAAAC/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
+                            data: "H4sIAAEAAAAA/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
                           },
                           shape: [
                             5,
@@ -91,7 +91,7 @@
                           type: "ndarray",
                           array: {
                             type: "bytes",
-                            data: "H4sIAAEAAAAC/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
+                            data: "H4sIAAEAAAAA/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
                           },
                           shape: [
                             5,
@@ -118,7 +118,7 @@
                         type: "ndarray",
                         array: {
                           type: "bytes",
-                          data: "H4sIAAEAAAAC/2NgYGBgAmIWIAYARVaStgwAAAA=",
+                          data: "H4sIAAEAAAAA/2NgYGBgAmIWIAYARVaStgwAAAA=",
                         },
                         shape: [
                           3,
