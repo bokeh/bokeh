@@ -1003,6 +1003,7 @@ export async function minify(module: ModuleInfo, source: string, ecma: terser.EC
 
   const minify_opts: terser.MinifyOptions = {
     ecma,
+    keep_classnames: true,
     format: {
       comments: /^!|copyright|license|\(c\)/i,
       // https://github.com/terser/terser/issues/410

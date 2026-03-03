@@ -89,9 +89,6 @@ export function default_transformers(base_path: Path, options: ts.CompilerOption
     afterDeclarations: [],
   }
 
-  const insert_class_name = transforms.insert_class_name()
-  transformers.before.push(insert_class_name)
-
   const base = base_path
   {
     const relativize_modules = transforms.relativize_modules((file, module_path) => {

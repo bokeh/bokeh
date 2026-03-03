@@ -79,37 +79,6 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 }
 
-export function insert_class_name() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
-    const {factory} = context
-
-    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
-      node = ts.visitEachChild(node, visit, context)
-
-      if (ts.isClassDeclaration(node) && node.name != null) {
-        const property = factory.createPropertyDeclaration(
-          factory.createModifiersFromModifierFlags(ts.ModifierFlags.Static),
-          "name",
-          undefined,
-          undefined,
-          factory.createStringLiteral(node.name.text))
-
-        node = factory.updateClassDeclaration(
-          node,
-          node.modifiers,
-          node.name,
-          node.typeParameters,
-          node.heritageClauses,
-          [property, ...node.members])
-      }
-
-      return node
-    }
-
-    return ts.visitEachChild(root, visit, context)
-  }
-}
-
 export function remove_use_strict() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const {factory} = context
