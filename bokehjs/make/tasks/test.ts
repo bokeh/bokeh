@@ -191,7 +191,7 @@ function opt(name: string, value: unknown): string[] {
   }
 }
 
-function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
+function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string, dev: boolean = true): Promise<void> {
   const args = [
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
@@ -201,7 +201,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     ...opt("seed", argv.seed),
     ...opt("pedantic", argv.pedantic),
     `--screenshot=${argv.screenshot}`,
-    `http://localhost:${server_port}/${name}`,
+    `http://localhost:${server_port}/${name}${!dev ? "?dev=false" : ""}`,
   ]
   return _devtools(devtools_port, args)
 }
@@ -353,6 +353,11 @@ export const build_unit = task("test:build:unit", [passthrough("test:compile:uni
 
 task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
+  return success(undefined)
+})
+
+task2("test:unit:minified", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "unit", undefined, false)
   return success(undefined)
 })
 

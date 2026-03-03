@@ -22,14 +22,16 @@ app.use("/static", express.static("build/"))
 app.use("/assets", express.static("test/assets/"))
 app.use("/cases", express.static("../tests/baselines/cross/"))
 
-const js_path = (name: string): string => {
-  return `/static/js/${name}.js`
+const js_path = (name: string, dev: boolean = true): string => {
+  const min = dev ? "" : ".min"
+  return `/static/js/${name}${min}.js`
 }
 
 const test = (main: string, title: string) => {
   return (run: boolean = false) => {
-    return (_req: express.Request, res: express.Response) => {
-      const js = (name: string) => js_path(name)
+    return (req: express.Request, res: express.Response) => {
+      const dev = req.query.dev !== "false"
+      const js = (name: string) => js_path(name, dev)
       res.render("test/devtools/test.html", {main, title, run, js})
     }
   }
