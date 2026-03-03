@@ -1,5 +1,5 @@
 import type {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
-import type {AttributeConfig, BoundingBox, Framebuffer2D, Texture2D, Vec2, Vec4} from "regl"
+import type {AttributeConfig, BoundingBox, Elements, Framebuffer2D, Texture2D, Vec2, Vec4} from "regl"
 
 import type {MarkerType} from "core/enums"
 export type GLMarkerType = MarkerType | "hex_tile" | "rect" | "round_rect" | "ellipse" | "annulus" | "wedge" | "annular_wedge" | "ngon"
@@ -169,3 +169,28 @@ export type ImageAttributes = {
   a_position: AttributeConfig
   a_bounds: AttributeConfig
 }
+
+// Polygon fill rendering (for Patch/Patches glyphs)
+export type PolygonGlyphProps = CommonProps & {
+  positions: Float32Buffer
+  fill_color: NormalizedUint8Buffer
+  edge_distance: Float32Buffer
+  elements: Elements
+  count: number
+  offset: number
+  antialias: number
+}
+
+export type PolygonGlyphUniforms = CommonUniforms & {u_antialias: number}
+
+export type PolygonGlyphAttributes = {
+  a_position: AttributeConfig
+  a_fill_color: AttributeConfig
+  a_edge_distance: AttributeConfig
+}
+
+export type PolygonHatchGlyphProps = PolygonGlyphProps & HatchProps
+
+export type PolygonHatchGlyphUniforms = PolygonGlyphUniforms
+
+export type PolygonHatchGlyphAttributes = PolygonGlyphAttributes & HatchAttributes
