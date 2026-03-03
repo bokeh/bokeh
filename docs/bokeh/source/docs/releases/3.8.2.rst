@@ -1,0 +1,12 @@
+.. _release-3-8-2:
+
+3.8.2
+=====
+
+Bokeh version ``3.8.2`` (January 2026) is a patch release that fixes a security
+issue with the Bokeh server.
+
+Changes
+-------
+
+* Addressed a security issue with Incomplete Origin Validation for WebSockets in Bokeh server applications
