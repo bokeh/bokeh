@@ -3,12 +3,14 @@
 3.9.0
 =====
 
-Bokeh version ``3.9.0`` (February 2026) is a minor milestone of Bokeh project.
+Bokeh version ``3.9.0`` (March 2026) is a minor milestone of Bokeh project.
 
 * Added support for ARIA ``role`` attribute to ``Switch`` component (:bokeh-pull:`14341`)
+* Initial support for the new CSS variable based color system for theming (:bokeh-pull:`14467`, :bokeh-pull:`14695`)
+* Redesigned typing declaration of Bokeh's models and properties fixing various regressions (:bokeh-pull:`14798`)
 * Added support for dataclass as input to ``ColumnDataSource`` (:bokeh-pull:`14677`)
 * Added ``figure`` methods to plot geographic features using Cartopy (:bokeh-pull:`14706`)
-* Added ``text_outline_width`` to ``Text`` to support user defined width of outline borders (:bokeh-pull:`14733`, :bokeh-pull:`14746`)
+* Added ``text_outline_width`` to models already supporting ``text_outline_color`` (:bokeh-pull:`14733`, :bokeh-pull:`14746`)
 * Removed ``pandas`` as a required dependency (:bokeh-pull:`14686`)
 * Added ``pad_before`` and ``pad_after`` properties to ``Step`` glyph (:bokeh-pull:`14758`)
 * Fixed issue where ``Block`` glyph did not render correctly with reversed axes (:bokeh-pull:`14750`)
@@ -17,3 +19,14 @@ Bokeh version ``3.9.0`` (February 2026) is a minor milestone of Bokeh project.
 * Added support for binary protocol to all server messages types (:bokeh-pull:`14725`)
 * Fixed a bug that caused manually positioned plot axes to shift position of toolbars (:bokeh-pull:`14840`)
 * Fixed initial render ignoring explicit bounds on ``FactorRange`` (:bokeh-pull:`14849`)
+* Enhanced ``bokeh settings`` command with verbose mode, fuzzy matching, etc. (:bokeh-pull:`14619`)
+* Added support for dash and hatch pattern visuals to CSS oriented components on the canvas (:bokeh-pull:`14755`, :bokeh-pull:`14761`)
+* Fixed support for reversed axes in ``Block`` glyph (:bokeh-pull:`14751`)
+* Added initial support for allowing virtual DOM with Preact in bokehjs' components (:bokeh-pull:`14760`)
+* Started modernizing and simplifying bokehjs' build system (:bokeh-pull:`14788`, :bokeh-pull:`14785`)
+* Allowed to disabled layout linking in ``Tabs`` and made this the default behavior (:bokeh-pull:`14823`)
+* Added padding properties to ``Step`` glyph (:bokeh-pull:`14743`)
+* Enhance performance related to large datasets (:bokeh-pull:`14718`, :bokeh-pull:`14722`, :bokeh-pull:`14794`, :bokeh-pull:`14796`, :bokeh-pull:`14803`, :bokeh-pull:`14825`, :bokeh-pull:`14827`)
+* Reduced compression level of binary data to improve performance (:bokeh-pull:`14883`)
+* Added support for Pandas 3 (:bokeh-pull:`14809`, :bokeh-pull:`14832`, :bokeh-pull:`14877`)
+* Added support for Python 3.14 (:bokeh-pull:`14663`)
