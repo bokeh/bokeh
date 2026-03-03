@@ -62,6 +62,7 @@ export class MenuView extends UIElementView {
       .map((item) => item.menu)
       .filter((menu) => menu != null)
     await build_views(this._menu_views, menus, {parent: this})
+    // TODO build labels views if required (item label as TranslatableText)
   }
 
   override connect_signals(): void {

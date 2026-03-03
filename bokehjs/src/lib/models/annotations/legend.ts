@@ -104,6 +104,13 @@ export class LegendView extends AnnotationView {
       await this._build_title()
       this._render_title()
     })
+
+    this.connect(i18n.change_locale, async () => {
+      await this._build_title()
+      this._render_title()
+      await this._build_items()
+      this._render_items()
+    })
   }
 
   protected _bbox: BBox = new BBox()

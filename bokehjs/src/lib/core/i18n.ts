@@ -5,9 +5,10 @@
 // For the moment, to explore LanguageDropdown, basic mock implementation created here that also explores the Chrome Translator API
 import type {PlainObject} from "./types"
 import {isString} from "./util/types"
-import {documents} from "../document"
+import {Signal0} from "core/signaling"
 
 export class I18n {
+  readonly change_locale: Signal0<this>
   _locales_codes: string[]
   _translations: PlainObject
   _languages: [string, string][]
@@ -16,6 +17,7 @@ export class I18n {
   _auto_t_enabled: boolean
 
   constructor(locales_codes: string[], translations: string, languages: [string, string][], source_language: string, auto_t_enabled: boolean) {
+    this.change_locale = new Signal0(this, "change_locale")
     this.set_config(locales_codes, translations, languages, source_language, auto_t_enabled)
   }
 
@@ -41,7 +43,7 @@ export class I18n {
         const translator_availability = await this._init_translator()
         const download_translator = ["downloadable", "downloading"]
         if (!download_translator.includes(translator_availability)) {
-          this._refresh()
+          this.change_locale.emit()
         }
       } else if (typeof this._translator === "undefined") {
         await this._init_translator()
@@ -85,7 +87,7 @@ export class I18n {
             })
           },
         })
-        this._refresh()
+        this.change_locale.emit()
       } else if (availability === "unavailable") {
         this._translator = undefined
       }
@@ -108,18 +110,6 @@ export class I18n {
       (current_level, current_key) => current_level?.[current_key],
       locale_translation as any,
     ) || key
-  }
-
-  protected _refresh(): void {
-    // TODO: There should be a better way to trigger some sort of event to rerender things (e.g labels)
-    for (const model of documents[0].all_models) {
-      const properties = ["label", "items", "tooltip", "title"]
-      for (const property of properties) {
-        if (property in model.properties) {
-          model.properties[property].change.emit()
-        }
-      }
-    }
   }
 
   set_config(locales_codes: string[] | null, translations: string | null, languages: [string, string][] | null, source_language: string | null, auto_t_enabled: boolean | null): void {

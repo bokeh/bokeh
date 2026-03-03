@@ -3,6 +3,8 @@ import type {Menu} from "./menu"
 import {IconLike} from "../../common/kinds"
 import {Callback} from "models/callbacks/callback"
 import type {CallbackLike1} from "core/util/callbacks"
+// TODO: Allow TranslatableText element
+// import {TranslatableText} from "../../dom/translatable_text"
 import type * as p from "core/properties"
 
 type ActionCallback = CallbackLike1<Menu, {item: MenuItem}>
@@ -13,6 +15,8 @@ export namespace MenuItem {
   export type Props = Model.Props & {
     checked: p.Property<(() => boolean) | boolean | null>
     icon: p.Property<IconLike | null>
+    // TODO: Allow TranslatableText element
+    // label: p.Property<TranslatableText | string>
     label: p.Property<string>
     tooltip: p.Property<string | null>
     shortcut: p.Property<string | null>
@@ -35,6 +39,8 @@ export class MenuItem extends Model {
     this.define<MenuItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func, Func0, Or}) => ({
       checked: [ Nullable(Or(Bool, Func0(Bool))), null ],
       icon: [ Nullable(IconLike), null ],
+      // TODO: Allow TranslatableText element
+      // label: [ Or(Ref(TranslatableText), Str) ],
       label: [ Str ],
       tooltip: [ Nullable(Str), null ],
       shortcut: [ Nullable(Str), null ],

@@ -2830,6 +2830,9 @@
     __extends__: "bokeh.models.dom.Action",
     groups: [],
   },
+  "bokeh.models.dom.TranslatableText": {
+    __extends__: "bokeh.models.dom.Text",
+  },
   "bokeh.models.dom.ValueOf": {
     __extends__: "bokeh.models.dom.Placeholder",
     obj: {
