@@ -130,9 +130,7 @@ export class CircleView extends RadialGlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1}).ones()
 
     const indices = []
-    const {length} = candidates
-    for (let k = 0; k < length; k++) {
-      const i = candidates[k]
+    for (const i of candidates) {
       const sx_i = this.sx[i]
       const sy_i = this.sy[i]
       if (sx0 <= sx_i && sx_i <= sx1 && sy0 <= sy_i && sy_i <= sy1) {
