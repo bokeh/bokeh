@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 import numpy as np
 
 # Bokeh imports
-from ..core.property.dataspec import ColorSpec
+from ..core.property.dataspec import ColorSpec, DashPattern, DashPatternSpec
 from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
 from ._legends import pop_legend_kwarg, update_legend
 
@@ -258,47 +258,65 @@ def _pop_renderer_args(kwargs: Attrs) -> Attrs:
     result['data_source'] = kwargs.pop('source') if 'source' in kwargs else ColumnDataSource()
     return result
 
+def _is_scalar_dash_pattern(val: Any) -> bool:
+    """Check if value should be treated as a scalar dash pattern (not per-glyph data)."""
+    if isinstance(val, np.ndarray):
+        return val.ndim == 1 and val.dtype.kind in ('i', 'u')
+    elif isinstance(val, (list, tuple)):
+        return len(val) > 0 and all(isinstance(v, int) for v in val)
+    return False
+
+def _validate_color_array(val: np.ndarray, var: str) -> None:
+    """Validate numpy array for ColorSpec properties."""
+    valid_formats = [
+        val.dtype == "uint32" and val.ndim == 1,   # 0xRRGGBBAA
+        val.dtype == "uint8" and val.ndim == 1,    # greys
+        val.dtype.kind == "U" and val.ndim == 1,   # CSS strings
+        (val.dtype == "uint8" or val.dtype.kind == "f") and val.ndim == 2 and val.shape[1] in (3, 4),  # RGB/RGBA
+    ]
+    if not any(valid_formats):
+        raise RuntimeError(
+            f"Color columns need to be of type uint32[N], uint8[N] or uint8/float[N, {{3, 4}}] "
+            f"({var} is {val.dtype}[{', '.join(map(str, val.shape))}])",
+        )
+
 def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:
     incompatible_literal_spec_values: list[str] = []
     dataspecs = glyphclass.dataspecs()
+    all_properties = glyphclass.properties(_with_props=True)
 
     for var, val in kwargs.items():
-        # ignore things that are not iterable
-        if not isinstance(val, Iterable):
+        # Skip non-iterables and dicts
+        if not isinstance(val, Iterable) or isinstance(val, dict):
             continue
 
-        # pass dicts (i.e., values or fields) on as-is
-        if isinstance(val, dict):
-            continue
+        # Handle dash patterns specially to avoid list ambiguity
+        # DashPattern/DashPatternSpec should treat integer sequences like [6, 3] as scalar patterns
+        if var in all_properties and isinstance(all_properties[var], (DashPatternSpec, DashPattern)):
+            if _is_scalar_dash_pattern(val):
+                # Convert numpy arrays to lists for serialization
+                if isinstance(val, np.ndarray):
+                    kwargs[var] = val.tolist()
+                continue
 
-        # let any non-dataspecs do their own validation (e.g., line_dash properties)
+        # Let non-dataspecs handle their own validation
         if var not in dataspecs:
             continue
 
-        # strings sequences are handled by the dataspec as-is
+        # Strings and color tuples are handled by dataspecs as-is
         if isinstance(val, str):
             continue
-
-        # similarly colorspecs handle color tuple sequences as-is
         if isinstance(dataspecs[var], ColorSpec) and dataspecs[var].is_color_tuple_shape(val):
             continue
 
+        # Validate numpy arrays
         if isinstance(val, np.ndarray):
             if isinstance(dataspecs[var], ColorSpec):
-                if val.dtype == "uint32" and val.ndim == 1:   # 0xRRGGBBAA
-                    pass # TODO: handle byteorder
-                elif val.dtype == "uint8" and val.ndim == 1:  # greys
-                    pass
-                elif val.dtype.kind == "U" and val.ndim == 1: # CSS strings
-                    pass # TODO: currently this gets converted to list[str] in the serializer
-                elif (val.dtype == "uint8" or val.dtype.kind == "f") and val.ndim == 2 and val.shape[1] in (3, 4): # RGB/RGBA
-                    pass
-                else:
-                    raise RuntimeError("Color columns need to be of type uint32[N], uint8[N] or uint8/float[N, {3, 4}]"
-                                       f" ({var} is {val.dtype}[{', '.join(map(str, val.shape))}]")
+                _validate_color_array(val, var)
             elif val.ndim != 1:
                 raise RuntimeError(f"Columns need to be 1D ({var} is not)")
 
+        # Add sequence to data source or mark as incompatible
         if is_user_source:
             incompatible_literal_spec_values.append(var)
         else:
