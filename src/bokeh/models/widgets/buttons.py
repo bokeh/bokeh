@@ -38,7 +38,7 @@ from ...core.property.primitive import Bool, String
 from ...core.property.required import Required
 from ...events import ButtonClick, MenuItemClick
 from ..callbacks import Callback
-from ..dom import DOMNode
+from ..dom import DOMNode, TranslatableText
 from ..ui.icons import BuiltinIcon, Icon
 from ..ui.tooltips import Tooltip
 from .widget import Widget
@@ -186,7 +186,7 @@ class Dropdown(AbstractButton):
     split = Bool(default=False, help="""
     """)
 
-    menu = List(Nullable(Either(String, Tuple(String, Either(String, Instance(Callback))))), help="""
+    menu = List(Nullable(Either(String, Tuple(Either(String, Instance(TranslatableText)), Either(String, Instance(Callback))))), help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
     """)
