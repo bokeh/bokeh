@@ -38,8 +38,8 @@ export const test_dir = {
 }
 
 export const bundles = {
-  esm: {
-    main: join(build_dir.esm, "lib", "esm", "main.js"),
+  all: {
+    main: join(build_dir.lib, "all", "main.js"),
     output: join(build_dir.esm, "bokeh.js"),
   },
   bokehjs: {

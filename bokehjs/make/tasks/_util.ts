@@ -1,5 +1,6 @@
 import assert from "node:assert"
 import os from "node:os"
+import fs from "node:fs"
 import type {ChildProcess} from "node:child_process"
 import {Socket} from "node:net"
 
@@ -14,6 +15,12 @@ export const platform = (() => {
       throw new Error(`unsupported platform: ${os.type()}`)
   }
 })()
+
+export const is_dir = (path: string) => fs.lstatSync(path).isDirectory()
+export const is_file = (path: string) => fs.lstatSync(path).isFile()
+export const exists = (path: string) => fs.existsSync(path)
+export const file_exists = (path: string) => exists(path) && is_file(path)
+export const dir_exists = (path: string) => exists(path) && is_dir(path)
 
 export async function is_available(port: number): Promise<boolean> {
   const host = "0.0.0.0"

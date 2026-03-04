@@ -1,14 +1,18 @@
-import {join, relative} from "node:path"
+import {join, normalize, relative, dirname} from "node:path"
 import cp from "node:child_process"
 import fs from "node:fs"
 
+import MagicString from "magic-string"
+import {SourceMapConsumer, SourceMapGenerator} from "source-map"
+import * as oxc from "oxc-parser"
+import {glob} from "glob"
 import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
 
 import {task, passthrough, BuildError} from "../task.js"
+import {file_exists} from "./_util.js"
 
 import {rename, read, write, scan} from "#compiler/sys.js"
 import {wrap_css_modules} from "#compiler/styles.js"
-import {compile_typescript} from "#compiler/compiler.js"
 import type {AssemblyOptions} from "#compiler/linker.js"
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
@@ -21,16 +25,6 @@ import * as paths from "../paths.js"
 const pkg_file = fs.readFileSync("./make/package.json", {encoding: "utf-8"})
 const pkg = JSON.parse(pkg_file) as {version: string}
 
-task("scripts:version", async () => {
-  function version(lib_dir: string) {
-    const version_js_path = join(lib_dir, "version.js")
-    const version_js = fs.readFileSync(version_js_path, {encoding: "utf-8"})
-    const version_js_updated = version_js.replace("VERSION", pkg.version)
-    fs.writeFileSync(version_js_path, version_js_updated)
-  }
-  version(paths.build_dir.lib)
-})
-
 task("scripts:styles", ["styles:compile"], async () => {
   function styles(lib_dir: string) {
     const css_dir = paths.build_dir.css
@@ -40,7 +34,6 @@ task("scripts:styles", ["styles:compile"], async () => {
     wrap_css_modules(css_dir, js_dir, dts_dir, dts_internal_dir)
   }
   styles(paths.build_dir.lib)
-  styles(join(paths.build_dir.esm, "lib"))
 })
 
 task("scripts:grammar", async () => {
@@ -65,7 +58,6 @@ task("scripts:grammar", async () => {
     }
   }
   grammar(paths.build_dir.lib)
-  grammar(join(paths.build_dir.esm, "lib"))
 })
 
 task("scripts:glsl", async () => {
@@ -106,18 +98,103 @@ export default shader;
   }
 
   await glsl(paths.build_dir.lib)
-  await glsl(join(paths.build_dir.esm, "lib"))
 })
 
-task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
-  compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
+task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  const {status} = cp.spawnSync(npx, ["tsgo", "--project", "./src/lib/tsconfig.json"], {stdio: "inherit", shell: is_windows})
+  if (status != 0) {
+    throw new BuildError("typescript", "compilation failed with tsgo")
+  }
 })
+
+task("scripts:imports", async () => {
+  const base_path = "./build/js/lib"
+
+  const files = await glob("./build/js/lib/**/*.js")
+  for (const file of files) {
+    const file_map = `${file}.map`
+
+    if (!file_exists(file) || !file_exists(file_map)) {
+      continue
+    }
+
+    const source = fs.readFileSync(file, {encoding: "utf-8"})
+    const source_map = fs.readFileSync(file_map, {encoding: "utf-8"})
+
+    const result = oxc.parseSync(file, source, {})
+    const rewrites = []
+
+    for (const imp of result.module.staticImports) {
+      const {value: module_path, start, end} = imp.moduleRequest
+
+      if (!module_path.startsWith(".") && !module_path.startsWith("/") &&
+          !module_path.startsWith("#") && !module_path.startsWith("@")) {
+        const module_file = join(base_path, module_path)
+        if (file_exists(module_file) || file_exists(`${module_file}.js`) || file_exists(join(module_file, "index.js"))) {
+          const rel_path = normalize(relative(dirname(file), module_file))
+          const new_path = rel_path.startsWith(".") ? rel_path : `./${rel_path}`
+          rewrites.push({new_path, start, end})
+        }
+      }
+    }
+
+    if (rewrites.length != 0) {
+      const str = new MagicString(source, {filename: file})
+      for (const {new_path, start, end} of rewrites) {
+        str.update(start, end, `"${new_path}"`)
+      }
+
+      const new_source = str.toString()
+      const new_source_map = str.generateMap({
+        hires: true,
+        source: file,
+        file: file_map,
+        includeContent: true,
+      }).toString()
+
+      const consumer = await new SourceMapConsumer(source_map)
+      const generator = SourceMapGenerator.fromSourceMap(consumer)
+
+      generator.applySourceMap(await new SourceMapConsumer(new_source_map))
+      const gen_source_map = generator.toString()
+
+      fs.writeFileSync(file, new_source, {encoding: "utf-8"})
+      fs.writeFileSync(file_map, gen_source_map, {encoding: "utf-8"})
+    }
+  }
+})
+
+task("scripts:version", async () => {
+  function version(lib_dir: string) {
+    const version_js = "version.js"
+    const version_js_path = join(lib_dir, version_js)
+    const version_map_path = join(lib_dir, `${version_js}.map`)
+
+    const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+    const str = new MagicString(source, {filename: version_js})
+    str.replace("VERSION", pkg.version)
+
+    const map = str.generateMap({
+      source: version_js,
+      file: `${version_js}.map`,
+      includeContent: true,
+    })
+
+    fs.writeFileSync(version_js_path, str.toString())
+    fs.writeFileSync(version_map_path, map.toString())
+  }
+  version(join(paths.build_dir.js, "lib"))
+})
+
+task("scripts:compile", [passthrough("scripts:typescript"), "scripts:imports", "scripts:version"])
 
 function min_js(js: string): string {
   return rename(js, {ext: ".min.js"})
 }
 
-task("scripts:bundle", [passthrough("scripts:compile"), "scripts:version"], async () => {
+task("scripts:bundle", [passthrough("scripts:compile")], async () => {
   const {bokehjs, gl, api, widgets, tables, mathjax} = paths.bundles
   const packages = [bokehjs, gl, api, widgets, tables, mathjax]
 
