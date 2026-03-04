@@ -7398,7 +7398,6 @@
     __extends__: "UIElement",
     items: [],
     reversed: false,
-    translate_text: true,
   },
   MenuItem: {
     __extends__: "Model",

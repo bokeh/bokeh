@@ -12,7 +12,7 @@ import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
-import {i18n} from "core/i18n"
+import {TranslatableText} from "../../dom/translatable_text"
 
 import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
@@ -28,9 +28,10 @@ export class MenuView extends UIElementView {
   declare model: Menu
 
   protected _menu_views: ViewStorage<Menu> = new Map()
+  protected _label_views: ViewStorage<TranslatableText> = new Map()
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this._menu_views.values()]
+    return [...super.children_views(), ...this._menu_views.values(), ...this._label_views.values()]
   }
 
   private _menu_items: MenuItemLike[] = []
@@ -62,7 +63,12 @@ export class MenuView extends UIElementView {
       .map((item) => item.menu)
       .filter((menu) => menu != null)
     await build_views(this._menu_views, menus, {parent: this})
-    // TODO build labels views if required (item label as TranslatableText)
+
+    const labels = this.menu_items
+      .filter((item) => item instanceof MenuItem)
+      .map((item) => item.label)
+      .filter((label) => label instanceof TranslatableText)
+    await build_views(this._label_views, labels, {parent: this})
   }
 
   override connect_signals(): void {
@@ -134,7 +140,9 @@ export class MenuView extends UIElementView {
     return [...super.stylesheets(), menus_css, icons_css]
   }
 
-  async _render_items(): Promise<void> {
+  override render(): void {
+    super.render()
+
     const items = this.menu_items
     const entries: {item: MenuItem, el: HTMLElement}[] = []
 
@@ -145,8 +153,16 @@ export class MenuView extends UIElementView {
     for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
-        const label_text = this.model.translate_text? await i18n.t(item.label) : item.label
-        const title_text = this.model.translate_text? await i18n.t(item.tooltip ?? "") : item.tooltip
+        let label_text
+        if (item.label instanceof TranslatableText) {
+          const label_view = this._label_views.get(item.label)!
+          label_view.render()
+          label_text = label_view.el
+        } else {
+          label_text = item.label
+        }
+        // TODO: Handle tooltip translation
+        const title_text = item.tooltip
         const label_el = div({class: menus.label}, label_text)
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
@@ -241,12 +257,6 @@ export class MenuView extends UIElementView {
     }
   }
 
-  override render(): void {
-    super.render()
-    // TODO: Check a way to better handle this
-    void this._render_items()
-  }
-
   protected _show_submenu(target: HTMLElement): void {
     if (this.is_empty) {
       this.hide()
@@ -298,7 +308,6 @@ export namespace Menu {
   export type Props = UIElement.Props & {
     items: p.Property<MenuItemLike[]>
     reversed: p.Property<boolean>
-    translate_text: p.Property<boolean>
   }
 }
 
@@ -318,7 +327,6 @@ export class Menu extends UIElement {
     this.define<Menu.Props>(({Bool, List}) => ({
       items: [ List(MenuItemLike), [] ],
       reversed: [ Bool, false ],
-      translate_text: [ Bool, true ],
     }))
   }
 }

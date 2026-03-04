@@ -145,10 +145,6 @@ class Menu(UIElement):
     Whether to keep the order of menu's items or reverse it.
     """)
 
-    translate_text = Bool(default=True, help="""
-    Whether to translate menu/menu items labels/text.
-    """)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

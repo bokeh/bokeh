@@ -82,7 +82,7 @@ export abstract class ToolButtonView extends UIElementView {
     this._ui_gestures.connect_signals()
     this.connect(this.model.change, () => this.render())
     this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
-    i18n.change_locale.connect(async () => await this._rebuild_tooltip())
+    this.connect(i18n.change_locale, async () => await this._rebuild_tooltip())
   }
 
   override remove(): void {

@@ -5,6 +5,7 @@ import type * as p from "core/properties"
 export class TranslatableTextView extends TextView {
   declare model: TranslatableText
   declare translated_text: string
+  declare el: globalThis.Text
 
   override connect_signals(): void {
     super.connect_signals()

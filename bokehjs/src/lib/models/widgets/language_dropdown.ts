@@ -30,7 +30,6 @@ export class LanguageDropdownView extends DropdownView {
   }
 
   override render(): void {
-    this.translate_text = false
     this.model.menu = i18n.supported_languages()
     super.render()
   }

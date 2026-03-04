@@ -1,6 +1,7 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
+import {TranslatableText} from "../../dom/translatable_text"
 import type {MenuItemLike} from "../../ui/menus"
 import type {IconLike} from "../../common/kinds"
 import type * as p from "core/properties"
@@ -208,7 +209,7 @@ export class PanTool extends GestureTool {
     return [
       new MenuItem({
         icon: `.${icons.tool_icon_pan}`,
-        label: "XY mode",
+        label: new TranslatableText({content: "XY mode"}),
         tooltip: "Pan in both dimensions",
         checked: () => this.dimensions == "both",
         action: () => {
@@ -218,7 +219,7 @@ export class PanTool extends GestureTool {
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_x_pan}`,
-        label: "X-only",
+        label: new TranslatableText({content: "X-only"}),
         tooltip: "Pan in x-dimension",
         checked: () => this.dimensions == "width",
         action: () => {
@@ -228,7 +229,7 @@ export class PanTool extends GestureTool {
       }),
       new MenuItem({
         icon: `.${icons.tool_icon_y_pan}`,
-        label: "Y-only",
+        label: new TranslatableText({content: "Y-only"}),
         tooltip: "Pan in y-dimension",
         checked: () => this.dimensions == "height",
         action: () => {
