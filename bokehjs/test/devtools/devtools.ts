@@ -41,6 +41,7 @@ const argv = yargs(process.argv.slice(2)).options({
   host: {type: "string", default: "127.0.0.1"},
   port: {type: "number", default: 9222},
   ref: {type: "string", default: "HEAD"},
+  suite: {type: "string"},
   randomize: {type: "boolean", default: false},
   seed: {type: "number", default: Date.now()},
   pedantic: {type: "boolean", default: false},
@@ -52,15 +53,10 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {host, port, ref, suite, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
-const is_cross_backend = (() => {
-  try {
-    return new URL(url).pathname.replace(/^\//, "") == "cross_backend"
-  } catch {
-    return false
-  }
-})()
+
+const is_cross_backend = suite === "cross_backend"
 
 function format_output(test_case: TestCase): string | null {
   const [suites, test, status] = test_case

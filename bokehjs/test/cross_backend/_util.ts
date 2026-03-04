@@ -1,4 +1,4 @@
-import {display} from "../framework"
+import {display} from "#framework/layouts"
 import {figure} from "@bokehjs/api/plotting"
 
 import type {LineDash, OutputBackend} from "@bokehjs/core/enums"

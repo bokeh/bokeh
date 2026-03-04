@@ -1,4 +1,4 @@
-import {fig} from "../framework"
+import {fig} from "#framework/layouts"
 import {
   cross_display, grid_ranges, grid_positions,
   sweep_line_dash, sweep_line_cap, sweep_line_join, sweep_line_width,

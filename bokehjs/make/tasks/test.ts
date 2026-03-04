@@ -201,6 +201,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
     ...opt("ref", argv.ref),
+    ...opt("suite", name),
     ...opt("baselines-root", baselines_root),
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
