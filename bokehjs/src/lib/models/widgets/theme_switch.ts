@@ -17,7 +17,7 @@ export class ThemeSwitchView extends SwitchView {
   }
 
   protected _update_theme(): void {
-    const theme = this.model.active? "light": "dark"
+    const theme = this.model.active ? "light" : "dark"
     document.documentElement.style.setProperty("--color-scheme", theme)
   }
 }
