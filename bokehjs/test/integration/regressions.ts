@@ -4813,4 +4813,19 @@ describe("Bug", () => {
       expect(wrapper_styles.overflowY).to.be.equal("auto")
     })
   })
+
+  describe("in issue #14491", () => {
+    it("doesn't update legend item alpha when glyph visibility changes", async () => {
+      const p = fig([200, 200])
+      const s1 = p.scatter({x: 1, y: 1, size: 30, marker: "diamond", legend_label: "diamond", color: "red"})
+      p.scatter({x: 2, y: 1, size: 30, marker: "square", legend_label: "square"})
+      p.legend.click_policy = "hide"
+
+      const {view} = await display(p)
+
+      s1.visible = false
+
+      await view.ready
+    })
+  })
 })
