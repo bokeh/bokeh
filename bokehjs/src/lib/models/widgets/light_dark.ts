@@ -1,8 +1,8 @@
 import {Switch, SwitchView} from "./switch"
 import type * as p from "core/properties"
 
-export class ThemeSwitchView extends SwitchView {
-  declare model: ThemeSwitch
+export class LightDarkView extends SwitchView {
+  declare model: LightDark
 
   override connect_signals(): void {
     super.connect_signals()
@@ -22,26 +22,26 @@ export class ThemeSwitchView extends SwitchView {
   }
 }
 
-export namespace ThemeSwitch {
+export namespace LightDark {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Switch.Props
 }
 
-export interface ThemeSwitch extends ThemeSwitch.Attrs {}
+export interface LightDark extends LightDark.Attrs {}
 
-export class ThemeSwitch extends Switch {
-  declare properties: ThemeSwitch.Props
-  declare __view_type__: ThemeSwitchView
+export class LightDark extends Switch {
+  declare properties: LightDark.Props
+  declare __view_type__: LightDarkView
 
-  constructor(attrs?: Partial<ThemeSwitch.Attrs>) {
+  constructor(attrs?: Partial<LightDark.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = ThemeSwitchView
+    this.prototype.default_view = LightDarkView
 
-    this.override<ThemeSwitch.Props>({
+    this.override<LightDark.Props>({
       on_icon: "light_theme",
       off_icon: "dark_theme",
     })

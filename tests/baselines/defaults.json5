@@ -7588,6 +7588,11 @@
     title: "",
     description: null,
   },
+  LightDark: {
+    __extends__: "Switch",
+    on_icon: "light_theme",
+    off_icon: "dark_theme",
+  },
   MultiChoice: {
     __extends__: "InputWidget",
     options: [],
@@ -7669,11 +7674,6 @@
     value_input: "",
     placeholder: "",
     max_length: null,
-  },
-  ThemeSwitch: {
-    __extends__: "Switch",
-    on_icon: "light_theme",
-    off_icon: "dark_theme",
   },
   ToggleInput: {
     __extends__: "Widget",

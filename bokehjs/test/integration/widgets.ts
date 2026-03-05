@@ -10,7 +10,7 @@ import {ColumnDataSource, Row} from "@bokehjs/models"
 
 import {
   Button, Toggle, Dropdown,
-  Checkbox, Switch, ThemeSwitch,
+  Checkbox, Switch, LightDark,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
   PaletteSelect,
@@ -622,9 +622,9 @@ describe("Widgets", () => {
     await display(obj, [320, 120])
   })
 
-  describe("should support ThemeSwitch widget", () => {
+  describe("should support LightDark widget", () => {
     it("with active=false and widgets following a dark color scheme", async () => {
-      const theme_switch = new ThemeSwitch({active: false})
+      const light_dark = new LightDark({active: false})
       const w0 = new Button({label: "Button"})
       const w1 = new Toggle({label: "Toggle"})
       const w2 = new Dropdown({label: "Dropdown"})
@@ -642,7 +642,7 @@ describe("Widgets", () => {
       const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
       const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5})
       const w_columns = [
-        column([theme_switch, w0, w1, w2, w3, w4, w5, w6]),
+        column([light_dark, w0, w1, w2, w3, w4, w5, w6]),
         column([w5, w6, w7, w8, w9, w10, w11, w12]),
       ]
       const layout = new Row({children: w_columns})
@@ -650,7 +650,7 @@ describe("Widgets", () => {
     })
 
     it("with active=false and widgets following a dark color scheme inside a layout with a stylesheet", async () => {
-      const theme_switch = new ThemeSwitch({active: false})
+      const light_dark = new LightDark({active: false})
       const w0 = new Button({label: "Button"})
       const w1 = new Toggle({label: "Toggle"})
       const w2 = new Dropdown({label: "Dropdown"})
@@ -668,7 +668,7 @@ describe("Widgets", () => {
       const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
       const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5})
       const w_columns = [
-        column([theme_switch, w0, w1, w2, w3, w4, w5, w6]),
+        column([light_dark, w0, w1, w2, w3, w4, w5, w6]),
         column([w5, w6, w7, w8, w9, w10, w11, w12]),
       ]
       const layout = new Row({children: w_columns, stylesheets: [":host { background-color: var(--background-color); }"]})
@@ -676,7 +676,7 @@ describe("Widgets", () => {
     })
 
     it("with active=true and widgets following a light color scheme", async () => {
-      const theme_switch = new ThemeSwitch({active: true})
+      const light_dark = new LightDark({active: true})
       const w0 = new Button({label: "Button"})
       const w1 = new Toggle({label: "Toggle"})
       const w2 = new Dropdown({label: "Dropdown"})
@@ -694,7 +694,7 @@ describe("Widgets", () => {
       const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
       const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5})
       const w_columns = [
-        column([theme_switch, w0, w1, w2, w3, w4, w5, w6]),
+        column([light_dark, w0, w1, w2, w3, w4, w5, w6]),
         column([w5, w6, w7, w8, w9, w10, w11, w12]),
       ]
       const layout = new Row({children: w_columns})

@@ -363,6 +363,18 @@ The default behavior of the help button's tooltip is as follows:
 
 More information can be found in the reference guide entry for |HelpButton|.
 
+.. _ug_interaction_widgets_examples_light_dark:
+
+LightDark
+~~~~~~~~~~~
+
+A widget to change between light and dark color schemes:
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/light_dark.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |LightDark|.
+
 .. _ug_interaction_widgets_examples_multichoice:
 
 MultiChoice
@@ -564,18 +576,6 @@ A widget for collecting a line of text from a user:
 
 More information can be found in the reference guide entry for |TextInput|.
 
-.. _ug_interaction_widgets_examples_theme_switch:
-
-ThemeSwitch
-~~~~~~~~~~~
-
-A widget to change between light and dark color schemes:
-
-.. bokeh-plot:: __REPO__/examples/interaction/widgets/theme_switch.py
-    :source-position: below
-
-More information can be found in the reference guide entry for |ThemeSwitch|.
-
 Toggle
 ~~~~~~
 
@@ -611,6 +611,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |Div|                    replace:: :class:`~bokeh.models.widgets.markups.Div`
 .. |Dropdown|               replace:: :class:`~bokeh.models.widgets.buttons.Dropdown`
 .. |FileInput|              replace:: :class:`~bokeh.models.widgets.inputs.FileInput`
+.. |LightDark|              replace:: :class:`~bokeh.models.widgets.inputs.LightDark`
 .. |HelpButton|             replace:: :class:`~bokeh.models.widgets.buttons.HelpButton`
 .. |MultiChoice|            replace:: :class:`~bokeh.models.widgets.inputs.MultiChoice`
 .. |MultiSelect|            replace:: :class:`~bokeh.models.widgets.inputs.MultiSelect`
@@ -629,5 +630,4 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |Tabs|                   replace:: :class:`~bokeh.models.layouts.Tabs`
 .. |TextAreaInput|          replace:: :class:`~bokeh.models.widgets.inputs.TextAreaInput`
 .. |TextInput|              replace:: :class:`~bokeh.models.widgets.inputs.TextInput`
-.. |ThemeSwitch|            replace:: :class:`~bokeh.models.widgets.inputs.ThemeSwitch`
 .. |Toggle|                 replace:: :class:`~bokeh.models.widgets.buttons.Toggle`
