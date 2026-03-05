@@ -49,10 +49,10 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
-          miniconda-version: 'latest'
+          miniforge-version: latest
+          mamba-version: "*"
           activate-environment: bk-release-deploy
           environment-file: conda/environment-release-deploy.yml
-          conda-remove-defaults: true
 
       - name: Deploy Release Tarball
         env:
