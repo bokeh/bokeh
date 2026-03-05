@@ -16,7 +16,10 @@ export namespace Jitter {
     mean: p.Property<number>
     width: p.Property<number>
     distribution: p.Property<Distribution>
-    /** internal */
+  } & Internal
+
+  export type Internal = {
+    _generator: p.Property<AbstractRandom>
     random_generator: p.Property<RandomGenerator | null>
   }
 }
@@ -39,16 +42,14 @@ export class Jitter extends RangeTransform {
       distribution: [ Distribution, "uniform" ],
     }))
 
-    this.internal<Jitter.Props>(({Nullable, Ref}) => ({
-      random_generator: [ Nullable(Ref(RandomGenerator)), null ],
+    this.internal<Jitter.Internal>(({Nullable, Ref, AnyRef}) => ({
+      _generator: [ AnyRef<AbstractRandom>() ], // TODO computed property
+      random_generator: [ Nullable(Ref(RandomGenerator)), null, {
+        on_update(value, obj: Jitter) {
+          obj._generator = value?.generator() ?? new SystemRandom()
+        },
+      }],
     }))
-  }
-
-  protected _generator: AbstractRandom
-
-  override initialize(): void {
-    super.initialize()
-    this._generator = this.random_generator?.generator() ?? new SystemRandom()
   }
 
   override v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {

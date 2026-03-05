@@ -6,6 +6,7 @@ import {Signal0} from "core/signaling"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import {every, sum} from "core/util/array"
+import {clamp} from "core/util/math"
 import {isArray, isNumber, isString} from "core/util/types"
 
 export type FactorLevel = 1 | 2 | 3
@@ -71,7 +72,7 @@ type BoxedAtMost<T>
   = T extends L1Factor ? [L1Factor]
   : T extends L2Factor ? [L1Factor] | L2Factor
   : T extends L3Factor ? [L1Factor] | L2Factor | L3Factor
-: never
+  : never
 
 export function map_one_level(
   factors: L1Factor[],
@@ -162,6 +163,14 @@ const is_l1 = (x: unknown) => isString(x)
 const is_l2 = (x: unknown) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1])
 const is_l3 = (x: unknown) => isArray(x) && x.length == 3 && isString(x[0]) && isString(x[1]) && isString(x[2])
 
+type FactorMapperInit<FactorType> = {
+  levels: FactorLevel
+  mapping: MappingFor<FactorType>
+  tops?: L1Factor[] | null
+  mids?: L2Factor[] | null
+  inner_padding: number
+}
+
 export abstract class FactorMapper<FactorType> {
   readonly levels: FactorLevel
   readonly mids: L2Factor[] | null
@@ -170,15 +179,7 @@ export abstract class FactorMapper<FactorType> {
 
   protected readonly mapping: MappingFor<FactorType>
 
-  constructor(
-    {levels, mapping, tops = null, mids = null, inner_padding}: {
-      levels: FactorLevel
-      mapping: MappingFor<FactorType>
-      tops?: L1Factor[] | null
-      mids?: L2Factor[] | null
-      inner_padding: number
-    },
-  ) {
+  constructor({levels, mapping, tops = null, mids = null, inner_padding}: FactorMapperInit<FactorType>) {
     this.levels = levels
     this.mapping = mapping
     this.tops = tops
@@ -199,7 +200,7 @@ export abstract class FactorMapper<FactorType> {
     throw TypeError("factor levels are inconsistent")
   }
 
-  static for(range: FactorRange): L1FactorMapper | L2FactorMapper | L3FactorMapper {
+  static for(range: FactorRange): AnyFactorMapper {
     switch (this.compute_levels(range.factors)) {
       case 1: {
         return new L1FactorMapper(range)
@@ -242,6 +243,8 @@ export abstract class FactorMapper<FactorType> {
 
   protected abstract lookup_entry(x: BoxedAtMost<FactorType>): MappingEntry | null
 }
+
+type AnyFactorMapper = L1FactorMapper | L2FactorMapper | L3FactorMapper
 
 class L1FactorMapper extends FactorMapper<L1Factor> {
   constructor(range: FactorRange) {
@@ -307,6 +310,10 @@ export namespace FactorRange {
     range_padding_units: p.Property<PaddingUnits>
     start: p.Property<number>
     end: p.Property<number>
+  } & Internal
+
+  export type Internal = {
+    mapper: p.Property<AnyFactorMapper>
   }
 }
 
@@ -330,9 +337,11 @@ export class FactorRange extends Range {
       start:               [ Float, p.unset, {readonly: true} ],
       end:                 [ Float, p.unset, {readonly: true} ],
     }))
-  }
 
-  mapper: L1FactorMapper | L2FactorMapper | L3FactorMapper
+    this.internal<FactorRange.Internal>(({AnyRef}) => ({
+      mapper: [ AnyRef<AnyFactorMapper>() ],
+    }))
+  }
 
   get min(): number {
     return this.start
@@ -403,12 +412,18 @@ export class FactorRange extends Range {
   private configure(): void {
     this.mapper = FactorMapper.for(this)
 
-    const [start, end] = this.compute_bounds(this.mapper.inner_padding)
+    let [start, end] = this.compute_bounds(this.mapper.inner_padding)
+
+    if (this.bounds != "auto" && this.bounds != null) {
+      const [lower, upper] = this.computed_bounds
+      start = clamp(start, lower, upper)
+      end = clamp(end, lower, upper)
+    }
 
     this.setv({start, end}, {silent: true})
 
     if (this.bounds == "auto") {
-      this._computed_bounds = [start, end]
+      this.computed_bounds = [start, end]
     }
   }
 }

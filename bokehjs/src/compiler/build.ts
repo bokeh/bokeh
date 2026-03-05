@@ -391,7 +391,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     cache: join(dist_dir, `${artifact}.json`),
     excluded: (dep) => dep == "tslib" || dep.startsWith("@bokehjs/"),
     plugin: true,
-    target: "ES2020",
+    target: "ES2024",
   })
 
   print("Linking modules")

@@ -412,7 +412,7 @@ describe("Bug", () => {
           },
         }],
         title: "Bokeh Application",
-        version: "3.1.0",
+        version,
       }
 
       const events0: DocumentEvent[] = []
@@ -1037,8 +1037,8 @@ describe("Bug", () => {
       expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
       expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
 
-      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
-      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
+      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
+      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
 
       expect(getComputedStyle(document.documentElement).getPropertyValue("--global-imported")).to.be.equal("1")
       expect(getComputedStyle(view.el).getPropertyValue("--local-imported")).to.be.equal("1")
@@ -2002,6 +2002,28 @@ describe("Bug", () => {
       await view.ready
 
       expect(x_range.interval).to.be.equal([0, 3])
+    })
+  })
+
+  describe("in issue #14815", () => {
+    it("doesn't apply explicit bounds on initial render when using FactorRange", async () => {
+      const factors = ["a", "b", "c"]
+      const x_range = new FactorRange({factors, bounds: [1, 3]})
+      const p = fig([200, 200], {tools: "reset,pan", x_range})
+      p.line(factors, [1, 2, 3])
+
+      await display(p)
+
+      expect(x_range.start).to.be.equal(1)
+      expect(x_range.end).to.be.equal(3)
+
+      const a = x_range.synthetic("a")
+      const b = x_range.synthetic("b")
+      const c = x_range.synthetic("c")
+
+      expect(a).to.be.below(x_range.start)
+      expect(b).to.be.within(x_range.start, x_range.end)
+      expect(c).to.be.within(x_range.start, x_range.end)
     })
   })
 })

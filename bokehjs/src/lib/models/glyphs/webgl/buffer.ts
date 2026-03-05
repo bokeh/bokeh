@@ -54,6 +54,10 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     return this.array != null ? this.array.length : 0
   }
 
+  get is_scalar_value(): boolean {
+    return this.is_scalar
+  }
+
   protected abstract new_array(len: number): ArrayType
 
   set_from_array(numbers: Arrayable<number>): void {
@@ -90,6 +94,17 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   // and the divisor, which is the number of instances rendered before the
   // offset is advanced to the next buffer element.
 
+  // For non-instanced (polygon/elements) rendering where all attributes
+  // must have divisor 0 and data is expanded to per-vertex.
+  to_per_vertex_config(): AttributeConfig {
+    return {
+      buffer: this.buffer,
+      divisor: 0,
+      normalized: this.is_normalized(),
+      offset: 0,
+    }
+  }
+
   // to_attribute_config() is used for the common case of a single render call
   // per buffer with visual properties that are either scalar or vector.
   // Visual properties of scatter markers are an good example, and scalar_divisor
@@ -116,6 +131,23 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
       normalized: this.is_normalized(),
       offset: this.is_scalar ? 0 : offset_vector*this.bytes_per_element()*this.elements_per_primitive,
     }
+  }
+
+  // Extract the ith item (of `components` elements) from this buffer into `dst`,
+  // marking `dst` as scalar.  If this buffer is already scalar, returns `this`
+  // unchanged and `dst` is not touched.
+  extract_at<T extends WrappedBuffer<ArrayType>>(this: T, i: number, components: number, dst: T): T {
+    if (this.is_scalar) {
+      return this
+    }
+    const src_arr = this.get_array()
+    const dst_arr = dst.get_sized_array(components)
+    const off = i * components
+    for (let c = 0; c < components; c++) {
+      dst_arr[c] = src_arr[off + c]
+    }
+    dst.update(true)
+    return dst
   }
 
   // Update ReGL buffer with data contained in array in preparation for passing
@@ -226,4 +258,31 @@ export class NormalizedUint8Buffer extends Uint8Buffer {
   protected override is_normalized(): boolean {
     return true
   }
+}
+
+// Expand a scalar or per-item source buffer to per-vertex in the destination buffer.
+// Used for non-instanced polygon rendering where all attributes need divisor 0.
+// components is the number of elements per item (e.g. 4 for RGBA).
+export function expand_to_per_vertex(
+  src: {get_array(): ArrayLike<number>, is_scalar_value: boolean},
+  dst: {get_sized_array(n: number): ArrayLike<number> & {[i: number]: number}, update(): void},
+  vertex_counts: number[],
+  components: number,
+): void {
+  const src_arr = src.get_array()
+  let total = 0
+  for (const c of vertex_counts) {
+    total += c
+  }
+  const dst_arr = dst.get_sized_array(total * components)
+  let offset = 0
+  for (let i = 0; i < vertex_counts.length; i++) {
+    const src_offset = src.is_scalar_value ? 0 : i * components
+    for (let j = 0; j < vertex_counts[i]; j++) {
+      for (let c = 0; c < components; c++) {
+        dst_arr[offset++] = src_arr[src_offset + c]
+      }
+    }
+  }
+  dst.update()
 }

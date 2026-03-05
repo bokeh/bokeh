@@ -21,6 +21,7 @@ import argparse
 import contextlib
 import os.path
 import re
+import signal
 import socket
 import subprocess
 import sys
@@ -29,6 +30,7 @@ from os.path import join, split
 from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
+from typing import IO
 
 # Bokeh imports
 from bokeh.command.subcommand import Argument
@@ -49,20 +51,21 @@ PORT_PAT = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
 
 # http://eyalarubas.com/python-subproc-nonblock.html
 class NBSR:
-    def __init__(self, stream) -> None:
+    _s: IO[bytes]
+    _q: Queue[bytes]
+
+    def __init__(self, stream: IO[bytes]) -> None:
         '''
         stream: the stream to read from.
                 Usually a process' stdout or stderr.
         '''
-
         self._s = stream
         self._q = Queue()
 
-        def _populateQueue(stream, queue):
+        def _populateQueue(stream: IO[bytes], queue: Queue[bytes]) -> None:
             '''
             Collect lines from 'stream' and put them in 'queue'.
             '''
-
             while True:
                 line = stream.readline()
                 if line:
@@ -70,15 +73,13 @@ class NBSR:
                 else:
                     break
 
-        self._t = Thread(target = _populateQueue,
-                args = (self._s, self._q))
+        self._t = Thread(target=_populateQueue, args=(self._s, self._q))
         self._t.daemon = True
-        self._t.start() #start collecting lines from the stream
+        self._t.start() # start collecting lines from the stream
 
-    def readline(self, timeout = None):
+    def readline(self, timeout: float | None = None) -> bytes | None:
         try:
-            return self._q.get(block = timeout is not None,
-                    timeout = timeout)
+            return self._q.get(block=timeout is not None, timeout=timeout)
         except Empty:
             return None
 
@@ -421,7 +422,7 @@ def test_args() -> None:
     )
 
 @contextlib.contextmanager
-def run_bokeh_serve(args):
+def run_bokeh_serve(args: list[str]):
     cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) as p:
         nbsr = NBSR(p.stdout)
@@ -442,32 +443,29 @@ def run_bokeh_serve(args):
             p.terminate()
             p.wait()
 
-def assert_pattern(nbsr, pat):
-    m = None
-    for i in range(20):
+def find_pattern(nbsr: NBSR, pat: re.Pattern[str]) -> re.Match[str] | None:
+    for _ in range(20):
         o = nbsr.readline(0.5)
         if not o:
             continue
-        m = pat.search(o.decode())
+        s = o.decode()
+        m = pat.search(s)
         if m is not None:
-            break
+            return m
+    return None
+
+def assert_pattern(nbsr: NBSR, pat: re.Pattern[str]):
+    m = find_pattern(nbsr, pat)
     if m is None:
         pytest.fail("Did not find pattern in process output")
 
-def check_port(nbsr):
-    m = None
-    for i in range(20):
-        o = nbsr.readline(0.5)
-        if not o:
-            continue
-        m = PORT_PAT.search(o.decode())
-        if m is not None:
-            break
+def check_port(nbsr: NBSR):
+    m = find_pattern(nbsr, PORT_PAT)
     if m is None:
         pytest.fail("Did not find port in process output")
     return int(m.group(1))
 
-def check_error(args):
+def check_error(args: list[str]):
     cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
     try:
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -650,7 +648,21 @@ class TestIco:
                 r = requests.get(f"http://localhost:{port}/favicon.ico")
                 assert r.status_code == 404
 
+@pytest.mark.skipif(sys.platform == "win32", reason="`ioloop.add_signal_handler()` is not available on Windows")
+def test_handling_SIGTERM() -> None:
+    pat_pid = re.compile(r"Starting Bokeh server with process id: (\d+)")
+    pat_term = re.compile(r"Received signal SIGTERM, shutting down")
 
+    with run_bokeh_serve([]) as (_, nbsr):
+        time.sleep(1) # otherwise won't work; can be replaced with breakpoint()
+        match = find_pattern(nbsr, pat_pid)
+        if match is None:
+            pytest.fail("Did not find server PID in process output")
+        pid = int(match.group(1))
+        os.kill(pid, signal.SIGTERM)
+        match = find_pattern(nbsr, pat_term)
+        if match is None:
+            pytest.fail("Did not find SIGTERM confirmation in process output")
 
 #-----------------------------------------------------------------------------
 # Private API

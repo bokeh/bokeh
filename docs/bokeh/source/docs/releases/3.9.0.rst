@@ -16,3 +16,4 @@ Bokeh version ``3.9.0`` (February 2026) is a minor milestone of Bokeh project.
 * Added support for Markdown formatted contents display with ``Markdown`` widget (:bokeh-pull:`14780`)
 * Added support for binary protocol to all server messages types (:bokeh-pull:`14725`)
 * Fixed a bug that caused manually positioned plot axes to shift position of toolbars (:bokeh-pull:`14840`)
+* Fixed initial render ignoring explicit bounds on ``FactorRange`` (:bokeh-pull:`14849`)

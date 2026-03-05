@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "3.9.0-dev.9",
+  "version": "3.10.0-dev.1",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -51,6 +51,7 @@
     "@types/sprintf-js": "^1.1.4",
     "choices.js": "^10.2.0",
     "dompurify": "^3.3.0",
+    "earcut": "^3.0.2",
     "fflate": "^0.8.2",
     "flatbush": "^4.5.0",
     "flatpickr": "^4.6.13",
@@ -65,5 +66,8 @@
     "timezone": "^1.0.23",
     "tslib": "^2.8.1",
     "underscore.template": "^0.1.7"
+  },
+  "devDependencies": {
+    "webpack-glsl-minify": "^1.5.0"
   }
 }

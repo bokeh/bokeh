@@ -43,7 +43,7 @@ export abstract class LayoutDOMView extends PaneView {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
   }
 
-  override _after_resize(): void {
+  protected override _after_resize(): void {
     super._after_resize()
 
     if (this.is_layout_root && !this._was_built) {

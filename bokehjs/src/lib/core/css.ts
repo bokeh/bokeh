@@ -397,6 +397,7 @@ type CSSStylesCamel = {
   zIndex?: string | null
 }
 
+/* eslint-disable @stylistic/quote-props */
 type CSSStylesDashed = {
   "accent-color"?: CSSStylesCamel["accentColor"]
   "align-content"?: CSSStylesCamel["alignContent"]
@@ -782,6 +783,7 @@ type CSSStylesDashed = {
   "writing-mode"?: CSSStylesCamel["writingMode"]
   "z-index"?: CSSStylesCamel["zIndex"]
 }
+/* eslint-enable @stylistic/quote-props */
 
 type CSSStylesSnake = {
   accent_color?: CSSStylesCamel["accentColor"]

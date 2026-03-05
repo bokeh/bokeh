@@ -84,7 +84,7 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.change, () => this.rerender())
 
     const {items} = this.model.properties
-    this.on_transitive_change(items, () => this._render_items())
+    this.on_transitive_change(items, () => this._render_items(), {recursive: true})
   }
 
   protected _bbox: BBox = new BBox()

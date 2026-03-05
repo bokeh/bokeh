@@ -1,8 +1,9 @@
 .. _release-3-10-0:
 
 3.10.0
-=====
+======
 
-Bokeh version ``3.10.0`` (TBD 2026) is a minor milestone of Bokeh project.
+Bokeh version ``3.10.0`` (TBD) is a minor milestone of Bokeh project.
 
+* Added WebGL rendering support for ``Patch`` and ``Patches`` glyphs (:bokeh-pull:`14853`)
 * Added ``LightDark`` component to switch between light and dark themes (:bokeh-pull:`14807`)

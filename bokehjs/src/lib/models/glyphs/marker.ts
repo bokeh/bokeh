@@ -118,7 +118,7 @@ export abstract class MarkerView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = [...this.index.indices({x0, x1, y0, y1})]
+    const indices = this.index.indices({x0, x1, y0, y1}).ones()
     return new Selection({indices})
   }
 

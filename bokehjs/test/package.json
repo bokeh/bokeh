@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/test",
-  "version": "3.9.0-dev.9",
+  "version": "3.10.0-dev.1",
   "type": "module",
   "private": true,
   "description": "Internal package for bokehjs' testing framework and tests",
@@ -27,6 +27,7 @@
     "cli-progress": "^3.12.0",
     "cors": "^2.8.5",
     "devtools-protocol": "^0.0.1325906",
+    "diff": "^8.0.3",
     "express": "^4.19.2",
     "json5": "^2.2.3",
     "nunjucks": "^3.2.4",

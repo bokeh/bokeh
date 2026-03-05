@@ -176,9 +176,16 @@ function description(suites: Suite[], test: Test, sep: string = " "): string {
 }
 
 export async function run_all(query?: string | string[] | RegExp): Promise<void> {
+  const re = /^\s+at\s+/
   for await (const result of yield_all(query)) {
-    if (result.error != null) {
-      console.error(result.error)
+    const {error} = result
+    if (error != null) {
+      const {message, stack} = error
+      console.error(
+        message,
+        "\n\n",
+        (stack ?? "").split("\n").filter((line) => re.test(line)).map((line) => line.trim()).join("\n"),
+      )
     }
   }
 }

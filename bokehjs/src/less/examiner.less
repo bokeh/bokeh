@@ -221,7 +221,7 @@
 }
 
 .prop-value {
-  gap: 1em;
+  gap: 0.5em;
 }
 
 .underline {
@@ -258,17 +258,34 @@
   }
 }
 
+.btn-edit {
+  .icon-mask(var(--bokeh-icon-pencil));
+}
+
+.btn-accept {
+  .icon-mask(var(--bokeh-icon-check));
+}
+
+.btn-cancel {
+  .icon-mask(var(--bokeh-icon-x));
+}
+
 .btn-delete {
   .icon-mask(var(--bokeh-icon-trash));
 }
 
-.btn-edit {
-  .icon-mask(var(--bokeh-icon-pencil));
-  visibility: hidden;
-}
-
-.prop-value:hover {
+.prop-value {
   .btn-edit {
-    visibility: visible;
+    visibility: hidden;
+  }
+
+  &:hover {
+    .btn-edit {
+      visibility: visible;
+    }
+  }
+
+  .btn-accept:hover {
+    background-color: green;
   }
 }

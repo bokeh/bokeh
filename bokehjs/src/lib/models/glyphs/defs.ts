@@ -237,12 +237,12 @@ function square_pin(ctx: Context2d, i: number, r: number, visuals: VectorVisuals
   const a = 3*r/8
 
   ctx.moveTo(-r, -r)
-  /* eslint-disable space-in-parens */
+  /* eslint-disable @stylistic/space-in-parens */
   ctx.quadraticCurveTo( 0, -a,  r, -r)
   ctx.quadraticCurveTo( a,  0,  r,  r)
   ctx.quadraticCurveTo( 0,  a, -r,  r)
   ctx.quadraticCurveTo(-a,  0, -r, -r)
-  /* eslint-enable space-in-parens */
+  /* eslint-enable @stylistic/space-in-parens */
 
   ctx.closePath()
 
