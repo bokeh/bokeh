@@ -1,6 +1,6 @@
 Row bbox=[0, 0, 531, 346]
   Column bbox=[0, 0, 221, 344]
-    ThemeSwitch bbox=[5, 5, 54, 16]
+    LightDark bbox=[5, 5, 54, 16]
     Button bbox=[5, 31, 61, 28]
     Toggle bbox=[5, 69, 62, 28]
     Dropdown bbox=[5, 107, 98, 28]
