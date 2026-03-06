@@ -13,6 +13,7 @@ from typing import (
     Literal,
     Sequence,
     TypeAlias,
+    TypedDict,
 )
 
 if TYPE_CHECKING:
@@ -32,6 +33,12 @@ from ..dom import HTML
 from ..formatters import TickFormatter
 from ..ui import Tooltip
 from .widget import Widget, _WidgetInit
+from ...model.model import JSEventCallback
+from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
+from ..tools import DimensionsType as Dimensions
+from ..ui.tooltips import UIElement
+from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
+from .buttons import DOMNode
 
 class ClearInput(ModelEvent):
     def __init__(self, model: InputWidget) -> None: ...
@@ -40,7 +47,37 @@ class ClearInput(ModelEvent):
 #     title: str | HTML
 #     description: str | Tooltip | None
 
-class _InputWidgetInit(_WidgetInit, total=False):
+class _InputWidgetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     title: str | HTML
     description: str | Tooltip | None
 
@@ -56,7 +93,39 @@ class InputWidget(Widget):
 #     multiple: bool
 #     directory: bool
 
-class _FileInputInit(_InputWidgetInit, total=False):
+class _FileInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     accept: str | list[str]
     multiple: bool
     directory: bool
@@ -85,7 +154,39 @@ class FileInput(InputWidget):
 #     mode: Literal["int", "float"]
 #     format: None | str | TickFormatter
 
-class _NumericInputInit(_InputWidgetInit, total=False):
+class _NumericInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     value: None | float | int
     low: None | float | int
     high: None | float | int
@@ -108,7 +209,45 @@ class NumericInput(InputWidget):
 #     page_step_multiplier: float
 #     wheel_wait: int | float
 
-class _SpinnerInit(_NumericInputInit, total=False):
+class _SpinnerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    value: None | float | int
+    low: None | float | int
+    high: None | float | int
+    placeholder: str
+    mode: Literal["int", "float"]
+    format: None | str | TickFormatter
     step: float
     page_step_multiplier: float
     wheel_wait: int | float
@@ -127,7 +266,37 @@ class Spinner(NumericInput):
 #     active: bool
 #     label: str
 
-class _ToggleInputInit(_WidgetInit, total=False):
+class _ToggleInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     active: bool
     label: str
 
@@ -141,8 +310,39 @@ class ToggleInput(Widget):
 # class _CheckboxInit(_ToggleInputInit, total=False):
 #     ...
 
-class _CheckboxInit(_ToggleInputInit, total=False):
-    ...
+class _CheckboxInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    active: bool
+    label: str
 
 class Checkbox(ToggleInput):
     def __init__(self, **kwargs: Unpack[_CheckboxInit]) -> None: ...
@@ -151,7 +351,39 @@ class Checkbox(ToggleInput):
 #     on_icon: IconLike | None
 #     off_icon: IconLike | None
 
-class _SwitchInit(_ToggleInputInit, total=False):
+class _SwitchInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    active: bool
+    label: str
     on_icon: IconLike | None
     off_icon: IconLike | None
 
@@ -167,7 +399,39 @@ class Switch(ToggleInput):
 #     placeholder: str
 #     max_length: int | None
 
-class _TextLikeInputInit(_InputWidgetInit, total=False):
+class _TextLikeInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     value: str
     value_input: str
     placeholder: str
@@ -185,7 +449,43 @@ class TextLikeInput(InputWidget):
 #     prefix: str | None
 #     suffix: str | None
 
-class _TextInputInit(_TextLikeInputInit, total=False):
+class _TextInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    value: str
+    value_input: str
+    placeholder: str
+    max_length: int | None
     prefix: str | None
     suffix: str | None
 
@@ -199,7 +499,43 @@ class TextInput(TextLikeInput):
 #     cols: int
 #     rows: int
 
-class _TextAreaInputInit(_TextLikeInputInit, total=False):
+class _TextAreaInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    value: str
+    value_input: str
+    placeholder: str
+    max_length: int | None
     cols: int
     rows: int
 
@@ -212,8 +548,45 @@ class TextAreaInput(TextLikeInput):
 # class _PasswordInputInit(_TextInputInit, total=False):
 #     ...
 
-class _PasswordInputInit(_TextInputInit, total=False):
-    ...
+class _PasswordInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    value: str
+    value_input: str
+    placeholder: str
+    max_length: int | None
+    prefix: str | None
+    suffix: str | None
 
 class PasswordInput(TextInput):
     def __init__(self, **kwargs: Unpack[_PasswordInputInit]) -> None: ...
@@ -226,7 +599,45 @@ class PasswordInput(TextInput):
 #     restrict: bool
 #     search_strategy: Literal["starts_with", "includes"]
 
-class _AutocompleteInputInit(_TextInputInit, total=False):
+class _AutocompleteInputInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    value: str
+    value_input: str
+    placeholder: str
+    max_length: int | None
+    prefix: str | None
+    suffix: str | None
     completions: list[str]
     max_completions: Positive[int] | None
     min_characters: NonNegative[int]
@@ -251,7 +662,39 @@ OptionsGroups: TypeAlias = dict[str, Options]
 #     options: Options | OptionsGroups | list[str | None]
 #     value: Any
 
-class _SelectInit(_InputWidgetInit, total=False):
+class _SelectInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     options: Options | OptionsGroups | list[str | None]
     value: Any
 
@@ -270,7 +713,39 @@ class Select(InputWidget):
 #     value: list[str]
 #     size: int
 
-class _MultiSelectInit(_InputWidgetInit, total=False):
+class _MultiSelectInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     options: list[str | tuple[str, str]]
     value: list[str]
     size: int
@@ -292,7 +767,39 @@ class MultiSelect(InputWidget):
 #     placeholder: str | None
 #     solid: bool
 
-class _MultiChoiceInit(_InputWidgetInit, total=False):
+class _MultiChoiceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     options: list[str | tuple[str, str]]
     value: list[str]
     delete_button: bool
@@ -317,7 +824,39 @@ class MultiChoice(InputWidget):
 # class _ColorPickerInit(_InputWidgetInit, total=False):
 #     color: ColorHex
 
-class _ColorPickerInit(_InputWidgetInit, total=False):
+class _ColorPickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     color: ColorHex
 
 class ColorPicker(InputWidget):
@@ -332,7 +871,39 @@ class ColorPicker(InputWidget):
 #     swatch_height: Auto | NonNegative[int]
 #     ncols: Positive[int]
 
-class _PaletteSelectInit(_InputWidgetInit, total=False):
+class _PaletteSelectInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     value: str
     items: Sequence[tuple[str, Sequence[Color]]]
     swatch_width: NonNegative[int]

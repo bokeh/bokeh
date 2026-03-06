@@ -7,19 +7,24 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 
 # class _LabelingPolicyInit(_ModelInit, total=False):
 #     ...
 
-class _LabelingPolicyInit(_ModelInit, total=False):
-    ...
+class _LabelingPolicyInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class LabelingPolicy(Model):
     @abstractmethod
@@ -28,8 +33,13 @@ class LabelingPolicy(Model):
 # class _AllLabelsInit(_LabelingPolicyInit, total=False):
 #     ...
 
-class _AllLabelsInit(_LabelingPolicyInit, total=False):
-    ...
+class _AllLabelsInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class AllLabels(LabelingPolicy):
     def __init__(self, **kwargs: Unpack[_AllLabelsInit]) -> None: ...
@@ -37,7 +47,13 @@ class AllLabels(LabelingPolicy):
 # class _NoOverlapInit(_LabelingPolicyInit, total=False):
 #     min_distance: int
 
-class _NoOverlapInit(_LabelingPolicyInit, total=False):
+class _NoOverlapInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     min_distance: int
 
 class NoOverlap(LabelingPolicy):
@@ -49,7 +65,13 @@ class NoOverlap(LabelingPolicy):
 #     args: dict[str, Any]
 #     code: str
 
-class _CustomLabelingPolicyInit(_LabelingPolicyInit, total=False):
+class _CustomLabelingPolicyInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 

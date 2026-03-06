@@ -7,19 +7,24 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 
 # class _ComparisonInit(_ModelInit, total=False):
 #     ...
 
-class _ComparisonInit(_ModelInit, total=False):
-    ...
+class _ComparisonInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Comparison(Model):
     @abstractmethod
@@ -29,7 +34,13 @@ class Comparison(Model):
 #     args: dict[str, Any]
 #     code: str
 
-class _CustomJSCompareInit(_ComparisonInit, total=False):
+class _CustomJSCompareInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 
@@ -42,7 +53,13 @@ class CustomJSCompare(Comparison):
 # class _NanCompareInit(_ComparisonInit, total=False):
 #     ascending_first: bool
 
-class _NanCompareInit(_ComparisonInit, total=False):
+class _NanCompareInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     ascending_first: bool
 
 class NanCompare(Comparison):

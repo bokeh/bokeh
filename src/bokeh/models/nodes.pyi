@@ -7,14 +7,14 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, ClassVar, Literal
+from typing import Any, ClassVar, Literal, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
 from .._types import CoordinateLike
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .glyph import Glyph
 from .renderers import GlyphRenderer
 
@@ -60,8 +60,13 @@ class BoxNodes:
 # class _CoordinateInit(_ModelInit, total=False):
 #     ...
 
-class _CoordinateInit(_ModelInit, total=False):
-    ...
+class _CoordinateInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Coordinate(Model):
     @abstractmethod
@@ -71,7 +76,13 @@ class Coordinate(Model):
 #     x: CoordinateLike
 #     y: CoordinateLike
 
-class _XYInit(_CoordinateInit, total=False):
+class _XYInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x: CoordinateLike
     y: CoordinateLike
 
@@ -85,7 +96,13 @@ class XY(Coordinate):
 #     index: int
 #     renderer: GlyphRenderer[Glyph]
 
-class _IndexedInit(_CoordinateInit, total=False):
+class _IndexedInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     index: int
     renderer: GlyphRenderer[Glyph]
 
@@ -100,7 +117,13 @@ class Indexed(Coordinate):
 #     symbol: str
 #     offset: int
 
-class _NodeInit(_CoordinateInit, total=False):
+class _NodeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     target: Model | ImplicitTarget
     symbol: str
     offset: int

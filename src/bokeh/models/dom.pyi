@@ -7,26 +7,41 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..core.enums import BuiltinFormatterType as BuiltinFormatter
+from ..core.enums import BuiltinFormatterType as BuiltinFormatter, OutlineShapeNameType as OutlineShapeName
 from ..core.has_props import HasProps, Qualified
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .callbacks import CustomJS
 from .css import Styles
 from .renderers import RendererGroup
-from .tools import CustomJSHover
+from .tools import CustomJSHover, DimensionsType as Dimensions
 from .ui import UIElement
+from ..core.property_aliases import BorderRadius, Padding, TextAnchorType as TextAnchor
+from ..core.property_mixins import (AlphaSpec, DashPatternSpec, FontSizeSpec, HatchPatternSpec, IntSpec, LineCapSpec, LineJoinSpec, TextBaselineSpec)
+from .._specs import AngleSpec, DataSpec
+from ..plotting._figure import AutoType as Auto
+from ..plotting.glyph_api import (NonNegative, Texture)
+from .glyphs import (FloatSpec, NumberSpec, StringSpec)
+from .layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
+from .renderers.glyph_renderer import Decoration
+from .ui.ui_element import (Menu, Node, StyleSheet)
+from .widgets.tables import (ColorSpec, FontStyleSpec, TextAlignSpec)
 
 # class _DOMNodeInit(_ModelInit, total=False):
 #     ...
 
-class _DOMNodeInit(_ModelInit, total=False):
-    ...
+class _DOMNodeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class DOMNode(Model, Qualified):
     @abstractmethod
@@ -35,19 +50,28 @@ class DOMNode(Model, Qualified):
 # class _TextInit(_DOMNodeInit, total=False):
 #     content: str
 
-class _TextInit(_DOMNodeInit, total=False):
+class _TextInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     content: str
-
 class Text(DOMNode):
     def __init__(self, **kwargs: Unpack[_TextInit]) -> None: ...
 
     content: str = ...
-
-# class _DOMElementInit(_DOMNodeInit, total=False):
 #     style: Styles | dict[str, str]
 #     children: list[str | DOMNode | UIElement]
 
-class _DOMElementInit(_DOMNodeInit, total=False):
+class _DOMElementInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     style: Styles | dict[str, str]
     children: list[str | DOMNode | UIElement]
 
@@ -61,8 +85,15 @@ class DOMElement(DOMNode):
 # class _SpanInit(_DOMElementInit, total=False):
 #     ...
 
-class _SpanInit(_DOMElementInit, total=False):
-    ...
+class _SpanInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
 
 class Span(DOMElement):
     def __init__(self, **kwargs: Unpack[_SpanInit]) -> None: ...
@@ -70,17 +101,30 @@ class Span(DOMElement):
 # class _DivInit(_DOMElementInit, total=False):
 #     ...
 
-class _DivInit(_DOMElementInit, total=False):
-    ...
-
+class _DivInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
 class Div(DOMElement):
     def __init__(self, **kwargs: Unpack[_DivInit]) -> None: ...
 
 # class _TableInit(_DOMElementInit, total=False):
 #     ...
 
-class _TableInit(_DOMElementInit, total=False):
-    ...
+class _TableInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
 
 class Table(DOMElement):
     def __init__(self, **kwargs: Unpack[_TableInit]) -> None: ...
@@ -88,8 +132,15 @@ class Table(DOMElement):
 # class _TableRowInit(_DOMElementInit, total=False):
 #     ...
 
-class _TableRowInit(_DOMElementInit, total=False):
-    ...
+class _TableRowInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
 
 class TableRow(DOMElement):
     def __init__(self, **kwargs: Unpack[_TableRowInit]) -> None: ...
@@ -97,8 +148,13 @@ class TableRow(DOMElement):
 # class _ActionInit(_ModelInit, total=False):
 #     ...
 
-class _ActionInit(_ModelInit, total=False):
-    ...
+class _ActionInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Action(Model, Qualified):
     @abstractmethod
@@ -107,7 +163,15 @@ class Action(Model, Qualified):
 # class _TemplateInit(_DOMElementInit, total=False):
 #     actions: list[Action]
 
-class _TemplateInit(_DOMElementInit, total=False):
+class _TemplateInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
     actions: list[Action]
 
 class Template(DOMElement):
@@ -118,7 +182,13 @@ class Template(DOMElement):
 # class _ToggleGroupInit(_ActionInit, total=False):
 #     groups: list[RendererGroup]
 
-class _ToggleGroupInit(_ActionInit, total=False):
+class _ToggleGroupInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     groups: list[RendererGroup]
 
 class ToggleGroup(Action):
@@ -129,8 +199,15 @@ class ToggleGroup(Action):
 # class _PlaceholderInit(_DOMElementInit, total=False):
 #     ...
 
-class _PlaceholderInit(_DOMElementInit, total=False):
-    ...
+class _PlaceholderInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
 
 class Placeholder(DOMElement):
     @abstractmethod
@@ -142,7 +219,15 @@ class Placeholder(DOMElement):
 #     format: str | None
 #     formatter: BuiltinFormatter | CustomJS
 
-class _ValueOfInit(_PlaceholderInit, total=False):
+class _ValueOfInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
     obj: HasProps
     attr: str
     format: str | None
@@ -159,8 +244,15 @@ class ValueOf(Placeholder):
 # class _IndexInit(_PlaceholderInit, total=False):
 #     ...
 
-class _IndexInit(_PlaceholderInit, total=False):
-    ...
+class _IndexInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
 
 class Index(Placeholder):
     def __init__(self, **kwargs: Unpack[_IndexInit]) -> None: ...
@@ -171,7 +263,15 @@ class Index(Placeholder):
 #     formatter: BuiltinFormatter | CustomJS | CustomJSHover
 #     filter: CustomJS | list[CustomJS] | None
 
-class _ValueRefInit(_PlaceholderInit, total=False):
+class _ValueRefInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
     field: str
     format: str | None
     formatter: BuiltinFormatter | CustomJS | CustomJSHover
@@ -189,7 +289,19 @@ class ValueRef(Placeholder):
 #     hex: bool
 #     swatch: bool
 
-class _ColorRefInit(_ValueRefInit, total=False):
+class _ColorRefInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
+    field: str
+    format: str | None
+    formatter: BuiltinFormatter | CustomJS | CustomJSHover
+    filter: CustomJS | list[CustomJS] | None
     hex: bool
     swatch: bool
 
@@ -203,7 +315,15 @@ class ColorRef(ValueRef):
 #     html: str | list[str | DOMNode | UIElement]
 #     refs: list[str | DOMNode | UIElement]
 
-class _HTMLInit(_DOMElementInit, total=False):
+class _HTMLInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    style: Styles | dict[str, str]
+    children: list[str | DOMNode | UIElement]
     html: str | list[str | DOMNode | UIElement]
     refs: list[str | DOMNode | UIElement]
 

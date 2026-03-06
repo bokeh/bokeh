@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -42,16 +42,28 @@ from ..core.property_aliases import (
     TextAnchor,
 )
 from ..core.property_mixins import (
+    AlphaSpec,
     BackgroundFillProps,
     BackgroundHatchProps,
     BorderLineProps,
+    DashPatternSpec,
+    DashPatternType as DashPattern,
     FillProps,
+    FontSizeSpec,
+    HatchPatternSpec,
     HatchProps,
     ImageProps,
+    IntSpec,
+    LineCapSpec,
+    LineCapType as LineCap,
+    LineJoinSpec,
+    LineJoinType as LineJoin,
     LineProps,
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
+    Size,
+    TextBaselineSpec,
     TextProps,
     _BackgroundFillPropsInit,
     _BackgroundHatchPropsInit,
@@ -77,6 +89,11 @@ from .glyph import (
     _XYGlyphInit,
 )
 from .mappers import ColorMapper, StackColorMapper
+from ..model.model import JSEventCallback
+from ..plotting.glyph_api import (Color, Texture)
+from .renderers.glyph_renderer import Decoration
+from .tools import Alpha
+from .widgets.tables import (ColorSpec, FontStyleSpec, TextAlignSpec)
 
 # class _MarkerInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
 #     x: NumberSpec
@@ -85,7 +102,29 @@ from .mappers import ColorMapper, StackColorMapper
 #     size: SizeSpec
 #     angle: AngleSpec
 
-class _MarkerInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _MarkerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     hit_dilation: NonNegative[float]
@@ -105,7 +144,29 @@ class Marker(XYGlyph, LineProps, FillProps, HatchProps):
 # class _LRTBGlyphInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
 #     border_radius: BorderRadius
 
-class _LRTBGlyphInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _LRTBGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     border_radius: BorderRadius
 
 class LRTBGlyph(Glyph, LineProps, FillProps, HatchProps):
@@ -123,7 +184,29 @@ class LRTBGlyph(Glyph, LineProps, FillProps, HatchProps):
 #     end_angle: AngleSpec
 #     direction: Direction
 
-class _AnnularWedgeInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _AnnularWedgeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     inner_radius: DistanceSpec
@@ -149,7 +232,29 @@ class AnnularWedge(XYGlyph, LineProps, FillProps, HatchProps):
 #     inner_radius: DistanceSpec
 #     outer_radius: DistanceSpec
 
-class _AnnulusInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _AnnulusInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     inner_radius: DistanceSpec
@@ -171,7 +276,21 @@ class Annulus(XYGlyph, LineProps, FillProps, HatchProps):
 #     end_angle: AngleSpec
 #     direction: Direction
 
-class _ArcInit(_XYGlyphInit, _LinePropsInit, total=False):
+class _ArcInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     x: NumberSpec
     y: NumberSpec
     radius: DistanceSpec
@@ -199,7 +318,21 @@ class Arc(XYGlyph, LineProps):
 #     cx1: NumberSpec
 #     cy1: NumberSpec
 
-class _BezierInit(_GlyphInit, _LinePropsInit, total=False):
+class _BezierInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
@@ -227,7 +360,30 @@ class Bezier(Glyph, LineProps):
 #     width: DistanceSpec
 #     height: DistanceSpec
 
-class _BlockInit(_LRTBGlyphInit, total=False):
+class _BlockInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
+    border_radius: BorderRadius
     x: NumberSpec
     y: NumberSpec
     width: DistanceSpec
@@ -248,7 +404,29 @@ class Block(LRTBGlyph):
 #     radius_dimension: RadiusDimension
 #     hit_dilation: NonNegative[float]
 
-class _CircleInit(_RadialGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _CircleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     radius: DistanceSpec
@@ -271,7 +449,29 @@ class Circle(RadialGlyph, LineProps, FillProps, HatchProps):
 #     height: DistanceSpec
 #     angle: AngleSpec
 
-class _EllipseInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _EllipseInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     width: DistanceSpec
@@ -292,7 +492,22 @@ class Ellipse(XYGlyph, LineProps, FillProps, HatchProps):
 #     x2: NumberSpec
 #     y: NumberSpec
 
-class _HAreaInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _HAreaInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    fill_color: Color | None
+    fill_alpha: Alpha
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x1: NumberSpec
     x2: NumberSpec
     y: NumberSpec
@@ -310,7 +525,22 @@ class HArea(Glyph, ScalarFillProps, HatchProps):
 #     y: NumberSpec
 #     step_mode: StepMode
 
-class _HAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _HAreaStepInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    fill_color: Color | None
+    fill_alpha: Alpha
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x1: NumberSpec
     x2: NumberSpec
     y: NumberSpec
@@ -330,7 +560,30 @@ class HAreaStep(Glyph, ScalarFillProps, HatchProps):
 #     left: NumberSpec
 #     right: NumberSpec
 
-class _HBarInit(_LRTBGlyphInit, total=False):
+class _HBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
+    border_radius: BorderRadius
     y: NumberSpec
     height: DistanceSpec
     left: NumberSpec
@@ -347,7 +600,21 @@ class HBar(LRTBGlyph):
 # class _HSpanInit(_GlyphInit, _LinePropsInit, total=False):
 #     y: NumberSpec
 
-class _HSpanInit(_GlyphInit, _LinePropsInit, total=False):
+class _HSpanInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     y: NumberSpec
 
 class HSpan(Glyph, LineProps):
@@ -359,7 +626,29 @@ class HSpan(Glyph, LineProps):
 #     y0: NumberSpec
 #     y1: NumberSpec
 
-class _HStripInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _HStripInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     y0: NumberSpec
     y1: NumberSpec
 
@@ -377,7 +666,29 @@ class HStrip(Glyph, LineProps, FillProps, HatchProps):
 #     scale: NumberSpec
 #     orientation: HexTileOrientation
 
-class _HexTileInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _HexTileInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     size: float
     aspect_scale: float
     r: NumberSpec
@@ -404,7 +715,15 @@ class HexTile(Glyph, LineProps, FillProps, HatchProps):
 #     origin: ImageOrigin
 #     anchor: Anchor
 
-class _ImageBaseInit(_XYGlyphInit, _ImagePropsInit, total=False):
+class _ImageBaseInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    global_alpha: AlphaSpec
     x: NumberSpec
     y: NumberSpec
     dw: DistanceSpec
@@ -429,7 +748,22 @@ class ImageBase(XYGlyph, ImageProps):
 #     image: NumberSpec
 #     color_mapper: ColorMapper | Palette
 
-class _ImageInit(_ImageBaseInit, total=False):
+class _ImageInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    global_alpha: AlphaSpec
+    x: NumberSpec
+    y: NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: bool
+    origin: ImageOrigin
+    anchor: Anchor
     image: NumberSpec
     color_mapper: ColorMapper | Palette
 
@@ -446,7 +780,22 @@ class Image(ImageBase):
 # class _ImageRGBAInit(_ImageBaseInit, total=False):
 #     image: NumberSpec
 
-class _ImageRGBAInit(_ImageBaseInit, total=False):
+class _ImageRGBAInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    global_alpha: AlphaSpec
+    x: NumberSpec
+    y: NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: bool
+    origin: ImageOrigin
+    anchor: Anchor
     image: NumberSpec
 
 class ImageRGBA(ImageBase):
@@ -458,7 +807,22 @@ class ImageRGBA(ImageBase):
 #     image: NumberSpec
 #     color_mapper: StackColorMapper
 
-class _ImageStackInit(_ImageBaseInit, total=False):
+class _ImageStackInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    global_alpha: AlphaSpec
+    x: NumberSpec
+    y: NumberSpec
+    dw: DistanceSpec
+    dh: DistanceSpec
+    dilate: bool
+    origin: ImageOrigin
+    anchor: Anchor
     image: NumberSpec
     color_mapper: StackColorMapper
 
@@ -481,7 +845,14 @@ class ImageStack(ImageBase):
 #     retry_attempts: int
 #     retry_timeout: int
 
-class _ImageURLInit(_XYGlyphInit, total=False):
+class _ImageURLInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
     url: StringSpec
     x: NumberSpec
     y: NumberSpec
@@ -513,7 +884,21 @@ class ImageURL(XYGlyph):
 #     x: NumberSpec
 #     y: NumberSpec
 
-class _LineInit(_ConnectedXYGlyphInit, _ScalarLinePropsInit, total=False):
+class _LineInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: Color | None
+    line_alpha: Alpha
+    line_width: float
+    line_join: LineJoin
+    line_cap: LineCap
+    line_dash: DashPattern
+    line_dash_offset: int
     x: NumberSpec
     y: NumberSpec
 
@@ -527,7 +912,21 @@ class Line(ConnectedXYGlyph, ScalarLineProps):
 #     xs: NumberSpec
 #     ys: NumberSpec
 
-class _MultiLineInit(_GlyphInit, _LinePropsInit, total=False):
+class _MultiLineInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     xs: NumberSpec
     ys: NumberSpec
 
@@ -541,7 +940,29 @@ class MultiLine(Glyph, LineProps):
 #     xs: NumberSpec
 #     ys: NumberSpec
 
-class _MultiPolygonsInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _MultiPolygonsInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     xs: NumberSpec
     ys: NumberSpec
 
@@ -559,7 +980,29 @@ class MultiPolygons(Glyph, LineProps, FillProps, HatchProps):
 #     n: NumberSpec
 #     radius_dimension: RadiusDimension
 
-class _NgonInit(_RadialGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _NgonInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     radius: DistanceSpec
@@ -581,7 +1024,29 @@ class Ngon(RadialGlyph, LineProps, FillProps, HatchProps):
 #     x: NumberSpec
 #     y: NumberSpec
 
-class _PatchInit(_ConnectedXYGlyphInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
+class _PatchInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: Color | None
+    line_alpha: Alpha
+    line_width: float
+    line_join: LineJoin
+    line_cap: LineCap
+    line_dash: DashPattern
+    line_dash_offset: int
+    fill_color: Color | None
+    fill_alpha: Alpha
+    hatch_color: Color | None
+    hatch_alpha: Alpha
+    hatch_scale: Size
+    hatch_pattern: str | None
+    hatch_weight: Size
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
 
@@ -595,7 +1060,29 @@ class Patch(ConnectedXYGlyph, ScalarLineProps, ScalarFillProps, ScalarHatchProps
 #     xs: NumberSpec
 #     ys: NumberSpec
 
-class _PatchesInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _PatchesInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     xs: NumberSpec
     ys: NumberSpec
 
@@ -611,7 +1098,30 @@ class Patches(Glyph, LineProps, FillProps, HatchProps):
 #     bottom: NumberSpec
 #     top: NumberSpec
 
-class _QuadInit(_LRTBGlyphInit, total=False):
+class _QuadInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
+    border_radius: BorderRadius
     left: NumberSpec
     right: NumberSpec
     bottom: NumberSpec
@@ -633,7 +1143,21 @@ class Quad(LRTBGlyph):
 #     cx: NumberSpec
 #     cy: NumberSpec
 
-class _QuadraticInit(_GlyphInit, _LinePropsInit, total=False):
+class _QuadraticInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
@@ -657,7 +1181,21 @@ class Quadratic(Glyph, LineProps):
 #     angle: AngleSpec
 #     length: DistanceSpec
 
-class _RayInit(_XYGlyphInit, _LinePropsInit, total=False):
+class _RayInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     x: NumberSpec
     y: NumberSpec
     angle: AngleSpec
@@ -680,7 +1218,29 @@ class Ray(XYGlyph, LineProps):
 #     border_radius: BorderRadius
 #     dilate: bool
 
-class _RectInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _RectInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     width: DistanceSpec
@@ -704,7 +1264,34 @@ class Rect(XYGlyph, LineProps, FillProps, HatchProps):
 #     marker: MarkerSpec
 #     defs: dict[str, CustomJS]
 
-class _ScatterInit(_MarkerInit, total=False):
+class _ScatterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
+    x: NumberSpec
+    y: NumberSpec
+    hit_dilation: NonNegative[float]
+    size: SizeSpec
+    angle: AngleSpec
     marker: MarkerSpec
     defs: dict[str, CustomJS]
 
@@ -720,7 +1307,21 @@ class Scatter(Marker):
 #     x1: NumberSpec
 #     y1: NumberSpec
 
-class _SegmentInit(_GlyphInit, _LinePropsInit, total=False):
+class _SegmentInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
@@ -741,7 +1342,21 @@ class Segment(Glyph, LineProps):
 #     pad_before: NonNegative[float]
 #     pad_after: NonNegative[float]
 
-class _StepInit(_XYGlyphInit, _ScalarLinePropsInit, total=False):
+class _StepInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: Color | None
+    line_alpha: Alpha
+    line_width: float
+    line_join: LineJoin
+    line_cap: LineCap
+    line_dash: DashPattern
+    line_dash_offset: int
     x: NumberSpec
     y: NumberSpec
     mode: StepMode
@@ -769,7 +1384,39 @@ class Step(XYGlyph, ScalarLineProps):
 #     border_radius: BorderRadius
 #     outline_shape: DataSpec[OutlineShapeName]
 
-class _TextInit(_XYGlyphInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
+class _TextInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    text_color: ColorSpec
+    text_outline_color: ColorSpec
+    text_outline_width: FloatSpec
+    text_alpha: AlphaSpec
+    text_font: StringSpec
+    text_font_size: FontSizeSpec
+    text_font_style: FontStyleSpec
+    text_align: TextAlignSpec
+    text_baseline: TextBaselineSpec
+    text_line_height: NumberSpec
+    background_fill_color: ColorSpec
+    background_fill_alpha: AlphaSpec
+    background_hatch_color: ColorSpec
+    background_hatch_alpha: AlphaSpec
+    background_hatch_scale: FloatSpec
+    background_hatch_pattern: HatchPatternSpec
+    background_hatch_weight: FloatSpec
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: ColorSpec
+    border_line_alpha: AlphaSpec
+    border_line_width: FloatSpec
+    border_line_join: LineJoinSpec
+    border_line_cap: LineCapSpec
+    border_line_dash: DashPatternSpec
+    border_line_dash_offset: IntSpec
     x: NumberSpec
     y: NumberSpec
     text: StringSpec
@@ -798,8 +1445,49 @@ class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, Border
 # class _MathTextGlyphInit(_TextInit, total=False):
 #     ...
 
-class _MathTextGlyphInit(_TextInit, total=False):
-    ...
+class _MathTextGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    text_color: ColorSpec
+    text_outline_color: ColorSpec
+    text_outline_width: FloatSpec
+    text_alpha: AlphaSpec
+    text_font: StringSpec
+    text_font_size: FontSizeSpec
+    text_font_style: FontStyleSpec
+    text_align: TextAlignSpec
+    text_baseline: TextBaselineSpec
+    text_line_height: NumberSpec
+    background_fill_color: ColorSpec
+    background_fill_alpha: AlphaSpec
+    background_hatch_color: ColorSpec
+    background_hatch_alpha: AlphaSpec
+    background_hatch_scale: FloatSpec
+    background_hatch_pattern: HatchPatternSpec
+    background_hatch_weight: FloatSpec
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: ColorSpec
+    border_line_alpha: AlphaSpec
+    border_line_width: FloatSpec
+    border_line_join: LineJoinSpec
+    border_line_cap: LineCapSpec
+    border_line_dash: DashPatternSpec
+    border_line_dash_offset: IntSpec
+    x: NumberSpec
+    y: NumberSpec
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: FloatSpec
+    y_offset: FloatSpec
+    anchor: DataSpec[TextAnchor]
+    padding: Padding
+    border_radius: BorderRadius
+    outline_shape: DataSpec[OutlineShapeName]
 
 class MathTextGlyph(Text):
     @abstractmethod
@@ -808,8 +1496,49 @@ class MathTextGlyph(Text):
 # class _MathMLGlyphInit(_MathTextGlyphInit, total=False):
 #     ...
 
-class _MathMLGlyphInit(_MathTextGlyphInit, total=False):
-    ...
+class _MathMLGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    text_color: ColorSpec
+    text_outline_color: ColorSpec
+    text_outline_width: FloatSpec
+    text_alpha: AlphaSpec
+    text_font: StringSpec
+    text_font_size: FontSizeSpec
+    text_font_style: FontStyleSpec
+    text_align: TextAlignSpec
+    text_baseline: TextBaselineSpec
+    text_line_height: NumberSpec
+    background_fill_color: ColorSpec
+    background_fill_alpha: AlphaSpec
+    background_hatch_color: ColorSpec
+    background_hatch_alpha: AlphaSpec
+    background_hatch_scale: FloatSpec
+    background_hatch_pattern: HatchPatternSpec
+    background_hatch_weight: FloatSpec
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: ColorSpec
+    border_line_alpha: AlphaSpec
+    border_line_width: FloatSpec
+    border_line_join: LineJoinSpec
+    border_line_cap: LineCapSpec
+    border_line_dash: DashPatternSpec
+    border_line_dash_offset: IntSpec
+    x: NumberSpec
+    y: NumberSpec
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: FloatSpec
+    y_offset: FloatSpec
+    anchor: DataSpec[TextAnchor]
+    padding: Padding
+    border_radius: BorderRadius
+    outline_shape: DataSpec[OutlineShapeName]
 
 class MathMLGlyph(MathTextGlyph):
     def __init__(self, **kwargs: Unpack[_MathMLGlyphInit]) -> None: ...
@@ -818,7 +1547,49 @@ class MathMLGlyph(MathTextGlyph):
 #     macros: dict[str, str | tuple[str, int]]
 #     display: TeXDisplay
 
-class _TeXGlyphInit(_MathTextGlyphInit, total=False):
+class _TeXGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    text_color: ColorSpec
+    text_outline_color: ColorSpec
+    text_outline_width: FloatSpec
+    text_alpha: AlphaSpec
+    text_font: StringSpec
+    text_font_size: FontSizeSpec
+    text_font_style: FontStyleSpec
+    text_align: TextAlignSpec
+    text_baseline: TextBaselineSpec
+    text_line_height: NumberSpec
+    background_fill_color: ColorSpec
+    background_fill_alpha: AlphaSpec
+    background_hatch_color: ColorSpec
+    background_hatch_alpha: AlphaSpec
+    background_hatch_scale: FloatSpec
+    background_hatch_pattern: HatchPatternSpec
+    background_hatch_weight: FloatSpec
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: ColorSpec
+    border_line_alpha: AlphaSpec
+    border_line_width: FloatSpec
+    border_line_join: LineJoinSpec
+    border_line_cap: LineCapSpec
+    border_line_dash: DashPatternSpec
+    border_line_dash_offset: IntSpec
+    x: NumberSpec
+    y: NumberSpec
+    text: StringSpec
+    angle: AngleSpec
+    x_offset: FloatSpec
+    y_offset: FloatSpec
+    anchor: DataSpec[TextAnchor]
+    padding: Padding
+    border_radius: BorderRadius
+    outline_shape: DataSpec[OutlineShapeName]
     macros: dict[str, str | tuple[str, int]]
     display: TeXDisplay
 
@@ -833,7 +1604,22 @@ class TeXGlyph(MathTextGlyph):
 #     y1: NumberSpec
 #     y2: NumberSpec
 
-class _VAreaInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _VAreaInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    fill_color: Color | None
+    fill_alpha: Alpha
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y1: NumberSpec
     y2: NumberSpec
@@ -851,7 +1637,22 @@ class VArea(Glyph, ScalarFillProps, HatchProps):
 #     y2: NumberSpec
 #     step_mode: StepMode
 
-class _VAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _VAreaStepInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    fill_color: Color | None
+    fill_alpha: Alpha
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y1: NumberSpec
     y2: NumberSpec
@@ -871,7 +1672,30 @@ class VAreaStep(Glyph, ScalarFillProps, HatchProps):
 #     bottom: NumberSpec
 #     top: NumberSpec
 
-class _VBarInit(_LRTBGlyphInit, total=False):
+class _VBarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
+    border_radius: BorderRadius
     x: NumberSpec
     width: DistanceSpec
     bottom: NumberSpec
@@ -888,7 +1712,21 @@ class VBar(LRTBGlyph):
 # class _VSpanInit(_GlyphInit, _LinePropsInit, total=False):
 #     x: NumberSpec
 
-class _VSpanInit(_GlyphInit, _LinePropsInit, total=False):
+class _VSpanInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
     x: NumberSpec
 
 class VSpan(Glyph, LineProps):
@@ -900,7 +1738,29 @@ class VSpan(Glyph, LineProps):
 #     x0: NumberSpec
 #     x1: NumberSpec
 
-class _VStripInit(_GlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _VStripInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x0: NumberSpec
     x1: NumberSpec
 
@@ -918,7 +1778,29 @@ class VStrip(Glyph, LineProps, FillProps, HatchProps):
 #     end_angle: AngleSpec
 #     direction: Direction
 
-class _WedgeInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
+class _WedgeInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
+    line_color: ColorSpec
+    line_alpha: AlphaSpec
+    line_width: FloatSpec
+    line_join: LineJoinSpec
+    line_cap: LineCapSpec
+    line_dash: DashPatternSpec
+    line_dash_offset: IntSpec
+    fill_color: ColorSpec
+    fill_alpha: AlphaSpec
+    hatch_color: ColorSpec
+    hatch_alpha: AlphaSpec
+    hatch_scale: FloatSpec
+    hatch_pattern: HatchPatternSpec
+    hatch_weight: FloatSpec
+    hatch_extra: dict[str, Texture]
     x: NumberSpec
     y: NumberSpec
     radius: DistanceSpec

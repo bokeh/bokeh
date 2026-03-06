@@ -7,13 +7,13 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 
 # class _TileSourceInit(_ModelInit, total=False):
 #     url: str
@@ -26,7 +26,13 @@ from ..model.model import Model, _ModelInit
 #     y_origin_offset: float
 #     initial_resolution: float | None
 
-class _TileSourceInit(_ModelInit, total=False):
+class _TileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     url: str
     tile_size: int
     min_zoom: int
@@ -55,7 +61,22 @@ class TileSource(Model):
 #     snap_to_zoom: bool
 #     wrap_around: bool
 
-class _MercatorTileSourceInit(_TileSourceInit, total=False):
+class _MercatorTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    url: str
+    tile_size: int
+    min_zoom: int
+    max_zoom: int
+    extra_url_vars: dict[str, Any]
+    attribution: str
+    x_origin_offset: float
+    y_origin_offset: float
+    initial_resolution: float | None
     snap_to_zoom: bool
     wrap_around: bool
 
@@ -69,8 +90,24 @@ class MercatorTileSource(TileSource):
 # class _TMSTileSourceInit(_MercatorTileSourceInit, total=False):
 #     ...
 
-class _TMSTileSourceInit(_MercatorTileSourceInit, total=False):
-    ...
+class _TMSTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    url: str
+    tile_size: int
+    min_zoom: int
+    max_zoom: int
+    extra_url_vars: dict[str, Any]
+    attribution: str
+    x_origin_offset: float
+    y_origin_offset: float
+    initial_resolution: float | None
+    snap_to_zoom: bool
+    wrap_around: bool
 
 class TMSTileSource(MercatorTileSource):
     def __init__(self, **kwargs: Unpack[_TMSTileSourceInit]) -> None: ...
@@ -78,8 +115,24 @@ class TMSTileSource(MercatorTileSource):
 # class _WMTSTileSourceInit(_MercatorTileSourceInit, total=False):
 #     ...
 
-class _WMTSTileSourceInit(_MercatorTileSourceInit, total=False):
-    ...
+class _WMTSTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    url: str
+    tile_size: int
+    min_zoom: int
+    max_zoom: int
+    extra_url_vars: dict[str, Any]
+    attribution: str
+    x_origin_offset: float
+    y_origin_offset: float
+    initial_resolution: float | None
+    snap_to_zoom: bool
+    wrap_around: bool
 
 class WMTSTileSource(MercatorTileSource):
     def __init__(self, **kwargs: Unpack[_WMTSTileSourceInit]) -> None: ...
@@ -87,8 +140,24 @@ class WMTSTileSource(MercatorTileSource):
 # class _QUADKEYTileSourceInit(_MercatorTileSourceInit, total=False):
 #     ...
 
-class _QUADKEYTileSourceInit(_MercatorTileSourceInit, total=False):
-    ...
+class _QUADKEYTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    url: str
+    tile_size: int
+    min_zoom: int
+    max_zoom: int
+    extra_url_vars: dict[str, Any]
+    attribution: str
+    x_origin_offset: float
+    y_origin_offset: float
+    initial_resolution: float | None
+    snap_to_zoom: bool
+    wrap_around: bool
 
 class QUADKEYTileSource(MercatorTileSource):
     def __init__(self, **kwargs: Unpack[_QUADKEYTileSourceInit]) -> None: ...
@@ -96,7 +165,24 @@ class QUADKEYTileSource(MercatorTileSource):
 # class _BBoxTileSourceInit(_MercatorTileSourceInit, total=False):
 #     use_latlon: bool
 
-class _BBoxTileSourceInit(_MercatorTileSourceInit, total=False):
+class _BBoxTileSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    url: str
+    tile_size: int
+    min_zoom: int
+    max_zoom: int
+    extra_url_vars: dict[str, Any]
+    attribution: str
+    x_origin_offset: float
+    y_origin_offset: float
+    initial_resolution: float | None
+    snap_to_zoom: bool
+    wrap_around: bool
     use_latlon: bool
 
 class BBoxTileSource(MercatorTileSource):

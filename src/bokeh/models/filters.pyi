@@ -7,19 +7,24 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, TypedDict
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 
 # class _FilterInit(_ModelInit, total=False):
 #     ...
 
-class _FilterInit(_ModelInit, total=False):
-    ...
+class _FilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Filter(Model):
     @abstractmethod
@@ -34,8 +39,13 @@ class Filter(Model):
 # class _AllIndicesInit(_FilterInit, total=False):
 #     ...
 
-class _AllIndicesInit(_FilterInit, total=False):
-    ...
+class _AllIndicesInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class AllIndices(Filter):
     def __init__(self, **kwargs: Unpack[_AllIndicesInit]) -> None: ...
@@ -43,7 +53,13 @@ class AllIndices(Filter):
 # class _InversionFilterInit(_FilterInit, total=False):
 #     operand: Filter
 
-class _InversionFilterInit(_FilterInit, total=False):
+class _InversionFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     operand: Filter
 
 class InversionFilter(Filter):
@@ -54,7 +70,13 @@ class InversionFilter(Filter):
 # class _CompositeFilterInit(_FilterInit, total=False):
 #     operands: Sequence[Filter]
 
-class _CompositeFilterInit(_FilterInit, total=False):
+class _CompositeFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     operands: Sequence[Filter]
 
 class CompositeFilter(Filter):
@@ -66,8 +88,14 @@ class CompositeFilter(Filter):
 # class _IntersectionFilterInit(_CompositeFilterInit, total=False):
 #     ...
 
-class _IntersectionFilterInit(_CompositeFilterInit, total=False):
-    ...
+class _IntersectionFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    operands: Sequence[Filter]
 
 class IntersectionFilter(CompositeFilter):
     def __init__(self, **kwargs: Unpack[_IntersectionFilterInit]) -> None: ...
@@ -75,8 +103,14 @@ class IntersectionFilter(CompositeFilter):
 # class _UnionFilterInit(_CompositeFilterInit, total=False):
 #     ...
 
-class _UnionFilterInit(_CompositeFilterInit, total=False):
-    ...
+class _UnionFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    operands: Sequence[Filter]
 
 class UnionFilter(CompositeFilter):
     def __init__(self, **kwargs: Unpack[_UnionFilterInit]) -> None: ...
@@ -84,8 +118,14 @@ class UnionFilter(CompositeFilter):
 # class _DifferenceFilterInit(_CompositeFilterInit, total=False):
 #     ...
 
-class _DifferenceFilterInit(_CompositeFilterInit, total=False):
-    ...
+class _DifferenceFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    operands: Sequence[Filter]
 
 class DifferenceFilter(CompositeFilter):
     def __init__(self, **kwargs: Unpack[_DifferenceFilterInit]) -> None: ...
@@ -93,8 +133,14 @@ class DifferenceFilter(CompositeFilter):
 # class _SymmetricDifferenceFilterInit(_CompositeFilterInit, total=False):
 #     ...
 
-class _SymmetricDifferenceFilterInit(_CompositeFilterInit, total=False):
-    ...
+class _SymmetricDifferenceFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    operands: Sequence[Filter]
 
 class SymmetricDifferenceFilter(CompositeFilter):
     def __init__(self, **kwargs: Unpack[_SymmetricDifferenceFilterInit]) -> None: ...
@@ -102,7 +148,13 @@ class SymmetricDifferenceFilter(CompositeFilter):
 # class _IndexFilterInit(_FilterInit, total=False):
 #     indices: Sequence[int] | None
 
-class _IndexFilterInit(_FilterInit, total=False):
+class _IndexFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     indices: Sequence[int] | None
 
 class IndexFilter(Filter):
@@ -113,7 +165,13 @@ class IndexFilter(Filter):
 # class _BooleanFilterInit(_FilterInit, total=False):
 #     booleans: Sequence[bool] | None
 
-class _BooleanFilterInit(_FilterInit, total=False):
+class _BooleanFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     booleans: Sequence[bool] | None
 
 class BooleanFilter(Filter):
@@ -125,7 +183,13 @@ class BooleanFilter(Filter):
 #     column_name: str
 #     group: Any
 
-class _GroupFilterInit(_FilterInit, total=False):
+class _GroupFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     column_name: str
     group: Any
 
@@ -139,7 +203,13 @@ class GroupFilter(Filter):
 #     args: dict[str, Any]
 #     code: str
 
-class _CustomJSFilterInit(_FilterInit, total=False):
+class _CustomJSFilterInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 

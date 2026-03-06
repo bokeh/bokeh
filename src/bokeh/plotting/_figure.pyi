@@ -12,6 +12,7 @@ from typing import (
     Literal,
     Sequence,
     TypeAlias,
+    TypedDict,
 )
 
 if TYPE_CHECKING:
@@ -53,12 +54,22 @@ from ..models.glyphs import (
     VBar,
 )
 from ..models.graphs import LayoutProvider
-from ..models.plots import Plot, _PlotInit
+from ..models.plots import (
+    LRTB,
+    OutputBackendType as OutputBackend,
+    Plot,
+    ResetPolicyType as ResetPolicy,
+    Title,
+    Toolbar,
+    WindowAxisType as WindowAxis,
+    _PlotInit,
+)
 from ..models.ranges import Range
 from ..models.renderers import ContourRenderer, GlyphRenderer, GraphRenderer
 from ..models.scales import Scale
 from ..models.sources import ColumnDataSource
 from ..models.tools import (
+    DimensionsType as Dimensions,
     Drag,
     GestureTool,
     InspectTool,
@@ -66,12 +77,16 @@ from ..models.tools import (
     Tap,
     Tool,
 )
-from .glyph_api import (
-    GlyphAPI,
-    LineArgs,
-    MultiLineArgs,
-    MultiPolygonsArgs,
-)
+from .glyph_api import GlyphAPI, LineArgs, MultiLineArgs, MultiPolygonsArgs, NonNegative
+from ..model.model import JSEventCallback
+from ..models.layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
+from ..models.renderers.renderer import StyledElement
+from ..models.renderers.tile_renderer import Renderer
+from ..models.ui.floating import LocationType as Location
+from ..models.ui.tooltips import UIElement
+from ..models.ui.ui_element import (Menu, Node, StyleSheet, Styles)
+from ..models.widgets.buttons import DOMNode
+from ..models.widgets.inputs import HTML
 
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries
@@ -91,7 +106,77 @@ EagerSeries: TypeAlias = IntoSeries
 #     active_multi: Auto | str | GestureTool | None
 #     tooltips: Template | str | list[tuple[str, str] | None]
 
-class _BaseFigureInit(_PlotInit, total=False):
+class _BaseFigureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    x_range: Range
+    y_range: Range
+    x_scale: Scale
+    y_scale: Scale
+    extra_x_ranges: dict[str, Range]
+    extra_y_ranges: dict[str, Range]
+    extra_x_scales: dict[str, Scale]
+    extra_y_scales: dict[str, Scale]
+    window_axis: WindowAxis
+    hidpi: bool
+    title: Title | str | None
+    title_location: Location | None
+    renderers: list[Renderer]
+    toolbar: Toolbar
+    toolbar_location: Location | None
+    toolbar_sticky: bool
+    toolbar_inner: bool
+    left: list[Renderer | StyledElement]
+    right: list[Renderer | StyledElement]
+    above: list[Renderer | StyledElement]
+    below: list[Renderer | StyledElement]
+    center: list[Renderer | StyledElement]
+    frame_width: int | None
+    frame_height: int | None
+    frame_align: bool | LRTB[bool]
+    min_border_top: int | None
+    min_border_bottom: int | None
+    min_border_left: int | None
+    min_border_right: int | None
+    min_border: int | None
+    lod_factor: int
+    lod_threshold: int | None
+    lod_interval: int
+    lod_timeout: int
+    output_backend: OutputBackend
+    match_aspect: bool
+    aspect_scale: float
+    reset_policy: ResetPolicy
+    hold_render: bool
+    attribution: list[HTML | str]
     tools: str | Sequence[str | Tool]
     x_minor_ticks: Auto | int
     y_minor_ticks: Auto | int
@@ -126,9 +211,90 @@ DEFAULT_TOOLS: str
 #     x_axis_type: AxisType
 #     y_axis_type: AxisType
 
-class _FigureInit(_BaseFigureInit, total=False):
-    x_range: RangeLike
-    y_range: RangeLike
+class _FigureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    x_range: Range
+    y_range: Range
+    x_scale: Scale
+    y_scale: Scale
+    extra_x_ranges: dict[str, Range]
+    extra_y_ranges: dict[str, Range]
+    extra_x_scales: dict[str, Scale]
+    extra_y_scales: dict[str, Scale]
+    window_axis: WindowAxis
+    hidpi: bool
+    title: Title | str | None
+    title_location: Location | None
+    renderers: list[Renderer]
+    toolbar: Toolbar
+    toolbar_location: Location | None
+    toolbar_sticky: bool
+    toolbar_inner: bool
+    left: list[Renderer | StyledElement]
+    right: list[Renderer | StyledElement]
+    above: list[Renderer | StyledElement]
+    below: list[Renderer | StyledElement]
+    center: list[Renderer | StyledElement]
+    frame_width: int | None
+    frame_height: int | None
+    frame_align: bool | LRTB[bool]
+    min_border_top: int | None
+    min_border_bottom: int | None
+    min_border_left: int | None
+    min_border_right: int | None
+    min_border: int | None
+    lod_factor: int
+    lod_threshold: int | None
+    lod_interval: int
+    lod_timeout: int
+    output_backend: OutputBackend
+    match_aspect: bool
+    aspect_scale: float
+    reset_policy: ResetPolicy
+    hold_render: bool
+    attribution: list[HTML | str]
+    tools: str | Sequence[str | Tool]
+    x_minor_ticks: Auto | int
+    y_minor_ticks: Auto | int
+    x_axis_location: VerticalLocation | None
+    y_axis_location: HorizontalLocation | None
+    x_axis_label: TextLike | None
+    y_axis_label: TextLike | None
+    active_drag: Auto | str | Drag | None
+    active_inspect: Auto | str | InspectTool | Sequence[InspectTool | None]
+    active_scroll: Auto | str | Scroll | None
+    active_tap: Auto | str | Tap | None
+    active_multi: Auto | str | GestureTool | None
+    tooltips: Template | str | list[tuple[str, str] | None]
     x_axis_type: AxisType
     y_axis_type: AxisType
 

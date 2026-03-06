@@ -14,6 +14,7 @@ from typing import (
     Sequence,
     TypeVar,
     overload,
+    TypedDict,
 )
 
 if TYPE_CHECKING:
@@ -49,8 +50,14 @@ from .dom import HTML
 from .glyph import Glyph
 from .grids import Grid
 from .layouts import (
+    AlignType as Align,
+    FlowModeType as FlowMode,
     GridCommon,
+    GridSpacing,
     LayoutDOM,
+    SizingModeType as SizingMode,
+    SizingPolicyType as SizingPolicy,
+    TracksSizing,
     _GridCommonInit,
     _LayoutDOMInit,
 )
@@ -59,8 +66,13 @@ from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale
 from .sources import ColumnarDataSource
 from .tiles import TileSource
-from .tools import HoverTool, Tool, Toolbar
-from .ui.ui_element import StyledElement
+from .tools import DimensionsType as Dimensions, HoverTool, Tool, Toolbar
+from .ui.ui_element import Menu, Node, StyleSheet, StyledElement, Styles
+from ..model.model import JSEventCallback
+from ..plotting._figure import AutoType as Auto
+from ..plotting.glyph_api import NonNegative
+from .ui.tooltips import UIElement
+from .widgets.buttons import DOMNode
 
 if TYPE_CHECKING:
     import xyzservices
@@ -123,7 +135,37 @@ class HoverListAttrSplat(list[HoverTool], HoverTool):
 #     hold_render: bool
 #     attribution: list[HTML | str]
 
-class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
+class _PlotInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     x_range: Range
     y_range: Range
     x_scale: Scale
@@ -146,8 +188,6 @@ class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _Bord
     above: list[Renderer | StyledElement]
     below: list[Renderer | StyledElement]
     center: list[Renderer | StyledElement]
-    #width: int | None
-    #height: int | None
     frame_width: int | None
     frame_height: int | None
     frame_align: bool | LRTB[bool]
@@ -284,7 +324,40 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
 #     toolbar_location: Location | None
 #     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]
 
-class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
+class _GridPlotInit(TypedDict, total=False):
+    rows: TracksSizing | None
+    cols: TracksSizing | None
+    spacing: GridSpacing
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
     toolbar: Toolbar
     toolbar_location: Location | None
     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]

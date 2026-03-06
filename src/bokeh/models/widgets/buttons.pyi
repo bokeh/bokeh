@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Callable, TypedDict
+from typing import Any, Callable, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -19,8 +19,14 @@ from ...util.callback_manager import EventCallback
 from ..callbacks import Callback
 from ..dom import DOMNode
 from ..ui.icons import Icon
-from ..ui.tooltips import Tooltip
+from ..ui.tooltips import Tooltip, UIElement
 from .widget import Widget, _WidgetInit
+from ...model.model import JSEventCallback
+from ...plotting._figure import AutoType as Auto
+from ...plotting.glyph_api import NonNegative
+from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
+from ..tools import DimensionsType as Dimensions
+from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 
 # class _ButtonLikeInit(TypedDict, total=False):
 #     button_type: ButtonType
@@ -38,7 +44,38 @@ class ButtonLike(HasProps):
 #     label: DOMNode | str
 #     icon: Icon | None
 
-class _AbstractButtonInit(_WidgetInit, _ButtonLikeInit, total=False):
+class _AbstractButtonInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    button_type: ButtonType
     label: DOMNode | str
     icon: Icon | None
 
@@ -52,8 +89,40 @@ class AbstractButton(Widget, ButtonLike):
 # class _ButtonInit(_AbstractButtonInit, total=False):
 #     ...
 
-class _ButtonInit(_AbstractButtonInit, total=False):
-    ...
+class _ButtonInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    button_type: ButtonType
+    label: DOMNode | str
+    icon: Icon | None
 
 class Button(AbstractButton):
     def __init__(self, **kwargs: Unpack[_ButtonInit]) -> None: ...
@@ -64,7 +133,40 @@ class Button(AbstractButton):
 # class _ToggleInit(_AbstractButtonInit, total=False):
 #     active: bool
 
-class _ToggleInit(_AbstractButtonInit, total=False):
+class _ToggleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    button_type: ButtonType
+    label: DOMNode | str
+    icon: Icon | None
     active: bool
 
 class Toggle(AbstractButton):
@@ -79,7 +181,40 @@ class Toggle(AbstractButton):
 #     split: bool
 #     menu: list[str | tuple[str, str | Callback] | None]
 
-class _DropdownInit(_AbstractButtonInit, total=False):
+class _DropdownInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    button_type: ButtonType
+    label: DOMNode | str
+    icon: Icon | None
     split: bool
     menu: list[str | tuple[str, str | Callback] | None]
 
@@ -95,7 +230,40 @@ class Dropdown(AbstractButton):
 # class _HelpButtonInit(_AbstractButtonInit, total=False):
 #     tooltip: Tooltip
 
-class _HelpButtonInit(_AbstractButtonInit, total=False):
+class _HelpButtonInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    button_type: ButtonType
+    label: DOMNode | str
+    icon: Icon | None
     tooltip: Tooltip
 
 class HelpButton(AbstractButton):

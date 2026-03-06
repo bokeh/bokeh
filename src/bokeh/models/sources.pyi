@@ -15,6 +15,7 @@ from typing import (
     Sequence,
     TypeAlias,
     overload,
+    TypedDict,
 )
 
 if TYPE_CHECKING:
@@ -30,10 +31,11 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .._types import JSON
 from ..core.has_props import Setter
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
+from ..plotting.glyph_api import DataDictLike
 
 DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
 
@@ -46,7 +48,13 @@ Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Any]]]
 # class _DataSourceInit(_ModelInit, total=False):
 #     selected: Selection
 
-class _DataSourceInit(_ModelInit, total=False):
+class _DataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     selected: Selection
 
 class DataSource(Model):
@@ -59,7 +67,14 @@ class DataSource(Model):
 #     default_values: dict[str, Any]
 #     selection_policy: SelectionPolicy
 
-class _ColumnarDataSourceInit(_DataSourceInit, total=False):
+class _ColumnarDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    selected: Selection
     default_values: dict[str, Any]
     selection_policy: SelectionPolicy
 
@@ -73,7 +88,16 @@ class ColumnarDataSource(DataSource):
 # class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
 #     data: DataDictLike
 
-class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
+class _ColumnDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    selected: Selection
+    default_values: dict[str, Any]
+    selection_policy: SelectionPolicy
     data: DataDictLike
 
 class ColumnDataSource(ColumnarDataSource):
@@ -112,7 +136,13 @@ class ColumnDataSource(ColumnarDataSource):
 # class _CDSViewInit(_ModelInit, total=False):
 #     filter: Filter
 
-class _CDSViewInit(_ModelInit, total=False):
+class _CDSViewInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     filter: Filter
 
 class CDSView(Model):
@@ -123,7 +153,16 @@ class CDSView(Model):
 # class _GeoJSONDataSourceInit(_ColumnarDataSourceInit, total=False):
 #     geojson: JSON
 
-class _GeoJSONDataSourceInit(_ColumnarDataSourceInit, total=False):
+class _GeoJSONDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    selected: Selection
+    default_values: dict[str, Any]
+    selection_policy: SelectionPolicy
     geojson: JSON
 
 class GeoJSONDataSource(ColumnarDataSource):
@@ -137,7 +176,17 @@ class GeoJSONDataSource(ColumnarDataSource):
 #     mode: Literal["replace", "append"]
 #     data_url: str
 
-class _WebDataSourceInit(_ColumnDataSourceInit, total=False):
+class _WebDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    selected: Selection
+    default_values: dict[str, Any]
+    selection_policy: SelectionPolicy
+    data: DataDictLike
     adapter: CustomJS | None
     max_size: int | None
     mode: Literal["replace", "append"]
@@ -155,8 +204,21 @@ class WebDataSource(ColumnDataSource):
 # class _ServerSentDataSourceInit(_WebDataSourceInit, total=False):
 #     ...
 
-class _ServerSentDataSourceInit(_WebDataSourceInit, total=False):
-    ...
+class _ServerSentDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    selected: Selection
+    default_values: dict[str, Any]
+    selection_policy: SelectionPolicy
+    data: DataDictLike
+    adapter: CustomJS | None
+    max_size: int | None
+    mode: Literal["replace", "append"]
+    data_url: str
 
 class ServerSentDataSource(WebDataSource):
     def __init__(self, **kwargs: Unpack[_ServerSentDataSourceInit]) -> None: ...
@@ -168,7 +230,21 @@ class ServerSentDataSource(WebDataSource):
 #     content_type: str
 #     http_headers: dict[str, str]
 
-class _AjaxDataSourceInit(_WebDataSourceInit, total=False):
+class _AjaxDataSourceInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    selected: Selection
+    default_values: dict[str, Any]
+    selection_policy: SelectionPolicy
+    data: DataDictLike
+    adapter: CustomJS | None
+    max_size: int | None
+    mode: Literal["replace", "append"]
+    data_url: str
     polling_interval: int | None
     method: Literal["POST", "GET"]
     if_modified: bool

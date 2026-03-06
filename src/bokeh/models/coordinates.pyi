@@ -6,13 +6,13 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import Any, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .ranges import Range
 from .scales import Scale
 
@@ -24,7 +24,13 @@ from .scales import Scale
 #     x_target: Range
 #     y_target: Range
 
-class _CoordinateMappingInit(_ModelInit, total=False):
+class _CoordinateMappingInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     x_source: Range
     y_source: Range
     x_scale: Scale

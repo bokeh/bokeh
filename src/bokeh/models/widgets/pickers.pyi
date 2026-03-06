@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import Any, Literal, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -21,13 +21,58 @@ from ..._types import (
 )
 from ...core.enums import CalendarPositionType as CalendarPosition
 from ...core.has_props import HasProps
-from .inputs import InputWidget, _InputWidgetInit
+from .inputs import (
+    HTML,
+    InputWidget,
+    Tooltip,
+    _InputWidgetInit,
+)
+from ...model.model import JSEventCallback
+from ...plotting._figure import AutoType as Auto
+from ...plotting.glyph_api import NonNegative
+from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
+from ..tools import DimensionsType as Dimensions
+from ..ui.tooltips import UIElement
+from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
+from .buttons import DOMNode
 
 # class _PickerBaseInit(_InputWidgetInit, total=False):
 #     position: CalendarPosition
 #     inline: bool
 
-class _PickerBaseInit(_InputWidgetInit, total=False):
+class _PickerBaseInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
     position: CalendarPosition
     inline: bool
 
@@ -68,7 +113,46 @@ class TimeCommon(HasProps):
 #     min_time: Time | None
 #     max_time: Time | None
 
-class _TimePickerInit(_PickerBaseInit, _TimeCommonInit, total=False):
+class _TimePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    hour_increment: Positive[int]
+    minute_increment: Positive[int]
+    second_increment: Positive[int]
+    seconds: bool
+    clock: Literal["12h", "24h"]
     value: Time | None
     time_format: str
     min_time: Time | None
@@ -104,7 +188,44 @@ class DateCommon(HasProps):
 #     min_date: Date | None
 #     max_date: Date | None
 
-class _BaseDatePickerInit(_PickerBaseInit, _DateCommonInit, total=False):
+class _BaseDatePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
     min_date: Date | None
     max_date: Date | None
 
@@ -118,7 +239,46 @@ class BaseDatePicker(PickerBase, DateCommon):
 # class _DatePickerInit(_BaseDatePickerInit, total=False):
 #     value: Date | None
 
-class _DatePickerInit(_BaseDatePickerInit, total=False):
+class _DatePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    min_date: Date | None
+    max_date: Date | None
     value: Date | None
 
 class DatePicker(BaseDatePicker):
@@ -129,7 +289,46 @@ class DatePicker(BaseDatePicker):
 # class _DateRangePickerInit(_BaseDatePickerInit, total=False):
 #     value: tuple[Date, Date] | None
 
-class _DateRangePickerInit(_BaseDatePickerInit, total=False):
+class _DateRangePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    min_date: Date | None
+    max_date: Date | None
     value: tuple[Date, Date] | None
 
 class DateRangePicker(BaseDatePicker):
@@ -141,7 +340,46 @@ class DateRangePicker(BaseDatePicker):
 #     value: list[Date]
 #     separator: str
 
-class _MultipleDatePickerInit(_BaseDatePickerInit, total=False):
+class _MultipleDatePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    min_date: Date | None
+    max_date: Date | None
     value: list[Date]
     separator: str
 
@@ -155,7 +393,49 @@ class MultipleDatePicker(BaseDatePicker):
 #     min_date: Datetime | Date | None
 #     max_date: Datetime | Date | None
 
-class _BaseDatetimePickerInit(_PickerBaseInit, _DateCommonInit, _TimeCommonInit, total=False):
+class _BaseDatetimePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    hour_increment: Positive[int]
+    minute_increment: Positive[int]
+    second_increment: Positive[int]
+    seconds: bool
+    clock: Literal["12h", "24h"]
     min_date: Datetime | Date | None
     max_date: Datetime | Date | None
 
@@ -169,7 +449,51 @@ class BaseDatetimePicker(PickerBase, DateCommon, TimeCommon):
 # class _DatetimePickerInit(_BaseDatetimePickerInit, total=False):
 #     value: Datetime | None
 
-class _DatetimePickerInit(_BaseDatetimePickerInit, total=False):
+class _DatetimePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    hour_increment: Positive[int]
+    minute_increment: Positive[int]
+    second_increment: Positive[int]
+    seconds: bool
+    clock: Literal["12h", "24h"]
+    min_date: Datetime | Date | None
+    max_date: Datetime | Date | None
     value: Datetime | None
 
 class DatetimePicker(BaseDatetimePicker):
@@ -180,7 +504,51 @@ class DatetimePicker(BaseDatetimePicker):
 # class _DatetimeRangePickerInit(_BaseDatetimePickerInit, total=False):
 #     value: tuple[Datetime, Datetime] | None
 
-class _DatetimeRangePickerInit(_BaseDatetimePickerInit, total=False):
+class _DatetimeRangePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    hour_increment: Positive[int]
+    minute_increment: Positive[int]
+    second_increment: Positive[int]
+    seconds: bool
+    clock: Literal["12h", "24h"]
+    min_date: Datetime | Date | None
+    max_date: Datetime | Date | None
     value: tuple[Datetime, Datetime] | None
 
 class DatetimeRangePicker(BaseDatetimePicker):
@@ -192,7 +560,51 @@ class DatetimeRangePicker(BaseDatetimePicker):
 #     value: list[Datetime]
 #     separator: str
 
-class _MultipleDatetimePickerInit(_BaseDatetimePickerInit, total=False):
+class _MultipleDatetimePickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    elements: list[UIElement | DOMNode]
+    disabled: bool
+    width: NonNegative[int] | None
+    height: NonNegative[int] | None
+    min_width: NonNegative[int] | None
+    min_height: NonNegative[int] | None
+    max_width: NonNegative[int] | None
+    max_height: NonNegative[int] | None
+    margin: int | tuple[int, int] | tuple[int, int, int, int] | None
+    width_policy: Auto | SizingPolicy
+    height_policy: Auto | SizingPolicy
+    aspect_ratio: None | Auto | float
+    flow_mode: FlowMode
+    sizing_mode: SizingMode | None
+    align: Auto | Align | tuple[Align, Align]
+    resizable: bool | Dimensions
+    title: str | HTML
+    description: str | Tooltip | None
+    position: CalendarPosition
+    inline: bool
+    disabled_dates: list[Date | tuple[Date, Date]] | None
+    enabled_dates: list[Date | tuple[Date, Date]] | None
+    date_format: str
+    hour_increment: Positive[int]
+    minute_increment: Positive[int]
+    second_increment: Positive[int]
+    seconds: bool
+    clock: Literal["12h", "24h"]
+    min_date: Datetime | Date | None
+    max_date: Datetime | Date | None
     value: list[Datetime]
     separator: str
 

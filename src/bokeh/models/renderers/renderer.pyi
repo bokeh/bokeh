@@ -7,23 +7,36 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
 from ...core.enums import RenderLevelType as RenderLevel
-from ...model.model import Model, _ModelInit
+from ...model.model import JSEventCallback, Model, _ModelInit
 from ..coordinates import CoordinateMapping
 from ..dom import DOMNode
 from ..ui.menus import Menu
-from ..ui.ui_element import StyledElement, UIElement, _StyledElementInit
+from ..ui.ui_element import (
+    Node,
+    StyleSheet,
+    StyledElement,
+    Styles,
+    UIElement,
+    _StyledElementInit,
+)
 
 # class _RendererGroupInit(_ModelInit, total=False):
 #     visible: bool
 
-class _RendererGroupInit(_ModelInit, total=False):
+class _RendererGroupInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     visible: bool
 
 class RendererGroup(Model):
@@ -41,7 +54,19 @@ class RendererGroup(Model):
 #     propagate_hover: bool
 #     context_menu: Menu | None
 
-class _RendererInit(_StyledElementInit, total=False):
+class _RendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
     level: RenderLevel
     visible: bool
     coordinates: CoordinateMapping | None
@@ -68,7 +93,27 @@ class Renderer(StyledElement):
 #     renderers: list[Renderer]
 #     elements: list[UIElement | DOMNode]
 
-class _CompositeRendererInit(_RendererInit, total=False):
+class _CompositeRendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
     renderers: list[Renderer]
     elements: list[UIElement | DOMNode]
 
@@ -82,8 +127,27 @@ class CompositeRenderer(Renderer):
 # class _DataRendererInit(_RendererInit, total=False):
 #     ...
 
-class _DataRendererInit(_RendererInit, total=False):
-    ...
+class _DataRendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
 
 class DataRenderer(Renderer):
     @abstractmethod
@@ -92,8 +156,27 @@ class DataRenderer(Renderer):
 # class _GuideRendererInit(_RendererInit, total=False):
 #     ...
 
-class _GuideRendererInit(_RendererInit, total=False):
-    ...
+class _GuideRendererInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
 
 class GuideRenderer(Renderer):
     @abstractmethod

@@ -7,21 +7,26 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, TypedDict
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.enums import AutoType as Auto, LatLonType as LatLon
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .mappers import ScanningColorMapper
 
 # class _TickerInit(_ModelInit, total=False):
 #     ...
 
-class _TickerInit(_ModelInit, total=False):
-    ...
+class _TickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Ticker(Model):
     @abstractmethod
@@ -32,7 +37,13 @@ class Ticker(Model):
 #     major_code: str
 #     minor_code: str
 
-class _CustomJSTickerInit(_TickerInit, total=False):
+class _CustomJSTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     major_code: str
     minor_code: str
@@ -48,7 +59,13 @@ class CustomJSTicker(Ticker):
 #     num_minor_ticks: int
 #     desired_num_ticks: int
 
-class _ContinuousTickerInit(_TickerInit, total=False):
+class _ContinuousTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     num_minor_ticks: int
     desired_num_ticks: int
 
@@ -63,7 +80,15 @@ class ContinuousTicker(Ticker):
 #     ticks: Sequence[float]
 #     minor_ticks: Sequence[float]
 
-class _FixedTickerInit(_ContinuousTickerInit, total=False):
+class _FixedTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
     ticks: Sequence[float]
     minor_ticks: Sequence[float]
 
@@ -79,7 +104,15 @@ class FixedTicker(ContinuousTicker):
 #     min_interval: float
 #     max_interval: float | None
 
-class _AdaptiveTickerInit(_ContinuousTickerInit, total=False):
+class _AdaptiveTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
     base: float
     mantissas: Sequence[float]
     min_interval: float
@@ -96,7 +129,15 @@ class AdaptiveTicker(ContinuousTicker):
 # class _CompositeTickerInit(_ContinuousTickerInit, total=False):
 #     tickers: Sequence[Ticker]
 
-class _CompositeTickerInit(_ContinuousTickerInit, total=False):
+class _CompositeTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
     tickers: Sequence[Ticker]
 
 class CompositeTicker(ContinuousTicker):
@@ -107,8 +148,15 @@ class CompositeTicker(ContinuousTicker):
 # class _BaseSingleIntervalTickerInit(_ContinuousTickerInit, total=False):
 #     ...
 
-class _BaseSingleIntervalTickerInit(_ContinuousTickerInit, total=False):
-    ...
+class _BaseSingleIntervalTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
 
 class BaseSingleIntervalTicker(ContinuousTicker):
     def __init__(self, **kwargs: Unpack[_BaseSingleIntervalTickerInit]) -> None: ...
@@ -116,7 +164,15 @@ class BaseSingleIntervalTicker(ContinuousTicker):
 # class _SingleIntervalTickerInit(_BaseSingleIntervalTickerInit, total=False):
 #     interval: float
 
-class _SingleIntervalTickerInit(_BaseSingleIntervalTickerInit, total=False):
+class _SingleIntervalTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
     interval: float
 
 class SingleIntervalTicker(BaseSingleIntervalTicker):
@@ -127,7 +183,15 @@ class SingleIntervalTicker(BaseSingleIntervalTicker):
 # class _DaysTickerInit(_BaseSingleIntervalTickerInit, total=False):
 #     days: Sequence[int]
 
-class _DaysTickerInit(_BaseSingleIntervalTickerInit, total=False):
+class _DaysTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
     days: Sequence[int]
 
 class DaysTicker(BaseSingleIntervalTicker):
@@ -138,7 +202,15 @@ class DaysTicker(BaseSingleIntervalTicker):
 # class _MonthsTickerInit(_BaseSingleIntervalTickerInit, total=False):
 #     months: Sequence[int]
 
-class _MonthsTickerInit(_BaseSingleIntervalTickerInit, total=False):
+class _MonthsTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
     months: Sequence[int]
 
 class MonthsTicker(BaseSingleIntervalTicker):
@@ -149,8 +221,15 @@ class MonthsTicker(BaseSingleIntervalTicker):
 # class _YearsTickerInit(_BaseSingleIntervalTickerInit, total=False):
 #     ...
 
-class _YearsTickerInit(_BaseSingleIntervalTickerInit, total=False):
-    ...
+class _YearsTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
 
 class YearsTicker(BaseSingleIntervalTicker):
     def __init__(self, **kwargs: Unpack[_YearsTickerInit]) -> None: ...
@@ -158,8 +237,19 @@ class YearsTicker(BaseSingleIntervalTicker):
 # class _BasicTickerInit(_AdaptiveTickerInit, total=False):
 #     ...
 
-class _BasicTickerInit(_AdaptiveTickerInit, total=False):
-    ...
+class _BasicTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
+    base: float
+    mantissas: Sequence[float]
+    min_interval: float
+    max_interval: float | None
 
 class BasicTicker(AdaptiveTicker):
     def __init__(self, **kwargs: Unpack[_BasicTickerInit]) -> None: ...
@@ -167,8 +257,19 @@ class BasicTicker(AdaptiveTicker):
 # class _LogTickerInit(_AdaptiveTickerInit, total=False):
 #     ...
 
-class _LogTickerInit(_AdaptiveTickerInit, total=False):
-    ...
+class _LogTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
+    base: float
+    mantissas: Sequence[float]
+    min_interval: float
+    max_interval: float | None
 
 class LogTicker(AdaptiveTicker):
     def __init__(self, **kwargs: Unpack[_LogTickerInit]) -> None: ...
@@ -176,7 +277,19 @@ class LogTicker(AdaptiveTicker):
 # class _MercatorTickerInit(_BasicTickerInit, total=False):
 #     dimension: LatLon | None
 
-class _MercatorTickerInit(_BasicTickerInit, total=False):
+class _MercatorTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
+    base: float
+    mantissas: Sequence[float]
+    min_interval: float
+    max_interval: float | None
     dimension: LatLon | None
 
 class MercatorTicker(BasicTicker):
@@ -187,8 +300,13 @@ class MercatorTicker(BasicTicker):
 # class _CategoricalTickerInit(_TickerInit, total=False):
 #     ...
 
-class _CategoricalTickerInit(_TickerInit, total=False):
-    ...
+class _CategoricalTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CategoricalTicker(Ticker):
     def __init__(self, **kwargs: Unpack[_CategoricalTickerInit]) -> None: ...
@@ -196,8 +314,16 @@ class CategoricalTicker(Ticker):
 # class _DatetimeTickerInit(_CompositeTickerInit, total=False):
 #     ...
 
-class _DatetimeTickerInit(_CompositeTickerInit, total=False):
-    ...
+class _DatetimeTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
+    tickers: Sequence[Ticker]
 
 class DatetimeTicker(CompositeTicker):
     def __init__(self, **kwargs: Unpack[_DatetimeTickerInit]) -> None: ...
@@ -205,8 +331,16 @@ class DatetimeTicker(CompositeTicker):
 # class _TimedeltaTickerInit(_CompositeTickerInit, total=False):
 #     ...
 
-class _TimedeltaTickerInit(_CompositeTickerInit, total=False):
-    ...
+class _TimedeltaTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    num_minor_ticks: int
+    desired_num_ticks: int
+    tickers: Sequence[Ticker]
 
 class TimedeltaTicker(CompositeTicker):
     def __init__(self, **kwargs: Unpack[_TimedeltaTickerInit]) -> None: ...
@@ -215,7 +349,13 @@ class TimedeltaTicker(CompositeTicker):
 #     mapper: ScanningColorMapper
 #     num_major_ticks: int | Auto
 
-class _BinnedTickerInit(_TickerInit, total=False):
+class _BinnedTickerInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     mapper: ScanningColorMapper
     num_major_ticks: int | Auto
 

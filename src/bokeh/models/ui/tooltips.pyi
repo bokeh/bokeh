@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import Any, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -20,7 +20,15 @@ from ...core.enums import (
 from ..dom import DOMNode
 from ..nodes import Coordinate
 from ..selectors import Selector
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import (
+    Menu,
+    Node,
+    StyleSheet,
+    Styles,
+    UIElement,
+    _UIElementInit,
+)
+from ...model.model import JSEventCallback
 
 # class _TooltipInit(_UIElementInit, total=False):
 #     position: Anchor | tuple[float, float] | Coordinate | None
@@ -31,7 +39,21 @@ from .ui_element import UIElement, _UIElementInit
 #     closable: bool
 #     interactive: bool
 
-class _TooltipInit(_UIElementInit, total=False):
+class _TooltipInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
     position: Anchor | tuple[float, float] | Coordinate | None
     target: UIElement | Selector | Auto
     content: str | DOMNode | UIElement

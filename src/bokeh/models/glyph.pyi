@@ -7,20 +7,26 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, TypedDict
+from typing import Any, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.has_props import HasProps
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .graphics import Decoration
 
 # class _GlyphInit(_ModelInit, total=False):
 #     decorations: list[Decoration]
 
-class _GlyphInit(_ModelInit, total=False):
+class _GlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     decorations: list[Decoration]
 
 class Glyph(Model):
@@ -32,8 +38,14 @@ class Glyph(Model):
 # class _XYGlyphInit(_GlyphInit, total=False):
 #     ...
 
-class _XYGlyphInit(_GlyphInit, total=False):
-    ...
+class _XYGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
 
 class XYGlyph(Glyph):
     @abstractmethod
@@ -42,8 +54,14 @@ class XYGlyph(Glyph):
 # class _RadialGlyphInit(_XYGlyphInit, total=False):
 #     ...
 
-class _RadialGlyphInit(_XYGlyphInit, total=False):
-    ...
+class _RadialGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
 
 class RadialGlyph(XYGlyph):
     @abstractmethod
@@ -52,8 +70,14 @@ class RadialGlyph(XYGlyph):
 # class _ConnectedXYGlyphInit(_XYGlyphInit, total=False):
 #     ...
 
-class _ConnectedXYGlyphInit(_XYGlyphInit, total=False):
-    ...
+class _ConnectedXYGlyphInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    decorations: list[Decoration]
 
 class ConnectedXYGlyph(XYGlyph):
     @abstractmethod

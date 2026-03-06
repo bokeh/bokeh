@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -15,12 +15,35 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..._types import Color, FontSize
 from ...core.enums import ToolIconType as ToolIcon
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import (
+    Menu,
+    Node,
+    StyleSheet,
+    Styles,
+    UIElement,
+    _UIElementInit,
+)
+from ...model.model import JSEventCallback
+from ...plotting._figure import AutoType as Auto
 
 # class _IconInit(_UIElementInit, total=False):
 #     size: int | FontSize
 
-class _IconInit(_UIElementInit, total=False):
+class _IconInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
     size: int | FontSize
 
 class Icon(UIElement):
@@ -33,7 +56,22 @@ class Icon(UIElement):
 #     icon_name: ToolIcon | str
 #     color: Color
 
-class _BuiltinIconInit(_IconInit, total=False):
+class _BuiltinIconInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    size: int | FontSize
     icon_name: ToolIcon | str
     color: Color
 
@@ -46,7 +84,22 @@ class BuiltinIcon(Icon):
 # class _SVGIconInit(_IconInit, total=False):
 #     svg: str
 
-class _SVGIconInit(_IconInit, total=False):
+class _SVGIconInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    size: int | FontSize
     svg: str
 
 class SVGIcon(Icon):
@@ -57,7 +110,22 @@ class SVGIcon(Icon):
 # class _TablerIconInit(_IconInit, total=False):
 #     icon_name: str
 
-class _TablerIconInit(_IconInit, total=False):
+class _TablerIconInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    size: int | FontSize
     icon_name: str
 
 class TablerIcon(Icon):

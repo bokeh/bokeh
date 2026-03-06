@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, Sequence, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -24,13 +24,26 @@ from ...core.enums import (
 )
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
+    AlphaSpec,
     BackgroundFillProps,
     BackgroundHatchProps,
     BorderLineProps,
+    DashPatternSpec,
+    DashPatternType as DashPattern,
+    FontSizeSpec,
+    HatchPatternSpec,
+    IntSpec,
+    LineCapSpec,
+    LineCapType as LineCap,
+    LineJoinSpec,
+    LineJoinType as LineJoin,
     ScalarBackgroundFillProps,
     ScalarBackgroundHatchProps,
     ScalarBorderLineProps,
     ScalarTextProps,
+    Size,
+    TextBaselineSpec,
+    TextBaselineType as TextBaseline,
     TextProps,
     _BackgroundFillPropsInit,
     _BackgroundHatchPropsInit,
@@ -47,6 +60,19 @@ from .annotation import (
     _AnnotationInit,
     _DataAnnotationInit,
 )
+from ...model.model import JSEventCallback
+from ...plotting.glyph_api import (Color, CoordinateMapping, Texture)
+from ..dom import RendererGroup
+from ..glyphs import (FloatSpec, StringSpec)
+from ..renderers.renderer import RenderLevelType as RenderLevel
+from ..renderers.tile_renderer import Renderer
+from ..tools import Alpha
+from ..ui.icons import FontSize
+from ..ui.tooltips import UIElement
+from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
+from ..widgets.buttons import DOMNode
+from ..widgets.tables import (ColorSpec, DataSource, FontStyleSpec, TextAlignSpec)
+from .html.labels import FontStyleType as FontStyle
 
 # class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
 #         _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
@@ -54,8 +80,54 @@ from .annotation import (
 #     padding: Padding
 #     border_radius: BorderRadius
 
-class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
-        _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
+class _TextAnnotationInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    text_color: Color | None
+    text_outline_color: Color | None
+    text_outline_width: float
+    text_alpha: Alpha
+    text_font: str
+    text_font_size: FontSize
+    text_font_style: FontStyle
+    text_align: TextAlign
+    text_baseline: TextBaseline
+    text_line_height: float
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
     text: TextLike
     padding: Padding
     border_radius: BorderRadius
@@ -82,7 +154,57 @@ class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps,
 #     direction: Direction
 #     editable: bool
 
-class _LabelInit(_TextAnnotationInit, total=False):
+class _LabelInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    text_color: Color | None
+    text_outline_color: Color | None
+    text_outline_width: float
+    text_alpha: Alpha
+    text_font: str
+    text_font_size: FontSize
+    text_font_style: FontStyle
+    text_align: TextAlign
+    text_baseline: TextBaseline
+    text_line_height: float
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    text: TextLike
+    padding: Padding
+    border_radius: BorderRadius
     anchor: TextAnchor
     x: Coordinate
     y: Coordinate
@@ -120,7 +242,55 @@ class Label(TextAnnotation):
 #     x_offset: NumberSpec
 #     y_offset: NumberSpec
 
-class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
+class _LabelSetInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    source: DataSource
+    text_color: ColorSpec
+    text_outline_color: ColorSpec
+    text_outline_width: FloatSpec
+    text_alpha: AlphaSpec
+    text_font: StringSpec
+    text_font_size: FontSizeSpec
+    text_font_style: FontStyleSpec
+    text_align: TextAlignSpec
+    text_baseline: TextBaselineSpec
+    text_line_height: NumberSpec
+    background_fill_color: ColorSpec
+    background_fill_alpha: AlphaSpec
+    background_hatch_color: ColorSpec
+    background_hatch_alpha: AlphaSpec
+    background_hatch_scale: FloatSpec
+    background_hatch_pattern: HatchPatternSpec
+    background_hatch_weight: FloatSpec
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: ColorSpec
+    border_line_alpha: AlphaSpec
+    border_line_width: FloatSpec
+    border_line_join: LineJoinSpec
+    border_line_cap: LineCapSpec
+    border_line_dash: DashPatternSpec
+    border_line_dash_offset: IntSpec
     x: NumberSpec
     x_units: CoordinateUnits
     y: NumberSpec
@@ -147,7 +317,57 @@ class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchPr
 #     align: TextAlign
 #     standoff: float
 
-class _TitleInit(_TextAnnotationInit, total=False):
+class _TitleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    level: RenderLevel
+    visible: bool
+    coordinates: CoordinateMapping | None
+    x_range_name: str
+    y_range_name: str
+    group: RendererGroup | None
+    propagate_hover: bool
+    context_menu: Menu | None
+    renderers: list[Renderer]
+    elements: list[UIElement | DOMNode]
+    text_color: Color | None
+    text_outline_color: Color | None
+    text_outline_width: float
+    text_alpha: Alpha
+    text_font: str
+    text_font_size: FontSize
+    text_font_style: FontStyle
+    text_align: TextAlign
+    text_baseline: TextBaseline
+    text_line_height: float
+    background_fill_color: Color | None
+    background_fill_alpha: Alpha
+    background_hatch_color: Color | None
+    background_hatch_alpha: Alpha
+    background_hatch_scale: Size
+    background_hatch_pattern: str | None
+    background_hatch_weight: Size
+    background_hatch_extra: dict[str, Texture]
+    border_line_color: Color | None
+    border_line_alpha: Alpha
+    border_line_width: float
+    border_line_join: LineJoin
+    border_line_cap: LineCap
+    border_line_dash: DashPattern
+    border_line_dash_offset: int
+    text: TextLike
+    padding: Padding
+    border_radius: BorderRadius
     vertical_align: VerticalAlign
     align: TextAlign
     standoff: float

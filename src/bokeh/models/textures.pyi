@@ -7,7 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
@@ -15,12 +15,18 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..core.enums import TextureRepetitionType as TextureRepetition
 from ..core.property.visual import ImageType as Image
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 
 # class _TextureInit(_ModelInit, total=False):
 #     repetition: TextureRepetition
 
-class _TextureInit(_ModelInit, total=False):
+class _TextureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     repetition: TextureRepetition
 
 class Texture(Model):
@@ -32,7 +38,14 @@ class Texture(Model):
 # class _CanvasTextureInit(_TextureInit, total=False):
 #     code: str
 
-class _CanvasTextureInit(_TextureInit, total=False):
+class _CanvasTextureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    repetition: TextureRepetition
     code: str
 
 class CanvasTexture(Texture):
@@ -43,7 +56,14 @@ class CanvasTexture(Texture):
 # class _ImageURLTextureInit(_TextureInit, total=False):
 #     url: Image
 
-class _ImageURLTextureInit(_TextureInit, total=False):
+class _ImageURLTextureInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    repetition: TextureRepetition
     url: Image
 
 class ImageURLTexture(Texture):

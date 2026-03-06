@@ -7,19 +7,25 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
 from .transforms import Transform, _TransformInit
+from ..model.model import JSEventCallback
 
 # class _ScaleInit(_TransformInit, total=False):
 #     ...
 
-class _ScaleInit(_TransformInit, total=False):
-    ...
+class _ScaleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class Scale(Transform):
     @abstractmethod
@@ -28,8 +34,13 @@ class Scale(Transform):
 # class _ContinuousScaleInit(_ScaleInit, total=False):
 #     ...
 
-class _ContinuousScaleInit(_ScaleInit, total=False):
-    ...
+class _ContinuousScaleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class ContinuousScale(Scale):
     def __init__(self, **kwargs: Unpack[_ContinuousScaleInit]) -> None: ...
@@ -37,8 +48,13 @@ class ContinuousScale(Scale):
 # class _LinearScaleInit(_ContinuousScaleInit, total=False):
 #     ...
 
-class _LinearScaleInit(_ContinuousScaleInit, total=False):
-    ...
+class _LinearScaleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class LinearScale(ContinuousScale):
     def __init__(self, **kwargs: Unpack[_LinearScaleInit]) -> None: ...
@@ -46,8 +62,13 @@ class LinearScale(ContinuousScale):
 # class _LogScaleInit(_ContinuousScaleInit, total=False):
 #     ...
 
-class _LogScaleInit(_ContinuousScaleInit, total=False):
-    ...
+class _LogScaleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class LogScale(ContinuousScale):
     def __init__(self, **kwargs: Unpack[_LogScaleInit]) -> None: ...
@@ -55,8 +76,13 @@ class LogScale(ContinuousScale):
 # class _CategoricalScaleInit(_ScaleInit, total=False):
 #     ...
 
-class _CategoricalScaleInit(_ScaleInit, total=False):
-    ...
+class _CategoricalScaleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
 
 class CategoricalScale(Scale):
     def __init__(self, **kwargs: Unpack[_CategoricalScaleInit]) -> None: ...
@@ -65,7 +91,13 @@ class CategoricalScale(Scale):
 #     source_scale: Scale
 #     target_scale: Scale
 
-class _CompositeScaleInit(_ScaleInit, total=False):
+class _CompositeScaleInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     source_scale: Scale
     target_scale: Scale
 

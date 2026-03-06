@@ -43,7 +43,7 @@ from ..core.enums import (
     TooltipFieldFormatterType as TooltipFieldFormatter,
 )
 from ..core.property_aliases import IconLikeType as IconLike
-from ..model.model import Model, _ModelInit
+from ..model.model import JSEventCallback, Model, _ModelInit
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback, CustomJS
 from .dom import DOMElement
@@ -60,8 +60,8 @@ from .glyphs import (
 from .misc.group_by import GroupBy
 from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
-from .ui.menus import Menu, _MenuInit
-from .ui.ui_element import UIElement, _UIElementInit
+from .ui.menus import DividerItem, Menu, MenuItem, _MenuInit
+from .ui.ui_element import Node, StyleSheet, Styles, UIElement, _UIElementInit
 
 class Modifiers(TypedDict):
     shift: NotRequired[bool]
@@ -74,7 +74,13 @@ class Modifiers(TypedDict):
 #     visible: bool
 #     group: str | bool
 
-class _ToolInit(_ModelInit, total=False):
+class _ToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     icon: IconLike | None
     description: str | None
     visible: bool
@@ -101,7 +107,13 @@ class Tool(Model):
 #     active: bool
 #     disabled: bool
 
-class _ToolProxyInit(_ModelInit, total=False):
+class _ToolProxyInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     tools: list[Tool]
     active: bool
     disabled: bool
@@ -116,8 +128,17 @@ class ToolProxy(Model):
 # class _ActionToolInit(_ToolInit, total=False):
 #     ...
 
-class _ActionToolInit(_ToolInit, total=False):
-    ...
+class _ActionToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class ActionTool(Tool):
     @abstractmethod
@@ -126,8 +147,17 @@ class ActionTool(Tool):
 # class _PlotActionToolInit(_ActionToolInit, total=False):
 #     ...
 
-class _PlotActionToolInit(_ActionToolInit, total=False):
-    ...
+class _PlotActionToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class PlotActionTool(ActionTool):
     @abstractmethod
@@ -136,8 +166,17 @@ class PlotActionTool(ActionTool):
 # class _GestureToolInit(_ToolInit, total=False):
 #     ...
 
-class _GestureToolInit(_ToolInit, total=False):
-    ...
+class _GestureToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class GestureTool(Tool):
     @abstractmethod
@@ -146,8 +185,17 @@ class GestureTool(Tool):
 # class _DragInit(_GestureToolInit, total=False):
 #     ...
 
-class _DragInit(_GestureToolInit, total=False):
-    ...
+class _DragInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class Drag(GestureTool):
     @abstractmethod
@@ -156,8 +204,17 @@ class Drag(GestureTool):
 # class _ScrollInit(_GestureToolInit, total=False):
 #     ...
 
-class _ScrollInit(_GestureToolInit, total=False):
-    ...
+class _ScrollInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class Scroll(GestureTool):
     @abstractmethod
@@ -166,8 +223,17 @@ class Scroll(GestureTool):
 # class _TapInit(_GestureToolInit, total=False):
 #     ...
 
-class _TapInit(_GestureToolInit, total=False):
-    ...
+class _TapInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class Tap(GestureTool):
     @abstractmethod
@@ -176,7 +242,17 @@ class Tap(GestureTool):
 # class _SelectToolInit(_GestureToolInit, total=False):
 #     renderers: Auto | list[DataRenderer]
 
-class _SelectToolInit(_GestureToolInit, total=False):
+class _SelectToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     renderers: Auto | list[DataRenderer]
 
 class SelectTool(GestureTool):
@@ -192,7 +268,18 @@ class SelectTool(GestureTool):
 #     persistent: bool
 #     greedy: bool
 
-class _RegionSelectToolInit(_SelectToolInit, total=False):
+class _RegionSelectToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
     mode: RegionSelectionMode
     continuous: bool
     select_every_mousemove: bool
@@ -212,7 +299,17 @@ class RegionSelectTool(SelectTool):
 # class _InspectToolInit(_GestureToolInit, total=False):
 #     toggleable: bool
 
-class _InspectToolInit(_GestureToolInit, total=False):
+class _InspectToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     toggleable: bool
 
 class InspectTool(GestureTool):
@@ -233,7 +330,21 @@ class InspectTool(GestureTool):
 #     active_tap: Auto | Tap | ToolProxy | None
 #     active_multi: Auto | GestureTool | ToolProxy | None
 
-class _ToolbarInit(_UIElementInit, total=False):
+class _ToolbarInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
     tools: list[Tool | ToolProxy]
     logo: Literal["normal", "grey"] | None
     autohide: bool
@@ -262,7 +373,23 @@ class Toolbar(UIElement):
 # class _ToolMenuInit(_MenuInit, total=False):
 #     toolbar: Toolbar
 
-class _ToolMenuInit(_MenuInit, total=False):
+class _ToolMenuInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    html_attributes: dict[str, str]
+    html_id: str | None
+    css_classes: Sequence[str]
+    css_variables: dict[str, str | Node]
+    styles: dict[str, str | None] | Styles
+    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+    visible: bool
+    context_menu: Menu | Auto | None
+    items: list[MenuItem | DividerItem | None]
+    reversed: bool
     toolbar: Toolbar
 
 class ToolMenu(Menu):
@@ -273,7 +400,17 @@ class ToolMenu(Menu):
 # class _PanToolInit(_DragInit, total=False):
 #     dimensions: Dimensions
 
-class _PanToolInit(_DragInit, total=False):
+class _PanToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     dimensions: Dimensions
 
 class PanTool(Drag):
@@ -285,7 +422,17 @@ class PanTool(Drag):
 #     direction: PanDirection
 #     factor: Percent
 
-class _ClickPanToolInit(_PlotActionToolInit, total=False):
+class _ClickPanToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     direction: PanDirection
     factor: Percent
 
@@ -303,7 +450,17 @@ class ClickPanTool(PlotActionTool):
 #     overlay: BoxAnnotation
 #     start_gesture: Literal["pan", "tap", "none"]
 
-class _RangeToolInit(_ToolInit, total=False):
+class _RangeToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     x_range: Range | None
     y_range: Range | None
     x_interaction: bool
@@ -325,7 +482,17 @@ class RangeTool(Tool):
 #     dimension: Dimension
 #     modifiers: Modifiers | str
 
-class _WheelPanToolInit(_ScrollInit, total=False):
+class _WheelPanToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     dimension: Dimension
     modifiers: Modifiers | str
 
@@ -352,7 +519,17 @@ class WheelPanTool(Scroll):
 #     speed: float
 #     modifiers: Modifiers | str
 
-class _WheelZoomToolInit(_ScrollInit, total=False):
+class _WheelZoomToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     dimensions: Dimensions
     renderers: Auto | list[DataRenderer]
     level: NonNegative[int]
@@ -395,7 +572,17 @@ class WheelZoomTool(Scroll):
 #     callback: Callback | None
 #     active_callback: Callback | Auto | None
 
-class _CustomActionInit(_ActionToolInit, total=False):
+class _CustomActionInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     active: bool
     disabled: bool
     callback: Callback | None
@@ -412,7 +599,17 @@ class CustomAction(ActionTool):
 # class _SaveToolInit(_ActionToolInit, total=False):
 #     filename: str | None
 
-class _SaveToolInit(_ActionToolInit, total=False):
+class _SaveToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     filename: str | None
 
 class SaveTool(ActionTool):
@@ -423,8 +620,17 @@ class SaveTool(ActionTool):
 # class _CopyToolInit(_ActionToolInit, total=False):
 #     ...
 
-class _CopyToolInit(_ActionToolInit, total=False):
-    ...
+class _CopyToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class CopyTool(ActionTool):
     def __init__(self, **kwargs: Unpack[_CopyToolInit]) -> None: ...
@@ -432,8 +638,17 @@ class CopyTool(ActionTool):
 # class _ResetToolInit(_PlotActionToolInit, total=False):
 #     ...
 
-class _ResetToolInit(_PlotActionToolInit, total=False):
-    ...
+class _ResetToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class ResetTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_ResetToolInit]) -> None: ...
@@ -445,7 +660,18 @@ class ResetTool(PlotActionTool):
 #     modifiers: Modifiers | str
 #     callback: Callback | None
 
-class _TapToolInit(_SelectToolInit, total=False):
+class _TapToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
     mode: SelectionMode
     behavior: Literal["select", "inspect"]
     gesture: Literal["tap", "doubletap"]
@@ -468,7 +694,18 @@ class TapTool(Tap, SelectTool):
 #     line_alpha: Alpha
 #     line_width: float
 
-class _CrosshairToolInit(_InspectToolInit, total=False):
+class _CrosshairToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    toggleable: bool
     overlay: Auto | Span | tuple[Span, Span]
     dimensions: Dimensions
     line_color: Color
@@ -490,7 +727,17 @@ class CrosshairTool(InspectTool):
 #     match_aspect: bool
 #     origin: Literal["corner", "center"]
 
-class _BoxZoomToolInit(_DragInit, total=False):
+class _BoxZoomToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     dimensions: Dimensions | Auto
     overlay: BoxAnnotation
     match_aspect: bool
@@ -510,7 +757,17 @@ class BoxZoomTool(Drag):
 #     factor: Percent
 #     level: NonNegative[int]
 
-class _ZoomBaseToolInit(_PlotActionToolInit, total=False):
+class _ZoomBaseToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     renderers: Auto | list[DataRenderer]
     dimensions: Dimensions
     factor: Percent
@@ -528,8 +785,21 @@ class ZoomBaseTool(PlotActionTool):
 # class _ZoomInToolInit(_ZoomBaseToolInit, total=False):
 #     ...
 
-class _ZoomInToolInit(_ZoomBaseToolInit, total=False):
-    ...
+class _ZoomInToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
+    dimensions: Dimensions
+    factor: Percent
+    level: NonNegative[int]
 
 class ZoomInTool(ZoomBaseTool):
     def __init__(self, **kwargs: Unpack[_ZoomInToolInit]) -> None: ...
@@ -537,7 +807,21 @@ class ZoomInTool(ZoomBaseTool):
 # class _ZoomOutToolInit(_ZoomBaseToolInit, total=False):
 #     maintain_focus: bool
 
-class _ZoomOutToolInit(_ZoomBaseToolInit, total=False):
+class _ZoomOutToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
+    dimensions: Dimensions
+    factor: Percent
+    level: NonNegative[int]
     maintain_focus: bool
 
 class ZoomOutTool(ZoomBaseTool):
@@ -550,7 +834,23 @@ class ZoomOutTool(ZoomBaseTool):
 #     overlay: BoxAnnotation
 #     origin: Literal["corner", "center"]
 
-class _BoxSelectToolInit(_RegionSelectToolInit, total=False):
+class _BoxSelectToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
+    mode: RegionSelectionMode
+    continuous: bool
+    select_every_mousemove: bool
+    persistent: bool
+    greedy: bool
     dimensions: Dimensions
     overlay: BoxAnnotation
     origin: Literal["corner", "center"]
@@ -565,7 +865,23 @@ class BoxSelectTool(Drag, RegionSelectTool):
 # class _LassoSelectToolInit(_RegionSelectToolInit, total=False):
 #     overlay: PolyAnnotation
 
-class _LassoSelectToolInit(_RegionSelectToolInit, total=False):
+class _LassoSelectToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
+    mode: RegionSelectionMode
+    continuous: bool
+    select_every_mousemove: bool
+    persistent: bool
+    greedy: bool
     overlay: PolyAnnotation
 
 class LassoSelectTool(Drag, RegionSelectTool):
@@ -576,7 +892,23 @@ class LassoSelectTool(Drag, RegionSelectTool):
 # class _PolySelectToolInit(_RegionSelectToolInit, total=False):
 #     overlay: PolyAnnotation
 
-class _PolySelectToolInit(_RegionSelectToolInit, total=False):
+class _PolySelectToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    renderers: Auto | list[DataRenderer]
+    mode: RegionSelectionMode
+    continuous: bool
+    select_every_mousemove: bool
+    persistent: bool
+    greedy: bool
     overlay: PolyAnnotation
 
 class PolySelectTool(Tap, RegionSelectTool):
@@ -588,7 +920,13 @@ class PolySelectTool(Tap, RegionSelectTool):
 #     args: dict[str, Any]
 #     code: str
 
-class _CustomJSHoverInit(_ModelInit, total=False):
+class _CustomJSHoverInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
     args: dict[str, Any]
     code: str
 
@@ -614,7 +952,18 @@ class CustomJSHover(Model):
 #     attachment: TooltipAttachment
 #     show_arrow: bool
 
-class _HoverToolInit(_InspectToolInit, total=False):
+class _HoverToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    toggleable: bool
     renderers: Auto | list[DataRenderer]
     callback: Callback | None
     tooltips: None | DOMElement | str | list[tuple[str, str]] | dict[str, str]
@@ -651,7 +1000,17 @@ class HoverTool(InspectTool):
 # class _HelpToolInit(_ActionToolInit, total=False):
 #     redirect: str
 
-class _HelpToolInit(_ActionToolInit, total=False):
+class _HelpToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     redirect: str
 
 class HelpTool(ActionTool):
@@ -662,8 +1021,17 @@ class HelpTool(ActionTool):
 # class _ExamineToolInit(_ActionToolInit, total=False):
 #     ...
 
-class _ExamineToolInit(_ActionToolInit, total=False):
-    ...
+class _ExamineToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class ExamineTool(ActionTool):
     def __init__(self, **kwargs: Unpack[_ExamineToolInit]) -> None: ...
@@ -671,8 +1039,17 @@ class ExamineTool(ActionTool):
 # class _FullscreenToolInit(_ActionToolInit, total=False):
 #     ...
 
-class _FullscreenToolInit(_ActionToolInit, total=False):
-    ...
+class _FullscreenToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class FullscreenTool(ActionTool):
     def __init__(self, **kwargs: Unpack[_FullscreenToolInit]) -> None: ...
@@ -680,8 +1057,17 @@ class FullscreenTool(ActionTool):
 # class _UndoToolInit(_PlotActionToolInit, total=False):
 #     ...
 
-class _UndoToolInit(_PlotActionToolInit, total=False):
-    ...
+class _UndoToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class UndoTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_UndoToolInit]) -> None: ...
@@ -689,8 +1075,17 @@ class UndoTool(PlotActionTool):
 # class _RedoToolInit(_PlotActionToolInit, total=False):
 #     ...
 
-class _RedoToolInit(_PlotActionToolInit, total=False):
-    ...
+class _RedoToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
 
 class RedoTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_RedoToolInit]) -> None: ...
@@ -699,7 +1094,17 @@ class RedoTool(PlotActionTool):
 #     default_overrides: dict[str, Any]
 #     empty_value: bool | int | float | Date | Datetime | Color | str
 
-class _EditToolInit(_GestureToolInit, total=False):
+class _EditToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
     default_overrides: dict[str, Any]
     empty_value: bool | int | float | Date | Datetime | Color | str
 
@@ -713,7 +1118,19 @@ class EditTool(GestureTool):
 # class _PolyToolInit(_EditToolInit, total=False):
 #     vertex_renderer: GlyphRenderer[XYGlyph] | None
 
-class _PolyToolInit(_EditToolInit, total=False):
+class _PolyToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
     vertex_renderer: GlyphRenderer[XYGlyph] | None
 
 class PolyTool(EditTool):
@@ -727,7 +1144,19 @@ class PolyTool(EditTool):
 #     dimensions: Dimensions
 #     num_objects: int
 
-class _BoxEditToolInit(_EditToolInit, total=False):
+class _BoxEditToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
     renderers: list[GlyphRenderer[LRTBGlyph | Rect | HStrip | VStrip]]
     dimensions: Dimensions
     num_objects: int
@@ -745,7 +1174,19 @@ class BoxEditTool(EditTool, Drag, Tap):
 #     drag: bool
 #     num_objects: int
 
-class _PointDrawToolInit(_EditToolInit, total=False):
+class _PointDrawToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
     renderers: list[GlyphRenderer[XYGlyph]]
     add: bool
     drag: bool
@@ -764,7 +1205,20 @@ class PointDrawTool(EditTool, Drag, Tap):
 #     drag: bool
 #     num_objects: int
 
-class _PolyDrawToolInit(_PolyToolInit, total=False):
+class _PolyDrawToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
+    vertex_renderer: GlyphRenderer[XYGlyph] | None
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     drag: bool
     num_objects: int
@@ -780,7 +1234,19 @@ class PolyDrawTool(PolyTool, Drag, Tap):
 #     renderers: list[GlyphRenderer[MultiLine | Patches]]
 #     num_objects: int
 
-class _FreehandDrawToolInit(_EditToolInit, total=False):
+class _FreehandDrawToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     num_objects: int
 
@@ -793,7 +1259,20 @@ class FreehandDrawTool(EditTool, Drag, Tap):
 # class _PolyEditToolInit(_PolyToolInit, total=False):
 #     renderers: list[GlyphRenderer[MultiLine | Patches]]
 
-class _PolyEditToolInit(_PolyToolInit, total=False):
+class _PolyEditToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
+    vertex_renderer: GlyphRenderer[XYGlyph] | None
     renderers: list[GlyphRenderer[MultiLine | Patches]]
 
 class PolyEditTool(PolyTool, Drag, Tap):
@@ -806,7 +1285,19 @@ class PolyEditTool(PolyTool, Drag, Tap):
 #     intersection_renderer: GlyphRenderer[Line]
 #     dimensions: Dimensions
 
-class _LineEditToolInit(_EditToolInit, total=False):
+class _LineEditToolInit(TypedDict, total=False):
+    name: str | None
+    tags: list[Any]
+    js_event_callbacks: dict[str, list[JSEventCallback]]
+    js_property_callbacks: dict[str, list[JSEventCallback]]
+    subscribed_events: set[str]
+    syncable: bool
+    icon: IconLike | None
+    description: str | None
+    visible: bool
+    group: str | bool
+    default_overrides: dict[str, Any]
+    empty_value: bool | int | float | Date | Datetime | Color | str
     renderers: list[GlyphRenderer[Line]]
     intersection_renderer: GlyphRenderer[Line]
     dimensions: Dimensions
