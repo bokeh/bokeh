@@ -7,11 +7,29 @@ runs:
   steps:
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-version: latest
-        mamba-version: "*"
+        miniconda-version: 'latest'
         activate-environment: bk-test
-        environment-file: conda/environment-build.yml
+        conda-remove-defaults: true
         run-post: ${{ runner.os != 'Windows' }}
+
+    - name: Install libmamba solver
+      shell: bash -l {0}
+      run: |
+        conda install -q -n base conda-libmamba-solver
+        conda config --set solver libmamba
+
+    - name: Update bk-test environment
+      shell: bash -l {0}
+      run: |
+        conda env update -q -n bk-test -f conda/environment-build.yml
+
+    - name: Cache npm dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('bokehjs/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
 
     - name: Install node modules
       shell: bash -l {0}

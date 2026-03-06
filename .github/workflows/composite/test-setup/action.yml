@@ -18,11 +18,21 @@ runs:
   steps:
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-version: latest
-        mamba-version: "*"
+        miniconda-version: 'latest'
         activate-environment: bk-test
-        environment-file: conda/environment-test-${{ inputs.test-env }}.yml
+        conda-remove-defaults: true
         run-post: ${{ runner.os != 'Windows' }}
+
+    - name: Install libmamba solver
+      shell: bash -l {0}
+      run: |
+        conda install -q -n base conda-libmamba-solver
+        conda config --set solver libmamba
+
+    - name: Update bk-test environment
+      shell: bash -l {0}
+      run: |
+        conda env update -q -n bk-test -f conda/environment-test-${{ inputs.test-env }}.yml
 
     - name: Download wheel package
       id: download
@@ -52,11 +62,13 @@ runs:
         npm install --location=global npm
 
     - name: Cache node modules
-      if: ${{ inputs.source-tree == 'keep' && runner.os != 'macOS' }} # TODO remove after https://github.com/actions/runner/issues/449 is fixed
+      if: ${{ inputs.source-tree == 'keep' }}
       uses: actions/cache@v4
       with:
-        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-        key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('bokehjs/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
 
     - name: Install node modules
       if: ${{ inputs.source-tree == 'keep' }}
