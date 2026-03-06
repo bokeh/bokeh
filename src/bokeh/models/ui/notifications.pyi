@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from bokeh.models.ui.ui_element import UIElement, _UIElementInit
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
+from ...core.enums import AutoType as Auto
 from .ui_element import (Menu, Node, StyleSheet, Styles)
 
 # class _NotificationsInit(_UIElementInit, total=False):

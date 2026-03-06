@@ -36,7 +36,7 @@ from .ui.ui_element import (
     Styles,
     UIElement,
 )
-from .widgets.buttons import DOMNode
+from .dom import DOMNode
 
 # class _LayoutDOMInit(_PaneInit, total=False):
 #     disabled: bool

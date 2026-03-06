@@ -12,7 +12,10 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..core.enums import OutputBackendType as OutputBackend
+from ..core.enums import (
+    AutoType as Auto,
+    OutputBackendType as OutputBackend,
+)
 from .ui.ui_element import (
     Menu,
     Node,
@@ -22,7 +25,6 @@ from .ui.ui_element import (
     _UIElementInit,
 )
 from ..model.model import JSEventCallback
-from ..plotting._figure import AutoType as Auto
 
 # class _CanvasInit(_UIElementInit, total=False):
 #     hidpi: bool

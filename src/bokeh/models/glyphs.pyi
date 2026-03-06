@@ -15,16 +15,23 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .._specs import (
     AngleSpec,
+    ColorSpec,
     DataSpec,
     DistanceSpec,
     FloatSpec,
+    FontStyleSpec,
     MarkerSpec,
     NullDistanceSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
+    TextAlignSpec,
 )
-from .._types import NonNegative
+from .._types import (
+    Alpha,
+    Color,
+    NonNegative,
+)
 from ..core.enums import (
     DirectionType as Direction,
     HexTileOrientationType as HexTileOrientation,
@@ -90,10 +97,8 @@ from .glyph import (
 )
 from .mappers import ColorMapper, StackColorMapper
 from ..model.model import JSEventCallback
-from ..plotting.glyph_api import (Color, Texture)
+from .textures import Texture
 from .renderers.glyph_renderer import Decoration
-from .tools import Alpha
-from .widgets.tables import (ColorSpec, FontStyleSpec, TextAlignSpec)
 
 # class _MarkerInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, total=False):
 #     x: NumberSpec

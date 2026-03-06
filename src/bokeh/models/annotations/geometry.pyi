@@ -12,8 +12,14 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..._specs import CoordinateSpec
+from ..._specs import (
+    ColorSpec,
+    CoordinateSpec,
+    FloatSpec,
+)
 from ..._types import (
+    Alpha,
+    Color,
     Coordinate,
     CoordinateLike,
     NonNegative,
@@ -68,16 +74,19 @@ from .annotation import (
     _DataAnnotationInit,
 )
 from .arrows import ArrowHead
-from ...plotting.glyph_api import (Color, CoordinateMapping, Texture)
-from ..dom import RendererGroup
-from ..glyphs import FloatSpec
-from ..renderers.renderer import RenderLevelType as RenderLevel
-from ..renderers.tile_renderer import Renderer
-from ..tools import Alpha
+from ..coordinates import CoordinateMapping
+from ..textures import Texture
+from ..dom import (
+    DOMNode,
+    RendererGroup,
+)
+from ..renderers.renderer import (
+    Renderer,
+    RenderLevelType as RenderLevel,
+)
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ..widgets.buttons import DOMNode
-from ..widgets.tables import (ColorSpec, DataSource)
+from ..sources import DataSource
 
 # class _AreaVisualsInit(_ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
 class _AreaVisualsInit(TypedDict, total=False):

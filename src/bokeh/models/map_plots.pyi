@@ -13,8 +13,16 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from .._types import JSON, Bytes
-from ..core.enums import MapTypeType as MapType
+from .._types import (
+    Bytes,
+    JSON,
+    NonNegative,
+)
+from ..core.enums import (
+    AutoType as Auto,
+    DimensionsType as Dimensions,
+    MapTypeType as MapType,
+)
 from ..model.model import JSEventCallback, Model, _ModelInit
 from .plots import (
     LRTB,
@@ -26,17 +34,20 @@ from .plots import (
     WindowAxisType as WindowAxis,
     _PlotInit,
 )
-from ..plotting._figure import (AutoType as Auto, Range, Scale)
-from ..plotting.glyph_api import NonNegative
+from .ranges import Range
+from .scales import Scale
 from .layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from .renderers.renderer import StyledElement
-from .renderers.tile_renderer import Renderer
-from .tools import DimensionsType as Dimensions
+from .renderers.renderer import (
+    Renderer,
+    StyledElement,
+)
 from .ui.floating import LocationType as Location
 from .ui.tooltips import UIElement
 from .ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from .widgets.buttons import DOMNode
-from .widgets.inputs import HTML
+from .dom import (
+    DOMNode,
+    HTML,
+)
 
 # class _MapOptionsInit(_ModelInit, total=False):
 #     lat: float

@@ -17,7 +17,7 @@ from ...core.property_aliases import Anchor
 from ..nodes import Coordinate, Node
 from .panes import Pane, _PaneInit
 from ...model.model import JSEventCallback
-from ..widgets.buttons import DOMNode
+from ..dom import DOMNode
 from .tooltips import UIElement
 from .ui_element import (Menu, StyleSheet, Styles)
 

@@ -13,12 +13,29 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..._specs import AngleSpec, NullStringSpec, NumberSpec
-from ..._types import Angle, Coordinate, TextLike
+from ..._specs import (
+    AngleSpec,
+    ColorSpec,
+    FloatSpec,
+    FontStyleSpec,
+    NullStringSpec,
+    NumberSpec,
+    StringSpec,
+    TextAlignSpec,
+)
+from ..._types import (
+    Alpha,
+    Angle,
+    Color,
+    Coordinate,
+    FontSize,
+    TextLike,
+)
 from ...core.enums import (
     AngleUnitsType as AngleUnits,
     CoordinateUnitsType as CoordinateUnits,
     DirectionType as Direction,
+    FontStyleType as FontStyle,
     TextAlignType as TextAlign,
     VerticalAlignType as VerticalAlign,
 )
@@ -61,18 +78,19 @@ from .annotation import (
     _DataAnnotationInit,
 )
 from ...model.model import JSEventCallback
-from ...plotting.glyph_api import (Color, CoordinateMapping, Texture)
-from ..dom import RendererGroup
-from ..glyphs import (FloatSpec, StringSpec)
-from ..renderers.renderer import RenderLevelType as RenderLevel
-from ..renderers.tile_renderer import Renderer
-from ..tools import Alpha
-from ..ui.icons import FontSize
+from ..coordinates import CoordinateMapping
+from ..textures import Texture
+from ..dom import (
+    DOMNode,
+    RendererGroup,
+)
+from ..renderers.renderer import (
+    Renderer,
+    RenderLevelType as RenderLevel,
+)
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ..widgets.buttons import DOMNode
-from ..widgets.tables import (ColorSpec, DataSource, FontStyleSpec, TextAlignSpec)
-from .html.labels import FontStyleType as FontStyle
+from ..sources import DataSource
 
 # class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
 #         _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):

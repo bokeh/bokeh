@@ -16,10 +16,15 @@ if TYPE_CHECKING:
 from ..._types import (
     Date,
     Datetime,
+    NonNegative,
     Positive,
     Time,
 )
-from ...core.enums import CalendarPositionType as CalendarPosition
+from ...core.enums import (
+    AutoType as Auto,
+    CalendarPositionType as CalendarPosition,
+    DimensionsType as Dimensions,
+)
 from ...core.has_props import HasProps
 from .inputs import (
     HTML,
@@ -28,10 +33,7 @@ from .inputs import (
     _InputWidgetInit,
 )
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
-from ...plotting.glyph_api import NonNegative
 from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from ..tools import DimensionsType as Dimensions
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 from .buttons import DOMNode

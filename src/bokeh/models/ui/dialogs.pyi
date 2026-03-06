@@ -12,7 +12,11 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ...core.enums import MovableType as Movable, ResizableType as Resizable
+from ...core.enums import (
+    AutoType as Auto,
+    MovableType as Movable,
+    ResizableType as Resizable,
+)
 from ..dom import DOMNode
 from ..nodes import Node
 from .ui_element import (
@@ -23,7 +27,6 @@ from .ui_element import (
     _UIElementInit,
 )
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
 
 # class _DialogInit(_UIElementInit, total=False):
 #     title: str | DOMNode | UIElement | None

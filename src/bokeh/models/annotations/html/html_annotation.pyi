@@ -15,13 +15,17 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..annotation import Annotation, _AnnotationInit
 from ....model.model import JSEventCallback
-from ....plotting.glyph_api import CoordinateMapping
-from ...dom import RendererGroup
-from ...renderers.renderer import RenderLevelType as RenderLevel
-from ...renderers.tile_renderer import Renderer
+from ...coordinates import CoordinateMapping
+from ...dom import (
+    DOMNode,
+    RendererGroup,
+)
+from ...renderers.renderer import (
+    Renderer,
+    RenderLevelType as RenderLevel,
+)
 from ...ui.tooltips import UIElement
 from ...ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ...widgets.buttons import DOMNode
 
 # class _HTMLAnnotationInit(_AnnotationInit, total=False):
 #     ...

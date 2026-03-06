@@ -22,7 +22,7 @@ from .ui_element import (
     _UIElementInit,
 )
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
+from ...core.enums import AutoType as Auto
 
 # class _ExaminerInit(_UIElementInit, total=False):
 #     target: HasProps | None

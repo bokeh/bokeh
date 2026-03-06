@@ -12,12 +12,14 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ...core.enums import LocationType as Location
+from ...core.enums import (
+    AutoType as Auto,
+    LocationType as Location,
+)
 from ...core.property_aliases import CSSLength
 from .panes import Pane, _PaneInit
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
-from ..widgets.buttons import DOMNode
+from ..dom import DOMNode
 from .tooltips import UIElement
 from .ui_element import (Menu, Node, StyleSheet, Styles)
 

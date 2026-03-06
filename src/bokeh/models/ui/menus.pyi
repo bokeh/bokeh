@@ -23,7 +23,7 @@ from .ui_element import (
     UIElement,
     _UIElementInit,
 )
-from ...plotting._figure import AutoType as Auto
+from ...core.enums import AutoType as Auto
 
 # class _MenuItemInit(_ModelInit, total=False):
 #     checked: bool | None

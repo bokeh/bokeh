@@ -15,8 +15,10 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
 from ...core.enums import (
+    AutoType as Auto,
     AutosizeModeType as AutosizeMode,
     DateFormatType as DateFormat,
+    DimensionsType as Dimensions,
     NumeralLanguageType as NumeralLanguage,
     RoundingFunctionType as RoundingFunction,
 )
@@ -29,10 +31,8 @@ from ..sources import (
     DataSource,
 )
 from .widget import Widget, _WidgetInit
-from ...plotting._figure import AutoType as Auto
-from ...plotting.glyph_api import NonNegative
+from ..._types import NonNegative
 from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from ..tools import DimensionsType as Dimensions
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 from .buttons import DOMNode

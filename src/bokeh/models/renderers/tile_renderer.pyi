@@ -19,7 +19,7 @@ from .renderer import (
     _RendererInit,
 )
 from ...model.model import JSEventCallback
-from ...plotting.glyph_api import CoordinateMapping
+from ..coordinates import CoordinateMapping
 from ..dom import RendererGroup
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 

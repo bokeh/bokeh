@@ -21,10 +21,12 @@ from .buttons import (
 )
 from .widget import Widget, _WidgetInit
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
-from ...plotting.glyph_api import NonNegative
+from ...core.enums import (
+    AutoType as Auto,
+    DimensionsType as Dimensions,
+)
+from ..._types import NonNegative
 from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from ..tools import DimensionsType as Dimensions
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 

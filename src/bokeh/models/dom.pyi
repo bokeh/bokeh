@@ -13,24 +13,36 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..core.enums import BuiltinFormatterType as BuiltinFormatter, OutlineShapeNameType as OutlineShapeName
+from ..core.enums import (
+    AutoType as Auto,
+    BuiltinFormatterType as BuiltinFormatter,
+    DimensionsType as Dimensions,
+    OutlineShapeNameType as OutlineShapeName,
+)
 from ..core.has_props import HasProps, Qualified
 from ..model.model import JSEventCallback, Model, _ModelInit
 from .callbacks import CustomJS
 from .css import Styles
 from .renderers import RendererGroup
-from .tools import CustomJSHover, DimensionsType as Dimensions
+from .tools import CustomJSHover
 from .ui import UIElement
 from ..core.property_aliases import BorderRadius, Padding, TextAnchorType as TextAnchor
 from ..core.property_mixins import (AlphaSpec, DashPatternSpec, FontSizeSpec, HatchPatternSpec, IntSpec, LineCapSpec, LineJoinSpec, TextBaselineSpec)
-from .._specs import AngleSpec, DataSpec
-from ..plotting._figure import AutoType as Auto
-from ..plotting.glyph_api import (NonNegative, Texture)
-from .glyphs import (FloatSpec, NumberSpec, StringSpec)
+from .._specs import (
+    AngleSpec,
+    ColorSpec,
+    DataSpec,
+    FloatSpec,
+    FontStyleSpec,
+    NumberSpec,
+    StringSpec,
+    TextAlignSpec,
+)
+from .._types import NonNegative
+from .textures import Texture
 from .layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
 from .renderers.glyph_renderer import Decoration
 from .ui.ui_element import (Menu, Node, StyleSheet)
-from .widgets.tables import (ColorSpec, FontStyleSpec, TextAlignSpec)
 
 # class _DOMNodeInit(_ModelInit, total=False):
 #     ...

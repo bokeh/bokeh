@@ -12,12 +12,19 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ...._specs import AngleSpec, NullStringSpec, NumberSpec
+from ...._specs import (
+    AngleSpec,
+    ColorSpec,
+    FloatSpec,
+    NullStringSpec,
+    NumberSpec,
+)
 from ...._types import (
     Alpha,
     Angle,
     Color,
     CoordinateLike,
+    FontSize,
 )
 from ....core.enums import (
     AngleUnitsType as AngleUnits,
@@ -58,16 +65,18 @@ from .html_annotation import (
     _HTMLDataAnnotationInit,
 )
 from ....model.model import JSEventCallback
-from ....plotting.glyph_api import (CoordinateMapping, Texture)
-from ...dom import RendererGroup
-from ...glyphs import FloatSpec
-from ...renderers.renderer import RenderLevelType as RenderLevel
-from ...renderers.tile_renderer import Renderer
-from ...ui.icons import FontSize
+from ...coordinates import CoordinateMapping
+from ...textures import Texture
+from ...dom import (
+    DOMNode,
+    RendererGroup,
+)
+from ...renderers.renderer import (
+    Renderer,
+    RenderLevelType as RenderLevel,
+)
 from ...ui.tooltips import UIElement
 from ...ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ...widgets.buttons import DOMNode
-from ...widgets.tables import ColorSpec
 
 # class _HTMLTextAnnotationInit(_HTMLAnnotationInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
 #     padding: Padding

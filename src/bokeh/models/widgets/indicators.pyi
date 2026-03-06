@@ -13,13 +13,15 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ...core.enums import OrientationType as Orientation
+from ...core.enums import (
+    AutoType as Auto,
+    DimensionsType as Dimensions,
+    OrientationType as Orientation,
+)
 from .widget import Widget, _WidgetInit
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
-from ...plotting.glyph_api import NonNegative
+from ..._types import NonNegative
 from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from ..tools import DimensionsType as Dimensions
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 from .buttons import DOMNode

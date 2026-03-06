@@ -32,6 +32,7 @@ if TYPE_CHECKING: # to work around ruff(TID253)
 from .._types import (
     Color,
     Datetime,
+    NonNegative,
     TextLike,
     TimeDelta,
 )
@@ -42,7 +43,11 @@ from ..core.enums import (
     PaletteType as Palette,
     VerticalLocationType as VerticalLocation,
 )
-from ..models.dom import Template
+from ..models.dom import (
+    DOMNode,
+    HTML,
+    Template,
+)
 from ..models.glyphs import (
     HArea,
     HBar,
@@ -77,16 +82,21 @@ from ..models.tools import (
     Tap,
     Tool,
 )
-from .glyph_api import GlyphAPI, LineArgs, MultiLineArgs, MultiPolygonsArgs, NonNegative
+from .glyph_api import (
+    GlyphAPI,
+    LineArgs,
+    MultiLineArgs,
+    MultiPolygonsArgs,
+)
 from ..model.model import JSEventCallback
 from ..models.layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from ..models.renderers.renderer import StyledElement
-from ..models.renderers.tile_renderer import Renderer
+from ..models.renderers.renderer import (
+    Renderer,
+    StyledElement,
+)
 from ..models.ui.floating import LocationType as Location
 from ..models.ui.tooltips import UIElement
 from ..models.ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ..models.widgets.buttons import DOMNode
-from ..models.widgets.inputs import HTML
 
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries

@@ -15,13 +15,17 @@ if TYPE_CHECKING:
 from ...tools import Toolbar
 from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
 from ....model.model import JSEventCallback
-from ....plotting.glyph_api import CoordinateMapping
-from ...dom import RendererGroup
-from ...renderers.renderer import RenderLevelType as RenderLevel
-from ...renderers.tile_renderer import Renderer
+from ...coordinates import CoordinateMapping
+from ...dom import (
+    DOMNode,
+    RendererGroup,
+)
+from ...renderers.renderer import (
+    Renderer,
+    RenderLevelType as RenderLevel,
+)
 from ...ui.tooltips import UIElement
 from ...ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ...widgets.buttons import DOMNode
 
 # class _ToolbarPanelInit(_HTMLAnnotationInit, total=False):
 #     toolbar: Toolbar

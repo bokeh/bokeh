@@ -35,8 +35,6 @@ from ..model.model import JSEventCallback, Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
-from ..plotting.glyph_api import DataDictLike
-
 DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
 
 DataDictLike: TypeAlias = DataDict | pd.DataFrame | GroupBy[Any]

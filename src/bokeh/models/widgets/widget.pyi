@@ -22,9 +22,11 @@ from ..layouts import (
     _LayoutDOMInit,
 )
 from ...model.model import JSEventCallback
-from ...plotting._figure import AutoType as Auto
-from ...plotting.glyph_api import NonNegative
-from ..tools import DimensionsType as Dimensions
+from ...core.enums import (
+    AutoType as Auto,
+    DimensionsType as Dimensions,
+)
+from ..._types import NonNegative
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 from .buttons import DOMNode

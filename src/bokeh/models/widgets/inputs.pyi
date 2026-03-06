@@ -26,7 +26,10 @@ from ..._types import (
     NonNegative,
     Positive,
 )
-from ...core.enums import AutoType as Auto
+from ...core.enums import (
+    AutoType as Auto,
+    DimensionsType as Dimensions,
+)
 from ...core.property_aliases import IconLikeType as IconLike
 from ...events import ModelEvent
 from ..dom import HTML
@@ -35,7 +38,6 @@ from ..ui import Tooltip
 from .widget import Widget, _WidgetInit
 from ...model.model import JSEventCallback
 from ..layouts import (AlignType as Align, FlowModeType as FlowMode, SizingModeType as SizingMode, SizingPolicyType as SizingPolicy)
-from ..tools import DimensionsType as Dimensions
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
 from .buttons import DOMNode

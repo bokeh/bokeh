@@ -20,14 +20,25 @@ if TYPE_CHECKING:
     from typing_extensions import Unpack
 
 # Bokeh imports
-from ..._specs import NullStringSpec
-from ..._types import CoordinateLike, TextLike
+from ..._specs import (
+    ColorSpec,
+    FloatSpec,
+    NullStringSpec,
+)
+from ..._types import (
+    Alpha,
+    Color,
+    CoordinateLike,
+    FontSize,
+    TextLike,
+)
 from ...core.enums import (
     AlignType as Align,
     AlternationPolicyType as AlternationPolicy,
-    AnchorType as HVAlign,
     AutoType as Auto,
+    FontStyleType as FontStyle,
     HAlignType as HAlign,
+    AnchorType as HVAlign,
     LegendClickPolicyType as LegendClickPolicy,
     LegendLocationType as LegendLocation,
     LocationType as Location,
@@ -88,19 +99,18 @@ from ..renderers import GlyphRenderer
 from ..tickers import Ticker
 from .annotation import Annotation, _AnnotationInit
 from .dimensional import Dimensional
-from ...plotting.glyph_api import (Color, CoordinateMapping, Texture)
-from ..dom import RendererGroup
-from ..glyphs import FloatSpec
-from ..renderers.renderer import RenderLevelType as RenderLevel
-from ..renderers.tile_renderer import Renderer
-from ..tools import Alpha
-from ..ui.icons import FontSize
+from ..coordinates import CoordinateMapping
+from ..textures import Texture
+from ..dom import (
+    DOMNode,
+    RendererGroup,
+)
+from ..renderers.renderer import (
+    Renderer,
+    RenderLevelType as RenderLevel,
+)
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ..widgets.buttons import DOMNode
-from ..widgets.indicators import max
-from ..widgets.tables import ColorSpec
-from .html.labels import FontStyleType as FontStyle
 from .labels import TextAlignType as TextAlign
 
 # class _BaseColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,

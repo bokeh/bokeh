@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..core.enums import (
+    AutoType as Auto,
+    DimensionsType as Dimensions,
     LocationType as Location,
     OutputBackendType as OutputBackend,
     PlaceType as Place,
@@ -46,7 +48,10 @@ from ..core.property_mixins import (
 from ..model import Model
 from .annotations import Legend, Title
 from .axes import Axis
-from .dom import HTML
+from .dom import (
+    DOMNode,
+    HTML,
+)
 from .glyph import Glyph
 from .grids import Grid
 from .layouts import (
@@ -66,13 +71,15 @@ from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale
 from .sources import ColumnarDataSource
 from .tiles import TileSource
-from .tools import DimensionsType as Dimensions, HoverTool, Tool, Toolbar
+from .tools import (
+    HoverTool,
+    Tool,
+    Toolbar,
+)
 from .ui.ui_element import Menu, Node, StyleSheet, StyledElement, Styles
 from ..model.model import JSEventCallback
-from ..plotting._figure import AutoType as Auto
-from ..plotting.glyph_api import NonNegative
+from .._types import NonNegative
 from .ui.tooltips import UIElement
-from .widgets.buttons import DOMNode
 
 if TYPE_CHECKING:
     import xyzservices

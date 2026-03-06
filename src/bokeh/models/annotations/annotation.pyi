@@ -14,18 +14,20 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..renderers.renderer import (
-    CompositeRenderer,
-    RenderLevelType as RenderLevel,
     _CompositeRendererInit,
+    CompositeRenderer,
+    Renderer,
+    RenderLevelType as RenderLevel,
 )
 from ..sources import DataSource
 from ...model.model import JSEventCallback
-from ...plotting.glyph_api import CoordinateMapping
-from ..dom import RendererGroup
-from ..renderers.tile_renderer import Renderer
+from ..coordinates import CoordinateMapping
+from ..dom import (
+    DOMNode,
+    RendererGroup,
+)
 from ..ui.tooltips import UIElement
 from ..ui.ui_element import (Menu, Node, StyleSheet, Styles)
-from ..widgets.buttons import DOMNode
 
 # class _AnnotationInit(_CompositeRendererInit, total=False):
 #     ...
