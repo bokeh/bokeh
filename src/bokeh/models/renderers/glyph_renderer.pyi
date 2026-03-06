@@ -7,14 +7,13 @@
 
 # Standard library imports
 from typing import (
-    Sequence,
-    TYPE_CHECKING,
     Any,
     Generic,
     Literal,
+    Sequence,
+    TYPE_CHECKING,
     TypeVar,
     TypedDict,
-YPE_CHECKING,
 )
 
 if TYPE_CHECKING:
