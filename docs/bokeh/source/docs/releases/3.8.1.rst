@@ -1,0 +1,13 @@
+.. _release-3-8-1:
+
+3.8.1
+=====
+
+Bokeh version ``3.8.1`` (November 2025) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Restored support for ``@$name`` and improved ``replace_placeholders()`` (:bokeh-pull:`14652`)
+* Regression fixes to documentation build, especially on Windows (:bokeh-pull:`14627`, :bokeh-pull:`14625`)
