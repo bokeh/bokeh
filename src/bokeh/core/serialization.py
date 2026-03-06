@@ -704,7 +704,7 @@ class Deserializer:
         attributes = obj.get("attributes")
 
         cls = self._resolve_type(name)
-        instance = cls._new(id)
+        instance = cls.__new__(cls, id=id)
 
         if instance is None:
             self.error(f"can't instantiate {name}(id={id})")

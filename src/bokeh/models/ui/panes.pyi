@@ -6,19 +6,13 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
 from ..dom import DOMNode
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import UIElement
 
-class _PaneInit(_UIElementInit, total=False):
-    elements: list[UIElement | DOMNode]
-
+@dataclass
 class Pane(UIElement):
-    def __init__(self, **kwargs: Unpack[_PaneInit]) -> None: ...
 
     elements: list[UIElement | DOMNode] = ...

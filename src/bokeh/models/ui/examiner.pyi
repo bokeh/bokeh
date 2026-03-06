@@ -6,19 +6,13 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
 from ...core.has_props import HasProps
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import UIElement
 
-class _ExaminerInit(_UIElementInit, total=False):
-    target: HasProps | None
-
+@dataclass
 class Examiner(UIElement):
-    def __init__(self, **kwargs: Unpack[_ExaminerInit]) -> None: ...
 
     target: HasProps | None = ...

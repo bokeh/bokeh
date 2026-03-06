@@ -6,47 +6,37 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Sequence
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
+from typing import Sequence
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
-from ...model.model import Model, _ModelInit
+from ...core.has_props import abstract
+from ...model import Model
 from ..css import Styles, StyleSheet
 from ..nodes import Node
 from .menus import Menu
 
-class _StyledElementInit(_ModelInit, total=False):
-    html_attributes: dict[str, str]
-    html_id: str | None
-    css_classes: Sequence[str]
-    css_variables: dict[str, str | Node]
-    styles: dict[str, str | None] | Styles
-    stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
-
+@abstract
+@dataclass(init=False)
 class StyledElement(Model):
-    def __init__(self, **kwargs: Unpack[_StyledElementInit]) -> None: ...
 
     html_attributes: dict[str, str] = ...
+
     html_id: str | None = ...
 
-    @property
-    def css_classes(self) -> list[str]: ...
-    @css_classes.setter
-    def css_classes(self, css_classes: Sequence[str]) -> None: ...
+    css_classes: Sequence[str] = ...
 
     css_variables: dict[str, str | Node] = ...
+
     styles: dict[str, str | None] | Styles = ...
+
     stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]] = ...
 
-class _UIElementInit(_StyledElementInit, total=False):
-    visible: bool
-    context_menu: Menu | Auto | None
-
+@abstract
+@dataclass(init=False)
 class UIElement(StyledElement):
-    def __init__(self, **kwargs: Unpack[_UIElementInit]) -> None: ...
 
     visible: bool = ...
+
     context_menu: Menu | Auto | None = ...

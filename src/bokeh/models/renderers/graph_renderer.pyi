@@ -6,30 +6,24 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
 from ..glyph import XYGlyph
 from ..glyphs import MultiLine, Patches
 from ..graphs import GraphHitTestPolicy, LayoutProvider
 from .glyph_renderer import GlyphRenderer
-from .renderer import DataRenderer, _DataRendererInit
+from .renderer import DataRenderer
 
-class _GraphRendererInit(_DataRendererInit, total=False):
-    layout_provider: LayoutProvider
-    node_renderer: GlyphRenderer[XYGlyph]
-    edge_renderer: GlyphRenderer[MultiLine | Patches]
-    selection_policy: GraphHitTestPolicy
-    inspection_policy: GraphHitTestPolicy
-
+@dataclass
 class GraphRenderer(DataRenderer):
-    def __init__(self, **kwargs: Unpack[_GraphRendererInit]) -> None: ...
 
     layout_provider: LayoutProvider = ...
+
     node_renderer: GlyphRenderer[XYGlyph] = ...
+
     edge_renderer: GlyphRenderer[MultiLine | Patches] = ...
+
     selection_policy: GraphHitTestPolicy = ...
+
     inspection_policy: GraphHitTestPolicy = ...

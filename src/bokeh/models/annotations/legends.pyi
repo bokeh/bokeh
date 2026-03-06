@@ -6,16 +6,8 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    Sequence,
-    TypeAlias,
-)
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
+from typing import Literal, Sequence, TypeAlias
 
 # Bokeh imports
 from ..._specs import NullStringSpec
@@ -32,6 +24,7 @@ from ...core.enums import (
     OrientationType as Orientation,
     VAlignType as VAlign,
 )
+from ...core.has_props import abstract
 from ...core.property_aliases import AutoAnchor, BorderRadius, Padding
 from ...core.property_mixins import (
     GlyphFillProps,
@@ -48,22 +41,8 @@ from ...core.property_mixins import (
     ScalarMajorTickLineProps,
     ScalarMinorTickLineProps,
     ScalarTitleTextProps,
-    _GlyphFillPropsInit,
-    _GlyphHatchPropsInit,
-    _GlyphLinePropsInit,
-    _ScalarBackgroundFillPropsInit,
-    _ScalarBackgroundHatchPropsInit,
-    _ScalarBarLinePropsInit,
-    _ScalarBorderLinePropsInit,
-    _ScalarInactiveFillPropsInit,
-    _ScalarItemBackgroundFillPropsInit,
-    _ScalarLabelTextPropsInit,
-    _ScalarMajorLabelTextPropsInit,
-    _ScalarMajorTickLinePropsInit,
-    _ScalarMinorTickLinePropsInit,
-    _ScalarTitleTextPropsInit,
 )
-from ...model.model import Model, _ModelInit
+from ...model import Model
 from ...util.callback_manager import EventCallback as PyEventCallback
 from ..callbacks import Callback as JsEventCallback
 from ..formatters import TickFormatter
@@ -73,141 +52,121 @@ from ..mappers import ColorMapper
 from ..ranges import Range
 from ..renderers import GlyphRenderer
 from ..tickers import Ticker
-from .annotation import Annotation, _AnnotationInit
+from .annotation import Annotation
 from .dimensional import Dimensional
 
-class _BaseColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,
-        _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
-    location: HVAlign | tuple[float, float]
-    orientation: Orientation | Auto
-    height: Auto | int
-    width: Auto | int
-    title: TextLike | None
-    title_standoff: int
-    ticker: Ticker | Auto
-    formatter: TickFormatter | Auto
-    major_label_overrides: dict[float | str, TextLike]
-    major_label_policy: LabelingPolicy
-    margin: int
-    padding: int
-    label_standoff: int
-    major_tick_in: int
-    major_tick_out: int
-    minor_tick_in: int
-    minor_tick_out: int
-
+@abstract
+@dataclass(init=False)
 class BaseColorBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, ScalarMajorTickLineProps,
-        ScalarMinorTickLineProps, ScalarBarLineProps, ScalarBorderLineProps, ScalarBackgroundFillProps):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_BaseColorBarInit]) -> None: ...
+                   ScalarMinorTickLineProps, ScalarBarLineProps, ScalarBorderLineProps, ScalarBackgroundFillProps):
 
     location: HVAlign | tuple[float, float] = ...
+
     orientation: Orientation | Auto = ...
+
     height: Auto | int = ...
+
     width: Auto | int = ...
+
     title: TextLike | None = ...
+
     title_standoff: int = ...
+
     ticker: Ticker | Auto = ...
+
     formatter: TickFormatter | Auto = ...
+
     major_label_overrides: dict[float | str, TextLike] = ...
+
     major_label_policy: LabelingPolicy = ...
+
     margin: int = ...
+
     padding: int = ...
+
     label_standoff: int = ...
+
     major_tick_in: int = ...
+
     major_tick_out: int = ...
+
     minor_tick_in: int = ...
+
     minor_tick_out: int = ...
 
-class _ColorBarInit(_BaseColorBarInit, total=False):
-    color_mapper: ColorMapper
-    display_low: float | None
-    display_high: float | None
-    scale_alpha: float
-
+@dataclass
 class ColorBar(BaseColorBar):
-    def __init__(self, **kwargs: Unpack[_ColorBarInit]) -> None: ...
 
     color_mapper: ColorMapper = ...
+
     display_low: float | None = ...
+
     display_high: float | None = ...
+
     scale_alpha: float = ...
 
-class _ContourColorBarInit(_BaseColorBarInit, total=False):
-    fill_renderer: GlyphRenderer[Glyph]
-    line_renderer: GlyphRenderer[Glyph]
-    levels: Sequence[float]
-
+@dataclass
 class ContourColorBar(BaseColorBar):
-    def __init__(self, **kwargs: Unpack[_ContourColorBarInit]) -> None: ...
 
     fill_renderer: GlyphRenderer[Glyph] = ...
+
     line_renderer: GlyphRenderer[Glyph] = ...
+
     levels: Sequence[float] = ...
 
-class _LegendItemInit(_ModelInit, total=False):
-    label: NullStringSpec
-    renderers: list[GlyphRenderer[Glyph]]
-    index: int | None
-    visible: bool
-
+@dataclass
 class LegendItem(Model):
-    def __init__(self, **kwargs: Unpack[_LegendItemInit]) -> None: ...
 
     label: NullStringSpec = ...
+
     renderers: list[GlyphRenderer[Glyph]] = ...
+
     index: int | None = ...
+
     visible: bool = ...
 
-class _LegendInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit,
-        _ScalarItemBackgroundFillPropsInit, _ScalarInactiveFillPropsInit, _ScalarLabelTextPropsInit, total=False):
-    location: LegendLocation | tuple[float, float]
-    orientation: Orientation
-    ncols: int | Auto
-    nrows: int | Auto
-    title: str | None
-    title_location: Location
-    title_standoff: int
-    click_policy: LegendClickPolicy
-    item_background_policy: AlternationPolicy
-    label_standoff: int
-    label_height: Auto | int
-    label_width: int
-    glyph_height: int
-    glyph_width: int
-    margin: int
-    padding: Padding
-    border_radius: BorderRadius
-    spacing: int
-    items: list[LegendItem] | list[tuple[str, list[GlyphRenderer[Glyph]]]]
-
+@dataclass
 class Legend(Annotation, ScalarTitleTextProps, ScalarBorderLineProps, ScalarBackgroundFillProps,
-        ScalarItemBackgroundFillProps, ScalarInactiveFillProps, ScalarLabelTextProps):
-    def __init__(self, **kwargs: Unpack[_LegendInit]) -> None: ...
+             ScalarItemBackgroundFillProps, ScalarInactiveFillProps, ScalarLabelTextProps):
 
     location: LegendLocation | tuple[float, float] = ...
+
     orientation: Orientation = ...
+
     ncols: int | Auto = ...
+
     nrows: int | Auto = ...
+
     title: str | None = ...
+
+
     title_location: Location = ...
+
     title_standoff: int = ...
+
     click_policy: LegendClickPolicy = ...
+
     item_background_policy: AlternationPolicy = ...
+
     label_standoff: int = ...
+
     label_height: Auto | int = ...
+
     label_width: int = ...
+
     glyph_height: int = ...
+
     glyph_width: int = ...
+
     margin: int = ...
+
     padding: Padding = ...
+
     border_radius: BorderRadius = ...
+
     spacing: int = ...
 
-    @property
-    def items(self) -> list[LegendItem]: ...
-    @items.setter
-    def items(self, items: list[LegendItem] | list[tuple[str, list[GlyphRenderer[Glyph]]]]) -> None: ...
+    items: list[LegendItem] | list[tuple[str, list[GlyphRenderer[Glyph]]]] = ...
 
     def on_click(self, handler: PyEventCallback) -> None: ...
 
@@ -219,107 +178,96 @@ Y: TypeAlias = VAlign | float | CoordinateLike
 Position: TypeAlias = HVAlign | tuple[X, Y]
 PositionUnits: TypeAlias = Literal["data", "screen", "view", "percent"]
 
-class _ScaleBarInit(_AnnotationInit, _ScalarBarLinePropsInit, _ScalarLabelTextPropsInit, _ScalarTitleTextPropsInit,
-        _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, total=False):
-    range: Range | Auto
-    unit: str
-    dimensional: Dimensional
-    orientation: Orientation
-    location: Position
-    x_units: PositionUnits
-    y_units: PositionUnits
-    anchor: AutoAnchor
-    length_sizing: Literal["adaptive", "exact"]
-    bar_length: float | int
-    bar_length_units: Literal["screen", "data", "percent"]
-    margin: int
-    padding: int
-    label: str
-    label_align: Align
-    label_location: Location
-    label_standoff: int
-    title: str
-    title_align: Align
-    title_location: Location
-    title_standoff: int
-    ticker: Ticker
-
+@dataclass
 class ScaleBar(Annotation, ScalarBarLineProps, ScalarLabelTextProps, ScalarTitleTextProps,
-        ScalarBorderLineProps, ScalarBackgroundFillProps, ScalarBackgroundHatchProps):
-    def __init__(self, **kwargs: Unpack[_ScaleBarInit]) -> None: ...
+               ScalarBorderLineProps, ScalarBackgroundFillProps, ScalarBackgroundHatchProps):
 
     range: Range | Auto = ...
+
     unit: str = ...
+
     dimensional: Dimensional = ...
+
     orientation: Orientation = ...
+
     location: Position = ...
+
     x_units: PositionUnits = ...
+
     y_units: PositionUnits = ...
+
     anchor: AutoAnchor = ...
+
     length_sizing: Literal["adaptive", "exact"] = ...
+
     bar_length: float | int = ...
+
     bar_length_units: Literal["screen", "data", "percent"] = ...
+
     margin: int = ...
+
     padding: int = ...
+
     label: str = ...
+
     label_align: Align = ...
+
     label_location: Location = ...
+
     label_standoff: int = ...
+
     title: str = ...
+
     title_align: Align = ...
+
     title_location: Location = ...
+
     title_standoff: int = ...
+
     ticker: Ticker = ...
 
-class _BaseBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,
-        _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
-    location: HVAlign | tuple[float, float]
-    orientation: Orientation | Auto
-    height: Literal["max"] | int
-    width: Literal["max"] | int
-    margin: int
-    padding: int
-    title: TextLike | None
-    title_standoff: int
-    ticker: Ticker | Auto
-    formatter: TickFormatter | Auto
-    major_label_overrides: dict[float | str, TextLike]
-    major_label_policy: LabelingPolicy
-    label_standoff: int
-    major_tick_in: int
-    major_tick_out: int
-    minor_tick_in: int
-    minor_tick_out: int
-
+@abstract
+@dataclass(init=False)
 class BaseBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, ScalarMajorTickLineProps,
-        ScalarMinorTickLineProps, ScalarBarLineProps, ScalarBorderLineProps, ScalarBackgroundFillProps):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_BaseBarInit]) -> None: ...
+              ScalarMinorTickLineProps, ScalarBarLineProps, ScalarBorderLineProps, ScalarBackgroundFillProps):
 
     location: HVAlign | tuple[float, float] = ...
+
     orientation: Orientation | Auto = ...
+
     height: Literal["max"] | int = ...
+
     width: Literal["max"] | int = ...
+
     margin: int = ...
+
     padding: int = ...
+
     title: TextLike | None = ...
+
     title_standoff: int = ...
+
     ticker: Ticker | Auto = ...
+
     formatter: TickFormatter | Auto = ...
+
     major_label_overrides: dict[float | str, TextLike] = ...
+
     major_label_policy: LabelingPolicy = ...
+
     label_standoff: int = ...
+
     major_tick_in: int = ...
+
     major_tick_out: int = ...
+
     minor_tick_in: int = ...
+
     minor_tick_out: int = ...
 
-class _SizeBarInit(_BaseBarInit, _GlyphLinePropsInit, _GlyphFillPropsInit, _GlyphHatchPropsInit, total=False):
-    renderer: GlyphRenderer[RadialGlyph] | Auto
-    bounds: tuple[float, float] | Auto
-
+@dataclass
 class SizeBar(BaseBar, GlyphLineProps, GlyphFillProps, GlyphHatchProps):
-    def __init__(self, **kwargs: Unpack[_SizeBarInit]) -> None: ...
 
     renderer: GlyphRenderer[RadialGlyph] | Auto = ...
+
     bounds: tuple[float, float] | Auto = ...

@@ -6,65 +6,50 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
+from ...core.has_props import abstract
 from ...core.property_aliases import IconLikeType as IconLike
-from ...model.model import Model, _ModelInit
+from ...model import Model
 from ..callbacks import Callback
-from .ui_element import UIElement, _UIElementInit
+from .ui_element import UIElement
 
-class _MenuItemInit(_ModelInit, total=False):
-    checked: bool | None
-    icon: IconLike | None
-    label: str
-    shortcut: str | None
-    menu: Menu | None
-    tooltip: str | None
-    disabled: bool
-    action: Callback | None
-
+@abstract
+@dataclass(init=False)
 class MenuItem(Model):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_MenuItemInit]) -> None: ...
 
     checked: bool | None = ...
+
     icon: IconLike | None = ...
+
     label: str = ...
+
     shortcut: str | None = ...
+
     menu: Menu | None = ...
+
     tooltip: str | None = ...
+
     disabled: bool = ...
+
     action: Callback | None = ...
 
-class _ActionItemInit(_MenuItemInit, total=False):
-    ...
-
+@dataclass
 class ActionItem(MenuItem):
-    def __init__(self, **kwargs: Unpack[_ActionItemInit]) -> None: ...
-
-class _CheckableItemInit(_ActionItemInit, total=False):
     ...
 
+@dataclass
 class CheckableItem(ActionItem):
-    def __init__(self, **kwargs: Unpack[_CheckableItemInit]) -> None: ...
-
-class _DividerItemInit(_ModelInit, total=False):
     ...
 
+@dataclass
 class DividerItem(Model):
-    def __init__(self, **kwargs: Unpack[_DividerItemInit]) -> None: ...
+    ...
 
-class _MenuInit(_UIElementInit, total=False):
-    items: list[MenuItem | DividerItem | None]
-    reversed: bool
-
+@dataclass
 class Menu(UIElement):
-    def __init__(self, **kwargs: Unpack[_MenuInit]) -> None: ...
 
     items: list[MenuItem | DividerItem | None] = ...
+
     reversed: bool = ...

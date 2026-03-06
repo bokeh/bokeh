@@ -6,150 +6,123 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
+from dataclasses import dataclass
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Literal, Sequence
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Literal, Sequence
 
 # Bokeh imports
-from ..._types import Color, Datetime
+from ..._types import Color, Datetime, Readonly
+from ...core.has_props import abstract
 from ..formatters import TickFormatter
-from .widget import Widget, _WidgetInit
+from .widget import Widget
 
-class _AbstractSliderInit(_WidgetInit, total=False):
-    orientation: Literal["horizontal", "vertical"]
-    title: str | None
-    show_value: bool
-    direction: Literal["ltr", "rtl"]
-    tooltips: bool
-    bar_color: Color
-
+@abstract
+@dataclass(init=False)
 class AbstractSlider(Widget):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_AbstractSliderInit]) -> None: ...
 
     orientation: Literal["horizontal", "vertical"] = ...
+
     title: str | None = ...
+
     show_value: bool = ...
+
     direction: Literal["ltr", "rtl"] = ...
+
     tooltips: bool = ...
+
     bar_color: Color = ...
 
-class _NumericalSliderInit(_AbstractSliderInit, total=False):
-    format: str | TickFormatter
-
+@abstract
+@dataclass(init=False)
 class NumericalSlider(AbstractSlider):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_NumericalSliderInit]) -> None: ...
 
     format: str | TickFormatter = ...
 
-class _CategoricalSliderInit(_AbstractSliderInit, total=False):
-    categories: Sequence[str]
-    value: str
-
+@dataclass
 class CategoricalSlider(AbstractSlider):
-    def __init__(self, **kwargs: Unpack[_CategoricalSliderInit]) -> None: ...
 
     categories: Sequence[str] = ...
+
     value: str = ...
 
-    @property
-    def value_throttled(self) -> str: ...
+    value_throttled: Readonly[str] = ...
 
-class _SliderInit(_NumericalSliderInit, total=False):
-    start: float
-    end: float
-    value: float
-    step: float
-
+@dataclass
 class Slider(NumericalSlider):
-    def __init__(self, **kwargs: Unpack[_SliderInit]) -> None: ...
 
     start: float = ...
+
     end: float = ...
+
     value: float = ...
+
+    value_throttled: Readonly[float] = ...
+
     step: float = ...
 
-    @property
-    def value_throttled(self) -> float: ...
-
-class _RangeSliderInit(_NumericalSliderInit, total=False):
-    value: tuple[float, float]
-    start: float
-    end: float
-    step: float
-
+@dataclass
 class RangeSlider(NumericalSlider):
-    def __init__(self, **kwargs: Unpack[_RangeSliderInit]) -> None: ...
 
     value: tuple[float, float] = ...
+
+    value_throttled: Readonly[tuple[float, float]] = ...
+
     start: float = ...
+
     end: float = ...
+
     step: float = ...
 
-    @property
-    def value_throttled(self) -> tuple[float, float]: ...
-
-class _DateSliderInit(_NumericalSliderInit, total=False):
-    value: Datetime
-    start: Datetime
-    end: Datetime
-    step: int
-
+@dataclass
 class DateSlider(NumericalSlider):
-    def __init__(self, **kwargs: Unpack[_DateSliderInit]) -> None: ...
 
-    value: Datetime = ...
-    start: Datetime = ...
-    end: Datetime = ...
-    step: int = ...
-
-    @property
-    def value_throttled(self) -> Datetime: ...
     @property
     def value_as_datetime(self) -> datetime | None: ...
+
     @property
     def value_as_date(self) -> date | None: ...
 
-class _DateRangeSliderInit(_NumericalSliderInit, total=False):
-    value: tuple[Datetime, Datetime]
-    start: Datetime
-    end: Datetime
-    step: int
+    value: Datetime = ...
 
-class DateRangeSlider(NumericalSlider):
-    def __init__(self, **kwargs: Unpack[_DateRangeSliderInit]) -> None: ...
+    value_throttled: Readonly[Datetime] = ...
 
-    value: tuple[Datetime, Datetime] = ...
     start: Datetime = ...
+
     end: Datetime = ...
+
     step: int = ...
 
-    @property
-    def value_throttled(self) -> tuple[Datetime, Datetime]: ...
+@dataclass
+class DateRangeSlider(NumericalSlider):
+
     @property
     def value_as_datetime(self) -> tuple[datetime, datetime] | None: ...
+
     @property
     def value_as_date(self) -> tuple[date, date] | None: ...
 
-class _DatetimeRangeSliderInit(_NumericalSliderInit, total=False):
-    value: tuple[Datetime, Datetime]
-    start: Datetime
-    end: Datetime
-    step: int
-
-class DatetimeRangeSlider(NumericalSlider):
-    def __init__(self, **kwargs: Unpack[_DatetimeRangeSliderInit]) -> None: ...
-
     value: tuple[Datetime, Datetime] = ...
+
+    value_throttled: Readonly[tuple[Datetime, Datetime]] = ...
+
     start: Datetime = ...
+
     end: Datetime = ...
+
     step: int = ...
 
-    @property
-    def value_throttled(self) -> tuple[Datetime, Datetime]: ...
+@dataclass
+class DatetimeRangeSlider(NumericalSlider):
+
     @property
     def value_as_datetime(self) -> tuple[datetime, datetime] | None: ...
+
+    value: tuple[Datetime, Datetime] = ...
+
+    value_throttled: Readonly[tuple[Datetime, Datetime]] = ...
+
+    start: Datetime = ...
+
+    end: Datetime = ...
+
+    step: int = ...

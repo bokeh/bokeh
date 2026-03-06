@@ -6,19 +6,13 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
 from ...tools import Toolbar
-from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
+from .html_annotation import HTMLAnnotation
 
-class _ToolbarPanelInit(_HTMLAnnotationInit, total=False):
-    toolbar: Toolbar
-
+@dataclass
 class ToolbarPanel(HTMLAnnotation):
-    def __init__(self, **kwargs: Unpack[_ToolbarPanelInit]) -> None: ...
 
     toolbar: Toolbar = ...
