@@ -7,7 +7,6 @@ Bokeh version ``3.9.0`` (March 2026) is a minor milestone of Bokeh project.
 
 * Added support for ARIA ``role`` attribute to ``Switch`` component (:bokeh-pull:`14341`)
 * Initial support for the new CSS variable based color system for theming (:bokeh-pull:`14467`, :bokeh-pull:`14695`)
-* Redesigned typing declaration of Bokeh's models and properties fixing various regressions (:bokeh-pull:`14798`)
 * Added support for dataclass as input to ``ColumnDataSource`` (:bokeh-pull:`14677`)
 * Added ``figure`` methods to plot geographic features using Cartopy (:bokeh-pull:`14706`)
 * Added ``text_outline_width`` to models already supporting ``text_outline_color`` (:bokeh-pull:`14733`, :bokeh-pull:`14746`)
