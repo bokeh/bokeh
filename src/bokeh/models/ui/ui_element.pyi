@@ -18,6 +18,14 @@ from ..css import Styles, StyleSheet
 from ..nodes import Node
 from .menus import Menu
 
+# class _StyledElementInit(_ModelInit, total=False):
+#     html_attributes: dict[str, str]
+#     html_id: str | None
+#     css_classes: Sequence[str]
+#     css_variables: dict[str, str | Node]
+#     styles: dict[str, str | None] | Styles
+#     stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]]
+
 class _StyledElementInit(_ModelInit, total=False):
     html_attributes: dict[str, str]
     html_id: str | None
@@ -40,6 +48,10 @@ class StyledElement(Model):
     css_variables: dict[str, str | Node] = ...
     styles: dict[str, str | None] | Styles = ...
     stylesheets: list[StyleSheet | str | dict[str, dict[str, str | None] | Styles]] = ...
+
+# class _UIElementInit(_StyledElementInit, total=False):
+#     visible: bool
+#     context_menu: Menu | Auto | None
 
 class _UIElementInit(_StyledElementInit, total=False):
     visible: bool

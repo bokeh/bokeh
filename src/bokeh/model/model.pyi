@@ -38,6 +38,14 @@ from .util import HasDocumentRef
 JSEventCallback: TypeAlias = Callback
 JSChangeCallback: TypeAlias = CustomCode
 
+# class _ModelInit(TypedDict, total=False):
+#     name: str | None
+#     tags: list[Any]
+#     js_event_callbacks: dict[str, list[JSEventCallback]]
+#     js_property_callbacks: dict[str, list[JSEventCallback]]
+#     subscribed_events: set[str]
+#     syncable: bool
+
 class _ModelInit(TypedDict, total=False):
     name: str | None
     tags: list[Any]

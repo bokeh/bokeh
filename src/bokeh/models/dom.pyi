@@ -22,12 +22,18 @@ from .renderers import RendererGroup
 from .tools import CustomJSHover
 from .ui import UIElement
 
+# class _DOMNodeInit(_ModelInit, total=False):
+#     ...
+
 class _DOMNodeInit(_ModelInit, total=False):
     ...
 
 class DOMNode(Model, Qualified):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DOMNodeInit]) -> None: ...
+
+# class _TextInit(_DOMNodeInit, total=False):
+#     content: str
 
 class _TextInit(_DOMNodeInit, total=False):
     content: str
@@ -36,6 +42,10 @@ class Text(DOMNode):
     def __init__(self, **kwargs: Unpack[_TextInit]) -> None: ...
 
     content: str = ...
+
+# class _DOMElementInit(_DOMNodeInit, total=False):
+#     style: Styles | dict[str, str]
+#     children: list[str | DOMNode | UIElement]
 
 class _DOMElementInit(_DOMNodeInit, total=False):
     style: Styles | dict[str, str]
@@ -48,11 +58,17 @@ class DOMElement(DOMNode):
     style: Styles | dict[str, str] = ...
     children: list[str | DOMNode | UIElement] = ...
 
+# class _SpanInit(_DOMElementInit, total=False):
+#     ...
+
 class _SpanInit(_DOMElementInit, total=False):
     ...
 
 class Span(DOMElement):
     def __init__(self, **kwargs: Unpack[_SpanInit]) -> None: ...
+
+# class _DivInit(_DOMElementInit, total=False):
+#     ...
 
 class _DivInit(_DOMElementInit, total=False):
     ...
@@ -60,11 +76,17 @@ class _DivInit(_DOMElementInit, total=False):
 class Div(DOMElement):
     def __init__(self, **kwargs: Unpack[_DivInit]) -> None: ...
 
+# class _TableInit(_DOMElementInit, total=False):
+#     ...
+
 class _TableInit(_DOMElementInit, total=False):
     ...
 
 class Table(DOMElement):
     def __init__(self, **kwargs: Unpack[_TableInit]) -> None: ...
+
+# class _TableRowInit(_DOMElementInit, total=False):
+#     ...
 
 class _TableRowInit(_DOMElementInit, total=False):
     ...
@@ -72,12 +94,18 @@ class _TableRowInit(_DOMElementInit, total=False):
 class TableRow(DOMElement):
     def __init__(self, **kwargs: Unpack[_TableRowInit]) -> None: ...
 
+# class _ActionInit(_ModelInit, total=False):
+#     ...
+
 class _ActionInit(_ModelInit, total=False):
     ...
 
 class Action(Model, Qualified):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ActionInit]) -> None: ...
+
+# class _TemplateInit(_DOMElementInit, total=False):
+#     actions: list[Action]
 
 class _TemplateInit(_DOMElementInit, total=False):
     actions: list[Action]
@@ -87,6 +115,9 @@ class Template(DOMElement):
 
     actions: list[Action] = ...
 
+# class _ToggleGroupInit(_ActionInit, total=False):
+#     groups: list[RendererGroup]
+
 class _ToggleGroupInit(_ActionInit, total=False):
     groups: list[RendererGroup]
 
@@ -95,12 +126,21 @@ class ToggleGroup(Action):
 
     groups: list[RendererGroup] = ...
 
+# class _PlaceholderInit(_DOMElementInit, total=False):
+#     ...
+
 class _PlaceholderInit(_DOMElementInit, total=False):
     ...
 
 class Placeholder(DOMElement):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_PlaceholderInit]) -> None: ...
+
+# class _ValueOfInit(_PlaceholderInit, total=False):
+#     obj: HasProps
+#     attr: str
+#     format: str | None
+#     formatter: BuiltinFormatter | CustomJS
 
 class _ValueOfInit(_PlaceholderInit, total=False):
     obj: HasProps
@@ -116,11 +156,20 @@ class ValueOf(Placeholder):
     format: str | None = ...
     formatter: BuiltinFormatter | CustomJS = ...
 
+# class _IndexInit(_PlaceholderInit, total=False):
+#     ...
+
 class _IndexInit(_PlaceholderInit, total=False):
     ...
 
 class Index(Placeholder):
     def __init__(self, **kwargs: Unpack[_IndexInit]) -> None: ...
+
+# class _ValueRefInit(_PlaceholderInit, total=False):
+#     field: str
+#     format: str | None
+#     formatter: BuiltinFormatter | CustomJS | CustomJSHover
+#     filter: CustomJS | list[CustomJS] | None
 
 class _ValueRefInit(_PlaceholderInit, total=False):
     field: str
@@ -136,6 +185,10 @@ class ValueRef(Placeholder):
     formatter: BuiltinFormatter | CustomJS | CustomJSHover = ...
     filter: CustomJS | list[CustomJS] | None = ...
 
+# class _ColorRefInit(_ValueRefInit, total=False):
+#     hex: bool
+#     swatch: bool
+
 class _ColorRefInit(_ValueRefInit, total=False):
     hex: bool
     swatch: bool
@@ -145,6 +198,10 @@ class ColorRef(ValueRef):
 
     hex: bool = ...
     swatch: bool = ...
+
+# class _HTMLInit(_DOMElementInit, total=False):
+#     html: str | list[str | DOMNode | UIElement]
+#     refs: list[str | DOMNode | UIElement]
 
 class _HTMLInit(_DOMElementInit, total=False):
     html: str | list[str | DOMNode | UIElement]

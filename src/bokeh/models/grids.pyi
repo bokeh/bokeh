@@ -23,6 +23,13 @@ from .axes import Axis
 from .renderers.renderer import GuideRenderer, _GuideRendererInit
 from .tickers import Ticker
 
+# class _GridInit(_GuideRendererInit, total=False):
+#     dimension: Literal[0, 1]
+#     bounds: Auto | tuple[float, float]
+#     cross_bounds: Auto | tuple[float, float]
+#     axis: Axis | None
+#     ticker: Ticker | Sequence[float] | None
+
 class _GridInit(_GuideRendererInit, total=False):
     dimension: Literal[0, 1]
     bounds: Auto | tuple[float, float]

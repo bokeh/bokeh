@@ -16,6 +16,9 @@ if TYPE_CHECKING:
 from ..model.model import Model, _ModelInit
 from .expressions import CoordinateTransform, _CoordinateTransformInit
 
+# class _LayoutProviderInit(_ModelInit, total=False):
+#     ...
+
 class _LayoutProviderInit(_ModelInit, total=False):
     ...
 
@@ -28,6 +31,9 @@ class LayoutProvider(Model):
     @property
     def edge_coordinates(self) -> EdgeCoordinates: ...
 
+# class _StaticLayoutProviderInit(_LayoutProviderInit, total=False):
+#     graph_layout: dict[int | str, Sequence[float]]
+
 class _StaticLayoutProviderInit(_LayoutProviderInit, total=False):
     graph_layout: dict[int | str, Sequence[float]]
 
@@ -35,6 +41,9 @@ class StaticLayoutProvider(LayoutProvider):
     def __init__(self, **kwargs: Unpack[_StaticLayoutProviderInit]) -> None: ...
 
     graph_layout: dict[int | str, Sequence[float]] = ...
+
+# class _GraphCoordinatesInit(_CoordinateTransformInit, total=False):
+#     layout: LayoutProvider
 
 class _GraphCoordinatesInit(_CoordinateTransformInit, total=False):
     layout: LayoutProvider
@@ -45,17 +54,26 @@ class GraphCoordinates(CoordinateTransform):
 
     layout: LayoutProvider = ...
 
+# class _NodeCoordinatesInit(_GraphCoordinatesInit, total=False):
+#     ...
+
 class _NodeCoordinatesInit(_GraphCoordinatesInit, total=False):
     ...
 
 class NodeCoordinates(GraphCoordinates):
     def __init__(self, **kwargs: Unpack[_NodeCoordinatesInit]) -> None: ...
 
+# class _EdgeCoordinatesInit(_GraphCoordinatesInit, total=False):
+#     ...
+
 class _EdgeCoordinatesInit(_GraphCoordinatesInit, total=False):
     ...
 
 class EdgeCoordinates(GraphCoordinates):
     def __init__(self, **kwargs: Unpack[_EdgeCoordinatesInit]) -> None: ...
+
+# class _GraphHitTestPolicyInit(_ModelInit, total=False):
+#     ...
 
 class _GraphHitTestPolicyInit(_ModelInit, total=False):
     ...
@@ -64,11 +82,17 @@ class GraphHitTestPolicy(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_GraphHitTestPolicyInit]) -> None: ...
 
+# class _EdgesOnlyInit(_GraphHitTestPolicyInit, total=False):
+#     ...
+
 class _EdgesOnlyInit(_GraphHitTestPolicyInit, total=False):
     ...
 
 class EdgesOnly(GraphHitTestPolicy):
     def __init__(self, **kwargs: Unpack[_EdgesOnlyInit]) -> None: ...
+
+# class _NodesOnlyInit(_GraphHitTestPolicyInit, total=False):
+#     ...
 
 class _NodesOnlyInit(_GraphHitTestPolicyInit, total=False):
     ...
@@ -76,17 +100,26 @@ class _NodesOnlyInit(_GraphHitTestPolicyInit, total=False):
 class NodesOnly(GraphHitTestPolicy):
     def __init__(self, **kwargs: Unpack[_NodesOnlyInit]) -> None: ...
 
+# class _NodesAndLinkedEdgesInit(_GraphHitTestPolicyInit, total=False):
+#     ...
+
 class _NodesAndLinkedEdgesInit(_GraphHitTestPolicyInit, total=False):
     ...
 
 class NodesAndLinkedEdges(GraphHitTestPolicy):
     def __init__(self, **kwargs: Unpack[_NodesAndLinkedEdgesInit]) -> None: ...
 
+# class _EdgesAndLinkedNodesInit(_GraphHitTestPolicyInit, total=False):
+#     ...
+
 class _EdgesAndLinkedNodesInit(_GraphHitTestPolicyInit, total=False):
     ...
 
 class EdgesAndLinkedNodes(GraphHitTestPolicy):
     def __init__(self, **kwargs: Unpack[_EdgesAndLinkedNodesInit]) -> None: ...
+
+# class _NodesAndAdjacentNodesInit(_GraphHitTestPolicyInit, total=False):
+#     ...
 
 class _NodesAndAdjacentNodesInit(_GraphHitTestPolicyInit, total=False):
     ...

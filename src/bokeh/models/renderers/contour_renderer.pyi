@@ -18,6 +18,11 @@ from ..glyph import Glyph
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer, _DataRendererInit
 
+# class _ContourRendererInit(_DataRendererInit, total=False):
+#     line_renderer: GlyphRenderer[Glyph]
+#     fill_renderer: GlyphRenderer[Glyph]
+#     levels: Sequence[float]
+
 class _ContourRendererInit(_DataRendererInit, total=False):
     line_renderer: GlyphRenderer[Glyph]
     fill_renderer: GlyphRenderer[Glyph]

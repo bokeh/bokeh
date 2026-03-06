@@ -15,6 +15,9 @@ if TYPE_CHECKING:
 from ...core.has_props import HasProps
 from .ui_element import UIElement, _UIElementInit
 
+# class _ExaminerInit(_UIElementInit, total=False):
+#     target: HasProps | None
+
 class _ExaminerInit(_UIElementInit, total=False):
     target: HasProps | None
 

@@ -15,12 +15,18 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ...model.model import Model, _ModelInit
 
+# class _GroupByInit(_ModelInit, total=False):
+#     ...
+
 class _GroupByInit(_ModelInit, total=False):
     ...
 
 class GroupBy(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_GroupByInit]) -> None: ...
+
+# class _GroupByModelsInit(_GroupByInit, total=False):
+#     groups: list[list[Model]]
 
 class _GroupByModelsInit(_GroupByInit, total=False):
     groups: list[list[Model]]
@@ -29,6 +35,9 @@ class GroupByModels(GroupBy):
     def __init__(self, **kwargs: Unpack[_GroupByModelsInit]) -> None: ...
 
     groups: list[list[Model]] = ...
+
+# class _GroupByNameInit(_GroupByInit, total=False):
+#     ...
 
 class _GroupByNameInit(_GroupByInit, total=False):
     ...

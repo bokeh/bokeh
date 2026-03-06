@@ -21,12 +21,20 @@ from ..model.model import Model, _ModelInit
 from .ranges import Range
 from .sources import ColumnarDataSource
 
+# class _TransformInit(_ModelInit, total=False):
+#     ...
+
 class _TransformInit(_ModelInit, total=False):
     ...
 
 class Transform(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TransformInit]) -> None: ...
+
+# class _CustomJSTransformInit(_TransformInit, total=False):
+#     args: dict[str, Any]
+#     func: str
+#     v_func: str
 
 class _CustomJSTransformInit(_TransformInit, total=False):
     args: dict[str, Any]
@@ -40,6 +48,10 @@ class CustomJSTransform(Transform):
     func: str = ...
     v_func: str = ...
 
+# class _DodgeInit(_TransformInit, total=False):
+#     value: float
+#     range: Range | None
+
 class _DodgeInit(_TransformInit, total=False):
     value: float
     range: Range | None
@@ -49,6 +61,12 @@ class Dodge(Transform):
 
     value: float = ...
     range: Range | None = ...
+
+# class _JitterInit(_TransformInit, total=False):
+#     mean: float
+#     width: float
+#     distribution: JitterRandomDistribution
+#     range: Range | None
 
 class _JitterInit(_TransformInit, total=False):
     mean: float
@@ -63,6 +81,12 @@ class Jitter(Transform):
     width: float = ...
     distribution: JitterRandomDistribution = ...
     range: Range | None = ...
+
+# class _InterpolatorInit(_TransformInit, total=False):
+#     x: str | Sequence[float] | None
+#     y: str | Sequence[float] | None
+#     data: ColumnarDataSource | None
+#     clip: bool
 
 class _InterpolatorInit(_TransformInit, total=False):
     x: str | Sequence[float] | None
@@ -79,11 +103,17 @@ class Interpolator(Transform):
     data: ColumnarDataSource | None = ...
     clip: bool = ...
 
+# class _LinearInterpolatorInit(_InterpolatorInit, total=False):
+#     ...
+
 class _LinearInterpolatorInit(_InterpolatorInit, total=False):
     ...
 
 class LinearInterpolator(Interpolator):
     def __init__(self, **kwargs: Unpack[_LinearInterpolatorInit]) -> None: ...
+
+# class _StepInterpolatorInit(_InterpolatorInit, total=False):
+#     mode: StepMode
 
 class _StepInterpolatorInit(_InterpolatorInit, total=False):
     mode: StepMode

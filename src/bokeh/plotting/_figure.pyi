@@ -76,6 +76,21 @@ from .glyph_api import (
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries
 
+# class _BaseFigureInit(_PlotInit, total=False):
+#     tools: str | Sequence[str | Tool]
+#     x_minor_ticks: Auto | int
+#     y_minor_ticks: Auto | int
+#     x_axis_location: VerticalLocation | None
+#     y_axis_location: HorizontalLocation | None
+#     x_axis_label: TextLike | None
+#     y_axis_label: TextLike | None
+#     active_drag: Auto | str | Drag | None
+#     active_inspect: Auto | str | InspectTool | Sequence[InspectTool | None]
+#     active_scroll: Auto | str | Scroll | None
+#     active_tap: Auto | str | Tap | None
+#     active_multi: Auto | str | GestureTool | None
+#     tooltips: Template | str | list[tuple[str, str] | None]
+
 class _BaseFigureInit(_PlotInit, total=False):
     tools: str | Sequence[str | Tool]
     x_minor_ticks: Auto | int
@@ -104,6 +119,12 @@ RangeLike: TypeAlias = (
 AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
 
 DEFAULT_TOOLS: str
+
+# class _FigureInit(_BaseFigureInit, total=False):
+#     x_range: RangeLike
+#     y_range: RangeLike
+#     x_axis_type: AxisType
+#     y_axis_type: AxisType
 
 class _FigureInit(_BaseFigureInit, total=False):
     x_range: RangeLike

@@ -17,12 +17,19 @@ from .._specs import AngleSpec, NumberSpec
 from ..core.enums import DirectionType as Direction
 from ..model.model import Model, _ModelInit
 
+# class _ExpressionInit(_ModelInit, total=False):
+#     ...
+
 class _ExpressionInit(_ModelInit, total=False):
     ...
 
 class Expression(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ExpressionInit]) -> None: ...
+
+# class _CustomJSExprInit(_ExpressionInit, total=False):
+#     args: dict[str, Any]
+#     code: str
 
 class _CustomJSExprInit(_ExpressionInit, total=False):
     args: dict[str, Any]
@@ -34,6 +41,10 @@ class CustomJSExpr(Expression):
     args: dict[str, Any] = ...
     code: str = ...
 
+# class _CumSumInit(_ExpressionInit, total=False):
+#     field: str
+#     include_zero: bool
+
 class _CumSumInit(_ExpressionInit, total=False):
     field: str
     include_zero: bool
@@ -44,6 +55,9 @@ class CumSum(Expression):
     field: str = ...
     include_zero: bool = ...
 
+# class _StackInit(_ExpressionInit, total=False):
+#     fields: Sequence[str]
+
 class _StackInit(_ExpressionInit, total=False):
     fields: Sequence[str]
 
@@ -52,12 +66,19 @@ class Stack(Expression):
 
     fields: Sequence[str] = ...
 
+# class _ScalarExpressionInit(_ModelInit, total=False):
+#     ...
+
 class _ScalarExpressionInit(_ModelInit, total=False):
     ...
 
 class ScalarExpression(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ScalarExpressionInit]) -> None: ...
+
+# class _MinimumInit(_ScalarExpressionInit, total=False):
+#     field: str
+#     initial: float | None
 
 class _MinimumInit(_ScalarExpressionInit, total=False):
     field: str
@@ -69,6 +90,10 @@ class Minimum(ScalarExpression):
     field: str = ...
     initial: float | None = ...
 
+# class _MaximumInit(_ScalarExpressionInit, total=False):
+#     field: str
+#     initial: float | None
+
 class _MaximumInit(_ScalarExpressionInit, total=False):
     field: str
     initial: float | None
@@ -78,6 +103,9 @@ class Maximum(ScalarExpression):
 
     field: str = ...
     initial: float | None = ...
+
+# class _CoordinateTransformInit(_ExpressionInit, total=False):
+#     ...
 
 class _CoordinateTransformInit(_ExpressionInit, total=False):
     ...
@@ -91,6 +119,11 @@ class CoordinateTransform(Expression):
     @property
     def y(self) -> YComponent: ...
 
+# class _PolarTransformInit(_CoordinateTransformInit, total=False):
+#     radius: NumberSpec
+#     angle: AngleSpec
+#     direction: Direction
+
 class _PolarTransformInit(_CoordinateTransformInit, total=False):
     radius: NumberSpec
     angle: AngleSpec
@@ -103,6 +136,9 @@ class PolarTransform(CoordinateTransform):
     angle: AngleSpec = ...
     direction: Direction = ...
 
+# class _XYComponentInit(_ExpressionInit, total=False):
+#     transform: CoordinateTransform
+
 class _XYComponentInit(_ExpressionInit, total=False):
     transform: CoordinateTransform
 
@@ -112,11 +148,17 @@ class XYComponent(Expression):
 
     transform: CoordinateTransform = ...
 
+# class _XComponentInit(_XYComponentInit, total=False):
+#     ...
+
 class _XComponentInit(_XYComponentInit, total=False):
     ...
 
 class XComponent(XYComponent):
     def __init__(self, **kwargs: Unpack[_XComponentInit]) -> None: ...
+
+# class _YComponentInit(_XYComponentInit, total=False):
+#     ...
 
 class _YComponentInit(_XYComponentInit, total=False):
     ...

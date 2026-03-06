@@ -57,12 +57,19 @@ class BoxNodes:
     @property
     def height(self) -> Node: ...
 
+# class _CoordinateInit(_ModelInit, total=False):
+#     ...
+
 class _CoordinateInit(_ModelInit, total=False):
     ...
 
 class Coordinate(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CoordinateInit]) -> None: ...
+
+# class _XYInit(_CoordinateInit, total=False):
+#     x: CoordinateLike
+#     y: CoordinateLike
 
 class _XYInit(_CoordinateInit, total=False):
     x: CoordinateLike
@@ -74,6 +81,10 @@ class XY(Coordinate):
     x: CoordinateLike = ...
     y: CoordinateLike = ...
 
+# class _IndexedInit(_CoordinateInit, total=False):
+#     index: int
+#     renderer: GlyphRenderer[Glyph]
+
 class _IndexedInit(_CoordinateInit, total=False):
     index: int
     renderer: GlyphRenderer[Glyph]
@@ -83,6 +94,11 @@ class Indexed(Coordinate):
 
     index: int = ...
     renderer: GlyphRenderer[Glyph] = ...
+
+# class _NodeInit(_CoordinateInit, total=False):
+#     target: Model | ImplicitTarget
+#     symbol: str
+#     offset: int
 
 class _NodeInit(_CoordinateInit, total=False):
     target: Model | ImplicitTarget

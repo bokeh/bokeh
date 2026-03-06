@@ -25,12 +25,21 @@ from ..core.enums import (
 from ..model.model import Model, _ModelInit
 from .tickers import Ticker
 
+# class _TickFormatterInit(_ModelInit, total=False):
+#     ...
+
 class _TickFormatterInit(_ModelInit, total=False):
     ...
 
 class TickFormatter(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TickFormatterInit]) -> None: ...
+
+# class _BasicTickFormatterInit(_TickFormatterInit, total=False):
+#     precision: Auto | int
+#     use_scientific: bool
+#     power_limit_high: int
+#     power_limit_low: int
 
 class _BasicTickFormatterInit(_TickFormatterInit, total=False):
     precision: Auto | int
@@ -46,6 +55,9 @@ class BasicTickFormatter(TickFormatter):
     power_limit_high: int = ...
     power_limit_low: int = ...
 
+# class _MercatorTickFormatterInit(_BasicTickFormatterInit, total=False):
+#     dimension: LatLon | None
+
 class _MercatorTickFormatterInit(_BasicTickFormatterInit, total=False):
     dimension: LatLon | None
 
@@ -53,6 +65,11 @@ class MercatorTickFormatter(BasicTickFormatter):
     def __init__(self, **kwargs: Unpack[_MercatorTickFormatterInit]) -> None: ...
 
     dimension: LatLon | None = ...
+
+# class _NumeralTickFormatterInit(_TickFormatterInit, total=False):
+#     format: str
+#     language: NumeralLanguage
+#     rounding: RoundingFunction
 
 class _NumeralTickFormatterInit(_TickFormatterInit, total=False):
     format: str
@@ -66,6 +83,9 @@ class NumeralTickFormatter(TickFormatter):
     language: NumeralLanguage = ...
     rounding: RoundingFunction = ...
 
+# class _PrintfTickFormatterInit(_TickFormatterInit, total=False):
+#     format: str
+
 class _PrintfTickFormatterInit(_TickFormatterInit, total=False):
     format: str
 
@@ -73,6 +93,10 @@ class PrintfTickFormatter(TickFormatter):
     def __init__(self, **kwargs: Unpack[_PrintfTickFormatterInit]) -> None: ...
 
     format: str = ...
+
+# class _LogTickFormatterInit(_TickFormatterInit, total=False):
+#     ticker: Ticker | None
+#     min_exponent: int
 
 class _LogTickFormatterInit(_TickFormatterInit, total=False):
     ticker: Ticker | None
@@ -84,11 +108,18 @@ class LogTickFormatter(TickFormatter):
     ticker: Ticker | None = ...
     min_exponent: int = ...
 
+# class _CategoricalTickFormatterInit(_TickFormatterInit, total=False):
+#     ...
+
 class _CategoricalTickFormatterInit(_TickFormatterInit, total=False):
     ...
 
 class CategoricalTickFormatter(TickFormatter):
     def __init__(self, **kwargs: Unpack[_CategoricalTickFormatterInit]) -> None: ...
+
+# class _CustomJSTickFormatterInit(_TickFormatterInit, total=False):
+#     args: dict[str, Any]
+#     code: str
 
 class _CustomJSTickFormatterInit(_TickFormatterInit, total=False):
     args: dict[str, Any]
@@ -99,6 +130,24 @@ class CustomJSTickFormatter(TickFormatter):
 
     args: dict[str, Any] = ...
     code: str = ...
+
+# class _DatetimeTickFormatterInit(_TickFormatterInit, total=False):
+#     microseconds: str
+#     milliseconds: str
+#     seconds: str
+#     minsec: str
+#     minutes: str
+#     hourmin: str
+#     hours: str
+#     days: str
+#     months: str
+#     years: str
+#     strip_leading_zeros: bool | Sequence[ResolutionType]
+#     boundary_scaling: bool
+#     hide_repeats: bool
+#     context: str | DatetimeTickFormatter | None
+#     context_which: ContextWhich
+#     context_location: Location
 
 class _DatetimeTickFormatterInit(_TickFormatterInit, total=False):
     microseconds: str
@@ -137,6 +186,22 @@ class DatetimeTickFormatter(TickFormatter):
     context: str | DatetimeTickFormatter | None = ...
     context_which: ContextWhich = ...
     context_location: Location = ...
+
+# class _TimedeltaTickFormatterInit(_TickFormatterInit, total=False):
+#     nanoseconds: str
+#     microseconds: str
+#     milliseconds: str
+#     seconds: str
+#     minsec: str
+#     minutes: str
+#     hourmin: str
+#     hours: str
+#     days: str
+#     strip_leading_zeros: bool | Sequence[ResolutionType]
+#     hide_repeats: bool
+#     context: str | TimedeltaTickFormatter | None
+#     context_which: ContextWhich
+#     context_location: Location
 
 class _TimedeltaTickFormatterInit(_TickFormatterInit, total=False):
     nanoseconds: str

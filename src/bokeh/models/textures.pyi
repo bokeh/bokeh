@@ -17,6 +17,9 @@ from ..core.enums import TextureRepetitionType as TextureRepetition
 from ..core.property.visual import ImageType as Image
 from ..model.model import Model, _ModelInit
 
+# class _TextureInit(_ModelInit, total=False):
+#     repetition: TextureRepetition
+
 class _TextureInit(_ModelInit, total=False):
     repetition: TextureRepetition
 
@@ -26,6 +29,9 @@ class Texture(Model):
 
     repetition: TextureRepetition = ...
 
+# class _CanvasTextureInit(_TextureInit, total=False):
+#     code: str
+
 class _CanvasTextureInit(_TextureInit, total=False):
     code: str
 
@@ -33,6 +39,9 @@ class CanvasTexture(Texture):
     def __init__(self, **kwargs: Unpack[_CanvasTextureInit]) -> None: ...
 
     code: str = ...
+
+# class _ImageURLTextureInit(_TextureInit, total=False):
+#     url: Image
 
 class _ImageURLTextureInit(_TextureInit, total=False):
     url: Image

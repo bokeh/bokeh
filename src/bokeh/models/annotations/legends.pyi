@@ -76,6 +76,26 @@ from ..tickers import Ticker
 from .annotation import Annotation, _AnnotationInit
 from .dimensional import Dimensional
 
+# class _BaseColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,
+#         _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
+#     location: HVAlign | tuple[float, float]
+#     orientation: Orientation | Auto
+#     height: Auto | int
+#     width: Auto | int
+#     title: TextLike | None
+#     title_standoff: int
+#     ticker: Ticker | Auto
+#     formatter: TickFormatter | Auto
+#     major_label_overrides: dict[float | str, TextLike]
+#     major_label_policy: LabelingPolicy
+#     margin: int
+#     padding: int
+#     label_standoff: int
+#     major_tick_in: int
+#     major_tick_out: int
+#     minor_tick_in: int
+#     minor_tick_out: int
+
 class _BaseColorBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,
         _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
     location: HVAlign | tuple[float, float]
@@ -119,6 +139,12 @@ class BaseColorBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, 
     minor_tick_in: int = ...
     minor_tick_out: int = ...
 
+# class _ColorBarInit(_BaseColorBarInit, total=False):
+#     color_mapper: ColorMapper
+#     display_low: float | None
+#     display_high: float | None
+#     scale_alpha: float
+
 class _ColorBarInit(_BaseColorBarInit, total=False):
     color_mapper: ColorMapper
     display_low: float | None
@@ -133,6 +159,11 @@ class ColorBar(BaseColorBar):
     display_high: float | None = ...
     scale_alpha: float = ...
 
+# class _ContourColorBarInit(_BaseColorBarInit, total=False):
+#     fill_renderer: GlyphRenderer[Glyph]
+#     line_renderer: GlyphRenderer[Glyph]
+#     levels: Sequence[float]
+
 class _ContourColorBarInit(_BaseColorBarInit, total=False):
     fill_renderer: GlyphRenderer[Glyph]
     line_renderer: GlyphRenderer[Glyph]
@@ -144,6 +175,12 @@ class ContourColorBar(BaseColorBar):
     fill_renderer: GlyphRenderer[Glyph] = ...
     line_renderer: GlyphRenderer[Glyph] = ...
     levels: Sequence[float] = ...
+
+# class _LegendItemInit(_ModelInit, total=False):
+#     label: NullStringSpec
+#     renderers: list[GlyphRenderer[Glyph]]
+#     index: int | None
+#     visible: bool
 
 class _LegendItemInit(_ModelInit, total=False):
     label: NullStringSpec
@@ -158,6 +195,28 @@ class LegendItem(Model):
     renderers: list[GlyphRenderer[Glyph]] = ...
     index: int | None = ...
     visible: bool = ...
+
+# class _LegendInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit,
+#         _ScalarItemBackgroundFillPropsInit, _ScalarInactiveFillPropsInit, _ScalarLabelTextPropsInit, total=False):
+#     location: LegendLocation | tuple[float, float]
+#     orientation: Orientation
+#     ncols: int | Auto
+#     nrows: int | Auto
+#     title: str | None
+#     title_location: Location
+#     title_standoff: int
+#     click_policy: LegendClickPolicy
+#     item_background_policy: AlternationPolicy
+#     label_standoff: int
+#     label_height: Auto | int
+#     label_width: int
+#     glyph_height: int
+#     glyph_width: int
+#     margin: int
+#     padding: Padding
+#     border_radius: BorderRadius
+#     spacing: int
+#     items: list[LegendItem] | list[tuple[str, list[GlyphRenderer[Glyph]]]]
 
 class _LegendInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit,
         _ScalarItemBackgroundFillPropsInit, _ScalarInactiveFillPropsInit, _ScalarLabelTextPropsInit, total=False):
@@ -219,6 +278,31 @@ Y: TypeAlias = VAlign | float | CoordinateLike
 Position: TypeAlias = HVAlign | tuple[X, Y]
 PositionUnits: TypeAlias = Literal["data", "screen", "view", "percent"]
 
+# class _ScaleBarInit(_AnnotationInit, _ScalarBarLinePropsInit, _ScalarLabelTextPropsInit, _ScalarTitleTextPropsInit,
+#         _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, total=False):
+#     range: Range | Auto
+#     unit: str
+#     dimensional: Dimensional
+#     orientation: Orientation
+#     location: Position
+#     x_units: PositionUnits
+#     y_units: PositionUnits
+#     anchor: AutoAnchor
+#     length_sizing: Literal["adaptive", "exact"]
+#     bar_length: float | int
+#     bar_length_units: Literal["screen", "data", "percent"]
+#     margin: int
+#     padding: int
+#     label: str
+#     label_align: Align
+#     label_location: Location
+#     label_standoff: int
+#     title: str
+#     title_align: Align
+#     title_location: Location
+#     title_standoff: int
+#     ticker: Ticker
+
 class _ScaleBarInit(_AnnotationInit, _ScalarBarLinePropsInit, _ScalarLabelTextPropsInit, _ScalarTitleTextPropsInit,
         _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, total=False):
     range: Range | Auto
@@ -271,6 +355,26 @@ class ScaleBar(Annotation, ScalarBarLineProps, ScalarLabelTextProps, ScalarTitle
     title_standoff: int = ...
     ticker: Ticker = ...
 
+# class _BaseBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,
+#         _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
+#     location: HVAlign | tuple[float, float]
+#     orientation: Orientation | Auto
+#     height: Literal["max"] | int
+#     width: Literal["max"] | int
+#     margin: int
+#     padding: int
+#     title: TextLike | None
+#     title_standoff: int
+#     ticker: Ticker | Auto
+#     formatter: TickFormatter | Auto
+#     major_label_overrides: dict[float | str, TextLike]
+#     major_label_policy: LabelingPolicy
+#     label_standoff: int
+#     major_tick_in: int
+#     major_tick_out: int
+#     minor_tick_in: int
+#     minor_tick_out: int
+
 class _BaseBarInit(_AnnotationInit, _ScalarTitleTextPropsInit, _ScalarMajorLabelTextPropsInit, _ScalarMajorTickLinePropsInit,
         _ScalarMinorTickLinePropsInit, _ScalarBarLinePropsInit, _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, total=False):
     location: HVAlign | tuple[float, float]
@@ -313,6 +417,10 @@ class BaseBar(Annotation, ScalarTitleTextProps, ScalarMajorLabelTextProps, Scala
     major_tick_out: int = ...
     minor_tick_in: int = ...
     minor_tick_out: int = ...
+
+# class _SizeBarInit(_BaseBarInit, _GlyphLinePropsInit, _GlyphFillPropsInit, _GlyphHatchPropsInit, total=False):
+#     renderer: GlyphRenderer[RadialGlyph] | Auto
+#     bounds: tuple[float, float] | Auto
 
 class _SizeBarInit(_BaseBarInit, _GlyphLinePropsInit, _GlyphFillPropsInit, _GlyphHatchPropsInit, total=False):
     renderer: GlyphRenderer[RadialGlyph] | Auto

@@ -15,12 +15,18 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..annotation import Annotation, _AnnotationInit
 
+# class _HTMLAnnotationInit(_AnnotationInit, total=False):
+#     ...
+
 class _HTMLAnnotationInit(_AnnotationInit, total=False):
     ...
 
 class HTMLAnnotation(Annotation):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_HTMLAnnotationInit]) -> None: ...
+
+# class _HTMLDataAnnotationInit(_HTMLAnnotationInit, total=False):
+#     ...
 
 class _HTMLDataAnnotationInit(_HTMLAnnotationInit, total=False):
     ...

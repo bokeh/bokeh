@@ -48,6 +48,10 @@ from .html_annotation import (
     _HTMLDataAnnotationInit,
 )
 
+# class _HTMLTextAnnotationInit(_HTMLAnnotationInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
+#     padding: Padding
+#     border_radius: BorderRadius
+
 class _HTMLTextAnnotationInit(_HTMLAnnotationInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
     padding: Padding
     border_radius: BorderRadius
@@ -57,6 +61,17 @@ class HTMLTextAnnotation(HTMLAnnotation, ScalarBackgroundFillProps, ScalarBackgr
 
     padding: Padding = ...
     border_radius: BorderRadius = ...
+
+# class _HTMLLabelInit(_HTMLTextAnnotationInit, _ScalarTextPropsInit, total=False):
+#     x: CoordinateLike
+#     x_units: CoordinateUnits
+#     y: CoordinateLike
+#     y_units: CoordinateUnits
+#     text: str
+#     angle: Angle
+#     angle_units: AngleUnits
+#     x_offset: float
+#     y_offset: float
 
 class _HTMLLabelInit(_HTMLTextAnnotationInit, _ScalarTextPropsInit, total=False):
     x: CoordinateLike
@@ -82,6 +97,16 @@ class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
     x_offset: float = ...
     y_offset: float = ...
 
+# class _HTMLLabelSetInit(_HTMLDataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
+#     x: NumberSpec
+#     x_units: CoordinateUnits
+#     y: NumberSpec
+#     y_units: CoordinateUnits
+#     text: NullStringSpec
+#     angle: AngleSpec
+#     x_offset: NumberSpec
+#     y_offset: NumberSpec
+
 class _HTMLLabelSetInit(_HTMLDataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     x_units: CoordinateUnits
@@ -103,6 +128,21 @@ class HTMLLabelSet(HTMLDataAnnotation, BackgroundFillProps, BorderLineProps):
     angle: AngleSpec = ...
     x_offset: NumberSpec = ...
     y_offset: NumberSpec = ...
+
+# class _HTMLTitleInit(_HTMLTextAnnotationInit, total=False):
+#     text: str
+#     vertical_align: VerticalAlign
+#     align: TextAlign
+#     text_line_height: float
+#     offset: float
+#     standoff: float
+#     text_font: str
+#     text_font_size: str
+#     text_font_style: FontStyle
+#     text_color: Color
+#     text_outline_color: Color | None
+#     text_outline_width: float
+#     text_alpha: Alpha
 
 class _HTMLTitleInit(_HTMLTextAnnotationInit, total=False):
     text: str

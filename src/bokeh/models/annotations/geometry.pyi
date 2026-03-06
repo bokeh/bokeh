@@ -60,6 +60,10 @@ from .annotation import (
 )
 from .arrows import ArrowHead
 
+# class _AreaVisualsInit(_ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
+#         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
+#     ...
+
 class _AreaVisualsInit(_ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
     ...
@@ -67,6 +71,21 @@ class _AreaVisualsInit(_ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchP
 class AreaVisuals(ScalarLineProps, ScalarFillProps, ScalarHatchProps,
         ScalarHoverLineProps, ScalarHoverFillProps, ScalarHoverHatchProps):
     def __init__(self, **kwargs: Unpack[_AreaVisualsInit]) -> None: ...
+
+# class _BoxInteractionHandlesInit(_ModelInit, total=False):
+#     all: AreaVisuals
+#     move: AreaVisuals | None
+#     resize: AreaVisuals | None
+#     sides: AreaVisuals | None
+#     corners: AreaVisuals | None
+#     left: AreaVisuals | None
+#     right: AreaVisuals | None
+#     top: AreaVisuals | None
+#     bottom: AreaVisuals | None
+#     top_left: AreaVisuals | None
+#     top_right: AreaVisuals | None
+#     bottom_left: AreaVisuals | None
+#     bottom_right: AreaVisuals | None
 
 class _BoxInteractionHandlesInit(_ModelInit, total=False):
     all: AreaVisuals
@@ -99,6 +118,32 @@ class BoxInteractionHandles(Model):
     top_right: AreaVisuals | None = ...
     bottom_left: AreaVisuals | None = ...
     bottom_right: AreaVisuals | None = ...
+
+# class _BoxAnnotationInit(_AnnotationInit, total=False): #_AreaVisualsInit,
+#     left: Coordinate | None
+#     right: Coordinate | None
+#     top: Coordinate | None
+#     bottom: Coordinate | None
+#     left_units: CoordinateUnits
+#     right_units: CoordinateUnits
+#     top_units: CoordinateUnits
+#     bottom_units: CoordinateUnits
+#     left_limit: Coordinate | None
+#     right_limit: Coordinate | None
+#     top_limit: Coordinate | None
+#     bottom_limit: Coordinate | None
+#     min_width: NonNegative[float]
+#     min_height: NonNegative[float]
+#     max_width: Positive[float]
+#     max_height: Positive[float]
+#     border_radius: BorderRadius
+#     editable: bool
+#     resizable: Resizable
+#     movable: Movable
+#     symmetric: bool
+#     use_handles: bool
+#     handles: BoxInteractionHandles | AreaVisuals
+#     inverted: bool
 
 class _BoxAnnotationInit(_AnnotationInit, total=False): #_AreaVisualsInit,
     left: Coordinate | None
@@ -178,6 +223,12 @@ class BoxAnnotation(Annotation, AreaVisuals):
     @property
     def nodes(self) -> BoxNodes: ...
 
+# class _BandInit(_DataAnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
+#     lower: CoordinateSpec
+#     upper: CoordinateSpec
+#     base: CoordinateSpec
+#     dimension: Dimension
+
 class _BandInit(_DataAnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     lower: CoordinateSpec
     upper: CoordinateSpec
@@ -191,6 +242,14 @@ class Band(DataAnnotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
     upper: CoordinateSpec = ...
     base: CoordinateSpec = ...
     dimension: Dimension = ...
+
+# class _PolyAnnotationInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
+#         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
+#     xs: Sequence[CoordinateLike]
+#     xs_units: CoordinateUnits
+#     ys: Sequence[CoordinateLike]
+#     ys_units: CoordinateUnits
+#     editable: bool
 
 class _PolyAnnotationInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
@@ -210,6 +269,11 @@ class PolyAnnotation(Annotation, ScalarLineProps, ScalarFillProps, ScalarHatchPr
     ys_units: CoordinateUnits = ...
     editable: bool = ...
 
+# class _SlopeInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarAboveFillPropsInit,
+#         _ScalarAboveHatchPropsInit, _ScalarBelowFillPropsInit, _ScalarBelowHatchPropsInit, total=False):
+#     gradient: float | None
+#     y_intercept: float | None
+
 class _SlopeInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarAboveFillPropsInit,
         _ScalarAboveHatchPropsInit, _ScalarBelowFillPropsInit, _ScalarBelowHatchPropsInit, total=False):
     gradient: float | None
@@ -220,6 +284,12 @@ class Slope(Annotation, ScalarLineProps, ScalarAboveFillProps, ScalarAboveHatchP
 
     gradient: float | None = ...
     y_intercept: float | None = ...
+
+# class _SpanInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarHoverLinePropsInit, total=False):
+#     location: CoordinateLike | None
+#     location_units: CoordinateUnits
+#     dimension: Dimension
+#     editable: bool
 
 class _SpanInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarHoverLinePropsInit, total=False):
     location: CoordinateLike | None
@@ -234,6 +304,14 @@ class Span(Annotation, ScalarLineProps, ScalarHoverLineProps):
     location_units: CoordinateUnits = ...
     dimension: Dimension = ...
     editable: bool = ...
+
+# class _WhiskerInit(_DataAnnotationInit, _LinePropsInit, total=False):
+#     lower: CoordinateSpec
+#     lower_head: ArrowHead | None
+#     upper: CoordinateSpec
+#     upper_head: ArrowHead | None
+#     base: CoordinateSpec
+#     dimension: Dimension
 
 class _WhiskerInit(_DataAnnotationInit, _LinePropsInit, total=False):
     lower: CoordinateSpec

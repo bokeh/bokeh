@@ -20,6 +20,9 @@ from ..dom import DOMNode
 from ..ui.menus import Menu
 from ..ui.ui_element import StyledElement, UIElement, _StyledElementInit
 
+# class _RendererGroupInit(_ModelInit, total=False):
+#     visible: bool
+
 class _RendererGroupInit(_ModelInit, total=False):
     visible: bool
 
@@ -27,6 +30,16 @@ class RendererGroup(Model):
     def __init__(self, **kwargs: Unpack[_RendererGroupInit]) -> None: ...
 
     visible: bool = ...
+
+# class _RendererInit(_StyledElementInit, total=False):
+#     level: RenderLevel
+#     visible: bool
+#     coordinates: CoordinateMapping | None
+#     x_range_name: str
+#     y_range_name: str
+#     group: RendererGroup | None
+#     propagate_hover: bool
+#     context_menu: Menu | None
 
 class _RendererInit(_StyledElementInit, total=False):
     level: RenderLevel
@@ -51,6 +64,10 @@ class Renderer(StyledElement):
     propagate_hover: bool = ...
     context_menu: Menu | None = ...
 
+# class _CompositeRendererInit(_RendererInit, total=False):
+#     renderers: list[Renderer]
+#     elements: list[UIElement | DOMNode]
+
 class _CompositeRendererInit(_RendererInit, total=False):
     renderers: list[Renderer]
     elements: list[UIElement | DOMNode]
@@ -62,12 +79,18 @@ class CompositeRenderer(Renderer):
     renderers: list[Renderer] = ...
     elements: list[UIElement | DOMNode] = ...
 
+# class _DataRendererInit(_RendererInit, total=False):
+#     ...
+
 class _DataRendererInit(_RendererInit, total=False):
     ...
 
 class DataRenderer(Renderer):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataRendererInit]) -> None: ...
+
+# class _GuideRendererInit(_RendererInit, total=False):
+#     ...
 
 class _GuideRendererInit(_RendererInit, total=False):
     ...

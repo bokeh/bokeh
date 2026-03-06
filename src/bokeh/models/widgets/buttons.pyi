@@ -22,6 +22,9 @@ from ..ui.icons import Icon
 from ..ui.tooltips import Tooltip
 from .widget import Widget, _WidgetInit
 
+# class _ButtonLikeInit(TypedDict, total=False):
+#     button_type: ButtonType
+
 class _ButtonLikeInit(TypedDict, total=False):
     button_type: ButtonType
 
@@ -30,6 +33,10 @@ class ButtonLike(HasProps):
     def __init__(self, **kwargs: Unpack[_ButtonLikeInit]) -> None: ...
 
     button_type: ButtonType = ...
+
+# class _AbstractButtonInit(_WidgetInit, _ButtonLikeInit, total=False):
+#     label: DOMNode | str
+#     icon: Icon | None
 
 class _AbstractButtonInit(_WidgetInit, _ButtonLikeInit, total=False):
     label: DOMNode | str
@@ -42,6 +49,9 @@ class AbstractButton(Widget, ButtonLike):
     label: DOMNode | str = ...
     icon: Icon | None = ...
 
+# class _ButtonInit(_AbstractButtonInit, total=False):
+#     ...
+
 class _ButtonInit(_AbstractButtonInit, total=False):
     ...
 
@@ -50,6 +60,9 @@ class Button(AbstractButton):
 
     def on_click(self, handler: EventCallback) -> None: ...
     def js_on_click(self, handler: Callback) -> None: ...
+
+# class _ToggleInit(_AbstractButtonInit, total=False):
+#     active: bool
 
 class _ToggleInit(_AbstractButtonInit, total=False):
     active: bool
@@ -61,6 +74,10 @@ class Toggle(AbstractButton):
 
     def on_click(self, handler: Callable[[bool], None]) -> None: ...
     def js_on_click(self, handler: Callback) -> None: ...
+
+# class _DropdownInit(_AbstractButtonInit, total=False):
+#     split: bool
+#     menu: list[str | tuple[str, str | Callback] | None]
 
 class _DropdownInit(_AbstractButtonInit, total=False):
     split: bool
@@ -74,6 +91,9 @@ class Dropdown(AbstractButton):
 
     def on_click(self, handler: EventCallback) -> None: ...
     def js_on_click(self, handler: Callback) -> None: ...
+
+# class _HelpButtonInit(_AbstractButtonInit, total=False):
+#     tooltip: Tooltip
 
 class _HelpButtonInit(_AbstractButtonInit, total=False):
     tooltip: Tooltip

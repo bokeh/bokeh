@@ -18,6 +18,11 @@ from ..core.enums import MapTypeType as MapType
 from ..model.model import Model, _ModelInit
 from .plots import Plot, _PlotInit
 
+# class _MapOptionsInit(_ModelInit, total=False):
+#     lat: float
+#     lng: float
+#     zoom: int
+
 class _MapOptionsInit(_ModelInit, total=False):
     lat: float
     lng: float
@@ -31,12 +36,21 @@ class MapOptions(Model):
     lng: float = ...
     zoom: int = ...
 
+# class _MapPlotInit(_PlotInit, total=False):
+#     ...
+
 class _MapPlotInit(_PlotInit, total=False):
     ...
 
 class MapPlot(Plot):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MapPlotInit]) -> None: ...
+
+# class _GMapOptionsInit(_MapOptionsInit, total=False):
+#     map_type: MapType
+#     scale_control: bool
+#     styles: JSON | None
+#     tilt: int
 
 class _GMapOptionsInit(_MapOptionsInit, total=False):
     map_type: MapType
@@ -51,6 +65,11 @@ class GMapOptions(MapOptions):
     scale_control: bool = ...
     styles: JSON | None = ...
     tilt: int = ...
+
+# class _GMapPlotInit(_MapPlotInit, total=False):
+#     map_options: GMapOptions
+#     api_key: Bytes | str
+#     api_version: str
 
 class _GMapPlotInit(_MapPlotInit, total=False):
     map_options: GMapOptions

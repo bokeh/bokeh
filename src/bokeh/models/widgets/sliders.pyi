@@ -18,6 +18,14 @@ from ..._types import Color, Datetime
 from ..formatters import TickFormatter
 from .widget import Widget, _WidgetInit
 
+# class _AbstractSliderInit(_WidgetInit, total=False):
+#     orientation: Literal["horizontal", "vertical"]
+#     title: str | None
+#     show_value: bool
+#     direction: Literal["ltr", "rtl"]
+#     tooltips: bool
+#     bar_color: Color
+
 class _AbstractSliderInit(_WidgetInit, total=False):
     orientation: Literal["horizontal", "vertical"]
     title: str | None
@@ -37,6 +45,9 @@ class AbstractSlider(Widget):
     tooltips: bool = ...
     bar_color: Color = ...
 
+# class _NumericalSliderInit(_AbstractSliderInit, total=False):
+#     format: str | TickFormatter
+
 class _NumericalSliderInit(_AbstractSliderInit, total=False):
     format: str | TickFormatter
 
@@ -45,6 +56,10 @@ class NumericalSlider(AbstractSlider):
     def __init__(self, **kwargs: Unpack[_NumericalSliderInit]) -> None: ...
 
     format: str | TickFormatter = ...
+
+# class _CategoricalSliderInit(_AbstractSliderInit, total=False):
+#     categories: Sequence[str]
+#     value: str
 
 class _CategoricalSliderInit(_AbstractSliderInit, total=False):
     categories: Sequence[str]
@@ -58,6 +73,12 @@ class CategoricalSlider(AbstractSlider):
 
     @property
     def value_throttled(self) -> str: ...
+
+# class _SliderInit(_NumericalSliderInit, total=False):
+#     start: float
+#     end: float
+#     value: float
+#     step: float
 
 class _SliderInit(_NumericalSliderInit, total=False):
     start: float
@@ -76,6 +97,12 @@ class Slider(NumericalSlider):
     @property
     def value_throttled(self) -> float: ...
 
+# class _RangeSliderInit(_NumericalSliderInit, total=False):
+#     value: tuple[float, float]
+#     start: float
+#     end: float
+#     step: float
+
 class _RangeSliderInit(_NumericalSliderInit, total=False):
     value: tuple[float, float]
     start: float
@@ -92,6 +119,12 @@ class RangeSlider(NumericalSlider):
 
     @property
     def value_throttled(self) -> tuple[float, float]: ...
+
+# class _DateSliderInit(_NumericalSliderInit, total=False):
+#     value: Datetime
+#     start: Datetime
+#     end: Datetime
+#     step: int
 
 class _DateSliderInit(_NumericalSliderInit, total=False):
     value: Datetime
@@ -114,6 +147,12 @@ class DateSlider(NumericalSlider):
     @property
     def value_as_date(self) -> date | None: ...
 
+# class _DateRangeSliderInit(_NumericalSliderInit, total=False):
+#     value: tuple[Datetime, Datetime]
+#     start: Datetime
+#     end: Datetime
+#     step: int
+
 class _DateRangeSliderInit(_NumericalSliderInit, total=False):
     value: tuple[Datetime, Datetime]
     start: Datetime
@@ -134,6 +173,12 @@ class DateRangeSlider(NumericalSlider):
     def value_as_datetime(self) -> tuple[datetime, datetime] | None: ...
     @property
     def value_as_date(self) -> tuple[date, date] | None: ...
+
+# class _DatetimeRangeSliderInit(_NumericalSliderInit, total=False):
+#     value: tuple[Datetime, Datetime]
+#     start: Datetime
+#     end: Datetime
+#     step: int
 
 class _DatetimeRangeSliderInit(_NumericalSliderInit, total=False):
     value: tuple[Datetime, Datetime]

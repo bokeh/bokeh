@@ -68,6 +68,12 @@ class Modifiers(TypedDict):
     ctrl: NotRequired[bool]
     alt: NotRequired[bool]
 
+# class _ToolInit(_ModelInit, total=False):
+#     icon: IconLike | None
+#     description: str | None
+#     visible: bool
+#     group: str | bool
+
 class _ToolInit(_ModelInit, total=False):
     icon: IconLike | None
     description: str | None
@@ -90,6 +96,11 @@ class Tool(Model):
     @classmethod
     def register_alias(cls, name: str, constructor: Callable[[], Tool]) -> None: ...
 
+# class _ToolProxyInit(_ModelInit, total=False):
+#     tools: list[Tool]
+#     active: bool
+#     disabled: bool
+
 class _ToolProxyInit(_ModelInit, total=False):
     tools: list[Tool]
     active: bool
@@ -102,12 +113,18 @@ class ToolProxy(Model):
     active: bool = ...
     disabled: bool = ...
 
+# class _ActionToolInit(_ToolInit, total=False):
+#     ...
+
 class _ActionToolInit(_ToolInit, total=False):
     ...
 
 class ActionTool(Tool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ActionToolInit]) -> None: ...
+
+# class _PlotActionToolInit(_ActionToolInit, total=False):
+#     ...
 
 class _PlotActionToolInit(_ActionToolInit, total=False):
     ...
@@ -116,12 +133,18 @@ class PlotActionTool(ActionTool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_PlotActionToolInit]) -> None: ...
 
+# class _GestureToolInit(_ToolInit, total=False):
+#     ...
+
 class _GestureToolInit(_ToolInit, total=False):
     ...
 
 class GestureTool(Tool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_GestureToolInit]) -> None: ...
+
+# class _DragInit(_GestureToolInit, total=False):
+#     ...
 
 class _DragInit(_GestureToolInit, total=False):
     ...
@@ -130,6 +153,9 @@ class Drag(GestureTool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DragInit]) -> None: ...
 
+# class _ScrollInit(_GestureToolInit, total=False):
+#     ...
+
 class _ScrollInit(_GestureToolInit, total=False):
     ...
 
@@ -137,12 +163,18 @@ class Scroll(GestureTool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ScrollInit]) -> None: ...
 
+# class _TapInit(_GestureToolInit, total=False):
+#     ...
+
 class _TapInit(_GestureToolInit, total=False):
     ...
 
 class Tap(GestureTool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TapInit]) -> None: ...
+
+# class _SelectToolInit(_GestureToolInit, total=False):
+#     renderers: Auto | list[DataRenderer]
 
 class _SelectToolInit(_GestureToolInit, total=False):
     renderers: Auto | list[DataRenderer]
@@ -152,6 +184,13 @@ class SelectTool(GestureTool):
     def __init__(self, **kwargs: Unpack[_SelectToolInit]) -> None: ...
 
     renderers: Auto | list[DataRenderer] = ...
+
+# class _RegionSelectToolInit(_SelectToolInit, total=False):
+#     mode: RegionSelectionMode
+#     continuous: bool
+#     select_every_mousemove: bool
+#     persistent: bool
+#     greedy: bool
 
 class _RegionSelectToolInit(_SelectToolInit, total=False):
     mode: RegionSelectionMode
@@ -170,6 +209,9 @@ class RegionSelectTool(SelectTool):
     persistent: bool = ...
     greedy: bool = ...
 
+# class _InspectToolInit(_GestureToolInit, total=False):
+#     toggleable: bool
+
 class _InspectToolInit(_GestureToolInit, total=False):
     toggleable: bool
 
@@ -178,6 +220,18 @@ class InspectTool(GestureTool):
     def __init__(self, **kwargs: Unpack[_InspectToolInit]) -> None: ...
 
     toggleable: bool = ...
+
+# class _ToolbarInit(_UIElementInit, total=False):
+#     tools: list[Tool | ToolProxy]
+#     logo: Literal["normal", "grey"] | None
+#     autohide: bool
+#     group: bool
+#     group_types: list[ToolName]
+#     active_drag: Auto | Drag | ToolProxy | None
+#     active_inspect: Auto | InspectTool | ToolProxy | Sequence[InspectTool] | None
+#     active_scroll: Auto | Scroll | ToolProxy | None
+#     active_tap: Auto | Tap | ToolProxy | None
+#     active_multi: Auto | GestureTool | ToolProxy | None
 
 class _ToolbarInit(_UIElementInit, total=False):
     tools: list[Tool | ToolProxy]
@@ -205,6 +259,9 @@ class Toolbar(UIElement):
     active_tap: Auto | Tap | ToolProxy | None = ...
     active_multi: Auto | GestureTool | ToolProxy | None = ...
 
+# class _ToolMenuInit(_MenuInit, total=False):
+#     toolbar: Toolbar
+
 class _ToolMenuInit(_MenuInit, total=False):
     toolbar: Toolbar
 
@@ -213,6 +270,9 @@ class ToolMenu(Menu):
 
     toolbar: Toolbar = ...
 
+# class _PanToolInit(_DragInit, total=False):
+#     dimensions: Dimensions
+
 class _PanToolInit(_DragInit, total=False):
     dimensions: Dimensions
 
@@ -220,6 +280,10 @@ class PanTool(Drag):
     def __init__(self, **kwargs: Unpack[_PanToolInit]) -> None: ...
 
     dimensions: Dimensions = ...
+
+# class _ClickPanToolInit(_PlotActionToolInit, total=False):
+#     direction: PanDirection
+#     factor: Percent
 
 class _ClickPanToolInit(_PlotActionToolInit, total=False):
     direction: PanDirection
@@ -230,6 +294,14 @@ class ClickPanTool(PlotActionTool):
 
     direction: PanDirection = ...
     factor: Percent = ...
+
+# class _RangeToolInit(_ToolInit, total=False):
+#     x_range: Range | None
+#     y_range: Range | None
+#     x_interaction: bool
+#     y_interaction: bool
+#     overlay: BoxAnnotation
+#     start_gesture: Literal["pan", "tap", "none"]
 
 class _RangeToolInit(_ToolInit, total=False):
     x_range: Range | None
@@ -249,6 +321,10 @@ class RangeTool(Tool):
     overlay: BoxAnnotation = ...
     start_gesture: Literal["pan", "tap", "none"] = ...
 
+# class _WheelPanToolInit(_ScrollInit, total=False):
+#     dimension: Dimension
+#     modifiers: Modifiers | str
+
 class _WheelPanToolInit(_ScrollInit, total=False):
     dimension: Dimension
     modifiers: Modifiers | str
@@ -262,6 +338,19 @@ class WheelPanTool(Scroll):
     def modifiers(self) -> Modifiers: ...
     @modifiers.setter
     def modifiers(self, modifiers: Modifiers | str) -> None: ...
+
+# class _WheelZoomToolInit(_ScrollInit, total=False):
+#     dimensions: Dimensions
+#     renderers: Auto | list[DataRenderer]
+#     level: NonNegative[int]
+#     hit_test: bool
+#     hit_test_mode: Literal["point", "hline", "vline"]
+#     hit_test_behavior: GroupBy | Literal["only_hit", "group_by_name"] | list[list[DataRenderer]]
+#     maintain_focus: bool
+#     zoom_on_axis: bool
+#     zoom_together: Literal["none", "cross", "all"]
+#     speed: float
+#     modifiers: Modifiers | str
 
 class _WheelZoomToolInit(_ScrollInit, total=False):
     dimensions: Dimensions
@@ -300,6 +389,12 @@ class WheelZoomTool(Scroll):
     @modifiers.setter
     def modifiers(self, modifiers: Modifiers | str) -> None: ...
 
+# class _CustomActionInit(_ActionToolInit, total=False):
+#     active: bool
+#     disabled: bool
+#     callback: Callback | None
+#     active_callback: Callback | Auto | None
+
 class _CustomActionInit(_ActionToolInit, total=False):
     active: bool
     disabled: bool
@@ -314,6 +409,9 @@ class CustomAction(ActionTool):
     callback: Callback | None = ...
     active_callback: Callback | Auto | None = ...
 
+# class _SaveToolInit(_ActionToolInit, total=False):
+#     filename: str | None
+
 class _SaveToolInit(_ActionToolInit, total=False):
     filename: str | None
 
@@ -322,17 +420,30 @@ class SaveTool(ActionTool):
 
     filename: str | None = ...
 
+# class _CopyToolInit(_ActionToolInit, total=False):
+#     ...
+
 class _CopyToolInit(_ActionToolInit, total=False):
     ...
 
 class CopyTool(ActionTool):
     def __init__(self, **kwargs: Unpack[_CopyToolInit]) -> None: ...
 
+# class _ResetToolInit(_PlotActionToolInit, total=False):
+#     ...
+
 class _ResetToolInit(_PlotActionToolInit, total=False):
     ...
 
 class ResetTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_ResetToolInit]) -> None: ...
+
+# class _TapToolInit(_SelectToolInit, total=False):
+#     mode: SelectionMode
+#     behavior: Literal["select", "inspect"]
+#     gesture: Literal["tap", "doubletap"]
+#     modifiers: Modifiers | str
+#     callback: Callback | None
 
 class _TapToolInit(_SelectToolInit, total=False):
     mode: SelectionMode
@@ -350,6 +461,13 @@ class TapTool(Tap, SelectTool):
     modifiers: Modifiers | str = ...
     callback: Callback | None = ...
 
+# class _CrosshairToolInit(_InspectToolInit, total=False):
+#     overlay: Auto | Span | tuple[Span, Span]
+#     dimensions: Dimensions
+#     line_color: Color
+#     line_alpha: Alpha
+#     line_width: float
+
 class _CrosshairToolInit(_InspectToolInit, total=False):
     overlay: Auto | Span | tuple[Span, Span]
     dimensions: Dimensions
@@ -366,6 +484,12 @@ class CrosshairTool(InspectTool):
     line_alpha: Alpha = ...
     line_width: float = ...
 
+# class _BoxZoomToolInit(_DragInit, total=False):
+#     dimensions: Dimensions | Auto
+#     overlay: BoxAnnotation
+#     match_aspect: bool
+#     origin: Literal["corner", "center"]
+
 class _BoxZoomToolInit(_DragInit, total=False):
     dimensions: Dimensions | Auto
     overlay: BoxAnnotation
@@ -379,6 +503,12 @@ class BoxZoomTool(Drag):
     overlay: BoxAnnotation = ...
     match_aspect: bool = ...
     origin: Literal["corner", "center"] = ...
+
+# class _ZoomBaseToolInit(_PlotActionToolInit, total=False):
+#     renderers: Auto | list[DataRenderer]
+#     dimensions: Dimensions
+#     factor: Percent
+#     level: NonNegative[int]
 
 class _ZoomBaseToolInit(_PlotActionToolInit, total=False):
     renderers: Auto | list[DataRenderer]
@@ -395,11 +525,17 @@ class ZoomBaseTool(PlotActionTool):
     factor: Percent = ...
     level: NonNegative[int] = ...
 
+# class _ZoomInToolInit(_ZoomBaseToolInit, total=False):
+#     ...
+
 class _ZoomInToolInit(_ZoomBaseToolInit, total=False):
     ...
 
 class ZoomInTool(ZoomBaseTool):
     def __init__(self, **kwargs: Unpack[_ZoomInToolInit]) -> None: ...
+
+# class _ZoomOutToolInit(_ZoomBaseToolInit, total=False):
+#     maintain_focus: bool
 
 class _ZoomOutToolInit(_ZoomBaseToolInit, total=False):
     maintain_focus: bool
@@ -408,6 +544,11 @@ class ZoomOutTool(ZoomBaseTool):
     def __init__(self, **kwargs: Unpack[_ZoomOutToolInit]) -> None: ...
 
     maintain_focus: bool = ...
+
+# class _BoxSelectToolInit(_RegionSelectToolInit, total=False):
+#     dimensions: Dimensions
+#     overlay: BoxAnnotation
+#     origin: Literal["corner", "center"]
 
 class _BoxSelectToolInit(_RegionSelectToolInit, total=False):
     dimensions: Dimensions
@@ -421,6 +562,9 @@ class BoxSelectTool(Drag, RegionSelectTool):
     overlay: BoxAnnotation = ...
     origin: Literal["corner", "center"] = ...
 
+# class _LassoSelectToolInit(_RegionSelectToolInit, total=False):
+#     overlay: PolyAnnotation
+
 class _LassoSelectToolInit(_RegionSelectToolInit, total=False):
     overlay: PolyAnnotation
 
@@ -429,6 +573,9 @@ class LassoSelectTool(Drag, RegionSelectTool):
 
     overlay: PolyAnnotation = ...
 
+# class _PolySelectToolInit(_RegionSelectToolInit, total=False):
+#     overlay: PolyAnnotation
+
 class _PolySelectToolInit(_RegionSelectToolInit, total=False):
     overlay: PolyAnnotation
 
@@ -436,6 +583,10 @@ class PolySelectTool(Tap, RegionSelectTool):
     def __init__(self, **kwargs: Unpack[_PolySelectToolInit]) -> None: ...
 
     overlay: PolyAnnotation = ...
+
+# class _CustomJSHoverInit(_ModelInit, total=False):
+#     args: dict[str, Any]
+#     code: str
 
 class _CustomJSHoverInit(_ModelInit, total=False):
     args: dict[str, Any]
@@ -446,6 +597,22 @@ class CustomJSHover(Model):
 
     args: dict[str, Any] = ...
     code: str = ...
+
+# class _HoverToolInit(_InspectToolInit, total=False):
+#     renderers: Auto | list[DataRenderer]
+#     callback: Callback | None
+#     tooltips: None | DOMElement | str | list[tuple[str, str]] | dict[str, str]
+#     formatters: dict[str, TooltipFieldFormatter | CustomJSHover]
+#     filters: dict[str, CustomJS | list[CustomJS]]
+#     sort_by: str | list[str | tuple[str, SortDirection | Literal[1, -1]]] | None
+#     limit: int | None
+#     mode: Literal["mouse", "hline", "vline"]
+#     muted_policy: Literal["show", "ignore"]
+#     point_policy: Literal["snap_to_data", "follow_mouse", "none"]
+#     line_policy: Literal["prev", "next", "nearest", "interp", "none"]
+#     anchor: Anchor
+#     attachment: TooltipAttachment
+#     show_arrow: bool
 
 class _HoverToolInit(_InspectToolInit, total=False):
     renderers: Auto | list[DataRenderer]
@@ -481,6 +648,9 @@ class HoverTool(InspectTool):
     attachment: TooltipAttachment = ...
     show_arrow: bool = ...
 
+# class _HelpToolInit(_ActionToolInit, total=False):
+#     redirect: str
+
 class _HelpToolInit(_ActionToolInit, total=False):
     redirect: str
 
@@ -489,11 +659,17 @@ class HelpTool(ActionTool):
 
     redirect: str = ...
 
+# class _ExamineToolInit(_ActionToolInit, total=False):
+#     ...
+
 class _ExamineToolInit(_ActionToolInit, total=False):
     ...
 
 class ExamineTool(ActionTool):
     def __init__(self, **kwargs: Unpack[_ExamineToolInit]) -> None: ...
+
+# class _FullscreenToolInit(_ActionToolInit, total=False):
+#     ...
 
 class _FullscreenToolInit(_ActionToolInit, total=False):
     ...
@@ -501,17 +677,27 @@ class _FullscreenToolInit(_ActionToolInit, total=False):
 class FullscreenTool(ActionTool):
     def __init__(self, **kwargs: Unpack[_FullscreenToolInit]) -> None: ...
 
+# class _UndoToolInit(_PlotActionToolInit, total=False):
+#     ...
+
 class _UndoToolInit(_PlotActionToolInit, total=False):
     ...
 
 class UndoTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_UndoToolInit]) -> None: ...
 
+# class _RedoToolInit(_PlotActionToolInit, total=False):
+#     ...
+
 class _RedoToolInit(_PlotActionToolInit, total=False):
     ...
 
 class RedoTool(PlotActionTool):
     def __init__(self, **kwargs: Unpack[_RedoToolInit]) -> None: ...
+
+# class _EditToolInit(_GestureToolInit, total=False):
+#     default_overrides: dict[str, Any]
+#     empty_value: bool | int | float | Date | Datetime | Color | str
 
 class _EditToolInit(_GestureToolInit, total=False):
     default_overrides: dict[str, Any]
@@ -524,6 +710,9 @@ class EditTool(GestureTool):
     default_overrides: dict[str, Any] = ...
     empty_value: bool | int | float | Date | Datetime | Color | str = ...
 
+# class _PolyToolInit(_EditToolInit, total=False):
+#     vertex_renderer: GlyphRenderer[XYGlyph] | None
+
 class _PolyToolInit(_EditToolInit, total=False):
     vertex_renderer: GlyphRenderer[XYGlyph] | None
 
@@ -532,6 +721,11 @@ class PolyTool(EditTool):
     def __init__(self, **kwargs: Unpack[_PolyToolInit]) -> None: ...
 
     vertex_renderer: GlyphRenderer[XYGlyph] | None = ...
+
+# class _BoxEditToolInit(_EditToolInit, total=False):
+#     renderers: list[GlyphRenderer[LRTBGlyph | Rect | HStrip | VStrip]]
+#     dimensions: Dimensions
+#     num_objects: int
 
 class _BoxEditToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[LRTBGlyph | Rect | HStrip | VStrip]]
@@ -544,6 +738,12 @@ class BoxEditTool(EditTool, Drag, Tap):
     renderers: list[GlyphRenderer[LRTBGlyph | Rect | HStrip | VStrip]] = ...
     dimensions: Dimensions = ...
     num_objects: int = ...
+
+# class _PointDrawToolInit(_EditToolInit, total=False):
+#     renderers: list[GlyphRenderer[XYGlyph]]
+#     add: bool
+#     drag: bool
+#     num_objects: int
 
 class _PointDrawToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[XYGlyph]]
@@ -559,6 +759,11 @@ class PointDrawTool(EditTool, Drag, Tap):
     drag: bool = ...
     num_objects: int = ...
 
+# class _PolyDrawToolInit(_PolyToolInit, total=False):
+#     renderers: list[GlyphRenderer[MultiLine | Patches]]
+#     drag: bool
+#     num_objects: int
+
 class _PolyDrawToolInit(_PolyToolInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     drag: bool
@@ -571,6 +776,10 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     drag: bool = ...
     num_objects: int = ...
 
+# class _FreehandDrawToolInit(_EditToolInit, total=False):
+#     renderers: list[GlyphRenderer[MultiLine | Patches]]
+#     num_objects: int
+
 class _FreehandDrawToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
     num_objects: int
@@ -581,6 +790,9 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     renderers: list[GlyphRenderer[MultiLine | Patches]] = ...
     num_objects: int = ...
 
+# class _PolyEditToolInit(_PolyToolInit, total=False):
+#     renderers: list[GlyphRenderer[MultiLine | Patches]]
+
 class _PolyEditToolInit(_PolyToolInit, total=False):
     renderers: list[GlyphRenderer[MultiLine | Patches]]
 
@@ -588,6 +800,11 @@ class PolyEditTool(PolyTool, Drag, Tap):
     def __init__(self, **kwargs: Unpack[_PolyEditToolInit]) -> None: ...
 
     renderers: list[GlyphRenderer[MultiLine | Patches]] = ...
+
+# class _LineEditToolInit(_EditToolInit, total=False):
+#     renderers: list[GlyphRenderer[Line]]
+#     intersection_renderer: GlyphRenderer[Line]
+#     dimensions: Dimensions
 
 class _LineEditToolInit(_EditToolInit, total=False):
     renderers: list[GlyphRenderer[Line]]

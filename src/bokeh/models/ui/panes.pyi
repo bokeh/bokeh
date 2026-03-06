@@ -15,6 +15,9 @@ if TYPE_CHECKING:
 from ..dom import DOMNode
 from .ui_element import UIElement, _UIElementInit
 
+# class _PaneInit(_UIElementInit, total=False):
+#     elements: list[UIElement | DOMNode]
+
 class _PaneInit(_UIElementInit, total=False):
     elements: list[UIElement | DOMNode]
 

@@ -48,6 +48,12 @@ from .annotation import (
     _DataAnnotationInit,
 )
 
+# class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
+#         _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
+#     text: TextLike
+#     padding: Padding
+#     border_radius: BorderRadius
+
 class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
         _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
     text: TextLike
@@ -62,6 +68,19 @@ class TextAnnotation(Annotation, ScalarTextProps, ScalarBackgroundFillProps,
     text: TextLike = ...
     padding: Padding = ...
     border_radius: BorderRadius = ...
+
+# class _LabelInit(_TextAnnotationInit, total=False):
+#     anchor: TextAnchor
+#     x: Coordinate
+#     y: Coordinate
+#     x_units: CoordinateUnits
+#     y_units: CoordinateUnits
+#     x_offset: float
+#     y_offset: float
+#     angle: Angle
+#     angle_units: AngleUnits
+#     direction: Direction
+#     editable: bool
 
 class _LabelInit(_TextAnnotationInit, total=False):
     anchor: TextAnchor
@@ -91,6 +110,16 @@ class Label(TextAnnotation):
     direction: Direction = ...
     editable: bool = ...
 
+# class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
+#     x: NumberSpec
+#     x_units: CoordinateUnits
+#     y: NumberSpec
+#     y_units: CoordinateUnits
+#     text: NullStringSpec
+#     angle: AngleSpec
+#     x_offset: NumberSpec
+#     y_offset: NumberSpec
+
 class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     x_units: CoordinateUnits
@@ -112,6 +141,11 @@ class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchPr
     angle: AngleSpec = ...
     x_offset: NumberSpec = ...
     y_offset: NumberSpec = ...
+
+# class _TitleInit(_TextAnnotationInit, total=False):
+#     vertical_align: VerticalAlign
+#     align: TextAlign
+#     standoff: float
 
 class _TitleInit(_TextAnnotationInit, total=False):
     vertical_align: VerticalAlign

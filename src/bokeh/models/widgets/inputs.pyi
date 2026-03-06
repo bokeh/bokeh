@@ -36,6 +36,10 @@ from .widget import Widget, _WidgetInit
 class ClearInput(ModelEvent):
     def __init__(self, model: InputWidget) -> None: ...
 
+# class _InputWidgetInit(_WidgetInit, total=False):
+#     title: str | HTML
+#     description: str | Tooltip | None
+
 class _InputWidgetInit(_WidgetInit, total=False):
     title: str | HTML
     description: str | Tooltip | None
@@ -46,6 +50,11 @@ class InputWidget(Widget):
 
     title: str | HTML = ...
     description: str | Tooltip | None = ...
+
+# class _FileInputInit(_InputWidgetInit, total=False):
+#     accept: str | list[str]
+#     multiple: bool
+#     directory: bool
 
 class _FileInputInit(_InputWidgetInit, total=False):
     accept: str | list[str]
@@ -68,6 +77,14 @@ class FileInput(InputWidget):
 
     def clear(self) -> None: ...
 
+# class _NumericInputInit(_InputWidgetInit, total=False):
+#     value: None | float | int
+#     low: None | float | int
+#     high: None | float | int
+#     placeholder: str
+#     mode: Literal["int", "float"]
+#     format: None | str | TickFormatter
+
 class _NumericInputInit(_InputWidgetInit, total=False):
     value: None | float | int
     low: None | float | int
@@ -86,6 +103,11 @@ class NumericInput(InputWidget):
     mode: Literal["int", "float"] = ...
     format: None | str | TickFormatter = ...
 
+# class _SpinnerInit(_NumericInputInit, total=False):
+#     step: float
+#     page_step_multiplier: float
+#     wheel_wait: int | float
+
 class _SpinnerInit(_NumericInputInit, total=False):
     step: float
     page_step_multiplier: float
@@ -101,6 +123,10 @@ class Spinner(NumericInput):
     page_step_multiplier: float = ...
     wheel_wait: int | float = ...
 
+# class _ToggleInputInit(_WidgetInit, total=False):
+#     active: bool
+#     label: str
+
 class _ToggleInputInit(_WidgetInit, total=False):
     active: bool
     label: str
@@ -112,11 +138,18 @@ class ToggleInput(Widget):
     active: bool = ...
     label: str = ...
 
+# class _CheckboxInit(_ToggleInputInit, total=False):
+#     ...
+
 class _CheckboxInit(_ToggleInputInit, total=False):
     ...
 
 class Checkbox(ToggleInput):
     def __init__(self, **kwargs: Unpack[_CheckboxInit]) -> None: ...
+
+# class _SwitchInit(_ToggleInputInit, total=False):
+#     on_icon: IconLike | None
+#     off_icon: IconLike | None
 
 class _SwitchInit(_ToggleInputInit, total=False):
     on_icon: IconLike | None
@@ -127,6 +160,12 @@ class Switch(ToggleInput):
 
     on_icon: IconLike | None = ...
     off_icon: IconLike | None = ...
+
+# class _TextLikeInputInit(_InputWidgetInit, total=False):
+#     value: str
+#     value_input: str
+#     placeholder: str
+#     max_length: int | None
 
 class _TextLikeInputInit(_InputWidgetInit, total=False):
     value: str
@@ -142,6 +181,10 @@ class TextLikeInput(InputWidget):
     placeholder: str = ...
     max_length: int | None = ...
 
+# class _TextInputInit(_TextLikeInputInit, total=False):
+#     prefix: str | None
+#     suffix: str | None
+
 class _TextInputInit(_TextLikeInputInit, total=False):
     prefix: str | None
     suffix: str | None
@@ -151,6 +194,10 @@ class TextInput(TextLikeInput):
 
     prefix: str | None = ...
     suffix: str | None = ...
+
+# class _TextAreaInputInit(_TextLikeInputInit, total=False):
+#     cols: int
+#     rows: int
 
 class _TextAreaInputInit(_TextLikeInputInit, total=False):
     cols: int
@@ -162,11 +209,22 @@ class TextAreaInput(TextLikeInput):
     cols: int = ...
     rows: int = ...
 
+# class _PasswordInputInit(_TextInputInit, total=False):
+#     ...
+
 class _PasswordInputInit(_TextInputInit, total=False):
     ...
 
 class PasswordInput(TextInput):
     def __init__(self, **kwargs: Unpack[_PasswordInputInit]) -> None: ...
+
+# class _AutocompleteInputInit(_TextInputInit, total=False):
+#     completions: list[str]
+#     max_completions: Positive[int] | None
+#     min_characters: NonNegative[int]
+#     case_sensitive: bool
+#     restrict: bool
+#     search_strategy: Literal["starts_with", "includes"]
 
 class _AutocompleteInputInit(_TextInputInit, total=False):
     completions: list[str]
@@ -189,6 +247,10 @@ class AutocompleteInput(TextInput):
 Options: TypeAlias = list[str | tuple[Any, str]]
 OptionsGroups: TypeAlias = dict[str, Options]
 
+# class _SelectInit(_InputWidgetInit, total=False):
+#     options: Options | OptionsGroups | list[str | None]
+#     value: Any
+
 class _SelectInit(_InputWidgetInit, total=False):
     options: Options | OptionsGroups | list[str | None]
     value: Any
@@ -203,6 +265,11 @@ class Select(InputWidget):
 
     value: Any = ...
 
+# class _MultiSelectInit(_InputWidgetInit, total=False):
+#     options: list[str | tuple[str, str]]
+#     value: list[str]
+#     size: int
+
 class _MultiSelectInit(_InputWidgetInit, total=False):
     options: list[str | tuple[str, str]]
     value: list[str]
@@ -214,6 +281,16 @@ class MultiSelect(InputWidget):
     options: list[str | tuple[str, str]] = ...
     value: list[str] = ...
     size: int = ...
+
+# class _MultiChoiceInit(_InputWidgetInit, total=False):
+#     options: list[str | tuple[str, str]]
+#     value: list[str]
+#     delete_button: bool
+#     max_items: int | None
+#     option_limit: int | None
+#     search_option_limit: int | None
+#     placeholder: str | None
+#     solid: bool
 
 class _MultiChoiceInit(_InputWidgetInit, total=False):
     options: list[str | tuple[str, str]]
@@ -237,6 +314,9 @@ class MultiChoice(InputWidget):
     placeholder: str | None = ...
     solid: bool = ...
 
+# class _ColorPickerInit(_InputWidgetInit, total=False):
+#     color: ColorHex
+
 class _ColorPickerInit(_InputWidgetInit, total=False):
     color: ColorHex
 
@@ -244,6 +324,13 @@ class ColorPicker(InputWidget):
     def __init__(self, **kwargs: Unpack[_ColorPickerInit]) -> None: ...
 
     color: ColorHex = ...
+
+# class _PaletteSelectInit(_InputWidgetInit, total=False):
+#     value: str
+#     items: Sequence[tuple[str, Sequence[Color]]]
+#     swatch_width: NonNegative[int]
+#     swatch_height: Auto | NonNegative[int]
+#     ncols: Positive[int]
 
 class _PaletteSelectInit(_InputWidgetInit, total=False):
     value: str

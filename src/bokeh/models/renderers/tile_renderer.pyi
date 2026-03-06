@@ -15,6 +15,12 @@ if TYPE_CHECKING:
 from ..tiles import TileSource
 from .renderer import Renderer, _RendererInit
 
+# class _TileRendererInit(_RendererInit, total=False):
+#     tile_source: TileSource
+#     alpha: float
+#     smoothing: bool
+#     render_parents: bool
+
 class _TileRendererInit(_RendererInit, total=False):
     tile_source: TileSource
     alpha: float

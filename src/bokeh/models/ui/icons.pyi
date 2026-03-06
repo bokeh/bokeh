@@ -17,6 +17,9 @@ from ..._types import Color, FontSize
 from ...core.enums import ToolIconType as ToolIcon
 from .ui_element import UIElement, _UIElementInit
 
+# class _IconInit(_UIElementInit, total=False):
+#     size: int | FontSize
+
 class _IconInit(_UIElementInit, total=False):
     size: int | FontSize
 
@@ -25,6 +28,10 @@ class Icon(UIElement):
     def __init__(self, **kwargs: Unpack[_IconInit]) -> None: ...
 
     size: int | FontSize = ...
+
+# class _BuiltinIconInit(_IconInit, total=False):
+#     icon_name: ToolIcon | str
+#     color: Color
 
 class _BuiltinIconInit(_IconInit, total=False):
     icon_name: ToolIcon | str
@@ -36,6 +43,9 @@ class BuiltinIcon(Icon):
     icon_name: ToolIcon | str = ...
     color: Color = ...
 
+# class _SVGIconInit(_IconInit, total=False):
+#     svg: str
+
 class _SVGIconInit(_IconInit, total=False):
     svg: str
 
@@ -43,6 +53,9 @@ class SVGIcon(Icon):
     def __init__(self, **kwargs: Unpack[_SVGIconInit]) -> None: ...
 
     svg: str = ...
+
+# class _TablerIconInit(_IconInit, total=False):
+#     icon_name: str
 
 class _TablerIconInit(_IconInit, total=False):
     icon_name: str
