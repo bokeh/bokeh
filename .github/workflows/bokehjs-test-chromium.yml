@@ -26,16 +26,18 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-24.04]
-        node-version: [20.x]
+        node-version: [24.x]
 
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
       - name: Install node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'bokehjs/package-lock.json'
 
       - name: Upgrade npm
         shell: bash

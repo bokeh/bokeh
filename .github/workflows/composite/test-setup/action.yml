@@ -16,13 +16,29 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: conda-incubator/setup-miniconda@v3
+    # Remove nodejs from conda environment to avoid duplicate installation
+    # We'll install Node.js via setup-node instead for better npm caching
+    - name: Filter nodejs from environment file
+      shell: bash
+      run: |
+        LOC="conda/environment-test-${{ inputs.test-env }}"
+        grep -v '^\s*-\s*nodejs\b' $LOC.yml > $LOC-no-nodejs.yml
+
+    - name: Setup conda environment
+      uses: conda-incubator/setup-miniconda@v3
       with:
         miniforge-version: latest
         mamba-version: "*"
         activate-environment: bk-test
-        environment-file: conda/environment-test-${{ inputs.test-env }}.yml
+        environment-file: conda/environment-test-${{ inputs.test-env }}-no-nodejs.yml
         run-post: ${{ runner.os != 'Windows' }}
+
+    - name: Install Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: 'npm'
+        cache-dependency-path: 'bokehjs/package-lock.json'
 
     - name: Download wheel package
       id: download
@@ -50,13 +66,6 @@ runs:
       shell: bash -l {0}
       run: |
         npm install --location=global npm
-
-    - name: Cache node modules
-      if: ${{ inputs.source-tree == 'keep' && runner.os != 'macOS' }} # TODO remove after https://github.com/actions/runner/issues/449 is fixed
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-        key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
     - name: Install node modules
       if: ${{ inputs.source-tree == 'keep' }}

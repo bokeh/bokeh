@@ -5,13 +5,26 @@ description: 'Build Bokeh and Bokeh.js for testing'
 runs:
   using: "composite"
   steps:
+    # Remove nodejs from conda environment to avoid duplicate installation
+    # We'll install Node.js via setup-node instead for better npm caching
+    - name: Filter nodejs from environment file
+      shell: bash
+      run: grep -v '^\s*-\s*nodejs\b' conda/environment-build.yml > conda/environment-build-no-nodejs.yml
+
     - uses: conda-incubator/setup-miniconda@v3
       with:
         miniforge-version: latest
         mamba-version: "*"
         activate-environment: bk-test
-        environment-file: conda/environment-build.yml
+        environment-file: conda/environment-build-no-nodejs.yml
         run-post: ${{ runner.os != 'Windows' }}
+
+    - name: Install Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: 'npm'
+        cache-dependency-path: 'bokehjs/package-lock.json'
 
     - name: Install node modules
       shell: bash -l {0}
