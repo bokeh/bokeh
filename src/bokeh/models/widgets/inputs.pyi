@@ -128,6 +128,16 @@ class Switch(ToggleInput):
     on_icon: IconLike | None = ...
     off_icon: IconLike | None = ...
 
+class _LightDarkInit(_SwitchInit, total=False):
+    on_icon: IconLike | None
+    off_icon: IconLike | None
+
+class LightDark(Switch):
+    def __init__(self, **kwargs: Unpack[_LightDarkInit]) -> None: ...
+
+    on_icon: IconLike | None = ...
+    off_icon: IconLike | None = ...
+
 class _TextLikeInputInit(_InputWidgetInit, total=False):
     value: str
     value_input: str
