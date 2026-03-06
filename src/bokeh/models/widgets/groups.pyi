@@ -6,71 +6,48 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
+from typing import Literal
 
 # Bokeh imports
-from .buttons import ButtonLike, _ButtonLikeInit
-from .widget import Widget, _WidgetInit
+from ...core.has_props import abstract
+from .buttons import ButtonLike
+from .widget import Widget
 
-class _AbstractGroupInit(_WidgetInit, total=False):
-    labels: list[str]
-
+@abstract
+@dataclass(init=False)
 class AbstractGroup(Widget):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_AbstractGroupInit]) -> None: ...
 
     labels: list[str] = ...
 
-class _ToggleButtonGroupInit(_AbstractGroupInit, _ButtonLikeInit, total=False):
-    orientation: Literal["horizontal", "vertical"]
-
+@abstract
+@dataclass(init=False)
 class ToggleButtonGroup(AbstractGroup, ButtonLike):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_ToggleButtonGroupInit]) -> None: ...
 
     orientation: Literal["horizontal", "vertical"] = ...
 
-class _ToggleInputGroupInit(_AbstractGroupInit, total=False):
-    inline: bool
-
+@abstract
+@dataclass(init=False)
 class ToggleInputGroup(AbstractGroup):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_ToggleInputGroupInit]) -> None: ...
 
     inline: bool = ...
 
-class _CheckboxGroupInit(_ToggleInputGroupInit, total=False):
-    active: list[int]
-
+@dataclass
 class CheckboxGroup(ToggleInputGroup):
-    def __init__(self, **kwargs: Unpack[_CheckboxGroupInit]) -> None: ...
 
     active: list[int] = ...
 
-class _RadioGroupInit(_ToggleInputGroupInit, total=False):
-    active: int | None
-
+@dataclass
 class RadioGroup(ToggleInputGroup):
-    def __init__(self, **kwargs: Unpack[_RadioGroupInit]) -> None: ...
 
     active: int | None = ...
 
-class _CheckboxButtonGroupInit(_ToggleButtonGroupInit, total=False):
-    active: list[int]
-
+@dataclass
 class CheckboxButtonGroup(ToggleButtonGroup):
-    def __init__(self, **kwargs: Unpack[_CheckboxButtonGroupInit]) -> None: ...
 
     active: list[int] = ...
 
-class _RadioButtonGroupInit(_ToggleButtonGroupInit, total=False):
-    active: int | None
-
+@dataclass
 class RadioButtonGroup(ToggleButtonGroup):
-    def __init__(self, **kwargs: Unpack[_RadioButtonGroupInit]) -> None: ...
 
     active: int | None = ...

@@ -6,28 +6,21 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
+from typing import Literal
 
 # Bokeh imports
-from ..model.model import Model, _ModelInit
+from ..core.has_props import abstract
+from ..model import Model
 
-class _MarkingInit(_ModelInit, total=False):
+@abstract
+@dataclass(init=False)
+class Marking(Model):
     ...
 
-class Marking(Model):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_MarkingInit]) -> None: ...
-
-class _DecorationInit(_ModelInit, total=False):
-    marking: Marking
-    node: Literal["start", "middle", "end"]
-
+@dataclass
 class Decoration(Model):
-    def __init__(self, **kwargs: Unpack[_DecorationInit]) -> None: ...
 
     marking: Marking = ...
+
     node: Literal["start", "middle", "end"] = ...

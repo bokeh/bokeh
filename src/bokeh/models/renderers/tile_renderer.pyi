@@ -6,25 +6,19 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
 from ..tiles import TileSource
-from .renderer import Renderer, _RendererInit
+from .renderer import Renderer
 
-class _TileRendererInit(_RendererInit, total=False):
-    tile_source: TileSource
-    alpha: float
-    smoothing: bool
-    render_parents: bool
-
+@dataclass
 class TileRenderer(Renderer):
-    def __init__(self, **kwargs: Unpack[_TileRendererInit]) -> None: ...
 
     tile_source: TileSource = ...
+
     alpha: float = ...
+
     smoothing: bool = ...
+
     render_parents: bool = ...

@@ -6,18 +6,13 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
-from ..layouts import LayoutDOM, _LayoutDOMInit
+from ...core.has_props import abstract
+from ..layouts import LayoutDOM
 
-class _WidgetInit(_LayoutDOMInit, total=False):
-    ...
-
+@abstract
+@dataclass(init=False)
 class Widget(LayoutDOM):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_WidgetInit]) -> None: ...
+    ...

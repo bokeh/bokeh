@@ -6,19 +6,17 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from dataclasses import dataclass
 from inspect import Parameter
 from typing import (
-    TYPE_CHECKING,
     Any,
+    Final,
     Iterable,
-    TypedDict,
+    Self,
 )
 
-if TYPE_CHECKING:
-    from typing_extensions import Self, Unpack
-
 # Bokeh imports
-from ..core.has_props import HasProps, Setter
+from ..core.has_props import HasProps, Setter, abstract
 from ..core.property.validation import without_property_validation
 from ..core.query import SelectorType
 from ..core.serialization import ObjectRefRep, Ref, Serializer
@@ -37,34 +35,27 @@ from ..util.callback_manager import (
 )
 from .util import HasDocumentRef
 
-class _ModelInit(TypedDict, total=False):
-    name: str | None
-    tags: list[Any]
-    js_event_callbacks: dict[str, list[JSEventCallback]]
-    js_property_callbacks: dict[str, list[JSEventCallback]]
-    subscribed_events: set[str]
-    syncable: bool
-
+@abstract
+@dataclass(init=False)
 class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
 
-    # TODO Final[ID]
-    id: ID = ...
+    def destroy(self) -> None: ...
 
-    def __init__(self, **kwargs: Unpack[_ModelInit]) -> None: ...
-
-    # Don't override __new__, because then you will have to overload it every time
-    # you overload __init__ with a custom signature (in e.g. ranges or figure).
-    @classmethod
-    def _new(cls, id: ID) -> Self | None: ...
+    id: Final[ID] = ...
 
     name: str | None = ...
+
     tags: list[Any] = ...
+
     js_event_callbacks: dict[str, list[JSEventCallback]] = ...
+
     js_property_callbacks: dict[str, list[JSEventCallback]] = ...
+
     subscribed_events: set[str] = ...
+
     syncable: bool = ...
 
-    def destroy(self) -> None: ...
+    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self: ...
 
     @property
     def ref(self) -> Ref: ...

@@ -6,65 +6,46 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from dataclasses import dataclass
 
 # Bokeh imports
 from .._types import JSON, Bytes
 from ..core.enums import MapTypeType as MapType
-from ..model.model import Model, _ModelInit
-from .plots import Plot, _PlotInit
+from ..core.has_props import abstract
+from ..model import Model
+from .plots import Plot
 
-class _MapOptionsInit(_ModelInit, total=False):
-    lat: float
-    lng: float
-    zoom: int
-
+@abstract
+@dataclass(init=False)
 class MapOptions(Model):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_MapOptionsInit]) -> None: ...
 
     lat: float = ...
+
     lng: float = ...
+
     zoom: int = ...
 
-class _MapPlotInit(_PlotInit, total=False):
+@abstract
+@dataclass(init=False)
+class MapPlot(Plot):
     ...
 
-class MapPlot(Plot):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_MapPlotInit]) -> None: ...
-
-class _GMapOptionsInit(_MapOptionsInit, total=False):
-    map_type: MapType
-    scale_control: bool
-    styles: JSON | None
-    tilt: int
-
+@dataclass
 class GMapOptions(MapOptions):
-    def __init__(self, **kwargs: Unpack[_GMapOptionsInit]) -> None: ...
 
     map_type: MapType = ...
+
     scale_control: bool = ...
+
     styles: JSON | None = ...
+
     tilt: int = ...
 
-class _GMapPlotInit(_MapPlotInit, total=False):
-    map_options: GMapOptions
-    api_key: Bytes | str
-    api_version: str
-
+@dataclass
 class GMapPlot(MapPlot):
-    def __init__(self, **kwargs: Unpack[_GMapPlotInit]) -> None: ...
 
     map_options: GMapOptions = ...
 
-    @property
-    def api_key(self) -> Bytes: ...
-    @api_key.setter
-    def api_key(self, api_key: Bytes | str) -> None: ...
+    api_key: Bytes | str = ...
 
     api_version: str = ...
