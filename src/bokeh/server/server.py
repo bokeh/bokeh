@@ -468,7 +468,7 @@ class Server(BaseServer):
         super().__init__(io_loop, tornado_app, http_server)
 
     @classmethod
-    def from_settings(cls, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+    def init_from_settings(cls, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
             io_loop: IOLoop | None = None, http_server_kwargs: dict[str, Any] | None = None, **kwargs: Any) -> Server:
         ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global
         settings module, if they were not explicitly passed as keyword arguments.

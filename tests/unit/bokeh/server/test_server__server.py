@@ -373,7 +373,7 @@ def test__from_settings_uses_envvars() -> None:
             mock_settings.xsrf_cookies.return_value = True
             mock_settings.ico_path.return_value = None
             with mock.patch.object(Server, '__init__', return_value=None) as init:
-                Server.from_settings(Application())
+                Server.init_from_settings(Application())
                 _, kwargs = init.call_args
     finally:
         os.unlink(auth_path)
@@ -400,7 +400,7 @@ def test__from_settings_kwarg_overrides_envvar() -> None:
         mock_settings.xsrf_cookies.return_value = False
         mock_settings.ico_path.return_value = None
         with mock.patch.object(Server, '__init__', return_value=None) as init:
-            Server.from_settings(Application(), auth_provider=null_auth)
+            Server.init_from_settings(Application(), auth_provider=null_auth)
             _, kwargs = init.call_args
     assert kwargs['auth_provider'] is null_auth
 
