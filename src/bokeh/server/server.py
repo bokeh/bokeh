@@ -471,7 +471,7 @@ class Server(BaseServer):
     def from_settings(cls, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
             io_loop: IOLoop | None = None, http_server_kwargs: dict[str, Any] | None = None, **kwargs: Any) -> Server:
         ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global
-        settings module, if they were not explicitly supplied as keyword arguments.
+        settings module, if they were not explicitly passed as keyword arguments.
 
         Args:
             applications (dict[str, Application] or Application or callable) :
@@ -497,14 +497,14 @@ class Server(BaseServer):
         '''
 
         # --- auth_provider ---
-        # `settings.auth_module()`` yields a path string, but `Server` expects an AuthProvider instance.
+        # settings.auth_module() yields a path string, but Server expects an AuthProvider instance.
         if 'auth_provider' not in kwargs:
             auth_module_path = settings.auth_module()
             kwargs['auth_provider'] = AuthModule(auth_module_path) if auth_module_path else NullAuth()
 
         # --- session signing ---
         if 'secret_key' not in kwargs:
-            # NB: setting name doesn't match accessor method name on this one.
+            # Note: setting name doesn't match accessor method name on this one.
             kwargs['secret_key'] = settings.secret_key_bytes()
 
         if 'sign_sessions' not in kwargs:
