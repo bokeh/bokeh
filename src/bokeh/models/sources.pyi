@@ -14,11 +14,9 @@ from typing import (
     Mapping,
     Sequence,
     TypeAlias,
+    Unpack,
     overload,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
 
 # External imports
 import numpy.typing as npt

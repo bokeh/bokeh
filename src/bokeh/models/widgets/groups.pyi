@@ -7,10 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Literal, Unpack
 
 # Bokeh imports
 from .buttons import ButtonLike, _ButtonLikeInit

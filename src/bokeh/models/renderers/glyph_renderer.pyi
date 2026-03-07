@@ -7,15 +7,12 @@
 
 # Standard library imports
 from typing import (
-    TYPE_CHECKING,
     Any,
     Generic,
     Literal,
     TypeVar,
+    Unpack,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto

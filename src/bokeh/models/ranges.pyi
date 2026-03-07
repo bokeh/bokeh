@@ -9,14 +9,11 @@
 from abc import abstractmethod
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from typing import (
-    TYPE_CHECKING,
     Sequence,
     TypeAlias,
+    Unpack,
     overload,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.enums import (
