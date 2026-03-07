@@ -294,6 +294,7 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   protected _base: this | null = null
+  protected _should_inherit_from_BaseCoordinateSpec: boolean = true
 
   get base(): this | null {
     return this._base
@@ -302,6 +303,11 @@ export abstract class GlyphView extends DOMComponentView {
   set_base<T extends this>(base: T): void {
     if (base != this && base instanceof this.constructor) {
       this._base = base
+      for (const prop of this.model) {
+        if (prop instanceof p.BaseCoordinateSpec) {
+          this._should_inherit_from_BaseCoordinateSpec &&= this._can_inherit_from(prop, base)
+        }
+      }
     } else {
       this._base = null
     }
@@ -353,10 +359,6 @@ export abstract class GlyphView extends DOMComponentView {
   protected _can_inherit_from<T>(prop: p.Property<T>, base: this | null): boolean {
     if (base == null) {
       return false
-    }
-
-    if (prop instanceof p.BaseCoordinateSpec) {
-      return true
     }
 
     const base_prop = base.model.property(prop.attr)
@@ -457,7 +459,7 @@ export abstract class GlyphView extends DOMComponentView {
         continue
       }
 
-      if (base != null && this._can_inherit_from(prop, base)) {
+      if (base != null && (this._can_inherit_from(prop, base) || (prop instanceof p.BaseCoordinateSpec && this._should_inherit_from_BaseCoordinateSpec))) {
         this._inherit_from(prop.attr, base)
 
         if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
