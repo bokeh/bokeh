@@ -51,7 +51,6 @@ dependencies:
   - pooch # required in scipy.datasets
   - selenium 4.2
   - toml
-  - typing_extensions >=4.0.0
 
   # examples
   - cartopy

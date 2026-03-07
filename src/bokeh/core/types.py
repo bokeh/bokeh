@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provides additional core types based on ``typing`` and ``typing_extensions``.
+""" Provides additional core types based on ``typing``.
 
 """
 
