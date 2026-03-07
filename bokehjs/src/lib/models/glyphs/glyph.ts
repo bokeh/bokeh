@@ -355,6 +355,10 @@ export abstract class GlyphView extends DOMComponentView {
       return false
     }
 
+    if (prop instanceof p.BaseCoordinateSpec) {
+      return true
+    }
+
     const base_prop = base.model.property(prop.attr)
 
     const value = prop.get_value()
