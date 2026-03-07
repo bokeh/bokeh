@@ -31,6 +31,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Iterator,
+    NotRequired,
     Sequence,
     TypedDict,
 )
@@ -46,8 +47,6 @@ from ..util.compiler import bundle_models
 from .util import contains_tex_string
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
-
     from ..resources import Hashes
 
 #-----------------------------------------------------------------------------

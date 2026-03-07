@@ -11,11 +11,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterable,
+    Self,
     TypedDict,
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, Unpack
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from ..core.has_props import HasProps, Setter

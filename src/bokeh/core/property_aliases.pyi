@@ -7,16 +7,13 @@
 
 # Standard library imports
 from typing import (
-    TYPE_CHECKING,
     Generic,
     Literal,
+    NotRequired,
     TypeAlias,
     TypedDict,
     TypeVar,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired
 
 # Bokeh imports
 from .._types import NonNegative
