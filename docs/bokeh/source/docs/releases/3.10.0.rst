@@ -3,8 +3,9 @@
 3.10.0
 ======
 
-Bokeh version ``3.10.0`` (May) is a minor milestone of Bokeh project.
+Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 
 * Added WebGL rendering support for ``Patch`` and ``Patches`` glyphs (:bokeh-pull:`14853`)
 * Added ``LightDark`` component to switch between light and dark themes (:bokeh-pull:`14807`)
 * Removed PNG icon related CSS and simplified icons' CSS (:bokeh-pull:`14579`)
+* Dropped support for Python 3.10 (:bokeh-pull:`14865`)

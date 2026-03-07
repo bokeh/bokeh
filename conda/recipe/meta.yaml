@@ -32,10 +32,10 @@ requirements:
     - yaml
 
   host:
-    - python >=3.10
+    - python >=3.11
 
   run:
-    - python >=3.10
+    - python >=3.11
 
     {% for dep in data['project']['dependencies'] %}
     - {{ dep.lower().split(";")[0] }}
