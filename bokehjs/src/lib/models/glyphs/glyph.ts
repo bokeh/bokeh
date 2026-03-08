@@ -458,8 +458,8 @@ export abstract class GlyphView extends DOMComponentView {
       if (visuals.has(prop)) { // let set_visuals() do the work, at least for now
         continue
       }
-
-      if (base != null && (this._can_inherit_from(prop, base) || (prop instanceof p.BaseCoordinateSpec && this._should_inherit_from_BaseCoordinateSpec))) {
+      const should_inherit_from_BaseCoordinateSpec = prop instanceof p.BaseCoordinateSpec && this._should_inherit_from_BaseCoordinateSpec
+      if (base != null && (this._can_inherit_from(prop, base) || should_inherit_from_BaseCoordinateSpec)) {
         this._inherit_from(prop.attr, base)
 
         if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
