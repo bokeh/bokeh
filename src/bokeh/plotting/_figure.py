@@ -280,16 +280,16 @@ class figure(Plot, GlyphAPI):
                 Whether the hexagonal tiles should be oriented with a pointed
                 corner on top, or a flat side on top. (default: "pointytop")
 
-            palette (str or seq[color], optional) :
+            palette (str or seq[ColorLike], optional) :
                 A palette (or palette name) to use to colormap the bins according
                 to count. (default: 'Viridis256')
 
                 If ``fill_color`` is supplied, it overrides this value.
 
-            line_color (color, optional) :
+            line_color (ColorLike, optional) :
                 The outline color for hex tiles, or None (default: None)
 
-            fill_color (color, optional) :
+            fill_color (ColorLike, optional) :
                 An optional fill color for hex tiles, or None. If None, then
                 the ``palette`` will be used to color map the tiles by
                 count. (default: None)

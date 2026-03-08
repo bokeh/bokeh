@@ -103,7 +103,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
             implicit state is used. (default: None).
 
     Returns:
-        filename (str) : the filename where the static file is saved.
+        str : the filename where the static file is saved.
 
     If you would like to access an Image object directly, rather than save a
     file to disk, use the lower-level :func:`~bokeh.io.export.get_screenshot_as_png`
@@ -158,7 +158,7 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
             implicit state is used. (default: None).
 
     Returns:
-        filenames (list(str)) : the list of filenames where the SVGs files are saved.
+        list[str] : the list of filenames where the SVGs files are saved.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
@@ -243,7 +243,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
             implicit state is used. (default: None).
 
     Returns:
-        image (PIL.Image.Image) : a pillow image loaded from PNG.
+        PIL.Image.Image : a pillow image loaded from PNG.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
