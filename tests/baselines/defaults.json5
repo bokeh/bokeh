@@ -7590,8 +7590,10 @@
   },
   LightDark: {
     __extends__: "Switch",
+    tri_state: true,
     on_icon: "light_theme",
     off_icon: "dark_theme",
+    mixed_icon: "system_theme",
   },
   MultiChoice: {
     __extends__: "InputWidget",
@@ -7656,6 +7658,7 @@
     __extends__: "ToggleInput",
     on_icon: null,
     off_icon: null,
+    mixed_icon: null,
   },
   TextAreaInput: {
     __extends__: "TextLikeInput",
@@ -7679,6 +7682,7 @@
     __extends__: "Widget",
     active: false,
     label: "",
+    tri_state: false,
   },
   Markdown: {
     __extends__: "Widget",

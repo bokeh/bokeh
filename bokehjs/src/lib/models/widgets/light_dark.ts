@@ -17,7 +17,10 @@ export class LightDarkView extends SwitchView {
   }
 
   protected _update_theme(): void {
-    const theme = this.model.active ? "light" : "dark"
+    const {active} = this.model
+    const is_system = active === null
+    const system_theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    const theme = !is_system && active ? "light" : is_system ? system_theme : "dark"
     document.documentElement.style.setProperty("--bokeh-color-scheme", theme)
   }
 }
@@ -44,6 +47,8 @@ export class LightDark extends Switch {
     this.override<LightDark.Props>({
       on_icon: "light_theme",
       off_icon: "dark_theme",
+      mixed_icon: "system_theme",
+      tri_state: true,
     })
   }
 }

@@ -11,8 +11,10 @@ export abstract class ToggleInputView extends WidgetView {
   }
 
   protected _toggle_active(): void {
-    if (!this.model.disabled) {
-      this.model.active = !this.model.active
+    const {active, disabled, tri_state} = this.model
+    const is_mixed = active === null
+    if (!disabled) {
+      this.model.active = !is_mixed && active ? !active : is_mixed || !tri_state ? true : null
     }
   }
 }
@@ -21,8 +23,9 @@ export namespace ToggleInput {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Widget.Props & {
-    active: p.Property<boolean>
+    active: p.Property<boolean | null>
     label: p.Property<string>
+    tri_state: p.Property<boolean>
   }
 }
 
@@ -37,9 +40,10 @@ export abstract class ToggleInput extends Widget {
   }
 
   static {
-    this.define<ToggleInput.Props>(({Bool, Str}) => ({
-      active: [ Bool, false ],
+    this.define<ToggleInput.Props>(({Bool, Nullable, Str}) => ({
+      active: [ Nullable(Bool), false ],
       label: [ Str, "" ],
+      tri_state: [ Bool, false],
     }))
   }
 }
