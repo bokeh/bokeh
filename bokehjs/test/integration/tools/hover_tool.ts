@@ -112,5 +112,6 @@ describe("HoverTool", () => {
     p.add_tools(hover)
     const {view} = await display(p)
     await actions(view).hover(xy(1, 1))
+    await view.ready
   })
 })
