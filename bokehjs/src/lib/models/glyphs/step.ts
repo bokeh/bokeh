@@ -12,6 +12,8 @@ import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {StepGL} from "./webgl/step"
 
+type XY = {x: number, y: number}
+
 export interface StepView extends Step.Data {}
 
 export class StepView extends XYGlyphView {
@@ -257,8 +259,8 @@ export class StepView extends XYGlyphView {
    * For "after" mode: horizontal then vertical.
    * For "center" mode: horizontal to midpoint, vertical, then horizontal.
    */
-  protected _get_step_segments(j: number, mode: StepMode): Array<[{x: number, y: number}, {x: number, y: number}]> {
-    const segments: Array<[{x: number, y: number}, {x: number, y: number}]> = []
+  protected _get_step_segments(j: number, mode: StepMode): [XY, XY][] {
+    const segments: [XY, XY][] = []
 
     const x0 = this.sx[j]
     const y0 = this.sy[j]
