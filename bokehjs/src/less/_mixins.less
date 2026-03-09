@@ -34,17 +34,15 @@
 }
 
 .icon-mask(@icon, @color: var(--icon-color)) {
-  background-color: @color;
   .mask-image(@icon);
-  .mask-size(contain);
-  .mask-position(center center);
-  .mask-repeat(no-repeat);
+  .icon-mask-base(@color);
 }
 
-.icon-mask-base() {
+.icon-mask-base(@color: var(--icon-color)) {
   .mask-size(contain);
   .mask-position(center center);
   .mask-repeat(no-repeat);
+  background-color: @color;
 }
 
 .bk-disabled(@disabled-opacity, @disabled-background-color, @disabled-color, @icon-color-disabled) {

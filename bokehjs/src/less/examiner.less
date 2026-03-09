@@ -156,7 +156,6 @@
   margin: 0 2px;
   display: inline-block;
   vertical-align: middle;
-  background-color: var(--muted-color);
   --open-image: url('data:image/svg+xml;utf8,\
     <svg xmlns="http://www.w3.org/2000/svg" width="6" height="6">\
       <path d="M 0 1 L 6 1 3 5 Z"/>\
@@ -170,8 +169,7 @@
 .expander {
   width: 6px;
   height: 6px;
-  mask-image: var(--open-image);
-  -webkit-mask-image: var(--open-image);
+  .icon-mask(var(--open-image), var(--muted-color));
 }
 
 .branch {
@@ -184,8 +182,7 @@
   }
 
   .expander {
-    mask-image: var(--closed-image);
-    -webkit-mask-image: var(--closed-image);
+    .icon-mask(var(--open-image), var(--muted-color));
   }
 }
 
