@@ -9,6 +9,10 @@ export namespace ImageURLTexture {
 
   export type Props = Texture.Props & {
     url: p.Property<string>
+  } & Internal
+
+  export type Internal = {
+    _loader: p.Property<ImageLoader>
   }
 }
 
@@ -25,13 +29,10 @@ export class ImageURLTexture extends Texture {
     this.define<ImageURLTexture.Props>(({Str}) => ({
       url: [ Str ],
     }))
-  }
 
-  private _loader: ImageLoader
-
-  override initialize(): void {
-    super.initialize()
-    this._loader = new ImageLoader(this.url)
+    this.internal<ImageURLTexture.Internal, ImageURLTexture>(({Ref}) => ({
+      _loader: [ Ref(ImageLoader), (obj) => new ImageLoader(obj.url), {readonly: true} ], // TODO computed property of url
+    }))
   }
 
   get_pattern(_color: Color, _scale: number, _weight: number): PatternSource | Promise<PatternSource> {

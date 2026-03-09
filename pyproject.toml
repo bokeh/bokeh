@@ -114,6 +114,7 @@ filterwarnings = [
     '''ignore:'asyncio.[gs]et_event_loop_policy' is deprecated and slated for removal in Python 3\.16''',                                           # https://github.com/bokeh/bokeh/issues/14664
     '''ignore:Implicitly cleaning up <HTTPError 404. 'File Not Found.'>:ResourceWarning''',                             # only on Windows and Python 3.14
     '''ignore:coroutine 'SelectorThread\.__init__\.<locals>\.thread_manager_anext' was never awaited:RuntimeWarning''', # only on Windows and Python 3.14
+    '''ignore:bitcount function is deprecated:DeprecationWarning:mpmath''', # https://github.com/bokeh/bokeh/issues/14873
 ]
 
 [tool.coverage.run]

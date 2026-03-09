@@ -35,6 +35,10 @@ export namespace MonthsTicker {
 
   export type Props = BaseSingleIntervalTicker.Props & {
     months: p.Property<number[]>
+  } & Internal
+
+  export type Internal = {
+    interval: p.Property<number>
   }
 }
 
@@ -51,33 +55,26 @@ export class MonthsTicker extends BaseSingleIntervalTicker {
     this.define<MonthsTicker.Props>(({Int, List}) => ({
       months: [ List(Int), [] ],
     }))
-  }
 
-  interval: number
-
-  override initialize(): void {
-    super.initialize()
-    const months = this.months
-    if (months.length > 1) {
-      this.interval = (months[1] - months[0])*ONE_MONTH
-    } else {
-      this.interval = 12*ONE_MONTH
-    }
+    this.internal<MonthsTicker.Internal, MonthsTicker>(({Float}) => ({
+      interval: [ Float, (obj) => { // TODO computed property of months
+        const {months} = obj
+        return (months.length > 1 ? months[1] - months[0] : 12)*ONE_MONTH
+      } ],
+    }))
   }
 
   override get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     const year_dates = date_range_by_year(data_low, data_high)
+    const {months} = this
 
-    const months = this.months
-    const months_of_year = (year_date: Date) => {
+    const month_dates = concat(year_dates.map((year_date) => {
       return months.map((month) => {
         const month_date = copy_date(year_date)
         month_date.setUTCMonth(month)
         return month_date
       })
-    }
-
-    const month_dates = concat(year_dates.map(months_of_year))
+    }))
 
     const all_ticks = month_dates.map((month_date) => month_date.getTime())
     const ticks_in_range = all_ticks.filter((tick) => data_low <= tick && tick <= data_high)

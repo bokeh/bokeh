@@ -1,7 +1,11 @@
 // "polyfill" nodejs features
 const global = window as any
 global.Buffer = {}
-global.process = {version: "unknown"}
+global.process = {
+  version: "unknown",
+  argv: [],
+  env: {},
+}
 
 // "polyfill" esnext features
 if (typeof Symbol.dispose === "undefined") {
@@ -13,6 +17,8 @@ if (typeof Symbol.asyncDispose === "undefined") {
 
 // expose path-browserify as path
 import "./path"
+import "./os"
+import "./tty"
 
 import sourcemaps from "source-map-support"
 sourcemaps.install({environment: "browser"})

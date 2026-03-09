@@ -122,7 +122,7 @@ task("scripts:bundle", [passthrough("scripts:compile"), "scripts:version"], asyn
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    target: "ES2020",
+    target: "ES2024",
     exports: ["tslib"],
     detect_cycles: argv.detectCycles,
     overrides: {

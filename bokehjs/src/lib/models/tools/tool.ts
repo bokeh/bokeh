@@ -170,7 +170,7 @@ export abstract class Tool extends Model {
   readonly tool_icon?: string // CSS class (no dot)
 
   // GestureTool {{{
-  readonly event_type?: EventType | EventType[]
+  declare readonly event_type?: EventType | EventType[]
 
   get event_role(): EventRole {
     const {event_type} = this

@@ -4,6 +4,7 @@ import {actions, xy} from "../interactive"
 
 import json5 from "json5"
 
+import {version} from "@bokehjs/version"
 import type {DocJson} from "@bokehjs/document"
 import {Document} from "@bokehjs/document"
 import {GlyphRenderer} from "@bokehjs/models"
@@ -14,6 +15,7 @@ async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
   const text = await response.text()
   const doc_json = json5.parse<DocJson>(text)
+  doc_json.version = version // can't include version field in test cases; prevent spurious warnings
   const doc = Document.from_json(doc_json)
   return await display(doc, null)
 }
