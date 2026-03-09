@@ -1,6 +1,6 @@
 #colors() {
-  background: @white;
-  text: @black;
+  background: light-dark(@white, @black);
+  text: light-dark(@black, @white);
 
   primary: @blue-500;
   accent: @mauve-500;
@@ -8,12 +8,13 @@
   warning: @orange-500;
   error: @red-500;
 
-  hover: @gray-50;
-  surface: @gray-100;
+  hover: light-dark(@gray-50, @gray-600);
+  surface: light-dark(@gray-100, @gray-700);
   divider: @gray-200;
   border: @gray-300;
   placeholder: @gray-400;
   disabled: @gray-500;
+  inverted: @white;
 
   icon: @gray-500;
   icon-disabled: @gray-200;

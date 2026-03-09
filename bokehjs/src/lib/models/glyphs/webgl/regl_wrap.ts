@@ -1,5 +1,5 @@
 import createRegl from "regl"
-import type {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
+import type {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements, ElementsOptions} from "regl"
 import type {Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D, Texture2DOptions} from "regl"
 import type * as t from "./types"
 import type {GLMarkerType} from "./types"
@@ -13,6 +13,8 @@ import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
 import marker_vertex_shader from "./marker.vert"
 import marker_fragment_shader from "./marker.frag"
+import polygon_vertex_shader from "./polygon.vert"
+import polygon_fragment_shader from "./polygon.frag"
 
 // All access to regl is performed via the get_regl() function that returns a
 // ReglWrapper object.  This ensures that regl is correctly initialised before
@@ -39,6 +41,8 @@ export class ReglWrapper {
   private _image?: ReglRenderFunction
   private _solid_line?: ReglRenderFunction
   private _dashed_line?: ReglRenderFunction
+  private _polygon?: ReglRenderFunction<t.PolygonGlyphProps>
+  private _polygon_hatch?: ReglRenderFunction<t.PolygonHatchGlyphProps>
   private _marker_no_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
   private _marker_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerHatchGlyphProps>> = new Map()
 
@@ -63,6 +67,7 @@ export class ReglWrapper {
         extensions: [
           "ANGLE_instanced_arrays",
           "EXT_blend_minmax",
+          "OES_element_index_uint",
         ],
       })
       this._regl_available = true
@@ -99,6 +104,11 @@ export class ReglWrapper {
   // Create and return ReGL Buffer.
   buffer(options: BufferOptions): Buffer {
     return this._regl.buffer(options)
+  }
+
+  // Create and return ReGL Elements.
+  elements(options: ElementsOptions): Elements {
+    return this._regl.elements(options)
   }
 
   clear(width: number, height: number): void {
@@ -183,6 +193,20 @@ export class ReglWrapper {
       this._image = regl_image(this._regl, this._rect_geometry, this._rect_triangles)
     }
     return this._image
+  }
+
+  public polygon(): ReglRenderFunction<t.PolygonGlyphProps> {
+    if (this._polygon == null) {
+      this._polygon = regl_polygon(this._regl)
+    }
+    return this._polygon
+  }
+
+  public polygon_hatch(): ReglRenderFunction<t.PolygonHatchGlyphProps> {
+    if (this._polygon_hatch == null) {
+      this._polygon_hatch = regl_polygon_hatch(this._regl)
+    }
+    return this._polygon_hatch
   }
 
   public marker_no_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerGlyphProps> {
@@ -484,6 +508,124 @@ ${line_fragment_shader}
     },
     depth: {enable: false},
     framebuffer: regl.prop<Props, "framebuffer">("framebuffer"),
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, "scissor">("scissor"),
+    },
+    viewport: regl.prop<Props, "viewport">("viewport"),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
+}
+
+function regl_polygon(regl: Regl): ReglRenderFunction<t.PolygonGlyphProps> {
+  type Props = t.PolygonGlyphProps
+  type Uniforms = t.PolygonGlyphUniforms
+  type Attributes = t.PolygonGlyphAttributes
+
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
+    vert: polygon_vertex_shader,
+    frag: polygon_fragment_shader,
+
+    attributes: {
+      a_position(_, props) {
+        return props.positions.to_per_vertex_config()
+      },
+      a_fill_color(_, props) {
+        return props.fill_color.to_per_vertex_config()
+      },
+      a_edge_distance(_, props) {
+        return props.edge_distance.to_per_vertex_config()
+      },
+    },
+
+    uniforms: {
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
+    },
+
+    elements: regl.prop<Props, "elements">("elements"),
+    count: regl.prop<Props, "count">("count"),
+    offset: regl.prop<Props, "offset">("offset"),
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
+      },
+    },
+    depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, "scissor">("scissor"),
+    },
+    viewport: regl.prop<Props, "viewport">("viewport"),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
+}
+
+function regl_polygon_hatch(regl: Regl): ReglRenderFunction<t.PolygonHatchGlyphProps> {
+  type Props = t.PolygonHatchGlyphProps
+  type Uniforms = t.PolygonHatchGlyphUniforms
+  type Attributes = t.PolygonHatchGlyphAttributes
+
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
+    vert: `\
+#define HATCH
+${polygon_vertex_shader}
+`,
+    frag: `\
+#define HATCH
+${polygon_fragment_shader}
+`,
+
+    attributes: {
+      a_position(_, props) {
+        return props.positions.to_per_vertex_config()
+      },
+      a_fill_color(_, props) {
+        return props.fill_color.to_per_vertex_config()
+      },
+      a_edge_distance(_, props) {
+        return props.edge_distance.to_per_vertex_config()
+      },
+      a_hatch_pattern(_, props) {
+        return props.hatch_pattern.to_per_vertex_config()
+      },
+      a_hatch_scale(_, props) {
+        return props.hatch_scale.to_per_vertex_config()
+      },
+      a_hatch_weight(_, props) {
+        return props.hatch_weight.to_per_vertex_config()
+      },
+      a_hatch_color(_, props) {
+        return props.hatch_color.to_per_vertex_config()
+      },
+    },
+
+    uniforms: {
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
+    },
+
+    elements: regl.prop<Props, "elements">("elements"),
+    count: regl.prop<Props, "count">("count"),
+    offset: regl.prop<Props, "offset">("offset"),
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
+      },
+    },
+    depth: {enable: false},
     scissor: {
       enable: true,
       box: regl.prop<Props, "scissor">("scissor"),

@@ -216,6 +216,7 @@ describe("default model resolver", () => {
       "LayoutProvider",
       "Legend",
       "LegendItem",
+      "LightDark",
       "Line",
       "LineEditTool",
       "LinearAxis",

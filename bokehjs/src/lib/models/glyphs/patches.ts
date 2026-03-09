@@ -11,12 +11,21 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
+import type {PatchesGL} from "./webgl/patches"
 
 export interface PatchesView extends Patches.Data {}
 
 export class PatchesView extends GlyphView {
   declare model: Patches
   declare visuals: Patches.Visuals
+
+  /** @internal */
+  declare glglyph?: PatchesGL
+
+  override async load_glglyph() {
+    const {PatchesGL} = await import("./webgl/patches")
+    return PatchesGL
+  }
 
   protected override _project_data(): void {
     this._project_xy<Patches.Data>("xs", this.xs.data, "ys", this.ys.data)
@@ -72,8 +81,8 @@ export class PatchesView extends GlyphView {
 
       ctx.closePath()
 
-      this.visuals.fill.apply(ctx, i)
-      this.visuals.hatch.apply(ctx, i)
+      this.visuals.fill.apply(ctx, i, "evenodd")
+      this.visuals.hatch.apply(ctx, i, "evenodd")
       this.visuals.line.apply(ctx, i)
     }
   }

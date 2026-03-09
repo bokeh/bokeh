@@ -357,6 +357,9 @@ class TestDefaults:
     def test_chromedriver_path(self):
         assert bs.settings.chromedriver_path.default is None
 
+    def test_compression_level(self):
+        assert bs.settings.compression_level.default == 2
+
     def test_cookie_secret(self):
         assert bs.settings.cookie_secret.default is None
 

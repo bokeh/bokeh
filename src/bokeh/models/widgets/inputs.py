@@ -71,6 +71,7 @@ __all__ = (
     'MultiChoice',
     'MultiSelect',
     'NumericInput',
+    'LightDark',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -334,6 +335,17 @@ class Switch(ToggleInput):
 
     off_icon = Nullable(IconLike, default=None, help="""
     """)
+
+class LightDark(Switch):
+    """ A switch widget to change between themes (light and dark). """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    on_icon = Override(default="light_theme")
+
+    off_icon = Override(default="dark_theme")
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.

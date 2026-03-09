@@ -30,8 +30,8 @@
 
   cursor: pointer;
   font-size: var(--font-size);
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: light-dark(#fff, var(--background-color));
+  border: 1px solid light-dark(#ccc, var(--border-color));
   border-radius: var(--border-radius);
   box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
 }
@@ -46,7 +46,7 @@
 .bk-divider {
   cursor: default;
   overflow: hidden;
-  background-color: #e5e5e5;
+  background-color: light-dark(#e5e5e5, var(--divider-color));
 }
 :host(.bk-horizontal) > .bk-divider {
   width: 1px;
@@ -64,7 +64,7 @@
     border-color: var(--highlight-color);
   }
   &:hover {
-    background-color: #f9f9f9;
+    background-color: light-dark(#f9f9f9, var(--hover-color));
   }
   &:focus, &:focus-visible {
     outline: 1px dotted var(--highlight-color);

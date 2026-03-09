@@ -216,6 +216,8 @@ This is an <b>on</b> or <b>off</b> style of widget.
 Right click on the widget to display the context menu.
 """), position="right"))
 
+light_dark = w.LightDark(active=True)
+
 progress = w.Progress(value=0, min=0, max=179, label="Processing item @{index} of @{total} (@{percent}%)", width_policy="max")
 progress_disabled = w.Progress(value=30, min=0, max=100, disabled=True, width_policy="max")
 indeterminate_progress = w.Progress(mode="indeterminate", width_policy="max")
@@ -347,6 +349,7 @@ widgets = Column(children=[
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),
+            light_dark,
             Row(children=[
                 Column(children=[
                     start_computation,
@@ -363,8 +366,9 @@ widgets = Column(children=[
         ]),
         tabs,
     ]),
-    table,
-])
+    table],
+    stylesheets=[":host { background-color: var(--background-color); }"],
+)
 
 tooltip_2 = Tooltip(content=HTML("""\
 This example shows all widgets available in Bokeh.<br>To learn more about using widgets, see Bokeh's
