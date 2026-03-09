@@ -90,4 +90,28 @@ describe("HoverTool", () => {
     const {view} = await mkplot("hline")
     await actions(view, {units: {x: "screen"}}).hover(xy(10, 0.5))
   })
+
+  it("should support hover on step glyphs", async () => {
+    const p = fig([300, 300])
+    const x = [0, 1, 2]
+    const y1 = [1, 2, 3]
+    const y2 = [5, 4, 6]
+    const y3 = [9, 8, 7]
+    const r1 = p.step(x, y1, "before", {line_width: 1, color: "red", name: "before"})
+    const r2 = p.step(x, y2, "after", {line_width: 1, color: "green", name: "after"})
+    const r3 = p.step(x, y3, "center", {line_width: 1, color: "blue", name: "center"})
+    const hover = new HoverTool({
+      tooltips: [
+        ["mode", "$name"],
+        ["x", "@x{0.00}"],
+        ["y", "@y{0.00}"],
+      ],
+      renderers: [r1, r2, r3],
+      mode: "vline",
+    })
+    p.add_tools(hover)
+    const {view} = await display(p)
+    await actions(view).hover(xy(1, 1))
+    await view.ready
+  })
 })
