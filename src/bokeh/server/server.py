@@ -53,7 +53,7 @@ from ..core.property.container import List
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..resources import DEFAULT_SERVER_PORT, server_url
-from ..server.auth_provider import AuthModule, NullAuth
+from ..server.auth_provider import AuthModule, AuthProvider, NullAuth
 from ..settings import settings
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
@@ -469,7 +469,7 @@ class Server(BaseServer):
 
     @classmethod
     def init_from_settings(
-            cls, 
+            cls,
             applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
             io_loop: IOLoop | None = None,
             http_server_kwargs: dict[str, Any] | None = None,
@@ -483,7 +483,7 @@ class Server(BaseServer):
             cookie_secret: str | None = None,
             xsrf_cookies: bool | None = None,
             ico_path: str | None = None,
-            **kwargs: Any
+            **kwargs: Any,
         ) -> Server:
         ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global
         settings module, if they were not explicitly passed as keyword arguments.
@@ -549,7 +549,7 @@ class Server(BaseServer):
             kwargs['auth_provider'] = auth_provider
 
         # --- session signing ---
-        
+
         kwargs['sign_sessions'] = sign_sessions if sign_sessions is not None else settings.sign_sessions()
         # Note: the setting name doesn't match accessor method name on this one:
         kwargs['secret_key'] = secret_key if secret_key is not None else settings.secret_key_bytes()
