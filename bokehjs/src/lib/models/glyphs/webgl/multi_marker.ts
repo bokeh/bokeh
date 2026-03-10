@@ -83,15 +83,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
   }
 
   protected override _set_data(): void {
-    // Multi-marker derived glyphs should not populate any buffers.
-    // This guard prevents accidental calls: _marker_types is only set during
-    // main glyph initialization, so its presence indicates we've already run.
-    if (this._marker_types != null) {
-      return  // Already initialized, skip to prevent buffer corruption
-    }
-
     const nmarkers = this.nvertices
 
+    // Always update positions, sizes, and angles (for streaming updates)
     const centers_array = this._centers.get_sized_array(2*nmarkers)
     interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
     this._centers.update()
@@ -99,9 +93,12 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._widths.set_from_prop(this.glyph.size)
     this._angles.set_from_prop(this.glyph.angle)
 
-    // Marker types are only set by the main glyph on first initialization
-    this._marker_types = this.glyph.marker
-    this._unique_marker_types = this._marker_types.unique().filter((marker) => MarkerType.valid(marker))
+    // Marker types are only set once during main glyph initialization
+    // (prevents derived glyphs from overriding marker type metadata)
+    if (this._marker_types == null) {
+      this._marker_types = this.glyph.marker
+      this._unique_marker_types = this._marker_types.unique().filter((marker) => MarkerType.valid(marker))
+    }
   }
 
   protected override _set_once(): void {
