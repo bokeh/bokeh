@@ -163,39 +163,6 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
   }
 }
 
-// XXX: this is pretty naive, but affects very little code
-export function rename_exports() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
-    const {factory} = context
-
-    function is_exports(node: ts.Node): boolean {
-      return ts.isIdentifier(node) && node.text == "exports"
-    }
-
-    const has_exports = root.statements.some((stmt) => {
-      return ts.isVariableStatement(stmt) && stmt.declarationList.declarations.some((decl) => is_exports(decl.name))
-    })
-
-    if (has_exports) {
-      function visit(node: ts.Node): ts.Node {
-        if (is_exports(node)) {
-          const updated = factory.createIdentifier("exports$1")
-          const original = node
-          ts.setOriginalNode(updated, original)
-          ts.setTextRange(updated, original)
-          return updated
-        }
-
-        return ts.visitEachChild(node, visit, context)
-      }
-
-      return ts.visitEachChild(root, visit, context)
-    } else {
-      return root
-    }
-  }
-}
-
 export function fix_esmodule() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const {factory} = context

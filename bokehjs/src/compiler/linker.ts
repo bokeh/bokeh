@@ -813,7 +813,7 @@ export ${export_type} yaml;
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports), transforms.rename_exports()],
+          before: [transforms.collect_imports(imports)],
           after: [],
         }
 
