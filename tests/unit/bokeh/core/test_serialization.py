@@ -62,6 +62,7 @@ from bokeh.core.serialization import (
     TypedArrayRep,
 )
 from bokeh.model import Model
+from bokeh.models import ColumnDataSource
 from bokeh.util.dataclasses import NotRequired, Unspecified
 from bokeh.util.warnings import BokehUserWarning
 
@@ -871,7 +872,8 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_pd_series(self) -> None:
-        pd = pytest.importorskip("pandas")
+        pytest.importorskip("pandas")
+        import pandas as pd
         encoder = Serializer()
         val = pd.Series([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
@@ -923,16 +925,57 @@ class TestSerializer:
         assert isinstance(rep, float)
 
     def test_pd_timestamp(self) -> None:
-        pd = pytest.importorskip("pandas")
+        pytest.importorskip("pandas")
+        import pandas as pd
         encoder = Serializer()
         val = pd.Timestamp('April 28, 1948')
         rep = encoder.encode(val)
         assert rep == -684115200000
 
     def test_pd_NA(self) -> None:
-        pd = pytest.importorskip("pandas")
+        pytest.importorskip("pandas")
+        import pandas as pd
         encoder = Serializer()
         assert encoder.encode(pd.NA) is None
+
+    def test_pd_NaT(self) -> None:
+        pytest.importorskip("pandas")
+        import pandas as pd
+
+        encoder = Serializer()
+        rep = encoder.encode(pd.NaT)
+        assert rep == dict(type="number", value="nan")
+
+    def test_pd_array_NaT(self) -> None:
+        pytest.importorskip("pandas")
+        import pandas as pd
+
+        df = pd.DataFrame({"date": [pd.NaT, 12]})
+        df["date"] = pd.to_datetime(df["date"]).dt.date
+
+        source = ColumnDataSource(df)
+
+        encoder = Serializer()
+        rep = encoder.encode(source.data)
+        assert rep == MapRep(
+            type="map",
+            entries=[
+                ("index", dict(
+                    type="ndarray",
+                    array=BytesRep(type="bytes", data=encoder.buffers[0]),
+                    order=sys.byteorder,
+                    shape=[2],
+                    dtype="int32",
+                )),
+                ("date", dict(
+                    type="ndarray",
+                    array=[dict(type="number", value="nan"), "1970-01-01"],
+                    order=sys.byteorder,
+                    shape=[2],
+                    dtype="object",
+                )),
+            ],
+        )
 
     def test_other_array_libraries(self) -> None:
         class CustomArray:
