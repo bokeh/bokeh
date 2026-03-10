@@ -468,7 +468,7 @@ class Server(BaseServer):
         super().__init__(io_loop, tornado_app, http_server)
 
     @classmethod
-    def init_from_settings(
+    def from_settings(
             cls,
             applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
             io_loop: IOLoop | None = None,
