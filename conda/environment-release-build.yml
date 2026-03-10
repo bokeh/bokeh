@@ -30,6 +30,7 @@ dependencies:
   - scipy
   - squarify
   - sympy
+  - gmpy2 ==2.2.* # for sympy, see https://github.com/bokeh/bokeh/issues/14916
   - toml
 
   # pip dependencies
