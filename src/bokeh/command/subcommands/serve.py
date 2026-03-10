@@ -441,6 +441,7 @@ from bokeh.server.tornado import (
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.strings import format_docstring, nice_join
+from bokeh.util.terminal import pprint as pp
 
 # Bokeh imports
 from ..subcommand import Argument, Subcommand
@@ -981,9 +982,9 @@ class Serve(Subcommand):
 
                 for route in sorted(applications.keys()):
                     url = f"{protocol}://{address_string}:{server.port}{server.prefix}{route}"
-                    log.info(f"Bokeh app running at: {url}")
+                    log.info(f"Bokeh app running at: {pp.url(url)}")
 
-                log.info(f"Starting Bokeh server with process id: {os.getpid()}")
+                log.info(f"Starting Bokeh server with process id: {pp(os.getpid())}")
 
             server = self.customize_server(server)
 

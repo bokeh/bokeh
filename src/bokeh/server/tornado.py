@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 import gc
 import os
 import sys
-from pprint import pformat
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -48,6 +47,7 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.strings import format_docstring
+from ..util.terminal import pprint as pp
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
@@ -245,6 +245,8 @@ class BokehTornado(TornadoApplication):
 
     _clients: set[ServerConnection]
 
+    _refresh_stats: bool = True
+    _stats_job: PeriodicCallback
     _mem_job: PeriodicCallback | None
     _ping_job: PeriodicCallback | None
 
@@ -388,7 +390,7 @@ class BokehTornado(TornadoApplication):
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
-        log.debug(f"These host origins can connect to the websocket: {list(self._websocket_origins)!r}")
+        log.debug(f"These host origins can connect to the websocket: {pp.print(list(self._websocket_origins))}")
 
         # Wrap applications in ApplicationContext
         self._applications = {}
@@ -438,12 +440,12 @@ class BokehTornado(TornadoApplication):
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
                 if use_index:
-                    data = {
-                        "applications": self._applications,
-                        "prefix": self._prefix,
-                        "index": self._index,
-                        "use_redirect": redirect_root,
-                    }
+                    data = dict(
+                        applications=self._applications,
+                        prefix=self._prefix,
+                        index=self._index,
+                        use_redirect=redirect_root,
+                    )
                     prefixed_pat = (self._prefix + p[0], *p[1:], data)
                     all_patterns.append(prefixed_pat)
             else:
@@ -451,8 +453,8 @@ class BokehTornado(TornadoApplication):
                 all_patterns.append(prefixed_pat)
 
         log.debug("Patterns are:")
-        for line in pformat(all_patterns, width=60).split("\n"):
-            log.debug("  " + line)
+        for path, handler, *_ in all_patterns:
+            log.debug(f"  {pp.text(path)} -> {pp(handler)}")
 
         super().__init__(all_patterns, websocket_max_message_size=websocket_max_message_size_bytes, **kwargs)
 
@@ -467,6 +469,7 @@ class BokehTornado(TornadoApplication):
 
         self._clients = set()
 
+        self._refresh_stats = True
         self._stats_job = PeriodicCallback(self._log_stats,
                                            self._stats_log_frequency_milliseconds)
 
@@ -667,15 +670,18 @@ class BokehTornado(TornadoApplication):
             self._ping_job.stop()
 
         self._clients.clear()
+        self._refresh_stats = True
 
     def new_connection(self, protocol: Protocol, socket: WSHandler,
             application_context: ApplicationContext, session: ServerSession) -> ServerConnection:
         connection = ServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
+        self._refresh_stats = True
         return connection
 
     def client_lost(self, connection: ServerConnection) -> None:
         self._clients.discard(connection)
+        self._refresh_stats = True
         connection.detach_session()
 
     def get_session(self, app_path: str, session_id: ID) -> ServerSession:
@@ -728,21 +734,24 @@ class BokehTornado(TornadoApplication):
             # avoid the work below if we aren't going to log anything
             return
 
-        log.debug("[pid %d] %d clients connected", PID, len(self._clients))
+        if not self._refresh_stats:
+            return
+        self._refresh_stats = False
+
+        log.debug(f"[pid {pp(PID)}] {pp(len(self._clients))} clients connected")
         for app_path, app in self._applications.items():
             sessions = list(app.sessions)
             unused_count = 0
             for s in sessions:
                 if s.connection_count == 0:
                     unused_count += 1
-            log.debug("[pid %d]   %s has %d sessions with %d unused",
-                      PID, app_path, len(sessions), unused_count)
+            log.debug(f"[pid {pp(PID)}]   {app_path} has {pp(len(sessions))} sessions with {pp(unused_count)} unused")
 
     def _log_mem(self) -> None:
         # we should be able to assume PROC is define, if psutil is not installed
         # then the _log_mem callback is not started at all
         mem = PROC.memory_info()
-        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)", PID, mem.rss/GB, mem.vms/GB)
+        log.info(f"[pid {pp(PID)}] Memory usage: {mem.rss/GB:0.2f} MB (RSS), {mem.vms/GB:0.2f} MB (VMS)")
         del mem
 
         # skip the rest if we would not log it anyway
