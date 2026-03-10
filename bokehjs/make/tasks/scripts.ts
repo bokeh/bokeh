@@ -110,9 +110,9 @@ task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"]
 })
 
 task("scripts:imports", async () => {
-  const base_path = "./build/js/lib"
+  const base_path = paths.build_dir.lib
 
-  const files = await glob("./build/js/lib/**/*.js")
+  const files = await glob(join(base_path, "/**/*.js"))
   for (const file of files) {
     const file_map = `${file}.map`
 
@@ -123,10 +123,11 @@ task("scripts:imports", async () => {
     const source = fs.readFileSync(file, {encoding: "utf-8"})
     const source_map = fs.readFileSync(file_map, {encoding: "utf-8"})
 
-    const result = oxc.parseSync(file, source, {})
-    const rewrites = []
+    const {module} = oxc.parseSync(file, source)
+    fs.writeFileSync(`${file}.module`, JSON.stringify(module), {encoding: "utf-8"})
 
-    for (const imp of result.module.staticImports) {
+    const rewrites = []
+    for (const imp of module.staticImports) {
       const {value: module_path, start, end} = imp.moduleRequest
 
       if (!module_path.startsWith(".") && !module_path.startsWith("/") &&
