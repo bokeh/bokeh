@@ -112,7 +112,7 @@ task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"]
 task("scripts:imports", async () => {
   const base_path = paths.build_dir.lib
 
-  const files = await glob(join(base_path, "/**/*.js"))
+  const files = await glob(join(base_path, "/**/*.{js,d.ts}"))
   for (const file of files) {
     const file_map = `${file}.map`
 
@@ -124,18 +124,41 @@ task("scripts:imports", async () => {
     const source_map = fs.readFileSync(file_map, {encoding: "utf-8"})
 
     const {module} = oxc.parseSync(file, source)
-    fs.writeFileSync(`${file}.module`, JSON.stringify(module), {encoding: "utf-8"})
+    if (file.endsWith(".js")) {
+      fs.writeFileSync(`${file}.module`, JSON.stringify(module), {encoding: "utf-8"})
+    }
 
-    const rewrites = []
-    for (const imp of module.staticImports) {
-      const {value: module_path, start, end} = imp.moduleRequest
-
+    function relativize(module_path: string): string | null {
       if (!module_path.startsWith(".") && !module_path.startsWith("/") &&
           !module_path.startsWith("#") && !module_path.startsWith("@")) {
         const module_file = join(base_path, module_path)
         if (file_exists(module_file) || file_exists(`${module_file}.js`) || file_exists(join(module_file, "index.js"))) {
           const rel_path = normalize(relative(dirname(file), module_file))
           const new_path = rel_path.startsWith(".") ? rel_path : `./${rel_path}`
+          return new_path
+        }
+      }
+      return null
+    }
+
+    const rewrites: {new_path: string, start: number, end: number}[] = []
+    for (const imp of module.staticImports) {
+      const {value: module_path, start, end} = imp.moduleRequest
+      const new_path = relativize(module_path)
+      if (new_path != null) {
+        rewrites.push({new_path, start, end})
+      }
+    }
+
+    if (file.endsWith(".d.ts")) {
+      const re = /import\("(?<module_path>[^"]+)"\)/g
+      for (const result of source.matchAll(re)) {
+        const {index} = result
+        const {module_path} = result.groups!
+        const start = index + "import(".length
+        const end = index + result[0].length - 1
+        const new_path = relativize(module_path)
+        if (new_path != null) {
           rewrites.push({new_path, start, end})
         }
       }
