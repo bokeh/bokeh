@@ -205,7 +205,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  target?: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015"
+  target?: "ES2024" | "ES2022"
   es_modules?: boolean
   minify?: boolean
   plugin?: boolean
@@ -226,7 +226,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015" | null
+  readonly target: "ES2024" | "ES2022"
   readonly es_modules: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
@@ -274,7 +274,7 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.target = opts.target ?? null
+    this.target = opts.target ?? "ES2024"
     this.es_modules = opts.es_modules ?? true
     this.plugin = opts.plugin ?? false
 
@@ -405,16 +405,7 @@ export class Linker {
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
           const source = print(module)
-          const ecma = (() => {
-            switch (this.target) {
-              case "ES2024": return 2020 // TODO: 2024
-              case "ES2022": return 2020 // TODO: 2022
-              case null:
-              case "ES2020": return 2020
-              case "ES2017": return 2017
-              case "ES2015": return 5
-            }
-          })()
+          const ecma = 2020 // the highest version supported by terser
           const minified = await minify(module, source, ecma)
           code = {source, ...minified}
         } else {
@@ -545,7 +536,7 @@ export class Linker {
     const pkg = this.get_package(dir)
 
     const index = (() => {
-      if (this.target != null && pkg.module != null) {
+      if (pkg.module != null) {
         return pkg.module as string
       } else if (pkg.main != null) {
         return pkg.main as string
@@ -808,16 +799,12 @@ export ${export_type} yaml;
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       let collected: string[] | null = null
-      if ((this.target != null && resolution == "ESM") || type == "json") {
-        const {ES2024, ES2022, ES2020, ES2017, ES2015} = ts.ScriptTarget
+      if (resolution == "ESM" || type == "json") {
+        const {ES2024, ES2022} = ts.ScriptTarget
         const target = (() => {
           switch (this.target) {
             case "ES2024": return ES2024
             case "ES2022": return ES2022
-            case null:
-            case "ES2020": return ES2020
-            case "ES2017": return ES2017
-            case "ES2015": return ES2015
           }
         })()
         const imports = new Set<string>()
