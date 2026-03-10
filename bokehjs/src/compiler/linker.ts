@@ -228,7 +228,6 @@ export class Linker {
   readonly cache: Map<Path, ModuleArtifact>
   readonly target: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015" | null
   readonly es_modules: boolean
-  readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
   readonly shims: Set<string>
@@ -277,7 +276,6 @@ export class Linker {
 
     this.target = opts.target ?? null
     this.es_modules = opts.es_modules ?? true
-    this.minify = opts.minify ?? true
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
@@ -417,7 +415,7 @@ export class Linker {
               case "ES2015": return 5
             }
           })()
-          const minified = this.minify ? await minify(module, source, ecma) : {min_source: source}
+          const minified = await minify(module, source, ecma)
           code = {source, ...minified}
         } else {
           code = cached!.code
