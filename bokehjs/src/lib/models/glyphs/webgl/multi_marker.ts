@@ -28,6 +28,12 @@ export class MultiMarkerGL extends BaseMarkerGL {
       main_gl_glyph.data_mapped = false
     }
 
+    // NOTE: Multi-marker does NOT support derived glyph data updates
+    // because marker type metadata cannot be correctly populated from derived glyphs.
+    // Size overrides for multi-marker scatter plots are not supported in this implementation.
+    // This is a fundamental limitation: changing marker sizes requires knowing which markers
+    // to render, which depends on marker types that must come from the main glyph.
+
     if (this.visuals_changed) {
       this._set_visuals()
       this.visuals_changed = false
@@ -76,7 +82,14 @@ export class MultiMarkerGL extends BaseMarkerGL {
     return this.glyph.visuals
   }
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
+    // Multi-marker derived glyphs should not populate any buffers.
+    // This guard prevents accidental calls: _marker_types is only set during
+    // main glyph initialization, so its presence indicates we've already run.
+    if (this._marker_types != null) {
+      return  // Already initialized, skip to prevent buffer corruption
+    }
+
     const nmarkers = this.nvertices
 
     const centers_array = this._centers.get_sized_array(2*nmarkers)
@@ -86,6 +99,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._widths.set_from_prop(this.glyph.size)
     this._angles.set_from_prop(this.glyph.angle)
 
+    // Marker types are only set by the main glyph on first initialization
     this._marker_types = this.glyph.marker
     this._unique_marker_types = this._marker_types.unique().filter((marker) => MarkerType.valid(marker))
   }
