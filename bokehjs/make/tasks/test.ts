@@ -6,16 +6,17 @@ import os from "node:os"
 
 import chalk from "chalk"
 import which from "which"
+import {glob} from "glob"
 
 import {argv} from "../args.js"
 import {task, task2, success, passthrough, BuildError} from "../task.js"
 import * as paths from "../paths.js"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util.js"
+import {compile_typescript} from "./_util.js"
 import {start_server as start_js_server} from "./server.js"
 
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
-import {compile_typescript} from "#compiler/compiler.js"
 
 function node(files: string[]): Promise<void> {
   const env = {
@@ -281,37 +282,30 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-function compile(name: string, options?: {auto_index?: boolean}) {
-  // `files` is in TS canonical form, i.e. `/` is the separator on all platforms
-  const base_dir = `test/${name}`
+async function compile(name: string, options?: {auto_index?: boolean}) {
+  const base_dir = join(paths.src_dir.test, name)
+  const build_dir = join(paths.build_dir.test, name)
 
-  compile_typescript(`./${base_dir}/tsconfig.json`, !(options?.auto_index ?? false) ? {} : {
-    inputs(files) {
-      const imports = ['export * from "../framework"']
+  compile_typescript(join(base_dir, "tsconfig.json"))
 
-      for (const file of files) {
-        if (file.startsWith(base_dir) && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
-          const ext = extname(file)
-          const name = basename(file, ext)
-          if (!name.startsWith("_") && !name.endsWith(".d") && name != "index") {
-            const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
-            const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
-            imports.push(`import "${module}"`)
-          }
-        }
+  if (options?.auto_index ?? false) {
+    const imports = ['export * from "../framework"']
+
+    const files = await glob(join(build_dir, "/**/*.js"))
+    for (const file of files) {
+      const ext = extname(file)
+      const name = basename(file, ext)
+      if (!name.startsWith("_") && !name.endsWith(".d") && name != "index") {
+        const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
+        const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
+        imports.push(`import "${module}"`)
       }
+    }
 
-      const index = `${base_dir}/index.ts`
-
-      if (fs.existsSync(index)) {
-        const content = fs.readFileSync(index, {encoding: "utf-8"})
-        imports.unshift(content)
-      }
-
-      const source = imports.join("\n")
-      return new Map([[index, source]])
-    },
-  })
+    const index_file = join(build_dir, "index.js")
+    const source = imports.join("\n")
+    fs.writeFileSync(index_file, source, {encoding: "utf-8"})
+  }
 }
 
 async function bundle(name: string): Promise<void> {

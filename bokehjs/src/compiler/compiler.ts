@@ -1,10 +1,8 @@
-import chalk from "chalk"
 import ts from "typescript"
 
 import {dirname} from "node:path"
 
 import type {Path} from "./sys.js"
-import {BuildError} from "./error.js"
 
 export type CompileConfig = {
   tslib_dir?: Path
@@ -118,28 +116,4 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
   }
 
   return parse_tsconfig(tsconfig_file.config, dirname(tsconfig_path), preconfigure)
-}
-
-function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
-  const tsconfig = read_tsconfig(tsconfig_path)
-  if (is_failed(tsconfig)) {
-    return {diagnostics: tsconfig.diagnostics}
-  }
-
-  const {files, options} = tsconfig
-
-  const inputs = config.inputs?.(files) ?? new Map()
-  const host = compiler_host(inputs, options, config.tslib_dir)
-
-  const input_files = [...inputs.keys(), ...files]
-  return compile_files(input_files, options, undefined, host)
-}
-
-export function compile_typescript(tsconfig_path: Path, config: CompileConfig = {}): void {
-  const result = compile_project(tsconfig_path, config)
-
-  if (is_failed(result)) {
-    const {count, text} = report_diagnostics(result.diagnostics)
-    throw new BuildError("typescript", `There were ${chalk.red(`${count}`)} TypeScript errors:\n${text}`)
-  }
 }

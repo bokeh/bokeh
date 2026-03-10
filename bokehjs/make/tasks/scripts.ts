@@ -9,7 +9,7 @@ import {glob} from "glob"
 import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
 
 import {task, passthrough, BuildError} from "../task.js"
-import {file_exists} from "./_util.js"
+import {file_exists, compile_typescript} from "./_util.js"
 
 import {rename, read, write, scan} from "#compiler/sys.js"
 import {wrap_css_modules} from "#compiler/styles.js"
@@ -101,12 +101,7 @@ export default shader;
 })
 
 task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
-  const {status} = cp.spawnSync(npx, ["tsgo", "--project", "./src/lib/tsconfig.json"], {stdio: "inherit", shell: is_windows})
-  if (status != 0) {
-    throw new BuildError("typescript", "compilation failed with tsgo")
-  }
+  compile_typescript("./src/lib/tsconfig.json")
 })
 
 task("scripts:imports", async () => {
