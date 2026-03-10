@@ -19,7 +19,7 @@ import {detect_cycles} from "./graph.js"
 
 const root_path = process.cwd()
 
-const cache_version = 4
+const cache_version = 5
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
@@ -46,7 +46,6 @@ export type ModuleInfo = {
   dependency_paths: Map<string, Path>
   dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
-  exported: transforms.Exports[]
   externals: Set<string>
   shims: Set<string>
 }
@@ -168,35 +167,6 @@ export class Bundle {
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
-  }
-
-  protected *collect_exported(entry: ModuleInfo): Generator<string, void> {
-    for (const item of entry.exported) {
-      switch (item.type) {
-        case "bindings": {
-          for (const [, name] of item.bindings) {
-            yield name
-          }
-          break
-        }
-        case "named": {
-          yield item.name
-          break
-        }
-        case "namespace": {
-          const {name} = item
-          if (name != null) {
-            yield name
-          } else {
-            const module = entry.dependencies.get(item.module)
-            if (module != null) {
-              yield* this.collect_exported(module)
-            }
-          }
-          break
-        }
-      }
-    }
   }
 }
 
@@ -836,7 +806,6 @@ export ${export_type} yaml;
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
     let shims: Set<string>
-    let exported: transforms.Exports[] = []
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
@@ -859,7 +828,7 @@ export ${export_type} yaml;
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports), transforms.rename_exports(), transforms.collect_exports(exported)],
+          before: [transforms.collect_imports(imports), transforms.rename_exports()],
           after: [],
         }
 
@@ -895,7 +864,6 @@ export ${export_type} yaml;
       shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
       dependency_paths = cached.module.dependency_paths
-      exported = cached.module.exported
       externals = cached.module.externals
       shims = cached.module.shims
       source = cached.module.source
@@ -916,7 +884,6 @@ export ${export_type} yaml;
       dependency_paths,
       dependency_map: new Map(),
       dependencies: new Map(),
-      exported,
       externals,
       shims,
     }
