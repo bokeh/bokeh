@@ -5,10 +5,7 @@ import {join, dirname, basename, relative} from "node:path"
 
 import type {Path} from "./sys.js"
 import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file} from "./sys.js"
-import {
-  compile_files, read_tsconfig, parse_tsconfig, is_failed,
-  default_transformers, compiler_host, report_diagnostics,
-} from "./compiler.js"
+import {compile_files, read_tsconfig, parse_tsconfig, is_failed, compiler_host, report_diagnostics} from "./compiler.js"
 import {Linker} from "./linker.js"
 import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
 import * as preludes from "./prelude.js"
@@ -361,14 +358,13 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const {files} = tsconfig2
 
-  const transformers = default_transformers(dirname(tsconfig_path), options)
   const host = compiler_host(new Map(), options, tslib_dir)
 
   print(`Compiling TypeScript (${magenta(count_files(files))})`)
   if (setup.verbose) {
     print_files(files)
   }
-  const tsoutput = compile_files(files, options, transformers, host)
+  const tsoutput = compile_files(files, options, undefined, host)
 
   if (is_failed(tsoutput)) {
     print(report_diagnostics(tsoutput.diagnostics).text)
