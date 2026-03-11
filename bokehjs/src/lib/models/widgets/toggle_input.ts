@@ -12,9 +12,9 @@ export abstract class ToggleInputView extends WidgetView {
 
   protected _toggle_active(): void {
     const {active, disabled, tri_state} = this.model
-    const is_mixed = active === null
+    const is_indeterminate = active === null
     if (!disabled) {
-      this.model.active = !is_mixed && active ? !active : is_mixed || !tri_state ? true : null
+      this.model.active = !is_indeterminate && active ? !active : is_indeterminate || !tri_state ? true : null
     }
   }
 }

@@ -340,7 +340,7 @@ class Switch(ToggleInput):
     off_icon = Nullable(IconLike, default=None, help="""
     """)
 
-    mixed_icon = Nullable(IconLike, default=None, help="""
+    indeterminate_icon = Nullable(IconLike, default=None, help="""
     """)
 
 class LightDark(Switch):
@@ -354,7 +354,7 @@ class LightDark(Switch):
 
     off_icon = Override(default="dark_theme")
 
-    mixed_icon = Override(default="system_theme")
+    indeterminate_icon = Override(default="system_theme")
 
     tri_state = Override(default=True)
 

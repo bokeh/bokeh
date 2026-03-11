@@ -47,7 +47,7 @@ export class LightDark extends Switch {
     this.override<LightDark.Props>({
       on_icon: "light_theme",
       off_icon: "dark_theme",
-      mixed_icon: "system_theme",
+      indeterminate_icon: "system_theme",
       tri_state: true,
     })
   }

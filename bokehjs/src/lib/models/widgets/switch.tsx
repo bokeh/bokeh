@@ -24,17 +24,17 @@ export class SwitchView extends ToggleInputView {
   }
 
   override component(): VNode {
-    const {active, label, disabled, on_icon, off_icon, mixed_icon} = this.signals
+    const {active, label, disabled, on_icon, off_icon, indeterminate_icon} = this.signals
 
-    const is_mixed = active.value == null
-    const active_cls = !is_mixed && active.value ? switch_css.active : null
+    const is_indeterminate = active.value == null
+    const active_cls = !is_indeterminate && active.value ? switch_css.active : null
     const disabled_cls = disabled.value ? switch_css.disabled : null
-    const mixed_cls = is_mixed ? switch_css.mixed : null
-    const icon = !is_mixed && active.value ? on_icon : is_mixed ? mixed_icon : off_icon
-    const aria_checked = !is_mixed && active.value ? "true" : is_mixed ? "mixed" : "false"
+    const indeterminate_cls = is_indeterminate ? switch_css.indeterminate : null
+    const icon = !is_indeterminate && active.value ? on_icon : is_indeterminate ? indeterminate_icon : off_icon
+    const aria_checked = !is_indeterminate && active.value ? "true" : is_indeterminate ? "mixed" : "false"
 
     return (
-      <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls, mixed_cls)} role="switch" aria-checked={aria_checked}>
+      <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls, indeterminate_cls)} role="switch" aria-checked={aria_checked}>
         <div class={toggle_css.label}>{label}</div>
         {icon.value != null ? <Icon classes={switch_css.icon} icon={icon.value}></Icon> : null}
         <div class={switch_css.body} onClick={() => this._toggle_active()} onKeyDown={this.on_key_down}>
@@ -63,7 +63,7 @@ export namespace Switch {
   export type Props = ToggleInput.Props & {
     on_icon: p.Property<IconLike | null>
     off_icon: p.Property<IconLike | null>
-    mixed_icon: p.Property<IconLike | null>
+    indeterminate_icon: p.Property<IconLike | null>
   }
 }
 
@@ -83,7 +83,7 @@ export class Switch extends ToggleInput {
     this.define<Switch.Props>(({Nullable}) => ({
       on_icon: [ Nullable(IconLike), null ],
       off_icon: [ Nullable(IconLike), null ],
-      mixed_icon: [ Nullable(IconLike), null ],
+      indeterminate_icon: [ Nullable(IconLike), null ],
     }))
   }
 }

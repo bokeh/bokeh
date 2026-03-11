@@ -201,8 +201,8 @@ describe("Widgets", () => {
     await display(obj, [100, 30])
   })
 
-  it("should allow Switch with active=null and mixed_icon", async () => {
-    const obj = new Switch({active: null, mixed_icon: "system_theme"})
+  it("should allow Switch with active=null and indeterminate_icon", async () => {
+    const obj = new Switch({active: null, indeterminate_icon: "system_theme"})
     await display(obj, [100, 30])
   })
 
