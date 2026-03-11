@@ -17,7 +17,7 @@ import type * as p from "@bokehjs/core/properties"
 
 class SomeModelView extends DOMComponentView implements visuals.Paintable {
   declare model: SomeModel
-  visuals: SomeModel.Visuals
+  declare visuals: SomeModel.Visuals
 
   override initialize(): void {
     super.initialize()
@@ -30,6 +30,9 @@ class SomeModelView extends DOMComponentView implements visuals.Paintable {
     return {
       create_layer(): CanvasLayer {
         return new CanvasLayer("canvas", true)
+      },
+      create_layer_svg(): CanvasLayer {
+        return new CanvasLayer("svg", true)
       },
     }
   }

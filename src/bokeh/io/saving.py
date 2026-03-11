@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath, expanduser
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 # External imports
 from jinja2 import Template
@@ -36,9 +36,9 @@ from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
-    from ..models.ui import UIElement
     from ..resources import ResourcesLike
     from ..themes import Theme
+    from .showing import Showable
     from .state import State
 
 #-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None, resources: ResourcesLike | None = None,
+def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | str | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -66,7 +66,7 @@ def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None,
     ``/foo/myplot.html``)
 
     Args:
-        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, use the default state configuration.
@@ -162,7 +162,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: UIElement | Sequence[UIElement], filename: PathLike, resources: Resources | None,
+def _save_helper(obj: Showable, filename: PathLike, resources: Resources | None,
         title: str | None, template: Template | str | None, theme: Theme | None = None) -> None:
     '''
 

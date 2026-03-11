@@ -4868,6 +4868,8 @@
     line_dash: [],
     line_dash_offset: 0,
     mode: "before",
+    pad_before: 0,
+    pad_after: 0,
   },
   TeXGlyph: {
     __extends__: "MathTextGlyph",
@@ -5571,6 +5573,7 @@
     tabs: [],
     tabs_location: "above",
     active: 0,
+    link_layouts: false,
   },
   VBox: {
     __extends__: "LayoutDOM",
@@ -7585,6 +7588,11 @@
     title: "",
     description: null,
   },
+  LightDark: {
+    __extends__: "Switch",
+    on_icon: "light_theme",
+    off_icon: "dark_theme",
+  },
   MultiChoice: {
     __extends__: "InputWidget",
     options: [],
@@ -7671,6 +7679,11 @@
     __extends__: "Widget",
     active: false,
     label: "",
+  },
+  Markdown: {
+    __extends__: "Widget",
+    text: "",
+    disable_math: false,
   },
   Div: {
     __extends__: "Markup",

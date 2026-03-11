@@ -37,7 +37,13 @@ log = logging.getLogger(__name__)
 import gc
 import weakref
 from json import loads
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+    Literal,
+    overload,
+)
 
 # External imports
 from jinja2 import Template
@@ -441,8 +447,10 @@ side of a communications channel while it was being removed on the other end.\
             Document :
 
         '''
-        # TODO: deserialize model definitions
-        if isinstance(doc_json, dict):
+        # TODO add support for deserialization of model definitions
+        if isinstance(doc_json, Serialized):
+            doc_json.content["defs"] = []
+        else:
             doc_json["defs"] = []
 
         deserializer = Deserializer()
@@ -672,7 +680,7 @@ side of a communications channel while it was being removed on the other end.\
         '''
         self.callbacks.remove_session_callback(callback_obj)
 
-    def replace_with_json(self, json: DocJson) -> None:
+    def replace_with_json(self, json: DocJson | Serialized[DocJson]) -> None:
         ''' Overwrite everything in this document with the JSON-encoded
         document.
 
@@ -754,11 +762,19 @@ side of a communications channel while it was being removed on the other end.\
             self._title = title
             self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
 
-    def to_json(self, *, deferred: bool = True) -> DocJson:
+    @overload
+    def to_json(self, *, deferred: Literal[True] = ...) -> Serialized[DocJson]: ...
+    @overload
+    def to_json(self, *, deferred: Literal[False]) -> DocJson: ...
+
+    def to_json(self, *, deferred: bool = True) -> DocJson | Serialized[DocJson]:
         ''' Convert this document to a JSON-serializable object.
 
+        Args:
+            deferred (bool) : encode buffers lazily as references or immediately as inline (base64)
+
         Return:
-            DocJson
+            Serialized[DocJson] | DocJson
 
         '''
         from ..model import Model
@@ -770,7 +786,7 @@ side of a communications channel while it was being removed on the other end.\
         defs = serializer.encode(data_models)
         config = serializer.encode(self._config)
         roots = serializer.encode(self._roots)
-        callbacks = serializer.encode(self.callbacks._js_event_callbacks)
+        callbacks = serializer.encode(self.callbacks.js_event_callbacks)
 
         doc_json = DocJson(
             version=__version__,
@@ -781,11 +797,15 @@ side of a communications channel while it was being removed on the other end.\
 
         if data_models:
             doc_json["defs"] = defs
-        if self.callbacks._js_event_callbacks:
+        if self.callbacks.js_event_callbacks:
             doc_json["callbacks"] = callbacks
 
         self.models.flush_synced()
-        return doc_json
+
+        if deferred:
+            return Serialized(doc_json, buffers=serializer.buffers)
+        else:
+            return doc_json
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.

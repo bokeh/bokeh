@@ -1,0 +1,11 @@
+@import "../_mixins.less";
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+
+  width: var(--size);
+  height: var(--size);
+
+  .icon-mask(var(--icon), var(--color));
+}

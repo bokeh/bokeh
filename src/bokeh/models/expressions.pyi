@@ -6,85 +6,120 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any, Sequence
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Any, Sequence
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
 from .._specs import AngleSpec, NumberSpec
 from ..core.enums import DirectionType as Direction
-from ..core.has_props import abstract
-from ..model import Model
+from ..model.model import Model, _ModelInit
 
-@abstract
-@dataclass(init=False)
-class Expression(Model):
+class _ExpressionInit(_ModelInit, total=False):
     ...
 
-@dataclass
+class Expression(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_ExpressionInit]) -> None: ...
+
+class _CustomJSExprInit(_ExpressionInit, total=False):
+    args: dict[str, Any]
+    code: str
+
 class CustomJSExpr(Expression):
+    def __init__(self, **kwargs: Unpack[_CustomJSExprInit]) -> None: ...
 
     args: dict[str, Any] = ...
-
     code: str = ...
 
-@dataclass
+class _CumSumInit(_ExpressionInit, total=False):
+    field: str
+    include_zero: bool
+
 class CumSum(Expression):
+    def __init__(self, **kwargs: Unpack[_CumSumInit]) -> None: ...
 
     field: str = ...
-
     include_zero: bool = ...
 
-@dataclass
+class _StackInit(_ExpressionInit, total=False):
+    fields: Sequence[str]
+
 class Stack(Expression):
+    def __init__(self, **kwargs: Unpack[_StackInit]) -> None: ...
 
     fields: Sequence[str] = ...
 
-@abstract
-@dataclass(init=False)
-class ScalarExpression(Model):
+class _ScalarExpressionInit(_ModelInit, total=False):
     ...
 
-@dataclass
+class ScalarExpression(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_ScalarExpressionInit]) -> None: ...
+
+class _MinimumInit(_ScalarExpressionInit, total=False):
+    field: str
+    initial: float | None
+
 class Minimum(ScalarExpression):
+    def __init__(self, **kwargs: Unpack[_MinimumInit]) -> None: ...
 
+    field: str = ...
+    initial: float | None = ...
+
+class _MaximumInit(_ScalarExpressionInit, total=False):
     field: str
     initial: float | None
 
-@dataclass
 class Maximum(ScalarExpression):
+    def __init__(self, **kwargs: Unpack[_MaximumInit]) -> None: ...
 
-    field: str
-    initial: float | None
+    field: str = ...
+    initial: float | None = ...
 
-@abstract
-@dataclass(init=False)
+class _CoordinateTransformInit(_ExpressionInit, total=False):
+    ...
+
 class CoordinateTransform(Expression):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_CoordinateTransformInit]) -> None: ...
 
     @property
     def x(self) -> XComponent: ...
-
     @property
     def y(self) -> YComponent: ...
 
-@dataclass
+class _PolarTransformInit(_CoordinateTransformInit, total=False):
+    radius: NumberSpec
+    angle: AngleSpec
+    direction: Direction
+
 class PolarTransform(CoordinateTransform):
+    def __init__(self, **kwargs: Unpack[_PolarTransformInit]) -> None: ...
 
     radius: NumberSpec = ...
-
     angle: AngleSpec = ...
-
     direction: Direction = ...
 
-@abstract
-@dataclass(init=False)
+class _XYComponentInit(_ExpressionInit, total=False):
+    transform: CoordinateTransform
+
 class XYComponent(Expression):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_XYComponentInit]) -> None: ...
 
     transform: CoordinateTransform = ...
 
-@dataclass
-class XComponent(XYComponent):
+class _XComponentInit(_XYComponentInit, total=False):
     ...
 
-@dataclass
-class YComponent(XYComponent):
+class XComponent(XYComponent):
+    def __init__(self, **kwargs: Unpack[_XComponentInit]) -> None: ...
+
+class _YComponentInit(_XYComponentInit, total=False):
     ...
+
+class YComponent(XYComponent):
+    def __init__(self, **kwargs: Unpack[_YComponentInit]) -> None: ...

@@ -5,8 +5,6 @@
 
 import type {Arrayable, TypedArray, Dict} from "../types"
 
-const {toString} = Object.prototype
-
 export function is_undefined(obj: unknown): obj is undefined {
   return typeof obj === "undefined"
 }
@@ -21,11 +19,11 @@ export function is_nullish(obj: unknown): obj is null | undefined {
 }
 
 export function isBoolean(obj: unknown): obj is boolean {
-  return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
+  return obj === true || obj === false || typeof obj === "boolean" || obj instanceof Boolean
 }
 
 export function isNumber(obj: unknown): obj is number {
-  return toString.call(obj) === "[object Number]"
+  return typeof obj === "number" || obj instanceof Number
 }
 
 export function isInteger(obj: unknown): obj is number {
@@ -33,7 +31,7 @@ export function isInteger(obj: unknown): obj is number {
 }
 
 export function isString(obj: unknown): obj is string {
-  return toString.call(obj) === "[object String]"
+  return typeof obj === "string" || obj instanceof String
 }
 
 export function isSymbol(obj: unknown): obj is symbol {
@@ -47,16 +45,7 @@ export function isPrimitive(obj: unknown): obj is Primitive {
 }
 
 export function isFunction(obj: unknown): obj is Function {
-  const rep = toString.call(obj)
-  switch (rep) {
-    case "[object Function]":
-    case "[object AsyncFunction]":
-    case "[object GeneratorFunction]":
-    case "[object AsyncGeneratorFunction]":
-      return true
-    default:
-      return false
-  }
+  return typeof obj == "function" || obj instanceof Function
 }
 
 export function isArray<T>(obj: unknown): obj is T[] {

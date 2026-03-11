@@ -1,7 +1,7 @@
-import {join} from "path"
+import {join} from "node:path"
 
-import {task} from "../task"
-import {compile_typescript} from "@compiler/compiler"
+import {task} from "../task.js"
+import {compile_typescript} from "#compiler/compiler.js"
 
 task("examples:compile", async () => {
   compile_typescript(join("examples", "tsconfig.json"))

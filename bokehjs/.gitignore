@@ -2,6 +2,7 @@
 /npm-debug.log
 /.eslintcache
 .package.json
+/test/devtools/_build
 /test/baselines/*/report.json
 /test/baselines/*/report.out
 !/test/baselines/*/*.png

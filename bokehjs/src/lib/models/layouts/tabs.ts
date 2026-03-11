@@ -22,7 +22,8 @@ export class TabsView extends LayoutDOMView {
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
   protected header_el: HTMLElement
-  protected header_els: HTMLElement[]
+  headers_wrapper_el: HTMLElement
+  header_els: HTMLElement[]
 
   override connect_signals(): void {
     super.connect_signals()
@@ -62,43 +63,41 @@ export class TabsView extends LayoutDOMView {
     this.class_list.remove([...Location].map((loc) => tabs[loc]))
     this.class_list.add(tabs[loc])
 
-    const layoutable = new Container<LayoutDOMView>()
-
     for (const view of this.child_views) {
       view.parent_style.append(":host", {grid_area: "stack"})
-
-      if (view instanceof LayoutDOMView && view.layout != null) {
-        layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)
-      }
     }
 
-    if (layoutable.size != 0) {
-      this.layout = new GridAlignmentLayout(layoutable)
-      this.layout.set_sizing()
-    } else {
-      delete this.layout
+    if (this.model.link_layouts) {
+      const layoutable = new Container<LayoutDOMView>()
+
+      for (const view of this.child_views) {
+        view.parent_style.append(":host", {grid_area: "stack"})
+
+        if (view instanceof LayoutDOMView && view.layout != null) {
+          layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)
+        }
+      }
+
+      if (layoutable.size != 0) {
+        this.layout = new GridAlignmentLayout(layoutable)
+        this.layout.set_sizing()
+      } else {
+        delete this.layout
+      }
     }
   }
 
   override _after_layout(): void {
     super._after_layout()
-
-    const {child_views} = this
-    for (const child_view of child_views) {
-      hide(child_view.el)
-    }
-
-    const {active} = this.model
-    if (active in child_views) {
-      const tab = child_views[active]
-      show(tab.el)
-    }
+    this.update_active()
   }
 
   override render(): void {
     super.render()
 
     this.header_el = div({class: tabs.header})
+    this.headers_wrapper_el = div({class: tabs.headers_wrapper})
+    this.header_el.append(this.headers_wrapper_el)
     this.shadow_el.append(this.header_el)
     this._update_headers()
   }
@@ -156,8 +155,8 @@ export class TabsView extends LayoutDOMView {
     })
 
     this.header_els = headers
-    empty(this.header_el)
-    this.header_el.append(...headers)
+    empty(this.headers_wrapper_el)
+    this.headers_wrapper_el.append(...headers)
   }
 
   change_active(i: number): void {
@@ -196,6 +195,7 @@ export namespace Tabs {
     tabs: p.Property<TabPanel[]>
     tabs_location: p.Property<Location>
     active: p.Property<number>
+    link_layouts: p.Property<boolean>
   }
 }
 
@@ -212,10 +212,11 @@ export class Tabs extends LayoutDOM {
   static {
     this.prototype.default_view = TabsView
 
-    this.define<Tabs.Props>(({Int, List, Ref}) => ({
+    this.define<Tabs.Props>(({Int, List, Ref, Bool}) => ({
       tabs:          [ List(Ref(TabPanel)), [] ],
       tabs_location: [ Location, "above" ],
       active:        [ Int, 0 ],
+      link_layouts:  [ Bool, false ],
     }))
   }
 }

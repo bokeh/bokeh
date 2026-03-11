@@ -8,7 +8,7 @@ dependencies:
   - anaconda-client
   - boto3
   - colorama
-  - nodejs 20.*
+  - nodejs 24.*
   - packaging
   - setuptools
   - twine

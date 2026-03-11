@@ -59,6 +59,7 @@ export function use_theme(theme: Theme | null = null): void {
 // Property base class
 //
 
+/* eslint-disable @stylistic/indent */
 export type UniformsOf<Props> = {
   [Key in keyof Props as
     Props[Key] extends BaseCoordinateSpec<any> ? never   :
@@ -90,6 +91,7 @@ export type InheritedAttrsOf<Props> = {
     Props[Key] extends VectorSpec<any, any> ? `inherited_${Key}` :
     Props[Key] extends ScalarSpec<any, any> ? `inherited_${Key}` : never]: boolean
 }
+/* eslint-enable @stylistic/indent */
 
 export type InheritedScreenOf<Props> = {
   [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean
@@ -106,28 +108,28 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P, HP extends HasProps = HasProps> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HP) => T))?, PropertyOptions<T>?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T, HP> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HP) => T))?, PropertyOptions<T, HP>?] : never
 }
 
-export type DefaultsOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
+export type DefaultsOf<P, HP extends HasProps = HasProps> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HP) => T) : never
 }
 
-export type OptionsOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? PropertyOptions<T> : never
+export type OptionsOf<P, HP extends HasProps = HasProps> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? PropertyOptions<T, HP> : never
 }
 
 type DefaultFn<T> = (obj: HasProps) => T
 
-export type PropertyOptions<T> = {
+export type PropertyOptions<T, HP extends HasProps> = {
   internal?: boolean
   readonly?: boolean
-  convert?(value: T, obj: HasProps): T | undefined
-  on_update?(value: T, obj: HasProps): void
+  convert?(value: T, obj: HP): T | undefined
+  on_update?(value: T, obj: HP): void
 }
 
-export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, kind: Kind<T>, default_value: DefaultFn<T>, options?: PropertyOptions<T>): Property<T>
+export interface PropertyConstructor<T, HP extends HasProps> {
+  new (obj: HP, attr: string, kind: Kind<T>, default_value: DefaultFn<T>, options?: PropertyOptions<T, HP>): Property<T>
   readonly prototype: Property<T>
 }
 
@@ -156,7 +158,7 @@ export abstract class Property<T = unknown> {
 
   initialize(initial_value: T | Unset = unset): void {
     if (this._initialized) {
-      throw new Error("already initialized")
+      throw new Error(`${this} is already initialized`)
     }
 
     let attr_value: T | Unset = unset
@@ -200,7 +202,7 @@ export abstract class Property<T = unknown> {
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new UnsetValueError(`${this.obj}.${this.attr} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -239,7 +241,7 @@ export abstract class Property<T = unknown> {
               readonly attr: string,
               readonly kind: Kind<T>,
               readonly default_value: DefaultFn<T>,
-              options: PropertyOptions<T> = {}) {
+              options: PropertyOptions<T, HasProps> = {}) {
     this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
     this.readonly = options.readonly ?? false
@@ -262,9 +264,12 @@ export abstract class Property<T = unknown> {
     this.on_update?.(attr_value, this.obj)
   }
 
+  to_full_string(): string {
+    return `Prop(${this}, value: ${valueToString(this._value)})`
+  }
+
   toString(): string {
-    /*${this.name}*/
-    return `Prop(${this.obj}.${this.attr}, value: ${valueToString(this._value)})`
+    return `${this.obj}.${this.attr}`
   }
 
   // ----- customizable policies
@@ -275,7 +280,7 @@ export abstract class Property<T = unknown> {
 
   validate(value: unknown): void {
     if (!this.valid(value)) {
-      throw new ValidationError(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
+      throw new ValidationError(`${this} given invalid value: ${valueToString(value)}`)
     }
   }
 
@@ -317,7 +322,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new Error(`${this} is unset`)
     }
   }
 
@@ -411,7 +416,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new Error(`${this} is unset`)
     }
   }
 
@@ -576,7 +581,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
         delete this._value.units
       }
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new Error(`${this} is unset`)
     }
   }
 }
@@ -700,7 +705,9 @@ export class ColorSpec extends DataSpec<types.Color | null> {
   override v_materialize(colors: Arrayable<types.Color | null> | NDArray): ColorArray {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
-        return to_big_endian(colors)
+        const colors_copy = colors.slice()
+        to_big_endian(colors_copy)
+        return colors_copy
       } else if (colors.dtype == "uint8" && colors.dimension == 1) {
         const [n] = colors.shape
         const array = new RGBAArray(4*n)

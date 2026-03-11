@@ -19,8 +19,8 @@ describe("TileRenderer", () => {
     // CARTODBPOSITRON, CARTO_ATTRIBUTION
     const url = "https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
     const attribution =
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,' +
-        '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,' +
+      '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
     const tile_provider = new WMTSTileSource({url, attribution})
 
     function add_tile(plot: Plot, tile_source: TileSource, attrs: Partial<TileRenderer.Attrs> = {}): TileRenderer {

@@ -17,7 +17,9 @@
 
   // Colors
   --color: #colors[text];
+  --inherit-color: light-dark(black, var(--color)); // used to prevent too many baselines updates. --color should be used directly instead in the future
   --background-color: #colors[background];
+  --inherit-background-color: light-dark(transparent, var(--background-color)); // used to prevent too many baselines updates. --background-color should be used directly instead in the future
   --hover-color: #colors[hover];
   --disabled-color: #colors[disabled];
   --border-color: #colors[border];
@@ -32,7 +34,7 @@
   --icon-color: var(--bokeh-icon-color, #colors[icon]);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
   --error: #colors[error];
-  --inverted-color: #colors[background]; // the color for when the background is dark
+  --inverted-color: #colors[inverted]; // the color for when the background is dark
   --placeholder-color: #colors[placeholder];
   --surface-background-color: #colors[surface];
   --disabled-background-color: #colors[surface];
@@ -61,6 +63,7 @@
 }
 
 :host {
+  color-scheme: var(--bokeh-color-scheme, normal);
   box-sizing: border-box;
   font-family: var(--base-font);
   font-size: var(--font-size);

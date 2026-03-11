@@ -60,7 +60,7 @@ export abstract class WidgetView extends LayoutDOMView {
     }
 
     return this.provider.MathJax.find_tex(text).length > 0
-  };
+  }
 }
 
 export namespace Widget {

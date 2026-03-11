@@ -127,5 +127,53 @@ describe("BoxZoomTool", () => {
       const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.36898, 0.33898])
     })
+
+    it("should show correct zoom overlay with both dimensions", async () => {
+      const box_zoom = new BoxZoomTool({dimensions: "both"})
+      const {plot_view} = await mkplot(box_zoom)
+
+      const box_zoom_view = plot_view.owner.get_one(box_zoom)
+
+      const zoom_event0 = {type: "pan" as const, sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
+      const zoom_event1 = {type: "pan" as const, sx: 400, sy: 500, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
+      box_zoom_view._pan_start(zoom_event0)
+      box_zoom_view._pan(zoom_event1)
+      box_zoom_view._pan_end(zoom_event1)
+
+      const {left, right, top, bottom} = box_zoom_view.model.overlay
+      expect([left, right, top, bottom]).to.be.equal([200, 400, 100, 500])
+    })
+
+    it("should show correct zoom overlay with width dimensions", async () => {
+      const box_zoom = new BoxZoomTool({dimensions: "width"})
+      const {plot_view} = await mkplot(box_zoom)
+
+      const box_zoom_view = plot_view.owner.get_one(box_zoom)
+
+      const zoom_event_width_0 = {type: "pan" as const, sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
+      const zoom_event_width_1 = {type: "pan" as const, sx: 400, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
+      box_zoom_view._pan_start(zoom_event_width_0)
+      box_zoom_view._pan(zoom_event_width_1)
+      box_zoom_view._pan_end(zoom_event_width_1)
+
+      const {left, right, top, bottom} = box_zoom_view.model.overlay
+      expect([left, right, top, bottom]).to.be.equal([200, 400, 3, 597])
+    })
+
+    it("should show correct zoom overlay with height dimensions", async () => {
+      const box_zoom = new BoxZoomTool({dimensions: "height"})
+      const {plot_view} = await mkplot(box_zoom)
+
+      const box_zoom_view = plot_view.owner.get_one(box_zoom)
+
+      const zoom_event_height_0 = {type: "pan" as const, sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
+      const zoom_event_height_1 = {type: "pan" as const, sx: 200, sy: 500, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
+      box_zoom_view._pan_start(zoom_event_height_0)
+      box_zoom_view._pan(zoom_event_height_1)
+      box_zoom_view._pan_end(zoom_event_height_1)
+
+      const {left, right, top, bottom} = box_zoom_view.model.overlay
+      expect([left, right, top, bottom]).to.be.equal([3, 572, 100, 500])
+    })
   })
 })

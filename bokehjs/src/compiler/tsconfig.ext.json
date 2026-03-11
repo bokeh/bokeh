@@ -20,16 +20,15 @@
     "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "module": "ES2022",
+    "module": "esnext",
     "moduleResolution": "node",
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "target": "ES2022",
+    "target": "ES2024",
     "lib": ["es2022", "dom", "dom.iterable"],
-    "baseUrl": ".",
     "outDir": "./dist/lib"
   },
   "include": ["./**/*.ts"]

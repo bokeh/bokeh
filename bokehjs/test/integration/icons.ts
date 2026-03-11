@@ -60,23 +60,21 @@ describe("Icons", () => {
         gap: 10px;
       }
 
+      /* this is equivalent to .icon-mask() mixin */
       .test-icon {
         width: ${size}px;
         height: ${size}px;
 
-        mask-size: 100% 100%;
-        mask-position: center center;
-        mask-repeat: no-repeat;
-        -webkit-mask-size: 100% 100%;
-        -webkit-mask-position: center center;
-        -webkit-mask-repeat: no-repeat;
+        background-color: var(--icon-color);
 
-        /* for PNG icons; remove when dropped */
-        background-size: 100% 100%;
-        background-origin: border-box;
-        background-color: transparent;
-        background-position: center center;
-        background-repeat: no-repeat;
+        mask-size: contain;
+        -webkit-mask-size: contain;
+
+        mask-position: center center;
+        -webkit-mask-position: center center;
+
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
       }
     `
 

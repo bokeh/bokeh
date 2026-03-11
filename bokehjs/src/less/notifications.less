@@ -46,15 +46,10 @@
   width: 1em;
   height: 1em;
 
-  cursor: pointer;
-
-  .mask-image(var(--bokeh-icon-x));
-  .mask-size(contain);
-  .mask-position(center center);
-  .mask-repeat(no-repeat);
-
-  background-color: black;
+  .icon-mask(var(--bokeh-icon-x), black);
   &:hover {
     background-color: var(--hover-color);
   }
+
+  cursor: pointer;
 }

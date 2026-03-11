@@ -175,6 +175,24 @@ def test_inline_extension() -> None:
     p.xaxis.formatter = TestFormatter()
     save(p)
 
+@patch("bokeh.util.compiler._run")
+def test_npmjs_version(mock_run: MagicMock) -> None:
+    mock_run.side_effect = [FileNotFoundError, "11.6.3\n"]
+    # assume npm is not installed, no file can be found and None is returned
+    assert buc.npmjs_version() is None
+    # assume npm is installed, a version is returned and stripped
+    assert buc.npmjs_version() == "11.6.3"
+
+@patch("bokeh.util.compiler._run")
+@patch("bokeh.util.compiler._nodejs_path")
+def test_nodejs_version(mock_path: MagicMock, mock_run: MagicMock) -> None:
+    mock_path.side_effect = [RuntimeError, "node"]
+    mock_run.return_value = "v20.19.5\n"
+    # assume node is not installed, then `_detect_nodejs()` raises a RuntimeError
+    assert buc.nodejs_version() is None
+    # assume node is installed, a version is returned and stripped
+    assert buc.nodejs_version() == "v20.19.5"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

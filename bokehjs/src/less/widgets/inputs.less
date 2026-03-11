@@ -15,6 +15,7 @@
   min-height: var(--input-min-height);
   padding: 0 var(--padding-horizontal);
   background-color: var(--background-color);
+  color: var(--inherit-color);
   border: var(--border);
   border-radius: var(--border-radius);
   resize: none;
@@ -46,6 +47,7 @@
     border-radius: var(--border-radius);
     padding: 0 var(--padding-horizontal);
     background-color: var(--surface-background-color);
+    color: var(--inherit-color);
   }
 
   .bk-input-prefix {
@@ -119,6 +121,7 @@ select[multiple], select[size], textarea {
   flex-wrap: nowrap;
   align-items: start;
   flex-direction: column;
+  background-color: var(--inherit-background-color);
 
   white-space: nowrap;
 
@@ -208,4 +211,8 @@ select[multiple], select[size], textarea {
 
 label:hover > .bk-description > .bk-icon, .bk-icon.bk-opaque {
   opacity: 1.0;
+}
+
+label {
+  color: var(--inherit-color);
 }

@@ -83,9 +83,11 @@ def test_json_encoder():
 """
 
 def test_json_encoder_bytes():
+    serializer = Serializer(deferred=False) # serialize buffers inline
+
     val = {"key": b"uvw"}
-    rep = Serializer().serialize(val)
-    assert rep.buffers is not None and len(rep.buffers) == 1
+    rep = serializer.serialize(val)
+    assert rep.buffers == []
 
     # Note mtime=1 is a workaround for an issue with Python 3.11 and 3.12
     compressed_bytes = gzip.compress(val["key"], mtime=1, compresslevel=settings.compression_level())

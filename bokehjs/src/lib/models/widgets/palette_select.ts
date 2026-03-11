@@ -76,7 +76,7 @@ export class PaletteSelectView extends InputWidgetView {
 
   protected _render_input(): HTMLElement {
     this._value_el = div({class: [palette_select_css.value, item_css.entry]}, this._render_value())
-    const chevron_el = div({class: [palette_select_css.chevron, icons_css.tool_icon_chevron_down]})
+    const chevron_el = div({class: [palette_select_css.chevron]})
 
     const input_el = div({class: [inputs_css.input, palette_select_css.value_input]}, this._value_el, chevron_el)
 

@@ -112,14 +112,14 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         if settings.allowed_ws_origin():
             allowed_hosts = set(settings.allowed_ws_origin())
 
-        allowed = check_allowlist(origin_host, allowed_hosts)
-        if allowed:
+
+        if check_allowlist(origin_host, allowed_hosts):
             return True
-        else:
-            log.error("Refusing websocket connection from Origin '%s'; \
-                      use --allow-websocket-origin=%s or set BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
-                      origin, origin_host, origin_host, allowed_hosts)
-            return False
+
+        log.error("Refusing websocket connection from Origin '%s'; \
+                    use --allow-websocket-origin=%s or set BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
+                    origin, origin_host, origin_host, allowed_hosts)
+        return False
 
     @web.authenticated
     def open(self) -> None:

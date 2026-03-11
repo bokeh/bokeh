@@ -31,6 +31,7 @@ import {HAreaStepView} from "../../glyphs/harea_step"
 import {ImageBaseView} from "../../glyphs/image_base"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
+import {StepView} from "../../glyphs/step"
 import {PatchView} from "../../glyphs/patch"
 import {VAreaView} from "../../glyphs/varea"
 import {VAreaStepView} from "../../glyphs/varea_step"
@@ -390,7 +391,7 @@ export class HoverToolView extends InspectToolView {
         }
         collected.push({ds, vars})
       }
-    } else if (glyph instanceof LineView) {
+    } else if (glyph instanceof LineView || glyph instanceof StepView) {
       const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
         const [[snap_x, snap_y], [snap_sx, snap_sy], ii] = (() => {

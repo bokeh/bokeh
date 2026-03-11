@@ -19,6 +19,11 @@ You can format any text you enter when working with pull requests. To learn more
 about your formatting options, see `Writing on GitHub`_ in the
 `GitHub documentation`_.
 
+.. note::
+    If you're using AI tools to assist with your contribution, please review
+    our `AI Contribution Guidelines`_ to ensure your contribution follows
+    project expectations.
+
 Pull request workflow
 ---------------------
 
@@ -176,3 +181,4 @@ for more information about labels and the pull request management process.
 .. _Bokeh development team: https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#development-team
 .. _`BEP 4: Project Roles`: https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles
 .. _Bokeh's BSD license: https://github.com/bokeh/bokeh/blob/main/LICENSE.txt
+.. _`AI Contribution Guidelines`: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#ai-contribution-guidelines

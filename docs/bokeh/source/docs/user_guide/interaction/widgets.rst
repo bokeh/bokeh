@@ -363,6 +363,18 @@ The default behavior of the help button's tooltip is as follows:
 
 More information can be found in the reference guide entry for |HelpButton|.
 
+.. _ug_interaction_widgets_examples_light_dark:
+
+LightDark
+~~~~~~~~~~~
+
+A widget to change between light and dark color schemes:
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/light_dark.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |LightDark|.
+
 .. _ug_interaction_widgets_examples_multichoice:
 
 MultiChoice
@@ -540,6 +552,12 @@ Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 
 More information can be found in the reference guide entry for |Tabs|.
 
+.. note::
+    When displaying a large number of tabs, the tab headers will automatically
+    become scrollable if they exceed the available width (for horizontal tabs)
+    or height (for vertical tabs). This allows you to navigate through many tabs
+    without affecting the layout of the plots or other content.
+
 .. _ug_interaction_widgets_examples_textareainput:
 
 TextAreaInput
@@ -599,6 +617,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |Div|                    replace:: :class:`~bokeh.models.widgets.markups.Div`
 .. |Dropdown|               replace:: :class:`~bokeh.models.widgets.buttons.Dropdown`
 .. |FileInput|              replace:: :class:`~bokeh.models.widgets.inputs.FileInput`
+.. |LightDark|              replace:: :class:`~bokeh.models.widgets.inputs.LightDark`
 .. |HelpButton|             replace:: :class:`~bokeh.models.widgets.buttons.HelpButton`
 .. |MultiChoice|            replace:: :class:`~bokeh.models.widgets.inputs.MultiChoice`
 .. |MultiSelect|            replace:: :class:`~bokeh.models.widgets.inputs.MultiSelect`

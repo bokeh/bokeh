@@ -6,7 +6,6 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import InitVar, dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -15,7 +14,11 @@ from typing import (
     TypeAlias,
 )
 
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
+
 # External imports
+import cartopy.crs as ccrs
 import numpy as np
 import numpy.typing as npt
 
@@ -44,11 +47,13 @@ from ..models.glyphs import (
     HBar,
     HexTile,
     Line,
+    MultiLine,
+    MultiPolygons,
     VArea,
     VBar,
 )
 from ..models.graphs import LayoutProvider
-from ..models.plots import Plot
+from ..models.plots import Plot, _PlotInit
 from ..models.ranges import Range
 from ..models.renderers import ContourRenderer, GlyphRenderer, GraphRenderer
 from ..models.scales import Scale
@@ -61,39 +66,30 @@ from ..models.tools import (
     Tap,
     Tool,
 )
-from .glyph_api import GlyphAPI
+from .glyph_api import (
+    GlyphAPI,
+    LineArgs,
+    MultiLineArgs,
+    MultiPolygonsArgs,
+)
 
 EagerDataFrame: TypeAlias = IntoDataFrame
 EagerSeries: TypeAlias = IntoSeries
 
-@dataclass(init=False)
-class BaseFigureOptions:
-
-    tools: InitVar[str | Sequence[str | Tool]] = ...
-
-    x_minor_ticks: InitVar[Auto | int] = ...
-
-    y_minor_ticks: InitVar[Auto | int] = ...
-
-    x_axis_location: InitVar[VerticalLocation | None] = ...
-
-    y_axis_location: InitVar[HorizontalLocation | None] = ...
-
-    x_axis_label: InitVar[TextLike | None] = ...
-
-    y_axis_label: InitVar[TextLike | None] = ...
-
-    active_drag: InitVar[Auto | str | Drag | None] = ...
-
-    active_inspect: InitVar[Auto | str | InspectTool | Sequence[InspectTool] | None] = ...
-
-    active_scroll: InitVar[Auto | str | Scroll | None] = ...
-
-    active_tap: InitVar[Auto | str | Tap | None] = ...
-
-    active_multi: InitVar[Auto | str | GestureTool | None] = ...
-
-    tooltips: InitVar[Template | str | list[tuple[str, str]] | None] = ...
+class BaseFigureOptions(_PlotInit, total=False):
+    tools: str | Sequence[str | Tool]
+    x_minor_ticks: Auto | int
+    y_minor_ticks: Auto | int
+    x_axis_location: VerticalLocation | None
+    y_axis_location: HorizontalLocation | None
+    x_axis_label: TextLike | None
+    y_axis_label: TextLike | None
+    active_drag: Auto | str | Drag | None
+    active_inspect: Auto | str | InspectTool | Sequence[InspectTool | None]
+    active_scroll: Auto | str | Scroll | None
+    active_tap: Auto | str | Tap | None
+    active_multi: Auto | str | GestureTool | None
+    tooltips: Template | str | list[tuple[str, str] | None]
 
 RangeLike: TypeAlias = (
     Range |
@@ -109,19 +105,14 @@ AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "
 
 DEFAULT_TOOLS: str
 
-@dataclass(init=False)
-class FigureOptions(BaseFigureOptions):
+class FigureOptions(BaseFigureOptions, total=False):
+    x_range: RangeLike
+    y_range: RangeLike
+    x_axis_type: AxisType
+    y_axis_type: AxisType
 
-    x_range: InitVar[RangeLike] = ...
-
-    y_range: InitVar[RangeLike] = ...
-
-    x_axis_type: InitVar[AxisType] = ...
-
-    y_axis_type: InitVar[AxisType] = ...
-
-@dataclass
-class figure(Plot, GlyphAPI, FigureOptions):
+class figure(Plot, GlyphAPI):
+    def __init__(self, **kwargs: Unpack[FigureOptions]) -> None: ...
 
     def subplot(self,
         *,
@@ -166,5 +157,68 @@ class figure(Plot, GlyphAPI, FigureOptions):
         levels: npt.ArrayLike | None = None,
         **visuals: Any,
     ) -> ContourRenderer: ...
+
+    def borders(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def coastlines(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def land(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
+    def lakes(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
+    def ocean(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
+    def rivers(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def projection_boundary(
+        self,
+        projection: ccrs.Projection,
+        **line_kwargs: Unpack[LineArgs],
+    ) -> GlyphRenderer[Line]: ...
+
+    def provinces(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **line_kwargs: Unpack[MultiLineArgs],
+    ) -> GlyphRenderer[MultiLine]: ...
+
+    def states(
+        self,
+        projection: ccrs.Projection,
+        scale:str,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
+    ) -> GlyphRenderer[MultiPolygons]: ...
+
 
 def markers() -> None: ...

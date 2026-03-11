@@ -235,27 +235,26 @@ describe("document/defs module", () => {
         "selected",
         "default_values",
         "selection_policy",
-        "inspected",
         "data",
       ]
 
-      expect([...some0].map((prop) => prop.attr)).to.be.equal([
+      expect([...some0].filter((prop) => !prop.internal).map((prop) => prop.attr)).to.be.equal([
         ...model_props,
         "prop0", "prop1", "prop2", "prop3", "prop4", "prop5", "prop6",
       ])
-      expect([...some1].map((prop) => prop.attr)).to.be.equal([
+      expect([...some1].filter((prop) => !prop.internal).map((prop) => prop.attr)).to.be.equal([
         ...model_props,
         "prop0", "prop1", "prop2", "prop3", "prop4", "prop5", "prop6", "prop7", "prop8", "prop9",
       ])
-      expect([...some2].map((prop) => prop.attr)).to.be.equal([
+      expect([...some2].filter((prop) => !prop.internal).map((prop) => prop.attr)).to.be.equal([
         ...model_props,
         "prop0", "prop1", "prop2", "prop3", "prop4", "prop5", "prop6", "prop7", "prop8", "prop9", "prop10", "prop11"])
-      expect([...some3].map((prop) => prop.attr)).to.be.equal([
+      expect([...some3].filter((prop) => !prop.internal).map((prop) => prop.attr)).to.be.equal([
         ...model_props,
         ...cds_props,
         "prop0",
       ])
-      expect([...some4].map((prop) => prop.attr)).to.be.equal([
+      expect([...some4].filter((prop) => !prop.internal).map((prop) => prop.attr)).to.be.equal([
         ...model_props,
         ...cds_props,
         "prop0", "prop1",

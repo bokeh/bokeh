@@ -96,7 +96,7 @@ def uses_pandas(obj: Any) -> bool:
     if not is_installed("pandas"):
         return False
     module = type(obj).__module__
-    return module is not None and module.startswith("pandas.")
+    return module == "pandas" or module.startswith("pandas.")
 
 #-----------------------------------------------------------------------------
 # Dev API

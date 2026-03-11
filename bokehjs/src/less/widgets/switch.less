@@ -11,6 +11,8 @@
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 0.5em;
+  background-color: var(--inherit-background-color);
+  color: var(--inherit-color);
 }
 
 .bk-icon {
@@ -58,4 +60,8 @@
 :host(.bk-active) .bk-knob {
   left: calc(100% - var(--switch-size));
   background-color: var(--active-fg);
+}
+
+.bk-label {
+  color: var(--inherit-color);
 }

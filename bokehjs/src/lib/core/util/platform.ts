@@ -19,17 +19,17 @@ export const is_little_endian = (() => {
 
 export const BYTE_ORDER: ByteOrder = is_little_endian ? "little" : "big"
 
-export function to_big_endian(values: Uint32Array): Uint32Array {
+export function to_big_endian(values: Uint32Array): void {
   if (is_little_endian) {
-    const result = new Uint32Array(values.length)
-    const view = new DataView(result.buffer)
-    let j = 0
-    for (const color of values) {
-      view.setUint32(j, color)
-      j += 4
+    const bytes = new Uint8Array(values.buffer)
+    const n_bytes = bytes.length
+    for (let i = 0; i < n_bytes; i+=4) {
+      let temp_byte = bytes[i]
+      bytes[i] = bytes[i+3]
+      bytes[i+3] = temp_byte
+      temp_byte = bytes[i+1]
+      bytes[i+1] = bytes[i+2]
+      bytes[i+2] = temp_byte
     }
-    return result
-  } else {
-    return values
   }
 }

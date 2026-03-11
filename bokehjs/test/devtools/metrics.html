@@ -19,11 +19,11 @@
         background-image: none;
       }
     </style>
-    <script type="text/javascript" src="{{ js('bokeh') }}"></script>
-    <script type="text/javascript" src="{{ js('bokeh-api') }}"></script>
+    <script src="{{ js('bokeh') }}"></script>
+    <script src="{{ js('bokeh-api') }}"></script>
   </head>
   <body>
-    <script type="text/javascript">
+    <script>
       const metrics = {{ metrics | dump | safe }}
 
       const plots = []

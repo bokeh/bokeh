@@ -17,16 +17,18 @@ export class LinearScale extends ContinuousScale {
   }
 
   get s_compute(): (x: number) => number {
-    const [factor, offset] = this._linear_compute_state()
+    const {source_range: source, target_range: target} = this
+    const [factor, offset] = LinearScale.linear_compute(source.start, source.end, target.start, target.end)
     return (x) => factor*x + offset
   }
 
   get s_invert(): (sx: number) => number {
-    const [factor, offset] = this._linear_compute_state()
+    const {source_range: source, target_range: target} = this
+    const [factor, offset] = LinearScale.linear_compute(source.start, source.end, target.start, target.end)
     return (sx) => (sx - offset) / factor
   }
 
-  /*protected*/ _linear_compute_state(): [number, number] {
+  static linear_compute(source_start: number, source_end: number, target_start: number, target_end: number): [number, number] {
     //
     //  (t1 - t0)       (t1 - t0)
     //  --------- * x - --------- * s0 + t0
@@ -34,10 +36,6 @@ export class LinearScale extends ContinuousScale {
     //
     // [  factor  ]     [    offset    ]
     //
-    const source_start = this.source_range.start
-    const source_end   = this.source_range.end
-    const target_start = this.target_range.start
-    const target_end   = this.target_range.end
     const factor = (target_end - target_start)/(source_end - source_start)
     const offset = -(factor * source_start) + target_start
     return [factor, offset]

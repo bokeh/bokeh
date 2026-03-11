@@ -6,53 +6,73 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from dataclasses import dataclass
-from typing import Any
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from typing_extensions import Unpack
 
 # Bokeh imports
-from ..model import Model
+from ..model.model import Model, _ModelInit
 
-@dataclass
+class _TileSourceInit(_ModelInit, total=False):
+    url: str
+    tile_size: int
+    min_zoom: int
+    max_zoom: int
+    extra_url_vars: dict[str, Any]
+    attribution: str
+    x_origin_offset: float
+    y_origin_offset: float
+    initial_resolution: float | None
+
 class TileSource(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_TileSourceInit]) -> None: ...
 
     url: str = ...
-
     tile_size: int = ...
-
     min_zoom: int = ...
-
     max_zoom: int = ...
-
     extra_url_vars: dict[str, Any] = ...
-
     attribution: str = ...
-
     x_origin_offset: float = ...
-
     y_origin_offset: float = ...
-
     initial_resolution: float | None = ...
 
-@dataclass
+class _MercatorTileSourceInit(_TileSourceInit, total=False):
+    snap_to_zoom: bool
+    wrap_around: bool
+
 class MercatorTileSource(TileSource):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_MercatorTileSourceInit]) -> None: ...
 
     snap_to_zoom: bool = ...
-
     wrap_around: bool = ...
 
-@dataclass
+class _TMSTileSourceInit(_MercatorTileSourceInit, total=False):
+    ...
+
 class TMSTileSource(MercatorTileSource):
+    def __init__(self, **kwargs: Unpack[_TMSTileSourceInit]) -> None: ...
+
+class _WMTSTileSourceInit(_MercatorTileSourceInit, total=False):
     ...
 
-@dataclass
 class WMTSTileSource(MercatorTileSource):
+    def __init__(self, **kwargs: Unpack[_WMTSTileSourceInit]) -> None: ...
+
+class _QUADKEYTileSourceInit(_MercatorTileSourceInit, total=False):
     ...
 
-@dataclass
 class QUADKEYTileSource(MercatorTileSource):
-    ...
+    def __init__(self, **kwargs: Unpack[_QUADKEYTileSourceInit]) -> None: ...
 
-@dataclass
+class _BBoxTileSourceInit(_MercatorTileSourceInit, total=False):
+    use_latlon: bool
+
 class BBoxTileSource(MercatorTileSource):
+    def __init__(self, **kwargs: Unpack[_BBoxTileSourceInit]) -> None: ...
 
     use_latlon: bool = ...

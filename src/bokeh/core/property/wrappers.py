@@ -77,12 +77,15 @@ from typing import (
 # External imports
 import numpy as np
 
+# Bokeh imports
+from ...util.warnings import BokehUserWarning, warn
+
 if TYPE_CHECKING:
     import numpy.typing as npt
 
     from ...document import Document
     from ...document.events import DocumentPatchedEvent
-    from ...models.sources import ColumnarDataSource
+    from ...models.sources import ColumnarDataSource, Patches
     from ..has_props import HasProps, Setter
     from .descriptors import PropertyDescriptor
 
@@ -514,7 +517,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _patch(self, doc: Document, source: ColumnarDataSource, patches, setter: Setter | None = None) -> None:
+    def _patch(self, doc: Document, source: ColumnarDataSource, patches: Patches, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing patch events
         on ``ColumnDataSource`` columns.
 
@@ -542,12 +545,32 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         old = self._saved_copy()
 
         for name, patch in patches.items():
+            array = self[name]
+
+            # The generic type of PropertyValueColumnData doesn't respect
+            # the implementation of validation in Seq(), so this first
+            # type check is necessary.
+            if isinstance(array, Sequence):
+                if not isinstance(array, MutableSequence):
+                    warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
+                    continue
+            elif isinstance(array, np.ndarray):
+                if not array.flags.writeable:
+                    warn("attempted to patch an immutable numpy array (flags.writable is False)", BokehUserWarning)
+                    continue
+            # No else: branch here, because there is no universal type check
+            # for mutable container like objects that Seq() permits, so
+            # let's try our luck and if it doesn't work out, then the whole
+            # patch gets discarded.
+
             for ind, value in patch:
                 if isinstance(ind, (int, slice)):
-                    self[name][ind] = value
+                    array[ind] = value
                 else:
-                    shape = self[name][ind[0]][tuple(ind[1:])].shape
-                    self[name][ind[0]][tuple(ind[1:])] = np.asarray(value).reshape(shape)
+                    i, j = ind[0], tuple(ind[1:])
+                    shape = array[i][j].shape
+                    reshaped = np.asarray(value).reshape(shape)
+                    array[i][j] = reshaped
 
         from ...document.events import ColumnsPatchedEvent
         self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))

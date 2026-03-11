@@ -545,6 +545,8 @@ def test_Step() -> None:
         "x",
         "y",
         "mode",
+        "pad_before",
+        "pad_after",
     ], LINE, GLYPH)
 
 

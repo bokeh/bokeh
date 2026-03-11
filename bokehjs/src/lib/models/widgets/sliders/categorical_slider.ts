@@ -25,7 +25,7 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
       start: [this.model.value],
       step: 1,
       format: {
-        to: (value: number) => categories[value],
+        to: (value: number) => categories[Math.round(value)], // value may not be an integer due to noUiSlider's FP math
         from: (value: string) => categories.indexOf(value),
       },
     }
@@ -33,11 +33,12 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
 
   protected _calc_from([value]: number[]): string {
     const {categories} = this.model
-    return categories[value | 0] // value may not be an integer due to noUiSlider's FP math
+    return categories[Math.round(value)] // value may not be an integer due to noUiSlider's FP math
   }
 
   pretty(value: number | string): string {
-    return isNumber(value) ? this.model.categories[value] : value
+    // value may not be an integer due to noUiSlider's FP math
+    return isNumber(value) ? this.model.categories[Math.round(value)] : value
   }
 }
 

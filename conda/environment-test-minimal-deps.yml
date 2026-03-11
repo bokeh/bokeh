@@ -10,7 +10,7 @@ dependencies:
   - narwhals <1.14
   - numpy <1.25
   - packaging >=16.8
-  - pandas 1*,>=1.2
+  - pandas 2*
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
@@ -30,17 +30,18 @@ dependencies:
   - isort 5.8
   - json5
   - nbconvert >=5.4
-  - nodejs 20.*
+  - nodejs 24.*
   - pre-commit
   - psutil
   - pygments
   - pygraphviz
   - pytest >=7.0
-  - pytest-asyncio ==0.21.1 # https://github.com/bokeh/bokeh/issues/13578
+  - pytest-asyncio
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
   - pytest-timeout
+  - pytest-tornado
   - requests >=1.2.3,!=2.32.* # see https://github.com/bokeh/bokeh/issues/13910
   - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - selenium 4.2
@@ -64,7 +65,7 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph >= 0.11.0
     # tests
-    - ruff ==0.14.0
+    - ruff ==0.15.*
     - types-boto3
     - types-colorama
     - types-mock

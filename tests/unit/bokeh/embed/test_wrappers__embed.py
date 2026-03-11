@@ -60,7 +60,7 @@ Bokeh.safely(function() {
 class Test_wrap_in_script_tag:
     def test_render(self) -> None:
         assert bew.wrap_in_script_tag("code\nmorecode") == """
-<script type="text/javascript">
+<script>
   code
   morecode
 </script>\

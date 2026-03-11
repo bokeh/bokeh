@@ -77,9 +77,9 @@ describe("Model objects", () => {
       // unfortunately spy does not seem to have per-instance
       // resolution. This is the best test I could make work.
 
-      const cb1 = new CustomJS()
-      const cb2 = new CustomJS()
-      const cb3 = new CustomJS()
+      const cb1 = new CustomJS({code: ""})
+      const cb2 = new CustomJS({code: ""})
+      const cb3 = new CustomJS({code: ""})
 
       const spy = sinon.spy(cb3, "execute")
 

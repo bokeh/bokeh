@@ -24,18 +24,10 @@
   width: calc(var(--button-width) - var(--button-border));
   height: calc(var(--button-height) - var(--button-border));
 
-  mask-size: 60% 60%;
-  mask-position: center center;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 60% 60%;
-  -webkit-mask-position: center center;
-  -webkit-mask-repeat: no-repeat;
-
-  /* for PNG icons; remove when dropped */
-  background-size: 60% 60%;
-  background-origin: border-box;
-  background-position: center center;
-  background-repeat: no-repeat;
+  .mask-size(60% 60%);
+  .mask-position(center center);
+  .mask-repeat(no-repeat);
+  background-color: var(--icon-color);
 }
 
 :host(.bk-disabled) {
@@ -72,13 +64,6 @@
 
   width: 8px;
   height: 8px;
-
-  mask-size: 100% 100%;
-  mask-position: center center;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  -webkit-mask-position: center center;
-  -webkit-mask-repeat: no-repeat;
 }
 
 :host(:hover) .bk-tool-chevron {
@@ -88,25 +73,25 @@
 :host(.bk-above) .bk-tool-chevron {
   right: 0;
   bottom: 0;
-  .tool-icon-mask(var(--bokeh-icon-chevron-down));
+  .icon-mask(var(--bokeh-icon-chevron-down));
 }
 
 :host(.bk-below) .bk-tool-chevron {
   right: 0;
   top: 0;
-  .tool-icon-mask(var(--bokeh-icon-chevron-up));
+  .icon-mask(var(--bokeh-icon-chevron-up));
 }
 
 :host(.bk-left) .bk-tool-chevron {
   right: 0;
   bottom: 0;
-  .tool-icon-mask(var(--bokeh-icon-chevron-right));
+  .icon-mask(var(--bokeh-icon-chevron-right));
 }
 
 :host(.bk-right) .bk-tool-chevron {
   left: 0;
   bottom: 0;
-  .tool-icon-mask(var(--bokeh-icon-chevron-left));
+  .icon-mask(var(--bokeh-icon-chevron-left));
 }
 
 :host(:hover) {

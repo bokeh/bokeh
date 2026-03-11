@@ -137,6 +137,15 @@ describe("_us", () => {
   })
 })
 
+describe("_ns", () => {
+  it("should round nanoseconds", () => {
+    expect(dttf._ns(123456789.1234)).to.be.equal(789123000)
+  })
+  it("should handle negative nanoseconds (pre epoch)", () => {
+    expect(dttf._ns(-123456789.1234)).to.be.equal(210877000)
+  })
+})
+
 const t = 1655945719752  // Thu, 23 Jun 2022 00:55:19 GMT
 const MIN = 60 * 1000
 const HOUR = 3600 * 1000
@@ -150,6 +159,14 @@ describe("DatetimeTickFormatter", () => {
       const formatter = new dttf.DatetimeTickFormatter()
       const labels = formatter.doFormat([], {loc: 0})
       expect(labels).to.be.equal([])
+    })
+    it("should handle microseconds with nanosecond format", () => {
+      const formatter = new dttf.DatetimeTickFormatter({microseconds: "%6Nus"})
+      const labels = formatter.doFormat([t, t+0.001, t+0.002], {loc: 0})
+      expect(labels).to.be.equal(["752000us", "752001us", "752002us"])
+      const formatter_ns = new dttf.DatetimeTickFormatter({microseconds: "%Nns"})
+      const labels_ns = formatter_ns.doFormat([t, t+0.001, t+0.002], {loc: 0})
+      expect(labels_ns).to.be.equal(["752000000ns", "752001000ns", "752002000ns"])
     })
     it("should handle microseconds", () => {
       const formatter = new dttf.DatetimeTickFormatter()

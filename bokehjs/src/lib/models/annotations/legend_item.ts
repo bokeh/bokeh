@@ -65,20 +65,21 @@ export class LegendItem extends Model {
     return true
   }
 
-  override initialize(): void {
-    super.initialize()
-
+  protected _validate_integrity(): void {
     // Validate data_sources match
-    const data_source_validation = this._check_data_sources_on_renderers()
-    if (!data_source_validation) {
+    if (!this._check_data_sources_on_renderers()) {
       logger.error("Non matching data sources on legend item renderers")
     }
 
     // Validate label in data_source
-    const field_validation = this._check_field_label_on_data_source()
-    if (!field_validation) {
+    if (!this._check_field_label_on_data_source()) {
       logger.error(`Bad column name on label: ${this.label}`)
     }
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._validate_integrity() // TODO should validate after update
   }
 
   get_field_from_label_prop(): string | null {
@@ -92,7 +93,7 @@ export class LegendItem extends Model {
     }
 
     const {index} = this
-    if (index != null && this.renderers.every((r) => !r.view.indices_map.has(index))) {
+    if (index != null && this.renderers.every((r) => !r.view.has_subset_index(index))) {
       // this index points to nowhere, so skip this item altogether from its legend
       return []
     }

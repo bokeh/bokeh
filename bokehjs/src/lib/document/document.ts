@@ -94,9 +94,9 @@ export class Document implements Equatable {
 
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
+  readonly resolver: ModelResolver
 
   protected readonly _init_timestamp: number
-  protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: HasProps[]
   protected _all_models: Map<ID, HasProps>
@@ -123,7 +123,7 @@ export class Document implements Equatable {
   constructor(options: DocumentOptions = {}) {
     documents.push(this)
     this._init_timestamp = Date.now()
-    this._resolver = options.resolver ?? new ModelResolver(default_resolver)
+    this.resolver = options.resolver ?? new ModelResolver(default_resolver)
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -554,14 +554,14 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Document {
+  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>, buffers: Map<ID, ArrayBuffer> = new Map()): Document {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
 
     const resolver = new ModelResolver(default_resolver)
     if (doc_json.defs != null) {
       const deserializer = new Deserializer(resolver)
-      deserializer.decode(doc_json.defs)
+      deserializer.decode(doc_json.defs, buffers)
     }
 
     const doc = new Document({resolver})
@@ -572,17 +572,17 @@ export class Document implements Equatable {
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
-    const config = deserializer.decode(doc_json.config)
+    const config = deserializer.decode(doc_json.config, buffers)
     assert(config instanceof DocumentConfig || config == null)
     if (config != null) {
       doc.config = config
     }
 
-    const roots = deserializer.decode(doc_json.roots) as Model[]
+    const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
 
     const callbacks = (() => {
       if (doc_json.callbacks != null) {
-        return deserializer.decode(doc_json.callbacks) as {[key: string]: DocumentEventCallback[]}
+        return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
       } else {
         return {}
       }
@@ -649,7 +649,7 @@ export class Document implements Equatable {
       this._new_models.add(obj)
       this._all_models.set(obj.id, obj)
     }
-    const deserializer = new Deserializer(this._resolver, this._all_models, finalize)
+    const deserializer = new Deserializer(this.resolver, this._all_models, finalize)
     const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]
 
     for (const event of events) {

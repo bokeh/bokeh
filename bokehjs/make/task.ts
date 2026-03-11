@@ -1,6 +1,6 @@
 import chalk from "chalk"
 
-import {BuildError} from "@compiler/error"
+import {BuildError} from "#compiler/error.js"
 export {BuildError}
 
 function join(items: string[], sep0: string, sep1: string): string {
@@ -83,10 +83,12 @@ export class Task<T = unknown> {
 
 const tasks = new Map<string, Task>()
 
+/* eslint-disable @stylistic/space-before-function-paren */
 export function task2<T>            (name: string, deps: [],                             fn: ()                       => Promise<Result<T>>): Task<T>
 export function task2<T, T0>        (name: string, deps: [Task<T0>],                     fn: (v0: T0)                 => Promise<Result<T>>): Task<T>
 export function task2<T, T0, T1>    (name: string, deps: [Task<T0>, Task<T1>],           fn: (v0: T0, v1: T1)         => Promise<Result<T>>): Task<T>
 export function task2<T, T0, T1, T2>(name: string, deps: [Task<T0>, Task<T1>, Task<T2>], fn: (v0: T0, v1: T1, v2: T2) => Promise<Result<T>>): Task<T>
+/* eslint-enable @stylistic/space-before-function-paren */
 
 export function task2<T, Args extends unknown[]>(name: string, deps: Task<unknown>[], fn: (...args: Args) => Promise<Result<T>>): Task<T> {
   return task(name, deps.map((dep) => dep.name), fn as Fn<unknown[], T>)

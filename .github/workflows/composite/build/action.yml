@@ -7,21 +7,11 @@ runs:
   steps:
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        miniconda-version: 'latest'
+        miniforge-version: latest
+        mamba-version: "*"
         activate-environment: bk-test
-        conda-remove-defaults: true
+        environment-file: conda/environment-build.yml
         run-post: ${{ runner.os != 'Windows' }}
-
-    - name: Install libmamba solver
-      shell: bash -l {0}
-      run: |
-        conda install -q -n base conda-libmamba-solver
-        conda config --set solver libmamba
-
-    - name: Update bk-test environment
-      shell: bash -l {0}
-      run: |
-        conda env update -q -n bk-test -f conda/environment-build.yml
 
     - name: Install node modules
       shell: bash -l {0}
