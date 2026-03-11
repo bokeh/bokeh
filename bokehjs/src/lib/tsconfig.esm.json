@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "outDir": "../../build/esm/lib",
-    "tsBuildInfoFile": "../../build/esm/bokehjs.tsbuildinfo"
-  },
-  "extends": "./tsconfig",
-}
