@@ -1,3 +1,100 @@
+2026-03-11      3.9:
+--------------------
+  * bugfixes:
+    - #14584 `Div` from `bokeh.models.dom` raisese ValueError in `show` call
+    - #14724 Bokeh protocol doesn't use binary encoding in `pull-doc-reply` message
+    - #14569 [component: bokehjs] Adjust overlay in case of 1D box zoom
+    - #14799 [component: build] Compilation failing with whitespace in path
+    - #13578 [component: tests] Unit tests are failing due to changes in pytest-asyncio
+    - #14568 [component: bokehjs] [BUG] Wheel Zoom Tool and Categorical Axis Range
+    - #14817 MyPy can crash on Bokeh 3.9.0.dev9 code
+    - #14776 [component: bokehjs] Don't add BBox if an axis has fixed position
+    - #14815 [component: bokehjs] Bounds using FactorRanges aren't respected in the first visualization
+    - #14881 Default compression level seems too high
+    - #14894 NoChannelsConfiguredError breaks CI after PR #14309
+    - #10706 [component: bokehjs] [BUG] DataCube not respecting 'target' arg on initial creation
+    - #14404 bokeh info should handle missing npm more gracefully
+    - #14502 Legends fail to export using bokeh.io.export_svgs
+    - #14549 [component: bokehjs] Updating Div text from hover causes infinite loop
+    - #14616 Add `is_silenced` function to the public API
+    - #14645 [component: bokehjs] `CategoricalSlider` shows 'undefined' for some categories when a certain number of categories is given
+    - #14690 [component: bokehjs] Bokehjs test/devtools server examples error on Windows
+    - #14700 [component: tests] Regression test for #11339 fails randomly since Chrome version upgrade.
+    - #14709 [component: build] ESM minified bundles don't work due to bad imports
+    - #14730 CI sometimes fails on MacOS with "The template is not valid"
+    - #14744 [component: bokehjs] Use `outline_width` in `Legend`
+    - #14750 [component: bokehjs] Block glyph doesn't account for reversed axes
+    - #14756 [component: build] Build CI job failing
+
+  * features:
+    - #14417 [component: bokehjs] Cannot scroll or wrap large number of tabs
+    - #14742 [FEATURE] Add padding to step
+    - #14772 [component: bokehjs] Add support for property value editing in `Examiner` component
+    - #14779 Add support for displaying contents with Markdown syntax
+    - #14607 Enhancements for `bokeh settings`
+    - #14716 [component: bokehjs] [Feature Request] Native Text/Glyph Outline Support (Inspired by Matplotlib PathEffects)
+
+  * tasks:
+    - #14346 Redesign `Dropdown` widget to use `Menu` model
+    - #14698 Use auto_box_zoom as the default tool
+    - #14786 [component: build] Replace `ts-node` and `tsconfig-paths` with `tsc`, ES modules and imports maps
+    - #14789 [component: build] Migrate to eslint 9.x
+    - #14793 Enhance performance of bitset in CDS view
+    - #14795 [component: bokehjs] Enhance performance of indices map in CDS view
+    - #14782 [component: build] Drop `baseUrl` from `tsconfig.json` files
+    - #14802 [component: bokehjs] Enhance performance of _value_record_references in has_props
+    - #14804 Pandas 3.0 compatibility
+    - #14810 [component: bokehjs] Use ES2026 `UInt8Array.{to,from}Base64` if available
+    - #14816 Adapt to new CoW behavior in Pandas 3.0
+    - #14822 Allow to disable linking layouts cross panels in  `Tabs`
+    - #14824 [component: bokehjs] Perform inplace byte swap for big endian conversion
+    - #14826 [component: bokehjs] Optimize code paths around min/max operations in linear color mapper
+    - #14836 Update release notes for 3.9 release
+    - #14841 [component: bokehjs] Update isX type checks
+    - #14845 Remove redundant `type="text/javascript"` from `<script>` tags
+    - #14851 Serializing numpy string arrays is slow
+    - #13335 [component: bokehjs] Minify WebGL shaders
+    - #14835 [component: server] Tornado's `add_callback_from_signal` is deprecated and will be removed in 7.0
+    - #14873 [component: tests] Deprecation warning in a depedency of SymPy causes examples' tests to fail
+    - #14884 Add 3.8.x release notes to 3.9
+    - #14864 [component: docs] SRI hash tables in release notes broken for some versions
+    - #14919 [component: docs] Update `switcher.json` for 3.9 release
+    - #13229 Lower log level for "dropped patch" message
+    - #14312 [component: bokehjs] Figure out how to apply hatch visuals in CSS rendering mode
+    - #14482 Add discussed color system to Bokeh code base
+    - #14546 Allow streaming on empty CDS
+    - #14548 [component: examples] Add cartopy example
+    - #14631 [component: docs] Improve network docs, re: use any Glyph to draw network nodes
+    - #14633 Move away from PEP604 - use of `|` for isinstance/issubclass
+    - #14635 [component: docs] Docs: help user find builtin marker types
+    - #14638 CodeQL JS job encountering errors
+    - #14641 Prefer stdlib NamedTemporaryFile
+    - #14642 Avoid bokeh.core.properties internally
+    - #14643 Clean up import cruft
+    - #14660 Update to latest ruff
+    - #14662 [component: build] Add support for Python 3.14
+    - #14666 Add missing stubs & fix indirect imports
+    - #14670 Drop pandas dependency for hexbin calculation
+    - #14671 [component: tests] Upgrade to a newer version of Chromium for image diff tests
+    - #14679 [component: build] Resolve nodejs 24.x dep0190 deprecation
+    - #14681 [component: bokehjs] Experiment with support for virtual DOM in bokehjs
+    - #14683 [component: build] Drop Pandas as a required dependency
+    - #14684 Defer xyzservice import
+    - #14692 Some CI environment does not work with strict channel-priority
+    - #14694 [component: bokehjs] Address TODO comments around style (`.less`) files
+    - #14696 [component: bokehjs] Replace generator to enhance query performance of views.
+    - #14705 Avoid unnecessary model instantiations in _pop_renderer_args
+    - #14717 Improve performance of data to screen mapping for (linear) scale
+    - #14721 Speedup validation of Seq[Any]
+    - #14735 [component: docs] Add AI contributions policy
+    - #14745 Performance improvement to process_tools_arg
+    - #14747 Performance improvement to convert_date_to_datetime
+    - #14753 [component: build] Resolve `npm audit` complains
+    - #14757 [component: build] Publish npm packages in CI with trusted provders
+    - #14770 [component: build] Resolve `npm audit`'s complaints
+    - #14783 [component: build] Modularize `tsconfig.json` using `extends` syntax
+    - #14632 Misc import updates
+
 2025-08-29      3.8:
 --------------------
   * bugfixes:
