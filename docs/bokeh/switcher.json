@@ -1,9 +1,13 @@
 [
   {
-    "name": "3.8.0 (latest)",
-    "version": "3.8.0",
+    "name": "3.9.0 (latest)",
+    "version": "3.9.0",
     "url": "https://docs.bokeh.org/en/latest/",
     "preferred": true
+  },
+  {
+    "version": "3.8.2",
+    "url": "https://docs.bokeh.org/en/3.8.2/"
   },
   {
     "version": "3.7.3",
