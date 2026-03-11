@@ -630,16 +630,17 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
                 computed.append(merged)
                 continue
 
-        used = [False] * len(entries)
-        for i, head in enumerate(entries):
-            if used[i]:
+        items: list[ToolEntry | None] = list(entries)
+        for i, head in enumerate(items):
+            if head is None:
                 continue
+            items[i] = None
             group: list[Tool] = [head.tool]
-            used[i] = True
-            for j in range(i + 1, len(entries)):
-                if not used[j] and entries[j].props == head.props:
-                    group.append(entries[j].tool)
-                    used[j] = True
+            for j in range(i + 1, len(items)):
+                item = items[j]
+                if item is not None and item.props == head.props:
+                    group.append(item.tool)
+                    items[j] = None
 
             if merge is not None and (tool := merge(cls, group)) is not None:
                 computed.append(tool)
