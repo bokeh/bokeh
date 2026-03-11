@@ -601,14 +601,14 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 T = TypeVar("T", bound=Tool)
 MergeFn: TypeAlias = Callable[[type[T], list[T]], Tool | ToolProxy | None]
 
+@dataclass
+class ToolEntry:
+    tool: Tool
+    props: Any
+
 def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None,
         ignore: set[str] | None = None) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
-    @dataclass
-    class ToolEntry:
-        tool: Tool
-        props: Any
-
     by_type: defaultdict[type[Tool], list[ToolEntry]] = defaultdict(list)
     computed: list[Tool | ToolProxy] = []
 
@@ -620,10 +620,8 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
             computed.append(tool)
         else:
             props = tool.properties_with_values()
-            for attr in ignore:
-                if attr in props:
-                    del props[attr]
-            by_type[tool.__class__].append(ToolEntry(tool, props))
+            filtered_props = {k: v for k, v in props.items() if k not in ignore}
+            by_type[tool.__class__].append(ToolEntry(tool, filtered_props))
 
     for cls, entries in by_type.items():
         if merge is not None:
@@ -632,14 +630,17 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
                 computed.append(merged)
                 continue
 
-        while entries:
-            head, *tail = entries
+        items: list[ToolEntry | None] = list(entries)
+        for i, head in enumerate(items):
+            if head is None:
+                continue
+            items[i] = None
             group: list[Tool] = [head.tool]
-            for item in list(tail):
-                if item.props == head.props:
+            for j in range(i + 1, len(items)):
+                item = items[j]
+                if item is not None and item.props == head.props:
                     group.append(item.tool)
-                    entries.remove(item)
-            entries.remove(head)
+                    items[j] = None
 
             if merge is not None and (tool := merge(cls, group)) is not None:
                 computed.append(tool)
