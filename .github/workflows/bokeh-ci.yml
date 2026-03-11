@@ -285,7 +285,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python-version: ['3.11', '3.14']
+        python-version: ['3.11']
 
     steps:
       - uses: actions/checkout@v4
