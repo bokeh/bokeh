@@ -37,6 +37,8 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
+    NotRequired,
+    Self,
     TypeAlias,
     TypedDict,
     TypeVar,
@@ -66,8 +68,6 @@ from .serialization import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self
-
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property

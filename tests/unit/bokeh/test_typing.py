@@ -30,10 +30,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Literal
-
-# External imports
-from typing_extensions import assert_type  # for Python 3.10
+from typing import TYPE_CHECKING, Literal, assert_type
 
 if TYPE_CHECKING:
     import numpy as np
@@ -42,8 +39,6 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from bokeh.models.annotations import LegendItem
-from bokeh.models.glyph import Glyph
-from bokeh.models.renderers import GlyphRenderer
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
@@ -66,7 +61,7 @@ def mypy_test_figure_list_attr_splat() -> None:
     assert_type(p.xgrid.dimension, Literal[0, 1])
     assert_type(p.ygrid.dimension, Literal[0, 1])
 
-    assert_type(p.legend.items, list[LegendItem] | list[tuple[str, list[GlyphRenderer[Glyph]]]])
+    assert_type(p.legend.items, list[LegendItem])
     assert_type(p.hover.show_arrow, bool)
 
 def mypy_test_stack_methods(

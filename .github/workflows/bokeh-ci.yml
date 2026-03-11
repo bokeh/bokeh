@@ -50,7 +50,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: '3.11'
           source-tree: 'keep'
 
       - name: List installed software
@@ -75,7 +75,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python-version: ['3.10', '3.11']
+        python-version: ['3.11', '3.14']
 
     steps:
       - uses: actions/checkout@v4
@@ -149,7 +149,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.11', '3.12', '3.13', '3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -279,7 +279,13 @@ jobs:
 
   documentation:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: ['3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -287,8 +293,11 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: ${{ matrix.python-version }}
           source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: List installed software
         run: |
@@ -303,5 +312,5 @@ jobs:
       - name: Upload docs
         uses: actions/upload-artifact@v4
         with:
-          name: docs-html
-          path: docs/bokeh/docs-html.tgz
+          name: docs-html-${{ matrix.python-version }}
+          path: docs/bokeh/docs-html-${{ matrix.python-version }}.tgz

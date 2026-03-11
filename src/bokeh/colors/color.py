@@ -25,14 +25,18 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import TYPE_CHECKING, TypeAlias, cast
+from typing import (
+    TYPE_CHECKING,
+    Self,
+    TypeAlias,
+    cast,
+)
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 
 if TYPE_CHECKING:
     import numpy as np
-    from typing_extensions import Self
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -47,7 +51,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-RGBTuple = tuple[int, int, int] | tuple[int, int, int, float]
+RGBTuple: TypeAlias = tuple[int, int, int] | tuple[int, int, int, float]
 
 class Color(Serializable, metaclass=ABCMeta):
     ''' A base class for representing color objects.

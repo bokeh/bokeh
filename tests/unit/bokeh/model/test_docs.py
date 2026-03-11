@@ -45,11 +45,10 @@ def test_process_example() -> None:
         __example__ = "foo"
     assert bmd.process_example(Foo) is None
     assert Foo.__doc__ == """doc
+Example
+-------
 
-    Example
-    -------
-
-    .. bokeh-plot:: __REPO__/foo
-        :source-position: below
+.. bokeh-plot:: __REPO__/foo
+    :source-position: below
 
 """

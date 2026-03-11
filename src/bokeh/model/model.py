@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import Parameter, Signature, isclass
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+    Self,
+)
 
 # Bokeh imports
 from ..core.has_props import HasProps, _default_resolver, abstract
@@ -46,8 +51,6 @@ from .util import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..core.types import ID

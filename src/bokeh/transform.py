@@ -129,7 +129,7 @@ def eqhist_cmap(
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        palette (seq[color]) : a list of colors to use for colormapping
+        palette (seq[ColorLike]) : a list of colors to use for colormapping
 
         low (float) : a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
@@ -137,15 +137,15 @@ def eqhist_cmap(
         high (float) : a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
 
-        low_color (color, optional) : color to be used if data is lower than
+        low_color (ColorLike, optional) : color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
             first color in the palette. (default: None)
 
-        high_color (color, optional) : color to be used if data is higher than
+        high_color (ColorLike, optional) : color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
             the last color in the palette. (default: None)
 
-        nan_color (color, optional) : a default color to use when mapping data
+        nan_color (ColorLike, optional) : a default color to use when mapping data
             from a column does not succeed (default: "gray")
 
     '''
@@ -176,7 +176,7 @@ def factor_cmap(
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        palette (seq[color]) : a list of colors to use for colormapping
+        palette (seq[ColorLike]) : a list of colors to use for colormapping
 
         factors (seq) : a sequence of categorical factors corresponding to
             the palette
@@ -187,7 +187,7 @@ def factor_cmap(
         end (int, optional) : an end slice index to apply when the column
             data has factors with multiple levels. (default: None)
 
-        nan_color (color, optional) : a default color to use when mapping data
+        nan_color (ColorLike, optional) : a default color to use when mapping data
             from a column does not succeed (default: "gray")
 
     Returns:
@@ -342,7 +342,7 @@ def linear_cmap(
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        palette (seq[color]) : a list of colors to use for colormapping
+        palette (seq[ColorLike]) : a list of colors to use for colormapping
 
         low (float) : a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
@@ -350,15 +350,15 @@ def linear_cmap(
         high (float) : a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
 
-        low_color (color, optional) : color to be used if data is lower than
+        low_color (ColorLike, optional) : color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
             first color in the palette. (default: None)
 
-        high_color (color, optional) : color to be used if data is higher than
+        high_color (ColorLike, optional) : color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
             the last color in the palette. (default: None)
 
-        nan_color (color, optional) : a default color to use when mapping data
+        nan_color (ColorLike, optional) : a default color to use when mapping data
             from a column does not succeed (default: "gray")
 
     '''
@@ -389,7 +389,7 @@ def log_cmap(
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        palette (seq[color]) : a list of colors to use for colormapping
+        palette (seq[ColorLike]) : a list of colors to use for colormapping
 
         low (float) : a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
@@ -397,15 +397,15 @@ def log_cmap(
         high (float) : a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
 
-        low_color (color, optional) : color to be used if data is lower than
+        low_color (ColorLike, optional) : color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
             first color in the palette. (default: None)
 
-        high_color (color, optional) : color to be used if data is higher than
+        high_color (ColorLike, optional) : color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
             the last color in the palette. (default: None)
 
-        nan_color (color, optional) : a default color to use when mapping data
+        nan_color (ColorLike, optional) : a default color to use when mapping data
             from a column does not succeed (default: "gray")
 
     '''

@@ -63,6 +63,7 @@ from typing import (
     Any,
     ClassVar,
     Generic,
+    NotRequired,
     TypeAlias,
     TypedDict,
     TypeVar,
@@ -78,8 +79,6 @@ from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
-
     from ..client.websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------
