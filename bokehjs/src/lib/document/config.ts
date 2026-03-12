@@ -9,6 +9,7 @@ export namespace DocumentConfig {
     reconnect_session: p.Property<boolean>
     notify_connection_status: p.Property<boolean>
     notifications: p.Property<Notifications | null>
+    color_scheme: p.Property<string>
   }
 }
 
@@ -22,10 +23,12 @@ export class DocumentConfig extends Model {
   }
 
   static {
-    this.define<DocumentConfig.Props>(({Bool, Ref, Nullable}) => ({
+    this.define<DocumentConfig.Props>(({Bool, Ref, Nullable, Str}) => ({
       reconnect_session: [ Bool, true ],
       notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
+      // TODO: Possible values should come from an enum? i.e ColorScheme.Light|Dark|Auto
+      color_scheme: [ Str, "light"],
     }))
   }
 }

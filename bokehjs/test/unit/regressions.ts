@@ -910,6 +910,7 @@ describe("Bug", () => {
                 context_menu: null,
               },
             },
+            color_scheme: "light",
           },
         },
         roots: [{

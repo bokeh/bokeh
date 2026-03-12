@@ -24,7 +24,7 @@ from typing import Any
 # Bokeh imports
 from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
-from ..core.property.primitive import Bool
+from ..core.property.primitive import Bool, String
 from ..model import Model
 from ..models.ui.notifications import Notifications
 
@@ -68,6 +68,10 @@ class DocumentConfig(Model):
     # TODO needs a base class, e.g. NotificationsBase
     notifications = Nullable(Instance(Notifications), default=InstanceDefault(Notifications), help="""
     Allows to configure or replace the notifications UI and logic.
+    """)
+
+    color_scheme = String(default="light", help="""
+    Allows to configure UI color scheme to use (light, dark or auto).
     """)
 
 #-----------------------------------------------------------------------------

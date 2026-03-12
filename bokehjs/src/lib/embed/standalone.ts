@@ -52,6 +52,7 @@ export async function add_document_standalone(document: Document, element: Embed
 
   const views = new ViewManager([], index)
   document.views_manager = views
+  document.set_color_scheme(document.config.color_scheme)
 
   async function render_view(model: HasProps): Promise<View> {
     const view = await views.build_view(model)
