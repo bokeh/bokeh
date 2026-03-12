@@ -24,6 +24,17 @@ runs:
         LOC="conda/environment-test-${{ inputs.test-env }}"
         grep -v '^\s*-\s*nodejs\b' $LOC.yml > $LOC-no-nodejs.yml
 
+    # Build cache key with date and env file hash for 24-hour expiration
+    # To manually reset cache, increment the version number (v1, v2, etc.)
+    - name: Build conda cache key
+      id: conda-cache
+      shell: bash
+      run: |
+        TODAY=$(/bin/date -u '+%Y%m%d')
+        ENV_HASH="${{ hashFiles(format('conda/environment-test-{0}.yml', inputs.test-env)) }}"
+        CACHE_KEY="conda-v1-${{ runner.os }}-${{ inputs.test-env }}-${TODAY}-${ENV_HASH}"
+        echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+
     - name: Setup conda environment
       uses: conda-incubator/setup-miniconda@v3
       with:
@@ -32,6 +43,8 @@ runs:
         activate-environment: bk-test
         environment-file: conda/environment-test-${{ inputs.test-env }}-no-nodejs.yml
         run-post: ${{ runner.os != 'Windows' }}
+        cache-environment: true
+        cache-environment-key: ${{ steps.conda-cache.outputs.key }}
 
     - name: Install Node.js
       uses: actions/setup-node@v6
