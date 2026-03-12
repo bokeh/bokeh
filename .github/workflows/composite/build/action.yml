@@ -11,13 +11,27 @@ runs:
       shell: bash
       run: grep -v '^\s*-\s*nodejs\b' conda/environment-build.yml > conda/environment-build-no-nodejs.yml
 
-    - uses: conda-incubator/setup-miniconda@v3
+    # Build cache key with date and env file hash for 24-hour expiration
+    # To manually reset cache, increment the version number (v1, v2, etc.)
+    - name: Build conda cache key
+      id: conda-cache
+      shell: bash
+      run: |
+        TODAY=$(/bin/date -u '+%Y%m%d')
+        ENV_HASH="${{ hashFiles('conda/environment-build.yml') }}"
+        CACHE_KEY="conda-v1-${{ runner.os }}-build-${TODAY}-${ENV_HASH}"
+        echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+
+    - name: Setup conda environment
+      uses: conda-incubator/setup-miniconda@v3
       with:
         miniforge-version: latest
         mamba-version: "*"
         activate-environment: bk-test
         environment-file: conda/environment-build-no-nodejs.yml
         run-post: ${{ runner.os != 'Windows' }}
+        cache-environment: true
+        cache-environment-key: ${{ steps.conda-cache.outputs.key }}
 
     - name: Install Node.js
       uses: actions/setup-node@v6
