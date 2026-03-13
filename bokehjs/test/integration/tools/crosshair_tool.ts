@@ -1,5 +1,5 @@
-import {display, fig} from "../_util"
-import {actions, xy} from "../../interactive"
+import {display, fig} from "#framework/layouts"
+import {actions, xy} from "#framework/interactive"
 
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 

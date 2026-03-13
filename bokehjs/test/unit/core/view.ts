@@ -1,4 +1,4 @@
-import {expect, expect_not_null} from "assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"

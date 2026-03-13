@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig} from "#framework/layouts"
 import type {TextAlign, TextBaseline} from "@bokehjs/core/enums"
 
 describe("Text glyph", () => {

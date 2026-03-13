@@ -1,8 +1,8 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import {display} from "../../../framework"
-import {restorable} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
+import {restorable} from "#framework/util"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"

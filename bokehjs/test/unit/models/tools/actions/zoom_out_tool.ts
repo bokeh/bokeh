@@ -1,5 +1,5 @@
-import {expect} from "assertions"
-import {display} from "../../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {ZoomOutTool} from "@bokehjs/models/tools/actions/zoom_out_tool"

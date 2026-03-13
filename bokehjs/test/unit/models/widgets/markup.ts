@@ -1,5 +1,5 @@
 import sinon from "sinon"
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Div} from "@bokehjs/models/widgets/div"
 import {MathJaxProvider} from "@bokehjs/models/text/providers"

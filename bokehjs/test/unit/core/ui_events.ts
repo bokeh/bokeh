@@ -1,8 +1,9 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import {display, restorable} from "../_util"
-import {actions, xy} from "../../interactive"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
+import {restorable} from "#framework/util"
+import {actions, xy} from "#framework/interactive"
 
 import * as dom from "@bokehjs/core/dom"
 import type {PointEvent} from "@bokehjs/core/bokeh_events"

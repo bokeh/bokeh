@@ -1,4 +1,4 @@
-import {display, fig, grid} from "./_util"
+import {display, fig, grid} from "#framework/layouts"
 
 import {
   brewer, bokeh, mpl, d3, tol, colorblind,

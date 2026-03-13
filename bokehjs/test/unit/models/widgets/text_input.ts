@@ -1,5 +1,5 @@
-import {expect} from "assertions"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {TextInput} from "@bokehjs/models/widgets"
 import {ValueSubmit} from "@bokehjs/core/bokeh_events"

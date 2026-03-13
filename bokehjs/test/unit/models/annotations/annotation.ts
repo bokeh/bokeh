@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {DataAnnotation, DataAnnotationView} from "@bokehjs/models/annotations/data_annotation"
 import type {PlotView} from "@bokehjs/models/plots/plot"

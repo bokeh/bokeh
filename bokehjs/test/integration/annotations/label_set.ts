@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig} from "#framework/layouts"
 
 import {LabelSet, HTMLLabelSet} from "@bokehjs/models/annotations"
 import {ColumnDataSource} from "@bokehjs/models/sources"

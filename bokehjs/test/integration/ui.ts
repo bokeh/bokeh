@@ -1,5 +1,5 @@
-import {display} from "./_util"
-import {actions, xy} from "../interactive"
+import {display} from "#framework/layouts"
+import {actions, xy} from "#framework/interactive"
 
 import {Dialog, Drawer, Pane, Menu, MenuItem, CustomJS, BoxSelectTool} from "@bokehjs/models"
 import type {Figure} from "@bokehjs/api/plotting"

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {IntersectionFilter} from "@bokehjs/models/filters/intersection_filter"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"

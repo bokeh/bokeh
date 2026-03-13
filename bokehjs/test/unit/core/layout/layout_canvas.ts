@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {Size, SizeHint} from "@bokehjs/core/layout"
 import {Layoutable} from "@bokehjs/core/layout"

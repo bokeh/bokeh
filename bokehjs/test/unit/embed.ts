@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as embed from "@bokehjs/embed"
 import {index} from "@bokehjs/embed/standalone"

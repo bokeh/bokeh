@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {show} from "@bokehjs/api/io"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"

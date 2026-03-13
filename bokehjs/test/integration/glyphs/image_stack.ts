@@ -1,5 +1,5 @@
-import {display, fig, row} from "../_util"
-import {actions, xy} from "../../interactive"
+import {display, fig, row} from "#framework/layouts"
+import {actions, xy} from "#framework/interactive"
 
 import {EqHistColorMapper, HoverTool, WeightedStackColorMapper} from "@bokehjs/models"
 import {varying_alpha_palette} from "@bokehjs/api/palettes"

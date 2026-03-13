@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {Comparator} from "@bokehjs/core/util/eq"
 import type {Equatable} from "@bokehjs/core/util/eq"

@@ -1,4 +1,4 @@
-import {expect, expect_not_null} from "assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"

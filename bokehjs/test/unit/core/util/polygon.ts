@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {split_rings, point_in_ring, classify_rings, build_line_from_ring, generate_skirt_geometry} from "@bokehjs/core/util/polygon"
 

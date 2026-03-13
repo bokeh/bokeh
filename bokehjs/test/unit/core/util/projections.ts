@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {clip_mercator, in_bounds, project_xy, project_xsys} from "@bokehjs/core/util/projections"
 

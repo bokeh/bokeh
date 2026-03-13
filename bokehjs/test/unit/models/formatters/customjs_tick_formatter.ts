@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters/customjs_tick_formatter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

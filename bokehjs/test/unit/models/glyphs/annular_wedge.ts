@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {create_glyph_renderer_view} from "./_util"
 import {AnnularWedge} from "@bokehjs/models/glyphs/annular_wedge"

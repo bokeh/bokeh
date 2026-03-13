@@ -1,5 +1,5 @@
-import {expect, expect_not_null} from "assertions"
-import {display, fig} from "../../../_util"
+import {expect, expect_not_null} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
 
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"

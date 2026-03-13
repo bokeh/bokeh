@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {SidePanel} from "@bokehjs/core/layout/side_panel"
 

@@ -1,4 +1,4 @@
-import {display} from "../_util"
+import {display} from "#framework/layouts"
 
 import {figure} from "@bokehjs/api/plotting"
 import {radians} from "@bokehjs/core/util/math"

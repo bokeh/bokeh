@@ -1,6 +1,6 @@
-import {expect, expect_instanceof} from "assertions"
-import {fig, display} from "../../_util"
-import {mouse_enter, mouse_leave} from "../../../interactive"
+import {expect, expect_instanceof} from "#framework/assertions"
+import {fig, display} from "#framework/layouts"
+import {mouse_enter, mouse_leave} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {ToolGroup} from "@bokehjs/models/tools/tool_group"

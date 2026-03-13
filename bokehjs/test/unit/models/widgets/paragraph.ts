@@ -1,5 +1,5 @@
-import {expect, expect_not_null} from "assertions"
-import {display} from "../../_util"
+import {expect, expect_not_null} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {Paragraph} from "@bokehjs/models/widgets/paragraph"
 

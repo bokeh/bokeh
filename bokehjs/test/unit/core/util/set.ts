@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {union, intersection, difference} from "@bokehjs/core/util/set"
 
 describe("core/util/set module", () => {

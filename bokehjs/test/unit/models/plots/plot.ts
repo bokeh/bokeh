@@ -1,7 +1,7 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {Plot} from "@bokehjs/models/plots/plot"
 import type {PlotView} from "@bokehjs/models/plots/plot"

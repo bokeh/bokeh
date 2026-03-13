@@ -1,5 +1,5 @@
-import {display, fig} from "../_util"
-import {PlotActions, actions, xy} from "../../interactive"
+import {display, fig} from "#framework/layouts"
+import {PlotActions, actions, xy} from "#framework/interactive"
 
 import {HoverTool} from "@bokehjs/models"
 import {Div, ValueRef, Index, Styles} from "@bokehjs/models/dom"

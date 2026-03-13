@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as dttf from "@bokehjs/models/formatters/datetime_tick_formatter"
 

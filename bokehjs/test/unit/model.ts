@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import * as sinon from "sinon"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"

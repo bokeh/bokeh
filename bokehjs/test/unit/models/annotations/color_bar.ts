@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {ColorBar, LinearColorMapper} from "@bokehjs/models"
 import {Spectral10} from "@bokehjs/api/palettes"

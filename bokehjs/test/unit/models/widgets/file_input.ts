@@ -1,5 +1,5 @@
-import {expect} from "assertions"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {FileInput} from "@bokehjs/models/widgets"
 import type {MessageSent, Patch} from "@bokehjs/document"

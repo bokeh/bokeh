@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {CumSum} from "@bokehjs/models/expressions/cumsum"

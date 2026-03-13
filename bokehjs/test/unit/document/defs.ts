@@ -1,4 +1,4 @@
-import {expect, expect_not_null} from "assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
 import type {ModelDef} from "@bokehjs/document/defs"

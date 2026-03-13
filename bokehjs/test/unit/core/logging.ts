@@ -1,10 +1,9 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
+import {trap} from "#framework/util"
 
 import type {LogLevel} from "@bokehjs/core/logging"
 import {Logger, logger, set_log_level} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
-
-import {trap} from "../../util"
 
 describe("logging module", () => {
 

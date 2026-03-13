@@ -1,7 +1,7 @@
 import * as sinon from "sinon"
 
-import {expect, expect_not_null} from "assertions"
-import {display} from "../../_util"
+import {expect, expect_not_null} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {CheckboxButtonGroup} from "@bokehjs/models/widgets/checkbox_button_group"
 

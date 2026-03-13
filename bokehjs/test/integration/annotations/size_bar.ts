@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig} from "#framework/layouts"
 
 import {SizeBar} from "@bokehjs/models"
 import type {Side, Orientation} from "@bokehjs/core/enums"

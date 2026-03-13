@@ -1,4 +1,4 @@
-import {display, fig} from "./_util"
+import {display, fig} from "#framework/layouts"
 
 import {ContourColorBar, GlyphRenderer, MultiLine, MultiPolygons} from "@bokehjs/models"
 import {ContourRenderer} from "@bokehjs/models/renderers/contour_renderer"

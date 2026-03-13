@@ -1,5 +1,5 @@
-import {expect} from "assertions"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {Canvas} from "@bokehjs/models/canvas/canvas"
 import type {SVGRenderingContext2D} from "@bokehjs/core/util/svg"

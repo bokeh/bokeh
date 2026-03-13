@@ -1,4 +1,4 @@
-import {display, fig} from "./_util"
+import {display, fig} from "#framework/layouts"
 
 describe("Grid", () => {
   it("should support cross bounds", async () => {

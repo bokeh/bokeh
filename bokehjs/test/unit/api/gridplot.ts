@@ -1,4 +1,4 @@
-import {expect, expect_instanceof} from "assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 
 import {
   PanTool, TapTool, SaveTool, BoxSelectTool, HoverTool,

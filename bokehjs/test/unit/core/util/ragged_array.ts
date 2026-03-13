@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {RaggedArray} from "@bokehjs/core/util/ragged_array"
 
 describe("core/util/ragged_array module", () => {

@@ -1,6 +1,6 @@
-import {display, column} from "./_util"
-import {tap, mouse_click} from "../interactive"
-import {expect_not_null} from "../unit/assertions"
+import {display, column} from "#framework/layouts"
+import {tap, mouse_click} from "#framework/interactive"
+import {expect_not_null} from "#framework/assertions"
 
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Message} from "@bokehjs/protocol/message"
 import {wildcard} from "@bokehjs/core/util/eq"

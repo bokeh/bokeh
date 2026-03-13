@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {catmullrom_spline} from "@bokehjs/core/util/interpolation"
 

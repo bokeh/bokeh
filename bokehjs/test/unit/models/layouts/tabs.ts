@@ -1,4 +1,4 @@
-import {expect, expect_not_null} from "assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"

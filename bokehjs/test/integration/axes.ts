@@ -1,4 +1,5 @@
-import {display, fig, row, with_internal} from "./_util"
+import {display, fig, row} from "#framework/layouts"
+import {with_internal} from "#framework/util"
 
 import type {Axis} from "@bokehjs/models"
 import {

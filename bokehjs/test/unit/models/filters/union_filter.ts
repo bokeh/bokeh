@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {UnionFilter} from "@bokehjs/models/filters/union_filter"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"

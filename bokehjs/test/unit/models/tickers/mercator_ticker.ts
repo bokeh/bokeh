@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {MercatorTicker} from "@bokehjs/models/tickers/mercator_ticker"
 
