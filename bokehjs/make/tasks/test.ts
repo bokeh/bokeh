@@ -40,6 +40,10 @@ function node(files: string[]): Promise<void> {
   })
 }
 
+task("test:framework:compile", async () => {
+  compile_typescript("./test/framework/tsconfig.json")
+})
+
 task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
@@ -342,7 +346,7 @@ async function bundle(name: string): Promise<void> {
   }
 }
 
-task("test:compile:unit", async () => compile("unit", {auto_index: true}))
+task("test:compile:unit", ["test:framework:compile"], async () => compile("unit", {auto_index: true}))
 export const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
 task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
@@ -355,7 +359,7 @@ task2("test:unit:minified", [start, start_js_server, build_unit], async ([devtoo
   return success(undefined)
 })
 
-task("test:compile:integration", async () => compile("integration", {auto_index: true}))
+task("test:compile:integration", ["test:framework:compile"], async () => compile("integration", {auto_index: true}))
 export const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
 task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
@@ -379,7 +383,7 @@ async function copy_defaults() {
   await fs.promises.copyFile(src, dst)
 }
 
-task("test:defaults:compile", async () => compile("defaults"))
+task("test:defaults:compile", ["test:framework:compile"], async () => compile("defaults"))
 export const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => {
   await copy_defaults()
   await bundle("defaults")

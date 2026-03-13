@@ -1,6 +1,6 @@
-import {display, fig, row} from "../_util"
-import {tap} from "../../interactive"
-import {expect} from "../../unit/assertions"
+import {display, fig, row} from "#framework/layouts"
+import {tap} from "#framework/interactive"
+import {expect} from "#framework/assertions"
 
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"

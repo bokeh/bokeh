@@ -1,6 +1,58 @@
+import type {SinonSpy, SinonStub} from "sinon"
 import {stub} from "sinon"
+
 import {logger} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
+
+import {delay} from "@bokehjs/core/util/defer"
+import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
+import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
+import {MathTextView} from "@bokehjs/models/text/math_text"
+
+export class DelayedInternalProvider extends MathJaxProvider {
+  get MathJax() {
+    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
+  }
+
+  async fetch() {
+    this.status = "loading"
+    void delay(50).then(() => {
+      this.status = "loaded"
+      this.ready.emit()
+    })
+  }
+}
+
+export class InternalProvider extends MathJaxProvider {
+  get MathJax() {
+    return this.status == "loaded" ? {tex2svg, mathml2svg} : null
+  }
+  async fetch() {
+    this.status = "loaded"
+  }
+}
+
+export function with_provider(provider: MathJaxProvider) {
+  return async (fn: () => Promise<void>) => {
+    const provider_stub = stub(MathTextView.prototype, "provider")
+    provider_stub.value(provider)
+    try {
+      await fn()
+    } finally {
+      provider_stub.restore()
+    }
+  }
+}
+
+export const with_internal = with_provider(new InternalProvider())
+export const with_delayed = with_provider(new DelayedInternalProvider())
+export const with_none = with_provider(new NoProvider())
+
+export function restorable<T extends SinonSpy | SinonStub>(spy: T): T & Disposable {
+  const disposable_spy = spy as T & Disposable
+  disposable_spy[Symbol.dispose] = () => spy.restore()
+  return disposable_spy
+}
 
 export type TrapOutput = {
   log: string
