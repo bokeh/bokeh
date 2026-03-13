@@ -4828,4 +4828,19 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #14665", () => {
+    it("triggers call stack size error for certain inputs", async () => {
+      const p = fig([200, 200])
+      const N = 30000
+      const x = range(0, N)
+      const y = Array(N).fill(0)
+      y[0] = 1
+      y[N-1] = 1
+
+      p.scatter(x, y)
+
+      await display(p, [350, 250])
+    })
+  })
 })
