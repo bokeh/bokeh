@@ -27,6 +27,9 @@ task("scripts:bundle:esm", [passthrough("scripts:compile")], async () => {
     treeShaking: true,
     sourcemap: true,
     metafile: true,
+    logOverride: {
+      "direct-eval": "silent",
+    },
   })
 })
 
