@@ -44,7 +44,7 @@ jobs:
           echo "Please contact @bokeh/core about conducting releases."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: conda-incubator/setup-miniconda@v3
         with:
