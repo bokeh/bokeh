@@ -1,0 +1,1 @@
+import "./auto_index"

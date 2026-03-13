@@ -286,30 +286,28 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-async function compile(name: string, options?: {auto_index?: boolean}) {
-  const base_dir = join(paths.src_dir.test, name)
+async function compile(name: string) {
+  compile_typescript(join(paths.src_dir.test, name, "tsconfig.json"))
+}
+
+async function auto_index(name: string): Promise<void> {
   const build_dir = join(paths.build_dir.test, name)
+  const files = await glob(join(build_dir, "/**/*.js"))
 
-  compile_typescript(join(base_dir, "tsconfig.json"))
-
-  if (options?.auto_index ?? false) {
-    const imports = ['export * from "../framework"']
-
-    const files = await glob(join(build_dir, "/**/*.js"))
-    for (const file of files) {
-      const ext = extname(file)
-      const name = basename(file, ext)
-      if (!name.startsWith("_") && !name.endsWith(".d") && name != "index") {
-        const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
-        const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
-        imports.push(`import "${module}"`)
-      }
+  const imports = []
+  for (const file of files) {
+    const ext = extname(file)
+    const name = basename(file, ext)
+    if (!name.startsWith("_") && !name.endsWith(".d") && name != "index" && name != "auto_index") {
+      const dir = dirname(file).replace(build_dir, "").replace(/^\//, "")
+      const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
+      imports.push(`import "${module}"`)
     }
-
-    const index_file = join(build_dir, "index.js")
-    const source = imports.join("\n")
-    fs.writeFileSync(index_file, source, {encoding: "utf-8"})
   }
+
+  const index_file = join(build_dir, "auto_index.js")
+  const source = imports.join("\n")
+  fs.writeFileSync(index_file, source, {encoding: "utf-8"})
 }
 
 async function bundle(name: string): Promise<void> {
@@ -346,8 +344,13 @@ async function bundle(name: string): Promise<void> {
   }
 }
 
-task("test:compile:unit", ["test:framework:compile"], async () => compile("unit", {auto_index: true}))
-export const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
+task("test:compile:unit", ["test:framework:compile"], async () => {
+  await compile("unit")
+  await auto_index("unit")
+})
+export const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => {
+  await bundle("unit")
+})
 
 task2("test:unit", [start, start_js_server, build_unit], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
@@ -359,8 +362,13 @@ task2("test:unit:minified", [start, start_js_server, build_unit], async ([devtoo
   return success(undefined)
 })
 
-task("test:compile:integration", ["test:framework:compile"], async () => compile("integration", {auto_index: true}))
-export const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
+task("test:compile:integration", ["test:framework:compile"], async () => {
+  await compile("integration")
+  await auto_index("integration")
+})
+export const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => {
+  await bundle("integration")
+})
 
 task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
   const baselines_root = (() => {
