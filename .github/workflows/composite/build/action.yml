@@ -62,13 +62,13 @@ runs:
       run: bash scripts/ci/verify_conda_install.sh
 
     - name: Upload wheel package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: wheel-package
         path: dist/bokeh-*-py3-none-any.whl
 
     - name: Upload bokehjs package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: bokehjs-package
         path: bokehjs/build/dist/bokeh-bokehjs-*.tgz

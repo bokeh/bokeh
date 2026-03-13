@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -45,7 +45,7 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -78,7 +78,7 @@ jobs:
         python-version: ['3.11', '3.14']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -135,7 +135,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: examples-report-${{ matrix.python-version }}
           path: examples-report-${{ matrix.python-version }}
@@ -155,7 +155,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -188,7 +188,7 @@ jobs:
           pytest $COLOR $COVERAGE tests/unit || pytest $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: success() || failure()
         with:
           env_vars: OS,PYTHON
@@ -207,7 +207,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -230,7 +230,7 @@ jobs:
           pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS
           flags: unit,minimal
@@ -248,7 +248,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -271,7 +271,7 @@ jobs:
           pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS
           flags: unit,core
@@ -288,7 +288,7 @@ jobs:
         python-version: ['3.11']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -310,7 +310,7 @@ jobs:
         run: bash scripts/ci/build_docs.sh
 
       - name: Upload docs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docs-html-${{ matrix.python-version }}
           path: docs/bokeh/docs-html-${{ matrix.python-version }}.tgz

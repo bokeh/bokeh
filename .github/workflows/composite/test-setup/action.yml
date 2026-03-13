@@ -42,7 +42,7 @@ runs:
 
     - name: Download wheel package
       id: download
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: wheel-package
         path: dist/
@@ -52,7 +52,7 @@ runs:
       run: pip install dist/bokeh-*-py3-none-any.whl
 
     - name: Download bokehjs package
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: bokehjs-package
         path: bokehjs/build/dist/
