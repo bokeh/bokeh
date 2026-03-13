@@ -2,7 +2,7 @@ name: bk-test
 channels:
   - conda-forge
 dependencies:
-  - python=3.13
+  - python=3.14
   - nodejs 24.*
 
   # required dependencies

@@ -1,0 +1,354 @@
+name: Bokeh-CI-Comprehensive
+
+# Comprehensive testing across all platforms and Python versions
+# Runs weekly on Sundays and can be triggered manually by maintainers
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sundays at 2 AM UTC
+  workflow_dispatch:  # Allow manual triggering by maintainers
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual comprehensive test'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel comprehensive tests
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+env:
+  CHROME_VER: "141.0.7390.54"
+  CHROME_REV: "chromium_3265"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history to get proper build version
+
+      - name: Build Bokeh and Bokeh.js
+        uses: ./.github/workflows/composite/build
+
+      - name: Log run reason
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Manual run reason - ${{ github.event.inputs.reason }}"
+
+  codebase:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.11'
+          source-tree: 'keep'
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Run codebase checks
+        run: pytest --color=yes tests/codebase
+
+      - name: MyPy
+        if: success() || failure()
+        run: mypy --version && mypy
+
+  examples:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Examples only run on Linux (Chrome/Chromium dependency)
+        os: [ubuntu-24.04]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: Install chromium (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          INSTALLED=$(chromium --version | cut -d' ' -f2 | cut -d'.' -f1-3)
+          EXPECTED=$(echo "$CHROME_VER" | cut -d'.' -f1-3)
+
+          echo "Currently installed Chromium $INSTALLED; expected $EXPECTED"
+
+          if [[ "$INSTALLED" = "$EXPECTED" ]]; then
+            echo "Using pre-installed version of chromium"
+          else
+            URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
+            wget --no-verbose $URL/$CHROME_REV.assert
+            wget --no-verbose $URL/$CHROME_REV.snap
+
+            sudo snap ack $CHROME_REV.assert
+            sudo snap install $CHROME_REV.snap
+          fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            chromium --version
+          fi
+
+      - name: Start chrome headless
+        working-directory: ./bokehjs
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
+
+      - name: Run tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: pytest -s -v --color=yes --tb line tests/test_examples.py
+
+      - name: Collect results
+        if: always()
+        env:
+          DST: "examples-report"
+        run: |
+          mkdir -p ${DST}
+          cp --parents examples-report.html $(cat .images-list) ${DST}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples-report-${{ matrix.os }}-${{ matrix.python-version }}
+          path: examples-report
+
+  unit-test:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        # Comprehensive: All platforms × all Python versions
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Test defaults
+        run: pytest tests/test_defaults.py
+
+      - name: Test cross
+        run: pytest tests/test_cross.py
+
+      - name: Run tests
+        if: success() || failure()
+        run: |
+          COLOR="--color=yes"
+          COVERAGE="--cov=bokeh --cov-report=xml"
+          POLICY="--last-failed --last-failed-no-failures none"
+          pytest $COLOR $COVERAGE tests/unit || pytest $COLOR $POLICY tests/unit
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v4
+        if: success() || failure()
+        with:
+          env_vars: OS,PYTHON
+          flags: unit
+          verbose: true
+
+  minimal-deps:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms, Python 3.11 (defined in minimal-deps environment)
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+    env:
+      OS: ${{ matrix.os }}
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'minimal-deps'
+          source-tree: 'delete'
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Run tests
+        run: |
+          COLOR="--color=yes"
+          COVERAGE="--cov=bokeh --cov-report=xml"
+          POLICY="--last-failed --last-failed-no-failures none"
+          pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v4
+        with:
+          env_vars: OS
+          flags: unit,minimal
+          verbose: true
+
+  core-deps:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms, Python 3.14 (defined in core environment)
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+    env:
+      OS: ${{ matrix.os }}
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'core'
+          source-tree: 'delete'
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Run tests
+        run: |
+          COLOR="--color=yes"
+          COVERAGE="--cov=bokeh --cov-report=xml"
+          POLICY="--last-failed --last-failed-no-failures none"
+          pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v4
+        with:
+          env_vars: OS
+          flags: unit,core
+          verbose: true
+
+  documentation:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.11']
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+
+      - name: Build docs
+        run: bash scripts/ci/build_docs.sh
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
+          path: docs/bokeh/docs-html.tgz
