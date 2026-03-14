@@ -33,6 +33,20 @@ Bokeh can be installed using either the Python package installer ``pip``, or
 
             pip install bokeh
 
+        This installs only the required dependencies. To unlock other features
+        or improve performance, additional packages are needed and can be
+        installed as follows:
+
+        .. code-block:: sh
+
+            pip install bokeh[all]
+
+        Available options are:
+        * ``all`` - this includes ``extra``, ``export`` and ``sampledata``
+        * ``extra`` - installs ``pandas``, etc.
+        * ``export`` - install ``selenium``, etc.
+        * ``sampledata`` - installs ``bokeh_sampledata`` package (see :ref:`install_sampledata`)
+
     .. grid-item-card::
 
         Installing with ``conda``
