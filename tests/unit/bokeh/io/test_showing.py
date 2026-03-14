@@ -137,6 +137,29 @@ def test__show_with_state_with_notebook(
     assert mock__show_file_with_state.call_args[0] == (p, s, "new", "controller")
     assert mock__show_file_with_state.call_args[1] == {}
 
+@patch('bokeh.io.showing.run_notebook_hook')
+@patch('bokeh.io.showing._show_file_with_state')
+@patch('bokeh.io.showing.get_browser_controller')
+def test__show_with_state_with_notebook_list(
+        mock_get_browser_controller: MagicMock,
+        mock__show_file_with_state: MagicMock,
+        mock_run_notebook_hook: MagicMock) -> None:
+    mock_get_browser_controller.return_value = "controller"
+    s = State()
+
+    p0 = Plot()
+    p1 = Plot()
+
+    s.output_notebook()
+    bis._show_with_state([p0, p1], s, "browser", "new")
+    assert s.notebook_type == "jupyter"
+
+    assert mock_run_notebook_hook.call_count == 2
+    assert mock_run_notebook_hook.call_args_list[0][0] == ("jupyter", "doc", p0, s, False)
+    assert mock_run_notebook_hook.call_args_list[1][0] == ("jupyter", "doc", p1, s, False)
+
+    assert mock__show_file_with_state.call_count == 0
+
 @patch('bokeh.io.notebook.get_comms')
 @patch('bokeh.io.notebook.show_doc')
 @patch('bokeh.io.showing._show_file_with_state')

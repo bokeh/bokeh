@@ -205,6 +205,9 @@ def _show_with_state(obj: Showable, state: State, browser: str | None,
     '''
 
     '''
+    from ..models.dom import DOMNode
+    from ..models.ui import UIElement
+
     controller = get_browser_controller(browser=browser)
 
     comms_handle = None
@@ -212,7 +215,11 @@ def _show_with_state(obj: Showable, state: State, browser: str | None,
 
     if state.notebook:
         assert state.notebook_type is not None
-        comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+        if isinstance(obj, (UIElement, DOMNode)):
+            comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+        else:
+            for item in obj:
+                comms_handle = run_notebook_hook(state.notebook_type, 'doc', item, state, notebook_handle)
         shown = True
 
     if state.file or not shown:
