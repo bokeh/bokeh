@@ -197,13 +197,14 @@ export class Artifact {
   }
 }
 
-export interface LinkerOpts {
+export type LinkerOpts = {
   entries: Path[]
   bases?: Path[]
   excludes?: Path[]    // paths: process, but don't include in a bundle
   externals?: (string | RegExp)[] // modules: delegate to an external require()
   excluded?: (dep: string) => boolean
   builtins?: boolean
+  import_map?: {[key: string]: string}
   cache?: Path
   target?: "ES2024" | "ES2022"
   es_modules?: boolean
@@ -224,6 +225,7 @@ export class Linker {
   readonly external_regex: RegExp[]
   readonly excluded: (dep: string) => boolean
   readonly builtins: boolean
+  readonly import_map: {[key: string]: string}
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
   readonly target: "ES2024" | "ES2022"
@@ -244,6 +246,7 @@ export class Linker {
 
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false
+    this.import_map = opts.import_map ?? {}
     this.exports = new Set(opts.exports ?? [])
 
     if (this.builtins) {
@@ -600,6 +603,21 @@ export class Linker {
   }
 
   protected resolve_absolute(dep: string, parent: Parent): Path | Error {
+    if (dep in this.import_map) {
+      return this.resolve_file(this.import_map[dep], parent)
+    }
+
+    if (dep.startsWith("#")) {
+      for (const [pattern, maps_to] of Object.entries(this.import_map)) {
+        const [prefix, suffix] = pattern.split("*")
+        if (dep.startsWith(prefix) && dep.endsWith(suffix)) {
+          const core = dep.slice(prefix.length).slice(0, dep.length - suffix.length)
+          const path = maps_to.replace("*", core)
+          return this.resolve_file(path, parent)
+        }
+      }
+    }
+
     for (const base of this.bases) {
       let path = join(base, dep)
       if (file_exists(path)) {
