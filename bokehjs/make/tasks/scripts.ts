@@ -107,7 +107,8 @@ task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"]
 task("scripts:imports", async () => {
   const base_path = paths.build_dir.lib
 
-  const files = await glob(join(base_path, "/**/*.{js,d.ts}"))
+  // windowsPathsNoEscape is needed because glob() expects / as path separators by default.
+  const files = await glob(join(base_path, "**", "*.{js,d.ts}"), {windowsPathsNoEscape: true})
   for (const file of files) {
     const file_map = `${file}.map`
 
@@ -128,7 +129,7 @@ task("scripts:imports", async () => {
           !module_path.startsWith("#") && !module_path.startsWith("@")) {
         const module_file = join(base_path, module_path)
         if (file_exists(module_file) || file_exists(`${module_file}.js`) || file_exists(join(module_file, "index.js"))) {
-          const rel_path = normalize(relative(dirname(file), module_file))
+          const rel_path = normalize(relative(dirname(file), module_file)).replaceAll("\\", "/")
           const new_path = rel_path.startsWith(".") ? rel_path : `./${rel_path}`
           return new_path
         }
