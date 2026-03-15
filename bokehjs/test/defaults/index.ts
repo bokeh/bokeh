@@ -1,5 +1,5 @@
+export * from "#framework/framework"
 import {describe, it} from "#framework/framework"
-//export * from "../framework"
 
 import {ExpectationError} from "#framework/assertions"
 
