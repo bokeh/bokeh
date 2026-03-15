@@ -15,22 +15,28 @@ task("scripts:bundle:esm", [passthrough("scripts:compile")], async () => {
     }
   })
 
-  await esbuild.build({
-    entryPoints: entries,
-    outdir: join(paths.build_dir.esm),
-    platform: "browser",
-    format: "esm",
-    target: "ES2024",
-    bundle: true,
-    minify: false,
-    keepNames: true,
-    treeShaking: true,
-    sourcemap: true,
-    metafile: true,
-    logOverride: {
-      "direct-eval": "silent",
-    },
-  })
+  async function build(minify: boolean) {
+    await esbuild.build({
+      entryPoints: entries,
+      outdir: join(paths.build_dir.esm),
+      outExtension: {".js": minify ? ".min.js" : ".js"},
+      platform: "browser",
+      format: "esm",
+      target: "ES2024",
+      bundle: true,
+      minify,
+      keepNames: true,
+      treeShaking: true,
+      sourcemap: true,
+      metafile: true,
+      logOverride: {
+        "direct-eval": "silent",
+      },
+    })
+  }
+
+  await build(false)
+  await build(true)
 })
 
 task("lib:build", ["scripts:bundle", "scripts:bundle:esm"])
