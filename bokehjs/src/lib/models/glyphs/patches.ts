@@ -2,7 +2,7 @@ import type {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax2, sum} from "core/util/arrayable"
-import type {Arrayable, Rect, Indices} from "core/types"
+import type {Arrayable, FloatArray, Rect, Indices} from "core/types"
 import type {HitTestPoint, HitTestRect, HitTestPoly} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -151,20 +151,38 @@ export class PatchesView extends GlyphView {
       const sxsi = this.sxs.get(index)
       const sysi = this.sys.get(index)
 
+      // Collect NaN-separated sub-paths
+      const sub_paths_sx: FloatArray[] = []
+      const sub_paths_sy: FloatArray[] = []
       const n = sxsi.length
-      for (let k = 0, j = 0;; j++) {
-        if (isNaN(sxsi[j]) || j == n) {
-          const sxsi_kj = sxsi.subarray(k, j)
-          const sysi_kj = sysi.subarray(k, j)
-          if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
-            indices.push(index)
-            break
+      let k = 0
+      for (let j = 0; j <= n; j++) {
+        if (j == n || isNaN(sxsi[j])) {
+          if (j > k) {
+            sub_paths_sx.push(sxsi.subarray(k, j))
+            sub_paths_sy.push(sysi.subarray(k, j))
           }
           k = j + 1
         }
-        if (j == n) {
-          break
+      }
+
+      if (sub_paths_sx.length == 0) {
+        continue
+      }
+
+      // Use "evenodd" fill rule (matches Canvas2D rendering):
+      // A point is inside the filled region if it's contained by an odd number of sub-paths.
+      // This handles both holes (even count = outside) and disjoint polygons (each adds to count).
+      let inside_count = 0
+      for (let i = 0; i < sub_paths_sx.length; i++) {
+        if (hittest.point_in_poly(sx, sy, sub_paths_sx[i], sub_paths_sy[i])) {
+          inside_count++
         }
+      }
+
+      // Odd count = inside filled region, Even count = inside hole or outside
+      if (inside_count % 2 === 1) {
+        indices.push(index)
       }
     }
 
