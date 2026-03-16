@@ -1,9 +1,8 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_scalar_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
-import type {FloatArray} from "core/types"
+import type {FloatArray, Rect} from "core/types"
 import type * as visuals from "core/visuals"
-import type {Rect} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
 import * as mixins from "core/property_mixins"
@@ -71,11 +70,9 @@ export class PatchView extends XYGlyphView {
     for (let j = 0; j <= n; j++) {
       if (j == n || isNaN(this.sx[j])) {
         if (j > k) {
-          // Always create Float32Array views to ensure consistent behavior
-          const sx_slice = Array.prototype.slice.call(this.sx, k, j)
-          const sy_slice = Array.prototype.slice.call(this.sy, k, j)
-          sub_paths_sx.push(new Float32Array(sx_slice) as FloatArray)
-          sub_paths_sy.push(new Float32Array(sy_slice) as FloatArray)
+          // Use subarray to create views (like patches.ts does)
+          sub_paths_sx.push((this.sx as FloatArray).subarray(k, j))
+          sub_paths_sy.push((this.sy as FloatArray).subarray(k, j))
         }
         k = j + 1
       }
