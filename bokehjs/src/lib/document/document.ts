@@ -2,6 +2,7 @@ import {default_resolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import type {Class} from "core/class"
+import type {ColorScheme} from "core/enums"
 import {HasProps} from "core/has_props"
 import type {Property} from "core/properties"
 import {ModelResolver} from "core/resolvers"
@@ -111,6 +112,7 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
+  protected _system_theme: MediaQueryList
 
   private _config?: DocumentConfig
   get config(): DocumentConfig {
@@ -146,8 +148,10 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
+    this._system_theme = matchMedia("(prefers-color-scheme: dark)")
     this.config = new DocumentConfig()
     this.set_color_scheme(this.config.color_scheme)
+    this._system_theme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -711,8 +715,8 @@ export class Document implements Equatable {
     }
   }
 
-  set_color_scheme(color_scheme: string): void {
-    const system_theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  set_color_scheme(color_scheme: ColorScheme): void {
+    const system_theme = this._system_theme.matches ? "dark" : "light"
     const theme = color_scheme == "auto" ? system_theme : color_scheme
     if (this.views_manager != null) {
       for (const root of this.views_manager.roots) {
@@ -720,8 +724,6 @@ export class Document implements Equatable {
           root.el.style.setProperty("--bokeh-color-scheme", theme)
         }
       }
-    } else {
-      window.document.documentElement.style.setProperty("--bokeh-color-scheme", theme)
     }
   }
 }

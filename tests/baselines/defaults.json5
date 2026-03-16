@@ -159,7 +159,7 @@
       name: "Notifications",
       attributes: {},
     },
-    color_scheme: "light",
+    color_scheme: "auto",
   },
   DataModel: {
     __extends__: "Model",

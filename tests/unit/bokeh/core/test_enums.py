@@ -39,6 +39,7 @@ ALL = (
     'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
+    'ColorScheme',
     'ContextWhich',
     'CoordinateUnits',
     'DashPattern',

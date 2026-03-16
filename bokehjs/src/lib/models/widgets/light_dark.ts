@@ -46,6 +46,7 @@ export class LightDark extends Switch {
     this.prototype.default_view = LightDarkView
 
     this.override<LightDark.Props>({
+      active: null,
       on_icon: "light_theme",
       off_icon: "dark_theme",
       indeterminate_icon: "system_theme",
