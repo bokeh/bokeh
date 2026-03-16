@@ -39,10 +39,10 @@ if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
     try:
-        from playwright.sync_api import Browser, BrowserContext
+        from playwright.sync_api import Browser, BrowserContext  # type: ignore[import-not-found]
         DriverLike = WebDriver | Browser | BrowserContext
     except ImportError:
-        DriverLike = WebDriver  # type: ignore[misc]
+        DriverLike = WebDriver
 
     from ..core.types import PathLike
     from ..document import Document
@@ -289,7 +289,7 @@ def _resolve_backend(driver: WebDriver | None, backend: ExportBackendType | None
 
 def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        scale_factor: float = 1, state: State | None = None, backend: str | None = None) -> Image.Image:
+        scale_factor: float = 1, state: State | None = None, backend: ExportBackendType | None = None) -> Image.Image:
     ''' Get a screenshot of a ``UIElement`` object.
 
     Args:
@@ -364,7 +364,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
 
 def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        state: State | None = None, backend: str | None = None) -> list[str]:
+        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     if _resolve_backend(driver, backend) == "playwright":
         return get_svg_with_playwright(obj, timeout=timeout, resources=resources,
                        width=width, height=height, state=state,
@@ -387,7 +387,7 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
 
 def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        state: State | None = None, backend: str | None = None) -> list[str]:
+        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     if _resolve_backend(driver, backend) == "playwright":
         return get_svgs_with_playwright(obj, timeout=timeout, resources=resources,
                         width=width, height=height, state=state,
