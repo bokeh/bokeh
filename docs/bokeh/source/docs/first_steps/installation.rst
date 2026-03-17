@@ -3,7 +3,7 @@
 Installation details
 ====================
 
-This section provides more detailed information about installing Bokeh. This
+This section explains how to install Bokeh and its required and optional dependencies. This
 includes details about Bokeh's prerequisites as well as Bokeh's required and
 optional dependencies.
 
@@ -11,14 +11,15 @@ Supported platforms
 -------------------
 
 Bokeh is officially supported (and continuously tested) on CPython versions
-:bokeh-minpy:`cpython` and later. It's possible that Bokeh does work on other
-versions of Python, but no guarantees or support are provided.
+:bokeh-minpy:`cpython` and later. Bokeh may also work on other Python versions, but no guarantees or support are provided.
 
 Installing with ``conda`` or ``pip``
 ------------------------------------
 
+Choose one of the following methods depending on your setup:
+
 Bokeh can be installed using either the Python package installer ``pip``, or
-``conda``, the package manager for the  `Anaconda Python Distribution`_.
+``conda``, the package manager for the `Anaconda Python Distribution`_.
 
 .. grid:: 1 1 2 2
 
@@ -78,6 +79,17 @@ To verify whether the installation was successful, use this command:
 
 You should see, among other things, a line with information on the installed
 version of Bokeh.
+
+After installation, you can also verify it by running a simple example in Python:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure, show
+
+    p = figure(title="My First Plot")
+    p.line([1, 2, 3], [4, 6, 2])
+
+    show(p)
 
 If you receive an error instead, try searching for more information by using
 the `"bokeh" tag on Stack Overflow`_ or asking a question in the
