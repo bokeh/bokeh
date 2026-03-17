@@ -20,7 +20,6 @@ import pytest ; pytest
 import re
 import sys
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 # External imports
 import PIL.Image
@@ -53,7 +52,6 @@ from bokeh.util.dependencies import is_installed
 
 # Module under test
 import bokeh.io.export as bie # isort:skip
-import bokeh.io.playwright as pw # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
