@@ -7591,6 +7591,7 @@
   },
   LightDark: {
     __extends__: "Switch",
+    active: null,
     tri_state: true,
     on_icon: "light_theme",
     off_icon: "dark_theme",
