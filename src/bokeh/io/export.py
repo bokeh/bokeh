@@ -24,7 +24,12 @@ log = logging.getLogger(__name__)
 import io
 import os
 from os.path import abspath, expanduser, splitext
-from typing import TYPE_CHECKING, Literal, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Literal,
+    Union,
+    cast,
+)
 
 # Bokeh imports
 from ..resources import INLINE
@@ -49,13 +54,12 @@ if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
     try:
-        from playwright.sync_api import (
-            Browser,
-            BrowserContext,
-        )
+        from playwright.sync_api import Browser, BrowserContext
     except ImportError:
-        from typing import Any as Browser  # type: ignore[assignment]
-        from typing import Any as BrowserContext  # type: ignore[assignment]
+        from typing import (  # type: ignore[assignment]
+            Any as Browser,
+            Any as BrowserContext,
+        )
 
     DriverLike = Union[WebDriver, Browser, BrowserContext]
 
