@@ -519,8 +519,7 @@ class HasProps(Serializable):
         else:
             rep = ObjectRep(type="object", name=self.__qualified_model__)
             if attributes:
-                USE_DICT_REP = True
-                rep["attributes"] = dict(attributes) if USE_DICT_REP else attributes
+                rep["attributes"] = attributes
             return rep
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"

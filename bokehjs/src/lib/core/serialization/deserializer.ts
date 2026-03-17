@@ -413,11 +413,16 @@ export class Deserializer {
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
     const rep = obj as any
     const id = isString(rep.$id) ? rep.$id : rep.id
-    const type = isString(rep.$type) ? rep.$type : rep.name
-    const attributes = isString(rep.$type) ? (() => {
+    const compact = isString(rep.$type)
+    const type = compact ? rep.$type : rep.name
+    const attributes: AttrsRep = compact ? (() => {
       const {$type: _type, $id: _id, ...attributes} = rep
       return attributes
-    })() : rep.attributes ?? {}
+    })() : rep.attributes ?? []
+
+    if (!compact && isPlainObject(attributes)) {
+      this._legacy_obj_rep = true
+    }
 
     if (this._defined_model_ids.has(id)) {
       this.error(`duplicate model ID '${id}'`)
@@ -466,10 +471,23 @@ export class Deserializer {
     }
   }
 
+  private _legacy_obj_rep: boolean = false
+  get legacy_obj_rep(): boolean {
+    return this._legacy_obj_rep
+  }
+
   protected _decode_attributes(obj: HasProps, attrs: AttrsRep = []): Attrs {
     const decoded_attrs: Attrs = {}
 
-    if (isPlainObject(attrs)) {
+    if (isArray(attrs)) {
+      for (const [attr, value] of attrs) {
+        if (attr in obj.properties) {
+          decoded_attrs[attr] = this._decode(value)
+        } else {
+          this.warning(`ignoring unexpected attribute '${attr}' for ${obj}`)
+        }
+      }
+    } else {
       const encoded_attrs = dict(attrs)
 
       for (const {attr} of obj) {
@@ -481,18 +499,7 @@ export class Deserializer {
 
       for (const attr of encoded_attrs.keys()) {
         if (!(attr in obj.properties)) {
-          this.warning(`unexpected attribute '${attr}' for ${obj}`)
-        }
-      }
-
-      return decoded_attrs
-    } else {
-
-      for (const [attr, value] of attrs) {
-        if (attr in obj.properties) {
-          decoded_attrs[attr] = this._decode(value)
-        } else {
-          this.warning(`unexpected attribute '${attr}' for ${obj}`)
+          this.warning(`ignoring unexpected attribute '${attr}' for ${obj}`)
         }
       }
     }

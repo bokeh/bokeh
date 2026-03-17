@@ -81,7 +81,8 @@ type CompactObjectRefRep = CompactObjectRep & {
 }
 
 export type AttrList = [string, AnyVal][]
-export type AttrsRep = {[key: string]: AnyVal} | AttrList
+export type AttrDict = {[key: string]: AnyVal}
+export type AttrsRep = AttrList | AttrDict
 
 export type LegacyObjectRep = {
   type: "object"

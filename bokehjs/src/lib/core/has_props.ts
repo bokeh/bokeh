@@ -420,8 +420,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     const rep: LegacyObjectRep & {id?: string} = use_id ? {type: "object", name, id} : {type: "object", name}
     if (attributes.length != 0) {
-      const USE_DICT_REP = true
-      rep.attributes = USE_DICT_REP ? to_object(attributes) : attributes // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+      rep.attributes = serializer.legacy_obj_rep ? to_object(attributes) : attributes
     }
 
     return rep

@@ -58,6 +58,7 @@ export type Options = {
   include_defaults: boolean
   /** Use compact model nodes for graph-minimal static documents. */
   compact: boolean
+  legacy_obj_rep: boolean
 }
 
 export class Serializer {
@@ -67,6 +68,7 @@ export class Serializer {
   readonly binary: boolean
   readonly include_defaults: boolean
   readonly compact: boolean
+  readonly legacy_obj_rep: boolean
 
   protected readonly _circular: WeakSet<object> = new WeakSet()
 
@@ -74,6 +76,7 @@ export class Serializer {
     this.binary = options?.binary ?? false
     this.include_defaults = options?.include_defaults ?? false
     this.compact = options?.compact ?? false
+    this.legacy_obj_rep = options?.legacy_obj_rep ?? false
 
     const references = options?.references
     this._references = references != null ? new Map(references) : new Map()
