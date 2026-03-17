@@ -233,21 +233,21 @@ class TestSerializer:
             ObjectRep(
                 type="object",
                 name="test_serialization.SomeProps",
-                attributes=dict(
-                    p0=2,
-                    p1="a",
-                    p2=[1, 2, 3],
-                ),
+                attributes=[
+                    ("p0", 2),
+                    ("p1", "a"),
+                    ("p2", [1, 2, 3]),
+                ],
             ),
             ObjectRefRep(
                 type="object",
                 name="test_serialization.SomeModel",
                 id=v1.id,
-                attributes=dict(
-                    p0=3,
-                    p1="b",
-                    p2=[4, 5, 6],
-                ),
+                attributes=[
+                    ("p0", 3),
+                    ("p1", "b"),
+                    ("p2", [4, 5, 6]),
+                ],
             ),
             ObjectRep(
                 type="object",
@@ -701,11 +701,11 @@ class TestSerializer:
         assert rep == ObjectRep(
             type="object",
             name="test_serialization.SomeProps",
-            attributes=dict(
-                p0=2,
-                p1="a",
-                p2=[1, 2, 3],
-            ),
+            attributes=[
+                ("p0", 2),
+                ("p1", "a"),
+                ("p2", [1, 2, 3]),
+            ],
         )
         assert encoder.buffers == []
 
@@ -717,11 +717,11 @@ class TestSerializer:
             type="object",
             name="test_serialization.SomeModel",
             id=val.id,
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
+            attributes=[
+                ("p0", 3),
+                ("p1", "b"),
+                ("p2", [4, 5, 6]),
+            ],
         )
         assert encoder.buffers == []
 
@@ -738,26 +738,26 @@ class TestSerializer:
             type="object",
             name="test_serialization.SomeModel",
             id=val2.id,
-            attributes=dict(
-                p0=30,
-                p3=ObjectRefRep(
+            attributes=[
+                ("p0", 30),
+                ("p3", ObjectRefRep(
                     type="object",
                     name="test_serialization.SomeModel",
                     id=val1.id,
-                    attributes=dict(
-                        p0=20,
-                        p3=ObjectRefRep(
+                    attributes=[
+                        ("p0", 20),
+                        ("p3", ObjectRefRep(
                             type="object",
                             name="test_serialization.SomeModel",
                             id=val0.id,
-                            attributes=dict(
-                                p0=10,
-                                p3=Ref(id=val2.id),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+                            attributes=[
+                                ("p0", 10),
+                                ("p3", Ref(id=val2.id)),
+                            ],
+                        )),
+                    ],
+                )),
+            ],
         )
         assert encoder.buffers == []
 
@@ -821,11 +821,11 @@ class TestSerializer:
                 ("f4", ObjectRep(
                     type="object",
                     name="test_serialization.SomeProps",
-                    attributes=dict(
-                        p0=2,
-                        p1="a",
-                        p2=[1, 2, 3],
-                    ),
+                    attributes=[
+                        ("p0", 2),
+                        ("p1", "a"),
+                        ("p2", [1, 2, 3]),
+                    ],
                 )),
             ],
         )
@@ -847,11 +847,11 @@ class TestSerializer:
                     type="object",
                     name="test_serialization.SomeModel",
                     id=v0.id,
-                    attributes=dict(
-                        p0=3,
-                        p1="b",
-                        p2=[4, 5, 6],
-                    ),
+                    attributes=[
+                        ("p0", 3),
+                        ("p1", "b"),
+                        ("p2", [4, 5, 6]),
+                    ],
                 )),
             ],
         )

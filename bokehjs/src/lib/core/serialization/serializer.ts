@@ -50,6 +50,7 @@ export type Options = {
   references: Map<unknown, Ref>
   binary: boolean
   include_defaults: boolean
+  legacy_obj_rep: boolean
 }
 
 export class Serializer {
@@ -57,12 +58,14 @@ export class Serializer {
 
   readonly binary: boolean
   readonly include_defaults: boolean
+  readonly legacy_obj_rep: boolean
 
   protected readonly _circular: WeakSet<object> = new WeakSet()
 
   constructor(options?: Partial<Options>) {
     this.binary = options?.binary ?? false
     this.include_defaults = options?.include_defaults ?? false
+    this.legacy_obj_rep = options?.legacy_obj_rep ?? false
 
     const references = options?.references
     this._references = references != null ? new Map(references) : new Map()

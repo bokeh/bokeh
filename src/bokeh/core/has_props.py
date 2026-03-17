@@ -421,8 +421,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         attributes = [(key, serializer.encode(val)) for key, val in properties.items()]
 
         if attributes:
-            USE_DICT_REP = True
-            rep["attributes"] = dict(attributes) if USE_DICT_REP else attributes
+            rep["attributes"] = attributes
 
         return rep
 

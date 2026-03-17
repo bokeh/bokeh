@@ -111,6 +111,11 @@ export class Document implements Equatable {
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
 
+  /**
+   * If received legacy object representation, respond accordingly.
+   */
+  private _legacy_obj_rep: boolean = false
+
   private _config?: DocumentConfig
   get config(): DocumentConfig {
     assert(this._config != null, "configuration is missing")
@@ -519,7 +524,7 @@ export class Document implements Equatable {
   }
 
   to_json(include_defaults: boolean = true): DocJson {
-    const serializer = new Serializer({include_defaults})
+    const serializer = new Serializer({include_defaults, legacy_obj_rep: this._legacy_obj_rep})
     const config = serializer.encode(this.config)
     const roots = serializer.encode(this._roots)
     return {
@@ -589,6 +594,7 @@ export class Document implements Equatable {
     })()
 
     doc.remove_on_change(listener)
+    doc._legacy_obj_rep = deserializer.legacy_obj_rep
 
     for (const [event, event_callbacks] of entries(callbacks)) {
       doc.on_event(event as BokehEventType, ...event_callbacks)
@@ -625,7 +631,7 @@ export class Document implements Equatable {
       }
     }
 
-    const serializer = new Serializer({references, binary: true})
+    const serializer = new Serializer({references, binary: true, legacy_obj_rep: this._legacy_obj_rep})
     const patch = {events: serializer.encode(events)}
 
     this._new_models.clear()
@@ -651,6 +657,7 @@ export class Document implements Equatable {
     }
     const deserializer = new Deserializer(this.resolver, this._all_models, finalize)
     const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]
+    this._legacy_obj_rep = deserializer.legacy_obj_rep
 
     for (const event of events) {
       switch (event.kind) {

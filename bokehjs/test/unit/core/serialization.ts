@@ -265,26 +265,26 @@ describe("core/serialization module", () => {
         type: "object",
         name: "SomeModel",
         id: obj2.id,
-        attributes: {
-          value: 30,
-          obj: {
+        attributes: [
+          ["value", 30],
+          ["obj", {
             type: "object",
             name: "SomeModel",
             id: obj1.id,
-            attributes: {
-              value: 20,
-              obj: {
+            attributes: [
+              ["value", 20],
+              ["obj", {
                 type: "object",
                 name: "SomeModel",
                 id: obj0.id,
-                attributes: {
-                  value: 10,
-                  obj: {id: obj2.id},
-                },
-              },
-            },
-          },
-        },
+                attributes: [
+                  ["value", 10],
+                  ["obj", {id: obj2.id}],
+                ],
+              }],
+            ],
+          }],
+        ],
       })
     })
 
@@ -360,7 +360,7 @@ describe("core/serialization module", () => {
       const resolver = new ModelResolver(default_resolver)
       const deserializer = new Deserializer(resolver)
 
-      const rep = {type: "unknown", attributes: {foo: 1}}
+      const rep = {type: "unknown", attributes: [["foo", 1]]}
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
     })
   })

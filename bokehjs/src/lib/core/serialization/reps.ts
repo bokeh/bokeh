@@ -71,7 +71,8 @@ export type ExprRep = {
 }
 
 export type AttrList = [string, AnyVal][]
-export type AttrsRep = {[key: string]: AnyVal} | AttrList
+export type AttrDict = {[key: string]: AnyVal}
+export type AttrsRep = AttrList | AttrDict
 
 export type ObjectRep = {
   type: "object"
