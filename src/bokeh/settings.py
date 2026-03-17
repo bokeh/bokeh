@@ -742,6 +742,16 @@ class Settings:
     Setting this value to False may afford a small performance improvement.
     """)
 
+    perform_error_diagnostics: PrioritizedSetting[bool] = PrioritizedSetting("perform_error_diagnostics", "BOKEH_PERFORM_ERROR_DIAGNOSTICS",
+        convert=convert_bool, default=True, help="""
+    Whether Bokeh should perform expensive error diagnostics.
+
+    When enabled (the default):
+
+    - Callback signatures are validated in ``on_change`` and ``on_event``
+    - Close-match suggestions are provided when accessing undefined attributes
+    """)
+
     pretty: PrioritizedSetting[bool] = PrioritizedSetting("pretty", "BOKEH_PRETTY", default=False, dev_default=True, help="""
     Whether JSON strings should be pretty-printed.
     """)
