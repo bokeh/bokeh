@@ -30,16 +30,29 @@ from typing import TYPE_CHECKING, Literal, cast
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
-from .playwright import get_screenshot_as_png as get_screenshot_as_png_with_playwright, get_svg as get_svg_with_playwright, get_svgs as get_svgs_with_playwright
+from .playwright import (
+    get_screenshot_as_png as get_screenshot_as_png_with_playwright,
+    get_svg as get_svg_with_playwright,
+    get_svgs as get_svgs_with_playwright,
+)
 from .state import curstate
-from .util import default_filename, tmp_html, _SVG_SCRIPT, _SVGS_SCRIPT, get_layout_html
+from .util import (
+    _SVG_SCRIPT,
+    _SVGS_SCRIPT,
+    default_filename,
+    get_layout_html,
+    tmp_html,
+)
 
 if TYPE_CHECKING:
     from PIL import Image
     from selenium.webdriver.remote.webdriver import WebDriver
 
     try:
-        from playwright.sync_api import Browser, BrowserContext  # type: ignore[import-not-found]
+        from playwright.sync_api import (  # type: ignore[import-not-found]
+            Browser,
+            BrowserContext,
+        )
         DriverLike = WebDriver | Browser | BrowserContext
     except ImportError:
         DriverLike = WebDriver

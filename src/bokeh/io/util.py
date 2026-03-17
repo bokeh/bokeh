@@ -13,6 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# Standard library imports
 import logging
 
 log = logging.getLogger(__name__)
@@ -34,19 +35,20 @@ from os.path import (
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterator
-from ..embed import file_html
 
 # Bokeh imports
+from ..embed import file_html
 from ..resources import INLINE
 
 if TYPE_CHECKING:
-    from ..models.ui import UIElement
-    from ..models.plots import Plot
     from tempfile import _TemporaryFileWrapper
-    from ..model import Model
+
     from ..document import Document
-    from ..themes import Theme
+    from ..model import Model
+    from ..models.plots import Plot
+    from ..models.ui import UIElement
     from ..resources import Resources
+    from ..themes import Theme
 
 #-----------------------------------------------------------------------------
 # Globals and constants

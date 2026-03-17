@@ -37,18 +37,33 @@ import atexit
 import io
 import queue
 import threading
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    TypeVar,
+    cast,
+)
 
 # Bokeh imports
 from ..resources import INLINE
 from ..util.dependencies import import_required
 from .state import curstate
-from .util import tmp_html
-from .util import _SVG_SCRIPT, _SVGS_SCRIPT, get_layout_html
+from .util import (
+    _SVG_SCRIPT,
+    _SVGS_SCRIPT,
+    get_layout_html,
+    tmp_html,
+)
 
 if TYPE_CHECKING:
     from PIL import Image
-    from playwright.sync_api import Browser, BrowserContext, Page, Playwright
+    from playwright.sync_api import (
+        Browser,
+        BrowserContext,
+        Page,
+        Playwright,
+    )
 
     from ..document import Document
     from ..models.ui import UIElement
