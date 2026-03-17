@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 import io
 import os
 from os.path import abspath, expanduser, splitext
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal, Union, cast
 
 # Bokeh imports
 from ..resources import INLINE
@@ -49,13 +49,15 @@ if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
     try:
-        from playwright.sync_api import (  # type: ignore[import-not-found]
+        from playwright.sync_api import (
             Browser,
             BrowserContext,
         )
-        DriverLike = WebDriver | Browser | BrowserContext
     except ImportError:
-        DriverLike = WebDriver
+        from typing import Any as Browser  # type: ignore[assignment]
+        from typing import Any as BrowserContext  # type: ignore[assignment]
+
+    DriverLike = Union[WebDriver, Browser, BrowserContext]
 
     from ..core.types import PathLike
     from ..document import Document
@@ -340,7 +342,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         return get_screenshot_as_png_with_playwright(
             obj, timeout=timeout, resources=resources,
             width=width, height=height, scale_factor=scale_factor, state=state,
-            browser=driver if _is_playwright_browser(driver) else None
+            browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None
         )
 
     from .webdriver import (
@@ -381,7 +383,7 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
     if _resolve_backend(driver, backend) == "playwright":
         return get_svg_with_playwright(obj, timeout=timeout, resources=resources,
                        width=width, height=height, state=state,
-                       browser=driver if _is_playwright_browser(driver) else None)
+                       browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None)
 
     from .webdriver import webdriver_control
 
@@ -404,7 +406,7 @@ def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, time
     if _resolve_backend(driver, backend) == "playwright":
         return get_svgs_with_playwright(obj, timeout=timeout, resources=resources,
                         width=width, height=height, state=state,
-                        browser=driver if _is_playwright_browser(driver) else None)
+                        browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None)
 
     from .webdriver import webdriver_control
 
