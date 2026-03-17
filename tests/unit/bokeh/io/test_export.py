@@ -20,12 +20,14 @@ import pytest ; pytest
 import re
 import sys
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 # External imports
 import PIL.Image
 
 ## External imports
 if TYPE_CHECKING:
+    from playwright.sync_api import Browser
     from selenium.webdriver.remote.webdriver import WebDriver
 
 # Bokeh imports
@@ -51,14 +53,23 @@ from bokeh.util.dependencies import is_installed
 
 # Module under test
 import bokeh.io.export as bie # isort:skip
+import bokeh.io.playwright as pw # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
+_has_selenium = is_installed("selenium")
+_has_playwright = is_installed("playwright")
+
+if not _has_selenium and not _has_playwright:
+    pytest.skip("Neither Selenium nor Playwright is installed", allow_module_level=True)
+
 
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
 def webdriver(request: pytest.FixtureRequest):
+    if not _has_selenium:
+        pytest.skip("Selenium not installed")
     from bokeh.io.webdriver import webdriver_control
     driver = webdriver_control.create(request.param)
     try:
@@ -69,12 +80,17 @@ def webdriver(request: pytest.FixtureRequest):
 
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
 def webdriver_with_scale_factor(request: pytest.FixtureRequest):
+    if not _has_selenium:
+        pytest.skip("Selenium not installed")
     from bokeh.io.webdriver import webdriver_control
     driver = webdriver_control.create(request.param, scale_factor=2.5)
     try:
         yield driver
     finally:
         webdriver_control.terminate(driver)
+
+
+
 
 @pytest.fixture(scope="module", autouse=True)
 def disable_max_image_pixels():
@@ -84,10 +100,6 @@ def disable_max_image_pixels():
     PIL.Image.MAX_IMAGE_PIXELS = max_image_pixels
 
 
-if not is_installed("selenium"):
-    pytest.skip("Selenium not installed", allow_module_level=True)
-
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -95,6 +107,8 @@ if not is_installed("selenium"):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+# -- Selenium-backend tests ---------------------------------------------------
 
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
@@ -352,6 +366,112 @@ def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
     # can't compare svg output, because of random defs IDs (clip-path, etc.)
     assert "Legend Item: red" in svgs[0]
     assert "Legend Item: blue" in svgs[1]
+
+
+# -- Playwright-backend tests -------------------------------------------------
+
+@pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
+class TestPlaywrightPNG:
+
+    @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444)])
+    def test_screenshot_dimensions(self, dimensions: tuple[int, int], browser: Browser) -> None:
+        width, height = dimensions
+        border = 5
+
+        layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                      height=width, width=height,
+                      min_border=border,
+                      hidpi=False,
+                      toolbar_location=None,
+                      outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+
+        with silenced(MISSING_RENDERERS):
+            png = bie.get_screenshot_as_png(layout, driver=browser)
+
+        assert png.size == (width, height)
+        data = png.tobytes()
+        assert len(data) == 4*width*height
+        assert data == b"\x00\xff\x00\xff"*width*height
+
+    def test_screenshot_with_glyph(self, browser: Browser) -> None:
+        width, height = 144, 144
+        border = 5
+
+        layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+                      height=width, width=height,
+                      toolbar_location=None,
+                      min_border=border,
+                      hidpi=False,
+                      outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+        glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
+        source = ColumnDataSource(data=dict(x=[0], y=[0]))
+        layout.add_glyph(source, glyph)
+
+        png = bie.get_screenshot_as_png(layout, driver=browser)
+        assert png.size == (width, height)
+
+        data = png.tobytes()
+        count = sum(1 for x in range(width*height) if data[x*4:x*4+4] == b"\xff\x00\x00\xff")
+
+        w, h, b = width, height, border
+        expected_count = w*h - 2*b*(w + h) + 4*b**2
+        assert count == expected_count
+
+    def test_screenshot_fractional_sizing(self, browser: Browser) -> None:
+        div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
+        png = bie.get_screenshot_as_png(div, driver=browser)
+        assert len(png.tobytes()) > 0
+
+
+@pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
+class TestPlaywrightSVG:
+
+    def test_get_svg(self, browser: Browser) -> None:
+        layout = Plot(
+            x_range=Range1d(), y_range=Range1d(),
+            toolbar_location=None, height=20, width=20,
+            min_border=0, outline_line_color=None,
+            border_fill_color=None, background_fill_color="red",
+            output_backend="canvas",
+        )
+        with silenced(MISSING_RENDERERS):
+            svgs = bie.get_svg(layout, driver=browser)
+        assert isinstance(svgs, list) and len(svgs) == 1
+
+    def test_get_svgs(self, browser: Browser) -> None:
+        def plot(color: str):
+            return Plot(
+                x_range=Range1d(), y_range=Range1d(),
+                height=20, width=20, toolbar_location=None,
+                outline_line_color=None, border_fill_color=None,
+                background_fill_color=color, output_backend="svg",
+            )
+        layout = row([plot("red"), plot("blue")])
+        with silenced(MISSING_RENDERERS):
+            svgs = bie.get_svgs(layout, driver=browser)
+        assert len(svgs) == 2
+
+# -- Backend resolution tests --------------------------------------------------
+
+class TestResolveBackend:
+
+    def test_driver_forces_selenium(self) -> None:
+        assert bie._resolve_backend(driver="fake_driver", backend=None) == "selenium"
+
+    @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
+    def test_playwright_browser_forces_playwright(self, browser: Browser) -> None:
+        assert bie._resolve_backend(driver=browser, backend=None) == "playwright"
+
+    def test_explicit_backend_param(self) -> None:
+        assert bie._resolve_backend(driver=None, backend="playwright") == "playwright"
+        assert bie._resolve_backend(driver=None, backend="selenium") == "selenium"
+
+    def test_invalid_backend_raises(self) -> None:
+        with pytest.raises(ValueError, match="Invalid export backend"):
+            bie._resolve_backend(driver=None, backend="puppeteer")
+
+
+# -- Non-backend-specific tests ------------------------------------------------
 
 def test_get_layout_html_resets_plot_dims() -> None:
     initial_height, initial_width = 200, 250

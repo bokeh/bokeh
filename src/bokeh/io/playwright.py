@@ -65,7 +65,6 @@ __all__ = (
     'get_screenshot_as_png',
     'get_svg',
     'get_svgs',
-    'run_export',
 )
 
 #-----------------------------------------------------------------------------
@@ -103,7 +102,7 @@ def get_screenshot_as_png(
 
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=browser)
 
-    # `PIL` is banned at the module level based on RuffTID253
+    # `PIL` is banned at the module level based on Ruff TID253
     from PIL import Image as PILImage
     return (PILImage.open(io.BytesIO(png_bytes))
                     .convert("RGBA")
@@ -151,25 +150,6 @@ def get_svgs(
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
     svgs, _, _, _ = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=browser)
     return cast(list[str], svgs)
-
-
-def run_export(fn: Callable[..., T], *args: Any) -> T:
-    '''Run a Playwright export function, handling Jupyter/async contexts.
-
-    In a normal Python script, ``fn`` is called directly. When a running
-    asyncio loop is detected (e.g. Jupyter), ``fn`` is dispatched to a
-    dedicated background thread where Playwright's sync API can operate.
-
-    The background thread is long-lived so that the browser instance
-    managed by :data:`playwright_control` is reused across calls.
-
-    Args:
-        fn: A callable that performs Playwright operations.
-        *args: Arguments forwarded to ``fn``.
-    '''
-    if _in_async_context():
-        return _playwright_thread.run(fn, *args)
-    return fn(*args)
 
 
 class _PlaywrightState:
@@ -335,8 +315,6 @@ def _playwright_render(
 ) -> tuple[Any, int, int, int]:
     '''Run a single Playwright export: navigate, wait for render, execute script.
 
-    Handles Jupyter/async contexts transparently via :func:`run_export`.
-
     Args:
         html: The full Bokeh HTML to render.
         script: JavaScript to execute after render. If empty, captures a
@@ -372,7 +350,9 @@ def _playwright_render(
                 page.close()
         return (result, w, h, dpr)
 
-    return run_export(_do_export)
+    if _in_async_context() and not user_browser:
+        return _playwright_thread.run(_do_export)
+    return _do_export()
 
 
 def _in_async_context() -> bool:
