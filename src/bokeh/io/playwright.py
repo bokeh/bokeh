@@ -246,7 +246,7 @@ class _PlaywrightState:
             self.cleanup()
             raise RuntimeError(
                 "Failed to launch Playwright Chromium. Make sure browser binaries "
-                "are installed by running 'playwright install chromium'."
+                "are installed by running 'playwright install chromium'.",
             ) from e
 
         return self._browser
@@ -279,7 +279,7 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
         )
     except Exception as e:
         raise RuntimeError(
-            "Bokeh was not loaded in time. Something may have gone wrong."
+            "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
 
     page.evaluate("""() => {
@@ -299,7 +299,7 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
         log.warning(
             "The Playwright page raised a timeout while waiting for "
             "a 'bokeh:idle' event to signify that the layout has rendered. "
-            "Something may have gone wrong."
+            "Something may have gone wrong.",
         )
 
 

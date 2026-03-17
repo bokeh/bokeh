@@ -27,7 +27,6 @@ from os.path import abspath, expanduser, splitext
 from typing import (
     TYPE_CHECKING,
     Literal,
-    Union,
     cast,
 )
 
@@ -61,7 +60,7 @@ if TYPE_CHECKING:
             Any as BrowserContext,
         )
 
-    DriverLike = Union[WebDriver, Browser, BrowserContext]
+    DriverLike = WebDriver | Browser | BrowserContext
 
     from ..core.types import PathLike
     from ..document import Document
@@ -302,7 +301,7 @@ def _resolve_backend(driver: WebDriver | None, backend: ExportBackendType | None
     raise RuntimeError(
         "Neither Selenium nor Playwright is installed. Install one of:\n"
         "  pip install playwright && playwright install chromium\n"
-        "  pip install selenium  (+ browser driver on PATH)"
+        "  pip install selenium  (+ browser driver on PATH)",
     )
 
 
@@ -346,7 +345,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         return get_screenshot_as_png_with_playwright(
             obj, timeout=timeout, resources=resources,
             width=width, height=height, scale_factor=scale_factor, state=state,
-            browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None
+            browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None,
         )
 
     from .webdriver import (
