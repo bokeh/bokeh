@@ -24,11 +24,7 @@ log = logging.getLogger(__name__)
 import io
 import os
 from os.path import abspath, expanduser, splitext
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    cast,
-)
+from typing import TYPE_CHECKING, Literal, cast
 
 # Bokeh imports
 from ..resources import INLINE
