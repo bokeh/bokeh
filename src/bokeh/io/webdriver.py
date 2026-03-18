@@ -29,17 +29,7 @@ from shutil import which
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    import selenium
-    from packaging.version import Version
-    from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver.chrome.options import Options as ChromeOptions
-    from selenium.webdriver.chrome.service import Service as ChromeService
-    from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
-    from selenium.webdriver.firefox.options import Options as FirefoxOptions
-    from selenium.webdriver.firefox.service import Service as FirefoxService
-    from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
     from selenium.webdriver.remote.webdriver import WebDriver
-    from selenium.webdriver.support.wait import WebDriverWait
 
     from ..document import Document
     from ..models.ui import UIElement
