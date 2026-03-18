@@ -41,6 +41,7 @@ from bokeh.core.property.descriptors import (
 )
 from bokeh.core.property.singletons import Intrinsic, Undefined
 from bokeh.core.property.vectorization import field, value
+from bokeh.settings import settings
 from bokeh.util.warnings import BokehUserWarning
 
 # Module under test
@@ -334,6 +335,16 @@ def test_HasProps_set_error() -> None:
     with pytest.raises(AttributeError) as e:
         c.junkjunk = 10
     assert str(e.value).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
+
+def test_HasProps_set_error_no_diagnostics() -> None:
+    c = Child()
+    settings.perform_error_diagnostics.set_value(False)
+    try:
+        with pytest.raises(AttributeError) as e:
+            c.int3 = 10
+        assert str(e.value) == "unexpected attribute 'int3' to Child"
+    finally:
+        settings.perform_error_diagnostics.unset_value()
 
 
 def test_HasProps_lookup() -> None:
