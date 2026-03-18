@@ -39,9 +39,11 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 from ..util.dependencies import import_required
+
 import_required("selenium.webdriver",
                 "To use bokeh.io image export functions you need selenium "
                 "('conda install selenium' or 'pip install selenium')")
+# Bokeh imports
 from ..resources import INLINE
 from ..settings import settings
 from .state import curstate
