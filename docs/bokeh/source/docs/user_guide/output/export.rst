@@ -9,19 +9,19 @@ Additional dependencies
 -----------------------
 
 To use Bokeh's export functions, you need a headless browser backend.
-Bokeh supports two options: `Playwright`_ (recommended) and `Selenium`_.
+Bokeh supports two options: `Playwright`_ and `Selenium`_.
 
-Using Playwright (recommended)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using Playwright 
+~~~~~~~~~~~~~~~~
 
-Playwright is faster and easier to install than Selenium:
+Playwright is fast and easy to install:
 
 .. code-block:: sh
 
     pip install playwright
     playwright install chromium
 
-That's it — no separate browser driver binaries to manage.
+Separate browser driver binaries do not have to be managed.
 
 .. note::
 
