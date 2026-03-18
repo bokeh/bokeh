@@ -1,7 +1,8 @@
 @import "./_mixins.less";
 
 :host {
-  --caret-width: 12px;
+  --caret-width: 18px;
+  --caret-height: 12px;
 }
 
 &.bk-btn-default, &.bk-btn-light {
@@ -16,6 +17,6 @@
   display: inline-block;
   vertical-align: middle;
   width: var(--caret-width);
-  height: var(--caret-width);
+  height: var(--caret-height);
   .icon-mask(var(--bokeh-icon-caret-down), var(--caret-color));
 }
