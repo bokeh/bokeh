@@ -21,10 +21,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import os
 from os.path import abspath, expanduser, splitext
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal
 
 # Bokeh imports
 from ..resources import INLINE
@@ -35,13 +34,14 @@ from .playwright import (
     get_svg as get_svg_with_playwright,
     get_svgs as get_svgs_with_playwright,
 )
-from .state import curstate
+from .webdriver import (
+    get_screenshot_as_png as get_screenshot_as_png_with_selenium,
+    get_svg as get_svg_with_selenium,
+    get_svgs as get_svgs_with_selenium,
+)
 from .util import (
-    _SVG_SCRIPT,
-    _SVGS_SCRIPT,
     default_filename,
     get_layout_html,
-    tmp_html,
 )
 
 if TYPE_CHECKING:
@@ -84,7 +84,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, scale_factor: float = 1, webdriver: WebDriver | None = None,
+        height: int | None = None, scale_factor: float = 1, webdriver: DriverLike | None = None,
         timeout: int = 5, state: State | None = None, backend: ExportBackendType | None = None) -> str:
     ''' Export the ``UIElement`` object or document as a PNG.
 
@@ -154,7 +154,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
     return abspath(expanduser(filename))
 
 def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5,
+        height: int | None = None, webdriver: DriverLike | None = None, timeout: int = 5,
         state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
@@ -200,7 +200,7 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5,
+        height: int | None = None, webdriver: DriverLike | None = None, timeout: int = 5,
         state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
@@ -301,7 +301,7 @@ def _resolve_backend(driver: WebDriver | None, backend: ExportBackendType | None
     )
 
 
-def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
         scale_factor: float = 1, state: State | None = None, backend: ExportBackendType | None = None) -> Image.Image:
     ''' Get a screenshot of a ``UIElement`` object.
@@ -341,118 +341,38 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         return get_screenshot_as_png_with_playwright(
             obj, timeout=timeout, resources=resources,
             width=width, height=height, scale_factor=scale_factor, state=state,
-            browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None,
+            browser=driver if _is_playwright_browser(driver) else None,
         )
-
-    from .webdriver import (
-        get_web_driver_device_pixel_ratio,
-        scale_factor_less_than_web_driver_device_pixel_ratio,
-        webdriver_control,
+    return get_screenshot_as_png_with_selenium(
+        obj, driver=driver, timeout=timeout, resources=resources,
+        width=width, height=height, scale_factor=scale_factor, state=state,
     )
 
-    with tmp_html() as tmp:
-        theme = (state or curstate()).document.theme
-        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        with tmp as f:
-            f.write(html.encode("utf-8"))
-
-        if driver is not None:
-            web_driver = driver
-            if not scale_factor_less_than_web_driver_device_pixel_ratio(scale_factor, web_driver):
-                device_pixel_ratio = get_web_driver_device_pixel_ratio(web_driver)
-                raise ValueError(f'Expected the web driver to have a device pixel ratio greater than {scale_factor}. '
-                                 f'Was given a web driver with a device pixel ratio of {device_pixel_ratio}.')
-        else:
-            web_driver = webdriver_control.get(scale_factor=scale_factor)
-        web_driver.maximize_window()
-        web_driver.get(f"file://{tmp.name}")
-        wait_until_render_complete(web_driver, timeout)
-        [width, height, dpr] = _maximize_viewport(web_driver)
-        png = web_driver.get_screenshot_as_png()
-
-    from PIL import Image
-    return (Image.open(io.BytesIO(png))
-                 .convert("RGBA")
-                 .crop((0, 0, width*dpr, height*dpr))
-                 .resize((int(width*scale_factor), int(height*scale_factor))))
-
-def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
         state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     if _resolve_backend(driver, backend) == "playwright":
-        return get_svg_with_playwright(obj, timeout=timeout, resources=resources,
-                       width=width, height=height, state=state,
-                       browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None)
+        return get_svg_with_playwright(
+            obj, timeout=timeout, resources=resources, width=width, height=height, state=state,
+            browser=driver if _is_playwright_browser(driver) else None,
+        )
+    return get_svg_with_selenium(
+        obj, driver=driver, timeout=timeout, resources=resources,
+        width=width, height=height, state=state,
+    )
 
-    from .webdriver import webdriver_control
-
-    with tmp_html() as tmp:
-        theme = (state or curstate()).document.theme
-        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        with tmp as f:
-            f.write(html.encode("utf-8"))
-
-        web_driver = driver if driver is not None else webdriver_control.get()
-        web_driver.get(f"file://{tmp.name}")
-        wait_until_render_complete(web_driver, timeout)
-        svgs = cast(list[str], web_driver.execute_script(_SVG_SCRIPT(obj)))
-
-    return svgs
-
-def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+def get_svgs(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
         state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     if _resolve_backend(driver, backend) == "playwright":
-        return get_svgs_with_playwright(obj, timeout=timeout, resources=resources,
-                        width=width, height=height, state=state,
-                        browser=cast("Browser | BrowserContext | None", driver) if _is_playwright_browser(driver) else None)
-
-    from .webdriver import webdriver_control
-
-    with tmp_html() as tmp:
-        theme = (state or curstate()).document.theme
-        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-        with tmp as f:
-            f.write(html.encode("utf-8"))
-
-        web_driver = driver if driver is not None else webdriver_control.get()
-        web_driver.get(f"file://{tmp.name}")
-        wait_until_render_complete(web_driver, timeout)
-        svgs = cast(list[str], web_driver.execute_script(_SVGS_SCRIPT))
-
-    return svgs
-
-def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
-    '''
-
-    '''
-    from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver.support.wait import WebDriverWait
-
-    def is_bokeh_loaded(driver: WebDriver) -> bool:
-        return cast(bool, driver.execute_script('''
-            return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
-        '''))
-
-    try:
-        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
-    except TimeoutException as e:
-        _log_console(driver)
-        raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
-
-    driver.execute_script(_WAIT_SCRIPT)
-
-    def is_bokeh_render_complete(driver: WebDriver) -> bool:
-        return cast(bool, driver.execute_script('return window._bokeh_render_complete;'))
-
-    try:
-        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_render_complete)
-    except TimeoutException:
-        log.warning("The webdriver raised a TimeoutException while waiting for "
-                    "a 'bokeh:idle' event to signify that the layout has rendered. "
-                    "Something may have gone wrong.")
-    finally:
-        _log_console(driver)
+        return get_svgs_with_playwright(
+            obj, timeout=timeout, resources=resources, width=width, height=height, state=state,
+            browser=driver if _is_playwright_browser(driver) else None,
+        )
+    return get_svgs_with_selenium(
+        obj, driver=driver, timeout=timeout, resources=resources,
+        width=width, height=height, state=state,
+    )
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -478,53 +398,6 @@ def _write_collection(items: list[str], filename: PathLike | None, ext: str) -> 
         filenames.append(fname)
 
     return filenames
-
-def _log_console(driver: WebDriver) -> None:
-    levels = {'WARNING', 'ERROR', 'SEVERE'}
-    try:
-        driver_logs = driver.get_log('browser')
-    except Exception:
-        return
-    messages = [driver_log.get("message") for driver_log in driver_logs if driver_log.get('level') in levels]
-    if len(messages) > 0:
-        log.warning("There were browser warnings and/or errors that may have affected your export")
-        for message in messages:
-            log.warning(message)
-
-def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
-    calculate_viewport_size = """\
-        const root_view = Bokeh.index.roots[0]
-        const {width, height} = root_view.el.getBoundingClientRect()
-        return [Math.round(width), Math.round(height), window.devicePixelRatio]
-    """
-    viewport_size: tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
-    calculate_window_size = """\
-        const [width, height, dpr] = arguments
-        return [
-            // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
-            Math.round(Math.max(0, window.outerWidth - window.innerWidth) + width*dpr),
-            Math.round(Math.max(0, window.outerHeight - window.innerHeight) + height*dpr),
-        ]
-    """
-    [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)
-    eps = 100 # XXX: can't set window size exactly in certain window managers, crop it to size later
-    web_driver.set_window_size(width + eps, height + eps)
-    return viewport_size
-
-_WAIT_SCRIPT = """
-// add private window prop to check that render is complete
-window._bokeh_render_complete = false;
-function done() {
-  window._bokeh_render_complete = true;
-}
-
-const doc = Bokeh.documents[0];
-
-if (doc.is_idle)
-  done();
-else
-  doc.idle.connect(done);
-"""
 
 #-----------------------------------------------------------------------------
 # Code
