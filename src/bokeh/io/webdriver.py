@@ -38,12 +38,6 @@ if TYPE_CHECKING:
     from .state import State
 
 # Bokeh imports
-from ..util.dependencies import import_required
-
-import_required("selenium.webdriver",
-                "To use bokeh.io image export functions you need selenium "
-                "('conda install selenium' or 'pip install selenium')")
-# Bokeh imports
 from ..resources import INLINE
 from ..settings import settings
 from .state import curstate
@@ -372,6 +366,11 @@ class _WebdriverState:
         return driver
 
     def _create(self, kind: DriverKind | None, scale_factor: float = 1) -> WebDriver:
+        from ..util.dependencies import import_required
+        import_required("selenium.webdriver",
+                        "To use bokeh.io image export functions you need selenium "
+                        "('conda install selenium' or 'pip install selenium')")
+
         driver_kind = kind or self.kind
 
         if driver_kind is None:
