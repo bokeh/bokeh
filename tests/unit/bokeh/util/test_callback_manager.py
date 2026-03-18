@@ -219,6 +219,10 @@ class TestPropertyCallbackManager:
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 1
 
+        msg = r"_bad_property\(\) takes 2 positional arguments but 3 were given"
+        with pytest.raises(TypeError, match=msg):
+            m.trigger('foo', 0, 1)
+
     def test_on_change_same_attr_twice_multiple_calls(self) -> None:
         def good1(x, y, z):
             pass
