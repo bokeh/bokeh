@@ -25,10 +25,11 @@ Separate browser driver binaries do not have to be managed.
 
 .. note::
 
-    When both Playwright and Selenium are installed, Bokeh defaults to
-    Selenium to preserve existing behaviour. To opt in to Playwright,
+    Currently, when both Playwright and Selenium are installed, Bokeh defaults
+    to Selenium to preserve existing behaviour. To opt in to Playwright,
     set ``BOKEH_EXPORT_BACKEND=playwright`` or pass ``backend="playwright"``
-    to export functions. See :ref:`ug_output_export_backend` below.
+    to export functions. See :ref:`ug_output_export_backend` below. This
+    default order may change in a future release.
 
 Using Selenium
 ~~~~~~~~~~~~~~
@@ -126,7 +127,7 @@ Choosing a backend
 By default (``auto``), Bokeh tries Selenium first and falls back to
 Playwright. This preserves existing behaviour for users who already have
 Selenium installed. If only Playwright is installed, it is used
-automatically. You can override the auto-detection in two ways:
+automatically. You can override the auto-detection in three ways:
 
 **Environment variable** — set ``BOKEH_EXPORT_BACKEND`` to one of
 ``auto``, ``playwright``, or ``selenium``:
@@ -143,11 +144,13 @@ automatically. You can override the auto-detection in two ways:
 
     export_png(plot, filename="plot.png", backend="playwright")
 
-You can pass a Selenium ``WebDriver`` or a Playwright ``Browser`` / ``BrowserContext`` instance
-to ``webdriver`` keyword argument; note it's ``webdriver`` to keep backwards compatibility with Selenium,
-even when using Playwright.
+You can pass a driver instance directly to any export function using the
+``driver`` keyword argument. This accepts a Selenium ``WebDriver`` or a
+Playwright ``Browser`` / ``BrowserContext``. The older ``webdriver`` parameter
+also accepts these types and is still supported, but is deprecated — use
+``driver`` instead.
 
-You can also set the backend programmatically via Bokeh settings:
+**Global settings** — update the ``export_backend`` setting:
 
 .. code-block:: python
 
