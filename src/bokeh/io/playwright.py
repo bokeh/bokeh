@@ -42,7 +42,6 @@ from typing import (
     Any,
     Callable,
     TypeVar,
-    cast,
 )
 
 # Bokeh imports
@@ -117,9 +116,8 @@ def get_screenshot_as_png(
 
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=browser)
 
-    # `PIL` is banned at the module level based on Ruff TID253
-    from PIL import Image as PILImage
-    return (PILImage.open(io.BytesIO(png_bytes))
+    from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
+    return (Image.open(io.BytesIO(png_bytes))
                     .convert("RGBA")
                     .crop((0, 0, vw*dpr, vh*dpr))
                     .resize((int(vw*scale_factor), int(vh*scale_factor))))
@@ -142,8 +140,8 @@ def get_svg(
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs, _, _, _ = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=browser)
-    return cast(list[str], svgs)
+    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=browser)[0]
+    return svgs
 
 
 def get_svgs(
@@ -163,8 +161,8 @@ def get_svgs(
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs, _, _, _ = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=browser)
-    return cast(list[str], svgs)
+    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=browser)[0]
+    return svgs
 
 
 class _PlaywrightState:

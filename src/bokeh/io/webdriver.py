@@ -29,6 +29,7 @@ from shutil import which
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
+    from PIL import Image
     from selenium.webdriver.remote.webdriver import WebDriver
 
     from ..document import Document
@@ -36,11 +37,11 @@ if TYPE_CHECKING:
     from ..resources import Resources
     from .state import State
 
-# External imports
-from PIL import Image
-
 # Bokeh imports
 from ..util.dependencies import import_required
+import_required("selenium.webdriver",
+                "To use bokeh.io image export functions you need selenium "
+                "('conda install selenium' or 'pip install selenium')")
 from ..resources import INLINE
 from ..settings import settings
 from .state import curstate
@@ -84,10 +85,6 @@ def get_screenshot_as_png(
     state: State | None = None,
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Selenium.'''
-    import_required("selenium.webdriver",
-                    "To use bokeh.io image export functions you need selenium "
-                    "('conda install selenium' or 'pip install selenium')")
-
     with tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
@@ -108,6 +105,7 @@ def get_screenshot_as_png(
         [w, h, dpr] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
+    from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
     return (Image.open(io.BytesIO(png))
                     .convert("RGBA")
                     .crop((0, 0, w*dpr, h*dpr))
@@ -125,10 +123,6 @@ def get_svg(
     state: State | None = None,
 ) -> list[str]:
     '''Export a Bokeh layout as a list of SVG strings using Selenium.'''
-    import_required("selenium.webdriver",
-                    "To use bokeh.io image export functions you need selenium "
-                    "('conda install selenium' or 'pip install selenium')")
-
     with tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
@@ -154,10 +148,6 @@ def get_svgs(
     state: State | None = None,
 ) -> list[str]:
     '''Export SVG-enabled plots within a Bokeh layout using Selenium.'''
-    import_required("selenium.webdriver",
-                    "To use bokeh.io image export functions you need selenium "
-                    "('conda install selenium' or 'pip install selenium')")
-
     with tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
@@ -206,9 +196,6 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
 
 
 def create_firefox_webdriver(scale_factor: float = 1) -> WebDriver:
-    import_required("selenium.webdriver",
-                    "To use bokeh.io image export functions you need selenium "
-                    "('conda install selenium' or 'pip install selenium')")
     import selenium
     from packaging.version import Version
     from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -238,9 +225,6 @@ def create_firefox_webdriver(scale_factor: float = 1) -> WebDriver:
 
 
 def create_chromium_webdriver(extra_options: list[str] | None = None, scale_factor: float = 1) -> WebDriver:
-    import_required("selenium.webdriver",
-                    "To use bokeh.io image export functions you need selenium "
-                    "('conda install selenium' or 'pip install selenium')")
     from selenium.webdriver.chrome.options import Options as ChromeOptions
     from selenium.webdriver.chrome.service import Service as ChromeService
     from selenium.webdriver.chrome.webdriver import WebDriver as Chrome

@@ -34,14 +34,11 @@ from .playwright import (
     get_svg as get_svg_with_playwright,
     get_svgs as get_svgs_with_playwright,
 )
+from .util import default_filename, get_layout_html
 from .webdriver import (
     get_screenshot_as_png as get_screenshot_as_png_with_selenium,
     get_svg as get_svg_with_selenium,
     get_svgs as get_svgs_with_selenium,
-)
-from .util import (
-    default_filename,
-    get_layout_html,
 )
 
 if TYPE_CHECKING:
