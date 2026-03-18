@@ -29,7 +29,7 @@ from typing import TYPE_CHECKING, Literal
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
-from .playwright import (
+from .browser import (
     get_screenshot_as_png as get_screenshot_as_png_with_playwright,
     get_svg as get_svg_with_playwright,
     get_svgs as get_svgs_with_playwright,
