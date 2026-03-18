@@ -7,6 +7,10 @@ on:
       - branch-*
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   CHROME_VER: "141.0.7390.54"
   CHROME_REV: "chromium_3265"
@@ -20,21 +24,23 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        node-version: [20.x]
+        node-version: [24.x]
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'bokehjs/package-lock.json'
 
       - name: Upgrade npm
         shell: bash
         run: |
-          npm install --location=global npm
+          npm install -g npm
 
       - name: Install chromium
         if: runner.os == 'Linux'
@@ -112,14 +118,14 @@ jobs:
 
       - name: Upload package
         if: runner.os == 'Linux' && (success() || failure())
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bokehjs-package
           path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
 
       - name: Upload report
         if: runner.os == 'Linux' && (success() || failure())
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bokehjs-report
           path: bokehjs-report

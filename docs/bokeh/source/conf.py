@@ -144,7 +144,7 @@ copybutton_prompt_text = ">>> "
 
 intersphinx_mapping = {
     "numpy"       : ("https://numpy.org/doc/stable/", None),
-    "pandas"      : ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "pandas"      : ("https://pandas.pydata.org/docs/", None),
     "python"      : ("https://docs.python.org/3/", None),
     "sphinx"      : ("https://www.sphinx-doc.org/en/master/", None),
     "xyzservices" : ("https://xyzservices.readthedocs.io/en/stable/", None),

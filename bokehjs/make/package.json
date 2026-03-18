@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/make",
-  "version": "3.10.0-dev.1",
+  "version": "3.10.0-dev.2",
   "type": "module",
   "imports": {
     "#compiler/*.js": "./_build/src/compiler/*.js"

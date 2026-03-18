@@ -4839,17 +4839,46 @@ describe("Bug", () => {
       p.add_tools(new HoverTool({tooltips: null, renderers: [ml]}))
 
       const {view} = await display(p)
+      const pv0 = view.owner.get_one(p)
 
       ml.glyph.xs = {field: "xs2"}
       ml.glyph.change.emit()
-
       await view.ready
-
-      const pv0 = view.owner.get_one(p)
 
       const actions0 = new PlotActions(pv0)
       await actions0.hover(xy(5.0, 1.9))
+      await view.ready
+    })
+  })
 
+  describe("in issue #14665", () => {
+    it("triggers call stack size error for certain inputs", async () => {
+      const p = fig([200, 200])
+      const N = 30000
+      const x = range(0, N)
+      const y = Array(N).fill(0)
+      y[0] = 1
+      y[N-1] = 1
+
+      p.scatter(x, y)
+
+      await display(p, [350, 250])
+    })
+  })
+
+  describe("in issue #8787", () => {
+    it("doesn't show hover for multi line when values decrease", async () => {
+      const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
+      const p = fig([200, 200])
+      const ml = p.multi_line({xs: {field: "xs"}, ys: {field: "ys"}, line_width: 5, hover_line_color: "red", source})
+
+      p.add_tools(new HoverTool({tooltips: null, renderers: [ml], mode: "vline"}))
+
+      const {view} = await display(p)
+      const pv0 = view.owner.get_one(p)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(-2, 1.5))
       await view.ready
     })
   })

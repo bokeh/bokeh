@@ -110,11 +110,11 @@ Use ``conda env create`` at the root level of your *source checkout* directory
 to set up the environment and install all necessary packages. The "test"
 environment files are versioned by Python version.
 
-For example, to install an environment for Python 3.10, invoke:
+For example, to install an environment for Python 3.11, invoke:
 
 .. code-block:: sh
 
-    conda env create -n bkdev -f conda/environment-test-3.10.yml
+    conda env create -n bkdev -f conda/environment-test-3.11.yml
 
 .. note::
     Use the ``conda -n bkdev`` option to make ``bkdev`` the name of your

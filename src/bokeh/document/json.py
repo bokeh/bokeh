@@ -25,13 +25,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
+    NotRequired,
     TypeAlias,
     TypedDict,
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
-
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
     from ..models.sources import DataDict, Patches

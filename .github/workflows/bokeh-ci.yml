@@ -7,6 +7,10 @@ on:
       - branch-*
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 defaults:
   run:
     shell: bash -l {0}
@@ -20,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -41,12 +45,12 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: '3.11'
           source-tree: 'keep'
 
       - name: List installed software
@@ -71,10 +75,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python-version: ['3.10', '3.11']
+        python-version: ['3.11', '3.14']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -131,7 +135,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: examples-report-${{ matrix.python-version }}
           path: examples-report-${{ matrix.python-version }}
@@ -145,13 +149,13 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.11', '3.12', '3.13', '3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -184,7 +188,7 @@ jobs:
           pytest $COLOR $COVERAGE tests/unit || pytest $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: success() || failure()
         with:
           env_vars: OS,PYTHON
@@ -203,7 +207,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -226,7 +230,7 @@ jobs:
           pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS
           flags: unit,minimal
@@ -244,7 +248,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -267,7 +271,7 @@ jobs:
           pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS
           flags: unit,core
@@ -275,16 +279,25 @@ jobs:
 
   documentation:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: ['3.11']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: ${{ matrix.python-version }}
           source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: List installed software
         run: |
@@ -297,7 +310,7 @@ jobs:
         run: bash scripts/ci/build_docs.sh
 
       - name: Upload docs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: docs-html
-          path: docs/bokeh/docs-html.tgz
+          name: docs-html-${{ matrix.python-version }}
+          path: docs/bokeh/docs-html-${{ matrix.python-version }}.tgz

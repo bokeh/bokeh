@@ -13,16 +13,6 @@
   }
 }
 
-.icon-mask(@icon, @color) {
-  background-color: @color;
-  mask-image: @icon;
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: @icon;
-  -webkit-mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-}
-
 .mask-image(@image) {
   mask-image: @image;
   -webkit-mask-image: @image;
@@ -43,28 +33,16 @@
   -webkit-mask-repeat: @repeat;
 }
 
-.tool-icon-mask(@icon) {
-  background-color: var(--icon-color);
+.icon-mask(@icon, @color: var(--icon-color)) {
   .mask-image(@icon);
+  .icon-mask-base(@color);
 }
 
-.icon-mask(@icon) {
-  .tool-icon-mask(@icon);
-  .icon-mask-base();
-}
-
-.icon-mask-base() {
-  .mask-size(100% 100%);
+.icon-mask-base(@color: var(--icon-color)) {
+  .mask-size(contain);
   .mask-position(center center);
   .mask-repeat(no-repeat);
-}
-
-/* for PNG icons; remove when dropped */
-.icon-mask-base-png() {
-  background-size: 100% 100%;
-  background-origin: border-box;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background-color: @color;
 }
 
 .bk-disabled(@disabled-opacity, @disabled-background-color, @disabled-color, @icon-color-disabled) {

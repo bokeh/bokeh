@@ -8,17 +8,15 @@
 # Standard library imports
 from abc import abstractmethod
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Literal,
+    NotRequired,
     Sequence,
     TypedDict,
+    Unpack,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Unpack
 
 # Bokeh imports
 from .._types import (

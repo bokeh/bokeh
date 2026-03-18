@@ -8,7 +8,8 @@ import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"
 import {paint} from "@bokehjs/core/util/defer"
 import type {StyleSheetLike} from "@bokehjs/core/dom"
-import base_css from "@bokehjs/styles/base.css"
+import vars_css from "@bokehjs/styles/vars.css"
+import core_css from "@bokehjs/styles/core.css"
 
 class UIView extends UIElementView {
   declare model: UI
@@ -73,30 +74,36 @@ describe("UIElement", () => {
         .map((c) => c.textContent)
     }
 
-    expect(stylesheets()).to.be.equal([
-      base_css,
+    const stylesheets0 = stylesheets()
+    expect(stylesheets0.length).to.be.equal(9)
+    expect(stylesheets0).to.be.equal([
+      vars_css,
+      core_css,
       ":host{position:relative;pointer-events:auto;}", // ui.css
-      ":host { background-color: #000; }",             // UIView.stylesheets
+      ":host { background-color: #000; }",           // UIView.stylesheets
       ":host {\n--foo: violet;\n}",                    // StyledElement.css_variables
       "",                                              // StyledElement.style
       "",                                              // StyledElement.parent_style
       ":host { display: none; }",                      // UIElementView._display
-      ":host { background-color: #f00; }",             // UIElement.stylesheets
+      ":host { background-color: #f00; }",           // UIElement.stylesheets
     ])
 
     ui.stylesheets = [...ui.stylesheets, ":host { background-color: #ff0; }"]
     await view.ready
 
-    expect(stylesheets()).to.be.equal([
-      base_css,
+    const stylesheets1 = stylesheets()
+    expect(stylesheets1.length).to.be.equal(10)
+    expect(stylesheets1).to.be.equal([
+      vars_css,
+      core_css,
       ":host{position:relative;pointer-events:auto;}", // ui.css
-      ":host { background-color: #000; }",             // UIView.stylesheets
+      ":host { background-color: #000; }",           // UIView.stylesheets
       ":host {\n--foo: violet;\n}",                    // StyledElement.css_variables
       "",                                              // StyledElement.style
       "",                                              // StyledElement.parent_style
       ":host { display: none; }",                      // UIElementView._display
-      ":host { background-color: #f00; }",             // UIElement.stylesheets
-      ":host { background-color: #ff0; }",             // UIElement.stylesheets
+      ":host { background-color: #f00; }",           // UIElement.stylesheets
+      ":host { background-color: #ff0; }",           // UIElement.stylesheets
     ])
     expect(render_spy.callCount).to.be.equal(0)
   })

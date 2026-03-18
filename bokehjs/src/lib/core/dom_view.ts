@@ -5,7 +5,8 @@ import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
-import base_css from "styles/base.css"
+import vars_css from "styles/vars.css"
+import core_css from "styles/core.css"
 
 export type RenderingTarget = HTMLElement | ShadowRoot
 
@@ -134,16 +135,30 @@ export abstract class DOMComponentView extends DOMElementView {
     return this.shadow_el
   }
 
+  /**
+   * Indicates whether this element is the first to render to DOM,
+   * which affects aspects like stylesheets/theming, etc. Note that
+   * root components are typically top-level, but also non-root
+   * components like tooltips, dialogs, etc. can be top-level too.
+   */
+  get is_top_level(): boolean {
+    return this.parent == null
+  }
+
   override initialize(): void {
     super.initialize()
     this.shadow_el = this.el.attachShadow({mode: "open"})
   }
 
-  readonly _base_style = new InlineStyleSheet(base_css, "base")
   readonly _css_vars = new InlineStyleSheet("", "vars")
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), this._base_style]
+    const stylesheets = [...super.stylesheets()]
+    if (this.is_top_level) {
+      stylesheets.push(new InlineStyleSheet(vars_css, "vars.css"))
+    }
+    stylesheets.push(new InlineStyleSheet(core_css, "core.css"))
+    return stylesheets
   }
 
   /**

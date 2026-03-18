@@ -1,8 +1,8 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_scalar_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
+import type {FloatArray, Rect} from "core/types"
 import type * as visuals from "core/visuals"
-import type {Rect} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
 import * as mixins from "core/property_mixins"
@@ -60,8 +60,40 @@ export class PatchView extends XYGlyphView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const result = new Selection()
+    const {sx, sy} = geometry
 
-    if (hittest.point_in_poly(geometry.sx, geometry.sy, this.sx, this.sy)) {
+    // Collect NaN-separated sub-paths
+    const sub_paths_sx: FloatArray[] = []
+    const sub_paths_sy: FloatArray[] = []
+    const n = this.sx.length
+    let k = 0
+    for (let j = 0; j <= n; j++) {
+      if (j == n || isNaN(this.sx[j])) {
+        if (j > k) {
+          // Use subarray to create views (like patches.ts does)
+          sub_paths_sx.push((this.sx as FloatArray).subarray(k, j))
+          sub_paths_sy.push((this.sy as FloatArray).subarray(k, j))
+        }
+        k = j + 1
+      }
+    }
+
+    if (sub_paths_sx.length == 0) {
+      return result
+    }
+
+    // Use "evenodd" fill rule (matches Canvas2D rendering):
+    // A point is inside the filled region if it's contained by an odd number of sub-paths.
+    // This handles both holes (even count = outside) and disjoint polygons (each adds to count).
+    let inside_count = 0
+    for (let i = 0; i < sub_paths_sx.length; i++) {
+      if (hittest.point_in_poly(sx, sy, sub_paths_sx[i], sub_paths_sy[i])) {
+        inside_count++
+      }
+    }
+
+    // Odd count = inside filled region, Even count = inside hole or outside
+    if (inside_count % 2 === 1) {
       result.add_to_selected_glyphs(this.model)
       result.view = this
     }

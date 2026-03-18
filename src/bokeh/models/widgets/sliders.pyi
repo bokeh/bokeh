@@ -8,10 +8,7 @@
 # Standard library imports
 from abc import abstractmethod
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Literal, Sequence
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Literal, Sequence, Unpack
 
 # Bokeh imports
 from ..._types import Color, Datetime

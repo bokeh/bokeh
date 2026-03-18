@@ -35,6 +35,7 @@ from typing import (
     Generic,
     Literal,
     NoReturn,
+    NotRequired,
     Sequence,
     TypeAlias,
     TypedDict,
@@ -63,7 +64,6 @@ from .types import ID
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import NotRequired
 
     from ..core.has_props import Setter
     from ..model import Model
@@ -454,13 +454,13 @@ class Serializer:
     def _encode_other(self, obj: Any) -> AnyRep:
         # date/time values that get serialized as milliseconds
         if is_datetime_type(obj):
-            return convert_datetime_type(obj)
+            return self.encode(convert_datetime_type(obj))
 
         if is_timedelta_type(obj):
-            return convert_timedelta_type(obj)
+            return self.encode(convert_timedelta_type(obj))
 
         if isinstance(obj, dt.date):
-            return obj.isoformat()
+            return self.encode(obj.isoformat())
 
         # NumPy scalars
         if np.issubdtype(type(obj), np.floating):

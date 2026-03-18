@@ -25,6 +25,10 @@ import icons_css from "styles/icons.css"
 export class TooltipView extends UIElementView {
   declare model: Tooltip
 
+  override get is_top_level(): boolean {
+    return true // TODO inspect this.model.target?
+  }
+
   protected arrow_el: HTMLElement
   protected content_el: HTMLElement
   protected _observer: ResizeObserver

@@ -131,9 +131,9 @@ export function border_radius(border_radius: BorderRadius): Corners<number> {
 export function apply_icon(el: HTMLElement, icon: IconLike): void {
   if (icon.startsWith("data:image")) {
     const url = `url("${encodeURI(icon)}")`
-    el.style.backgroundImage = url
+    el.style.maskImage = url
   } else if (icon.startsWith("--")) {
-    el.style.backgroundImage = `var(${icon})`
+    el.style.maskImage = `var(${icon})`
   } else if (icon.startsWith(".")) {
     const cls = icon.substring(1)
     el.classList.add(cls)

@@ -8,14 +8,12 @@
 # Standard library imports
 from inspect import Parameter
 from typing import (
-    TYPE_CHECKING,
     Any,
     Iterable,
+    Self,
     TypedDict,
+    Unpack,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import Self, Unpack
 
 # Bokeh imports
 from ..core.has_props import HasProps, Setter

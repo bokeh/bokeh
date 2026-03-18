@@ -6,7 +6,8 @@ import {color2css} from "core/util/color"
 import {isNumber} from "core/util/types"
 import type * as p from "core/properties"
 
-import icons_css from "styles/icons.css"
+import * as icons_css from "styles/icons.css"
+import * as builtin_icon_css from "styles/ui/builtin_icon.css"
 
 export class BuiltinIconView extends IconView {
   declare model: BuiltinIcon
@@ -14,7 +15,7 @@ export class BuiltinIconView extends IconView {
   protected readonly _style = new InlineStyleSheet("", "icon")
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), icons_css, this._style]
+    return [...super.stylesheets(), icons_css.default, builtin_icon_css.default, this._style]
   }
 
   override render(): void {
@@ -30,17 +31,9 @@ export class BuiltinIconView extends IconView {
 
     this._style.replace(`
       :host {
-        display: inline-block;
-        vertical-align: middle;
-        width: ${size};
-        height: ${size};
-        background-color: ${color};
-        mask-image: ${icon};
-        mask-size: contain;
-        mask-repeat: no-repeat;
-        -webkit-mask-image: ${icon};
-        -webkit-mask-size: contain;
-        -webkit-mask-repeat: no-repeat;
+        --icon: ${icon};
+        --size: ${size};
+        --color: ${color};
       }
     `)
   }

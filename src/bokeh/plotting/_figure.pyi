@@ -12,10 +12,8 @@ from typing import (
     Literal,
     Sequence,
     TypeAlias,
+    Unpack,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
 
 # External imports
 import cartopy.crs as ccrs

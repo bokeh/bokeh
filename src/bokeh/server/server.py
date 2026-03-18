@@ -53,6 +53,8 @@ from ..core.property.container import List
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..resources import DEFAULT_SERVER_PORT, server_url
+from ..server.auth_provider import AuthModule, AuthProvider, NullAuth
+from ..settings import settings
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
@@ -464,6 +466,110 @@ class Server(BaseServer):
             io_loop = IOLoop.current()
 
         super().__init__(io_loop, tornado_app, http_server)
+
+    @classmethod
+    def from_settings(
+            cls,
+            applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+            io_loop: IOLoop | None = None,
+            http_server_kwargs: dict[str, Any] | None = None,
+            *,
+            auth_provider: AuthProvider | None = None,
+            secret_key: bytes | None = None,
+            sign_sessions: bool | None = None,
+            ssl_certfile: str | None = None,
+            ssl_keyfile: str | None = None,
+            ssl_password: str | None = None,
+            cookie_secret: str | None = None,
+            xsrf_cookies: bool | None = None,
+            ico_path: str | None = None,
+            **kwargs: Any,
+        ) -> Server:
+        ''' Create a ``Server`` instance, applying any relevant ``Server`` settings from the global
+        settings module, if they were not explicitly passed as keyword arguments.
+
+        Args:
+            applications (dict[str, Application] or Application or callable) :
+                See :class:`~bokeh.server.server.Server`.
+
+            io_loop (IOLoop, optional) :
+                See :class:`~bokeh.server.server.Server`.
+
+            http_server_kwargs (dict, optional) :
+                See :class:`~bokeh.server.server.Server`.
+
+            auth_provider (AuthProvider, optional) :
+                An :class:`~bokeh.server.auth_provider.AuthProvider` instance. Defaults to
+                an ``AuthModule`` loaded from the path in ``settings.auth_module()``, or
+                ``NullAuth`` if no module path is configured.
+
+            secret_key (bytes, optional) :
+                Secret key bytes used to sign sessions. Defaults to ``settings.secret_key_bytes()``.
+
+            sign_sessions (bool, optional) :
+                Whether to cryptographically sign session IDs. Defaults to ``settings.sign_sessions()``.
+
+            ssl_certfile (str, optional) :
+                Path to the SSL certificate file. Defaults to ``settings.ssl_certfile()``.
+
+            ssl_keyfile (str, optional) :
+                Path to the SSL key file. Defaults to ``settings.ssl_keyfile()``.
+
+            ssl_password (str, optional) :
+                Password for the SSL key file. Defaults to ``settings.ssl_password()``.
+
+            cookie_secret (str, optional) :
+                Secret used for signing cookies. Defaults to ``settings.cookie_secret()``.
+
+            xsrf_cookies (bool, optional) :
+                Whether to enable XSRF cookie protection. Defaults to ``settings.xsrf_cookies()``.
+
+            ico_path (str, optional) :
+                Path to a custom favicon ``.ico`` file. Defaults to ``settings.ico_path()``.
+
+        Any additional keyword arguments are passed directly to
+        :class:`~bokeh.server.server.Server`.
+
+        Returns:
+            Server
+
+        Raises:
+            ValueError
+                If ``sign_sessions`` is True but no ``secret_key`` is available.
+
+        '''
+
+        # --- auth_provider ---
+        if auth_provider is None:
+            auth_module_path = settings.auth_module()
+
+            # `settings.auth_module()`` yields a path string, but `Server` expects an AuthProvider instance.
+            kwargs['auth_provider'] = AuthModule(auth_module_path) if auth_module_path else NullAuth()
+        else:
+            kwargs['auth_provider'] = auth_provider
+
+        # --- session signing ---
+
+        kwargs['sign_sessions'] = sign_sessions if sign_sessions is not None else settings.sign_sessions()
+        # Note: the setting name doesn't match accessor method name on this one:
+        kwargs['secret_key'] = secret_key if secret_key is not None else settings.secret_key_bytes()
+
+        if sign_sessions and not secret_key:
+            raise ValueError("A 'secret_key' must be set when 'sign_sessions' is enabled.")
+
+        # --- SSL ---
+        kwargs['ssl_certfile'] = ssl_certfile if ssl_certfile is not None else settings.ssl_certfile()
+        kwargs['ssl_keyfile'] = ssl_keyfile if ssl_keyfile is not None else settings.ssl_keyfile()
+        kwargs['ssl_password'] = ssl_password if ssl_password is not None else settings.ssl_password()
+
+        # --- cookie / XSRF ---
+        kwargs['cookie_secret'] = cookie_secret if cookie_secret is not None else settings.cookie_secret()
+        kwargs['xsrf_cookies'] = xsrf_cookies if xsrf_cookies is not None else settings.xsrf_cookies()
+
+        # --- misc ---
+        kwargs['ico_path'] = ico_path if ico_path is not None else settings.ico_path()
+
+        return cls(applications, io_loop=io_loop, http_server_kwargs=http_server_kwargs, **kwargs)
 
     @property
     def port(self) -> int | None:

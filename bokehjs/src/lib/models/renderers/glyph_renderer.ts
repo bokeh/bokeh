@@ -1,5 +1,6 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
+import {StepView} from "../glyphs/step"
 import {PatchView} from "../glyphs/patch"
 import {HAreaStepView} from "../glyphs/harea_step"
 import {HAreaView} from "../glyphs/harea"
@@ -336,7 +337,7 @@ export class GlyphRendererView extends DataRendererView {
       if (selected.is_empty()) {
         return []
       } else {
-        if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model) {
+        if ((this.glyph instanceof LineView || this.glyph instanceof StepView) && selected.selected_glyph === this.glyph.model) {
           return this.model.view.convert_indices_from_subset(indices)
         } else {
           return selected.indices
@@ -408,7 +409,7 @@ export class GlyphRendererView extends DataRendererView {
 
     // Render with no selection
     if (selected_full_indices.length == 0) {
-      if (this.glyph instanceof LineView) {
+      if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
           this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
@@ -443,8 +444,8 @@ export class GlyphRendererView extends DataRendererView {
       const selected_subset_indices: number[] = new Array()
       const nonselected_subset_indices: number[] = new Array()
 
-      // now, selected is changed to subset space, except for Line glyph
-      if (this.glyph instanceof LineView) {
+      // now, selected is changed to subset space, except for Line/Step glyph
+      if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
         for (const i of all_indices) {
           if (selected_mask.has(i)) {
             selected_subset_indices.push(i)
@@ -465,7 +466,7 @@ export class GlyphRendererView extends DataRendererView {
       nonselection_glyph.paint(ctx, nonselected_subset_indices)
       selection_glyph.paint(ctx, selected_subset_indices)
       if (this.hover_glyph != null) {
-        if (this.glyph instanceof LineView) {
+        if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
           this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
           this.hover_glyph.paint(ctx, inspected_subset_indices)

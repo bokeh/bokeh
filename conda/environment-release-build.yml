@@ -2,7 +2,7 @@ name: bk-release-build
 channels:
   - conda-forge
 dependencies:
-  - python=3.10
+  - python=3.11
 
   # build
   - boto3
@@ -38,7 +38,7 @@ dependencies:
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme
-    - sphinx >= 7.1.0
+    - sphinx ==9.*
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon

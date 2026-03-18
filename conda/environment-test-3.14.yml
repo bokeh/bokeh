@@ -51,7 +51,6 @@ dependencies:
   - pooch # required in scipy.datasets
   - selenium 4.2
   - toml
-  - typing_extensions >=4.0.0
 
   # examples
   - cartopy
@@ -67,12 +66,12 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=1.17
+    - mypy >=1.19
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
-    - sphinx >= 7.1.0
+    - sphinx ==9.*
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon

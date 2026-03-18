@@ -64,6 +64,83 @@ describe("Patches", () => {
       expect(result5?.indices).to.be.equal([0, 1, 2])
     })
 
+    it("should point hit testing with holes", async () => {
+      // Outer boundary (CCW): 0,0 -> 10,0 -> 10,10 -> 0,10
+      // Hole (CW): 3,3 -> 3,7 -> 7,7 -> 7,3 (reversed to be clockwise)
+      const data = {
+        xs: [[0, 10, 10, 0, NaN, 3, 3, 7, 7]],
+        ys: [[0, 0, 10, 10, NaN, 3, 7, 7, 3]],
+      }
+      const glyph = new Patches({
+        xs: {field: "xs"},
+        ys: {field: "ys"},
+      })
+
+      const glyph_view = await create_glyph_view(glyph, data, {
+        axis_type: "linear",
+        x_range: new DataRange1d(),
+        y_range: new DataRange1d(),
+      })
+      const {xscale, yscale} = glyph_view.parent
+
+      function point(x: number, y: number): HitTestGeometry {
+        return {type: "point", sx: xscale.compute(x), sy: yscale.compute(y)}
+      }
+
+      // Point inside outer boundary but outside hole -> hit
+      const result0 = glyph_view.hit_test(point(1, 1))
+      expect(result0?.indices).to.be.equal([0])
+
+      // Point inside hole -> no hit
+      const result1 = glyph_view.hit_test(point(5, 5))
+      expect(result1?.indices).to.be.equal([])
+
+      // Point outside outer boundary -> no hit
+      const result2 = glyph_view.hit_test(point(15, 15))
+      expect(result2?.indices).to.be.equal([])
+    })
+
+    it("should point hit testing with disjoint polygons", async () => {
+      // Two disjoint squares (both CCW):
+      // Square 1: 0,0 -> 5,0 -> 5,5 -> 0,5
+      // Square 2: 10,0 -> 15,0 -> 15,5 -> 10,5
+      const data = {
+        xs: [[0, 5, 5, 0, NaN, 10, 15, 15, 10]],
+        ys: [[0, 0, 5, 5, NaN, 0, 0, 5, 5]],
+      }
+      const glyph = new Patches({
+        xs: {field: "xs"},
+        ys: {field: "ys"},
+      })
+
+      const glyph_view = await create_glyph_view(glyph, data, {
+        axis_type: "linear",
+        x_range: new DataRange1d(),
+        y_range: new DataRange1d(),
+      })
+      const {xscale, yscale} = glyph_view.parent
+
+      function point(x: number, y: number): HitTestGeometry {
+        return {type: "point", sx: xscale.compute(x), sy: yscale.compute(y)}
+      }
+
+      // Point inside first square -> hit
+      const result0 = glyph_view.hit_test(point(2, 2))
+      expect(result0?.indices).to.be.equal([0])
+
+      // Point inside second square -> hit
+      const result1 = glyph_view.hit_test(point(12, 2))
+      expect(result1?.indices).to.be.equal([0])
+
+      // Point between squares -> no hit
+      const result2 = glyph_view.hit_test(point(7, 2))
+      expect(result2?.indices).to.be.equal([])
+
+      // Point outside both -> no hit
+      const result3 = glyph_view.hit_test(point(20, 20))
+      expect(result3?.indices).to.be.equal([])
+    })
+
     it("should poly hit testing", async () => {
       const data = {
         xs: [[1, 5, 3], [3, 5, 5, 3], [2, 3, 2, 1]],

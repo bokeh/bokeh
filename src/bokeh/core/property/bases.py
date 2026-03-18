@@ -293,7 +293,7 @@ class Property(PropertyDescriptorFactory[T]):
 
         Args:
             value (obj) : the value to validate against this property type
-            detail (bool, options) : whether to construct detailed exceptions
+            detail (bool, optional) : whether to construct detailed exceptions
 
                 Generating detailed type validation error messages can be
                 expensive. When doing type checks internally that will not
