@@ -1341,4 +1341,42 @@ describe("Glyph models", () => {
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
+
+  it("should allow selection glyphs to inherit properties from base glyph", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+      const N = 9
+      const data_source = new ColumnDataSource({
+        data: {
+          x: range(N),
+          y: range(N),
+          radius: repeat(0.4, N),
+          selection_radius: repeat(0.6, N),
+          color: Spectral11.slice(0, N),
+        },
+      })
+      data_source.selected.indices = [0, 2, 4, 6, 8]
+      // Base glyph uses VALUE-based angles (not field-based)
+      const glyph = new Wedge({
+        x: {field: "x"},
+        y: {field: "y"},
+        radius: {field: "radius"},
+        start_angle: {value: 0},        // VALUE spec
+        end_angle: {value: Math.PI},    // VALUE spec
+        fill_color: {field: "color"},
+        line_color: {field: "color"},
+      })
+      // Selection glyph only overrides radius - should inherit angles from base
+      // Note: data source has NO start_angle or end_angle fields
+      const selection_glyph = new Wedge({
+        radius: {field: "selection_radius"},
+        fill_color: "red",
+        line_color: "darkred",
+      })
+      const glyph_renderer = new GlyphRenderer({data_source, glyph, selection_glyph})
+      p.renderers.push(glyph_renderer)
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
 })
