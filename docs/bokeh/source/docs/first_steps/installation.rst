@@ -70,7 +70,7 @@ Bokeh can be installed using either the Python package installer ``pip``, or
 Checking your installation
 --------------------------
 
-To verify whether the installation was successful, use this command:
+To verify that the installation was successful, run the following command:
 
 .. code-block:: sh
 
