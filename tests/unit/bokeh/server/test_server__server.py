@@ -19,9 +19,11 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
+import os
 import re
 import ssl
 import sys
+import tempfile
 import time
 from datetime import timedelta
 from unittest import mock
@@ -45,6 +47,7 @@ from bokeh.client import pull_session
 from bokeh.core.properties import List, String
 from bokeh.core.types import ID
 from bokeh.model import Model
+from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
 from bokeh.util.token import (
@@ -354,6 +357,52 @@ async def test__exclude_cookies(ManagedServerLoop: MSL) -> None:
         payload = get_token_payload(token)
         assert 'cookies' in payload
         assert payload['cookies'] == {'custom2': 'test2'}
+
+def test__from_settings_uses_envvars() -> None:
+    with tempfile.NamedTemporaryFile(suffix='.py', delete=False) as f:
+        auth_path = f.name
+    try:
+        with mock.patch('bokeh.server.server.settings') as mock_settings:
+            mock_settings.auth_module.return_value = auth_path
+            mock_settings.sign_sessions.return_value = True
+            mock_settings.secret_key_bytes.return_value = b'0' * 32
+            mock_settings.ssl_certfile.return_value = '/path/to/cert.pem'
+            mock_settings.ssl_keyfile.return_value = '/path/to/key.pem'
+            mock_settings.ssl_password.return_value = 'hunter2'
+            mock_settings.cookie_secret.return_value = 'verysecret'
+            mock_settings.xsrf_cookies.return_value = True
+            mock_settings.ico_path.return_value = None
+            with mock.patch.object(Server, '__init__', return_value=None) as init:
+                Server.from_settings(Application())
+                _, kwargs = init.call_args
+    finally:
+        os.unlink(auth_path)
+    assert isinstance(kwargs['auth_provider'], AuthModule)
+    assert kwargs['sign_sessions']
+    assert kwargs['secret_key'] is not None
+    assert kwargs['ssl_certfile'] == '/path/to/cert.pem'
+    assert kwargs['ssl_keyfile'] == '/path/to/key.pem'
+    assert kwargs['ssl_password'] == 'hunter2'
+    assert kwargs['cookie_secret'] == 'verysecret'
+    assert kwargs['xsrf_cookies']
+
+def test__from_settings_kwarg_overrides_envvar() -> None:
+    """Ensure that a kwarg to Server.from_settings overrides the equivalent envvar setting, if present."""
+    null_auth = NullAuth()
+    with mock.patch('bokeh.server.server.settings') as mock_settings:
+        mock_settings.auth_module.return_value = '/some/auth.py'
+        mock_settings.sign_sessions.return_value = False
+        mock_settings.secret_key_bytes.return_value = None
+        mock_settings.ssl_certfile.return_value = None
+        mock_settings.ssl_keyfile.return_value = None
+        mock_settings.ssl_password.return_value = None
+        mock_settings.cookie_secret.return_value = None
+        mock_settings.xsrf_cookies.return_value = False
+        mock_settings.ico_path.return_value = None
+        with mock.patch.object(Server, '__init__', return_value=None) as init:
+            Server.from_settings(Application(), auth_provider=null_auth)
+            _, kwargs = init.call_args
+    assert kwargs['auth_provider'] is null_auth
 
 #-----------------------------------------------------------------------------
 # Dev API
