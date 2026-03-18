@@ -11,7 +11,7 @@ Additional dependencies
 To use Bokeh's export functions, you need a headless browser backend.
 Bokeh supports two options: `Playwright`_ and `Selenium`_.
 
-Using Playwright 
+Using Playwright
 ~~~~~~~~~~~~~~~~
 
 Playwright is fast and easy to install:
