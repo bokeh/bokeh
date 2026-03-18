@@ -1107,7 +1107,8 @@ describe("Glyph models", () => {
     // Note: WebGL does not support size overrides for multi-marker (Scatter) glyphs
     // because marker type metadata cannot be correctly populated from derived glyphs.
     // See multi_marker.ts lines 31-35 for architectural explanation.
-    await display(row([p("canvas"), p("svg")]))
+    // WebGL is included in the baseline to document the issue.
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should allow to override HBar.height", async () => {
