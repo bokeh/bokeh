@@ -501,11 +501,16 @@ export function offset_bbox(element: Element): BBox {
   })
 }
 
-export function parent(el: HTMLElement, selector: string): HTMLElement | null {
-  let node: HTMLElement | null = el
+export function parent(el: Element, query: string | ((node: Element) => boolean)): Element | null {
+  let node: Element | null = el
+
+  if (isString(query)) {
+    const selector = query
+    query = (node) => node.matches(selector)
+  }
 
   while ((node = node.parentElement) != null) {
-    if (node.matches(selector)) {
+    if (query(node)) {
       return node
     }
   }

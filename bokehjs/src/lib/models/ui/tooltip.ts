@@ -5,8 +5,9 @@ import {Selector} from "../selectors/selector"
 import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
+import {InlineStyleSheet, parent} from "core/dom"
 import {div, bounding_box, box_size} from "core/dom"
-import {DOMElementView} from "core/dom_view"
+import {DOMElementView, bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
 import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
@@ -19,18 +20,19 @@ import {Model} from "model"
 const NativeNode = globalThis.Node
 type NativeNode = globalThis.Node
 
-import tooltips_css, * as tooltips from "styles/tooltips.css"
-import icons_css from "styles/icons.css"
+import * as tooltips_css from "styles/tooltips.css"
+import * as icons_css from "styles/icons.css"
 
 export class TooltipView extends UIElementView {
   declare model: Tooltip
 
   override get is_top_level(): boolean {
-    return true // TODO inspect this.model.target?
+    return this.parent == null || parent(this.target, (node) => bokeh_element in node) == null
   }
 
   protected arrow_el: HTMLElement
   protected content_el: HTMLElement
+
   protected _observer: ResizeObserver
 
   private _target: Element
@@ -40,6 +42,8 @@ export class TooltipView extends UIElementView {
   set target(el: Element) {
     this._target = el
   }
+
+  readonly position = new InlineStyleSheet()
 
   protected _init_target(): void {
     const {target} = this.model
@@ -146,13 +150,13 @@ export class TooltipView extends UIElementView {
   }
 
   override remove(): void {
-    this._element_view?.remove()
     this._observer.disconnect()
+    this._element_view?.remove()
     super.remove()
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), tooltips_css, icons_css]
+    return [...super.stylesheets(), tooltips_css.default, icons_css.default, this.position]
   }
 
   get content(): NativeNode {
@@ -177,21 +181,24 @@ export class TooltipView extends UIElementView {
       _element_view.render()
       _element_view.r_after_render()
     }
-    this.arrow_el = div({class: tooltips.arrow}, div({class: tooltips.arrow_inner}))
-    this.content_el = div({class: tooltips.tooltip_content}, this.content)
+    this.arrow_el = div({class: tooltips_css.arrow}, div({class: tooltips_css.arrow_inner}))
+    this.content_el = div({class: tooltips_css.tooltip_content}, this.content)
     this.shadow_el.append(this.arrow_el, this.content_el)
 
-    this.class_list.toggle(tooltips.closable, this.model.closable)
-    const close_el = div({class: tooltips.close})
+    this.class_list.toggle(tooltips_css.closable, this.model.closable)
+    const close_el = div({class: tooltips_css.close})
     this.shadow_el.append(close_el)
     close_el.addEventListener("click", () => {
       this.model.visible = false
     })
 
-    this.el.setAttribute("popover", "manual") // allows multiple simultaneous popover elements
+    this.el.setAttribute("popover", "manual") // "manual" allows multiple simultaneous popover elements
 
-    this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
-    this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
+    this.el.classList.toggle(tooltips_css.show_arrow, this.model.show_arrow)
+    this.el.classList.toggle(tooltips_css.non_interactive, !this.model.interactive)
+
+    const target = this.target.shadowRoot ?? this.target
+    target.append(this.el)
 
     this._has_rendered = true
   }
@@ -221,11 +228,7 @@ export class TooltipView extends UIElementView {
   }
 
   protected _reposition(): void {
-    // Append to `body` to deal with CSS' `contain` interaction
-    // with `position: fixed`. We assume initial containment
-    // block in this function, but `contain` can introduce a
-    // new containment block and offset tooltip's position.
-    const target = document.body.shadowRoot ?? document.body
+    const target = this.target.shadowRoot ?? this.target
 
     if (!this._has_rendered) {
       this.render_to(target)
@@ -235,18 +238,15 @@ export class TooltipView extends UIElementView {
 
     const {position, visible} = this.model
     if (position == null || !visible) {
-      this.el.remove()
+      this.el.hidePopover()
       return
     }
 
-    target.append(this.el)
-
-    // If popover API isn't available, then tooltip will still show in most
-    // situations, but not in fullscreen or may be partially obscured by
-    // other elements or components.
-    if (typeof this.el.showPopover !== "undefined") {
-      this.el.showPopover()
+    if (!this.el.isConnected) {
+      return
     }
+
+    this.el.showPopover()
 
     const bbox = bounding_box(this.target)
     const [sx, sy] = (() => {
@@ -337,18 +337,15 @@ export class TooltipView extends UIElementView {
 
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
-    this.class_list.remove(tooltips.right, tooltips.left, tooltips.above, tooltips.below)
+    this.class_list.remove(tooltips_css.right, tooltips_css.left, tooltips_css.above, tooltips_css.below)
     this.class_list.add((() => {
       switch (side) {
-        case "left":  return tooltips.right
-        case "right": return tooltips.left
-        case "above": return tooltips.below
-        case "below": return tooltips.above
+        case "left":  return tooltips_css.right
+        case "right": return tooltips_css.left
+        case "above": return tooltips_css.below
+        case "below": return tooltips_css.above
       }
     })())
-
-    this.arrow_el.style.left = `${sx}px`
-    this.arrow_el.style.top = `${sy}px`
 
     const {left, top} = (() => {
       const {width, height} = box_size(this.el)
@@ -401,8 +398,17 @@ export class TooltipView extends UIElementView {
       }
     })()
 
-    this.el.style.top = `${top}px`
-    this.el.style.left = `${left}px`
+    this.position.replace(`
+      :host {
+        left: ${left}px;
+        top: ${top}px;
+      }
+
+      .${tooltips_css.arrow} {
+        left: ${sx}px;
+        top: ${sy}px;
+      }
+    `)
 
     this.update_bbox()
   }

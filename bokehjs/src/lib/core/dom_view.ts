@@ -14,6 +14,8 @@ import core_css from "styles/core.css"
 import type {VNode} from "preact"
 import {render, h} from "preact"
 
+export const bokeh_element = Symbol("bokeh_element")
+
 export type RenderingTarget = HTMLElement | ShadowRoot
 
 export interface DOMView extends View {
@@ -88,7 +90,9 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    return create_element(this.constructor.tag_name, {role: this.constructor.aria_role})
+    const el = create_element(this.constructor.tag_name, {role: this.constructor.aria_role})
+    ;(el as any)[bokeh_element] = true
+    return el
   }
 
   reposition(_displayed?: boolean): void {}
