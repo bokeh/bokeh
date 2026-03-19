@@ -348,8 +348,11 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   protected _invert(synthetic: number): T {
-    assert(0 <= synthetic && synthetic <= 1.0)
     const {min, span, ticks, invert} = this._meta
+    if (isNaN(synthetic)) {
+      synthetic = min
+    }
+    assert(0 <= synthetic && synthetic <= 1.0)
     const value = synthetic*span + min
     if (ticks == null) {
       return invert(value)
