@@ -83,7 +83,7 @@ class Seq(ContainerProperty[T]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[Sequence[T]] = Undefined, help: str | None = None) -> None:
         super().__init__(item_type, default=default, help=help)
 
     @property
@@ -91,7 +91,7 @@ class Seq(ContainerProperty[T]):
         return self.type_params[0]
 
     def validate(self, value: Any, detail: bool = True) -> None:
-        super().validate(value, True)
+        super().validate(value, detail)
 
         if not self._is_seq(value):
             msg = "" if not detail else f"expected sequence {self}, got {value!r} of type {type(value)!r}"
@@ -114,6 +114,18 @@ class Seq(ContainerProperty[T]):
     def _should_skip_item_validation(self):
         return isinstance(self.item_type, AnyVal)
 
+    def wrap(self, value: Sequence[T]) -> Sequence[T]:
+        """ Some property types need to wrap their values in special containers, etc.
+
+        """
+        if isinstance(value, list):
+            if isinstance(value, PropertyValueList):
+                return value
+            else:
+                return PropertyValueList(value)
+        else:
+            return super().wrap(value)
+
     @classmethod
     def _is_seq(cls, value: Any) -> bool:
         return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and not isinstance(value, str))
@@ -135,46 +147,9 @@ class List(Seq[T]):
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
-    def wrap(self, value: list[T]) -> PropertyValueList[T]:
-        """ Some property types need to wrap their values in special containers, etc.
-
-        """
-        if isinstance(value, list):
-            if isinstance(value, PropertyValueList):
-                return value
-            else:
-                return PropertyValueList(value)
-        else:
-            return value
-
     @classmethod
     def _is_seq(cls, value: Any):
         return isinstance(value, list)
-
-class Set(Seq[T]):
-    """ Accept Python ``set()`` values.
-
-    """
-
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = set(), help: str | None = None) -> None:
-        # TODO: refactor to not use mutable objects as default values.
-        # Left in place for now because we want to allow None to express
-        # optional values. Also in Dict.
-        super().__init__(item_type, default=default, help=help)
-
-    def wrap(self, value: set[T]) -> PropertyValueSet[T]:
-        """ Some property types need to wrap their values in special containers, etc. """
-        if isinstance(value, set):
-            if isinstance(value, PropertyValueSet):
-                return value
-            else:
-                return PropertyValueSet(value)
-        else:
-            return value
-
-    @classmethod
-    def _is_seq(cls, value: Any) -> bool:
-        return isinstance(value, set)
 
 class Array(Seq[T]):
     """ Accept NumPy array values.
@@ -185,6 +160,47 @@ class Array(Seq[T]):
     def _is_seq(cls, value: Any) -> bool:
         import numpy as np
         return isinstance(value, np.ndarray)
+
+class Set(ContainerProperty[T]):
+    """ Accept Python ``set()`` values.
+
+    """
+
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = set(), help: str | None = None) -> None:
+        # TODO: refactor to not use mutable objects as default values.
+        # Left in place for now because we want to allow None to express
+        # optional values. Also in Dict.
+        super().__init__(item_type, default=default, help=help)
+
+    @property
+    def item_type(self):
+        return self.type_params[0]
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if not isinstance(value, set):
+            raise ValueError(f"expected an element of {self}, got a value of type {type(value)!r}")
+
+        invalid = []
+        for item in value:
+            if not self.item_type.is_valid(item):
+                invalid.append(item)
+
+        if invalid:
+            msg = "" if not detail else f"expected an element of {self}, got a value invalid items {invalid!r}"
+            raise ValueError(msg)
+
+    def wrap(self, value: set[T]) -> set[T]:
+        if isinstance(value, PropertyValueSet):
+            return value
+        else:
+            return PropertyValueSet(value)
+
+    @classmethod
+    def _is_seq(cls, value: Any) -> bool:
+        return isinstance(value, set)
+
 
 class Dict(ContainerProperty[Any]):
     """ Accept Python dict values.

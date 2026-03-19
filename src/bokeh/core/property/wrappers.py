@@ -157,7 +157,7 @@ class PropertyValueContainer:
     """
     _owners: set[tuple[HasProps, PropertyDescriptor[Any]]]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._owners = set()
         super().__init__(*args, **kwargs)
 
@@ -175,7 +175,7 @@ class PropertyValueContainer:
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
 class PropertyValueList(PropertyValueContainer, list[T]):
-    """ A list property value container that supports change notifications on
+    """ A list[T] property value container that supports change notifications on
     mutating operations.
 
     When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
@@ -216,7 +216,7 @@ class PropertyValueList(PropertyValueContainer, list[T]):
 
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _saved_copy(self) -> list[T]:
@@ -271,12 +271,12 @@ class PropertyValueList(PropertyValueContainer, list[T]):
         return super().sort(**kwargs)
 
 class PropertyValueSet(PropertyValueContainer, set[T]):
-    """ A list property value container that supports change notifications on
+    """ A set[T] property value container that supports change notifications on
     mutating operations.
 
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _saved_copy(self) -> set[T]:

@@ -190,10 +190,7 @@
         selected: {
           type: "object",
           name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
+          attributes: {},
         },
         selection_policy: {
           type: "object",
@@ -1675,10 +1672,7 @@
     ticker: {
       type: "object",
       name: "FixedTicker",
-      attributes: {
-        ticks: [],
-        minor_ticks: [],
-      },
+      attributes: {},
     },
     border_line_color: "#e5e5e5",
     border_line_alpha: 0.5,
@@ -1897,199 +1891,7 @@
     ticker: {
       type: "object",
       name: "DatetimeTicker",
-      attributes: {
-        tickers: [
-          {
-            type: "object",
-            name: "AdaptiveTicker",
-            attributes: {
-              num_minor_ticks: 0,
-              mantissas: [
-                1,
-                2,
-                5,
-              ],
-              max_interval: 500.0,
-            },
-          },
-          {
-            type: "object",
-            name: "AdaptiveTicker",
-            attributes: {
-              num_minor_ticks: 0,
-              base: 60,
-              mantissas: [
-                1,
-                2,
-                5,
-                10,
-                15,
-                20,
-                30,
-              ],
-              min_interval: 1000.0,
-              max_interval: 1800000.0,
-            },
-          },
-          {
-            type: "object",
-            name: "AdaptiveTicker",
-            attributes: {
-              num_minor_ticks: 0,
-              base: 24,
-              mantissas: [
-                1,
-                2,
-                4,
-                6,
-                8,
-                12,
-              ],
-              min_interval: 3600000.0,
-              max_interval: 43200000.0,
-            },
-          },
-          {
-            type: "object",
-            name: "DaysTicker",
-            attributes: {
-              days: [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-                12,
-                13,
-                14,
-                15,
-                16,
-                17,
-                18,
-                19,
-                20,
-                21,
-                22,
-                23,
-                24,
-                25,
-                26,
-                27,
-                28,
-                29,
-                30,
-                31,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "DaysTicker",
-            attributes: {
-              days: [
-                1,
-                4,
-                7,
-                10,
-                13,
-                16,
-                19,
-                22,
-                25,
-                28,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "DaysTicker",
-            attributes: {
-              days: [
-                1,
-                8,
-                15,
-                22,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "DaysTicker",
-            attributes: {
-              days: [
-                1,
-                15,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "MonthsTicker",
-            attributes: {
-              months: [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10,
-                11,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "MonthsTicker",
-            attributes: {
-              months: [
-                0,
-                2,
-                4,
-                6,
-                8,
-                10,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "MonthsTicker",
-            attributes: {
-              months: [
-                0,
-                4,
-                8,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "MonthsTicker",
-            attributes: {
-              months: [
-                0,
-                6,
-              ],
-            },
-          },
-          {
-            type: "object",
-            name: "YearsTicker",
-            attributes: {},
-          },
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2153,13 +1955,7 @@
     ticker: {
       type: "object",
       name: "BasicTicker",
-      attributes: {
-        mantissas: [
-          1,
-          2,
-          5,
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2172,12 +1968,7 @@
     ticker: {
       type: "object",
       name: "LogTicker",
-      attributes: {
-        mantissas: [
-          1,
-          5,
-        ],
-      },
+      attributes: {},
     },
     formatter: {
       type: "object",
@@ -2191,11 +1982,6 @@
       type: "object",
       name: "MercatorTicker",
       attributes: {
-        mantissas: [
-          1,
-          2,
-          5,
-        ],
         dimension: "lat",
       },
     },
@@ -6013,10 +5799,7 @@
             selected: {
               type: "object",
               name: "Selection",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              attributes: {},
             },
             selection_policy: {
               type: "object",
@@ -6063,10 +5846,7 @@
             selected: {
               type: "object",
               name: "Selection",
-              attributes: {
-                indices: [],
-                line_indices: [],
-              },
+              attributes: {},
             },
             selection_policy: {
               type: "object",
@@ -6272,10 +6052,7 @@
     selected: {
       type: "object",
       name: "Selection",
-      attributes: {
-        indices: [],
-        line_indices: [],
-      },
+      attributes: {},
     },
   },
   GeoJSONDataSource: {
@@ -6399,11 +6176,6 @@
         name: "AdaptiveTicker",
         attributes: {
           num_minor_ticks: 0,
-          mantissas: [
-            1,
-            2,
-            5,
-          ],
           max_interval: 500.0,
         },
       },
@@ -6978,8 +6750,6 @@
         syncable: false,
         level: "overlay",
         visible: false,
-        xs: [],
-        ys: [],
         editable: true,
         line_color: "black",
         line_alpha: 1.0,
@@ -7054,8 +6824,6 @@
         syncable: false,
         level: "overlay",
         visible: false,
-        xs: [],
-        ys: [],
         editable: true,
         line_color: "black",
         line_alpha: 1.0,
@@ -8071,10 +7839,7 @@
         selected: {
           type: "object",
           name: "Selection",
-          attributes: {
-            indices: [],
-            line_indices: [],
-          },
+          attributes: {},
         },
         selection_policy: {
           type: "object",

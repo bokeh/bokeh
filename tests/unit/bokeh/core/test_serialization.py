@@ -40,6 +40,7 @@ from bokeh.core.properties import (
     List,
     Nullable,
     Required,
+    Seq,
     String,
 )
 from bokeh.core.property.descriptors import UnsetValueError
@@ -82,15 +83,17 @@ class SomeProps(HasProps):
     p0 = Int(default=1)
     p1 = String()
     p2 = List(Int)
+    p3 = Seq(String, default=[])
 
 class SomeModel(Model):
     p0 = Int(default=1)
     p1 = String()
     p2 = List(Int)
     p3 = Nullable(Instance(lambda: SomeModel))
+    p4 = Seq(String, default=[])
 
 class SomeModelUnset(SomeModel):
-    p4 = Required(Int)
+    p5 = Required(Int)
 
 @dataclass
 class SomeDataClass:
@@ -278,6 +281,60 @@ class TestSerializer:
         encoder = Serializer(check_circular=False)
         with pytest.raises(RecursionError):
             encoder.encode(val)
+
+    def test_seq_empty(self) -> None:
+        encoder = Serializer()
+
+        list_empty = SomeModel(p4=[])
+        assert encoder.encode(list_empty) == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=list_empty.id,
+        )
+
+        tuple_empty = SomeModel(p4=())
+        assert encoder.encode(tuple_empty) == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=tuple_empty.id,
+        )
+
+        set_empty = SomeModel(p4=set())
+        assert encoder.encode(set_empty) == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=tuple_empty.id,
+        )
+
+        list_non_empty = SomeModel(p4=["a", "b", "c"])
+        assert encoder.encode(list_non_empty) == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=set_empty.id,
+            attributes=dict(
+                p3=["a", "b", "c"],
+            ),
+        )
+
+        tuple_non_empty = SomeModel(p4=("a", "b", "c"))
+        assert encoder.encode(tuple_non_empty) == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=list_non_empty.id,
+            attributes=dict(
+                p3=["a", "b", "c"],
+            ),
+        )
+
+        set_non_empty = SomeModel(p4={"a", "b", "c"})
+        assert encoder.encode(set_non_empty) == ObjectRefRep(
+            type="object",
+            name="test_serialization.SomeModel",
+            id=list_non_empty.id,
+            attributes=dict(
+                p3=SetRep(type="set", entries=["a", "b", "c"]),
+            ),
+        )
 
     def test_dict_empty(self) -> None:
         val = {}
