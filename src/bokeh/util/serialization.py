@@ -245,7 +245,7 @@ def convert_datetime_array(array: npt.NDArray[Any]) -> npt.NDArray[np.floating[A
     elif array.dtype.kind == "O" and len(array) > 0 and isinstance(array[0], dt.date):
         try:
             return convert(array.astype("datetime64[us]"))
-        except Exception:
+        except (TypeError, ValueError):
             pass
 
     return array
