@@ -227,6 +227,40 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
     obj.width = old_width
     obj.height = old_height
 
+#-----------------------------------------------------------------------------
+# Shared JavaScript snippets for Selenium and Playwright backends
+#-----------------------------------------------------------------------------
+
+# Check whether Bokeh has loaded and created at least one document.
+_BOKEH_LOADED_CHECK = """\
+return typeof Bokeh !== "undefined"
+    && Bokeh.documents != null
+    && Bokeh.documents.length != 0\
+"""
+
+# Set a flag once the first Bokeh document becomes idle.
+# Both backends poll/wait on ``window._bokeh_render_complete`` afterwards.
+_WAIT_SCRIPT = """\
+window._bokeh_render_complete = false;
+function done() {
+  window._bokeh_render_complete = true;
+}
+
+const doc = Bokeh.documents[0];
+
+if (doc.is_idle)
+  done();
+else
+  doc.idle.connect(done);
+"""
+
+# Read the size of the first root view and the device pixel ratio.
+_VIEWPORT_SIZE_SCRIPT = """\
+const root_view = Bokeh.index.roots[0];
+const {width, height} = root_view.el.getBoundingClientRect();
+return [Math.round(width), Math.round(height), window.devicePixelRatio];\
+"""
+
 # TODO: consider UIElement like Pane
 _SVGS_SCRIPT = """
 const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")

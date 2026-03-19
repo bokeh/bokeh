@@ -49,8 +49,11 @@ from ..resources import INLINE
 from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
+    _BOKEH_LOADED_CHECK,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
+    _VIEWPORT_SIZE_SCRIPT,
+    _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
 )
@@ -266,13 +269,11 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
     '''Wait for Bokeh to load and render, mirroring the Selenium backend.'''
     timeout_ms = timeout * 1000
 
+    bokeh_loaded_fn = _BOKEH_LOADED_CHECK.replace("return ", "", 1)
+
     try:
         page.wait_for_function(
-            """() => {
-                return typeof Bokeh !== "undefined"
-                    && Bokeh.documents != null
-                    && Bokeh.documents.length != 0;
-            }""",
+            f"() => {{ return {bokeh_loaded_fn}; }}",
             timeout=timeout_ms,
         )
     except Exception as e:
@@ -280,13 +281,7 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
 
-    page.evaluate("""() => {
-        window._bokeh_render_complete = false;
-        function done() { window._bokeh_render_complete = true; }
-        const doc = Bokeh.documents[0];
-        if (doc.is_idle) done();
-        else doc.idle.connect(done);
-    }""")
+    page.evaluate(f"() => {{ {_WAIT_SCRIPT} }}")
 
     try:
         page.wait_for_function(
@@ -303,16 +298,7 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
 
 def maximize_viewport(page: Page) -> tuple[int, int, int]:
     '''Resize viewport to fit the Bokeh layout. Returns (width, height, dpr).'''
-    info: dict[str, int] = page.evaluate("""() => {
-        const root_view = Bokeh.index.roots[0];
-        const {width, height} = root_view.el.getBoundingClientRect();
-        return {
-            width: Math.round(width),
-            height: Math.round(height),
-            dpr: window.devicePixelRatio,
-        };
-    }""")
-    w, h, dpr = info["width"], info["height"], info["dpr"]
+    [w, h, dpr] = execute_script(page, _VIEWPORT_SIZE_SCRIPT)
     page.set_viewport_size({"width": w + 100, "height": h + 100})
     return (w, h, dpr)
 

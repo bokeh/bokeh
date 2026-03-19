@@ -42,8 +42,11 @@ from ..resources import INLINE
 from ..settings import settings
 from .state import curstate
 from .util import (
+    _BOKEH_LOADED_CHECK,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
+    _VIEWPORT_SIZE_SCRIPT,
+    _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
 )
@@ -164,9 +167,7 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     from selenium.webdriver.support.wait import WebDriverWait
 
     def is_bokeh_loaded(driver: WebDriver) -> bool:
-        result: bool = driver.execute_script('''
-            return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
-        ''')
+        result: bool = driver.execute_script(_BOKEH_LOADED_CHECK)
         return result
 
     try:
@@ -178,7 +179,7 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     driver.execute_script(_WAIT_SCRIPT)
 
     def is_bokeh_render_complete(driver: WebDriver) -> bool:
-        result: bool = driver.execute_script('return window._bokeh_render_complete;')
+        result: bool = driver.execute_script('return window._bokeh_render_complete')
         return result
 
     try:
@@ -258,10 +259,7 @@ def scale_factor_less_than_web_driver_device_pixel_ratio(scale_factor: float, we
 
 
 def get_web_driver_device_pixel_ratio(web_driver: WebDriver) -> float:
-    calculate_web_driver_device_pixel_ratio = """\
-        return window.devicePixelRatio
-    """
-    device_pixel_ratio: float = web_driver.execute_script(calculate_web_driver_device_pixel_ratio)
+    device_pixel_ratio: float = web_driver.execute_script('return window.devicePixelRatio')
     return device_pixel_ratio
 
 #-----------------------------------------------------------------------------
@@ -282,12 +280,7 @@ def _log_console(driver: WebDriver) -> None:
 
 
 def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
-    calculate_viewport_size = """\
-        const root_view = Bokeh.index.roots[0]
-        const {width, height} = root_view.el.getBoundingClientRect()
-        return [Math.round(width), Math.round(height), window.devicePixelRatio]
-    """
-    viewport_size: tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
+    viewport_size: tuple[int, int, int] = web_driver.execute_script(_VIEWPORT_SIZE_SCRIPT)
     calculate_window_size = """\
         const [width, height, dpr] = arguments
         return [
@@ -300,22 +293,6 @@ def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     eps = 100 # XXX: can't set window size exactly in certain window managers, crop it to size later
     web_driver.set_window_size(width + eps, height + eps)
     return viewport_size
-
-
-_WAIT_SCRIPT = """
-// add private window prop to check that render is complete
-window._bokeh_render_complete = false;
-function done() {
-  window._bokeh_render_complete = true;
-}
-
-const doc = Bokeh.documents[0];
-
-if (doc.is_idle)
-  done();
-else
-  doc.idle.connect(done);
-"""
 
 
 def _try_create_firefox_webdriver(scale_factor: float = 1) -> WebDriver | None:
