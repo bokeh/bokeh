@@ -50,6 +50,7 @@ export class RayView extends XYGlyphView {
       if (!isFinite(sx_i + sy_i + angle_i + slength_i))
         continue
 
+      ctx.save()
       ctx.translate(sx_i, sy_i)
       ctx.rotate(angle_i)
 
@@ -59,8 +60,7 @@ export class RayView extends XYGlyphView {
 
       this.visuals.line.apply(ctx, i)
 
-      ctx.rotate(-angle_i)
-      ctx.translate(-sx_i, -sy_i)
+      ctx.restore()
     }
   }
 
