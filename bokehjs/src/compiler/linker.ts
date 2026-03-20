@@ -27,6 +27,8 @@ export type Parent = {
   file: Path
 }
 
+class ResolutionError extends BuildError {}
+
 export type ResoType = "ESM" | "CJS"
 
 export type ModuleType = "js" | "json" | "json5" | "yaml" | "css"
@@ -588,7 +590,7 @@ export class Linker {
         if (!has_file) {
           return pkg_file
         } else {
-          return new BuildError("linker", `both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
+          return new ResolutionError("linker", `both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
         }
       }
     }
@@ -598,13 +600,18 @@ export class Linker {
     } else if (has_json_file) {
       return json_file
     } else {
-      return new BuildError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+      return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
     }
   }
 
   protected resolve_absolute(dep: string, parent: Parent): Path | Error {
     if (dep in this.import_map) {
-      return this.resolve_file(this.import_map[dep], parent)
+      const result = this.resolve_file(this.import_map[dep], parent)
+      if (result instanceof ResolutionError) {
+        return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+      } else {
+        return result
+      }
     }
 
     if (dep.startsWith("#")) {
@@ -613,7 +620,12 @@ export class Linker {
         if (dep.startsWith(prefix) && dep.endsWith(suffix)) {
           const core = dep.slice(prefix.length).slice(0, dep.length - suffix.length)
           const path = maps_to.replace("*", core)
-          return this.resolve_file(path, parent)
+          const result = this.resolve_file(path, parent)
+          if (result instanceof ResolutionError) {
+            return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+          } else {
+            return result
+          }
         }
       }
     }
@@ -673,7 +685,7 @@ export class Linker {
       }
     }
 
-    return new BuildError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+    return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
   }
 
   resolve_file(dep: string, parent: Parent): Path | Error {
@@ -854,7 +866,7 @@ export ${export_type} yaml;
       for (const dep of filtered) {
         const resolved = this.resolve_file(dep, {file})
         if (resolved instanceof Error) {
-          console.log(resolved)
+          console.error(`${chalk.red("resolution failed")}: ${resolved.message}`)
         } else {
           dependency_paths.set(dep, resolved)
         }
