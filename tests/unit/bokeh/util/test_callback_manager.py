@@ -22,6 +22,7 @@ from functools import partial
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.model.util import HasDocumentRef
+from bokeh.settings import settings
 
 # Module under test
 import bokeh.util.callback_manager as cbm # isort:skip
@@ -207,6 +208,20 @@ class TestPropertyCallbackManager:
             m.on_change('foo', bad)
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 0
+
+    def test_on_change_bad_function_no_diagnostics(self) -> None:
+        m = cbm.PropertyCallbackManager()
+        settings.perform_error_diagnostics.set_value(False)
+        try:
+            m.on_change('foo', _bad_property)
+        finally:
+            settings.perform_error_diagnostics.unset_value()
+        assert len(m._callbacks) == 1
+        assert len(m._callbacks['foo']) == 1
+
+        msg = r"_bad_property\(\) takes 2 positional arguments but 3 were given"
+        with pytest.raises(TypeError, match=msg):
+            m.trigger('foo', 0, 1)
 
     def test_on_change_same_attr_twice_multiple_calls(self) -> None:
         def good1(x, y, z):

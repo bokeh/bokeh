@@ -373,6 +373,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         self._raise_attribute_error_with_matches(name, properties)
 
     def _raise_attribute_error_with_matches(self, name: str, properties: Iterable[str]) -> NoReturn:
+        if not settings.perform_error_diagnostics():
+            raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}")
+
         matches, text = difflib.get_close_matches(name.lower(), properties), "similar"
 
         if not matches:
