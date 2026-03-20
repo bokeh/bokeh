@@ -59,8 +59,10 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 ALL_VERSIONS = resources.get_all_sri_versions()
 
 # very old Bokeh versions are inconsistent and have to be handled specially
-STANDARD_VERSIONS = {v for v in ALL_VERSIONS if V(v) >= V("0.4.1")}
-WIERD_VERSIONS = ALL_VERSIONS - STANDARD_VERSIONS
+_STANDARD_VERSIONS = {v for v in ALL_VERSIONS if V(v) >= V("0.4.1")}
+_WEIRD_VERSIONS = ALL_VERSIONS - _STANDARD_VERSIONS
+STANDARD_VERSIONS = sorted(_STANDARD_VERSIONS)
+WEIRD_VERSIONS = sorted(_WEIRD_VERSIONS)
 
 class TestSRIHashes:
     def test_get_all_sri_versions_valid_format(self) -> None:
@@ -78,7 +80,7 @@ class TestSRIHashes:
             assert f"bokeh-widgets-{v}.js" in h
             assert f"bokeh-widgets-{v}.min.js" in h
 
-    @pytest.mark.parametrize("v", WIERD_VERSIONS)
+    @pytest.mark.parametrize("v", WEIRD_VERSIONS)
     def test_get_sri_hashes_for_weird_versions(self, v) -> None:
 
         h = resources.get_sri_hashes_for_version(v)

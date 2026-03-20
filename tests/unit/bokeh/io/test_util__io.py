@@ -18,6 +18,8 @@ import pytest ; pytest
 
 # Standard library imports
 import os
+import subprocess
+import sys
 from unittest.mock import MagicMock, patch
 
 # Module under test
@@ -35,9 +37,11 @@ import bokeh.io.util as biu # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_detect_current_filename() -> None:
-    filename = biu.detect_current_filename()
-    assert filename and filename.endswith(("py.test", "pytest", "py.test-script.py", "pytest-script.py"))
+def test_detect_current_filename(tmp_path: os.PathLike) -> None:
+    script = tmp_path / "script.py"
+    script.write_text("from bokeh.io.util import detect_current_filename\nprint(detect_current_filename())\n")
+    result = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    assert result.stdout.strip() == str(script)
 
 def test_temp_filename() -> None:
     with patch('bokeh.io.util.NamedTemporaryFile', **{
