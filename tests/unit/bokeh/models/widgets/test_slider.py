@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import logging
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 
 # Bokeh imports
 from bokeh.core.properties import UnsetValueError
