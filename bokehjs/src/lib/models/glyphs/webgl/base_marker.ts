@@ -55,13 +55,37 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   // value instead.
   protected static readonly missing_point = -10000
 
-  marker_props(main_gl_glyph: BaseMarkerGL) {
+  /**
+   * Selects appropriate geometry buffers for rendering a marker glyph.
+   *
+   * This method implements smart buffer selection to support property overrides in derived
+   * glyphs (hover_glyph, selection_glyph, muted_glyph). For each geometry property, it
+   * checks if the derived glyph has populated its own buffer; if so, that buffer is used,
+   * otherwise it falls back to the main glyph's buffer.
+   *
+   * This pattern enables zero-overhead overrides: derived glyphs that don't override
+   * properties simply reuse main glyph buffers, while overrides are handled via lazy
+   * buffer creation detected by length checks.
+   *
+   * @param derived_gl - The glyph being rendered (may be main or derived glyph)
+   * @param main_gl_glyph - The main glyph (used as fallback for unpopulated buffers)
+   * @returns Object with buffer references for width, height, angle, aux, and border_radius
+   *
+   * Note: border_radius always uses main glyph buffer (overrides not supported)
+   */
+  marker_props(derived_gl: BaseMarkerGL, main_gl_glyph: BaseMarkerGL) {
+    // Smart selection: use derived buffer if populated, else main buffer
+    const use_derived_width = derived_gl !== main_gl_glyph && derived_gl._widths.length > 0
+    const use_derived_height = derived_gl !== main_gl_glyph && derived_gl._heights.length > 0
+    const use_derived_angle = derived_gl !== main_gl_glyph && derived_gl._angles.length > 0
+    const use_derived_aux = derived_gl !== main_gl_glyph && derived_gl._auxs.length > 0
+
     return {
-      width: main_gl_glyph._widths,
-      height: main_gl_glyph._heights,
-      angle: main_gl_glyph._angles,
-      aux: main_gl_glyph._auxs,
-      border_radius: main_gl_glyph._border_radius,
+      width: use_derived_width ? derived_gl._widths : main_gl_glyph._widths,
+      height: use_derived_height ? derived_gl._heights : main_gl_glyph._heights,
+      angle: use_derived_angle ? derived_gl._angles : main_gl_glyph._angles,
+      aux: use_derived_aux ? derived_gl._auxs : main_gl_glyph._auxs,
+      border_radius: main_gl_glyph._border_radius,  // Always from main (overrides not supported)
     }
   }
 
@@ -98,8 +122,8 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       nmarkers: main_gl_glyph.nvertices,
       antialias: this._antialias / transform.pixel_ratio,
       show: this._show,
-      center: main_gl_glyph._centers,
-      ...this.marker_props(main_gl_glyph),
+      center: main_gl_glyph._centers,  // Always from main (position overrides not supported)
+      ...this.marker_props(this, main_gl_glyph),
       ...this.line_props,
       ...this.fill_props,
     }
