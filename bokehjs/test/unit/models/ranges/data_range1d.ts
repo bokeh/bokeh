@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Plot} from "@bokehjs/models/plots/plot"
 import type {RangeManager} from "@bokehjs/models/plots/range_manager"

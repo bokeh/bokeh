@@ -19,13 +19,15 @@ import {detect_cycles} from "./graph.js"
 
 const root_path = process.cwd()
 
-const cache_version = 4
+const cache_version = 5
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
 export type Parent = {
   file: Path
 }
+
+class ResolutionError extends BuildError {}
 
 export type ResoType = "ESM" | "CJS"
 
@@ -46,7 +48,6 @@ export type ModuleInfo = {
   dependency_paths: Map<string, Path>
   dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
-  exported: transforms.Exports[]
   externals: Set<string>
   shims: Set<string>
 }
@@ -169,35 +170,6 @@ export class Bundle {
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
   }
-
-  protected *collect_exported(entry: ModuleInfo): Generator<string, void> {
-    for (const item of entry.exported) {
-      switch (item.type) {
-        case "bindings": {
-          for (const [, name] of item.bindings) {
-            yield name
-          }
-          break
-        }
-        case "named": {
-          yield item.name
-          break
-        }
-        case "namespace": {
-          const {name} = item
-          if (name != null) {
-            yield name
-          } else {
-            const module = entry.dependencies.get(item.module)
-            if (module != null) {
-              yield* this.collect_exported(module)
-            }
-          }
-          break
-        }
-      }
-    }
-  }
 }
 
 export class Artifact {
@@ -227,15 +199,16 @@ export class Artifact {
   }
 }
 
-export interface LinkerOpts {
+export type LinkerOpts = {
   entries: Path[]
   bases?: Path[]
   excludes?: Path[]    // paths: process, but don't include in a bundle
   externals?: (string | RegExp)[] // modules: delegate to an external require()
   excluded?: (dep: string) => boolean
   builtins?: boolean
+  import_map?: {[key: string]: string}
   cache?: Path
-  target?: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015"
+  target?: "ES2024" | "ES2022"
   es_modules?: boolean
   minify?: boolean
   plugin?: boolean
@@ -254,11 +227,11 @@ export class Linker {
   readonly external_regex: RegExp[]
   readonly excluded: (dep: string) => boolean
   readonly builtins: boolean
+  readonly import_map: {[key: string]: string}
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2024" | "ES2022" | "ES2020" | "ES2017" | "ES2015" | null
+  readonly target: "ES2024" | "ES2022"
   readonly es_modules: boolean
-  readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
   readonly shims: Set<string>
@@ -275,6 +248,7 @@ export class Linker {
 
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false
+    this.import_map = opts.import_map ?? {}
     this.exports = new Set(opts.exports ?? [])
 
     if (this.builtins) {
@@ -305,9 +279,8 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.target = opts.target ?? null
+    this.target = opts.target ?? "ES2024"
     this.es_modules = opts.es_modules ?? true
-    this.minify = opts.minify ?? true
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
@@ -393,9 +366,6 @@ export class Linker {
 
         const fix_esexports = transforms.fix_esexports()
         transformers.push(fix_esexports)
-
-        const fix_regl = transforms.fix_regl()
-        transformers.push(fix_regl)
       }
 
       const rewrite_deps = transforms.rewrite_deps((dep) => {
@@ -437,17 +407,8 @@ export class Linker {
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
           const source = print(module)
-          const ecma = (() => {
-            switch (this.target) {
-              case "ES2024": return 2020 // TODO: 2024
-              case "ES2022": return 2020 // TODO: 2022
-              case null:
-              case "ES2020": return 2020
-              case "ES2017": return 2017
-              case "ES2015": return 5
-            }
-          })()
-          const minified = this.minify ? await minify(module, source, ecma) : {min_source: source}
+          const ecma = 2020 // the highest version supported by terser
+          const minified = await minify(module, source, ecma)
           code = {source, ...minified}
         } else {
           code = cached!.code
@@ -577,7 +538,7 @@ export class Linker {
     const pkg = this.get_package(dir)
 
     const index = (() => {
-      if (this.target != null && pkg.module != null) {
+      if (pkg.module != null) {
         return pkg.module as string
       } else if (pkg.main != null) {
         return pkg.main as string
@@ -629,7 +590,7 @@ export class Linker {
         if (!has_file) {
           return pkg_file
         } else {
-          return new BuildError("linker", `both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
+          return new ResolutionError("linker", `both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
         }
       }
     }
@@ -639,11 +600,36 @@ export class Linker {
     } else if (has_json_file) {
       return json_file
     } else {
-      return new BuildError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+      return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
     }
   }
 
   protected resolve_absolute(dep: string, parent: Parent): Path | Error {
+    if (dep in this.import_map) {
+      const result = this.resolve_file(this.import_map[dep], parent)
+      if (result instanceof ResolutionError) {
+        return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+      } else {
+        return result
+      }
+    }
+
+    if (dep.startsWith("#")) {
+      for (const [pattern, maps_to] of Object.entries(this.import_map)) {
+        const [prefix, suffix] = pattern.split("*")
+        if (dep.startsWith(prefix) && dep.endsWith(suffix)) {
+          const core = dep.slice(prefix.length).slice(0, dep.length - suffix.length)
+          const path = maps_to.replace("*", core)
+          const result = this.resolve_file(path, parent)
+          if (result instanceof ResolutionError) {
+            return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+          } else {
+            return result
+          }
+        }
+      }
+    }
+
     for (const base of this.bases) {
       let path = join(base, dep)
       if (file_exists(path)) {
@@ -699,7 +685,7 @@ export class Linker {
       }
     }
 
-    return new BuildError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+    return new ResolutionError("linker", `can't resolve '${dep}' from '${parent.file}'`)
   }
 
   resolve_file(dep: string, parent: Parent): Path | Error {
@@ -836,21 +822,16 @@ export ${export_type} yaml;
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
     let shims: Set<string>
-    let exported: transforms.Exports[] = []
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       let collected: string[] | null = null
-      if ((this.target != null && resolution == "ESM") || type == "json") {
-        const {ES2024, ES2022, ES2020, ES2017, ES2015} = ts.ScriptTarget
+      if (resolution == "ESM" || type == "json") {
+        const {ES2024, ES2022} = ts.ScriptTarget
         const target = (() => {
           switch (this.target) {
             case "ES2024": return ES2024
             case "ES2022": return ES2022
-            case null:
-            case "ES2020": return ES2020
-            case "ES2017": return ES2017
-            case "ES2015": return ES2015
           }
         })()
         const imports = new Set<string>()
@@ -859,7 +840,7 @@ export ${export_type} yaml;
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports), transforms.rename_exports(), transforms.collect_exports(exported)],
+          before: [transforms.collect_imports(imports)],
           after: [],
         }
 
@@ -885,7 +866,7 @@ export ${export_type} yaml;
       for (const dep of filtered) {
         const resolved = this.resolve_file(dep, {file})
         if (resolved instanceof Error) {
-          console.log(resolved)
+          console.error(`${chalk.red("resolution failed")}: ${resolved.message}`)
         } else {
           dependency_paths.set(dep, resolved)
         }
@@ -895,7 +876,6 @@ export ${export_type} yaml;
       shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
       dependency_paths = cached.module.dependency_paths
-      exported = cached.module.exported
       externals = cached.module.externals
       shims = cached.module.shims
       source = cached.module.source
@@ -916,7 +896,6 @@ export ${export_type} yaml;
       dependency_paths,
       dependency_map: new Map(),
       dependencies: new Map(),
-      exported,
       externals,
       shims,
     }
@@ -1003,6 +982,7 @@ export async function minify(module: ModuleInfo, source: string, ecma: terser.EC
 
   const minify_opts: terser.MinifyOptions = {
     ecma,
+    keep_classnames: true,
     format: {
       comments: /^!|copyright|license|\(c\)/i,
       // https://github.com/terser/terser/issues/410

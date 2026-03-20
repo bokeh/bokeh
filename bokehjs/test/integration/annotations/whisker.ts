@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig} from "#framework/layouts"
 
 import {Whisker, ColumnDataSource, OpenHead} from "@bokehjs/models"
 

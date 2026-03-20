@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {YearsTicker} from "@bokehjs/models/tickers/years_ticker"
 import {ONE_YEAR} from "@bokehjs/models/tickers/util"

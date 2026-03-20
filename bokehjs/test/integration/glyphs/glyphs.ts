@@ -1,4 +1,4 @@
-import {display, fig, row, column} from "../_util"
+import {display, fig, row, column} from "#framework/layouts"
 
 import {Range1d, HoverTool, ColumnDataSource, Circle, Rect, GlyphRenderer, Scatter, HBar, Annulus, Wedge, AnnularWedge} from "@bokehjs/models"
 import type {DisplayMode} from "@bokehjs/models/glyphs/tex_glyph"

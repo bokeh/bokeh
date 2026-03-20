@@ -1,5 +1,5 @@
-import {display} from "./_util"
-import {mouse_click} from "../interactive"
+import {display} from "#framework/layouts"
+import {mouse_click} from "#framework/interactive"
 
 import {ColumnDataSource, CustomJSCompare, NanCompare} from "@bokehjs/models"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"

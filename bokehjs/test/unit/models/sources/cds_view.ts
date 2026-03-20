@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {CDSViewView} from "@bokehjs/models/sources/cds_view"
 import {CDSView} from "@bokehjs/models/sources/cds_view"

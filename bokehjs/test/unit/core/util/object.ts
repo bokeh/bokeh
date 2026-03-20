@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as object from "@bokehjs/core/util/object"
 import type {PlainObject} from "@bokehjs/core/types"

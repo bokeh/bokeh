@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Selection} from "@bokehjs/models/selections/selection"
 import {Patch} from "@bokehjs/models/glyphs/patch"

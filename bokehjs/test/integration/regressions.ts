@@ -1,9 +1,9 @@
 import sinon from "sinon"
 
-import {expect, expect_condition, expect_not_null} from "../unit/assertions"
-import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
-import {async_trap} from "../util"
+import {expect, expect_condition, expect_not_null} from "#framework/assertions"
+import {display, fig, row, column, grid} from "#framework/layouts"
+import {DelayedInternalProvider, async_trap} from "#framework/util"
+import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
 import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {

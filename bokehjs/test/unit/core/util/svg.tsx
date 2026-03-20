@@ -1,5 +1,5 @@
-import {expect, expect_element} from "assertions"
-import {compare_on_dom} from "../../../framework"
+import {expect, expect_element} from "#framework/assertions"
+import {compare_on_dom} from "#framework/framework"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {Random} from "@bokehjs/core/util/random"
 import {load_image} from "@bokehjs/core/util/image"

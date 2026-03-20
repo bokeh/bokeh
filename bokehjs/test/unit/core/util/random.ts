@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {Random} from "@bokehjs/core/util/random"
 
 describe("core/util/random module", () => {

@@ -1,9 +1,10 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import type {XY} from "../../../../interactive"
-import {actions, xy} from "../../../../interactive"
-import {display, restorable} from "../../../_util"
+import {expect} from "#framework/assertions"
+import type {XY} from "#framework/interactive"
+import {actions, xy} from "#framework/interactive"
+import {display} from "#framework/layouts"
+import {restorable} from "#framework/util"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"

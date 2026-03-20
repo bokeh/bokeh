@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {build_view} from "@bokehjs/core/build_views"

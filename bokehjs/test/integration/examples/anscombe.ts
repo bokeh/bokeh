@@ -1,4 +1,4 @@
-import {display} from "../_util"
+import {display} from "#framework/layouts"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {transpose, linspace} from "@bokehjs/core/util/array"

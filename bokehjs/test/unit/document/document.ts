@@ -1,4 +1,6 @@
-import {expect, expect_instanceof, expect_not_null} from "assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
+import {trap} from "#framework/util"
+
 import * as sinon from "sinon"
 
 import type {Patch} from "@bokehjs/document"
@@ -14,8 +16,6 @@ import {ColumnDataSource} from "@bokehjs/models"
 import {DocumentReady} from "@bokehjs/core/bokeh_events"
 import {Slice} from "@bokehjs/core/util/slice"
 import {unique_id} from "@bokehjs/core/util/string"
-
-import {trap} from "../../util"
 
 namespace AnotherModel {
   export type Attrs = p.AttrsOf<Props>

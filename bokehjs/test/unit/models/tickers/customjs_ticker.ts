@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {CustomJSTicker} from "@bokehjs/models/tickers/customjs_ticker"
 import type {FactorTickSpec} from "@bokehjs/models/tickers/categorical_ticker"

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {SpatialIndex} from "@bokehjs/core/util/spatial"
 import * as bbox from "@bokehjs/core/util/bbox"

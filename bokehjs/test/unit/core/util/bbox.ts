@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as bbox from "@bokehjs/core/util/bbox"
 import {BBox} from "@bokehjs/core/util/bbox"

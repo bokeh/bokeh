@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {AnyVal} from "@bokehjs/core/serialization"
 import {Serializer, SerializationError, Base64Buffer} from "@bokehjs/core/serialization"

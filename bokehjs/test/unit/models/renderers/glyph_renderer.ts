@@ -1,8 +1,9 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import {display, restorable} from "../../_util"
-import {PlotActions, xy} from "../../../interactive"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
+import {restorable} from "#framework/util"
+import {PlotActions, xy} from "#framework/interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"

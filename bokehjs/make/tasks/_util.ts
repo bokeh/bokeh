@@ -1,5 +1,7 @@
 import assert from "node:assert"
 import os from "node:os"
+import fs from "node:fs"
+import cp from "node:child_process"
 import type {ChildProcess} from "node:child_process"
 import {Socket} from "node:net"
 
@@ -14,6 +16,21 @@ export const platform = (() => {
       throw new Error(`unsupported platform: ${os.type()}`)
   }
 })()
+
+export const is_dir = (path: string) => fs.lstatSync(path).isDirectory()
+export const is_file = (path: string) => fs.lstatSync(path).isFile()
+export const exists = (path: string) => fs.existsSync(path)
+export const file_exists = (path: string) => exists(path) && is_file(path)
+export const dir_exists = (path: string) => exists(path) && is_dir(path)
+
+export function compile_typescript(tsconfig_path: string): void {
+  const is_windows = process.platform == "win32"
+  const npx = is_windows ? "npx.cmd" : "npx"
+  const {status} = cp.spawnSync(npx, ["tsgo", "--project", tsconfig_path], {stdio: "inherit", shell: is_windows})
+  if (status != 0) {
+    throw new BuildError("typescript", "compilation failed with tsgo")
+  }
+}
 
 export async function is_available(port: number): Promise<boolean> {
   const host = "0.0.0.0"

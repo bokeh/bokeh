@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {create_glyph_view} from "./_util"
 import {Patch} from "@bokehjs/models/glyphs/patch"

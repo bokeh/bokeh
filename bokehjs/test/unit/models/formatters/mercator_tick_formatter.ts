@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {MercatorTickFormatter} from "@bokehjs/models/formatters/mercator_tick_formatter"
 import {unicode_replace} from "@bokehjs/models/formatters/basic_tick_formatter"

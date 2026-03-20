@@ -1,12 +1,11 @@
-import proj4 from "proj4/lib/core"
-import Projection from "proj4/lib/Proj"
+import proj4 from "proj4"
 
 import type {LatLon} from "../enums"
 import type {Arrayable} from "../types"
 import {infer_type} from "../types"
 
-const mercator = new Projection("GOOGLE")
-const wgs84    = new Projection("WGS84")
+const mercator = "GOOGLE"
+const wgs84    = "WGS84"
 
 const _wgs84_mercator = proj4(wgs84, mercator)
 

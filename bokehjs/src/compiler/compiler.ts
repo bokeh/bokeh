@@ -1,11 +1,8 @@
-import chalk from "chalk"
 import ts from "typescript"
 
-import {dirname, join, relative} from "node:path"
+import {dirname} from "node:path"
 
-import * as transforms from "./transforms.js"
 import type {Path} from "./sys.js"
-import {BuildError} from "./error.js"
 
 export type CompileConfig = {
   tslib_dir?: Path
@@ -34,10 +31,6 @@ export type TSConfig = {
 
 export interface TSOutput {
   diagnostics?: Diagnostics
-}
-
-function normalize(path: Path): Path {
-  return path.replace(/\\/g, "/")
 }
 
 const diagnostics_host: ts.FormatDiagnosticsHost = {
@@ -82,39 +75,6 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib
   return host
 }
 
-export function default_transformers(base_path: Path, options: ts.CompilerOptions): ts.CustomTransformers {
-  const transformers: Required<ts.CustomTransformers> = {
-    before: [],
-    after: [],
-    afterDeclarations: [],
-  }
-
-  const insert_class_name = transforms.insert_class_name()
-  transformers.before.push(insert_class_name)
-
-  const base = base_path
-  {
-    const relativize_modules = transforms.relativize_modules((file, module_path) => {
-      if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
-        const module_file = join(base, module_path)
-        if (ts.sys.fileExists(module_file) ||
-            ts.sys.fileExists(`${module_file}.ts`) ||
-            ts.sys.fileExists(join(module_file, "index.ts")) ||
-            options.outDir != null && ts.sys.fileExists(join(options.outDir, `${module_path}.js`))) {
-          const rel_path = normalize(relative(dirname(file), module_file))
-          return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
-        }
-      }
-      return null
-    })
-
-    transformers.after.push(relativize_modules)
-    transformers.afterDeclarations.push(relativize_modules)
-  }
-
-  return transformers
-}
-
 export function compile_files(inputs: Path[], options: ts.CompilerOptions, transformers?: ts.CustomTransformers, host?: ts.CompilerHost): TSOutput {
   const program = ts.createIncrementalProgram({rootNames: inputs, options, host})
   const emitted = program.emit(undefined, undefined, undefined, false, transformers)
@@ -156,29 +116,4 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
   }
 
   return parse_tsconfig(tsconfig_file.config, dirname(tsconfig_path), preconfigure)
-}
-
-function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
-  const tsconfig = read_tsconfig(tsconfig_path)
-  if (is_failed(tsconfig)) {
-    return {diagnostics: tsconfig.diagnostics}
-  }
-
-  const {files, options} = tsconfig
-
-  const transformers = default_transformers(dirname(tsconfig_path), tsconfig.options)
-  const inputs = config.inputs?.(files) ?? new Map()
-  const host = compiler_host(inputs, options, config.tslib_dir)
-
-  const input_files = [...inputs.keys(), ...files]
-  return compile_files(input_files, options, transformers, host)
-}
-
-export function compile_typescript(tsconfig_path: Path, config: CompileConfig = {}): void {
-  const result = compile_project(tsconfig_path, config)
-
-  if (is_failed(result)) {
-    const {count, text} = report_diagnostics(result.diagnostics)
-    throw new BuildError("typescript", `There were ${chalk.red(`${count}`)} TypeScript errors:\n${text}`)
-  }
 }

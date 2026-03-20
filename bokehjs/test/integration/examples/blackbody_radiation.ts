@@ -1,4 +1,4 @@
-import {display, column} from "../_util"
+import {display, column} from "#framework/layouts"
 
 import {figure} from "@bokehjs/api/plotting"
 import {Spectral} from "@bokehjs/api/palettes"

@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig} from "#framework/layouts"
 
 import {Band, ColumnDataSource} from "@bokehjs/models"
 

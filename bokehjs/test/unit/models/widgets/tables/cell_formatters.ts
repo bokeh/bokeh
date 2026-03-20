@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {DateFormatter, NumberFormatter, ScientificFormatter, StringFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
 

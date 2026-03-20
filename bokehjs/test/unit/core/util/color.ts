@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {color2rgba, color2css, css4_parse, brightness, luminance} from "@bokehjs/core/util/color"
 

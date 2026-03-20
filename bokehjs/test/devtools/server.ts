@@ -22,14 +22,16 @@ app.use("/static", express.static("build/"))
 app.use("/assets", express.static("test/assets/"))
 app.use("/cases", express.static("../tests/baselines/cross/"))
 
-const js_path = (name: string): string => {
-  return `/static/js/${name}.js`
+const js_path = (name: string, dev: boolean = true): string => {
+  const min = dev ? "" : ".min"
+  return `/static/js/${name}${min}.js`
 }
 
 const test = (main: string, title: string) => {
   return (run: boolean = false) => {
-    return (_req: express.Request, res: express.Response) => {
-      const js = (name: string) => js_path(name)
+    return (req: express.Request, res: express.Response) => {
+      const dev = req.query.dev !== "false"
+      const js = (name: string) => js_path(name, dev)
       res.render("test/devtools/test.html", {main, title, run, js})
     }
   }
@@ -147,6 +149,7 @@ with open(__file__, "rb") as example:
     ...process.env,
     BOKEH_DEV: (options.dev ?? true) ? "true" : "false",
     BOKEH_RESOURCES: options.resources ?? "server",
+    BOKEH_BROWSER: "none",
     BOKEH_DEFAULT_SERVER_HOST: host,
     BOKEH_DEFAULT_SERVER_PORT: `${port}`,
   }
@@ -232,7 +235,15 @@ app.get("/bokeh/examples/:path(*)", async (req, res) => {
     return
   }
 
-  const error = await build_example(py_path, {dev: argv.dev, resources: argv.resources as Resources})
+  const dev = (() => {
+    if ("dev" in req.query) {
+      return req.query.dev !== "false"
+    } else {
+      return argv.dev
+    }
+  })()
+
+  const error = await build_example(py_path, {dev, resources: argv.resources as Resources})
   if (error != null) {
     res.status(200).render("test/devtools/bokeh_example.html", {title: py_path, contents: error})
     return

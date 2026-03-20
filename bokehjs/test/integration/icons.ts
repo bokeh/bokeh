@@ -1,4 +1,4 @@
-import {display} from "./_util"
+import {display} from "#framework/layouts"
 
 import icons_css, * as icons from "@bokehjs/styles/icons.css"
 import {entries} from "@bokehjs/core/util/object"

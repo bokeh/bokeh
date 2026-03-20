@@ -12,6 +12,7 @@ const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 export const build_dir = {
   all: BUILD_DIR,
   js: JS_BUILD_DIR,
+  esm: join(BUILD_DIR, "esm"),
   css: CSS_BUILD_DIR,
   test: join(BUILD_DIR, "test"),
   lib: join(JS_BUILD_DIR, "lib"),
@@ -36,7 +37,11 @@ export const test_dir = {
   integration: join(base_dir, "test", "integration"),
 }
 
-export const lib = {
+export const bundles = {
+  all: {
+    main: join(build_dir.lib, "all", "main.js"),
+    output: join(build_dir.esm, "bokeh.js"),
+  },
   bokehjs: {
     main: join(build_dir.lib, "main.js"),
     output: join(build_dir.js, "bokeh.js"),

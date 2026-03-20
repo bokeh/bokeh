@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {Cloneable, CloneableType} from "@bokehjs/core/util/cloneable"
 import {Cloner, clone} from "@bokehjs/core/util/cloneable"

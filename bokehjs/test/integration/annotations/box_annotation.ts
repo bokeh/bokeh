@@ -1,6 +1,6 @@
-import {display, fig, row} from "../_util"
-import type {Point} from "../../interactive"
-import {actions, xy} from "../../interactive"
+import {display, fig, row} from "#framework/layouts"
+import type {Point} from "#framework/interactive"
+import {actions, xy} from "#framework/interactive"
 
 import {BoxAnnotation, Node} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"

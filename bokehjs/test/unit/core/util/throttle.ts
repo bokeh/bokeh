@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {throttle} from "@bokehjs/core/util/throttle"
 
 describe("core/util/throttle module", () => {

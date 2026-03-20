@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {named_colors} from "@bokehjs/core/util/svg_colors"
 

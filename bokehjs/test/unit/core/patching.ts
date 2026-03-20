@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {difference} from "@bokehjs/core/util/set"
 import {stream_to_column, slice, patch_to_column} from "@bokehjs/core/patching"

@@ -15,10 +15,6 @@ type ESIterable<V> = globalThis.Iterable<V>
 type DOMNode = globalThis.Node
 const DOMNode = globalThis.Node
 
-export interface Kind<T> {
-  constructor: Function & {__name__: string}
-}
-
 export abstract class Kind<T> {
   declare __type__: T
 
@@ -28,10 +24,8 @@ export abstract class Kind<T> {
 
   abstract may_have_refs(): boolean
 
-  static readonly __name__: string
-
   get kind_name(): string {
-    return this.constructor.__name__
+    return this.constructor.name
   }
 
   get kind_args(): unknown[] {
@@ -93,9 +87,7 @@ export namespace Kinds {
     }
 
     get type_name(): string {
-      // NOTE: `__name__` is injected by a compiler transform
-      const tp = this.obj_type
-      return (tp as any).__name__ ?? tp.toString()
+      return this.obj_type.name
     }
 
     override toString(): string {

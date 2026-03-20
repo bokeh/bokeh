@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {swap, base64_to_buffer, buffer_to_base64} from "@bokehjs/core/util/buffer"
 import {assert} from "@bokehjs/core/util/assert"

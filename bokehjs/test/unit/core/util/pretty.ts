@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {to_string} from "@bokehjs/core/util/pretty"
 

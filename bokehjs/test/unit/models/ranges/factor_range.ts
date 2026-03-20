@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {L1OffsetFactor, L2OffsetFactor, L3OffsetFactor} from "@bokehjs/models/ranges/factor_range"
 import {FactorRange, map_one_level, map_two_levels, FactorMapper} from "@bokehjs/models/ranges/factor_range"

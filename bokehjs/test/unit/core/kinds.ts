@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as k from "@bokehjs/core/kinds"
 import {HasProps} from "@bokehjs/core/has_props"

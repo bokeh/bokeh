@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Model} from "@bokehjs/model"
 import {Serializer} from "@bokehjs/core/serialization"

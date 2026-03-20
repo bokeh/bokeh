@@ -1,4 +1,4 @@
-import {display, fig, grid, row} from "./_util"
+import {display, fig, grid, row} from "#framework/layouts"
 
 import pipeline from "./_data"
 

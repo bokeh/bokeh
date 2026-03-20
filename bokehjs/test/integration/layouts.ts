@@ -1,6 +1,6 @@
-import {expect} from "../unit/assertions"
-import {display, fig} from "./_util"
-import {mouse_click} from "../interactive"
+import {expect} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
+import {mouse_click} from "#framework/interactive"
 
 import {Spacer, Tabs, TabPanel, GridBox, GroupBox, ScrollBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
 import {TextInput, Button} from "@bokehjs/models/widgets"

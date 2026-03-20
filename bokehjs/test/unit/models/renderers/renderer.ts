@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
 

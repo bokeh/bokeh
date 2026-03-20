@@ -1,0 +1,13 @@
+export * from "../index"
+export * from "../api/index"
+export * from "../models/glyphs/webgl/index"
+export * from "../models/text/mathjax/index"
+export * from "../models/widgets/index"
+export * from "../models/widgets/tables/index"
+
+import "../main"
+import "../api/main"
+import "../models/glyphs/webgl/main"
+import "../models/text/mathjax/main"
+import "../models/widgets/main"
+import "../models/widgets/tables/main"

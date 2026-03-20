@@ -1,6 +1,6 @@
-import {expect, expect_instanceof} from "../unit/assertions"
-import {display} from "./_util"
-import {actions, xy} from "../interactive"
+import {expect, expect_instanceof} from "#framework/assertions"
+import {display} from "#framework/layouts"
+import {actions, xy} from "#framework/interactive"
 
 import json5 from "json5"
 
