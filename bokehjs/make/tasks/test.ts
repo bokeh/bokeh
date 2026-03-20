@@ -286,7 +286,7 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-async function compile(name: string) {
+async function tsc(name: string) {
   compile_typescript(join(paths.src_dir.test, name, "tsconfig.json"))
 }
 
@@ -348,11 +348,15 @@ async function bundle(name: string): Promise<void> {
   }
 }
 
-task("test:compile:unit", ["test:framework:compile"], async () => {
-  await compile("unit")
+task("test:compile:unit", [passthrough("test:framework:compile")], async () => {
+  await tsc("unit")
+})
+task("test:auto_index:unit", async () => {
   await auto_index("unit")
 })
-export const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => {
+export const build_unit = task("test:build:unit", [
+  passthrough("test:compile:unit"), passthrough("test:auto_index:unit"),
+], async () => {
   await bundle("unit")
 })
 
@@ -366,11 +370,15 @@ task2("test:unit:minified", [start, start_js_server, build_unit], async ([devtoo
   return success(undefined)
 })
 
-task("test:compile:integration", ["test:framework:compile"], async () => {
-  await compile("integration")
+task("test:compile:integration", [passthrough("test:framework:compile")], async () => {
+  await tsc("integration")
+})
+task("test:auto_index:integration", async () => {
   await auto_index("integration")
 })
-export const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => {
+export const build_integration = task("test:build:integration", [
+  passthrough("test:compile:integration"), passthrough("test:auto_index:integration"),
+], async () => {
   await bundle("integration")
 })
 
@@ -395,7 +403,7 @@ async function copy_defaults() {
   await fs.promises.copyFile(src, dst)
 }
 
-task("test:defaults:compile", ["test:framework:compile"], async () => compile("defaults"))
+task("test:defaults:compile", ["test:framework:compile"], async () => tsc("defaults"))
 export const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => {
   await copy_defaults()
   await bundle("defaults")
