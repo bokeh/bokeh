@@ -826,6 +826,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       return null
     }
 
+    if (!this.model.editable && target != "area") {
+      return null
+    }
+
     const {
       tl_cursor, tr_cursor, bl_cursor, br_cursor,
       ew_cursor, ns_cursor,
