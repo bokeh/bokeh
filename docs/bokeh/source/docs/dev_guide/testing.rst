@@ -229,7 +229,6 @@ Run unit tests in parallel
 
     .. seealso::
         Parallel test execution is provided by `pytest-xdist`_.
-        For more information, see the `documentation for pytest-xdist`_.
 
 .. _contributor_guide_testing_local_python_select:
 
@@ -503,15 +502,14 @@ of others who require access to these limited resources.
 .. _ESLint: https://eslint.org/
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
-.. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
+.. _pytest-cov: https://pytest-cov.readthedocs.io/en/stable/readme.html
+.. _pytest-xdist: https://pytest-xdist.readthedocs.io/en/stable/
 .. _Selenium: https://www.selenium.dev/documentation/en/
 .. _web driver: https://www.selenium.dev/documentation/en/webdriver/
 .. _ChromeDriver: https://chromedriver.chromium.org/
 .. _Chrome: https://www.google.com/chrome/
 .. _Chromium: https://www.chromium.org/Home
 .. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
-.. _pytest-cov: https://github.com/pytest-dev/pytest-cov
-.. _pytest-xdist: https://pytest-xdist.readthedocs.io/en/latest/
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
