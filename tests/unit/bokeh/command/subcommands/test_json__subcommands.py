@@ -93,10 +93,11 @@ def test_no_script(capsys: Capture) -> None:
     with (
         TmpDir(prefix="bokeh-json-no-script") as dirname,
         WorkingDir(dirname),
+        # Patch needed for linebreak in capsys
         patch.object(shutil, "get_terminal_size", return_value=os.terminal_size((80, 24))),
-        pytest.raises(SystemExit),
     ):
-        main(["bokeh", "json"])
+        with pytest.raises(SystemExit):
+            main(["bokeh", "json"])
 
     out, err = capsys.readouterr()
     too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
