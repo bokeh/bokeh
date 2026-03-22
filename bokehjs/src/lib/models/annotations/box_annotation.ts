@@ -826,7 +826,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       return null
     }
 
-    if (!this.model.editable && target != "area") {
+    if (!this.model.editable) {
       return null
     }
 
