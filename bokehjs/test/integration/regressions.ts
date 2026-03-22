@@ -4862,4 +4862,25 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13980", () => {
+    it("does block hover if BoxAnnonation is present", async () => {
+      const p = fig([400, 400])
+      const x = [1, 2, 3, 4, 5]
+      const y = [6, 7, 2, 4, 5]
+      const ml = p.line(x, y, {line_width: 5})
+
+      p.add_layout(new BoxAnnotation({bottom: 3, top: 5}))
+      p.add_tools(new HoverTool({renderers: [ml]}))
+
+      const {view} = await display(p)
+
+      const pv0 = view.owner.get_one(p)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(2.6, 4.0))
+
+      await view.ready
+    })
+  })
 })
