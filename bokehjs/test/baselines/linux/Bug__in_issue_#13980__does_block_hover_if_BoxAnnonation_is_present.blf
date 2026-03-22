@@ -1,0 +1,8 @@
+Figure bbox=[0, 0, 400, 400]
+  Canvas bbox=[0, 0, 400, 400]
+  CartesianFrame bbox=[20, 5, 375, 373]
+  GlyphRenderer bbox=[37, 22, 341, 339]
+    Line bbox=[37, 22, 341, 339]
+  LinearAxis bbox=[20, 378, 375, 22]
+  LinearAxis bbox=[0, 5, 20, 373]
+  BoxAnnotation bbox=[20, 158, 375, 135]
