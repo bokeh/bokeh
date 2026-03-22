@@ -4,6 +4,7 @@ import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "../interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 
 import {
   AllIndices,
@@ -2024,6 +2025,48 @@ describe("Bug", () => {
       expect(a).to.be.below(x_range.start)
       expect(b).to.be.within(x_range.start, x_range.end)
       expect(c).to.be.within(x_range.start, x_range.end)
+    })
+  })
+
+  describe("in issue #14869", () => {
+    function get_cursor(plot_view: PlotView): string {
+      return getComputedStyle(plot_view.canvas_view.events_el).cursor
+    }
+
+    it("doesn't hide resize cursors if BoxAnnotation is non editable", async () => {
+      const p = fig([200, 200], {x_range: [0, 4], y_range: [0, 4]})
+      const box = new BoxAnnotation({left: 1, right: 3, bottom: 1, top: 3})
+      p.add_layout(box)
+      const {view} = await display(p)
+
+      const ac = actions(view, {units: "data"})
+
+      await ac.hover(xy(1, 1))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(1, 2))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(1, 3))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(2, 3))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(3, 3))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(3, 2))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(3, 1))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(2, 1))
+      expect(get_cursor(view)).to.be.equal("default")
+
+      await ac.hover(xy(2, 2))
+      expect(get_cursor(view)).to.be.equal("default")
     })
   })
 })
