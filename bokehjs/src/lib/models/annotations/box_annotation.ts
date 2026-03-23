@@ -548,6 +548,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   private _can_hit(target: Box.HitTarget): boolean {
+    if (!this.model.editable && !this.model.is_handle) {
+      return false
+    }
     const {left, right, top, bottom} = this.resizable
     switch (target) {
       case "top_left":     return top && left
@@ -823,10 +826,6 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   override cursor(sx: number, sy: number): string | null {
     const target = this._pan_state?.target ?? this._hit_test(sx, sy)
     if (target == null || !this._can_hit(target)) {
-      return null
-    }
-
-    if (!this.model.editable && !this.model.is_handle) {
       return null
     }
 
