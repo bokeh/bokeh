@@ -32,7 +32,6 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
-import {StyledElementView} from "../models/ui/styled_element"
 
 Deserializer.register("model", decode_def)
 
@@ -718,12 +717,7 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_theme = this._system_theme.matches ? "dark" : "light"
     const theme = color_scheme == "auto" ? system_theme : color_scheme
-    if (this.views_manager != null) {
-      for (const root of this.views_manager.roots) {
-        if (root instanceof StyledElementView) {
-          root.el.style.setProperty("--bokeh-color-scheme", theme)
-        }
-      }
-    }
+    // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
+    document.documentElement.style.setProperty("--bokeh-color-scheme", theme)
   }
 }
