@@ -2033,40 +2033,27 @@ describe("Bug", () => {
       return getComputedStyle(plot_view.canvas_view.events_el).cursor
     }
 
+    async function has_cursor_at(plot_view: PlotView, point: XY, cursor: string) {
+      const ac = actions(plot_view, {units: "data"})
+      await ac.hover(point)
+      expect(get_cursor(plot_view)).to.be.equal(cursor)
+    }
+
     it("doesn't hide resize cursors if BoxAnnotation is non editable", async () => {
       const p = fig([200, 200], {x_range: [0, 4], y_range: [0, 4]})
       const box = new BoxAnnotation({left: 1, right: 3, bottom: 1, top: 3})
       p.add_layout(box)
       const {view} = await display(p)
 
-      const ac = actions(view, {units: "data"})
-
-      await ac.hover(xy(1, 1))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(1, 2))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(1, 3))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(2, 3))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(3, 3))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(3, 2))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(3, 1))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(2, 1))
-      expect(get_cursor(view)).to.be.equal("default")
-
-      await ac.hover(xy(2, 2))
-      expect(get_cursor(view)).to.be.equal("default")
+      await has_cursor_at(view, xy(1, 1), "default")
+      await has_cursor_at(view, xy(1, 2), "default")
+      await has_cursor_at(view, xy(1, 3), "default")
+      await has_cursor_at(view, xy(2, 3), "default")
+      await has_cursor_at(view, xy(3, 3), "default")
+      await has_cursor_at(view, xy(3, 2), "default")
+      await has_cursor_at(view, xy(3, 1), "default")
+      await has_cursor_at(view, xy(2, 1), "default")
+      await has_cursor_at(view, xy(2, 2), "default")
     })
   })
 })
