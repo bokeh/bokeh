@@ -38,9 +38,7 @@ export namespace I18nLines {
   p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4})
   p.legend.title = "Available colors"
 
-  // TODO: Check why instanciating model throws a TS2511: Cannot create an instance of an abstract class
-  // @ts-ignore
-  const language_dropdown = new Bokeh.Models.LanguageDropdown()
+  const language_dropdown = new Bokeh.Widgets.LanguageDropdown()
 
   void plt.show(new Bokeh.Column({children: [language_dropdown, p]}))
 }
