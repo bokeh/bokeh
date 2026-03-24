@@ -20,6 +20,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    Generic,
+    Literal,
+    NotRequired,
+    TypeAlias,
+    TypedDict,
+    TypeVar,
+)
+
 # Bokeh imports
 from . import enums
 from .property.auto import Auto
@@ -54,6 +64,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+AutoType: TypeAlias = Literal["auto"]
+PercentType: TypeAlias = float
+
 CSSVariable = Regex(r"^--")
 
 CSSClass = Regex(r"^\.")
@@ -62,9 +75,13 @@ DataImage = Regex(r"^\data:image")
 
 IconLike = Either(Image, Enum(enums.ToolIcon), CSSVariable, CSSClass, DataImage)
 
+PixelsType: TypeAlias = int
 Pixels = NonNegative(Int)
 
+HAnchorType: TypeAlias = enums.AlignType | enums.HAlignType | PercentType
 HAnchor = Either(Enum(enums.Align), Enum(enums.HAlign), Percent)
+
+VAnchorType: TypeAlias = enums.AlignType | enums.VAlignType | PercentType
 VAnchor = Either(Enum(enums.Align), Enum(enums.VAlign), Percent)
 
 Anchor = (
@@ -74,6 +91,7 @@ Anchor = (
     )
 )
 
+AutoAnchorType: TypeAlias = AutoType | enums.AnchorType | tuple[AutoType | HAnchorType, AutoType | VAnchorType]
 AutoAnchor = (
     Either(
         Auto,
@@ -84,6 +102,29 @@ AutoAnchor = (
 
 TextAnchor = Either(Anchor, Auto)
 
+T = TypeVar("T")
+
+class XYType(TypedDict, Generic[T]):
+    x: NotRequired[T]
+    y: NotRequired[T]
+
+class LRTBType(TypedDict, Generic[T]):
+    left: NotRequired[T]
+    right: NotRequired[T]
+    top: NotRequired[T]
+    bottom: NotRequired[T]
+
+class CornersType(TypedDict, Generic[T]):
+    top_left: NotRequired[T]
+    top_right: NotRequired[T]
+    bottom_right: NotRequired[T]
+    bottom_left: NotRequired[T]
+
+BorderRadiusType: TypeAlias = (
+    PixelsType |
+    tuple[PixelsType, PixelsType, PixelsType, PixelsType] |
+    CornersType[PixelsType]
+)
 BorderRadius = (
     Either(
         Pixels,
@@ -97,6 +138,13 @@ BorderRadius = (
     )
 )
 
+PaddingType: TypeAlias = (
+    PixelsType |
+    tuple[PixelsType, PixelsType] |
+    tuple[PixelsType, PixelsType, PixelsType, PixelsType] |
+    XYType[PixelsType] |
+    LRTBType[PixelsType]
+)
 Padding = (
     Either(
         Pixels,
