@@ -90,7 +90,7 @@ export class SaveTool extends ActionTool {
       new MenuItem({
         icon: `.${icons.tool_icon_save}`,
         label: new TranslatableText({content: "Save"}),
-        tooltip: "Save image as a local file",
+        tooltip: new TranslatableText({content: "Save image as a local file"}),
         action: () => {
           this.do.emit("save")
         },
@@ -98,7 +98,7 @@ export class SaveTool extends ActionTool {
       new MenuItem({
         icon: `.${icons.tool_icon_copy}`,
         label: new TranslatableText({content: "Copy"}),
-        tooltip: "Copy image to clipboard",
+        tooltip: new TranslatableText({content: "Copy image to clipboard"}),
         disabled: () => typeof ClipboardItem === "undefined",
         action: () => {
           this.do.emit("copy")
@@ -107,7 +107,7 @@ export class SaveTool extends ActionTool {
       new MenuItem({
         icon: `.${icons.tool_icon_open}`,
         label: new TranslatableText({content: "Open"}),
-        tooltip: "Open image in a new tab",
+        tooltip: new TranslatableText({content: "Open image in a new tab"}),
         action: () => {
           this.do.emit("open")
         },

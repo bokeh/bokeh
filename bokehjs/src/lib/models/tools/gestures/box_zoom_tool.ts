@@ -304,7 +304,7 @@ export class BoxZoomTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_box_zoom}`,
         label: new TranslatableText({content: "XY mode"}),
-        tooltip: "Box zoom in both dimensions",
+        tooltip: new TranslatableText({content: "Box zoom in both dimensions"}),
         checked: () => this.dimensions == "both",
         action: () => {
           this.dimensions = "both"
@@ -314,7 +314,7 @@ export class BoxZoomTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_x_box_zoom}`,
         label: new TranslatableText({content: "X-only"}),
-        tooltip: "Box zoom in x-dimension",
+        tooltip: new TranslatableText({content: "Box zoom in x-dimension"}),
         checked: () => this.dimensions == "width",
         action: () => {
           this.dimensions = "width"
@@ -324,7 +324,7 @@ export class BoxZoomTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_y_box_zoom}`,
         label: new TranslatableText({content: "Y-only"}),
-        tooltip: "Box zoom in y-dimension",
+        tooltip: new TranslatableText({content: "Box zoom in y-dimension"}),
         checked: () => this.dimensions == "height",
         action: () => {
           this.dimensions = "height"
@@ -334,7 +334,7 @@ export class BoxZoomTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_auto_box_zoom}`,
         label: new TranslatableText({content: "Auto mode"}),
-        tooltip: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)",
+        tooltip: new TranslatableText({content: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)"}),
         checked: () => this.dimensions == "auto",
         action: () => {
           this.dimensions = "auto"

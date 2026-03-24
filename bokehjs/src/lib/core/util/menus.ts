@@ -14,6 +14,7 @@ import type {MenuItemLike, MenuItem} from "../../models/ui/menus"
 import {Menu, DividerItem} from "../../models/ui/menus"
 import type {IconLike} from "../../models/common/kinds"
 import {apply_icon} from "../../models/common/resolve"
+import {TranslatableText} from "../../models/dom/translatable_text"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
 export type At =
@@ -211,8 +212,27 @@ export class ContextMenu {
         })()
         const checked = isBoolean(item.checked) ? item.checked : item.checked?.()
         const active = checked ?? false ? menus.active : null
-        const label = this.labels && isString(item.label) ? item.label : null
-        el = div({class: [active], title: item.tooltip, tabIndex: 0}, icon_el, label)
+        // TODO: Check translatable instance and use content/render view.
+        // Needs async function to setup items label/tooltip before render
+        const label = (() => {
+          let item_label = null
+          if (this.labels && isString(item.label)) {
+            item_label = item.label
+          } else if (this.labels && item.label instanceof TranslatableText) {
+            item_label = item.label.content
+          }
+          return item_label
+        })()
+        const tooltip = (() => {
+          let item_tooltip = null
+          if (isString(item.tooltip)) {
+            item_tooltip = item.tooltip
+          } else if (item.tooltip instanceof TranslatableText) {
+            item_tooltip = item.tooltip.content
+          }
+          return item_tooltip
+        })()
+        el = div({class: [active], title: tooltip, tabIndex: 0}, icon_el, label)
         if (isPlainObject(item)) {
           if (item.class != null) {
             el.classList.add(item.class)

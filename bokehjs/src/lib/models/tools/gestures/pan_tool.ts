@@ -210,7 +210,7 @@ export class PanTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_pan}`,
         label: new TranslatableText({content: "XY mode"}),
-        tooltip: "Pan in both dimensions",
+        tooltip: new TranslatableText({content: "Pan in both dimensions"}),
         checked: () => this.dimensions == "both",
         action: () => {
           this.dimensions = "both"
@@ -220,7 +220,7 @@ export class PanTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_x_pan}`,
         label: new TranslatableText({content: "X-only"}),
-        tooltip: "Pan in x-dimension",
+        tooltip: new TranslatableText({content: "Pan in x-dimension"}),
         checked: () => this.dimensions == "width",
         action: () => {
           this.dimensions = "width"
@@ -230,7 +230,7 @@ export class PanTool extends GestureTool {
       new MenuItem({
         icon: `.${icons.tool_icon_y_pan}`,
         label: new TranslatableText({content: "Y-only"}),
-        tooltip: "Pan in y-dimension",
+        tooltip: new TranslatableText({content: "Pan in y-dimension"}),
         checked: () => this.dimensions == "height",
         action: () => {
           this.dimensions = "height"

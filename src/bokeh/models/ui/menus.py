@@ -90,8 +90,8 @@ class MenuItem(Model):
     An optional sub-menu showed when hovering over this item.
     """)
 
-    tooltip = Nullable(String, default=None, help="""
-    An optional plain text description showed when hovering over this item.
+    tooltip = Nullable(Either(String, Instance(TranslatableText)), default=None, help="""
+    An optional translatable plain text description showed when hovering over this item.
     """)
 
     disabled = Bool(default=False, help="""

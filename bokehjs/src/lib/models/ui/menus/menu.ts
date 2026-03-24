@@ -29,9 +29,10 @@ export class MenuView extends UIElementView {
 
   protected _menu_views: ViewStorage<Menu> = new Map()
   protected _label_views: ViewStorage<TranslatableText> = new Map()
+  protected _tooltip_views: ViewStorage<TranslatableText> = new Map()
 
   override _children_views(): ChildView[] {
-    return [...super.children_views(), ...this._menu_views.values(), ...this._label_views.values()]
+    return [...super.children_views(), ...this._menu_views.values(), ...this._label_views.values(), ...this._tooltip_views.values()]
   }
 
   private _menu_items: MenuItemLike[] = []
@@ -69,6 +70,12 @@ export class MenuView extends UIElementView {
       .map((item) => item.label)
       .filter((label) => label instanceof TranslatableText)
     await build_views(this._label_views, labels, {parent: this})
+
+    const tooltips = this.menu_items
+      .filter((item) => item instanceof MenuItem)
+      .map((item) => item.tooltip)
+      .filter((tooltip) => tooltip instanceof TranslatableText)
+    await build_views(this._tooltip_views, tooltips, {parent: this})
   }
 
   override connect_signals(): void {
@@ -161,8 +168,14 @@ export class MenuView extends UIElementView {
         } else {
           label_text = item.label
         }
-        // TODO: Handle tooltip translation
-        const title_text = item.tooltip
+        let title_text
+        if (item.tooltip instanceof TranslatableText) {
+          const tootlip_view = this._tooltip_views.get(item.tooltip)!
+          tootlip_view.render()
+          title_text = tootlip_view.translated_text
+        } else {
+          title_text = item.tooltip
+        }
         const label_el = div({class: menus.label}, label_text)
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
