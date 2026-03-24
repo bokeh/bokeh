@@ -19,6 +19,7 @@ __all__ = (
     "checkout_staging_branch",
     "commit_staging_branch",
     "delete_staging_branch",
+    "get_tags",
     "merge_staging_branch",
     "push_to_github",
     "tag_release_version",
@@ -69,7 +70,7 @@ def commit_staging_branch(config: Config, system: System) -> ActionReturn:
         except RuntimeError as e:
             return FAILED(f"Could not git add {path!r}", details=e.args)
     try:
-        system.run(f"git commit -m'Deployment updates for release {config.version}'")
+        system.run(f"git commit -m 'Deployment updates for release {config.version}'")
     except RuntimeError as e:
         return FAILED("Could not git commit deployment updates", details=e.args)
     return PASSED(f"Committed deployment updates for release {config.version!r}")
@@ -107,3 +108,10 @@ def tag_release_version(config: Config, system: System) -> ActionReturn:
         return PASSED(f"Tagged release version {config.version!r}")
     except RuntimeError as e:
         return FAILED(f"Could NOT tag release version {config.version!r}", details=e.args)
+
+def get_tags(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("git tags")
+        return PASSED("Got release version tags.")
+    except RuntimeError as e:
+        return FAILED("Could NOT ge release version tags.t", details=e.args)

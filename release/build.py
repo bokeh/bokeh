@@ -11,11 +11,14 @@ from __future__ import annotations
 
 # Standard library imports
 import json
+import re
 from typing import Any, Callable
+from packaging.version import Version
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
+from .git import get_tags
 from .system import System
 from .util import skip_for_prerelease
 
@@ -168,6 +171,61 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
     system.popd()
 
     return PASSED(f"Updated version to {config.js_version!r} in files: {list(files.keys())!r}")
+
+
+def update_switcher_json(
+        config: Config,
+        system: System,
+        major_versions:int=2,
+        minor_versions:int=5,
+    ) -> ActionReturn:
+
+    get_tags(config, system)
+    tags = [x for x in system.stdout.split("\n") if x != "" and not x.endswith("-final-commit")]
+    tags.sort(key=Version)
+    tags.reverse()
+
+    majors = 0
+    minors = 0
+    switcher_list = []
+    version_list = []
+    major_list = []
+    latest = True
+    for tag in tags:
+        version_match = re.match(r"\d+\.\d+", tag).group()
+        major, _ = version_match.split(".")
+        if major not in major_list:
+            majors += 1
+            minors = 0
+            major_list.append(major)
+
+        if version_match in version_list or (major in major_list and minors == minor_versions):
+            continue
+
+        d = {}
+        if "dev" in tag or "rc" in tag:
+            url_version = f"dev-{version_match}"
+            d["name"] = f"dev ({tag})"
+            d["version"] = url_version
+        else:
+            minors += 1
+            url_version = version_match
+            if latest:
+                d["name"] = f"{tag} (latest)"
+                d["preferred"] = True
+                url_version = "latest"
+                latest = False
+            d["version"] = tag
+        d["url"]= f"https://docs.bokeh.org/en/{url_version}/"
+        version_list.append(version_match)
+        switcher_list.append(d)
+        if majors == major_versions:
+            break
+
+    with open("switcher.json", "w") as f:
+        json.dump(switcher_list, f, indent=2)
+        f.write('\n')
+    return PASSED("Switcher.json was created.")
 
 
 @skip_for_prerelease
