@@ -192,7 +192,7 @@ export abstract class Tool extends Model {
     const item = new MenuItem({
       icon: this.computed_icon,
       label: new TranslatableText({content: this.tool_name}),
-      tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
+      tooltip: this.tooltip != this.tool_name ? new TranslatableText({content: this.tooltip}) : undefined,
       checked: () => this.active,
       disabled: () => this.disabled,
       action: () => this.active = !this.active,
