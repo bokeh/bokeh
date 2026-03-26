@@ -53,17 +53,14 @@ export abstract class UIElementView extends StyledElementView {
     }
   }
 
-  private _bbox: BBox = new BBox()
   override get bbox(): BBox {
-    return this._bbox
+    return this._compute_bbox()
   }
 
-  update_bbox(): boolean {
-    return this._update_bbox()
-  }
-
-  protected _update_bbox(): boolean {
-    const bbox = !this.is_displayed ? new BBox() : (() => {
+  protected _compute_bbox(): BBox {
+    if (!this.is_displayed) {
+      return new BBox()
+    } else {
       const self = this.el.getBoundingClientRect()
 
       const {left, top} = (() => {
@@ -84,11 +81,7 @@ export abstract class UIElementView extends StyledElementView {
         width: floor(self.width),
         height: floor(self.height),
       })
-    })()
-
-    const changed = !this._bbox.equals(bbox)
-    this._bbox = bbox
-    return changed
+    }
   }
 
   protected _resize_observer: ResizeObserver
@@ -168,9 +161,7 @@ export abstract class UIElementView extends StyledElementView {
 
   after_resize(): void {
     this._resized = true
-    if (this.update_bbox()) {
-      this._after_resize()
-    }
+    this._after_resize()
     this.finish()
   }
 
@@ -181,7 +172,6 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _after_render(): void {
     this.update_style()
-    this.update_bbox()
   }
 
   override after_render(): void {
