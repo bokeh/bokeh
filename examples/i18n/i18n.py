@@ -6,7 +6,7 @@ from bokeh.models.dom import TranslatableText
 from bokeh.plotting import figure
 
 language_dropdown = LanguageDropdown(
-    locales_codes=["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR"],
+    locales_codes=["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
     translations="""
     {
      "en": {"button1": { "label": "Test en"}},
@@ -20,6 +20,7 @@ language_dropdown = LanguageDropdown(
       ("Deutsch (DE)", "de-DE"),
       ("हिन्दी", "hi-IN"),
       ("Português (BR)", "pt-BR"),
+      ("اَلْعَرَبِيَّةُ", "ar"),
     ],
     source_language="en",
     auto_t_enabled=True,

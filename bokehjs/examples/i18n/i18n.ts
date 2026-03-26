@@ -8,7 +8,7 @@ export namespace I18nLines {
   Bokeh.set_log_level("info")
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`)
   Bokeh.i18n.set_config(
-    ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR"],
+    ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
     `{
       "en": {},
       "es-CO": {},
@@ -26,6 +26,7 @@ export namespace I18nLines {
       ["Deutsch (DE)", "de-DE"],
       ["हिन्दी", "hi-IN"],
       ["Português (BR)", "pt-BR"],
+      ["اَلْعَرَبِيَّةُ", "ar"],
     ],
     "en",
     true,
