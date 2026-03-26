@@ -51,6 +51,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
+      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
       - name: Configure line endings in git
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
@@ -145,10 +146,6 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - name: Configure line endings in git
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -179,10 +176,6 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - name: Configure line endings in git
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -212,10 +205,6 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - name: Configure line endings in git
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -244,10 +233,6 @@ jobs:
         python-version: ['3.11']
 
     steps:
-      - name: Configure line endings in git
-        if: runner.os == 'Windows'
-        run: git config --global core.autocrlf false
-
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
