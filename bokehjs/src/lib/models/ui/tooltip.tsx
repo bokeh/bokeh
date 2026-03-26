@@ -6,7 +6,7 @@ import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, parent} from "core/dom"
-import {div, bounding_box, box_size} from "core/dom"
+import {bounding_box, box_size} from "core/dom"
 import {DOMElementView, bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
 import {assert} from "core/util/assert"
@@ -16,6 +16,9 @@ import type {View, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import {Model} from "model"
+
+import {render} from "preact"
+import {useRef, useEffect} from "preact/hooks"
 
 const NativeNode = globalThis.Node
 type NativeNode = globalThis.Node
@@ -29,9 +32,6 @@ export class TooltipView extends UIElementView {
   override get is_top_level(): boolean {
     return this.parent == null || parent(this.target, (node) => bokeh_element in node) == null
   }
-
-  protected arrow_el: HTMLElement
-  protected content_el: HTMLElement
 
   protected _observer: ResizeObserver
 
@@ -181,17 +181,41 @@ export class TooltipView extends UIElementView {
       _element_view.render()
       _element_view.r_after_render()
     }
-    this.arrow_el = div({class: tooltips_css.arrow}, div({class: tooltips_css.arrow_inner}))
-    this.content_el = div({class: tooltips_css.tooltip_content}, this.content)
-    this.shadow_el.append(this.arrow_el, this.content_el)
+
+    const on_close = () => {
+      this.model.visible = false
+    }
+
+    function TooltipInner(props: {content: Node}) {
+      const content_el = useRef<HTMLDivElement>(null)
+      useEffect(() => {
+        content_el.current?.append(props.content)
+      }, [content_el])
+      return (
+        <>
+          <div class={tooltips_css.arrow}>
+            <div class={tooltips_css.arrow_inner}></div>
+          </div>
+          <div class={tooltips_css.tooltip_content} ref={content_el}></div>
+          <div class={tooltips_css.close} onClick={on_close}></div>
+        </>
+      )
+    }
+    render(<TooltipInner content={this.content}></TooltipInner>, this.shadow_el)
+
+    /* TODO after PR #14829
+    const closable_cls = tooltips_css.closable ? this.model.closable : null
+    const show_arrow_cls = tooltips_css.show_arrow ? this.model.show_arrow : null
+    const interactive_cls = tooltips_css.non_interactive ? !this.model.interactive : null
+
+    const el = (
+      <ShadowComponent popover="manual" class={cls(closable_cls, show_arrow_cls, interactive_cls)}>
+        <TooltipInner content={this.content}></TooltipInner>
+      </ShadowComponent>
+    )
+    */
 
     this.class_list.toggle(tooltips_css.closable, this.model.closable)
-    const close_el = div({class: tooltips_css.close})
-    this.shadow_el.append(close_el)
-    close_el.addEventListener("click", () => {
-      this.model.visible = false
-    })
-
     this.el.setAttribute("popover", "manual") // "manual" allows multiple simultaneous popover elements
 
     this.el.classList.toggle(tooltips_css.show_arrow, this.model.show_arrow)
