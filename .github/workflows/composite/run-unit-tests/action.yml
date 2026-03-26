@@ -1,0 +1,37 @@
+name: 'Run Unit Tests'
+
+description: 'Run Bokeh unit tests with coverage'
+
+inputs:
+  coverage-flags:
+    description: 'Codecov flags (comma-separated)'
+    required: false
+    default: 'unit'
+
+runs:
+  using: composite
+  steps:
+    - name: Test defaults
+      shell: bash -l {0}
+      run: pytest tests/test_defaults.py
+
+    - name: Test cross
+      shell: bash -l {0}
+      run: pytest tests/test_cross.py
+
+    - name: Run tests
+      if: success() || failure()
+      shell: bash -l {0}
+      run: |
+        COLOR="--color=yes"
+        COVERAGE="--cov=bokeh --cov-report=xml"
+        POLICY="--last-failed --last-failed-no-failures none"
+        pytest $COLOR $COVERAGE tests/unit -n logical || pytest $COLOR $POLICY tests/unit
+
+    - name: Upload code coverage
+      uses: codecov/codecov-action@v5
+      if: success() || failure()
+      with:
+        env_vars: OS,PYTHON
+        flags: ${{ inputs.coverage-flags }}
+        verbose: true
