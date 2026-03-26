@@ -12,7 +12,8 @@ import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
 import type {Signal0} from "core/signaling"
 import type * as p from "core/properties"
-import {i18n} from "core/i18n"
+import type {ViewOf, View} from "core/build_views"
+import {TranslatableText} from "../dom/translatable_text"
 
 import tool_button_css, * as tool_button from "styles/tool_button.css"
 import icons_css from "styles/icons.css"
@@ -25,6 +26,11 @@ export abstract class ToolButtonView extends UIElementView {
 
   protected _menu: ContextMenu
   protected _ui_gestures: UIGestures
+  protected _tooltip_view: ViewOf<TranslatableText>
+
+  override children_views(): View[] {
+    return [...super.children_views(), ...[this._tooltip_view]]
+  }
 
   override initialize(): void {
     super.initialize()
@@ -75,14 +81,22 @@ export abstract class ToolButtonView extends UIElementView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._rebuild_tooltip()
+    this.el.addEventListener("mouseover", () => {
+      this.el.title = this._tooltip_view.translated_text
+    })
   }
 
   override connect_signals(): void {
     super.connect_signals()
     this._ui_gestures.connect_signals()
-    this.connect(this.model.change, () => this.render())
-    this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
-    this.connect(i18n.change_locale, async () => await this._rebuild_tooltip())
+    this.connect(this.model.change, async () => {
+      await this._rebuild_tooltip()
+      this.render()
+    })
+    this.connect(this.model.tool.change as Signal0<Tool>, async () => {
+      await this._rebuild_tooltip()
+      this.render()
+    })
   }
 
   override remove(): void {
@@ -126,8 +140,8 @@ export abstract class ToolButtonView extends UIElementView {
   }
 
   async _rebuild_tooltip(): Promise<void> {
-    const tooltip = this.model.tooltip ?? this.model.tool.tooltip
-    this.el.title = await i18n.t(tooltip)
+    const tooltip = new TranslatableText({content: this.model.tooltip ?? this.model.tool.tooltip})
+    this._tooltip_view = await this.owner.build_view(tooltip, this)
   }
 
   abstract tap(): void
