@@ -218,8 +218,8 @@ export class TooltipView extends UIElementView {
     this.class_list.toggle(tooltips_css.closable, this.model.closable)
     this.el.setAttribute("popover", "manual") // "manual" allows multiple simultaneous popover elements
 
-    this.el.classList.toggle(tooltips_css.show_arrow, this.model.show_arrow)
-    this.el.classList.toggle(tooltips_css.non_interactive, !this.model.interactive)
+    this.class_list.toggle(tooltips_css.show_arrow, this.model.show_arrow)
+    this.class_list.toggle(tooltips_css.non_interactive, !this.model.interactive)
 
     const target = this.target.shadowRoot ?? this.target
     target.append(this.el)
