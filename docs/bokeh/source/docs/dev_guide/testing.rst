@@ -517,11 +517,27 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
 
     **To manually trigger the full workflow:**
 
+    Via GitHub Web UI:
+
     1. Go to the `Actions tab <https://github.com/bokeh/bokeh/actions>`_
     2. Select "Bokeh-CI-Full" from the workflow list
     3. Click "Run workflow" (top right)
-    4. Optionally provide a reason for the manual run
-    5. Click "Run workflow" to start
+    4. Select the branch to test
+    5. Optionally provide a reason for the manual run
+    6. Click "Run workflow" to start
+
+    Via GitHub CLI:
+
+    .. code-block:: sh
+
+        # Trigger on a specific branch
+        gh workflow run bokeh-ci-full.yml --ref branch-name
+
+        # Trigger on a PR's branch
+        gh workflow run bokeh-ci-full.yml --ref $(gh pr view PR_NUMBER --json headRefName --jq .headRefName)
+
+        # With a custom reason
+        gh workflow run bokeh-ci-full.yml --ref branch-name -f reason="Testing before release"
 
     Manual triggers are useful before major releases, after dependency updates,
     or when investigating platform-specific bugs.
