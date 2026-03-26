@@ -1,18 +1,21 @@
-name: Bokeh-CI
+name: Bokeh-CI-Full
 
-# Standard testing for faster feedback on common configurations
-# Runs unit tests on latest Python across all platforms, everything else on Linux only
+# Comprehensive testing across all platforms and Python versions
+# Runs daily and can be triggered manually by maintainers
 
 on:
-  push:
-    branches:
-      - main
-      - branch-*
-  pull_request:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:  # Allow manual triggering by maintainers
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual comprehensive test'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel comprehensive tests
 
 defaults:
   run:
@@ -34,6 +37,10 @@ jobs:
       - name: Build Bokeh and Bokeh.js
         uses: ./.github/workflows/composite/build
 
+      - name: Log run reason
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Manual run reason - ${{ github.event.inputs.reason }}"
+
   codebase:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -41,7 +48,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Run codebase checks on all platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
@@ -69,13 +75,14 @@ jobs:
 
   examples:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        # Examples: Linux only (Chrome/Chromium dependency)
-        python-version: ['3.14']
+        # Examples only run on Linux (Chrome/Chromium dependency)
+        os: [ubuntu-24.04]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@v6
@@ -99,7 +106,7 @@ jobs:
 
       - name: Start chrome headless
         working-directory: ./bokehjs
-        run: node make test:spawn:headless
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
 
       - name: Run tests
         env:
@@ -119,7 +126,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: examples-report
+          name: examples-report-${{ matrix.os }}-${{ matrix.python-version }}
           path: examples-report
 
   unit-test:
@@ -128,15 +135,20 @@ jobs:
 
     strategy:
       fail-fast: false
+      max-parallel: 6
       matrix:
-        # Unit tests: Latest Python (3.14) on all platforms
+        # Comprehensive: All platforms × all Python versions
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.14']
+        python-version: ['3.11', '3.12', '3.13', '3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
 
     steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -156,12 +168,21 @@ jobs:
 
   minimal-deps:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms, Python 3.11 (defined in minimal-deps environment)
+        os: [ubuntu-24.04, macos-latest, windows-latest]
     env:
-      OS: ubuntu-24.04
+      OS: ${{ matrix.os }}
 
     steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -180,12 +201,21 @@ jobs:
 
   core-deps:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms, Python 3.14 (defined in core environment)
+        os: [ubuntu-24.04, macos-latest, windows-latest]
     env:
-      OS: ubuntu-24.04
+      OS: ${{ matrix.os }}
 
     steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -204,15 +234,20 @@ jobs:
 
   documentation:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        # Documentation: Linux only
-        python-version: ['3.14']
+        # Comprehensive: All platforms
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.11']
 
     steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v6
 
       - name: Prepare Environment
@@ -233,5 +268,47 @@ jobs:
       - name: Upload docs
         uses: actions/upload-artifact@v6
         with:
-          name: docs-html
+          name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
           path: docs/bokeh/docs-html.tgz
+
+  notify-failure:
+    needs: [build, codebase, examples, unit-test, minimal-deps, core-deps, documentation]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post failure notification to GitHub Discussions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get list of failed jobs
+          FAILED_JOBS=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs \
+            --jq '.jobs[] | select(.conclusion == "failure") | "- `\(.name)`"' | tr '\n' '\n')
+
+          # Create discussion post
+          gh api graphql -f query='
+            mutation($repositoryId: ID!, $categoryId: ID!, $body: String!, $title: String!) {
+              createDiscussion(input: {
+                repositoryId: $repositoryId,
+                categoryId: $categoryId,
+                body: $body,
+                title: $title
+              }) {
+                discussion {
+                  url
+                }
+              }
+            }
+          ' \
+          -f repositoryId='MDEwOlJlcG9zaXRvcnkzODM0MzMy' \
+          -f categoryId='DIC_kwDOADqB3M4C5RF1' \
+          -f title="❌ Full CI Failed - $(date +%Y-%m-%d)" \
+          -f body="The nightly Full CI workflow has failed.
+
+          **Failed jobs:**
+          ${FAILED_JOBS}
+
+          [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+          *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"

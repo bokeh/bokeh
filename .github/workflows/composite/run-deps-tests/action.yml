@@ -1,0 +1,27 @@
+name: 'Run Dependency Tests'
+
+description: 'Run tests with minimal or core dependencies'
+
+inputs:
+  dep-type:
+    description: 'Type of dependency test (minimal or core)'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Run tests
+      shell: bash -l {0}
+      run: |
+        COLOR="--color=yes"
+        COVERAGE="--cov=bokeh --cov-report=xml"
+        POLICY="--last-failed --last-failed-no-failures none"
+        pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
+
+    - name: Upload code coverage
+      uses: codecov/codecov-action@v4
+      if: success() || failure()
+      with:
+        env_vars: OS
+        flags: unit,${{ inputs.dep-type }}
+        verbose: true

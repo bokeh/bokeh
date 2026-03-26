@@ -1,0 +1,23 @@
+name: 'List Installed Software'
+
+description: 'List conda environment and Node.js/npm versions'
+
+inputs:
+  include-chromium:
+    description: 'Whether to include chromium version in output'
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: List installed software
+      shell: bash -l {0}
+      run: |
+        conda info
+        conda list
+        echo "node $(node --version)"
+        echo "npm $(npm --version)"
+        if [[ "${{ inputs.include-chromium }}" == "true" ]]; then
+          chromium --version || echo "chromium not found"
+        fi
