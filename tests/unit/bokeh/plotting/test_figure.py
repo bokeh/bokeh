@@ -266,7 +266,7 @@ class Test_figure:
         plot = bpf.figure(context_menu=menu)
         assert plot.context_menu == menu
 
-NONCIRCLE_MARKERS = set(MarkerType) - {"circle"}
+NONCIRCLE_MARKERS = sorted(set(MarkerType) - {"circle"})
 
 class TestMarkers:
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)

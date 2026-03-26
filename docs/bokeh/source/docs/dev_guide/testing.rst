@@ -215,6 +215,21 @@ Run all available tests
 
         pytest
 
+.. _contributor_guide_testing_local_python_parallel:
+
+Run unit tests in parallel
+    To speed up the Python unit test suite, use the ``-n`` option to distribute tests
+    across multiple CPU cores. Some examples are given below:
+
+    .. code-block:: sh
+
+        pytest tests/unit -n auto     # All physically available CPU cores
+        pytest tests/unit -n logical  # All logical CPU cores
+        pytest tests/unit -n 4        # 4 CPU cores
+
+    .. seealso::
+        Parallel test execution is provided by `pytest-xdist`_.
+
 .. _contributor_guide_testing_local_python_select:
 
 Select specific tests
@@ -487,14 +502,14 @@ of others who require access to these limited resources.
 .. _ESLint: https://eslint.org/
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
-.. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
+.. _pytest-cov: https://pytest-cov.readthedocs.io/en/stable/readme.html
+.. _pytest-xdist: https://pytest-xdist.readthedocs.io/en/stable/
 .. _Selenium: https://www.selenium.dev/documentation/en/
 .. _web driver: https://www.selenium.dev/documentation/en/webdriver/
 .. _ChromeDriver: https://chromedriver.chromium.org/
 .. _Chrome: https://www.google.com/chrome/
 .. _Chromium: https://www.chromium.org/Home
 .. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
-.. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
