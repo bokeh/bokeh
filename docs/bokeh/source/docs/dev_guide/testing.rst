@@ -215,6 +215,21 @@ Run all available tests
 
         pytest
 
+.. _contributor_guide_testing_local_python_parallel:
+
+Run unit tests in parallel
+    To speed up the Python unit test suite, use the ``-n`` option to distribute tests
+    across multiple CPU cores. Some examples are given below:
+
+    .. code-block:: sh
+
+        pytest tests/unit -n auto     # All physically available CPU cores
+        pytest tests/unit -n logical  # All logical CPU cores
+        pytest tests/unit -n 4        # 4 CPU cores
+
+    .. seealso::
+        Parallel test execution is provided by `pytest-xdist`_.
+
 .. _contributor_guide_testing_local_python_select:
 
 Select specific tests
