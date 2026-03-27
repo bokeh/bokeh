@@ -217,7 +217,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     if (bbox != null && bbox.is_valid) {
       if (this.panel != null) {
         position.replace(`
-        :host {
+        ${this.host_selector} {
           position: relative;
           width:    ${bbox.width}px;
           height:   ${bbox.height}px;
@@ -225,7 +225,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
         `)
       } else {
         position.replace(`
-        :host {
+        ${this.host_selector} {
           position: absolute;
           left:     ${bbox.left}px;
           top:      ${bbox.top}px;
@@ -236,7 +236,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
       }
     } else {
       position.replace(`
-      :host {
+      ${this.host_selector} {
         display: none;
       }
       `)

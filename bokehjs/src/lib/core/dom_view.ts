@@ -8,6 +8,7 @@ import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
 import {create_root_fragment} from "./vdom"
+import {unique_id} from "core/util/string"
 import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
 
@@ -160,15 +161,17 @@ export abstract class DOMComponentView extends DOMElementView {
     this.shadow_el = this.el.attachShadow({mode: "open"})
   }
 
+  static readonly _vars_style = new InlineStyleSheet(vars_css, "vars.css")
+  static readonly _core_style = new InlineStyleSheet(core_css, "core.css")
+
   readonly _css_vars = new InlineStyleSheet("", "vars")
 
   override stylesheets(): StyleSheetLike[] {
     const stylesheets = [...super.stylesheets()]
     if (this.is_top_level) {
-      stylesheets.push(new InlineStyleSheet(vars_css, "vars.css"))
+      stylesheets.push(DOMComponentView._vars_style)
     }
-    stylesheets.push(new InlineStyleSheet(core_css, "core.css"))
-    return stylesheets
+    return [...stylesheets, DOMComponentView._core_style]
   }
 
   /**
@@ -196,12 +199,6 @@ export abstract class DOMComponentView extends DOMElementView {
     empty(this.shadow_el)
     this.class_list.clear()
     this._applied_css_classes = []
-    this._applied_stylesheets = []
-    for (const stylesheet of this.computed_stylesheets()) {
-      if (!stylesheet.persistent) {
-        stylesheet.clear()
-      }
-    }
   }
 
   private _rendered_to: boolean = false
@@ -233,7 +230,7 @@ export abstract class DOMComponentView extends DOMElementView {
       render(component, target)
     } else {
       this.empty()
-      this._update_stylesheets()
+      this._apply_stylesheets()
       this._apply_html_attributes()
     }
   }
@@ -277,30 +274,50 @@ export abstract class DOMComponentView extends DOMElementView {
     return `bk-${this.model.type.replace(/\./g, "-")}`
   }
 
+  readonly component_id: string = unique_id("bk")
+
+  readonly host_selector = `:host(.${this.component_id})`
+
   protected *_css_classes(): Iterable<string> {
     yield this.type_class
+    yield this.component_id
     yield* this.css_classes()
   }
 
   protected *_css_variables(): Iterable<[string, string]> {}
 
-  protected _applied_stylesheets: StyleSheet[] = []
+  protected _applied_stylesheets: HTMLElement[] = []
   protected _apply_stylesheets(): void {
-    const {resolved_stylesheets} = this
-    this._applied_stylesheets.push(...resolved_stylesheets)
-    resolved_stylesheets.forEach((stylesheet) => stylesheet.install(this.shadow_el))
+    for (const el of this._applied_stylesheets) {
+      el.remove()
+    }
+
+    const adopted: CSSStyleSheet[] = []
+    const links: HTMLElement[] = []
+    const global: HTMLElement[] = []
+    for (const stylesheet of this.resolved_stylesheets) {
+      if (!stylesheet.is_global) {
+        if (stylesheet.is_inline) {
+          adopted.push(stylesheet.to_native())
+        } else {
+          links.push(stylesheet.to_element())
+        }
+      } else {
+        global.push(stylesheet.to_element())
+      }
+    }
+
+    this.shadow_el.adoptedStyleSheets = adopted
+    this.shadow_el.append(...links)
+    document.head.append(...global)
+
+    this._applied_stylesheets = [...global, ...links]
   }
 
   protected _applied_css_classes: string[] = []
   protected _apply_css_classes(classes: string[]): void {
     this._applied_css_classes.push(...classes)
     this.class_list.add(...classes)
-  }
-
-  protected _update_stylesheets(): void {
-    this._applied_stylesheets.forEach((stylesheet) => stylesheet.uninstall())
-    this._applied_stylesheets = []
-    this._apply_stylesheets()
   }
 
   protected _update_css_classes(): void {
@@ -318,7 +335,7 @@ export abstract class DOMComponentView extends DOMElementView {
     if (vars.length == 0) {
       this._css_vars.clear()
     } else {
-      this._css_vars.replace(`:host {\n${vars}}`)
+      this._css_vars.replace(`${this.host_selector} {\n${vars}}`)
     }
   }
 }

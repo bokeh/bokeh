@@ -12,7 +12,7 @@ import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
-import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
+import type {DOMBoxSizing} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
@@ -446,10 +446,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
-  }
-
   private _compute_layout_panels(): LayoutPanels {
     const outer_above: Panels = copy(this.model.above)
     const outer_below: Panels = copy(this.model.below)
@@ -524,6 +520,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   override _update_layout(): void {
     super._update_layout()
+
+    this.self_style.append(this.host_selector, {
+      "--inner-display": "grid",
+    })
 
     // TODO: invalidating all should imply "needs paint"
     this._invalidate_all = true
@@ -784,7 +784,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const right_width = max(right.width, layout.min_border.right)
 
     this._computed_style.replace(`
-      :host {
+      ${this.host_selector} {
         grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
         grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
       }
