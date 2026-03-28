@@ -602,8 +602,13 @@ export class Toolbar extends UIElement {
       }
 
       // active attr takes precedence over any active initialization
-      if (active_attr != null && this[active_attr] != null && this[active_attr] !="auto") {
-        gesture.tools.forEach(tool => tool.active = false)
+      if (active_attr != null && this[active_attr] != null && this[active_attr] != "auto") {
+        gesture.tools.forEach((tool) => {
+          if (tool.tool_name != this[active_attr]) {
+            tool.active = false
+          }
+        })
+        return
       }
 
       for (const tool of gesture.tools) {
@@ -617,7 +622,7 @@ export class Toolbar extends UIElement {
           if (active_attr != null) {
             this[active_attr] = tool
           }
-        } else if (tool.id !== gesture.active.id) {
+        } else if (gesture.active.id != tool.id || gesture.active.tool_name != tool.tool_name) {
           tool.active = false
         }
       }
