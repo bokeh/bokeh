@@ -139,7 +139,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             self.close()
             raise ProtocolError("No token received in subprotocol header")
 
-        now = calendar.timegm(dt.datetime.now(tz=dt.timezone.utc).timetuple())
+        now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
         payload = get_token_payload(token)
         if 'session_expiry' not in payload:
             self.close()
