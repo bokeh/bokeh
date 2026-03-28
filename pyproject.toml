@@ -195,6 +195,9 @@ lint.ignore = [
 ]
 line-length = 165
 
+[tool.ruff.per-file-target-version]
+"examples/interaction/widgets/slider_template_string.py" = "py314"
+
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
 module = [

@@ -7,6 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
+from string.templatelib import Template
 from typing import Any, Unpack
 
 # Bokeh imports
@@ -54,6 +55,9 @@ class CustomJS(CustomCode):
 
     @classmethod
     def from_file(cls, path: PathLike, **args: Any) -> CustomJS: ...
+
+    @classmethod
+    def from_string(cls, template: str | Template) -> CustomJS: ...
 
 class _SetValueInit(_CallbackInit, total=False):
     obj: HasProps

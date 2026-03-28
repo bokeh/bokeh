@@ -22,7 +22,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import pathlib
+import sys
 from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from string.templatelib import Template
 
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
@@ -201,6 +205,46 @@ class CustomJS(CustomCode):
             code = file.read()
 
         return CustomJS(code=code, args=args, module=module)
+
+    @classmethod
+    def from_string(cls, template: str | Template) -> CustomJS:
+        """
+        Construct a ``CustomJS`` instance from an interpolated string.
+
+        This allows to fill ``CustomJS.args`` by simply referring to Bokeh models
+        and other values from within interpolations.
+
+        .. code-block: python
+
+            from bokeh.models import CustomJS, Slider
+            slider = Slider(start=0, end=10)
+            CustomJS.from_string(t"console.log('Slider value: ' + {slider}.value)")
+
+        .. note::
+
+            This requires Python 3.14 and above to work.
+
+        """
+        if isinstance(template, str):
+            return CustomJS(code=template)
+
+        if sys.version_info < (3, 14):
+            raise RuntimeError("template literals are supported only by Python 3.14 and above")
+
+        from string.templatelib import Interpolation
+
+        args: dict[str, Any] = {}
+        code = ""
+
+        for item in template:
+            if isinstance(item, Interpolation):
+                name = item.expression
+                args[name] = item.value
+                code += name
+            else:
+                code += item
+
+        return CustomJS(args=args, code=code)
 
 class SetValue(Callback):
     """ Allows to update a property of an object. """
