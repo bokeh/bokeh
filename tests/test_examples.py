@@ -90,9 +90,16 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
         examples = get_all_examples(config)
 
         def marks(example: Example) -> list[_pytest.mark.MarkDecorator]:
-            result = []
+            result: list[_pytest.mark.MarkDecorator] = []
             if example.is_skip:
                 result.append(pytest.mark.skip(reason=f"skipping {example.relpath}"))
+            if example.min_python is not None:
+                result.append(
+                    pytest.mark.skipif(
+                        sys.version_info < example.min_python,
+                        reason=f"skipping {example.relpath}; requires Python {example.min_python} or above",
+                    ),
+                )
             if example.is_xfail and not example.no_js:
                 result.append(pytest.mark.xfail(reason=f"xfail {example.relpath}", strict=True))
             return result
