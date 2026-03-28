@@ -7074,7 +7074,7 @@
     vertex_renderer: null,
   },
   RangeTool: {
-    __extends__: "Tool",
+    __extends__: "Drag",
     x_range: null,
     y_range: null,
     x_interaction: true,

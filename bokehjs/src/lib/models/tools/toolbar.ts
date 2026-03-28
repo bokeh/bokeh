@@ -622,7 +622,7 @@ export class Toolbar extends UIElement {
           if (active_attr != null) {
             this[active_attr] = tool
           }
-        } else if (gesture.active.id != tool.id || gesture.active.tool_name != tool.tool_name) {
+        } else if (gesture.active.id != tool.id && gesture.active.tool_name != tool.tool_name) {
           tool.active = false
         }
       }
