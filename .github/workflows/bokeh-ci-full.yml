@@ -256,7 +256,7 @@ jobs:
           name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
           path: docs/bokeh/docs-html.tgz
 
-  notify-failure:
+  notify-nightly-failure:
     needs: [build, codebase, examples, unit-test, minimal-deps, core-deps, documentation]
     if: failure() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
@@ -297,3 +297,63 @@ jobs:
 
           ---
           *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
+
+  notify-pr:
+    needs: [build, codebase, examples, unit-test, minimal-deps, core-deps, documentation]
+    if: always() && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find associated PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head "${{ github.ref_name }}" --state open --json number --jq '.[0].number // empty')
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+
+          # Wait for GitHub API to update job statuses
+          sleep 10
+
+          # Get job results with error handling
+          if ! RESULTS=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '
+            .jobs[] |
+            select(.name != "notify-nightly-failure" and .name != "notify-pr") |
+            "- [\(.conclusion | if . == "success" then "✅" elif . == "failure" then "❌" elif . == "cancelled" then "⏭️" elif . == "skipped" then "⏭️" else "⚠️" end)] **\(.name)** ([job #\(.id)](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/\(.id)))"
+          '); then
+            echo "Error: Failed to fetch job results from GitHub API"
+            exit 1
+          fi
+
+          # Determine overall status with error handling
+          if ! FAILED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "failure")] | length'); then
+            echo "Error: Failed to count failed jobs"
+            exit 1
+          fi
+
+          if [ "$FAILED_COUNT" -eq 0 ]; then
+            OVERALL="✅ **All tests passed!**"
+          else
+            OVERALL="❌ **${FAILED_COUNT} job(s) failed**"
+          fi
+
+          # Post comment
+          gh pr comment "$PR_NUMBER" --repo ${{ github.repository }} --body "## Full CI Results
+
+          ${OVERALL}
+
+          ${RESULTS}
+
+          **Triggered:** ${{ github.event.inputs.reason || 'Manual run' }} at $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          [View full workflow run →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+          *Automated comment from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
