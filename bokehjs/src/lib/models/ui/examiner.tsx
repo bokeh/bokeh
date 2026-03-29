@@ -257,6 +257,7 @@ export class ExaminerView extends UIElementView {
         return (
           <>
             <input
+              class="value-editor"
               type="text"
               ref={(el) => { this.input_el = el }}
               onKeyUp={(event) => this.on_key_up(event)}
