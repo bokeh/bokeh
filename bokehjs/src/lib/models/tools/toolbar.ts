@@ -617,11 +617,7 @@ export class Toolbar extends UIElement {
         }
 
         if (gesture.active == null) {
-          gesture.active = tool
           _activate_gesture(tool)
-          if (active_attr != null) {
-            this[active_attr] = tool
-          }
         } else if (gesture.active.id != tool.id && gesture.active.tool_name != tool.tool_name) {
           tool.active = false
         }
@@ -635,7 +631,7 @@ export class Toolbar extends UIElement {
       if (active_attr != null) {
         const active_tool = this[active_attr]
         if (active_tool == "auto") {
-          if (gesture.tools.length != 0) {
+          if (gesture.tools.length != 0 && gesture.active == null) {
             const [tool] = gesture.tools
             if (_supports_auto(et, tool)) {
               _activate_gesture(tool)
