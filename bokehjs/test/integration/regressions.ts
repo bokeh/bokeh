@@ -19,7 +19,7 @@ import {
   TeX,
   Toolbar, ToolProxy,
   PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
-  WheelPanTool, BoxSelectTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
+  WheelPanTool, BoxSelectTool, BoxZoomTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
@@ -4860,6 +4860,54 @@ describe("Bug", () => {
       await actions0.hover(xy(-2, 1.5))
 
       await view.ready
+    })
+  })
+
+  describe("in issue #14218", () => {
+    it("allows RangeTool with start gesture pan and PanTool to be active at the same time", async () => {
+      const p = fig([400, 200], {tools: [], toolbar_location: "above"})
+
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+
+      const tool0 = new PanTool()
+
+      const tool1 = new RangeTool({
+        x_range: new Range1d({start: 2, end: 4}),
+        start_gesture: "pan",
+      })
+
+      p.add_tools(tool0, tool1)
+
+      const {view} = await display(p)
+      await view.ready
+      await paint()
+    })
+
+    it("should respect active setting", async () => {
+      const p = fig([400, 200], {tools: "pan", toolbar_location: "above"})
+
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+
+      const tool0 = new RangeTool({
+        x_range: new Range1d({start: 1, end: 2}),
+        start_gesture: "pan",
+      })
+
+      const tool1 = new BoxZoomTool()
+
+      p.add_tools(tool0, tool1)
+
+      p.toolbar.active_drag = tool0
+
+      const {view} = await display(p)
+      await view.ready
+      await paint()
     })
   })
 })
