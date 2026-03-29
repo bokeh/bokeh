@@ -1,7 +1,7 @@
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div} from "core/dom"
-import type {ViewStorage, View} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import type {ViewStorage, View, ViewOf} from "core/build_views"
+import {build_view, build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {LogoVariant, Location, ToolName} from "core/enums"
@@ -48,9 +48,13 @@ export class ToolbarView extends UIElementView {
     return this.orientation == "horizontal"
   }
 
+  protected _bar_el: HTMLElement
+
+  protected _logo_view: ViewOf<Logo> | null = null
+
   protected readonly _ui_element_views: ViewStorage<UIElement> = new Map()
+  protected readonly _ui_element_menu_views: ViewStorage<UIElement> = new Map()
   protected _ui_elements: UIElement[]
-  protected _items: HTMLElement[] = []
 
   get ui_elements(): UIElement[] {
     return this._ui_elements
@@ -58,6 +62,10 @@ export class ToolbarView extends UIElementView {
 
   get ui_element_views(): UIElementView[] {
     return this._ui_elements.map((ui_element) => this._ui_element_views.get(ui_element)).filter((view) => view != null)
+  }
+
+  get ui_element_menu_views(): UIElementView[] {
+    return this._ui_elements.map((ui_element) => this._ui_element_menu_views.get(ui_element)).filter((view) => view != null)
   }
 
   get tool_buttons(): ToolButton[] {
@@ -105,11 +113,14 @@ export class ToolbarView extends UIElementView {
     const reversed = location == "left" || location == "above"
     this._overflow_menu = new ContextMenu([], {
       target: this.el,
-      orientation: this.orientation,
+      orientation: this.orientation, // == "horizontal" ? "vertical" : "horizontal",
       reversed,
       prevent_hide: (event) => {
         return event.composedPath().includes(this._overflow_el)
       },
+      extra_styles: [
+        ".bk-hidden { display: none; }",
+      ],
     })
   }
 
@@ -147,7 +158,9 @@ export class ToolbarView extends UIElementView {
   }
 
   override remove(): void {
+    this._logo_view?.remove()
     remove_views(this._ui_element_views)
+    remove_views(this._ui_element_menu_views)
     this._destroy_proxies()
     super.remove()
   }
@@ -216,21 +229,21 @@ export class ToolbarView extends UIElementView {
         .filter((bar) => bar.length != 0)
 
       this._ui_elements = [...join(button_bars, () => new Divider())]
-
-      const {logo} = this.model
-      if (logo != null) {
-        const obj = new Logo({variant: logo})
-        if (this.horizontal) {
-          this._ui_elements.push(obj)
-        } else {
-          this._ui_elements.unshift(obj)
-        }
-      }
     } else {
       this._ui_elements = children.map((child) => child ?? new Divider())
     }
 
     await build_views(this._ui_element_views, this._ui_elements, {parent: this})
+    await build_views(this._ui_element_menu_views, this._ui_elements, {parent: this})
+
+    const {logo: variant} = this.model
+    if (variant != null) {
+      const logo = new Logo({variant})
+      this._logo_view = await build_view(logo, {parent: this})
+    } else {
+      this._logo_view?.remove()
+      this._logo_view = null
+    }
   }
 
   set_visibility(visible: boolean): void {
@@ -242,11 +255,6 @@ export class ToolbarView extends UIElementView {
 
   protected _on_visible_change(): void {
     this.el.classList.toggle(toolbars.hidden, !this.visible)
-  }
-
-  override _after_resize(): void {
-    super._after_resize()
-    this._after_render()
   }
 
   protected _menu_at(): At {
@@ -264,12 +272,15 @@ export class ToolbarView extends UIElementView {
 
   override render(): void {
     super.render()
+    clear(this._overflow_menu.items)
 
     this.el.classList.add(toolbars[this.model.location])
     this.el.classList.toggle(toolbars.inner, this.model.inner)
     this._on_visible_change()
 
-    this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, div({class: toolbars.icon}))
+    this._logo_view?.render_to(this.shadow_el)
+
+    this._overflow_el = div({class: toolbars.overflow, tabIndex: 0}, div({class: toolbars.icon}))
     this._overflow_el.addEventListener("click", () => {
       this.toggle_menu()
     })
@@ -279,85 +290,43 @@ export class ToolbarView extends UIElementView {
       }
     })
 
-    this._items = []
+    this._bar_el = div({class: [toolbars.bar]})
+    this.shadow_el.append(this._bar_el, this.overflow_el)
 
     for (const ui_view of this.ui_element_views) {
-      ui_view.render_to(this.shadow_el)
-      this._items.push(ui_view.el)
+      ui_view.render_to(this._bar_el)
     }
 
-    let prev_divider = true
-    let divider: Divider | null = null
-
-    for (const ui_view of this.ui_element_views) {
-      if (ui_view.model instanceof Divider) {
-        divider = ui_view.model
-        if (prev_divider) {
-          divider.visible = false
-        } else {
-          divider.visible = true
-          prev_divider = true
-        }
-      } else if (!ui_view.model.visible || (ui_view instanceof ToolButtonView && !ui_view.model.tool.visible)) {
-        continue
-      } else {
-        prev_divider = false
-        divider = null
-      }
+    const overflow_cls = this.horizontal ? toolbars.right : toolbars.above
+    for (const ui_view of this.ui_element_menu_views) {
+      ui_view.render()
+      this._overflow_menu.items.push({custom: ui_view.el, class: overflow_cls})
     }
-
-    if (divider != null) {
-      divider.visible = false
-    }
-
-    this.shadow_el.append(...this._items)
   }
 
-  override _after_render(): void {
-    super._after_render()
+  override _after_resize(): void {
+    super._after_resize()
 
-    clear(this._overflow_menu.items)
+    const bar_bbox = this._bar_el.getBoundingClientRect()
+    let any_overflows = false
 
-    if (this.shadow_el.contains(this._overflow_el)) {
-      this.shadow_el.removeChild(this._overflow_el)
-    }
+    for (const view of this.ui_element_views) {
+      const bbox = view.el.getBoundingClientRect()
 
-    for (const el of this._items) {
-      if (!this.shadow_el.contains(el)) {
-        this.shadow_el.append(el)
-      }
-    }
-
-    const {horizontal} = this
-    const overflow_size = 15
-    const {bbox} = this
-    const overflow_cls = horizontal ? toolbars.right : toolbars.above
-    let size = 0
-    let overflowed = false
-
-    for (const el of this._items) {
-      if (overflowed) {
-        this.shadow_el.removeChild(el)
-        this._overflow_menu.items.push({custom: el, class: overflow_cls})
-      } else {
-        const {width, height} = el.getBoundingClientRect()
-        size += horizontal ? width : height
-        overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
-        if (overflowed) {
-          this.shadow_el.removeChild(el)
-          this.shadow_el.appendChild(this._overflow_el)
-          this._overflow_menu.items.push({custom: el, class: overflow_cls})
+      const overflows = (() => {
+        if (this.horizontal) {
+          return bbox.right > bar_bbox.right
+        } else {
+          return bbox.bottom > bar_bbox.bottom
         }
-      }
+      })()
+      any_overflows ||= overflows
+
+      const menu_view = this._ui_element_menu_views.get(view.model)!
+      menu_view.el.classList.toggle("bk-hidden", !overflows)
     }
 
-    if (this._overflow_menu.is_open) {
-      this._overflow_menu.show(this._menu_at())
-    }
-
-    for (const tb_view of this.tool_button_views) {
-      tb_view.update_bbox()
-    }
+    this.class_list.toggle(toolbars.overflows, any_overflows)
   }
 
   toggle_auto_scroll(force?: boolean): void {

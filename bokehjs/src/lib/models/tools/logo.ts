@@ -1,5 +1,4 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
-import type {ToolbarView} from "./toolbar"
 import {LogoVariant} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {a} from "core/dom"
@@ -9,7 +8,6 @@ import type * as p from "core/properties"
 
 export class LogoView extends UIElementView {
   declare model: Logo
-  declare parent: ToolbarView
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), logo_css.default]
@@ -19,7 +17,6 @@ export class LogoView extends UIElementView {
     super.render()
 
     this.class_list.toggle(logo_css.grey, this.model.variant == "grey")
-    this.class_list.toggle(logo_css.last, this.parent.horizontal)
 
     const logo_el = a({href: "https://bokeh.org/", target: "_blank", title: `Bokeh ${version}`})
     this.shadow_el.append(logo_el)

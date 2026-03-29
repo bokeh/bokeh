@@ -24,45 +24,81 @@
 :host(.bk-above), :host(.bk-below) {
   flex-direction: row;
   justify-content: flex-end;
+
+  .bk-bar {
+    flex-direction: row;
+  }
 }
 
 :host(.bk-left), :host(.bk-right) {
   flex-direction: column;
   justify-content: flex-start;
+
+  .bk-bar {
+    flex-direction: column;
+  }
 }
 
-/// Overflow button
+.bk-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow: hidden;
+}
 
-.bk-tool-overflow {
+:host > * {
+  flex: 0 0 auto;
+}
+
+.bk-bar {
+  flex: 0 1 auto;
+}
+
+.bk-overflow {
+  display: none;
   cursor: pointer;
   touch-action: none;
   .no-user-select();
 }
 
-.bk-tool-overflow:hover {
+:host(.bk-overflows) {
+  .bk-overflow {
+    display: block;
+  }
+}
+
+.bk-overflow:hover {
   background-color: var(--hover-color);
 }
 
-.bk-tool-overflow:focus, .bk-tool-overflow:focus-visible {
+.bk-overflow:focus, .bk-overflow:focus-visible {
   outline: var(--outline-width) var(--outline-style) var(--highlight-color);
   outline-offset: -1px;
 }
 
-.bk-tool-overflow::-moz-focus-inner {
+.bk-overflow::-moz-focus-inner {
   border: 0;
 }
 
 :host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
-  .bk-tool-overflow .bk-icon {
+  .bk-overflow .bk-icon {
     width: calc(var(--tool-button-width)/2);
     height: var(--tool-button-height);
     .icon-mask(var(--bokeh-icon-vdots));
   }
+
+  .bk-Logo {
+    order: 2;
+  }
 }
 :host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
-  .bk-tool-overflow .bk-icon {
+  .bk-overflow .bk-icon {
     width: var(--tool-button-width);
     height: calc(var(--tool-button-height)/2);
     .icon-mask(var(--bokeh-icon-hdots));
+  }
+
+  .bk-Logo {
+    order: 0;
   }
 }

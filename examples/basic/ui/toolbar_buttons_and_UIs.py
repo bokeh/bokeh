@@ -2,8 +2,8 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.models import (BoxSelectTool, CDSView, CustomJS, GroupFilter,
-                          Logo, PaletteSelect, PanTool, ResetTool,
-                          Toolbar, ToolButton, ZoomInTool, ZoomOutTool)
+                          PaletteSelect, PanTool, ResetTool, Toolbar,
+                          ToolButton, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
@@ -35,7 +35,6 @@ children = [
     ToolButton(tool=ZoomOutTool()),
     None,
     ToolButton(tool=ResetTool()),
-    Logo(),
 ]
 tb = Toolbar(children=children)
 
