@@ -45,6 +45,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
+      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
       - name: Configure line endings in git
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
