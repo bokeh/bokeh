@@ -25,6 +25,8 @@ import {Padding, BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
+import {TranslatableText} from "../dom/translatable_text"
+import type {ViewOf, View} from "core/build_views"
 import {i18n} from "core/i18n"
 
 const {ceil} = Math
@@ -43,6 +45,7 @@ type Entry = {
 export class LegendView extends AnnotationView {
   declare model: Legend
   declare visuals: Legend.Visuals
+  protected _title_view?: ViewOf<TranslatableText>
 
   override get is_dual_renderer(): boolean {
     return true
@@ -66,6 +69,11 @@ export class LegendView extends AnnotationView {
     } else {
       this.layout = undefined
     }
+  }
+
+  override children_views(): View[] {
+    const this_title_view = this._title_view != null ? [this._title_view]:[]
+    return [...super.children_views(), ...this_title_view]
   }
 
   protected _resize_observer: ResizeObserver
@@ -106,8 +114,6 @@ export class LegendView extends AnnotationView {
     })
 
     this.connect(i18n.change_locale, async () => {
-      await this._build_title()
-      this._render_title()
       await this._build_items()
       this._render_items()
     })
@@ -288,12 +294,21 @@ export class LegendView extends AnnotationView {
   }
 
   protected async _build_title(): Promise<void> {
-    const title_el = div({class: legend_css.title}, await i18n.t(this.model.title ?? ""))
+    const title = this.model.title ?? ""
+    let title_content
+    if (title instanceof TranslatableText) {
+      this._title_view = await this.owner.build_view(title, this)
+      title_content = this._title_view.el
+    } else {
+      title_content = title
+    }
+    const title_el = div({class: legend_css.title}, title_content)
     this.title_el.remove()
     this.title_el = title_el
   }
 
   protected _render_title(): void {
+    this._title_view?.render()
     this.shadow_el.append(...(() => {
       switch (this.model.title_location) {
         case "above": return [this.title_el, this.grid_el]
@@ -699,7 +714,7 @@ export class LegendView extends AnnotationView {
 
   protected _draw_title(ctx: Context2d, canvas_bbox: BBox): void {
     const {title} = this.model
-    if (title == null || title.length == 0 || !this.visuals.title_text.doit) {
+    if (title == null || (isString(title) && title.length == 0) || !this.visuals.title_text.doit) {
       return
     }
 
@@ -769,7 +784,7 @@ export namespace Legend {
     ncols: p.Property<number | "auto">
     nrows: p.Property<number | "auto">
     location: p.Property<LegendLocation | [number, number]>
-    title: p.Property<string | null>
+    title: p.Property<TranslatableText | string | null>
     title_location: p.Property<Location>
     title_standoff: p.Property<number>
     label_standoff: p.Property<number>
@@ -840,7 +855,7 @@ export class Legend extends Annotation {
       ncols:            [ Or(Positive(Int), Auto), "auto" ],
       nrows:            [ Or(Positive(Int), Auto), "auto" ],
       location:         [ Or(LegendLocation, Tuple(Float, Float)), "top_right" ],
-      title:            [ Nullable(Str), null ],
+      title:            [ Nullable(Or(Ref(TranslatableText), Str)), null ],
       title_location:   [ Location, "above" ],
       title_standoff:   [ Float, 5 ],
       label_standoff:   [ Float, 5 ],

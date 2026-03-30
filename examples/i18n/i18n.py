@@ -46,7 +46,7 @@ legend = Legend(
         LegendItem(label="red", renderers=[r], index=1),
         LegendItem(label="blue", renderers=[r], index=2),
     ],
-    title="Available colors",
+    title=TranslatableText(content="Available colors"),
 )
 p.add_layout(legend)
 
