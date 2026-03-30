@@ -1,6 +1,27 @@
-import type {Suite, Test} from "./types"
-import {description, show_tree} from "./format"
-import {Random} from "../../src/lib/core/util/random"
+import type {Suite, Test} from "./types.js"
+import {description, show_tree} from "./format.js"
+
+const MAX_INT32 = 2147483647
+
+class Random {
+  private seed: number
+
+  constructor(seed: number) {
+    this.seed = seed % MAX_INT32
+    if (this.seed <= 0) {
+      this.seed += MAX_INT32 - 1
+    }
+  }
+
+  integer(): number {
+    this.seed = (this.seed * 48271) % MAX_INT32
+    return this.seed
+  }
+
+  float(): number {
+    return (this.integer() - 1) / (MAX_INT32 - 1)
+  }
+}
 
 function shuffle<T>(array: T[], random: {float(): number}): void {
   for (let i = array.length - 1; i > 0; i--) {

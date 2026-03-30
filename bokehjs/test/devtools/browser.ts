@@ -1,8 +1,8 @@
 import CDP from "chrome-remote-interface"
 import chalk from "chalk"
 
-import type {Version} from "./types"
-import {Exit, TimeoutError} from "./types"
+import type {Version} from "./types.js"
+import {Exit, TimeoutError} from "./types.js"
 
 function timeout(ms: number): Promise<void> {
   return new Promise((_resolve, reject) => {
