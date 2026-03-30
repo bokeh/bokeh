@@ -37,3 +37,5 @@ export type TestRunContext = {
 }
 
 export type Version = [number, number, number, number]
+
+export type ScreenshotMode = "test" | "save" | "skip"

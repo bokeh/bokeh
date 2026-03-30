@@ -9,7 +9,7 @@ import type {TestCase} from "./discovery.js"
 import {diff_image} from "./image.js"
 import type {MetricsCollector} from "./metrics.js"
 import {platform} from "./sys.js"
-import type {Suite, Test, Result, TestRunContext} from "./types.js"
+import type {Suite, Test, Result, TestRunContext, ScreenshotMode} from "./types.js"
 
 const MAX_TIMEOUT_RETRIES = 2 // Retry timeout failures up to 2 times
 
@@ -20,7 +20,7 @@ export class TestRunner {
     private browser: BrowserManager,
     ctx: TestRunContext,
     private baselines_root: string | null,
-    private screenshot: "test" | "save" | "skip",
+    private screenshot: ScreenshotMode,
     private pedantic: boolean,
     private top_level: Suite,
     private ref: string,

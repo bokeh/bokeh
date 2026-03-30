@@ -8,7 +8,7 @@ import {Bar, Presets} from "cli-progress"
 
 import {load_baselines} from "./baselines.js"
 import {platform} from "./sys.js"
-import type {Suite, TestRunContext} from "./types.js"
+import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
 import {Exit} from "./types.js"
 import {descriptions, description, encode, show_tree} from "./format.js"
 import {BrowserManager, Value, Failure} from "./browser.js"
@@ -52,7 +52,7 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: "test" | "save" | "skip"}
+const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 
 function format_output(test_case: TestCase): string | null {
