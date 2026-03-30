@@ -194,7 +194,6 @@ lint.ignore = [
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
 line-length = 165
-target-version = "py310"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
