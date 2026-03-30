@@ -139,7 +139,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             self.close()
             raise ProtocolError("No token received in subprotocol header")
 
-        now = calendar.timegm(dt.datetime.now(tz=dt.timezone.utc).timetuple())
+        now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
         if not check_token_signature(token,
                                      signed=self.application.sign_sessions,
                                      secret_key=self.application.secret_key):
