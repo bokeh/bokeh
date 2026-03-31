@@ -26,8 +26,7 @@ import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 import {TranslatableText} from "../dom/translatable_text"
-import type {ViewOf, View} from "core/build_views"
-import {i18n} from "core/i18n"
+import type {ViewOf, View, ViewStorage} from "core/build_views"
 
 const {ceil} = Math
 
@@ -46,6 +45,8 @@ export class LegendView extends AnnotationView {
   declare model: Legend
   declare visuals: Legend.Visuals
   protected _title_view?: ViewOf<TranslatableText>
+  protected _label_views: ViewStorage<TranslatableText> = new Map()
+  protected _label_models: Map<string, TranslatableText> = new Map<string, TranslatableText>()
 
   override get is_dual_renderer(): boolean {
     return true
@@ -73,7 +74,7 @@ export class LegendView extends AnnotationView {
 
   override children_views(): View[] {
     const this_title_view = this._title_view != null ? [this._title_view]:[]
-    return [...super.children_views(), ...this_title_view]
+    return [...super.children_views(), ...this_title_view, ...this._label_views.values()]
   }
 
   protected _resize_observer: ResizeObserver
@@ -87,7 +88,8 @@ export class LegendView extends AnnotationView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._build_title()
-    await this._build_items()
+    await this._build_items_labels()
+    this._build_items()
   }
 
   override remove(): void {
@@ -99,23 +101,20 @@ export class LegendView extends AnnotationView {
     super.connect_signals()
     this.connect(this.model.change, async () => {
       await this._build_title()
-      await this._build_items()
+      await this._build_items_labels()
+      this._build_items()
       this.rerender()
     })
 
     const {items, title} = this.model.properties
     this.on_transitive_change(items, async () => {
-      await this._build_items()
+      await this._build_items_labels()
+      this._build_items()
       this._render_items()
     }, {recursive: true})
     this.on_transitive_change(title, async () => {
       await this._build_title()
       this._render_title()
-    })
-
-    this.connect(i18n.change_locale, async () => {
-      await this._build_items()
-      this._render_items()
     })
   }
 
@@ -191,7 +190,20 @@ export class LegendView extends AnnotationView {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
-  protected async _build_items(): Promise<void> {
+  protected async _build_items_labels(): Promise<void> {
+    this._label_models.clear()
+    for (const item of this.model.items) {
+      const labels = item.get_labels_list_from_label_prop()
+
+      for (const label of labels) {
+        const translatable_label = new TranslatableText({content: label})
+        this._label_models.set(label, translatable_label)
+        this._label_views.set(translatable_label, await this.owner.build_view(translatable_label, this))
+      }
+    }
+  }
+
+  protected _build_items(): void {
     this.entries = []
 
     const {click_policy} = this
@@ -205,7 +217,9 @@ export class LegendView extends AnnotationView {
         glyph.el.classList.add(legend_css.glyph)
 
         const glyph_el = glyph.canvas
-        const label_el = div({class: legend_css.label}, await i18n.t(`${label}`))
+        const label_model = this._label_models.get(label) ?? ""
+        const translatable_label = label_model ? this._label_views.get(label_model) : null
+        const label_el = div({class: legend_css.label}, translatable_label?.el)
         const overlay_el = div({class: legend_css.overlay})
         const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
         item_el.classList.toggle(legend_css.hidden, !item.visible)
@@ -257,6 +271,10 @@ export class LegendView extends AnnotationView {
     let col = 0
 
     for (const entry of this.entries) {
+      const label_model = this._label_models.get(entry.label) ?? ""
+      if (label_model) {
+        this._label_views.get(label_model)?.render()
+      }
       entry.el.id = `item_${row}_${col}`
 
       entry.row = row
@@ -684,14 +702,10 @@ export class LegendView extends AnnotationView {
 
     if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
       if (this._should_rerender_items) {
-        // TODO: Check way to better handle this
-        void this._build_items().then(() => {
-          this._render_items()
-          this._paint_glyphs()
-        })
-      } else {
-        this._paint_glyphs()
+        this._build_items()
+        this._render_items()
       }
+      this._paint_glyphs()
     } else {
       ctx.save()
       const canvas_bbox = bounding_box(this.plot_view.canvas.el)
