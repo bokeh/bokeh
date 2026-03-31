@@ -8,8 +8,6 @@ import {isString} from "core/util/types"
 export class RangeSliderView extends NumericalRangeSliderView {
   declare model: RangeSlider
 
-  override connected = [false, true, false]
-
   protected _formatter(value: number, format: string | TickFormatter): string {
     if (isString(format)) {
       return numbro.format(value, format)
