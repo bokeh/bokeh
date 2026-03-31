@@ -8,8 +8,6 @@ import {datetime} from "core/util/templating"
 export class DateRangeSliderView extends NumericalRangeSliderView {
   declare model: DateRangeSlider
 
-  override connected = [false, true, false]
-
   protected override _calc_spec(): SliderSpec<number> {
     const spec = super._calc_spec()
     if (spec.step != null) {

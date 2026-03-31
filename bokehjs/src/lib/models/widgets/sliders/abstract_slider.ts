@@ -32,8 +32,6 @@ type SliderMeta<T> = SliderSpec<T> & {
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
   declare model: AbstractSlider<T>
 
-  protected connected: boolean[] = []
-
   protected group_el: HTMLElement
   protected slider_el: HTMLElement
   protected title_el: HTMLElement
