@@ -140,22 +140,20 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     return this._move_to(handle_el, px)
   }
   protected _move_to(handle_el: HTMLElement, v: number): T {
-    const {width, height} = box_size(this.track_el)
-    if (this.horizontal) {
-      const sx = clamp(v, 0, width)
-      const value = this._invert(sx/width)
-      const x = this._compute(value)
-      handle_el.style.setProperty("--value", `${x}`)
-      this.span_el.style.setProperty("--value", `${x}`)
-      return value
-    } else {
-      const sy = clamp(v, 0, height)
-      const value = this._invert(sy/height)
-      const y = this._compute(value)
-      handle_el.style.setProperty("--value", `${y}`)
-      this.span_el.style.setProperty("--value", `${y}`)
-      return value
-    }
+    const value = (() => {
+      const {width, height} = box_size(this.track_el)
+      const size = this.horizontal ? width : height
+      const sv = clamp(v, 0, size)
+      return this._invert(sv/size)
+    })()
+
+    const dv = this._compute(value)
+
+    handle_el.style.setProperty("--value", `${dv}`)
+    handle_el.ariaValueText = this.pretty(value)
+    this.span_el.style.setProperty("--value", `${dv}`)
+
+    return value
   }
 
   override render(): void {
