@@ -2,8 +2,8 @@ import * as p from "core/properties"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div, span, empty, bounding_box, box_size} from "core/dom"
 import {assert} from "core/util/assert"
-import {clamp} from "core/util/math"
-import {range} from "core/util/array"
+import {clamp, sign} from "core/util/math"
+import {range, min_by} from "core/util/array"
 import {zip} from "core/util/iterator"
 import {bisect_right} from "core/util/arrayable"
 import type {BBox, XY} from "core/util/bbox"
@@ -182,8 +182,8 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
     type HitType = "handle" | "track"
     type HitTarget = {type: HitType, el: HTMLElement}
-    const hit_target = (path: Event): HitTarget | null => {
-      for (const el of path.composedPath()) {
+    const hit_target = (event: Event): HitTarget | null => {
+      for (const el of event.composedPath()) {
         for (const handle_el of this.handles) {
           if (el == handle_el) {
             return {type: "handle", el: handle_el}
@@ -194,6 +194,16 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         }
       }
       return null
+    }
+
+    const nearest_handle = (event: MouseEvent): HitTarget => {
+      const ex = event.clientX
+      const ey = event.clientY
+
+      const dist2 = (center: XY) => (center.x - ex)**2 + (center.y - ey)**2
+
+      const handle_el = min_by(this.handles, (handle_el) => dist2(bounding_box(handle_el).center))
+      return {type: "handle", el: handle_el}
     }
 
     const drag = (event: PointerEvent, state: DragState): T => {
@@ -266,26 +276,35 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })
 
-    /* TODO
-    track_el.addEventListener("wheel", (event) => {
-      const dy = event.deltaY
-      event.preventDefault()
-      event.stopPropagation()
-    })
-    */
+    const shift = (handle_el: HTMLElement, offset: number) => {
+      const i = this.handles.indexOf(handle_el)
+      const {min, max, values, compute, invert} = this._meta
+      const value = values[i]
+      const new_value = invert(clamp(compute(value) + offset, min, max))
+      return this.move_to(handle_el, this._compute(new_value))
+    }
 
-    const shift = (event: KeyboardEvent, offset: number) => {
+    const shift_for_event = (event: KeyboardEvent, offset: number) => {
       const target = hit_target(event)
       if (target != null && target.type == "handle") {
-        const i = this.handles.indexOf(target.el)
-        const {min, max, values, compute, invert} = this._meta
-        const value = values[i]
-        const new_value = invert(clamp(compute(value) + offset, min, max))
-        return this.move_to(target.el, this._compute(new_value))
+        return shift(target.el, offset)
       } else {
         return null
       }
     }
+
+    track_el.addEventListener("wheel", (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+
+      const {step} = this._meta
+      if (step != null) {
+        const dy = sign(-event.deltaY)
+        const handle_el = nearest_handle(event).el
+        const value = shift(handle_el, dy*step)
+        this._change([value])
+      }
+    })
 
     const keydown = (event: KeyboardEvent): void => {
       const value = (() => {
@@ -298,19 +317,19 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
           }
           case this.horizontal ? "ArrowLeft" : "ArrowUp": {
             const {step} = this._meta
-            return step != null ? shift(event, -step) : null
+            return step != null ? shift_for_event(event, -step) : null
           }
           case this.horizontal ? "ArrowRight" : "ArrowDown": {
             const {step} = this._meta
-            return step != null ? shift(event, +step) : null
+            return step != null ? shift_for_event(event, +step) : null
           }
           case "PageDown": {
             const {step, step_multiplier} = this._meta
-            return step != null ? shift(event, -step*step_multiplier) : null
+            return step != null ? shift_for_event(event, -step*step_multiplier) : null
           }
           case "PageUp": {
             const {step, step_multiplier} = this._meta
-            return step != null ? shift(event, +step*step_multiplier) : null
+            return step != null ? shift_for_event(event, +step*step_multiplier) : null
           }
           default: {
             return null
