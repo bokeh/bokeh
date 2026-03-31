@@ -229,7 +229,7 @@ class ClickPanTool(PlotActionTool):
     direction: PanDirection = ...
     factor: Percent = ...
 
-class _RangeToolInit(_ToolInit, total=False):
+class _RangeToolInit(_DragInit, total=False):
     x_range: Range | None
     y_range: Range | None
     x_interaction: bool
