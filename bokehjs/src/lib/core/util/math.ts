@@ -3,7 +3,7 @@ import {isObject} from "./types"
 import {assert} from "./assert"
 
 const {PI, abs, sign, sqrt} = Math
-export {PI, abs, sqrt}
+export {PI, abs, sign, sqrt}
 
 export function angle_norm(angle: number): number {
   if (angle == 0) {
