@@ -237,7 +237,7 @@ class _RangeToolInit(_ToolInit, total=False):
     overlay: BoxAnnotation
     start_gesture: Literal["pan", "tap", "none"]
 
-class RangeTool(Tool):
+class RangeTool(Drag):
     def __init__(self, **kwargs: Unpack[_RangeToolInit]) -> None: ...
 
     x_range: Range | None = ...
