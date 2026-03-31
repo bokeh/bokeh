@@ -113,9 +113,6 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    direction = Enum("ltr", "rtl", help="""
-    """)
-
     tooltips = Bool(default=True, help="""
     Display the slider's current value in a tooltip.
     """)

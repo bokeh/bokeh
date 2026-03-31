@@ -91,8 +91,8 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   override connect_signals(): void {
     super.connect_signals()
 
-    const {direction, orientation, tooltips} = this.model.properties
-    this.on_change([direction, orientation, tooltips], () => this.rerender())
+    const {orientation, tooltips} = this.model.properties
+    this.on_change([orientation, tooltips], () => this.rerender())
 
     const {value, title, show_value} = this.model.properties
     this.on_change(value, () => this._update_value())
@@ -370,7 +370,6 @@ export namespace AbstractSlider {
     show_value: p.Property<boolean>
     value: p.Property<unknown>
     value_throttled: p.Property<unknown>
-    direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
     appearance: p.Property<"normal" | "stealth">
   }
@@ -387,17 +386,14 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
   }
 
   static {
-    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Enum, Nullable}) => {
-      return {
-        title:           [ Nullable(Str), "" ],
-        show_value:      [ Bool, true ],
-        value:           [ Unknown ],
-        value_throttled: [ Unknown, p.unset, {readonly: true} ],
-        direction:       [ Enum("ltr", "rtl"), "ltr" ],
-        tooltips:        [ Bool, true ],
-        appearance:      [ Enum("normal", "stealth"), "normal" ],
-      }
-    })
+    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Enum, Nullable}) => ({
+      title:           [ Nullable(Str), "" ],
+      show_value:      [ Bool, true ],
+      value:           [ Unknown ],
+      value_throttled: [ Unknown, p.unset, {readonly: true} ],
+      tooltips:        [ Bool, true ],
+      appearance:      [ Enum("normal", "stealth"), "normal" ],
+    }))
 
     this.override<AbstractSlider.Props>({
       width: 300, // sliders don't have any intrinsic width

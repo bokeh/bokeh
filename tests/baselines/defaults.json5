@@ -7787,7 +7787,6 @@
     orientation: "horizontal",
     title: "",
     show_value: true,
-    direction: "ltr",
     tooltips: true,
     appearance: "normal",
   },
