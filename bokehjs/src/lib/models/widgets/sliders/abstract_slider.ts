@@ -27,6 +27,7 @@ export type SliderSpec<T> = {
 type SliderMeta<T> = SliderSpec<T> & {
   span: number
   ticks: number[] | null
+  step_multiplier: number
 }
 
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
@@ -57,6 +58,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   protected _update_state(): void {
     const spec = this._calc_spec()
     const {min, max, step} = spec
+
     const ticks = (() => {
       if (step != null) {
         const ticks = range(min, max, step)
@@ -67,8 +69,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })()
     const span = max - min
-    const meta = {...spec, span, ticks}
-    this._meta = meta
+    const step_multiplier = ticks != null ? 0.2*ticks.length : 1
+
+    this._meta = {...spec, span, ticks, step_multiplier}
   }
 
   protected _update_value(): void {
@@ -293,22 +296,22 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
           case "End": {
             return this._invert(1.0)
           }
-          case "ArrowUp":
-          case "ArrowLeft": {
+          case this.horizontal ? "ArrowLeft" : "ArrowUp": {
             const {step} = this._meta
             return step != null ? shift(event, -step) : null
           }
-          case "ArrowDown":
-          case "ArrowRight": {
+          case this.horizontal ? "ArrowRight" : "ArrowDown": {
             const {step} = this._meta
             return step != null ? shift(event, +step) : null
           }
-          /* TODO implement step multiplier
           case "PageDown": {
+            const {step, step_multiplier} = this._meta
+            return step != null ? shift(event, -step*step_multiplier) : null
           }
           case "PageUp": {
+            const {step, step_multiplier} = this._meta
+            return step != null ? shift(event, +step*step_multiplier) : null
           }
-          */
           default: {
             return null
           }
