@@ -287,11 +287,11 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const keydown = (event: KeyboardEvent): void => {
       const value = (() => {
         switch (event.key as Keys) {
-          case "PageUp": {
-            return this._invert(1.0)
-          }
-          case "PageDown": {
+          case "Home": {
             return this._invert(0.0)
+          }
+          case "End": {
+            return this._invert(1.0)
           }
           case "ArrowUp":
           case "ArrowLeft": {
@@ -303,6 +303,12 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
             const {step} = this._meta
             return step != null ? shift(event, +step) : null
           }
+          /* TODO implement step multiplier
+          case "PageDown": {
+          }
+          case "PageUp": {
+          }
+          */
           default: {
             return null
           }
