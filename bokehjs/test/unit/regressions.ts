@@ -97,6 +97,8 @@ import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
 
+import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
+
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
 }
@@ -1785,7 +1787,7 @@ describe("Bug", () => {
       const slider = new CategoricalSlider({categories, value: "0"})
       const {view} = await display(slider, [300, 50])
 
-      const el = view.shadow_el.querySelector(".noUi-handle")
+      const el = view.shadow_el.querySelector(`.${slider_css.handle}`)
       expect_not_null(el)
       expect(slider.value).to.be.equal("0")
 
