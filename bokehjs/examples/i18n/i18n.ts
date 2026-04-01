@@ -37,7 +37,7 @@ export namespace I18nLines {
   p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4})
   p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4})
   p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4})
-  p.legend.title = new Bokeh.TranslatableText({content: "Available colors"})
+  p.legend.title = "Available colors"
 
   const language_dropdown = new Bokeh.Widgets.LanguageDropdown()
 
