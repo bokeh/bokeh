@@ -11,7 +11,7 @@ import type {BBox, XY} from "core/util/bbox"
 import {OrientedControl, OrientedControlView} from "../oriented_control"
 
 import * as sliders_css from "styles/widgets/sliders.css"
-import * as inputs from "styles/widgets/inputs.css"
+import * as inputs_css from "styles/widgets/inputs.css"
 
 const {abs, max} = Math
 
@@ -100,7 +100,6 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const {value, title, show_value} = this.model.properties
     this.on_change(value, () => this._update_value())
     this.on_change([value, title, show_value], () => this._update_title())
-
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -348,7 +347,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     this.title_el = div({class: sliders_css.slider_title})
     this._update_title()
 
-    this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
+    this.group_el = div({class: inputs_css.input_group}, this.title_el, this.slider_el)
     this.shadow_el.appendChild(this.group_el)
   }
 
