@@ -30,6 +30,12 @@ type SliderMeta<T> = SliderSpec<T> & {
   step_multiplier: number
 }
 
+type HitType = "handle" | "track" // TODO | "span"
+type HitTarget = {type: HitType, el: HTMLElement}
+
+type PointerId = number
+type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
+
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
   declare model: AbstractSlider<T>
 
@@ -134,11 +140,54 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     return this.model.orientation == "horizontal"
   }
 
+  protected hit_target(event: Event): HitTarget | null {
+    for (const el of event.composedPath()) {
+      for (const handle_el of this.handles) {
+        if (el == handle_el) {
+          return {type: "handle", el: handle_el}
+        }
+      }
+      if (el == this.track_el) {
+        return {type: "track", el: this.track_el}
+      }
+    }
+    return null
+  }
+
+  protected nearest_handle(event: MouseEvent): HitTarget {
+    const ex = event.clientX
+    const ey = event.clientY
+
+    const dist2 = (center: XY) => (center.x - ex)**2 + (center.y - ey)**2
+
+    const handle_el = min_by(this.handles, (handle_el) => dist2(bounding_box(handle_el).center))
+    return {type: "handle", el: handle_el}
+  }
+
+  protected drag(event: PointerEvent, state: DragState): T {
+    const v = (() => {
+      if (this.horizontal) {
+        const dx = event.x - state.xy.x
+        return state.bbox.x + dx
+      } else {
+        const dy = event.y - state.xy.y
+        return state.bbox.y + dy
+      }
+    })()
+    return this._move_to(state.target.el, v)
+  }
+
+  protected move(event: PointerEvent, handle_el: HTMLElement): T {
+    const {x, y} = bounding_box(this.track_el).relativize(event)
+    return this._move_to(handle_el, this.horizontal ? x : y)
+  }
+
   protected move_to(handle_el: HTMLElement, pos: number): T {
     const size = box_size(this.track_el)
     const px = this.horizontal ? pos*size.width : pos*size.height
     return this._move_to(handle_el, px)
   }
+
   protected _move_to(handle_el: HTMLElement, v: number): T {
     const value = (() => {
       const {width, height} = box_size(this.track_el)
@@ -154,6 +203,27 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     this.span_el.style.setProperty("--value", `${dv}`)
 
     return value
+  }
+
+  protected shift(handle_el: HTMLElement, factor: number): T | null {
+    const {min, max, values, step, compute, invert} = this._meta
+    if (step == null) {
+      return null
+    }
+    const offset = factor*step
+    const i = this.handles.indexOf(handle_el)
+    const value = values[i]
+    const new_value = invert(clamp(compute(value) + offset, min, max))
+    return this.move_to(handle_el, this._compute(new_value))
+  }
+
+  protected shift_for_event(event: KeyboardEvent, factor: number): T | null {
+    const target = this.hit_target(event)
+    if (target != null && target.type == "handle") {
+      return this.shift(target.el, factor)
+    } else {
+      return null
+    }
   }
 
   override render(): void {
@@ -173,71 +243,22 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     this.class_list.toggle(sliders_css.stealth, this.model.appearance == "stealth")
     this.class_list.toggle(sliders_css.vertical, !this.horizontal)
 
-    type PointerId = number
-    type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
     let state: DragState | null = null
 
-    const {track_el} = this
-
-    type HitType = "handle" | "track"
-    type HitTarget = {type: HitType, el: HTMLElement}
-    const hit_target = (event: Event): HitTarget | null => {
-      for (const el of event.composedPath()) {
-        for (const handle_el of this.handles) {
-          if (el == handle_el) {
-            return {type: "handle", el: handle_el}
-          }
-        }
-        if (el == track_el) {
-          return {type: "track", el: track_el}
-        }
-      }
-      return null
-    }
-
-    const nearest_handle = (event: MouseEvent): HitTarget => {
-      const ex = event.clientX
-      const ey = event.clientY
-
-      const dist2 = (center: XY) => (center.x - ex)**2 + (center.y - ey)**2
-
-      const handle_el = min_by(this.handles, (handle_el) => dist2(bounding_box(handle_el).center))
-      return {type: "handle", el: handle_el}
-    }
-
-    const drag = (event: PointerEvent, state: DragState): T => {
-      const v = (() => {
-        if (this.horizontal) {
-          const dx = event.x - state.xy.x
-          return state.bbox.x + dx
-        } else {
-          const dy = event.y - state.xy.y
-          return state.bbox.y + dy
-        }
-      })()
-      return this._move_to(state.target.el, v)
-    }
-
-    const move = (event: PointerEvent, handle_el: HTMLElement): T => {
-      const bbox = bounding_box(track_el)
-      const xy = bbox.relativize(event)
-      return this._move_to(handle_el, this.horizontal ? xy.x : xy.y)
-    }
-
     // TODO redesign this using UIGestures
-    track_el.addEventListener("pointerdown", (event) => {
+    this.track_el.addEventListener("pointerdown", (event) => {
       assert(state == null)
       if (!event.isPrimary) {
         return
       }
-      const target = hit_target(event)
+      const target = this.hit_target(event)
       if (target == null) {
         return
       }
       target.el.setPointerCapture(event.pointerId)
       event.preventDefault()
       const {x, y} = event
-      const bbox = bounding_box(target.el, track_el) // ???
+      const bbox = bounding_box(target.el, this.track_el) // ???
       state = {
         bbox: bbox.translate(bbox.width/2, bbox.height/2),
         xy: {x, y},
@@ -245,27 +266,27 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         pointer: event.pointerId,
       }
     })
-    track_el.addEventListener("pointermove", (event) => {
+    this.track_el.addEventListener("pointermove", (event) => {
       if (state != null && state.pointer == event.pointerId && state.target.type == "handle") {
-        const value = drag(event, state)
+        const value = this.drag(event, state)
         this._slide([value])
       }
     })
-    track_el.addEventListener("pointercancel", (event) => {
+    this.track_el.addEventListener("pointercancel", (event) => {
       if (state != null && state.pointer == event.pointerId) {
         state = null
       }
     })
-    track_el.addEventListener("pointerup", (event) => {
+    this.track_el.addEventListener("pointerup", (event) => {
       if (state != null && state.pointer == event.pointerId) {
         const value = (() => {
           if (state.target.type == "handle") {
             state.target.el.focus()
-            return drag(event, state)
+            return this.drag(event, state)
           } else if (this.handles.length == 1) {
             const [handle_el] = this.handles
             handle_el.focus()
-            return move(event, handle_el)
+            return this.move(event, handle_el)
           } else {
             return null
           }
@@ -277,32 +298,14 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })
 
-    const shift = (handle_el: HTMLElement, offset: number) => {
-      const i = this.handles.indexOf(handle_el)
-      const {min, max, values, compute, invert} = this._meta
-      const value = values[i]
-      const new_value = invert(clamp(compute(value) + offset, min, max))
-      return this.move_to(handle_el, this._compute(new_value))
-    }
-
-    const shift_for_event = (event: KeyboardEvent, offset: number) => {
-      const target = hit_target(event)
-      if (target != null && target.type == "handle") {
-        return shift(target.el, offset)
-      } else {
-        return null
-      }
-    }
-
-    track_el.addEventListener("wheel", (event) => {
+    this.track_el.addEventListener("wheel", (event) => {
       event.preventDefault()
       event.stopPropagation()
 
-      const {step} = this._meta
-      if (step != null) {
-        const dy = sign(-event.deltaY)
-        const handle_el = nearest_handle(event).el
-        const value = shift(handle_el, dy*step)
+      const dy = sign(-event.deltaY)
+      const handle_el = this.nearest_handle(event).el
+      const value = this.shift(handle_el, dy)
+      if (value != null) {
         this._change([value])
       }
     })
@@ -317,20 +320,18 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
             return this._invert(1.0)
           }
           case this.horizontal ? "ArrowLeft" : "ArrowUp": {
-            const {step} = this._meta
-            return step != null ? shift_for_event(event, -step) : null
+            return this.shift_for_event(event, -1)
           }
           case this.horizontal ? "ArrowRight" : "ArrowDown": {
-            const {step} = this._meta
-            return step != null ? shift_for_event(event, +step) : null
+            return this.shift_for_event(event, +1)
           }
           case "PageDown": {
-            const {step, step_multiplier} = this._meta
-            return step != null ? shift_for_event(event, -step*step_multiplier) : null
+            const {step_multiplier} = this._meta
+            return this.shift_for_event(event, -step_multiplier)
           }
           case "PageUp": {
-            const {step, step_multiplier} = this._meta
-            return step != null ? shift_for_event(event, +step*step_multiplier) : null
+            const {step_multiplier} = this._meta
+            return this.shift_for_event(event, +step_multiplier)
           }
           default: {
             return null
