@@ -224,6 +224,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       return this._move_to(handle_el, this.horizontal ? xy.x : xy.y)
     }
 
+    // TODO redesign this using UIGestures
     track_el.addEventListener("pointerdown", (event) => {
       assert(state == null)
       if (!event.isPrimary) {
@@ -255,14 +256,15 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         state = null
       }
     })
-    // TODO distinguish between tap and pan (and press)
     track_el.addEventListener("pointerup", (event) => {
       if (state != null && state.pointer == event.pointerId) {
         const value = (() => {
           if (state.target.type == "handle") {
+            state.target.el.focus()
             return drag(event, state)
           } else if (this.handles.length == 1) {
             const [handle_el] = this.handles
+            handle_el.focus()
             return move(event, handle_el)
           } else {
             return null
