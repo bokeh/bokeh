@@ -11,7 +11,6 @@ import type {BBox, XY} from "core/util/bbox"
 import {OrientedControl, OrientedControlView} from "../oriented_control"
 
 import * as sliders_css from "styles/widgets/sliders.css"
-import * as inputs_css from "styles/widgets/inputs.css"
 
 const {abs, max} = Math
 
@@ -39,7 +38,6 @@ type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
   declare model: AbstractSlider<T>
 
-  protected group_el: HTMLElement
   protected slider_el: HTMLElement
   protected title_el: HTMLElement
   protected span_el: HTMLElement
@@ -131,7 +129,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       if (this.model.show_value) {
         const {values} = this._meta
         const pretty = values.map((v) => this.pretty(v)).join(" .. ")
-        this.title_el.appendChild(span({class: sliders_css.slider_value}, pretty))
+        this.title_el.appendChild(span({class: sliders_css.value}, pretty))
       }
     }
   }
@@ -370,11 +368,10 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       handle_el.addEventListener("keydown", keydown)
     }
 
-    this.title_el = div({class: sliders_css.slider_title})
+    this.title_el = div({class: sliders_css.title})
     this._update_title()
 
-    this.group_el = div({class: inputs_css.input_group}, this.title_el, this.slider_el)
-    this.shadow_el.appendChild(this.group_el)
+    this.shadow_el.append(this.title_el, this.slider_el)
   }
 
   protected _throttled_change(values: T[]): void {
