@@ -333,11 +333,15 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       const handle_el = target.el
       switch (event.key as Keys) {
         case "Home": {
-          this._invert(0.0)
+          const new_value = this._invert(0.0)
+          const new_values = this.get_new_values(handle_el, new_value)
+          this._change(new_values)
           break
         }
         case "End": {
-          this._invert(1.0)
+          const new_value = this._invert(1.0)
+          const new_values = this.get_new_values(handle_el, new_value)
+          this._change(new_values)
           break
         }
         case this.horizontal ? "ArrowLeft" : "ArrowUp": {
