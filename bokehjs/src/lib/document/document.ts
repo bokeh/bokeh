@@ -151,6 +151,7 @@ export class Document implements Equatable {
     this.config = new DocumentConfig()
     this.set_color_scheme(this.config.color_scheme)
     this._system_theme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
+    this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -255,6 +256,7 @@ export class Document implements Equatable {
     }
 
     dest_doc.config = config
+    dest_doc.config.on_change(dest_doc.config.properties.color_scheme, () => dest_doc.set_color_scheme(dest_doc.config.color_scheme))
 
     for (const root of roots) {
       dest_doc.add_root(root)
@@ -581,6 +583,7 @@ export class Document implements Equatable {
     assert(config instanceof DocumentConfig || config == null)
     if (config != null) {
       doc.config = config
+      doc.config.on_change(doc.config.properties.color_scheme, () => doc.set_color_scheme(doc.config.color_scheme))
     }
 
     const roots = deserializer.decode(doc_json.roots, buffers) as Model[]

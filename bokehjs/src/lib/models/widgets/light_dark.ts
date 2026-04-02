@@ -8,20 +8,45 @@ export class LightDarkView extends SwitchView {
     super.connect_signals()
 
     const {active} = this.model.properties
-    this.on_change(active, () => this._update_theme())
+    this.on_change(active, () => this._update_scheme())
+
+    const {document} = this.model
+    if (document != null) {
+      const {color_scheme} = document.config.properties
+      this.on_change(color_scheme, () => this._update_active_from_config())
+    }
   }
 
   override render(): void {
     super.render()
-    this._update_theme()
+    this._update_scheme()
   }
 
-  protected _update_theme(): void {
+  protected _update_scheme(): void {
     const {active, document} = this.model
-    const is_system = active === null
-    const theme = !is_system && active ? "light" : is_system ? "auto" : "dark"
     if (document != null) {
-      document.set_color_scheme(theme)
+      const is_system = active === null
+      const scheme = !is_system && active ? "light" : is_system ? "auto" : "dark"
+      document.config.color_scheme = scheme
+    }
+  }
+
+  protected _update_active_from_config(): void {
+    const {document} = this.model
+    if (document != null) {
+      switch (document.config.color_scheme) {
+        case "light":
+          this.model.active = true
+          break
+        case "dark":
+          this.model.active = false
+          break
+        case "auto":
+          this.model.active = null
+          break
+        default:
+          this.model.active = null
+      }
     }
   }
 }

@@ -43,6 +43,7 @@ export abstract class ToggleInput extends Widget {
     this.define<ToggleInput.Props>(({Bool, Nullable, Str}) => ({
       active: [ Nullable(Bool), false ],
       label: [ Str, "" ],
+      // TODO: Implement tri-state handling without having to add this here
       tri_state: [ Bool, false],
     }))
   }
