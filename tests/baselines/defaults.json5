@@ -7726,7 +7726,10 @@
   },
   AbstractSlider: {
     __extends__: "Widget",
-    width: 300,
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
     orientation: "horizontal",
     title: "",
     show_value: true,
