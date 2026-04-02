@@ -447,9 +447,5 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
       tooltips:        [ Bool, true ],
       appearance:      [ Enum("normal", "stealth"), "normal" ],
     }))
-
-    this.override<AbstractSlider.Props>({
-      width: 300, // sliders don't have any intrinsic width
-    })
   }
 }
