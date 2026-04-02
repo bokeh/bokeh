@@ -216,9 +216,22 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
     const dv = this._compute(value)
 
-    handle_el.style.setProperty("--value", `${dv}`)
+    handle_el.style.setProperty("--at", `${dv}`)
     handle_el.ariaValueText = this.pretty(value)
-    this.span_el.style.setProperty("--value", `${dv}`)
+
+    switch (this.handles.length) {
+      case 1: {
+        this.span_el.style.setProperty("--start", "0")
+        this.span_el.style.setProperty("--end", `${dv}`)
+        break
+      }
+      case 2: {
+        const [dv0, dv1] = this.get_new_values(handle_el, value).map((v) => this._compute(v))
+        this.span_el.style.setProperty("--start", `${dv0}`)
+        this.span_el.style.setProperty("--end", `${dv1}`)
+        break
+      }
+    }
 
     return value
   }
@@ -254,7 +267,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     this.slider_el = div({class: sliders_css.slider}, this.track_el)
 
     this.class_list.toggle(sliders_css.stealth, this.model.appearance == "stealth")
-    this.class_list.toggle(sliders_css.vertical, !this.horizontal)
+    this.class_list.add(sliders_css[this.model.orientation])
 
     let state: DragState | null = null
 
