@@ -5,29 +5,34 @@
 }
 
 :host {
+  display: flex !important; // TODO remove important! when layout interference is resolved
+  flex-wrap: nowrap;
   background-color: var(--background-color);
 }
 :host(.bk-horizontal) {
   width: var(--default-size);
+  flex-direction: column;
 
-  .bk-input-group {
-    width: 100%;
+  .bk-title {
+    writing-mode: horizontal-tb;
   }
 }
 :host(.bk-vertical) {
   height: var(--default-size);
+  flex-direction: row;
 
-  .bk-input-group {
-    height: 100%;
+  .bk-title {
+    writing-mode: vertical-lr;
+    rotate: 180deg;
   }
 }
 
-.bk-slider-title {
+.bk-title {
   white-space: nowrap;
   color: var(--inherit-color);
 }
 
-.bk-slider-value {
+.bk-value {
   font-weight: 600;
   color: var(--inherit-color);
 }
@@ -38,12 +43,14 @@
 }
 :host(.bk-horizontal) {
   .bk-slider {
+    flex-direction: row;
     width: 100%;
     height: var(--handle-size);
   }
 }
 :host(.bk-vertical) {
   .bk-slider {
+    flex-direction: column;
     width: var(--handle-size);
     height: 100%;
   }
