@@ -3,6 +3,7 @@ import {IconLike} from "../common/kinds"
 import type {Keys} from "core/dom"
 import {ShadowComponent, Icon, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
+import type {FullDisplay} from "models/layouts/layout_dom"
 import type * as p from "core/properties"
 import * as icons_css from "styles/icons.css"
 import * as switch_css from "styles/widgets/switch.css"
@@ -17,6 +18,10 @@ export class SwitchView extends ToggleInputView {
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), icons_css.default, switch_css.default]
+  }
+
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flex"} // duplicates `display: flex`
   }
 
   override component(): VNode {
