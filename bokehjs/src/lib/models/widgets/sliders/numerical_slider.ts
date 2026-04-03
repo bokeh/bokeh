@@ -8,8 +8,8 @@ export abstract class NumericalSliderView extends BaseNumericalSliderView {
   protected _calc_spec(): SliderSpec<number> {
     const {start, end, value, step} = this.model
     return {
-      min: start,
-      max: end,
+      start,
+      end,
       values: [value],
       step,
       compute: (value: number) => value,

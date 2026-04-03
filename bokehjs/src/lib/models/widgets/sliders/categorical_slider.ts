@@ -16,8 +16,8 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
   protected _calc_spec(): SliderSpec<string> {
     const {categories, value} = this.model
     return {
-      min: 0,
-      max: categories.length - 1,
+      start: 0,
+      end: categories.length - 1,
       step: 1,
       values: [value],
       compute(value: string): number {

@@ -80,6 +80,9 @@
 .bk-span {
   --start: 0; // [0, 1]
   --end: 0;   // [0, 1]
+  --start-position: calc(var(--start)*100%);
+  --end-position: calc(calc(1 - var(--end))*100%);
+
   position: absolute;
   border-top-left-radius: var(--track-size);
   border-bottom-left-radius: var(--track-size);
@@ -87,21 +90,23 @@
 }
 :host(.bk-horizontal) {
   .bk-span {
-    left: calc(var(--start)*100%);
-    right: calc(calc(1 - var(--end))*100%);
+    left: var(--start-position);
+    right: var(--end-position);
     height: 100%;
   }
 }
 :host(.bk-vertical) {
   .bk-span {
-    top: calc(var(--start)*100%);
-    bottom: calc(calc(1 - var(--end))*100%);
+    top: var(--start-position);
+    bottom: var(--end-position);
     width: 100%;
   }
 }
 
 .bk-handle {
   --at: 0; // [0, 1]
+  --at-position: calc(var(--at)*100%);
+
   position: absolute;
   width: var(--handle-size);
   height: var(--handle-size);
@@ -111,7 +116,7 @@
 }
 :host(.bk-horizontal) {
   .bk-handle {
-    left: calc(var(--at)*100%);
+    left: var(--at-position);
     top: 50%;
     cursor: ew-resize;
   }
@@ -119,7 +124,7 @@
 :host(.bk-vertical) {
   .bk-handle {
     left: 50%;
-    top: calc(var(--at)*100%);
+    top: var(--at-position);
     cursor: ns-resize;
   }
 }
