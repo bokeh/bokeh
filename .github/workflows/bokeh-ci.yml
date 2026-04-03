@@ -64,9 +64,39 @@ jobs:
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
 
-      - name: MyPy
+  typing:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: ['3.11', '3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'keep'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Check library types with mypy
+        run: |
+          mypy --version && mypy
+
+      - name: Check types in examples with mypy
         if: success() || failure()
-        run: mypy --version && mypy
+        run: |
+          mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
 
   examples:
     needs: build
