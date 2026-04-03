@@ -72,21 +72,21 @@ def test_CustomJS_from_code_bad_file_type() -> None:
     with pytest.raises(RuntimeError):
         CustomJS.from_file(Path("some/module.css"))
 
-def test_CustomJS_from_string_with_str() -> None:
-    cb = CustomJS.from_string("export default () => console.log('foo')")
-    assert cb.module == "auto"
-    assert cb.code == "export default () => console.log('foo')"
-    assert cb.args == dict()
-
 @pytest.mark.skipif(sys.version_info < (3, 14), reason="needs support for template literals")
 def test_CustomJS_from_string_with_template() -> None:
     slider = Slider()
+
+    cb0 = CustomJS.from_string("export default () => console.log('foo')")
+    assert cb0.module == "auto"
+    assert cb0.code == "export default () => console.log('foo')"
+    assert cb0.args == dict()
+
     # TODO can't implement this directly, because it will cause SyntaxError earlier Pythons
     code = """CustomJS.from_string(t"export default () => console.log('foo: ' + {slider}.value)")"""
-    cb: CustomJS = eval(compile(code, "<test>", "eval"))
-    assert cb.module == "auto"
-    assert cb.code == "export default () => console.log('foo: ' + slider.value)"
-    assert cb.args == dict(slider=slider)
+    cb1: CustomJS = eval(compile(code, "<test>", "eval"))
+    assert cb1.module == "auto"
+    assert cb1.code == "export default () => console.log('foo: ' + slider.value)"
+    assert cb1.args == dict(slider=slider)
 
 #-----------------------------------------------------------------------------
 # Dev API

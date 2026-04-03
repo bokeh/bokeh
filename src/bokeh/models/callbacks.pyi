@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from abc import abstractmethod
 from string.templatelib import Template
 from typing import Any, Unpack
@@ -56,8 +57,9 @@ class CustomJS(CustomCode):
     @classmethod
     def from_file(cls, path: PathLike, **args: Any) -> CustomJS: ...
 
-    @classmethod
-    def from_string(cls, template: str | Template) -> CustomJS: ...
+    if sys.version_info >= (3, 14):
+        @classmethod
+        def from_string(cls, template: str | Template) -> CustomJS: ...
 
 class _SetValueInit(_CallbackInit, total=False):
     obj: HasProps

@@ -25,9 +25,6 @@ import pathlib
 import sys
 from typing import TYPE_CHECKING, Any
 
-if TYPE_CHECKING:
-    from string.templatelib import Template
-
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.property.any import AnyRef
@@ -206,45 +203,46 @@ class CustomJS(CustomCode):
 
         return CustomJS(code=code, args=args, module=module)
 
-    @classmethod
-    def from_string(cls, template: str | Template) -> CustomJS:
-        """
-        Construct a ``CustomJS`` instance from an interpolated string.
+    if sys.version_info >= (3, 14):
+        if TYPE_CHECKING:
+            from string.templatelib import Template
 
-        This allows to fill ``CustomJS.args`` by simply referring to Bokeh models
-        and other values from within interpolations.
+        @classmethod
+        def from_string(cls, template: str | Template) -> CustomJS:
+            """
+            Construct a ``CustomJS`` instance from an interpolated string.
 
-        .. code-block: python
+            This allows to fill ``CustomJS.args`` by simply referring to Bokeh models
+            and other values from within interpolations.
 
-            from bokeh.models import CustomJS, Slider
-            slider = Slider(start=0, end=10)
-            CustomJS.from_string(t"console.log('Slider value: ' + {slider}.value)")
+            .. code-block: python
 
-        .. note::
+                from bokeh.models import CustomJS, Slider
+                slider = Slider(start=0, end=10)
+                CustomJS.from_string(t"console.log('Slider value: ' + {slider}.value)")
 
-            This requires Python 3.14 and above to work.
+            .. note::
 
-        """
-        if isinstance(template, str):
-            return CustomJS(code=template)
+                This requires Python 3.14 and above to work.
 
-        if sys.version_info < (3, 14):
-            raise RuntimeError("template literals are supported only by Python 3.14 and above")
+            """
+            if isinstance(template, str):
+                return CustomJS(code=template)
 
-        from string.templatelib import Interpolation
+            from string.templatelib import Interpolation
 
-        args: dict[str, Any] = {}
-        code = ""
+            args: dict[str, Any] = {}
+            code = ""
 
-        for item in template:
-            if isinstance(item, Interpolation):
-                name = item.expression
-                args[name] = item.value
-                code += name
-            else:
-                code += item
+            for item in template:
+                if isinstance(item, Interpolation):
+                    name = item.expression
+                    args[name] = item.value
+                    code += name
+                else:
+                    code += item
 
-        return CustomJS(args=args, code=code)
+            return CustomJS(args=args, code=code)
 
 class SetValue(Callback):
     """ Allows to update a property of an object. """
