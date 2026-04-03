@@ -89,7 +89,7 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
 
-      - name: Check types with mypy
+      - name: Check library types with mypy
         run: |
           mypy --version && mypy
 
