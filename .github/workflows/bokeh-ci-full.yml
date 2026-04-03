@@ -322,6 +322,18 @@ jobs:
           # Wait for GitHub API to update job statuses
           sleep 10
 
+          # Check if any dependency jobs were cancelled
+          if ! CANCELLED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "cancelled")] | length'); then
+            echo "Error: Failed to count cancelled jobs"
+            exit 1
+          fi
+
+          if [ "$CANCELLED_COUNT" -gt 0 ]; then
+            # Workflow was cancelled - skip commenting
+            echo "Workflow was cancelled ($CANCELLED_COUNT jobs cancelled) - skipping PR comment"
+            exit 0
+          fi
+
           # Determine overall status with error handling
           if ! FAILED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "failure")] | length'); then
             echo "Error: Failed to count failed jobs"
