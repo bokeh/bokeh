@@ -2,7 +2,7 @@ import * as p from "core/properties"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div, span, empty, bounding_box, box_size} from "core/dom"
 import {assert} from "core/util/assert"
-import {clamp, sign} from "core/util/math"
+import {clamp, sign, minmax} from "core/util/math"
 import {range, min_by, copy} from "core/util/array"
 import {zip} from "core/util/iterator"
 import {bisect_right} from "core/util/arrayable"
@@ -12,11 +12,11 @@ import {OrientedControl, OrientedControlView} from "../oriented_control"
 
 import * as sliders_css from "styles/widgets/sliders.css"
 
-const {abs, max} = Math
+const {abs, max: max_of} = Math
 
 export type SliderSpec<T> = {
-  min: number
-  max: number
+  start: number
+  end: number
   step: number | null
   values: T[]
   compute(value: T): number
@@ -24,12 +24,15 @@ export type SliderSpec<T> = {
 }
 
 type SliderMeta<T> = SliderSpec<T> & {
+  min: number
+  max: number
   span: number
+  reversed: boolean
   ticks: number[] | null
   step_multiplier: number
 }
 
-type HitType = "handle" | "track" // TODO | "span"
+type HitType = "handle" | "track" | "span"
 type HitTarget = {type: HitType, el: HTMLElement}
 
 type PointerId = number
@@ -61,7 +64,11 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
   protected _update_state(): void {
     const spec = this._calc_spec()
-    const {min, max, step} = spec
+    const {start, end, step} = spec
+
+    const reversed = start > end
+    const [min, max] = minmax(start, end)
+    const span = max - min
 
     const ticks = (() => {
       if (step != null) {
@@ -72,10 +79,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         return null
       }
     })()
-    const span = max - min
-    const step_multiplier = ticks != null ? 0.2*ticks.length : 1
+    const step_multiplier = ticks != null ? 0.2*ticks.length : 1 // 20% of span
 
-    this._meta = {...spec, span, ticks, step_multiplier}
+    this._meta = {...spec, min, max, span, reversed, ticks, step_multiplier}
   }
 
   protected _update_value(): void {
@@ -145,6 +151,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
           return {type: "handle", el: handle_el}
         }
       }
+      if (el == this.span_el) {
+        return {type: "span", el: this.span_el}
+      }
       if (el == this.track_el) {
         return {type: "track", el: this.track_el}
       }
@@ -212,21 +221,28 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       return this._invert(sv/size)
     })()
 
-    const dv = this._compute(value)
+    let dv = this._compute(value)
+
+    const {reversed} = this._meta
+    if (reversed) {
+      dv = 1 - dv
+    }
 
     handle_el.style.setProperty("--at", `${dv}`)
     handle_el.ariaValueText = this.pretty(value)
 
     switch (this.handles.length) {
       case 1: {
-        this.span_el.style.setProperty("--start", "0")
-        this.span_el.style.setProperty("--end", `${dv}`)
+        const [start, end] = !reversed ? [0, dv] : [dv, 1]
+        this.span_el.style.setProperty("--start", `${start}`)
+        this.span_el.style.setProperty("--end", `${end}`)
         break
       }
       case 2: {
         const [dv0, dv1] = this.get_new_values(handle_el, value).map((v) => this._compute(v))
-        this.span_el.style.setProperty("--start", `${dv0}`)
-        this.span_el.style.setProperty("--end", `${dv1}`)
+        const [start, end] = !reversed ? [dv0, dv1] : [1 - dv1, 1 - dv0]
+        this.span_el.style.setProperty("--start", `${start}`)
+        this.span_el.style.setProperty("--end", `${end}`)
         break
       }
     }
@@ -403,7 +419,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     if (ticks == null) {
       return invert(value)
     } else {
-      const i = max(bisect_right(ticks, value) - 1, 0)
+      const i = max_of(bisect_right(ticks, value) - 1, 0)
       const v0 = ticks[i]
       const v1 = ticks[i + 1] ?? Infinity
       const v = abs(value - v0) <= abs(value - v1) ? v0 : v1
