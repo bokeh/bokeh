@@ -25,6 +25,7 @@ export namespace ToggleInput {
   export type Props = Widget.Props & {
     active: p.Property<boolean | null>
     label: p.Property<string>
+    // TODO: Implement tri-state handling without having to add this here
     tri_state: p.Property<boolean>
   }
 }
