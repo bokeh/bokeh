@@ -92,6 +92,8 @@ export function minmax(v0: number, v1: number): [number, number] {
 }
 
 export function clamp(val: number, min: number, max: number): number {
+  // TODO assert(min <= max)
+  [min, max] = minmax(min, max)
   return val < min ? min : (val > max ? max : val)
 }
 
