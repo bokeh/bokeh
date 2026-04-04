@@ -264,6 +264,22 @@ export abstract class DOMComponentView extends DOMElementView {
     return [...this._stylesheets()].map((style) => isString(style) ? new InlineStyleSheet(style) : style)
   }
 
+  get resolved_css_classes(): string[] {
+    return [...this._css_classes()]
+  }
+
+  get resolved_style(): {[key: string]: string | null | undefined} {
+    return {}
+  }
+
+  get resolved_props() {
+    return {
+      stylesheets: this.resolved_stylesheets,
+      classes: this.resolved_css_classes,
+      style: this.resolved_style,
+    }
+  }
+
   get type_class(): string {
     return `bk-${this.model.type.replace(/\./g, "-")}`
   }

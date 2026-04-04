@@ -1,7 +1,7 @@
 import {ToggleInput, ToggleInputView} from "./toggle_input"
 import {IconLike} from "../common/kinds"
 import type {Keys} from "core/dom"
-import {ShadowComponent, Icon, cls} from "core/vdom"
+import {UIComponent, Icon, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
 import type {FullDisplay} from "models/layouts/layout_dom"
 import type * as p from "core/properties"
@@ -10,7 +10,6 @@ import * as switch_css from "styles/widgets/switch.css"
 import * as toggle_css from "styles/widgets/toggle_input.css"
 
 import type {VNode, TargetedEvent} from "preact"
-import {Component} from "preact"
 
 export class SwitchView extends ToggleInputView {
   declare readonly model: Switch
@@ -25,53 +24,34 @@ export class SwitchView extends ToggleInputView {
   }
 
   override component(): VNode {
-    const view = this
+    const {active, label, disabled, on_icon, off_icon} = this.signals
 
-    type SwitchProps = {
-      /*
-      active: boolean
-      label?: string
-      disabled?: boolean
-      on_icon?: IconLike | null
-      off_icon?: IconLike | null
-      */
-    }
+    const active_cls = active.value ? switch_css.active : null
+    const disabled_cls = disabled.value ? switch_css.disabled : null
+    const icon = active.value ? on_icon : off_icon
 
-    const classes = [...this._css_classes()]
-    const stylesheets = this.resolved_stylesheets
+    return (
+      <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls)} role="switch" aria-checked={active}>
+        <div class={toggle_css.label}>{label}</div>
+        {icon.value != null ? <Icon classes={switch_css.icon} icon={icon.value}></Icon> : null}
+        <div class={switch_css.body} onClick={() => this._toggle_active()} onKeyDown={this.on_key_down}>
+          <div class={switch_css.bar}></div>
+          <div class={switch_css.knob} tabIndex={0}></div>
+        </div>
+      </UIComponent>
+    )
+  }
 
-    class ShadowSwitch extends Component<SwitchProps> {
-      render(): VNode {
-        const {active, label, disabled, on_icon, off_icon} = view.signals
-        const active_cls = active.value ? switch_css.active : null
-        const disabled_cls = disabled.value ? switch_css.disabled : null
-        const icon = active.value ? on_icon : off_icon
-        return (
-          <ShadowComponent stylesheets={stylesheets} class={cls(classes, active_cls, disabled_cls)} role="switch" aria-checked={active}>
-            <div class={toggle_css.label}>{label}</div>
-            {icon.value != null ? <Icon classes={switch_css.icon} icon={icon.value}></Icon> : null}
-            <div class={switch_css.body} onClick={() => view._toggle_active()} onKeyDown={this.on_key_down}>
-              <div class={switch_css.bar}></div>
-              <div class={switch_css.knob} tabIndex={0}></div>
-            </div>
-          </ShadowComponent>
-        )
+  on_key_down(event: TargetedEvent<HTMLElement, KeyboardEvent>): void {
+    switch (event.key as Keys) {
+      case "Enter":
+      case " ": {
+        event.preventDefault()
+        this._toggle_active()
+        break
       }
-
-      on_key_down(event: TargetedEvent<HTMLElement, KeyboardEvent>): void {
-        switch (event.key as Keys) {
-          case "Enter":
-          case " ": {
-            event.preventDefault()
-            view._toggle_active()
-            break
-          }
-          default:
-        }
-      }
+      default:
     }
-
-    return <ShadowSwitch></ShadowSwitch>
   }
 }
 

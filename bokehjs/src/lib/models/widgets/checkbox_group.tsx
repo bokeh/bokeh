@@ -1,6 +1,6 @@
 import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 import type {VNode} from "core/vdom"
-import {ShadowComponent, cls} from "core/vdom"
+import {UIComponent, cls} from "core/vdom"
 import type * as p from "core/properties"
 import * as inputs_css from "styles/widgets/inputs.css"
 
@@ -13,9 +13,6 @@ export class CheckboxGroupView extends ToggleInputGroupView {
   }
 
   override component(): VNode {
-    const classes = [...this._css_classes()]
-    const stylesheets = this.resolved_stylesheets
-
     const {labels, disabled, inline} = this.signals
     const inline_cls = inline.value ? inputs_css.inline : null
 
@@ -31,11 +28,11 @@ export class CheckboxGroupView extends ToggleInputGroupView {
     })
 
     return (
-      <ShadowComponent stylesheets={stylesheets} class={cls(classes)}>
+      <UIComponent parent={this.resolved_props}>
         <div class={cls(inputs_css.input_group, inline_cls)}>
           {inputs}
         </div>
-      </ShadowComponent>
+      </UIComponent>
     )
   }
 

@@ -2,7 +2,7 @@ import {OrientedControl, OrientedControlView} from "./oriented_control"
 import {ButtonClick} from "core/bokeh_events"
 import {ButtonType} from "core/enums"
 import type {VNode} from "core/vdom"
-import {ShadowComponent, cls} from "core/vdom"
+import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
 
@@ -23,9 +23,6 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
   readonly active_indices: ReadonlySignal<Set<number>>
 
   override component(): VNode {
-    const classes = [...this._css_classes()]
-    const stylesheets = this.resolved_stylesheets
-
     const {orientation, labels, button_type, disabled} = this.signals
 
     const buttons = labels.value.map((label, i) => {
@@ -46,11 +43,11 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
     })
 
     return (
-      <ShadowComponent stylesheets={stylesheets} class={cls(classes)}>
+      <UIComponent parent={this.resolved_props}>
         <div class={cls(buttons_css.btn_group, buttons_css[orientation.value])}>
           {buttons}
         </div>
-      </ShadowComponent>
+      </UIComponent>
     )
   }
 

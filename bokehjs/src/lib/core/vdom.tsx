@@ -21,18 +21,25 @@ export type CSSClasses = Signalish<CSSClass> | Signalish<CSSClass>[]
 /**
  * Manage CSS classes of a VDOM node.
  */
-export function cls(...classes: CSSClasses[]): string {
-  const transformed = classes
+export function cls(...classes: CSSClasses[]): string | undefined {
+  const transformed_classes = classes
     .flatMap((cls) => isArray(cls) ? cls : [cls])
     .map((cls) => is_SignalLike(cls) ? cls.value : cls)
     .filter((cls) => cls != null)
     .flatMap((cls) => cls.split(/\s+/))
     .filter((cls) => cls.length != 0)
-  return [...new Set(transformed)].join(" ")
+
+  const new_classes = new Set(transformed_classes)
+  if (new_classes.size == 0) {
+    return undefined
+  } else {
+    return [...new_classes].join(" ")
+  }
 }
 
-export type ShadowComponentProps = HTMLAttributes<HTMLDivElement> & {
-  //component: string
+type DivAttributes = HTMLAttributes<HTMLDivElement>
+
+export type ShadowComponentProps = DivAttributes & {
   stylesheets?: StyleSheet[]
 }
 export class ShadowComponent extends Component<ShadowComponentProps> {
@@ -50,11 +57,33 @@ export class ShadowComponent extends Component<ShadowComponentProps> {
         render(contents, shadow_el)
       }
     }
-    //const classes = cls(`bk-${this.props.component}`, this.props.class)
-    //const props = omit(this.props, ["class", "component", "stylesheets"])
-    //return <div class={classes} {...props} ref={attach_shadow}></div>
+
     const props = omit(this.props, ["stylesheets", "children"])
     return <div {...props} ref={attach_shadow}></div>
+  }
+}
+
+export type UIComponentProps = DivAttributes & {
+  parent: /* ShadowComponentProps & */ {
+    stylesheets?: StyleSheet[]
+    classes?: CSSClasses[]
+    style?: DivAttributes["style"]
+  }
+}
+export class UIComponent extends Component<UIComponentProps> {
+  render(): VNode {
+    const {parent} = this.props
+
+    const {stylesheets=[], classes=[], style={}} = parent
+
+    const props = {
+      ...omit(this.props, ["parent", "class"]),
+      stylesheets,
+      class: cls(...classes, this.props.class),
+      style,
+    }
+
+    return <ShadowComponent {...props}></ShadowComponent>
   }
 }
 

@@ -10,7 +10,7 @@ import type {PlaceholderReplacer} from "core/util/templating"
 import * as progress_css from "styles/widgets/progress.css"
 
 import type {VNode} from "core/vdom"
-import {ShadowComponent, cls} from "core/vdom"
+import {UIComponent, cls} from "core/vdom"
 
 const ProgressMode = Enum("determinate", "indeterminate")
 type ProgressMode = typeof ProgressMode["__type__"]
@@ -27,9 +27,6 @@ export class ProgressView extends IndicatorView {
   }
 
   override component(): VNode {
-    const classes = [...this._css_classes()]
-    const stylesheets = this.resolved_stylesheets
-
     const {mode, label, reversed, orientation, disabled, label_location, description} = this.signals
 
     const min = this.signals.min.value
@@ -77,14 +74,14 @@ export class ProgressView extends IndicatorView {
       }
     })()
 
-    const all_classes = cls(classes, disabled_cls, reversed_cls, horizontal_cls, vertical_cls, indeterminate_cls)
+    const classes = cls(disabled_cls, reversed_cls, horizontal_cls, vertical_cls, indeterminate_cls)
     return (
-      <ShadowComponent stylesheets={stylesheets} class={all_classes} role="progressbar">
+      <UIComponent parent={this.resolved_props} class={classes} role="progressbar">
         <div class={progress_css.bar} title={bar_title}>
           <div class={progress_css.value} style={{"--progress": progress}}></div>
           {has_label ? <div class={progress_css.label}>{label_text}</div> : null}
         </div>
-      </ShadowComponent>
+      </UIComponent>
     )
   }
 }
