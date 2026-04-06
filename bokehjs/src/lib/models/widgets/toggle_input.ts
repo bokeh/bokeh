@@ -6,6 +6,8 @@ import * as toggle_input_css from "styles/widgets/toggle_input.css"
 export abstract class ToggleInputView extends WidgetView {
   declare model: ToggleInput
 
+  protected _last_active: boolean
+
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), toggle_input_css.default]
   }
@@ -13,8 +15,12 @@ export abstract class ToggleInputView extends WidgetView {
   protected _toggle_active(): void {
     const {active, disabled, tri_state} = this.model
     const is_indeterminate = active === null
+    const new_active = active != null ? !active : true
+    if (!is_indeterminate) {
+      this._last_active = active
+    }
     if (!disabled) {
-      this.model.active = !is_indeterminate && active ? !active : is_indeterminate || !tri_state ? true : null
+      this.model.active = !is_indeterminate && tri_state ? null : is_indeterminate && tri_state ? !this._last_active : new_active
     }
   }
 }
