@@ -186,7 +186,6 @@ jobs:
         uses: ./.github/workflows/composite/run-unit-tests
 
       - name: Install Playwright browsers
-        if: matrix.python-version == '3.11'
         run: playwright install chromium
 
       - name: Test defaults

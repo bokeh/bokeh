@@ -65,6 +65,8 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph >= 0.11.0
     # tests
+    - playwright
+    - pytest-playwright
     - ruff ==0.15.*
     - types-boto3
     - types-colorama

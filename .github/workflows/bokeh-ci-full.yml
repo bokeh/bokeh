@@ -190,6 +190,9 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
 
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
 
