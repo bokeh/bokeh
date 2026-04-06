@@ -34,19 +34,13 @@ export class LightDarkView extends SwitchView {
   protected _update_active_from_config(): void {
     const {document} = this.model
     if (document != null) {
-      switch (document.config.color_scheme) {
-        case "light":
-          this.model.active = true
-          break
-        case "dark":
-          this.model.active = false
-          break
-        case "auto":
-          this.model.active = null
-          break
-        default:
-          this.model.active = null
-      }
+      this.model.active = (() => {
+        switch (document.config.color_scheme) {
+          case "light": return true
+          case "dark": return false
+          default: return null
+        }
+      })()
     }
   }
 }
