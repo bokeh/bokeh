@@ -9,6 +9,9 @@
 """
 from __future__ import annotations
 
+# External imports
+from packaging.version import Version
+
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
@@ -109,9 +112,11 @@ def tag_release_version(config: Config, system: System) -> ActionReturn:
     except RuntimeError as e:
         return FAILED(f"Could NOT tag release version {config.version!r}", details=e.args)
 
-def get_tags(config: Config, system: System) -> ActionReturn:
+def get_tags(config: Config, system: System) -> list[str]:
     try:
-        system.run("git tags")
-        return PASSED("Got release version tags.")
+        ans =  system.run("git tag")
+        tags = [x for x in ans.split("\n") if x != "" and not x.endswith("-final-commit")]
+        tags.sort(key=Version, reverse=True)
+        return tags
     except RuntimeError as e:
-        return FAILED("Could NOT ge release version tags.t", details=e.args)
+        raise RuntimeError("Could NOT get release version tags.") from e

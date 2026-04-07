@@ -12,12 +12,12 @@ from __future__ import annotations
 # Standard library imports
 import json
 import re
+from pathlib import Path
 from typing import Any, Callable
-from packaging.version import Version
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
-from .config import Config
+from .config import ANY_VERSION, Config
 from .git import get_tags
 from .system import System
 from .util import skip_for_prerelease
@@ -180,53 +180,69 @@ def update_switcher_json(
         minor_versions:int=5,
     ) -> ActionReturn:
 
-    get_tags(config, system)
-    tags = [x for x in system.stdout.split("\n") if x != "" and not x.endswith("-final-commit")]
-    tags.sort(key=Version)
-    tags.reverse()
+    switcher_path = Path(__file__).parents[1] / "docs" / "bokeh" / "switcher.json"
+    base_url = "https://docs.bokeh.org/en/"
 
-    majors = 0
-    minors = 0
+    tags = get_tags(config, system)
+
+    major_counter = 0
+    minor_counter = 0
     switcher_list = []
     version_list = []
     major_list = []
     latest = True
+    dev_dict: dict[str, str | bool] = {}
     for tag in tags:
-        version_match = re.match(r"\d+\.\d+", tag).group()
-        major, _ = version_match.split(".")
+        m = re.match(ANY_VERSION, tag)
+        if m is None:
+            raise ValueError(f"Got invalid version string {tag!r}.")
+        major = m[2]
+        minor = m[3]
+        dev = m[5]
+        major_minor = f"{major}.{minor}"
+
         if major not in major_list:
-            majors += 1
-            minors = 0
+            major_counter += 1
+            minor_counter = 0
             major_list.append(major)
 
-        if version_match in version_list or (major in major_list and minors == minor_versions):
+        if major_minor in version_list or (major in major_list and minor_counter == minor_versions):
             continue
 
-        d = {}
-        if "dev" in tag or "rc" in tag:
-            url_version = f"dev-{version_match}"
-            d["name"] = f"dev ({tag})"
-            d["version"] = url_version
+        if dev is not None:
+            dev_dict = {
+                "name": f"dev ({tag})",
+                "version": f"dev-{major_minor}",
+                "url": f"{base_url}dev-{major_minor}/",
+            }
         else:
-            minors += 1
-            url_version = version_match
+            minor_counter += 1
             if latest:
-                d["name"] = f"{tag} (latest)"
-                d["preferred"] = True
-                url_version = "latest"
+                d: dict[str, str | bool] = {
+                    "name": f"{tag} (latest)",
+                    "version": tag,
+                    "url": f"{base_url}latest/",
+                    "preferred": True,
+                }
                 latest = False
-            d["version"] = tag
-        d["url"]= f"https://docs.bokeh.org/en/{url_version}/"
-        version_list.append(version_match)
-        switcher_list.append(d)
-        if majors == major_versions:
+            else:
+                d = {
+                    "version": tag,
+                    "url": f"{base_url}{tag}/",
+                }
+            switcher_list.append(d)
+
+        version_list.append(major_minor)
+        if major_counter == major_versions:
             break
+    if dev_dict:
+        switcher_list.append(dev_dict)
 
-    with open("switcher.json", "w") as f:
+
+    with open(switcher_path, "w") as f:
         json.dump(switcher_list, f, indent=2)
-        f.write('\n')
-    return PASSED("Switcher.json was created.")
-
+        f.write("\n")
+    return PASSED("Switcher.json was updated.")
 
 @skip_for_prerelease
 def update_changelog(config: Config, system: System) -> ActionReturn:
