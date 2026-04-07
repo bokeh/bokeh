@@ -532,7 +532,7 @@ class figure(Plot, GlyphAPI):
                 p.line(x=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
 
         '''
-        return self._line_stack(x=stackers, **kw)
+        return self._line_stack(x=list(stackers), **kw)
 
     def varea_stack(self, stackers, **kw):
         ''' Generate multiple ``VArea`` renderers for levels stacked bottom
@@ -655,7 +655,7 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        return self._line_stack(y=stackers, **kw)
+        return self._line_stack(y=list(stackers), **kw)
 
     def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
