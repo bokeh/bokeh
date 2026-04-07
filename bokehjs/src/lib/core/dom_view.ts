@@ -235,7 +235,7 @@ export abstract class DOMComponentView extends DOMElementView {
     if (this.component != null) {
       const component = h(this.component.bind(this), {})
       const parent = this.el.parentNode
-      assert(parent != null, "attempted to render vdom to at detached DOM node")
+      assert(parent != null, "attempted to render vDOM into a detached DOM node")
       const target = create_root_fragment(parent, this.el)
       render(component, target)
     } else {
