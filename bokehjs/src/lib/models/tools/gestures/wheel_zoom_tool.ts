@@ -86,7 +86,7 @@ export class WheelZoomToolView extends GestureToolView {
 
     const data_renderers = (() => {
       const {renderers} = this.model
-      const data_renderers = new Set(renderers != "auto" ? renderers : this.plot_view.model.data_renderers)
+      const data_renderers = new Set(renderers != "auto" ? renderers : this.plot_view.data_renderers)
 
       if (!this.model.hit_test) {
         return data_renderers

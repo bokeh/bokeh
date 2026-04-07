@@ -11,3 +11,4 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Dropped support for Python 3.10 (:bokeh-pull:`14865`)
 * Added ``perform_error_diagnostics`` settings flag (:bokeh-pull:`14947`)
 * Redesigned BokehJS' build system to use TypeScript native (tsgo) compiler (:bokeh-pull:`14812`)
+* Replaced data annotations (``Arrow``, ``Band``, ``LabelSet``, ``Whisker``) with glyphs (:bokeh-pull:`14378`)

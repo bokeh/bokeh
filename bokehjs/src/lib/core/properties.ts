@@ -11,6 +11,8 @@ import {to_radians_coeff} from "./util/math"
 import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
 import {isNumber, isTypedArray, isPlainObject} from "./util/types"
+import type {CoordinateMapper} from "./util/bbox"
+import type {CoordinateTransform} from "../models/coordinates/coordinate_mapping"
 import type {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
@@ -594,6 +596,15 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
 
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
   abstract get dimension(): "x" | "y"
+
+  scale_override: CoordinateMapper | null = null
+
+  get_scale(coordinates: CoordinateTransform): CoordinateMapper {
+    switch (this.dimension) {
+      case "x": return this.scale_override ?? coordinates.x_scale
+      case "y": return this.scale_override ?? coordinates.y_scale
+    }
+  }
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
@@ -619,6 +630,22 @@ export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
 }
 export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec {
   readonly dimension = "y"
+}
+
+export class XOrYCoordinateSpec extends CoordinateSpec {
+  declare readonly obj: HasProps & {dimension: enums.Dimension}
+
+  get dimension(): "x" | "y" {
+    return this.obj.dimension == "width" ? "x" : "y"
+  }
+}
+
+export class XOrYCrossCoordinateSpec extends XOrYCoordinateSpec {
+  declare readonly obj: HasProps & {dimension: enums.Dimension}
+
+  override get dimension(): "x" | "y" {
+    return super.dimension == "x" ? "y" : "x"
+  }
 }
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {

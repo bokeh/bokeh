@@ -80,9 +80,9 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   get data_size(): number {
-    const {base} = this
-    if (base != null) {
-      return base.data_size
+    const {base_glyph} = this
+    if (base_glyph != null) {
+      return base_glyph.data_size
     } else {
       const {_data_size} = this
       if (_data_size != null) {
@@ -104,9 +104,13 @@ export abstract class GlyphView extends DOMComponentView {
     return [...super.children_views(), ...this.decorations.values()]
   }
 
+  get computed_decorations(): Decoration[] {
+    return this.model.decorations
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+    await build_views(this.decorations, this.computed_decorations, {parent: this.parent})
 
     const {webgl} = this.canvas
     if (webgl != null && this.load_glglyph != null) {
@@ -125,7 +129,7 @@ export abstract class GlyphView extends DOMComponentView {
 
   paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
     if (this.has_webgl()) {
-      this.glglyph.render(ctx, indices, this.base ?? this)
+      this.glglyph.render(ctx, indices, this.base_glyph ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
@@ -159,7 +163,7 @@ export abstract class GlyphView extends DOMComponentView {
         }
         const hit_box = bbox.x_range(x_range.start, x_range.end)
         const {x0, y0, x1, y1} = this.index.bounds(hit_box)
-        if (!isFinite(y0+y1)) {
+        if (!isFinite(y0 + y1)) {
           return this._bounds(this.index.bbox)
         }
         return this._bounds({x0, y0, x1, y1})
@@ -171,7 +175,7 @@ export abstract class GlyphView extends DOMComponentView {
         }
         const hit_box = bbox.y_range(y_range.start, y_range.end)
         const {x0, y0, x1, y1} = this.index.bounds(hit_box)
-        if (!isFinite(x0+x1)) {
+        if (!isFinite(x0 + x1)) {
           return this._bounds(this.index.bbox)
         }
         return this._bounds({x0, y0, x1, y1})
@@ -293,17 +297,17 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
-  protected _base: this | null = null
+  protected _base_glyph: this | null = null
 
-  get base(): this | null {
-    return this._base
+  get base_glyph(): this | null {
+    return this._base_glyph
   }
 
-  set_base<T extends this>(base: T): void {
-    if (base != this && base instanceof this.constructor) {
-      this._base = base
+  set_base_glyph<T extends this>(base_glyph: T): void {
+    if (base_glyph != this && base_glyph instanceof this.constructor) {
+      this._base_glyph = base_glyph
     } else {
-      this._base = null
+      this._base_glyph = null
     }
   }
 
@@ -326,17 +330,17 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   protected _inherit_attr<Data>(attr: keyof Data): void {
-    const {base} = this
-    assert(base != null)
-    this._inherit_from(attr, base)
+    const {base_glyph} = this
+    assert(base_glyph != null)
+    this._inherit_from(attr, base_glyph)
   }
 
-  protected _inherit_from<Data>(attr: keyof Data, base: this): void {
+  protected _inherit_from<Data>(attr: keyof Data, base_glyph: this): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
       get() {
-        return base[attr as keyof typeof base]
+        return base_glyph[attr as keyof typeof base_glyph]
       },
     })
     this._define_inherited(attr, true)
@@ -369,15 +373,15 @@ export abstract class GlyphView extends DOMComponentView {
    *   With inheritance: inherits {value: 0} from base → renders correctly ✓
    *
    * @param prop - The property to check for inheritance
-   * @param base - The base glyph view to potentially inherit from
+   * @param base_glyph - The base glyph view to potentially inherit from
    * @returns true if the property should be inherited from base
    */
-  protected _can_inherit_from<T>(prop: p.Property<T>, base: this | null): boolean {
-    if (base == null) {
+  protected _can_inherit_from<T>(prop: p.Property<T>, base_glyph: this | null): boolean {
+    if (base_glyph == null) {
       return false
     }
 
-    const base_prop = base.model.property(prop.attr)
+    const base_prop = base_glyph.model.property(prop.attr)
 
     const value = prop.get_value()
     const base_value = base_prop.get_value()
@@ -408,9 +412,9 @@ export abstract class GlyphView extends DOMComponentView {
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
-      const {base} = this
-      if (base != null && this._can_inherit_from(prop, base)) {
-        this._inherit_from(prop.attr, base)
+      const {base_glyph} = this
+      if (base_glyph != null && this._can_inherit_from(prop, base_glyph)) {
+        this._inherit_from(prop.attr, base_glyph)
       } else {
         const uniform = prop.uniform(source).select(indices)
         this._define_attr(prop.attr, uniform)
@@ -470,7 +474,7 @@ export abstract class GlyphView extends DOMComponentView {
 
   async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
-    const {base} = this
+    const {base_glyph} = this
 
     this._data_size = indices.count
 
@@ -483,11 +487,11 @@ export abstract class GlyphView extends DOMComponentView {
         continue
       }
 
-      if (base != null && this._can_inherit_from(prop, base)) {
-        this._inherit_from(prop.attr, base)
+      if (base_glyph != null && this._can_inherit_from(prop, base_glyph)) {
+        this._inherit_from(prop.attr, base_glyph)
 
         if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
-          this._inherit_from(`max_${prop.attr}`, base)
+          this._inherit_from(`max_${prop.attr}`, base_glyph)
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
@@ -524,7 +528,7 @@ export abstract class GlyphView extends DOMComponentView {
       this.glglyph.set_data_changed()
     }
 
-    if (base == null) {
+    if (base_glyph == null) {
       this.index_data()
     }
   }
@@ -564,11 +568,11 @@ export abstract class GlyphView extends DOMComponentView {
   protected _mask_data?(): Indices
 
   map_data(): void {
-    const {x_scale, y_scale} = this.renderer.coordinates
-    const {base} = this
+    const {coordinates} = this.renderer
+    const {base_glyph} = this
 
     const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
-      const scale = prop.dimension == "x" ? x_scale : y_scale
+      const scale = prop.get_scale(coordinates)
       const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray
       if (array instanceof RaggedArray) {
         return new RaggedArray(array.offsets, scale.v_compute(array.data))
@@ -579,8 +583,8 @@ export abstract class GlyphView extends DOMComponentView {
 
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
-        if (base != null && this._is_inherited(prop)) {
-          this._inherit_from(`s${prop.attr}`, base)
+        if (base_glyph != null && this._is_inherited(prop)) {
+          this._inherit_from(`s${prop.attr}`, base_glyph)
         } else {
           const array = v_compute(prop)
           this._define_attr(`s${prop.attr}`, array)
@@ -598,7 +602,7 @@ export abstract class GlyphView extends DOMComponentView {
   protected _map_data(): void {}
 
   override get bbox(): BBox | undefined {
-    if (this.base == null) {
+    if (this.base_glyph == null) {
       const {x0, y0, x1, y1} = this.index.bbox
       const {x_scale, y_scale} = this.renderer.coordinates
       const [sx0, sx1] = x_scale.r_compute(x0, x1)

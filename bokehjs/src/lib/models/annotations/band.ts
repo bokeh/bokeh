@@ -1,48 +1,77 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
+import type {CoordinateUnits} from "core/enums"
 import type {Context2d} from "core/util/canvas"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
 
+import {BandGlyph} from "../glyphs/band"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
+
 export class BandView extends UpperLowerView {
   declare model: Band
   declare visuals: Band.Visuals
 
-  _paint_data(ctx: Context2d): void {
-    // Draw the band body
-    ctx.beginPath()
-    ctx.moveTo(this._lower_sx[0], this._lower_sy[0])
+  protected _renderer: GlyphRenderer<BandGlyph>
 
-    for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-      ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
-    }
-    // iterate backwards so that the upper end is below the lower start
-    for (let i = this._upper_sx.length-1; i >= 0; i--) {
-      ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
-    }
+  override initialize(): void {
+    super.initialize()
 
-    ctx.closePath()
-    this.visuals.fill.apply(ctx)
-    this.visuals.hatch.apply(ctx)
+    this._renderer = new GlyphRenderer({
+      glyph: new BandGlyph(),
+      auto_ranging: "none",
+    })
+    this._update_props()
 
-    // Draw the lower band edge
-    ctx.beginPath()
-    ctx.moveTo(this._lower_sx[0], this._lower_sy[0])
-    for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-      ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
-    }
-
-    this.visuals.line.apply(ctx)
-
-    // Draw the upper band edge
-    ctx.beginPath()
-    ctx.moveTo(this._upper_sx[0], this._upper_sy[0])
-    for (let i = 0, end = this._upper_sx.length; i < end; i++) {
-      ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
-    }
-
-    this.visuals.line.apply(ctx)
+    this._computed_renderers.push(this._renderer)
   }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this._update_props())
+  }
+
+  protected _update_props(): void {
+    this._renderer.setv<GlyphRenderer.Attrs<BandGlyph>>({
+      data_source: this.model.source,
+      level: this.model.level,
+    })
+    this._renderer.glyph.setv<BandGlyph.Attrs>({
+      dimension: this.model.dimension,
+      lower: this.model.lower,
+      upper: this.model.upper,
+      base: this.model.base,
+      ...mixins.attrs_of(this.model, "", mixins.LineVector),
+      ...mixins.attrs_of(this.model, "", mixins.FillVector),
+      ...mixins.attrs_of(this.model, "", mixins.HatchVector),
+    })
+
+    const update_scales = (units: CoordinateUnits, prop: p.XOrYCoordinateSpec) => {
+      switch (units) {
+        case "data": {
+          prop.scale_override = null
+          break
+        }
+        case "canvas": {
+          const {x_screen, y_screen} = this.plot_view.canvas.bbox
+          prop.scale_override = prop.dimension == "x" ? x_screen : y_screen
+          break
+        }
+        case "screen": {
+          const {x_view, y_view} = this.plot_view.frame.bbox
+          prop.scale_override = prop.dimension == "x" ? x_view : y_view
+          break
+        }
+      }
+    }
+
+    const {lower, upper, base} = this._renderer.glyph.properties
+    update_scales(this.model.properties.lower.units, lower)
+    update_scales(this.model.properties.upper.units, upper)
+    update_scales(this.model.properties.base.units, base)
+  }
+
+  _paint(_ctx: Context2d): void {}
 }
 
 export namespace Band {

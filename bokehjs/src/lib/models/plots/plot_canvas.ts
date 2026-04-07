@@ -7,6 +7,7 @@ import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
 import {CompositeRendererView} from "../renderers/composite_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
+import {DataRendererView} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
@@ -21,8 +22,8 @@ import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {is_auto_ranged} from "../ranges/data_range1d"
+import type {AutoRanged} from "../ranges/auto_ranged"
+import {is_auto_ranged} from "../ranges/auto_ranged"
 import type {Menu} from "../ui/menus/menu"
 import type {ElementLike} from "../ui/pane"
 import {Panel} from "../ui/panel"
@@ -182,7 +183,15 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.computed_renderer_views.filter(is_auto_ranged)
+    return this.all_renderer_views.filter(is_auto_ranged)
+  }
+
+  get data_renderer_views(): ViewOf<DataRenderer>[] {
+    return this.all_renderer_views.filter((rv) => rv instanceof DataRendererView)
+  }
+
+  get data_renderers(): DataRenderer[] {
+    return this.data_renderer_views.map((rv) => rv.model)
   }
 
   get base_font_size(): number | null {
@@ -840,7 +849,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
-    for (const renderer of this.model.data_renderers) {
+    for (const renderer of this.data_renderers) {
       const {selected} = renderer.selection_manager.source
       selection.set(renderer, selected)
     }
@@ -848,7 +857,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   update_selection(selections: Map<DataRenderer, Selection> | null): void {
-    for (const renderer of this.model.data_renderers) {
+    for (const renderer of this.data_renderers) {
       const ds = renderer.selection_manager.source
       if (selections != null) {
         const selection = selections.get(renderer)
@@ -1308,11 +1317,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_box: BBox, global_clip: boolean): void {
-    for (const renderer_view of this.computed_renderer_views) {
-      if (renderer_view.model.level != level) {
-        continue
-      }
+    const renderers = this.computed_renderer_views.filter((rv) => rv.model.level == level)
 
+    for (const renderer_view of renderers) {
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
         ctx.beginPath()
