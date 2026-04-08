@@ -1,14 +1,12 @@
 import type {StyleSheetLike} from "core/dom"
-import {div} from "core/dom"
 import type * as p from "core/properties"
 import {Widget, WidgetView} from "./widget"
 
-import clearfix_css, {clearfix} from "styles/clearfix.css"
+import * as markup_css from "styles/widgets/markup.css"
 
 export abstract class MarkupView extends WidgetView {
-  declare model: Markup
-
-  protected markup_el: HTMLElement
+  declare readonly model: Markup
+  declare readonly signals: p.SignalsOf<Markup.Props>
 
   protected override readonly _auto_width = "fit-content"
   protected override readonly _auto_height = "auto"
@@ -25,25 +23,16 @@ export abstract class MarkupView extends WidgetView {
     }
   }
 
-  has_math_disabled() {
+  has_math_disabled(): boolean {
     return this.model.disable_math || !this.contains_tex_string(this.model.text)
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => {
-      this.rerender()
-    })
-  }
-
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), clearfix_css, "p { margin: 0; }"]
+    return [...super.stylesheets(), markup_css.default]
   }
 
-  override render(): void {
-    super.render()
-    this.markup_el = div({class: clearfix, style: {display: "inline-block"}})
-    this.shadow_el.appendChild(this.markup_el)
+  override _after_render(): void {
+    super._after_render()
 
     if (this.provider.status == "failed" || this.provider.status == "loaded") {
       this._has_finished = true
@@ -72,7 +61,7 @@ export abstract class Markup extends Widget {
 
   static {
     this.define<Markup.Props>(({Bool, Str}) => ({
-      text:  [ Str, "" ],
+      text: [ Str, "" ],
       disable_math: [ Bool, false ],
     }))
   }

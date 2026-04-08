@@ -93,7 +93,7 @@ jobs:
           fi
 
       - name: Lint codebase
-        if: success() || failure()
+        if: runner.os == 'Linux' && (success() || failure())
         working-directory: ./bokehjs
         shell: bash
         run: |

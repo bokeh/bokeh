@@ -28,6 +28,9 @@ import type {RaggedArray} from "./util/ragged_array"
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
 
+import type {Signal as VSignal} from "@preact/signals"
+import {signal as vsignal} from "@preact/signals"
+
 export class ValidationError extends Error {}
 
 function valueToString(value: any): string {
@@ -105,6 +108,10 @@ export type GlyphDataOf<Props> = Expanded<Readonly<CoordsAttrsOf<Props> & Screen
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
+}
+
+export type SignalsOf<Props> = {
+  readonly [Key in keyof Props]: Props[Key] extends Property<infer T> ? VSignal<T> : never
 }
 
 export type DefineOf<P, HP extends HasProps = HasProps> = {
@@ -231,6 +238,18 @@ export abstract class Property<T = unknown> {
 
   readonly change: Signal0<HasProps>
 
+  private _signal: VSignal<T> | null = null
+  get signal(): VSignal<T> {
+    if (this._value !== unset) {
+      if (this._signal == null) {
+        this._signal = vsignal(this._value, {name: this.attr})
+      }
+      return this._signal
+    } else {
+      throw new Error(`${this.obj}.${this.attr} is unset`)
+    }
+  }
+
   /*readonly*/ internal: boolean
   readonly: boolean
 
@@ -261,7 +280,10 @@ export abstract class Property<T = unknown> {
       }
     }
     this._value = attr_value
-    this.on_update?.(attr_value, this.obj)
+    if (this._signal != null) {
+      this._signal.value = this._value
+    }
+    this.on_update?.(this._value, this.obj)
   }
 
   to_full_string(): string {

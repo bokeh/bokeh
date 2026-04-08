@@ -4751,6 +4751,7 @@ describe("Bug", () => {
       await actions0.hover(xy(0, 0))
       await actions0.scroll(xy(0, 0), 250)
 
+      view.invalidate_layout() // TODO remove this when pure CSS layout is implemented
       await view.ready
     })
   })

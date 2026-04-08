@@ -1,15 +1,21 @@
 import {Markup, MarkupView} from "./markup"
-import {pre} from "core/dom"
 import type * as p from "core/properties"
+import {UIComponent} from "core/vdom"
+import type {VNode} from "core/vdom"
+
+import * as markup_css from "styles/widgets/markup.css"
 
 export class PreTextView extends MarkupView {
-  declare model: PreText
+  declare readonly model: PreText
+  declare readonly signals: p.SignalsOf<PreText.Props>
 
-  override render(): void {
-    super.render()
-
-    const content = pre({style: {overflow: "auto"}}, this.model.text)
-    this.markup_el.appendChild(content)
+  override component(): VNode {
+    const {text} = this.signals
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <pre class={markup_css.markup}>{text}</pre>
+      </UIComponent>
+    )
   }
 }
 

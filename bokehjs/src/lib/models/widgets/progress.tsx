@@ -1,7 +1,6 @@
 import {Indicator, IndicatorView} from "./indicator"
 import {Signal0} from "core/signaling"
-import type {StyleSheetLike} from "core/dom"
-import {div} from "core/dom"
+import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
 import {Orientation} from "core/enums"
 import {Enum} from "../../core/kinds"
@@ -10,6 +9,9 @@ import {process_placeholders, sprintf} from "core/util/templating"
 import type {PlaceholderReplacer} from "core/util/templating"
 import * as progress_css from "styles/widgets/progress.css"
 
+import type {VNode} from "core/vdom"
+import {UIComponent, cls} from "core/vdom"
+
 const ProgressMode = Enum("determinate", "indeterminate")
 type ProgressMode = typeof ProgressMode["__type__"]
 
@@ -17,112 +19,70 @@ const LabelLocation = Enum("none", "inline")
 type LabelLocation = typeof LabelLocation["__type__"]
 
 export class ProgressView extends IndicatorView {
-  declare model: Progress
-
-  protected label_el: HTMLElement
-  protected value_el: HTMLElement
-  protected bar_el: HTMLElement
-
-  override connect_signals(): void {
-    super.connect_signals()
-    const {mode, value, min, max, label, reversed, orientation, disabled, label_location, description} = this.model.properties
-    this.on_change([mode, value, min, max, label, description], () => this._update_value())
-    this.on_change(reversed, () => this._update_reversed())
-    this.on_change(orientation, () => this._update_orientation())
-    this.on_change(disabled, () => this._update_disabled())
-    this.on_change(label_location, () => this._update_label_location())
-  }
+  declare readonly model: Progress
+  declare readonly signals: p.SignalsOf<Progress.Props>
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), progress_css.default]
   }
 
-  override render(): void {
-    super.render()
-    this.el.role = "progress"
+  override component(): VNode {
+    const {mode, label, reversed, orientation, disabled, label_location, description} = this.signals
 
-    this.label_el = div({class: progress_css.label})
-    this.value_el = div({class: progress_css.value})
-    this.bar_el = div({class: progress_css.bar}, this.value_el, this.label_el)
-
-    this._update_value()
-    this._update_disabled()
-    this._update_reversed()
-    this._update_orientation()
-    this._update_label_location()
-
-    this.shadow_el.append(this.bar_el)
-  }
-
-  protected _update_value(): void {
-    const {value, min, max, label} = this.model
+    const min = this.signals.min.value
+    const max = this.signals.max.value
+    const value = this.signals.value.value
 
     const total = Math.abs(max - min)
     const index = clamp(value, min, max) - min
     const percent = index/total*100
-    const indeterminate = this.model.indeterminate || !isFinite(percent)
+    const indeterminate = mode.value == "indeterminate" || !isFinite(percent)
 
-    this.class_list.toggle(progress_css.indeterminate, indeterminate)
-    this.value_el.style.setProperty("--progress", `${indeterminate ? 0 : percent}%`)
+    const disabled_cls = disabled.value ? progress_css.disabled : null
+    const reversed_cls = reversed.value ? progress_css.reversed : null
+    const horizontal_cls = orientation.value == "horizontal" ? progress_css.horizontal : null
+    const vertical_cls = orientation.value == "vertical" ? progress_css.vertical : null
+    const indeterminate_cls = indeterminate ? progress_css.indeterminate : null
+
+    const has_label = label.value != null && label_location.value != "none" && !indeterminate
+
+    const progress = `${indeterminate ? 0 : percent}%`
+    const replacements: {[key: string]: number} = {min, max, total, value, index, percent}
 
     const replacer: PlaceholderReplacer = (_, name, format) => {
-      const val = (() => {
-        switch (name) {
-          case "min": return min
-          case "max": return max
-          case "total": return total
-          case "value": return value
-          case "index": return index
-          case "percent": return percent
-          // TODO duration, throughput, ETA
-          default: return null
-        }
-      })()
-
-      if (val == null) {
-        return val
-      } else {
+      if (name in replacements) {
+        const val = replacements[name]
         return format != null ? sprintf(format, val) : val.toFixed(0)
+      } else {
+        return null
       }
     }
 
-    this.label_el.textContent = (() => {
-      if (label != null && !indeterminate) {
-        return process_placeholders(label, replacer)
+    const label_text = (() => {
+      if (label.value != null && !indeterminate) {
+        return process_placeholders(label.value, replacer)
       } else {
         return "0%"
       }
     })()
 
-    this.bar_el.title = (() => {
-      const {description} = this.model
-      if (description != null && !indeterminate) {
-        return process_placeholders(description, replacer)
+    const bar_title = (() => {
+      if (description.value != null && !indeterminate) {
+        return process_placeholders(description.value, replacer)
       } else {
         return ""
       }
     })()
-  }
 
-  protected _update_disabled(): void {
-    const {disabled} = this.model
-    this.class_list.toggle(progress_css.disabled, disabled)
-  }
-
-  protected _update_reversed(): void {
-    const {reversed} = this.model
-    this.class_list.toggle(progress_css.reversed, reversed)
-  }
-
-  protected _update_orientation(): void {
-    const {orientation} = this.model
-    this.class_list.toggle(progress_css.horizontal, orientation == "horizontal")
-    this.class_list.toggle(progress_css.vertical, orientation == "vertical")
-  }
-
-  protected _update_label_location(): void {
-    const {label, label_location} = this.model
-    this.label_el.classList.toggle(progress_css.hidden, label == null || label_location == "none")
+    const classes = cls(disabled_cls, reversed_cls, horizontal_cls, vertical_cls, indeterminate_cls)
+    return (
+      <UIComponent parent={this.resolved_props} class={classes} role="progressbar">
+        <div class={progress_css.bar} title={bar_title}>
+          <div class={progress_css.value} style={{"--progress": progress}}></div>
+          {has_label ? <div class={progress_css.label}>{label_text}</div> : null}
+        </div>
+      </UIComponent>
+    )
   }
 }
 

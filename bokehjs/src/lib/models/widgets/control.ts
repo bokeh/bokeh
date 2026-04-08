@@ -5,6 +5,7 @@ import type * as p from "core/properties"
 export abstract class ControlView extends WidgetView {
   declare model: Control
 
+  /** @deprecated */
   abstract controls(): Iterable<HTMLElement & {disabled: boolean}>
 
   override connect_signals(): void {

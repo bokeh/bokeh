@@ -4,7 +4,7 @@ import {Styles} from "../dom/styles"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import {DOMComponentView} from "core/dom_view"
 import type {StyleSheet, StyleSheetLike} from "core/dom"
-import {apply_styles} from "core/css"
+import {apply_styles, iter_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {entries} from "core/util/object"
 import {isNumber, isString} from "core/util/types"
@@ -112,6 +112,14 @@ export abstract class StyledElementView extends DOMComponentView {
 
   protected _apply_styles(): void {
     apply_styles(this.el.style, this.model.styles)
+  }
+
+  override get resolved_style() {
+    const style = {...super.resolved_style}
+    for (const [key, val] of iter_styles(this.model.styles)) {
+      style[key] = val
+    }
+    return style
   }
 }
 

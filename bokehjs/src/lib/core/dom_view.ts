@@ -1,12 +1,19 @@
 import {View} from "./view"
 import type {SerializableState} from "./view"
-import type {StyleSheet, StyleSheetLike, ARIARole} from "./dom"
-import {create_element, empty, InlineStyleSheet, ClassList} from "./dom"
+import type {StyleSheet, StyleSheetLike} from "./stylesheets"
+import {InlineStyleSheet} from "./stylesheets"
+import type {ARIARole} from "./dom"
+import {create_element, empty, ClassList} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
+import {create_root_fragment} from "./vdom"
 import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
+
+import type {VNode} from "preact"
+import {render, h} from "preact"
+import type {Signal} from "@preact/signals"
 
 export type RenderingTarget = HTMLElement | ShadowRoot
 
@@ -15,7 +22,21 @@ export interface DOMView extends View {
 }
 
 export abstract class DOMView extends View {
-  declare parent: DOMView | null
+  declare readonly parent: DOMView | null
+
+  readonly signals: {readonly [key: string]: Signal<unknown>} = {}
+
+  constructor(options: View.Options) {
+    super(options)
+
+    for (const prop of this.model) {
+      Object.defineProperty(this.signals, prop.attr, {
+        get() { return prop.signal },
+        configurable: false,
+        enumerable: true,
+      })
+    }
+  }
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
   static aria_role?: ARIARole
@@ -194,10 +215,34 @@ export abstract class DOMComponentView extends DOMElementView {
     }
   }
 
+  override render_to(target: Node): void {
+    if (this.is_vdom) {
+      target.appendChild(this.el)
+    }
+    this.render()
+    if (!this.is_vdom) {
+      target.appendChild(this.el)
+    }
+  }
+
+  get is_vdom(): boolean {
+    return this.component != null
+  }
+
+  component?(): VNode
+
   render(): void {
-    this.empty()
-    this._update_stylesheets()
-    this._apply_html_attributes()
+    if (this.component != null) {
+      const component = h(this.component.bind(this), {})
+      const parent = this.el.parentNode
+      assert(parent != null, "attempted to render vDOM into a detached DOM node")
+      const target = create_root_fragment(parent, this.el)
+      render(component, target)
+    } else {
+      this.empty()
+      this._update_stylesheets()
+      this._apply_html_attributes()
+    }
   }
 
   protected _applied_html_attributes: string[] = []
@@ -215,16 +260,40 @@ export abstract class DOMComponentView extends DOMElementView {
     yield* this.user_stylesheets()
   }
 
+  get resolved_stylesheets(): StyleSheet[] {
+    return [...this._stylesheets()].map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+  }
+
+  get resolved_css_classes(): string[] {
+    return [...this._css_classes()]
+  }
+
+  get resolved_style(): {[key: string]: string | null | undefined} {
+    return {}
+  }
+
+  get resolved_props() {
+    return {
+      stylesheets: this.resolved_stylesheets,
+      classes: this.resolved_css_classes,
+      style: this.resolved_style,
+    }
+  }
+
+  get type_class(): string {
+    return `bk-${this.model.type.replace(/\./g, "-")}`
+  }
+
   protected *_css_classes(): Iterable<string> {
-    yield `bk-${this.model.type.replace(/\./g, "-")}`
+    yield this.type_class
     yield* this.css_classes()
   }
 
   protected *_css_variables(): Iterable<[string, string]> {}
 
   protected _applied_stylesheets: StyleSheet[] = []
-  protected _apply_stylesheets(stylesheets: StyleSheetLike[]): void {
-    const resolved_stylesheets = stylesheets.map((style) => isString(style) ? new InlineStyleSheet(style) : style)
+  protected _apply_stylesheets(): void {
+    const {resolved_stylesheets} = this
     this._applied_stylesheets.push(...resolved_stylesheets)
     resolved_stylesheets.forEach((stylesheet) => stylesheet.install(this.shadow_el))
   }
@@ -238,7 +307,7 @@ export abstract class DOMComponentView extends DOMElementView {
   protected _update_stylesheets(): void {
     this._applied_stylesheets.forEach((stylesheet) => stylesheet.uninstall())
     this._applied_stylesheets = []
-    this._apply_stylesheets([...this._stylesheets()])
+    this._apply_stylesheets()
   }
 
   protected _update_css_classes(): void {
