@@ -114,7 +114,7 @@ def tag_release_version(config: Config, system: System) -> ActionReturn:
 
 def get_tags(config: Config, system: System) -> list[str]:
     try:
-        ans =  system.run("git tag")
+        ans = system.run("git tag")
         tags = [x for x in ans.split("\n") if x != "" and not x.endswith("-final-commit")]
         tags.sort(key=Version, reverse=True)
         return tags

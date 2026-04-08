@@ -34,6 +34,7 @@ __all__ = (
     "update_bokehjs_versions",
     "update_changelog",
     "update_hash_manifest",
+    "update_switcher_json",
     "verify_conda_install",
     "verify_pip_install_from_sdist",
     "verify_pip_install_using_sdist",
