@@ -2,13 +2,12 @@ import {ToggleInput, ToggleInputView} from "./toggle_input"
 import {IconLike} from "../common/kinds"
 import type {Keys} from "core/dom"
 import {UIComponent, Icon, cls} from "core/vdom"
+import type {VNode, TargetedEvent} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
 import * as icons_css from "styles/icons.css"
 import * as switch_css from "styles/widgets/switch.css"
 import * as toggle_css from "styles/widgets/toggle_input.css"
-
-import type {VNode, TargetedEvent} from "preact"
 
 export class SwitchView extends ToggleInputView {
   declare readonly model: Switch
