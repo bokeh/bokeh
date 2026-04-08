@@ -191,7 +191,7 @@ class ClickPanTool(PlotActionTool):
     factor: Percent = ...
 
 @dataclass
-class RangeTool(Tool):
+class RangeTool(Drag):
 
     x_range: Range | None = ...
 

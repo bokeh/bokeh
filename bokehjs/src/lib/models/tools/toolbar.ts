@@ -347,6 +347,8 @@ const GestureEntry = Struct({
   tools: List(GestureToolLike),
   active: Nullable(GestureToolLike),
 })
+type GestureEntry = typeof GestureEntry["__type__"]
+
 const GesturesMap = Struct({
   pan:       GestureEntry,
   scroll:    GestureEntry,
@@ -593,13 +595,43 @@ export class Toolbar extends UIElement {
       return this.tools.includes(active_tool) || (active_tool instanceof Tool && this.tools.some((tool) => tool instanceof ToolProxy && tool.tools.includes(active_tool)))
     }
 
+    const _resolve_gesture_activation = (gesture: GestureEntry, active_attr: keyof ActiveGestureToolsProps | null): void => {
+      // some tools may already be initialized as active
+      if (gesture.tools.every((tool) => !tool.active)) {
+        return
+      }
+
+      // active attr takes precedence over any active initialization
+      if (active_attr != null && this[active_attr] != null && this[active_attr] != "auto") {
+        gesture.tools.forEach((tool) => {
+          if (tool.tool_name != this[active_attr]) {
+            tool.active = false
+          }
+        })
+        return
+      }
+
+      for (const tool of gesture.tools) {
+        if (!tool.active) {
+          continue
+        }
+
+        if (gesture.active == null) {
+          _activate_gesture(tool)
+        } else if (gesture.active.id != tool.id && gesture.active.tool_name != tool.tool_name) {
+          tool.active = false
+        }
+      }
+    }
+
     for (const [event_role, gesture] of entries(this.gestures)) {
       const et = event_role as EventRole
       const active_attr = _get_active_attr(et)
+      _resolve_gesture_activation(gesture, active_attr)
       if (active_attr != null) {
         const active_tool = this[active_attr]
         if (active_tool == "auto") {
-          if (gesture.tools.length != 0) {
+          if (gesture.tools.length != 0 && gesture.active == null) {
             const [tool] = gesture.tools
             if (_supports_auto(et, tool)) {
               _activate_gesture(tool)
