@@ -87,7 +87,7 @@ class CodeHandler(Handler):
 
     _origin: ClassVar[str]
 
-    def __init__(self, *, source: str, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, source: str, filename: PathLike, argv: list[str] | None = None, package: ModuleType | None = None) -> None:
         '''
 
         Args:
@@ -100,6 +100,8 @@ class CodeHandler(Handler):
 
         '''
         super().__init__()
+        if argv is None:
+            argv = []
 
         self._runner = CodeRunner(source, filename, argv, package=package)
 

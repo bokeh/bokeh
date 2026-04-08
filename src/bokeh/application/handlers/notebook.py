@@ -67,7 +67,7 @@ class NotebookHandler(CodeHandler):
 
     _origin = "Notebook"
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: list[str] | None = None, package: ModuleType | None = None) -> None:
         '''
 
         Keywords:
@@ -110,6 +110,8 @@ class NotebookHandler(CodeHandler):
                 self._cell_counter = 0
                 return self.preprocess(nb,resources)
 
+        if argv is None:
+            argv = []
         preprocessors = [StripMagicsProcessor()]
 
         with open(filename, encoding="utf-8") as f:

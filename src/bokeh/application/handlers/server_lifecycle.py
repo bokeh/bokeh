@@ -56,7 +56,7 @@ class ServerLifecycleHandler(LifecycleHandler):
 
     '''
 
-    def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: list[str] | None = None, package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:
@@ -67,6 +67,8 @@ class ServerLifecycleHandler(LifecycleHandler):
 
         '''
         super().__init__()
+        if argv is None:
+            argv = []
 
         with open(filename, encoding='utf-8') as f:
             source = f.read()
