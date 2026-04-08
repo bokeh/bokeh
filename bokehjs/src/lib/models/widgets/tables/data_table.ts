@@ -1,9 +1,6 @@
-import {RowSelectionModel} from "@bokeh/slickgrid/plugins/slick.rowselectionmodel"
-import {CheckboxSelectColumn} from "@bokeh/slickgrid/plugins/slick.checkboxselectcolumn"
-import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellexternalcopymanager"
+import {SlickGrid, SlickCellCopyManager, SlickRowSelectionModel, SlickCheckboxSelectColumn} from "slickgrid"
 
-import type {DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs, GridOptions} from "@bokeh/slickgrid"
-import {Grid as SlickGrid} from "@bokeh/slickgrid"
+import type {CustomDataView, ItemMetadata, GridOption} from "slickgrid"
 import type * as p from "core/properties"
 import type {StyleSheetLike} from "core/dom"
 import {div} from "core/dom"
@@ -326,9 +323,9 @@ export class DataTableView extends WidgetView {
       return {...column.toColumn(), parent: this}
     })
 
-    let checkbox_selector: CheckboxSelectColumn<Item> | null = null
+    let checkbox_selector: SlickCheckboxSelectColumn<Item> | null = null
     if (this.model.selectable == "checkbox") {
-      checkbox_selector = new CheckboxSelectColumn({cssClass: tables.cell_select})
+      checkbox_selector = new SlickCheckboxSelectColumn({cssClass: tables.cell_select})
       columns.unshift(checkbox_selector.getColumnDefinition())
     }
 
@@ -365,7 +362,7 @@ export class DataTableView extends WidgetView {
       frozen_row = Math.abs(frozen_rows)
     }
 
-    const options: GridOptions<Item> = {
+    const options: GridOption<Item> = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
       autosizeColsMode: this.autosize,
@@ -412,24 +409,12 @@ export class DataTableView extends WidgetView {
     })
 
     if (this.model.selectable !== false) {
-      this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkbox_selector == null}))
+      this.grid.setSelectionModel(new SlickRowSelectionModel({selectActiveRow: checkbox_selector == null}))
       if (checkbox_selector != null) {
         this.grid.registerPlugin(checkbox_selector)
       }
 
-      const pluginOptions = {
-        dataItemColumnValueExtractor(val: Item, col: TableColumn) {
-          // As defined in this file, Item can contain any type values
-          let value = val[col.field]
-          if (isString(value)) {
-            value = value.replace(/\n/g, "\\n")
-          }
-          return value
-        },
-        includeHeaderWhenCopying: false,
-      }
-
-      this.grid.registerPlugin(new CellExternalCopyManager(pluginOptions))
+      this.grid.registerPlugin(new SlickCellCopyManager())
 
       this.grid.onSelectedRowsChanged.subscribe((_event: Event, args: OnSelectedRowsChangedEventArgs<Item>) => {
         if (this._in_selection_update) {
