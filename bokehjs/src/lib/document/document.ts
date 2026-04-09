@@ -111,7 +111,7 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
-  protected _system_theme: MediaQueryList
+  protected _system_scheme: MediaQueryList
 
   private _config?: DocumentConfig
   get config(): DocumentConfig {
@@ -147,10 +147,10 @@ export class Document implements Equatable {
       assert(event instanceof ModelEvent)
       this.event_manager.trigger(event)
     })
-    this._system_theme = matchMedia("(prefers-color-scheme: dark)")
+    this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
     this.config = new DocumentConfig()
     this.set_color_scheme(this.config.color_scheme)
-    this._system_theme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
+    this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
     this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
   }
 
@@ -718,9 +718,9 @@ export class Document implements Equatable {
   }
 
   set_color_scheme(color_scheme: ColorScheme): void {
-    const system_theme = this._system_theme.matches ? "dark" : "light"
-    const theme = color_scheme == "auto" ? system_theme : color_scheme
+    const system_scheme = this._system_scheme.matches ? "dark" : "light"
+    const scheme = color_scheme == "auto" ? system_scheme : color_scheme
     // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
-    document.documentElement.style.setProperty("--bokeh-color-scheme", theme)
+    document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
   }
 }

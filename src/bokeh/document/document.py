@@ -385,7 +385,7 @@ class Document:
             None
 
         '''
-        deserializer = Deserializer(list(self.models), setter=setter)
+        deserializer = Deserializer([*list(self.models), self.config], setter=setter)
 
         try:
             patch: PatchJson = deserializer.deserialize(patch_json)
