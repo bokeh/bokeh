@@ -26,12 +26,11 @@ export class SwitchView extends ToggleInputView {
   override component(): VNode {
     const {active, label, disabled, on_icon, off_icon, indeterminate_icon} = this.signals
 
-    const is_indeterminate = active.value == null
-    const active_cls = !is_indeterminate && active.value ? switch_css.active : null
+    const active_cls = active.value != null && active.value ? switch_css.active : null
     const disabled_cls = disabled.value ? switch_css.disabled : null
-    const indeterminate_cls = is_indeterminate ? switch_css.indeterminate : null
-    const icon = !is_indeterminate && active.value ? on_icon : is_indeterminate ? indeterminate_icon : off_icon
-    const aria_checked = !is_indeterminate && active.value ? "true" : is_indeterminate ? "mixed" : "false"
+    const indeterminate_cls = active.value == null ? switch_css.indeterminate : null
+    const icon = active.value != null && active.value ? on_icon : active.value == null ? indeterminate_icon : off_icon
+    const aria_checked = active.value != null && active.value ? "true" : active.value == null ? "mixed" : "false"
 
     return (
       <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls, indeterminate_cls)} role="switch" aria-checked={aria_checked}>

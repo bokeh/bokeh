@@ -17,9 +17,8 @@ export class CheckboxView extends ToggleInputView {
 
   override component(): VNode {
     const {active, label, disabled} = this.signals
-    const is_indeterminate = active.value == null
     const active_value = active.value ?? false
-    const aria_checked = !is_indeterminate && active.value ? "true" : is_indeterminate ? "mixed" : "false"
+    const aria_checked = active_value ? "true" : "false"
 
     return (
       <UIComponent parent={this.resolved_props} role="checkbox" aria-checked={aria_checked}>
