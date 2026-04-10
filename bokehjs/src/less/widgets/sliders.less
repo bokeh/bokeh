@@ -97,6 +97,10 @@
     left: var(--start-position);
     right: var(--end-position);
     height: 100%;
+
+    &.bk-draggable {
+      cursor: ew-resize;
+    }
   }
 }
 :host(.bk-vertical) {
@@ -104,6 +108,10 @@
     top: var(--start-position);
     bottom: var(--end-position);
     width: 100%;
+
+    &.bk-draggable {
+      cursor: ns-resize;
+    }
   }
 }
 
