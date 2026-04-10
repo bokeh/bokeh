@@ -48,8 +48,22 @@ import {FilterDef} from "../../dom/value_ref"
 import type {FilterArgs} from "../../dom/value_ref"
 import type {VNode} from "core/vdom"
 
-import {render} from "preact"
-import {useRef, useEffect} from "preact/hooks"
+import {render, Component} from "preact"
+
+function Value({children}: {children: string | string[]}) {
+  return <span>{children}</span>
+}
+
+function Swatch({color}: {color: Color}) {
+  return <span class={styles.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
+}
+
+class HTML extends Component<{children: Node[]}> {
+  render(): VNode {
+    const {children} = this.props
+    return <span ref={(el) => el?.replaceChildren(...children)}></span>
+  }
+}
 
 const Field = Str
 type Field = typeof Field["__type__"]
@@ -734,20 +748,6 @@ export class HoverToolView extends InspectToolView {
   _render_vdom(ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): VNode {
     const tooltips = this.signals.tooltips.value
     assert(isArray(tooltips))
-
-    function Value({children}: {children: string | string[]}) {
-      return <span>{children}</span>
-    }
-
-    function Swatch({color}: {color: Color}) {
-      return <span class={styles.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
-    }
-
-    function HTML({children}: {children: Node[]}) {
-      const ref = useRef<HTMLElement | null>(null)
-      useEffect(() => ref.current!.replaceChildren(...children))
-      return <span ref={ref}></span>
-    }
 
     const rows = []
     for (const [label, value] of tooltips) {
