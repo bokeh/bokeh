@@ -1,7 +1,8 @@
-import type {uint8, uint32, Color} from "../types"
+import type {uint8, uint32, Color, Arrayable} from "../types"
 import {named_colors, is_named_color} from "./svg_colors"
 import {clamp} from "./math"
 import {isInteger, isString, isArray} from "./types"
+import {is_NDArray} from "./ndarray"
 
 const {round, sqrt} = Math
 
@@ -261,4 +262,53 @@ export function luminance(color: Color): number {
   // https://en.wikipedia.org/wiki/Relative_luminance
   const [r, g, b] = color2rgba(color)
   return (0.2126*r**2.2 + 0.7152*g**2.2 + 0.0722*b**2.2) / 255**2.2
+}
+
+/**
+ * Fetch a color value from an array or Nd-array at the given index.
+ */
+export function get_color_at(array: Arrayable<unknown>, i: number): Color | null {
+  if (is_NDArray(array)) {
+    const [n] = array.shape
+    const dim = array.dimension
+    if ((dim == 1 || dim == 2) && 0 <= i && i < n) {
+      if (array.dtype == "uint32" && dim == 1) {
+        return array[i]
+      } else if (array.dtype == "uint8" && dim == 1) {
+        const gray = array[i]
+        return [gray, gray, gray, 255]
+      } else if (array.dtype == "uint8" && dim == 2) {
+        const [n, d] = array.shape
+        if ((d == 3 || d == 4) && 0 <= i && i < n) {
+          const j = d*i
+          const red = array[j]
+          const green = array[j+1]
+          const blue = array[j+2]
+          const alpha = d == 3 ? 255 : array[j+3]
+          return [red, green, blue, alpha]
+        }
+      } else if ((array.dtype == "float32" || array.dtype == "float64") && dim == 2) {
+        const [n, d] = array.shape
+        if ((d == 3 || d == 4) && 0 <= i && i < n) {
+          const j = d*i
+          const red = array[j]*255
+          const green = array[j+1]*255
+          const blue = array[j+2]*255
+          const alpha = d == 3 ? 255 : array[j+3]*255
+          return [red, green, blue, alpha]
+        }
+      } else if (array.dtype == "object" && dim == 1) {
+        const value = array[i]
+        return isString(value) ? value : null
+      }
+    }
+  } else {
+    const n = array.length
+    if (0 <= i && i < n) {
+      const value = array[i]
+      return isString(value) ? value : null
+    }
+  }
+
+  return null
 }

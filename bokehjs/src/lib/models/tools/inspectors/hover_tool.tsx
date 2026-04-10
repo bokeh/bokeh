@@ -10,7 +10,7 @@ import type {Arrayable, Color, Dict} from "core/types"
 import type {MoveEvent} from "core/ui_events"
 import {assert, unreachable} from "core/util/assert"
 import type {BBox} from "core/util/bbox"
-import {color2css, color2hex} from "core/util/color"
+import {color2css, color2hex, get_color_at} from "core/util/color"
 import {entries} from "core/util/object"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute, execute_sync} from "core/util/callbacks"
@@ -57,6 +57,28 @@ function Value({children}: {children: ComponentChildren}) {
 
 function Swatch({color}: {color: Color}) {
   return <span class={hover_tool_css.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
+}
+
+function Color(props: {colname: string, source: ColumnarDataSource, index: Index | null, value?: boolean, hex?: boolean, swatch?: boolean}): VNode {
+  const {colname, source, index, value=false, hex=false, swatch=true} = props
+  const column = source.get_column(colname)
+
+  if (column == null) {
+    return <Value>{colname} unknown</Value>
+  } else {
+    const color = isNumber(index) ? get_color_at(column, index) : null
+
+    if (color == null) {
+      return <Value>(null)</Value>
+    } else {
+      return (
+        <>
+          {value ? <Value><pre>{hex ? color2hex(color) : color2css(color)}</pre></Value> : null}
+          {swatch ? <Swatch color={color}/> : null}
+        </>
+      )
+    }
+  }
 }
 
 class HTML extends Component<{children: Node[]}> {
@@ -773,42 +795,14 @@ export class HoverToolView extends InspectToolView {
 
         if (swatch_match != null) {
           const [, colname] = swatch_match
-          const column = ds.get_column(colname)
-
-          if (column == null) {
-            return <Value>{colname} unknown</Value>
-          } else {
-            const color = isNumber(index) ? column[index] : null
-
-            if (color == null) {
-              return <Value>(null)</Value>
-            } else {
-              return <Swatch color={color}/>
-            }
-          }
+          return <Color colname={colname} source={ds} index={index}/>
         }
 
         if (color_match != null) {
           const [, opts = "", colname] = color_match
-          const column = ds.get_column(colname) // XXX: change to columnar ds
-
-          if (column == null) {
-            return <Value>{colname} unknown</Value>
-          } else {
-            const hex = opts.indexOf("hex") >= 0
-            const swatch = opts.indexOf("swatch") >= 0
-            const color: Color | null = isNumber(index) ? column[index] : null
-            if (color == null) {
-              return <Value>(null)</Value>
-            } else {
-              return (
-                <>
-                  <Value><pre>{hex ? color2hex(color) : color2css(color)}</pre></Value>
-                  { swatch ? <Swatch color={color}/> : null}
-                </>
-              )
-            }
-          }
+          const hex = opts.includes("hex")
+          const swatch = opts.includes("swatch")
+          return <Color colname={colname} source={ds} index={index} value hex={hex} swatch={swatch}/>
         }
 
         return null
