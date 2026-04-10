@@ -111,12 +111,12 @@ describe("HoverTool", () => {
       ["index", "$index"],
       ["(x,y)", "($x, $y)"],
       ["radius", "@radius"],
-      ["hex & swatch (known)", "$color[hex, swatch]:colors"],
-      ["swatch & hex (known)", "$color[swatch, hex]:colors"],
-      ["hex, swatch (known)", "$color[hex]:colors $swatch:colors"],
-      ["swatch, hex (known)", "$swatch:colors $color[hex]:colors"],
-      ["hex (known)", "$color[hex]:colors"],
-      ["swatch (known)", "$swatch:colors"],
+      ["hex & swatch (known)", "$color[hex, swatch]:fill_color"],
+      ["swatch & hex (known)", "$color[swatch, hex]:fill_color"],
+      ["hex, swatch (known)", "$color[hex]:fill_color $swatch:fill_color"],
+      ["swatch, hex (known)", "$swatch:fill_color $color[hex]:fill_color"],
+      ["hex (known)", "$color[hex]:fill_color"],
+      ["swatch (known)", "$swatch:fill_color"],
       ["hex & swatch (unknown)", "$color[hex, swatch]:__colors"],
       ["swatch & hex (unknown)", "$color[swatch, hex]:__colors"],
       ["hex, swatch (unknown)", "$color[hex]:__colors $swatch:__colors"],
@@ -192,37 +192,39 @@ describe("HoverTool", () => {
   <div class="bk-tooltip-row">
     <div class="bk-tooltip-row-label">hex &amp; swatch (known): </div>
     <div class="bk-tooltip-row-value">
-      <span>colors unknown</span>
+      <span><pre>#ff0000</pre></span>
+      <span class="bk-tooltip-color-block" style="background-color: red;"></span>
     </div>
   </div>
   <div class="bk-tooltip-row">
     <div class="bk-tooltip-row-label">swatch &amp; hex (known): </div>
     <div class="bk-tooltip-row-value">
-      <span>colors unknown</span>
+      <span><pre>#ff0000</pre></span>
+      <span class="bk-tooltip-color-block" style="background-color: red;"></span>
     </div>
   </div>
   <div class="bk-tooltip-row">
     <div class="bk-tooltip-row-label">hex, swatch (known): </div>
     <div class="bk-tooltip-row-value">
-      <span>colors unknown</span>
+      <span class="bk-tooltip-color-block" style="background-color: red;"></span>
     </div>
   </div>
   <div class="bk-tooltip-row">
     <div class="bk-tooltip-row-label">swatch, hex (known): </div>
     <div class="bk-tooltip-row-value">
-      <span>colors unknown</span>
+      <span class="bk-tooltip-color-block" style="background-color: red;"></span>
     </div>
   </div>
   <div class="bk-tooltip-row">
     <div class="bk-tooltip-row-label">hex (known): </div>
     <div class="bk-tooltip-row-value">
-      <span>colors unknown</span>
+      <span><pre>#ff0000</pre></span>
     </div>
   </div>
   <div class="bk-tooltip-row">
     <div class="bk-tooltip-row-label">swatch (known): </div>
     <div class="bk-tooltip-row-value">
-      <span>colors unknown</span>
+      <span class="bk-tooltip-color-block" style="background-color: red;"></span>
     </div>
   </div>
   <div class="bk-tooltip-row">
