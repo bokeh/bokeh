@@ -13,6 +13,8 @@ import {ViewManager, ViewQuery} from "./view_manager"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
 
+import type {Signal as PreactSignal} from "@preact/signals"
+
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
 export type SerializableState = {
@@ -47,6 +49,8 @@ export abstract class View implements ISignalable, Equatable {
   readonly owner: ViewManager
 
   readonly views: ViewQuery = new ViewQuery(this)
+
+  readonly signals: {readonly [key: string]: PreactSignal<unknown>} = {}
 
   private _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -91,6 +95,14 @@ export abstract class View implements ISignalable, Equatable {
     } else {
       this.root = this.parent.root
       this.owner = this.root.owner
+    }
+
+    for (const prop of this.model) {
+      Object.defineProperty(this.signals, prop.attr, {
+        get() { return prop.signal },
+        configurable: false,
+        enumerable: true,
+      })
     }
   }
 

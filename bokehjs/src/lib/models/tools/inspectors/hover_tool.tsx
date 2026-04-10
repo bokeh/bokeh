@@ -1,6 +1,6 @@
 import type {ViewStorage, View, ViewOf} from "core/build_views"
 import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
-import {display, div, empty, span, undisplay} from "core/dom"
+import {div} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
@@ -11,7 +11,6 @@ import type {MoveEvent} from "core/ui_events"
 import {assert, unreachable} from "core/util/assert"
 import type {BBox} from "core/util/bbox"
 import {color2css, color2hex} from "core/util/color"
-import {enumerate} from "core/util/iterator"
 import {entries} from "core/util/object"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute, execute_sync} from "core/util/callbacks"
@@ -47,6 +46,10 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Nullable, Or, Str, Tuple, Enum, List} from "core/kinds"
 import {FilterDef} from "../../dom/value_ref"
 import type {FilterArgs} from "../../dom/value_ref"
+import type {VNode} from "core/vdom"
+
+import {render} from "preact"
+import {useRef, useEffect} from "preact/hooks"
 
 const Field = Str
 type Field = typeof Field["__type__"]
@@ -61,7 +64,7 @@ const SortBy = Nullable(Or(Field, List(Or(Field, SortColumn))))
 type SortBy = typeof SortBy["__type__"]
 
 type TooltipEntry = {
-  html: Element
+  html: Element | VNode
   vars: TooltipVars
   i: number  // index before any filtering (fullset)
   j: number  // index after all filtering (subset)
@@ -128,7 +131,8 @@ const COLOR_RE = /\$color(\[.*\])?:(\w*)/
 const SWATCH_RE = /\$swatch:(\w*)/
 
 export class HoverToolView extends InspectToolView {
-  declare model: HoverTool
+  declare readonly model: HoverTool
+  declare readonly signals: p.SignalsOf<HoverTool.Props>
 
   protected _current_sxy: [number, number, InspectDims] | null = null
   protected _current_bbox: BBox | null = null
@@ -628,11 +632,9 @@ export class HoverToolView extends InspectToolView {
     } else {
       const {content} = tooltip
       assert(content instanceof Node)
-      empty(content)
 
-      for (const {html} of entries) {
-        content.appendChild(html)
-      }
+      const entries_el = <>{entries.filter(({html}) => !(html instanceof Element)).map(({html}) => html)}</>
+      render(entries_el, content)
 
       const {vars} = entries.at(-1)!
       tooltip.show({x: vars.snap_sx, y: vars.snap_sy})
@@ -729,89 +731,97 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _create_template(tooltips: [string, string][]): HTMLElement {
-    const rows = div({style: {display: "table", borderSpacing: "2px"}})
+  _render_vdom(ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): VNode {
+    const tooltips = this.signals.tooltips.value
+    assert(isArray(tooltips))
 
-    for (const [label] of tooltips) {
-      const row = div({style: {display: "table-row"}})
-      rows.appendChild(row)
-
-      const label_cell = div({style: {display: "table-cell"}, class: styles.tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
-      row.appendChild(label_cell)
-
-      const value_el = span()
-      value_el.dataset.value = ""
-
-      const swatch_el = span({class: styles.tooltip_color_block}, " ")
-      swatch_el.dataset.swatch = ""
-      undisplay(swatch_el)
-
-      const value_cell = div({style: {display: "table-cell"}, class: styles.tooltip_row_value}, value_el, swatch_el)
-      row.appendChild(value_cell)
+    function Value({children}: {children: string | string[]}) {
+      return <span>{children}</span>
     }
 
-    return rows
-  }
+    function Swatch({color}: {color: Color}) {
+      return <span class={styles.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
+    }
 
-  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): HTMLElement {
-    const el = template.cloneNode(true) as HTMLElement
+    function HTML({children}: {children: Node[]}) {
+      const ref = useRef<HTMLElement | null>(null)
+      useEffect(() => ref.current!.replaceChildren(...children))
+      return <span ref={ref}></span>
+    }
 
-    const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
-    const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
-
-    for (const [[, value], j] of enumerate(tooltips)) {
+    const rows = []
+    for (const [label, value] of tooltips) {
       const swatch_match = value.match(SWATCH_RE)
       const color_match = value.match(COLOR_RE)
 
-      if (swatch_match == null && color_match == null) {
-        const content = replace_placeholders_html(value.replace("$~", "$data_"), ds, index, this.model.formatters, vars)
-        value_els[j].append(...content)
-        continue
-      }
+      const value_el = (() => {
+        if (swatch_match == null && color_match == null) {
+          const modified_value = value.replace("$~", "$data_") // ???
+          const content = replace_placeholders_html(modified_value, ds, index, this.model.formatters, vars)
+          return <HTML>{content}</HTML>
+        }
 
-      if (swatch_match != null) {
-        const [, colname] = swatch_match
-        const column = ds.get_column(colname)
+        if (swatch_match != null) {
+          const [, colname] = swatch_match
+          const column = ds.get_column(colname)
 
-        if (column == null) {
-          value_els[j].textContent = `${colname} unknown`
-        } else {
-          const color = isNumber(index) ? column[index] : null
+          if (column == null) {
+            return <Value>{colname} unknown</Value>
+          } else {
+            const color = isNumber(index) ? column[index] : null
 
-          if (color != null) {
-            swatch_els[j].style.backgroundColor = color2css(color)
-            display(swatch_els[j])
+            if (color == null) {
+              return <Value>(null)</Value>
+            } else {
+              return <Swatch color={color}/>
+            }
           }
         }
-      }
 
-      if (color_match != null) {
-        const [, opts = "", colname] = color_match
-        const column = ds.get_column(colname) // XXX: change to columnar ds
-        if (column == null) {
-          value_els[j].textContent = `${colname} unknown`
-          continue
-        }
-        const hex = opts.indexOf("hex") >= 0
-        const swatch = opts.indexOf("swatch") >= 0
-        const color: Color | null = isNumber(index) ? column[index] : null
-        if (color == null) {
-          value_els[j].textContent = "(null)"
-          continue
-        }
-        value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
-        if (swatch) {
-          swatch_els[j].style.backgroundColor = color2css(color)
-          display(swatch_els[j])
-        }
-      }
+        if (color_match != null) {
+          const [, opts = "", colname] = color_match
+          const column = ds.get_column(colname) // XXX: change to columnar ds
 
+          if (column == null) {
+            return <Value>{colname} unknown</Value>
+          } else {
+            const hex = opts.indexOf("hex") >= 0
+            const swatch = opts.indexOf("swatch") >= 0
+            const color: Color | null = isNumber(index) ? column[index] : null
+            if (color == null) {
+              return <Value>(null)</Value>
+            } else {
+              return (
+                <>
+                  <Value>{hex ? color2hex(color) : color2css(color)}</Value>
+                  { swatch ? <Swatch color={color}/> : null}
+                </>
+              )
+            }
+          }
+        }
+
+        return null
+      })()
+
+      const row = (
+        <div style={{display: "table-row"}}>
+          <div class={styles.tooltip_row_label} style={{display: "table-cell"}} >
+            {label.length != 0 ? `${label}: ` : ""}
+          </div>
+          <div class={styles.tooltip_row_value} style={{display: "table-cell"}} >
+            {value_el}
+          </div>
+        </div>
+      )
+
+      rows.push(row)
     }
 
-    return el
+    return <div style={{display: "table", borderSpacing: "2px"}}>{rows}</div>
   }
 
-  _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
+  _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | VNode | null {
     try {
       return this._render_tooltips(ds, vars)
     } catch (error) {
@@ -823,7 +833,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | null {
+  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | VNode | null {
     const {tooltips} = this.model
 
     // if we have an image_index, that is what replace_placeholders needs
@@ -840,8 +850,7 @@ export class HoverToolView extends InspectToolView {
       this._update_template(_template_view, ds, index, vars)
       return _template_view.el.cloneNode(true) as HTMLElement
     } else if (tooltips != null) {
-      const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
-      return this._render_template(template, tooltips, ds, index, vars)
+      return this._render_vdom(ds, index, vars)
     } else {
       return null
     }
