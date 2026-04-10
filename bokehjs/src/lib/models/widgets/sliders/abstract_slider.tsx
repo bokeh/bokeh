@@ -10,6 +10,7 @@ import {clamp, sign, minmax} from "core/util/math"
 import {range, min_by, copy} from "core/util/array"
 import {bisect_right} from "core/util/arrayable"
 import type {BBox, XY} from "core/util/bbox"
+import {isNumber} from "core/util/types"
 
 import * as sliders_css from "styles/widgets/sliders.css"
 
@@ -34,6 +35,7 @@ type SliderMeta<T> = SliderSpec<T> & {
   reversed: boolean
   ticks: number[] | null
   step_multiplier: number
+  readonly N: number
 }
 
 type HitType = "handle" | "track" | "span"
@@ -86,18 +88,10 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })()
     const step_multiplier = ticks != null ? 0.2*ticks.length : 1 // 20% of span
+    const N = spec.values.length
 
-    this._meta = {...spec, min, max, span, reversed, ticks, step_multiplier}
+    this._meta = {...spec, min, max, span, reversed, ticks, step_multiplier, N}
   }
-
-  /*
-  protected _update_value(): void {
-    this._meta.values = this._calc_to(this.model.value as T | T[])
-    for (const [value, handle_el] of zip(this._meta.values, this.handles)) {
-      this.move_to(handle_el, this._compute(value))
-    }
-  }
-  */
 
   protected _update_slider(): void {
     //this._update_state()
@@ -113,13 +107,14 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   protected hit_target(event: Event): HitTarget | null {
+    const {N} = this._meta
     for (const el of event.composedPath()) {
       for (const handle_el of this.handles) {
         if (el == handle_el) {
           return {type: "handle", el: handle_el}
         }
       }
-      if (el == this.span_el) {
+      if (N == 2 && el == this.span_el) {
         return {type: "span", el: this.span_el}
       }
       if (el == this.track_el) {
@@ -139,26 +134,39 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     return {type: "handle", el: handle_el}
   }
 
-  protected get_new_values(handle_el: HTMLElement, new_value: T): T[] {
-    const i = this.handles.indexOf(handle_el)
+  protected get_new_values(i_or_handle_el: number | HTMLElement, new_value: T): T[] {
+    const i = isNumber(i_or_handle_el) ? i_or_handle_el : this.handles.indexOf(i_or_handle_el)
     const new_values = copy(this._meta.values)
     new_values[i] = new_value
     return new_values
   }
 
-  protected drag(event: PointerEvent, state: DragState, throttle: boolean = false): void {
+  protected drag_to(xy: XY, state: DragState, throttle: boolean = false): void {
     const v = (() => {
       if (this.horizontal) {
-        const dx = event.x - state.xy.x
+        const dx = xy.x - state.xy.x
         return state.bbox.x + dx
       } else {
-        const dy = event.y - state.xy.y
+        const dy = xy.y - state.xy.y
         return state.bbox.y + dy
       }
     })()
 
+    /*
+    const {values} = this._meta
+    const new_values = copy(values)
+    switch (state.target.type) {
+      case "handle": {
+        values.map((v) => this._move_to(v))
+        break
+      }
+      case "span":
+      case "track":
+    }
+    */
+
     const handle_el = state.target.el
-    const new_value = this._move_to(handle_el, v)
+    const new_value = this._move_to(v)
 
     const new_values = this.get_new_values(handle_el, new_value)
     if (throttle) {
@@ -168,39 +176,42 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     }
   }
 
-  protected move(event: PointerEvent, handle_el: HTMLElement): void {
-    const {x, y} = bounding_box(this.track_el).relativize(event)
-    const new_value = this._move_to(handle_el, this.horizontal ? x : y)
+  protected move_to(xy: XY, handle_el: HTMLElement): void {
+    const {x, y} = bounding_box(this.track_el).relativize(xy)
+    const new_value = this._move_to(this.horizontal ? x : y)
     const new_values = this.get_new_values(handle_el, new_value)
     this._change(new_values)
   }
 
-  protected move_to(handle_el: HTMLElement, pos: number): T {
-    const size = box_size(this.track_el)
-    const px = this.horizontal ? pos*size.width : pos*size.height
-    return this._move_to(handle_el, px)
-  }
-
-  protected _move_to(_handle_el: HTMLElement, v: number): T {
+  protected _move_to(pixel_v: number): T {
     const {width, height} = box_size(this.track_el)
     const size = this.horizontal ? width : height
-    const sv = clamp(v, 0, size)
-    return this._invert(sv/size)
+    let sv = clamp(pixel_v, 0, size)/size
+    if (this._meta.reversed) {
+      sv = 1 - sv
+    }
+    return this._invert(sv)
   }
 
-  protected shift_by(handle_el: HTMLElement, factor: number): void {
-    const {min, max, values, step, compute, invert} = this._meta
+  protected shift_by(handles: HTMLElement[], factor: number): void {
+    const {min, max, values, step, reversed, compute, invert} = this._meta
     if (step == null) {
-      return
+      return // TODO use some fixed percentage
     }
 
-    const offset = factor*step
-    const i = this.handles.indexOf(handle_el)
-    const value = values[i]
-    const new_value = invert(clamp(compute(value) + offset, min, max))
-    this.move_to(handle_el, this._compute(new_value))
+    const sign = reversed ? -1 : 1
+    const offset = sign*factor*step
 
-    const new_values = this.get_new_values(handle_el, new_value)
+    const new_values = copy(values)
+
+    for (const handle_el of handles) {
+      const i = this.handles.indexOf(handle_el)
+      const value = values[i]
+      const new_synthetic = this._compute(invert(clamp(compute(value) + offset, min, max)))
+      const new_value = this._invert(new_synthetic)
+      new_values[i] = new_value
+    }
+
     this._change(new_values)
   }
 
@@ -210,7 +221,8 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     // TODO tooltips, start, end, step
     const {orientation, disabled, appearance, value} = this.signals
 
-    console.log(`${this}.component()`, value.value)
+    value.value // TODO currently this is read implicitly; also affects start, end, step
+    // value.subscribe((v) => console.log(v))
 
     const orientation_cls = sliders_css[orientation.value]
     const disabled_cls = disabled.value ? sliders_css.disabled : null
@@ -257,7 +269,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })()
 
-    const handles = this._meta.values.map((value, i) => {
+    const {reversed, values, N} = this._meta
+
+    const handles = values.map((value, i) => {
       const at = (() => {
         let sv = this._compute(value)
         const {reversed} = this._meta
@@ -272,11 +286,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       )
     })
 
-    const {reversed} = this._meta
-    const svs = this._meta.values.map((v) => this._compute(v))
-
     const [start, end] = (() => {
-      switch (svs.length) {
+      const svs = values.map((v) => this._compute(v))
+      switch (N) {
         case 1: {
           const [sv0, sv1] = [0, ...svs]
           return !reversed ? [sv0, sv1] : [1 - sv1, 1 - sv0]
@@ -291,6 +303,8 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })()
 
+    const draggable_cls = N == 2 ? sliders_css.draggable : null
+
     return (
       <UIComponent parent={this.resolved_props} class={cls(orientation_cls, disabled_cls, stealth_cls)}>
         {title_el}
@@ -303,7 +317,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
           onWheel={this._wheel.bind(this)}
         >
           <div class={sliders_css.track} ref={(el) => { this.track_el = el! }}>
-            <div class={sliders_css.span} style={{"--start": start, "--end": end}} ref={(el) => { this.span_el = el! }}></div>
+            <div class={cls(sliders_css.span, draggable_cls)} style={{"--start": start, "--end": end}} ref={(el) => { this.span_el = el! }}></div>
             {...handles}
           </div>
         </div>
@@ -324,6 +338,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       return
     }
     target.el.setPointerCapture(event.pointerId)
+    target.el.focus()
     event.preventDefault()
     const {x, y} = event
     const bbox = bounding_box(target.el, this.track_el) // ???
@@ -336,8 +351,8 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   protected _pointer_move(event: TargetedPointerEvent): void {
-    if (this._state != null && this._state.pointer == event.pointerId && this._state.target.type == "handle") {
-      this.drag(event, this._state, true)
+    if (this._state != null && this._state.pointer == event.pointerId) {
+      this.drag_to(event, this._state, true)
     }
   }
 
@@ -349,13 +364,11 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
   protected _pointer_up(event: TargetedPointerEvent): void {
     if (this._state != null && this._state.pointer == event.pointerId) {
-      if (this._state.target.type == "handle") {
-        this._state.target.el.focus()
-        this.drag(event, this._state)
+      if (this._state.target.type != "track") {
+        this.drag_to(event, this._state)
       } else if (this.handles.length == 1) {
         const [handle_el] = this.handles
-        handle_el.focus()
-        this.move(event, handle_el)
+        this.move_to(event, handle_el)
       }
       this._state = null
     }
@@ -365,9 +378,14 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     event.preventDefault()
     event.stopPropagation()
 
+    const {N} = this._meta
     const dy = sign(-event.deltaY)
-    const handle_el = this.nearest_handle(event).el
-    this.shift_by(handle_el, dy)
+    if (N == 2) {
+      this.shift_by(this.handles, dy)
+    } else {
+      const handle_el = this.nearest_handle(event).el
+      this.shift_by([handle_el], dy)
+    }
   }
 
   protected _keydown(event: KeyboardEvent): void {
@@ -390,21 +408,21 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         break
       }
       case this.horizontal ? "ArrowLeft" : "ArrowUp": {
-        this.shift_by(handle_el, -1)
+        this.shift_by([handle_el], -1)
         break
       }
       case this.horizontal ? "ArrowRight" : "ArrowDown": {
-        this.shift_by(handle_el, +1)
+        this.shift_by([handle_el], +1)
         break
       }
       case "PageDown": {
         const {step_multiplier} = this._meta
-        this.shift_by(handle_el, -step_multiplier)
+        this.shift_by([handle_el], -step_multiplier)
         break
       }
       case "PageUp": {
         const {step_multiplier} = this._meta
-        this.shift_by(handle_el, +step_multiplier)
+        this.shift_by([handle_el], +step_multiplier)
         break
       }
       default:
