@@ -49,8 +49,9 @@ import type {FilterArgs} from "../../dom/value_ref"
 import type {VNode} from "core/vdom"
 
 import {render, Component} from "preact"
+import type {ComponentChildren} from "preact"
 
-function Value({children}: {children: string | string[]}) {
+function Value({children}: {children: ComponentChildren}) {
   return <span>{children}</span>
 }
 
@@ -793,7 +794,7 @@ export class HoverToolView extends InspectToolView {
             } else {
               return (
                 <>
-                  <Value>{hex ? color2hex(color) : color2css(color)}</Value>
+                  <Value><pre>{hex ? color2hex(color) : color2css(color)}</pre></Value>
                   { swatch ? <Swatch color={color}/> : null}
                 </>
               )
