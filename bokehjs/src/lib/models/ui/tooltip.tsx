@@ -7,6 +7,8 @@ import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, parent} from "core/dom"
 import {bounding_box, box_size} from "core/dom"
+import {UIComponent, cls} from "core/vdom"
+import type {VNode} from "core/vdom"
 import {DOMElementView, bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
 import {assert} from "core/util/assert"
@@ -17,9 +19,6 @@ import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import {Model} from "model"
 
-import {render} from "preact"
-import {useRef, useEffect} from "preact/hooks"
-
 const NativeNode = globalThis.Node
 type NativeNode = globalThis.Node
 
@@ -27,7 +26,8 @@ import * as tooltips_css from "styles/tooltips.css"
 import * as icons_css from "styles/icons.css"
 
 export class TooltipView extends UIElementView {
-  declare model: Tooltip
+  declare readonly model: Tooltip
+  declare readonly signals: p.SignalsOf<Tooltip.Props>
 
   override get is_top_level(): boolean {
     return this.parent == null || parent(this.target, (node) => bokeh_element in node) == null
@@ -159,72 +159,51 @@ export class TooltipView extends UIElementView {
     return [...super.stylesheets(), tooltips_css.default, icons_css.default, this.position]
   }
 
-  get content(): NativeNode {
-    const {content} = this.model
-    if (isString(content)) {
-      return document.createTextNode(content)
-    } else if (content instanceof Model) {
-      assert(this._element_view != null)
-      return this._element_view.el
-    } else {
-      return content
-    }
-  }
-
   private _has_rendered: boolean = false
 
-  override render(): void {
-    super.render()
-
+  override component(): VNode {
     const {_element_view} = this
     if (_element_view != null) {
       _element_view.render()
       _element_view.r_after_render()
     }
 
-    const on_close = () => {
-      this.model.visible = false
-    }
-
-    function TooltipInner(props: {content: Node}) {
-      const content_el = useRef<HTMLDivElement>(null)
-      useEffect(() => {
-        content_el.current?.append(props.content)
-      }, [content_el])
-      return (
-        <>
-          <div class={tooltips_css.arrow}>
-            <div class={tooltips_css.arrow_inner}></div>
-          </div>
-          <div class={tooltips_css.tooltip_content} ref={content_el}></div>
-          <div class={tooltips_css.close} onClick={on_close}></div>
-        </>
-      )
-    }
-    render(<TooltipInner content={this.content}></TooltipInner>, this.shadow_el)
-
-    /* TODO after PR #14829
-    const closable_cls = tooltips_css.closable ? this.model.closable : null
-    const show_arrow_cls = tooltips_css.show_arrow ? this.model.show_arrow : null
-    const interactive_cls = tooltips_css.non_interactive ? !this.model.interactive : null
-
-    const el = (
-      <ShadowComponent popover="manual" class={cls(closable_cls, show_arrow_cls, interactive_cls)}>
-        <TooltipInner content={this.content}></TooltipInner>
-      </ShadowComponent>
-    )
-    */
-
-    this.class_list.toggle(tooltips_css.closable, this.model.closable)
-    this.el.setAttribute("popover", "manual") // "manual" allows multiple simultaneous popover elements
-
-    this.class_list.toggle(tooltips_css.show_arrow, this.model.show_arrow)
-    this.class_list.toggle(tooltips_css.non_interactive, !this.model.interactive)
-
     const target = this.target.shadowRoot ?? this.target
     target.append(this.el)
 
     this._has_rendered = true
+
+    const {closable, show_arrow, interactive, content} = this.signals
+
+    const closable_cls = closable.value ? tooltips_css.closable : null
+    const show_arrow_cls = show_arrow.value ? tooltips_css.show_arrow  : null
+    const interactive_cls = !interactive.value ? tooltips_css.non_interactive : null
+
+    const content_el = (() => {
+      if (isString(content.value)) {
+        return <div class={tooltips_css.tooltip_content}>{content}</div>
+      } else {
+        const child = (() => {
+          if (content.value instanceof Model) {
+            assert(this._element_view != null)
+            return this._element_view.el
+          } else {
+            return content.value
+          }
+        })()
+        return <div class={tooltips_css.tooltip_content} ref={(el) => el?.append(child)}/>
+      }
+    })()
+
+    return (
+      <UIComponent parent={this.resolved_props} class={cls(closable_cls, show_arrow_cls, interactive_cls)} popover="manual">
+        <div class={tooltips_css.arrow}>
+          <div class={tooltips_css.arrow_inner}/>
+        </div>
+        {content_el}
+        {closable.value ? <div class={tooltips_css.close} onClick={() => this.model.visible = false}/> : null}
+      </UIComponent>
+    )
   }
 
   override _after_render(): void {
