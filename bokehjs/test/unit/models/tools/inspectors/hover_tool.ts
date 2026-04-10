@@ -13,6 +13,31 @@ import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {ValidationError} from "@bokehjs/core/properties"
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {isNumber} from "@bokehjs/core/util/types"
+import type {VNode} from "@bokehjs/core/vdom"
+import {assert} from "@bokehjs/core/util/assert"
+
+import {render} from "preact"
+
+function outer_html(el: Element | VNode): string {
+  if (el instanceof Element) {
+    return el.outerHTML
+  } else {
+    const parent = document.createElement("div")
+    render(el, parent)
+    return parent.innerHTML
+  }
+}
+
+function outer_dom(el: Element | VNode): Element {
+  if (el instanceof Element) {
+    return el
+  } else {
+    const parent = document.createElement("div")
+    render(el, parent)
+    assert(parent.childElementCount == 1)
+    return parent.children[0]
+  }
+}
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: ScatterView}> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
@@ -62,21 +87,21 @@ describe("HoverTool", () => {
 
       const el0 = hover_view._render_tooltips(data_source, vars)
       expect_not_null(el0)
-      expect(el0.childElementCount).to.be.equal(3)
+      expect(outer_dom(el0).childElementCount).to.be.equal(3)
 
       hover_view.model.tooltips = [["foo", "$x"]]
       await hover_view.ready
 
       const el1 = hover_view._render_tooltips(data_source, vars)
       expect_not_null(el1)
-      expect(el1.childElementCount).to.be.equal(1)
+      expect(outer_dom(el1).childElementCount).to.be.equal(1)
 
       hover_view.model.tooltips = "<b>foo</b> is <i>$x</i>"
       await hover_view.ready
 
       const el2 = hover_view._render_tooltips(data_source, vars)
       expect_not_null(el2)
-      expect(el2.childElementCount).to.be.equal(2)
+      expect(outer_dom(el2).childElementCount).to.be.equal(2)
     })
   })
 
@@ -139,136 +164,118 @@ describe("HoverTool", () => {
     expect_not_null(el)
 
     const html = `\
-<div style="display: table; border-spacing: 2px;">
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">type: </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">Circle</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+<div class="bk-tooltip-entry">
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">type: </div>
+    <div class="bk-tooltip-row-value">
+      <span>Circle</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">index: </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">0</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">index: </div>
+    <div class="bk-tooltip-row-value">
+      <span>0</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">(x,y): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">(10, 20)</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">(x,y): </div>
+    <div class="bk-tooltip-row-value">
+      <span>(10, 20)</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">radius: </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">0.200</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">radius: </div>
+    <div class="bk-tooltip-row-value">
+      <span>0.200</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">hex &amp; swatch (known): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">hex &amp; swatch (known): </div>
+    <div class="bk-tooltip-row-value">
+      <span>colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch &amp; hex (known): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">swatch &amp; hex (known): </div>
+    <div class="bk-tooltip-row-value">
+      <span>colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">hex, swatch (known): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">hex, swatch (known): </div>
+    <div class="bk-tooltip-row-value">
+      <span>colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch, hex (known): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">swatch, hex (known): </div>
+    <div class="bk-tooltip-row-value">
+      <span>colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">hex (known): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">hex (known): </div>
+    <div class="bk-tooltip-row-value">
+      <span>colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch (known): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">swatch (known): </div>
+    <div class="bk-tooltip-row-value">
+      <span>colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">hex &amp; swatch (unknown): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">__colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">hex &amp; swatch (unknown): </div>
+    <div class="bk-tooltip-row-value">
+      <span>__colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch &amp; hex (unknown): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">__colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">swatch &amp; hex (unknown): </div>
+    <div class="bk-tooltip-row-value">
+      <span>__colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">hex, swatch (unknown): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">__colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">hex, swatch (unknown): </div>
+    <div class="bk-tooltip-row-value">
+      <span>__colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch, hex (unknown): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">__colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">swatch, hex (unknown): </div>
+    <div class="bk-tooltip-row-value">
+      <span>__colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">hex (unknown): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">__colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">hex (unknown): </div>
+    <div class="bk-tooltip-row-value">
+      <span>__colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">swatch (unknown): </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">__colors unknown</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">swatch (unknown): </div>
+    <div class="bk-tooltip-row-value">
+      <span>__colors unknown</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">foo: </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">abcd</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">foo: </div>
+    <div class="bk-tooltip-row-value">
+      <span>abcd</span>
     </div>
   </div>
-  <div style="display: table-row;">
-    <div class="bk-tooltip-row-label" style="display: table-cell;">bar: </div>
-    <div class="bk-tooltip-row-value" style="display: table-cell;">
-      <span data-value="">-1</span>
-      <span class="bk-tooltip-color-block" data-swatch="" style="display: none;"> </span>
+  <div class="bk-tooltip-row">
+    <div class="bk-tooltip-row-label">bar: </div>
+    <div class="bk-tooltip-row-value">
+      <span>-1</span>
     </div>
   </div>
 </div>
 `
-    expect(el.outerHTML).to.be.equal(html.trim().split("\n").map((s) => s.trim()).join(""))
+    expect(outer_html(el)).to.be.equal(html.trim().split("\n").map((s) => s.trim()).join(""))
   })
 
   const test_case = async () => {
