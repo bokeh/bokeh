@@ -1,6 +1,6 @@
 import type {ViewStorage, View, ViewOf} from "core/build_views"
 import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
-import {div} from "core/dom"
+import {div, empty} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
@@ -646,10 +646,18 @@ export class HoverToolView extends InspectToolView {
       tooltip.clear()
     } else {
       const {content} = tooltip
-      assert(content instanceof Node)
+      assert(content instanceof Element)
 
-      const entries_el = <>{entries.filter(({html}) => !(html instanceof Element)).map(({html}) => html)}</>
-      render(entries_el, content)
+      const items = entries.map(({html}) => html)
+      const elements = items.filter((el) => el instanceof Element)
+      const vnodes = items.filter((el): el is VNode => !(el instanceof Element))
+      if (elements.length != 0) {
+        empty(content)
+        content.append(...elements)
+      }
+      if (vnodes.length != 0) {
+        render(<>{vnodes}</>, content)
+      }
 
       const {vars} = entries.at(-1)!
       tooltip.show({x: vars.snap_sx, y: vars.snap_sy})
