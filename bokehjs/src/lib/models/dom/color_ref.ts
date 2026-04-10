@@ -6,7 +6,7 @@ import {_get_column_value} from "core/util/templating"
 import {span} from "core/dom"
 import type {PlainObject} from "core/types"
 import type * as p from "core/properties"
-import * as styles from "styles/tooltips.css"
+import * as styles from "styles/hover_tool.css"
 
 export class ColorRefView extends ValueRefView {
   declare model: ColorRef

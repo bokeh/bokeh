@@ -19,7 +19,7 @@ import type {Formatters, Index} from "core/util/templating"
 import {replace_placeholders_html, get_value, Skip} from "core/util/templating"
 import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
-import * as styles from "styles/tooltips.css"
+import * as hover_tool_css from "styles/hover_tool.css"
 import {Tooltip} from "../../ui/tooltip"
 import {DOMElement} from "../../dom/dom_element"
 import {PlaceholderView} from "../../dom/placeholder"
@@ -56,7 +56,7 @@ function Value({children}: {children: ComponentChildren}) {
 }
 
 function Swatch({color}: {color: Color}) {
-  return <span class={styles.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
+  return <span class={hover_tool_css.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
 }
 
 class HTML extends Component<{children: Node[]}> {
@@ -227,6 +227,7 @@ export class HoverToolView extends InspectToolView {
     const {computed_renderers} = this
     for (const r of computed_renderers) {
       const tooltip = new Tooltip({
+        stylesheets: [hover_tool_css.default],
         content: document.createElement("div"),
         attachment: this.model.attachment,
         show_arrow: this.model.show_arrow,
@@ -814,11 +815,11 @@ export class HoverToolView extends InspectToolView {
       })()
 
       const row = (
-        <div class={styles.tooltip_row}>
-          <div class={styles.tooltip_row_label}>
+        <div class={hover_tool_css.tooltip_row}>
+          <div class={hover_tool_css.tooltip_row_label}>
             {label.length != 0 ? `${label}: ` : ""}
           </div>
-          <div class={styles.tooltip_row_value}>
+          <div class={hover_tool_css.tooltip_row_value}>
             {value_el}
           </div>
         </div>
@@ -827,7 +828,7 @@ export class HoverToolView extends InspectToolView {
       rows.push(row)
     }
 
-    return <div class={styles.tooltip_entry}>{rows}</div>
+    return <div class={hover_tool_css.tooltip_entry}>{rows}</div>
   }
 
   _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | VNode | null {
