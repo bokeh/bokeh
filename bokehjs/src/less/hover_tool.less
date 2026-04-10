@@ -1,13 +1,20 @@
+.bk-tooltip-entry {
+  display: table;
+  border-spacing: 2px;
+}
+
+.bk-tooltip-row {
+  display: table-row;
+}
 
 .bk-tooltip-row-label {
+  display: table-cell;
   text-align: right;
-  color: #26aae1;  /* blue from toolbar highlighting */
+  color: #26aae1; // --highlight-color not as lively
 }
 
 .bk-tooltip-row-value {
-/* XXX: 'default' is not a color
-  color: default; // seems to be necessary for notebook
-*/
+  display: table-cell;
   color: none;
 }
 
@@ -16,6 +23,6 @@
   height: 12px;
   margin-left: 5px;
   margin-right: 5px;
-  outline: #dddddd solid 1px;
+  outline: var(--divider-color) solid 1px;
   display: inline-block;
 }

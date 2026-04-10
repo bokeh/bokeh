@@ -805,11 +805,11 @@ export class HoverToolView extends InspectToolView {
       })()
 
       const row = (
-        <div style={{display: "table-row"}}>
-          <div class={styles.tooltip_row_label} style={{display: "table-cell"}} >
+        <div class={styles.tooltip_row}>
+          <div class={styles.tooltip_row_label}>
             {label.length != 0 ? `${label}: ` : ""}
           </div>
-          <div class={styles.tooltip_row_value} style={{display: "table-cell"}} >
+          <div class={styles.tooltip_row_value}>
             {value_el}
           </div>
         </div>
@@ -818,7 +818,7 @@ export class HoverToolView extends InspectToolView {
       rows.push(row)
     }
 
-    return <div style={{display: "table", borderSpacing: "2px"}}>{rows}</div>
+    return <div class={styles.tooltip_entry}>{rows}</div>
   }
 
   _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | VNode | null {
