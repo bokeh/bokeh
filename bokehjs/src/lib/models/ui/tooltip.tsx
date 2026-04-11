@@ -11,7 +11,6 @@ import {UIComponent, cls} from "core/vdom"
 import type {VNode} from "core/vdom"
 import {DOMElementView, bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
-import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
 import type {View, ViewOf} from "core/build_views"
@@ -25,30 +24,28 @@ type NativeNode = globalThis.Node
 import * as tooltips_css from "styles/tooltips.css"
 import * as icons_css from "styles/icons.css"
 
+import {signal, computed, effect} from "@preact/signals"
+
 export class TooltipView extends UIElementView {
   declare readonly model: Tooltip
   declare readonly signals: p.SignalsOf<Tooltip.Props>
 
   override get is_top_level(): boolean {
-    return this.parent == null || parent(this.target, (node) => bokeh_element in node) == null
+    return this.parent == null || parent(this.target.value, (node) => bokeh_element in node) == null
   }
 
   protected _observer: ResizeObserver
 
-  private _target: Element
-  get target(): Element {
-    return this._target
-  }
-  set target(el: Element) {
-    this._target = el
-  }
-
   readonly position = new InlineStyleSheet()
 
-  protected _init_target(): void {
-    const {target} = this.model
+  readonly target_override = signal<Element | null>(null)
+  readonly target = computed(() => {
+    const target_override = this.target_override.value
+    const target = this.signals.target.value
     const el = (() => {
-      if (target instanceof UIElement) {
+      if (target_override != null) {
+        return target_override
+      } else if (target instanceof UIElement) {
         return this.owner.find_one(target)?.el ?? null
       } else if (target instanceof Selector) {
         return target.find_one(document)
@@ -60,18 +57,20 @@ export class TooltipView extends UIElementView {
       }
     })()
 
-    if (el instanceof Element) {
-      this._target = el
-    } else {
-      logger.warn(`unable to resolve target '${target}' for '${this}'`)
-      this._target = document.body
-    }
-  }
+    const ell = (() => {
+      if (el instanceof Element) {
+        return el
+      } else {
+        logger.warn(`unable to resolve target '${target}' for '${this}'`)
+        return document.body
+      }
+    })()
 
-  override initialize(): void {
-    super.initialize()
-    this._init_target()
-  }
+    this._observer.disconnect()
+    this._observer.observe(ell)
+
+    return ell
+  })
 
   protected _element_view: ViewOf<DOMNode | UIElement> | null = null
 
@@ -91,11 +90,19 @@ export class TooltipView extends UIElementView {
       this._element_view = null
     }
 
-    const {content} = this.model
+    const content = this.signals.content.value
     if (content instanceof Model) {
-      this._element_view = await build_view(content, {parent: this})
+      const view = await build_view(content, {parent: this})
+      this._element_view = view
+      view.render()
+      view.r_after_render()
+      this.computed_content.value = view.el
+    } else {
+      this.computed_content.value = content
     }
   }
+
+  readonly computed_content = signal<string | NativeNode>("")
 
   private _scroll_listener?: () => void
 
@@ -105,7 +112,6 @@ export class TooltipView extends UIElementView {
     this._observer = new ResizeObserver(() => {
       this._reposition()
     })
-    this._observer.observe(this.target)
 
     let throttle = false
     document.addEventListener("scroll", this._scroll_listener = () => {
@@ -119,25 +125,13 @@ export class TooltipView extends UIElementView {
       }
     }, {capture: true})
 
-    const {target, content, closable, interactive, position, attachment, visible} = this.model.properties
-    this.on_change(target, () => {
-      this._init_target()
-      this._observer.disconnect()
-      this._observer.observe(this.target)
-      this.render()
-      this.after_render()
-    })
-    this.on_change(content, async () => {
-      await this._build_content()
-      this.render()
-      this.after_render()
-    })
-    this.on_change([closable, interactive], () => {
-      this.render()
-      this.after_render()
-    })
+    const {position, attachment, visible} = this.model.properties
     this.on_change([position, attachment, visible], () => {
       this._reposition()
+    })
+
+    effect(() => {
+      void this._build_content()
     })
   }
 
@@ -146,11 +140,11 @@ export class TooltipView extends UIElementView {
       document.removeEventListener("scroll", this._scroll_listener, {capture: true})
       delete this._scroll_listener
     }
+    this._observer.disconnect()
     super.disconnect_signals()
   }
 
   override remove(): void {
-    this._observer.disconnect()
     this._element_view?.remove()
     super.remove()
   }
@@ -159,42 +153,23 @@ export class TooltipView extends UIElementView {
     return [...super.stylesheets(), tooltips_css.default, icons_css.default, this.position]
   }
 
-  private _has_rendered: boolean = false
-
   override component(): VNode {
-    const {_element_view} = this
-    if (_element_view != null) {
-      _element_view.render()
-      _element_view.r_after_render()
-    }
-
-    const target = this.target.shadowRoot ?? this.target
-    target.append(this.el)
-
-    this._has_rendered = true
-
-    const {closable, show_arrow, interactive, content} = this.signals
+    const {closable, show_arrow, interactive} = this.signals
 
     const closable_cls = closable.value ? tooltips_css.closable : null
     const show_arrow_cls = show_arrow.value ? tooltips_css.show_arrow  : null
     const interactive_cls = !interactive.value ? tooltips_css.non_interactive : null
 
     const content_el = (() => {
-      if (isString(content.value)) {
+      const content = this.computed_content.value
+      if (isString(content)) {
         return <div class={tooltips_css.tooltip_content}>{content}</div>
       } else {
-        const child = (() => {
-          if (content.value instanceof Model) {
-            assert(this._element_view != null)
-            return this._element_view.el
-          } else {
-            return content.value
-          }
-        })()
-        return <div class={tooltips_css.tooltip_content} ref={(el) => el?.append(child)}/>
+        return <div class={tooltips_css.tooltip_content} ref={(el) => el?.append(content)}/>
       }
     })()
 
+    this._has_rendered = true
     return (
       <UIComponent parent={this.resolved_props} class={cls(closable_cls, show_arrow_cls, interactive_cls)} popover="manual">
         <div class={tooltips_css.arrow}>
@@ -205,6 +180,8 @@ export class TooltipView extends UIElementView {
       </UIComponent>
     )
   }
+
+  private _has_rendered: boolean = false
 
   override _after_render(): void {
     super._after_render()
@@ -231,12 +208,16 @@ export class TooltipView extends UIElementView {
   }
 
   protected _reposition(): void {
-    const target = this.target.shadowRoot ?? this.target
+    const target_el = (() => {
+      const target = this.target.value
+      return target.shadowRoot ?? target
+    })()
 
     if (!this._has_rendered) {
-      this.render_to(target)
-      this.after_render()
-      return                 // render() calls _reposition()
+      this.render_to(target_el)
+      this.r_after_render()
+    } else {
+      target_el.append(this.el)
     }
 
     const {position, visible} = this.model
@@ -251,7 +232,7 @@ export class TooltipView extends UIElementView {
 
     this.el.showPopover()
 
-    const bbox = bounding_box(this.target)
+    const bbox = bounding_box(this.target.value)
     const [sx, sy] = (() => {
       if (isString(position)) {
         const {v: v_align, h: h_align} = this._anchor_to_align(position)

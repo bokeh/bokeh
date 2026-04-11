@@ -110,7 +110,7 @@ export abstract class InputWidgetView extends ControlView {
         desc_el.title = description
       } else {
         if (description.model.target == "auto") {
-          description.target = desc_el
+          description.target_override.value = desc_el
         }
 
         let persistent = false
