@@ -165,7 +165,7 @@ export class TooltipView extends UIElementView {
       if (isString(content)) {
         return <div class={tooltips_css.tooltip_content}>{content}</div>
       } else {
-        return <div class={tooltips_css.tooltip_content} ref={(el) => el?.append(content)}/>
+        return <div class={tooltips_css.tooltip_content} ref={(el) => el?.replaceChildren(content)}/>
       }
     })()
 
