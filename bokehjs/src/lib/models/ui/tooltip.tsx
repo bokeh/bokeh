@@ -393,8 +393,12 @@ export class TooltipView extends UIElementView {
         top: ${sy}px;
       }
     `)
+  }
 
-    this.update_bbox()
+  // Compute on demand; remove when bbox support is redesigned
+  override get bbox(): BBox {
+    this._update_bbox()
+    return super.bbox
   }
 }
 
