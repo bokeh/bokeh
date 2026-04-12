@@ -4847,7 +4847,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #15004", () => {
-    it("should recalculate layout when min_border properties are changed", async () => {
+    it("doesn't allow to recalculate layout when min_border property is changed", async () => {
       const p = fig([400, 400], {
         min_border: 0,
       })
