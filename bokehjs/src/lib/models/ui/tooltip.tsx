@@ -26,6 +26,9 @@ import * as icons_css from "styles/icons.css"
 
 import {signal, computed, effect} from "@preact/signals"
 
+// TODO add support for anchor positioning and remove observers and wheel event listeners
+// const has_anchor_positioning = CSS.supports("top", "anchor(top)")
+
 export class TooltipView extends UIElementView {
   declare readonly model: Tooltip
   declare readonly signals: p.SignalsOf<Tooltip.Props>
@@ -194,7 +197,7 @@ export class TooltipView extends UIElementView {
   }
 
   private _anchor_to_align(anchor: Anchor): {v: VAlign, h: HAlign} {
-    anchor = (() => {
+    const normalized_anchor = (() => {
       switch (anchor) {
         case "top":    return "top_center"
         case "bottom": return "bottom_center"
@@ -203,13 +206,13 @@ export class TooltipView extends UIElementView {
         default:       return anchor
       }
     })()
-    const [v, h] = anchor.split("_") as [VAlign, HAlign]
+    const [v, h] = normalized_anchor.split("_") as [VAlign, HAlign]
     return {v, h}
   }
 
   protected _reposition(): void {
+    const target = this.target.value
     const target_el = (() => {
-      const target = this.target.value
       return target.shadowRoot ?? target
     })()
 
@@ -230,9 +233,9 @@ export class TooltipView extends UIElementView {
       return
     }
 
-    this.el.showPopover()
+    this.el.showPopover({source: target})
 
-    const bbox = bounding_box(this.target.value)
+    const bbox = bounding_box(target)
     const [sx, sy] = (() => {
       if (isString(position)) {
         const {v: v_align, h: h_align} = this._anchor_to_align(position)
