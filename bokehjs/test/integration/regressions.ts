@@ -4846,6 +4846,22 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #15004", () => {
+    it("should recalculate layout when min_border properties are changed", async () => {
+      const p = fig([400, 400], {
+        min_border: 0,
+      })
+      p.scatter([1, 2, 3], [1, 2, 3])
+      const {view} = await display(p)
+      const plot_view = view.owner.get_one(p)
+      const initial_width = plot_view.frame.bbox.width
+      p.min_border = 100
+      await view.ready
+      const new_width = plot_view.frame.bbox.width
+      expect(new_width).to.be.below(initial_width)
+    })
+  })
+
   describe("in issue #8787", () => {
     it("doesn't show hover for multi line when values decrease", async () => {
       const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
