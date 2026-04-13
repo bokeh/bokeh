@@ -19,7 +19,11 @@ export class LightDarkView extends SwitchView {
 
   override render(): void {
     super.render()
-    this._update_scheme()
+    if (this.model.active == null) {
+      this._update_active_from_config()
+    } else {
+      this._update_scheme()
+    }
   }
 
   protected _update_scheme(): void {

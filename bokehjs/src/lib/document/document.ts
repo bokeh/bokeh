@@ -256,7 +256,6 @@ export class Document implements Equatable {
     }
 
     dest_doc.config = config
-    dest_doc.config.on_change(dest_doc.config.properties.color_scheme, () => dest_doc.set_color_scheme(dest_doc.config.color_scheme))
 
     for (const root of roots) {
       dest_doc.add_root(root)
@@ -583,7 +582,8 @@ export class Document implements Equatable {
     assert(config instanceof DocumentConfig || config == null)
     if (config != null) {
       doc.config = config
-      doc.config.on_change(doc.config.properties.color_scheme, () => doc.set_color_scheme(doc.config.color_scheme))
+      doc.set_color_scheme(config.color_scheme)
+      config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
     }
 
     const roots = deserializer.decode(doc_json.roots, buffers) as Model[]

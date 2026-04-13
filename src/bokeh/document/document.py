@@ -166,7 +166,7 @@ class Document:
         ''' A list of all the root models in this document.
 
         '''
-        return list(self._roots)
+        return [*list(self._roots), self.config]
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:
