@@ -20,6 +20,23 @@ basis for integration of Bokeh in such a scenario:
    # start timers and services and immediately return
    server.start()
 
+If your server should honor the same environment variables and configuration
+files used by ``bokeh serve`` (for example, ``BOKEH_AUTH_MODULE``,
+``BOKEH_SSL_CERTFILE``, ``BOKEH_SIGN_SESSIONS``), use the
+:meth:`~bokeh.server.server.Server.from_settings` factory method instead:
+
+.. code-block:: python
+
+   from bokeh.server.server import Server
+
+   server = Server.from_settings(
+       bokeh_applications,  # list of Bokeh applications
+       io_loop=loop,        # Tornado IOLoop
+       **server_kwargs
+   )
+
+   server.start()
+
 You can also create and control an ``IOLoop`` directly. This can be useful when
 creating standalone "normal" Python scripts that serve Bokeh apps or embedding
 a Bokeh application in a framework like Flask or Django without having to run a
