@@ -155,14 +155,18 @@ export abstract class UIElementView extends StyledElementView {
     super.remove()
   }
 
-  private _resized: boolean = false
+  private _resized: boolean | null = false // null => needs manual after_resize()
 
   protected _after_resize(): void {}
 
   after_resize(): void {
-    this._resized = true
-    this._after_resize()
-    this.finish()
+    if (this._was_built) {
+      this._resized = true
+      this._after_resize()
+      this.finish()
+    } else {
+      this._resized = null
+    }
   }
 
   override render(): void {
@@ -186,8 +190,11 @@ export abstract class UIElementView extends StyledElementView {
         // In case after_resize() wasn't called (see regression test for issue
         // #9113), then wait one macro task and consider this view finished.
         void defer().then(() => {
-          if (!this._resized) {
+          if (this._resized === false) {
+            this._resized = true
             this.finish()
+          } else if (this._resized === null) {
+            this.after_resize()
           }
         })
       }
