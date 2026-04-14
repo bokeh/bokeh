@@ -19,9 +19,6 @@ export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
     }
   }
 
-  protected _calc_to(value: number[]): number[] {
-    return value
-  }
   protected _calc_from(values: number[]): number[] {
     return values
   }
