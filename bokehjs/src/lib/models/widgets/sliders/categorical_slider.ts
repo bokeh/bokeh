@@ -24,9 +24,6 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
     }
   }
 
-  protected _calc_to(value: string): string[] {
-    return [value]
-  }
   protected _calc_from([value]: string[]): string {
     return value
   }
