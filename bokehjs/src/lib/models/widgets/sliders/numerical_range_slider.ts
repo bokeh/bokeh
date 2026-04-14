@@ -3,10 +3,12 @@ import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_sli
 import type * as p from "core/properties"
 
 export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
-  declare model: NumericalRangeSlider
+  declare readonly model: NumericalRangeSlider
+  declare readonly signals: p.SignalsOf<NumericalRangeSlider.Props>
+  declare readonly values: NumericalRangeSlider.Attrs
 
   protected _calc_spec(): SliderSpec<number> {
-    const {start, end, step, value} = this.model
+    const {start, end, step, value} = this.values
     return {
       start,
       end,

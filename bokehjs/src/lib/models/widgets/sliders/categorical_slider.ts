@@ -4,17 +4,12 @@ import type * as p from "core/properties"
 import {isNumber} from "core/util/types"
 
 export class CategoricalSliderView extends AbstractSliderView<string> {
-  declare model: CategoricalSlider
-
-  override connect_signals(): void {
-    super.connect_signals()
-
-    const {categories} = this.model.properties
-    this.on_change([categories], () => this._update_slider())
-  }
+  declare readonly model: CategoricalSlider
+  declare readonly signals: p.SignalsOf<CategoricalSlider.Props>
+  declare readonly values: CategoricalSlider.Attrs
 
   protected _calc_spec(): SliderSpec<string> {
-    const {categories, value} = this.model
+    const {categories, value} = this.values
     return {
       start: 0,
       end: categories.length - 1,

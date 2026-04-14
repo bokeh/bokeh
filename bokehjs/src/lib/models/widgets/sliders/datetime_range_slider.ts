@@ -5,7 +5,9 @@ import {isString} from "core/util/types"
 import {datetime} from "core/util/templating"
 
 export class DatetimeRangeSliderView extends NumericalRangeSliderView {
-  declare model: DatetimeRangeSlider
+  declare readonly model: DatetimeRangeSlider
+  declare readonly signals: p.SignalsOf<DatetimeRangeSlider.Props>
+  declare readonly values: DatetimeRangeSlider.Attrs
 
   protected _formatter(value: number, format: string | TickFormatter): string {
     if (isString(format)) {

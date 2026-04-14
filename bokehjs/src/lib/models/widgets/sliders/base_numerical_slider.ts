@@ -3,14 +3,9 @@ import {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 
 export abstract class BaseNumericalSliderView extends AbstractSliderView<number> {
-  declare model: BaseNumericalSlider
-
-  override connect_signals(): void {
-    super.connect_signals()
-
-    const {start, end, step} = this.model.properties
-    this.on_change([start, end, step], () => this._update_slider())
-  }
+  declare readonly model: BaseNumericalSlider
+  declare readonly signals: p.SignalsOf<BaseNumericalSlider.Props>
+  declare readonly values: BaseNumericalSlider.Attrs
 
   protected abstract _formatter(value: number, format: string | TickFormatter): string
 

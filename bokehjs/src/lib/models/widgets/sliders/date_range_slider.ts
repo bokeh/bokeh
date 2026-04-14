@@ -6,14 +6,18 @@ import {isString} from "core/util/types"
 import {datetime} from "core/util/templating"
 
 export class DateRangeSliderView extends NumericalRangeSliderView {
-  declare model: DateRangeSlider
+  declare readonly model: DateRangeSlider
+  declare readonly signals: p.SignalsOf<DateRangeSlider.Props>
+  declare readonly values: DateRangeSlider.Attrs
 
   protected override _calc_spec(): SliderSpec<number> {
     const spec = super._calc_spec()
-    if (spec.step != null) {
-      spec.step *= 86_400_000
+    const {step} = spec
+    if (step != null) {
+      return {...spec, step: step*86_400_000}
+    } else {
+      return spec
     }
-    return spec
   }
 
   protected _formatter(value: number, format: string | TickFormatter): string {
