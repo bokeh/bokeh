@@ -11,9 +11,15 @@ text_scheme = TextInput(
     value="auto",
     disabled=True,
 )
-light_dark.js_on_change("active", CustomJS(args=dict(text_scheme=text_scheme), code="""
+light_dark.js_on_change(
+    "active",
+    CustomJS(
+        args=dict(text_scheme=text_scheme),
+        code="""
     text_scheme.value = cb_obj.document.config.color_scheme
-"""))
+""",
+    ),
+)
 
 w0 = Button(label="Button")
 w1 = Toggle(label="Toggle")
@@ -21,7 +27,8 @@ w2 = Dropdown(label="Dropdown")
 w3 = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 w4 = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 w5 = CheckboxButtonGroup(
-    labels=["Option 1", "Option 2", "Option 3"], active=[0, 1],
+    labels=["Option 1", "Option 2", "Option 3"],
+    active=[0, 1],
 )
 w6 = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 w7 = TextInput(
@@ -44,4 +51,11 @@ w_columns = [
     column([w5, w6, w7, w8, w9, w10, w11, w12]),
 ]
 
-show([row(w_columns)])
+show(
+    row(
+        w_columns,
+        stylesheets=[
+            ":host { background-color: var(--background-color); color: var(--color);}",
+        ],
+    ),
+)
