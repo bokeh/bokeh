@@ -3,10 +3,12 @@ import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_sli
 import type * as p from "core/properties"
 
 export abstract class MultiValuedSliderView extends BaseNumericalSliderView {
-  declare model: MultiValuedSlider
+  declare readonly model: MultiValuedSlider
+  declare readonly signals: p.SignalsOf<MultiValuedSlider.Props>
+  declare readonly values: MultiValuedSlider.Attrs
 
   protected _calc_spec(): SliderSpec<number> {
-    const {start, end, step, value} = this.model
+    const {start, end, step, value} = this.values
     return {
       start,
       end,
