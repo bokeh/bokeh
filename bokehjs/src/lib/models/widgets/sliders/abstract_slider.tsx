@@ -160,11 +160,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const new_value = this._move_to(v)
 
     const new_values = this.get_new_values(handle_el, new_value)
-    if (throttle) {
-      this._throttled_change(new_values)
-    } else {
-      this._change(new_values)
-    }
+    this._change(new_values, throttle)
   }
 
   protected move_to(xy: XY, handle_el: HTMLElement): void {
@@ -416,13 +412,13 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     }
   }
 
-  protected _throttled_change(values: T[]): void {
-    this.model.value = this._calc_from(values)
-  }
-
-  protected _change(values: T[]): void {
+  protected _change(values: T[], throttle: boolean = false): void {
     const value = this._calc_from(values)
-    this.model.setv({value, value_throttled: value})
+    if (throttle) {
+      this.model.value = value
+    } else {
+      this.model.setv({value, value_throttled: value})
+    }
   }
 
   protected abstract _calc_spec(): SliderSpec<T>
