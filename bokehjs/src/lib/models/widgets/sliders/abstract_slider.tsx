@@ -203,8 +203,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   override component(): VNode {
-    // TODO tooltips
-    const {orientation, disabled, appearance} = this.signals
+    const {orientation, disabled, appearance, tooltips} = this.signals
     const {meta} = this
 
     const orientation_cls = sliders_css[orientation.value]
@@ -264,8 +263,16 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         return sv
       })()
       return (
-        <div class={sliders_css.handle} tabIndex={0} style={{"--at": `${at}`}} aria-valuetext={this.pretty(value)}
-          onKeyDown={this._keydown.bind(this)} ref={(el) => { this.handles[i] = el! }}></div>
+        <div
+          class={sliders_css.handle}
+          tabIndex={0}
+          style={{"--at": `${at}`}}
+          aria-valuetext={this.pretty(value)}
+          onKeyDown={this._keydown.bind(this)}
+          ref={(el) => { this.handles[i] = el! }}
+        >
+          {tooltips.value ? <div class={sliders_css.tooltip}>{this.pretty(value)}</div> : null}
+        </div>
       )
     })
 
