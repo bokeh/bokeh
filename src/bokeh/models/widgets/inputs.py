@@ -317,7 +317,7 @@ class ToggleInput(Widget):
     """)
 
     tri_state = Bool(default=False, help="""
-    Allow handle of third intermediate state of the widget (active=null).
+    Allow handle of third intermediate state of the widget (``active = None``).
     """)
 
 class Checkbox(ToggleInput):
@@ -335,12 +335,15 @@ class Switch(ToggleInput):
         super().__init__(*args, **kwargs)
 
     on_icon = Nullable(IconLike, default=None, help="""
+    Icon to represent widget on state (``active = True``).
     """)
 
     off_icon = Nullable(IconLike, default=None, help="""
+    Icon to represent widget off state (``active = False``).
     """)
 
     indeterminate_icon = Nullable(IconLike, default=None, help="""
+    Icon to represent widget indeterminate state (``active = None``).
     """)
 
 class LightDark(Switch):

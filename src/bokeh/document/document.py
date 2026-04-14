@@ -166,7 +166,9 @@ class Document:
         ''' A list of all the root models in this document.
 
         '''
-        return [*list(self._roots), self.config]
+        # TODO: config serialization
+        # return [*list(self._roots), self.config]
+        return list(self._roots)
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:
@@ -385,6 +387,8 @@ class Document:
             None
 
         '''
+        # TODO: config serialization. Not passing config here causes an
+        # `UnknownReferenceError`
         deserializer = Deserializer([*list(self.models), self.config], setter=setter)
 
         try:
