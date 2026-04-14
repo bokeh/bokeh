@@ -148,3 +148,31 @@
     opacity: 0;
   }
 }
+
+.bk-tooltip {
+  display: none;
+  position: absolute;
+  white-space: nowrap;
+  padding: 0.25em;
+  border: 1px solid var(--divider-color);
+  background-color: var(--background-color);
+}
+.bk-handle:hover {
+  .bk-tooltip {
+    display: block;
+  }
+}
+:host(.bk-horizontal) {
+  .bk-tooltip {
+    left: 50%;
+    bottom: 100%;
+    transform: translate(-50%, 0);
+  }
+}
+:host(.bk-vertical) {
+  .bk-tooltip {
+    right: 100%;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+}
