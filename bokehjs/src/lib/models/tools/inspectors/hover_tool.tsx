@@ -788,8 +788,7 @@ export class HoverToolView extends InspectToolView {
 
       const value_el = (() => {
         if (swatch_match == null && color_match == null) {
-          const modified_value = value.replace("$~", "$data_") // ???
-          const content = replace_placeholders_html(modified_value, ds, index, this.model.formatters, vars)
+          const content = replace_placeholders_html(value, ds, index, this.model.formatters, vars)
           return <HTML>{content}</HTML>
         }
 
