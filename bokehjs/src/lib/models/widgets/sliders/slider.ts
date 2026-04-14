@@ -6,7 +6,9 @@ import type * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class SliderView extends NumericalSliderView {
-  declare model: Slider
+  declare readonly model: Slider
+  declare readonly signals: p.SignalsOf<Slider.Props>
+  declare readonly values: Slider.Attrs
 
   protected _formatter(value: number, format: string | TickFormatter): string {
     if (isString(format)) {

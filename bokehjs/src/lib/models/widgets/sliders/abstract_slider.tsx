@@ -14,27 +14,29 @@ import {isNumber} from "core/util/types"
 
 import * as sliders_css from "styles/widgets/sliders.css"
 
+import {computed} from "@preact/signals"
+
 type TargetedPointerEvent = TargetedEvent<HTMLElement, PointerEvent>
 type TargetedWheelEvent = TargetedEvent<HTMLElement, WheelEvent>
 
 const {abs, max: max_of} = Math
 
 export type SliderSpec<T> = {
-  start: number
-  end: number
-  step: number | null
-  values: T[]
+  readonly start: number
+  readonly end: number
+  readonly step: number | null
+  readonly values: T[]
   compute(value: T): number
   invert(synthetic: number): T
 }
 
 type SliderMeta<T> = SliderSpec<T> & {
-  min: number
-  max: number
-  span: number
-  reversed: boolean
-  ticks: number[] | null
-  step_multiplier: number
+  readonly min: number
+  readonly max: number
+  readonly span: number
+  readonly reversed: boolean
+  readonly ticks: number[] | null
+  readonly step_multiplier: number
   readonly N: number
 }
 
@@ -47,6 +49,7 @@ type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
   declare readonly model: AbstractSlider<T>
   declare readonly signals: p.SignalsOf<AbstractSlider.Props>
+  declare readonly values: AbstractSlider.Attrs
 
   protected span_el: HTMLElement
   protected track_el: HTMLElement
@@ -60,17 +63,10 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
   abstract pretty(value: number | string): string
 
-  protected _meta: SliderMeta<T>
-  get meta(): Readonly<SliderMeta<T>> {
-    return this._meta
+  get meta(): SliderMeta<T> {
+    return this._meta.value
   }
-
-  override initialize(): void {
-    super.initialize()
-    this._update_state()
-  }
-
-  protected _update_state(): void {
+  protected readonly _meta = computed<SliderMeta<T>>(() => {
     const spec = this._calc_spec()
     const {start, end, step} = spec
 
@@ -90,24 +86,19 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const step_multiplier = ticks != null ? 0.2*ticks.length : 1 // 20% of span
     const N = spec.values.length
 
-    this._meta = {...spec, min, max, span, reversed, ticks, step_multiplier, N}
-  }
-
-  protected _update_slider(): void {
-    //this._update_state()
-    //this._update_value()
-  }
+    return {...spec, min, max, span, reversed, ticks, step_multiplier, N}
+  })
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), sliders_css.default]
   }
 
   get horizontal(): boolean {
-    return this.model.orientation == "horizontal"
+    return this.values.orientation == "horizontal"
   }
 
   protected hit_target(event: Event): HitTarget | null {
-    const {N} = this._meta
+    const {N} = this.meta
     for (const el of event.composedPath()) {
       for (const handle_el of this.handles) {
         if (el == handle_el) {
@@ -136,7 +127,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
   protected get_new_values(i_or_handle_el: number | HTMLElement, new_value: T): T[] {
     const i = isNumber(i_or_handle_el) ? i_or_handle_el : this.handles.indexOf(i_or_handle_el)
-    const new_values = copy(this._meta.values)
+    const new_values = copy(this.meta.values)
     new_values[i] = new_value
     return new_values
   }
@@ -153,7 +144,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     })()
 
     /*
-    const {values} = this._meta
+    const {values} = this.meta
     const new_values = copy(values)
     switch (state.target.type) {
       case "handle": {
@@ -187,14 +178,14 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const {width, height} = box_size(this.track_el)
     const size = this.horizontal ? width : height
     let sv = clamp(pixel_v, 0, size)/size
-    if (this._meta.reversed) {
+    if (this.meta.reversed) {
       sv = 1 - sv
     }
     return this._invert(sv)
   }
 
   protected shift_by(handles: HTMLElement[], factor: number): void {
-    const {min, max, values, step, reversed, compute, invert} = this._meta
+    const {min, max, values, step, reversed, compute, invert} = this.meta
     if (step == null) {
       return // TODO use some fixed percentage
     }
@@ -216,13 +207,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   override component(): VNode {
-    this._update_state()
-
-    // TODO tooltips, start, end, step
-    const {orientation, disabled, appearance, value} = this.signals
-
-    value.value // TODO currently this is read implicitly; also affects start, end, step
-    // value.subscribe((v) => console.log(v))
+    // TODO tooltips
+    const {orientation, disabled, appearance} = this.signals
+    const {meta} = this
 
     const orientation_cls = sliders_css[orientation.value]
     const disabled_cls = disabled.value ? sliders_css.disabled : null
@@ -256,7 +243,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         })()
         const value_el = (() => {
           if (show_value) {
-            const {values} = this._meta
+            const {values} = meta
             const pretty = values.map((v) => this.pretty(v)).join(" .. ")
             return <span class={sliders_css.value}>{pretty}</span>
           } else {
@@ -269,12 +256,12 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
     })()
 
-    const {reversed, values, N} = this._meta
+    const {reversed, values, N} = meta
 
     const handles = values.map((value, i) => {
       const at = (() => {
         let sv = this._compute(value)
-        const {reversed} = this._meta
+        const {reversed} = meta
         if (reversed) {
           sv = 1 - sv
         }
@@ -378,7 +365,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     event.preventDefault()
     event.stopPropagation()
 
-    const {N} = this._meta
+    const {N} = this.meta
     const dy = sign(-event.deltaY)
     if (N == 2) {
       this.shift_by(this.handles, dy)
@@ -416,12 +403,12 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         break
       }
       case "PageDown": {
-        const {step_multiplier} = this._meta
+        const {step_multiplier} = this.meta
         this.shift_by([handle_el], -step_multiplier)
         break
       }
       case "PageUp": {
-        const {step_multiplier} = this._meta
+        const {step_multiplier} = this.meta
         this.shift_by([handle_el], +step_multiplier)
         break
       }
@@ -447,7 +434,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
    * Convert value space to screen space [0, 1].
    */
   protected _compute(value: T): number {
-    const {min, span, compute} = this._meta
+    const {min, span, compute} = this.meta
     return (compute(value) - min)/span
   }
 
@@ -455,7 +442,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
    * Convert from screen space [0, 1] to value space.
    */
   protected _invert(synthetic: number): T {
-    const {min, span, ticks, invert} = this._meta
+    const {min, span, ticks, invert} = this.meta
     if (isNaN(synthetic)) {
       synthetic = min
     }
