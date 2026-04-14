@@ -423,7 +423,6 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
   protected abstract _calc_spec(): SliderSpec<T>
 
-  protected abstract _calc_to(values: T | T[]): T[]
   protected abstract _calc_from(values: T[]): T | T[]
 
   /**
