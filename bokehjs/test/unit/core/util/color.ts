@@ -1,6 +1,7 @@
 import {expect} from "#framework/assertions"
 
-import {color2rgba, color2css, css4_parse, brightness, luminance} from "@bokehjs/core/util/color"
+import {color2rgba, color2css, css4_parse, brightness, luminance, get_color_at} from "@bokehjs/core/util/color"
+import {Uint8NDArray} from "@bokehjs/core/util/ndarray"
 
 describe("core/util/color module", () => {
   const halfgray = color2rgba("rgb(128, 128, 128)")
@@ -254,5 +255,25 @@ describe("core/util/color module", () => {
     expect(luminance([190,   0, 190])).to.be.similar(0.149)
     expect(luminance([130, 130,  90])).to.be.similar(0.218)
     expect(luminance([255, 255, 255])).to.be.similar(1.000)
+  })
+
+  it("should support get_color_at() function", () => {
+    const uint8_d3 = new Uint8NDArray([255, 0, 128, 0, 128, 255], [2, 3])
+    expect(get_color_at(uint8_d3, 0)).to.be.equal([255, 0, 128, 255])
+    expect(get_color_at(uint8_d3, 1)).to.be.equal([0, 128, 255, 255])
+    expect(get_color_at(uint8_d3, -1)).to.be.equal(null)
+    expect(get_color_at(uint8_d3, 5)).to.be.equal(null)
+
+    const uint8_d4 = new Uint8NDArray([255, 0, 128, 128, 0, 128, 255, 255], [2, 4])
+    expect(get_color_at(uint8_d4, 0)).to.be.equal([255, 0, 128, 128])
+    expect(get_color_at(uint8_d4, 1)).to.be.equal([0, 128, 255, 255])
+    expect(get_color_at(uint8_d4, -1)).to.be.equal(null)
+    expect(get_color_at(uint8_d4, 5)).to.be.equal(null)
+
+    const array = ["#ffaa00", "#ddbb11", "#eecc22"]
+    expect(get_color_at(array, 0)).to.be.equal("#ffaa00")
+    expect(get_color_at(array, 1)).to.be.equal("#ddbb11")
+    expect(get_color_at(array, -1)).to.be.equal(null)
+    expect(get_color_at(array, 5)).to.be.equal(null)
   })
 })
