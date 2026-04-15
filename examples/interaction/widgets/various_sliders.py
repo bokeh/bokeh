@@ -20,6 +20,8 @@ def sliders(orientation: OrientationType) -> list[models.AbstractSlider]:
     examples: list[models.AbstractSlider] = [
         models.Slider(start=10, end=50, value=25, step=1, title="Integer", orientation=orientation),
         models.Slider(start=50, end=10, value=25, step=1, title="Integer reversed", orientation=orientation),
+        models.Slider(start=10, end=50, value=25, step=1, title="Integer disabled", orientation=orientation, disabled=True),
+        models.Slider(start=10, end=50, value=25, step=1, title="Integer stealth", orientation=orientation, appearance="stealth"),
         models.CategoricalSlider(title="Categorical", value="B", categories=categories, orientation=orientation),
         models.DateSlider(title="Date", value=april, start=january, end=december, orientation=orientation),
         models.DateSlider(title="Date reversed", value=april, start=december, end=january, orientation=orientation),
@@ -38,12 +40,3 @@ show(
         row(*sliders("vertical")),
     ),
 )
-
-#slider0_0 = Slider(title="Int", value=50, start=0, end=96, step=5)
-#slider0_1 = Slider(title="Float", value=0.5, start=0, end=1, step=0.1)
-#slider0_3 = DateSlider(title="Date", value=date(2026, 4, 2), start=date(2026, 1, 1), end=date(2026, 12, 31))
-
-#slider1_0 = Slider(title="Int", value=50, start=0, end=96, step=5, appearance="stealth")
-#slider1_1 = Slider(title="Float", value=0.5, start=0, end=1, step=0.1, appearance="stealth")
-#slider1_2 = CategoricalSlider(title="Categorical", value="B", categories=["A", "B", "C", "D", "E", "F", "G"], appearance="stealth")
-#slider1_3 = DateSlider(title="Date", value=date(2026, 4, 2), start=date(2026, 1, 1), end=date(2026, 12, 31), appearance="stealth")
