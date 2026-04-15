@@ -265,7 +265,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       return (
         <div
           class={sliders_css.handle}
-          tabIndex={0}
+          tabIndex={disabled.value ? -1 : 0}
           style={{"--at": `${at}`}}
           aria-valuetext={this.pretty(value)}
           onKeyDown={this._keydown.bind(this)}
@@ -296,7 +296,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const draggable_cls = N == 2 ? sliders_css.draggable : null
 
     return (
-      <UIComponent parent={this.resolved_props} class={cls(orientation_cls, disabled_cls, stealth_cls)}>
+      <UIComponent parent={this.resolved_props} class={cls(orientation_cls, disabled_cls, stealth_cls)} aria-disabled={disabled}>
         {title_el}
         <div
           class={sliders_css.slider}
