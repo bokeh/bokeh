@@ -32,6 +32,7 @@ from ..core.enums import (
     AutoType as Auto,
     DimensionsType as Dimensions,
     DimensionType as Dimension,
+    LogoVariantType as LogoVariant,
     PanDirectionType as PanDirection,
     RegionSelectionModeType as RegionSelectionMode,
     SelectionModeType as SelectionMode,
@@ -177,9 +178,30 @@ class InspectTool(GestureTool):
 
     toggleable: bool = ...
 
+class _LogoInit(_UIElementInit, total=False):
+    variant: LogoVariant
+
+class Logo(UIElement):
+    def __init__(self, **kwargs: Unpack[_LogoInit]) -> None: ...
+
+    variant: LogoVariant = ...
+
+class _ToolButtonInit(_UIElementInit, total=False):
+    tool: Tool | ToolProxy
+    icon: IconLike | None
+    tooltip: str | None
+
+class ToolButton(UIElement):
+    def __init__(self, **kwargs: Unpack[_ToolButtonInit]) -> None: ...
+
+    tool: Tool | ToolProxy = ...
+    icon: IconLike | None = ...
+    tooltip: str | None = ...
+
 class _ToolbarInit(_UIElementInit, total=False):
     tools: list[Tool | ToolProxy]
-    logo: Literal["normal", "grey"] | None
+    children: Auto | list[UIElement | None]
+    logo: LogoVariant | None
     autohide: bool
     group: bool
     group_types: list[ToolName]
@@ -193,7 +215,8 @@ class Toolbar(UIElement):
     def __init__(self, **kwargs: Unpack[_ToolbarInit]) -> None: ...
 
     tools: list[Tool | ToolProxy] = ...
-    logo: Literal["normal", "grey"] | None = ...
+    children: Auto | list[UIElement | None] = ...
+    logo: LogoVariant | None = ...
     autohide: bool = ...
     group: bool = ...
     group_types: list[ToolName] = ...

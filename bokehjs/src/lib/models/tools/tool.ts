@@ -1,6 +1,7 @@
 import type * as p from "core/properties"
 import {View} from "core/view"
 import type {HasProps} from "core/has_props"
+import {Signal} from "core/signaling"
 import type {Class} from "core/class"
 import type {Dimensions, ToolName} from "core/enums"
 import {min, max} from "core/util/array"
@@ -13,7 +14,6 @@ import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import {MenuItem, Menu} from "../ui/menus"
 import type {MenuItemLike} from "../ui/menus/menu"
 import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
-import type {ToolButton} from "./tool_button"
 
 import type {PanTool} from "./gestures/pan_tool"
 import type {WheelPanTool} from "./gestures/wheel_pan_tool"
@@ -166,6 +166,8 @@ export abstract class Tool extends Model {
     }))
   }
 
+  readonly do = new Signal<string | undefined, this>(this, "do")
+
   readonly tool_name: string
   readonly tool_icon?: string // CSS class (no dot)
 
@@ -185,8 +187,6 @@ export abstract class Tool extends Model {
 
   button_view: Class<ToolButtonView>
 
-  abstract tool_button(): ToolButton
-
   menu_item(): MenuItem {
     const item = new MenuItem({
       icon: this.computed_icon,
@@ -194,7 +194,7 @@ export abstract class Tool extends Model {
       tooltip: this.tooltip != this.tool_name ? this.tooltip : undefined,
       checked: () => this.active,
       disabled: () => this.disabled,
-      action: () => this.active = !this.active,
+      action: () => this.do.emit(undefined),
     })
 
     const submenu = this.menu

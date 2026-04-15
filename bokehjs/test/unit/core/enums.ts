@@ -135,8 +135,8 @@ describe("enums module", () => {
     expect([...enums.Location]).to.be.equal(["above", "below", "left", "right"])
   })
 
-  it("should have Logo", () => {
-    expect([...enums.Logo]).to.be.equal(["normal", "grey"])
+  it("should have LogoVariant", () => {
+    expect([...enums.LogoVariant]).to.be.equal(["normal", "grey"])
   })
 
   it("should have MarkerType", () => {

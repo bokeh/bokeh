@@ -69,7 +69,11 @@ export function* tail<T>(seq: Iterable<T>): Iterable<T> {
   yield* skip(seq, 1)
 }
 
-export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Iterable<T> {
+// help the type system with an overload for array type
+export function join<T, U>(seq: T[][], separator?: () => U): Iterable<T | U>
+export function join<T, U>(seq: Iterable<Iterable<T>>, separator?: () => U): Iterable<T | U>
+
+export function* join<T, U>(seq: Iterable<Iterable<T>>, separator?: () => U): Iterable<T | U> {
   let first = true
   for (const entry of seq) {
     if (first) {

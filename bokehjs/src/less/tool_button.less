@@ -2,27 +2,28 @@
 
 :host {
   --button-border: 2px;
-
   --active-tool-border: var(--button-border) solid transparent;
 }
 
 :host {
   position: relative;
+  flex: 0 0 auto;
+  order: 0;
 
-  width: var(--button-width);
-  height: var(--button-height);
+  width: var(--tool-button-width);
+  height: var(--tool-button-height);
 
   cursor: pointer;
 
-  .no-user-select();
   touch-action: none;
+  .no-user-select();
 }
 
 .bk-tool-icon {
   position: relative;
   top: calc(var(--button-border)/2);
-  width: calc(var(--button-width) - var(--button-border));
-  height: calc(var(--button-height) - var(--button-border));
+  width: calc(var(--tool-button-width) - var(--button-border));
+  height: calc(var(--tool-button-height) - var(--button-border));
 
   .mask-size(60% 60%);
   .mask-position(center center);
@@ -95,7 +96,7 @@
 }
 
 :host(:hover) {
-  background-color: rgba(192, 192, 192, 0.15);
+  background-color: var(--hover-color);
 }
 
 :host(:focus), :host(:focus-visible) {

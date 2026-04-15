@@ -8,6 +8,8 @@ describe("GroupFilter", () => {
     data: {
       x: ["a", "a", "b", "b", "b"],
       y: [0.0, NaN, Infinity, NaN, 1.0],
+      u: [[0, 0], [0, 1], [1, 0], [1, 1], [0, 1]],
+      v: [0, 1, 2, 1, 0],
     },
   })
 
@@ -31,6 +33,16 @@ describe("GroupFilter", () => {
     it("returns null when column_name is not in the data source", () => {
       const group_filter = new GroupFilter({column_name: "z", group: "c"})
       expect([...group_filter.compute_indices(cds)]).to.be.equal([0, 1, 2, 3, 4])
+    })
+
+    it("returns correct indices when group is an array and multiple=False", () => {
+      const group_filter = new GroupFilter({column_name: "u", group: [0, 1], multiple: false})
+      expect([...group_filter.compute_indices(cds)]).to.be.equal([1, 4])
+    })
+
+    it("returns correct indices when group is an array and multiple=True", () => {
+      const group_filter = new GroupFilter({column_name: "v", group: [0, 1], multiple: true})
+      expect([...group_filter.compute_indices(cds)]).to.be.equal([0, 1, 3, 4])
     })
   })
 })

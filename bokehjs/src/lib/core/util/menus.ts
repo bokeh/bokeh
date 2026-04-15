@@ -183,6 +183,9 @@ export class ContextMenu {
   render(): void {
     this.empty()
 
+    const is_custom = this.items.some((item) => isPlainObject(item) && item.custom != null)
+    this.el.classList.toggle(menus.custom, is_custom)
+
     for (const style of this.stylesheets()) {
       const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
       stylesheet.install(this.shadow_el)

@@ -2,6 +2,7 @@ import {expect} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
+import {ToolButton} from "@bokehjs/models/tools/tool_button"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {BoxZoomTool, PanTool, Toolbar} from "@bokehjs/models"
@@ -33,11 +34,11 @@ describe("BoxZoomTool", () => {
 
   describe("View", () => {
     async function mkplot(...tools: Tool[]) {
-      const buttons = tools.map((tool) => tool.tool_button())
+      const buttons = tools.map((tool) => new ToolButton({tool}))
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
         y_range: new Range1d({start: -1, end: 1}),
-        toolbar: new Toolbar({buttons, tools}),
+        toolbar: new Toolbar({children: buttons, tools}),
       })
       const {view: plot_view} = await display(plot)
       return {

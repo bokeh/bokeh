@@ -50,6 +50,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     KeyModifierType,
+    LogoVariant,
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
@@ -133,6 +134,7 @@ __all__ = (
     'GestureTool',
     'LassoSelectTool',
     'LineEditTool',
+    'Logo',
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -147,6 +149,7 @@ __all__ = (
     'Tap',
     'TapTool',
     'Tool',
+    'ToolButton',
     'ToolMenu',
     'ToolProxy',
     'Toolbar',
@@ -375,7 +378,43 @@ class InspectTool(GestureTool):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
+    toggleable = DeprecatedAlias[bool]("visible", since=(3, 4, 0))
+
+class Logo(UIElement):
+    """ Component displaying Bokeh's official logo. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    variant = Enum(LogoVariant, default="normal", help="""
+    What variant of the Bokeh logo to display.
+    """)
+
+class ToolButton(UIElement):
+    """ UI component for interacting with plot tools. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    tool = Required(Either(Instance(Tool), Instance(ToolProxy)), help="""
+    A reference to a tool this button interacts with.
+    """)
+
+    icon = Nullable(IconLike, default=None, help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as well known tool icon name, a CSS class selector,
+    a data URI with an ``image/*`` MIME, a path to an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array. If ``None``, then the intrinsic icon
+    will be used (may depend on tool's configuration).
+    """)
+
+    tooltip = Nullable(String, default=None, help="""
+    A string describing the purpose of this tool button. If not defined, an
+    auto-generated tooltip will be used based on the tool's description.
+    """)
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
@@ -388,11 +427,32 @@ class Toolbar(UIElement):
 
     tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
     A list of tools to add to the plot.
+
+    This can be left empty if using manual tool button layout (``children``
+    property), or additional tools not accessible via the toolbar can be
+    added here.
     """)
 
-    logo = Nullable(Enum("normal", "grey"), default="normal", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
+    children = Either(Auto, List(Nullable(Instance(UIElement))), default="auto", help="""
+    The layout of tool buttons and other UI elements in this toolbar.
+
+    If ``"auto"``, then the layout will be automatically determined based on
+    ``tools`` property, tools' pre-defined grouping and priority. Otherwise
+    the user can specify the layout of tool buttons, separators and other
+    tool unrelated UI elements, like select widgets, etc.
+
+    Tools repeated between ``tools`` property and tools belonging to tool
+    buttons will be deduplicated. ``tools`` property may provide more tools,
+    which will be available to the plot, but not accessible via the toolbar.
+    Extra tools may be accessed via a tool context menu or other approach if
+    configured.
+    """)
+
+    logo = Nullable(Enum(LogoVariant), default="normal", help="""
+    What variant of the Bokeh logo to display on the toolbar.
+
+    If set to ``None``, no logo will be displayed. This property is only
+    applicable when using auto-layout for tool buttons (``children == "auto"``).
     """)
 
     autohide = Bool(default=False, help="""

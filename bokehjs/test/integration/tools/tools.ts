@@ -2,7 +2,7 @@ import {display, fig} from "#framework/layouts"
 import {press} from "#framework/interactive"
 
 import * as all from "@bokehjs/models/tools"
-import {Toolbar} from "@bokehjs/models"
+import {Toolbar, ToolButton} from "@bokehjs/models"
 
 describe("Tools", () => {
   const tools = [
@@ -40,9 +40,9 @@ describe("Tools", () => {
     }
 
     it(`should support ${tool.type}'s setup menu`, async () => {
-      const tool_button = tool.tool_button()
-      const toolbar = new Toolbar({buttons: [tool_button], tools: [tool]})
-      const p = fig([300, 100], {toolbar_location: "right", toolbar})
+      const tool_button = new ToolButton({tool})
+      const toolbar = new Toolbar({children: [tool_button], tools: [tool]})
+      const p = fig([300, 200], {toolbar_location: "right", toolbar})
       p.scatter([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)
       const tool_button_view = view.owner.get_one(tool_button)

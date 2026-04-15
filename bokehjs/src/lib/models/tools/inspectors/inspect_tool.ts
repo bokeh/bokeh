@@ -1,5 +1,4 @@
 import {Tool, ToolView} from "../tool"
-import {OnOffButton} from "../on_off_button"
 import type {PlotView} from "../../plots/plot"
 import * as p from "core/properties"
 
@@ -9,6 +8,11 @@ export abstract class InspectToolView extends ToolView {
 
   get plot_view(): PlotView {
     return this.parent
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.do, () => this.model.active = !this.model.active)
   }
 }
 
@@ -42,8 +46,4 @@ export abstract class InspectTool extends Tool {
   }
 
   override event_type = "move" as "move"
-
-  override tool_button(): OnOffButton {
-    return new OnOffButton({tool: this})
-  }
 }

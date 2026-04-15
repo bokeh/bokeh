@@ -57,6 +57,9 @@
           type: "object",
           name: "Toolbar",
           id: "p1012",
+          attributes: {
+            children: "auto",
+          },
         },
       },
     },

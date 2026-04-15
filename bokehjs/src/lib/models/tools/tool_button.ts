@@ -13,12 +13,12 @@ import {reversed} from "core/util/array"
 import type {Signal0} from "core/signaling"
 import type * as p from "core/properties"
 
-import tool_button_css, * as tool_button from "styles/tool_button.css"
-import icons_css from "styles/icons.css"
+import * as tool_button from "styles/tool_button.css"
+import * as icons from "styles/icons.css"
 
 import type {ToolbarView} from "./toolbar"
 
-export abstract class ToolButtonView extends UIElementView {
+export class ToolButtonView extends UIElementView {
   declare model: ToolButton
   declare readonly parent: ToolbarView
 
@@ -30,7 +30,7 @@ export abstract class ToolButtonView extends UIElementView {
 
     const {location} = this.parent.model
     const reverse = location == "left" || location == "above"
-    const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
+    const orientation = this.parent.horizontal ? "vertical" : "horizontal"
     const items = this.model.tool.menu ?? []
     this._menu = new ContextMenu(!reverse ? items : reversed(items), {
       target: this.parent.el,
@@ -73,9 +73,20 @@ export abstract class ToolButtonView extends UIElementView {
 
   override connect_signals(): void {
     super.connect_signals()
+
     this._ui_gestures.connect_signals()
+
     this.connect(this.model.change, () => this.render())
     this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
+
+    const {active} = this.model.tool.properties
+    this.on_change(active, () => {
+      this._toggle_active()
+    })
+  }
+
+  protected _toggle_active(): void {
+    this.class_list.toggle(tool_button.active, this.model.tool.active)
   }
 
   override remove(): void {
@@ -85,7 +96,7 @@ export abstract class ToolButtonView extends UIElementView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), tool_button_css, icons_css]
+    return [...super.stylesheets(), tool_button.default, icons.default]
   }
 
   override render(): void {
@@ -119,9 +130,13 @@ export abstract class ToolButtonView extends UIElementView {
     this.el.title = tooltip
 
     this.el.tabIndex = 0
+
+    this._toggle_active()
   }
 
-  abstract tap(): void
+  tap(): void {
+    this.model.tool.do.emit(undefined)
+  }
 
   press(): void {
     const at = (() => {
@@ -148,7 +163,7 @@ export namespace ToolButton {
 
 export interface ToolButton extends ToolButton.Attrs {}
 
-export abstract class ToolButton extends UIElement {
+export class ToolButton extends UIElement {
   declare properties: ToolButton.Props
   declare __view_type__: ToolButtonView
 
@@ -157,6 +172,8 @@ export abstract class ToolButton extends UIElement {
   }
 
   static {
+    this.prototype.default_view = ToolButtonView
+
     this.define<ToolButton.Props>(({Str, Ref, Nullable, Or}) => ({
       tool: [ Or(Ref(Tool), Ref(ToolProxy)) ],
       icon: [ Nullable(IconLike), null ],

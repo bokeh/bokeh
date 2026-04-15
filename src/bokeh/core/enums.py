@@ -123,6 +123,7 @@ __all__ = (
     'LineDash',
     'LineJoin',
     'Location',
+    'LogoVariant',
     'MapType',
     'MarkerType',
     'Movable',
@@ -473,6 +474,10 @@ LineJoin = enumeration(LineJoinType)
 #: Specify a location in plot layouts
 LocationType = Literal["above", "below", "left", "right"]
 Location = enumeration(LocationType)
+
+#: The variant of the logo in the toolbar
+LogoVariantType = Literal["normal", "grey"]
+LogoVariant = enumeration(LogoVariantType)
 
 #: Specify a style for a Google map
 MapTypeType = Literal["satellite", "roadmap", "terrain", "hybrid"]

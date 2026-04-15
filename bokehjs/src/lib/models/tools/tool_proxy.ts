@@ -7,12 +7,11 @@ import {Menu, MenuItem} from "../ui/menus"
 import type {MenuItemLike} from "../ui/menus"
 import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
-import type {ToolButton} from "./tool_button"
 import type {InspectTool} from "./inspectors/inspect_tool"
 import {enumerate, some} from "core/util/iterator"
 import {execute} from "core/util/callbacks"
 
-export type ToolLike<T extends Tool> = T | ToolProxy<T>
+export type ToolLike<T extends Tool = Tool> = T | ToolProxy<T>
 
 export namespace ToolProxy {
   export type Attrs<T extends Tool> = p.AttrsOf<Props<T>>
@@ -57,12 +56,6 @@ export class ToolProxy<T extends Tool> extends Model {
   get underlying(): T {
     const tool = this.tools[0]
     return tool instanceof ToolProxy ? tool.underlying : tool
-  }
-
-  tool_button(): ToolButton {
-    const button = this.tools[0].tool_button()
-    button.tool = this
-    return button
   }
 
   menu_item(): MenuItem {

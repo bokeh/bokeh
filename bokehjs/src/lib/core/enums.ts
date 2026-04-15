@@ -112,8 +112,8 @@ export type LinePolicy = typeof LinePolicy["__type__"]
 export const Location = Enum("above", "below", "left", "right")
 export type Location = typeof Location["__type__"]
 
-export const Logo = Enum("normal", "grey")
-export type Logo = typeof Logo["__type__"]
+export const LogoVariant = Enum("normal", "grey")
+export type LogoVariant = typeof LogoVariant["__type__"]
 
 export const MapType = Enum("satellite", "roadmap", "terrain", "hybrid")
 export type MapType = typeof MapType["__type__"]
