@@ -319,6 +319,7 @@ describe("enums module", () => {
       "square",
       "square_check",
       "subtract_mode",
+      "system_theme",
       "tap_select",
       "text_align_center",
       "text_align_left",

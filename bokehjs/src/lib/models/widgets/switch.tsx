@@ -24,14 +24,16 @@ export class SwitchView extends ToggleInputView {
   }
 
   override component(): VNode {
-    const {active, label, disabled, on_icon, off_icon} = this.signals
+    const {active, label, disabled, on_icon, off_icon, indeterminate_icon} = this.signals
 
-    const active_cls = active.value ? switch_css.active : null
+    const active_cls = active.value != null && active.value ? switch_css.active : null
     const disabled_cls = disabled.value ? switch_css.disabled : null
-    const icon = active.value ? on_icon : off_icon
+    const indeterminate_cls = active.value == null ? switch_css.indeterminate : null
+    const icon = active.value != null && active.value ? on_icon : active.value == null ? indeterminate_icon : off_icon
+    const aria_checked = active.value != null && active.value ? "true" : active.value == null ? "mixed" : "false"
 
     return (
-      <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls)} role="switch" aria-checked={active}>
+      <UIComponent parent={this.resolved_props} class={cls(active_cls, disabled_cls, indeterminate_cls)} role="switch" aria-checked={aria_checked}>
         <div class={toggle_css.label}>{label}</div>
         {icon.value != null ? <Icon classes={switch_css.icon} icon={icon.value}></Icon> : null}
         <div class={switch_css.body} onClick={() => this._toggle_active()} onKeyDown={this.on_key_down}>
@@ -60,6 +62,7 @@ export namespace Switch {
   export type Props = ToggleInput.Props & {
     on_icon: p.Property<IconLike | null>
     off_icon: p.Property<IconLike | null>
+    indeterminate_icon: p.Property<IconLike | null>
   }
 }
 
@@ -79,6 +82,7 @@ export class Switch extends ToggleInput {
     this.define<Switch.Props>(({Nullable}) => ({
       on_icon: [ Nullable(IconLike), null ],
       off_icon: [ Nullable(IconLike), null ],
+      indeterminate_icon: [ Nullable(IconLike), null ],
     }))
   }
 }

@@ -166,6 +166,8 @@ class Document:
         ''' A list of all the root models in this document.
 
         '''
+        # TODO: config serialization
+        # return [*list(self._roots), self.config]
         return list(self._roots)
 
     @property
@@ -385,7 +387,9 @@ class Document:
             None
 
         '''
-        deserializer = Deserializer(list(self.models), setter=setter)
+        # TODO: config serialization. Not passing config here causes an
+        # `UnknownReferenceError`
+        deserializer = Deserializer([*list(self.models), self.config], setter=setter)
 
         try:
             patch: PatchJson = deserializer.deserialize(patch_json)

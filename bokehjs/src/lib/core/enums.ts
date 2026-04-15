@@ -41,6 +41,9 @@ export type Clock = typeof Clock["__type__"]
 export const CoordinateUnits = Enum("canvas", "screen", "data")
 export type CoordinateUnits = typeof CoordinateUnits["__type__"]
 
+export const ColorScheme = Enum("auto", "light", "dark")
+export type ColorScheme = typeof ColorScheme["__type__"]
+
 export const ContextWhich = Enum("start", "center", "end", "all")
 export type ContextWhich = typeof ContextWhich["__type__"]
 
@@ -283,6 +286,7 @@ export const ToolIcon = Enum(
   "square",
   "square_check",
   "subtract_mode",
+  "system_theme",
   "tap_select",
   "text_align_center",
   "text_align_left",

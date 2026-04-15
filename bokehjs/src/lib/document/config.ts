@@ -1,5 +1,6 @@
 import {Model} from "../model"
 import {Notifications} from "models/ui/notifications"
+import {ColorScheme} from "core/enums"
 import type * as p from "core/properties"
 
 export namespace DocumentConfig {
@@ -9,6 +10,7 @@ export namespace DocumentConfig {
     reconnect_session: p.Property<boolean>
     notify_connection_status: p.Property<boolean>
     notifications: p.Property<Notifications | null>
+    color_scheme: p.Property<ColorScheme>
   }
 }
 
@@ -26,6 +28,7 @@ export class DocumentConfig extends Model {
       reconnect_session: [ Bool, true ],
       notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
+      color_scheme: [ ColorScheme, "auto"],
     }))
   }
 }

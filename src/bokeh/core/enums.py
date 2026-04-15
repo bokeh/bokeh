@@ -95,6 +95,7 @@ __all__ = (
     'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
+    'ColorScheme',
     'ContextWhich',
     'CoordinateUnits',
     'DashPattern',
@@ -319,6 +320,10 @@ ButtonType = enumeration(ButtonTypeType)
 #: Specify a position for the DatePicker calendar to display
 CalendarPositionType = Literal["auto", "above", "below"]
 CalendarPosition = enumeration(CalendarPositionType)
+
+#: Specify a color scheme for the document
+ColorSchemeType = Literal["auto", "light", "dark"]
+ColorScheme = enumeration(ColorSchemeType)
 
 #: Specify which tick to add additional context to
 ContextWhichType = Literal["start", "center", "end", "all"]
@@ -664,6 +669,7 @@ ToolIconType = Literal[
     "square",
     "square_check",
     "subtract_mode",
+    "system_theme",
     "tap_select",
     "text_align_center",
     "text_align_left",

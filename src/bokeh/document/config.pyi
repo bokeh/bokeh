@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..core.enums import ColorScheme
 from ..model import Model
 from ..models.ui.notifications import Notifications
 
@@ -16,3 +17,5 @@ class DocumentConfig(Model):
     notify_connection_status: bool = ...
 
     notifications: Notifications | None = ...
+
+    color_scheme: ColorScheme = ...
