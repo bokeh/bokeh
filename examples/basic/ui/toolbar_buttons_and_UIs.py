@@ -2,8 +2,8 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.models import (BoxSelectTool, CDSView, CustomJS, GroupFilter,
-                          PaletteSelect, PanTool, ResetTool, Toolbar,
-                          ToolButton, ZoomInTool, ZoomOutTool)
+                          PaletteSelect, PanTool, ResetTool, Title,
+                          Toolbar, ToolButton, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
@@ -25,6 +25,8 @@ export default ({view}, select) => {
 """,
 ))
 
+title = Title(text="Change color palette", text_font_size="1.8em")
+
 children = [
     ToolButton(tool=PanTool()),
     ToolButton(tool=BoxSelectTool(persistent=True)),
@@ -44,7 +46,7 @@ y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = np.random.choice(Spectral11, size=N)
 
-p = figure(toolbar=tb, toolbar_location="above")
+p = figure(title=title, toolbar=tb, toolbar_location="above")
 p.circle(x, y, radius=radii, view=view, fill_color=colors, fill_alpha=0.6, line_color=None)
 
 show(p)
