@@ -1,29 +1,35 @@
 import {TextLikeInput, TextLikeInputView} from "./text_like_input"
-
-import {textarea} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
 import type * as p from "core/properties"
-
-import * as inputs from "styles/widgets/inputs.css"
+import * as inputs_css from "styles/widgets/inputs.css"
 
 export class TextAreaInputView extends TextLikeInputView {
-  declare model: TextAreaInput
+  declare readonly model: TextAreaInput
+  declare readonly signals: p.SignalsOf<TextAreaInput.Props>
 
-  declare input_el: HTMLTextAreaElement
-
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.properties.rows.change, () => this.input_el.rows = this.model.rows)
-    this.connect(this.model.properties.cols.change, () => this.input_el.cols = this.model.cols)
-  }
-
-  protected _render_input(): HTMLElement {
-    return this.input_el = textarea({class: inputs.input})
-  }
-
-  override render(): void {
-    super.render()
-    this.input_el.cols = this.model.cols
-    this.input_el.rows = this.model.rows
+  override component(): VNode {
+    const {disabled, value, placeholder, rows, cols} = this.signals
+    const max_length = this.signals.max_length.value
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <div class={inputs_css.outer}>
+          <div class={inputs_css.inner}>
+            <textarea
+              class={inputs_css.input}
+              disabled={disabled}
+              value={value}
+              placeholder={placeholder}
+              maxLength={max_length ?? undefined}
+              rows={rows}
+              cols={cols}
+              onChange={(event) => this.model.value = event.currentTarget.value}
+              onInput={(event) => this.model.value_input = event.currentTarget.value}
+            />
+          </div>
+        </div>
+      </UIComponent>
+    )
   }
 }
 

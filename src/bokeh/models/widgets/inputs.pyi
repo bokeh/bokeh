@@ -92,6 +92,7 @@ class Spinner(NumericInput):
     page_step_multiplier: float = ...
     wheel_wait: int | float = ...
 
+# {{{ TODO toggles.pyi
 class _ToggleInputInit(_WidgetInit, total=False):
     active: bool
     label: str
@@ -128,6 +129,7 @@ class _LightDarkInit(_SwitchInit, total=False):
 
 class LightDark(Switch):
     def __init__(self, **kwargs: Unpack[_LightDarkInit]) -> None: ...
+# }}}
 
 class _TextLikeInputInit(_InputWidgetInit, total=False):
     value: str
@@ -136,6 +138,7 @@ class _TextLikeInputInit(_InputWidgetInit, total=False):
     max_length: int | None
 
 class TextLikeInput(InputWidget):
+    @abstractmethod
     def __init__(self, **kwargs: Unpack[_TextLikeInputInit]) -> None: ...
 
     value: str = ...

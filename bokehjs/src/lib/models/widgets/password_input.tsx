@@ -1,31 +1,59 @@
 import {TextInput, TextInputView} from "./text_input"
-import type {StyleSheetLike} from "core/dom"
-import {div} from "core/dom"
+import type {StyleSheetLike} from "core/stylesheets"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
 import type * as p from "core/properties"
-import password_input_css from "styles/widgets/password_input.css"
-import icons_css from "styles/icons.css"
+import * as password_input_css from "styles/widgets/password_input.css"
+import * as inputs_css from "styles/widgets/inputs.css"
+
+import {signal} from "@preact/signals"
 
 export class PasswordInputView extends TextInputView {
-  declare model: PasswordInput
-
-  toggle_el: HTMLElement
+  declare readonly model: PasswordInput
+  declare readonly signals: p.SignalsOf<PasswordInput.Props>
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), password_input_css, icons_css]
+    return [...super.stylesheets(), password_input_css.default]
   }
 
-  override render(): void {
-    super.render()
-    this.input_el.type = "password"
+  readonly unprotected = signal(false)
 
-    this.toggle_el = div({class: "bk-toggle"})
-    this.toggle_el.addEventListener("click", () => {
-      const {input_el, toggle_el} = this
-      const is_visible = input_el.type == "text"
-      toggle_el.classList.toggle("bk-visible", !is_visible)
-      input_el.type = is_visible ? "password" : "text"
-    })
-    this.shadow_el.append(this.toggle_el)
+  protected _toggle_click(): void {
+    this.unprotected.value = !this.unprotected.value
+  }
+
+  override component(): VNode {
+    const {disabled, value, placeholder} = this.signals
+    const max_length = this.signals.max_length.value
+    const prefix = this.signals.prefix.value
+    const suffix = this.signals.suffix.value
+    const unprotected = this.unprotected.value
+    const Title = this._title_el.bind(this)
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <Title></Title>
+        <div class={inputs_css.outer}>
+          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
+          <div class={inputs_css.inner}>
+            <input
+              type={unprotected ? "text" : "password"}
+              class={inputs_css.input}
+              disabled={disabled}
+              value={value}
+              placeholder={placeholder}
+              maxLength={max_length ?? undefined}
+              onKeyUp={this._key_up.bind(this)}
+              onChange={(event) => this.model.value = event.currentTarget.value}
+              onInput={(event) => this.model.value_input = event.currentTarget.value}
+            />
+            <button type="button" class={password_input_css.toggle} onClick={this._toggle_click.bind(this)}>
+              <div class={password_input_css.icon}></div>
+            </button>
+          </div>
+          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
+        </div>
+      </UIComponent>
+    )
   }
 }
 
