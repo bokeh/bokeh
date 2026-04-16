@@ -380,6 +380,10 @@ class TextLikeInput(InputWidget):
     Change events are triggered whenever <enter> is pressed.
     """)
 
+    # TODO unify naming convention with sliders' value_throttled or better yet
+    # remove this and replace it with keystroke event. If it stays, then it has
+    # to be changed to readonly property. Events are more efficient for this,
+    # because they are only delivered when subscribed.
     value_input = String(default="", help="""
     Initial or current value.
 

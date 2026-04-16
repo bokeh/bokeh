@@ -1,19 +1,16 @@
-import {Control, ControlView} from "./control"
-import type {TooltipView} from "../ui/tooltip"
+import {Widget, WidgetView} from "./widget"
 import {Tooltip} from "../ui/tooltip"
-import {HTML, HTMLView} from "../dom/html"
-
-import {isString} from "core/util/types"
+import {HTML} from "../dom/html"
 import {build_view} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
-import {div, label} from "core/dom"
+import type {ViewOf} from "core/build_views"
 import {View} from "core/view"
 import type {ChildView} from "core/view"
 import type * as p from "core/properties"
 import {server_event, ModelEvent} from "core/bokeh_events"
+import * as inputs_css from "styles/widgets/inputs.css"
 
-import inputs_css, * as inputs from "styles/widgets/inputs.css"
-import icons_css from "styles/icons.css"
+import {signal, effect} from "@preact/signals"
 
 export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 
@@ -30,27 +27,23 @@ export class ClearInput extends ModelEvent {
   }
 }
 
-export abstract class InputWidgetView extends ControlView {
-  declare model: InputWidget
+export abstract class InputWidgetView extends WidgetView {
+  declare readonly model: InputWidget
+  declare readonly signals: p.SignalsOf<InputWidget.Props>
 
-  protected title: HTMLView | string
-  protected description: TooltipView | string | null = null
-
-  protected input_el: HTMLInputElementLike
-  protected title_el: HTMLLabelElement
-  desc_el: HTMLElement | null = null
+  protected input_el: HTMLInputElementLike = document.createElement("input")
   protected group_el: HTMLElement
 
-  public *controls() {
-    yield this.input_el
-  }
-
   override _children_views(): ChildView[] {
-    const {title, description} = this
+    const title = this.computed_title.value
+    const description = this.computed_description.value
     const title_view = title instanceof View ? [title] : []
     const description_view = description instanceof View ? [description] : []
     return [...super._children_views(), ...title_view, ...description_view]
   }
+
+  readonly computed_title = signal<ViewOf<HTML> | string | null>(null)
+  readonly computed_description = signal<ViewOf<Tooltip> | string | null>(null)
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -60,41 +53,43 @@ export abstract class InputWidgetView extends ControlView {
   }
 
   override connect_signals(): void {
-    super.connect_signals()
-    const {title, description} = this.model.properties
-    this.on_change(title, async () => {
-      await this._build_title()
-      this.rerender()
+    effect(() => {
+      void this._build_title()
     })
-    this.on_change(description, async () => {
-      await this._build_description()
-      this.rerender()
+    effect(() => {
+      void this._build_description()
     })
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), inputs_css, icons_css]
+    return [...super.stylesheets(), inputs_css.default]
   }
 
-  override render(): void {
-    super.render()
-
-    this.desc_el = this._build_description_el()
-    this.title_el = this._build_title_el()
-
-    const input_or_container_el = this._render_input()
-    this.input_el.id = "input"
-    this.group_el = div({class: inputs.input_group}, this.title_el, input_or_container_el)
-    this.shadow_el.append(this.group_el)
+  protected _title_el() {
+    const title = this.computed_title.value
+    // const description = this.signals.description.value
+    if (title != null) {
+      return (
+        <label for="input">
+          {title}
+          <div class={inputs_css.description} /*title={description}*/>
+            <div class={inputs_css.icon}/>
+          </div>
+        </label>
+      )
+    } else {
+      return null
+    }
   }
 
-  protected _build_description_el(): HTMLElement | null {
-    const {description} = this
+  /*
+    const description = this.signals.description.value
     if (description == null) {
       return null
     } else {
-      const icon_el = div({class: inputs.icon})
-      const desc_el = div({class: inputs.description}, icon_el)
+
+      const icon_el = div({class: inputs_css.icon})
+      const desc_el = div({class: inputs_css.description}, icon_el)
 
       if (isString(description)) {
         desc_el.title = description
@@ -110,7 +105,7 @@ export abstract class InputWidgetView extends ControlView {
             visible,
             closable: persistent,
           })
-          icon_el.classList.toggle(inputs.opaque, visible && persistent)
+          icon_el.classList.toggle(inputs_css.opaque, visible && persistent)
         }
 
         this.on_change(description.model.properties.visible, () => {
@@ -147,38 +142,30 @@ export abstract class InputWidgetView extends ControlView {
       }
       return desc_el
     }
-  }
+    */
 
   protected async _build_title(): Promise<void> {
-    const {title} = this.model
-    if (title instanceof HTML) {
-      this.title = await build_view(title, {parent: this})
-    } else {
-      this.title = title
-    }
+    this.computed_title.value = await (async () => {
+      const {title} = this.model
+      if (title instanceof HTML) {
+        const view = await build_view(title, {parent: this})
+        view.render()
+        return view
+      } else if (title == "") {
+        return null
+      } else {
+        return title
+      }
+    })()
   }
 
   protected async _build_description(): Promise<void> {
     const {description} = this.model
     if (description instanceof Tooltip) {
-      this.description = await build_view(description, {parent: this})
+      this.computed_description.value = await build_view(description, {parent: this})
     } else {
-      this.description = description
+      this.computed_description.value = description
     }
-  }
-
-  protected _build_title_el(): HTMLLabelElement {
-    const {title} = this
-    const content = (() => {
-      if (title instanceof HTMLView) {
-        title.render()
-        return title.el
-      } else {
-        return title
-      }
-    })()
-    const display = title == "" ? "none" : ""
-    return label({for: "input", style: {display}}, content, this.desc_el)
   }
 
   protected abstract _render_input(): HTMLElement
@@ -189,7 +176,7 @@ export abstract class InputWidgetView extends ControlView {
 export namespace InputWidget {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Control.Props & {
+  export type Props = Widget.Props & {
     title: p.Property<string | HTML>
     description: p.Property<string | Tooltip | null>
   }
@@ -197,7 +184,7 @@ export namespace InputWidget {
 
 export interface InputWidget extends InputWidget.Attrs {}
 
-export abstract class InputWidget extends Control {
+export abstract class InputWidget extends Widget {
   declare properties: InputWidget.Props
   declare __view_type__: InputWidgetView
 
