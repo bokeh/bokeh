@@ -842,10 +842,9 @@ Serializer.register(MetaHasProps, _HasProps_to_serializable)
 #-----------------------------------------------------------------------------
 
 _ABSTRACT_ADMONITION = '''
-    .. note::
-        This is an abstract base class used to help organize the hierarchy of Bokeh
-        model types. **It is not useful to instantiate on its own.**
-
+.. note::
+    This is an abstract base class used to help organize the hierarchy of Bokeh
+    model types. **It is not useful to instantiate on its own.**
 '''
 
 #-----------------------------------------------------------------------------
