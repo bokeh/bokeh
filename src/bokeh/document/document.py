@@ -166,9 +166,14 @@ class Document:
         ''' A list of all the root models in this document.
 
         '''
-        # TODO: config serialization
-        # return [*list(self._roots), self.config]
         return list(self._roots)
+
+    @property
+    def all_roots(self) -> list[Model]:
+        ''' A list of all the root models (including ``config``) in this document.
+
+        '''
+        return [*self.roots, self.config] if self.config else self.roots
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:
@@ -841,7 +846,7 @@ side of a communications channel while it was being removed on the other end.\
             None
 
         '''
-        for r in self.roots:
+        for r in self.all_roots:
             refs = r.references()
             issues = check_integrity(refs)
 
@@ -872,8 +877,8 @@ side of a communications channel while it was being removed on the other end.\
         roots: list[Model] = []
 
         with self.models.freeze():
-            while self.roots:
-                root = next(iter(self.roots))
+            while self.all_roots:
+                root = next(iter(self.all_roots))
                 self.remove_root(root)
                 roots.append(root)
 
