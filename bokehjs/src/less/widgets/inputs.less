@@ -7,6 +7,79 @@
   --disabled-opacity: 1;
 }
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.bk-outer {
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  border: var(--border);
+  border-radius: var(--border-radius);
+  color: var(--inherit-color);
+}
+
+.bk-prefix {
+  position: relative;
+  flex: 0 1 auto;
+  border-right: var(--border);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+  background-color: var(--surface-background-color);
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-inner {
+  position: relative;
+  flex: 1 0 auto;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-outer:has(.bk-input:focus) {
+  border-color: var(--focus-border-color);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
+}
+
+.bk-input {
+  position: relative;
+  padding: 0;
+  border: 0;
+  height: max-content;
+
+  .placeholder(var(--placeholder-color));
+  background-color: transparent;
+
+  &:focus {
+    outline: 0;
+  }
+}
+
+.bk-suffix {
+  position: relative;
+  flex: 0 1 auto;
+  border-left: var(--border);
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  background-color: var(--surface-background-color);
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-disabled {
+  pointer-events: none;
+}
+
+/*
 .bk-input {
   position: relative;
   display: inline-block;
@@ -31,15 +104,21 @@
   .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
 }
 
-.bk-input-container {
-  width: 100%;
-  height: 100%;
+.bk-inner {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
 
+.bk-outer {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 
-  .bk-input-prefix, .bk-input-suffix {
+  width: 100%;
+  height: 100%;
+
+  .bk-prefix, .bk-suffix {
     display: flex;
     align-items: center;
     flex: 0 1 0;
@@ -50,13 +129,13 @@
     color: var(--inherit-color);
   }
 
-  .bk-input-prefix {
+  .bk-prefix {
     border-right: none;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
 
-  .bk-input-suffix {
+  .bk-suffix {
     border-left: none;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -76,6 +155,7 @@
     border-bottom-right-radius: 0;
   }
 }
+*/
 
 input[type=file].bk-input {
   // align the button with input's edge
@@ -113,6 +193,18 @@ select[multiple], select[size], textarea {
   }
 }
 
+// TODO remove
+.bk-input-group {
+  position: relative;
+}
+.bk-inline {
+  position: relative;
+}
+.bk-spin-wrapper {
+  position: relative;
+}
+
+/*
 .bk-input-group {
   position: relative;
   width: 100%;
@@ -193,6 +285,7 @@ select[multiple], select[size], textarea {
     }
   }
 }
+*/
 
 .bk-description {
   position: relative;

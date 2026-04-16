@@ -6,6 +6,7 @@ import {button, div, toggle_attribute} from "core/dom"
 
 const {min, max} = Math
 
+/*
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
 
@@ -34,6 +35,7 @@ function debounce(func: () => void, wait: number, immediate: boolean = false) {
     }
   }
 }
+*/
 
 // Inspiration from https://github.com/uNmAnNeR/ispinjs
 export class SpinnerView extends NumericInputView {
@@ -85,6 +87,7 @@ export class SpinnerView extends NumericInputView {
   override render(): void {
     super.render()
 
+    /*
     for (const btn of this.buttons()) {
       toggle_attribute(btn, "disabled", this.model.disabled)
       btn.addEventListener("mousedown", (evt) => this._btn_mouse_down(evt))
@@ -103,6 +106,7 @@ export class SpinnerView extends NumericInputView {
     this.input_el.addEventListener("wheel", debounce(() => {
       this.model.value_throttled = this.model.value
     }, this.model.wheel_wait, false))
+    */
   }
 
   override remove(): void {
