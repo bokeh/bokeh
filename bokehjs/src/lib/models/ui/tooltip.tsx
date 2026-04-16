@@ -5,10 +5,12 @@ import {Selector} from "../selectors/selector"
 import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
-import {div, bounding_box, box_size} from "core/dom"
-import {DOMElementView} from "core/dom_view"
+import {InlineStyleSheet, parent} from "core/dom"
+import {bounding_box, box_size} from "core/dom"
+import {UIComponent, cls} from "core/vdom"
+import type {VNode} from "core/vdom"
+import {DOMElementView, bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
-import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
 import type {View, ViewOf} from "core/build_views"
@@ -19,32 +21,34 @@ import {Model} from "model"
 const NativeNode = globalThis.Node
 type NativeNode = globalThis.Node
 
-import tooltips_css, * as tooltips from "styles/tooltips.css"
-import icons_css from "styles/icons.css"
+import * as tooltips_css from "styles/tooltips.css"
+import * as icons_css from "styles/icons.css"
+
+import {signal, computed, effect} from "@preact/signals"
+
+// TODO add support for anchor positioning and remove observers and wheel event listeners
+// const has_anchor_positioning = CSS.supports("top", "anchor(top)")
 
 export class TooltipView extends UIElementView {
-  declare model: Tooltip
+  declare readonly model: Tooltip
+  declare readonly signals: p.SignalsOf<Tooltip.Props>
 
   override get is_top_level(): boolean {
-    return true // TODO inspect this.model.target?
+    return this.parent == null || parent(this.target.value, (node) => bokeh_element in node) == null
   }
 
-  protected arrow_el: HTMLElement
-  protected content_el: HTMLElement
   protected _observer: ResizeObserver
 
-  private _target: Element
-  get target(): Element {
-    return this._target
-  }
-  set target(el: Element) {
-    this._target = el
-  }
+  readonly position = new InlineStyleSheet()
 
-  protected _init_target(): void {
-    const {target} = this.model
+  readonly target_override = signal<Element | null>(null)
+  readonly target = computed(() => {
+    const target_override = this.target_override.value
+    const target = this.signals.target.value
     const el = (() => {
-      if (target instanceof UIElement) {
+      if (target_override != null) {
+        return target_override
+      } else if (target instanceof UIElement) {
         return this.owner.find_one(target)?.el ?? null
       } else if (target instanceof Selector) {
         return target.find_one(document)
@@ -56,18 +60,20 @@ export class TooltipView extends UIElementView {
       }
     })()
 
-    if (el instanceof Element) {
-      this._target = el
-    } else {
-      logger.warn(`unable to resolve target '${target}' for '${this}'`)
-      this._target = document.body
-    }
-  }
+    const ell = (() => {
+      if (el instanceof Element) {
+        return el
+      } else {
+        logger.warn(`unable to resolve target '${target}' for '${this}'`)
+        return document.body
+      }
+    })()
 
-  override initialize(): void {
-    super.initialize()
-    this._init_target()
-  }
+    this._observer.disconnect()
+    this._observer.observe(ell)
+
+    return ell
+  })
 
   protected _element_view: ViewOf<DOMNode | UIElement> | null = null
 
@@ -87,11 +93,19 @@ export class TooltipView extends UIElementView {
       this._element_view = null
     }
 
-    const {content} = this.model
+    const content = this.signals.content.value
     if (content instanceof Model) {
-      this._element_view = await build_view(content, {parent: this})
+      const view = await build_view(content, {parent: this})
+      this._element_view = view
+      view.render()
+      view.r_after_render()
+      this.computed_content.value = view.el
+    } else {
+      this.computed_content.value = content
     }
   }
+
+  readonly computed_content = signal<string | NativeNode>("")
 
   private _scroll_listener?: () => void
 
@@ -101,7 +115,6 @@ export class TooltipView extends UIElementView {
     this._observer = new ResizeObserver(() => {
       this._reposition()
     })
-    this._observer.observe(this.target)
 
     let throttle = false
     document.addEventListener("scroll", this._scroll_listener = () => {
@@ -115,25 +128,13 @@ export class TooltipView extends UIElementView {
       }
     }, {capture: true})
 
-    const {target, content, closable, interactive, position, attachment, visible} = this.model.properties
-    this.on_change(target, () => {
-      this._init_target()
-      this._observer.disconnect()
-      this._observer.observe(this.target)
-      this.render()
-      this.after_render()
-    })
-    this.on_change(content, async () => {
-      await this._build_content()
-      this.render()
-      this.after_render()
-    })
-    this.on_change([closable, interactive], () => {
-      this.render()
-      this.after_render()
-    })
+    const {position, attachment, visible} = this.model.properties
     this.on_change([position, attachment, visible], () => {
       this._reposition()
+    })
+
+    effect(() => {
+      void this._build_content()
     })
   }
 
@@ -142,59 +143,48 @@ export class TooltipView extends UIElementView {
       document.removeEventListener("scroll", this._scroll_listener, {capture: true})
       delete this._scroll_listener
     }
+    this._observer.disconnect()
     super.disconnect_signals()
   }
 
   override remove(): void {
     this._element_view?.remove()
-    this._observer.disconnect()
     super.remove()
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), tooltips_css, icons_css]
+    return [...super.stylesheets(), tooltips_css.default, icons_css.default, this.position]
   }
 
-  get content(): NativeNode {
-    const {content} = this.model
-    if (isString(content)) {
-      return document.createTextNode(content)
-    } else if (content instanceof Model) {
-      assert(this._element_view != null)
-      return this._element_view.el
-    } else {
-      return content
-    }
+  override component(): VNode {
+    const {closable, show_arrow, interactive} = this.signals
+
+    const closable_cls = closable.value ? tooltips_css.closable : null
+    const show_arrow_cls = show_arrow.value ? tooltips_css.show_arrow  : null
+    const interactive_cls = !interactive.value ? tooltips_css.non_interactive : null
+
+    const content_el = (() => {
+      const content = this.computed_content.value
+      if (isString(content)) {
+        return <div class={tooltips_css.tooltip_content}>{content}</div>
+      } else {
+        return <div class={tooltips_css.tooltip_content} ref={(el) => el?.replaceChildren(content)}/>
+      }
+    })()
+
+    this._has_rendered = true
+    return (
+      <UIComponent parent={this.resolved_props} class={cls(closable_cls, show_arrow_cls, interactive_cls)} popover="manual">
+        <div class={tooltips_css.arrow}>
+          <div class={tooltips_css.arrow_inner}/>
+        </div>
+        {content_el}
+        {closable.value ? <div class={tooltips_css.close} onClick={() => this.model.visible = false}/> : null}
+      </UIComponent>
+    )
   }
 
   private _has_rendered: boolean = false
-
-  override render(): void {
-    super.render()
-
-    const {_element_view} = this
-    if (_element_view != null) {
-      _element_view.render()
-      _element_view.r_after_render()
-    }
-    this.arrow_el = div({class: tooltips.arrow}, div({class: tooltips.arrow_inner}))
-    this.content_el = div({class: tooltips.tooltip_content}, this.content)
-    this.shadow_el.append(this.arrow_el, this.content_el)
-
-    this.class_list.toggle(tooltips.closable, this.model.closable)
-    const close_el = div({class: tooltips.close})
-    this.shadow_el.append(close_el)
-    close_el.addEventListener("click", () => {
-      this.model.visible = false
-    })
-
-    this.el.setAttribute("popover", "manual") // allows multiple simultaneous popover elements
-
-    this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
-    this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
-
-    this._has_rendered = true
-  }
 
   override _after_render(): void {
     super._after_render()
@@ -207,7 +197,7 @@ export class TooltipView extends UIElementView {
   }
 
   private _anchor_to_align(anchor: Anchor): {v: VAlign, h: HAlign} {
-    anchor = (() => {
+    const normalized_anchor = (() => {
       switch (anchor) {
         case "top":    return "top_center"
         case "bottom": return "bottom_center"
@@ -216,39 +206,36 @@ export class TooltipView extends UIElementView {
         default:       return anchor
       }
     })()
-    const [v, h] = anchor.split("_") as [VAlign, HAlign]
+    const [v, h] = normalized_anchor.split("_") as [VAlign, HAlign]
     return {v, h}
   }
 
   protected _reposition(): void {
-    // Append to `body` to deal with CSS' `contain` interaction
-    // with `position: fixed`. We assume initial containment
-    // block in this function, but `contain` can introduce a
-    // new containment block and offset tooltip's position.
-    const target = document.body.shadowRoot ?? document.body
+    const target = this.target.value
+    const target_el = (() => {
+      return target.shadowRoot ?? target
+    })()
 
     if (!this._has_rendered) {
-      this.render_to(target)
-      this.after_render()
-      return                 // render() calls _reposition()
+      this.render_to(target_el)
+      this.r_after_render()
+    } else {
+      target_el.append(this.el)
     }
 
     const {position, visible} = this.model
     if (position == null || !visible) {
-      this.el.remove()
+      this.el.hidePopover()
       return
     }
 
-    target.append(this.el)
-
-    // If popover API isn't available, then tooltip will still show in most
-    // situations, but not in fullscreen or may be partially obscured by
-    // other elements or components.
-    if (typeof this.el.showPopover !== "undefined") {
-      this.el.showPopover()
+    if (!this.el.isConnected) {
+      return
     }
 
-    const bbox = bounding_box(this.target)
+    this.el.showPopover({source: target})
+
+    const bbox = bounding_box(target)
     const [sx, sy] = (() => {
       if (isString(position)) {
         const {v: v_align, h: h_align} = this._anchor_to_align(position)
@@ -337,18 +324,15 @@ export class TooltipView extends UIElementView {
 
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
-    this.class_list.remove(tooltips.right, tooltips.left, tooltips.above, tooltips.below)
+    this.class_list.remove(tooltips_css.right, tooltips_css.left, tooltips_css.above, tooltips_css.below)
     this.class_list.add((() => {
       switch (side) {
-        case "left":  return tooltips.right
-        case "right": return tooltips.left
-        case "above": return tooltips.below
-        case "below": return tooltips.above
+        case "left":  return tooltips_css.right
+        case "right": return tooltips_css.left
+        case "above": return tooltips_css.below
+        case "below": return tooltips_css.above
       }
     })())
-
-    this.arrow_el.style.left = `${sx}px`
-    this.arrow_el.style.top = `${sy}px`
 
     const {left, top} = (() => {
       const {width, height} = box_size(this.el)
@@ -401,10 +385,23 @@ export class TooltipView extends UIElementView {
       }
     })()
 
-    this.el.style.top = `${top}px`
-    this.el.style.left = `${left}px`
+    this.position.replace(`
+      :host {
+        left: ${left}px;
+        top: ${top}px;
+      }
 
-    this.update_bbox()
+      .${tooltips_css.arrow} {
+        left: ${sx}px;
+        top: ${sy}px;
+      }
+    `)
+  }
+
+  // Compute on demand; remove when bbox support is redesigned
+  override get bbox(): BBox {
+    this._update_bbox()
+    return super.bbox
   }
 }
 
