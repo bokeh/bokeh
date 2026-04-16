@@ -30,8 +30,7 @@ from typing import TYPE_CHECKING, Literal
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
-from . import browser as _playwright_backend
-from . import webdriver as _selenium_backend
+from . import browser as _playwright_backend, webdriver as _selenium_backend
 from .util import default_filename, get_layout_html
 
 if TYPE_CHECKING:
