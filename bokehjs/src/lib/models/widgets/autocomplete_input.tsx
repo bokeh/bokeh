@@ -9,6 +9,8 @@ import {Enum} from "core/kinds"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
+import type {TargetedKeyboardEvent} from "preact"
+
 const SearchStrategy = Enum("starts_with", "includes")
 type SearchStrategy = typeof SearchStrategy["__type__"]
 
@@ -29,7 +31,7 @@ export class AutocompleteInputView extends TextInputView {
 
   override render(): void {
     super.render()
-    this.input_el.addEventListener("focusin", () => this._toggle_menu())
+    //this.input_el.addEventListener("focusin", () => this._toggle_menu())
 
     this.menu = div({class: [dropdown.menu, dropdown.below]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
@@ -158,8 +160,8 @@ export class AutocompleteInputView extends TextInputView {
     }
   }
 
-  protected override _keyup(event: KeyboardEvent): void {
-    super._keyup(event)
+  protected override _key_up(event: TargetedKeyboardEvent<HTMLInputElement>): void {
+    super._key_up(event)
 
     switch (event.key) {
       case "Enter": {

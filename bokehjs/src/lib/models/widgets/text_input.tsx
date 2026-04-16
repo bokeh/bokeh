@@ -1,39 +1,49 @@
 import {TextLikeInput, TextLikeInputView} from "./text_like_input"
-
-import {input, div} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
 import type * as p from "core/properties"
 import {ValueSubmit} from "core/bokeh_events"
+import * as inputs_css from "styles/widgets/inputs.css"
 
-import * as inputs from "styles/widgets/inputs.css"
+import type {TargetedKeyboardEvent} from "preact"
 
 export class TextInputView extends TextLikeInputView {
-  declare model: TextInput
+  declare readonly model: TextInput
+  declare readonly signals: p.SignalsOf<TextInput.Props>
 
-  declare input_el: HTMLInputElement
-
-  override connect_signals(): void {
-    super.connect_signals()
-    const {prefix, suffix} = this.model.properties
-    this.on_change([prefix, suffix], () => this.rerender())
+  override component(): VNode {
+    const {disabled, value, placeholder} = this.signals
+    const max_length = this.signals.max_length.value
+    const prefix = this.signals.prefix.value
+    const suffix = this.signals.suffix.value
+    const Title = this._title_el.bind(this)
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <Title></Title>
+        <div class={inputs_css.outer}>
+          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
+          <div class={inputs_css.inner}>
+            <input
+              type="text"
+              class={inputs_css.input}
+              disabled={disabled}
+              value={value}
+              placeholder={placeholder}
+              maxLength={max_length ?? undefined}
+              onKeyUp={this._key_up.bind(this)}
+              onChange={(event) => this.model.value = event.currentTarget.value}
+              onInput={(event) => this.model.value_input = event.currentTarget.value}
+            />
+          </div>
+          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
+        </div>
+      </UIComponent>
+    )
   }
 
-  protected _render_input(): HTMLElement {
-    this.input_el = input({type: "text", class: inputs.input})
-    const {prefix, suffix} = this.model
-    const prefix_el = prefix != null ? div({class: "bk-input-prefix"}, prefix) : null
-    const suffix_el = suffix != null ? div({class: "bk-input-suffix"}, suffix) : null
-    const container_el = div({class: "bk-input-container"}, prefix_el, this.input_el, suffix_el)
-    return container_el
-  }
-
-  override render(): void {
-    super.render()
-    this.input_el.addEventListener("keyup", (event) => this._keyup(event))
-  }
-
-  protected _keyup(event: KeyboardEvent): void {
+  protected _key_up(event: TargetedKeyboardEvent<HTMLInputElement>): void {
     if (event.key == "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey) {
-      this.model.trigger_event(new ValueSubmit(this.input_el.value))
+      this.model.trigger_event(new ValueSubmit(event.currentTarget.value))
     }
   }
 }
