@@ -117,7 +117,7 @@ def get_screenshot_as_png(
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
 
-    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=driver)
+    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
     return (Image.open(io.BytesIO(png_bytes))
@@ -143,7 +143,7 @@ def get_svg(
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=driver)[0]
+    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, driver=driver)[0]
     return svgs
 
 
@@ -164,7 +164,7 @@ def get_svgs(
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=driver)[0]
+    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, driver=driver)[0]
     return svgs
 
 
@@ -310,7 +310,7 @@ def maximize_viewport(page: Page) -> tuple[int, int, int]:
 def _playwright_render(
     html: str, script: str, timeout: int, *,
     scale_factor: float = 1,
-    browser: Browser | BrowserContext | None = None,
+    driver: Browser | BrowserContext | None = None,
 ) -> tuple[Any, int, int, int]:
     '''Run a single Playwright export: navigate, wait for render, execute script.
 
@@ -320,7 +320,7 @@ def _playwright_render(
             PNG screenshot instead.
         timeout: Seconds to wait for Bokeh to render.
         scale_factor: Device scale factor for the browser.
-        browser: An optional Playwright ``Browser`` or ``BrowserContext``
+        driver: An optional Playwright ``Browser`` or ``BrowserContext``
             to create pages from.  When *None*, the global
             ``playwright_control`` instance is used.
 
@@ -328,11 +328,11 @@ def _playwright_render(
         (result, width, height, dpr) where result is the script return value
         or PNG bytes if script is empty.
     '''
-    user_browser = browser is not None
+    user_driver = driver is not None
 
     def _do_export() -> tuple[Any, int, int, int]:
-        if user_browser:
-            page = browser.new_page()  # type: ignore[union-attr]
+        if user_driver:
+            page = driver.new_page()  # type: ignore[union-attr]
         else:
             page = playwright_control.get_page(scale_factor=scale_factor)
         try:
@@ -349,7 +349,7 @@ def _playwright_render(
                 page.close()
         return (result, w, h, dpr)
 
-    if _in_async_context() and not user_browser:
+    if _in_async_context() and not user_driver:
         return _playwright_thread.run(_do_export)
     return _do_export()
 
