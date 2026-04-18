@@ -4861,7 +4861,56 @@ describe("Bug", () => {
       expect(new_width).to.be.below(initial_width)
     })
   })
-
+  describe("in Issue #15006", () => {
+    function make_wedge_plot(
+      y_range: DataRange1d,
+      title: string,
+    ) {
+      const p = fig([400, 400], {y_range, title})
+      p.annular_wedge({
+        x: [1, 2, 3],
+        y: [1, 2, 3],
+        inner_radius: 0.1,
+        outer_radius: 0.25,
+        start_angle: 0.4,
+        end_angle: 4.8,
+        color: "orange",
+        alpha: 0.6,
+      })
+      return p
+    }
+    it("fails to expand y_range when min_interval is via callback", async () => {
+      const y_range = new DataRange1d()
+      const p = make_wedge_plot(y_range, "min_interval set post-render")
+      const {view} = await display(p)
+      expect(y_range.is_valid).to.be.true
+      y_range.min_interval = 10
+      await view.ready
+      await paint()
+      expect(y_range.span).to.be.above(9.9)
+      expect(y_range.start).to.be.below(-2.9)
+      expect(y_range.end).to.be.above(6.9)
+    })
+    it("does not update min_interval after user interaction with plot", async () => {
+      const y_range = new DataRange1d()
+      const p = make_wedge_plot(y_range, "Post-pan + post-render min_interval")
+      const {view} = await display(p)
+      await paint()
+      y_range.have_updated_interactively = true
+      y_range.setv({start: 1.4, end: 2.6})
+      await view.ready
+      await paint()
+      expect(y_range.span).to.be.below(1.21)
+      expect(y_range.start).to.be.above(1.39)
+      expect(y_range.end).to.be.below(2.61)
+      y_range.min_interval=10
+      await view.ready
+      await paint()
+      expect(y_range.span).to.be.above(9.99)
+      expect(y_range.start).to.be.below(-2.99)
+      expect(y_range.end).to.be.above(6.99)
+    })
+  })
   describe("in issue #8787", () => {
     it("doesn't show hover for multi line when values decrease", async () => {
       const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
