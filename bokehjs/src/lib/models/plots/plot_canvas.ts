@@ -1020,14 +1020,14 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
 
     const enforce_interval = (range: Range) => {
-      if (range instanceof DataRange1d){
+      if (range instanceof DataRange1d) {
         range.have_updated_interactively = false
         this._range_manager.invalidate_dataranges = true
-      } else if (range.is_valid){
+      } else if (range.is_valid) {
         const {min_interval, max_interval} = range
         const span = range.span
         const center = (range.start + range.end) / 2.0
-        if(min_interval != null && span < min_interval) {
+        if (min_interval != null && span < min_interval) {
           const half = min_interval / 2.0
           range.setv(range.is_reversed ? {start: center + half, end: center - half} : {start: center - half, end: center + half})
         } else if (max_interval != null && span > max_interval) {
@@ -1042,13 +1042,13 @@ export class PlotView extends LayoutDOMView implements Paintable {
     for (const [, range] of x_ranges) {
       this.on_change(
         [range.properties.min_interval, range.properties.max_interval],
-        () => enforce_interval(range),        
+        () => enforce_interval(range),
       )
     }
     for (const [, range] of y_ranges) {
       this.on_change(
         [range.properties.min_interval, range.properties.max_interval],
-        () => enforce_interval(range),        
+        () => enforce_interval(range),
       )
     }
 
