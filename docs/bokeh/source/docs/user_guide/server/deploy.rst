@@ -480,7 +480,7 @@ modules.
 
 Add balancers for both http and websocket protocols:
 
-.. code-block :: apache
+.. code-block:: apache
 
     <Proxy "balancer://myapp_http">
         BalancerMember "http://127.0.0.1:5100/myapp"
