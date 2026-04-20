@@ -8,6 +8,8 @@ import {Sort} from "core/enums"
 import {Comparison} from "../../../models/comparisons"
 import {Model} from "../../../model"
 
+type SlickEditorConstructor = new (args: any) => any
+
 export namespace TableColumn {
   export type Attrs = p.AttrsOf<Props>
 
@@ -55,7 +57,7 @@ export class TableColumn extends Model {
       width: this.width,
       formatter: this.formatter.doFormat.bind(this.formatter),
       model: this.editor,
-      editor: this.editor.default_view,
+      editor: this.editor.default_view as SlickEditorConstructor,
       sortable: this.sortable,
       defaultSortAsc: this.default_sort == "ascending",
       sorter: this.sorter,
