@@ -62,14 +62,14 @@ class Transform(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block
+    .. code-block:: typescript
 
         compute(x: number): number {
-            # compute and return the transform of a single value
+            // compute and return the transform of a single value
         }
 
         v_compute(xs: Arrayable<number>): Arrayable<number> {
-            # compute and return the transform of an array of values
+            // compute and return the transform of an array of values
         }
 
     '''
