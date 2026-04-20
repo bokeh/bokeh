@@ -18,6 +18,12 @@ There are two public classes in this module:
     :class:`~bokeh.application.application.Application` instances, and will
     automatically create and coordinate the lower level Tornado components.
 
+    The ``Server`` class also provides a :meth:`~Server.from_settings` factory
+    method that automatically applies configuration values from the Bokeh global
+    settings system for parameters such as authentication, SSL, session signing,
+    and cookies. This is useful for programmatic server creation that should
+    honor the same environment variable conventions used by ``bokeh serve``.
+
 See :ref:`ug_server_introduction` for general information on the Bokeh server.
 
 '''
