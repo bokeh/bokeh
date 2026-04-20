@@ -173,7 +173,7 @@ class Document:
         ''' A list of all the root models (including ``config``) in this document.
 
         '''
-        return [*self.roots, self.config] if self.config else self.roots
+        return [*list(self._roots), self._config] if self._config else list(self._roots)
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:

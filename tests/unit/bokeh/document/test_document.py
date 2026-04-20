@@ -176,13 +176,13 @@ class TestDocument:
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         m.child = None
-        assert len(d.models) == 1
+        assert len(d.models) == 3
         m.child = m2
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         d.remove_root(m)
-        assert len(d.models) == 0
+        assert len(d.models) == 2
 
     def test_get_model_by_id(self) -> None:
         d = document.Document()
@@ -193,7 +193,7 @@ class TestDocument:
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         assert d.get_model_by_id(m.id) == m
         assert d.get_model_by_id(m2.id) == m2
         assert d.get_model_by_id("not a valid ID") is None
@@ -207,7 +207,7 @@ class TestDocument:
         m.child = m2
         d.add_root(m)
         assert len(d.roots) == 1
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         assert d.get_model_by_name(m.name) == m
         assert d.get_model_by_name(m2.name) == m2
         assert d.get_model_by_name("not a valid name") is None
@@ -334,19 +334,19 @@ class TestDocument:
         d.add_root(root1)
         d.add_root(root2)
         assert len(d.roots) == 2
-        assert len(d.models) == 3
+        assert len(d.models) == 5
         root1.child = None
-        assert len(d.models) == 3
+        assert len(d.models) == 5
         root2.child = None
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         root1.child = child1
-        assert len(d.models) == 3
+        assert len(d.models) == 5
         root2.child = child1
-        assert len(d.models) == 3
+        assert len(d.models) == 5
         d.remove_root(root1)
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         d.remove_root(root2)
-        assert len(d.models) == 0
+        assert len(d.models) == 2
 
     def test_all_models_with_cycles(self) -> None:
         d = document.Document()
@@ -363,23 +363,23 @@ class TestDocument:
         print("adding root2")
         d.add_root(root2)
         assert len(d.roots) == 2
-        assert len(d.models) == 3
+        assert len(d.models) == 5
         print("clearing child of root1")
         root1.child = None
-        assert len(d.models) == 3
+        assert len(d.models) == 5
         print("clearing child of root2")
         root2.child = None
-        assert len(d.models) == 2
+        assert len(d.models) == 4
         print("putting child1 back in root1")
         root1.child = child1
-        assert len(d.models) == 3
+        assert len(d.models) == 5
 
         print("Removing root1")
         d.remove_root(root1)
-        assert len(d.models) == 1
+        assert len(d.models) == 3
         print("Removing root2")
         d.remove_root(root2)
-        assert len(d.models) == 0
+        assert len(d.models) == 2
 
     def test_change_notification(self) -> None:
         d = document.Document()
@@ -677,7 +677,7 @@ class TestDocument:
         assert d.title == "Foo"
         d.clear()
         assert not d.roots
-        assert len(d.models) == 0
+        assert len(d.models) == 2
         assert d.title == "Foo" # do not reset title
 
     def test_serialization_one_model(self) -> None:
@@ -895,7 +895,7 @@ class TestDocument:
         assert child2.id not in d.models
         assert child3.id not in d.models
 
-        assert d.models._new_models == {root1, root2, child1}
+        assert d.models._new_models == {d.config, d.config.notifications, root1, root2, child1}
         d.to_json() # clear new model queue
         assert d.models._new_models == set()
 
