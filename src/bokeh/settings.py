@@ -94,6 +94,21 @@ global defaults
 If no value is obtained after searching all of these locations, then a
 RuntimeError will be raised.
 
+Usage with ``Server``
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh serve`` command applies relevant settings from this module
+automatically. When creating a :class:`~bokeh.server.server.Server`
+programmatically, use the :meth:`~bokeh.server.server.Server.from_settings`
+factory method to similarly relay relevant settings to the Server instance, as
+the primary ``Server`` constructor does not read from this module by default.
+
+Any values explicitly passed as keyword arguments to ``from_settings()`` will
+take precedence over settings values from environment variables or direct
+interaction with this module.
+
+See :ref:`ug_server_library` for details.
+
 API
 ~~~
 
