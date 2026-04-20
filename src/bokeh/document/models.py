@@ -211,7 +211,7 @@ class DocumentModelManager:
             return
 
         new_models: set[Model] = set()
-        for mr in document.all_roots:
+        for mr in document.roots:
             new_models |= mr.references()
 
         old_models = set(self._models.values())

@@ -58,16 +58,16 @@ class TestDocumentModelManager:
         r2 = Row(children=[Div(), Div()])
 
         d.add_root(r1)
-        assert len(dm) == 4
+        assert len(dm) == 2
 
         d.add_root(r2)
-        assert len(dm) == 7
-
-        d.remove_root(r1)
         assert len(dm) == 5
 
+        d.remove_root(r1)
+        assert len(dm) == 3
+
         d.remove_root(r2)
-        assert len(dm) == 2
+        assert len(dm) == 0
 
     def test_setitem_getitem(self) -> None:
         d = Document()
@@ -315,22 +315,22 @@ class TestDocumentModelManager:
         d.add_root(child0)
         d.add_root(child1)
 
-        assert d.models._new_models == {d.config, d.config.notifications, child0, child1}
+        assert d.models._new_models == {child0, child1}
         assert d.models.synced_references == set()
         d.models.flush_synced()
         assert d.models._new_models == set()
-        assert d.models.synced_references == {d.config, d.config.notifications, child0, child1}
+        assert d.models.synced_references == {child0, child1}
 
         d.add_root(child2)
         assert d.models._new_models == {child2}
-        assert d.models.synced_references == {d.config, d.config.notifications, child0, child1}
+        assert d.models.synced_references == {child0, child1}
 
         child2.child = child0
         assert d.models._new_models == {child2}
-        assert d.models.synced_references == {d.config, d.config.notifications, child0, child1}
+        assert d.models.synced_references == {child0, child1}
         d.models.flush_synced()
         assert d.models._new_models == set()
-        assert d.models.synced_references == {d.config, d.config.notifications, child0, child1, child2}
+        assert d.models.synced_references == {child0, child1, child2}
 
     def test_flush_synced_with_fn(self) -> None:
         class SomeModel(Model, Local):
@@ -344,11 +344,11 @@ class TestDocumentModelManager:
         d.add_root(child1)
         d.add_root(child2)
 
-        assert d.models._new_models == {d.config, d.config.notifications, child0, child1, child2}
+        assert d.models._new_models == {child0, child1, child2}
         assert d.models.synced_references == set()
-        d.models.flush_synced(lambda model: getattr(model, "child", None) is not None)
+        d.models.flush_synced(lambda model: model.child is not None)
         assert d.models._new_models == {child2}
-        assert d.models.synced_references == {d.config, d.config.notifications, child0, child1}
+        assert d.models.synced_references == {child0, child1}
 
 #-----------------------------------------------------------------------------
 # Dev API

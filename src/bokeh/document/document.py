@@ -73,6 +73,7 @@ from .callbacks import (
 from .config import DocumentConfig
 from .events import (
     DocumentPatchedEvent,
+    ModelChangedEvent,
     RootAddedEvent,
     RootRemovedEvent,
     TitleChangedEvent,
@@ -144,6 +145,7 @@ class Document:
         self.modules = DocumentModuleManager(self)
 
         self._config = DocumentConfig()
+        self._config.on_change("color_scheme", self._set_color_scheme)
         self._roots = []
         self._template = FILE
         self._template_variables = {}
@@ -167,13 +169,6 @@ class Document:
 
         '''
         return list(self._roots)
-
-    @property
-    def all_roots(self) -> list[Model]:
-        ''' A list of all the root models (including ``config``) in this document.
-
-        '''
-        return [*list(self._roots), self._config] if self._config else list(self._roots)
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:
@@ -846,7 +841,7 @@ side of a communications channel while it was being removed on the other end.\
             None
 
         '''
-        for r in self.all_roots:
+        for r in self.roots:
             refs = r.references()
             issues = check_integrity(refs)
 
@@ -877,8 +872,8 @@ side of a communications channel while it was being removed on the other end.\
         roots: list[Model] = []
 
         with self.models.freeze():
-            while self.all_roots:
-                root = next(iter(self.all_roots))
+            while self.roots:
+                root = next(iter(self.roots))
                 self.remove_root(root)
                 roots.append(root)
 
@@ -895,6 +890,19 @@ side of a communications channel while it was being removed on the other end.\
             dest_doc.add_root(root)
 
         dest_doc.title = self.title
+
+    def _set_color_scheme(
+        self, attr, old_color_scheme, new_color_scheme, setter=None,
+    ):
+        self.callbacks.trigger_on_change(
+            ModelChangedEvent(
+                self,
+                self.config,
+                "color_scheme",
+                new_color_scheme,
+                setter=setter,
+            ),
+        )
 
 #-----------------------------------------------------------------------------
 # Private API
