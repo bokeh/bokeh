@@ -386,8 +386,6 @@ class Document:
             None
 
         '''
-        # TODO: config serialization. Not passing config here causes an
-        # `UnknownReferenceError`
         deserializer = Deserializer([*list(self.models), self.config], setter=setter)
 
         try:
