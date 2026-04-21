@@ -73,7 +73,6 @@ from .callbacks import (
 from .config import DocumentConfig
 from .events import (
     DocumentPatchedEvent,
-    ModelChangedEvent,
     RootAddedEvent,
     RootRemovedEvent,
     TitleChangedEvent,
@@ -140,12 +139,12 @@ class Document:
     _template_variables: dict[str, Any]
 
     def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
+        self._config = DocumentConfig()
+
         self.callbacks = DocumentCallbackManager(self)
         self.models = DocumentModelManager(self)
         self.modules = DocumentModuleManager(self)
 
-        self._config = DocumentConfig()
-        self._config.on_change("color_scheme", self._set_color_scheme)
         self._roots = []
         self._template = FILE
         self._template_variables = {}
@@ -890,19 +889,6 @@ side of a communications channel while it was being removed on the other end.\
             dest_doc.add_root(root)
 
         dest_doc.title = self.title
-
-    def _set_color_scheme(
-        self, attr, old_color_scheme, new_color_scheme, setter=None,
-    ):
-        self.callbacks.trigger_on_change(
-            ModelChangedEvent(
-                self,
-                self.config,
-                "color_scheme",
-                new_color_scheme,
-                setter=setter,
-            ),
-        )
 
 #-----------------------------------------------------------------------------
 # Private API

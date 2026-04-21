@@ -35,6 +35,8 @@ from typing import (
 from ..util.datatypes import MultiValuedDict
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from ..core.types import ID
     from ..model import Model
     from .document import Document
@@ -81,6 +83,8 @@ class DocumentModelManager:
         self._models_by_name = MultiValuedDict()
         self._new_models = set()
         self._seen_model_ids = set()
+
+        document.config.on_change("color_scheme", self.notify_config_change)
 
     def __len__(self) -> int:
         return len(self._models)
@@ -278,6 +282,29 @@ class DocumentModelManager:
             self._models_by_name.remove_value(old_name, model)
         if new_name is not None:
             self._models_by_name.add_value(new_name, model)
+
+    def notify_config_change(self, attr: str, old: Any, new: Any) -> None:
+        ''' Notify a document config model attribute has changed.
+
+        Currently only used for document config ``color_scheme`` changes.
+
+        Args:
+            attr (str) : name of the document config attribute that has changed.
+
+            old (Any) : old value of the document config attribute that has changes.
+
+            new (Any) : new value of the document config attribute that has changes.
+
+        Returns:
+            None
+
+        '''
+        document = self._document()
+        if document is None:
+            return
+
+        if hasattr(document, "config"):
+            document.callbacks.notify_change(document.config, attr, old, new)
 
     def _push_freeze(self) -> None:
         self._freeze_count += 1
