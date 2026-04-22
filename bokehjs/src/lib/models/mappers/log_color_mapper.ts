@@ -27,14 +27,20 @@ export class LogColorMapper extends ContinuousColorMapper {
 
   protected scan(data: Arrayable<number>, n: number): LogScanData {
     const low = this.low != null ? this.low : min(data)
+    if (low <= 0) {
+      console.log(`LogColorMapper detects invalid value "${low}" for parameter "low".`)
+    }
     const high = this.high != null ? this.high : max(data)
+    if (high <= 0) {
+      console.log(`LogColorMapper detects invalid value "${high}" for parameter "high".`)
+    }
     const scale = n / Math.log(high / low)  // subtract the low offset
     return {max: high, min: low, scale}
   }
 
   override index_to_value(index: number): number {
     const scan_data = this._scan_data as LogScanData
-    return scan_data.min * Math.exp(index / scan_data.scale)
+    return scan_data.min * Math.exp(index / Math.abs(scan_data.scale))
   }
 
   override value_to_index(value: number, palette_length: number): number {
@@ -42,16 +48,31 @@ export class LogColorMapper extends ContinuousColorMapper {
 
     // This handles the edge case where value == high, since the code below maps
     // values exactly equal to high to palette.length when it should be one less.
-    if (value == scan_data.max) {
-      return palette_length - 1
-    } else if (value > scan_data.max) {
-      return palette_length
-    } else if (value < scan_data.min) {
-      return -1
-    }
+    if (0 < scan_data.scale) {
+      if (value == scan_data.max) {
+        return palette_length - 1
+      } else if (value > scan_data.max) {
+        return palette_length
+      } else if (value < scan_data.min) {
+        return -1
+      }
 
-    const log = Math.log(value / scan_data.min)
-    const index = Math.floor(log * scan_data.scale)
-    return clamp(index, -1, palette_length)
+      const log = Math.log(value / scan_data.min)
+      const index = Math.floor(log * scan_data.scale)
+      return clamp(index, -1, palette_length)
+    } else {
+      // if the scale is negative, the color bar is inverted by the user, i. e. high < low
+      if (value == scan_data.max) {
+        return palette_length - 1
+      } else if (value > scan_data.min) {
+        return -1
+      } else if (value < scan_data.max) {
+        return palette_length
+      }
+
+      const log = Math.log(value / scan_data.min)
+      const index = Math.abs(Math.floor(log * scan_data.scale))
+      return clamp(index, -1, palette_length)
+    }
   }
 }
