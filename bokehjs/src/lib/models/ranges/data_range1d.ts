@@ -82,6 +82,12 @@ export class DataRange1d extends DataRange {
       _initial_default_span: [ Float, (obj) => obj.default_span ],
     }))
   }
+  override connect_signals(): void {
+    super.connect_signals()
+    this.on_change([this.properties.min_interval, this.properties.max_interval], () => {
+      this.have_updated_interactively = false
+    })
+  }
 
   protected readonly _plot_bounds: Map<PlotView, Rect> = new Map()
 

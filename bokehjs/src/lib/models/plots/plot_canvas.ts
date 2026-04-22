@@ -1010,46 +1010,19 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
       this.connect(range.change, () => {
+        if (range instanceof DataRange1d && !range.have_updated_interactively) {
+          this._range_manager.invalidate_dataranges = true
+        }
         this.request_repaint()
       })
     }
     for (const [, range] of y_ranges) {
       this.connect(range.change, () => {
+        if (range instanceof DataRange1d && !range.have_updated_interactively) {
+          this._range_manager.invalidate_dataranges = true
+        }
         this.request_repaint()
       })
-    }
-
-    const enforce_interval = (range: Range) => {
-      if (range instanceof DataRange1d) {
-        range.have_updated_interactively = false
-        this._range_manager.invalidate_dataranges = true
-      } else if (range.is_valid) {
-        const {min_interval, max_interval} = range
-        const span = range.span
-        const center = (range.start + range.end) / 2.0
-        if (min_interval != null && span < min_interval) {
-          const half = min_interval / 2.0
-          range.setv(range.is_reversed ? {start: center + half, end: center - half} : {start: center - half, end: center + half})
-        } else if (max_interval != null && span > max_interval) {
-          const half = max_interval / 2.0
-          range.setv(range.is_reversed
-            ? {start: center + half, end: center - half}
-            : {start: center - half, end: center + half})
-        }
-      }
-      this.request_paint()
-    }
-    for (const [, range] of x_ranges) {
-      this.on_change(
-        [range.properties.min_interval, range.properties.max_interval],
-        () => enforce_interval(range),
-      )
-    }
-    for (const [, range] of y_ranges) {
-      this.on_change(
-        [range.properties.min_interval, range.properties.max_interval],
-        () => enforce_interval(range),
-      )
     }
 
     this.connect(this.model.change, () => this.request_repaint())

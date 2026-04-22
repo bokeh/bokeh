@@ -62,6 +62,29 @@ export class Range1d extends NumericalRange {
     this._set_auto_bounds()
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    this.on_change([this.properties.min_interval, this.properties.max_interval], () => {
+      if (!this.is_valid) {
+        return
+      }
+      const {min_interval, max_interval} = this
+      const span = this.span
+      const center = (this.start + this.end) / 2.0
+      const half = (() => {
+        if (min_interval != null && span < min_interval) {
+          return min_interval / 2.0
+        } else if (max_interval != null && span > max_interval) {
+          return max_interval / 2.0
+        }
+        return null
+      })()
+      if (half != null) {
+        this.setv(this.is_reversed ? {start: center + half, end: center - half} : {start: center - half, end: center + half})
+      }
+    })
+  }
+
   get min(): number {
     return Math.min(this.start, this.end)
   }
