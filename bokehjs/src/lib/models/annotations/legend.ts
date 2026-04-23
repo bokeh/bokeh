@@ -196,7 +196,7 @@ export class LegendView extends AnnotationView {
       const labels = item.get_labels_list_from_label_prop()
 
       for (const label of labels) {
-        const translatable_label = new TranslatableText({content: label})
+        const translatable_label = new TranslatableText({content: String(label)})
         this._label_models.set(label, translatable_label)
         this._label_views.set(translatable_label, await this.owner.build_view(translatable_label, this))
       }
