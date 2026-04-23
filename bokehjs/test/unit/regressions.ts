@@ -15,6 +15,7 @@ import {
   CDSView,
   Canvas,
   CategoricalColorMapper,
+  ColorBar,
   Column,
   ColumnDataSource,
   CopyTool,
@@ -30,6 +31,7 @@ import {
   LegendItem,
   Line,
   LinearColorMapper,
+  LogColorMapper,
   Node,
   PanTool,
   Pane,
@@ -78,7 +80,7 @@ import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {Spectral11, Viridis11, Viridis256} from "@bokehjs/api/palettes"
+import {Spectral11, Spectral6, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 import type {AxisType, ToolName} from "@bokehjs/api/figure"
@@ -2054,6 +2056,24 @@ describe("Bug", () => {
       await has_cursor_at(view, xy(3, 1), "default")
       await has_cursor_at(view, xy(2, 1), "default")
       await has_cursor_at(view, xy(2, 2), "default")
+    })
+  })
+
+  describe("in issue #7297", () => {
+    it("doesn't support reversed LogColorMapper when low is grater than high", async () => {
+      const x = linspace(0.5, 10.5, 21)
+      const y = linspace(0.5, 10.5, 21)
+      const source = new ColumnDataSource({data: {x, y}})
+
+      const p = fig([200, 200])
+      const cmap = new LogColorMapper({
+        palette: Spectral6, low: 10, high: 1, low_color: "gray", high_color: "black",
+      })
+      const cbar = new ColorBar({color_mapper: cmap})
+      p.scatter("x", "y", {color: {field: "x", transform: cmap}, size: 15, source})
+      p.add_layout(cbar, "right")
+
+      await display(p)
     })
   })
 })
