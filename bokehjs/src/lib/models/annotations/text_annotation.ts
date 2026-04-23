@@ -65,18 +65,6 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.remove()
   }
 
-  override has_finished(): boolean {
-    if (!super.has_finished()) {
-      return false
-    }
-
-    if (!this._text_view.has_finished()) {
-      return false
-    }
-
-    return true
-  }
-
   override get displayed(): boolean {
     return super.displayed && this._text_view.model.text != "" && this.visuals.text.doit
   }

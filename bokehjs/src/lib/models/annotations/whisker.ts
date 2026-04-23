@@ -63,6 +63,8 @@ export class WhiskerView extends UpperLowerView {
         this.lower_head.paint(ctx, i)
         ctx.restore()
       }
+
+      this.lower_head.mark_finished()
     }
 
     if (this.upper_head != null) {
@@ -73,6 +75,8 @@ export class WhiskerView extends UpperLowerView {
         this.upper_head.paint(ctx, i)
         ctx.restore()
       }
+
+      this.upper_head.mark_finished()
     }
   }
 }

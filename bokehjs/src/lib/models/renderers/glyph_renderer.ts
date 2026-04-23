@@ -322,6 +322,16 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  override paint(ctx: Context2d): void {
+    super.paint(ctx)
+
+    this.decimated_glyph.force_finished()
+    this.selection_glyph.force_finished()
+    this.nonselection_glyph.force_finished()
+    this.hover_glyph?.force_finished()
+    this.muted_glyph.force_finished()
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
