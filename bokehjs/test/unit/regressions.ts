@@ -2062,7 +2062,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #7297", () => {
-    it("doesn't support inverted LogColorMapper when low is grater than high", async () => {
+    it("doesn't support reversed LogColorMapper when low is grater than high", async () => {
       const x = linspace(0.5, 10.5, 21)
       const y = linspace(0.5, 10.5, 21)
       const source = new ColumnDataSource({data: {x, y}})
