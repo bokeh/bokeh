@@ -34,10 +34,13 @@ export namespace I18nLines {
 
   const p = plt.figure()
 
+  p.title = "Multi-line plot translation example"
+  p.xaxis.axis_label = "X-Axis"
+  p.yaxis.axis_label = "Y-Axis"
   p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4})
   p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4})
   p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4})
-  p.legend.title = "Available colors"
+  p.legend.title = new Bokeh.TranslatableText({content: "Available colors"})
 
   const language_dropdown = new Bokeh.Widgets.LanguageDropdown()
 

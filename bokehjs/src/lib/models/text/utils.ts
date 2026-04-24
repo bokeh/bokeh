@@ -1,6 +1,6 @@
 import {TeX} from "./math_text"
 import type {BaseText} from "./base_text"
-import {PlainText} from "./plain_text"
+import {TranslatableText} from "./translatable_text"
 import {sort_by} from "core/util/array"
 
 type Delimiter = {
@@ -56,6 +56,7 @@ export function parse_delimited_string(text: string): BaseText {
     tex_string += end < text.length ? `\\text{${text.slice(end)}}` : ""
     return new TeX({text: tex_string, inline: false})
   } else {
-    return new PlainText({text})
+    // TODO: There should be a way to define if PlainText of TranslatableText instance should be used
+    return new TranslatableText({text})
   }
 }

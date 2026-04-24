@@ -35,7 +35,10 @@ dropdown = Dropdown(label=TranslatableText(content="Select an option"), button_t
     (TranslatableText(content="Item 3"), "item_3"),
 ])
 
-p = figure()
+p = figure(title="Multi-line plot translation example")
+
+p.xaxis.axis_label = "X-Axis"
+p.yaxis.axis_label = "Y-Axis"
 
 r = p.multi_line([[1,2,3], [1,2,3], [3,2,1]], [[1,3,2], [3,4,3], [3,2,1]],
                  color=["orange", "red", "blue"], line_width=4)
