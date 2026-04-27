@@ -1,4 +1,5 @@
 import {OrientedControl, OrientedControlView} from "../oriented_control"
+import {bind} from "core/class"
 import * as p from "core/properties"
 import type {Keys} from "core/dom"
 import {bounding_box, box_size} from "core/dom"
@@ -268,7 +269,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
           tabIndex={disabled.value ? -1 : 0}
           style={{"--at": `${at}`}}
           aria-valuetext={this.pretty(value)}
-          onKeyDown={this._keydown.bind(this)}
+          onKeyDown={this._on_keydown}
           ref={(el) => { this.handles[i] = el! }}
         >
           {tooltips.value ? <div class={sliders_css.tooltip}>{this.pretty(value)}</div> : null}
@@ -300,11 +301,11 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         {title_el}
         <div
           class={sliders_css.slider}
-          onPointerDown={this._pointer_down.bind(this)}
-          onPointerMove={this._pointer_move.bind(this)}
-          onPointerCancel={this._pointer_cancel.bind(this)}
-          onPointerUp={this._pointer_up.bind(this)}
-          onWheel={this._wheel.bind(this)}
+          onPointerDown={this._on_pointer_down}
+          onPointerMove={this._on_pointer_move}
+          onPointerCancel={this._on_pointer_cancel}
+          onPointerUp={this._on_pointer_up}
+          onWheel={this._on_wheel}
         >
           <div class={sliders_css.track} ref={(el) => { this.track_el = el! }}>
             <div class={cls(sliders_css.span, draggable_cls)} style={{"--start": start, "--end": end}} ref={(el) => { this.span_el = el! }}></div>
@@ -318,7 +319,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   private _state: DragState | null = null
 
   // TODO redesign this using UIGestures
-  protected _pointer_down(event: TargetedPointerEvent): void {
+  @bind protected _on_pointer_down(event: TargetedPointerEvent): void {
     assert(this._state == null)
     if (!event.isPrimary) {
       return
@@ -340,19 +341,19 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     }
   }
 
-  protected _pointer_move(event: TargetedPointerEvent): void {
+  @bind protected _on_pointer_move(event: TargetedPointerEvent): void {
     if (this._state != null && this._state.pointer == event.pointerId) {
       this.drag_to(event, this._state, true)
     }
   }
 
-  protected _pointer_cancel(event: TargetedPointerEvent): void {
+  @bind protected _on_pointer_cancel(event: TargetedPointerEvent): void {
     if (this._state != null && this._state.pointer == event.pointerId) {
       this._state = null
     }
   }
 
-  protected _pointer_up(event: TargetedPointerEvent): void {
+  @bind protected _on_pointer_up(event: TargetedPointerEvent): void {
     if (this._state != null && this._state.pointer == event.pointerId) {
       if (this._state.target.type != "track") {
         this.drag_to(event, this._state)
@@ -364,7 +365,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     }
   }
 
-  protected _wheel(event: TargetedWheelEvent): void {
+  @bind protected _on_wheel(event: TargetedWheelEvent): void {
     event.preventDefault()
     event.stopPropagation()
 
@@ -378,7 +379,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     }
   }
 
-  protected _keydown(event: KeyboardEvent): void {
+  @bind protected _on_keydown(event: KeyboardEvent): void {
     const target = this.hit_target(event)
     if (target == null || target.type != "handle") {
       return
