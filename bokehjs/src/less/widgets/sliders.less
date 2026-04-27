@@ -89,8 +89,6 @@
   --end-position: calc(calc(1 - var(--end))*100%);
 
   position: absolute;
-  border-top-left-radius: var(--track-size);
-  border-bottom-left-radius: var(--track-size);
   background-color: var(--active-background-color);
 }
 :host(.bk-horizontal) {
@@ -98,6 +96,8 @@
     left: var(--start-position);
     right: var(--end-position);
     height: 100%;
+    border-top-left-radius: var(--track-size);
+    border-bottom-left-radius: var(--track-size);
 
     &.bk-draggable {
       cursor: ew-resize;
@@ -109,6 +109,8 @@
     top: var(--start-position);
     bottom: var(--end-position);
     width: 100%;
+    border-top-left-radius: var(--track-size);
+    border-top-right-radius: var(--track-size);
 
     &.bk-draggable {
       cursor: ns-resize;
