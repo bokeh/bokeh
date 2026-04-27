@@ -59,9 +59,6 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   protected override readonly _auto_width = "auto"
   protected override readonly _auto_height = "auto"
 
-  // TODO remove this
-  public *controls() {}
-
   abstract pretty(value: T): string
 
   get meta(): SliderMeta<T> {
