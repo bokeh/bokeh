@@ -44,7 +44,7 @@ def color_picker():
         const r = red.value
         const g = green.value
         const b = blue.value
-        div.background = `rgb(${r}, ${g}, ${b})`
+        div.styles = {backgroundColor: `rgb(${r}, ${g}, ${b})`}
     """)
 
     red.js_on_change("value", cb)
