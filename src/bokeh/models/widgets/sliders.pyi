@@ -17,12 +17,13 @@ from typing import (
 
 # Bokeh imports
 from ..._types import Datetime
+from ...core.enums import OrientationType as Orientation
 from ..formatters import TickFormatter
 from .widget import Widget, _WidgetInit
 
 class _AbstractSliderInit(_WidgetInit, total=False):
     value: Any
-    orientation: Literal["horizontal", "vertical"]
+    orientation: Orientation
     title: str | None
     show_value: bool
     tooltips: bool
@@ -33,7 +34,7 @@ class AbstractSlider(Widget):
     def __init__(self, **kwargs: Unpack[_AbstractSliderInit]) -> None: ...
 
     value: Any = ...
-    orientation: Literal["horizontal", "vertical"] = ...
+    orientation: Orientation = ...
     title: str | None = ...
     show_value: bool = ...
     tooltips: bool = ...
