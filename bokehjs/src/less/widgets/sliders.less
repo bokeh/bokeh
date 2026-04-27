@@ -27,10 +27,6 @@
   }
 }
 
-:host(.bk-disabled) {
-  pointer-events: none;
-}
-
 .bk-title {
   white-space: nowrap;
   color: var(--inherit-color);
@@ -78,6 +74,11 @@
   .bk-track {
     width: var(--track-size);
     height: 100%;
+  }
+}
+:host(.bk-disabled) {
+  .bk-track {
+    cursor: auto;
   }
 }
 
@@ -138,6 +139,11 @@
     left: 50%;
     top: var(--at-position);
     cursor: ns-resize;
+  }
+}
+:host(.bk-disabled) {
+  .bk-handle {
+    cursor: not-allowed;
   }
 }
 
