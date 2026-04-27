@@ -1,7 +1,6 @@
 import type {SliderSpec} from "./abstract_slider"
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 import type * as p from "core/properties"
-import {isNumber} from "core/util/types"
 
 export class CategoricalSliderView extends AbstractSliderView<string> {
   declare readonly model: CategoricalSlider
@@ -28,9 +27,8 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
     return value
   }
 
-  pretty(value: number | string): string {
-    // value may not be an integer due to noUiSlider's FP math
-    return isNumber(value) ? this.model.categories[Math.round(value)] : value
+  pretty(value: string): string {
+    return value
   }
 }
 

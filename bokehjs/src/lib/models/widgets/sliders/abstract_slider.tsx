@@ -61,7 +61,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   // TODO remove this
   public *controls() {}
 
-  abstract pretty(value: number | string): string
+  abstract pretty(value: T): string
 
   get meta(): SliderMeta<T> {
     return this._meta.value
