@@ -84,7 +84,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
         return null
       }
     })()
-    const step_multiplier = ticks != null ? 0.2*ticks.length : 1 // 20% of span
+    const step_multiplier = ticks != null ? Math.round(0.2*ticks.length) : 4 // 20% of span (4*0.05*span); make configurable
     const N = spec.values.length
 
     return {...spec, min, max, span, reversed, ticks, step_multiplier, N}
@@ -182,13 +182,11 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   protected shift_by(handles: HTMLElement[], factor: number): void {
-    const {min, max, values, step, reversed, compute, invert} = this.meta
-    if (step == null) {
-      return // TODO use some fixed percentage
-    }
+    const {min, max, span, values, step, reversed, compute, invert} = this.meta
+    const computed_step = step == null ? 0.05*span : step
 
     const sign = reversed ? -1 : 1
-    const offset = sign*factor*step
+    const offset = sign*factor*computed_step
 
     const new_values = copy(values)
 
