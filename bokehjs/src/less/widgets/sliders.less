@@ -60,8 +60,8 @@
   align-self: center;
   position: relative;
   border-radius: 4px;
-  border: 1px solid #c0c0c0;
-  background-color: #e5e5e5;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-background-color);;
   cursor: pointer;
 }
 :host(.bk-horizontal) {
@@ -91,7 +91,7 @@
   position: absolute;
   border-top-left-radius: var(--track-size);
   border-bottom-left-radius: var(--track-size);
-  background-color: #c2d5f7;
+  background-color: var(--active-background-color);
 }
 :host(.bk-horizontal) {
   .bk-span {
@@ -115,6 +115,11 @@
     }
   }
 }
+:host(.bk-disabled) {
+  .bk-span {
+    background-color: var(--border-color); // TODO should be disabled-background-color or maybe active-disabled-background-color?
+  }
+}
 
 .bk-handle {
   --at: 0; // [0, 1]
@@ -124,7 +129,7 @@
   width: var(--handle-size);
   height: var(--handle-size);
   border-radius: 50%;
-  background-color: #3b80f0;
+  background-color: var(--highlight-color);
   transform: translate(-50%, -50%);
 }
 :host(.bk-horizontal) {
@@ -143,6 +148,7 @@
 }
 :host(.bk-disabled) {
   .bk-handle {
+    background-color: var(--disabled-color);
     cursor: not-allowed;
   }
 }
@@ -160,7 +166,7 @@
   position: absolute;
   white-space: nowrap;
   padding: 0.25em;
-  border: 1px solid var(--divider-color);
+  border: 1px solid var(--border-color);
   background-color: var(--background-color);
 }
 .bk-handle:hover {

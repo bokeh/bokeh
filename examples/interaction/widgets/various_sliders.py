@@ -22,6 +22,7 @@ def sliders(orientation: OrientationType) -> list[models.AbstractSlider]:
         models.Slider(start=50, end=10, value=25, step=1, title="Integer reversed", orientation=orientation),
         models.Slider(start=10, end=50, value=25, step=1, title="Integer disabled", orientation=orientation, disabled=True),
         models.Slider(start=10, end=50, value=25, step=1, title="Integer stealth", orientation=orientation, appearance="stealth"),
+        models.Slider(start=10, end=50, value=25, step=1, title="Integer disabled stealth", orientation=orientation, appearance="stealth", disabled=True),
         models.CategoricalSlider(title="Categorical", value="B", categories=categories, orientation=orientation),
         models.DateSlider(title="Date", value=april, start=january, end=december, orientation=orientation),
         models.DateSlider(title="Date reversed", value=april, start=december, end=january, orientation=orientation),
