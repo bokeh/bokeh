@@ -10,7 +10,7 @@ export abstract class BaseNumericalSliderView extends AbstractSliderView<number>
   protected abstract _formatter(value: number, format: string | TickFormatter): string
 
   pretty(value: number): string {
-    return this._formatter(value, this.model.format)
+    return this._formatter(value, this.values.format)
   }
 }
 
