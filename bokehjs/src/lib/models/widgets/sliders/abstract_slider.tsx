@@ -320,6 +320,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
 
   // TODO redesign this using UIGestures
   @bind protected _on_pointer_down(event: TargetedPointerEvent): void {
+    if (this.values.disabled) {
+      return
+    }
     assert(this._state == null)
     if (!event.isPrimary) {
       return
@@ -366,6 +369,10 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   @bind protected _on_wheel(event: TargetedWheelEvent): void {
+    if (this.values.disabled) {
+      return
+    }
+
     event.preventDefault()
     event.stopPropagation()
 
@@ -380,6 +387,9 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   }
 
   @bind protected _on_keydown(event: KeyboardEvent): void {
+    if (this.values.disabled) {
+      return
+    }
     const target = this.hit_target(event)
     if (target == null || target.type != "handle") {
       return
