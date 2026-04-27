@@ -24,7 +24,7 @@ hue_style = InlineStyleSheet(css="""
     opacity: 0;
 }
 .bk-handle {
-    background-color: hsl(calc(360*var(--value)) 100% 50%);
+    background-color: hsl(calc(360*var(--at)) 100% 50%);
 }
 """)
 
