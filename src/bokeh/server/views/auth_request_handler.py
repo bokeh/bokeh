@@ -59,7 +59,7 @@ class AuthRequestHandler(RequestHandler):
         if self.application.auth_provider.get_login_url is not None:
             return self.application.auth_provider.get_login_url(self)
         if self.application.auth_provider.login_url is not None:
-            return self.application.auth_provider.login_url
+            return self.application.prefix + self.application.auth_provider.login_url
         raise RuntimeError('login_url or get_login_url() must be supplied when authentication hooks are enabled')
 
     def get_current_user(self):
