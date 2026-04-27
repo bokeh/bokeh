@@ -27,6 +27,7 @@ import numbers
 from datetime import UTC, date, datetime
 
 # Bokeh imports
+from ...core.enums import Orientation
 from ...core.has_props import abstract
 from ...core.property.container import Seq, Tuple
 from ...core.property.datetime import Datetime
@@ -73,7 +74,9 @@ __all__ = (
 
 @abstract
 class AbstractSlider(Widget):
-    """ """
+    """ Base class for all slider widgets.
+
+    """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -98,7 +101,7 @@ class AbstractSlider(Widget):
     # Initial or selected value, throttled according to report only on mouseup.
     # """)
 
-    orientation = Enum("horizontal", "vertical", help="""
+    orientation = Enum(Orientation, help="""
     Orient the slider either horizontally (default) or vertically.
     """)
 
