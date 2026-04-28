@@ -181,8 +181,7 @@ export class HoverToolView extends InspectToolView {
   protected _template_view?: ViewOf<DOMElement>
 
   override children_views(): ChildView[] {
-    const this_template_view = this._template_view != null ? [this._template_view]: []
-    return [...super.children_views(), ...this._ttviews.values(), ...this_template_view]
+    return [...super.children_views(), ...this._ttviews.values(), this._template_view]
   }
 
   protected async _update_filters(): Promise<void> {

@@ -47,8 +47,8 @@ export abstract class InputWidgetView extends ControlView {
 
   override children_views(): ChildView[] {
     const {title, description} = this
-    const title_view = title instanceof View ? [title]:[]
-    const description_view = description instanceof View ? [description]:[]
+    const title_view = title instanceof View ? [title] : []
+    const description_view = description instanceof View ? [description] : []
     return [...super.children_views(), ...title_view, ...description_view]
   }
 
