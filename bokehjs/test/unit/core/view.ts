@@ -20,11 +20,6 @@ class SomeModelView extends View {
     await super.lazy_initialize()
     await build_views(this._children_views, this.model.children, {parent: this})
   }
-
-  override remove(): void {
-    remove_views(this._children_views)
-    super.remove()
-  }
 }
 
 export namespace SomeModel {

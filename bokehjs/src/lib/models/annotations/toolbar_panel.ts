@@ -53,11 +53,6 @@ export class ToolbarPanelView extends AnnotationView {
     })
   }
 
-  override remove(): void {
-    this.toolbar_view.remove()
-    super.remove()
-  }
-
   override render(): void {
     super.render()
     this.toolbar_view.render_to(this.shadow_el)

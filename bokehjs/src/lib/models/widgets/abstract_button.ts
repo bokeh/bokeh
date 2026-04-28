@@ -72,12 +72,6 @@ export abstract class AbstractButtonView extends ControlView {
     })
   }
 
-  override remove(): void {
-    this.label_view?.remove()
-    this.icon_view?.remove()
-    super.remove()
-  }
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), buttons_css]
   }

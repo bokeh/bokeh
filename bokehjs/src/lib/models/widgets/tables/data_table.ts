@@ -178,7 +178,6 @@ export class DataTableView extends WidgetView {
   }
 
   override remove(): void {
-    this.cds_view.remove()
     this.grid.destroy()
     super.remove()
   }

@@ -77,11 +77,6 @@ export class GridPlotView extends LayoutDOMView {
     })
   }
 
-  override remove(): void {
-    remove_views(this._tool_views)
-    super.remove()
-  }
-
   private readonly _tool_views: ViewStorage<ActionTool> = new Map()
 
   async build_tool_views(): Promise<void> {

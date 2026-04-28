@@ -147,11 +147,6 @@ export class TooltipView extends UIElementView {
     super.disconnect_signals()
   }
 
-  override remove(): void {
-    this._element_view?.remove()
-    super.remove()
-  }
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), tooltips_css.default, icons_css.default, this.position]
   }

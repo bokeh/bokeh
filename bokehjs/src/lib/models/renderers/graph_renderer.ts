@@ -114,12 +114,6 @@ export class GraphRendererView extends DataRendererView {
     }
   }
 
-  override remove(): void {
-    this.edge_view.remove()
-    this.node_view.remove()
-    super.remove()
-  }
-
   protected _paint(ctx: Context2d): void {
     this.edge_view.paint(ctx)
     this.node_view.paint(ctx)

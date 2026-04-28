@@ -30,12 +30,6 @@ export class ContourColorBarView extends BaseColorBarView {
     this._line_view = await build_view(line_renderer, {parent: this.parent})
   }
 
-  override remove(): void {
-    this._fill_view.remove()
-    this._line_view.remove()
-    super.remove()
-  }
-
   override _create_major_range(): Range {
     const levels = this.model.levels
     if (levels.length > 0) {

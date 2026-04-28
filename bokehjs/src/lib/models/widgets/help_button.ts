@@ -21,11 +21,6 @@ export class HelpButtonView extends AbstractButtonView {
     this.tooltip = await build_view(tooltip, {parent: this})
   }
 
-  override remove(): void {
-    this.tooltip.remove()
-    super.remove()
-  }
-
   override render(): void {
     super.render()
 

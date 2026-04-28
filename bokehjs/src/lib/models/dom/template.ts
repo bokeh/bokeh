@@ -33,11 +33,6 @@ export class TemplateView extends DOMElementView {
     await this._update_actions()
   }
 
-  override remove(): void {
-    remove_views(this._action_views)
-    super.remove()
-  }
-
   update(source: ColumnarDataSource, i: Index | null, vars: PlainObject, formatters?: Formatters): void {
     traverse_views([this], (view) => {
       if (view instanceof PlaceholderView) {

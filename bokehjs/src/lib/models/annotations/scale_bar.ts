@@ -125,11 +125,6 @@ export class ScaleBarView extends AnnotationView {
     this.axis_view.update_layout()
   }
 
-  override remove(): void {
-    this.axis_view.remove()
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 

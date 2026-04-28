@@ -60,11 +60,6 @@ export abstract class TextAnnotationView extends AnnotationView {
     this.connect(this.model.change, () => this.request_paint())
   }
 
-  override remove(): void {
-    this._text_view.remove()
-    super.remove()
-  }
-
   override has_finished(): boolean {
     if (!super.has_finished()) {
       return false

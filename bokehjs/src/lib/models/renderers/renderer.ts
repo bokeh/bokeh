@@ -79,11 +79,6 @@ export abstract class RendererView extends StyledElementView implements visuals.
     }
   }
 
-  override remove(): void {
-    this._context_menu?.remove()
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 

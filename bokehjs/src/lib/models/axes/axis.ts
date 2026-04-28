@@ -728,16 +728,6 @@ export abstract class AxisView extends GuideRendererView {
 
   // }}}
 
-  override remove(): void {
-    this._axis_label_view?.remove()
-
-    for (const label_view of this._major_label_views.values()) {
-      label_view.remove()
-    }
-
-    super.remove()
-  }
-
   override has_finished(): boolean {
     if (!super.has_finished()) {
       return false

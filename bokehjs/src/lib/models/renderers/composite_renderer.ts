@@ -92,12 +92,6 @@ export abstract class CompositeRendererView extends RendererView {
     }
   }
 
-  override remove(): void {
-    remove_views(this._renderer_views)
-    remove_views(this._element_views)
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
     const {renderers, elements} = this.model.properties

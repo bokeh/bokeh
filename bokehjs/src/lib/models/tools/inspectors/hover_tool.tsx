@@ -208,12 +208,6 @@ export class HoverToolView extends InspectToolView {
     await this._update_filters()
   }
 
-  override remove(): void {
-    this._template_view?.remove()
-    remove_views(this._ttviews)
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 

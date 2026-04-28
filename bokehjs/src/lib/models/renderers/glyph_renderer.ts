@@ -150,17 +150,6 @@ export class GlyphRendererView extends DataRendererView {
     return build_view(glyph, {parent: this}) as Promise<GlyphView>
   }
 
-  override remove(): void {
-    this.cds_view.remove()
-    this.glyph.remove()
-    this.selection_glyph.remove()
-    this.nonselection_glyph.remove()
-    this.hover_glyph?.remove()
-    this.muted_glyph.remove()
-    this.decimated_glyph.remove()
-    super.remove()
-  }
-
   private _previous_inspected?: {
     indices: OpaqueIndices
     line_indices: OpaqueIndices

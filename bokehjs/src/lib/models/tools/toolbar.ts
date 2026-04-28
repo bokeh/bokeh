@@ -124,7 +124,6 @@ export class ToolbarView extends UIElementView {
   }
 
   override remove(): void {
-    remove_views(this._tool_button_views)
     this._destroy_proxies()
     super.remove()
   }

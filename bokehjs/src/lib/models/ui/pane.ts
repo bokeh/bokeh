@@ -54,11 +54,6 @@ export class PaneView extends UIElementView {
     this.r_after_render()
   }
 
-  override remove(): void {
-    remove_views(this._element_views)
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
     const {elements} = this.model.properties

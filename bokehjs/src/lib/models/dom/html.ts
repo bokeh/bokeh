@@ -41,11 +41,6 @@ export class HTMLView extends DOMElementView {
     await this._update_refs()
   }
 
-  override remove(): void {
-    remove_views(this._refs)
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 

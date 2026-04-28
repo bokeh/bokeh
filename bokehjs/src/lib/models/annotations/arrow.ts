@@ -60,12 +60,6 @@ export class ArrowView extends DataAnnotationView {
     this.end?.set_data(source, indices)
   }
 
-  override remove(): void {
-    this.start?.remove()
-    this.end?.remove()
-    super.remove()
-  }
-
   map_data(): void {
     const {frame} = this.plot_view
 

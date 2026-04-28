@@ -15,11 +15,6 @@ export abstract class MathTextGlyphView extends TextView {
 
   protected _label_views: ViewStorage<BaseText> = new Map()
 
-  override remove(): void {
-    remove_views(this._label_views)
-    super.remove()
-  }
-
   override children_views(): View[] {
     return [...super.children_views(), ...this._label_views.values()]
   }

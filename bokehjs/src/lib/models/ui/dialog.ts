@@ -103,8 +103,6 @@ export class DialogView extends UIElementView {
 
   override remove(): void {
     remove(_stacking_order, this)
-    this._content.remove()
-    this._title.remove()
     super.remove()
   }
 

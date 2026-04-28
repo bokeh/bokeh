@@ -36,12 +36,6 @@ export class ContourRendererView extends DataRendererView {
     this.line_view = await build_view(line_renderer, {parent})
   }
 
-  override remove(): void {
-    this.fill_view.remove()
-    this.line_view.remove()
-    super.remove()
-  }
-
   protected _paint(ctx: Context2d): void {
     this.fill_view.paint(ctx)
     this.line_view.paint(ctx)

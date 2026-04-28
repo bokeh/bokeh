@@ -34,11 +34,6 @@ export abstract class DOMElementView extends DOMNodeView {
     await build_views(this.child_views, children, {parent: this})
   }
 
-  override remove(): void {
-    remove_views(this.child_views)
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 

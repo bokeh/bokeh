@@ -280,12 +280,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.model.trigger_event(new Reset())
   }
 
-  override remove(): void {
-    remove_views(this.renderer_views)
-    remove_views(this.tool_views)
-    super.remove()
-  }
-
   protected override _provide_context_menu(): Menu | null {
     return new ToolMenu({toolbar: this.model.toolbar})
   }

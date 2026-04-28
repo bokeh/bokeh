@@ -168,7 +168,6 @@ export abstract class UIElementView extends StyledElementView {
 
   override remove(): void {
     this._resize_observer.disconnect()
-    this._context_menu?.remove()
     super.remove()
   }
 

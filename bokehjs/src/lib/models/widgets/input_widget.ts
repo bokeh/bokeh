@@ -58,17 +58,6 @@ export abstract class InputWidgetView extends ControlView {
     await this._build_description()
   }
 
-  override remove(): void {
-    const {title, description} = this
-    if (title instanceof View) {
-      title.remove()
-    }
-    if (description instanceof View) {
-      description.remove()
-    }
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
     const {title, description} = this.model.properties

@@ -61,14 +61,6 @@ export abstract class LayoutDOMView extends PaneView {
     await this.build_child_views()
   }
 
-  override remove(): void {
-    for (const child_view of this.child_views) {
-      child_view.remove()
-    }
-    this._child_views.clear()
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 

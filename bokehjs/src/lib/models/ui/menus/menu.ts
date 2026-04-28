@@ -113,7 +113,6 @@ export class MenuView extends UIElementView {
 
   override remove(): void {
     this._unlisten()
-    remove_views(this._menu_views)
     super.remove()
   }
 

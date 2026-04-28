@@ -135,12 +135,6 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._title_view = await build_view(this._title, {parent})
   }
 
-  override remove(): void {
-    this._title_view.remove()
-    this._axis_view.remove()
-    super.remove()
-  }
-
   protected _apply_axis_properties(): void {
     const attrs: Partial<Axis.Attrs> = {
       ticker: this._ticker,
