@@ -30,7 +30,7 @@ import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, ChildView, View, ViewOf, BuildResult} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import {build_views} from "core/build_views"
 import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"

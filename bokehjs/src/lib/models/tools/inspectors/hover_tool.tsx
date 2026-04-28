@@ -1,5 +1,5 @@
 import type {ViewStorage, ChildView, ViewOf} from "core/build_views"
-import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
+import {build_view, build_views, traverse_views} from "core/build_views"
 import {div, empty} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"

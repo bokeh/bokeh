@@ -5,7 +5,7 @@ import type {Formatters} from "./placeholder"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Index} from "core/util/templating"
 import type {ViewStorage, ChildView, ViewOf} from "core/build_views"
-import {build_views, remove_views, traverse_views} from "core/build_views"
+import {build_views, traverse_views} from "core/build_views"
 import type {PlainObject} from "core/types"
 import type * as p from "core/properties"
 

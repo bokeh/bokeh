@@ -9,7 +9,7 @@ import type {StyleSheetLike, Keys} from "core/dom"
 import {div, px} from "core/dom"
 import {Or, Ref, Null} from "core/kinds"
 import type {ViewStorage, ChildView} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import {build_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
 

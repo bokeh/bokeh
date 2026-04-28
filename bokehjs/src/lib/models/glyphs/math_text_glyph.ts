@@ -4,7 +4,7 @@ import {MathTextView} from "../text/math_text"
 import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
 import type {ViewStorage, ChildView} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import {build_views} from "core/build_views"
 import {enumerate} from "core/util/iterator"
 
 export interface MathTextGlyphView extends MathTextGlyph.Data {}

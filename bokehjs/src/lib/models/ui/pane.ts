@@ -2,7 +2,7 @@ import {UIElement, UIElementView} from "./ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {HTML} from "../dom/html"
 import type {ViewStorage, BuildResult, ChildView, ViewOf} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import {build_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
