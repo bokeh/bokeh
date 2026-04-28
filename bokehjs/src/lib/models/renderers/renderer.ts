@@ -1,4 +1,4 @@
-import type {ViewOf, View} from "core/view"
+import type {ViewOf, ChildView, View} from "core/view"
 import {StyledElement, StyledElementView} from "../ui/styled_element"
 import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
@@ -51,7 +51,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return this._context_menu
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this._context_menu]
   }
 

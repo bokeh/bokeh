@@ -8,6 +8,7 @@ import {build_view} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
 import {div, label} from "core/dom"
 import {View} from "core/view"
+import type {ChildView} from "core/view"
 import type * as p from "core/properties"
 import {server_event, ModelEvent} from "core/bokeh_events"
 
@@ -44,7 +45,7 @@ export abstract class InputWidgetView extends ControlView {
     yield this.input_el
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     const {title, description} = this
     const title_view = title instanceof View ? [title]:[]
     const description_view = description instanceof View ? [description]:[]

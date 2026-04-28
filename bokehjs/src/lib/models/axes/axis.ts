@@ -23,7 +23,7 @@ import type {Factor} from "models/ranges/factor_range"
 import {FactorRange} from "models/ranges/factor_range"
 import type {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
@@ -101,7 +101,7 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     const this_axis_label_view = this._axis_label_view != null ? [this._axis_label_view] : []
     return [...super.children_views(), ...this_axis_label_view, ...this._major_label_views.values()]
   }

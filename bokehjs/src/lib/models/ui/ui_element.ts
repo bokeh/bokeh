@@ -6,6 +6,7 @@ import type {SizingPolicy} from "core/layout"
 import type {ViewOf} from "core/view"
 import type {StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import type {XY} from "core/util/bbox"
@@ -108,7 +109,7 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _context_menu: ViewOf<Menu> | null = null
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this._context_menu]
   }
 

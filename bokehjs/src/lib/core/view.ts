@@ -17,6 +17,8 @@ import type {Signal as PreactSignal} from "@preact/signals"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
+export type ChildView = View | null | undefined
+
 export type SerializableState = {
   type: string
   bbox?: BBox
@@ -132,10 +134,10 @@ export abstract class View implements ISignalable, Equatable {
 
   /** @deprecated use children_views */
   public *children(): IterViews {
-    yield* this.children_views()
+    yield* this.children_views().filter((view) => view != null)
   }
 
-  public children_views(): View[] {
+  public children_views(): ChildView[] {
     return []
   }
 

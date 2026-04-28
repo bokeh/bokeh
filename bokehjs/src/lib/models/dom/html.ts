@@ -1,6 +1,6 @@
 import {DOMElement, DOMElementView} from "./dom_element"
 import {UIElement} from "../ui/ui_element"
-import type {ViewStorage, View} from "core/build_views"
+import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {span} from "core/dom"
 import {assert} from "core/util/assert"
@@ -32,7 +32,7 @@ export class HTMLView extends DOMElementView {
     await build_views(this._refs, this.refs)
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this._refs.values()]
   }
 

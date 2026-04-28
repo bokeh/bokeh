@@ -13,7 +13,7 @@ import {DOMElementView, bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
-import type {View, ViewOf} from "core/build_views"
+import type {ChildView, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import {Model} from "model"
@@ -77,7 +77,7 @@ export class TooltipView extends UIElementView {
 
   protected _element_view: ViewOf<DOMNode | UIElement> | null = null
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     const this_element_view = this._element_view != null ? [this._element_view] : []
     return [...super.children_views(), ...this_element_view]
   }

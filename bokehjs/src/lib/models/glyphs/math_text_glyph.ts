@@ -3,7 +3,7 @@ import type {BaseText} from "../text/base_text"
 import {MathTextView} from "../text/math_text"
 import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
-import type {ViewStorage, View} from "core/build_views"
+import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {enumerate} from "core/util/iterator"
 
@@ -15,7 +15,7 @@ export abstract class MathTextGlyphView extends TextView {
 
   protected _label_views: ViewStorage<BaseText> = new Map()
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this._label_views.values()]
   }
 

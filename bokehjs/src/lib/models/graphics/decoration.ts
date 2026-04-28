@@ -4,6 +4,7 @@ import type {RendererView} from "../renderers/renderer"
 import {Model} from "../../model"
 import {View} from "core/view"
 import {build_view} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
 
@@ -14,7 +15,7 @@ export class DecorationView extends View {
 
   marking: MarkingView
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this.marking]
   }
 

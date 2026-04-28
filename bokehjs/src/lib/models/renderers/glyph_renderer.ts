@@ -19,7 +19,7 @@ import {extend, clone} from "core/util/object"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
@@ -70,10 +70,17 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph
   }
 
-  override children_views(): View[] {
-    const _hover_glyph = this.hover_glyph != null ? [this.hover_glyph]:[]
-    return [...super.children_views(), this.cds_view, this.glyph, this.selection_glyph, this.nonselection_glyph, ..._hover_glyph,
-            this.muted_glyph, this.decimated_glyph]
+  override children_views(): ChildView[] {
+    return [
+      ...super.children_views(),
+      this.cds_view,
+      this.glyph,
+      this.selection_glyph,
+      this.nonselection_glyph,
+      this.hover_glyph,
+      this.muted_glyph,
+      this.decimated_glyph,
+    ]
   }
 
   protected all_indices: Indices

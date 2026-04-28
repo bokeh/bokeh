@@ -8,7 +8,7 @@ import {isFunction} from "core/util/types"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div, px} from "core/dom"
 import {Or, Ref, Null} from "core/kinds"
-import type {ViewStorage, View} from "core/build_views"
+import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
 import {execute} from "core/util/callbacks"
@@ -28,7 +28,7 @@ export class MenuView extends UIElementView {
 
   protected _menu_views: ViewStorage<Menu> = new Map()
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this._menu_views.values()]
   }
 

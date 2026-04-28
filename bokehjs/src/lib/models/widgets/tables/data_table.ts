@@ -24,7 +24,7 @@ import {TableWidget} from "./table_widget"
 import {TableColumn} from "./table_column"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {CDSView, CDSViewView} from "../../sources/cds_view"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {PatchSet} from "core/patching"
 
@@ -168,7 +168,7 @@ export class DataTableView extends WidgetView {
 
   protected wrapper_el: HTMLElement
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this.cds_view]
   }
 
