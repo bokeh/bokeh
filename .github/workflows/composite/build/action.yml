@@ -11,7 +11,7 @@ runs:
       shell: bash
       run: grep -v '^\s*-\s*nodejs\b' conda/environment-build.yml > conda/environment-build-no-nodejs.yml
 
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         miniforge-version: latest
         mamba-version: "*"
