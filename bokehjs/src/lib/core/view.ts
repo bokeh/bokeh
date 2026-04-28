@@ -12,6 +12,7 @@ import {Indexed} from "../models/coordinates/indexed"
 import {ViewManager, ViewQuery} from "./view_manager"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
+import {logger} from "./logging"
 
 import type {Signal as PreactSignal} from "@preact/signals"
 
@@ -114,7 +115,14 @@ export abstract class View implements ISignalable, Equatable {
 
   protected _destroyed: boolean = false
   remove(): void {
+    if (this._destroyed) {
+      logger.warn(`${this}.remove(): view was already destroyed`)
+      return
+    }
     this.disconnect_signals()
+    for (const view of this.children_views()) {
+      view?.remove()
+    }
     this.owner.remove(this)
     this.removed.emit()
     this._destroyed = true
