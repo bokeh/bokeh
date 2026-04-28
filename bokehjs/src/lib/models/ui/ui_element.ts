@@ -108,6 +108,10 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _context_menu: ViewOf<Menu> | null = null
 
+  override children_views(): View[] {
+    return [...super.children_views(), this._context_menu]
+  }
+
   /**
    * Allows to provide a context dependent menu when `UIElement.context_menu` is `"auto"`.
    */

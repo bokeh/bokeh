@@ -51,6 +51,10 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return this._context_menu
   }
 
+  override children_views(): View[] {
+    return [...super.children_views(), this._context_menu]
+  }
+
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
