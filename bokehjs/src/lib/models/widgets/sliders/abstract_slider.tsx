@@ -47,7 +47,7 @@ type HitTarget = {type: HitType, el: HTMLElement}
 type PointerId = number
 type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
 
-export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
+export abstract class AbstractSliderView<T> extends OrientedControlView {
   declare readonly model: AbstractSlider<T>
   declare readonly signals: p.SignalsOf<AbstractSlider.Props>
   declare readonly values: AbstractSlider.Attrs
@@ -481,9 +481,9 @@ export namespace AbstractSlider {
   }
 }
 
-export interface AbstractSlider<T extends number | string> extends AbstractSlider.Attrs {}
+export interface AbstractSlider<T> extends AbstractSlider.Attrs {}
 
-export abstract class AbstractSlider<T extends number | string> extends OrientedControl {
+export abstract class AbstractSlider<T> extends OrientedControl {
   declare properties: AbstractSlider.Props
   declare __view_type__: AbstractSliderView<T>
 
