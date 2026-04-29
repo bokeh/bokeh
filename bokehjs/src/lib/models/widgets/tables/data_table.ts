@@ -239,6 +239,7 @@ export class DataTableView extends WidgetView {
     } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport) {
       this.invalidate_layout()
     }
+    this._calculate_width()
   }
 
   updateGrid(): void {
@@ -428,35 +429,18 @@ export class DataTableView extends WidgetView {
   }
 
   override _after_render(): void {
+    const initialized = typeof this.grid !== "undefined"
     this._render_table()
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const {width, height} = entry.contentRect
-        // Only run when the browser has actually given the wrapper dimensions
-        if (width > 0 && height > 0) {
-          this.grid.resizeCanvas()
-
-          if (this.autosize === AutosizeModes.fit_viewport) {
-            this._calculate_and_invalidate_width()
-          }
-
-          this.grid.render()
-        }
-      }
-    })
-
-    observer.observe(this.wrapper_el)
+    this.updateLayout(initialized, false)
     super._after_render()
   }
 
-  private _calculate_and_invalidate_width(): void {
+  private _calculate_width(): void {
     let width = 0
     for (const column of this.grid.getColumns()) {
       width += column.width ?? 0
     }
     this._width = Math.ceil(width)
-    this.invalidate_layout()
   }
 
   _hide_header(): void {
