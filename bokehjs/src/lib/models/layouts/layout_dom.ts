@@ -9,7 +9,7 @@ import {isNumber, isArray} from "core/util/types"
 import {enumerate} from "core/util/iterator"
 import type * as p from "core/properties"
 
-import type {ViewStorage, View} from "core/build_views"
+import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {DOMElementView} from "core/dom_view"
 import type {Layoutable, Percent} from "core/layout"
@@ -61,14 +61,6 @@ export abstract class LayoutDOMView extends PaneView {
     await this.build_child_views()
   }
 
-  override remove(): void {
-    for (const child_view of this.child_views) {
-      child_view.remove()
-    }
-    this._child_views.clear()
-    super.remove()
-  }
-
   override connect_signals(): void {
     super.connect_signals()
 
@@ -104,7 +96,7 @@ export abstract class LayoutDOMView extends PaneView {
     ], () => this.invalidate_layout())
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this.child_views]
   }
 

@@ -24,6 +24,7 @@ import {LinearScale} from "../scales/linear_scale"
 import {CategoricalScale} from "../scales/categorical_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {enumerate} from "core/util/iterator"
@@ -64,6 +65,10 @@ export class ScaleBarView extends AnnotationView {
 
   protected axis: ContinuousAxis
   protected axis_view: ContinuousAxisView
+
+  override children_views(): ChildView[] {
+    return [...super.children_views(), this.axis_view]
+  }
 
   protected axis_scale: Scale
   protected cross_scale: Scale
@@ -123,11 +128,6 @@ export class ScaleBarView extends AnnotationView {
     this.axis_view.coordinates = coordinates
     this.axis_view.panel = new SidePanel(this.model.orientation == "horizontal" ? "below" : "right")
     this.axis_view.update_layout()
-  }
-
-  override remove(): void {
-    this.axis_view.remove()
-    super.remove()
   }
 
   override connect_signals(): void {

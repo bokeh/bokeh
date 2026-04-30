@@ -6,7 +6,7 @@ import {Dialog} from "../../ui/dialog"
 import {Examiner} from "../../ui/examiner"
 import {ValuePrinter} from "models/ui/printers"
 import {HTML} from "../../dom/html"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {div} from "core/dom"
 
@@ -19,7 +19,7 @@ export class ExamineToolView extends ActionToolView {
 
   dialog: DialogView
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this.dialog]
   }
 

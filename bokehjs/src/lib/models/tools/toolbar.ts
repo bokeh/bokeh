@@ -1,8 +1,8 @@
 import {logger} from "core/logging"
 import type {StyleSheetLike} from "core/dom"
 import {div, a} from "core/dom"
-import type {ViewStorage, View, ViewOf} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import type {ViewStorage, ChildView, ViewOf} from "core/build_views"
+import {build_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location, ToolName} from "core/enums"
@@ -56,7 +56,7 @@ export class ToolbarView extends UIElementView {
     return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this._tool_button_views.values()]
   }
 
@@ -124,7 +124,6 @@ export class ToolbarView extends UIElementView {
   }
 
   override remove(): void {
-    remove_views(this._tool_button_views)
     this._destroy_proxies()
     super.remove()
   }
