@@ -2,13 +2,34 @@
   background: light-dark(@white, @black);
   text: light-dark(@black, @white);
 
+  default: light-dark(@white, @gray-700);
+  default-border: @gray-200;
+  default-hover: light-dark(@gray-100, @gray-600);
+  default-active: light-dark(@gray-50, @gray-900);
+  default-disabled: light-dark(@gray-100, @gray-700);
+
   primary: @blue-500;
+  primary-hover: @blue-600;
+  primary-disabled: @blue-400;
+
   accent: @mauve-500;
+
   success: @green-500;
+  success-hover: @green-600;
+  success-disabled: @green-400;
+
   warning: @orange-500;
+  warning-hover: @orange-600;
+  warning-disabled: @orange-400;
+
+  danger: @red-500;
+  danger-hover: @red-600;
+  danger-disabled: @red-400;
+
   error: @red-500;
 
   hover: light-dark(@gray-50, @gray-600);
+  hover-border: @gray-500;
   surface: light-dark(@gray-100, @gray-700);
   divider: @gray-200;
   border: @gray-300;
@@ -59,7 +80,7 @@
   @green-600: #266C0D;
   @green-700: #1D520A;
   @green-800: #133607;
-  @green-500: #0B1E04;
+  @green-900: #0B1E04;
 
   @blue-50: #F6FAFC;
   @blue-100: #E1EDF5;

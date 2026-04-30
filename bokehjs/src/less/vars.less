@@ -46,7 +46,7 @@
   --border-width: 1px;
   --border: var(--border-color) var(--border-style) var(--border-width);
   --box-shadow-color: rgba(0, 0, 0, 0.175);
-  --box-shadow-inset: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --box-shadow-inset: inset 0 3px 5px light-dark(rgba(0, 0, 0, 0.125), rgba(255, 255, 255, 0.125));
   --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color); // symmetric about the x-axis
   --box-shadow: 2px 4px 8px var(--box-shadow-color);
   --divider-width: 1px;
@@ -60,6 +60,30 @@
   --button-width: 30px;
   --button-height: 30px;
   --button-color: lightgray;
+
+  // Buttons colors
+  --default-color: #colors[default];
+  --default-border-color: #colors[default-border];
+  --default-hover-color: #colors[default-hover];
+  --default-active-color: #colors[default-active];
+  --default-disabled-color: #colors[default-disabled];
+  --default-disabled-border-color: #colors[default-border];
+
+  --primary-color: #colors[primary];
+  --primary-hover-color: #colors[primary-hover];
+  --primary-disabled-color: #colors[primary-disabled];
+
+  --success-color: #colors[success];
+  --success-hover-color: #colors[success-hover];
+  --success-disabled-color: #colors[success-disabled];
+
+  --warning-color: #colors[warning];
+  --warning-hover-color: #colors[warning-hover];
+  --warning-disabled-color: #colors[warning-disabled];
+
+  --danger-color: #colors[danger];
+  --danger-hover-color: #colors[danger-hover];
+  --danger-disabled-color: #colors[danger-disabled];
 
   // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
   --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
