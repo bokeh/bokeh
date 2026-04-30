@@ -1,8 +1,8 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {HTML} from "../dom/html"
-import type {ViewStorage, BuildResult, View, ViewOf} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import type {ViewStorage, BuildResult, ChildView, ViewOf} from "core/build_views"
+import {build_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
@@ -21,7 +21,7 @@ export class PaneView extends UIElementView {
     return this.elements.map((element) => this._element_views.get(element)).filter((view) => view != null)
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this.element_views]
   }
 
@@ -52,11 +52,6 @@ export class PaneView extends UIElementView {
     }
 
     this.r_after_render()
-  }
-
-  override remove(): void {
-    remove_views(this._element_views)
-    super.remove()
   }
 
   override connect_signals(): void {

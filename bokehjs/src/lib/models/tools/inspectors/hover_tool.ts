@@ -1,5 +1,5 @@
-import type {ViewStorage, View, ViewOf} from "core/build_views"
-import {build_view, build_views, remove_views, traverse_views} from "core/build_views"
+import type {ViewStorage, ChildView, ViewOf} from "core/build_views"
+import {build_view, build_views, traverse_views} from "core/build_views"
 import {display, div, empty, span, undisplay} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
@@ -139,9 +139,8 @@ export class HoverToolView extends InspectToolView {
   protected _template_el?: HTMLElement
   protected _template_view?: ViewOf<DOMElement>
 
-  override children_views(): View[] {
-    const this_template_view = this._template_view != null ? [this._template_view]: []
-    return [...super.children_views(), ...this._ttviews.values(), ...this_template_view]
+  override children_views(): ChildView[] {
+    return [...super.children_views(), ...this._ttviews.values(), this._template_view]
   }
 
   protected async _update_filters(): Promise<void> {
@@ -165,12 +164,6 @@ export class HoverToolView extends InspectToolView {
     }
 
     await this._update_filters()
-  }
-
-  override remove(): void {
-    this._template_view?.remove()
-    remove_views(this._ttviews)
-    super.remove()
   }
 
   override connect_signals(): void {

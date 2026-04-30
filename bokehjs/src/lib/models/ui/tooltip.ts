@@ -11,7 +11,7 @@ import {isString, isArray} from "core/util/types"
 import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
-import type {View, ViewOf} from "core/build_views"
+import type {ChildView, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import {Model} from "model"
@@ -67,9 +67,8 @@ export class TooltipView extends UIElementView {
 
   protected _element_view: ViewOf<DOMNode | UIElement> | null = null
 
-  override children_views(): View[] {
-    const this_element_view = this._element_view != null ? [this._element_view] : []
-    return [...super.children_views(), ...this_element_view]
+  override children_views(): ChildView[] {
+    return [...super.children_views(), this._element_view]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -142,7 +141,6 @@ export class TooltipView extends UIElementView {
   }
 
   override remove(): void {
-    this._element_view?.remove()
     this._observer.disconnect()
     super.remove()
   }
