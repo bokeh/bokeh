@@ -6,6 +6,7 @@ import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {ViewOf} from "@bokehjs/core/build_views"
 
 import {
   AllIndices,
@@ -1039,8 +1040,12 @@ describe("Bug", () => {
       expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
       expect(view.shadow_el.querySelectorAll("link[href='/assets/css/local.css']").length).to.be.equal(1)
 
+      const to_css = (stylesheet: CSSStyleSheet) => {
+        return [...stylesheet.cssRules].map((r) => r.cssText).join("\n")
+      }
+
       expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
-      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
+      expect(view.shadow_el.adoptedStyleSheets.map(to_css).filter((css) => css.includes("--local-inline: 1")).length).to.be.equal(1)
 
       await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
       await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
@@ -1924,23 +1929,23 @@ describe("Bug", () => {
       const sv1 = view.owner.get_one(s1)
       const sv2 = view.owner.get_one(s2)
 
-      const css = `
-:host {
+      const css = (view: ViewOf<Spacer>) => `
+${view.host_selector} {
   flex: 0 0 50px;
   min-width: 0;
   min-height: 0;
 }`
-      expect(sv0.parent_style.css).to.be.equal(css)
-      expect(sv1.parent_style.css).to.be.equal(css)
-      expect(sv2.parent_style.css).to.be.equal(css)
+      expect(sv0.parent_style.css).to.be.equal(css(sv0))
+      expect(sv1.parent_style.css).to.be.equal(css(sv1))
+      expect(sv2.parent_style.css).to.be.equal(css(sv2))
 
       sv0.rerender()
       sv1.rerender()
       sv2.rerender()
 
-      expect(sv0.parent_style.css).to.be.equal(css)
-      expect(sv1.parent_style.css).to.be.equal(css)
-      expect(sv2.parent_style.css).to.be.equal(css)
+      expect(sv0.parent_style.css).to.be.equal(css(sv0))
+      expect(sv1.parent_style.css).to.be.equal(css(sv1))
+      expect(sv2.parent_style.css).to.be.equal(css(sv2))
     })
   })
 
