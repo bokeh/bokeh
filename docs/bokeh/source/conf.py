@@ -122,6 +122,7 @@ if "GOOGLE_API_KEY" not in os.environ:
             "But bokeh_missing_google_api_key_ok set to true in conf.py, so building docs anyway (with broken Google Maps)",
         )
     elif os.environ.get("BOKEH_DOCS_CDN") == "local":
+        bokeh_missing_google_api_key_ok = True
         print(
             "But BOKEH_DOCS_CDN=local, so building docs anyway (with broken Google Maps)",
         )
