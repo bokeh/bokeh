@@ -28,7 +28,7 @@
 
   error: @red-500;
 
-  hover: light-dark(@gray-50, @gray-600);
+  hover: light-dark(@gray-100, @gray-600);
   hover-border: @gray-500;
   surface: light-dark(@gray-100, @gray-700);
   divider: @gray-200;
@@ -37,13 +37,17 @@
   disabled: @gray-500;
   inverted: @white;
 
-  icon: @gray-500;
-  icon-disabled: @gray-200;
+  icon: light-dark(@gray-500, @gray-200);
+  icon-disabled: light-dark(@gray-200, @gray-500);
 
   highlight: @blue-400;
   active-background: @blue-200;
   active-border: @blue-400;
   input-border: @blue-400;
+
+  active-tool-background: light-dark(@gray-100, @gray-700);
+  active-tool-border: light-dark(@blue-600, @blue-400);
+  disabled-tool: light-dark(@gray-50, @gray-800);
 
   // Only private palette colors after this line.
 
