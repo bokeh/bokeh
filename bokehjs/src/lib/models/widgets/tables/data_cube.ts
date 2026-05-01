@@ -39,7 +39,7 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
   return (row: number, cell: number, value: unknown, columnDef: Column<Item>, dataContext: Item, grid: SlickGrid<Item>) => {
     const spacer = span({
       class: "slick-group-toggle",
-      style: {"margin-left": `${(indent ?? 0) * 15}px`},
+      style: {"margin-left": `${(indent ?? 0) * 15}px`, "background-color": "transparent"},
     })
 
     const result = formatter !== undefined ? formatter(row, cell, value, columnDef, dataContext, grid): `${value}`
@@ -332,6 +332,7 @@ export class DataCubeView extends DataTableView {
       editable: this.model.editable,
       autoEdit: this.model.auto_edit,
       rowHeight: this.model.row_height,
+      shadowRoot: this.shadow_el,
     }
 
     const columns = this.model.columns.map(column => column.toColumn())
