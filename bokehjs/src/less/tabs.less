@@ -1,14 +1,16 @@
 @import "./_mixins.less";
 
 :host {
-  // The border opposite the divider
-  --block-start-border-width: 3px;
+  --active-border-width: 3px;
+  --border-width: 1px;
 
   --close-icon-hover-background-color: var(--error);
   --close-icon-width: 14px;
   --close-icon-height: 14px;
   --close-icon-color: var(--icon-color);
   --close-icon-space-away-from-tab-text: 10px;
+
+  --margin: 4px;
 
   --tab-padding-vertical: 4px;
   --tab-padding-horizontal: 8px;
@@ -90,7 +92,7 @@
 
 .bk-tab {
   padding: var(--tab-padding-vertical) var(--tab-padding-horizontal);
-  border: var(--border-style) transparent;
+  border: var(--border-style) var(--border-color);
   outline: 0;
   outline-offset: var(--outline-offset);
   white-space: nowrap;
@@ -107,33 +109,51 @@
   }
 
   &.bk-active {
+    --border-width: var(--active-border-width);
     color: var(--color);
     background-color: var(--background-color);
     border-color: var(--border-color);
+    font-weight: bold;
   }
 
   .bk-close {
     margin-left: var(--close-icon-space-away-from-tab-text);
   }
 
-  .bk-disabled(var(--disabled-opacity), inherit, inherit, inherit);
+  .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
 }
 
 :host(.bk-above) .bk-tab {
-  border-width: var(--block-start-border-width) var(--divider-width) 0 var(--divider-width);
+  border-width: var(--border-width) var(--border-width) 0 var(--border-width);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+
+  &:not(:last-child) {
+    margin: 0 var(--margin) 0 0;
+  }
 }
 :host(.bk-right) .bk-tab {
-  border-width: var(--divider-width) var(--block-start-border-width) var(--divider-width) 0;
+  border-width: var(--border-width) var(--border-width) var(--border-width) 0;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
+
+  &:not(:last-child) {
+    margin: 0 0 var(--margin) 0;
+  }
 }
 :host(.bk-below) .bk-tab {
-  border-width: 0 var(--divider-width) var(--block-start-border-width) var(--divider-width);
+  border-width: 0 var(--border-width) var(--border-width) var(--border-width);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+  &:not(:last-child) {
+    margin: 0 var(--margin) 0 0;
+  }
 }
 :host(.bk-left) .bk-tab {
-  border-width: var(--divider-width) 0 var(--divider-width) var(--block-start-border-width);
+  border-width: var(--border-width) 0 var(--border-width) var(--border-width);
   border-radius: var(--border-radius) 0 0 var(--border-radius);
+
+  &:not(:last-child) {
+    margin: 0 0 var(--margin) 0;
+  }
 }
 
 .bk-close {
