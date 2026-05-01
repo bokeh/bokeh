@@ -44,8 +44,8 @@
   --border-style: solid;
   --border-width: 1px;
   --border: var(--border-color) var(--border-style) var(--border-width);
-  --box-shadow-color: rgba(0, 0, 0, 0.175);
-  --box-shadow-inset: inset 0 3px 5px light-dark(rgba(0, 0, 0, 0.125), rgba(255, 255, 255, 0.125));
+  --box-shadow-color: light-dark(rgba(0, 0, 0, 0.175), rgba(255, 255, 255, 0.175));
+  --box-shadow-inset: inset 0 3px 5px var(--box-shadow-color);
   --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color); // symmetric about the x-axis
   --box-shadow: 2px 4px 8px var(--box-shadow-color);
   --divider-width: 1px;
@@ -176,4 +176,10 @@
   --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
   --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
   --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --box-shadow-inset: inset 0 -3px 5px var(--box-shadow-color);
+  }
 }
