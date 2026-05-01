@@ -205,7 +205,7 @@ class CustomJS(CustomCode):
 
     if sys.version_info >= (3, 14):
         if TYPE_CHECKING:
-            from string.templatelib import Template
+            from string.templatelib import Template  # novermin
 
         @classmethod
         def from_string(cls, template: str | Template) -> CustomJS:
@@ -229,7 +229,7 @@ class CustomJS(CustomCode):
             if isinstance(template, str):
                 return CustomJS(code=template)
 
-            from string.templatelib import Interpolation
+            from string.templatelib import Interpolation  # novermin
 
             args: dict[str, Any] = {}
             code = ""
