@@ -43,8 +43,6 @@ export class BasicTickFormatter extends TickFormatter {
     }))
   }
 
-  protected last_precision: number = 3
-
   get scientific_limit_low(): number {
     return 10.0**this.power_limit_low
   }
@@ -85,9 +83,10 @@ export class BasicTickFormatter extends TickFormatter {
 
   _auto_precision(ticks: number[], need_sci: boolean): number | undefined {
     const labels: string[] = new Array(ticks.length)
-    const asc = this.last_precision <= 15
+    let last_precision = 3
+    const asc = last_precision <= 15
 
-    outer: for (let x = this.last_precision; asc ? x <= 15 : x >= 1; asc ? x++ : x--) {
+    outer: for (let x = last_precision; asc ? x <= 15 : x >= 1; asc ? x++ : x--) {
       if (need_sci) {
         labels[0] = ticks[0].toExponential(x)
         for (let i = 1; i < ticks.length; i++) {
@@ -95,7 +94,7 @@ export class BasicTickFormatter extends TickFormatter {
             continue outer
           }
         }
-        this.last_precision = x
+        last_precision = x
         break
       } else {
         labels[0] = to_fixed(ticks[0], x)
@@ -105,11 +104,11 @@ export class BasicTickFormatter extends TickFormatter {
             continue outer
           }
         }
-        this.last_precision = x
+        last_precision = x
         break
       }
     }
-    return this.last_precision
+    return last_precision
   }
 
   doFormat(ticks: number[], _opts: {loc: number}): string[] {
