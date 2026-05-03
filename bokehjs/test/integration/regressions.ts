@@ -4928,7 +4928,7 @@ describe("Bug", () => {
       const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
       p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
 
-      const {view} = await display(plot)
+      const {view} = await display(p)
 
       p.xaxis[0].formatter.use_scientific = false
       p.yaxis[0].formatter.use_scientific = false
@@ -4939,7 +4939,7 @@ describe("Bug", () => {
       const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
       p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
 
-      const {view} = await display(plot)
+      const {view} = await display(p)
 
       p.xaxis[0].formatter.use_scientific = false
       p.yaxis[0].formatter.use_scientific = false
