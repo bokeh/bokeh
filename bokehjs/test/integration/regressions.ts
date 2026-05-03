@@ -4922,4 +4922,32 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+
+      const {view} = await display(plot)
+
+      p.xaxis[0].formatter.use_scientific = false
+      p.yaxis[0].formatter.use_scientific = false
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+
+      const {view} = await display(plot)
+
+      p.xaxis[0].formatter.use_scientific = false
+      p.yaxis[0].formatter.use_scientific = false
+      await view.ready
+
+      p.xaxis[0].formatter.use_scientific = true
+      p.yaxis[0].formatter.use_scientific = true
+      await view.ready
+    })
+  })
 })
