@@ -5,7 +5,7 @@ import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line, BasicTickFormatter, ContinuousTicker} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker,
+  FixedTicker, MercatorTicker, MercatorTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4897,10 +4897,10 @@ describe("Bug", () => {
 
   describe("in issue #15015", () => {
     it("doesn't show updates to num_minor_ticks", async () => {
-    const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
-    const {view} = await display(p)
-    p.yaxis.each((axis) => (axis.ticker as ContinuousTicker).num_minor_ticks = 0)
-    await view.ready
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      p.yaxis.each((axis) => (axis.ticker as ContinuousTicker).num_minor_ticks = 0)
+      await view.ready
     })
   })
 })
