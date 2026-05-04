@@ -5,7 +5,7 @@ import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4928,8 +4928,14 @@ describe("Bug", () => {
       const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
       p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
       const {view} = await display(p)
-      p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-      p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
       await view.ready
     })
 
@@ -4937,11 +4943,23 @@ describe("Bug", () => {
       const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
       p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
       const {view} = await display(p)
-      p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-      p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
       await view.ready
-      p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = true)
-      p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = true)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
       await view.ready
     })
   })
