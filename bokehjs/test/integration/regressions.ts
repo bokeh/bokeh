@@ -5,7 +5,7 @@ import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4918,6 +4918,47 @@ describe("Bug", () => {
       for (const axis of p.yaxis) {
         assert(axis.ticker instanceof ContinuousTicker)
         axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
       }
       await view.ready
     })

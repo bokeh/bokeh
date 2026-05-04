@@ -197,6 +197,7 @@ export abstract class AxisView extends GuideRendererView {
 
     this.connect(this.model.change, () => this.plot_view.request_layout())
     this.connect(this.model.ticker.change, () => this.plot_view.request_layout())
+    this.connect(this.model.formatter.change, () => this.plot_view.request_layout())
   }
 
   override get needs_clip(): boolean {
