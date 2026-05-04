@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4908,6 +4908,18 @@ describe("Bug", () => {
       p.scatter(x, y, {size: 10})
       p.toolbar.active_drag = range_tool
       await display(p)
+    })
+  })
+
+  describe("in issue #15015", () => {
+    it("doesn't show updates to num_minor_ticks", async () => {
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
     })
   })
 })
