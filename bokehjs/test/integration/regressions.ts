@@ -4899,7 +4899,10 @@ describe("Bug", () => {
     it("doesn't show updates to num_minor_ticks", async () => {
       const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
       const {view} = await display(p)
-      p.yaxis.each((axis) => (axis.ticker as ContinuousTicker).num_minor_ticks = 0)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
       await view.ready
     })
   })
