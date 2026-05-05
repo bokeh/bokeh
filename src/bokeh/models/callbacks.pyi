@@ -61,7 +61,7 @@ class CustomJS(CustomCode):
 
     if sys.version_info >= (3, 14):
         @classmethod
-        def from_string(cls, template: str | Template) -> CustomJS: ...
+        def from_template(cls, template: Template) -> CustomJS: ...
 
 class _SetValueInit(_CallbackInit, total=False):
     obj: HasProps

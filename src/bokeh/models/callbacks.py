@@ -208,7 +208,7 @@ class CustomJS(CustomCode):
             from string.templatelib import Template  # novermin
 
         @classmethod
-        def from_string(cls, template: str | Template) -> CustomJS:
+        def from_template(cls, template: Template) -> CustomJS:
             """
             Construct a ``CustomJS`` instance from an interpolated string.
 
@@ -219,16 +219,13 @@ class CustomJS(CustomCode):
 
                 from bokeh.models import CustomJS, Slider
                 slider = Slider(start=0, end=10)
-                CustomJS.from_string(t"console.log('Slider value: ' + {slider}.value)")
+                CustomJS.from_template(t"console.log('Slider value: ' + {slider}.value)")
 
             .. note::
 
                 This requires Python 3.14 and above to work.
 
             """
-            if isinstance(template, str):
-                return CustomJS(code=template)
-
             from string.templatelib import Interpolation  # novermin
 
             args: dict[str, Any] = {}
