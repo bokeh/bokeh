@@ -96,7 +96,7 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
             if example.min_python is not None:
                 result.append(
                     pytest.mark.skipif(
-                        sys.version_info < example.min_python,
+                        sys.version_info[:2] < example.min_python,
                         reason=f"skipping {example.relpath}; requires Python {example.min_python} or above",
                     ),
                 )

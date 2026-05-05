@@ -72,7 +72,7 @@ def test_CustomJS_from_code_bad_file_type() -> None:
     with pytest.raises(RuntimeError):
         CustomJS.from_file(Path("some/module.css"))
 
-@pytest.mark.skipif(sys.version_info < (3, 14), reason="needs support for template literals")
+@pytest.mark.skipif(sys.version_info[:2] < (3, 14), reason="needs support for template literals")
 def test_CustomJS_from_template() -> None:
     # TODO can't implement this directly, because it will cause SyntaxError earlier Pythons
     slider = Slider()

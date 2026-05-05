@@ -203,7 +203,7 @@ class CustomJS(CustomCode):
 
         return CustomJS(code=code, args=args, module=module)
 
-    if sys.version_info >= (3, 14):
+    if sys.version_info[:2] >= (3, 14):
         if TYPE_CHECKING:
             from string.templatelib import Template  # novermin
 

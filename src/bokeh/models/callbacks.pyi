@@ -10,7 +10,7 @@ import sys
 from abc import abstractmethod
 from typing import Any, Unpack
 
-if sys.version_info >= (3, 14):
+if sys.version_info[:2] >= (3, 14):
     from string.templatelib import Template
 
 # Bokeh imports
@@ -59,7 +59,7 @@ class CustomJS(CustomCode):
     @classmethod
     def from_file(cls, path: PathLike, **args: Any) -> CustomJS: ...
 
-    if sys.version_info >= (3, 14):
+    if sys.version_info[:2] >= (3, 14):
         @classmethod
         def from_template(cls, template: Template) -> CustomJS: ...
 
