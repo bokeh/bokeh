@@ -236,6 +236,7 @@ export class DataTableView extends WidgetView {
       if (!initialized) {
         this.grid.resizeCanvas()
       }
+      this.grid.autosizeColumns()
     } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport) {
       this.invalidate_layout()
     }
@@ -375,7 +376,7 @@ export class DataTableView extends WidgetView {
       frozenColumn: frozen_column,
       frozenRow: frozen_row,
       frozenBottom: frozen_bottom,
-      explicitInitialization: true,
+      explicitInitialization: false,
       multiSelect: this.model.multi_selectable,
       shadowRoot: this.shadow_el,
     }
@@ -424,8 +425,6 @@ export class DataTableView extends WidgetView {
         this._hide_header()
       }
     }
-
-    this.grid.init()
   }
 
   override _after_render(): void {
