@@ -1,7 +1,6 @@
-import {SlickGrid, SlickCellCopyManager, SlickRowSelectionModel, SlickCheckboxSelectColumn} from "slickgrid"
-
+import {SlickGrid, SlickCellExternalCopyManager, SlickRowSelectionModel, SlickCheckboxSelectColumn} from "slickgrid"
 import type {
-  SlickDataView as CustomDataView, Column, ItemMetadata, GridOption, ColumnSort, OnSelectedRowsChangedEventArgs,
+  SlickDataView, Column, ItemMetadata, GridOption, ColumnSort, OnSelectedRowsChangedEventArgs,
   MultiColumnSort, SingleColumnSort, SlickEventData,
 } from "slickgrid"
 import type * as p from "core/properties"
@@ -10,7 +9,7 @@ import {div} from "core/dom"
 import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import {unique_id} from "core/util/string"
-import {isNumber} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
 import {some, range, sort_by, map} from "core/util/array"
 import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
@@ -44,7 +43,7 @@ export const AutosizeModes = {
 }
 export type AutosizeMode = "FCV" | "FVC" | "LFF" | "NOA"
 
-export class TableDataProvider implements Partial<CustomDataView<Item>> {
+export class TableDataProvider implements Partial<SlickDataView<Item>> {
   index: number[]
   source: ColumnarDataSource
   view: CDSView
@@ -240,7 +239,6 @@ export class DataTableView extends WidgetView {
     } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport) {
       this.invalidate_layout()
     }
-    this._calculate_width()
   }
 
   updateGrid(): void {
@@ -260,7 +258,7 @@ export class DataTableView extends WidgetView {
     }
     this._sync_selected_with_view()
     this.updateSelection()
-    this.grid.invalidate()
+    this.grid.invalidateAllRows()
     this.updateLayout(true, true)
   }
 
@@ -353,8 +351,6 @@ export class DataTableView extends WidgetView {
       }
     }
 
-    const {reorderable} = this.model
-
     let frozen_row = -1
     let frozen_bottom = false
     const {frozen_rows, frozen_columns} = this.model
@@ -366,7 +362,7 @@ export class DataTableView extends WidgetView {
 
     const options: GridOption<Column<Item>> = {
       enableCellNavigation: this.model.selectable !== false,
-      enableColumnReorder: reorderable,
+      enableColumnReorder: this.model.reorderable,
       autosizeColsMode: this.autosize,
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
@@ -384,6 +380,10 @@ export class DataTableView extends WidgetView {
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.wrapper_el, this.data, columns, options)
 
+    if (this.autosize == AutosizeModes.fit_viewport) {
+      this._calculate_width()
+    }
+
     this.grid.onSort.subscribe((_event: SlickEventData, args: MultiColumnSort | SingleColumnSort) => {
       if (!this.model.sortable) {
         return
@@ -394,7 +394,7 @@ export class DataTableView extends WidgetView {
         return
       }
       this.data.sort_data(to_sort)
-      this.grid.invalidate()
+      this.grid.invalidateAllRows()
       this.updateSelection()
       this.grid.render()
       if (!this.model.header_row) {
@@ -409,7 +409,19 @@ export class DataTableView extends WidgetView {
         this.grid.registerPlugin(checkbox_selector)
       }
 
-      this.grid.registerPlugin(new SlickCellCopyManager())
+      const pluginOptions = {
+        dataItemColumnValueExtractor(val: Item, col: Column) {
+          // As defined in this file, Item can contain any type values
+          let value = val[col.field]
+          if (isString(value)) {
+            value = value.replace(/\n/g, "\\n")
+          }
+          return value
+        },
+        includeHeaderWhenCopying: false,
+      }
+
+      this.grid.registerPlugin(new SlickCellExternalCopyManager(pluginOptions))
 
       this.grid.onSelectedRowsChanged.subscribe((_event: SlickEventData, args: OnSelectedRowsChangedEventArgs) => {
         if (this._in_selection_update) {
