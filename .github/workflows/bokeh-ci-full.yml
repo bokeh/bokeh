@@ -255,7 +255,9 @@ jobs:
       matrix:
         # Comprehensive: All platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.11']
+        # Build only on the most recent version of Python, so that documentation
+        # and included examples can utilize newest available syntax and standard APIs.
+        python-version: ['3.14']
 
     steps:
       - uses: actions/checkout@v6
