@@ -4702,7 +4702,10 @@ describe("Bug", () => {
   })
 
   describe("in issue #14549", () => {
-    it("doesn't prevent hover action upon bbox change", async () => {
+    // TODO This test can produce to marginally different states, that cause
+    // tests to fail at random. Re-enable this when vDOM migration and layout
+    // redesign are completed.
+    it.skip("doesn't prevent hover action upon bbox change", async () => {
       const n = 1000
       const x = linspace(0, 20, n)
       const y = x

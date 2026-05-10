@@ -15,3 +15,4 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Support ``LightDark`` component auto/system option and add tri-state handling to toggle like components (:bokeh-pull:`14915`)
 * Make it easier to theme ``Tooltip`` component and migrate it to vDOM (:bokeh-pull:`14955`)
 * Fix broken inverted color mapping when using LogColorMapper (:bokeh-pull:`15035`)
+* Simplified ``CustomJS`` construction with template strings (Python 3.14+) (:bokeh-pull:`14977`)

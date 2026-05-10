@@ -235,12 +235,15 @@ jobs:
 
   documentation:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         # Documentation: Linux only
+        os: [ubuntu-24.04]
+        # Build only on the most recent version of Python, so that documentation
+        # and included examples can utilize newest available syntax and standard APIs.
         python-version: ['3.14']
 
     steps:
