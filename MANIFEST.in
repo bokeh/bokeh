@@ -7,6 +7,7 @@ include src/bokeh/server/views/*.html
 include src/bokeh/server/views/*.ico
 include src/bokeh/util/sampledata.json
 include src/bokeh/_sri.json
+include src/bokeh/_schemas/*.json
 include src/bokeh/LICENSE.txt
 include src/bokeh/py.typed
 # include generated notebook frontends
