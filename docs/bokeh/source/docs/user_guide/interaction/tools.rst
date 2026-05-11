@@ -760,7 +760,7 @@ Filtering, sorting and limits
 '''''''''''''''''''''''''''''
 
 By default ``HoverTool`` displays a tooltip entry for every data point hit, in
-a certain order of relevance (by index and/or spa0cial distance from the hit
+a certain order of relevance (by index and/or spacial distance from the hit
 point). This may be either unsuited for the given application or overwhelming
 to the end user of the visualization, if working with large data or in regions
 of high data density. For that reason ``HoverTool`` allows to filter, sort and
