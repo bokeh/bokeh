@@ -59,7 +59,9 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     try:
         if config.prerelease:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ --delete {flags} {cache(YEAR)} {REGION}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" {REGION}')
+            switcher = f"deployment-{version}/docs/bokeh/switcher.json"
+            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {cache(WEEK)} {REGION}")
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" "/switcher.json" {REGION}')
         else:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {cache(YEAR)} {REGION}")
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ --delete {flags} {cache(WEEK)} {REGION}")

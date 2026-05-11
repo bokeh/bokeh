@@ -244,6 +244,8 @@ def update_switcher_json(
         with open(switcher_path, "w") as f:
             json.dump(switcher_list, f, indent=2)
             f.write("\n")
+
+        config.add_modified("docs/bokeh/switcher.json")
         return PASSED("Switcher.json was updated.")
     except RuntimeError as e:
         return FAILED("Switcher.json update failed", details=e.args)
