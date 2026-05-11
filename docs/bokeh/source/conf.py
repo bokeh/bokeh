@@ -8,6 +8,7 @@
 # Standard library imports
 import os
 import re
+import sys
 from datetime import date
 
 from sphinx.util import logging
@@ -138,6 +139,9 @@ bokeh_sampledata_xref_skiplist = [
     "examples/styling/dom/css_classes.py",
     "examples/models/widgets.py",
 ]
+
+if sys.version_info[:2] < (3, 14):
+    bokeh_sampledata_xref_skiplist.append("examples/interaction/widgets/slider_template_string.py")
 
 copybutton_prompt_text = ">>> "
 
