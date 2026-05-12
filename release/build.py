@@ -240,7 +240,6 @@ def update_switcher_json(
         if dev_dict:
             switcher_list.append(dev_dict)
 
-
         with open(switcher_path, "w") as f:
             json.dump(switcher_list, f, indent=2)
             f.write("\n")
