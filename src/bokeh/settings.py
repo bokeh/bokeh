@@ -94,6 +94,21 @@ global defaults
 If no value is obtained after searching all of these locations, then a
 RuntimeError will be raised.
 
+Usage with ``Server``
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh serve`` command applies relevant settings from this module
+automatically. When creating a :class:`~bokeh.server.server.Server`
+programmatically, use the :meth:`~bokeh.server.server.Server.from_settings`
+factory method to similarly relay relevant settings to the Server instance, as
+the primary ``Server`` constructor does not read from this module by default.
+
+Any values explicitly passed as keyword arguments to ``from_settings()`` will
+take precedence over settings values from environment variables or direct
+interaction with this module.
+
+See :ref:`ug_server_library` for details.
+
 API
 ~~~
 
@@ -740,6 +755,16 @@ class Settings:
     whether Bokeh should perform validation checks on documents.
 
     Setting this value to False may afford a small performance improvement.
+    """)
+
+    perform_error_diagnostics: PrioritizedSetting[bool] = PrioritizedSetting("perform_error_diagnostics", "BOKEH_PERFORM_ERROR_DIAGNOSTICS",
+        convert=convert_bool, default=True, help="""
+    Whether Bokeh should perform expensive error diagnostics.
+
+    When enabled (the default):
+
+    - Callback signatures are validated in ``on_change`` and ``on_event``
+    - Close-match suggestions are provided when accessing undefined attributes
     """)
 
     pretty: PrioritizedSetting[bool] = PrioritizedSetting("pretty", "BOKEH_PRETTY", default=False, dev_default=True, help="""

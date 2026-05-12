@@ -1,7 +1,7 @@
-import {describe, it} from "../framework"
-export * from "../framework"
+export * from "#framework/framework"
+import {describe, it} from "#framework/framework"
 
-import {ExpectationError} from "../unit/assertions"
+import {ExpectationError} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {LinearInterpolationScale} from "@bokehjs/models/scales/linear_interpolation_scale"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

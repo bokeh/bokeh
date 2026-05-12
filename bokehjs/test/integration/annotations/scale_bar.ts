@@ -1,4 +1,4 @@
-import {display} from "../_util"
+import {display} from "#framework/layouts"
 
 import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"

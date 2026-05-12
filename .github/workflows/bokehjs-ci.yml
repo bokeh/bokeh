@@ -79,18 +79,21 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make build
+          node make build:all
 
       - name: Run tests
-        # restore Windows and OSX support when https://github.com/bokeh/bokeh/issues/14117 is fixed
-        if: runner.os == 'Linux' && (success() || failure())
+        if: success() || failure()
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make test
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            node make test
+          else
+            node make test:codebase test:defaults test:unit
+          fi
 
       - name: Lint codebase
-        if: success() || failure()
+        if: runner.os == 'Linux' && (success() || failure())
         working-directory: ./bokehjs
         shell: bash
         run: |

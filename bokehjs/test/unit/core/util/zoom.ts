@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as zoom from "@bokehjs/core/util/zoom"
 

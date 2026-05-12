@@ -194,7 +194,9 @@ lint.ignore = [
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
 line-length = 165
-target-version = "py310"
+
+[tool.ruff.per-file-target-version]
+"examples/interaction/widgets/slider_template_string.py" = "py314"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
@@ -295,3 +297,8 @@ module = [
     "tests.unit.bokeh.test_layouts__typing",
 ]
 ignore_errors = false
+
+# TODO remove when we drop Python 3.11
+[[tool.mypy.overrides]]
+module = ["sphinx", "sphinx.*"]
+follow_imports = "skip"

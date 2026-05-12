@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {qbb, cbb} from "@bokehjs/core/util/algorithms"
 

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {
   range, reverse, enumerate, take, skip, tail, join, zip,

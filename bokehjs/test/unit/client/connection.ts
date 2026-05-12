@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {pull_session, ClientConnection} from "@bokehjs/client/connection"
 import {ClientReconnected} from "@bokehjs/core/bokeh_events"

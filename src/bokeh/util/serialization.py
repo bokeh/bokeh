@@ -87,7 +87,7 @@ BINARY_ARRAY_TYPES = {
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
 
-DT_EPOCH = dt.datetime.fromtimestamp(0, tz=dt.timezone.utc)
+DT_EPOCH = dt.datetime.fromtimestamp(0, tz=dt.UTC)
 
 __doc__ = format_docstring(__doc__, binary_array_types="\n".join(f"* ``np.{x}``" for x in BINARY_ARRAY_TYPES))
 
@@ -147,7 +147,7 @@ def convert_date_to_datetime(obj: dt.date) -> float:
         datetime
 
     '''
-    return (dt.datetime.combine(obj, dt.time(), tzinfo=dt.timezone.utc) - DT_EPOCH).total_seconds() * 1000
+    return (dt.datetime.combine(obj, dt.time(), tzinfo=dt.UTC) - DT_EPOCH).total_seconds() * 1000
 
 def convert_timedelta_type(obj: dt.timedelta | np.timedelta64) -> float:
     ''' Convert any recognized timedelta value to floating point absolute
@@ -200,7 +200,7 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
 
     # Datetime (datetime is a subclass of date)
     if isinstance(obj, dt.datetime):
-        diff = obj.replace(tzinfo=dt.timezone.utc) - DT_EPOCH
+        diff = obj.replace(tzinfo=dt.UTC) - DT_EPOCH
         return diff.total_seconds() * 1000
 
     # XXX (bev) ideally this would not be here "dates are not datetimes"
@@ -245,7 +245,7 @@ def convert_datetime_array(array: npt.NDArray[Any]) -> npt.NDArray[np.floating[A
     elif array.dtype.kind == "O" and len(array) > 0 and isinstance(array[0], dt.date):
         try:
             return convert(array.astype("datetime64[us]"))
-        except Exception:
+        except (TypeError, ValueError):
             pass
 
     return array

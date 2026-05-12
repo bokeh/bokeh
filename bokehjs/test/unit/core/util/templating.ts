@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as tmpl from "@bokehjs/core/util/templating"
 import {keys} from "@bokehjs/core/util/object"

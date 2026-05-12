@@ -6,6 +6,7 @@ import type {SizingPolicy} from "core/layout"
 import type {ViewOf} from "core/view"
 import type {StyleSheetLike} from "core/dom"
 import {build_view} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import type {XY} from "core/util/bbox"
@@ -108,6 +109,10 @@ export abstract class UIElementView extends StyledElementView {
 
   protected _context_menu: ViewOf<Menu> | null = null
 
+  override children_views(): ChildView[] {
+    return [...super.children_views(), this._context_menu]
+  }
+
   /**
    * Allows to provide a context dependent menu when `UIElement.context_menu` is `"auto"`.
    */
@@ -168,7 +173,6 @@ export abstract class UIElementView extends StyledElementView {
 
   override remove(): void {
     this._resize_observer.disconnect()
-    this._context_menu?.remove()
     super.remove()
   }
 

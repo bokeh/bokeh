@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {LogTickFormatter} from "@bokehjs/models/formatters/log_tick_formatter"
 import {LogTicker} from "@bokehjs/models/tickers/log_ticker"

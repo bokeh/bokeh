@@ -1,6 +1,6 @@
 import {Spinner} from "@bokehjs/models/widgets"
-import {display} from "../../_util"
-import {expect} from "assertions"
+import {display} from "#framework/layouts"
+import {expect} from "#framework/assertions"
 import {delay} from "@bokehjs/core/util/defer"
 
 async function mousedown_mouseup(element: Element): Promise<void> {

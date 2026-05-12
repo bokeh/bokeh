@@ -391,7 +391,7 @@ class TestDocumentCallbackManager:
 
         cm.hold(policy)
         assert cm.hold_value == policy
-        cm.unhold()
+        cm.unhold() # type: ignore[unreachable]
         assert cm.hold_value is None
 
     @patch("bokeh.document.callbacks.DocumentCallbackManager.trigger_on_change")

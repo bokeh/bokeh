@@ -1,4 +1,4 @@
-import {expect, expect_instanceof} from "assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 
 import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
 

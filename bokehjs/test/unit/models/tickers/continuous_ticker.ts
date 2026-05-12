@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {ContinuousTicker} from "@bokehjs/models/tickers/continuous_ticker"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

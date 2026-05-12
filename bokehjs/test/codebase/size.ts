@@ -6,8 +6,8 @@ import chalk from "chalk"
 const build_dir = normalize(`${import.meta.dirname}/../..`) // build/test/codebase -> build
 
 const LIMITS = new Map([
-  // es2020
-  ["js/bokeh.min.js",                1300],
+  // ES2024
+  ["js/bokeh.min.js",                1400],
   ["js/bokeh-widgets.min.js",         400],
   ["js/bokeh-tables.min.js",          350],
   ["js/bokeh-api.min.js",             150],

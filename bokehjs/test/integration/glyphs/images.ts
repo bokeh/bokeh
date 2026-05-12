@@ -1,4 +1,4 @@
-import {display, fig, column, row} from "../_util"
+import {display, fig, column, row} from "#framework/layouts"
 
 import {Anchor, ImageOrigin} from "@bokehjs/core/enums"
 import type {OutputBackend} from "@bokehjs/core/enums"

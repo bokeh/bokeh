@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/make",
-  "version": "3.10.0-dev.2",
+  "version": "3.10.0-dev.4",
   "type": "module",
   "imports": {
     "#compiler/*.js": "./_build/src/compiler/*.js"
@@ -21,14 +21,17 @@
     "@types/node": "^22.7.4",
     "@types/which": "^3.0.3",
     "@types/yargs": "^17.0.32",
-    "@typescript/native-preview": "^7.0.0-dev.20260115.1",
-    "acorn": "^8.12.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260310.1",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.0",
     "del": "^6.1.1",
     "esbuild": "^0.27.2",
     "eslint": "^10.0.0",
+    "glob": "^13.0.6",
+    "magic-string": "^0.30.21",
+    "oxc-parser": "^0.116.0",
     "semver": "^7.6.2",
+    "source-map": "^0.7.6",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.56.0",
     "which": "^3.0.1",

@@ -4,15 +4,14 @@
     "types": [],
     "paths": {
       "@bokehjs/*": ["../../build/js/lib/*"],
-      "*": ["./*"]
+      "#framework/*": ["../../build/test/framework/*"]
     },
-    "outDir": "../../build/test"
+    "outDir": "../../build/test/integration"
   },
   "extends": "../../tsconfig.base",
   "include": [
-    "../framework.ts",
-    "../interactive.ts",
-    "../*.d.ts",
-    "./**/*.ts"
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../framework/globals.d.ts"
   ]
 }

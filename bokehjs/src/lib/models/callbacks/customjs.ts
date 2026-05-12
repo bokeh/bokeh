@@ -61,6 +61,7 @@ export class CustomJS extends Callback {
       // XXX: eval() to work around transpilation to require()
       // https://github.com/microsoft/TypeScript/issues/43329
       const module = await eval(`import("${url}")`)
+      // TODO const module = await import(`${url}`)
       if (isFunction(module.default)) {
         return module.default as ESFunc
       } else {

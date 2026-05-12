@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Interpolator} from "@bokehjs/models/transforms/interpolator"
 import type {Arrayable} from "@bokehjs/core/types"

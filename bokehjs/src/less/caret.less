@@ -1,29 +1,22 @@
 @import "./_mixins.less";
 
 :host {
-  --caret-width: 4px;
+  --caret-width: 18px;
+  --caret-height: 12px;
+}
+
+&.bk-btn-default, &.bk-btn-light {
+  --caret-color: light-dark(var(--color), var(--background-color));
+}
+
+&.bk-btn-primary, &.bk-btn-success, &.bk-btn-warning, &.bk-btn-danger {
+  --caret-color: var(--inverted-color);
 }
 
 .bk-caret {
   display: inline-block;
   vertical-align: middle;
-  width: 0;
-  height: 0;
-  margin: 0 5px;
-
-  &.bk-down { border-top:    var(--caret-width) solid; }
-  &.bk-up   { border-bottom: var(--caret-width) solid; }
-
-  &.bk-down, &.bk-up {
-    border-right: var(--caret-width) solid transparent;
-    border-left:  var(--caret-width) solid transparent;
-  }
-
-  &.bk-left  { border-right: var(--caret-width) solid; }
-  &.bk-right { border-left:  var(--caret-width) solid; }
-
-  &.bk-left, &.bk-right {
-    border-top:    var(--caret-width) solid transparent;
-    border-bottom: var(--caret-width) solid transparent;
-  }
+  width: var(--caret-width);
+  height: var(--caret-height);
+  .icon-mask(var(--bokeh-icon-caret-down), var(--caret-color));
 }

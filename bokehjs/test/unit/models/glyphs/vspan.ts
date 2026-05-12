@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import type {DataOf} from "./_util"
 import {create_glyph_view} from "./_util"

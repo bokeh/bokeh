@@ -1,8 +1,8 @@
 import * as sinon from "sinon"
 
-import {expect} from "../unit/assertions"
-import {display, fig, row} from "./_util"
-import {mouse_click} from "../interactive"
+import {expect} from "#framework/assertions"
+import {display, fig, row} from "#framework/layouts"
+import {mouse_click} from "#framework/interactive"
 
 import {figure} from "@bokehjs/api/plotting"
 import type {Location, WindowAxis} from "@bokehjs/core/enums"

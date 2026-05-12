@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {expand_to_per_vertex} from "@bokehjs/models/glyphs/webgl/buffer"
 

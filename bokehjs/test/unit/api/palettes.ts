@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {interp_palette, linear_palette, varying_alpha_palette} from "@bokehjs/api/palettes"
 

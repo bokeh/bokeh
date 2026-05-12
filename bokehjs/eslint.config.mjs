@@ -23,7 +23,7 @@ export default defineConfig({
           "./src/lib/tsconfig.json",
           "./src/compiler/tsconfig.json",
           "./src/server/tsconfig.json",
-          "./test/tsconfig.json",
+          "./test/framework/tsconfig.json",
           "./test/unit/tsconfig.json",
           "./test/defaults/tsconfig.json",
           "./test/integration/tsconfig.json",
@@ -124,6 +124,7 @@ export default defineConfig({
       }],
       "@typescript-eslint/no-empty-object-type": ["error", {
         allowInterfaces: "with-single-extends",
+        allowWithName: "^.*$",
       }],
       "@typescript-eslint/no-floating-promises": ["error", {ignoreVoid: true}],
       "@typescript-eslint/no-restricted-types": ["error", {

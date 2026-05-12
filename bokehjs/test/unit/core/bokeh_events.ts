@@ -1,5 +1,5 @@
-import {expect, expect_instanceof} from "assertions"
-import {display} from "../_util"
+import {expect, expect_instanceof} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {Serializer} from "@bokehjs/core/serialization"
 import type {BokehEvent} from "@bokehjs/core/bokeh_events"
@@ -8,8 +8,8 @@ import type {Model} from "@bokehjs/model"
 import {CategoricalAxis, CategoricalScale, FactorRange, Plot, Range1d, LinearAxis, LogAxis} from "@bokehjs/models"
 import type {MessageSent, Patch} from "@bokehjs/document"
 import {TextInput} from "@bokehjs/models/widgets"
-import {PlotActions, xy} from "../../interactive"
-import type {Point} from "../../interactive"
+import {PlotActions, xy} from "#framework/interactive"
+import type {Point} from "#framework/interactive"
 import type {Side} from "@bokehjs/core/enums"
 
 @server_event("some_library.do_something")

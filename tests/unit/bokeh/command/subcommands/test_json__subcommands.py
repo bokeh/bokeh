@@ -19,6 +19,8 @@ import pytest ; pytest
 # Standard library imports
 import argparse
 import os
+import shutil
+from unittest.mock import patch
 
 # Bokeh imports
 from bokeh.command.bootstrap import main
@@ -88,17 +90,22 @@ def test_args() -> None:
     )
 
 def test_no_script(capsys: Capture) -> None:
-    with TmpDir(prefix="bokeh-json-no-script") as dirname:
-        with WorkingDir(dirname):
-            with pytest.raises(SystemExit):
-                main(["bokeh", "json"])
-        out, err = capsys.readouterr()
-        too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
-        assert err == f"""usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME] [--args ...]
+    with (
+        TmpDir(prefix="bokeh-json-no-script") as dirname,
+        WorkingDir(dirname),
+        # Patch needed for linebreak in capsys
+        patch.object(shutil, "get_terminal_size", return_value=os.terminal_size((80, 24))),
+    ):
+        with pytest.raises(SystemExit):
+            main(["bokeh", "json"])
+
+    out, err = capsys.readouterr()
+    too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
+    assert err == f"""usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME] [--args ...]
                   DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
 bokeh json: error: {too_few}
 """
-        assert out == ""
+    assert out == ""
 
 def test_basic_script(capsys: Capture) -> None:
     def run(dirname: str) -> None:

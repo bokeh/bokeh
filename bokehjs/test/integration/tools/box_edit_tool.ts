@@ -1,5 +1,5 @@
-import {display, fig} from "../_util"
-import {PlotActions, xy} from "../../interactive"
+import {display, fig} from "#framework/layouts"
+import {PlotActions, xy} from "#framework/interactive"
 
 import type {BoxLikeGlyph} from "@bokehjs/models/tools/edit/box_edit_tool"
 import {BoxEditTool} from "@bokehjs/models/tools/edit/box_edit_tool"

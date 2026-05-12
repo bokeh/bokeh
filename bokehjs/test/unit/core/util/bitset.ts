@@ -1,11 +1,11 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
+import {trap} from "#framework/util"
+
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {range} from "@bokehjs/core/util/array"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {may_have_refs} from "@bokehjs/core/util/refs"
 import {version as js_version} from "@bokehjs/version"
-
-import {trap} from "../../../util"
 
 describe("core/util/bitset module", () => {
 

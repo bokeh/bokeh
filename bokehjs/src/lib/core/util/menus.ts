@@ -7,7 +7,8 @@ import {execute} from "./callbacks"
 
 import menus_css, * as menus from "styles/legacy_menus.css"
 import icons_css from "styles/icons.css"
-import base_css from "styles/base.css"
+import vars_css from "styles/vars.css"
+import core_css from "styles/core.css"
 
 import type {MenuItemLike, MenuItem} from "../../models/ui/menus"
 import {Menu, DividerItem} from "../../models/ui/menus"
@@ -170,7 +171,8 @@ export class ContextMenu {
   }
 
   stylesheets(): StyleSheetLike[] {
-    return [base_css, /*...super.stylesheets(), */ menus_css, icons_css, ...this.extra_styles]
+    /* ...super.stylesheets() */
+    return [vars_css, core_css, menus_css, icons_css, ...this.extra_styles]
   }
 
   empty(): void {

@@ -1,5 +1,5 @@
 import * as arrayable from "@bokehjs/core/util/arrayable"
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 describe("core/util/arrayable module", () => {
 

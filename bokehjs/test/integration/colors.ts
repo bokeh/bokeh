@@ -1,4 +1,4 @@
-import {column, display, fig, row} from "./_util"
+import {display, fig, row, column} from "#framework/layouts"
 
 import {ColumnDataSource, GlyphRenderer, Circle} from "@bokehjs/models"
 import type {ColorNDArray} from "@bokehjs/api/glyph_api"

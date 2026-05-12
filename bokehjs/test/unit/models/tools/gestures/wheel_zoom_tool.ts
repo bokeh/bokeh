@@ -1,6 +1,6 @@
-import {expect} from "assertions"
-import {display} from "../../../_util"
-import {PlotActions, xy} from "../../../../interactive"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
+import {PlotActions, xy} from "#framework/interactive"
 
 import type {GestureTool} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"

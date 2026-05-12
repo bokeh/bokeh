@@ -33,6 +33,12 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
       main_gl_glyph.data_mapped = false
     }
 
+    // Update derived glyph data if it has overrides
+    if (this !== main_gl_glyph && this.data_changed) {
+      this.set_data()  // Populate derived buffers
+      this.data_changed = false
+    }
+
     if (this.visuals_changed) {
       this._set_visuals()
       this.visuals_changed = false

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {parse_delimited_string} from "@bokehjs/models/text/utils"
 import {TeX, PlainText} from "@bokehjs/models/text"

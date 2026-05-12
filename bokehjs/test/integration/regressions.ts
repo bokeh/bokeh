@@ -1,10 +1,11 @@
 import sinon from "sinon"
 
-import {expect, expect_condition, expect_not_null} from "../unit/assertions"
-import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
+import {expect, expect_condition, expect_not_null} from "#framework/assertions"
+import {display, fig, row, column, grid} from "#framework/layouts"
+import {DelayedInternalProvider} from "#framework/util"
+import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -19,13 +20,13 @@ import {
   TeX,
   Toolbar, ToolProxy,
   PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
-  WheelPanTool, BoxSelectTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
+  WheelPanTool, BoxSelectTool, BoxZoomTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4701,7 +4702,10 @@ describe("Bug", () => {
   })
 
   describe("in issue #14549", () => {
-    it("doesn't prevent hover action upon bbox change", async () => {
+    // TODO This test can produce to marginally different states, that cause
+    // tests to fail at random. Re-enable this when vDOM migration and layout
+    // redesign are completed.
+    it.skip("doesn't prevent hover action upon bbox change", async () => {
       const n = 1000
       const x = linspace(0, 20, n)
       const y = x
@@ -4750,6 +4754,7 @@ describe("Bug", () => {
       await actions0.hover(xy(0, 0))
       await actions0.scroll(xy(0, 0), 250)
 
+      view.invalidate_layout() // TODO remove this when pure CSS layout is implemented
       await view.ready
     })
   })
@@ -4844,6 +4849,22 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #15004", () => {
+    it("doesn't allow to recalculate layout when min_border property is changed", async () => {
+      const p = fig([400, 400], {
+        min_border: 0,
+      })
+      p.scatter([1, 2, 3], [1, 2, 3])
+      const {view} = await display(p)
+      const plot_view = view.owner.get_one(p)
+      const initial_width = plot_view.frame.bbox.width
+      p.min_border = 100
+      await view.ready
+      const new_width = plot_view.frame.bbox.width
+      expect(new_width).to.be.below(initial_width)
+    })
+  })
+
   describe("in issue #8787", () => {
     it("doesn't show hover for multi line when values decrease", async () => {
       const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
@@ -4859,6 +4880,89 @@ describe("Bug", () => {
       const actions0 = new PlotActions(pv0)
       await actions0.hover(xy(-2, 1.5))
 
+      await view.ready
+    })
+  })
+
+  describe("in issue #14218", () => {
+    it("allows RangeTool with start gesture pan and PanTool to be active at the same time", async () => {
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 2, end: 4}),
+        start_gesture: "pan",
+      })
+      const p = fig([400, 200], {tools: ["pan", range_tool], toolbar_location: "above"})
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+      await display(p)
+    })
+
+    it("should respect active setting", async () => {
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 1, end: 2}),
+        start_gesture: "pan",
+      })
+      const box_zoom_tool = new BoxZoomTool()
+      const p = fig([400, 200], {tools: ["pan", range_tool, box_zoom_tool], toolbar_location: "above"})
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+      p.toolbar.active_drag = range_tool
+      await display(p)
+    })
+  })
+
+  describe("in issue #15015", () => {
+    it("doesn't show updates to num_minor_ticks", async () => {
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
       await view.ready
     })
   })

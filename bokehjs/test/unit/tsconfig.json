@@ -6,17 +6,14 @@
     "types": [],
     "paths": {
       "@bokehjs/*": ["../../build/js/lib/*"],
-      "assertions": ["./assertions.ts"],
-      "_util": ["./_util.ts"]
+      "#framework/*": ["../../build/test/framework/*"]
     },
-    "outDir": "../../build/test"
+    "outDir": "../../build/test/unit"
   },
   "extends": "../../tsconfig.base",
   "include": [
-    "../framework.ts",
-    "../interactive.ts",
-    "../*.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "../framework/globals.d.ts"
   ]
 }

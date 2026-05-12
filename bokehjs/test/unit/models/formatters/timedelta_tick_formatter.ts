@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as tdtf from "@bokehjs/models/formatters/timedelta_tick_formatter"
 

@@ -46,7 +46,7 @@ export class DropdownView extends AbstractButtonView {
   override render(): void {
     super.render()
 
-    const caret = div({class: [carets.caret, carets.down]})
+    const caret = div({class: [carets.caret]})
 
     if (!this.model.is_split) {
       this.button_el.append(caret)

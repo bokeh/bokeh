@@ -1,4 +1,4 @@
-import {display, fig} from "../_util"
+import {display, fig} from "#framework/layouts"
 
 import type {GlyphAPI} from "@bokehjs/api/glyph_api"
 import {f} from "@bokehjs/api/expr"

@@ -81,10 +81,10 @@ class Expression(Model):
 
     JavaScripts implementations should implement the following methods:
 
-    .. code-block
+    .. code-block:: typescript
 
         v_compute(source: ColumnarDataSource): Arrayable {
-            # compute and return array of values
+            // compute and return array of values
         }
 
     .. note::

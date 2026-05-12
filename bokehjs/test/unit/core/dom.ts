@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {div, input, has_focus} from "@bokehjs/core/dom"
 

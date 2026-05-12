@@ -229,7 +229,7 @@ class ClickPanTool(PlotActionTool):
     direction: PanDirection = ...
     factor: Percent = ...
 
-class _RangeToolInit(_ToolInit, total=False):
+class _RangeToolInit(_DragInit, total=False):
     x_range: Range | None
     y_range: Range | None
     x_interaction: bool
@@ -237,7 +237,7 @@ class _RangeToolInit(_ToolInit, total=False):
     overlay: BoxAnnotation
     start_gesture: Literal["pan", "tap", "none"]
 
-class RangeTool(Tool):
+class RangeTool(Drag):
     def __init__(self, **kwargs: Unpack[_RangeToolInit]) -> None: ...
 
     x_range: Range | None = ...

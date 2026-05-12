@@ -101,6 +101,7 @@ class Spinner(NumericInput):
 class _ToggleInputInit(_WidgetInit, total=False):
     active: bool
     label: str
+    tri_state: bool
 
 class ToggleInput(Widget):
     @abstractmethod
@@ -108,6 +109,7 @@ class ToggleInput(Widget):
 
     active: bool = ...
     label: str = ...
+    tri_state: bool = ...
 
 class _CheckboxInit(_ToggleInputInit, total=False):
     ...
@@ -118,12 +120,14 @@ class Checkbox(ToggleInput):
 class _SwitchInit(_ToggleInputInit, total=False):
     on_icon: IconLike | None
     off_icon: IconLike | None
+    indeterminate_icon: IconLike | None
 
 class Switch(ToggleInput):
     def __init__(self, **kwargs: Unpack[_SwitchInit]) -> None: ...
 
     on_icon: IconLike | None = ...
     off_icon: IconLike | None = ...
+    indeterminate_icon: IconLike | None = ...
 
 class _LightDarkInit(_SwitchInit, total=False):
     ...

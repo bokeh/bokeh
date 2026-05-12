@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": [],
+    "paths": {
+      "@bokehjs/*": ["../../build/js/lib/*"]
+    },
+    "outDir": "../../build/test/framework"
+  },
+  "extends": "../../tsconfig.base",
+  "include": ["./**/*.ts"]
+}

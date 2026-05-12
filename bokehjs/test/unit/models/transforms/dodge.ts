@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Dodge} from "@bokehjs/models/transforms/dodge"

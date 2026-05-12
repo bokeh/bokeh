@@ -1,0 +1,410 @@
+name: Bokeh-CI-Full
+
+# Comprehensive testing across all platforms and Python versions
+# Runs daily and can be triggered manually by maintainers
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:  # Allow manual triggering by maintainers
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual comprehensive test'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel comprehensive tests
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+env:
+  CHROME_VER: "141.0.7390.54"
+  CHROME_REV: "chromium_3265"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history to get proper build version
+
+      - name: Build Bokeh and Bokeh.js
+        uses: ./.github/workflows/composite/build
+
+      - name: Log run reason
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Manual run reason - ${{ github.event.inputs.reason }}"
+
+  codebase:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+
+    steps:
+      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.11'
+          source-tree: 'keep'
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Run codebase checks
+        run: pytest --color=yes tests/codebase
+
+  typing:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'keep'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Check library types with mypy
+        run: |
+          mypy --version && mypy
+
+      - name: Check types in examples with mypy
+        if: success() || failure()
+        run: |
+          mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
+
+  examples:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Examples only run on Linux (Chrome/Chromium dependency)
+        os: [ubuntu-24.04]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: Install chromium
+        uses: ./.github/workflows/composite/install-chromium
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+        with:
+          include-chromium: 'true'
+
+      - name: Start chrome headless
+        working-directory: ./bokehjs
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
+
+      - name: Run tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: pytest -s -v --color=yes --tb line tests/test_examples.py
+
+      - name: Collect results
+        if: always()
+        env:
+          DST: "examples-report"
+        run: |
+          mkdir -p ${DST}
+          cp --parents examples-report.html $(cat .images-list) ${DST}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: examples-report-${{ matrix.os }}-${{ matrix.python-version }}
+          path: examples-report
+
+  unit-test:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        # Comprehensive: All platforms × all Python versions
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Run unit tests
+        uses: ./.github/workflows/composite/run-unit-tests
+
+  minimal-deps:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms, Python 3.11 (defined in minimal-deps environment)
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+    env:
+      OS: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'minimal-deps'
+          source-tree: 'delete'
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Run dependency tests
+        uses: ./.github/workflows/composite/run-deps-tests
+        with:
+          dep-type: 'minimal'
+
+  core-deps:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms, Python 3.14 (defined in core environment)
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+    env:
+      OS: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'core'
+          source-tree: 'delete'
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Run dependency tests
+        uses: ./.github/workflows/composite/run-deps-tests
+        with:
+          dep-type: 'core'
+
+  documentation:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Comprehensive: All platforms
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+        # Build only on the most recent version of Python, so that documentation
+        # and included examples can utilize newest available syntax and standard APIs.
+        python-version: ['3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Build docs
+        run: bash scripts/ci/build_docs.sh
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v6
+        with:
+          name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
+          path: docs/bokeh/docs-html.tgz
+
+  notify-nightly-failure:
+    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post failure notification to GitHub Discussions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get list of failed jobs
+          FAILED_JOBS=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs \
+            --jq '.jobs[] | select(.conclusion == "failure") | "- `\(.name)`"' | tr '\n' '\n')
+
+          # Create discussion post
+          gh api graphql -f query='
+            mutation($repositoryId: ID!, $categoryId: ID!, $body: String!, $title: String!) {
+              createDiscussion(input: {
+                repositoryId: $repositoryId,
+                categoryId: $categoryId,
+                body: $body,
+                title: $title
+              }) {
+                discussion {
+                  url
+                }
+              }
+            }
+          ' \
+          -f repositoryId='MDEwOlJlcG9zaXRvcnkzODM0MzMy' \
+          -f categoryId='DIC_kwDOADqB3M4C5RF1' \
+          -f title="❌ Full CI Failed - $(date +%Y-%m-%d)" \
+          -f body="The nightly Full CI workflow has failed.
+
+          **Failed jobs:**
+          ${FAILED_JOBS}
+
+          [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+          *Automated notification from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
+
+  notify-pr:
+    needs: [build, codebase, typing, examples, unit-test, minimal-deps, core-deps, documentation]
+    if: always() && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find associated PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head "${{ github.ref_name }}" --state open --json number --jq '.[0].number // empty')
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+
+          # Wait for GitHub API to update job statuses
+          sleep 10
+
+          # Check if any dependency jobs were cancelled
+          if ! CANCELLED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "cancelled")] | length'); then
+            echo "Error: Failed to count cancelled jobs"
+            exit 1
+          fi
+
+          if [ "$CANCELLED_COUNT" -gt 0 ]; then
+            # Workflow was cancelled - skip commenting
+            echo "Workflow was cancelled ($CANCELLED_COUNT jobs cancelled) - skipping PR comment"
+            exit 0
+          fi
+
+          # Determine overall status with error handling
+          if ! FAILED_COUNT=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '[.jobs[] | select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "failure")] | length'); then
+            echo "Error: Failed to count failed jobs"
+            exit 1
+          fi
+
+          if [ "$FAILED_COUNT" -eq 0 ]; then
+            # All jobs succeeded - simple message
+            gh pr comment "$PR_NUMBER" --repo ${{ github.repository }} --body "## Full CI Results
+
+          ✅ **All jobs succeeded**
+
+          **Triggered:** ${{ github.event.inputs.reason || 'Manual run' }} at $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          [View full workflow run →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+          *Automated comment from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
+          else
+            # Some jobs failed - list only the failures
+            if ! FAILED_JOBS=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs --jq '
+              .jobs[] |
+              select(.name != "notify-nightly-failure" and .name != "notify-pr" and .conclusion == "failure") |
+              "- ❌ **\(.name)** ([job #\(.id)](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/\(.id)))"
+            '); then
+              echo "Error: Failed to fetch failed job results from GitHub API"
+              exit 1
+            fi
+
+            gh pr comment "$PR_NUMBER" --repo ${{ github.repository }} --body "## Full CI Results
+
+          ❌ **${FAILED_COUNT} job(s) failed**
+
+          ${FAILED_JOBS}
+
+          **Triggered:** ${{ github.event.inputs.reason || 'Manual run' }} at $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          [View full workflow run →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+          *Automated comment from [Bokeh-CI-Full](${{ github.server_url }}/${{ github.repository }}/actions/workflows/bokeh-ci-full.yml)*"
+          fi

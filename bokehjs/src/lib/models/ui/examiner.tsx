@@ -2,7 +2,7 @@ import {UIElement, UIElementView} from "./ui_element"
 import * as p from "core/properties"
 import {HasProps} from "core/has_props"
 import type {StyleSheetLike, Keys} from "core/dom"
-import {isArray} from "core/util/types"
+import {cls} from "core/vdom"
 import {keys} from "core/util/object"
 import {map} from "core/util/iterator"
 import {receivers_for_sender} from "core/signaling"
@@ -90,16 +90,6 @@ export class ExaminerView extends UIElementView {
     const show_internal = signal(true)
     const opaque_types = signal(false)
     const watched_props = signal(new Set<p.Property>())
-
-    type CSSClass = string | null | undefined
-    function cls(...classes: (CSSClass | CSSClass[])[]): string {
-      const transformed = classes
-        .flatMap((cls) => isArray(cls) ? cls : [cls])
-        .filter((cls) => cls != null)
-        .map((cls) => cls.trim())
-        .filter((cls) => cls.length != 0)
-      return [...new Set(transformed)].join(" ")
-    }
 
     function click(obj: unknown) {
       if (obj instanceof HasProps) {

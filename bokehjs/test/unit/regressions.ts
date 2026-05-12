@@ -1,9 +1,11 @@
 import sinon from "sinon"
 
-import {expect, expect_instanceof, expect_not_null} from "assertions"
-import {display, fig, restorable} from "./_util"
-import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "../interactive"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
+import {restorable} from "#framework/util"
+import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 
 import {
   AllIndices,
@@ -14,6 +16,7 @@ import {
   CDSView,
   Canvas,
   CategoricalColorMapper,
+  ColorBar,
   Column,
   ColumnDataSource,
   CopyTool,
@@ -29,6 +32,7 @@ import {
   LegendItem,
   Line,
   LinearColorMapper,
+  LogColorMapper,
   Node,
   PanTool,
   Pane,
@@ -77,7 +81,7 @@ import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {Spectral11, Viridis11, Viridis256} from "@bokehjs/api/palettes"
+import {Spectral11, Spectral6, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 import type {AxisType, ToolName} from "@bokehjs/api/figure"
@@ -908,6 +912,7 @@ describe("Bug", () => {
                 context_menu: null,
               },
             },
+            color_scheme: "auto",
           },
         },
         roots: [{
@@ -2024,6 +2029,53 @@ describe("Bug", () => {
       expect(a).to.be.below(x_range.start)
       expect(b).to.be.within(x_range.start, x_range.end)
       expect(c).to.be.within(x_range.start, x_range.end)
+    })
+  })
+
+  describe("in issue #14869", () => {
+    function get_cursor(plot_view: PlotView): string {
+      return getComputedStyle(plot_view.canvas_view.events_el).cursor
+    }
+
+    async function has_cursor_at(plot_view: PlotView, point: XY, cursor: string) {
+      const ac = actions(plot_view, {units: "data"})
+      await ac.hover(point)
+      expect(get_cursor(plot_view)).to.be.equal(cursor)
+    }
+
+    it("doesn't hide resize cursors if BoxAnnotation is non editable", async () => {
+      const p = fig([200, 200], {x_range: [0, 4], y_range: [0, 4]})
+      const box = new BoxAnnotation({left: 1, right: 3, bottom: 1, top: 3})
+      p.add_layout(box)
+      const {view} = await display(p)
+
+      await has_cursor_at(view, xy(1, 1), "default")
+      await has_cursor_at(view, xy(1, 2), "default")
+      await has_cursor_at(view, xy(1, 3), "default")
+      await has_cursor_at(view, xy(2, 3), "default")
+      await has_cursor_at(view, xy(3, 3), "default")
+      await has_cursor_at(view, xy(3, 2), "default")
+      await has_cursor_at(view, xy(3, 1), "default")
+      await has_cursor_at(view, xy(2, 1), "default")
+      await has_cursor_at(view, xy(2, 2), "default")
+    })
+  })
+
+  describe("in issue #7297", () => {
+    it("doesn't support reversed LogColorMapper when low is grater than high", async () => {
+      const x = linspace(0.5, 10.5, 21)
+      const y = linspace(0.5, 10.5, 21)
+      const source = new ColumnDataSource({data: {x, y}})
+
+      const p = fig([200, 200])
+      const cmap = new LogColorMapper({
+        palette: Spectral6, low: 10, high: 1, low_color: "gray", high_color: "black",
+      })
+      const cbar = new ColorBar({color_mapper: cmap})
+      p.scatter("x", "y", {color: {field: "x", transform: cmap}, size: 15, source})
+      p.add_layout(cbar, "right")
+
+      await display(p)
     })
   })
 })

@@ -1,4 +1,4 @@
-import {display, fig, row} from "../_util"
+import {display, fig, row} from "#framework/layouts"
 import type {OutputBackend, LineCap, LineJoin, LineDash} from "@bokehjs/core/enums"
 
 describe("Line glyph", () => {

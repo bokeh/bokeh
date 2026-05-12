@@ -8,17 +8,44 @@ export class LightDarkView extends SwitchView {
     super.connect_signals()
 
     const {active} = this.model.properties
-    this.on_change(active, () => this._update_theme())
+    this.on_change(active, () => this._update_scheme())
+
+    const {document} = this.model
+    if (document != null) {
+      const {color_scheme} = document.config.properties
+      this.on_change(color_scheme, () => this._update_active_from_config())
+    }
   }
 
   override render(): void {
     super.render()
-    this._update_theme()
+    if (this.model.active == null) {
+      this._update_active_from_config()
+    } else {
+      this._update_scheme()
+    }
   }
 
-  protected _update_theme(): void {
-    const theme = this.model.active ? "light" : "dark"
-    document.documentElement.style.setProperty("--bokeh-color-scheme", theme)
+  protected _update_scheme(): void {
+    const {active, document} = this.model
+    if (document != null) {
+      const is_system = active === null
+      const scheme = !is_system && active ? "light" : is_system ? "auto" : "dark"
+      document.config.color_scheme = scheme
+    }
+  }
+
+  protected _update_active_from_config(): void {
+    const {document} = this.model
+    if (document != null) {
+      this.model.active = (() => {
+        switch (document.config.color_scheme) {
+          case "light": return true
+          case "dark": return false
+          default: return null
+        }
+      })()
+    }
   }
 }
 
@@ -42,8 +69,11 @@ export class LightDark extends Switch {
     this.prototype.default_view = LightDarkView
 
     this.override<LightDark.Props>({
+      active: null,
       on_icon: "light_theme",
       off_icon: "dark_theme",
+      indeterminate_icon: "system_theme",
+      tri_state: true,
     })
   }
 }

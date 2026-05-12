@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
 import type {Context2d} from "@bokehjs/core/util/canvas"

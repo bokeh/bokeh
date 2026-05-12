@@ -1,5 +1,5 @@
-import {display, fig, row} from "../_util"
-import {PlotActions, actions, xy} from "../../interactive"
+import {display, fig, row} from "#framework/layouts"
+import {PlotActions, actions, xy} from "#framework/interactive"
 
 import type {Plot} from "@bokehjs/models"
 import {Range1d, FactorRange, WheelZoomTool, LinearScale, CategoricalScale, GroupByModels, GroupByName} from "@bokehjs/models"

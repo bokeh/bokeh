@@ -1,7 +1,7 @@
-import {expect} from "assertions"
-import type {PlotActions} from "../../../interactive"
-import {actions, xy} from "../../../interactive"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import type {PlotActions} from "#framework/interactive"
+import {actions, xy} from "#framework/interactive"
+import {display} from "#framework/layouts"
 
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot, Range1d, LinearAxis, BoxAnnotation} from "@bokehjs/models"

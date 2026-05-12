@@ -1,4 +1,5 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
+import {trap} from "#framework/util"
 
 import {with_log_level} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
@@ -6,8 +7,6 @@ import {version} from "@bokehjs/version"
 import {keys} from "@bokehjs/core/util/object"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Int32NDArray, Float32NDArray, Float64NDArray, ndarray} from "@bokehjs/core/util/ndarray"
-
-import {trap} from "../../../util"
 
 describe("column_data_source module", () => {
 

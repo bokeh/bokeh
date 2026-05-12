@@ -16,7 +16,7 @@ export abstract class SXSYGlyphGL extends SingleMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     const nmarkers = this.nvertices
     const centers_array = this._centers.get_sized_array(2*nmarkers)
     interleave(this.glyph.sx, this.glyph.sy, nmarkers, SingleMarkerGL.missing_point, centers_array)

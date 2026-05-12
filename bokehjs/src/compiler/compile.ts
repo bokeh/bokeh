@@ -4,7 +4,7 @@ import ts from "typescript"
 import lesscss from "less"
 
 import type {TSOutput, Inputs, Outputs} from "./compiler.js"
-import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics} from "./compiler.js"
+import {compiler_host, parse_tsconfig, compile_files, report_diagnostics} from "./compiler.js"
 import type {Path} from "./sys.js"
 import {rename} from "./sys.js"
 import * as transforms from "./transforms.js"
@@ -46,7 +46,6 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   })()
 
   const host = compiler_host(inputs, tsconfig.options, tslib_dir)
-  const transformers = default_transformers(base_dir, tsconfig.options)
 
   const outputs: Outputs = new Map()
   host.writeFile = (name: Path, data: string) => {
@@ -54,7 +53,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   }
 
   const files = [...inputs.keys()]
-  return {outputs, ...compile_files(files, tsconfig.options, transformers, host)}
+  return {outputs, ...compile_files(files, tsconfig.options, undefined, host)}
 }
 
 function compile_javascript(base_dir: string, file: string, code: string): {output?: string} & TSOutput {
