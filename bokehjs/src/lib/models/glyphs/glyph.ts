@@ -9,7 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor, WindowAxis} from "core/enums"
-import type {ViewStorage, View} from "core/build_views"
+import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
@@ -100,7 +100,7 @@ export abstract class GlyphView extends DOMComponentView {
 
   readonly decorations: ViewStorage<Decoration> = new Map()
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this.decorations.values()]
   }
 

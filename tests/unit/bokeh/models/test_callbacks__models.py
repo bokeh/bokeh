@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
@@ -70,6 +71,29 @@ def test_CustomJS_from_code_js() -> None:
 def test_CustomJS_from_code_bad_file_type() -> None:
     with pytest.raises(RuntimeError):
         CustomJS.from_file(Path("some/module.css"))
+
+@pytest.mark.skipif(sys.version_info[:2] < (3, 14), reason="needs support for template literals")
+def test_CustomJS_from_template() -> None:
+    # TODO can't implement this directly, because it will cause SyntaxError earlier Pythons
+    slider = Slider()
+
+    code0 = """CustomJS.from_template(t"export default () => console.log('foo')")"""
+    cb0: CustomJS = eval(compile(code0, "<test>", "eval"))
+    assert cb0.module == "auto"
+    assert cb0.code == "export default () => console.log('foo')"
+    assert cb0.args == dict()
+
+    code1 = """CustomJS.from_template(t"export default () => console.log('foo: ' + {slider}.value)")"""
+    cb1: CustomJS = eval(compile(code1, "<test>", "eval"))
+    assert cb1.module == "auto"
+    assert cb1.code == "export default () => console.log('foo: ' + slider.value)"
+    assert cb1.args == dict(slider=slider)
+
+    code2 = """CustomJS.from_template(t"export default () => console.log(`foo: ${{ {slider}.value }}`)")"""
+    cb2: CustomJS = eval(compile(code2, "<test>", "eval"))
+    assert cb2.module == "auto"
+    assert cb2.code == "export default () => console.log(`foo: ${ slider.value }`)"
+    assert cb2.args == dict(slider=slider)
 
 #-----------------------------------------------------------------------------
 # Dev API

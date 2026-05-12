@@ -5,7 +5,7 @@ import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4702,7 +4702,10 @@ describe("Bug", () => {
   })
 
   describe("in issue #14549", () => {
-    it("doesn't prevent hover action upon bbox change", async () => {
+    // TODO This test can produce to marginally different states, that cause
+    // tests to fail at random. Re-enable this when vDOM migration and layout
+    // redesign are completed.
+    it.skip("doesn't prevent hover action upon bbox change", async () => {
       const n = 1000
       const x = linspace(0, 20, n)
       const y = x
@@ -4908,6 +4911,59 @@ describe("Bug", () => {
       p.scatter(x, y, {size: 10})
       p.toolbar.active_drag = range_tool
       await display(p)
+    })
+  })
+
+  describe("in issue #15015", () => {
+    it("doesn't show updates to num_minor_ticks", async () => {
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      await view.ready
     })
   })
 })

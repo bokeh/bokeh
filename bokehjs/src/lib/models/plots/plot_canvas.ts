@@ -29,8 +29,8 @@ import {Panel} from "../ui/panel"
 import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
-import type {ViewStorage, View, ViewOf, BuildResult} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import type {ViewStorage, ChildView, View, ViewOf, BuildResult} from "core/build_views"
+import {build_views} from "core/build_views"
 import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
@@ -202,7 +202,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
   /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
   }
 
@@ -278,12 +278,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.reset_selection()
     }
     this.model.trigger_event(new Reset())
-  }
-
-  override remove(): void {
-    remove_views(this.renderer_views)
-    remove_views(this.tool_views)
-    super.remove()
   }
 
   protected override _provide_context_menu(): Menu | null {
