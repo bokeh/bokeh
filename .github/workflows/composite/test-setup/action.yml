@@ -31,6 +31,7 @@ runs:
         mamba-version: "*"
         activate-environment: bk-test
         environment-file: conda/environment-test-${{ inputs.test-env }}-no-nodejs.yml
+        condarc-file: conda/condarc.yml
         run-post: ${{ runner.os != 'Windows' }}
 
     - name: Install Node.js
