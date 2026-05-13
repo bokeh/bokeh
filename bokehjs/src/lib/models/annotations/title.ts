@@ -14,7 +14,7 @@ import * as title_css from "styles/title.css"
 import {SideLayout} from "core/layout/side_panel"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import type {BaseTextView} from "models/text/base_text"
 import {BaseText} from "models/text/base_text"
 import {build_view} from "core/build_views"
@@ -39,7 +39,7 @@ export class TitleView extends AnnotationView {
 
   protected _text_view: BaseTextView
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this._text_view]
   }
 
