@@ -14,7 +14,7 @@ import * as title_css from "styles/title.css"
 import {SideLayout} from "core/layout/side_panel"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/view"
 import type {BaseTextView} from "models/text/base_text"
 import {BaseText} from "models/text/base_text"
 import {build_view} from "core/build_views"
@@ -39,8 +39,8 @@ export class TitleView extends AnnotationView {
 
   protected _text_view: BaseTextView
 
-  override children_views(): View[] {
-    return [...super.children_views(), this._text_view]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._text_view]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -81,7 +81,7 @@ export class TitleView extends AnnotationView {
   }
 
   protected _paint(ctx: Context2d): void {
-    const do_paint = this.parent.is_forcing_paint
+    const do_paint = this.plot_view.is_forcing_paint
     //this.label_el.style.visibility = do_paint ? "hidden" : ""
 
     if (!do_paint) {
