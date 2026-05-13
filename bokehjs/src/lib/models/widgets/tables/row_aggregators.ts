@@ -1,5 +1,5 @@
 import type {SlickGroupTotals} from "slickgrid"
-import {Aggregators} from "slickgrid"
+import {Aggregator, Aggregators} from "slickgrid"
 const {Avg, Min, Max, Sum} = Aggregators
 
 import type * as p from "core/properties"
@@ -21,9 +21,9 @@ export abstract class RowAggregator extends Model {
   declare properties: RowAggregator.Props
 
   // This holds the actual SlickGrid aggregator instance (Avg, Sum, etc.)
-  protected _aggregator: any
+  protected _aggregator: Aggregator
 
-  protected abstract readonly aggregator_cls: new (field: string) => any
+  protected abstract readonly aggregator_cls: new (field: string) => Aggregator
 
   constructor(attrs?: Partial<RowAggregator.Attrs>) {
     super(attrs)
@@ -41,7 +41,7 @@ export abstract class RowAggregator extends Model {
   }
 
   accumulate(item: {[key: string]: unknown}): void {
-    this._aggregator.accumulate(item)
+    this._aggregator.accumulate!(item)
   }
 
   storeResult(totals: SlickGroupTotals): void {
