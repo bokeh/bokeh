@@ -1,9 +1,10 @@
+import math
+
 from bokeh.layouts import row
 from bokeh.plotting import curdoc, figure, show
 
 curdoc().theme = 'fresh'
 
-# Bar chart
 categories = ['A', 'B', 'C', 'D', 'E']
 values = [28, 55, 43, 18, 37]
 
@@ -16,8 +17,6 @@ p1.xaxis.axis_label = "Category"
 p1.yaxis.axis_label = "Value"
 p1.y_range.start = 0
 
-# Line + scatter chart with legend
-import math
 x = [i * 0.1 for i in range(100)]
 y1 = [math.sin(v) for v in x]
 y2 = [math.cos(v) for v in x]
