@@ -1,5 +1,6 @@
 import type {SlickGroupTotals} from "slickgrid"
-import {Aggregator, Aggregators} from "slickgrid"
+import {Aggregators} from "slickgrid"
+import type {Aggregator} from "slickgrid"
 const {Avg, Min, Max, Sum} = Aggregators
 
 import type * as p from "core/properties"
