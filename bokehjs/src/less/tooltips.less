@@ -2,17 +2,17 @@
 
 :host {
   --tooltip-border: var(--tooltip-border-color);
-  --tooltip-color: var(--tooltip-background-color);
+  --tooltip-color: var(--background-color);
   --tooltip-text: var(--color);
 
-  --tooltip-arrow-color: light-dark(black, white);  // change to --tooltip-border-color to make all the borders have the same color
+  --tooltip-arrow-color: white;  // change to --tooltip-border-color to make all the borders have the same color
   --tooltip-arrow-width: 10px;
   --tooltip-arrow-height: 10px;
   --tooltip-arrow-half-width: 7px;
   --tooltip-arrow-half-height: 7px;
 
   --tooltip-arrow-border: 1px;
-  --tooltip-arrow-inner-color: var(--tooltip-color);
+  --tooltip-arrow-inner-color: var(--tooltip-border);
   --tooltip-arrow-inner-width: calc(var(--tooltip-arrow-width) - var(--tooltip-arrow-border));
   --tooltip-arrow-inner-height: calc(var(--tooltip-arrow-height) - var(--tooltip-arrow-border));
   --tooltip-arrow-inner-half-width: calc(var(--tooltip-arrow-half-width) - var(--tooltip-arrow-border));
@@ -49,13 +49,13 @@
 
 :host(.bk-left), :host(.bk-right) {
   .bk-arrow {
-    border-width: var(--tooltip-arrow-half-height) 1px var(--tooltip-arrow-half-height) 1px;
+    border-width: var(--tooltip-arrow-half-height) 0px var(--tooltip-arrow-half-height) 0px;
   }
 }
 
 :host(.bk-above), :host(.bk-below) {
   .bk-arrow {
-    border-width: 1px var(--tooltip-arrow-half-width) 1px var(--tooltip-arrow-half-width);
+    border-width: 0px var(--tooltip-arrow-half-width) 0px var(--tooltip-arrow-half-width);
   }
 }
 
@@ -95,13 +95,13 @@
 
 :host(.bk-left), :host(.bk-right) {
   .bk-arrow-inner {
-    border-width: var(--tooltip-arrow-inner-half-height) 1px var(--tooltip-arrow-inner-half-height) 1px;
+    border-width: var(--tooltip-arrow-inner-half-height) 0px var(--tooltip-arrow-inner-half-height) 0px;
   }
 }
 
 :host(.bk-above), :host(.bk-below) {
   .bk-arrow-inner {
-    border-width: 1px var(--tooltip-arrow-inner-half-width) 1px var(--tooltip-arrow-inner-half-width);
+    border-width: 0px var(--tooltip-arrow-inner-half-width) 0px var(--tooltip-arrow-inner-half-width);
   }
 }
 
