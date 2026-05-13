@@ -82,7 +82,6 @@ export class TitleView extends AnnotationView {
 
   protected _paint(ctx: Context2d): void {
     const do_paint = this.parent.is_forcing_paint
-    //this.label_el.style.visibility = do_paint ? "hidden" : ""
 
     if (!do_paint) {
       this._text_view.graphics().visuals = this.visuals.text.values()
@@ -198,21 +197,23 @@ export class TitleView extends AnnotationView {
   }
 
   protected _apply_visuals(): void {
-    styles.apply_text(this.style, ":host", this.visuals.text)
-    styles.apply_rotation(this.style, ":host", this.panel!.face_adjusted_side)
-
-    this.style.append(`
+    this.style.replace(`
     :host {
       justify-self: ${this.justify_self};
       align-self: ${this.align_self};
     }
     `)
 
-    styles.apply_padding(this.style, ":host", this.margin)
-    styles.apply_padding(this.style, `.${title_css.label}`, this.padding)
+    styles.apply_text(this.style, ":host", this.visuals.text)
+    styles.apply_rotation(this.style, ":host", this.panel!.face_adjusted_side)
 
-    styles.apply_border_radius(this.style, `.${title_css.label}`, this.border_radius)
-    styles.apply_box_styles(this.style, `.${title_css.label}`, this.visuals)
+    if (!this._text_view.is_empty) {
+      styles.apply_padding(this.style, ":host", this.margin)
+      styles.apply_padding(this.style, `.${title_css.label}`, this.padding)
+
+      styles.apply_border_radius(this.style, `.${title_css.label}`, this.border_radius)
+      styles.apply_box_styles(this.style, `.${title_css.label}`, this.visuals)
+    }
   }
 }
 
