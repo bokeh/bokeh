@@ -258,7 +258,7 @@ export class DataTableView extends WidgetView {
     }
     this._sync_selected_with_view()
     this.updateSelection()
-    this.grid.invalidateAllRows()
+    this.grid.invalidate()
     this.updateLayout(true, true)
   }
 
@@ -394,7 +394,7 @@ export class DataTableView extends WidgetView {
         return
       }
       this.data.sort_data(to_sort)
-      this.grid.invalidateAllRows()
+      this.grid.invalidate()
       this.updateSelection()
       this.grid.render()
       if (!this.model.header_row) {
