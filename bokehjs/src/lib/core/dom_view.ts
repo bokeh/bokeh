@@ -8,7 +8,6 @@ import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
 import {create_root_fragment} from "./vdom"
-import {unique_id} from "core/util/string"
 import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
 
@@ -274,7 +273,7 @@ export abstract class DOMComponentView extends DOMElementView {
     return `bk-${this.model.type.replace(/\./g, "-")}`
   }
 
-  readonly component_id: string = unique_id("bk")
+  readonly component_id: string = `bk-${this.model.id}`
 
   readonly host_selector = `:host(.${this.component_id})`
 
