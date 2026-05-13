@@ -334,7 +334,7 @@ export class DataTableView extends WidgetView {
     let checkbox_selector: SlickCheckboxSelectColumn<Item> | null = null
     if (this.model.selectable == "checkbox") {
       checkbox_selector = new SlickCheckboxSelectColumn({cssClass: tables.cell_select})
-      columns.unshift(checkbox_selector.getColumnDefinition() as any)
+      columns.unshift(checkbox_selector.getColumnDefinition() as ColumnType)
     }
 
     if (this.model.index_position != null) {
