@@ -381,54 +381,67 @@ export class SpatialIndex {
 
   private _sort_by_hilbert_values(hilbert_values: Uint32Array): void {
     const {n_items, coordinate_rects, _indices, node_size} = this
-    const stack = [0, n_items - 1]
-    while (stack.length) {
-        const r = stack.pop()!
-        const l = stack.pop()!
-        if (r - l <= node_size && Math.floor(l / node_size) >= Math.floor(r / node_size)) continue
+    // log(N) allocation possible due to pushing smallest partition always last
+    const stack = new Int32Array(2 * 2 * Math.ceil(Math.log2(n_items + 1)))
+    let sp = 0
+    stack[sp++] = 0
+    stack[sp++] = n_items - 1
 
-        const a = hilbert_values[l]
-        const b = hilbert_values[(l + r) >> 1]
-        const c = hilbert_values[r]
-        const pivot = ((a > b) !== (a > c)) ? a :
-            ((b < a) !== (b < c)) ? b : c
+    while (sp > 0) {
+      const r = stack[--sp]
+      const l = stack[--sp]
+      if (r - l <= node_size && Math.floor(l / node_size) >= Math.floor(r / node_size)) continue
 
-        let i = l - 1
-        let j = r + 1
-        while (true) {
-            do i++; while (hilbert_values[i] < pivot)
-            do j--; while (hilbert_values[j] > pivot)
-            if (i >= j) break
-            SpatialIndex._swap(hilbert_values, coordinate_rects, _indices, i, j)
-        }
+      const a = hilbert_values[l]
+      const b = hilbert_values[(l + r) >> 1]
+      const c = hilbert_values[r]
+      const pivot = ((a > b) !== (a > c)) ? a :
+          ((b < a) !== (b < c)) ? b : c
 
-        stack.push(l, j, j + 1, r)
+      let i = l - 1
+      let j = r + 1
+      while (true) {
+          do i++; while (hilbert_values[i] < pivot)
+          do j--; while (hilbert_values[j] > pivot)
+          if (i >= j) break
+
+          let tmp = hilbert_values[i]
+          hilbert_values[i] = hilbert_values[j]
+          hilbert_values[j] = tmp
+
+          const k = i << 2
+          const m = j << 2
+          const ra = coordinate_rects[k]
+          const rb = coordinate_rects[k + 1]
+          const rc = coordinate_rects[k + 2]
+          const rd = coordinate_rects[k + 3]
+          coordinate_rects[k]     = coordinate_rects[m]
+          coordinate_rects[k + 1] = coordinate_rects[m + 1]
+          coordinate_rects[k + 2] = coordinate_rects[m + 2]
+          coordinate_rects[k + 3] = coordinate_rects[m + 3]
+          coordinate_rects[m]     = ra
+          coordinate_rects[m + 1] = rb
+          coordinate_rects[m + 2] = rc
+          coordinate_rects[m + 3] = rd
+
+          tmp = _indices[i]
+          _indices[i] = _indices[j]
+          _indices[j] = tmp
+      }
+
+      // always push smallest partition last to process it first
+      if (j - l < r - (j + 1)) {
+          stack[sp++] = j + 1
+          stack[sp++] = r
+          stack[sp++] = l
+          stack[sp++] = j
+      } else {
+          stack[sp++] = l
+          stack[sp++] = j
+          stack[sp++] = j + 1
+          stack[sp++] = r
+      }
     }
-  }
-
-  private static _swap<T extends Uint16Array | Uint32Array, U extends TypedArray>(hilbertValues: Uint32Array, coordinate_rects: U, _indices: T, i: number, j: number): void {
-    const temp = hilbertValues[i]
-    hilbertValues[i] = hilbertValues[j]
-    hilbertValues[j] = temp
-
-    const k = i << 2
-    const m = j << 2
-    const a = coordinate_rects[k]
-    const b = coordinate_rects[k + 1]
-    const c = coordinate_rects[k + 2]
-    const d = coordinate_rects[k + 3]
-    coordinate_rects[k]     = coordinate_rects[m]
-    coordinate_rects[k + 1] = coordinate_rects[m + 1]
-    coordinate_rects[k + 2] = coordinate_rects[m + 2]
-    coordinate_rects[k + 3] = coordinate_rects[m + 3]
-    coordinate_rects[m]     = a
-    coordinate_rects[m + 1] = b
-    coordinate_rects[m + 2] = c
-    coordinate_rects[m + 3] = d
-
-    const e = _indices[i]
-    _indices[i] = _indices[j]
-    _indices[j] = e
   }
 
   _generate_internal_tree_nodes(): void {
