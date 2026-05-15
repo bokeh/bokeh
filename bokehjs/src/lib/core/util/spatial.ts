@@ -77,7 +77,7 @@ export function compute_hilbert(x: number, y: number): number {
 
 
 export class SpatialIndex {
-  private readonly _bytes_metadata = 8
+  private readonly _bytes_metadata = 0
 
   private coordinates_per_item: number
   private shift_factor_item: number
@@ -96,8 +96,6 @@ export class SpatialIndex {
 
   // buffer layout: [metadata - coordinate rects - coordinate indices]
   private _data_byte_buffer: ArrayBuffer
-  // metadata layout: [n_items count (4 bytes) - node size (2 bytes) - coordinate data type (2 bytes)]
-  //private _metadata: Uint8Array
   private coordinate_rects: TypedArray
   private _indices: Uint16Array | Uint32Array
 
@@ -156,11 +154,6 @@ export class SpatialIndex {
     const n_total_bytes = this._bytes_metadata + n_bytes_nodes + n_bytes_indices
 
     this._data_byte_buffer = new ArrayBuffer(n_total_bytes)
-    //this._metadata = new Uint8Array(this._data_byte_buffer, 0, this._bytes_metadata)
-    new Uint32Array(this._data_byte_buffer, 0, 1)[0] = this.n_items
-    new Uint16Array(this._data_byte_buffer, 4, 1)[0] = this.node_size
-    new Uint8Array(this._data_byte_buffer, 6, 1)[0] = bytes_per_coordinate_value
-    new Uint8Array(this._data_byte_buffer, 7, 1)[0] = 0 // ToDO type encoding
     this.coordinate_rects = new this.array_type_coordinates(this._data_byte_buffer, this._bytes_metadata, n_total_coordinate_values)
     this._indices = new this.array_type_indices(this._data_byte_buffer, this._bytes_metadata + n_bytes_nodes, this._n_total_nodes)
   }
@@ -270,19 +263,17 @@ export class SpatialIndex {
       minY: number,
       maxX: number,
       maxY: number,
-      filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
-  ): number[] {
+      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+  ): void {
     const {_coordinate_index_position, coordinate_rects} = this
 
     if (_coordinate_index_position !== coordinate_rects.length) {
-        throw new Error('Data not yet indexed - call finish().');
+        throw new Error('Data not yet indexed - call finish().')
     }
 
-    const node_index = coordinate_rects.length - 4;
-    const results: number[] = [];
+    const node_index = coordinate_rects.length - 4
 
-    this._searchRecursive(minX, minY, maxX, maxY, results, node_index, filterFn);
-    return results;
+    this._searchRecursive(minX, minY, maxX, maxY, node_index, leaf_fn)
   }
 
   _searchRecursive(
@@ -290,16 +281,15 @@ export class SpatialIndex {
       minY: number,
       maxX: number,
       maxY: number,
-      results: number[],
-      nodeIndex: number,
-      filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+      node_index: number,
+      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
   ): void {
 
     const {n_items, node_size, coordinate_rects, _indices, _tree_level_bounds} = this
-    const end = Math.min(nodeIndex + node_size * 4, SpatialIndex._upperBound(nodeIndex, _tree_level_bounds));
+    const end = Math.min(node_index + node_size * 4, SpatialIndex._upperBound(node_index, _tree_level_bounds));
 
     // search through child nodes
-    for (let pos = nodeIndex; pos < end; pos += 4) {
+    for (let pos = node_index; pos < end; pos += 4) {
         // check if node bbox intersects with query bbox
         const x0 = coordinate_rects[pos];
         if (maxX < x0) continue;
@@ -312,23 +302,22 @@ export class SpatialIndex {
 
         const index = _indices[pos >> 2] | 0;
 
-        if (nodeIndex >= n_items * 4) {
+        if (node_index >= n_items * 4) {
             // check if node bbox is completely inside query bbox
             if (minX <= x0 && minY <= y0 && maxX >= x1 && maxY >= y1) {
-                this._addAllLeavesOfNode(results, pos, filterFn);
+                this._addAllLeavesOfNode(pos, leaf_fn);
             } else {
-                this._searchRecursive(minX, minY, maxX, maxY, results, index, filterFn);
+                this._searchRecursive(minX, minY, maxX, maxY, index, leaf_fn);
             }
-        } else if (filterFn === undefined || filterFn(index, x0, y0, x1, y1)) {
-            results.push(index); // leaf item
+        } else {
+            leaf_fn(index, x0, y0, x1, y1)// leaf item
         }
     }
   }
 
   private _addAllLeavesOfNode(
-      results: number[],
       pos: number,
-      filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
   ): void {
     let posStart = pos
     let posEnd = pos
@@ -344,9 +333,7 @@ export class SpatialIndex {
 
     for (let leafPos = posStart; leafPos <= posEnd; leafPos += 4) {
         const leafIndex = this._indices[leafPos >> 2]
-        if (filterFn === undefined || filterFn(leafIndex, coordinate_rects[leafPos], coordinate_rects[leafPos + 1], coordinate_rects[leafPos + 2], coordinate_rects[leafPos + 3])) {
-            results.push(leafIndex); // leaf item
-        }
+        leaf_fn(leafIndex, coordinate_rects[leafPos], coordinate_rects[leafPos + 1], coordinate_rects[leafPos + 2], coordinate_rects[leafPos + 3])
     }
   }
 
@@ -470,99 +457,5 @@ export class SpatialIndex {
         coordinate_rects[this._coordinate_index_position++] = node_y1
       }
     }
-  }
-}
-
-export class SpatialIndexOld {
-  private readonly index: FlatBush | null = null
-
-  constructor(size: number) {
-    if (size > 0) {
-      this.index = new FlatBush(size)
-    }
-  }
-
-  add_rect(x0: number, y0: number, x1: number, y1: number): void {
-    if (!isFinite(x0 + y0 + x1 + y1)) {
-      this.add_empty()
-    } else {
-      this.index?.add(x0, y0, x1, y1)
-    }
-  }
-
-  add_point(x: number, y: number) {
-    if (!isFinite(x + y)) {
-      this.add_empty()
-    } else {
-      this.index?.add(x, y, x, y)
-    }
-  }
-
-  add_empty(): void {
-    this.index?.add(Infinity, Infinity, -Infinity, -Infinity)
-  }
-
-  finish(): void {
-    this.index?.finish()
-  }
-
-  protected _normalize(rect: Rect): Rect {
-    let {x0, y0, x1, y1} = rect
-    if ((x0 > x1) && isFinite(x0 + x1)) {
-      [x0, x1] = [x1, x0]
-    }
-    if ((y0 > y1) && isFinite(y0 + y1)) {
-      [y0, y1] = [y1, y0]
-    }
-    return {x0, y0, x1, y1}
-  }
-
-  get bbox(): Rect {
-    if (this.index == null) {
-      return empty()
-    } else {
-      const {minX, minY, maxX, maxY} = this.index
-      return {x0: minX, y0: minY, x1: maxX, y1: maxY}
-    }
-  }
-
-  indices(rect: Rect): Indices {
-    if (this.index == null) {
-      return new Indices(0)
-    }
-
-    const {x0, y0, x1, y1} = this._normalize(rect)
-    const result = new Indices(this.index.numItems)
-    this.index.search(x0, y0, x1, y1, (index) => {
-      result.set_unchecked(index)
-      return false
-    })
-    return result
-
-  }
-
-  bounds(rect: Rect): Rect {
-    if (this.index == null) {
-      return empty()
-    }
-
-    const {x0, y0, x1, y1} = this._normalize(rect)
-    const result = empty()
-    this.index.search(x0, y0, x1, y1, (_, node_x0, node_y0, node_x1, node_y1) => {
-      if (node_x0 >= x0 && node_x0 < result.x0) {
-        result.x0 = node_x0
-      }
-      if (node_x1 <= x1 && node_x1 > result.x1) {
-        result.x1 = node_x1
-      }
-      if (node_y0 >= y0 && node_y0 < result.y0) {
-        result.y0 = node_y0
-      }
-      if (node_y1 <= y1 && node_y1 > result.y1) {
-        result.y1 = node_y1
-      }
-      return false
-    })
-    return result
   }
 }
