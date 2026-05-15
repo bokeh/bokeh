@@ -1,4 +1,3 @@
-import FlatBush from "flatbush"
 
 import type {Rect, TypedArrayConstructor, TypedArray} from "../types"
 import {Indices} from "../types"
@@ -349,14 +348,22 @@ export class SpatialIndex {
   }
 
   _optimize_item_order(): void {
-    const {n_items, coordinate_rects, _indices, node_size, minX, minY, maxX, maxY} = this
+    const {n_items} = this
+    const hilbert_values = new Uint32Array(n_items)
+
+    this._compute_hilbert_values(hilbert_values)
+    // sort items by their Hilbert value
+    this._sort_by_hilbert_values(hilbert_values)
+  }
+
+  private _compute_hilbert_values(hilbert_values: Uint32Array) {
+    const {n_items, coordinate_rects, minX, minY, maxX, maxY} = this
 
     const width = (maxX - minX) || 1
     const height = (maxY - minY) || 1
     const hilbertMax = (1 << 16) - 1
     const scaleX = hilbertMax / width
     const scaleY = hilbertMax / height
-    const hilbert_values = new Uint32Array(n_items)
 
     // calculate Hilbert values from rect center
     for (let i = 0, pos = 0; i < n_items; i++) {
@@ -370,13 +377,11 @@ export class SpatialIndex {
         const y = Math.floor((y_center - minY) * scaleY)
         hilbert_values[i] = compute_hilbert(x, y)
     }
-
-    // sort items by their Hilbert value
-    SpatialIndex._sort_by_hilbert_values(hilbert_values, coordinate_rects, _indices, node_size, 0, n_items - 1)
   }
 
-  private static _sort_by_hilbert_values(hilbert_values: Uint32Array, coordinate_rects: TypedArray, _indices: Uint16Array | Uint32Array, node_size: number, left: number, right: number): void {
-    const stack = [left, right]
+  private _sort_by_hilbert_values(hilbert_values: Uint32Array): void {
+    const {n_items, coordinate_rects, _indices, node_size} = this
+    const stack = [0, n_items - 1]
     while (stack.length) {
         const r = stack.pop()!
         const l = stack.pop()!
@@ -401,13 +406,13 @@ export class SpatialIndex {
     }
   }
 
-  private static _swap(hilbertValues: Uint32Array, coordinate_rects: TypedArray, _indices: Uint16Array | Uint32Array, i: number, j: number): void {
+  private static _swap<T extends Uint16Array | Uint32Array, U extends TypedArray>(hilbertValues: Uint32Array, coordinate_rects: U, _indices: T, i: number, j: number): void {
     const temp = hilbertValues[i]
     hilbertValues[i] = hilbertValues[j]
     hilbertValues[j] = temp
 
-    const k = 4 * i
-    const m = 4 * j
+    const k = i << 2
+    const m = j << 2
     const a = coordinate_rects[k]
     const b = coordinate_rects[k + 1]
     const c = coordinate_rects[k + 2]
