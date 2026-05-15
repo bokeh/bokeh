@@ -4,69 +4,6 @@ import type {Rect, TypedArrayConstructor, TypedArray} from "../types"
 import {Indices} from "../types"
 import {empty} from "./bbox"
 
-/*
-// Define bit positions for the Flags byte
-const FLAG_FLOAT    = 1 << 0; // 00000001 (1)
-const FLAG_UNSIGNED = 1 << 1; // 00000010 (2)
-const FLAG_CLAMPED  = 1 << 2; // 00000100 (4)
-
-function getArrayTypeHeader(array: ArrayBufferView): [number, number] {
-    // Byte 0: Directly store the size (1, 2, 4, or 8)
-    const sizeByte = (array as any).BYTES_PER_ELEMENT;
-
-    // Byte 1: Calculate the boolean flags
-    let flagsByte = 0;
-
-    if (array instanceof Float32Array || array instanceof Float64Array) {
-        flagsByte |= FLAG_FLOAT;
-    }
-
-    if (array instanceof Uint8Array || array instanceof Uint16Array ||
-        array instanceof Uint32Array || array instanceof BigUint64Array ||
-        array instanceof Uint8ClampedArray) {
-        flagsByte |= FLAG_UNSIGNED;
-    }
-
-    if (array instanceof Uint8ClampedArray) {
-        flagsByte |= FLAG_CLAMPED;
-    }
-
-    return [sizeByte, flagsByte];
-}
-
-
-function createTypedArrayFromHeader(sizeByte: number, flagsByte: number, buffer: ArrayBuffer): ArrayBufferView {
-    // Extract boolean traits directly from the Flags byte
-    const isFloat    = (flagsByte & FLAG_FLOAT) !== 0;
-    const isUnsigned = (flagsByte & FLAG_UNSIGNED) !== 0;
-    const isClamped  = (flagsByte & FLAG_CLAMPED) !== 0;
-
-    // Route to the correct JS Constructor based on traits and the literal size byte
-    if (isFloat) {
-        return sizeByte === 4 ? new Float32Array(buffer) : new Float64Array(buffer);
-    }
-
-    if (isUnsigned) {
-        if (isClamped) return new Uint8ClampedArray(buffer);
-        switch (sizeByte) {
-            case 1: return new Uint8Array(buffer);
-            case 2: return new Uint16Array(buffer);
-            case 4: return new Uint32Array(buffer);
-            case 8: return new BigUint64Array(buffer);
-        }
-    } else {
-        switch (sizeByte) {
-            case 1: return new Int8Array(buffer);
-            case 2: return new Int16Array(buffer);
-            case 4: return new Int32Array(buffer);
-            case 8: return new BigInt64Array(buffer);
-        }
-    }
-
-    throw new Error(`Invalid type header: size=${sizeByte}, flags=${flagsByte}`);
-}
-*/
-
 
 /**
  * LUT-based Hilbert curve: xy → 32-bit Hilbert index on a 2^16 × 2^16 grid.
@@ -139,7 +76,7 @@ export function compute_hilbert(x: number, y: number): number {
 }
 
 
-export class SpatialIndexFactory {
+export class SpatialIndex {
   private readonly _bytes_metadata = 8
 
   private coordinates_per_item: number
@@ -162,7 +99,7 @@ export class SpatialIndexFactory {
   // metadata layout: [n_items count (4 bytes) - node size (2 bytes) - coordinate data type (2 bytes)]
   //private _metadata: Uint8Array
   private coordinate_rects: TypedArray
-  private indices: Uint16Array | Uint32Array
+  private _indices: Uint16Array | Uint32Array
 
   constructor(n_items: number, node_size: number = 16, array_type_coordinates: TypedArrayConstructor = Float64Array) {
     if (!Number.isInteger(n_items) || n_items < 0) {
@@ -225,17 +162,17 @@ export class SpatialIndexFactory {
     new Uint8Array(this._data_byte_buffer, 6, 1)[0] = bytes_per_coordinate_value
     new Uint8Array(this._data_byte_buffer, 7, 1)[0] = 0 // ToDO type encoding
     this.coordinate_rects = new this.array_type_coordinates(this._data_byte_buffer, this._bytes_metadata, n_total_coordinate_values)
-    this.indices = new this.array_type_indices(this._data_byte_buffer, this._bytes_metadata + n_bytes_nodes, this._n_total_nodes)
+    this._indices = new this.array_type_indices(this._data_byte_buffer, this._bytes_metadata + n_bytes_nodes, this._n_total_nodes)
   }
 
   add_rect(x0: number, y0: number, x1: number, y1: number): void {
     if (!isFinite(x0 + y0 + x1 + y1)) {
       this.add_empty()
     } else {
-      const {indices, coordinate_rects} = this
+      const {_indices, coordinate_rects} = this
       const index = this._coordinate_index_position >> this.shift_factor_item
 
-      indices[index] = index
+      _indices[index] = index
       coordinate_rects[this._coordinate_index_position++] = x0
       coordinate_rects[this._coordinate_index_position++] = y0
       coordinate_rects[this._coordinate_index_position++] = x1
@@ -297,7 +234,7 @@ export class SpatialIndexFactory {
     return {x0: minX, y0: minY, x1: maxX, y1: maxY}
   }
 
-  indices_in_rect(rect: Rect): Indices {
+  indices(rect: Rect): Indices {
     const {x0, y0, x1, y1} = this._normalize(rect)
     const result = new Indices(this.n_items)
     this.search(x0, y0, x1, y1, (index) => {
@@ -328,65 +265,88 @@ export class SpatialIndexFactory {
     return result
   }
 
-  search(minX: number, minY: number, maxX: number, maxY: number, filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean): number[] {
-    const {coordinate_rects, indices, node_size, _tree_level_bounds, n_items} = this
+  search(
+      minX: number,
+      minY: number,
+      maxX: number,
+      maxY: number,
+      filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+  ): number[] {
+    const {_coordinate_index_position, coordinate_rects} = this
 
-    const results: number[] = []
-    const queue: number[] = [_tree_level_bounds[_tree_level_bounds.length - 1]]  // start at root
-
-    while (queue.length) {
-        const node_index = queue.pop()!
-        const end = Math.min(node_index + node_size * 4, SpatialIndexFactory._upperBound(node_index, _tree_level_bounds))
-
-        // search through child nodes
-        for (let pos = node_index, boxes = coordinate_rects; pos < end; pos += 4) {
-            // check if node bbox intersects with query bbox (early exits ordered by likelihood)
-            if (maxX < boxes[pos    ]) continue  // maxX < nodeMinX
-            if (maxY < boxes[pos + 1]) continue  // maxY < nodeMinY
-            if (minX > boxes[pos + 2]) continue  // minX > nodeMaxX
-            if (minY > boxes[pos + 3]) continue  // minY > nodeMaxY
-
-            const index = indices[pos >> 2] | 0
-
-            if (node_index < n_items * 4) {
-                // leaf node — add item
-                if (filterFn === undefined || filterFn(index)) results.push(index)
-            } else if (minX <= boxes[pos] && minY <= boxes[pos + 1] && maxX >= boxes[pos + 2] && maxY >= boxes[pos + 3]) {
-                // node is completely inside query bbox — add all its leaves directly
-                this._addAllLeavesOfNode(results, pos, n_items, indices, node_size, _tree_level_bounds, filterFn)
-            } else {
-                // node partially intersects — recurse
-                queue.push(index)
-            }
-        }
+    if (_coordinate_index_position !== coordinate_rects.length) {
+        throw new Error('Data not yet indexed - call finish().');
     }
 
-    return results
+    const node_index = coordinate_rects.length - 4;
+    const results: number[] = [];
+
+    this._searchRecursive(minX, minY, maxX, maxY, results, node_index, filterFn);
+    return results;
+  }
+
+  _searchRecursive(
+      minX: number,
+      minY: number,
+      maxX: number,
+      maxY: number,
+      results: number[],
+      nodeIndex: number,
+      filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+  ): void {
+
+    const {n_items, node_size, coordinate_rects, _indices, _tree_level_bounds} = this
+    const end = Math.min(nodeIndex + node_size * 4, SpatialIndex._upperBound(nodeIndex, _tree_level_bounds));
+
+    // search through child nodes
+    for (let pos = nodeIndex; pos < end; pos += 4) {
+        // check if node bbox intersects with query bbox
+        const x0 = coordinate_rects[pos];
+        if (maxX < x0) continue;
+        const y0 = coordinate_rects[pos + 1];
+        if (maxY < y0) continue;
+        const x1 = coordinate_rects[pos + 2];
+        if (minX > x1) continue;
+        const y1 = coordinate_rects[pos + 3];
+        if (minY > y1) continue;
+
+        const index = _indices[pos >> 2] | 0;
+
+        if (nodeIndex >= n_items * 4) {
+            // check if node bbox is completely inside query bbox
+            if (minX <= x0 && minY <= y0 && maxX >= x1 && maxY >= y1) {
+                this._addAllLeavesOfNode(results, pos, filterFn);
+            } else {
+                this._searchRecursive(minX, minY, maxX, maxY, results, index, filterFn);
+            }
+        } else if (filterFn === undefined || filterFn(index, x0, y0, x1, y1)) {
+            results.push(index); // leaf item
+        }
+    }
   }
 
   private _addAllLeavesOfNode(
-    results: number[],
-    pos: number,
-    n_items: number,
-    indices: Uint16Array | Uint32Array,
-    node_size: number,
-    level_bounds: number[],
-    filterFn?: (index: number) => boolean
+      results: number[],
+      pos: number,
+      filterFn?: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
   ): void {
     let posStart = pos
     let posEnd = pos
 
-    // walk down until we reach the leaf level
+    const {n_items, node_size, coordinate_rects, _indices, _tree_level_bounds} = this
+
+    // depth search while not leaf
     while (posStart >= n_items * 4) {
-        posStart = indices[posStart >> 2] | 0
-        const posEndStart = indices[posEnd >> 2] | 0
-        posEnd = Math.min(posEndStart + node_size * 4, SpatialIndexFactory._upperBound(posEndStart, level_bounds)) - 4
+        posStart = _indices[posStart >> 2] | 0
+        const posEndStart = _indices[posEnd >> 2] | 0
+        posEnd = Math.min(posEndStart + node_size * 4, SpatialIndex._upperBound(posEndStart, _tree_level_bounds)) - 4
     }
 
-    // add all leaves in the contiguous range
     for (let leafPos = posStart; leafPos <= posEnd; leafPos += 4) {
-        const leafIndex = indices[leafPos >> 2]
-        if (filterFn === undefined || filterFn(leafIndex)) results.push(leafIndex)
+        const leafIndex = this._indices[leafPos >> 2]
+        if (filterFn === undefined || filterFn(leafIndex, coordinate_rects[leafPos], coordinate_rects[leafPos + 1], coordinate_rects[leafPos + 2], coordinate_rects[leafPos + 3])) {
+            results.push(leafIndex); // leaf item
+        }
     }
   }
 
@@ -402,7 +362,7 @@ export class SpatialIndexFactory {
   }
 
   _optimize_item_order(): void {
-    const {n_items, coordinate_rects, indices, node_size, minX, minY, maxX, maxY} = this
+    const {n_items, coordinate_rects, _indices, node_size, minX, minY, maxX, maxY} = this
 
     const width = (maxX - minX) || 1
     const height = (maxY - minY) || 1
@@ -425,10 +385,10 @@ export class SpatialIndexFactory {
     }
 
     // sort items by their Hilbert value
-    SpatialIndexFactory._sort_by_hilbert_values(hilbert_values, coordinate_rects, indices, node_size, 0, n_items - 1)
+    SpatialIndex._sort_by_hilbert_values(hilbert_values, coordinate_rects, _indices, node_size, 0, n_items - 1)
   }
 
-  private static _sort_by_hilbert_values(hilbert_values: Uint32Array, coordinate_rects: TypedArray, indices: Uint16Array | Uint32Array, node_size: number, left: number, right: number): void {
+  private static _sort_by_hilbert_values(hilbert_values: Uint32Array, coordinate_rects: TypedArray, _indices: Uint16Array | Uint32Array, node_size: number, left: number, right: number): void {
     const stack = [left, right]
     while (stack.length) {
         const r = stack.pop()!
@@ -447,14 +407,14 @@ export class SpatialIndexFactory {
             do i++; while (hilbert_values[i] < pivot)
             do j--; while (hilbert_values[j] > pivot)
             if (i >= j) break
-            SpatialIndexFactory._swap(hilbert_values, coordinate_rects, indices, i, j)
+            SpatialIndex._swap(hilbert_values, coordinate_rects, _indices, i, j)
         }
 
         stack.push(l, j, j + 1, r)
     }
   }
 
-  private static _swap(hilbertValues: Uint32Array, coordinate_rects: TypedArray, indices: Uint16Array | Uint32Array, i: number, j: number): void {
+  private static _swap(hilbertValues: Uint32Array, coordinate_rects: TypedArray, _indices: Uint16Array | Uint32Array, i: number, j: number): void {
     const temp = hilbertValues[i]
     hilbertValues[i] = hilbertValues[j]
     hilbertValues[j] = temp
@@ -474,14 +434,14 @@ export class SpatialIndexFactory {
     coordinate_rects[m + 2] = c
     coordinate_rects[m + 3] = d
 
-    const e = indices[i]
-    indices[i] = indices[j]
-    indices[j] = e
+    const e = _indices[i]
+    _indices[i] = _indices[j]
+    _indices[j] = e
   }
 
   _generate_internal_tree_nodes(): void {
     // build tree bottom up
-    const {node_size, _tree_level_bounds, coordinate_rects, indices, shift_factor_item} = this
+    const {node_size, _tree_level_bounds, coordinate_rects, _indices, shift_factor_item} = this
 
     let pos = 0
     for (let i = 0; i < _tree_level_bounds.length - 1; i++) {
@@ -503,7 +463,7 @@ export class SpatialIndexFactory {
         }
 
         // set new node in tree structure
-        indices[this._coordinate_index_position >> shift_factor_item] = index_node
+        _indices[this._coordinate_index_position >> shift_factor_item] = index_node
         coordinate_rects[this._coordinate_index_position++] = node_x0
         coordinate_rects[this._coordinate_index_position++] = node_y0
         coordinate_rects[this._coordinate_index_position++] = node_x1
@@ -513,7 +473,7 @@ export class SpatialIndexFactory {
   }
 }
 
-export class SpatialIndex {
+export class SpatialIndexOld {
   private readonly index: FlatBush | null = null
 
   constructor(size: number) {
