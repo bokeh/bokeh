@@ -390,7 +390,7 @@ export class SpatialIndex {
     while (sp > 0) {
       const r = stack[--sp]
       const l = stack[--sp]
-      if (r - l <= node_size && Math.floor(l / node_size) >= Math.floor(r / node_size)) continue
+      if (r - l <= node_size && r - (r % node_size) <= l) continue
 
       const a = hilbert_values[l]
       const b = hilbert_values[(l + r) >> 1]
