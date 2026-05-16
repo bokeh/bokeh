@@ -404,29 +404,7 @@ export class SpatialIndex {
           do i++; while (hilbert_values[i] < pivot)
           do j--; while (hilbert_values[j] > pivot)
           if (i >= j) break
-
-          let tmp = hilbert_values[i]
-          hilbert_values[i] = hilbert_values[j]
-          hilbert_values[j] = tmp
-
-          const k = i << 2
-          const m = j << 2
-          const ra = coordinate_rects[k]
-          const rb = coordinate_rects[k + 1]
-          const rc = coordinate_rects[k + 2]
-          const rd = coordinate_rects[k + 3]
-          coordinate_rects[k]     = coordinate_rects[m]
-          coordinate_rects[k + 1] = coordinate_rects[m + 1]
-          coordinate_rects[k + 2] = coordinate_rects[m + 2]
-          coordinate_rects[k + 3] = coordinate_rects[m + 3]
-          coordinate_rects[m]     = ra
-          coordinate_rects[m + 1] = rb
-          coordinate_rects[m + 2] = rc
-          coordinate_rects[m + 3] = rd
-
-          tmp = _indices[i]
-          _indices[i] = _indices[j]
-          _indices[j] = tmp
+          this._swap(hilbert_values, coordinate_rects, _indices, i, j)
       }
 
       // always push smallest partition last to process it first
@@ -442,6 +420,31 @@ export class SpatialIndex {
           stack[sp++] = r
       }
     }
+  }
+
+  private _swap<T extends Uint16Array | Uint32Array, U extends TypedArray>(hilbertValues: Uint32Array, coordinate_rects: U, _indices: T, i: number, j: number): void {
+    const temp = hilbertValues[i]
+    hilbertValues[i] = hilbertValues[j]
+    hilbertValues[j] = temp
+
+    const k = i << 2
+    const m = j << 2
+    const a = coordinate_rects[k]
+    const b = coordinate_rects[k + 1]
+    const c = coordinate_rects[k + 2]
+    const d = coordinate_rects[k + 3]
+    coordinate_rects[k]     = coordinate_rects[m]
+    coordinate_rects[k + 1] = coordinate_rects[m + 1]
+    coordinate_rects[k + 2] = coordinate_rects[m + 2]
+    coordinate_rects[k + 3] = coordinate_rects[m + 3]
+    coordinate_rects[m]     = a
+    coordinate_rects[m + 1] = b
+    coordinate_rects[m + 2] = c
+    coordinate_rects[m + 3] = d
+
+    const e = _indices[i]
+    _indices[i] = _indices[j]
+    _indices[j] = e
   }
 
   _generate_internal_tree_nodes(): void {
