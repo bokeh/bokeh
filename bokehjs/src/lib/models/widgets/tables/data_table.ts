@@ -375,6 +375,7 @@ export class DataTableView extends WidgetView {
       explicitInitialization: false,
       multiSelect: this.model.multi_selectable,
       shadowRoot: this.shadow_el,
+      colAutosizeTreatAsLockedBelowWidth: 0,
     }
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
