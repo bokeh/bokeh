@@ -322,7 +322,7 @@ export class DataTableView extends WidgetView {
   override render(): void {
     super.render()
 
-    this.wrapper_el = div({class: tables.data_table})
+    this.wrapper_el = div({class: tables.data_table, style: "width: 100%; height: 100%;"})
     this.shadow_el.appendChild(this.wrapper_el)
   }
 
