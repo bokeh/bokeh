@@ -2,23 +2,42 @@ import type {Rect, TypedArrayConstructor, TypedArray} from "../types"
 import {Indices} from "../types"
 import {empty} from "./bbox"
 
+/*
+ Algorithm (ported from the fast-hilbert / threadlocalmutex approach)
 
-/**
- * LUT-based Hilbert curve: xy → 32-bit Hilbert index on a 2^16 × 2^16 grid.
- *
- *
- * Algorithm (ported from the fast-hilbert / threadlocalmutex approach):
- *   The 2D Hilbert curve is a state machine with 4 orientations.
- *   At each step we consume 4 bits of x and 4 bits of y (8 bits total = 1 Morton byte),
- *   emit 8 bits of Hilbert output, and transition to the next state.
- *   16 input bits ÷ 4 bits/step = 4 steps total (fully unrolled).
- */
+ Copyright (c) 2021 Armin Becher
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ LUT-based Hilbert curve: xy → 32-bit Hilbert index on a 2^16 × 2^16 grid.
+
+ The 2D Hilbert curve is a state machine with 4 orientations.
+ At each step we consume 4 bits of x and 4 bits of y (8 bits total = 1 Morton byte),
+ emit 8 bits of Hilbert output, and transition to the next state.
+ 16 input bits ÷ 4 bits/step = 4 steps total (fully unrolled).
+*/
 
 // 1-bit state machine: index = state(2b) << 2 | xb(1b) << 1 | yb(1b) → next_state(2b) << 2 | h(2b)
 // Derived by probing the reference function for all 4 orientation states.
 const _LUT1 = new Uint8Array([
 //  (s=0)         (s=1)         (s=2)          (s=3)
-    4, 1, 15, 2,  0, 11, 5, 6,  10, 7, 9, 12,  14, 13, 3, 8,
+  4, 1, 15, 2,  0, 11, 5, 6,  10, 7, 9, 12,  14, 13, 3, 8,
 ])
 
 // 4-bit state machine: compose 4 consecutive 1-bit steps.
@@ -26,45 +45,60 @@ const _LUT1 = new Uint8Array([
 // value  = next_state(2b) << 8 | h8(8b)
 // Size: 1024 × 2 bytes = 2 KB — fits into L1 cache.
 const HILBERT_LUT: Uint16Array = (() => {
-    const lut = new Uint16Array(1024)
-    for (let state = 0; state < 4; state++) {
-        for (let x4 = 0; x4 < 16; x4++) {
-            for (let y4 = 0; y4 < 16; y4++) {
-                let s = state
-                let hOut = 0
-                // Process 4 bit-pairs MSB first
-                for (let bit = 3; bit >= 0; bit--) {
-                    const e = _LUT1[(s << 2) | (((x4 >>> bit) & 1) << 1) | ((y4 >>> bit) & 1)]
-                    hOut = (hOut << 2) | (e & 3)
-                    s = e >>> 2
-                }
-                lut[(state << 8) | (x4 << 4) | y4] = (s << 8) | hOut
-            }
+  const lut = new Uint16Array(1024)
+  for (let state = 0; state < 4; state++) {
+    for (let x4 = 0; x4 < 16; x4++) {
+      for (let y4 = 0; y4 < 16; y4++) {
+        let s = state
+        let hOut = 0
+        // Process 4 bit-pairs MSB first
+        for (let bit = 3; bit >= 0; bit--) {
+          const e = _LUT1[(s << 2) | (((x4 >>> bit) & 1) << 1) | ((y4 >>> bit) & 1)]
+          hOut = (hOut << 2) | (e & 3)
+          s = e >>> 2
         }
+        lut[(state << 8) | (x4 << 4) | y4] = (s << 8) | hOut
+      }
     }
-    return lut
+  }
+  return lut
 })()
 
 export function compute_hilbert(x: number, y: number): number {
-    let e: number
-    let s = 0
-    let h = 0
-    e = HILBERT_LUT[(s << 8) | (((x >>> 12) & 15) << 4) | ((y >>> 12) & 15)]
-    h = (h << 8) | (e & 255)
-    s = e >>> 8
-    e = HILBERT_LUT[(s << 8) | (((x >>>  8) & 15) << 4) | ((y >>>  8) & 15)]
-    h = (h << 8) | (e & 255)
-    s = e >>> 8
-    e = HILBERT_LUT[(s << 8) | (((x >>>  4) & 15) << 4) | ((y >>>  4) & 15)]
-    h = (h << 8) | (e & 255)
-    s = e >>> 8
-    e = HILBERT_LUT[(s << 8) | (((x       ) & 15) << 4) | ((y      ) & 15)]
-    h = (h << 8) | (e & 255)
-    return h >>> 0
+  let e: number
+  let s = 0
+  let h = 0
+  e = HILBERT_LUT[(s << 8) | (((x >>> 12) & 15) << 4) | ((y >>> 12) & 15)]
+  h = (h << 8) | (e & 255)
+  s = e >>> 8
+  e = HILBERT_LUT[(s << 8) | (((x >>>  8) & 15) << 4) | ((y >>>  8) & 15)]
+  h = (h << 8) | (e & 255)
+  s = e >>> 8
+  e = HILBERT_LUT[(s << 8) | (((x >>>  4) & 15) << 4) | ((y >>>  4) & 15)]
+  h = (h << 8) | (e & 255)
+  s = e >>> 8
+  e = HILBERT_LUT[(s << 8) | (((x) & 15) << 4) | ((y) & 15)]
+  h = (h << 8) | (e & 255)
+  return h >>> 0
 }
 
-
 export class SpatialIndex {
+  /* Core algorithm is heavily inspired by the flatbush libary (https://github.com/mourner/flatbush)
+  Copyright (c) 2022, Vladimir Agafonkin
+
+  Permission to use, copy, modify, and/or distribute this software for any purpose
+  with or without fee is hereby granted, provided that the above copyright notice
+  and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+  FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+  OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+  TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+  THIS SOFTWARE.
+  */
+
   private readonly _bytes_metadata = 0
 
   private coordinates_per_item: number
@@ -89,11 +123,11 @@ export class SpatialIndex {
 
   constructor(n_items: number, node_size: number = 16, array_type_coordinates: TypedArrayConstructor = Float64Array) {
     if (!Number.isInteger(n_items) || n_items < 0) {
-        throw new Error(`Invalid coordinates count: ${n_items}. Value must be a non-negative integer.`)
+      throw new Error(`Invalid coordinates count: ${n_items}. Value must be a non-negative integer.`)
     }
 
     if (!Number.isInteger(node_size) || node_size < 0) {
-        throw new Error(`Invalid node_size: ${node_size}. Value must be a non-negative integer.`)
+      throw new Error(`Invalid node_size: ${node_size}. Value must be a non-negative integer.`)
     }
 
     // 4 coordinates values per rect -> bitshift by 2 (or multiply by 4) to transform index
@@ -120,11 +154,11 @@ export class SpatialIndex {
     let nodes_last_level = node_count
     const cumulative_nodes_per_level = [nodes_last_level]
 
-    while(nodes_last_level !== 1) {
-        const nodes_this_level = Math.ceil(nodes_last_level / this.node_size)
-        node_count += nodes_this_level
-        cumulative_nodes_per_level.push(node_count)
-        nodes_last_level = nodes_this_level
+    while (nodes_last_level !== 1) {
+      const nodes_this_level = Math.ceil(nodes_last_level / this.node_size)
+      node_count += nodes_this_level
+      cumulative_nodes_per_level.push(node_count)
+      nodes_last_level = nodes_this_level
     }
 
     this._tree_level_bounds = cumulative_nodes_per_level.map(x => x * this.coordinates_per_item)
@@ -159,10 +193,18 @@ export class SpatialIndex {
       coordinate_rects[this._coordinate_index_position++] = x1
       coordinate_rects[this._coordinate_index_position++] = y1
 
-      if (x0 < this.minX) this.minX = x0
-      if (y0 < this.minY) this.minY = y0
-      if (x1 > this.maxX) this.maxX = x1
-      if (y1 > this.maxY) this.maxY = y1
+      if (x0 < this.minX) {
+        this.minX = x0
+      }
+      if (y0 < this.minY) {
+        this.minY = y0
+      }
+      if (x1 > this.maxX) {
+        this.maxX = x1
+      }
+      if (y1 > this.maxY) {
+        this.maxY = y1
+      }
     }
   }
 
@@ -179,16 +221,16 @@ export class SpatialIndex {
     const index = this._coordinate_index_position >> this.shift_factor_item
 
     if (index !== n_items) {
-        throw new Error(`Index is at wrong position, added ${index} items when expected ${n_items}.`)
+      throw new Error(`Index is at wrong position, added ${index} items when expected ${n_items}.`)
     }
 
     if (n_items <= this.node_size) {
-        // single and therefore the root node
-        coordinate_rects[this._coordinate_index_position++] = minX
-        coordinate_rects[this._coordinate_index_position++] = minY
-        coordinate_rects[this._coordinate_index_position++] = maxX
-        coordinate_rects[this._coordinate_index_position++] = maxY
-        return
+      // single and therefore the root node
+      coordinate_rects[this._coordinate_index_position++] = minX
+      coordinate_rects[this._coordinate_index_position++] = minY
+      coordinate_rects[this._coordinate_index_position++] = maxX
+      coordinate_rects[this._coordinate_index_position++] = maxY
+      return
     }
 
     this._optimize_item_order()
@@ -251,12 +293,12 @@ export class SpatialIndex {
       minY: number,
       maxX: number,
       maxY: number,
-      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
   ): void {
     const {_coordinate_index_position, coordinate_rects} = this
 
     if (_coordinate_index_position !== coordinate_rects.length) {
-        throw new Error('Data not yet indexed - call finish().')
+      throw new Error("Data is not yet indexed - call finish().")
     }
 
     const node_index = coordinate_rects.length - 4
@@ -265,47 +307,55 @@ export class SpatialIndex {
   }
 
   _searchRecursive(
-      minX: number,
-      minY: number,
-      maxX: number,
-      maxY: number,
-      node_index: number,
-      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+    minX: number,
+    minY: number,
+    maxX: number,
+    maxY: number,
+    node_index: number,
+    leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
   ): void {
 
     const {n_items, node_size, coordinate_rects, _indices, _tree_level_bounds} = this
-    const end = Math.min(node_index + node_size * 4, SpatialIndex._upperBound(node_index, _tree_level_bounds));
+    const end = Math.min(node_index + node_size * 4, SpatialIndex._upperBound(node_index, _tree_level_bounds))
 
     // search through child nodes
     for (let pos = node_index; pos < end; pos += 4) {
-        // skip if no intersection with bbox
-        const x0 = coordinate_rects[pos];
-        if (maxX < x0) continue;
-        const y0 = coordinate_rects[pos + 1];
-        if (maxY < y0) continue;
-        const x1 = coordinate_rects[pos + 2];
-        if (minX > x1) continue;
-        const y1 = coordinate_rects[pos + 3];
-        if (minY > y1) continue;
+      // skip if no intersection with bbox
+      const x0 = coordinate_rects[pos]
+      if (maxX < x0) {
+        continue
+      }
+      const y0 = coordinate_rects[pos + 1]
+      if (maxY < y0) {
+        continue
+      }
+      const x1 = coordinate_rects[pos + 2]
+      if (minX > x1) {
+        continue
+      }
+      const y1 = coordinate_rects[pos + 3]
+      if (minY > y1) {
+        continue
+      }
 
-        const index = _indices[pos >> 2] | 0;
+      const index = _indices[pos >> 2] | 0
 
-        if (node_index >= n_items * 4) {
-            // check if node bbox is completely inside query bbox
-            if (minX <= x0 && minY <= y0 && maxX >= x1 && maxY >= y1) {
-                this._addAllLeavesOfNode(pos, leaf_fn);
-            } else {
-                this._searchRecursive(minX, minY, maxX, maxY, index, leaf_fn);
-            }
+      if (node_index >= n_items * 4) {
+        // check if node bbox is completely inside query bbox
+        if (minX <= x0 && minY <= y0 && maxX >= x1 && maxY >= y1) {
+          this._addAllLeavesOfNode(pos, leaf_fn)
         } else {
-            leaf_fn(index, x0, y0, x1, y1)// leaf item
+          this._searchRecursive(minX, minY, maxX, maxY, index, leaf_fn)
         }
+      } else {
+        leaf_fn(index, x0, y0, x1, y1) // leaf item
+      }
     }
   }
 
   private _addAllLeavesOfNode(
-      pos: number,
-      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+    pos: number,
+    leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
   ): void {
     let posStart = pos
     let posEnd = pos
@@ -314,14 +364,14 @@ export class SpatialIndex {
 
     // depth search while not leaf
     while (posStart >= n_items * 4) {
-        posStart = _indices[posStart >> 2] | 0
-        const posEndStart = _indices[posEnd >> 2] | 0
-        posEnd = Math.min(posEndStart + node_size * 4, SpatialIndex._upperBound(posEndStart, _tree_level_bounds)) - 4
+      posStart = _indices[posStart >> 2] | 0
+      const posEndStart = _indices[posEnd >> 2] | 0
+      posEnd = Math.min(posEndStart + node_size * 4, SpatialIndex._upperBound(posEndStart, _tree_level_bounds)) - 4
     }
 
     for (let leafPos = posStart; leafPos <= posEnd; leafPos += 4) {
-        const leafIndex = this._indices[leafPos >> 2]
-        leaf_fn(leafIndex, coordinate_rects[leafPos], coordinate_rects[leafPos + 1], coordinate_rects[leafPos + 2], coordinate_rects[leafPos + 3])
+      const leafIndex = this._indices[leafPos >> 2]
+      leaf_fn(leafIndex, coordinate_rects[leafPos], coordinate_rects[leafPos + 1], coordinate_rects[leafPos + 2], coordinate_rects[leafPos + 3])
     }
   }
 
@@ -329,9 +379,12 @@ export class SpatialIndex {
     let lo = 0
     let hi = arr.length - 1
     while (lo < hi) {
-        const mid = (lo + hi) >> 1
-        if (arr[mid] > value) hi = mid
-        else lo = mid + 1
+      const mid = (lo + hi) >> 1
+      if (arr[mid] > value) {
+        hi = mid
+      } else {
+        lo = mid + 1
+      }
     }
     return arr[lo]
   }
@@ -348,23 +401,23 @@ export class SpatialIndex {
   private _compute_hilbert_values(hilbert_values: Uint32Array) {
     const {n_items, coordinate_rects, minX, minY, maxX, maxY} = this
 
-    const width = (maxX - minX) || 1
-    const height = (maxY - minY) || 1
+    const width = (maxX - minX)
+    const height = (maxY - minY)
     const hilbertMax = (1 << 16) - 1
     const scaleX = hilbertMax / width
     const scaleY = hilbertMax / height
 
     // calculate Hilbert values from rect center
     for (let i = 0, pos = 0; i < n_items; i++) {
-        const _minX = coordinate_rects[pos++]
-        const _minY = coordinate_rects[pos++]
-        const _maxX = coordinate_rects[pos++]
-        const _maxY = coordinate_rects[pos++]
-        const x_center = (_minX + _maxX) * 0.5
-        const y_center = (_minY + _maxY) * 0.5
-        const x = Math.floor((x_center - minX) * scaleX)
-        const y = Math.floor((y_center - minY) * scaleY)
-        hilbert_values[i] = compute_hilbert(x, y)
+      const _minX = coordinate_rects[pos++]
+      const _minY = coordinate_rects[pos++]
+      const _maxX = coordinate_rects[pos++]
+      const _maxY = coordinate_rects[pos++]
+      const x_center = (_minX + _maxX) * 0.5
+      const y_center = (_minY + _maxY) * 0.5
+      const x = Math.floor((x_center - minX) * scaleX)
+      const y = Math.floor((y_center - minY) * scaleY)
+      hilbert_values[i] = compute_hilbert(x, y)
     }
   }
 
@@ -379,7 +432,9 @@ export class SpatialIndex {
     while (sp > 0) {
       const r = stack[--sp]
       const l = stack[--sp]
-      if (r - l <= node_size && r - (r % node_size) <= l) continue
+      if (r - l <= node_size && r - (r % node_size) <= l) {
+        continue
+      }
 
       const a = hilbert_values[l]
       const b = hilbert_values[(l + r) >> 1]
@@ -390,23 +445,29 @@ export class SpatialIndex {
       let i = l - 1
       let j = r + 1
       while (true) {
-          do i++; while (hilbert_values[i] < pivot)
-          do j--; while (hilbert_values[j] > pivot)
-          if (i >= j) break
-          this._swap(hilbert_values, coordinate_rects, _indices, i, j)
+        do {
+          i++
+        } while (hilbert_values[i] < pivot)
+        do {
+          j--
+        } while (hilbert_values[j] > pivot)
+        if (i >= j) {
+          break
+        }
+        this._swap(hilbert_values, coordinate_rects, _indices, i, j)
       }
 
       // always push smallest partition last to process it first
       if (j - l < r - (j + 1)) {
-          stack[sp++] = j + 1
-          stack[sp++] = r
-          stack[sp++] = l
-          stack[sp++] = j
+        stack[sp++] = j + 1
+        stack[sp++] = r
+        stack[sp++] = l
+        stack[sp++] = j
       } else {
-          stack[sp++] = l
-          stack[sp++] = j
-          stack[sp++] = j + 1
-          stack[sp++] = r
+        stack[sp++] = l
+        stack[sp++] = j
+        stack[sp++] = j + 1
+        stack[sp++] = r
       }
     }
   }
