@@ -1,4 +1,3 @@
-
 import type {Rect, TypedArrayConstructor, TypedArray} from "../types"
 import {Indices} from "../types"
 import {empty} from "./bbox"
@@ -7,23 +6,13 @@ import {empty} from "./bbox"
 /**
  * LUT-based Hilbert curve: xy → 32-bit Hilbert index on a 2^16 × 2^16 grid.
  *
- * Same output as the original branchless hilbert(), ~2× faster in a tight loop
- * because the 2 KB lookup table fits in L1 cache and stays hot across all N calls.
  *
  * Algorithm (ported from the fast-hilbert / threadlocalmutex approach):
  *   The 2D Hilbert curve is a state machine with 4 orientations.
  *   At each step we consume 4 bits of x and 4 bits of y (8 bits total = 1 Morton byte),
  *   emit 8 bits of Hilbert output, and transition to the next state.
  *   16 input bits ÷ 4 bits/step = 4 steps total (fully unrolled).
- *
- * LUT derivation:
- *   Built from first principles by probing the reference branchless function
- *   to derive the 4-state machine transitions, then composing 4 single-bit
- *   steps into one 4-bit step. Verified exhaustively against the reference on
- *   the full 8-bit grid (256×256) and 100k random 16-bit samples.
  */
-
-// ─── LUT construction (runs once at module load, ~2 KB) ──────────────────────
 
 // 1-bit state machine: index = state(2b) << 2 | xb(1b) << 1 | yb(1b) → next_state(2b) << 2 | h(2b)
 // Derived by probing the reference function for all 4 orientation states.
@@ -35,7 +24,7 @@ const _LUT1 = new Uint8Array([
 // 4-bit state machine: compose 4 consecutive 1-bit steps.
 // index  = state(2b) << 8 | x4(4b) << 4 | y4(4b)   → 1024 Uint16 entries
 // value  = next_state(2b) << 8 | h8(8b)
-// Size: 1024 × 2 bytes = 2 KB — comfortably in L1 cache.
+// Size: 1024 × 2 bytes = 2 KB — fits into L1 cache.
 const HILBERT_LUT: Uint16Array = (() => {
     const lut = new Uint16Array(1024)
     for (let state = 0; state < 4; state++) {
@@ -289,7 +278,7 @@ export class SpatialIndex {
 
     // search through child nodes
     for (let pos = node_index; pos < end; pos += 4) {
-        // check if node bbox intersects with query bbox
+        // skip if no intersection with bbox
         const x0 = coordinate_rects[pos];
         if (maxX < x0) continue;
         const y0 = coordinate_rects[pos + 1];
@@ -347,7 +336,7 @@ export class SpatialIndex {
     return arr[lo]
   }
 
-  _optimize_item_order(): void {
+  private _optimize_item_order(): void {
     const {n_items} = this
     const hilbert_values = new Uint32Array(n_items)
 
