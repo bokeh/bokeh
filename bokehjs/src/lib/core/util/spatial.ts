@@ -150,7 +150,7 @@ export class SpatialIndex {
     let nodes_last_level = node_count
     const cumulative_nodes_per_level = [nodes_last_level]
 
-    while (nodes_last_level !== 1) {
+    while (nodes_last_level > 1) {
       const nodes_this_level = Math.ceil(nodes_last_level / this.node_size)
       node_count += nodes_this_level
       cumulative_nodes_per_level.push(node_count)
