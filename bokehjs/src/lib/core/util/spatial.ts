@@ -178,29 +178,32 @@ export class SpatialIndex {
 
   add_rect(x0: number, y0: number, x1: number, y1: number): void {
     if (!isFinite(x0 + y0 + x1 + y1)) {
-      this.add_empty()
-    } else {
-      const {_indices, _bboxes} = this
-      const index = this._coordinate_index_position >> this.shift_factor_bbox
+      x0 = Infinity
+      y0 = Infinity
+      x1 = -Infinity
+      y1 = -Infinity
+    }
 
-      _indices[index] = index
-      _bboxes[this._coordinate_index_position++] = x0
-      _bboxes[this._coordinate_index_position++] = y0
-      _bboxes[this._coordinate_index_position++] = x1
-      _bboxes[this._coordinate_index_position++] = y1
+    const {_indices, _bboxes} = this
+    const index = this._coordinate_index_position >> this.shift_factor_bbox
 
-      if (x0 < this.minX) {
-        this.minX = x0
-      }
-      if (y0 < this.minY) {
-        this.minY = y0
-      }
-      if (x1 > this.maxX) {
-        this.maxX = x1
-      }
-      if (y1 > this.maxY) {
-        this.maxY = y1
-      }
+    _indices[index] = index
+    _bboxes[this._coordinate_index_position++] = x0
+    _bboxes[this._coordinate_index_position++] = y0
+    _bboxes[this._coordinate_index_position++] = x1
+    _bboxes[this._coordinate_index_position++] = y1
+
+    if (x0 < this.minX) {
+      this.minX = x0
+    }
+    if (y0 < this.minY) {
+      this.minY = y0
+    }
+    if (x1 > this.maxX) {
+      this.maxX = x1
+    }
+    if (y1 > this.maxY) {
+      this.maxY = y1
     }
   }
 
