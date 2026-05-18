@@ -133,16 +133,26 @@ export class SpatialIndex {
     this.n_items = n_items
     this.node_size = Math.min(Math.max(node_size, 2), 65535)
     this.array_type_coordinates = array_type_coordinates
-
-    this._init_tree_structure()
-    this.array_type_indices = this._n_total_nodes < 16384 ? Uint16Array : Uint32Array
-    this._configure_data_buffer()
-
+    this._coordinate_index_position = 0
     this.minX = Infinity
     this.minY = Infinity
     this.maxX = -Infinity
     this.maxY = -Infinity
-    this._coordinate_index_position = 0
+
+    if (n_items === 0) {
+      // init empty spatial index
+      this._tree_level_bounds = [0]
+      this._n_total_nodes = 0
+      this.array_type_indices = Uint16Array
+      this._data_byte_buffer = new ArrayBuffer(0)
+      this._bboxes = new this.array_type_coordinates(this._data_byte_buffer, 0, 0)
+      this._indices = new this.array_type_indices(this._data_byte_buffer, 0, 0)
+      return
+    }
+
+    this._init_tree_structure()
+    this.array_type_indices = this._n_total_nodes < 16384 ? Uint16Array : Uint32Array
+    this._configure_data_buffer()
   }
 
   _init_tree_structure(): void {
@@ -150,12 +160,12 @@ export class SpatialIndex {
     let nodes_last_level = node_count
     const cumulative_nodes_per_level = [nodes_last_level]
 
-    while (nodes_last_level > 1) {
+    do {
       const nodes_this_level = Math.ceil(nodes_last_level / this.node_size)
       node_count += nodes_this_level
       cumulative_nodes_per_level.push(node_count)
       nodes_last_level = nodes_this_level
-    }
+    } while (nodes_last_level !== 1)
 
     this._tree_level_bounds = cumulative_nodes_per_level.map(x => x * this.factor_bbox)
     this._n_total_nodes = node_count
@@ -237,6 +247,9 @@ export class SpatialIndex {
   }
 
   finish(): void {
+    if (this.n_items === 0) {
+      return
+    }
     this.build_index()
   }
 
@@ -294,7 +307,10 @@ export class SpatialIndex {
     maxY: number,
     leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
   ): void {
-    const {_coordinate_index_position, _bboxes} = this
+    const {_coordinate_index_position, _bboxes, n_items} = this
+    if (n_items === 0) {
+      return
+    }
 
     if (_coordinate_index_position !== _bboxes.length) {
       throw new Error("Data is not yet indexed - call finish().")
