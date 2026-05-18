@@ -26,7 +26,7 @@ import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import type {XY, LRTB, Corners} from "core/util/bbox"
 import {TranslatableText} from "../dom/translatable_text"
-import type {ViewOf, View, ViewStorage} from "core/build_views"
+import type {ChildView, ViewOf, ViewStorage} from "core/build_views"
 
 const {ceil} = Math
 
@@ -72,7 +72,7 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     const this_title_view = this._title_view != null ? [this._title_view]:[]
     return [...super.children_views(), ...this_title_view, ...this._label_views.values()]
   }

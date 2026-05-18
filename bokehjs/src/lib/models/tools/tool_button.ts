@@ -12,7 +12,7 @@ import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
 import type {Signal0} from "core/signaling"
 import type * as p from "core/properties"
-import type {ViewOf, View} from "core/build_views"
+import type {ChildView, ViewOf} from "core/build_views"
 import {TranslatableText} from "../dom/translatable_text"
 
 import tool_button_css, * as tool_button from "styles/tool_button.css"
@@ -28,7 +28,7 @@ export abstract class ToolButtonView extends UIElementView {
   protected _ui_gestures: UIGestures
   protected _tooltip_view: ViewOf<TranslatableText>
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...[this._tooltip_view]]
   }
 

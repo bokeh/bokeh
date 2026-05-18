@@ -17,6 +17,7 @@ export class LanguageDropdownView extends DropdownView {
 
   override initialize(): void {
     super.initialize()
+    // TODO: All of these values should come/be config from a call to the document.config model
     const {locales_codes, translations, languages, source_language, auto_t_enabled} = this.model
     i18n.set_config(
       locales_codes, translations, languages, source_language, auto_t_enabled,
