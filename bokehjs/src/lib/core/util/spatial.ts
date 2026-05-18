@@ -99,26 +99,26 @@ export class SpatialIndex {
   THIS SOFTWARE.
   */
 
-  private readonly _bytes_metadata = 0
+  // 4 coordinates values per rect -> bitshift by 2 (or multiply by 4) to transform index
+  private readonly factor_bbox: number = 4
+  private readonly shift_factor_bbox: number = 2
 
-  private coordinates_per_item: number
-  private shift_factor_item: number
   private n_items: number
   private node_size: number
-  private _tree_level_bounds: number[]
-  private _n_total_nodes: number
   private array_type_coordinates: TypedArrayConstructor
   private array_type_indices: Uint16ArrayConstructor | Uint32ArrayConstructor
+  private _tree_level_bounds: number[]
+  private _n_total_nodes: number
+  private _coordinate_index_position: number
 
   private minX: number
   private minY: number
   private maxX: number
   private maxY: number
-  private _coordinate_index_position: number
 
-  // buffer layout: [metadata - coordinate rects - coordinate indices]
+  // buffer layout: [coordinate rects - coordinate indices]
   private _data_byte_buffer: ArrayBuffer
-  private coordinate_rects: TypedArray
+  private _bboxes: TypedArray
   private _indices: Uint16Array | Uint32Array
 
   constructor(n_items: number, node_size: number = 16, array_type_coordinates: TypedArrayConstructor = Float64Array) {
@@ -129,10 +129,6 @@ export class SpatialIndex {
     if (!Number.isInteger(node_size) || node_size < 0) {
       throw new Error(`Invalid node_size: ${node_size}. Value must be a non-negative integer.`)
     }
-
-    // 4 coordinates values per rect -> bitshift by 2 (or multiply by 4) to transform index
-    this.coordinates_per_item = 4
-    this.shift_factor_item = 2
 
     this.n_items = n_items
     this.node_size = Math.min(Math.max(node_size, 2), 65535)
@@ -161,37 +157,37 @@ export class SpatialIndex {
       nodes_last_level = nodes_this_level
     }
 
-    this._tree_level_bounds = cumulative_nodes_per_level.map(x => x * this.coordinates_per_item)
+    this._tree_level_bounds = cumulative_nodes_per_level.map(x => x * this.factor_bbox)
     this._n_total_nodes = node_count
   }
 
   _configure_data_buffer(): void {
     const bytes_per_coordinate_value = this.array_type_coordinates.BYTES_PER_ELEMENT
-    const n_total_coordinate_values = this._n_total_nodes * this.coordinates_per_item
+    const n_total_coordinate_values = this._n_total_nodes * this.factor_bbox
     const n_bytes_nodes = n_total_coordinate_values * bytes_per_coordinate_value
 
     const bytes_per_index_value = this.array_type_indices.BYTES_PER_ELEMENT
     const n_bytes_indices = this._n_total_nodes * bytes_per_index_value
 
-    const n_total_bytes = this._bytes_metadata + n_bytes_nodes + n_bytes_indices
+    const n_total_bytes = n_bytes_nodes + n_bytes_indices
 
     this._data_byte_buffer = new ArrayBuffer(n_total_bytes)
-    this.coordinate_rects = new this.array_type_coordinates(this._data_byte_buffer, this._bytes_metadata, n_total_coordinate_values)
-    this._indices = new this.array_type_indices(this._data_byte_buffer, this._bytes_metadata + n_bytes_nodes, this._n_total_nodes)
+    this._bboxes = new this.array_type_coordinates(this._data_byte_buffer, 0, n_total_coordinate_values)
+    this._indices = new this.array_type_indices(this._data_byte_buffer, n_bytes_nodes, this._n_total_nodes)
   }
 
   add_rect(x0: number, y0: number, x1: number, y1: number): void {
     if (!isFinite(x0 + y0 + x1 + y1)) {
       this.add_empty()
     } else {
-      const {_indices, coordinate_rects} = this
-      const index = this._coordinate_index_position >> this.shift_factor_item
+      const {_indices, _bboxes} = this
+      const index = this._coordinate_index_position >> this.shift_factor_bbox
 
       _indices[index] = index
-      coordinate_rects[this._coordinate_index_position++] = x0
-      coordinate_rects[this._coordinate_index_position++] = y0
-      coordinate_rects[this._coordinate_index_position++] = x1
-      coordinate_rects[this._coordinate_index_position++] = y1
+      _bboxes[this._coordinate_index_position++] = x0
+      _bboxes[this._coordinate_index_position++] = y0
+      _bboxes[this._coordinate_index_position++] = x1
+      _bboxes[this._coordinate_index_position++] = y1
 
       if (x0 < this.minX) {
         this.minX = x0
@@ -217,8 +213,8 @@ export class SpatialIndex {
   }
 
   build_index(): void {
-    const {n_items, coordinate_rects, minX, minY, maxX, maxY}  = this
-    const index = this._coordinate_index_position >> this.shift_factor_item
+    const {n_items, _bboxes, minX, minY, maxX, maxY}  = this
+    const index = this._coordinate_index_position >> this.shift_factor_bbox
 
     if (index !== n_items) {
       throw new Error(`Index is at wrong position, added ${index} items when expected ${n_items}.`)
@@ -226,10 +222,10 @@ export class SpatialIndex {
 
     if (n_items <= this.node_size) {
       // single and therefore the root node
-      coordinate_rects[this._coordinate_index_position++] = minX
-      coordinate_rects[this._coordinate_index_position++] = minY
-      coordinate_rects[this._coordinate_index_position++] = maxX
-      coordinate_rects[this._coordinate_index_position++] = maxY
+      _bboxes[this._coordinate_index_position++] = minX
+      _bboxes[this._coordinate_index_position++] = minY
+      _bboxes[this._coordinate_index_position++] = maxX
+      _bboxes[this._coordinate_index_position++] = maxY
       return
     }
 
@@ -289,19 +285,19 @@ export class SpatialIndex {
   }
 
   search(
-      minX: number,
-      minY: number,
-      maxX: number,
-      maxY: number,
-      leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
+    minX: number,
+    minY: number,
+    maxX: number,
+    maxY: number,
+    leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
   ): void {
-    const {_coordinate_index_position, coordinate_rects} = this
+    const {_coordinate_index_position, _bboxes} = this
 
-    if (_coordinate_index_position !== coordinate_rects.length) {
+    if (_coordinate_index_position !== _bboxes.length) {
       throw new Error("Data is not yet indexed - call finish().")
     }
 
-    const node_index = coordinate_rects.length - 4
+    const node_index = _bboxes.length - this.factor_bbox
 
     this._searchRecursive(minX, minY, maxX, maxY, node_index, leaf_fn)
   }
@@ -315,32 +311,32 @@ export class SpatialIndex {
     leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
   ): void {
 
-    const {n_items, node_size, coordinate_rects, _indices, _tree_level_bounds} = this
-    const end = Math.min(node_index + node_size * 4, SpatialIndex._upperBound(node_index, _tree_level_bounds))
+    const {n_items, node_size, _bboxes, _indices, _tree_level_bounds} = this
+    const end = Math.min(node_index + node_size * this.factor_bbox, SpatialIndex._upperBound(node_index, _tree_level_bounds))
 
     // search through child nodes
-    for (let pos = node_index; pos < end; pos += 4) {
+    for (let pos = node_index; pos < end; pos += this.factor_bbox) {
       // skip if no intersection with bbox
-      const x0 = coordinate_rects[pos]
+      const x0 = _bboxes[pos]
       if (maxX < x0) {
         continue
       }
-      const y0 = coordinate_rects[pos + 1]
+      const y0 = _bboxes[pos + 1]
       if (maxY < y0) {
         continue
       }
-      const x1 = coordinate_rects[pos + 2]
+      const x1 = _bboxes[pos + 2]
       if (minX > x1) {
         continue
       }
-      const y1 = coordinate_rects[pos + 3]
+      const y1 = _bboxes[pos + 3]
       if (minY > y1) {
         continue
       }
 
-      const index = _indices[pos >> 2] | 0
+      const index = _indices[pos >> this.shift_factor_bbox] | 0
 
-      if (node_index >= n_items * 4) {
+      if (node_index >= n_items * this.factor_bbox) {
         // check if node bbox is completely inside query bbox
         if (minX <= x0 && minY <= y0 && maxX >= x1 && maxY >= y1) {
           this._addAllLeavesOfNode(pos, leaf_fn)
@@ -360,18 +356,18 @@ export class SpatialIndex {
     let posStart = pos
     let posEnd = pos
 
-    const {n_items, node_size, coordinate_rects, _indices, _tree_level_bounds} = this
+    const {n_items, node_size, _bboxes, _indices, _tree_level_bounds, factor_bbox, shift_factor_bbox} = this
 
     // depth search while not leaf
-    while (posStart >= n_items * 4) {
-      posStart = _indices[posStart >> 2] | 0
-      const posEndStart = _indices[posEnd >> 2] | 0
-      posEnd = Math.min(posEndStart + node_size * 4, SpatialIndex._upperBound(posEndStart, _tree_level_bounds)) - 4
+    while (posStart >= n_items * factor_bbox) {
+      posStart = _indices[posStart >> shift_factor_bbox] | 0
+      const posEndStart = _indices[posEnd >> shift_factor_bbox] | 0
+      posEnd = Math.min(posEndStart + node_size * factor_bbox, SpatialIndex._upperBound(posEndStart, _tree_level_bounds)) - factor_bbox
     }
 
-    for (let leafPos = posStart; leafPos <= posEnd; leafPos += 4) {
-      const leafIndex = this._indices[leafPos >> 2]
-      leaf_fn(leafIndex, coordinate_rects[leafPos], coordinate_rects[leafPos + 1], coordinate_rects[leafPos + 2], coordinate_rects[leafPos + 3])
+    for (let leafPos = posStart; leafPos <= posEnd; leafPos += this.factor_bbox) {
+      const leafIndex = this._indices[leafPos >> this.shift_factor_bbox]
+      leaf_fn(leafIndex, _bboxes[leafPos], _bboxes[leafPos + 1], _bboxes[leafPos + 2], _bboxes[leafPos + 3])
     }
   }
 
@@ -399,7 +395,7 @@ export class SpatialIndex {
   }
 
   private _compute_hilbert_values(hilbert_values: Uint32Array) {
-    const {n_items, coordinate_rects, minX, minY, maxX, maxY} = this
+    const {n_items, _bboxes, minX, minY, maxX, maxY} = this
 
     const width = (maxX - minX)
     const height = (maxY - minY)
@@ -409,10 +405,10 @@ export class SpatialIndex {
 
     // calculate Hilbert values from rect center
     for (let i = 0, pos = 0; i < n_items; i++) {
-      const _minX = coordinate_rects[pos++]
-      const _minY = coordinate_rects[pos++]
-      const _maxX = coordinate_rects[pos++]
-      const _maxY = coordinate_rects[pos++]
+      const _minX = _bboxes[pos++]
+      const _minY = _bboxes[pos++]
+      const _maxX = _bboxes[pos++]
+      const _maxY = _bboxes[pos++]
       const x_center = (_minX + _maxX) * 0.5
       const y_center = (_minY + _maxY) * 0.5
       const x = Math.floor((x_center - minX) * scaleX)
@@ -422,7 +418,7 @@ export class SpatialIndex {
   }
 
   private _sort_by_hilbert_values(hilbert_values: Uint32Array): void {
-    const {n_items, coordinate_rects, _indices, node_size} = this
+    const {n_items, node_size} = this
     // log(N) allocation possible due to pushing smallest partition always last
     const stack = new Int32Array(2 * 2 * Math.ceil(Math.log2(n_items + 1)))
     let sp = 0
@@ -454,7 +450,7 @@ export class SpatialIndex {
         if (i >= j) {
           break
         }
-        this._swap(hilbert_values, coordinate_rects, _indices, i, j)
+        this._swap(hilbert_values, i, j)
       }
 
       // always push smallest partition last to process it first
@@ -472,25 +468,27 @@ export class SpatialIndex {
     }
   }
 
-  private _swap<T extends Uint16Array | Uint32Array, U extends TypedArray>(hilbertValues: Uint32Array, coordinate_rects: U, _indices: T, i: number, j: number): void {
+  private _swap(hilbertValues: Uint32Array, i: number, j: number): void {
+    const {_bboxes, _indices} = this
+
     const temp = hilbertValues[i]
     hilbertValues[i] = hilbertValues[j]
     hilbertValues[j] = temp
 
-    const k = i << 2
-    const m = j << 2
-    const a = coordinate_rects[k]
-    const b = coordinate_rects[k + 1]
-    const c = coordinate_rects[k + 2]
-    const d = coordinate_rects[k + 3]
-    coordinate_rects[k]     = coordinate_rects[m]
-    coordinate_rects[k + 1] = coordinate_rects[m + 1]
-    coordinate_rects[k + 2] = coordinate_rects[m + 2]
-    coordinate_rects[k + 3] = coordinate_rects[m + 3]
-    coordinate_rects[m]     = a
-    coordinate_rects[m + 1] = b
-    coordinate_rects[m + 2] = c
-    coordinate_rects[m + 3] = d
+    const k = i << this.shift_factor_bbox
+    const m = j << this.shift_factor_bbox
+    const a = _bboxes[k]
+    const b = _bboxes[k + 1]
+    const c = _bboxes[k + 2]
+    const d = _bboxes[k + 3]
+    _bboxes[k]     = _bboxes[m]
+    _bboxes[k + 1] = _bboxes[m + 1]
+    _bboxes[k + 2] = _bboxes[m + 2]
+    _bboxes[k + 3] = _bboxes[m + 3]
+    _bboxes[m]     = a
+    _bboxes[m + 1] = b
+    _bboxes[m + 2] = c
+    _bboxes[m + 3] = d
 
     const e = _indices[i]
     _indices[i] = _indices[j]
@@ -499,7 +497,7 @@ export class SpatialIndex {
 
   _generate_internal_tree_nodes(): void {
     // build tree bottom up
-    const {node_size, _tree_level_bounds, coordinate_rects, _indices, shift_factor_item} = this
+    const {node_size, _tree_level_bounds, _bboxes, _indices, shift_factor_bbox} = this
 
     let pos = 0
     for (let i = 0; i < _tree_level_bounds.length - 1; i++) {
@@ -514,18 +512,18 @@ export class SpatialIndex {
         let node_x1 = -Infinity
         let node_y1 = -Infinity
         for (let j = 0; j < node_size && pos < level_end; j++) {
-          node_x0 = Math.min(node_x0, coordinate_rects[pos++])
-          node_y0 = Math.min(node_y0, coordinate_rects[pos++])
-          node_x1 = Math.max(node_x1, coordinate_rects[pos++])
-          node_y1 = Math.max(node_y1, coordinate_rects[pos++])
+          node_x0 = Math.min(node_x0, _bboxes[pos++])
+          node_y0 = Math.min(node_y0, _bboxes[pos++])
+          node_x1 = Math.max(node_x1, _bboxes[pos++])
+          node_y1 = Math.max(node_y1, _bboxes[pos++])
         }
 
         // set new node in tree structure
-        _indices[this._coordinate_index_position >> shift_factor_item] = index_node
-        coordinate_rects[this._coordinate_index_position++] = node_x0
-        coordinate_rects[this._coordinate_index_position++] = node_y0
-        coordinate_rects[this._coordinate_index_position++] = node_x1
-        coordinate_rects[this._coordinate_index_position++] = node_y1
+        _indices[this._coordinate_index_position >> shift_factor_bbox] = index_node
+        _bboxes[this._coordinate_index_position++] = node_x0
+        _bboxes[this._coordinate_index_position++] = node_y0
+        _bboxes[this._coordinate_index_position++] = node_x1
+        _bboxes[this._coordinate_index_position++] = node_y1
       }
     }
   }
