@@ -1,18 +1,19 @@
 @import "./_mixins.less";
 
 :host {
-  --tooltip-border: var(--divider-color);
+  --tooltip-border: var(--tooltip-border-color);
   --tooltip-color: var(--background-color);
   --tooltip-text: var(--color);
 
-  --tooltip-arrow-color: white;
+  --tooltip-arrow-outer-color: white;
+  --tooltip-arrow-color: var(--tooltip-border);
   --tooltip-arrow-width: 10px;
   --tooltip-arrow-height: 10px;
   --tooltip-arrow-half-width: 7px;
   --tooltip-arrow-half-height: 7px;
 
-  --tooltip-arrow-border: 2px;
-  --tooltip-arrow-inner-color: var(--icon-color);
+  --tooltip-arrow-border: 1px;
+  --tooltip-arrow-inner-color: var(--tooltip-color);
   --tooltip-arrow-inner-width: calc(var(--tooltip-arrow-width) - var(--tooltip-arrow-border));
   --tooltip-arrow-inner-height: calc(var(--tooltip-arrow-height) - var(--tooltip-arrow-border));
   --tooltip-arrow-inner-half-width: calc(var(--tooltip-arrow-half-width) - var(--tooltip-arrow-border));
@@ -25,6 +26,7 @@
   position: fixed;
   padding: 5px;
   border: 1px solid var(--tooltip-border);
+  border-radius: var(--border-radius);
   color: var(--tooltip-text);
   background-color: var(--tooltip-color);
   opacity: 0.95;
@@ -34,6 +36,16 @@
 
 :host(.bk-non-interactive) {
   pointer-events: none;
+}
+
+.bk-arrow-outer {
+  pointer-events: none;
+  position: fixed;
+  width: 0;
+  height: 0;
+  content: " ";
+  border-style: solid;
+  border-color: transparent;
 }
 
 .bk-arrow {
@@ -47,36 +59,64 @@
 }
 
 :host(.bk-left), :host(.bk-right) {
-  .bk-arrow {
-    border-width: var(--tooltip-arrow-half-height) 0 var(--tooltip-arrow-half-height) 0;
+  .bk-arrow, .bk-arrow-outer {
+    border-width: var(--tooltip-arrow-half-height) 0px var(--tooltip-arrow-half-height) 0px;
   }
 }
 
 :host(.bk-above), :host(.bk-below) {
-  .bk-arrow {
-    border-width: 0 var(--tooltip-arrow-half-width) 0 var(--tooltip-arrow-half-width);
+  .bk-arrow, .bk-arrow-outer {
+    border-width: 0px var(--tooltip-arrow-half-width) 0px var(--tooltip-arrow-half-width);
   }
 }
 
+:host(.bk-left) .bk-arrow-outer {
+  transform: translate(0%, -50%);
+  border-right-width: var(--tooltip-arrow-width);
+  border-right-color: var(--tooltip-arrow-outer-color);
+}
+
+:host(.bk-right) .bk-arrow-outer {
+  transform: translate(-100%, -50%);
+  border-left-width: var(--tooltip-arrow-width);
+  border-left-color: var(--tooltip-arrow-outer-color);
+}
+
+:host(.bk-above) .bk-arrow-outer {
+  transform: translate(-50%, 0%);
+  border-bottom-width: var(--tooltip-arrow-height);
+  border-bottom-color: var(--tooltip-arrow-outer-color);
+}
+
+:host(.bk-below) .bk-arrow-outer {
+  transform: translate(-50%, -100%);
+  border-top-width: var(--tooltip-arrow-height);
+  border-top-color: var(--tooltip-arrow-outer-color);
+}
+
 :host(.bk-left) .bk-arrow {
+  left: calc(+1 * var(--tooltip-arrow-border));
   transform: translate(0%, -50%);
   border-right-width: var(--tooltip-arrow-width);
   border-right-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-right) .bk-arrow {
+  left: calc(-1 * var(--tooltip-arrow-border));
   transform: translate(-100%, -50%);
   border-left-width: var(--tooltip-arrow-width);
   border-left-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-above) .bk-arrow {
+  top: calc(+1 * var(--tooltip-arrow-border));
   transform: translate(-50%, 0%);
   border-bottom-width: var(--tooltip-arrow-height);
   border-bottom-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-below) .bk-arrow {
+  top: calc(-1 * var(--tooltip-arrow-border));
   transform: translate(-50%, -100%);
   border-top-width: var(--tooltip-arrow-height);
   border-top-color: var(--tooltip-arrow-color);
@@ -94,13 +134,13 @@
 
 :host(.bk-left), :host(.bk-right) {
   .bk-arrow-inner {
-    border-width: var(--tooltip-arrow-inner-half-height) 0 var(--tooltip-arrow-inner-half-height) 0;
+    border-width: var(--tooltip-arrow-inner-half-height) 1px var(--tooltip-arrow-inner-half-height) 1px;
   }
 }
 
 :host(.bk-above), :host(.bk-below) {
   .bk-arrow-inner {
-    border-width: 0 var(--tooltip-arrow-inner-half-width) 0 var(--tooltip-arrow-inner-half-width);
+    border-width: 1px var(--tooltip-arrow-inner-half-width) 1px var(--tooltip-arrow-inner-half-width);
   }
 }
 

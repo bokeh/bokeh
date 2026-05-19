@@ -169,8 +169,10 @@ export class TooltipView extends UIElementView {
     this._has_rendered = true
     return (
       <UIComponent parent={this.resolved_props} class={cls(closable_cls, show_arrow_cls, interactive_cls)} popover="manual">
-        <div class={tooltips_css.arrow}>
-          <div class={tooltips_css.arrow_inner}/>
+        <div class={tooltips_css.arrow_outer}>
+          <div class={tooltips_css.arrow}>
+            <div class={tooltips_css.arrow_inner}/>
+          </div>
         </div>
         {content_el}
         {closable.value ? <div class={tooltips_css.close} onClick={() => this.model.visible = false}/> : null}
@@ -385,7 +387,7 @@ export class TooltipView extends UIElementView {
         top: ${top}px;
       }
 
-      .${tooltips_css.arrow} {
+      .${tooltips_css.arrow_outer} {
         left: ${sx}px;
         top: ${sy}px;
       }
