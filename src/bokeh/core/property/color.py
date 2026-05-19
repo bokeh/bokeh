@@ -144,7 +144,7 @@ class Color(Either):
         number = r"(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)(\.\d+)?"
         sep = r"(\s*,?\s*)"
         types = (Enum(enums.NamedColor),
-                 Regex(r"^#{3}$"),
+                 Regex(rf"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
                  Regex(r"^#[0-9a-fA-F]{6}$"),
                  Regex(r"^#[0-9a-fA-F]{8}$"),
