@@ -220,6 +220,13 @@ class Test_RGB:
         assert c.g == 20
         assert c.b == 30
 
+        c = bcc.RGB(10.5, 20.5, 30.5, 0.3)
+        assert c
+        assert c.a == 0.3
+        assert c.r == 10.5
+        assert c.g == 20.5
+        assert c.b == 30.5
+
     def test_repr(self) -> None:
         c = bcc.RGB(10, 20, 30)
         assert repr(c) == c.to_css()
@@ -276,6 +283,19 @@ class Test_RGB:
         with pytest.raises(ValueError):
             bcc.RGB.from_hex_string(" #abc")
 
+    def test_from_css_string(self) -> None:
+        c = bcc.RGB.from_css("rgb(163, 178, 15)")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+        c = bcc.RGB.from_css("rgb(163 178 15 1.0)")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+        c = bcc.RGB.from_css("rgba(163, 178, 15, 0.5)")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 0.5)
+        c = bcc.RGB.from_css("rgba(163 178 15 0.5)")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 0.5)
+
+        with pytest.raises(ValueError):
+            bcc.RGB.from_css("rba(12, 1, 1)")
+
     def test_from_hsl(self) -> None:
         c = bcc.HSL(10, 0.1, 0.2)
         c2 = bcc.RGB.from_hsl(c)
@@ -318,7 +338,7 @@ class Test_RGB:
 
     def test_to_hex(self) -> None:
         c = bcc.RGB(10, 20, 30)
-        assert c.to_hex(), f"#{c.r:02x}{c.g:02x}{c.b:02x}"
+        assert c.to_hex(), f"#{round(c.r):02x}{round(c.g):02x}{round(c.b):02x}"
         assert bcc.RGB(10, 20, 30, 0.0).to_hex() == "#0a141e00"
         assert bcc.RGB(10, 20, 30, 0.5).to_hex() == "#0a141e80"
         assert bcc.RGB(10, 20, 30, 0.996).to_hex() == "#0a141efe"

@@ -90,7 +90,8 @@ class Color(Either):
 
     * If a color is provided as a string, Bokeh determines whether this string
       represents one of the |named CSS colors| (such as "red"), a CSS4 color
-      string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
+      string (such as "rgb(0, 200, 0)" or "rgba(0, 200, 0, 0.1)") with or without
+      a comma as separator, or a hex value (such as "#00FF00").
     * If a 3-tuple is provided, it is treated as RGB values (between 0 and
       255).
     * If a 4-tuple is provided, it is treated as RGBA values (between 0 and
@@ -112,6 +113,18 @@ class Color(Either):
 
             >>> m.prop = "#a240a2"
 
+            >>> m.prop = "rgb(12, 11, 12)"
+
+            >>> m.prop = "rgb(12 11 12)"
+
+            >>> m.prop = "rgb(12.3, 11.0, 12.3)"
+
+            >>> m.prop = "rgba(12, 11, 12, 0.1)"
+
+            >>> m.prop = "rgba(12 11 12 0.1)"
+
+            >>> m.prop = "rgba(12.3, 11.0, 12.3, 0.1)"
+
             >>> m.prop = (100, 100, 255)
 
             >>> m.prop = (100, 100, 255, 0.5)
@@ -122,17 +135,21 @@ class Color(Either):
 
     """
 
-    def __init__(self, default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined, *, help: str | None = None) -> None:
+    def __init__(
+            self,
+            default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined,
+            *,
+            help: str | None = None,
+        ) -> None:
+        number = r"(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)(\.\d+)?"
+        sep = r"(\s*,?\s*)"
         types = (Enum(enums.NamedColor),
-                 Regex(r"^#[0-9a-fA-F]{3}$"),
+                 Regex(r"^#{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
                  Regex(r"^#[0-9a-fA-F]{6}$"),
                  Regex(r"^#[0-9a-fA-F]{8}$"),
-                 Regex(r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*([01]\.?\d*?)\)"),
-                 Regex(r"^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
+                 Regex(fr"^rgba\({number}{sep}{number}{sep}{number}{sep}([01](\.\d+)?)\)$"),
+                 Regex(fr"^rgb\({number}{sep}{number}{sep}{number}\)$"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  Int,
@@ -160,10 +177,13 @@ class ColorHex(Color):
     def transform(self, value: Any) -> Any:
         if isinstance(value, str):
             value = value.lower()
-            if value.startswith('rgb'):
+            if value.startswith(('rgb(', 'rgba(')):
                 match = re.findall(r"[\d\.]+", value)
-                a = float(match[3]) if value[3] == 'a' else 1.0
-                value = colors.RGB(int(match[0]), int(match[1]), int(match[2]), a).to_hex()
+                try:
+                    a = float(match[3]) if value[3] == 'a' else 1.0
+                except IndexError as e:
+                    raise ValueError(f"Missing alpha value for given value {value}.") from e
+                value = colors.RGB(float(match[0]), float(match[1]), float(match[2]), a).to_hex()
             elif value in enums.NamedColor:
                 value = getattr(colors.named, value).to_hex()
         elif isinstance(value, tuple):
