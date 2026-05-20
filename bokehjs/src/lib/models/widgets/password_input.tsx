@@ -3,6 +3,7 @@ import type {StyleSheetLike} from "core/stylesheets"
 import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
 import type * as p from "core/properties"
+import {bind} from "core/class"
 import * as password_input_css from "styles/widgets/password_input.css"
 import * as inputs_css from "styles/widgets/inputs.css"
 
@@ -19,6 +20,7 @@ export class PasswordInputView extends TextInputView {
 
   readonly unprotected = signal(false)
 
+  @bind
   protected _toggle_click(): void {
     this.unprotected.value = !this.unprotected.value
   }
@@ -27,7 +29,7 @@ export class PasswordInputView extends TextInputView {
     const {disabled, value, placeholder} = this.signals
     const {max_length, prefix, suffix} = this.values
     const unprotected = this.unprotected.value
-    const Title = this._title_el.bind(this)
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
@@ -41,11 +43,11 @@ export class PasswordInputView extends TextInputView {
               value={value}
               placeholder={placeholder}
               maxLength={max_length ?? undefined}
-              onKeyUp={this._key_up.bind(this)}
+              onKeyUp={this._key_up}
               onChange={(event) => this.model.value = event.currentTarget.value}
               onInput={(event) => this.model.value_input = event.currentTarget.value}
             />
-            <button type="button" class={password_input_css.toggle} onClick={this._toggle_click.bind(this)}>
+            <button type="button" class={password_input_css.toggle} onClick={this._toggle_click}>
               <div class={password_input_css.icon}></div>
             </button>
           </div>
