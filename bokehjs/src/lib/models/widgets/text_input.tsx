@@ -3,6 +3,7 @@ import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
 import type * as p from "core/properties"
 import {ValueSubmit} from "core/bokeh_events"
+import {bind} from "core/class"
 import * as inputs_css from "styles/widgets/inputs.css"
 
 import type {TargetedKeyboardEvent} from "preact"
@@ -15,7 +16,7 @@ export class TextInputView extends TextLikeInputView {
   override component(): VNode {
     const {disabled, value, placeholder} = this.signals
     const {max_length, prefix, suffix} = this.values
-    const Title = this._title_el.bind(this)
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
@@ -29,7 +30,7 @@ export class TextInputView extends TextLikeInputView {
               value={value}
               placeholder={placeholder}
               maxLength={max_length ?? undefined}
-              onKeyUp={this._key_up.bind(this)}
+              onKeyUp={this._key_up}
               onChange={(event) => this.model.value = event.currentTarget.value}
               onInput={(event) => this.model.value_input = event.currentTarget.value}
             />
@@ -40,6 +41,7 @@ export class TextInputView extends TextLikeInputView {
     )
   }
 
+  @bind
   protected _key_up(event: TargetedKeyboardEvent<HTMLInputElement>): void {
     if (event.key == "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey) {
       this.model.trigger_event(new ValueSubmit(event.currentTarget.value))
