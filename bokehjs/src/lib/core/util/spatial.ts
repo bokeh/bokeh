@@ -439,7 +439,11 @@ export class SpatialIndex {
   }
 
   private _sort_by_hilbert_values(hilbert_values: Uint32Array): void {
-    const {n_items, node_size} = this
+    const {n_items, node_size, _bboxes, _indices, shift_factor_bbox} = this
+
+    const is_power_of_2 = (node_size & (node_size - 1)) === 0
+    const node_mask = node_size - 1
+
     // log(N) allocation possible due to pushing smallest partition always last
     const stack = new Int32Array(2 * 2 * Math.ceil(Math.log2(n_items + 1)))
     let sp = 0
@@ -449,7 +453,8 @@ export class SpatialIndex {
     while (sp > 0) {
       const r = stack[--sp]
       const l = stack[--sp]
-      if (r - l <= node_size && r - (r % node_size) <= l) {
+      const r_mod = is_power_of_2 ? (r & node_mask) : (r % node_size)
+      if (r - l <= node_size && r - r_mod <= l) {
         continue
       }
 
@@ -471,11 +476,39 @@ export class SpatialIndex {
         if (i >= j) {
           break
         }
-        this._swap(hilbert_values, i, j)
+
+        const temp_h = hilbert_values[i]
+        hilbert_values[i] = hilbert_values[j]
+        hilbert_values[j] = temp_h
+
+        const k = i << shift_factor_bbox
+        const m = j << shift_factor_bbox
+
+        const b0 = _bboxes[k]
+        const b1 = _bboxes[k + 1]
+        const b2 = _bboxes[k + 2]
+        const b3 = _bboxes[k + 3]
+
+        _bboxes[k]     = _bboxes[m]
+        _bboxes[k + 1] = _bboxes[m + 1]
+        _bboxes[k + 2] = _bboxes[m + 2]
+        _bboxes[k + 3] = _bboxes[m + 3]
+
+        _bboxes[m]     = b0
+        _bboxes[m + 1] = b1
+        _bboxes[m + 2] = b2
+        _bboxes[m + 3] = b3
+
+        const temp_i = _indices[i]
+        _indices[i] = _indices[j]
+        _indices[j] = temp_i
       }
 
+      const left_size = j - l
+      const right_size = r - (j + 1)
+
       // always push smallest partition last to process it first
-      if (j - l < r - (j + 1)) {
+      if (left_size < right_size) {
         stack[sp++] = j + 1
         stack[sp++] = r
         stack[sp++] = l
@@ -487,33 +520,6 @@ export class SpatialIndex {
         stack[sp++] = r
       }
     }
-  }
-
-  private _swap(hilbertValues: Uint32Array, i: number, j: number): void {
-    const {_bboxes, _indices} = this
-
-    const temp = hilbertValues[i]
-    hilbertValues[i] = hilbertValues[j]
-    hilbertValues[j] = temp
-
-    const k = i << this.shift_factor_bbox
-    const m = j << this.shift_factor_bbox
-    const a = _bboxes[k]
-    const b = _bboxes[k + 1]
-    const c = _bboxes[k + 2]
-    const d = _bboxes[k + 3]
-    _bboxes[k]     = _bboxes[m]
-    _bboxes[k + 1] = _bboxes[m + 1]
-    _bboxes[k + 2] = _bboxes[m + 2]
-    _bboxes[k + 3] = _bboxes[m + 3]
-    _bboxes[m]     = a
-    _bboxes[m + 1] = b
-    _bboxes[m + 2] = c
-    _bboxes[m + 3] = d
-
-    const e = _indices[i]
-    _indices[i] = _indices[j]
-    _indices[j] = e
   }
 
   private _generate_internal_tree_nodes(): void {
