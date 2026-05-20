@@ -11,6 +11,7 @@ import {signal} from "@preact/signals"
 export class PasswordInputView extends TextInputView {
   declare readonly model: PasswordInput
   declare readonly signals: p.SignalsOf<PasswordInput.Props>
+  declare readonly values: PasswordInput.Attrs
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), password_input_css.default]
@@ -24,9 +25,7 @@ export class PasswordInputView extends TextInputView {
 
   override component(): VNode {
     const {disabled, value, placeholder} = this.signals
-    const max_length = this.signals.max_length.value
-    const prefix = this.signals.prefix.value
-    const suffix = this.signals.suffix.value
+    const {max_length, prefix, suffix} = this.values
     const unprotected = this.unprotected.value
     const Title = this._title_el.bind(this)
     return (

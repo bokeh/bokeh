@@ -7,10 +7,11 @@ import * as inputs_css from "styles/widgets/inputs.css"
 export class TextAreaInputView extends TextLikeInputView {
   declare readonly model: TextAreaInput
   declare readonly signals: p.SignalsOf<TextAreaInput.Props>
+  declare readonly values: TextAreaInput.Attrs
 
   override component(): VNode {
     const {disabled, value, placeholder, rows, cols} = this.signals
-    const max_length = this.signals.max_length.value
+    const {max_length} = this.values
     return (
       <UIComponent parent={this.resolved_props}>
         <div class={inputs_css.outer}>

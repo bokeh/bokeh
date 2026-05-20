@@ -10,12 +10,11 @@ import type {TargetedKeyboardEvent} from "preact"
 export class TextInputView extends TextLikeInputView {
   declare readonly model: TextInput
   declare readonly signals: p.SignalsOf<TextInput.Props>
+  declare readonly values: TextInput.Attrs
 
   override component(): VNode {
     const {disabled, value, placeholder} = this.signals
-    const max_length = this.signals.max_length.value
-    const prefix = this.signals.prefix.value
-    const suffix = this.signals.suffix.value
+    const {max_length, prefix, suffix} = this.values
     const Title = this._title_el.bind(this)
     return (
       <UIComponent parent={this.resolved_props}>
