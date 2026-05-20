@@ -8,6 +8,7 @@ import {View} from "core/view"
 import type {ChildView} from "core/view"
 import type * as p from "core/properties"
 import {bind} from "core/class"
+import {isString} from "core/util/types"
 import {server_event, ModelEvent} from "core/bokeh_events"
 import * as inputs_css from "styles/widgets/inputs.css"
 
@@ -70,16 +71,20 @@ export abstract class InputWidgetView extends WidgetView {
   @bind
   protected _title_el() {
     const title = this.computed_title.value
-    // const description = this.signals.description.value
-    if (title != null) {
-      return (
-        <label for="input">
-          {title}
-          <div class={inputs_css.description} /*title={description}*/>
+    const description = this.signals.description.value
+    const description_el = (() => {
+      if (description != null) {
+        return (
+          <div class={inputs_css.description} title={isString(description) ? description : undefined}>
             <div class={inputs_css.icon}/>
           </div>
-        </label>
-      )
+        )
+      } else {
+        return null
+      }
+    })()
+    if (title != null || description_el != null) {
+      return <label for="input">{title}{description_el}</label>
     } else {
       return null
     }
