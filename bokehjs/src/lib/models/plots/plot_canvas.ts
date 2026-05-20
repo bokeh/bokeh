@@ -1004,6 +1004,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
       await this._update_renderers()
     })
 
+    const {frame_width, frame_height, frame_align} = this.model.properties
+    this.on_change([frame_width, frame_height, frame_align], () => this.invalidate_layout())
+
     const {min_border, min_border_top, min_border_bottom, min_border_left, min_border_right} = this.model.properties
     this.on_change([min_border, min_border_top, min_border_bottom, min_border_left, min_border_right], () => this.invalidate_layout())
 

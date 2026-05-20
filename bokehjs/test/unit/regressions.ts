@@ -2076,4 +2076,28 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #15080", () => {
+    it("doesn't allow to change frame width, height and align of a Plot", async () => {
+      const p = new Plot({frame_width: 100, frame_height: 200})
+      const {view} = await display(p, [300, 300])
+
+      expect(view.frame.bbox.width == 100)
+      expect(view.frame.bbox.height == 200)
+
+      p.frame_width = 150
+      p.frame_height = 275
+      await view.ready
+
+      expect(view.frame.bbox.width == 150)
+      expect(view.frame.bbox.height == 275)
+
+      p.frame_width = 160
+      p.frame_height = 180
+      await view.ready
+
+      expect(view.frame.bbox.width == 160)
+      expect(view.frame.bbox.height == 180)
+    })
+  })
 })
