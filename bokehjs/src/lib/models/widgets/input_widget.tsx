@@ -7,6 +7,7 @@ import type {ViewOf} from "core/build_views"
 import {View} from "core/view"
 import type {ChildView} from "core/view"
 import type * as p from "core/properties"
+import {bind} from "core/class"
 import {server_event, ModelEvent} from "core/bokeh_events"
 import * as inputs_css from "styles/widgets/inputs.css"
 
@@ -66,6 +67,7 @@ export abstract class InputWidgetView extends WidgetView {
     return [...super.stylesheets(), inputs_css.default]
   }
 
+  @bind
   protected _title_el() {
     const title = this.computed_title.value
     // const description = this.signals.description.value

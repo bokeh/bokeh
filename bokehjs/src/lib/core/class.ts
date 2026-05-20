@@ -20,3 +20,25 @@ export function extend(ctor: Class<any>, ...mixins: any[]): void {
     }
   }
 }
+
+/**
+ * Use it like `@bind protected _event_handler(event: SomeEvent) { ... }`.
+ */
+export const bind = (_target: unknown, key: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
+  const method = descriptor.value
+
+  return {
+    configurable: true,
+    get(this: unknown) {
+      const bound = method.bind(this)
+
+      Object.defineProperty(this, key, {
+        value: bound,
+        configurable: false,
+        writable: false,
+      })
+
+      return bound
+    },
+  }
+}
