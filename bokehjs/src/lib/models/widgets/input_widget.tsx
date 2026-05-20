@@ -30,6 +30,7 @@ export class ClearInput extends ModelEvent {
 export abstract class InputWidgetView extends WidgetView {
   declare readonly model: InputWidget
   declare readonly signals: p.SignalsOf<InputWidget.Props>
+  declare readonly values: InputWidget.Attrs
 
   protected input_el: HTMLInputElementLike = document.createElement("input")
   protected group_el: HTMLElement
