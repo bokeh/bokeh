@@ -2,6 +2,8 @@ import type {Rect, TypedArrayConstructor, TypedArray} from "../types"
 import {Indices} from "../types"
 import {empty} from "./bbox"
 
+type LeafFn = (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
+
 /*
  Algorithm (ported from the fast-hilbert / threadlocalmutex approach)
 
@@ -253,17 +255,6 @@ export class SpatialIndex {
     this.build_index()
   }
 
-  protected _normalize(rect: Rect): Rect {
-    let {x0, y0, x1, y1} = rect
-    if ((x0 > x1) && isFinite(x0 + x1)) {
-      [x0, x1] = [x1, x0]
-    }
-    if ((y0 > y1) && isFinite(y0 + y1)) {
-      [y0, y1] = [y1, y0]
-    }
-    return {x0, y0, x1, y1}
-  }
-
   get bbox(): Rect {
     const {minX, minY, maxX, maxY} = this
     return {x0: minX, y0: minY, x1: maxX, y1: maxY}
@@ -305,7 +296,7 @@ export class SpatialIndex {
     minY: number,
     maxX: number,
     maxY: number,
-    leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
+    leaf_fn: LeafFn,
   ): void {
     const {_coordinate_index_position, _bboxes, n_items} = this
     if (n_items === 0) {
@@ -318,16 +309,16 @@ export class SpatialIndex {
 
     const node_index = _bboxes.length - this.factor_bbox
 
-    this._searchRecursive(minX, minY, maxX, maxY, node_index, leaf_fn)
+    this._search_recursive(minX, minY, maxX, maxY, node_index, leaf_fn)
   }
 
-  _searchRecursive(
+  _search_recursive(
     minX: number,
     minY: number,
     maxX: number,
     maxY: number,
     node_index: number,
-    leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
+    leaf_fn: LeafFn,
   ): void {
 
     const {n_items, node_size, _bboxes, _indices, _tree_level_bounds} = this
@@ -360,7 +351,7 @@ export class SpatialIndex {
         if (minX <= x0 && minY <= y0 && maxX >= x1 && maxY >= y1) {
           this._addAllLeavesOfNode(pos, leaf_fn)
         } else {
-          this._searchRecursive(minX, minY, maxX, maxY, index, leaf_fn)
+          this._search_recursive(minX, minY, maxX, maxY, index, leaf_fn)
         }
       } else {
         leaf_fn(index, x0, y0, x1, y1) // leaf item
@@ -368,9 +359,20 @@ export class SpatialIndex {
     }
   }
 
+  protected _normalize(rect: Rect): Rect {
+    let {x0, y0, x1, y1} = rect
+    if ((x0 > x1) && isFinite(x0 + x1)) {
+      [x0, x1] = [x1, x0]
+    }
+    if ((y0 > y1) && isFinite(y0 + y1)) {
+      [y0, y1] = [y1, y0]
+    }
+    return {x0, y0, x1, y1}
+  }
+
   private _addAllLeavesOfNode(
     pos: number,
-    leaf_fn: (index: number, x0: number, y0: number, x1: number, y1: number) => boolean,
+    leaf_fn: LeafFn,
   ): void {
     let posStart = pos
     let posEnd = pos
@@ -514,7 +516,7 @@ export class SpatialIndex {
     _indices[j] = e
   }
 
-  _generate_internal_tree_nodes(): void {
+  private _generate_internal_tree_nodes(): void {
     // build tree bottom up
     const {node_size, _tree_level_bounds, _bboxes, _indices, shift_factor_bbox} = this
 
