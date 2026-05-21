@@ -5,7 +5,7 @@ import {empty} from "./bbox"
 type LeafFn = (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
 
 /*
- Algorithm (ported from the fast-hilbert / threadlocalmutex approach)
+ Algorithm (ported from https://github.com/rawrunprotected/hilbert_curves & https://github.com/becheran/fast-hilbert)
 
  Copyright (c) 2021 Armin Becher
 
