@@ -1,6 +1,7 @@
 import type * as p from "core/properties"
 import {span} from "core/dom"
-import {is_nullish} from "core/util/types"
+import {escape} from "core/util/string"
+import {is_nullish, isObject} from "core/util/types"
 import type {
   Formatter, Column, ItemMetadata, ColumnMetadata, SlickEventData, SlickDataView as CustomDataView,
   SlickGroup as Group, SlickGroupTotals as GroupTotals,
@@ -42,30 +43,28 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
       style: {"margin-left": `${(indent ?? 0) * 15}px`, "background-color": "transparent"},
     })
 
-    const result = formatter !== undefined ? formatter(row, cell, value, columnDef, dataContext, grid): `${value}`
+    const result = formatter !== undefined ? formatter(row, cell, value, columnDef, dataContext, grid) : `${value}`
 
     let formatted: string
     if (result instanceof Node) {
-      const container = document.createElement("div")
-      container.appendChild(result.cloneNode(true))
-      formatted = container.innerHTML
-    } else if (typeof result === "object") {
+      formatted = (result as Element).outerHTML
+    } else if (isObject(result)) {
       if ("html" in result) {
-        formatted = (result as any).html as unknown as string
+        formatted = `${result.html}`
       } else if ("text" in result) {
-        formatted = (result as any).text as unknown as string
+        formatted = `<span>${escape(result.text)}</span>`
       } else {
-        formatted = `${result}`
+        formatted = `<span>${escape(`${result}`)}</span>`
       }
     } else {
-      formatted = typeof result === "string" ? result : `${result}`
+      formatted = `<span>${escape(`${result}`)}</span>`
     }
 
-    const cleanContent = formatted
+    const content = formatted
       .replace(/^<div/, "<span")
       .replace(/div>$/, "span>")
 
-    return `${spacer.outerHTML}${cleanContent}`
+    return `${spacer.outerHTML}${content}`
   }
 }
 
