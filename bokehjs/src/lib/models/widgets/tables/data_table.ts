@@ -31,9 +31,7 @@ import slickgrid_css from "styles/widgets/slickgrid.css"
 import Sortable from "sortablejs"
 
 // Explicitly attach it to the window so SlickGrid can see it
-if (typeof window !== "undefined") {
-  (window as any).Sortable = Sortable
-}
+(window as any).Sortable = Sortable
 
 export const AutosizeModes = {
   fit_columns: "FCV" as const,
