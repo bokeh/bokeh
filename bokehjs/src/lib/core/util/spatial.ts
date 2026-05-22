@@ -66,7 +66,7 @@ const HILBERT_LUT: Uint16Array = (() => {
   return lut
 })()
 
-export function compute_hilbert(x: number, y: number): number {
+function compute_hilbert(x: number, y: number): number {
   let e: number
   let s = 0
   let h = 0
@@ -263,7 +263,7 @@ export class SpatialIndex {
   indices(rect: Rect): Indices {
     const {x0, y0, x1, y1} = this._normalize(rect)
     const result = new Indices(this.n_items)
-    this.search(x0, y0, x1, y1, (index) => {
+    this._search(x0, y0, x1, y1, (index) => {
       result.set_unchecked(index)
       return false
     })
@@ -273,7 +273,7 @@ export class SpatialIndex {
   bounds(rect: Rect): Rect {
     const {x0, y0, x1, y1} = this._normalize(rect)
     const result = empty()
-    this.search(x0, y0, x1, y1, (_, node_x0, node_y0, node_x1, node_y1) => {
+    this._search(x0, y0, x1, y1, (_, node_x0, node_y0, node_x1, node_y1) => {
       if (node_x0 >= x0 && node_x0 < result.x0) {
         result.x0 = node_x0
       }
@@ -291,7 +291,7 @@ export class SpatialIndex {
     return result
   }
 
-  search(
+  private _search(
     minX: number,
     minY: number,
     maxX: number,
@@ -312,7 +312,7 @@ export class SpatialIndex {
     this._search_recursive(minX, minY, maxX, maxY, node_index, leaf_fn)
   }
 
-  _search_recursive(
+  private _search_recursive(
     minX: number,
     minY: number,
     maxX: number,
