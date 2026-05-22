@@ -7,7 +7,22 @@ export namespace I18nLines {
 
   Bokeh.set_log_level("info")
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`)
-  Bokeh.i18n.set_config(
+
+  const p = plt.figure()
+
+  p.title = "Multi-line plot translation example"
+  p.xaxis.axis_label = "X-Axis"
+  p.yaxis.axis_label = "Y-Axis"
+  p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4})
+  p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4})
+  p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4})
+  p.legend.title = new Bokeh.TranslatableText({content: "Available colors"})
+
+  const language_dropdown = new Bokeh.Widgets.LanguageDropdown()
+
+  void plt.show(new Bokeh.Column({children: [language_dropdown, p]}))
+
+  Bokeh.documents[0].config.i18n.set_config(
     ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
     `{
       "en": {},
@@ -31,18 +46,4 @@ export namespace I18nLines {
     "en",
     true,
   )
-
-  const p = plt.figure()
-
-  p.title = "Multi-line plot translation example"
-  p.xaxis.axis_label = "X-Axis"
-  p.yaxis.axis_label = "Y-Axis"
-  p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4})
-  p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4})
-  p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4})
-  p.legend.title = new Bokeh.TranslatableText({content: "Available colors"})
-
-  const language_dropdown = new Bokeh.Widgets.LanguageDropdown()
-
-  void plt.show(new Bokeh.Column({children: [language_dropdown, p]}))
 }

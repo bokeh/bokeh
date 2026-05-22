@@ -1,5 +1,4 @@
 import {Text, TextView} from "./text"
-import {i18n} from "core/i18n"
 import type * as p from "core/properties"
 
 export class TranslatableTextView extends TextView {
@@ -16,10 +15,14 @@ export class TranslatableTextView extends TextView {
       this.render()
     })
 
-    this.connect(i18n.change_locale, async () => {
-      await this._build_text()
-      this.rerender()
-    })
+    // TODO: This should use this.model.document but it seems to be always null
+    const {document} = this.root.model
+    if (document != null) {
+      this.connect(document.config.i18n.change_locale, async () => {
+        await this._build_text()
+        this.rerender()
+      })
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -32,7 +35,11 @@ export class TranslatableTextView extends TextView {
   }
 
   protected async _build_text(): Promise<void> {
-    this.translated_text = await i18n.t(this.model.content)
+    // TODO: This should use this.model.document but it seems to be always null
+    const {document} = this.root.model
+    if (document != null) {
+      this.translated_text = await document.config.i18n.t(this.model.content)
+    }
   }
 }
 

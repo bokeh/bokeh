@@ -1,7 +1,6 @@
 import {Dropdown, DropdownView} from "./dropdown"
 import {BuiltinIcon} from "../ui/icons/builtin_icon"
 import {MenuItemClick} from "core/bokeh_events"
-import {i18n} from "core/i18n"
 import {isString} from "core/util/types"
 import {Text} from "../dom/text"
 import type * as p from "core/properties"
@@ -18,20 +17,29 @@ export class LanguageDropdownView extends DropdownView {
   override initialize(): void {
     super.initialize()
     // TODO: All of these values should come/be config from a call to the document.config model
-    const {locales_codes, translations, languages, source_language, auto_t_enabled} = this.model
-    i18n.set_config(
-      locales_codes, translations, languages, source_language, auto_t_enabled,
-    )
+    const {document, locales_codes, translations, languages, source_language, auto_t_enabled} = this.model
+    if (document != null) {
+      document.config.i18n.set_config(
+        locales_codes, translations, languages, source_language, auto_t_enabled,
+      )
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
-    const lang = i18n.get_locale()
+    let lang = "en"
+    const {document} = this.model
+    if (document != null) {
+      lang = document.config.i18n.get_locale()
+    }
     await this._set_language(lang)
     await super.lazy_initialize()
   }
 
   override render(): void {
-    this.model.menu = i18n.supported_languages()
+    const {document} = this.model
+    if (document != null) {
+      this.model.menu = document.config.i18n.supported_languages()
+    }
     super.render()
   }
 
@@ -46,7 +54,10 @@ export class LanguageDropdownView extends DropdownView {
 
   protected async _set_language(lang: string): Promise<void> {
     this.model.label = lang.toUpperCase()
-    await i18n.set_locale(lang)
+    const {document} = this.model
+    if (document != null) {
+      await document.config.i18n.set_locale(lang)
+    }
   }
 }
 

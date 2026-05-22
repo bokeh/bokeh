@@ -5,6 +5,7 @@ from bokeh.models import (Button, CustomJS, Dropdown,
 from bokeh.models.dom import TranslatableText
 from bokeh.plotting import figure
 
+# TODO: i18n config should be handled via the curdoc().config instead of passing values to language dropdown
 language_dropdown = LanguageDropdown(
     locales_codes=["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
     translations="""

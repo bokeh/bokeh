@@ -1,6 +1,7 @@
 import {Model} from "../model"
 import {Notifications} from "models/ui/notifications"
 import {ColorScheme} from "core/enums"
+import {I18n} from "core/i18n"
 import type * as p from "core/properties"
 
 export namespace DocumentConfig {
@@ -18,9 +19,22 @@ export interface DocumentConfig extends DocumentConfig.Attrs {}
 
 export class DocumentConfig extends Model {
   declare properties: DocumentConfig.Props
+  declare i18n: I18n
 
   constructor(attrs?: Partial<DocumentConfig.Attrs>) {
     super(attrs)
+    // TODO: What should be set as default values?
+    this.i18n = new I18n(
+      ["en"],
+      `{
+        "en": {}
+       }`,
+      [
+        ["English", "en"],
+      ],
+      "en",
+      false,
+    )
   }
 
   static {

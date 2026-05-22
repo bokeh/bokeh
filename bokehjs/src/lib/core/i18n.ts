@@ -7,6 +7,7 @@ import type {PlainObject} from "./types"
 import {isString} from "./util/types"
 import {Signal0} from "core/signaling"
 
+// TODO: Should this extend Model and be added as part of the DocumentConfig properties (similar to Notifications)?
 export class I18n {
   readonly change_locale: Signal0<this>
   _locales_codes: string[]
@@ -123,19 +124,6 @@ export class I18n {
     }
   }
 }
-
-// TODO: What should be set as default values?
-export const i18n = new I18n(
-  ["en"],
-  `{
-    "en": {}
-   }`,
-  [
-    ["English", "en"],
-  ],
-  "en",
-  false,
-)
 
 // Translator and LanguageDetector API typing
 // Taken from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/dom-chromium-ai/index.d.ts
