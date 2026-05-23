@@ -85,6 +85,22 @@ export class DataRange1d extends DataRange {
 
   protected readonly _plot_bounds: Map<PlotView, Rect> = new Map()
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {range_padding, range_padding_units} = this.properties
+    this.on_change([range_padding, range_padding_units], () => this._invalidate_dataranges())
+  }
+
+  protected _invalidate_dataranges(): void {
+    this.have_updated_interactively = false
+
+    for (const plot of this.linked_plots) {
+      plot.invalidate_dataranges = true
+      plot.request_repaint()
+    }
+  }
+
   get min(): number {
     return Math.min(this.start, this.end)
   }

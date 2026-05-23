@@ -135,6 +135,28 @@ describe("DataRange1d", () => {
       expect(r.start).to.be.equal(4)
       expect(r.end).to.be.equal(10)
     })
+
+    it("should recompute (start, end) when range_padding changes", async () => {
+      const y_range = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
+      const source = new ColumnDataSource({data: {x: [0, 1], y: [1, 3]}})
+      const glyph = new Scatter({x: {field: "x"}, y: {field: "y"}})
+      const renderer = new GlyphRenderer({data_source: source, glyph})
+      const p = new Plot({renderers: [renderer], y_range})
+      const pv = await build_view(p)
+      const range_manager = (pv as any)._range_manager // XXX: protected
+
+      expect(y_range.start).to.be.equal(1)
+      expect(y_range.end).to.be.equal(3)
+      expect(range_manager.invalidate_dataranges).to.be.false
+
+      y_range.range_padding = 1
+
+      expect(range_manager.invalidate_dataranges).to.be.true
+      range_manager.update_dataranges()
+
+      expect(y_range.start).to.be.equal(0)
+      expect(y_range.end).to.be.equal(4)
+    })
   })
 
   describe("computed_renderers", () => {
