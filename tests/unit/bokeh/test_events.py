@@ -75,6 +75,8 @@ def test_common_decode_json() -> None:
             model = Legend(items=[legend_item])
         elif issubclass(event_cls, events.ValueSubmit):
             model = TextInput()
+        elif issubclass(event_cls, events.FileInputChange):
+            model = FileInput()
         elif issubclass(event_cls, ClearInput):
             model = FileInput()
         else:
@@ -87,6 +89,10 @@ def test_common_decode_json() -> None:
             entries.append(["item", legend_item.ref])
         if issubclass(event_cls, events.ValueSubmit):
             entries.append(["value", ""])
+        if issubclass(event_cls, events.FileInputChange):
+            entries.append(["value", ""])
+            entries.append(["filename", ""])
+            entries.append(["mime_type", ""])
 
         decoder = Deserializer(references=[model, legend_item])
         event = decoder.decode(dict(
