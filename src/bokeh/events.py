@@ -85,7 +85,7 @@ if TYPE_CHECKING:
     from .models.axes import Axis
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
-    from .models.widgets.inputs import TextInput, FileInput
+    from .models.widgets.inputs import FileInput, TextInput
 
 #-----------------------------------------------------------------------------
 # Globals and constants
