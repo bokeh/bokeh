@@ -5,6 +5,13 @@ import {isString} from "core/util/types"
 import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 import buttons_css from "styles/buttons.css"
+import {PropertyBundleEvent} from "core/bokeh_events"
+import {event} from "core/bokeh_events"
+
+@event("file_input_change")
+export class FileInputChange extends PropertyBundleEvent<FileInput, "value" | "filename" | "mime_type"> {
+
+}
 
 export class FileInputView extends InputWidgetView {
   declare model: FileInput
@@ -19,6 +26,7 @@ export class FileInputView extends InputWidgetView {
         mime_type: "", // p.unset,
         filename:  "", // p.unset,
       })
+      this.model.trigger_event(new FileInputChange({value: "", filename: "", mime_type: ""}))
       this.input_el.value = ""
     })
   }
@@ -88,6 +96,7 @@ export class FileInputView extends InputWidgetView {
     })()
 
     this.model.setv({value, filename, mime_type})
+    this.model.trigger_event(new FileInputChange({value, filename, mime_type}))
   }
 
   protected _read_file(file: File): Promise<string> {

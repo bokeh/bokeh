@@ -85,7 +85,7 @@ if TYPE_CHECKING:
     from .models.axes import Axis
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
-    from .models.widgets.inputs import TextInput
+    from .models.widgets.inputs import TextInput, FileInput
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -100,6 +100,7 @@ __all__ = (
     'DocumentReady',
     'DoubleTap',
     'Event',
+    'FileInputChange',
     'LODEnd',
     'LODStart',
     'LegendItemClick',
@@ -319,6 +320,28 @@ class ButtonClick(ModelEvent):
         if model is not None and not isinstance(model, (AbstractButton, ToggleButtonGroup)):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to button and button group models")
+        super().__init__(model=model)
+
+class FileInputChange(ModelEvent):
+    ''' Announce an atomic file selection change on a FileInput widget.
+
+    '''
+    event_name = 'file_input_change'
+
+    def __init__(
+        self,
+        model: FileInput | None,
+        value:     str | list[str],
+        filename:  str | list[str],
+        mime_type: str | list[str],
+    ) -> None:
+        from .models.widgets import FileInput
+        if model is not None and not isinstance(model, FileInput):
+            clsname = self.__class__.__name__
+            raise ValueError(f"{clsname} event only applies to FileInput model")
+        self.value     = value
+        self.filename  = filename
+        self.mime_type = mime_type
         super().__init__(model=model)
 
 class LegendItemClick(ModelEvent):
