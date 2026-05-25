@@ -17,6 +17,8 @@ export class TranslatableTextView extends BaseTextView {
     })
 
     // TODO: This should use this.model.document but it seems to be always null
+    // even when using root.model it can be at some points always null
+    // (i.e SizeBar instances)
     const {document} = this.root.model
     if (document != null) {
       this.connect(document.config.i18n.change_locale, async () => {
@@ -42,9 +44,13 @@ export class TranslatableTextView extends BaseTextView {
 
   protected async _build_text(): Promise<void> {
     // TODO: This should use this.model.document but it seems to be always null
+    // even when using root.model it can be at some points always null
+    // (i.e SizeBar instances)
     const {document} = this.root.model
     if (document != null) {
       this.translated_text = await document.config.i18n.t(this.model.text)
+    } else {
+      this.translated_text = this.model.text
     }
   }
 }
