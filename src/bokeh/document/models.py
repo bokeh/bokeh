@@ -112,12 +112,12 @@ class DocumentModelManager:
 
     @contextlib.contextmanager
     def freeze(self) -> Generator[None, None, None]:
-        ''' Defer expensive model recompuation until intermediate updates are
+        ''' Defer expensive model recomputation until intermediate updates are
         complete.
 
         Making updates to the model graph might trigger events that cause more
         updates. This context manager can be used to prevent expensive model
-        recompuation from happening until all events have finished and the
+        recomputation from happening until all events have finished and the
         Document state is quiescent.
 
         Example:
@@ -126,7 +126,7 @@ class DocumentModelManager:
 
             with models.freeze():
                 # updates that might change the model graph, that might trigger
-                # updates that change the model graph, etc. Recompuation will
+                # updates that change the model graph, etc. Recomputation will
                 # happen once at the end.
 
         '''
@@ -199,7 +199,7 @@ class DocumentModelManager:
         the Document's current roots.
 
         This computation can be expensive. Use ``freeze`` to wrap operations
-        that update the model object graph to avoid over-recompuation
+        that update the model object graph to avoid over-recomputation
 
         .. note::
             Any models that remove during recomputation will be noted as
