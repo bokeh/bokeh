@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Encapulate the management of Document models with a DocumentModelManager
+''' Encapsulate the management of Document models with a DocumentModelManager
 class.
 
 '''
