@@ -2,7 +2,6 @@ from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import (Button, CustomJS, Dropdown,
                           LanguageDropdown, Legend, LegendItem)
-from bokeh.models.dom import TranslatableText
 from bokeh.plotting import figure
 
 # TODO: i18n config should be handled via the curdoc().config instead of passing values to language dropdown
@@ -10,8 +9,17 @@ language_dropdown = LanguageDropdown(
     locales_codes=["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
     translations="""
     {
-     "en": {"button1": { "label": "Test en"}},
-     "es-CO": {"button1": { "label": "Prueba es-CO"}}
+     "en": {"button1": { "label": "Test en" }, "String used as key itself to get its translation": "String used as key itself to get its translation" },
+     "es-CO": {
+         "button1": {"label": "Prueba es-CO" },
+         "String used as key itself to get its translation": "Cadena usada en si misma como llave para obtener su traducción"
+     },
+     "pl-PL": {},
+     "fr-FR": {},
+     "de-DE": {},
+     "hi-IN": {},
+     "pt-BR": {},
+     "ar": {}
     }""",
     languages=[
       ("English", "en"),
@@ -27,13 +35,14 @@ language_dropdown = LanguageDropdown(
     auto_t_enabled=True,
 )
 language_dropdown.js_on_event("menu_item_click", CustomJS(code="console.log('languagedropdown: ' + this.item, this.toString())"))
-button = Button(label=TranslatableText(content="button1.label"))
-button_fixed = Button(label=TranslatableText(content="Fixed label but auto-translatable via Chrome Translator API"))
-dropdown = Dropdown(label=TranslatableText(content="Select an option"), button_type="primary", menu=[
-    (TranslatableText(content="Item 1"), "item_1"),
-    (TranslatableText(content="Item 2"), "item_2"),
+button = Button(label="button1.label")
+button_non_convention_string = Button(label="String used as key itself to get its translation")
+button_fixed = Button(label="Fixed label but auto-translatable via Chrome Translator API")
+dropdown = Dropdown(label="Select an option", button_type="primary", menu=[
+    ("Item 1", "item_1"),
+    ("Item 2", "item_2"),
     None,
-    (TranslatableText(content="Item 3"), "item_3"),
+    ("Item 3", "item_3"),
 ])
 
 p = figure(title="Multi-line plot translation example")
@@ -50,8 +59,8 @@ legend = Legend(
         LegendItem(label="red", renderers=[r], index=1),
         LegendItem(label="blue", renderers=[r], index=2),
     ],
-    title=TranslatableText(content="Available colors"),
+    title="Available colors",
 )
 p.add_layout(legend)
 
-show(column(language_dropdown, button, button_fixed, dropdown, p))
+show(column(language_dropdown, button, button_non_convention_string, button_fixed, dropdown, p))

@@ -16,7 +16,7 @@ export namespace I18nLines {
   p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4})
   p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4})
   p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4})
-  p.legend.title = new Bokeh.TranslatableText({content: "Available colors"})
+  p.legend.title = "legend.title"
 
   const language_dropdown = new Bokeh.Widgets.LanguageDropdown()
 
@@ -25,13 +25,14 @@ export namespace I18nLines {
   Bokeh.documents[0].config.i18n.set_config(
     ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
     `{
-      "en": {},
-      "es-CO": {},
-      "pl-PL": {},
-      "fr-FR": {},
-      "de-DE": {},
-      "hi-IN": {},
-      "pt-BR": {}
+      "en": { "legend": { "title": "Available colors" }},
+      "es-CO": { "legend": { "title": "Colores disponibles" }},
+      "pl-PL": { "legend": { "title": "Dostępne kolory" }},
+      "fr-FR": { "legend": { "title": "Couleurs disponibles" }},
+      "de-DE": { "legend": { "title": "Verfügbare Farben" }},
+      "hi-IN": { "legend": { "title": "उपलब्ध रंग" }},
+      "pt-BR": { "legend": { "title": "Cores disponíveis" }},
+      "ar": { "legend": { "title": "الألوان المتاحة" }}
      }`,
     [
       ["English", "en"],

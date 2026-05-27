@@ -104,7 +104,7 @@ export class DropdownView extends AbstractButtonView {
       } else {
         const label = isString(item) ? item : item[0]
         const menu_item = new MenuItem({
-          label,
+          label: new TranslatableText({content: label}),
           action: () => { this._item_click(i) },
         })
         return menu_item
@@ -119,7 +119,7 @@ export namespace Dropdown {
 
   export type Props = AbstractButton.Props & {
     split: p.Property<boolean>
-    menu: p.Property<(string | [string | TranslatableText, string | CallbackLike1<Dropdown, {index: number}>] | null)[]>
+    menu: p.Property<(string | [string, string | CallbackLike1<Dropdown, {index: number}>] | null)[]>
   }
 }
 
@@ -136,9 +136,9 @@ export class Dropdown extends AbstractButton {
   static {
     this.prototype.default_view = DropdownView
 
-    this.define<Dropdown.Props>(({Null, Bool, Str, List, Tuple, Or, Ref}) => ({
+    this.define<Dropdown.Props>(({Null, Bool, Str, List, Tuple, Or}) => ({
       split: [ Bool, false ],
-      menu:  [ List(Or(Str, Tuple(Or(Str, Ref(TranslatableText)), Or(Str /*TODO*/)), Null)), [] ],
+      menu:  [ List(Or(Str, Tuple(Str, Or(Str /*TODO*/)), Null)), [] ],
     }))
 
     this.override<Dropdown.Props>({

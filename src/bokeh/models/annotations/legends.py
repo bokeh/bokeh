@@ -76,7 +76,6 @@ from ...core.validation.errors import (
 from ...events import LegendItemClick
 from ...model import Model
 from ..common.properties import GlyphRendererOf
-from ..dom import TranslatableText
 from ..formatters import TickFormatter
 from ..glyph import RadialGlyph
 from ..labeling import LabelingPolicy, NoOverlap
@@ -401,7 +400,7 @@ class Legend(Annotation):
     for vertical orientation.
     """)
 
-    title = Nullable(Either(String, Instance(TranslatableText)), help="""
+    title = Nullable(String, help="""
     The title text to render.
     """)
 

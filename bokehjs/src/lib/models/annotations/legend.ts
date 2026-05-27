@@ -313,13 +313,8 @@ export class LegendView extends AnnotationView {
 
   protected async _build_title(): Promise<void> {
     const title = this.model.title ?? ""
-    let title_content
-    if (title instanceof TranslatableText) {
-      this._title_view = await this.owner.build_view(title, this)
-      title_content = this._title_view.el
-    } else {
-      title_content = title
-    }
+    this._title_view = await this.owner.build_view(new TranslatableText({content: title}), this)
+    const title_content = this._title_view.el
     const title_el = div({class: legend_css.title}, title_content)
     this.title_el.remove()
     this.title_el = title_el
@@ -798,7 +793,7 @@ export namespace Legend {
     ncols: p.Property<number | "auto">
     nrows: p.Property<number | "auto">
     location: p.Property<LegendLocation | [number, number]>
-    title: p.Property<TranslatableText | string | null>
+    title: p.Property<string | null>
     title_location: p.Property<Location>
     title_standoff: p.Property<number>
     label_standoff: p.Property<number>
@@ -869,7 +864,7 @@ export class Legend extends Annotation {
       ncols:            [ Or(Positive(Int), Auto), "auto" ],
       nrows:            [ Or(Positive(Int), Auto), "auto" ],
       location:         [ Or(LegendLocation, Tuple(Float, Float)), "top_right" ],
-      title:            [ Nullable(Or(Ref(TranslatableText), Str)), null ],
+      title:            [ Nullable(Str), null ],
       title_location:   [ Location, "above" ],
       title_standoff:   [ Float, 5 ],
       label_standoff:   [ Float, 5 ],

@@ -3,6 +3,7 @@ import {BuiltinIcon} from "../ui/icons/builtin_icon"
 import {MenuItemClick} from "core/bokeh_events"
 import {isString} from "core/util/types"
 import {Text} from "../dom/text"
+import {DividerItem, Menu, MenuItem} from "../ui/menus"
 import type * as p from "core/properties"
 
 export class LanguageDropdownView extends DropdownView {
@@ -58,6 +59,22 @@ export class LanguageDropdownView extends DropdownView {
     if (document != null) {
       await document.config.i18n.set_locale(lang)
     }
+  }
+
+  override to_menu(): Menu {
+    const items = this.model.menu.map((item, i) => {
+      if (item == null) {
+        return new DividerItem()
+      } else {
+        const label = isString(item) ? item : item[0]
+        const menu_item = new MenuItem({
+          label,
+          action: () => { this._item_click(i) },
+        })
+        return menu_item
+      }
+    })
+    return new Menu({items})
   }
 }
 
