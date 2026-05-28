@@ -145,6 +145,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.star`
         * :func:`~bokeh.plotting.figure.star_dot`
         * :func:`~bokeh.plotting.figure.step`
+        * :func:`~bokeh.plotting.figure.tex`
         * :func:`~bokeh.plotting.figure.text`
         * :func:`~bokeh.plotting.figure.triangle`
         * :func:`~bokeh.plotting.figure.triangle_dot`
