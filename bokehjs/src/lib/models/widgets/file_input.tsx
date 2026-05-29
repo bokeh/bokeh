@@ -1,12 +1,26 @@
 import {InputWidget, InputWidgetView, ClearInput} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
-import {input} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
+import {bind} from "core/class"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
-import * as inputs from "styles/widgets/inputs.css"
-import buttons_css from "styles/buttons.css"
 import {PropertyBundleEvent} from "core/bokeh_events"
 import {event} from "core/bokeh_events"
+
+import * as inputs_css from "styles/widgets/inputs.css"
+import * as buttons_css from "styles/buttons.css"
+
+import type {TargetedEvent} from "preact"
+import {computed} from "@preact/signals"
+
+declare module "preact" {
+  namespace JSX {
+    interface InputHTMLAttributes<T> {
+      webkitdirectory?: preact.Signalish<boolean>
+    }
+  }
+}
 
 @event("file_input_change")
 export class FileInputChange extends PropertyBundleEvent<FileInput, "value" | "filename" | "mime_type"> {
@@ -22,8 +36,15 @@ export class FileInputChange extends PropertyBundleEvent<FileInput, "value" | "f
 }
 
 export class FileInputView extends InputWidgetView {
-  declare model: FileInput
-  declare input_el: HTMLInputElement
+  declare readonly model: FileInput
+  declare readonly signals: p.SignalsOf<FileInput.Props>
+  declare readonly values: FileInput.Attrs
+
+  /// TODO remove
+  protected override _render_input(): HTMLElement {
+    return undefined as any
+  }
+  ///
 
   override connect_signals(): void {
     super.connect_signals()
@@ -40,29 +61,44 @@ export class FileInputView extends InputWidgetView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), buttons_css]
+    return [...super.stylesheets(), buttons_css.default]
   }
 
-  protected _render_input(): HTMLElement {
-    const {multiple, disabled, directory} = this.model
+  readonly computed_accept = computed(() => {
+    const {accept} = this.values
+    return isString(accept) ? accept : accept.join(",")
+  })
 
-    const accept = (() => {
-      const {accept} = this.model
-      return isString(accept) ? accept : accept.join(",")
-    })()
+  override component(): VNode {
+    const {name} = this.values
+    const {disabled, multiple, directory} = this.signals
+    const accept = this.computed_accept
 
-    return this.input_el = input({type: "file", class: inputs.input, multiple, accept, disabled, webkitdirectory: directory})
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <div class={inputs_css.outer}>
+          <div class={inputs_css.inner}>
+            <input
+              type="color"
+              class={inputs_css.input}
+              name={name ?? undefined}
+              disabled={disabled}
+              multiple={multiple}
+              accept={accept}
+              webkitdirectory={directory}
+              onChange={this._on_change}/>
+          </div>
+        </div>
+      </UIComponent>
+    )
   }
 
-  override render(): void {
-    super.render()
-
-    this.input_el.addEventListener("change", async () => {
-      const {files} = this.input_el
-      if (files != null) {
-        await this.load_files(files)
-      }
-    })
+  @bind
+  protected _on_change(event: TargetedEvent<HTMLInputElement>): void {
+    const {files} = event.currentTarget
+    if (files != null) {
+      void this.load_files(files)
+    }
   }
 
   async load_files(files: FileList): Promise<void> {
