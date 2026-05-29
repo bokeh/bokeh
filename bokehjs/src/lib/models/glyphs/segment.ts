@@ -91,7 +91,7 @@ export class SegmentView extends GlyphView {
     const [x0, x1] = this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
     const [y0, y1] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
 
-    const candidates = this.index.indices({x0, y0, x1, y1})
+    const candidates = this.index.indices_mask({x0, y0, x1, y1})
     const indices = []
 
     for (const i of candidates) {
@@ -126,7 +126,7 @@ export class SegmentView extends GlyphView {
 
     const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
     const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
-    const candidates = this.index.indices({x0, y0, x1, y1})
+    const candidates = this.index.indices_mask({x0, y0, x1, y1})
 
     for (const i of candidates) {
       if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i])) {

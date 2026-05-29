@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {DOMComponentView} from "core/dom_view"
-import type {Indices} from "core/types"
+import type {IndicesMask} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
@@ -27,13 +27,13 @@ export abstract class MarkingView extends DOMComponentView implements visuals.Pa
     return this.parent.canvas
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices): void {
+  set_data(source: ColumnarDataSource, indices_mask: IndicesMask): void {
     const self = this as any
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
       }
-      const uniform = prop.uniform(source).select(indices)
+      const uniform = prop.uniform(source).select(indices_mask)
       self[`${prop.attr}`] = uniform
     }
   }

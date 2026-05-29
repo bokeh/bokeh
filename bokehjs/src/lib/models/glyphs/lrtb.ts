@@ -130,7 +130,7 @@ export abstract class LRTBView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const indices = [...this.index.indices({x0: x, y0: y, x1: x, y1: y})]
+    const indices = [...this.index.indices_mask({x0: x, y0: y, x1: x, y1: y})]
     return new Selection({indices})
   }
 
@@ -142,12 +142,12 @@ export abstract class LRTBView extends GlyphView {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      indices = [...this.index.indices({x0, y0: y, x1, y1: y})]
+      indices = [...this.index.indices_mask({x0, y0: y, x1, y1: y})]
     } else {
       const x = this.renderer.xscale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
       const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      indices = [...this.index.indices({x0: x, y0, x1: x, y1})]
+      indices = [...this.index.indices_mask({x0: x, y0, x1: x, y1})]
     }
 
     return new Selection({indices})

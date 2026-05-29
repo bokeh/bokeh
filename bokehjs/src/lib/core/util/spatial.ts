@@ -1,5 +1,5 @@
 import type {Rect, TypedArrayConstructor, TypedArray} from "../types"
-import {Indices} from "../types"
+import {IndicesMask} from "../types"
 import {empty} from "./bbox"
 
 type LeafFn = (index: number, x0: number, y0: number, x1: number, y1: number) => boolean
@@ -260,9 +260,9 @@ export class SpatialIndex {
     return {x0: minX, y0: minY, x1: maxX, y1: maxY}
   }
 
-  indices(rect: Rect): Indices {
+  indices_mask(rect: Rect): IndicesMask {
     const {x0, y0, x1, y1} = this._normalize(rect)
-    const result = new Indices(this.n_items)
+    const result = new IndicesMask(this.n_items)
     this._search(x0, y0, x1, y1, (index) => {
       result.set_unchecked(index)
       return false

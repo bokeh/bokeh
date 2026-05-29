@@ -17,7 +17,7 @@ describe("InversionFilter", () => {
       const filter = new InversionFilter({
         operand: new IndexFilter({indices: [1, 2, 4]}),
       })
-      expect([...filter.compute_indices(cds)]).to.be.equal([0, 3])
+      expect([...filter.compute_indices_mask(cds)]).to.be.equal([0, 3])
     })
   })
 })

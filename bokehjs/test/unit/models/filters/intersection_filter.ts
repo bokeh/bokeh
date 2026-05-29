@@ -20,7 +20,7 @@ describe("IntersectionFilter", () => {
           new IndexFilter({indices: [1, 2, 4]}),
         ],
       })
-      expect([...filter.compute_indices(cds)]).to.be.equal([2])
+      expect([...filter.compute_indices_mask(cds)]).to.be.equal([2])
     })
   })
 })

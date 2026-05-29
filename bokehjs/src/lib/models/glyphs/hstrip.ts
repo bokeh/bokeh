@@ -140,7 +140,7 @@ export class HStripView extends GlyphView {
     const [dy0, dy1] = this.renderer.yscale.r_invert(sy0, sy1 ?? sy0)
     const y0 = dy0 - max_height
     const y1 = dy1 + max_height
-    return this.index.indices({x0: 0, x1: 0, y0, y1})
+    return this.index.indices_mask({x0: 0, x1: 0, y0, y1})
   }
 
   protected _find_strips(candidates: Iterable<number>, fn: (sy0: number, sy1: number) => boolean): number[] {

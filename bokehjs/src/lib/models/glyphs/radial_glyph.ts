@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {inherit} from "./glyph"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, Indices} from "core/types"
+import type {Rect, IndicesMask} from "core/types"
 import {to_screen} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as p from "core/properties"
@@ -56,7 +56,7 @@ export abstract class RadialGlyphView extends XYGlyphView {
     })
   }
 
-  protected override _mask_data(): Indices {
+  protected override _mask_data(): IndicesMask {
     const {frame} = this.renderer.plot_view
 
     const shr = frame.x_target
@@ -72,7 +72,7 @@ export abstract class RadialGlyphView extends XYGlyphView {
       vr = svr.widen(this.max_radius).map((y) => this.renderer.yscale.invert(y))
     }
 
-    return this.index.indices({
+    return this.index.indices_mask({
       x0: hr.start, x1: hr.end,
       y0: vr.start, y1: vr.end,
     })

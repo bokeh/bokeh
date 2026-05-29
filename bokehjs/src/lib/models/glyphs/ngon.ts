@@ -76,7 +76,7 @@ export class NgonView extends RadialGlyphView {
   protected override _hit_point(geometry: PointGeometry): Selection {
     const x = this.renderer.xscale.invert(geometry.sx)
     const y = this.renderer.yscale.invert(geometry.sy)
-    const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
+    const candidates = this.index.indices_mask({x0: x, y0: y, x1: x, y1: y})
 
     const indices = []
     for (const index of candidates) {
@@ -96,12 +96,12 @@ export class NgonView extends RadialGlyphView {
       switch (geometry.direction) {
         case "v": {
           const y = this.renderer.yscale.invert(sy)
-          const candidates = this.index.indices({x0, y0: y, x1, y1: y})
+          const candidates = this.index.indices_mask({x0, y0: y, x1, y1: y})
           return [sy, 1, candidates]
         }
         case "h": {
           const x = this.renderer.xscale.invert(sx)
-          const candidates = this.index.indices({x0: x, y0, x1: x, y1})
+          const candidates = this.index.indices_mask({x0: x, y0, x1: x, y1})
           return [sx, 0, candidates]
         }
       }
@@ -126,7 +126,7 @@ export class NgonView extends RadialGlyphView {
       const xs = this.renderer.xscale.v_invert(gsx)
       const ys = this.renderer.yscale.v_invert(gsy)
       const [x0, x1, y0, y1] = minmax2(xs, ys)
-      return this.index.indices({x0, x1, y0, y1})
+      return this.index.indices_mask({x0, x1, y0, y1})
     })()
 
     const indices = []

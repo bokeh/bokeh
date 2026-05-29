@@ -1,4 +1,4 @@
-import type {Indices, Arrayable} from "./types"
+import type {IndicesMask, Arrayable} from "./types"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
 import * as arrayable from  "./util/arrayable"
@@ -8,7 +8,7 @@ export abstract class Uniform<T = number> implements Equatable {
   abstract readonly length: number
   abstract get(i: number): T
   abstract [Symbol.iterator](): Generator<T, void, undefined>
-  abstract select(indices: Indices): Uniform<T>
+  abstract select(indices_mask: IndicesMask): Uniform<T>
   abstract [equals](that: this, cmp: Comparator): boolean
   abstract map<U>(fn: (v: T) => U): Uniform<U>
   abstract unique(): T[]
@@ -39,7 +39,7 @@ export class UniformScalar<T> extends Uniform<T> {
     }
   }
 
-  select(indices: Indices): UniformScalar<T> {
+  select(indices: IndicesMask): UniformScalar<T> {
     return new UniformScalar(this.value, indices.count)
   }
 
@@ -73,7 +73,7 @@ export class UniformVector<T> extends Uniform<T> {
     yield* this.array
   }
 
-  select(indices: Indices): UniformVector<T> {
+  select(indices: IndicesMask): UniformVector<T> {
     const array = indices.select(this.array)
     return new (this.constructor as any)(array)
   }
