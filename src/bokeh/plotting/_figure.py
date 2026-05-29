@@ -102,11 +102,13 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.arc`
         * :func:`~bokeh.plotting.figure.asterisk`
         * :func:`~bokeh.plotting.figure.bezier`
+        * :func:`~bokeh.plotting.figure.block`
         * :func:`~bokeh.plotting.figure.circle`
         * :func:`~bokeh.plotting.figure.circle_cross`
         * :func:`~bokeh.plotting.figure.circle_dot`
         * :func:`~bokeh.plotting.figure.circle_x`
         * :func:`~bokeh.plotting.figure.circle_y`
+        * :func:`~bokeh.plotting.figure.contour`
         * :func:`~bokeh.plotting.figure.cross`
         * :func:`~bokeh.plotting.figure.dash`
         * :func:`~bokeh.plotting.figure.diamond`
@@ -126,6 +128,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.image_url`
         * :func:`~bokeh.plotting.figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.line`
+        * :func:`~bokeh.plotting.figure.mathml`
         * :func:`~bokeh.plotting.figure.multi_line`
         * :func:`~bokeh.plotting.figure.multi_polygons`
         * :func:`~bokeh.plotting.figure.ngon`
