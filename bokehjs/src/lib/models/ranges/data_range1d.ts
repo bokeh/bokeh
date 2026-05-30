@@ -88,8 +88,24 @@ export class DataRange1d extends DataRange {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {range_padding, range_padding_units} = this.properties
-    this.on_change([range_padding, range_padding_units], () => this._invalidate_dataranges())
+    const {
+      range_padding,
+      range_padding_units,
+      flipped,
+      follow,
+      follow_interval,
+      default_span,
+      only_visible,
+    } = this.properties
+    this.on_change([
+      range_padding,
+      range_padding_units,
+      flipped,
+      follow,
+      follow_interval,
+      default_span,
+      only_visible,
+    ], () => this._invalidate_dataranges())
   }
 
   protected _invalidate_dataranges(): void {
