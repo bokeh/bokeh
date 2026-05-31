@@ -36,7 +36,7 @@ from _util_server import (
     websocket_open,
     ws_url,
 )
-from tornado.httpclient import HTTPError
+from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -539,6 +539,48 @@ async def test__autocreate_session_autoload(ManagedServerLoop: MSL) -> None:
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
+
+async def test__autoload_credentialed_cors_rejects_unlisted_origin(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
+        response = await http_get(server.io_loop, autoload_url(server), headers={
+            "Cookie": "custom=test",
+            "Origin": "http://evil.example",
+        })
+
+        assert response.headers["Access-Control-Allow-Origin"] == "*"
+
+async def test__autoload_credentialed_cors_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
+        response = await http_get(server.io_loop, autoload_url(server), headers={
+            "Cookie": "custom=test",
+            "Origin": "http://trusted.example",
+        })
+
+        assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
+        assert response.headers["Vary"] == "Origin"
+
+async def test__autoload_cors_allows_websocket_origin_without_cookie(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
+        response = await http_get(server.io_loop, autoload_url(server), headers={
+            "Origin": "http://trusted.example",
+        })
+
+        assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
+        assert response.headers["Vary"] == "Origin"
+
+async def test__autoload_cors_options_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
+        request = HTTPRequest(autoload_url(server), method="OPTIONS", headers={
+            "Origin": "http://trusted.example",
+        })
+        response = await AsyncHTTPClient().fetch(request)
+
+        assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
+        assert response.headers["Vary"] == "Origin"
 
 async def test__no_set_title_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
