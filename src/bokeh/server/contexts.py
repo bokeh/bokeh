@@ -184,6 +184,9 @@ class ApplicationContext:
     def sessions(self) -> Iterable[ServerSession]:
         return self._sessions.values()
 
+    def has_session(self, session_id: ID) -> bool:
+        return session_id in self._sessions or session_id in self._pending_sessions
+
     def run_load_hook(self) -> None:
         try:
             self._application.on_server_loaded(self.server_context)

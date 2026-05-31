@@ -33,6 +33,7 @@ from bokeh.util.token import (
     generate_jwt_token,
     generate_session_id,
     get_session_id,
+    get_token_payload,
 )
 
 # Bokeh imports
@@ -96,6 +97,17 @@ class SessionHandler(AuthRequestHandler):
                 log.debug("Server received both token and session ID, expected only one")
                 raise HTTPError(status_code=403, reason="Both token and session ID were provided")
             session_id = get_session_id(token)
+            if not app.sign_sessions:
+                payload_keys = set(get_token_payload(token))
+                if payload_keys - {"session_expiry"}:
+                    log.error(
+                        "Unsigned token for session %r contained request payload",
+                        session_id,
+                    )
+                    raise HTTPError(
+                        status_code=403,
+                        reason="Unsigned token contained request payload",
+                    )
         elif session_id is None:
             if app.generate_session_ids:
                 session_id = generate_session_id(secret_key=app.secret_key,

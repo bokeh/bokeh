@@ -199,6 +199,13 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         '''
         try:
             session_id = get_session_id(token)
+            if (
+                not self.application.sign_sessions
+                and not self.application_context.has_session(session_id)
+            ):
+                payload_keys = set(get_token_payload(token))
+                if payload_keys - {"session_expiry"}:
+                    raise ProtocolError("Unsigned token contained request payload")
             await self.application_context.create_session_if_needed(session_id, self.request, token)
             session = self.application_context.get_session(session_id)
 

@@ -631,6 +631,32 @@ async def test__use_provided_session_autoload_token(ManagedServerLoop: MSL) -> N
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
+async def test__reject_unsigned_autoload_token_with_request_payload(
+    ManagedServerLoop: MSL,
+) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        token = generate_jwt_token(
+            ID("foo"),
+            extra_payload={
+                "headers": {"X-User": "admin"},
+                "cookies": {"auth": "admin"},
+                "arguments": {"role": [b"admin"]},
+            },
+        )
+        with pytest.raises(HTTPError) as info:
+            await http_get(
+                server.io_loop,
+                autoload_url(server) + "&bokeh-token=" + token,
+            )
+        assert "Unsigned token contained request payload" in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
 async def test__use_provided_session_doc(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -661,6 +687,28 @@ async def test__use_provided_session_websocket(ManagedServerLoop: MSL) -> None:
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert expected == sessions[0].id
+
+async def test__reject_unsigned_websocket_token_with_request_payload(
+    ManagedServerLoop: MSL,
+) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        token = generate_jwt_token(
+            ID("foo"),
+            extra_payload={"headers": {"X-User": "admin"}},
+        )
+        ws = await websocket_open(
+            server.io_loop,
+            ws_url(server),
+            subprotocols=["bokeh", token],
+        )
+        assert await ws.read_queue.get() is None
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
 
 async def test__autocreate_signed_session_autoload(ManagedServerLoop: MSL) -> None:
     application = Application()
