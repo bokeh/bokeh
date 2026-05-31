@@ -143,7 +143,8 @@ describe("CDSView", () => {
     it("sets indices_map, a mapping from full data set indices to subset indices", async () => {
       const view = new CDSView({filter: new IntersectionFilter({operands: [filter1, filter2]})})
       await build(view, source)
-      expect(view.indices_map).to.be.equal([-1, 0, 1])
+      expect(view.indices_map.convert_indices_from_subset([0, 1])).to.be.equal([1, 2])
+      expect(view.indices_map.convert_indices_to_subset([1, 2])).to.be.equal([0, 1])
     })
   })
 
