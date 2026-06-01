@@ -286,15 +286,16 @@ class Test_RGB:
     def test_from_css_string(self) -> None:
         c = bcc.RGB.from_css("rgb(163, 178, 15)")
         assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
-        c = bcc.RGB.from_css("rgb(163 178 15 1.0)")
+        c = bcc.RGB.from_css("rgb(163 178 15 / 1.0)")
         assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
         c = bcc.RGB.from_css("rgba(163, 178, 15, 0.5)")
         assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 0.5)
-        c = bcc.RGB.from_css("rgba(163 178 15 0.5)")
+        c = bcc.RGB.from_css("rgba(163 178 15 / 0.5)")
         assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 0.5)
 
-        with pytest.raises(ValueError):
-            bcc.RGB.from_css("rba(12, 1, 1)")
+        for s in ["rba(12, 1, 1)", "rgb(163.34 178.45.56 15 / 1.0)"]:
+            with pytest.raises(ValueError):
+                bcc.RGB.from_css(s)
 
     def test_from_hsl(self) -> None:
         c = bcc.HSL(10, 0.1, 0.2)

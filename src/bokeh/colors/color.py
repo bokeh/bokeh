@@ -263,7 +263,7 @@ class RGB(Color):
                 String containing RGBA values. Valid formats are "rgb(125, 123, 12)" or
                 "rgba(125, 123, 12, 0.1)". The RGB values can be in the range between 0 and 255 and
                 are allowed to have decimal points. The alpha value can be in range between 0 and 1.
-                THe separator is allowed to be a comma or a white space.
+                The separator is allowed to be a comma or a white space.
 
         Returns:
             :class:`~bokeh.colors.RGB`

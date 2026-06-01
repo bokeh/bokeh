@@ -121,7 +121,7 @@ class Color(Either):
 
             >>> m.prop = "rgba(12, 11, 12, 0.1)"
 
-            >>> m.prop = "rgba(12 11 12 0.1)"
+            >>> m.prop = "rgba(12 11 12 / 0.1)"
 
             >>> m.prop = "rgba(12.3, 11.0, 12.3, 0.1)"
 
@@ -136,19 +136,21 @@ class Color(Either):
     """
 
     def __init__(
-            self,
-            default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined,
-            *,
-            help: str | None = None,
-        ) -> None:
+        self,
+        default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined,
+        *,
+        help: str | None = None,
+    ) -> None:
         number = r"(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)(\.\d+)?"
         sep = r"(\s*,?\s+)"
+        comma = r"(\s*,\s*)"
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
                  Regex(r"^#[0-9a-fA-F]{6}$"),
                  Regex(r"^#[0-9a-fA-F]{8}$"),
-                 Regex(fr"^rgba\({number}{sep}{number}{sep}{number}{sep}([01](\.\d+)?)\)$"),
+                 Regex(fr"^rgba\({number}\s+{number}\s+{number}\s+\/\s+([01](\.\d+)?)\)$"),
+                 Regex(fr"^rgba\({number}{comma}{number}{comma}{number}{comma}([01](\.\d+)?)\)$"),
                  Regex(fr"^rgb\({number}{sep}{number}{sep}{number}\)$"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),

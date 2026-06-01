@@ -60,6 +60,7 @@ class Test_Color:
         assert prop.is_valid('rgba(10, 20, 30, 1)')
         assert prop.is_valid('rgba(10, 20, 30, 0.5)')
         assert prop.is_valid('rgba(10.2, 20.2, 30.2, 0.5)')
+        assert prop.is_valid('rgba(10.2 20.2 30.2 / 0.5)')
 
         assert prop.is_valid(RGB(10, 20, 30))
 
@@ -99,6 +100,8 @@ class Test_Color:
         assert not prop.is_valid('rgba(10, 20, 256, 1)')
         assert not prop.is_valid('rgba(10, 20, 256, 10)')
         assert not prop.is_valid('rgba(10, 20, 30, 50)')
+        assert not prop.is_valid('rgba(10, 20, 30 / 0.5)')
+        assert not prop.is_valid('rgba(10 20 30 0.5)')
 
         assert not prop.is_valid("00aaff")
         assert not prop.is_valid("00AAFF")
