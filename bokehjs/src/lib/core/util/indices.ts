@@ -3,8 +3,8 @@ import type {Arrayable} from "core/types"
 export class SubsetIndexMapper {
   private readonly global_to_subset: Int32Array
   private readonly subset_to_global: Int32Array
-  size: number
-  size_subset: number
+  readonly size: number
+  private size_subset: number
 
   constructor(size: number) {
     this.global_to_subset = new Int32Array(size)
@@ -51,10 +51,10 @@ export class SubsetIndexMapper {
     return global_indices.map((i) => this.get_subset_index(i)!)
   }
 
-  subset_index_of(array: Arrayable, value?: unknown): number | null {
+  subset_index_of(array: Arrayable, value: unknown): number | null {
     for (let i = 0; i < this.size_subset; i++) {
       const global_idx = this.subset_to_global[i]
-      if (array[global_idx] == value) {
+      if (array[global_idx] === value) {
         return i
       }
     }

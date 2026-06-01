@@ -149,7 +149,7 @@ export class CDSView extends Model {
     return this.indices_map.convert_indices_from_subset(indices)
   }
 
-  get_reference_point(array: Arrayable, value?: unknown): number | null {
+  get_reference_point(array: Arrayable, value: unknown): number | null {
     return this.indices_map.subset_index_of(array, value)
   }
 
