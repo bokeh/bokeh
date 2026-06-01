@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import json
 import os
 import urllib
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -56,6 +57,7 @@ if TYPE_CHECKING:
     )
     from ..embed.bundle import Bundle
     from ..model import Model
+    from ..models.ui import UIElement
     from ..resources import Resources
     from .state import State
 
@@ -593,21 +595,19 @@ def show_app(
     })
 
 @overload
-def show_doc(obj: Model, state: State) -> None: ...
+def show_doc(obj: Model | Sequence[UIElement], state: State) -> None: ...
 @overload
-def show_doc(obj: Model, state: State, notebook_handle: CommsHandle) -> CommsHandle: ...
+def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: CommsHandle) -> CommsHandle: ...
 
-def show_doc(obj: Model, state: State, notebook_handle: CommsHandle | None = None) -> CommsHandle | None:
+def show_doc(obj: Model | Sequence[UIElement], state: State, notebook_handle: CommsHandle | None = None) -> CommsHandle | None:
     '''
 
     '''
-    from collections.abc import Sequence
-
     # Notebook output only supports a single document root, but ``show`` accepts
     # a sequence of UIElements (which file and server output render directly).
     # Wrap such a sequence in a column layout here so the same call works in all
     # output modes instead of raising an opaque error. See issue #14861.
-    if isinstance(obj, Sequence) and not isinstance(obj, str | bytes):
+    if isinstance(obj, Sequence):
         from ..layouts import column
         obj = column(*obj)
 
