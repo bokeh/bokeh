@@ -723,7 +723,7 @@ describe("Bug", () => {
       const provider = new TableDataProvider(source, view)
       const column = new TableColumn({field: "words"}).toColumn()
 
-      provider.sort([{sortCol: column, sortAsc: true}])
+      provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: true}])
       const records_asc = provider.getRecords()
       expect(records_asc).to.be.equal([
         {words: "met",   [DTINDEX_NAME]: 0},
@@ -734,7 +734,7 @@ describe("Bug", () => {
         {words: "no",    [DTINDEX_NAME]: 1},
       ])
 
-      provider.sort([{sortCol: column, sortAsc: false}])
+      provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: false}])
       const records_dsc = provider.getRecords()
       expect(records_dsc).to.be.equal([
         {words: "no",    [DTINDEX_NAME]: 1},
