@@ -1,4 +1,5 @@
 import type {Arrayable} from "core/types"
+import {assert} from "core/util/assert"
 
 export class SubsetIndexMapper {
   private readonly global_to_subset: Int32Array
@@ -29,26 +30,31 @@ export class SubsetIndexMapper {
     }
   }
 
-  get_subset_index(global_index: number): number | undefined {
-    const subset_index = this.global_to_subset[global_index] as number | undefined
-    return subset_index !== undefined && subset_index != -1 ? subset_index : undefined
+  get_subset_index(global_index: number): number {
+    assert(this.is_global_index_in_bounds(global_index), `Global index ${global_index} is out of bounds`)
+    const subset_index = this.global_to_subset[global_index]
+    if (subset_index === -1) {
+      throw new Error(`No subset index found: Global_index ${global_index} is not part of the subset.`)
+    }
+    return subset_index
   }
 
-  has_subset_index(index: number): boolean {
-    return this.get_subset_index(index) !== undefined
+  has_subset_index(global_index: number): boolean {
+    return this.is_global_index_in_bounds(global_index) && this.global_to_subset[global_index] !== -1
   }
 
-  get_global_index(subset_index: number): number | undefined {
-    const global_index = this.subset_to_global[subset_index] as number | undefined
-    return global_index !== undefined ? global_index : undefined
+  get_global_index(subset_index: number): number {
+    assert(this.is_subset_index_in_bounds(subset_index), `Subset index ${subset_index} is out of bounds`)
+    const global_index = this.subset_to_global[subset_index]
+    return global_index
   }
 
   convert_indices_from_subset(subset_indices: number[]): number[] {
-    return subset_indices.map((i) => this.get_global_index(i)!)
+    return subset_indices.map((i) => this.get_global_index(i))
   }
 
   convert_indices_to_subset(global_indices: number[]): number[] {
-    return global_indices.map((i) => this.get_subset_index(i)!)
+    return global_indices.map((i) => this.get_subset_index(i))
   }
 
   subset_index_of(array: Arrayable, value: unknown): number | null {
@@ -59,5 +65,13 @@ export class SubsetIndexMapper {
       }
     }
     return null
+  }
+
+  private is_global_index_in_bounds(global_index: number): boolean {
+    return global_index >= 0 && global_index < this.size
+  }
+
+  private is_subset_index_in_bounds(subset_index: number): boolean {
+    return subset_index >= 0 && subset_index < this.size_subset
   }
 }

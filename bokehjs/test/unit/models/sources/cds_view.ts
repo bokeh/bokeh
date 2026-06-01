@@ -209,10 +209,10 @@ describe("CDSView", () => {
   it("should get subset indices", async  () => {
     const view = new CDSView({filter: new IntersectionFilter({operands: [filter1, filter2]})})
     await build(view, source)
-    expect(view.get_subset_index(-2)).to.be.equal(undefined)
+    expect(() => view.get_subset_index(-2)).to.throw(Error)
     expect(view.get_subset_index(1)).to.be.equal(0)
-    expect(view.get_subset_index(0)).to.be.equal(undefined)
-    expect(view.get_subset_index(5)).to.be.equal(undefined)
+    expect(() => view.get_subset_index(0)).to.throw(Error)
+    expect(() => view.get_subset_index(5)).to.throw(Error)
   })
 
   it("should has subset indices", async  () => {

@@ -129,7 +129,7 @@ export class CDSView extends Model {
     }))
   }
 
-  get_subset_index(index: number): number | undefined {
+  get_subset_index(index: number): number {
     return this.indices_map.get_subset_index(index)
   }
 
@@ -138,11 +138,11 @@ export class CDSView extends Model {
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    return selection_subset.map((i) => this.indices_map.get_global_index(i)!)
+    return selection_subset.map((i) => this.indices_map.get_global_index(i))
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    return selection_full.map((i) => this.indices_map.get_subset_index(i)!) // XXX ?? NaN
+    return selection_full.map((i) => this.indices_map.get_subset_index(i)) // XXX ?? NaN
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
