@@ -119,6 +119,8 @@ class Color(Either):
 
             >>> m.prop = "rgb(12.3, 11.0, 12.3)"
 
+            >>> m.prop = "rgb(12 11 12 / 0.1)"
+
             >>> m.prop = "rgba(12, 11, 12, 0.1)"
 
             >>> m.prop = "rgba(12 11 12 / 0.1)"
