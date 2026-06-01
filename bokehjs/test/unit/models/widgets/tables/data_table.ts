@@ -106,8 +106,8 @@ describe("data_table module", () => {
       const view = new CDSView()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
-      const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
-      dp.sort([fake_col])
+      const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
+      dp.sort_data([fake_col])
 
       expect(dp.getItems()).to.be.equal([
         {__bkdt_internal_index__: 3, index: 10, bar: -10},
@@ -145,8 +145,8 @@ describe("data_table module", () => {
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 
-      const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
-      dp.sort([fake_col])
+      const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
+      dp.sort_data([fake_col])
 
       expect(dp.getField(0, "index")).to.be.equal(10)
       expect(dp.getField(1, "index")).to.be.equal(2)
@@ -171,8 +171,8 @@ describe("data_table module", () => {
       const dp = new TableDataProvider(source, view)
       expect(dp.getRecords()).to.be.equal(range(0, dp.getLength()).map((i) => dp.getItem(i)))
 
-      const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
-      dp.sort([fake_col])
+      const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
+      dp.sort_data([fake_col])
       expect(dp.getRecords()).to.be.equal(range(0, dp.getLength()).map((i) => dp.getItem(i)))
     })
 
@@ -183,8 +183,8 @@ describe("data_table module", () => {
       const dp = new TableDataProvider(source, view)
       expect(dp.index).to.be.equal([0, 1, 2, 3])
 
-      const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
-      dp.sort([fake_col])
+      const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
+      dp.sort_data([fake_col])
       expect(dp.index).to.be.equal([3, 2, 1, 0])
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]})
     })
@@ -207,8 +207,8 @@ describe("data_table module", () => {
       const view = new CDSView()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
-      const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
-      dp.sort([fake_col])
+      const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
+      dp.sort_data([fake_col])
 
       dp.setField(0, "index", 10.1)
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10.1], bar: [3.4, 1.2, 0, -10]})
@@ -239,7 +239,7 @@ describe("data_table module", () => {
         {__bkdt_internal_index__: 9, index: "J", col0: -10},
       ])
 
-      dp.sort([{sortCol: {field: "col0"}, sortAsc: true}])
+      dp.sort_data([{columnId: "col0", sortCol: {id: "col0", field: "col0"}, sortAsc: true}])
 
       expect(dp.getItems()).to.be.equal([
         {__bkdt_internal_index__: 1, index: "B", col0: -Infinity},
@@ -254,7 +254,7 @@ describe("data_table module", () => {
         {__bkdt_internal_index__: 8, index: "I", col0: NaN},
       ])
 
-      dp.sort([{sortCol: {field: "col0"}, sortAsc: false}])
+      dp.sort_data([{columnId: "col0", sortCol: {id: "col0", field: "col0"}, sortAsc: false}])
 
       expect(dp.getItems()).to.be.equal([
         {__bkdt_internal_index__: 2, index: "C", col0: NaN},
