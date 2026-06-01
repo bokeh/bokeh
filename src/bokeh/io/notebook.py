@@ -601,6 +601,16 @@ def show_doc(obj: Model, state: State, notebook_handle: CommsHandle | None = Non
     '''
 
     '''
+    from collections.abc import Sequence
+
+    # Notebook output only supports a single document root, but ``show`` accepts
+    # a sequence of UIElements (which file and server output render directly).
+    # Wrap such a sequence in a column layout here so the same call works in all
+    # output modes instead of raising an opaque error. See issue #14861.
+    if isinstance(obj, Sequence) and not isinstance(obj, str | bytes):
+        from ..layouts import column
+        obj = column(*obj)
+
     if obj not in state.document.roots:
         state.document.add_root(obj)
 
