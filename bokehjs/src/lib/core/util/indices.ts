@@ -3,7 +3,6 @@ import type {Arrayable} from "core/types"
 /**
  * Allows to efficiently map back and forth between superset and subset indices.
  * E.g. with superset indices = [0, 1, 2, 3] the subset [1, 3] has subset indices [0, 1].
- *
 */
 export class SubsetIndexMapper {
   private readonly superset_to_subset: Int32Array
