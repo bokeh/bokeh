@@ -1,6 +1,11 @@
 import type {Arrayable} from "core/types"
 import {assert} from "core/util/assert"
 
+/**
+ * Allows to efficiently map back and forth between superset and subset indices.
+ * E.g. with superset indices = [0, 1, 2, 3] the subset [1, 3] has subset indices [0, 1].
+ *
+*/
 export class SubsetIndexMapper {
   private readonly global_to_subset: Int32Array
   private readonly subset_to_global: Int32Array
@@ -46,7 +51,9 @@ export class SubsetIndexMapper {
   }
 
   get_global_index(subset_index: number): number {
-    assert(this.is_subset_index_in_bounds(subset_index), `Subset index ${subset_index} is out of bounds`)
+    if (!this.is_subset_index_in_bounds(subset_index)) {
+      throw new Error(`Subset index ${subset_index} is out of bounds`)
+    }
     const global_index = this.subset_to_global[subset_index]
     return global_index
   }
