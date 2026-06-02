@@ -768,12 +768,26 @@ side of a communications channel while it was being removed on the other end.\
     def to_json(self, *, deferred: Literal[False]) -> DocJson: ...
 
     def to_json(self, *, deferred: bool = True) -> DocJson | Serialized[DocJson]:
-        ''' Convert this document to a JSON-serializable object.
+        ''' Convert this document to a serialized representation.
+
+        .. note::
+            Despite the name, the default return value is **not** directly
+            JSON-serializable. With ``deferred=True`` (the default), any binary
+            buffers are kept as references and the result is a ``Serialized``
+            wrapper, so e.g. ``json.dumps(doc.to_json())`` will raise
+            ``TypeError``. To obtain a JSON *string*, pass the result to
+            ``bokeh.core.json_encoder.serialize_json``. Alternatively, pass
+            ``deferred=False`` to inline any binary buffers as base64 and return
+            a plain ``dict`` that is directly JSON-serializable.
 
         Args:
-            deferred (bool) : encode buffers lazily as references or immediately as inline (base64)
+            deferred (bool) :
+                If ``True`` (default), encode binary buffers lazily as
+                references and return a ``Serialized`` wrapper. If ``False``,
+                encode buffers immediately as inline base64 and return a plain
+                ``DocJson`` dict that is directly JSON-serializable.
 
-        Return:
+        Returns:
             Serialized[DocJson] | DocJson
 
         '''
