@@ -1,0 +1,34 @@
+.. _release-3-9-1:
+
+3.9.1
+=====
+
+Bokeh version ``3.9.1`` (June 2026) is a patch release that fixes a number of
+minor bugs/regressions and documentation issues.
+
+Changes
+-------
+
+* Automated the generation of the ``switcher.json`` (:bokeh-pull:`14967`)
+* Added logic for inverted color mapping using ``LogColorMapper`` (:bokeh-pull:`15035`)
+* Fixed bad code block directives in documentation (:bokeh-pull:`15023`)
+* Fixed layout updates when ``min_border*`` properties change (:bokeh-pull:`15011`)
+* Fixed cursor handling of non-editable ``BoxAnnotation`` (:bokeh-pull:`14964`)
+* Fixed missing ``vline`` hover hits for ``MultiLine`` glyph (:bokeh-pull:`14927`)
+* Fixed ``line_dash`` property ambiguity for all glyph types (:bokeh-pull:`14890`)
+* Fixed handling of nanoseconds pre epoch precision (:bokeh-pull:`14108`)
+* Added a note to documentation about f-strings and ``@{...}`` syntax (:bokeh-pull:`15067`)
+* Upgraded ``flatbush`` to the most recent version (:bokeh-pull:`14935`)
+* Fixed synchronization of ``Legend`` item's alpha state with glyph visibility (:bokeh-pull:`14882`)
+* Fixed ``Patches`` hover tooltip triggering inside holes (:bokeh-pull:`14858`)
+* Fixed rendering of ``Patch`` and ``Patches`` glyphs when using ``canvas`` backend (:bokeh-pull:`14857`)
+* Fixed layout update when ``frame_width``, ``frame_height`` and ``frame_align`` properties change (:bokeh-pull:`15086`)
+* Fixed update of axes when ``ContinuousTicker.num_minor_ticks`` property changes (:bokeh-pull:`15062`)
+* Fixed serialization of ``NaT`` and related cases (:bokeh-pull:`14908`)
+* Added ``perform_error_diagnostics`` configuration setting (:bokeh-pull:`14947`)
+* Added missing reference documentation entry for ``bokeh.document.models`` (:bokeh-pull:`15097`)
+* Added missing reference documentation entries for ``figure.tex()`` and ``figure.mathml()`` (:bokeh-pull:`15100`)
+* Fixed update of ranges when ``DataRange1d.range_padding`` and other properties change (:bokeh-pull:`15091`)
+* Clarified ``Document.to_json()`` docstring about JSON-serializability of its output (:bokeh-pull:`15113`)
+* Added support for running unittest in parallel (:bokeh-pull:`14960`)
+* Fixed documentation of ``bokeh.core.enums`` (:bokeh-pull:`15118`)
