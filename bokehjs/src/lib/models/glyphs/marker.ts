@@ -3,7 +3,7 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, Indices} from "core/types"
+import type {Rect, IndicesMask} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
@@ -50,14 +50,14 @@ export abstract class MarkerView extends XYGlyphView {
     }
   }
 
-  protected override _mask_data(): Indices {
+  protected override _mask_data(): IndicesMask {
     // dilate the inner screen region by max_size and map back to data space for use in spatial query
     const {x_target, y_target} = this.renderer.plot_view.frame
 
     const hr = x_target.widen(this.max_size).map((x) => this.renderer.xscale.invert(x))
     const vr = y_target.widen(this.max_size).map((y) => this.renderer.yscale.invert(y))
 
-    return this.index.indices({
+    return this.index.indices_mask({
       x0: hr.start, x1: hr.end,
       y0: vr.start, y1: vr.end,
     })
@@ -76,7 +76,7 @@ export abstract class MarkerView extends XYGlyphView {
     const sy1 = sy + max_size*hit_dilation
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
-    const candidates = this.index.indices({x0, x1, y0, y1})
+    const candidates = this.index.indices_mask({x0, x1, y0, y1})
     const indices: number[] = []
 
     for (const i of candidates) {
@@ -110,7 +110,7 @@ export abstract class MarkerView extends XYGlyphView {
       }
     })()
 
-    const indices = [...this.index.indices({x0, x1, y0, y1})]
+    const indices = [...this.index.indices_mask({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
@@ -118,7 +118,7 @@ export abstract class MarkerView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = this.index.indices({x0, x1, y0, y1}).ones()
+    const indices = this.index.indices_mask({x0, x1, y0, y1}).ones()
     return new Selection({indices})
   }
 
@@ -130,7 +130,7 @@ export abstract class MarkerView extends XYGlyphView {
       const ys = this.renderer.yscale.v_invert(sys)
 
       const [x0, x1, y0, y1] = minmax2(xs, ys)
-      return this.index.indices({x0, x1, y0, y1})
+      return this.index.indices_mask({x0, x1, y0, y1})
     })()
 
     const indices = []

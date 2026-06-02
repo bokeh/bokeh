@@ -12,7 +12,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {CDSViewView} from "../sources/cds_view"
 import {CDSView} from "../sources/cds_view"
 import type {Color} from "core/types"
-import {Indices} from "core/types"
+import {IndicesMask} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
 import {extend, clone} from "core/util/object"
@@ -83,8 +83,8 @@ export class GlyphRendererView extends DataRendererView {
     ]
   }
 
-  protected all_indices: Indices
-  protected decimated: Indices
+  protected all_indices: IndicesMask
+  protected decimated: IndicesMask
 
   protected last_dtrender: number
 
@@ -232,7 +232,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(exprchange, update)
   }
 
-  _update_masked_indices(): Indices {
+  _update_masked_indices(): IndicesMask {
     const masked = this.glyph.mask_data()
     this.model.view.masked = masked
     return masked
@@ -264,7 +264,7 @@ export class GlyphRendererView extends DataRendererView {
 
     const {lod_factor} = this.plot_model
     const n = this.all_indices.count
-    this.decimated = new Indices(n)
+    this.decimated = new IndicesMask(n)
     for (let i = 0; i < n; i += lod_factor) {
       this.decimated.set(i)
     }

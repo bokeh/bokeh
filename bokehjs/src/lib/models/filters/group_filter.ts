@@ -1,6 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
-import {Indices} from "core/types"
+import {IndicesMask} from "core/types"
 import {logger} from "core/logging"
 import {Comparator} from "core/util/eq"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -30,14 +30,14 @@ export class GroupFilter extends Filter {
     }))
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices_mask(source: ColumnarDataSource): IndicesMask {
     const column = source.get_column(this.column_name)
     const size = source.get_length() ?? 1
     if (column == null) {
       logger.warn(`${this}: groupby column '${this.column_name}' not found in the data source`)
-      return Indices.all_set(size)
+      return IndicesMask.all_set(size)
     } else {
-      const indices = new Indices(size, 0)
+      const indices = new IndicesMask(size, 0)
       const cmp = new Comparator()
       for (let i = 0; i < indices.size; i++) {
         if (cmp.eq(column[i], this.group)) {

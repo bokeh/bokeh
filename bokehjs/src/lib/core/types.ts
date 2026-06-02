@@ -116,5 +116,5 @@ export type Interval = {
   end: number
 }
 
-export {BitSet as Indices} from "./util/bitset"
+export {BitSet as IndicesMask} from "./util/bitset"
 export type {RaggedArray} from "./util/ragged_array"

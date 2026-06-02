@@ -65,7 +65,7 @@ describe("CustomJSFilter", () => {
 
     it("should execute the code and return the result", () => {
       const filter = new CustomJSFilter({code: "return [0]"})
-      expect([...filter.compute_indices(cds)]).to.be.equal([0])
+      expect([...filter.compute_indices_mask(cds)]).to.be.equal([0])
     })
 
     it("should compute indices using a source", () => {
@@ -78,7 +78,7 @@ describe("CustomJSFilter", () => {
         return indices
       `
       const filter = new CustomJSFilter({code})
-      expect([...filter.compute_indices(cds)]).to.be.equal([0, 1])
+      expect([...filter.compute_indices_mask(cds)]).to.be.equal([0, 1])
     })
 
     it("should compute indices using an arg property", () => {
@@ -92,7 +92,7 @@ describe("CustomJSFilter", () => {
       `
       const rng = new Range1d({start: 5, end: 21})
       const filter = new CustomJSFilter({args: {foo: rng}, code})
-      expect([...filter.compute_indices(cds)]).to.be.equal([4])
+      expect([...filter.compute_indices_mask(cds)]).to.be.equal([4])
     })
   })
 })

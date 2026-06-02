@@ -2,7 +2,7 @@ import type {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax2, sum} from "core/util/arrayable"
-import type {Arrayable, FloatArray, Rect, Indices} from "core/types"
+import type {Arrayable, FloatArray, Rect, IndicesMask} from "core/types"
 import type {HitTestPoint, HitTestRect, HitTestPoly} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -43,9 +43,9 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  protected override _mask_data(): Indices {
+  protected override _mask_data(): IndicesMask {
     const {x_source, y_source} = this.renderer.coordinates
-    return this.index.indices({
+    return this.index.indices_mask({
       x0: x_source.min, x1: x_source.max,
       y0: y_source.min, y1: y_source.max,
     })
@@ -95,7 +95,7 @@ export class PatchesView extends GlyphView {
       const ys = this.renderer.yscale.v_invert(sys)
 
       const [x0, x1, y0, y1] = minmax2(xs, ys)
-      return this.index.indices({x0, x1, y0, y1})
+      return this.index.indices_mask({x0, x1, y0, y1})
     })()
 
     const indices: number[] = []
@@ -144,7 +144,7 @@ export class PatchesView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
+    const candidates = this.index.indices_mask({x0: x, y0: y, x1: x, y1: y})
     const indices = []
 
     for (const index of candidates) {

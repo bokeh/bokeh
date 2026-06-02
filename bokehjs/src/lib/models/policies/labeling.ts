@@ -5,7 +5,7 @@ import {use_strict} from "core/util/string"
 import type {BBox} from "core/util/bbox"
 import {isIterable} from "core/util/types"
 import type {Dict} from "core/types"
-import {Indices, GeneratorFunction} from "core/types"
+import {IndicesMask, GeneratorFunction} from "core/types"
 
 export type DistanceMeasure = (i: number, j: number) => number
 
@@ -23,7 +23,7 @@ export abstract class LabelingPolicy extends Model {
     super(attrs)
   }
 
-  abstract filter(indices: Indices, bboxes: BBox[], distance: DistanceMeasure): Indices
+  abstract filter(indices_mask: IndicesMask, bboxes: BBox[], distance: DistanceMeasure): IndicesMask
 }
 
 export namespace AllLabels {
@@ -40,8 +40,8 @@ export class AllLabels extends LabelingPolicy {
     super(attrs)
   }
 
-  filter(indices: Indices, _bboxes: BBox[], _distance: DistanceMeasure): Indices {
-    return indices
+  filter(indices_mask: IndicesMask, _bboxes: BBox[], _distance: DistanceMeasure): IndicesMask {
+    return indices_mask
   }
 }
 
@@ -67,17 +67,17 @@ export class NoOverlap extends LabelingPolicy {
     }))
   }
 
-  filter(indices: Indices, _bboxes: BBox[], distance: DistanceMeasure): Indices {
+  filter(indices_mask: IndicesMask, _bboxes: BBox[], distance: DistanceMeasure): IndicesMask {
     const {min_distance} = this
     let k = null
-    for (const i of indices) {
+    for (const i of indices_mask) {
       if (k != null && distance(k, i) < min_distance) {
-        indices.unset(i)
+        indices_mask.unset(i)
       } else {
         k = i
       }
     }
-    return indices
+    return indices_mask
   }
 }
 
@@ -119,21 +119,21 @@ export class CustomLabelingPolicy extends LabelingPolicy {
     return new GeneratorFunction("indices", "bboxes", "distance", ...this.names, code)
   }
 
-  filter(indices: Indices, bboxes: BBox[], distance: DistanceMeasure): Indices {
+  filter(indices_mask: IndicesMask, bboxes: BBox[], distance: DistanceMeasure): IndicesMask {
     const obj = Object.create(null)
-    const generator = this.func.call(obj, indices, bboxes, distance, ...this.values)
+    const generator = this.func.call(obj, indices_mask, bboxes, distance, ...this.values)
 
     let result = generator.next()
     if ((result.done ?? false) && result.value !== undefined) {
       const {value} = result
-      if (value instanceof Indices) {
+      if (value instanceof IndicesMask) {
         return value
       } else if (value === undefined) {
-        return indices
+        return indices_mask
       } else if (isIterable(value)) {
-        return Indices.from_indices(indices.size, value as Iterable<number>)
+        return IndicesMask.from_indices(indices_mask.size, value as Iterable<number>)
       } else {
-        return Indices.all_unset(indices.size)
+        return IndicesMask.all_unset(indices_mask.size)
       }
     } else {
       const array: number[] = []
@@ -143,7 +143,7 @@ export class CustomLabelingPolicy extends LabelingPolicy {
         result = generator.next()
       } while (!(result.done ?? false))
 
-      return Indices.from_indices(indices.size, array)
+      return IndicesMask.from_indices(indices_mask.size, array)
     }
   }
 }

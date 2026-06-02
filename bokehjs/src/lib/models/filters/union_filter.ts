@@ -1,6 +1,6 @@
 import {CompositeFilter} from "./composite_filter"
 import type * as p from "core/properties"
-import type {Indices} from "core/types"
+import type {IndicesMask} from "core/types"
 
 export namespace UnionFilter {
   export type Attrs = p.AttrsOf<Props>
@@ -16,7 +16,7 @@ export class UnionFilter extends CompositeFilter {
     super(attrs)
   }
 
-  protected _inplace_op(index: Indices, op: Indices): void {
+  protected _inplace_op(index: IndicesMask, op: IndicesMask): void {
     index.add(op)
   }
 }

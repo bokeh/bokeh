@@ -3,7 +3,7 @@ import {expect, expect_not_null} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
 import {ColumnDataSource} from "@bokehjs/models/sources"
-import {ScreenArray, Indices} from "@bokehjs/core/types"
+import {ScreenArray, IndicesMask} from "@bokehjs/core/types"
 
 describe("ImageURL module", () => {
 
@@ -34,10 +34,10 @@ describe("ImageURL module", () => {
       image_url.url = "image.jpg"
 
       const image_url_view = await create_glyph_view(image_url)
-      const indices = Indices.all_set(1)
+      const indices_mask = IndicesMask.all_set(1)
       const source = new ColumnDataSource()
-      await image_url_view.set_data(source, indices)
-      image_url_view.set_visuals(source, indices)
+      await image_url_view.set_data(source, indices_mask)
+      image_url_view.set_visuals(source, indices_mask)
 
       // TODO await
       const image = image_url_view.image[0]
@@ -55,10 +55,10 @@ describe("ImageURL module", () => {
       image_url.h = 19
 
       const image_url_view = await create_glyph_view(image_url)
-      const indices = Indices.all_set(1)
+      const indices_mask = IndicesMask.all_set(1)
       const source = new ColumnDataSource()
-      await image_url_view.set_data(source, indices)
-      image_url_view.set_visuals(source, indices)
+      await image_url_view.set_data(source, indices_mask)
+      image_url_view.set_visuals(source, indices_mask)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([34]))
@@ -77,10 +77,10 @@ describe("ImageURL module", () => {
       image_url.properties.h.units = "screen"
 
       const image_url_view = await create_glyph_view(image_url)
-      const indices = Indices.all_set(1)
+      const indices_mask = IndicesMask.all_set(1)
       const source = new ColumnDataSource()
-      await image_url_view.set_data(source, indices)
-      image_url_view.set_visuals(source, indices)
+      await image_url_view.set_data(source, indices_mask)
+      image_url_view.set_visuals(source, indices_mask)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([1]))
@@ -97,10 +97,10 @@ describe("ImageURL module", () => {
       image_url.h = null as any // XXX
 
       const image_url_view = await create_glyph_view(image_url)
-      const indices = Indices.all_set(1)
+      const indices_mask = IndicesMask.all_set(1)
       const source = new ColumnDataSource()
-      await image_url_view.set_data(source, indices)
-      image_url_view.set_visuals(source, indices)
+      await image_url_view.set_data(source, indices_mask)
+      image_url_view.set_visuals(source, indices_mask)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([NaN]))
@@ -118,10 +118,10 @@ describe("ImageURL module", () => {
       image_url.properties.h.units = "screen"
 
       const image_url_view = await create_glyph_view(image_url)
-      const indices = Indices.all_set(1)
+      const indices_mask = IndicesMask.all_set(1)
       const source = new ColumnDataSource()
-      await image_url_view.set_data(source, indices)
-      image_url_view.set_visuals(source, indices)
+      await image_url_view.set_data(source, indices_mask)
+      image_url_view.set_visuals(source, indices_mask)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([NaN]))

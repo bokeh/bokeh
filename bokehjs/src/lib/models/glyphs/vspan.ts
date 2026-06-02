@@ -74,7 +74,7 @@ export class VSpanView extends GlyphView {
   protected _get_candidates(sx0: number, sx1?: number): Iterable<number> {
     const {max_line_width} = this
     const [x0, x1] = this.renderer.xscale.r_invert(sx0 - max_line_width, (sx1 ?? sx0) + max_line_width)
-    return this.index.indices({x0, x1, y0: 0, y1: 0})
+    return this.index.indices_mask({x0, x1, y0: 0, y1: 0})
   }
 
   protected _find_spans(candidates: Iterable<number>, fn: (sx: number, line_width: number) => boolean): number[] {

@@ -140,7 +140,7 @@ export class VStripView extends GlyphView {
     const [dx0, dx1] = this.renderer.xscale.r_invert(sx0, sx1 ?? sx0)
     const x0 = dx0 - max_width
     const x1 = dx1 + max_width
-    return this.index.indices({x0, x1, y0: 0, y1: 0})
+    return this.index.indices_mask({x0, x1, y0: 0, y1: 0})
   }
 
   protected _find_strips(candidates: Iterable<number>, fn: (sx0: number, sx1: number) => boolean): number[] {

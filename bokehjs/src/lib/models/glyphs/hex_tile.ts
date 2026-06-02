@@ -168,7 +168,7 @@ export class HexTileView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
+    const candidates = this.index.indices_mask({x0: x, y0: y, x1: x, y1: y})
     const indices = []
 
     for (const i of candidates) {
@@ -196,7 +196,7 @@ export class HexTileView extends GlyphView {
         return {x0: x, y0, x1: x, y1}
       }
     })()
-    const indices =  [...this.index.indices(rect)]
+    const indices =  [...this.index.indices_mask(rect)]
     return new Selection({indices})
   }
 
@@ -204,7 +204,7 @@ export class HexTileView extends GlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = [...this.index.indices({x0, x1, y0, y1})]
+    const indices = [...this.index.indices_mask({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 

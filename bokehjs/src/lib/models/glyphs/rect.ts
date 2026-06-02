@@ -165,7 +165,7 @@ export class RectView extends CenterRotatableView {
     const x = this.renderer.xscale.invert(hit_xy.x)
     const y = this.renderer.yscale.invert(hit_xy.y)
 
-    const candidates = this.index.indices({
+    const candidates = this.index.indices_mask({
       x0: x - this.max_x2_ddist,
       x1: x + this.max_x2_ddist,
       y0: y - this.max_y2_ddist,

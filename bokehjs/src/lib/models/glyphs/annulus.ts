@@ -109,7 +109,7 @@ export class AnnulusView extends XYGlyphView {
     }
 
     const indices: number[] = []
-    for (const i of this.index.indices({x0, x1, y0, y1})) {
+    for (const i of this.index.indices_mask({x0, x1, y0, y1})) {
       const or2 = this.souter_radius[i]**2
       const ir2 = this.sinner_radius[i]**2
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])

@@ -13,7 +13,7 @@ import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
-import {ScreenArray, Indices} from "core/types"
+import {ScreenArray, IndicesMask} from "core/types"
 import {isArrayable, isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {every} from "core/util/array"
@@ -264,7 +264,7 @@ export abstract class GlyphView extends DOMComponentView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.coordinates.x_scale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.coordinates.y_scale.r_invert(sy0, sy1)
-    const indices = [...this.index.indices({x0, x1, y0, y1})]
+    const indices = [...this.index.indices_mask({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
@@ -406,13 +406,13 @@ export abstract class GlyphView extends DOMComponentView {
     return this[`inherited_${name}` as keyof this] as boolean
   }
 
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+  set_visuals(source: ColumnarDataSource, indices_mask: IndicesMask): void {
     for (const prop of this._iter_visuals()) {
       const {base} = this
       if (base != null && this._can_inherit_from(prop, base)) {
         this._inherit_from(prop.attr, base)
       } else {
-        const uniform = prop.uniform(source).select(indices)
+        const uniform = prop.uniform(source).select(indices_mask)
         this._define_attr(prop.attr, uniform)
       }
     }
@@ -468,11 +468,11 @@ export abstract class GlyphView extends DOMComponentView {
     return final_array
   }
 
-  async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
+  async set_data(source: ColumnarDataSource, indices_mask: IndicesMask, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
     const {base} = this
 
-    this._data_size = indices.count
+    this._data_size = indices_mask.count
 
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
@@ -491,10 +491,10 @@ export abstract class GlyphView extends DOMComponentView {
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
-          const array = this._transform_array(prop, indices.select(prop.array(source)))
+          const array = this._transform_array(prop, indices_mask.select(prop.array(source)))
           this._define_attr(prop.attr, array)
         } else {
-          const uniform = prop.uniform(source).select(indices)
+          const uniform = prop.uniform(source).select(indices_mask)
           this._define_attr(prop.attr, uniform)
 
           if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
@@ -513,7 +513,7 @@ export abstract class GlyphView extends DOMComponentView {
     await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
     for (const decoration of this.decorations.values()) {
-      decoration.marking.set_data(source, indices)
+      decoration.marking.set_data(source, indices_mask)
     }
 
     if (this.glglyph != null) {
@@ -552,16 +552,16 @@ export abstract class GlyphView extends DOMComponentView {
     this._index = index
   }
 
-  mask_data(): Indices {
+  mask_data(): IndicesMask {
     /** Returns subset indices in the viewport. */
     if (this._mask_data == null) {
-      return Indices.all_set(this.data_size)
+      return IndicesMask.all_set(this.data_size)
     } else {
       return this._mask_data()
     }
   }
 
-  protected _mask_data?(): Indices
+  protected _mask_data?(): IndicesMask
 
   map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates

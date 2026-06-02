@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import type * as p from "core/properties"
 import type {Selection} from "../selections/selection"
 import {View} from "core/view"
-import {Indices} from "core/types"
+import {IndicesMask} from "core/types"
 import type {Arrayable} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
@@ -76,12 +76,12 @@ export class CDSViewView extends View {
     const source = this.parent.data_source.get_value()
 
     const size = source.get_length() ?? 1
-    const indices = Indices.all_set(size)
+    const indices_mask = IndicesMask.all_set(size)
 
-    const filtered = this.model.filter.compute_indices(source)
-    indices.intersect(filtered)
+    const filtered_mask = this.model.filter.compute_indices_mask(source)
+    indices_mask.intersect(filtered_mask)
 
-    this.model.indices = indices
+    this.model.indices = indices_mask
     this.model._indices_map_to_subset()
   }
 }
@@ -92,9 +92,9 @@ export namespace CDSView {
   export type Props = Model.Props & {
     filter: p.Property<Filter>
     // internal
-    indices: p.Property<Indices>
+    indices: p.Property<IndicesMask>
     indices_map: p.Property<Arrayable<number>>
-    masked: p.Property<Indices | null>
+    masked: p.Property<IndicesMask | null>
   }
 }
 
@@ -116,9 +116,9 @@ export class CDSView extends Model {
     }))
 
     this.internal<CDSView.Props>(({Ref, Int, Arrayable, Nullable}) => ({
-      indices:     [ Ref(Indices) ],
+      indices:     [ Ref(IndicesMask) ],
       indices_map: [ Arrayable(Int), [] ],
-      masked:      [ Nullable(Ref(Indices)), null ],
+      masked:      [ Nullable(Ref(IndicesMask)), null ],
     }))
   }
 

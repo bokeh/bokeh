@@ -74,7 +74,7 @@ export class HSpanView extends GlyphView {
   protected _get_candidates(sy0: number, sy1?: number): Iterable<number> {
     const {max_line_width} = this
     const [y0, y1] = this.renderer.yscale.r_invert(sy0 - max_line_width, (sy1 ?? sy0) + max_line_width)
-    return this.index.indices({x0: 0, x1: 0, y0, y1})
+    return this.index.indices_mask({x0: 0, x1: 0, y0, y1})
   }
 
   protected _find_spans(candidates: Iterable<number>, fn: (sy: number, line_width: number) => boolean): number[] {
