@@ -138,7 +138,7 @@ export class CDSView extends Model {
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    return selection_subset.map((i) => this.indices_map.get_global_index(i))
+    return selection_subset.map((i) => this.indices_map.get_superset_index(i))
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
