@@ -1679,9 +1679,9 @@ describe("Bug", () => {
         text_font: "VujahdayScript", text_font_size: "30px",
       })
 
-      const {view} = await display(p)
-
       await document.fonts.ready
+
+      const {view} = await display(p)
       expect_fonts(true)
 
       await view.ready
