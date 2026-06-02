@@ -77,6 +77,30 @@ def test_show_doc_no_server(mock_notebook_content: MagicMock,
     assert mock__publish_display_data.call_args[0] == expected_args
     assert mock__publish_display_data.call_args[1] == expected_kwargs
 
+@patch('bokeh.io.notebook.get_comms')
+@patch('bokeh.io.notebook.publish_display_data')
+@patch('bokeh.embed.notebook.notebook_content')
+def test_show_doc_wraps_sequence_in_layout(mock_notebook_content: MagicMock,
+                                           mock__publish_display_data: MagicMock,
+                                           mock_get_comms: MagicMock) -> None:
+    from bokeh.layouts import Column
+    from bokeh.models import Div
+
+    mock_get_comms.return_value = "comms"
+    s = State()
+    mock_notebook_content.return_value = ["notebook_script", "notebook_div", Document()]
+
+    child_0, child_1 = Div(), Div()
+
+    # A sequence of UIElements should not raise in notebook output mode (#14861);
+    # it is wrapped in a single column layout root.
+    binb.show_doc([child_0, child_1], s)
+
+    roots = list(s.document.roots)
+    assert len(roots) == 1
+    assert isinstance(roots[0], Column)
+    assert list(roots[0].children) == [child_0, child_1]
+
 
 class Test_push_notebook:
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
