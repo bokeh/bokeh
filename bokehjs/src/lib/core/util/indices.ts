@@ -31,7 +31,9 @@ export class SubsetIndexMapper {
   }
 
   get_subset_index(global_index: number): number {
-    assert(this.is_global_index_in_bounds(global_index), `Global index ${global_index} is out of bounds`)
+    if (!this.is_global_index_in_bounds(global_index)) {
+      throw new Error(`Global index ${global_index} is out of bounds`)
+    }
     const subset_index = this.global_to_subset[global_index]
     if (subset_index === -1) {
       throw new Error(`No subset index found: Global_index ${global_index} is not part of the subset.`)
