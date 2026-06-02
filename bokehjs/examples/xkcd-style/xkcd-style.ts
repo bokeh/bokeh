@@ -1,0 +1,127 @@
+import Bokeh from "/static/js/bokeh.esm.js"
+import "/static/js/bokeh-widgets.esm.js"
+import "/static/js/bokeh-api.esm.js"
+
+export namespace Xkcd {
+  import plt = Bokeh.Plotting
+  console.log(`Bokeh ${Bokeh.version}`)
+  Bokeh.set_log_level("info")
+
+  const url = "/assets/fonts/XKCD/xkcd-script.ttf"
+  const font = new FontFace("XKCD", `url(${url})`)
+
+  document.fonts.add(font)
+
+  const {Column, Row} = Bokeh
+  const {
+    AutocompleteInput,
+    Button,
+    CheckboxButtonGroup,
+    CheckboxGroup,
+    Dropdown,
+    LightDark,
+    MultiChoice,
+    PasswordInput,
+    RadioButtonGroup,
+    RadioGroup,
+    Select,
+    Slider,
+    TextInput,
+    Toggle,
+  } = Bokeh.Widgets
+
+  const switch_style = `
+    .bk-bar, .bk-knob {
+      text-transform: uppercase;
+      border: var(--border);
+      cursor: pointer;
+      border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      transition: transform 0.1s ease;
+    }
+  `
+
+  const light_dark = new LightDark({active: true, stylesheets: [switch_style]})
+
+  const button_style = `
+  `
+
+  const slider_style = `
+    .noUi-target, .noUi-handle {
+      text-transform: uppercase;
+      border: var(--border);
+      cursor: pointer;
+      border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      transition: transform 0.1s ease;
+    }
+  `
+
+  const input_style = `
+  `
+
+  const choices_style = `
+  `
+
+  const w0 = new Button({label: "Button", stylesheets: [button_style]})
+  const w1 = new Toggle({label: "Toggle", stylesheets: [button_style]})
+  const w2 = new Dropdown({label: "Dropdown", stylesheets: [button_style]})
+  const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
+  const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+  const w5 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
+  const w6 = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [button_style]})
+  const w7 = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103", stylesheets: [input_style]})
+  const w8 = new PasswordInput({value: "foo", stylesheets: [input_style]})
+  const w9 = new AutocompleteInput({
+    placeholder: "Enter value ...",
+    completions: ["aaa", "aab", "aac", "baa", "caa"],
+    stylesheets: [input_style],
+  })
+  const w10 = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], stylesheets: [choices_style]})
+  const w11 = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1", stylesheets: [input_style]})
+  const w12 = new Slider({value: 10, start: 0, end: 100, step: 0.5, stylesheets: [slider_style]})
+
+  const p = plt.figure()
+
+  p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4, line_join: "round", line_cap: "round"})
+  p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4, line_join: "round", line_cap: "round"})
+  p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4, line_join: "round", line_cap: "round"})
+
+  p.xaxis.axis_label = "X-Axis"
+  p.xaxis.axis_label_text_font = "XKCD"
+  p.xaxis.axis_label_text_font_size = "22px"
+  p.xaxis.major_label_text_font = "XKCD"
+  p.xaxis.major_label_text_font_size = "12px"
+
+  p.yaxis.axis_label = "Y-Axis"
+  p.yaxis.axis_label_text_font = "XKCD"
+  p.yaxis.axis_label_text_font_size = "26px"
+  p.yaxis.major_label_text_font = "XKCD"
+  p.yaxis.major_label_text_font_size = "12px"
+
+  p.legend.label_text_font = "XKCD"
+
+  const w_columns = [
+    new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6]}),
+    new Column({children: [w5, w6, w7, w8, w9, w10, w11, w12, p]}),
+  ]
+  const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
+    `:host {
+      --bokeh-base-font: XKCD;
+      --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      --border-color: var(--color);
+      --border-width: 2px;
+      --default-border-color: var(--color);
+      --bokeh-font-size: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      background-color: var(--background-color);
+    }`,
+  ]})
+
+  const doc = new Bokeh.Document()
+  doc.add_root(layout)
+
+  const div = document.getElementById("dashboard")!
+  void Bokeh.embed.add_document_standalone(doc, div)
+}
