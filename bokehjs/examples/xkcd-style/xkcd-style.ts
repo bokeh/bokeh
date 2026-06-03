@@ -7,11 +7,6 @@ export namespace Xkcd {
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
 
-  const url = "/assets/fonts/XKCD/xkcd-script.ttf"
-  const font = new FontFace("XKCD", `url(${url})`)
-
-  document.fonts.add(font)
-
   const {Column, Row} = Bokeh
   const {
     AutocompleteInput,
@@ -29,6 +24,17 @@ export namespace Xkcd {
     TextInput,
     Toggle,
   } = Bokeh.Widgets
+
+  const url = "/assets/fonts/XKCD/xkcd-script.ttf"
+  // @ts-ignore - instance of abstract class
+  const font_style = new Bokeh.Models.GlobalInlineStyleSheet({
+    css: `
+        @font-face {
+          font-family: 'XKCD';
+          src: url(${url});
+        }
+    `,
+  })
 
   const switch_style = `
     .bk-bar, .bk-knob {
@@ -104,7 +110,10 @@ export namespace Xkcd {
     new Column({children: [w5, w6, w7, w8, w9, w10, w11, w12, p]}),
   ]
   const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
-    `:host {
+    // @ts-ignore - GlobalInlineStyleSheet not recognized as StyleSheet type
+    font_style,
+    `
+    :host {
       --bokeh-base-font: XKCD;
       --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       --border-color: var(--color);
