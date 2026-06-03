@@ -25,7 +25,12 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 # Bokeh imports
-from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
+from ..core.enums import (
+    AxisType,
+    HorizontalLocation,
+    MarkerType,
+    VerticalLocation,
+)
 from ..core.property.auto import Auto
 from ..core.property.container import List, Seq, Tuple
 from ..core.property.data_frame import EagerSeries, PandasGroupBy
@@ -1123,7 +1128,7 @@ RangeLike = Either(
     PandasGroupBy,
 )
 
-AxisType = Nullable(Either(Auto, Enum("linear", "log", "datetime", "timedelta", "mercator")))
+AxisInit = Nullable(Either(Auto, Enum(AxisType)))
 
 class FigureOptions(BaseFigureOptions):
 
@@ -1135,11 +1140,11 @@ class FigureOptions(BaseFigureOptions):
     Customize the y-range of the plot.
     """)
 
-    x_axis_type = AxisType(default="auto", help="""
+    x_axis_type = AxisInit(default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = AxisType(default="auto", help="""
+    y_axis_type = AxisInit(default="auto", help="""
     The type of the y-axis.
     """)
 

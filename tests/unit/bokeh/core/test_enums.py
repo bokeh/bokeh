@@ -36,6 +36,7 @@ ALL = (
     'Auto',
     'AutosizeMode',
     'AxisLabelStandoffMode',
+    'AxisType',
     'BuiltinFormatter',
     'ButtonType',
     'CalendarPosition',
