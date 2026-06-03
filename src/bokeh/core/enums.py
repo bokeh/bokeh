@@ -299,12 +299,12 @@ AngleUnitsType = Literal["deg", "rad", "grad", "turn"]
 AngleUnits = enumeration(AngleUnitsType)
 
 AutoType = Literal["auto"]
-#:
+#: Context dependent keyword that specifies the automated, default, computed, etc. behavior.
 Auto = enumeration(AutoType)
 
 AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
 #: Specify autosize mode for DataTable.
-AutosizeMode = enumeration(Literal["fit_columns", "fit_viewport", "force_fit", "none"])
+AutosizeMode = enumeration(AutosizeModeType)
 
 AxisLabelStandoffModeType = Literal["tick_labels", "axis"]
 #: Specify the reference point of the ``axis_label_standoff``.
