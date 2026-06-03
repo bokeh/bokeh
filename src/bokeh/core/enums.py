@@ -306,13 +306,13 @@ AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "none"]
 #: Specify autosize mode for DataTable.
 AutosizeMode = enumeration(Literal["fit_columns", "fit_viewport", "force_fit", "none"])
 
-AxisTypeType = Literal["linear", "log", "datetime", "timedelta", "mercator"]
-#: Specify the type of the axis.
-AxisType = enumeration(AxisTypeType)
-
 AxisLabelStandoffModeType = Literal["tick_labels", "axis"]
 #: Specify the reference point of the ``axis_label_standoff``.
 AxisLabelStandoffMode = enumeration(AxisLabelStandoffModeType)
+
+AxisTypeType = Literal["linear", "log", "datetime", "timedelta", "mercator"]
+#: Specify the type of the axis.
+AxisType = enumeration(AxisTypeType)
 
 BuiltinFormatterType = Literal["raw", "basic", "numeral", "printf", "datetime"]
 #: Names of built-in value formatters.
