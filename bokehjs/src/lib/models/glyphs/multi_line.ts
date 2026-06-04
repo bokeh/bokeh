@@ -125,7 +125,7 @@ export class MultiLineView extends GlyphView {
       const vsi = vs.get(i)
       const points: number[] = []
       for (let j = 0, endj = vsi.length - 1; j < endj; j++) {
-        if (vsi[j] <= val && val <= vsi[j + 1]) {
+        if ((vsi[j] <= val && val <= vsi[j + 1]) || (vsi[j + 1] <= val && val <= vsi[j])) {
           points.push(j)
         }
       }

@@ -35,6 +35,7 @@ from typing import (
 
 # Bokeh imports
 from ..events import Event, ModelEvent
+from ..settings import settings
 from ..util.functions import get_param_info
 
 if TYPE_CHECKING:
@@ -71,7 +72,9 @@ class EventCallbackManager:
 
     '''
 
-    document: Document | None
+    @property
+    def document(self) -> Document | None: ...
+
     id: ID
     subscribed_events: set[str]
     _event_callbacks: dict[str, list[EventCallback]]
@@ -126,7 +129,9 @@ class PropertyCallbackManager:
 
     '''
 
-    document: Document | None
+    @property
+    def document(self) -> Document | None: ...
+
     _callbacks: dict[str, list[PropertyCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
@@ -193,6 +198,8 @@ def _nargs(fn: Callable[..., Any]) -> int:
 
 def _check_callback(callback: Callable[..., Any], fargs: Sequence[str], what: str ="Callback functions") -> None:
     '''Bokeh-internal function to check callback signature'''
+    if not settings.perform_error_diagnostics():
+        return
     sig = signature(callback)
     all_names, default_values = get_param_info(sig)
 

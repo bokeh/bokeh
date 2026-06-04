@@ -19,13 +19,13 @@ import {
   TeX,
   Toolbar, ToolProxy,
   PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
-  WheelPanTool, BoxSelectTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
+  WheelPanTool, BoxSelectTool, BoxZoomTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4811,6 +4811,113 @@ describe("Bug", () => {
       const headers_wrapper = view.headers_wrapper_el
       const wrapper_styles = window.getComputedStyle(headers_wrapper)
       expect(wrapper_styles.overflowY).to.be.equal("auto")
+    })
+  })
+
+  describe("in issue #14491", () => {
+    it("doesn't update legend item alpha when glyph visibility changes", async () => {
+      const p = fig([200, 200])
+      const s1 = p.scatter({x: 1, y: 1, size: 30, marker: "diamond", legend_label: "diamond", color: "red"})
+      p.scatter({x: 2, y: 1, size: 30, marker: "square", legend_label: "square"})
+      p.legend.click_policy = "hide"
+
+      const {view} = await display(p)
+
+      s1.visible = false
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #14665", () => {
+    it("triggers call stack size error for certain inputs", async () => {
+      const p = fig([200, 200])
+      const N = 30000
+      const x = range(0, N)
+      const y = Array(N).fill(0)
+      y[0] = 1
+      y[N-1] = 1
+
+      p.scatter(x, y)
+
+      await display(p, [350, 250])
+    })
+  })
+
+  describe("in issue #15004", () => {
+    it("doesn't allow to recalculate layout when min_border property is changed", async () => {
+      const p = fig([400, 400], {
+        min_border: 0,
+      })
+      p.scatter([1, 2, 3], [1, 2, 3])
+      const {view} = await display(p)
+      const plot_view = view.owner.get_one(p)
+      const initial_width = plot_view.frame.bbox.width
+      p.min_border = 100
+      await view.ready
+      const new_width = plot_view.frame.bbox.width
+      expect(new_width).to.be.below(initial_width)
+    })
+  })
+
+  describe("in issue #8787", () => {
+    it("doesn't show hover for multi line when values decrease", async () => {
+      const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
+      const p = fig([200, 200])
+      const ml = p.multi_line({xs: {field: "xs"}, ys: {field: "ys"}, line_width: 5, hover_line_color: "red", source})
+
+      p.add_tools(new HoverTool({tooltips: null, renderers: [ml], mode: "vline"}))
+
+      const {view} = await display(p)
+
+      const pv0 = view.owner.get_one(p)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(-2, 1.5))
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #14218", () => {
+    it("allows RangeTool with start gesture pan and PanTool to be active at the same time", async () => {
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 2, end: 4}),
+        start_gesture: "pan",
+      })
+      const p = fig([400, 200], {tools: ["pan", range_tool], toolbar_location: "above"})
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+      await display(p)
+    })
+
+    it("should respect active setting", async () => {
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 1, end: 2}),
+        start_gesture: "pan",
+      })
+      const box_zoom_tool = new BoxZoomTool()
+      const p = fig([400, 200], {tools: ["pan", range_tool, box_zoom_tool], toolbar_location: "above"})
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+      p.toolbar.active_drag = range_tool
+      await display(p)
+    })
+  })
+
+  describe("in issue #15015", () => {
+    it("doesn't show updates to num_minor_ticks", async () => {
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
     })
   })
 })

@@ -23,6 +23,7 @@ dependencies:
   - icalendar
   - ipython
   - networkx
+  - packaging
   - pygments
   - pygraphviz
   - pyshp

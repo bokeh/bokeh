@@ -67,7 +67,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=1.17
+    - mypy ==1.19.*
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme

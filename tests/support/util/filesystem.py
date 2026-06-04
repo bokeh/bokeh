@@ -159,8 +159,10 @@ async def with_temporary_file_async(func: Callable[[IO[bytes]], Awaitable[None]]
 def WorkingDir(new: PathLike) -> Iterator[PathLike]:
     old = os.getcwd()
     os.chdir(new)
-    yield new
-    os.chdir(old)
+    try:
+        yield new
+    finally:
+        os.chdir(old)
 
 #-----------------------------------------------------------------------------
 # Dev API

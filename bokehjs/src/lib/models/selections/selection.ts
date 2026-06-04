@@ -133,7 +133,7 @@ export class Selection extends Model {
   }
 
   is_empty(): boolean {
-    return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
+    return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0 && this.selected_glyphs.length == 0
   }
 
   protected _union_image_indices(...collection: ImageIndices[]): ImageIndices {

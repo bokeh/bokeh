@@ -59,8 +59,10 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 ALL_VERSIONS = resources.get_all_sri_versions()
 
 # very old Bokeh versions are inconsistent and have to be handled specially
-STANDARD_VERSIONS = {v for v in ALL_VERSIONS if V(v) >= V("0.4.1")}
-WIERD_VERSIONS = ALL_VERSIONS - STANDARD_VERSIONS
+_STANDARD_VERSIONS = {v for v in ALL_VERSIONS if V(v) >= V("0.4.1")}
+_WEIRD_VERSIONS = ALL_VERSIONS - _STANDARD_VERSIONS
+STANDARD_VERSIONS = sorted(_STANDARD_VERSIONS)
+WEIRD_VERSIONS = sorted(_WEIRD_VERSIONS)
 
 class TestSRIHashes:
     def test_get_all_sri_versions_valid_format(self) -> None:
@@ -78,7 +80,7 @@ class TestSRIHashes:
             assert f"bokeh-widgets-{v}.js" in h
             assert f"bokeh-widgets-{v}.min.js" in h
 
-    @pytest.mark.parametrize("v", WIERD_VERSIONS)
+    @pytest.mark.parametrize("v", WEIRD_VERSIONS)
     def test_get_sri_hashes_for_weird_versions(self, v) -> None:
 
         h = resources.get_sri_hashes_for_version(v)
@@ -442,6 +444,10 @@ def test_external_js_and_css_resource_embedding() -> None:
     assert r.js_files.count("external_js_3") == 1
     assert r.js_files.count("external_js_1") == 1
 
+    # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
+    assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
+    assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
+
 
 def test_external_js_and_css_resource_ordering() -> None:
     class ZClass(Model):
@@ -454,10 +460,6 @@ def test_external_js_and_css_resource_ordering() -> None:
 
     # a_class is before z_class because they're sorted alphabetically
     assert r.js_files.index("a_class") < r.js_files.index("z_class")
-
-    # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
-    assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
-    assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
 
 
 @pytest.mark.parametrize("mode", ["cdn", "inline"])
