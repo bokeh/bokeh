@@ -1,3 +1,39 @@
+2026-06-04    3.9.1:
+--------------------
+  * bugfixes:
+    - #14944 Document().to_json() is not JSON serializable
+    - #13477 [component: docs] Dev docs no longer report precise version information
+    - #15041 range_padding of y_range is not updated when changed via CustomJS
+    - #7297 [component: bokehjs] Invert Colorbar Axis
+    - #15004 [component: bokehjs] Cannot update min_border of figure with CustomJS callback
+    - #14869 [component: bokehjs] BoxAnnotation shows resize cursor by default
+    - #8787 [component: bokehjs] vline hover misses some multi-lines
+    - #13838 [BUG] Using array/list in line_dash for hspan doesn't work
+    - #13509 [component: bokehjs] [BUG] Incorrectly formatted ticks with %N format when time is older than the Epoch
+    - #14665 [component: bokehjs] [bokeh-3.8.0.min.js:405] Uncaught (in promise) RangeError: Maximum call stack size exceeded
+    - #14491 [component: bokehjs] Legends are not synced with glyph visibility state
+    - #14741 [component: bokehjs] Possible regression in muting of legend entries since v3.7.0
+    - #14856 [component: bokehjs] Patches hover tooltip triggers inside holes (hit-testing doesn't account for NaN-separated holes)
+    - #14855 [component: bokehjs] Canvas Patch fill doesn't respect holes (nonzero fill rule instead of evenodd)
+    - #15080 [component: bokehjs] Bokeh plot frame height does not update when changed via slider
+    - #15015 [component: bokehjs] Update of num_minor_ticks does not trigger a visual update of the plot
+    - #14907 `NaT` is encoded as `float(nan)` by the serializer
+    - #15116 [component: docs] Documentation of enums is broken in 3.10 branch
+    - #15131 [component: build] Release build failed for non pre-release version
+
+  * features:
+    - #14411 Adding a performance mode
+
+  * tasks:
+    - #14922 [component: docs] Update `dev` section of `switcher.json` after 3.9 release
+    - #15054 [component: docs] Building documentation with `BOKEH_DOCS_CDN=local` raises SphinxError
+    - #15022 [component: docs] Fix wrong formatted code block directives
+    - #14878 [component: docs] Toopltips are broken if special characters are in the `source.data` keys
+    - #14962 [component: docs] `Document().models.freeze()` not documented
+    - #15098 [component: docs] Add missing link and fix example for ``tex()`` in figure class
+    - #14961 [component: tests] Make it possible to run the Python unit test run in parallel
+    - #15089 Backports for 3.9.1
+
 2026-03-11      3.9:
 --------------------
   * bugfixes:
