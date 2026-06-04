@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
-from re import match
+from re import findall, match
 from typing import (
     TYPE_CHECKING,
     Self,
@@ -212,31 +212,36 @@ class RGB(Color):
 
     '''
 
-    r: int
-    g: int
-    b: int
+    r: float
+    g: float
+    b: float
     a: float
 
-    def __init__(self, r: int | np.integer, g: int | np.integer, b: int | np.integer, a: float | np.floating = 1.0) -> None:
+    def __init__(
+            self, r: float | np.floating,
+            g: float | np.floating,
+            b: float | np.floating,
+            a: float | np.floating = 1.0,
+        ) -> None:
         '''
 
         Args:
-            r (int) :
-                The value for the red channel in [0, 255]
+            r (float) :
+                The value for the red channel in [0.0, 255.0]
 
-            g (int) :
-                The value for the green channel in [0, 255]
+            g (float) :
+                The value for the green channel in [0.0, 255.0]
 
-            b (int) :
-                The value for the blue channel in [0, 255]
+            b (float) :
+                The value for the blue channel in [0.0, 255.0]
 
             a (float, optional) :
-                An alpha value for this color in [0, 1] (default: 1.0)
+                An alpha value for this color in [0.0, 1.0] (default: 1.0)
 
         '''
-        self.r = cast(int, r)
-        self.g = cast(int, g)
-        self.b = cast(int, b)
+        self.r = cast(float, r)
+        self.g = cast(float, g)
+        self.b = cast(float, b)
         self.a = cast(float, a)
 
     def copy(self) -> RGB:
@@ -247,6 +252,32 @@ class RGB(Color):
 
         '''
         return RGB(self.r, self.g, self.b, self.a)
+
+
+    @classmethod
+    def from_css(cls, css_color_string: str) -> RGB:
+        ''' Create an RGB color from a CSS color string.
+
+        Args:
+            css_color (str) :
+                String containing RGBA values. Valid formats are "rgb(125, 123, 12)" or
+                "rgba(125, 123, 12, 0.1)". The RGB values can be in the range between 0 and 255 and
+                are allowed to have decimal points. The alpha value can be in range between 0 and 1.
+                The separator is allowed to be a comma or a white space.
+
+        Returns:
+            :class:`~bokeh.colors.RGB`
+
+        '''
+        if isinstance(css_color_string, str) and css_color_string.startswith(('rgb(', 'rgba(')):
+            match = findall(r"[\d\.]+", css_color_string)
+            try:
+                a = float(match[3]) if css_color_string[3] == 'a' else 1.0
+            except IndexError as e:
+                raise ValueError(f"Missing alpha value for given value {css_color_string}.") from e
+            return RGB(float(match[0]), float(match[1]), float(match[2]), a)
+        else:
+            raise ValueError(f"'{css_color_string}' is not an RGB(A) CSS color string.")
 
     @classmethod
     def from_hsl(cls, value: HSL) -> RGB:
@@ -342,9 +373,9 @@ class RGB(Color):
 
         '''
         if self.a < 1.0:
-            return f"#{self.r:02x}{self.g:02x}{self.b:02x}{round(self.a*255):02x}"
+            return f"#{round(self.r):02x}{round(self.g):02x}{round(self.b):02x}{round(self.a*255):02x}"
         else:
-            return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
+            return f"#{round(self.r):02x}{round(self.g):02x}{round(self.b):02x}"
 
     def to_hsl(self) -> HSL:
         ''' Return a corresponding HSL color for this RGB color.
@@ -353,7 +384,7 @@ class RGB(Color):
             :class:`~bokeh.colors.HSL`
 
         '''
-        h, l, s = colorsys.rgb_to_hls(float(self.r)/255, float(self.g)/255, float(self.b)/255)
+        h, l, s = colorsys.rgb_to_hls(self.r/255., self.g/255., self.b/255.)
         return HSL(round(h*360), s, l, self.a)
 
     def to_rgb(self) -> RGB:
