@@ -4966,4 +4966,31 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #15123", () => {
+    it("doesn't render the content of all columns with fit columns", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          dates:     [1393632000000, 1393718400000, 1393804800000],  // 2014-03-{01,02,03} as ms
+          downloads: [10, 20, 30],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates",     title: "Date",      formatter: new DateFormatter(), width: 80}),
+        new TableColumn({field: "downloads", title: "Downloads",                                 width: 80}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        width: 200,
+        height: 280,
+        autosize_mode: "fit_columns",
+      })
+
+      const {view} = await display(table, [200, 280])
+      await view.ready
+    })
+  })
 })
