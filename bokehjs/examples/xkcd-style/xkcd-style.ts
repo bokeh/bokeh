@@ -38,10 +38,11 @@ export namespace Xkcd {
 
   const switch_style = `
     .bk-bar, .bk-knob {
-      text-transform: uppercase;
+      --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      text-transform: inherit;
       border: var(--border);
+      border-radius: var(--border-radius);
       cursor: pointer;
-      border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       transition: transform 0.1s ease;
     }
   `
@@ -49,22 +50,39 @@ export namespace Xkcd {
   const light_dark = new LightDark({active: true, stylesheets: [switch_style]})
 
   const button_style = `
+    .bk-btn {
+      text-transform: inherit;
+    }
   `
 
   const slider_style = `
     .noUi-target, .noUi-handle {
-      text-transform: uppercase;
+      --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      text-transform: inherit;
       border: var(--border);
+      border-radius: var(--border-radius);
       cursor: pointer;
-      border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       transition: transform 0.1s ease;
     }
   `
 
   const input_style = `
+    .bk-input {
+      text-transform: inherit;
+    }
   `
 
   const choices_style = `
+  `
+
+  const legend_style = `
+    :host {
+      --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      border: var(--border);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
   `
 
   const w0 = new Button({label: "Button", stylesheets: [button_style]})
@@ -87,9 +105,9 @@ export namespace Xkcd {
 
   const p = plt.figure()
 
-  p.line([1, 2, 3], [1, 3, 2], {color: "orange", legend_label: "orange", line_width: 4, line_join: "round", line_cap: "round"})
-  p.line([1, 2, 3], [3, 4, 3], {color: "red", legend_label: "red", line_width: 4, line_join: "round", line_cap: "round"})
-  p.line([3, 2, 1], [3, 2, 1], {color: "blue", legend_label: "blue", line_width: 4, line_join: "round", line_cap: "round"})
+  p.spline([2, 3, 4], [2, 4, 3], {color: "orange", legend_label: "orange", line_width: 4})
+  p.spline([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
+  p.spline([4, 3, 2], [4, 3, 2], {color: "blue", legend_label: "blue", line_width: 4})
 
   p.xaxis.axis_label = "X-Axis"
   p.xaxis.axis_label_text_font = "XKCD"
@@ -104,6 +122,7 @@ export namespace Xkcd {
   p.yaxis.major_label_text_font_size = "12px"
 
   p.legend.label_text_font = "XKCD"
+  p.legend.stylesheets = [legend_style]
 
   const w_columns = [
     new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6]}),
@@ -115,11 +134,11 @@ export namespace Xkcd {
     `
     :host {
       --bokeh-base-font: XKCD;
-      --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       --border-color: var(--color);
       --border-width: 2px;
       --default-border-color: var(--color);
       --bokeh-font-size: 1rem;
+      --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       font-weight: bold;
       text-transform: uppercase;
       cursor: pointer;
