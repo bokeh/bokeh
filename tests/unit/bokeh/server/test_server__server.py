@@ -50,6 +50,7 @@ from bokeh.model import Model
 from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
+from bokeh.settings import settings
 from bokeh.util.token import (
     check_token_signature,
     generate_jwt_token,
@@ -570,6 +571,20 @@ async def test__autoload_cors_allows_websocket_origin_without_cookie(ManagedServ
 
         assert response.headers["Access-Control-Allow-Origin"] == "http://trusted.example"
         assert response.headers["Vary"] == "Origin"
+
+async def test__autoload_cors_uses_allowed_ws_origin_setting(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    settings.allowed_ws_origin.set_value(["settings.example:80"])
+    try:
+        with ManagedServerLoop(application, allow_websocket_origin=["trusted.example:80"]) as server:
+            response = await http_get(server.io_loop, autoload_url(server), headers={
+                "Origin": "http://settings.example",
+            })
+
+            assert response.headers["Access-Control-Allow-Origin"] == "http://settings.example"
+            assert response.headers["Vary"] == "Origin"
+    finally:
+        settings.allowed_ws_origin.unset_value()
 
 async def test__autoload_cors_options_allows_websocket_origin(ManagedServerLoop: MSL) -> None:
     application = Application()
