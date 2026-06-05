@@ -165,6 +165,7 @@ export class DataTableView extends WidgetView {
   protected _width: number | null = null
 
   private _filtered_selection: number[] = []
+  private _needs_full_row_flush = true
 
   get data_source(): p.Property<ColumnarDataSource> {
     return this.model.properties.source
@@ -217,6 +218,14 @@ export class DataTableView extends WidgetView {
     super._after_layout()
     this.grid.resizeCanvas()
     this.updateLayout(true, false)
+
+    if (this._needs_full_row_flush) {
+      // The grid was constructed while the container had incorrect/unstable width which
+      // needs to be invalidated.
+      this._needs_full_row_flush = false
+      this.grid.invalidateAllRows()
+      this.grid.render()
+    }
   }
 
   override box_sizing(): DOMBoxSizing {
