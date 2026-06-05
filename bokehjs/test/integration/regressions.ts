@@ -4968,7 +4968,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #15123", () => {
-    it("doesn't render the content of all columns with fit columns", async () => {
+    it("doesn't allow to render the content of all columns in DataTable with autosize_mode='fit_columns'", async () => {
       const source = new ColumnDataSource({
         data: {
           dates:     [1393632000000, 1393718400000, 1393804800000],  // 2014-03-{01,02,03} as ms
