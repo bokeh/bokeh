@@ -4989,8 +4989,7 @@ describe("Bug", () => {
         autosize_mode: "fit_columns",
       })
 
-      const {view} = await display(table, [200, 280])
-      await view.ready
+      await display(table, [200, 280])
     })
   })
 })
