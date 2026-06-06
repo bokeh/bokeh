@@ -13,6 +13,12 @@ class _FileList extends Array<File> implements FileList {
 }
 
 describe("FileInputView", () => {
+  it("should render with disabled attribute when disabled=true on initial render", async () => {
+    const model = new FileInput({disabled: true})
+    const {view} = await display(model, null)
+    expect(view.input_el.hasAttribute("disabled")).to.be.true
+  })
+
   it("should allow reading files from a FileList", async () => {
     const model = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
     const {view} = await display(model, null)

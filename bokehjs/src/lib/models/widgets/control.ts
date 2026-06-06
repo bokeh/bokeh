@@ -17,6 +17,13 @@ export abstract class ControlView extends WidgetView {
       }
     })
   }
+
+  override after_render(): void {
+    super.after_render()
+    for (const el of this.controls()) {
+      toggle_attribute(el, "disabled", this.model.disabled)
+    }
+  }
 }
 
 export namespace Control {
