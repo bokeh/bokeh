@@ -4,7 +4,7 @@ import type {ColumnType} from "./definitions"
 import type {EditorConstructor} from "slickgrid"
 
 import type * as p from "core/properties"
-import {unique_id} from "core/util/string"
+import {unique_id, escape} from "core/util/string"
 import {Sort} from "core/enums"
 import {Comparison} from "../../../models/comparisons"
 import {Model} from "../../../model"
@@ -52,7 +52,7 @@ export class TableColumn extends Model {
     return {
       id: unique_id(),
       field: this.field,
-      name: this.title ?? this.field,
+      name: escape(this.title ?? this.field),
       width: this.width,
       formatter: this.formatter.doFormat.bind(this.formatter),
       model: this.editor,
