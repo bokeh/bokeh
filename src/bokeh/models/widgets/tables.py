@@ -771,9 +771,8 @@ class DataTable(TableWidget):
 
     ``"fit_columns"``
         Compute column widths based on cell contents but ensure the
-        table fits into the available viewport. This results in no
-        horizontal scrollbar showing up, but data can get unreadable
-        if there is not enough space available.
+        table fits into the available viewport. A horizontal scrollbar may
+        be introduced to ensure readability.
 
     ``"fit_viewport"``
         Adjust the viewport size after computing columns widths based
