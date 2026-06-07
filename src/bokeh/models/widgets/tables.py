@@ -738,6 +738,10 @@ class TableColumn(Model):
     sorter = Nullable(Instance(Comparison), help="""
     """)
 
+    allow_html_header = Bool(False, help="""
+    Whether the header should be treated as HTML or plain text.
+    """)
+
 @abstract
 class TableWidget(Widget):
     ''' Abstract base class for data table (data grid) widgets.

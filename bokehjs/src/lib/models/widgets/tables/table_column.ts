@@ -22,6 +22,7 @@ export namespace TableColumn {
     default_sort: p.Property<Sort>
     visible: p.Property<boolean>
     sorter: p.Property<Comparison | null>
+    allow_html_header: p.Property<boolean>
   }
 }
 
@@ -36,15 +37,16 @@ export class TableColumn extends Model {
 
   static {
     this.define<TableColumn.Props>(({Bool, Float, Str, Nullable, Ref}) => ({
-      field:        [ Str ],
-      title:        [ Nullable(Str), null ],
-      width:        [ Float, 300 ],
-      formatter:    [ Ref(CellFormatter), () => new StringFormatter() ],
-      editor:       [ Ref(CellEditor), () => new StringEditor() ],
-      sortable:     [ Bool, true ],
-      default_sort: [ Sort, "ascending" ],
-      visible:      [ Bool, true ],
-      sorter:       [ Nullable(Ref(Comparison)), null ],
+      field:              [ Str ],
+      title:              [ Nullable(Str), null ],
+      width:              [ Float, 300 ],
+      formatter:          [ Ref(CellFormatter), () => new StringFormatter() ],
+      editor:             [ Ref(CellEditor), () => new StringEditor() ],
+      sortable:           [ Bool, true ],
+      default_sort:       [ Sort, "ascending" ],
+      visible:            [ Bool, true ],
+      sorter:             [ Nullable(Ref(Comparison)), null ],
+      allow_html_header:  [ Bool, false ],
     }))
   }
 
@@ -52,7 +54,7 @@ export class TableColumn extends Model {
     return {
       id: unique_id(),
       field: this.field,
-      name: escape(this.title ?? this.field),
+      name: this.allow_html_header ? (this.title ?? this.field) : escape(this.title ?? this.field),
       width: this.width,
       formatter: this.formatter.doFormat.bind(this.formatter),
       model: this.editor,
