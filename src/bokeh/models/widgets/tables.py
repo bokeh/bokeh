@@ -738,8 +738,8 @@ class TableColumn(Model):
     sorter = Nullable(Instance(Comparison), help="""
     """)
 
-    allow_html_header = Bool(False, help="""
-    Whether the header should be treated as HTML or plain text.
+    allow_html_title = Bool(False, help="""
+    Whether the title should be treated as HTML or plain text.
     """)
 
 @abstract

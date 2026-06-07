@@ -22,7 +22,7 @@ export namespace TableColumn {
     default_sort: p.Property<Sort>
     visible: p.Property<boolean>
     sorter: p.Property<Comparison | null>
-    allow_html_header: p.Property<boolean>
+    allow_html_title: p.Property<boolean>
   }
 }
 
@@ -46,7 +46,7 @@ export class TableColumn extends Model {
       default_sort:       [ Sort, "ascending" ],
       visible:            [ Bool, true ],
       sorter:             [ Nullable(Ref(Comparison)), null ],
-      allow_html_header:  [ Bool, false ],
+      allow_html_title:  [ Bool, false ],
     }))
   }
 
@@ -54,7 +54,7 @@ export class TableColumn extends Model {
     return {
       id: unique_id(),
       field: this.field,
-      name: this.allow_html_header ? (this.title ?? this.field) : escape(this.title ?? this.field),
+      name: this.allow_html_title ? (this.title ?? this.field) : escape(this.title ?? this.field),
       width: this.width,
       formatter: this.formatter.doFormat.bind(this.formatter),
       model: this.editor,
