@@ -37,10 +37,25 @@ export namespace Office {
   })
 
   const switch_style = `
+    .bk-knob {
+      left: 20%;
+    }
+
+    :host(.bk-active) .bk-knob {
+      left: calc(85% - var(--switch-size));
+    }
+
+    :host(.bk-indeterminate) .bk-knob {
+      left: calc(70% - var(--switch-size));
+      background-color: var(--active-fg);
+    }
+
     .bk-bar, .bk-knob {
+      --bar-height: 20px;
+      --switch-size: 12px;
+      --bar-to-knob-vertical-pos: 40%;
       text-transform: inherit;
       border: var(--border);
-      border-radius: var(--border-radius);
       cursor: pointer;
     }
   `
@@ -83,6 +98,34 @@ export namespace Office {
       border: var(--border);
       border-radius: var(--border-radius);
       cursor: pointer;
+    }
+  `
+
+  const tabs_style = `
+    :host {
+      --border-color: transparent;
+      --divider: none;
+      --margin: 0px;
+      border: var(--border);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+    }
+
+    .bk-header {
+      background-color: var(--primary-color);
+    }
+
+    .bk-tab {
+      color: var(--background-color);
+    }
+
+    .bk-tab.bk-active {
+      --active-border-width: 0px;
+      font-weight: normal;
+    }
+
+    .bk-tab:hover {
+      color: var(--color);
     }
   `
 
@@ -129,9 +172,39 @@ export namespace Office {
   p.legend.label_text_font = "Segoe UI, Inter"
   p.legend.stylesheets = [legend_style]
 
+  const p1 = plt.figure()
+  p1.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+  p1.xaxis.major_label_text_font = "Segoe UI, Inter"
+  p1.xaxis.major_label_text_font_size = "12px"
+  p1.xaxis.major_tick_line_color = "transparent"
+  p1.xaxis.minor_tick_line_color = "transparent"
+  p1.yaxis.major_label_text_font = "Segoe UI, Inter"
+  p1.yaxis.major_label_text_font_size = "12px"
+  p1.yaxis.major_tick_line_color = "transparent"
+  p1.yaxis.minor_tick_line_color = "transparent"
+
+  const p2 = plt.figure()
+  p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
+  p2.xaxis.major_label_text_font = "Segoe UI, Inter"
+  p2.xaxis.major_label_text_font_size = "12px"
+  p2.xaxis.major_tick_line_color = "transparent"
+  p2.xaxis.minor_tick_line_color = "transparent"
+  p2.yaxis.major_label_text_font = "Segoe UI, Inter"
+  p2.yaxis.major_label_text_font_size = "12px"
+  p2.yaxis.major_tick_line_color = "transparent"
+  p2.yaxis.minor_tick_line_color = "transparent"
+
+  // @ts-ignore - instance of abstract class
+  const tab1 = new Bokeh.Models.TabPanel({child: p1, title: "Circle"})
+  // @ts-ignore - instance of abstract class
+  const tab2 = new Bokeh.Models.TabPanel({child: p2, title: "Line"})
+  // @ts-ignore - instance of abstract class
+  const tabs = new Bokeh.Models.Tabs({tabs: [tab1, tab2], stylesheets: [tabs_style]})
+
   const w_columns = [
-    new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6]}),
-    new Column({children: [w5, w6, w7, w8, w9, w10, w11, w12, p]}),
+    // @ts-ignore - tabs instance of HasProps missing properties from UIElement
+    new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6, tabs]}),
+    new Column({children: [w7, w8, w9, w10, w11, w12, p]}),
   ]
   const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
     // @ts-ignore - GlobalInlineStyleSheet not recognized as StyleSheet type
