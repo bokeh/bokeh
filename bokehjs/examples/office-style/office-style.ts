@@ -103,7 +103,6 @@ export namespace Office {
 
   const tabs_style = `
     :host {
-      --border-color: transparent;
       --divider: none;
       --margin: 0px;
       border: var(--border);
@@ -112,6 +111,7 @@ export namespace Office {
     }
 
     .bk-header {
+      --border-color: transparent;
       background-color: var(--primary-color);
     }
 
