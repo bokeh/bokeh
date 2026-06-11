@@ -26,8 +26,7 @@ export namespace Office {
   } = Bokeh.Widgets
 
   const url = "/assets/fonts/inter/Inter-VariableFont_opsz,wght.ttf"
-  // @ts-ignore - instance of abstract class
-  const font_style = new Bokeh.Models.GlobalInlineStyleSheet({
+  const font_style = new Bokeh.GlobalInlineStyleSheet({
     css: `
         @font-face {
           font-family: 'Inter';
@@ -194,20 +193,15 @@ export namespace Office {
   p2.yaxis.major_tick_line_color = "transparent"
   p2.yaxis.minor_tick_line_color = "transparent"
 
-  // @ts-ignore - instance of abstract class
-  const tab1 = new Bokeh.Models.TabPanel({child: p1, title: "Circle"})
-  // @ts-ignore - instance of abstract class
-  const tab2 = new Bokeh.Models.TabPanel({child: p2, title: "Line"})
-  // @ts-ignore - instance of abstract class
-  const tabs = new Bokeh.Models.Tabs({tabs: [tab1, tab2], stylesheets: [tabs_style]})
+  const tab1 = new Bokeh.TabPanel({child: p1, title: "Circle"})
+  const tab2 = new Bokeh.TabPanel({child: p2, title: "Line"})
+  const tabs = new Bokeh.Tabs({tabs: [tab1, tab2], stylesheets: [tabs_style]})
 
   const w_columns = [
-    // @ts-ignore - tabs instance of HasProps missing properties from UIElement
     new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6, tabs]}),
     new Column({children: [w7, w8, w9, w10, w11, w12, p]}),
   ]
   const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
-    // @ts-ignore - GlobalInlineStyleSheet not recognized as StyleSheet type
     font_style,
     `
     :host {
