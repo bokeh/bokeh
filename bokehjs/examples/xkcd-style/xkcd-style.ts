@@ -26,8 +26,7 @@ export namespace Xkcd {
   } = Bokeh.Widgets
 
   const url = "/assets/fonts/XKCD/xkcd-script.ttf"
-  // @ts-ignore - instance of abstract class
-  const font_style = new Bokeh.Models.GlobalInlineStyleSheet({
+  const font_style = new Bokeh.GlobalInlineStyleSheet({
     css: `
         @font-face {
           font-family: 'XKCD';
@@ -126,10 +125,9 @@ export namespace Xkcd {
 
   const w_columns = [
     new Column({children: [light_dark, w0, w1, w2, w3, w4, w5, w6]}),
-    new Column({children: [w5, w6, w7, w8, w9, w10, w11, w12, p]}),
+    new Column({children: [w7, w8, w9, w10, w11, w12, p]}),
   ]
   const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
-    // @ts-ignore - GlobalInlineStyleSheet not recognized as StyleSheet type
     font_style,
     `
     :host {
