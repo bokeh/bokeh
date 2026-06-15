@@ -258,12 +258,17 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         }
         return sv
       })()
+      const label = this.pretty(value)
       return (
         <div
+          role="slider"
           class={sliders_css.handle}
           tabIndex={disabled.value ? -1 : 0}
           style={{"--at": `${at}`}}
-          aria-valuetext={this.pretty(value)}
+          aria-disabled={disabled}
+          aria-orientation={orientation}
+          aria-valuetext={label}
+          aria-label={label}
           onKeyDown={this._on_keydown}
           ref={(el) => { this.handles[i] = el! }}
         >
@@ -292,7 +297,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const draggable_cls = N == 2 ? sliders_css.draggable : null
 
     return (
-      <UIComponent parent={this.resolved_props} class={cls(orientation_cls, disabled_cls, stealth_cls)} aria-disabled={disabled}>
+      <UIComponent
+        parent={this.resolved_props}
+        class={cls(orientation_cls, disabled_cls, stealth_cls)}
+      >
         {title_el}
         <div
           class={sliders_css.slider}
