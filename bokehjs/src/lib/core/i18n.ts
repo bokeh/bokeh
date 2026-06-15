@@ -6,30 +6,54 @@
 import type {PlainObject} from "./types"
 import {isString} from "./util/types"
 import {Signal0} from "core/signaling"
+import {Model} from "../model"
+import type * as p from "core/properties"
 
-// TODO: Should this extend Model and be added as part of the DocumentConfig properties (similar to Notifications)?
-export class I18n {
+export namespace I18n {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    locales_codes: p.Property<string[]>
+    translations: p.Property<PlainObject>
+    languages: p.Property<[string, string][]>
+    source_language: p.Property<string>
+    auto_t_enabled: p.Property<boolean>
+  }
+}
+
+export interface I18n extends I18n.Attrs {}
+
+export class I18n extends Model {
   readonly change_locale: Signal0<this>
-  _locales_codes: string[]
-  _translations: PlainObject
-  _languages: [string, string][]
-  _source_language: string
-  _translator: Translator | undefined
-  _auto_t_enabled: boolean
+  readonly change_config: Signal0<this>
 
-  constructor(locales_codes: string[], translations: string, languages: [string, string][], source_language: string, auto_t_enabled: boolean) {
+  _translator: Translator | undefined
+
+  constructor(attrs?: Partial<I18n.Attrs>) {
+    super(attrs)
     this.change_locale = new Signal0(this, "change_locale")
-    this.set_config(locales_codes, translations, languages, source_language, auto_t_enabled)
+    this.change_config = new Signal0(this, "change_config")
+  }
+
+  static {
+    this.define<I18n.Props>(({Bool, Any, Str, List, Tuple}) => ({
+      locales_codes: [ List(Str), ["en"] ],
+      // TODO: This shouldn't be Any
+      translations: [ Any, {} ],
+      languages: [ List(Tuple(Str, Str)), [["English", "en"]] ],
+      source_language: [ Str, "en"],
+      auto_t_enabled: [ Bool, false ],
+    }))
   }
 
   supported_languages(): [string, string][] {
-    return this._languages
+    return this.languages
   }
 
   get_locale(): string {
-    const default_locale = this._locales_codes.includes(navigator.language)? navigator.language: this._source_language
+    const default_locale = this.locales_codes.includes(navigator.language)? navigator.language: this.source_language
     let current_locale = localStorage.getItem("lang")
-    if (!isString(current_locale) || !this._locales_codes.includes(current_locale)) {
+    if (!isString(current_locale) || !this.locales_codes.includes(current_locale)) {
       localStorage.setItem("lang", default_locale)
       current_locale = default_locale
     }
@@ -37,7 +61,7 @@ export class I18n {
   }
 
   async set_locale(locale: string): Promise<void> {
-    if (this._locales_codes.includes(locale)) {
+    if (this.locales_codes.includes(locale)) {
       document.documentElement.setAttribute("lang", locale)
       if (localStorage.getItem("lang") !== locale) {
         localStorage.setItem("lang", locale)
@@ -57,7 +81,7 @@ export class I18n {
   async t(key: string): Promise<string> {
     // TODO: Expose args to allow for interpolation, formatting, nesting, plurals, etc
     // (maybe by using i18next instead of vanilla implementation over `_t`)
-    if (this._auto_t_enabled) {
+    if (this.auto_t_enabled) {
       return await this._auto_t(key)
     } else {
       return this._t(key)
@@ -69,17 +93,17 @@ export class I18n {
     // Based on https://developer.mozilla.org/en-US/docs/Web/API/Translator_and_Language_Detector_APIs/Using#complete_example
     if (typeof Translator !== "undefined") {
       availability = await Translator.availability({
-        sourceLanguage: this._source_language,
+        sourceLanguage: this.source_language,
         targetLanguage: this.get_locale(),
       })
       if (availability === "available") {
         this._translator = await Translator.create({
-          sourceLanguage: this._source_language,
+          sourceLanguage: this.source_language,
           targetLanguage: this.get_locale(),
         })
       } else if (availability === "downloadable") {
         this._translator = await Translator.create({
-          sourceLanguage: this._source_language,
+          sourceLanguage: this.source_language,
           targetLanguage: this.get_locale(),
           monitor(monitor: CreateMonitor) {
             monitor.addEventListener("downloadprogress", (e: ProgressEvent) => {
@@ -106,7 +130,7 @@ export class I18n {
   }
 
   protected _t(key: string): string {
-    const locale_translation = this._translations[this.get_locale()]
+    const locale_translation = this.translations[this.get_locale()]
     return key.split(".").reduce(
       (current_level, current_key) => current_level?.[current_key],
       locale_translation as any,
@@ -115,12 +139,13 @@ export class I18n {
 
   set_config(locales_codes: string[] | null, translations: string | null, languages: [string, string][] | null, source_language: string | null, auto_t_enabled: boolean | null): void {
     if (locales_codes != null && translations != null && languages != null && source_language != null && auto_t_enabled != null) {
-      this._locales_codes = locales_codes
+      this.locales_codes = locales_codes
       // TODO: Handle possible errors when parsing translations. Probably something to remove when checking i18next usage?
-      this._translations = JSON.parse(translations)
-      this._languages = languages
-      this._source_language = source_language
-      this._auto_t_enabled = auto_t_enabled
+      this.translations = JSON.parse(translations)
+      this.languages = languages
+      this.source_language = source_language
+      this.auto_t_enabled = auto_t_enabled
+      this.change_config.emit()
     }
   }
 }

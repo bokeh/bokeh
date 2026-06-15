@@ -1,4 +1,5 @@
-from bokeh.io import show
+from bokeh import events
+from bokeh.io import curdoc, show
 from bokeh.layouts import column
 from bokeh.models import (Button, CustomJS, Dropdown,
                           LanguageDropdown, Legend, LegendItem)
@@ -62,5 +63,33 @@ legend = Legend(
     title="Available colors",
 )
 p.add_layout(legend)
+
+curdoc().on_event(events.DocumentReady, CustomJS(code="""
+    cb_obj.config.i18n.set_config(
+      ["en", "es-CO", "pl-PL", "fr-FR", "de-DE", "hi-IN", "pt-BR", "ar"],
+      `{
+        "en": { "legend": { "title": "Available colors" }},
+        "es-CO": { "legend": { "title": "Colores disponibles" }},
+        "pl-PL": { "legend": { "title": "Dostępne kolory" }},
+        "fr-FR": { "legend": { "title": "Couleurs disponibles" }},
+        "de-DE": { "legend": { "title": "Verfügbare Farben" }},
+        "hi-IN": { "legend": { "title": "उपलब्ध रंग" }},
+        "pt-BR": { "legend": { "title": "Cores disponíveis" }},
+        "ar": { "legend": { "title": "الألوان المتاحة" }}
+       }`,
+      [
+        ["English", "en"],
+        ["Español (CO)", "es-CO"],
+        ["Polski (PL)", "pl-PL"],
+        ["Français (FR)", "fr-FR"],
+        ["Deutsch (DE)", "de-DE"],
+        ["हिन्दी", "hi-IN"],
+        ["Português (BR)", "pt-BR"],
+        ["اَلْعَرَبِيَّةُ", "ar"],
+      ],
+      "en",
+      true,
+    )
+"""))
 
 show(column(language_dropdown, button, button_non_convention_string, button_fixed, dropdown, p))

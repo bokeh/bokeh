@@ -12,6 +12,7 @@ export namespace DocumentConfig {
     notify_connection_status: p.Property<boolean>
     notifications: p.Property<Notifications | null>
     color_scheme: p.Property<ColorScheme>
+    i18n: p.Property<I18n | null>
   }
 }
 
@@ -23,18 +24,6 @@ export class DocumentConfig extends Model {
 
   constructor(attrs?: Partial<DocumentConfig.Attrs>) {
     super(attrs)
-    // TODO: What should be set as default values?
-    this.i18n = new I18n(
-      ["en"],
-      `{
-        "en": {}
-       }`,
-      [
-        ["English", "en"],
-      ],
-      "en",
-      false,
-    )
   }
 
   static {
@@ -43,6 +32,7 @@ export class DocumentConfig extends Model {
       notify_connection_status: [ Bool, true ],
       notifications: [ Nullable(Ref(Notifications)), () => new Notifications() ],
       color_scheme: [ ColorScheme, "auto"],
+      i18n: [ Nullable(Ref(I18n)), () => new I18n() ],
     }))
   }
 }

@@ -13,16 +13,9 @@ export class LanguageDropdownView extends DropdownView {
     super.connect_signals()
 
     this.model.on_event(MenuItemClick, async (event) => await this._set_language(event.item))
-  }
-
-  override initialize(): void {
-    super.initialize()
-    // TODO: All of these values should come/be config from a call to the document.config model
-    const {document, locales_codes, translations, languages, source_language, auto_t_enabled} = this.model
+    const {document} = this.model
     if (document != null) {
-      document.config.i18n.set_config(
-        locales_codes, translations, languages, source_language, auto_t_enabled,
-      )
+      this.connect(document.config.i18n.change_config, () => { this.render() })
     }
   }
 
