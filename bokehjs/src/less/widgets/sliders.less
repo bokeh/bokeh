@@ -155,11 +155,9 @@
   }
 }
 
-:host(.bk-stealth) {
-  --handle-size: var(--track-size);
-
+:host(.bk-stealth:not(:hover)) {
   .bk-handle {
-    opacity: 0;
+    display: none;
   }
 }
 
