@@ -16,3 +16,4 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Make it easier to theme ``Tooltip`` component and migrate it to vDOM (:bokeh-pull:`14955`)
 * Fix broken inverted color mapping when using LogColorMapper (:bokeh-pull:`15035`)
 * Simplified ``CustomJS`` construction with template strings (Python 3.14+) (:bokeh-pull:`14977`)
+* Added ``pan_together`` property to ``PanTool``, mirroring ``WheelZoomTool``'s ``zoom_together``, to control whether panning on an axis affects only that axis (``"none"``), its cross axis pair (``"cross"``), or all axes in the same dimension (``"all"``) (:bokeh-pull:`13325`)
