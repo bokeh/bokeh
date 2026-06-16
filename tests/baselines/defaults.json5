@@ -160,6 +160,11 @@
       attributes: {},
     },
     color_scheme: "auto",
+    i18n: {
+      type: "object",
+      name: "I18n",
+      attributes: {},
+    },
   },
   DataModel: {
     __extends__: "Model",
@@ -5475,6 +5480,23 @@
     band_hatch_extra: {
       type: "map",
     },
+  },
+  I18n: {
+    __extends__: "Model",
+    locales_codes: [
+      "en",
+    ],
+    translations: {
+      type: "map",
+    },
+    languages: [
+      [
+        "English",
+        "en",
+      ],
+    ],
+    source_language: "en",
+    auto_t_enabled: false,
   },
   AllLabels: {
     __extends__: "LabelingPolicy",
