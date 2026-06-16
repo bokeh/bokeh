@@ -7514,11 +7514,6 @@
         icon_name: "world",
       },
     },
-    locales_codes: null,
-    translations: null,
-    languages: null,
-    source_language: null,
-    auto_t_enabled: null,
   },
   Toggle: {
     __extends__: "AbstractButton",

@@ -190,6 +190,7 @@ describe("default model resolver", () => {
       "HelpTool",
       "HexTile",
       "HoverTool",
+      "I18n",
       "Image",
       "ImageRGBA",
       "ImageStack",

@@ -155,7 +155,7 @@ describe("Document", () => {
     const root = new SomeModel({child})
     const doc = new Document({roots: [root]})
     expect(doc.roots().length).to.be.equal(1)
-    expect(doc.all_models.size).to.be.equal(4)
+    expect(doc.all_models.size).to.be.equal(5)
     expect(doc.all_models).to.be.equal(new Set([root, child, doc.config, doc.config.notifications!]))
   })
 
@@ -911,7 +911,7 @@ describe("Document", () => {
     doc.on_change((event) => events.push(event))
 
     expect(doc.roots().length).to.be.equal(0)
-    expect(doc.all_models.size).to.be.equal(2)
+    expect(doc.all_models.size).to.be.equal(3)
 
     const child = new SomeModel()
     const root = new SomeModel({child})
@@ -1164,7 +1164,7 @@ describe("Document", () => {
     const doc = new Document()
     doc.add_root(root)
 
-    expect(doc.all_models).to.be.equal(new Set([root, child1, child2, child3, child4, doc.config, doc.config.notifications!]))
+    expect(doc.all_models).to.be.equal(new Set([root, child1, child2, child3, child4, doc.config, doc.config.notifications!, doc.config.i18n]))
 
     const patch1: Patch = {
       events: [
