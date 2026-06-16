@@ -156,7 +156,7 @@ describe("Document", () => {
     const doc = new Document({roots: [root]})
     expect(doc.roots().length).to.be.equal(1)
     expect(doc.all_models.size).to.be.equal(5)
-    expect(doc.all_models).to.be.equal(new Set([root, child, doc.config, doc.config.notifications!]))
+    expect(doc.all_models).to.be.equal(new Set([root, child, doc.config, doc.config.notifications!, doc.config.i18n]))
   })
 
   it("has working add_root", () => {
