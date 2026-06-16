@@ -21,7 +21,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from dataclasses import dataclass
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Sequence,
+)
+
+# External imports
+import numpy as np
 
 # Bokeh imports
 from ...util.dataclasses import Unspecified
@@ -32,6 +41,7 @@ from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
+from .exceptions import ValueValidationError
 from .instance import Instance
 from .nothing import Nothing
 from .nullable import Nullable
@@ -83,6 +93,7 @@ __all__ = (
     'LineCapSpec',
     'LineJoinSpec',
     'MarkerSpec',
+    'NDArraySpec',
     'NumberSpec',
     'SizeSpec',
     'StringSpec',
@@ -93,6 +104,30 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@dataclass
+class ValidationEntry:
+
+    type: Literal["warning", "error"]
+    text: str
+    exception: ValueValidationError | None = None
+
+class ValidationContext:
+
+    entries: list[ValidationEntry]
+
+    @property
+    def has_failure(self) -> bool:
+        return self.entries != []
+
+    def __init__(self) -> None:
+        self.entries = []
+
+    def warn(self, text: str, exception: ValueValidationError | None = None) -> None:
+        self.entries.append(ValidationEntry("warning", text, exception))
+
+    def error(self, text: str, exception: ValueValidationError | None = None) -> None:
+        self.entries.append(ValidationEntry("error", text, exception))
 
 class DataSpec(Either):
     """ Base class for properties that accept either a fixed value, or a
@@ -236,7 +271,7 @@ class DataSpec(Either):
         try:
             self.value_type.replace(String, Nothing()).validate(val, False)
             return Value(val)
-        except ValueError:
+        except ValueValidationError:
             pass
 
         # Check for data source field name
@@ -244,6 +279,9 @@ class DataSpec(Either):
             return Field(val)
 
         return val
+
+    def validate_column(self, column: Any, context: ValidationContext) -> None:
+        """ Validate the data in a column of a ``ColumnarDataSource``. """
 
 class BoolSpec(DataSpec):
     def __init__(self, default, *, help: str | None = None) -> None:
@@ -254,6 +292,7 @@ class IntSpec(DataSpec):
         super().__init__(Int, default=default, help=help)
 
 class FloatSpec(DataSpec):
+
     def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Float, default=default, help=help)
 
@@ -355,7 +394,7 @@ class FontSizeSpec(DataSpec):
         if isinstance(value, str):
             if len(value) == 0 or (value[0].isdigit() and not CSS_LENGTH_RE.match(value)):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
-                raise ValueError(msg)
+                raise ValueValidationError(msg)
 
 class FontStyleSpec(DataSpec):
     def __init__(self, default, *, help: str | None = None) -> None:
@@ -621,6 +660,37 @@ class ColorSpec(DataSpec):
         if self.is_color_tuple_shape(value):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
         return super().prepare_value(cls, name, value)
+
+class NDArraySpec(DataSpec):
+    """ A |DataSpec| property that accepts N-dimensional arrays of numbers.
+
+    """
+
+    ndims: int
+
+    def __init__(self, ndims: int, default, *, help: str | None = None) -> None:
+        super().__init__(Float, default=default, help=help)
+        self.ndims = ndims
+
+    # TODO @override
+    # Can't use it currently, because it must be imported from typing_extensions because of Python 3.10 and
+    # 3.11. However, that module is banned on the top-level and this is a decorator, so we can't hide it
+    # behind TYPE_CHECKING.
+    def validate_column(self, column: Any, context: ValidationContext) -> None:
+        super().validate_column(column, context)
+
+        if not isinstance(column, Sequence):
+            context.error(f"expected a sequence of ndarrays, got a value of type {type(column)}")
+        else:
+            for i, value in enumerate(column):
+                if not isinstance(value, np.ndarray):
+                    context.error(f"expected {self._nd_type} at index {i}, got a value of type {type(value)}")
+                elif not (value.ndim == self.ndims and (value.dtype == np.floating or value.dtype == np.integer)):
+                    context.error(f"expected {self._nd_type} at index {i}, got ndarray[{value.ndim}d, {value.dtype}]")
+
+    @property
+    def _nd_type(self) -> str:
+        return f"ndarray[{self.ndims}d, floating | integer]"
 
 #-----------------------------------------------------------------------------
 # Dev API

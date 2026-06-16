@@ -238,6 +238,10 @@ NON_MATCHING_SCALE_BAR_UNIT = Error(
     1031,
     "NON_MATCHING_SCALE_BAR_UNIT",
     "ScaleBar.unit must be an element of ScaleBar's units of measurement basis")
+BAD_COLUMN_DATA = Error(
+    1032,
+    "BAD_COLUMN_DATA",
+    "ColumnDataSource contains invalid data for Glyph")
 EXT = Error(
     9999,
     "EXT",

@@ -23,6 +23,7 @@ from typing import Any, NoReturn
 
 # Bokeh imports
 from .bases import Property, Undefined
+from .exceptions import ValueValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,7 +44,7 @@ class Nothing(Property[NoReturn]):
         super().__init__(default=Undefined, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
-        raise ValueError("no value is allowed")
+        raise ValueValidationError("no value is allowed")
 
 
 #-----------------------------------------------------------------------------

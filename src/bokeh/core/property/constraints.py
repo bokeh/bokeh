@@ -31,6 +31,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
+from .exceptions import ValueValidationError
 from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
@@ -88,12 +89,12 @@ class TypeOfAttr(SingleParameterizedProperty[T]):
         try:
             attr = getattr(value, name)
         except AttributeError:
-            raise ValueError(f"expected {value!r} to have an attribute '{name}'" if detail else "")
+            raise ValueValidationError(f"expected {value!r} to have an attribute '{name}'" if detail else "")
 
         if type.is_valid(attr):
             return
 
-        raise ValueError(f"expected {value!r} to have an attribute {name!r} of type {type}" if detail else "")
+        raise ValueValidationError(f"expected {value!r} to have an attribute {name!r} of type {type}" if detail else "")
 
 #-----------------------------------------------------------------------------
 # Dev API

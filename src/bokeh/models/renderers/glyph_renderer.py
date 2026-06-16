@@ -21,20 +21,31 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from difflib import get_close_matches
-from typing import TYPE_CHECKING, Any, Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    cast,
+)
 
 # Bokeh imports
-from bokeh.core.property.vectorization import Field
+from bokeh.core.property.vectorization import Field, Value
 
 # Bokeh imports
 from ...core.property.auto import Auto
+from ...core.property.dataspec import ValidationContext
 from ...core.property.either import Either
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.nullable import Nullable
 from ...core.property.primitive import Bool
 from ...core.property.required import Required
 from ...core.validation import error
-from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
+from ...core.validation.errors import (
+    BAD_COLUMN_DATA,
+    BAD_COLUMN_NAME,
+    CDSVIEW_FILTERS_WITH_CONNECTED,
+)
+from ...settings import settings
 from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
 from ..graphics import Decoration, Marking
@@ -99,6 +110,38 @@ class GlyphRenderer(DataRenderer):
 
         if missing:
             return f"{', '.join(missing)} {{renderer: {self}}}"
+
+    @error(BAD_COLUMN_DATA)
+    def _check_bad_column_type(self):
+        if not settings.validate_data():
+            return
+
+        source = self.data_source
+        glyph = cast(Glyph, self.glyph) # XXX bad types
+
+        if not isinstance(source, ColumnDataSource) or isinstance(source, WebDataSource):
+            return
+
+        props = glyph.properties_with_values(include_defaults=False)
+        specs = glyph.dataspecs()
+
+        for name, spec in specs.items():
+            if name not in props:
+                continue
+
+            obj = props[name]
+            if isinstance(obj, Field):
+                field = obj.field
+                if field in source.data:
+                    column = source.data[field]
+                    ctx = ValidationContext()
+                    spec.validate_column(column, ctx)
+                    if ctx.has_failure:
+                        return "\n" + "\n".join(map(lambda entry: entry.text, ctx.entries))
+            elif isinstance(obj, Value):
+                # TODO validate scalar value
+                # value = obj.value
+                pass
 
     data_source = Required(Instance(DataSource), help="""
     Local data source to use when rendering glyphs on the plot.

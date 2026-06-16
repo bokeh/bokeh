@@ -131,6 +131,7 @@ DataSpec Properties
 .. autoclass:: FloatSpec
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
+.. autoclass:: NDArraySpec
 .. autoclass:: NumberSpec
 .. autoclass:: SizeSpec
 .. autoclass:: StringSpec
@@ -255,6 +256,7 @@ __all__ = (
     'MarkerType',
     'MathString',
     'MinMaxBounds',
+    'NDArraySpec',
     'NonEmpty',
     'NonNegative',
     'NotSerialized',
@@ -346,6 +348,7 @@ from .property.dataspec import IntSpec
 from .property.dataspec import LineCapSpec
 from .property.dataspec import LineJoinSpec
 from .property.dataspec import MarkerSpec
+from .property.dataspec import NDArraySpec
 from .property.dataspec import NullDistanceSpec
 from .property.dataspec import NullStringSpec
 from .property.dataspec import NumberSpec

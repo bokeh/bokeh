@@ -843,6 +843,12 @@ class Settings:
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
+    validate_data: PrioritizedSetting[bool] = PrioritizedSetting("validate_data", "BOKEH_VALIDATE_DATA", default=False, help="""
+    Whether the contents of ``ColumnDataSource`` will be validated or not.
+
+    This is an experimental feature and may result in significant performance reduction.
+    """)
+
     validation_level: PrioritizedSetting[ValidationLevel] = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL",
         default="none", convert=convert_validation, help="""
     Whether validation checks should log or raise exceptions on errors and warnings.

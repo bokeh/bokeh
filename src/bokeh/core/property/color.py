@@ -31,6 +31,7 @@ from .bases import Init, Property
 from .container import Tuple
 from .either import Either
 from .enum import Enum
+from .exceptions import ValueValidationError
 from .numeric import Byte, Percent
 from .primitive import Int
 from .singletons import Undefined
@@ -82,7 +83,7 @@ class RGB(Property[colors.RGB]):
             return
 
         msg = "" if not detail else f"expected RGB value, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 
 class Color(Either):
@@ -131,9 +132,9 @@ class Color(Either):
 
             >>> m.prop = (100, 100, 255, 0.5)
 
-            >>> m.prop = "junk"              # ValueError !!
+            >>> m.prop = "junk"              # ValueValidationError !!
 
-            >>> m.prop = (100.2, 57.3, 10.2) # ValueError !!
+            >>> m.prop = (100.2, 57.3, 10.2) # ValueValidationError !!
 
     """
 

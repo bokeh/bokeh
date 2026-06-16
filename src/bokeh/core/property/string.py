@@ -28,6 +28,7 @@ from typing import Any
 
 # Bokeh imports
 from .bases import Init
+from .exceptions import ValueValidationError
 from .primitive import String
 from .singletons import Undefined
 
@@ -66,9 +67,9 @@ class Regex(String):
 
             >>> m.prop = "foo123bar"
 
-            >>> m.prop = "foo"      # ValueError !!
+            >>> m.prop = "foo"      # ValueValidationError !!
 
-            >>> m.prop = [1, 2, 3]  # ValueError !!
+            >>> m.prop = [1, 2, 3]  # ValueValidationError !!
 
     """
 
@@ -87,7 +88,7 @@ class Regex(String):
             return
 
         msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"
-        raise ValueError(msg)
+        raise ValueValidationError(msg)
 
 class MathString(String):
     """ A string with math TeX/LaTeX delimiters.
