@@ -201,28 +201,28 @@ describe("Document", () => {
   it("tracks all_models", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
     const m = new SomeModel()
     const m2 = new AnotherModel()
     m.child = m2
     expect(m.child).to.be.equal(m2)
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     m.child = null
-    expect(d.all_models.size).to.be.equal(3)
-    m.child = m2
     expect(d.all_models.size).to.be.equal(4)
+    m.child = m2
+    expect(d.all_models.size).to.be.equal(5)
     d.remove_root(m)
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
   })
 
   it("tracks all_models with list property", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
     const m = new SomeModelWithChildren()
     const m2 = new AnotherModel()
     m.children = [m2]
@@ -230,26 +230,26 @@ describe("Document", () => {
     // check that we get the right all_models on initial add_root
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     // check that removing children list drops the models beneath it
     m.children = []
-    expect(d.all_models.size).to.be.equal(3)
+    expect(d.all_models.size).to.be.equal(4)
 
     // check that adding children back re-adds the models
     m.children = [m2]
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     // check that removing root removes the models
     d.remove_root(m)
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
   })
 
   it("tracks all_models with list property where list elements have a child", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
     const m = new SomeModelWithChildren()
     const m3 = new AnotherModel()
     const m2 = new SomeModel({child: m3})
@@ -259,20 +259,20 @@ describe("Document", () => {
     // check that we get the right all_models on initial add_root
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     // check that removing children list drops the models beneath it
     m.children = []
-    expect(d.all_models.size).to.be.equal(3)
+    expect(d.all_models.size).to.be.equal(4)
 
     // check that adding children back re-adds the models
     m.children = [m2]
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     // check that removing root removes the models
     d.remove_root(m)
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
   })
 
   it("lets us get_model_by_id", () => {
@@ -322,7 +322,7 @@ describe("Document", () => {
   it("can have all_models with multiple references", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModel()
     const root2 = new SomeModel()
@@ -332,31 +332,31 @@ describe("Document", () => {
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.be.equal(2)
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root1.child = null
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root2.child = null
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     root1.child = child1
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root2.child = child1
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     d.remove_root(root1)
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     d.remove_root(root2)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
   })
 
   it("can have all_models with cycles", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModel()
     const root2 = new SomeModel()
@@ -367,22 +367,22 @@ describe("Document", () => {
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.be.equal(2)
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root1.child = null
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root2.child = null
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     root1.child = child1
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
   })
 
   it("can have all_models with cycles through lists", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModelWithChildren()
     const root2 = new SomeModelWithChildren()
@@ -393,16 +393,16 @@ describe("Document", () => {
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.be.equal(2)
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root1.children = []
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
 
     root2.children = []
-    expect(d.all_models.size).to.be.equal(4)
+    expect(d.all_models.size).to.be.equal(5)
 
     root1.children = [child1]
-    expect(d.all_models.size).to.be.equal(5)
+    expect(d.all_models.size).to.be.equal(6)
   })
 
   it("can notify on ready", () => {
@@ -725,7 +725,7 @@ describe("Document", () => {
   it("can patch an integer property", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModel({foo: 42})
     const root2 = new SomeModel({foo: 43})
@@ -752,7 +752,7 @@ describe("Document", () => {
   it("can patch a reference property", () => {
     const d = new Document({recompute_timeout: NaN})
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModel({foo: 42})
     const root2 = new SomeModel({foo: 43})
@@ -802,7 +802,7 @@ describe("Document", () => {
   it("can patch two properties at once", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModel({foo: 42})
     const child1 = new SomeModel({foo: 43})
@@ -826,7 +826,7 @@ describe("Document", () => {
   it("sets proper document on models added during patching", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new SomeModel({foo: 42})
     const child1 = new SomeModel({foo: 44})
@@ -852,7 +852,7 @@ describe("Document", () => {
   it("sets proper document on models added during construction", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
-    expect(d.all_models.size).to.be.equal(2)
+    expect(d.all_models.size).to.be.equal(3)
 
     const root1 = new ModelWithConstructTimeChanges()
     // change it so it doesn't match what initialize() does

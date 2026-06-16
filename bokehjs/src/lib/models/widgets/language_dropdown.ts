@@ -15,7 +15,10 @@ export class LanguageDropdownView extends DropdownView {
     this.model.on_event(MenuItemClick, async (event) => await this._set_language(event.item))
     const {document} = this.model
     if (document != null) {
-      this.connect(document.config.i18n.change_config, () => { this.render() })
+      this.connect(document.config.i18n.change_config, async () => {
+        this.render()
+        await document.config.i18n.set_locale(document.config.i18n.get_locale(), true)
+      })
     }
   }
 
@@ -50,7 +53,7 @@ export class LanguageDropdownView extends DropdownView {
     this.model.label = lang.toUpperCase()
     const {document} = this.model
     if (document != null) {
-      await document.config.i18n.set_locale(lang)
+      await document.config.i18n.set_locale(lang, false)
     }
   }
 
@@ -74,13 +77,7 @@ export class LanguageDropdownView extends DropdownView {
 export namespace LanguageDropdown {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Dropdown.Props & {
-    locales_codes: p.Property<string[] | null>
-    translations: p.Property<string | null>
-    languages: p.Property<[string, string][] | null>
-    source_language: p.Property<string | null>
-    auto_t_enabled: p.Property<boolean | null>
-  }
+  export type Props = Dropdown.Props
 }
 
 export interface LanguageDropdown extends LanguageDropdown.Attrs {}
@@ -95,14 +92,6 @@ export class LanguageDropdown extends Dropdown {
 
   static {
     this.prototype.default_view = LanguageDropdownView
-
-    this.define<LanguageDropdown.Props>(({Bool, Str, List, Tuple, Nullable}) => ({
-      locales_codes: [ Nullable(List(Str)), null ],
-      translations: [ Nullable(Str), null ],
-      languages: [ Nullable(List(Tuple(Str, Str))), null ],
-      source_language: [ Nullable(Str), null ],
-      auto_t_enabled: [ Nullable(Bool), null ],
-    }))
 
     this.override<LanguageDropdown.Props>({
       label: "",

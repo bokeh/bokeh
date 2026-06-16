@@ -225,16 +225,6 @@ class LanguageDropdown(Dropdown):
 
     button_type = Override(default="default")
 
-    locales_codes = Nullable(List(String))
-
-    translations = Nullable(String)
-
-    languages = Nullable(List(Tuple(String, String)))
-
-    source_language = Nullable(String)
-
-    auto_t_enabled = Nullable(Bool)
-
 
 class HelpButton(AbstractButton):
     """ A button with a help symbol that displays additional text when hovered

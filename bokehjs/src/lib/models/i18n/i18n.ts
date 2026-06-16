@@ -3,10 +3,10 @@
 // * i18next
 // * loc-i18next
 // For the moment, to explore LanguageDropdown, basic mock implementation created here that also explores the Chrome Translator API
-import type {PlainObject} from "./types"
-import {isString} from "./util/types"
+import type {PlainObject} from "core/types"
+import {isString} from "core/util/types"
 import {Signal0} from "core/signaling"
-import {Model} from "../model"
+import {Model} from "../../model"
 import type * as p from "core/properties"
 
 export namespace I18n {
@@ -60,10 +60,10 @@ export class I18n extends Model {
     return current_locale
   }
 
-  async set_locale(locale: string): Promise<void> {
+  async set_locale(locale: string, force: boolean): Promise<void> {
     if (this.locales_codes.includes(locale)) {
       document.documentElement.setAttribute("lang", locale)
-      if (localStorage.getItem("lang") !== locale) {
+      if (localStorage.getItem("lang") !== locale || force) {
         localStorage.setItem("lang", locale)
         const translator_availability = await this._init_translator()
         const download_translator = ["downloadable", "downloading"]

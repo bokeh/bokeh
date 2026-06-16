@@ -1,7 +1,7 @@
 import {Model} from "../model"
 import {Notifications} from "models/ui/notifications"
 import {ColorScheme} from "core/enums"
-import {I18n} from "core/i18n"
+import {I18n} from "../models/i18n"
 import type * as p from "core/properties"
 
 export namespace DocumentConfig {
