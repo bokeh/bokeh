@@ -474,6 +474,21 @@ class PanTool(Drag):
     height of the plot.
     """)
 
+    pan_together = Enum("none", "cross", "all", default="all", help="""
+    Defines the behavior of the tool when panning on an axis:
+
+    - ``"none"``
+        pan only the axis that's being interacted with. Any cross
+        axes nor any other axes in the dimension of this axis will be affected.
+    - ``"cross"``
+        pan the axis that's being interacted with and its cross
+        axis, if configured. No other axes in this or cross dimension will be
+        affected.
+    - ``"all"``
+        pan all axes in the dimension of the axis that's being
+        interacted with. All cross axes will be unaffected.
+    """)
+
 class ClickPanTool(PlotActionTool):
     ''' A tool that allows to pan a plot by a fixed amount by clicking a button.
 

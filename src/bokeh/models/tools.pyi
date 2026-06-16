@@ -213,11 +213,13 @@ class ToolMenu(Menu):
 
 class _PanToolInit(_DragInit, total=False):
     dimensions: Dimensions
+    pan_together: Literal["none", "cross", "all"]
 
 class PanTool(Drag):
     def __init__(self, **kwargs: Unpack[_PanToolInit]) -> None: ...
 
     dimensions: Dimensions = ...
+    pan_together: Literal["none", "cross", "all"] = ...
 
 class _ClickPanToolInit(_PlotActionToolInit, total=False):
     direction: PanDirection

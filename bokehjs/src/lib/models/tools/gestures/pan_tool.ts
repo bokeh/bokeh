@@ -10,6 +10,10 @@ import {Dimensions} from "core/enums"
 import type {SXY} from "core/util/bbox"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
+import {Enum} from "core/kinds"
+
+const PanTogether = Enum("none", "cross", "all")
+type PanTogether = typeof PanTogether["__type__"]
 
 export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): RangeState {
   const r: RangeState = new Map()
@@ -28,7 +32,12 @@ export class PanToolView extends GestureToolView {
     sdy: number
   }
 
-  protected state: {last_dx: number, last_dy: number, dims: Dimensions} | null = null
+  protected state: {
+    last_dx: number
+    last_dy: number
+    dims: Dimensions
+    axis_coords?: {x_scale: Scale, y_scale: Scale}
+  } | null = null
 
   override cursor(sx: number, sy: number): string | null {
     if (this.state != null) {
@@ -42,7 +51,7 @@ export class PanToolView extends GestureToolView {
     return super.cursor(sx, sy)
   }
 
-  protected _interactive_dims({sx, sy}: SXY): Dimensions | null {
+  protected _interactive_dims({sx, sy}: SXY): {dims: Dimensions, axis_coords?: {x_scale: Scale, y_scale: Scale}} | null {
     const {dimensions} = this.model
     const {plot_view} = this
     const axis_view = plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
@@ -50,19 +59,21 @@ export class PanToolView extends GestureToolView {
       switch (axis_view.dimension) {
         case 0: {
           if (dimensions == "width" || dimensions == "both") {
-            return "width"
+            const {x_scale, y_scale} = axis_view.coordinates
+            return {dims: "width", axis_coords: {x_scale, y_scale}}
           }
           break
         }
         case 1: {
           if (dimensions == "height" || dimensions == "both") {
-            return "height"
+            const {x_scale, y_scale} = axis_view.coordinates
+            return {dims: "height", axis_coords: {x_scale, y_scale}}
           }
           break
         }
       }
     } else if (plot_view.frame.bbox.contains(sx, sy)) {
-      return "both"
+      return {dims: "both"}
     }
 
     return null
@@ -72,9 +83,10 @@ export class PanToolView extends GestureToolView {
     assert(this.state == null)
 
     const {sx, sy} = ev
-    const dims = this._interactive_dims({sx, sy})
-    if (dims != null) {
-      this.state = {last_dx: 0, last_dy: 0, dims}
+    const result = this._interactive_dims({sx, sy})
+    if (result != null) {
+      const {dims, axis_coords} = result
+      this.state = {last_dx: 0, last_dy: 0, dims, axis_coords}
       this.model.document?.interactive_start(this.plot_view.model)
     }
   }
@@ -118,31 +130,74 @@ export class PanToolView extends GestureToolView {
     const dims = this.model.dimensions
     const {x_scales, y_scales} = frame
 
-    const x_axis_only = state.dims == "width"
-    const y_axis_only = state.dims == "height"
-
-    // Here we are a bit careful to only update the range info for dimensions that
-    // are "in play". This is to avoid superfluous noise updates to dataranges that
-    // would cause windowed auto-ranging to turn off.
-
     let sdx: number
     let xrs: RangeState
-    if ((dims == "width" || dims == "both") && !y_axis_only) {
-      sdx = -new_dx
-      xrs = update_ranges(x_scales, sx_low, sx_high)
-    } else {
-      sdx = 0
-      xrs = new Map()
-    }
-
     let sdy: number
     let yrs: RangeState
-    if ((dims == "height" || dims == "both") && !x_axis_only) {
-      sdy = -new_dy
-      yrs = update_ranges(y_scales, sy_low, sy_high)
+
+    const {axis_coords} = state
+    if (axis_coords == null) {
+      // Gesture started inside the plot frame: pan all axes as constrained by `dims`.
+      // Here we are a bit careful to only update the range info for dimensions that
+      // are "in play". This is to avoid superfluous noise updates to dataranges that
+      // would cause windowed auto-ranging to turn off.
+      if (dims == "width" || dims == "both") {
+        sdx = -new_dx
+        xrs = update_ranges(x_scales, sx_low, sx_high)
+      } else {
+        sdx = 0
+        xrs = new Map()
+      }
+      if (dims == "height" || dims == "both") {
+        sdy = -new_dy
+        yrs = update_ranges(y_scales, sy_low, sy_high)
+      } else {
+        sdy = 0
+        yrs = new Map()
+      }
     } else {
-      sdy = 0
-      yrs = new Map()
+      // Gesture started on an axis: apply pan_together to select which scales move.
+      const {pan_together} = this.model
+      const {x_scale, y_scale} = axis_coords
+      const x_axis_only = state.dims == "width"
+
+      if (pan_together == "all") {
+        // Pan all axes in the same dimension as the interacted axis only.
+        if (x_axis_only) {
+          sdx = -new_dx
+          xrs = update_ranges(x_scales, sx_low, sx_high)
+          sdy = 0
+          yrs = new Map()
+        } else {
+          sdx = 0
+          xrs = new Map()
+          sdy = -new_dy
+          yrs = update_ranges(y_scales, sy_low, sy_high)
+        }
+      } else if (pan_together == "cross") {
+        // Pan only the interacted axis and its cross axis.
+        sdx = -new_dx
+        xrs = update_ranges(new Map([["x", x_scale]]), sx_low, sx_high)
+        sdy = -new_dy
+        yrs = update_ranges(new Map([["y", y_scale]]), sy_low, sy_high)
+      } else {
+        // "none": pan only the specific interacted axis.
+        if (x_axis_only) {
+          sdx = -new_dx
+          xrs = update_ranges(new Map([["x", x_scale]]), sx_low, sx_high)
+          sdy = 0
+          yrs = new Map()
+        } else {
+          sdx = 0
+          xrs = new Map()
+          sdy = -new_dy
+          yrs = update_ranges(new Map([["y", y_scale]]), sy_low, sy_high)
+        }
+      }
+
+      // Respect the model-level `dimensions` constraint even on axis gestures.
+      if (dims == "height") { sdx = 0; xrs = new Map() }
+      if (dims == "width")  { sdy = 0; yrs = new Map() }
     }
 
     state.last_dx = dx
@@ -158,6 +213,7 @@ export namespace PanTool {
 
   export type Props = GestureTool.Props & {
     dimensions: p.Property<Dimensions>
+    pan_together: p.Property<PanTogether>
   }
 }
 
@@ -175,7 +231,8 @@ export class PanTool extends GestureTool {
     this.prototype.default_view = PanToolView
 
     this.define<PanTool.Props>(() => ({
-      dimensions: [ Dimensions, "both" ],
+      dimensions:   [ Dimensions,   "both" ],
+      pan_together: [ PanTogether,  "all"  ],
     }))
 
     this.register_alias("pan", () => new PanTool({dimensions: "both"}))
