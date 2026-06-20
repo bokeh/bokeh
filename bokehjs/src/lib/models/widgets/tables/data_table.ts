@@ -244,10 +244,8 @@ export class DataTableView extends WidgetView {
       this.grid.autosizeColumns()
     } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport) {
       this.grid.autosizeColumns()
-
       const old_width = this._width
       this._calculate_width()
-
       if (old_width !== this._width) {
         this.invalidate_layout()
       }
