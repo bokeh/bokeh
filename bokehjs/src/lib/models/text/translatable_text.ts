@@ -6,6 +6,7 @@ import type * as p from "core/properties"
 export class TranslatableTextView extends BaseTextView {
   declare model: TranslatableText
   declare translated_text: string
+  declare text_box: TextBox
 
   override connect_signals(): void {
     super.connect_signals()
@@ -35,11 +36,12 @@ export class TranslatableTextView extends BaseTextView {
 
   override initialize(): void {
     super.initialize()
+    this.text_box = new TextBox({text: this.model.text})
     this._has_finished = true
   }
 
   graphics(): GraphicsBox {
-    return new TextBox({text: this.translated_text})
+    return this.text_box
   }
 
   protected async _build_text(): Promise<void> {
@@ -52,6 +54,8 @@ export class TranslatableTextView extends BaseTextView {
     } else {
       this.translated_text = this.model.text
     }
+
+    this.text_box.text = this.translated_text
   }
 }
 

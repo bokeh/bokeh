@@ -12,7 +12,6 @@ import {enumerate} from "core/util/iterator"
 import type {Rect} from "core/util/affine"
 import {rotate_around, AffineTransform} from "core/util/affine"
 import type {GraphicsBox} from "core/graphics"
-//import {TextBox} from "core/graphics"
 import type {TextAnchor} from "../common/kinds"
 import {BorderRadius, Padding} from "../common/kinds"
 import * as resolve from "../common/resolve"
@@ -20,7 +19,7 @@ import {round_rect} from "../common/painting"
 import type {VectorVisuals} from "./defs"
 import {sqrt, PI} from "core/util/math"
 import type {OutlineShapeName} from "core/enums"
-import {TranslatableText, TranslatableTextView} from "../text"
+import {TranslatableText} from "../text" //TranslatableTextView
 import {build_view} from "core/build_views"
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
@@ -32,15 +31,15 @@ export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
 
-  protected async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | TranslatableTextView | null)[]> {
+  protected async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {
     const labels = []
-    for await (const value of text) {
+    for (const value of text) {
       if (value == null) {
         labels.push(null)
       } else {
         const text = `${value}` // TODO: guarantee correct types earlier
         const translatable_view = await build_view(new TranslatableText({text}), {parent: this.parent})
-        labels.push(translatable_view)
+        labels.push(translatable_view.graphics())
       }
     }
     return labels
@@ -83,21 +82,12 @@ export class TextView extends XYGlyphView {
     this.swidth = new Float32Array(n)
     this.sheight = new Float32Array(n)
 
-    this.set_graphics_labels()
-  }
-
-  protected set_graphics_labels(): void {
     const {left, right, top, bottom} = this.padding
-    const graphics_labels = []
-    for (let [label, i] of enumerate(this.labels)) {
+    for (const [label, i] of enumerate(this.labels)) {
       if (label == null) {
-        graphics_labels.push(null)
         continue
       }
 
-      if (label instanceof TranslatableTextView) {
-        label = label.graphics()
-      }
       label.visuals = this.visuals.text.values(i)
       label.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
       label.align = "auto"
@@ -108,24 +98,20 @@ export class TextView extends XYGlyphView {
 
       this.swidth[i] = width
       this.sheight[i] = height
-
-      graphics_labels.push(label)
     }
-    this._define_attr<Text.Data>("graphics_labels", graphics_labels)
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Text.Data>): void {
-    this.set_graphics_labels()
     const {sx, sy, x_offset, y_offset, angle, outline_shape} = {...this, ...data}
     const {text, background_fill, background_hatch, border_line} = this.visuals
     const {anchor_: anchor, border_radius, padding} = this
-    const {graphics_labels, swidth, sheight} = this
+    const {labels, swidth, sheight} = this
 
     for (const i of indices) {
       const sx_i = sx[i] + x_offset.get(i)
       const sy_i = sy[i] + y_offset.get(i)
       const angle_i = angle.get(i)
-      const label_i = graphics_labels[i]
+      const label_i = labels[i]
       const shape_i = outline_shape.get(i)
 
       if (!isFinite(sx_i + sy_i + angle_i) || label_i == null) {
@@ -382,8 +368,7 @@ export namespace Text {
   }
 
   export type Data = p.GlyphDataOf<Props> & {
-    readonly labels: (GraphicsBox | TranslatableTextView | null)[]
-    readonly graphics_labels: (GraphicsBox | null)[]
+    readonly labels: (GraphicsBox | null)[]
 
     swidth: Float32Array
     sheight: Float32Array
