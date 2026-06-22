@@ -90,6 +90,7 @@ export class BasicTickFormatter extends TickFormatter {
       if (need_sci) {
         labels[0] = ticks[0].toExponential(x)
         for (let i = 1; i < ticks.length; i++) {
+          labels[i] = ticks[i].toExponential(x)
           if (labels[i] == labels[i-1]) {
             continue outer
           }
