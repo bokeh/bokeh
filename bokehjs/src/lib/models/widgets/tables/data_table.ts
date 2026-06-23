@@ -195,11 +195,12 @@ export class DataTableView extends WidgetView {
       this.connect(column.change, () => this.rerender())
     }
 
-    // changes to the source trigger the callback below via
-    // compute_indices hooks in cds view
     // TODO reevaluate the control flow when taking a general look at events
     this.connect(this.model.view.change, () => this.updateGrid())
-
+    this.connect(this.model.source.change, () => this.updateGrid())
+    this.connect(this.model.source.streaming, () => this.updateGrid())
+    this.connect(this.model.source.patching, () => this.updateGrid())
+    this.connect(this.model.source.properties.data.change, () => this.updateGrid())
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
