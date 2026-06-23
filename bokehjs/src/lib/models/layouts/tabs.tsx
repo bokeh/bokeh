@@ -1,46 +1,49 @@
-import type {ViewStorage} from "core/build_views"
+import type {ViewStorage, ViewOf} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
-import {div, show, hide, empty} from "core/dom"
 import {remove_at} from "core/util/array"
+import {isString} from "core/util/types"
 import {Container} from "core/layout/grid"
 import {Location} from "core/enums"
 import type * as p from "core/properties"
+import {UIComponent, cls} from "core/vdom"
+import type {VNode} from "core/vdom"
 
 import type {FullDisplay} from "./layout_dom"
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
 import {GridAlignmentLayout} from "./alignments"
 import type {UIElement} from "../ui/ui_element"
-import type {Tooltip} from "../ui/tooltip"
+import {Tooltip} from "../ui/tooltip"
+import {HTML} from "../dom/html"
+import {Model} from "model"
 
 import tabs_css, * as tabs from "styles/tabs.css"
 import icons_css from "styles/icons.css"
 
 export class TabsView extends LayoutDOMView {
-  declare model: Tabs
+  declare readonly model: Tabs
+  declare readonly signals: p.SignalsOf<Tabs.Props>
+  declare readonly values: Tabs.Attrs
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
-  protected header_el: HTMLElement
-  headers_wrapper_el: HTMLElement
-  header_els: HTMLElement[]
 
   override connect_signals(): void {
     super.connect_signals()
-    const {tabs, active} = this.model.properties
+    /*
+    const {tabs} = this.model.properties
     this.on_change(tabs, async () => {
-      this._update_headers()
       await this.update_children()
     })
-    this.on_change(active, () => {
-      this.update_active()
-    })
+    */
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const {tabs} = this.model
-    const tooltips = tabs.map((tab) => tab.tooltip).filter((tt) => tt != null)
+    const tooltips = tabs.map((tab) => tab.tooltip).filter((tt) => tt instanceof Model).map((tt) => {
+      return tt instanceof HTML ? new Tooltip({content: tt, position: "bottom_center" /* TODO "auto" */}) : tt
+    })
     await build_views(this.tooltip_views, tooltips, {parent: this})
   }
 
@@ -58,10 +61,6 @@ export class TabsView extends LayoutDOMView {
 
   override _update_layout(): void {
     super._update_layout()
-
-    const loc = this.model.tabs_location
-    this.class_list.remove([...Location].map((loc) => tabs[loc]))
-    this.class_list.add(tabs[loc])
 
     for (const view of this.child_views) {
       view.parent_style.append(":host", {grid_area: "stack"})
@@ -87,104 +86,86 @@ export class TabsView extends LayoutDOMView {
     }
   }
 
-  override _after_layout(): void {
-    super._after_layout()
-    this.update_active()
-  }
+  override component(): VNode {
+    const {active, disabled, tabs_location} = this.values
+    const location_cls = tabs[tabs_location]
 
-  override render(): void {
-    super.render()
+    const header_els = this.model.tabs.map((tab, i) => {
+      const is_active = i == active
+      const active_cls = is_active ? tabs.active : null
 
-    this.header_el = div({class: tabs.header})
-    this.headers_wrapper_el = div({class: tabs.headers_wrapper})
-    this.header_el.append(this.headers_wrapper_el)
-    this.shadow_el.append(this.header_el)
-    this._update_headers()
-  }
+      const is_disabled = disabled || tab.properties.disabled.signal.value
+      const disabled_cls = is_disabled ? tabs.disabled : null
 
-  protected _update_headers(): void {
-    const {active} = this.model
+      const close_el = (() => {
+        if (tab.properties.closable.signal.value) {
+          const on_close = (event: MouseEvent) => {
+            if (event.target == event.currentTarget) {
+              this.model.tabs = remove_at(this.model.tabs, i)
 
-    const headers = this.model.tabs.map((tab, i) => {
-      const tab_el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: 0}, tab.title)
-      tab_el.addEventListener("click", (event) => {
-        if (this.model.disabled) {
-          return
-        }
-        if (event.target == event.currentTarget) {
-          this.change_active(i)
-        }
-      })
-
-      const tooltip_view = tab.tooltip != null ? this.tooltip_views.get(tab.tooltip) : null
-      if (tooltip_view != null) {
-        tooltip_view.model.target = tab_el
-
-        const toggle_tooltip = (visible: boolean) => {
-          tooltip_view.model.visible = visible
-        }
-
-        tab_el.addEventListener("mouseenter", () => {
-          toggle_tooltip(true)
-        })
-        tab_el.addEventListener("mouseleave", () => {
-          toggle_tooltip(false)
-        })
-      }
-
-      if (tab.closable) {
-        const close_el = div({class: tabs.close})
-        close_el.addEventListener("click", (event) => {
-          if (event.target == event.currentTarget) {
-            this.model.tabs = remove_at(this.model.tabs, i)
-
-            const ntabs = this.model.tabs.length
-            if (this.model.active > ntabs - 1) {
-              this.model.active = ntabs - 1
+              const ntabs = this.model.tabs.length
+              if (this.model.active > ntabs - 1) {
+                this.model.active = ntabs - 1
+              }
             }
           }
-        })
-        tab_el.appendChild(close_el)
+          return <div class={tabs.close} onClick={on_close}></div>
+        } else {
+          return null
+        }
+      })()
+
+      const tooltip = tab.properties.tooltip.signal.value
+      let description: string | undefined
+      let tooltip_view: ViewOf<Tooltip> | undefined
+      if (isString(tooltip)) {
+        description = tooltip
+      } else if (tooltip instanceof Tooltip) {
+        tooltip_view = this.tooltip_views.get(tooltip)
+      } else if (tooltip instanceof HTML) {
+        for (const [tt, tv] of this.tooltip_views.entries()) {
+          if (tt.content === tooltip) {
+            tooltip_view = tv
+            break
+          }
+        }
       }
 
-      if (this.model.disabled || tab.disabled) {
-        tab_el.classList.add(tabs.disabled)
+      const toggle_tooltip = (visible: boolean) => {
+        if (tooltip_view != null) {
+          tooltip_view.model.visible = visible
+        }
       }
 
-      return tab_el
+      const set_target = (el: HTMLElement | null) => {
+        if (el != null && tooltip_view != null) {
+          tooltip_view.model.target = el
+        }
+      }
+
+      return <div
+        class={cls(tabs.tab, active_cls, disabled_cls)}
+        tabIndex={0}
+        title={description}
+        onClick={() => this.model.active = i}
+        onMouseEnter={() => toggle_tooltip(true)}
+        onMouseLeave={() => toggle_tooltip(false)}
+        ref={set_target}
+      >
+        {tab.title}
+        {close_el}
+      </div>
     })
 
-    this.header_els = headers
-    empty(this.headers_wrapper_el)
-    this.headers_wrapper_el.append(...headers)
-  }
-
-  change_active(i: number): void {
-    if (i != this.model.active) {
-      this.model.active = i
-    }
-  }
-
-  update_active(): void {
-    const i = this.model.active
-
-    const {header_els} = this
-    for (const el of header_els) {
-      el.classList.remove(tabs.active)
-    }
-
-    if (i in header_els) {
-      header_els[i].classList.add(tabs.active)
-    }
-
-    const {child_views} = this
-    for (const child_view of child_views) {
-      hide(child_view.el)
-    }
-
-    if (i in child_views) {
-      show(child_views[i].el)
-    }
+    return (
+      <UIComponent parent={this.resolved_props} class={location_cls}>
+        <div class={tabs.header}>
+          <div class={tabs.headers_wrapper}>
+            {header_els}
+          </div>
+        </div>
+      </UIComponent>
+    )
   }
 }
 

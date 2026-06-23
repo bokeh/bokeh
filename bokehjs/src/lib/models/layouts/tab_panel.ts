@@ -1,6 +1,7 @@
 import {Tooltip} from "models/ui/tooltip"
 import {Model} from "../../model"
 import {UIElement} from "../ui/ui_element"
+import {HTML} from "../dom/html"
 import type * as p from "core/properties"
 
 export namespace TabPanel {
@@ -8,7 +9,7 @@ export namespace TabPanel {
 
   export type Props = Model.Props & {
     title: p.Property<string>
-    tooltip: p.Property<Tooltip | null>
+    tooltip: p.Property<string | HTML | Tooltip | null>
     child: p.Property<UIElement>
     closable: p.Property<boolean>
     disabled: p.Property<boolean>
@@ -25,9 +26,9 @@ export class TabPanel extends Model {
   }
 
   static {
-    this.define<TabPanel.Props>(({Bool, Str, Ref, Nullable}) => ({
+    this.define<TabPanel.Props>(({Bool, Str, Ref, Nullable, Or}) => ({
       title:    [ Str, "" ],
-      tooltip:  [ Nullable(Ref(Tooltip)), null ],
+      tooltip:  [ Nullable(Or(Str, Ref(HTML), Ref(Tooltip))), null ],
       child:    [ Ref(UIElement) ],
       closable: [ Bool, false ],
       disabled: [ Bool, false ],
