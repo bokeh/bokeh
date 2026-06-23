@@ -5058,4 +5058,28 @@ describe("Bug", () => {
       await display(table, [200, 280])
     })
   })
+
+  describe("in issue #13859", () => {
+    it("doesn't show updates of ColumnDataSource in DataTable", async () => {
+      const source = new ColumnDataSource({
+        data: {x: ["init"]},
+      })
+
+      const columns = [
+        new TableColumn({field: "x", title: "x"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_columns",
+        width: 400,
+        height: 300,
+      })
+
+      const {view} = await display(table)
+      source.data = {x: ["a"]}
+      await view.ready
+    })
+  })
 })
