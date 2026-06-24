@@ -45,7 +45,7 @@ from ..settings import settings
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-DriverKind = Literal["firefox", "chromium"]
+type DriverKind = Literal["firefox", "chromium"]
 
 __all__ = (
     'webdriver_control',

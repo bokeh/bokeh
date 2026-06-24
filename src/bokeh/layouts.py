@@ -61,7 +61,7 @@ if TYPE_CHECKING:
     from .core.enums import LocationType, SizingModeType
     from .core.property.singletons import UndefinedType
 
-    ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
+    type ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
 
 #-----------------------------------------------------------------------------
 # Globals and constants

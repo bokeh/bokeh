@@ -293,7 +293,7 @@ def convert_logging(value: str | int) -> PyLogLevel:
 
     raise ValueError(f"Cannot convert {value} to log level, valid values are: {', '.join(_log_levels)}")
 
-ValidationLevel = Literal["none", "errors", "all"]
+type ValidationLevel = Literal["none", "errors", "all"]
 
 def convert_validation(value: str | ValidationLevel) -> ValidationLevel:
     '''Convert a string to a validation level

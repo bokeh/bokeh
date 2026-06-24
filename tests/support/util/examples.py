@@ -147,7 +147,7 @@ class Example:
     def store_img(self, img_data: str) -> None:
         _store_binary(self.img_path, b64decode(img_data))
 
-All = Literal["all"]
+type All = Literal["all"]
 
 def add_examples(
     list_of_examples: list[Example],

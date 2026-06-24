@@ -92,7 +92,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-NotebookType = Literal["jupyter", "zeppelin"]
+type NotebookType = Literal["jupyter", "zeppelin"]
 
 class CommsHandle:
     '''

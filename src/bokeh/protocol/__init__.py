@@ -56,7 +56,7 @@ __all__ = (
     'Protocol',
 )
 
-MessageType = Literal[
+type MessageType = Literal[
     "ACK",
     "ERROR",
     "OK",
