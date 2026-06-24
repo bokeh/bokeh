@@ -9,6 +9,14 @@ export abstract class BaseTextView extends View {
   declare readonly parent: RendererView
 
   abstract graphics(): GraphicsBox
+
+  abstract html(): Node
+
+  get is_empty(): boolean {
+    return this.model.text.length == 0
+  }
+
+  async fetch_assets?(): Promise<void>
 }
 
 export namespace BaseText {

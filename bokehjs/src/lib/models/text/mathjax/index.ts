@@ -3,6 +3,7 @@ import {TeX} from "mathjax-full/js/input/tex.js"
 import {MathML} from "mathjax-full/js/input/mathml"
 // import {AsciiMath} from "mathjax-full/js/input/asciimath"
 import {SVG} from "mathjax-full/js/output/svg.js"
+import {CHTML} from "mathjax-full/js/output/chtml.js"
 import {browserAdaptor} from "mathjax-full/js/adaptors/browserAdaptor"
 import {RegisterHTMLHandler} from "mathjax-full/js/handlers/html.js"
 import {AllPackages} from "mathjax-full/js/input/tex/AllPackages.js"
@@ -12,12 +13,19 @@ const adaptor = browserAdaptor()
 RegisterHTMLHandler(adaptor)
 
 const svg = new SVG({fontCache: "local"})
+const chtml = new CHTML()
 
 const defaults: MathJax.ConvertOptions = {
   display: true,
   em: 16,
   ex: 8,
   containerWidth: 80*16,
+}
+
+export function tex2html(formula: string, options?: MathJax.ConvertOptions, macros: MathJax.TeXMacros = {}): HTMLElement {
+  const tex = new TeX({packages: AllPackages, macros})
+  const tex_to_chtml = mathjax.document("", {InputJax: tex, OutputJax: chtml})
+  return tex_to_chtml.convert(formula, {...defaults, ...options})
 }
 
 export function tex2svg(formula: string, options?: MathJax.ConvertOptions, macros: MathJax.TeXMacros = {}): HTMLElement {

@@ -80,13 +80,13 @@ AutoAnchor: TypeAlias = Property[AutoAnchorType]
 TextAnchorType: TypeAlias = Anchor | Auto
 TextAnchor: TypeAlias = Property[TextAnchorType]
 
-BorderRadiusType: TypeAlias = Pixels | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+BorderRadiusType: TypeAlias = PixelsType | tuple[PixelsType, PixelsType, PixelsType, PixelsType] | Corners[PixelsType]
 BorderRadius: TypeAlias = Property[BorderRadiusType]
 
-PaddingType: TypeAlias = Pixels | tuple[Pixels, Pixels] | XY[Pixels] | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+PaddingType: TypeAlias = PixelsType | tuple[PixelsType, PixelsType] | XY[PixelsType] | tuple[PixelsType, PixelsType, PixelsType, PixelsType] | Corners[PixelsType]
 Padding: TypeAlias = Property[PaddingType]
 
-GridSpacingType: TypeAlias = Pixels | tuple[Pixels, Pixels]
+GridSpacingType: TypeAlias = PixelsType | tuple[PixelsType, PixelsType]
 GridSpacing: TypeAlias = Property[GridSpacingType]
 
 TrackAlignType: TypeAlias = Literal["start", "center", "end", "auto"]
