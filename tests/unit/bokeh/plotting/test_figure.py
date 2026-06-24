@@ -19,6 +19,9 @@ import pytest ; pytest
 # Standard library imports
 import re
 
+# External imports
+import numpy as np
+
 # Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
@@ -235,6 +238,27 @@ class Test_figure:
         p = bpf.figure()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
         p.scatter(x='x', y='y', source=df)
+
+    def test_vline_stack_accepts_numpy_stackers(self) -> None:
+        p = bpf.figure()
+        source = ColumnDataSource(dict(x=[1, 2], a=[1, 2], b=[3, 4]))
+
+        renderers = p.vline_stack(np.array(["a", "b"]), x="x", source=source)
+
+        assert len(renderers) == 2
+        assert [r.name for r in renderers] == ["a", "b"]
+        assert [list(r.glyph.y.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
+
+    def test_hline_stack_accepts_pandas_index_stackers(self) -> None:
+        pd = pytest.importorskip("pandas")
+        p = bpf.figure()
+        source = ColumnDataSource(dict(y=[1, 2], a=[1, 2], b=[3, 4]))
+
+        renderers = p.hline_stack(pd.Index(["a", "b"]), y="y", source=source)
+
+        assert len(renderers) == 2
+        assert [r.name for r in renderers] == ["a", "b"]
+        assert [list(r.glyph.x.expr.fields) for r in renderers] == [["a"], ["a", "b"]]
 
     def test_glyph_method_errors_on_sequence_literals_with_source(self) -> None:
         p = bpf.figure()

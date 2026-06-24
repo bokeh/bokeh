@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 # Standard library imports
+from collections.abc import Iterable, Mapping, Sized
 from typing import TYPE_CHECKING, Any, cast
 
 import logging # isort:skip
@@ -85,6 +86,13 @@ __all__ = (
     'figure',
     'markers',
 )
+
+def _stackers(stackers) -> bool:
+    return (
+        isinstance(stackers, Iterable)
+        and isinstance(stackers, Sized)
+        and not isinstance(stackers, (str, bytes, Mapping))
+    )
 
 #-----------------------------------------------------------------------------
 # General API
@@ -485,18 +493,18 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        if all(isinstance(val, (list, tuple)) for val in (x,y)):
+        if all(_stackers(val) for val in (x, y)):
             raise ValueError("Only one of x or y may be a list of stackers")
 
         result = []
 
-        if isinstance(y, (list, tuple)):
+        if _stackers(y):
             kw['x'] = x
             for kw in single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
-        if isinstance(x, (list, tuple)):
+        if _stackers(x):
             kw['y'] = y
             for kw in single_stack(x, "x", **kw):
                 result.append(self.line(**kw))
