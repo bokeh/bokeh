@@ -21,11 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    Any,
-    Callable,
-    cast,
-)
+from typing import Any, Callable, cast
 
 # Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType

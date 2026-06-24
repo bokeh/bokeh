@@ -7,11 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import (
-    Literal,
-    Sequence,
-    Unpack,
-)
+from typing import Literal, Sequence, Unpack
 
 # Bokeh imports
 from ..._specs import NullStringSpec

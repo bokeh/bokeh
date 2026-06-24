@@ -19,11 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    cast,
-)
+from typing import TYPE_CHECKING, Sequence, cast
 
 # External imports
 import numpy as np

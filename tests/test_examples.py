@@ -30,11 +30,7 @@ from os.path import (
     relpath,
 )
 from types import FrameType
-from typing import (
-    Iterator,
-    Literal,
-    NoReturn,
-)
+from typing import Iterator, Literal, NoReturn
 
 # External imports
 import _pytest.config

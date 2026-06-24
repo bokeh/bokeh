@@ -8,11 +8,7 @@
 # Standard library imports
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Sequence, TypeVar
 
 # External imports
 import numpy as np

@@ -19,11 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-)
+from typing import TYPE_CHECKING, Any, Literal
 
 # External imports
 import numpy as np
