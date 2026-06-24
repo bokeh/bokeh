@@ -1,7 +1,12 @@
 import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {shuffle} from "@bokehjs/core/util/array"
+import type {HTML} from "@bokehjs/models/dom/html"
+import {Plot} from "@bokehjs/models/plots"
+import {Range1d} from "@bokehjs/models/ranges"
 import {TileSource} from "@bokehjs/models/tiles/tile_source"
+import {TileRenderer} from "@bokehjs/models/tiles/tile_renderer"
 import {MercatorTileSource} from "@bokehjs/models/tiles/mercator_tile_source"
 import {TMSTileSource} from "@bokehjs/models/tiles/tms_tile_source"
 import {WMTSTileSource} from "@bokehjs/models/tiles/wmts_tile_source"
@@ -44,6 +49,40 @@ describe("projection utilities", () => {
       -45,
       0,
     ])
+  })
+})
+
+describe("tile renderers", () => {
+
+  function attribution_text(view: any): string {
+    const elements = view._attribution.elements as HTML[]
+    return elements.map(({html}) => Array.isArray(html) ? html.join("") : `${html}`).join("")
+  }
+
+  it("should hide attribution for invisible renderers", async () => {
+    const visible_source = new WMTSTileSource({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", attribution: "visible attribution"})
+    const hidden_source = new WMTSTileSource({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", attribution: "hidden attribution"})
+
+    const visible = new TileRenderer({tile_source: visible_source})
+    const hidden = new TileRenderer({tile_source: hidden_source})
+
+    const plot = new Plot({
+      x_range: new Range1d({start: -2000000, end: 6000000}),
+      y_range: new Range1d({start: -1000000, end: 7000000}),
+      renderers: [visible, hidden],
+      visible: false,
+    })
+
+    const {view} = await display(plot)
+
+    expect(attribution_text(view).includes("visible attribution")).to.be.true
+    expect(attribution_text(view).includes("hidden attribution")).to.be.true
+
+    hidden.visible = false
+    await view.ready
+
+    expect(attribution_text(view).includes("visible attribution")).to.be.true
+    expect(attribution_text(view).includes("hidden attribution")).to.be.false
   })
 })
 
