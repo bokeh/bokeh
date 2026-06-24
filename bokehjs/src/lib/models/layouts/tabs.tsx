@@ -35,21 +35,30 @@ export class TabsView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    /*
     const {tabs} = this.model.properties
+
+    /*
     this.on_change(tabs, async () => {
       await this.update_children()
     })
     */
+
+    this.on_transitive_change(tabs, async () => {
+      await this.build_tooltip_views()
+    }, {signal: (obj) => (obj as TabPanel).properties.tooltip.change})
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    const {tabs} = this.model
+  async build_tooltip_views(): Promise<void> {
+    const {tabs} = this.values
     const tooltips = tabs.map((tab) => tab.tooltip).filter((tt) => tt instanceof Model).map((tt) => {
       return tt instanceof HTML ? new Tooltip({content: tt, position: "bottom_center" /* TODO "auto" */}) : tt
     })
     await build_views(this.tooltip_views, tooltips, {parent: this})
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this.build_tooltip_views()
   }
 
   override stylesheets(): StyleSheetLike[] {
