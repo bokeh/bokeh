@@ -213,11 +213,12 @@ class RGB(Color):
     a: float
 
     def __init__(
-            self, r: float | np.floating,
-            g: float | np.floating,
-            b: float | np.floating,
-            a: float | np.floating = 1.0,
-        ) -> None:
+        self,
+        r: float | np.floating | int | np.uint8,
+        g: float | np.floating | int | np.uint8,
+        b: float | np.floating | int | np.uint8,
+        a: float | np.floating = 1.0,
+    ) -> None:
         '''
 
         Args:
