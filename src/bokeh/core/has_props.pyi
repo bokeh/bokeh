@@ -16,7 +16,6 @@ from typing import (
     NoReturn,
     NotRequired,
     Self,
-    TypeAlias,
     TypedDict,
     TypeVar,
     overload,
@@ -35,7 +34,7 @@ from .serialization import (
     Serializer,
 )
 
-Setter: TypeAlias = ClientSession | ServerSession
+type Setter = ClientSession | ServerSession
 
 HasPropsType = TypeVar("HasPropsType", bound=type[HasProps])
 

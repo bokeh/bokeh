@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Sequence,
-    TypeAlias,
     TypeVar,
 )
 
@@ -29,29 +28,29 @@ from .. import enums
 from ..enums import AutoType as Auto
 from .bases import Property
 
-DashPatternType: TypeAlias = enums.DashPatternType | str | Sequence[int]
-DashPattern: TypeAlias = Property[DashPatternType]
+type DashPatternType = enums.DashPatternType | str | Sequence[int]
+type DashPattern = Property[DashPatternType]
 
 CSS_LENGTH_RE: re.Pattern
 
-ImageType: TypeAlias = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
-Image: TypeAlias = Property[ImageType]
+type ImageType = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
+type Image = Property[ImageType]
 
-HatchPatternTypeType: TypeAlias = enums.HatchPatternType | enums.HatchPatternAbbreviationType
-HatchPatternType: TypeAlias = Property[HatchPatternTypeType]
+type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType
+type HatchPatternType = Property[HatchPatternTypeType]
 
 T = TypeVar("T")
 
-Bounds: TypeAlias = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
+type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 
-MinMaxBoundsType: TypeAlias = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
-MinMaxBounds: TypeAlias = Property[MinMaxBoundsType]
+type MinMaxBoundsType = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
+type MinMaxBounds = Property[MinMaxBoundsType]
 
-CSSLengthType: TypeAlias = str
-CSSLength: TypeAlias = Property[CSSLengthType]
+type CSSLengthType = str
+type CSSLength = Property[CSSLengthType]
 
-FontSizeType: TypeAlias = str
-FontSize: TypeAlias = Property[FontSizeType]
+type FontSizeType = str
+type FontSize = Property[FontSizeType]
 
-MarkerTypeType: TypeAlias = enums.MarkerTypeType
-MarkerType: TypeAlias = Property[MarkerTypeType]
+type MarkerTypeType = enums.MarkerTypeType
+type MarkerType = Property[MarkerTypeType]

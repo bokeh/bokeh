@@ -1,6 +1,6 @@
-from typing import ClassVar, Literal, TypeAlias
+from typing import ClassVar, Literal
 
-_ByType: TypeAlias = Literal["class name", "css selector", "id", "link text", "name", "partial link text", "tag name"]
+type _ByType = Literal["class name", "css selector", "id", "link text", "name", "partial link text", "tag name"]
 
 class By:
     CLASS_NAME: ClassVar[Literal["class name"]] = ...

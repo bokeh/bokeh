@@ -7,7 +7,7 @@
 
 # Standard library imports
 import datetime
-from typing import TypeAlias, TypeVar
+from typing import TypeVar
 
 # Bokeh imports
 from .models.nodes import Node
@@ -16,32 +16,32 @@ from .models.text import BaseText
 
 T = TypeVar("T")
 
-NonNegative: TypeAlias = T
-Positive: TypeAlias = T
-Readonly: TypeAlias = T
+type NonNegative[T] = T
+type Positive[T] = T
+type Readonly[T] = T
 
-TextLike: TypeAlias = str | BaseText
+type TextLike = str | BaseText
 
-Date: TypeAlias = str | datetime.date
-Datetime: TypeAlias = str | datetime.date | datetime.datetime
-Time: TypeAlias = str | datetime.time
-TimeDelta: TypeAlias = datetime.timedelta
+type Date = str | datetime.date
+type Datetime = str | datetime.date | datetime.datetime
+type Time = str | datetime.time
+type TimeDelta = datetime.timedelta
 
-Color: TypeAlias = str | tuple[int, int, int] | tuple[int, int, int, float]
-ColorHex: TypeAlias = Color
+type Color = str | tuple[int, int, int] | tuple[int, int, int, float]
+type ColorHex = Color
 
-Alpha: TypeAlias = float
-Size: TypeAlias = float
-Angle: TypeAlias = float
-Percent: TypeAlias = float
+type Alpha = float
+type Size = float
+type Angle = float
+type Percent = float
 
-FontSize: TypeAlias = str
-FontStyle: TypeAlias = str
+type FontSize = str
+type FontStyle = str
 
-Regex: TypeAlias = str
+type Regex = str
 
-Bytes: TypeAlias = bytes
-JSON: TypeAlias = str
+type Bytes = bytes
+type JSON = str
 
-CoordinateLike: TypeAlias = float | Datetime | Factor
-Coordinate: TypeAlias = CoordinateLike | Node
+type CoordinateLike = float | Datetime | Factor
+type Coordinate = CoordinateLike | Node
