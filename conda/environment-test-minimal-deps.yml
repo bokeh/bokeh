@@ -8,7 +8,7 @@ dependencies:
   - contourpy >=1.2
   - jinja2 >=2.7
   - narwhals <1.14
-  - numpy <1.25
+  - numpy 1*
   - packaging >=16.8
   - pandas 2*
   - pillow >=4.0
