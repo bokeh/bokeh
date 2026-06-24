@@ -49,11 +49,11 @@ from typing import (
     Protocol,
     TypedDict,
     cast,
-    get_args,
 )
 
 # Bokeh imports
 from . import __version__
+from .core.enums import enumeration
 from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import LogLevel, settings
@@ -78,11 +78,17 @@ def server_url(host: str | None = None, port: int | None = None, ssl: bool = Fal
 DEFAULT_SERVER_HTTP_URL = server_url()
 
 type BaseMode = Literal["inline", "cdn", "server", "relative", "absolute"]
+BaseModeEnum = enumeration(BaseMode)
+
 type DevMode = Literal["server-dev", "relative-dev", "absolute-dev"]
+DevModeEnum = enumeration(DevMode)
 
 type ResourcesMode = BaseMode | DevMode
 
 type Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
+ComponentEnum = enumeration(Component)
+
+LogLevelEnum = enumeration(LogLevel)
 
 class ComponentDefs(TypedDict):
     js: list[Component]
@@ -319,7 +325,7 @@ class Resources:
         self.dev = dev if dev is not None else settings.dev or mode_dev
         self.mode = cast(BaseMode, mode[:-4] if mode_dev else mode)
 
-        if self.mode not in get_args(BaseMode):
+        if self.mode not in BaseModeEnum:
             raise ValueError(
                 "wrong value for 'mode' parameter, expected "
                 f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}",
@@ -404,7 +410,7 @@ class Resources:
 
     @log_level.setter
     def log_level(self, level: LogLevel) -> None:
-        valid_levels = get_args(LogLevel)
+        valid_levels = LogLevelEnum
         if not (level is None or level in valid_levels):
             raise ValueError(f"Unknown log level '{level}', valid levels are: {valid_levels}")
         self._log_level = level
