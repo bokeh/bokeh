@@ -286,12 +286,13 @@ class ColumnData(Dict):
         else:
             return value
 
-class Tuple[T](ContainerProperty):
+# TODO this needs to be parameterized, i.e. Tuple[T: ...]
+class Tuple(ContainerProperty):
     """ Accept Python tuple values.
 
     """
 
-    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[T] = Undefined, help: str | None = None) -> None:
+    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[Any] = Undefined, help: str | None = None) -> None:
         super().__init__(*type_params, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:

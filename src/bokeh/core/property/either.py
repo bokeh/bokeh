@@ -48,7 +48,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Either[T](ParameterizedProperty[Any]):
+# TODO this needs to be parameterized, i.e. Either[T]
+class Either(ParameterizedProperty[Any]):
     """ Accept values according to a sequence of other property types.
 
     Example:
@@ -74,7 +75,7 @@ class Either[T](ParameterizedProperty[Any]):
     """
 
     def __init__(self, type_param0: TypeOrInst[Property[Any]], *type_params: TypeOrInst[Property[Any]],
-            default: Init[T] = Intrinsic, help: str | None = None) -> None:
+            default: Init[Any] = Intrinsic, help: str | None = None) -> None:
         super().__init__(type_param0, *type_params, default=default, help=help)
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
