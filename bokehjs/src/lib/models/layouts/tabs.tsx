@@ -37,11 +37,9 @@ export class TabsView extends LayoutDOMView {
     super.connect_signals()
     const {tabs} = this.model.properties
 
-    /*
-    this.on_change(tabs, async () => {
+    this.on_transitive_change(tabs, async () => {
       await this.update_children()
-    })
-    */
+    }, {signal: (obj) => (obj as TabPanel).properties.child.change})
 
     this.on_transitive_change(tabs, async () => {
       await this.build_tooltip_views()
