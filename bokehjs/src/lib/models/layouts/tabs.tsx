@@ -158,7 +158,17 @@ export class TabsView extends LayoutDOMView {
 
       const toggle_tab = (i: number) => {
         if (!is_disabled) {
-          this.model.active = clamp(i, 0, tabs.length-1)
+          const n = tabs.length
+          const j = (() => {
+            if (i < 0) {
+              return n + i
+            } else if (i >= n) {
+              return i - n
+            } else {
+              return i
+            }
+          })()
+          this.model.active = clamp(j, 0, n-1)
         }
       }
 
