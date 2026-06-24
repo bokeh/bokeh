@@ -25,7 +25,7 @@ export namespace Xkcd {
     Toggle,
   } = Bokeh.Widgets
 
-  const url = "/assets/fonts/XKCD/xkcd-script.ttf"
+  const url = "https://cdn.rawgit.com/ipython/xkcd-font/master/xkcd-script/font/xkcd-script.ttf"
   const font_style = new Bokeh.GlobalInlineStyleSheet({
     css: `
         @font-face {
