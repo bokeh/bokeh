@@ -216,6 +216,7 @@ export class TabsView extends LayoutDOMView {
 
       const on_key = (event: KeyboardEvent) => {
         switch (event.key as Keys) {
+          case " ":
           case "Enter": {
             toggle_tab()
             break
@@ -277,7 +278,9 @@ export class TabsView extends LayoutDOMView {
 
       return <div
         class={cls(tabs_css.tab, active_cls, disabled_cls)}
-        tabIndex={0}
+        role="tab"
+        tabIndex={is_disabled ? undefined : 0}
+        aria-selected={is_active ? "true" : "false"}
         title={description}
         onClick={(event) => on_click(event)}
         onKeyUp={(event) => on_key(event)}
@@ -293,7 +296,7 @@ export class TabsView extends LayoutDOMView {
     return (
       <UIComponent parent={this.resolved_props} class={location_cls}>
         <div class={tabs_css.header}>
-          <div class={tabs_css.headers_wrapper}>
+          <div class={tabs_css.headers_wrapper} role="tablist" aria-orientation={this.tabs_orientation}>
             {header_els}
           </div>
         </div>
