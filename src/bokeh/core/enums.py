@@ -74,6 +74,8 @@ from typing import (
     Any,
     Iterator,
     Literal,
+    Sequence,
+    TypeAliasType,
     get_args,
 )
 
@@ -208,7 +210,7 @@ class Enumeration:
 
     __repr__ = __str__
 
-def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) -> Enumeration:
+def enumeration(*values: str | int | TypeAliasType, case_sensitive: bool = True, quote: bool = False) -> Enumeration:
     ''' Create an |Enumeration| object from a sequence of values.
 
     Call ``enumeration`` with a sequence of (unique) strings to create an
@@ -244,19 +246,25 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
         Enumeration
 
     '''
-    if len(values) == 1 and hasattr(values[0], "__args__"):
-        values = get_args(values[0])
+    def descend(items: Sequence[str | int | TypeAliasType]) -> Sequence[str | int]:
+        collected: list[str | int] = []
+        for item in items:
+            if isinstance(item, TypeAliasType):
+                collected.extend(descend(get_args(item.__value__)))
+            else:
+                collected.append(item)
+        return collected
+
+    values = tuple(descend(values))
 
     if not (values and
             (all(isinstance(value, str) and value for value in values) or
              all(isinstance(value, int) for value in values))):
         from ..util.strings import nice_join
-
         raise ValueError(f"expected a non-empty heterogenous sequence of strings or integers, got {nice_join(values)}")
 
     if len(values) != len(set(values)):
         from ..util.strings import nice_join
-
         raise ValueError(f"enumeration items must be unique, got {nice_join(values)}")
 
     attrs: dict[str, Any] = {value: value for value in values if isinstance(value, str)}
