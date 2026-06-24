@@ -143,7 +143,6 @@ from typing import (
     Generic,
     Literal,
     Sequence,
-    TypeAlias,
     TypeVar,
     cast,
 )
@@ -247,9 +246,9 @@ def convert_str_seq(value: list[str] | str) -> list[str]:
         raise ValueError(f"Cannot convert {value} to list value")
 
 
-LogLevel: TypeAlias = Literal["trace", "debug", "info", "warn", "error", "fatal"]
+type LogLevel = Literal["trace", "debug", "info", "warn", "error", "fatal"]
 
-PyLogLevel: TypeAlias = int | None
+type PyLogLevel = int | None
 
 _log_levels = {
     "CRITICAL" : logging.CRITICAL,
@@ -357,7 +356,7 @@ class _Unset: pass
 
 T = TypeVar("T")
 
-Unset: TypeAlias = T | type[_Unset]
+type Unset[T] = T | type[_Unset]
 
 def is_dev() -> bool:
     return convert_bool(os.environ.get("BOKEH_DEV", False))

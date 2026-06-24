@@ -28,7 +28,6 @@ from re import findall, match
 from typing import (
     TYPE_CHECKING,
     Self,
-    TypeAlias,
     cast,
 )
 
@@ -51,7 +50,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-RGBTuple: TypeAlias = tuple[int, int, int] | tuple[int, int, int, float]
+type RGBTuple = tuple[int, int, int] | tuple[int, int, int, float]
 
 class Color(Serializable, metaclass=ABCMeta):
     ''' A base class for representing color objects.
@@ -537,7 +536,7 @@ class HSL(Color):
         hsl.l = self.clamp(hsl.l + amount, 1)
         return self.from_hsl(hsl)
 
-ColorLike: TypeAlias = str | Color | RGBTuple
+type ColorLike = str | Color | RGBTuple
 
 #-----------------------------------------------------------------------------
 # Dev API

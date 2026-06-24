@@ -22,7 +22,6 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Sequence,
-    TypeAlias,
     cast,
 )
 
@@ -45,8 +44,8 @@ if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 
-    ContourColor: TypeAlias = ColorLike | Sequence[ColorLike]
-    ContourColorOrPalette: TypeAlias = ContourColor | Palette | PaletteCollection | ContourColor
+    type ContourColor = ColorLike | Sequence[ColorLike]
+    type ContourColorOrPalette = ContourColor | Palette | PaletteCollection | ContourColor
 
 #-----------------------------------------------------------------------------
 # Globals and constants

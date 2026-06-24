@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import TypeAlias
-
 # Bokeh imports
 from ..core.json_encoder import serialize_json
 from ..core.templates import DOC_NB_JS
@@ -48,7 +45,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-ThemeSource: TypeAlias = Theme | FromCurdoc | None
+type ThemeSource = Theme | FromCurdoc | None
 
 def notebook_content(model: Model, notebook_comms_target: str | None = None, theme: ThemeSource = FromCurdoc) -> tuple[str, str, Document]:
     ''' Return script and div that will display a Bokeh plot in a Jupyter

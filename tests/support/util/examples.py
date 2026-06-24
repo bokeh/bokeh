@@ -36,7 +36,7 @@ from os.path import (
     splitext,
 )
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal
 
 # External imports
 import yaml
@@ -54,7 +54,7 @@ __all__ = (
 
 JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 
-PathLike: TypeAlias = str | bytes | os.PathLike[str] | os.PathLike[bytes]
+type PathLike = str | bytes | os.PathLike[str] | os.PathLike[bytes]
 
 #-----------------------------------------------------------------------------
 # General API

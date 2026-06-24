@@ -39,7 +39,6 @@ from typing import (
     NoReturn,
     NotRequired,
     Self,
-    TypeAlias,
     TypedDict,
     TypeVar,
     overload,
@@ -94,7 +93,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Setter: TypeAlias = ClientSession | ServerSession
+    type Setter = ClientSession | ServerSession
 
 C = TypeVar("C", bound=type["HasProps"])
 

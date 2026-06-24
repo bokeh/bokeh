@@ -64,7 +64,6 @@ from typing import (
     ClassVar,
     Generic,
     NotRequired,
-    TypeAlias,
     TypedDict,
     TypeVar,
 )
@@ -108,9 +107,9 @@ class BufferHeader(TypedDict):
 
 Content = TypeVar("Content")
 
-Metadata: TypeAlias = dict[str, Any]
+type Metadata = dict[str, Any]
 
-BufferRef: TypeAlias = tuple[BufferHeader, bytes]
+type BufferRef = tuple[BufferHeader, bytes]
 
 class Empty(TypedDict):
     pass

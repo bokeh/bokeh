@@ -47,7 +47,6 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
-    TypeAlias,
     TypedDict,
     cast,
     get_args,
@@ -78,12 +77,12 @@ def server_url(host: str | None = None, port: int | None = None, ssl: bool = Fal
 
 DEFAULT_SERVER_HTTP_URL = server_url()
 
-BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
-DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
+type BaseMode = Literal["inline", "cdn", "server", "relative", "absolute"]
+type DevMode = Literal["server-dev", "relative-dev", "absolute-dev"]
 
-ResourcesMode: TypeAlias = BaseMode | DevMode
+type ResourcesMode = BaseMode | DevMode
 
-Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
+type Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
 
 class ComponentDefs(TypedDict):
     js: list[Component]
@@ -99,7 +98,7 @@ class ComponentDefs(TypedDict):
 # Dev API
 # -----------------------------------------------------------------------------
 
-Hashes: TypeAlias = dict[str, str]
+type Hashes = dict[str, str]
 
 _ALL_SRI_HASHES: dict[str, Hashes] = {}
 
@@ -209,7 +208,7 @@ def verify_sri_hashes() -> None:
 
 PathVersioner = Callable[[str], str]
 
-Kind = Literal["css", "js"]
+type Kind = Literal["css", "js"]
 
 @dataclass
 class RuntimeMessage:
@@ -231,7 +230,7 @@ class Urls:
     messages: list[RuntimeMessage] = field(default_factory=list)
     hashes: HashesFn | None = None
 
-ResourceAttr = Literal["__css__", "__javascript__"]
+type ResourceAttr = Literal["__css__", "__javascript__"]
 
 class Resources:
     """
@@ -658,7 +657,7 @@ def _compute_single_hash(path: Path) -> str:
 # Code
 # -----------------------------------------------------------------------------
 
-ResourcesLike: TypeAlias = Resources | ResourcesMode
+type ResourcesLike = Resources | ResourcesMode
 
 CDN = Resources(mode="cdn")
 

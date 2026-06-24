@@ -26,7 +26,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    TypeAlias,
     TypeVar,
 )
 
@@ -150,7 +149,7 @@ class Expr(Serializable):
         else:
             raise KeyError(f"key '{key}' not found")
 
-Vectorized: TypeAlias = Value[Any] | Field | Expr
+type Vectorized = Value[Any] | Field | Expr
 
 value = Value
 

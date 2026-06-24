@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from typing import (
     Any,
     Callable,
-    TypeAlias,
     cast,
 )
 
@@ -45,8 +44,8 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-ValidationFunction: TypeAlias = Callable[..., str | None]
-ValidationDecorator: TypeAlias = Callable[[ValidationFunction], Validator]
+type ValidationFunction = Callable[..., str | None]
+type ValidationDecorator = Callable[[ValidationFunction], Validator]
 
 def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -> ValidationDecorator:
     """ Internal shared implementation to handle both error and warning

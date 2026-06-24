@@ -31,7 +31,6 @@ from typing import (
     Callable,
     Literal,
     Protocol,
-    TypeAlias,
     TypedDict,
     cast,
     overload,
@@ -507,14 +506,14 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     publish_display_data(data, metadata, transient=transient, **kwargs)
 
 
-ProxyUrlFunc: TypeAlias = Callable[[int | None], str]
+type ProxyUrlFunc = Callable[[int | None], str]
 
 def show_app(
-        app: Application,
-        state: State,
-        notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
-        port: int = 0,
-        **kw: Any,
+    app: Application,
+    state: State,
+    notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+    port: int = 0,
+    **kw: Any,
 ) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 

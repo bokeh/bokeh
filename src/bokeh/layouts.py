@@ -32,7 +32,6 @@ from typing import (
     Iterator,
     Literal,
     Sequence,
-    TypeAlias,
     TypeVar,
     overload,
 )
@@ -598,8 +597,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T", bound=Tool)
-MergeFn: TypeAlias = Callable[[type[T], list[T]], Tool | ToolProxy | None]
+type MergeFn[T] = Callable[[type[T], list[T]], Tool | ToolProxy | None]
 
 @dataclass
 class ToolEntry:
