@@ -1000,16 +1000,24 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {min_border, min_border_top, min_border_bottom, min_border_left, min_border_right} = this.model.properties
     this.on_change([min_border, min_border_top, min_border_bottom, min_border_left, min_border_right], () => this.invalidate_layout())
 
-    const {x_ranges, y_ranges} = this.frame
-    for (const [, range] of x_ranges) {
+    const connect_range = (range: Range) => {
       this.connect(range.change, () => {
         this.request_repaint()
+      })
+      this.connect(range.properties.min_interval.change, () => {
+        this._constrain_range_interval(range)
+      })
+      this.connect(range.properties.max_interval.change, () => {
+        this._constrain_range_interval(range)
       })
     }
+
+    const {x_ranges, y_ranges} = this.frame
+    for (const [, range] of x_ranges) {
+      connect_range(range)
+    }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => {
-        this.request_repaint()
-      })
+      connect_range(range)
     }
 
     this.connect(this.model.change, () => this.request_repaint())
@@ -1052,6 +1060,15 @@ export class PlotView extends LayoutDOMView implements Paintable {
           this.request_repaint()
         }
       })
+    }
+  }
+
+  protected _constrain_range_interval(range: Range): void {
+    this.pause()
+    try {
+      this._range_manager.constrain_interval(range)
+    } finally {
+      this.unpause()
     }
   }
 

@@ -6,6 +6,7 @@ import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {PlotView} from "./plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
+import {clamp} from "core/util/math"
 
 export type RangeState = Map<Range, Interval>
 
@@ -176,6 +177,26 @@ export class RangeManager {
     }
   }
 
+  constrain_interval(rng: Range): void {
+    const range_info = this._constrain_interval(rng)
+    if (range_info == null) {
+      return
+    }
+
+    const {x_ranges, y_ranges} = this.ranges()
+    const xrs: Map<Range, Interval> = new Map()
+    const yrs: Map<Range, Interval> = new Map()
+
+    if (x_ranges.includes(rng)) {
+      xrs.set(rng, range_info)
+    }
+    if (y_ranges.includes(rng)) {
+      yrs.set(rng, range_info)
+    }
+
+    this.update({xrs, yrs})
+  }
+
   compute_initial(): RangeInfo | null {
     // check for good values for ranges before setting initial range
     let good_vals = true
@@ -207,6 +228,33 @@ export class RangeManager {
         logger.warn("could not set initial ranges")
       }
       return null
+    }
+  }
+
+  protected _constrain_interval(rng: Range): Interval | null {
+    const old_interval = Math.abs(rng.end - rng.start)
+    const min_interval = rng.min_interval ?? 0
+    let max_interval = rng.max_interval ?? Infinity
+
+    if (rng.bounds != null && rng.bounds != "auto") {
+      const [min, max] = rng.computed_bounds
+      if (isFinite(min) && isFinite(max)) {
+        max_interval = Math.min(max_interval, Math.abs(max - min))
+      }
+    }
+
+    const new_interval = clamp(old_interval, min_interval, max_interval)
+    if (new_interval == old_interval) {
+      return null
+    }
+
+    const center = (rng.start + rng.end) / 2
+    const half_interval = new_interval / 2
+    const sign = rng.is_reversed ? -1 : 1
+
+    return {
+      start: center - sign*half_interval,
+      end: center + sign*half_interval,
     }
   }
 

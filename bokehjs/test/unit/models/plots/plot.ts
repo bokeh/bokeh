@@ -166,6 +166,28 @@ describe("Plot module", () => {
       }
     })
 
+    it("should constrain current range when max_interval changes", async () => {
+      const x_range = new Range1d({start: 0, end: 10})
+      const view = await new_plot_view({x_range})
+
+      x_range.max_interval = 4
+      await view.ready
+
+      expect(x_range.start).to.be.equal(3)
+      expect(x_range.end).to.be.equal(7)
+    })
+
+    it("should constrain current range when min_interval changes", async () => {
+      const y_range = new Range1d({start: 0, end: 2})
+      const view = await new_plot_view({y_range})
+
+      y_range.min_interval = 6
+      await view.ready
+
+      expect(y_range.start).to.be.equal(-2)
+      expect(y_range.end).to.be.equal(4)
+    })
+
     describe("PlotView.pause()", () => {
 
       it("should start unpaused", async () => {
