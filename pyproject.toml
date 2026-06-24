@@ -300,5 +300,5 @@ ignore_errors = false
 
 # TODO remove when we drop Python 3.11
 [[tool.mypy.overrides]]
-module = ["sphinx", "sphinx.*"]
+module = ["sphinx", "sphinx.*", "numpy", "numpy.*"]
 follow_imports = "skip"
