@@ -113,8 +113,32 @@ export class TabsView extends LayoutDOMView {
     return this._tabs_orientation.value
   }
 
+  _normalize_active(i: number): number {
+    const {tabs} = this.values
+    const n = tabs.length
+    const j = (() => {
+      if (i < 0) {
+        return n + i
+      } else if (i >= n) {
+        return i - n
+      } else {
+        return i
+      }
+    })()
+    return clamp(j, 0, n - 1)
+  }
+
+  private readonly _normalized_active = computed(() => {
+    return this._normalize_active(this.values.active)
+  })
+  get normalized_active(): number {
+    return this._normalized_active.value
+  }
+
   override component(): VNode {
-    const {active, disabled, tabs_location, tabs} = this.values
+    const {disabled, tabs_location, tabs} = this.values
+    const active = this.normalized_active
+
     const location_cls = tabs_css[tabs_location]
 
     const header_els = tabs.map((tab, i) => {
@@ -124,16 +148,20 @@ export class TabsView extends LayoutDOMView {
       const is_disabled = disabled || tab.properties.disabled.signal.value
       const disabled_cls = is_disabled ? tabs_css.disabled : null
 
+      const closable = tab.properties.closable.signal.value
+
+      const close_tab = (j: number = i) => {
+        const new_tabs = remove_at(tabs, j)
+        const new_active = clamp(active, 0, new_tabs.length - 1)
+        this.model.active = new_active
+        this.model.tabs = new_tabs
+      }
+
       const close_el = (() => {
-        if (tab.properties.closable.signal.value) {
+        if (closable) {
           const on_close = (event: MouseEvent) => {
             if (event.target == event.currentTarget) {
-              this.model.tabs = remove_at(this.model.tabs, i)
-
-              const ntabs = this.model.tabs.length
-              if (this.model.active > ntabs - 1) {
-                this.model.active = ntabs - 1
-              }
+              close_tab()
             }
           }
           return <div class={tabs_css.close} onClick={on_close}></div>
@@ -164,26 +192,38 @@ export class TabsView extends LayoutDOMView {
         }
       }
 
-      const toggle_tab = (i: number) => {
+      const toggle_tab = (j: number = i) => {
         if (!is_disabled) {
           const n = tabs.length
-          const j = (() => {
-            if (i < 0) {
-              return n + i
-            } else if (i >= n) {
-              return i - n
+          const k = (() => {
+            if (j < 0) {
+              return n + j
+            } else if (j >= n) {
+              return j - n
             } else {
-              return i
+              return j
             }
           })()
-          this.model.active = clamp(j, 0, n-1)
+          this.model.active = clamp(k, 0, n - 1)
         }
       }
 
-      const on_key = (event: KeyboardEvent, i: number) => {
+      const on_click = (event: MouseEvent) => {
+        if (event.target == event.currentTarget) {
+          toggle_tab()
+        }
+      }
+
+      const on_key = (event: KeyboardEvent) => {
         switch (event.key as Keys) {
           case "Enter": {
-            toggle_tab(i)
+            toggle_tab()
+            break
+          }
+          case "Delete": {
+            if (closable) {
+              close_tab()
+            }
             break
           }
           case "ArrowLeft": {
@@ -239,8 +279,8 @@ export class TabsView extends LayoutDOMView {
         class={cls(tabs_css.tab, active_cls, disabled_cls)}
         tabIndex={0}
         title={description}
-        onClick={() => toggle_tab(i)}
-        onKeyUp={(event) => on_key(event, i)}
+        onClick={(event) => on_click(event)}
+        onKeyUp={(event) => on_key(event)}
         onMouseEnter={() => toggle_tooltip(true)}
         onMouseLeave={() => toggle_tooltip(false)}
         ref={ref}
