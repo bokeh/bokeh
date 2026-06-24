@@ -8,7 +8,7 @@
 # Standard library imports
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence, TypeVar
+from typing import TYPE_CHECKING, Sequence
 
 # External imports
 import numpy as np
@@ -34,8 +34,6 @@ type Image = Property[ImageType]
 
 type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType
 type HatchPatternType = Property[HatchPatternTypeType]
-
-T = TypeVar("T")
 
 type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 

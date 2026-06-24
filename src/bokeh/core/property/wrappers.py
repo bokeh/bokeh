@@ -71,7 +71,6 @@ from typing import (
     Iterable,
     MutableSequence,
     Sequence,
-    TypeVar,
 )
 
 # External imports
@@ -101,8 +100,6 @@ __all__ = (
     'PropertyValueSet',
     'notify_owner',
 )
-
-T = TypeVar("T")
 
 #----------------------------------------------------------------------------
 # General API
@@ -174,7 +171,7 @@ class PropertyValueContainer:
     def _saved_copy(self) -> Any:
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
-class PropertyValueList(PropertyValueContainer, list[T]):
+class PropertyValueList[T](PropertyValueContainer, list[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 
@@ -270,7 +267,7 @@ class PropertyValueList(PropertyValueContainer, list[T]):
     def sort(self, **kwargs):
         return super().sort(**kwargs)
 
-class PropertyValueSet(PropertyValueContainer, set[T]):
+class PropertyValueSet[T](PropertyValueContainer, set[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 
@@ -310,9 +307,7 @@ class PropertyValueSet(PropertyValueContainer, set[T]):
     def update(self, *s: Iterable[T]) -> None:
         super().update(*s)
 
-T_Val = TypeVar("T_Val")
-
-class PropertyValueDict(PropertyValueContainer, dict[str, T_Val]):
+class PropertyValueDict[T_Val](PropertyValueContainer, dict[str, T_Val]):
     """ A dict property value container that supports change notifications on
     mutating operations.
 

@@ -32,7 +32,6 @@ from typing import (
     Iterator,
     Literal,
     Sequence,
-    TypeVar,
     overload,
 )
 
@@ -357,8 +356,7 @@ def gridplot(
     active_taps = [ map_to_proxy(toolbar.active_tap) for toolbar in toolbars ]
     active_multis = [ map_to_proxy(toolbar.active_multi) for toolbar in toolbars ]
 
-    V = TypeVar("V")
-    def assert_unique(values: list[V], name: ToolbarOptions) -> V | UndefinedType:
+    def assert_unique[V](values: list[V], name: ToolbarOptions) -> V | UndefinedType:
         if name in toolbar_options:
             return toolbar_options[name]
         n = len(set(values))
@@ -654,8 +652,7 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
 def _has_auto_sizing(item: LayoutDOM) -> bool:
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
-L = TypeVar("L", bound=LayoutDOM)
-def _parse_children_arg(*args: L | list[L], children: list[L] | None = None) -> list[L]:
+def _parse_children_arg[L: LayoutDOM](*args: L | list[L], children: list[L] | None = None) -> list[L]:
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -701,9 +698,7 @@ def _create_grid(iterable: Iterable[UIElement | list[UIElement]], sizing_mode: S
     else:
         return row(children=return_list, sizing_mode=sizing_mode, **kwargs)
 
-I = TypeVar("I")
-
-def _chunks(l: Sequence[I], ncols: int) -> Iterator[Sequence[I]]:
+def _chunks[T](l: Sequence[T], ncols: int) -> Iterator[Sequence[T]]:
     """Yield successive n-sized chunks from list, l."""
     assert isinstance(ncols, int), "ncols must be an integer"
     for i in range(0, len(l), ncols):

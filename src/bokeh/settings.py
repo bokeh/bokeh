@@ -140,10 +140,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Generic,
     Literal,
     Sequence,
-    TypeVar,
     cast,
 )
 
@@ -354,8 +352,6 @@ def convert_ico_path(value: str) -> str:
 
 class _Unset: pass
 
-T = TypeVar("T")
-
 type Unset[T] = T | type[_Unset]
 
 def is_dev() -> bool:
@@ -373,7 +369,7 @@ class SettingProvenance(Enum):
     GLOBAL_DEFAULT = auto()
     NONE = auto()
 
-class PrioritizedSetting(Generic[T]):
+class PrioritizedSetting[T]:
     ''' Return a value for a global setting according to configuration precedence.
 
     The following methods are searched in order for the setting:

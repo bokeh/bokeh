@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from types import SimpleNamespace
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 # Bokeh imports
 from .bases import ParameterizedProperty, Property
@@ -36,18 +36,16 @@ __all__ = (
     'Struct',
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Optional(Generic[T]):
+class Optional[T]:
 
     def __init__(self, type_param: Property[T]):
         self.type_param = type_param
 
-class Struct(ParameterizedProperty[T]):
+class Struct[T](ParameterizedProperty[T]):
     """ Accept values that are structures.
 
     """

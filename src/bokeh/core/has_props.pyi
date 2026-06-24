@@ -17,7 +17,6 @@ from typing import (
     NotRequired,
     Self,
     TypedDict,
-    TypeVar,
     overload,
 )
 
@@ -36,9 +35,7 @@ from .serialization import (
 
 type Setter = ClientSession | ServerSession
 
-HasPropsType = TypeVar("HasPropsType", bound=type[HasProps])
-
-def abstract(cls: HasPropsType) -> HasPropsType: ...
+def abstract[HasPropsType: type[HasProps]](cls: HasPropsType) -> HasPropsType: ...
 
 def is_abstract(cls: type[HasProps]) -> bool: ...
 

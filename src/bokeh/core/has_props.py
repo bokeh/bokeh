@@ -40,14 +40,12 @@ from typing import (
     NotRequired,
     Self,
     TypedDict,
-    TypeVar,
     overload,
 )
 from weakref import WeakSet
 
 if TYPE_CHECKING:
-    F = TypeVar("F", bound=Callable[..., Any])
-    def lru_cache(arg: int | None) -> Callable[[F], F]: ...
+    def lru_cache[F: Callable[..., Any]](arg: int | None) -> Callable[[F], F]: ...
 else:
     from functools import lru_cache
 
@@ -95,11 +93,9 @@ __all__ = (
 if TYPE_CHECKING:
     type Setter = ClientSession | ServerSession
 
-C = TypeVar("C", bound=type["HasProps"])
-
 _abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
-def abstract(cls: C) -> C:
+def abstract[C: type[HasProps]](cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
 
     '''

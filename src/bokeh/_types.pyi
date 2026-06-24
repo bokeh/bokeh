@@ -7,14 +7,11 @@
 
 # Standard library imports
 import datetime
-from typing import TypeVar
 
 # Bokeh imports
 from .models.nodes import Node
 from .models.ranges import Factor
 from .models.text import BaseText
-
-T = TypeVar("T")
 
 type NonNegative[T] = T
 type Positive[T] = T

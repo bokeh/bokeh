@@ -33,7 +33,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -71,13 +70,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
-
 type TypeOrInst[T] = type[T] | T
 
 type Init[T] = T | UndefinedType | IntrinsicType
 
-class Property(PropertyDescriptorFactory[T]):
+class Property[T](PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -437,7 +434,7 @@ class Property(PropertyDescriptorFactory[T]):
         else:
             return self
 
-class ParameterizedProperty(Property[T]):
+class ParameterizedProperty[T](Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
@@ -504,7 +501,7 @@ class ParameterizedProperty(Property[T]):
             params = [ type_param.replace(old, new) for type_param in self.type_params ]
             return self.__class__(*params)
 
-class SingleParameterizedProperty(ParameterizedProperty[T]):
+class SingleParameterizedProperty[T](ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
     @property
@@ -524,7 +521,7 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)
 
-class PrimitiveProperty(Property[T]):
+class PrimitiveProperty[T](Property[T]):
     """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
@@ -559,7 +556,7 @@ class PrimitiveProperty(Property[T]):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
 
-class ContainerProperty(ParameterizedProperty[T]):
+class ContainerProperty[T](ParameterizedProperty[T]):
     """ A base class for Container-like type properties.
 
     """

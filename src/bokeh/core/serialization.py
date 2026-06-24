@@ -32,13 +32,11 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Generic,
     Literal,
     NoReturn,
     NotRequired,
     Sequence,
     TypedDict,
-    TypeVar,
     cast,
 )
 
@@ -181,10 +179,8 @@ class Buffer:
     def to_base64(self) -> str:
         return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
 
-T = TypeVar("T")
-
 @dataclass
-class Serialized(Generic[T]):
+class Serialized[T]:
     content: T
     buffers: list[Buffer] = field(default_factory=list[Buffer])
 

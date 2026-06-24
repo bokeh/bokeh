@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -44,13 +44,11 @@ __all__ = (
     'Either',
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Either(ParameterizedProperty[Any]):
+class Either[T](ParameterizedProperty[Any]):
     """ Accept values according to a sequence of other property types.
 
     Example:

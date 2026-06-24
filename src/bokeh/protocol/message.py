@@ -62,10 +62,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Generic,
     NotRequired,
     TypedDict,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -105,8 +103,6 @@ class Header(TypedDict):
 class BufferHeader(TypedDict):
     id: ID
 
-Content = TypeVar("Content")
-
 type Metadata = dict[str, Any]
 
 type BufferRef = tuple[BufferHeader, bytes]
@@ -114,7 +110,7 @@ type BufferRef = tuple[BufferHeader, bytes]
 class Empty(TypedDict):
     pass
 
-class Message(Generic[Content]):
+class Message[Content]:
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
     provide hooks

@@ -7,12 +7,10 @@
 
 # Standard library imports
 from typing import (
-    Generic,
     Never,
     NotRequired,
     Sequence,
     TypedDict,
-    TypeVar,
 )
 
 # External imports
@@ -48,20 +46,17 @@ from .models.transforms import Transform
 
 type FieldName = str
 
-ValueType = TypeVar("ValueType")
-UnitsType = TypeVar("UnitsType")
-
-class ValueDict(TypedDict, Generic[ValueType, UnitsType]):
+class ValueDict[ValueType, UnitsType](TypedDict):
     value: ValueType
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-class FieldDict(TypedDict, Generic[ValueType, UnitsType]):
+class FieldDict[ValueType, UnitsType](TypedDict):
     field: FieldName
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-class ExprDict(TypedDict, Generic[ValueType, UnitsType]):
+class ExprDict[ValueType, UnitsType](TypedDict):
     expr: Expression
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
@@ -79,9 +74,6 @@ type Number1dArray = NumberArray # TODO shape
 type Number2dArray = NumberArray # TODO shape
 type Number3dArray = NumberArray # TODO shape
 type StringArray = npt.NDArray[np.str_]
-
-T = TypeVar("T")
-U = TypeVar("U")
 
 type DataSpec[T] = Vectorized[T, Never]
 type UnitsSpec[T, U] = Vectorized[T, U]

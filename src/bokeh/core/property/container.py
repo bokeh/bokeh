@@ -28,7 +28,7 @@ from collections.abc import (
     Sequence,
     Sized,
 )
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -72,13 +72,11 @@ __all__ = (
     'Tuple',
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Seq(ContainerProperty[T]):
+class Seq[T](ContainerProperty[T]):
     """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
     """
@@ -124,7 +122,7 @@ class Seq(ContainerProperty[T]):
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
-class List(Seq[T]):
+class List[T](Seq[T]):
     """ Accept Python list values.
 
     """
@@ -151,7 +149,7 @@ class List(Seq[T]):
     def _is_seq(cls, value: Any):
         return isinstance(value, list)
 
-class Set(Seq[T]):
+class Set[T](Seq[T]):
     """ Accept Python ``set()`` values.
 
     """
@@ -176,7 +174,7 @@ class Set(Seq[T]):
     def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, set)
 
-class Array(Seq[T]):
+class Array[T](Seq[T]):
     """ Accept NumPy array values.
 
     """
@@ -186,7 +184,7 @@ class Array(Seq[T]):
         import numpy as np
         return isinstance(value, np.ndarray)
 
-class Dict(ContainerProperty[Any]):
+class Dict[T](ContainerProperty[Any]):
     """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
@@ -288,7 +286,7 @@ class ColumnData(Dict):
         else:
             return value
 
-class Tuple(ContainerProperty):
+class Tuple[T](ContainerProperty):
     """ Accept Python tuple values.
 
     """
@@ -343,9 +341,7 @@ class RestrictedDict(Dict):
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValueError(msg)
 
-TSeq = TypeVar("TSeq", bound=Seq[Any])
-
-class NonEmpty(SingleParameterizedProperty[TSeq]):
+class NonEmpty[TSeq: Seq[Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
 
     def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = Intrinsic,
@@ -359,7 +355,7 @@ class NonEmpty(SingleParameterizedProperty[TSeq]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValueError(msg)
 
-class Len(SingleParameterizedProperty[TSeq]):
+class Len[TSeq: Seq[Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
 
     def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = Intrinsic,
