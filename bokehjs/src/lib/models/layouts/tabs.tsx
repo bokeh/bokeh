@@ -1,6 +1,7 @@
 import type {ViewStorage, ViewOf} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
+import {show} from "core/dom"
 import {remove_at} from "core/util/array"
 import {isString} from "core/util/types"
 import {clamp} from "core/util/math"
@@ -231,6 +232,8 @@ export class TabsView extends LayoutDOMView {
           }
         }
       }
+
+      show(this.child_views[i].el, active == i)
 
       return <div
         class={cls(tabs_css.tab, active_cls, disabled_cls)}
