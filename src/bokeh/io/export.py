@@ -23,36 +23,38 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-from contextlib import contextmanager
 from os.path import abspath, expanduser, splitext
-from pathlib import Path
-from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Iterator, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 # Bokeh imports
-from ..embed import file_html
 from ..resources import INLINE
+from ..settings import settings
+from ..util.dependencies import import_optional
+from .playwright import get_screenshot_as_png as get_screenshot_as_png_with_playwright, get_svg as get_svg_with_playwright, get_svgs as get_svgs_with_playwright
 from .state import curstate
-from .util import default_filename
+from .util import default_filename, tmp_html, _SVG_SCRIPT, _SVGS_SCRIPT, get_layout_html
 
 if TYPE_CHECKING:
-    from tempfile import _TemporaryFileWrapper
-
     from PIL import Image
     from selenium.webdriver.remote.webdriver import WebDriver
 
+    try:
+        from playwright.sync_api import Browser, BrowserContext
+        DriverLike = WebDriver | Browser | BrowserContext
+    except ImportError:
+        DriverLike = WebDriver  # type: ignore[misc]
+
     from ..core.types import PathLike
     from ..document import Document
-    from ..model import Model
-    from ..models.plots import Plot
     from ..models.ui import UIElement
     from ..resources import Resources
-    from ..themes import Theme
     from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+ExportBackendType = Literal["selenium", "playwright"]
 
 __all__ = (
     'export_png',
@@ -69,7 +71,7 @@ __all__ = (
 
 def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
         height: int | None = None, scale_factor: float = 1, webdriver: WebDriver | None = None,
-        timeout: int = 5, state: State | None = None) -> str:
+        timeout: int = 5, state: State | None = None, backend: ExportBackendType | None = None) -> str:
     ''' Export the ``UIElement`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -92,8 +94,12 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
             providing a higher resolution while maintaining element relative
             scales.
 
-        webdriver (selenium.webdriver) : a selenium webdriver instance to use
-            to export the image.
+        webdriver (selenium.webdriver or playwright Browser/BrowserContext) :
+            A browser instance to use for export. Accepts a Selenium
+            ``WebDriver`` or a Playwright ``Browser`` / ``BrowserContext``
+            (e.g. from ``playwright.chromium.launch()`` or
+            ``launch_persistent_context()``). The backend is auto-detected
+            from the type of object passed.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
@@ -101,6 +107,11 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
         state (State, optional) :
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
+
+        backend (ExportBackendType, optional) :
+            Which browser backend to use for export. If None, uses the
+            ``BOKEH_EXPORT_BACKEND`` setting (default: auto-detect).
+            Passing a ``webdriver`` instance overrides this setting.
 
     Returns:
         str : the filename where the static file is saved.
@@ -115,7 +126,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
     '''
     image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, driver=webdriver,
-                                  timeout=timeout, state=state)
+                                  timeout=timeout, state=state, backend=backend)
 
     if filename is None:
         filename = default_filename("png")
@@ -129,7 +140,8 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
     return abspath(expanduser(filename))
 
 def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> list[str]:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5,
+        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -157,6 +169,11 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
 
+        backend (ExportBackendType, optional) :
+            Which browser backend to use for export. If None, uses the
+            ``BOKEH_EXPORT_BACKEND`` setting (default: auto-detect).
+            Passing a ``webdriver`` instance forces the Selenium backend.
+
     Returns:
         list[str] : the list of filenames where the SVGs files are saved.
 
@@ -165,11 +182,12 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
+    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state, backend=backend)
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> list[str]:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5,
+        state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -198,6 +216,11 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
 
+        backend (ExportBackendType, optional) :
+            Which browser backend to use for export. If None, uses the
+            ``BOKEH_EXPORT_BACKEND`` setting (default: auto-detect).
+            Passing a ``webdriver`` instance forces the Selenium backend.
+
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are saved.
 
@@ -206,7 +229,7 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
+    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state, backend=backend)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")
@@ -218,9 +241,55 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
 # Dev API
 #-----------------------------------------------------------------------------
 
+def _is_playwright_browser(obj: object) -> bool:
+    '''Return True if ``obj`` is a Playwright Browser or BrowserContext.'''
+    return hasattr(obj, "new_page") and callable(obj.new_page)
+
+
+def _resolve_backend(driver: WebDriver | None, backend: ExportBackendType | None) -> ExportBackendType:
+    '''Determine which browser backend to use.
+
+    Priority order:
+    1. If a Playwright ``Browser`` or ``BrowserContext`` is passed as
+       *driver*, always use "playwright".
+    2. If any other (Selenium) ``driver`` is passed, always use "selenium".
+    3. If ``backend`` is explicitly specified, use that.
+    4. Fall back to the ``BOKEH_EXPORT_BACKEND`` setting.
+    5. If set to "auto" (default), try selenium first, then playwright.
+       This preserves existing behaviour for users who already have
+       selenium installed.
+    '''
+    if driver is not None:
+        if _is_playwright_browser(driver):
+            return "playwright"
+        return "selenium"
+
+    if backend is not None:
+        if backend not in ("selenium", "playwright"):
+            raise ValueError(f"Invalid export backend: {backend!r}. Must be 'selenium' or 'playwright'.")
+        return backend
+
+    configured = settings.export_backend()
+
+    if configured in ("selenium", "playwright"):
+        return configured  # type: ignore[return-value]
+
+    # "auto" — try selenium first (preserves existing behaviour), then playwright
+    if import_optional("selenium") is not None:
+        return "selenium"
+    if import_optional("playwright") is not None:
+        return "playwright"
+
+    raise RuntimeError(
+        "Neither Selenium nor Playwright is installed. Install one of:\n"
+        "  pip install playwright && playwright install chromium\n"
+        "  pip install selenium  (+ browser driver on PATH)"
+    )
+
+
 def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
-        scale_factor: float = 1, state: State | None = None) -> Image.Image:
+        scale_factor: float = 1, state: State | None = None, backend: str | None = None) -> Image.Image:
     ''' Get a screenshot of a ``UIElement`` object.
 
     Args:
@@ -242,6 +311,10 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
 
+        backend ("selenium" or "playwright", optional) :
+            Which browser backend to use. If None, auto-detected.
+            Passing a ``driver`` forces "selenium".
+
     Returns:
         PIL.Image.Image : a pillow image loaded from PNG.
 
@@ -250,13 +323,20 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
+    if _resolve_backend(driver, backend) == "playwright":
+        return get_screenshot_as_png_with_playwright(
+            obj, timeout=timeout, resources=resources,
+            width=width, height=height, scale_factor=scale_factor, state=state,
+            browser=driver if _is_playwright_browser(driver) else None
+        )
+
     from .webdriver import (
         get_web_driver_device_pixel_ratio,
         scale_factor_less_than_web_driver_device_pixel_ratio,
         webdriver_control,
     )
 
-    with _tmp_html() as tmp:
+    with tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with tmp as f:
@@ -283,10 +363,16 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
                  .resize((int(width*scale_factor), int(height*scale_factor))))
 
 def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None,
+        state: State | None = None, backend: str | None = None) -> list[str]:
+    if _resolve_backend(driver, backend) == "playwright":
+        return get_svg_with_playwright(obj, timeout=timeout, resources=resources,
+                       width=width, height=height, state=state,
+                       browser=driver if _is_playwright_browser(driver) else None)
+
     from .webdriver import webdriver_control
 
-    with _tmp_html() as tmp:
+    with tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with tmp as f:
@@ -300,10 +386,16 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
     return svgs
 
 def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None,
+        state: State | None = None, backend: str | None = None) -> list[str]:
+    if _resolve_backend(driver, backend) == "playwright":
+        return get_svgs_with_playwright(obj, timeout=timeout, resources=resources,
+                        width=width, height=height, state=state,
+                        browser=driver if _is_playwright_browser(driver) else None)
+
     from .webdriver import webdriver_control
 
-    with _tmp_html() as tmp:
+    with tmp_html() as tmp:
         theme = (state or curstate()).document.theme
         html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with tmp as f:
@@ -315,51 +407,6 @@ def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, time
         svgs = cast(list[str], web_driver.execute_script(_SVGS_SCRIPT))
 
     return svgs
-
-def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
-        width: int | None = None, height: int | None = None, theme: Theme | None = None) -> str:
-    '''
-
-    '''
-    template = r"""\
-    {% block preamble %}
-    <style>
-        html, body {
-            box-sizing: border-box;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            border: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-    </style>
-    {% endblock %}
-    """
-
-    def html() -> str:
-        return file_html(
-            obj,
-            resources=resources,
-            title="",
-            template=template,
-            theme=theme,
-            suppress_callback_warning=True,
-            _always_new=True,
-        )
-
-    if width is not None or height is not None:
-        # Defer this import, it is expensive
-        from ..models.plots import Plot
-        if not isinstance(obj, Plot):
-            from ..util.warnings import warn
-
-            warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
-        else:
-            with _resized(obj, width, height):
-                return html()
-
-    return html()
 
 def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     '''
@@ -396,21 +443,6 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-@contextmanager
-def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]:
-    old_width = obj.width
-    old_height = obj.height
-
-    if width is not None:
-        obj.width = width
-    if height is not None:
-        obj.height = height
-
-    yield
-
-    obj.width = old_width
-    obj.height = old_height
 
 def _write_collection(items: list[str], filename: PathLike | None, ext: str) -> list[str]:
     if filename is None:
@@ -465,48 +497,6 @@ def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     web_driver.set_window_size(width + eps, height + eps)
     return viewport_size
 
-# TODO: consider UIElement like Pane
-_SVGS_SCRIPT = """
-const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")
-const {PlotView} = Bokeh.require("models/plots/plot")
-
-function* collect_svgs(views) {
-  for (const view of views) {
-    if (view instanceof LayoutDOMView) {
-      yield* collect_svgs(view.child_views.values())
-    }
-    if (view instanceof PlotView && view.model.output_backend == "svg") {
-      const {ctx} = view.export("svg")
-      yield ctx.get_serialized_svg(true)
-    }
-  }
-}
-
-return [...collect_svgs(Bokeh.index)]
-"""
-
-def _SVG_SCRIPT(obj: Model | Document) -> str:
-    from ..document import Document
-
-    if isinstance(obj, Document):
-        ids = [root.id for root in obj.roots]
-    else:
-        ids = [obj.id]
-    return f"""\
-const ids = new Set({ids})
-function* export_svgs(views) {{
-  for (const view of views) {{
-    // TODO: use to_blob() API in future
-    if (ids.has(view.model.id)) {{
-        const {{ctx}} = view.export("svg")
-        yield ctx.get_serialized_svg(true)
-    }}
-  }}
-}}
-
-return [...export_svgs(Bokeh.index)]
-"""
-
 _WAIT_SCRIPT = """
 // add private window prop to check that render is complete
 window._bokeh_render_complete = false;
@@ -521,18 +511,6 @@ if (doc.is_idle)
 else
   doc.idle.connect(done);
 """
-
-@contextmanager
-def _tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
-    # according to https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
-    # in order for named temp files to be safely re-openable on Windows, we need
-    # to set delete=False, so explicitly this context manager is for explicitly
-    # managing the unlink after we are done.
-    tmp = NamedTemporaryFile(mode="wb", dir=Path.home(), prefix="bokeh", suffix=".html", delete=False)
-    try:
-        yield tmp
-    finally:
-        os.unlink(tmp.name)
 
 #-----------------------------------------------------------------------------
 # Code
