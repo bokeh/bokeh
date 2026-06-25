@@ -68,6 +68,7 @@ dependencies:
   - pip:
     - mypy >=1.19
     - playwright
+    - pytest-playwright
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme
