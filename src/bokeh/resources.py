@@ -26,6 +26,8 @@ Attributes:
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportReturnType=false
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -47,6 +49,7 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
+    Sequence,
     TypedDict,
     cast,
 )
@@ -108,11 +111,11 @@ type Hashes = dict[str, str]
 
 _ALL_SRI_HASHES: dict[str, Hashes] = {}
 
-def get_all_sri_versions() -> tuple[str, ...]:
+def get_all_sri_versions() -> set[str]:
     """ Report all versions that have SRI hashes.
 
     Returns:
-        tuple
+        set
 
     """
     files = (ROOT_DIR / "_sri").glob("*.json")
@@ -224,11 +227,11 @@ class RuntimeMessage:
 # XXX: https://github.com/python/mypy/issues/5485
 class UrlsFn(Protocol):
     @staticmethod
-    def __call__(components: list[str], kind: Kind) -> list[str]: ...
+    def __call__(components: Sequence[str], kind: Kind) -> list[str]: ...
 
 class HashesFn(Protocol):
     @staticmethod
-    def __call__(components: list[str], kind: Kind) -> Hashes: ...
+    def __call__(components: Sequence[str], kind: Kind) -> Hashes: ...
 
 @dataclass
 class Urls:

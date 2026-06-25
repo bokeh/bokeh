@@ -22,10 +22,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Sequence,
+    cast,
+)
 
 # Bokeh imports
+from .core.enums import MarkerTypeType
 from .core.property.vectorization import Expr, Field
+from .core.property.visual import HatchPatternType
 from .models.expressions import CumSum, Stack
 from .models.mappers import (
     CategoricalColorMapper,
@@ -152,12 +159,12 @@ def eqhist_cmap(
     return Field(
         field_name,
         EqHistColorMapper(
-            palette=palette,
+            palette=cast(Any, palette),
             low=low,
             high=high,
-            nan_color=nan_color,
-            low_color=low_color,
-            high_color=high_color,
+            nan_color=cast(Any, nan_color),
+            low_color=cast(Any, low_color),
+            high_color=cast(Any, high_color),
         ),
     )
 
@@ -165,8 +172,8 @@ def factor_cmap(
     field_name: str,
     palette: Sequence[ColorLike],
     factors: Factors,
-    start: float = 0,
-    end: float | None = None,
+    start: int = 0,
+    end: int | None = None,
     nan_color: ColorLike = "gray",
 ) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
@@ -197,11 +204,11 @@ def factor_cmap(
     return Field(
         field_name,
         CategoricalColorMapper(
-            palette=palette,
+            palette=cast(Any, palette),
             factors=factors,
             start=start,
             end=end,
-            nan_color=nan_color,
+            nan_color=cast(Any, nan_color),
         ),
     )
 
@@ -209,8 +216,8 @@ def factor_hatch(
     field_name: str,
     patterns: Sequence[str],
     factors: Factors,
-    start: float = 0,
-    end: float | None = None,
+    start: int = 0,
+    end: int | None = None,
 ) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalPatternMapper`` transformation to a ``ColumnDataSource``
@@ -239,7 +246,7 @@ def factor_hatch(
     return Field(
         field_name,
         CategoricalPatternMapper(
-            patterns=patterns,
+            patterns=cast(Sequence[HatchPatternType], patterns),
             factors=factors,
             start=start,
             end=end,
@@ -250,8 +257,8 @@ def factor_mark(
     field_name: str,
     markers: Sequence[str],
     factors: Factors,
-    start: float = 0,
-    end: float | None = None,
+    start: int = 0,
+    end: int | None = None,
 ) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
@@ -282,7 +289,7 @@ def factor_mark(
     return Field(
         field_name,
         CategoricalMarkerMapper(
-            markers=markers,
+            markers=cast(Sequence[MarkerTypeType], markers),
             factors=factors,
             start=start,
             end=end,
@@ -365,12 +372,12 @@ def linear_cmap(
     return Field(
         field_name,
         LinearColorMapper(
-            palette=palette,
+            palette=cast(Any, palette),
             low=low,
             high=high,
-            nan_color=nan_color,
-            low_color=low_color,
-            high_color=high_color,
+            nan_color=cast(Any, nan_color),
+            low_color=cast(Any, low_color),
+            high_color=cast(Any, high_color),
         ),
     )
 
@@ -412,12 +419,12 @@ def log_cmap(
     return Field(
         field_name,
         LogColorMapper(
-            palette=palette,
+            palette=cast(Any, palette),
             low=low,
             high=high,
-            nan_color=nan_color,
-            low_color=low_color,
-            high_color=high_color,
+            nan_color=cast(Any, nan_color),
+            low_color=cast(Any, low_color),
+            high_color=cast(Any, high_color),
         ),
     )
 

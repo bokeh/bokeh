@@ -33,6 +33,7 @@ from typing import (
 
 # External imports
 from tornado import gen
+from tornado.concurrent import Future
 
 # Bokeh imports
 from ..core.types import ID
@@ -94,11 +95,11 @@ class _AsyncPeriodic:
         self._started = False
         self._stopped = False
         self._sleep_handle: object | None = None
-        self._sleep_future: gen.Future[None] | None = None
+        self._sleep_future: Future[None] | None = None
 
     # this is like gen.sleep but uses our IOLoop instead of the current IOLoop
-    def sleep(self, delay: float | None = None) -> gen.Future[None]:
-        f: gen.Future[None] = gen.Future()
+    def sleep(self, delay: float | None = None) -> Future[None]:
+        f: Future[None] = Future()
         self._sleep_future = f
 
         def wake() -> None:
@@ -123,7 +124,7 @@ class _AsyncPeriodic:
             if self._stopped:
                 # The periodic was stopped (e.g. via remove_periodic_callback).
                 # Don't call the callback again; return an already-resolved future.
-                f: gen.Future[None] = gen.Future()
+                f: Future[None] = Future()
                 f.set_result(None)
                 return f
 
@@ -140,7 +141,7 @@ class _AsyncPeriodic:
             callback_future = gen.convert_yielded(result)
             return gen.multi([sleep_future, callback_future])
 
-        def on_done(future: gen.Future[None]) -> None:
+        def on_done(future: Future[None]) -> None:
             if not self._stopped and not future.cancelled():
                 # mypy can't infer type of invoker for some reason
                 self._loop.add_future(invoke(), on_done)  # type: ignore

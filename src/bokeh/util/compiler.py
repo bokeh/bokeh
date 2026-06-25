@@ -108,6 +108,7 @@ def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None)
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
     lines = output.split("\n")
+    i = 0
     for i, line in enumerate(lines):
         if not line.startswith("LOG"):
             break
