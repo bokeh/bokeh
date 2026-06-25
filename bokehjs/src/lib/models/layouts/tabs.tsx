@@ -209,6 +209,35 @@ export class TabsView extends LayoutDOMView {
         if (is_disabled) {
           return
         }
+
+        const find_activable = (i: number, dir: -1 | 1) => {
+          const n = tabs.length
+          if (dir == 1) {
+            for (let j = i; j < n; j++) {
+              if (!tabs[j].disabled) {
+                return j
+              }
+            }
+            for (let j = 0; j < i; j++) {
+              if (!tabs[j].disabled) {
+                return j
+              }
+            }
+          } else {
+            for (let j = i; j >= 0; j--) {
+              if (!tabs[j].disabled) {
+                return j
+              }
+            }
+            for (let j = n-1; j >= i; j--) {
+              if (!tabs[j].disabled) {
+                return j
+              }
+            }
+          }
+          return active
+        }
+
         switch (event.key as Keys) {
           case " ":
           case "Enter": {
@@ -223,34 +252,34 @@ export class TabsView extends LayoutDOMView {
           }
           case "ArrowLeft": {
             if (this.tabs_orientation == "horizontal") {
-              toggle_tab(i - 1)
+              toggle_tab(find_activable(i-1, -1))
             }
             break
           }
           case "ArrowRight": {
             if (this.tabs_orientation == "horizontal") {
-              toggle_tab(i + 1)
+              toggle_tab(find_activable(i+1, +1))
             }
             break
           }
           case "ArrowUp": {
             if (this.tabs_orientation == "vertical") {
-              toggle_tab(i - 1)
+              toggle_tab(find_activable(i-1, -1))
             }
             break
           }
           case "ArrowDown": {
             if (this.tabs_orientation == "vertical") {
-              toggle_tab(i + 1)
+              toggle_tab(find_activable(i+1, +1))
             }
             break
           }
           case "Home": {
-            toggle_tab(0)
+            toggle_tab(find_activable(0, +1))
             break
           }
           case "End": {
-            toggle_tab(tabs.length - 1)
+            toggle_tab(find_activable(tabs.length-1, -1))
             break
           }
           default:
