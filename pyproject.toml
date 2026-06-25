@@ -197,92 +197,34 @@ line-length = 165
 [tool.ruff.per-file-target-version]
 "examples/interaction/widgets/slider_template_string.py" = "py314"
 
-# For now enable each typed module individually.
+# For now ignore each remaining untyped module individually.
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.*",
+    "bokeh.application.handlers.notebook",
+    "bokeh.layouts",
+    "bokeh.models.annotations.arrows",
+    "bokeh.models.annotations.geometry",
+    "bokeh.models.annotations.html.labels",
+    "bokeh.models.axes",
+    "bokeh.models.mappers",
+    "bokeh.models.plots",
+    "bokeh.models.tools",
+    "bokeh.models.util.structure",
+    "bokeh.plotting._figure",
+    "bokeh.plotting._geo_feature",
+    "bokeh.plotting._graph",
+    "bokeh.plotting._legends",
+    "bokeh.plotting._plot",
+    "bokeh.plotting._renderer",
+    "bokeh.plotting.contour",
+    "bokeh.plotting.graph",
+    "tests",
     "tests.*",
 ]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.client.states",
-    "bokeh.colors.*",
-    "bokeh.command.*",
-    "bokeh.core.json_encoder",
-
-    "bokeh.core.properties",
-    "bokeh.core.property", # TODO: .*
-    "bokeh.core.property_mixins",
-
-    #"bokeh.core.property.alias",
-    "bokeh.core.property.any",
-    "bokeh.core.property.auto",
-    #"bokeh.core.property.bases",
-    "bokeh.core.property.color",
-    "bokeh.core.property.constraints",
-    #"bokeh.core.property.container",
-    #"bokeh.core.property.dataspec",
-    "bokeh.core.property.datetime",
-    #"bokeh.core.property.descriptor_factory",
-    #"bokeh.core.property.descriptors",
-    #"bokeh.core.property.either",
-    "bokeh.core.property.enum",
-    "bokeh.core.property.factors",
-    "bokeh.core.property.include",
-    #"bokeh.core.property.instance",
-    "bokeh.core.property.json",
-    "bokeh.core.property.nothing",
-    "bokeh.core.property.nullable",
-    "bokeh.core.property.numeric",
-    "bokeh.core.property.override",
-    "bokeh.core.property.data_frame",
-    "bokeh.core.property.primitive",
-    "bokeh.core.property.readonly",
-    "bokeh.core.property.required",
-    "bokeh.core.property.serialized",
-    "bokeh.core.property.singletons",
-    "bokeh.core.property.string",
-    #"bokeh.core.property.struct",
-    "bokeh.core.property.text_like",
-    #"bokeh.core.property.validation",
-    #"bokeh.core.property.vectorization",
-    #"bokeh.core.property.visual",
-    #"bokeh.core.property.wrappers",
-
-    "bokeh.core.query",
-    "bokeh.core.serialization",
-    "bokeh.core.templates",
-    "bokeh.core.types",
-    "bokeh.core.validation",
-
-    "bokeh.document.callbacks",
-    "bokeh.document.json",
-    "bokeh.document.locking",
-    "bokeh.document.models",
-    "bokeh.document.modules",
-
-    "bokeh.driving",
-
-    "bokeh.embed.standalone",
-    "bokeh.embed.wrappers",
-
-    "bokeh.ext.*",
-    "bokeh.io.*",
-
-    "bokeh.palettes",
-    "bokeh.plotting._tools",
-    "bokeh.protocol.*",
-    "bokeh.sampledata.*",
-
-    "bokeh.server.callbacks",
-    "bokeh.server.server",
-    "bokeh.server.tornado",
-    "bokeh.server.urls",
-    "bokeh.server.util",
-
-    "bokeh.util.*",
     "tests.codebase.*",
     "tests.support.defaults",
     "tests.test_bokehjs",
@@ -296,3 +238,14 @@ module = [
     "tests.unit.bokeh.test_layouts__typing",
 ]
 ignore_errors = false
+
+# TODO remove when we drop Python 3.11
+[[tool.mypy.overrides]]
+module = [
+    "docutils",
+    "docutils.*",
+    "sphinx",
+    "sphinx.*",
+]
+follow_imports = "skip"
+ignore_missing_imports = true
