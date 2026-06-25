@@ -21,6 +21,7 @@ def plots(color: str) -> list[Plot]:
 
 def tabs(plots: list[Plot], location: Location):
     return Tabs(
+        active=-1,
         tabs=[
             TabPanel(child=plots[0], title="circle", tooltip="This is the first tab."),
             TabPanel(child=plots[1], title="scatter", tooltip=HTML(html="This is the <b>second</b> tab.")),

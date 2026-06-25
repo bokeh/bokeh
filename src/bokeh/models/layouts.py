@@ -593,6 +593,10 @@ class Tabs(LayoutDOM):
 
     active = Int(0, help="""
     The index of the active tab.
+
+    Negative indices are supported and allow indexing from the end, i.e. -1
+    activates the last tab. Out of bounds indices are truncated to the size
+    of ``tabs``.
     """)
 
     link_layouts = Bool(default=False, help="""
