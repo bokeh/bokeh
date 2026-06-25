@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportGeneralTypeIssues=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,16 +23,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Awaitable
+from typing import Any, cast
 from urllib.parse import urlparse
 
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
+from bokeh.core.types import ID
 from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
 from bokeh.settings import settings
 
 # Bokeh imports
+from ..session import ServerSession
 from ..util import check_allowlist
 from .session_handler import SessionHandler
 
@@ -55,7 +61,7 @@ class AutoloadJsHandler(SessionHandler):
 
     '''
 
-    def set_default_headers(self):
+    def set_default_headers(self) -> None:
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Allow-Credentials", "true")
@@ -67,9 +73,9 @@ class AutoloadJsHandler(SessionHandler):
         origin = self.request.headers["Origin"]
         origin_host = urlparse(origin).netloc.lower()
 
-        allowed_hosts = self.application.websocket_origins
+        allowed_hosts = list(self.application.websocket_origins)
         if settings.allowed_ws_origin():
-            allowed_hosts = set(settings.allowed_ws_origin())
+            allowed_hosts = settings.allowed_ws_origin()
 
         if check_allowlist(origin_host, allowed_hosts):
             # Only mirror origins already trusted to open Bokeh websockets.
@@ -77,12 +83,13 @@ class AutoloadJsHandler(SessionHandler):
             self.set_header("Access-Control-Allow-Origin", origin)
             self.set_header("Vary", "Origin")
 
-    async def get(self, *args, **kwargs):
+    async def get(self, *args: Any, **kwargs: Any) -> None:
         self._allow_websocket_origin()
 
-        session = await self.get_session()
+        session = await cast(Awaitable[ServerSession | None], self.get_session())
+        assert session is not None
 
-        element_id = self.get_argument("bokeh-autoload-element", default=None)
+        element_id = cast(ID | None, self.get_argument("bokeh-autoload-element", default=None))
         if not element_id:
             self.send_error(status_code=400, reason='No bokeh-autoload-element query parameter')
             return
@@ -108,7 +115,7 @@ class AutoloadJsHandler(SessionHandler):
         self.set_header("Content-Type", 'application/javascript')
         self.write(js)
 
-    async def options(self, *args, **kwargs):
+    async def options(self, *args: Any, **kwargs: Any) -> None:
         '''Browsers make OPTIONS requests under the hood before a GET request'''
         self.set_header('Access-Control-Allow-Methods', 'PUT, GET, OPTIONS')
         self._allow_websocket_origin()

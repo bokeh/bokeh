@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, cast
+
 # External imports
 from tornado.web import RequestHandler
 
@@ -51,32 +54,39 @@ class AuthRequestHandler(RequestHandler):
 
     '''
 
-    def get_login_url(self):
+    @property
+    def bokeh_app(self) -> Any:
+        return cast(Any, self.application)
+
+    def get_login_url(self) -> str:
         ''' Delegates to``get_login_url`` method of the auth provider, or the
         ``login_url`` attribute.
 
         '''
-        if self.application.auth_provider.get_login_url is not None:
-            return self.application.auth_provider.get_login_url(self)
-        if self.application.auth_provider.login_url is not None:
-            return self.application.auth_provider.login_url
+        auth_provider = self.bokeh_app.auth_provider
+        if auth_provider.get_login_url is not None:
+            return auth_provider.get_login_url(self)
+        if auth_provider.login_url is not None:
+            return auth_provider.login_url
         raise RuntimeError('login_url or get_login_url() must be supplied when authentication hooks are enabled')
 
-    def get_current_user(self):
+    def get_current_user(self) -> Any:
         ''' Delegate to the synchronous ``get_user`` method of the auth
         provider
 
         '''
-        if self.application.auth_provider.get_user is not None:
-            return self.application.auth_provider.get_user(self)
+        auth_provider = self.bokeh_app.auth_provider
+        if auth_provider.get_user is not None:
+            return auth_provider.get_user(self)
         return "default_user"
 
-    async def prepare(self):
+    async def prepare(self) -> None:
         ''' Async counterpart to ``get_current_user``
 
         '''
-        if self.application.auth_provider.get_user_async is not None:
-            self.current_user = await self.application.auth_provider.get_user_async(self)
+        auth_provider = self.bokeh_app.auth_provider
+        if auth_provider.get_user_async is not None:
+            self.current_user = await auth_provider.get_user_async(self)
 
 #-----------------------------------------------------------------------------
 # Private API
