@@ -63,7 +63,7 @@ RESOURCES = get_sphinx_resources()
 Ref = dict[str, str]
 
 
-class gallery_xrefs(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
+class gallery_xrefs(nodes.General, nodes.Element):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.subfolder = kwargs.pop("subfolder", None)
@@ -77,7 +77,7 @@ class BokehGalleryOverviewDirective(BokehDirective):
     def run(self) -> list[Any]:
         return [gallery_xrefs('', subfolder=self.arguments[0])]
 
-class sampledata_list(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
+class sampledata_list(nodes.General, nodes.Element):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.sampledata_key = kwargs.pop("sampledata_key")

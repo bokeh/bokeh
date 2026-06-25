@@ -64,7 +64,7 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class ColorDocumenter(ModuleLevelDocumenter): # type: ignore[misc,no-any-unimported]
+class ColorDocumenter(ModuleLevelDocumenter):
     directivetype = "bokeh-color"
     objtype = ""
     priority = 20
@@ -81,7 +81,7 @@ class ColorDocumenter(ModuleLevelDocumenter): # type: ignore[misc,no-any-unimpor
         return False, []
 
 
-class EnumDocumenter(ModuleLevelDocumenter): # type: ignore[misc,no-any-unimported]
+class EnumDocumenter(ModuleLevelDocumenter):
     directivetype = "bokeh-enum"
     objtype = "enum"
     priority = 20
@@ -97,7 +97,7 @@ class EnumDocumenter(ModuleLevelDocumenter): # type: ignore[misc,no-any-unimport
         return False, []
 
 
-class PropDocumenter(AttributeDocumenter): # type: ignore[misc,no-any-unimported]
+class PropDocumenter(AttributeDocumenter):
     directivetype = "bokeh-prop"
     objtype = "prop"
     priority = 20
@@ -108,7 +108,7 @@ class PropDocumenter(AttributeDocumenter): # type: ignore[misc,no-any-unimported
         return isinstance(member, PropertyDescriptor)
 
 
-class ModelDocumenter(ClassDocumenter): # type: ignore[misc,no-any-unimported]
+class ModelDocumenter(ClassDocumenter):
     directivetype = "bokeh-model"
     objtype = "model"
     priority = 20

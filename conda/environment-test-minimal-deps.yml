@@ -69,6 +69,7 @@ dependencies:
     - ruff ==0.15.*
     - types-boto3
     - types-colorama
+    - types-docutils
     - types-mock
     - types-pillow
     - types-pyyaml

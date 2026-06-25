@@ -72,7 +72,7 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class bokeh_palette_group(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
+class bokeh_palette_group(nodes.General, nodes.Element):
 
     @staticmethod
     def visit_html(visitor: Any, node: Any) -> None:
@@ -94,7 +94,7 @@ class bokeh_palette_group(nodes.General, nodes.Element): # type: ignore[misc,no-
     html = visit_html.__func__, None # type: ignore[attr-defined]
 
 
-class BokehPaletteGroupDirective(Directive): # type: ignore[misc,no-any-unimported]
+class BokehPaletteGroupDirective(Directive):
 
     has_content = False
     required_arguments = 1

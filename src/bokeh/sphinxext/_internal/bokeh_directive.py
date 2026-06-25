@@ -59,10 +59,10 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehDirective(SphinxDirective): # type: ignore[misc,no-any-unimported]
+class BokehDirective(SphinxDirective):
 
     def parse(self, rst_text: str, annotation: str) -> list[Any]:
-        result = ViewList()
+        result: ViewList[str] = ViewList()
         for line in rst_text.split("\n"):
             result.append(line, annotation)
         node = nodes.paragraph()

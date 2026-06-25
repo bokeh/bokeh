@@ -94,7 +94,7 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class bokehjs_content(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
+class bokehjs_content(nodes.General, nodes.Element):
 
     @staticmethod
     def visit_html(visitor: Any, node: Any) -> None:
@@ -112,7 +112,7 @@ class bokehjs_content(nodes.General, nodes.Element): # type: ignore[misc,no-any-
     html = visit_html.__func__, depart_html.__func__ # type: ignore[attr-defined]
 
 
-class BokehJSContent(CodeBlock): # type: ignore[misc,no-any-unimported]
+class BokehJSContent(CodeBlock):
 
     has_content = True
     optional_arguments = 1
@@ -157,7 +157,7 @@ class BokehJSContent(CodeBlock): # type: ignore[misc,no-any-unimported]
             lines = dedent_lines(lines, self.options["dedent"], location=dedent_location)
             code = "\n".join(lines)
 
-        literal = nodes.literal_block(code, code)
+        literal: nodes.Element = nodes.literal_block(code, code)
         literal["language"] = language
         literal["linenos"] = "linenos" in self.options or "lineno-start" in self.options
         literal["classes"] += self.options.get("class", [])

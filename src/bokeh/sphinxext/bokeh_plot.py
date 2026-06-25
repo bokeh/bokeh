@@ -131,7 +131,7 @@ RESOURCES = get_sphinx_resources()
 # General API
 # -----------------------------------------------------------------------------
 
-class autoload_script(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
+class autoload_script(nodes.General, nodes.Element):
 
     @staticmethod
     def visit_html(visitor: Any, node: Any) -> None:
@@ -151,10 +151,15 @@ class BokehPlotDirective(BokehDirective):
     has_content = True
     optional_arguments = 2
 
+    @staticmethod
+    def _flag(value: str) -> bool:
+        flag(value)
+        return True
+
     option_spec = {
-        "process-docstring": lambda x: flag(x) is None,
+        "process-docstring": _flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
-        "linenos": lambda x: flag(x) is None,
+        "linenos": _flag,
     }
 
     def run(self) -> list[Any]:
@@ -259,7 +264,7 @@ class BokehPlotDirective(BokehDirective):
         file, _ = self.get_source_info()
         # collect links to all standalone examples
 
-        if '/docs/examples/' in file and file not in env.solved_sampledata:
+        if file is not None and '/docs/examples/' in file and file not in env.solved_sampledata:
             env.solved_sampledata.append(file)
             if not hasattr(env, 'all_sampledata_xrefs'):
                 env.all_sampledata_xrefs = []
