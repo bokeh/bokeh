@@ -185,28 +185,6 @@ jobs:
       - name: Install Playwright browsers
         run: playwright install chromium
 
-      - name: Test defaults
-        run: pytest tests/test_defaults.py
-
-      - name: Test cross
-        run: pytest tests/test_cross.py
-
-      - name: Run tests
-        if: success() || failure()
-        run: |
-          COLOR="--color=yes"
-          COVERAGE="--cov=bokeh --cov-report=xml"
-          POLICY="--last-failed --last-failed-no-failures none"
-          pytest $COLOR $COVERAGE tests/unit || pytest $COLOR $POLICY tests/unit
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v5
-        if: success() || failure()
-        with:
-          env_vars: OS,PYTHON
-          flags: unit
-          verbose: true
-
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
 
