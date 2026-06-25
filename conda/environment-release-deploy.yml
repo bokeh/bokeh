@@ -2,7 +2,7 @@ name: bk-release-deploy
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.12
 
   # deploy
   - anaconda-client

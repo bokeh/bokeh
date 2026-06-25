@@ -26,7 +26,6 @@ from typing import (
     Any,
     Literal,
     NotRequired,
-    TypeAlias,
     TypedDict,
 )
 
@@ -92,7 +91,7 @@ class ColumnsPatched(TypedDict):
     attr: str
     patches: Patches
 
-DocumentPatched: TypeAlias = (
+type DocumentPatched = (
     MessageSent |
     ModelChanged |
     ColumnDataChanged |

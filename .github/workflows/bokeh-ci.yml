@@ -55,7 +55,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.11'
+          test-env: '3.12'
           source-tree: 'keep'
 
       - name: List installed software
@@ -72,7 +72,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python-version: ['3.11', '3.14']
+        python-version: ['3.12', '3.14']
 
     steps:
       - uses: actions/checkout@v6

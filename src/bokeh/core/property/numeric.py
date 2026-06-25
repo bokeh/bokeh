@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import Any
 
 # Bokeh imports
 from .bases import (
@@ -47,13 +47,11 @@ __all__ = (
     'Size',
 )
 
-T = TypeVar("T", bound=int | float)
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class NonNegative(SingleParameterizedProperty[T]):
+class NonNegative[T: int | float](SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
     def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
@@ -65,7 +63,7 @@ class NonNegative(SingleParameterizedProperty[T]):
         if not (0 <= value):
             raise ValueError(f"expected a non-negative number, got {value!r}")
 
-class Positive(SingleParameterizedProperty[T]):
+class Positive[T: int | float](SingleParameterizedProperty[T]):
     """ A property accepting a value of some other type while having undefined default. """
 
     def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
@@ -77,7 +75,7 @@ class Positive(SingleParameterizedProperty[T]):
         if not (0 < value):
             raise ValueError(f"expected a positive number, got {value!r}")
 
-class Interval(SingleParameterizedProperty[T]):
+class Interval[T: int | float](SingleParameterizedProperty[T]):
     """ Accept numeric values that are contained within a given interval.
 
     Args:

@@ -95,9 +95,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Generic,
     TypeGuard,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -132,12 +130,10 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
-
 class UnsetValueError(ValueError):
     """ Represents state in which descriptor without value was accessed. """
 
-class AliasPropertyDescriptor(Generic[T]):
+class AliasPropertyDescriptor[T]:
     """
 
     """
@@ -176,7 +172,7 @@ class AliasPropertyDescriptor(Generic[T]):
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False):
         return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
 
-class DeprecatedAliasPropertyDescriptor(AliasPropertyDescriptor[T]):
+class DeprecatedAliasPropertyDescriptor[T](AliasPropertyDescriptor[T]):
     """
 
     """
@@ -212,7 +208,7 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
         self._warn()
         super().__set__(obj, value)
 
-class PropertyDescriptor(Generic[T]):
+class PropertyDescriptor[T]:
     """ A base class for Bokeh properties with simple get/set and serialization
     behavior.
 

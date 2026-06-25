@@ -19,12 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    TypeAlias,
-)
+from typing import TYPE_CHECKING, Any, Literal
 
 # External imports
 import numpy as np
@@ -112,9 +107,9 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
 
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
-AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
-Dim: TypeAlias = Literal[0, 1]
+type AxisType = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
+type AxisLocation = Literal["above", "below", "left", "right"]
+type Dim = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
     if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "timedelta", "mercator", "auto", None]:

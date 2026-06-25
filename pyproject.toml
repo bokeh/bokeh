@@ -7,7 +7,7 @@ name = "bokeh"
 dynamic = ["version"]
 description = "Interactive plots and applications in the browser from Python"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "jinja2 >=2.9",
     "narwhals>=1.13",
@@ -40,7 +40,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -135,7 +134,7 @@ source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 
@@ -297,8 +296,3 @@ module = [
     "tests.unit.bokeh.test_layouts__typing",
 ]
 ignore_errors = false
-
-# TODO remove when we drop Python 3.11
-[[tool.mypy.overrides]]
-module = ["sphinx", "sphinx.*"]
-follow_imports = "skip"

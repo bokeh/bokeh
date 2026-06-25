@@ -23,12 +23,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    NoReturn,
-    TypeAlias,
-)
+from typing import TYPE_CHECKING, Literal, NoReturn
 
 if TYPE_CHECKING:
     from types import FrameType
@@ -92,7 +87,7 @@ def test_cross(case_path: str, config: _pytest.config.Config) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-ProcStatus: TypeAlias = int | Literal["timeout"]
+type ProcStatus = int | Literal["timeout"]
 
 TIMEOUT = 10 # seconds
 
