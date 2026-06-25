@@ -95,13 +95,13 @@ __all__ = (
 def get_screenshot_as_png(
     obj: UIElement | Document,
     *,
+    driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
     resources: Resources = INLINE,
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
     state: State | None = None,
-    browser: Browser | BrowserContext | None = None,
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Playwright.
 
@@ -109,7 +109,7 @@ def get_screenshot_as_png(
     :func:`~bokeh.io.export.get_screenshot_as_png`.
 
     Args:
-        browser: An optional Playwright ``Browser`` or ``BrowserContext``.
+        driver: An optional Playwright ``Browser`` or ``BrowserContext``.
             If provided, pages are created from it instead of the global
             ``playwright_control`` instance.  This allows callers to
             supply a ``launch_persistent_context`` or a custom browser.
@@ -117,7 +117,7 @@ def get_screenshot_as_png(
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
 
-    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=browser)
+    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=driver)
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
     return (Image.open(io.BytesIO(png_bytes))
@@ -129,12 +129,12 @@ def get_screenshot_as_png(
 def get_svg(
     obj: UIElement | Document,
     *,
+    driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
     resources: Resources = INLINE,
     width: int | None = None,
     height: int | None = None,
     state: State | None = None,
-    browser: Browser | BrowserContext | None = None,
 ) -> list[str]:
     '''Export a Bokeh layout as a list of SVG strings using Playwright.
 
@@ -143,19 +143,19 @@ def get_svg(
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=browser)[0]
+    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=driver)[0]
     return svgs
 
 
 def get_svgs(
     obj: UIElement | Document,
     *,
+    driver: Browser | BrowserContext | None = None,
     timeout: int = 5,
     resources: Resources = INLINE,
     width: int | None = None,
     height: int | None = None,
     state: State | None = None,
-    browser: Browser | BrowserContext | None = None,
 ) -> list[str]:
     '''Export SVG-enabled plots within a Bokeh layout using Playwright.
 
@@ -164,7 +164,7 @@ def get_svgs(
     '''
     theme = (state or curstate()).document.theme
     html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=browser)[0]
+    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=driver)[0]
     return svgs
 
 

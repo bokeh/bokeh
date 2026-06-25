@@ -23,23 +23,16 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from os.path import abspath, expanduser, splitext
-from typing import TYPE_CHECKING, Literal, TypeGuard
+from types import ModuleType
+from typing import TYPE_CHECKING, Literal
 
 # Bokeh imports
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
-from .browser import (
-    get_screenshot_as_png as get_screenshot_as_png_with_playwright,
-    get_svg as get_svg_with_playwright,
-    get_svgs as get_svgs_with_playwright,
-)
+from . import browser as _playwright_backend
+from . import webdriver as _selenium_backend
 from .util import default_filename, get_layout_html
-from .webdriver import (
-    get_screenshot_as_png as get_screenshot_as_png_with_selenium,
-    get_svg as get_svg_with_selenium,
-    get_svgs as get_svgs_with_selenium,
-)
 
 if TYPE_CHECKING:
     from PIL import Image
@@ -252,18 +245,31 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
 # Dev API
 #-----------------------------------------------------------------------------
 
-def _is_playwright_browser(obj: DriverLike | None) -> TypeGuard[Browser | BrowserContext]:
-    '''Return True if ``obj`` is a Playwright Browser or BrowserContext.'''
-    return obj is not None and hasattr(obj, "new_page") and callable(obj.new_page)
+def _is_playwright_browser(obj: object) -> bool:
+    '''Return True if ``obj`` is a Playwright Browser or BrowserContext.
+
+    If Playwright is not installed, the object cannot be one of its types,
+    so this unconditionally returns False. Otherwise a proper ``isinstance``
+    check is performed.
+    '''
+    sync_api = import_optional("playwright.sync_api")
+    if sync_api is None:
+        return False
+    return isinstance(obj, (sync_api.Browser, sync_api.BrowserContext))
 
 
-def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | None) -> ExportBackendType:
-    '''Determine which browser backend to use.
+def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | None) -> ModuleType:
+    '''Determine which browser backend module to use.
+
+    Returns the backend module itself (``bokeh.io.browser`` for playwright or
+    ``bokeh.io.webdriver`` for selenium) so callers can dispatch directly
+    without having to branch on a string.
 
     Priority order:
     1. If a Playwright ``Browser`` or ``BrowserContext`` is passed as
-       *driver*, always use "playwright".
-    2. If any other (Selenium) ``driver`` is passed, always use "selenium".
+       *driver*, always use the playwright backend.
+    2. If any other (Selenium) ``driver`` is passed, always use the
+       selenium backend.
     3. If ``backend`` is explicitly specified, use that.
     4. Fall back to the ``BOKEH_EXPORT_BACKEND`` setting.
     5. If set to "auto" (default), try selenium first, then playwright.
@@ -272,24 +278,28 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
     '''
     if driver is not None:
         if _is_playwright_browser(driver):
-            return "playwright"
-        return "selenium"
+            return _playwright_backend
+        return _selenium_backend
 
     if backend is not None:
-        if backend not in ("selenium", "playwright"):
-            raise ValueError(f"Invalid export backend: {backend!r}. Must be 'selenium' or 'playwright'.")
-        return backend
+        if backend == "playwright":
+            return _playwright_backend
+        if backend == "selenium":
+            return _selenium_backend
+        raise ValueError(f"Invalid export backend: {backend!r}. Must be 'selenium' or 'playwright'.")
 
     configured = settings.export_backend()
 
-    if configured in ("selenium", "playwright"):
-        return configured  # type: ignore[return-value]
+    if configured == "playwright":
+        return _playwright_backend
+    if configured == "selenium":
+        return _selenium_backend
 
     # "auto" — try selenium first (preserves existing behaviour), then playwright
     if import_optional("selenium") is not None:
-        return "selenium"
+        return _selenium_backend
     if import_optional("playwright") is not None:
-        return "playwright"
+        return _playwright_backend
 
     raise RuntimeError(
         "Neither Selenium nor Playwright is installed. Install one of:\n"
@@ -307,8 +317,9 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
         obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
             object or Document to export.
 
-        driver (selenium.webdriver) : a selenium webdriver instance to use
-            to export the image.
+        driver (selenium.webdriver or playwright Browser/BrowserContext) :
+            A browser instance to use for export. The backend is
+            auto-detected from the type of object passed.
 
         timeout (int) : the maximum amount of time to wait for initialization.
             It will be used as a timeout for loading Bokeh, then when waiting for
@@ -324,7 +335,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
 
         backend ("selenium" or "playwright", optional) :
             Which browser backend to use. If None, auto-detected.
-            Passing a ``driver`` forces "selenium".
+            Passing a ``driver`` overrides this setting.
 
     Returns:
         PIL.Image.Image : a pillow image loaded from PNG.
@@ -334,57 +345,27 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    if _is_playwright_browser(driver):
-        return get_screenshot_as_png_with_playwright(
-            obj, timeout=timeout, resources=resources,
-            width=width, height=height, scale_factor=scale_factor, state=state,
-            browser=driver,
-        )
-    # after the TypeGuard check above, driver is WebDriver | None
-    web_driver: WebDriver | None = driver  # type: ignore[assignment]
-    if _resolve_backend(web_driver, backend) == "playwright":
-        return get_screenshot_as_png_with_playwright(
-            obj, timeout=timeout, resources=resources,
-            width=width, height=height, scale_factor=scale_factor, state=state,
-        )
-    return get_screenshot_as_png_with_selenium(
-        obj, driver=web_driver, timeout=timeout, resources=resources,
+    backend_module = _resolve_backend(driver, backend)
+    return backend_module.get_screenshot_as_png(
+        obj, driver=driver, timeout=timeout, resources=resources,
         width=width, height=height, scale_factor=scale_factor, state=state,
     )
 
 def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
         state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
-    if _is_playwright_browser(driver):
-        return get_svg_with_playwright(
-            obj, timeout=timeout, resources=resources, width=width, height=height, state=state,
-            browser=driver,
-        )
-    web_driver: WebDriver | None = driver  # type: ignore[assignment]
-    if _resolve_backend(web_driver, backend) == "playwright":
-        return get_svg_with_playwright(
-            obj, timeout=timeout, resources=resources, width=width, height=height, state=state,
-        )
-    return get_svg_with_selenium(
-        obj, driver=web_driver, timeout=timeout, resources=resources,
+    backend_module = _resolve_backend(driver, backend)
+    return backend_module.get_svg(
+        obj, driver=driver, timeout=timeout, resources=resources,
         width=width, height=height, state=state,
     )
 
 def get_svgs(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None,
         state: State | None = None, backend: ExportBackendType | None = None) -> list[str]:
-    if _is_playwright_browser(driver):
-        return get_svgs_with_playwright(
-            obj, timeout=timeout, resources=resources, width=width, height=height, state=state,
-            browser=driver,
-        )
-    web_driver: WebDriver | None = driver  # type: ignore[assignment]
-    if _resolve_backend(web_driver, backend) == "playwright":
-        return get_svgs_with_playwright(
-            obj, timeout=timeout, resources=resources, width=width, height=height, state=state,
-        )
-    return get_svgs_with_selenium(
-        obj, driver=web_driver, timeout=timeout, resources=resources,
+    backend_module = _resolve_backend(driver, backend)
+    return backend_module.get_svgs(
+        obj, driver=driver, timeout=timeout, resources=resources,
         width=width, height=height, state=state,
     )
 
