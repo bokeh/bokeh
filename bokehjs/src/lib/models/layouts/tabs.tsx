@@ -315,7 +315,7 @@ export class TabsView extends LayoutDOMView {
 
       const ref = (el: HTMLElement | null) => {
         if (el != null) {
-          el.append(view.el)
+          view.render_to(el)
         }
       }
 

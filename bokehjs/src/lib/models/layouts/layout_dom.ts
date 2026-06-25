@@ -130,9 +130,11 @@ export abstract class LayoutDOMView extends PaneView {
   override render(): void {
     super.render()
 
-    for (const child_view of this.child_views) {
-      const target = child_view.rendering_target() ?? this.shadow_el
-      child_view.render_to(target)
+    if (!this.is_vdom) {
+      for (const child_view of this.child_views) {
+        const target = child_view.rendering_target() ?? this.shadow_el
+        child_view.render_to(target)
+      }
     }
   }
 
