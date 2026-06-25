@@ -28,13 +28,14 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from html import escape
 from os.path import join
+from typing import Any
 
 # External imports
 from sphinx.errors import SphinxError
 from sphinx.util.display import status_iterator
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -55,14 +56,14 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-def html_page_context(app, pagename, templatename, context, doctree):
+def html_page_context(app: Any, pagename: str, templatename: str, context: dict[str, Any], doctree: Any) -> None:
     """Collect page names for the sitemap as HTML pages are built."""
     site = context["SITEMAP_BASE_URL"]
     version = context["version"]
     app.sitemap_links.add(f"{site}{version}/{pagename}.html")
 
 
-def build_finished(app, exception):
+def build_finished(app: Any, exception: Exception | None) -> None:
     """Generate a ``sitemap.txt`` from the collected HTML page links."""
     filename = join(app.outdir, "sitemap.xml")
 
@@ -79,7 +80,7 @@ def build_finished(app, exception):
         raise SphinxError(f"cannot write sitemap.txt, reason: {e}")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.connect("html-page-context", html_page_context)
     app.connect("build-finished", build_finished)

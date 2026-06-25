@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from typing import Any, cast
 
 # External imports
 from docutils import nodes
@@ -58,15 +59,15 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class BokehDirective(SphinxDirective):
+class BokehDirective(SphinxDirective): # type: ignore[misc,no-any-unimported]
 
-    def parse(self, rst_text, annotation):
+    def parse(self, rst_text: str, annotation: str) -> list[Any]:
         result = ViewList()
         for line in rst_text.split("\n"):
             result.append(line, annotation)
         node = nodes.paragraph()
         node.document = self.state.document
-        nested_parse_with_titles(self.state, result, node)
+        nested_parse_with_titles(self.state, cast(Any, result), node)
         return node.children
 
 

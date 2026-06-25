@@ -46,16 +46,9 @@ The inline example code above produces the following output:
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging  # isort:skip
-
-log = logging.getLogger(__name__)
-
-# -----------------------------------------------------------------------------
-# Imports
-# -----------------------------------------------------------------------------
-
 # Standard library imports
 from os.path import basename, join
+from typing import Any, cast
 
 # External imports
 from docutils import nodes
@@ -63,11 +56,11 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.directives.code import CodeBlock, container_wrapper, dedent_lines
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import logging, parselinenos
+from sphinx.util import logging as sphinx_logging, parselinenos
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .templates import (
     BJS_CODEPEN_INIT,
     BJS_EPILOGUE,
@@ -75,6 +68,12 @@ from .templates import (
     BJS_PROLOGUE,
 )
 from .util import get_sphinx_resources
+
+# -----------------------------------------------------------------------------
+# Imports
+# -----------------------------------------------------------------------------
+
+log = sphinx_logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -95,10 +94,10 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class bokehjs_content(nodes.General, nodes.Element):
+class bokehjs_content(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
 
     @staticmethod
-    def visit_html(visitor, node):
+    def visit_html(visitor: Any, node: Any) -> None:
         if node["include_bjs_header"]:
             # we only want to inject the CODEPEN_INIT on one bokehjs-content block per page
             resources = get_sphinx_resources(include_bokehjs_api=True)
@@ -107,13 +106,13 @@ class bokehjs_content(nodes.General, nodes.Element):
         visitor.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"]))
 
     @staticmethod
-    def depart_html(visitor, node):
+    def depart_html(visitor: Any, node: Any) -> None:
         visitor.body.append(BJS_EPILOGUE.render(title=node["title"], enable_codepen=not node["disable_codepen"], js_source=node["js_source"]))
 
-    html = visit_html.__func__, depart_html.__func__
+    html = visit_html.__func__, depart_html.__func__ # type: ignore[attr-defined]
 
 
-class BokehJSContent(CodeBlock):
+class BokehJSContent(CodeBlock): # type: ignore[misc,no-any-unimported]
 
     has_content = True
     optional_arguments = 1
@@ -125,7 +124,7 @@ class BokehJSContent(CodeBlock):
     option_spec.update(include_html=unchanged)
     option_spec.update(disable_codepen=unchanged)
 
-    def get_codeblock_node(self, code, language):
+    def get_codeblock_node(self, code: str, language: str) -> list[Any]:
         """this is copied from sphinx.directives.code.CodeBlock.run
 
         it has been changed to accept code and language as an arguments instead
@@ -152,9 +151,10 @@ class BokehJSContent(CodeBlock):
             hl_lines = None
 
         if "dedent" in self.options:
-            location = self.state_machine.get_source_and_line(self.lineno)
+            source, line = self.state_machine.get_source_and_line(self.lineno)
+            dedent_location: tuple[str, int] | None = (source, line) if source is not None and line is not None else None
             lines = code.split("\n")
-            lines = dedent_lines(lines, self.options["dedent"], location=location)
+            lines = dedent_lines(lines, self.options["dedent"], location=dedent_location)
             code = "\n".join(lines)
 
         literal = nodes.literal_block(code, code)
@@ -181,39 +181,42 @@ class BokehJSContent(CodeBlock):
 
         return [literal]
 
-    def get_js_source(self):
+    def get_js_source(self) -> str:
         js_file = self.options.get("js_file", False)
+        env = cast(Any, self.env)
         # js_file *or* js code content, but not both
         if js_file and self.content:
             raise SphinxError("bokehjs-content:: directive can't have both js_file and content")
 
         if js_file:
-            log.debug(f"[bokehjs-content] handling external example in {self.env.docname!r}: {js_file}")
+            log.debug(f"[bokehjs-content] handling external example in {env.docname!r}: {js_file}")
             path = js_file
             if not js_file.startswith("/"):
-                path = join(self.env.app.srcdir, path)
+                path = join(env.app.srcdir, path)
             js_source = open(path).read()
         else:
-            log.debug(f"[bokehjs-content] handling inline example in {self.env.docname!r}")
+            log.debug(f"[bokehjs-content] handling inline example in {env.docname!r}")
             js_source = "\n".join(self.content)
 
         return js_source
 
-    def get_code_language(self):
+    def get_code_language(self) -> tuple[str, str]:
         # This is largely copied from bokeh_plot
         js_source = self.get_js_source()
         if self.options.get("include_html", False):
             resources = get_sphinx_resources(include_bokehjs_api=True)
             html_source = BJS_HTML.render(css_files=resources.css_files, js_files=resources.js_files, hashes=resources.hashes, bjs_script=js_source)
-            return [html_source, "html"]
+            return html_source, "html"
         else:
-            return [js_source, "javascript"]
+            return js_source, "javascript"
 
-    def run(self):
-        rst_source = self.state_machine.node.document["source"]
+    def run(self) -> list[Any]:
+        state_machine_node = cast(Any, self.state_machine.node)
+        rst_source = state_machine_node.document["source"]
         rst_filename = basename(rst_source)
 
-        serial_no = self.env.new_serialno("ccb")
+        env = cast(Any, self.env)
+        serial_no = env.new_serialno("ccb")
         target_id = f"{rst_filename}.ccb-{serial_no}"
         target_id = target_id.replace(".", "-")
         target_node = nodes.target("", "", ids=[target_id])
@@ -225,7 +228,7 @@ class BokehJSContent(CodeBlock):
         node["disable_codepen"] = self.options.get("disable_codepen", False)
         node["js_source"] = self.get_js_source()
 
-        source_doc = self.state_machine.node.document
+        source_doc = state_machine_node.document
         if not hasattr(source_doc, "bjs_seen"):
             # we only want to inject the CODEPEN_INIT on one
             # bokehjs-content block per page, here we check to see if
@@ -242,7 +245,7 @@ class BokehJSContent(CodeBlock):
         return [target_node, node]
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_node(bokehjs_content, html=bokehjs_content.html)
     app.add_directive("bokehjs-content", BokehJSContent)

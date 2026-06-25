@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from os import listdir
 from os.path import join
+from typing import Any
 
 # External imports
 from packaging.version import Version as V
@@ -49,7 +50,7 @@ from bokeh import __version__
 from bokeh.resources import get_sri_hashes_for_version
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import RELEASE_DETAIL
 
@@ -71,7 +72,7 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 class BokehReleases(BokehDirective):
-    def run(self):
+    def run(self) -> list[Any]:
         srcdir = self.env.app.srcdir
         versions = [x.rstrip(".rst") for x in listdir(join(srcdir, "docs", "releases")) if x.endswith(".rst")]
         versions.sort(key=V, reverse=True)
@@ -91,7 +92,7 @@ class BokehReleases(BokehDirective):
         return self.parse("\n".join(rst), "<bokeh-releases>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-releases", BokehReleases)
 

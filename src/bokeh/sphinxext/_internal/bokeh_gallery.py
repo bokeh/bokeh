@@ -34,7 +34,7 @@ from os.path import (
     join,
 )
 from pathlib import PurePath
-from typing import TypedDict
+from typing import Any, TypedDict
 
 # External imports
 from sphinx.errors import SphinxError
@@ -42,7 +42,7 @@ from sphinx.util import ensuredir
 from sphinx.util.display import status_iterator
 
 # Bokeh imports
-from . import PARALLEL_SAFE, REPO_TOP
+from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
@@ -73,7 +73,7 @@ class BokehGalleryDirective(BokehDirective):
     has_content = True
     required_arguments = 0
 
-    def run(self):
+    def run(self) -> list[Any]:
         docdir = dirname(self.env.doc2path(self.env.docname))
 
         gallery_file = join(docdir, "gallery.json")
@@ -110,7 +110,7 @@ class BokehGalleryDirective(BokehDirective):
         return self.parse(rst_text, "<bokeh-gallery>")
 
 
-def config_inited_handler(app, config):
+def config_inited_handler(app: Any, config: Any) -> None:
     gallery_dir = join(app.srcdir, config.bokeh_gallery_dir)
     examples_dir = join(app.srcdir, config.bokeh_examples_dir)
 
@@ -151,7 +151,7 @@ def config_inited_handler(app, config):
         os.remove(join(gallery_dir, extra_file))
 
 
-def get_details(app):
+def get_details(app: Any) -> list[GalleryDetail]:
     details = []
     for subdir in app.config.bokeh_example_subdirs:
         for name in os.listdir(REPO_TOP / "examples" / subdir):
@@ -164,7 +164,7 @@ def get_details(app):
                 details.append(detail)
     return details
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_config_value("bokeh_gallery_dir", join("docs", "gallery"), "html")
     app.add_config_value("bokeh_examples_dir", join("docs", "examples"), "html")

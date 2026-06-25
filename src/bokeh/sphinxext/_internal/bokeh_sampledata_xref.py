@@ -30,13 +30,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import basename
+from typing import Any
 
 # External imports
 from docutils import nodes
 from sphinx.locale import _
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .util import get_sphinx_resources
 
@@ -59,9 +60,12 @@ RESOURCES = get_sphinx_resources()
 # Dev API
 # -----------------------------------------------------------------------------
 
-class gallery_xrefs(nodes.General, nodes.Element):
+Ref = dict[str, str]
 
-    def __init__(self, *args, **kwargs):
+
+class gallery_xrefs(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.subfolder = kwargs.pop("subfolder", None)
         super().__init__(*args, **kwargs)
 
@@ -70,12 +74,12 @@ class BokehGalleryOverviewDirective(BokehDirective):
     has_content = False
     required_arguments = 1
 
-    def run(self):
+    def run(self) -> list[Any]:
         return [gallery_xrefs('', subfolder=self.arguments[0])]
 
-class sampledata_list(nodes.General, nodes.Element):
+class sampledata_list(nodes.General, nodes.Element): # type: ignore[misc,no-any-unimported]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.sampledata_key = kwargs.pop("sampledata_key")
         super().__init__(*args, **kwargs)
 
@@ -84,11 +88,11 @@ class BokehSampledataXrefDirective(BokehDirective):
     has_content = False
     required_arguments = 1
 
-    def run(self):
+    def run(self) -> list[Any]:
         return [sampledata_list('', sampledata_key=self.arguments[0])]
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_node(sampledata_list)
     app.add_directive("bokeh-example-index", BokehGalleryOverviewDirective)
@@ -105,7 +109,7 @@ def setup(app):
 # Private API
 # -----------------------------------------------------------------------------
 
-def purge_xrefs(app, env, docname):
+def purge_xrefs(app: Any, env: Any, docname: str) -> None:
     if not hasattr(env, 'all_sampledata_xrefs'):
         return
 
@@ -113,14 +117,14 @@ def purge_xrefs(app, env, docname):
         xref for xref in env.all_sampledata_xrefs if xref['docname'] != docname
     ]
 
-def merge_xrefs(app, env, docnames, other):
+def merge_xrefs(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     if not hasattr(env, 'all_sampledata_xrefs'):
         env.all_sampledata_xrefs = []
 
     if hasattr(other, 'all_sampledata_xrefs'):
         env.all_sampledata_xrefs.extend(other.all_sampledata_xrefs)
 
-def process_sampledata_xrefs(app, doctree, fromdocname):
+def process_sampledata_xrefs(app: Any, doctree: Any, fromdocname: str) -> None:
 
     env = app.builder.env
 
@@ -129,11 +133,11 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
 
     for node in doctree.traverse(sampledata_list):
 
-        refs = []
+        refs: list[Ref] = []
         for s in env.all_sampledata_xrefs:
             if s["keyword"] == node.sampledata_key and s not in refs:
                 refs.append(s)
-        content = []
+        content: list[Any] = []
         if refs:
             list_ref_names = []
             para = nodes.paragraph()
@@ -147,7 +151,7 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
             content.append(para)
         node.replace_self(content)
 
-def purge_gallery_xrefs(app, env, docname):
+def purge_gallery_xrefs(app: Any, env: Any, docname: str) -> None:
     if not hasattr(env, 'all_gallery_overview'):
         return
 
@@ -155,14 +159,14 @@ def purge_gallery_xrefs(app, env, docname):
         xref for xref in env.all_gallery_overview if xref['docname'] != docname
     ]
 
-def merge_gallery_xrefs(app, env, docnames, other):
+def merge_gallery_xrefs(app: Any, env: Any, docnames: list[str], other: Any) -> None:
     if not hasattr(env, 'all_gallery_overview'):
         env.all_gallery_overview = []
 
     if hasattr(other, 'all_gallery_overview'):
         env.all_gallery_overview.extend(other.all_gallery_overview)
 
-def process_gallery_overview(app, doctree, fromdocname):
+def process_gallery_overview(app: Any, doctree: Any, fromdocname: str) -> None:
 
     env = app.builder.env
 
@@ -171,7 +175,7 @@ def process_gallery_overview(app, doctree, fromdocname):
 
     for node in doctree.traverse(gallery_xrefs):
 
-        ref_dict = {}
+        ref_dict: dict[str, list[Ref]] = {}
         for s in env.all_gallery_overview:
             sp = s['docname'].split('/')
             if node.subfolder == 'all' or sp[-2] == node.subfolder:
@@ -181,7 +185,7 @@ def process_gallery_overview(app, doctree, fromdocname):
                 else:
                     ref_dict[letter] = [s]
 
-        content = []
+        content: list[Any] = []
         for letter, refs in sorted(ref_dict.items()):
             para = nodes.paragraph()
             para += nodes.rubric((_(letter)), (_(letter)))
@@ -194,19 +198,19 @@ def process_gallery_overview(app, doctree, fromdocname):
             content.append(para)
         node.replace_self(content)
 
-def sort_by_basename(refs):
+def sort_by_basename(refs: list[Ref]) -> list[Ref]:
     refs = [{'basename':basename(ref['docname']), 'docname': ref['docname']} for ref in refs]
-    sorted_refs = []
+    sorted_refs: list[Ref] = []
     for key in sorted([basename(ref['basename']) for ref in refs]):
         for i, value in enumerate(refs):
             if key == value['basename']:
                 sorted_refs.append(refs.pop(i))
     return sorted_refs
 
-def add_bullet_point(app, fromdocname, docname, ref_name):
+def add_bullet_point(app: Any, fromdocname: str, docname: str, ref_name: str) -> Any:
     # Create references
     line = nodes.line()
-    line += nodes.Text('  • ','  • ')
+    line += nodes.Text('  • ')
     newnode = nodes.reference('', '')
     innernode = nodes.emphasis(_(ref_name), _(ref_name))
     newnode['refdocname'] = docname

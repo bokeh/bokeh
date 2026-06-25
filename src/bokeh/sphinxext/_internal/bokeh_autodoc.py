@@ -24,6 +24,9 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from sphinx.ext.autodoc import (
     AttributeDocumenter,
@@ -38,7 +41,7 @@ from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.model import Model
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -61,61 +64,61 @@ __all__ = (
 # -----------------------------------------------------------------------------
 
 
-class ColorDocumenter(ModuleLevelDocumenter):
+class ColorDocumenter(ModuleLevelDocumenter): # type: ignore[misc,no-any-unimported]
     directivetype = "bokeh-color"
     objtype = ""
     priority = 20
 
     @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any) -> bool:
         return isinstance(member, Color)
 
     # We don't need/want anything from the actual NamedColor class
-    def add_content(self, more_content, no_docstring=False):
+    def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
         pass
 
-    def get_object_members(self, want_all):
+    def get_object_members(self, want_all: bool) -> tuple[bool, list[Any]]:
         return False, []
 
 
-class EnumDocumenter(ModuleLevelDocumenter):
+class EnumDocumenter(ModuleLevelDocumenter): # type: ignore[misc,no-any-unimported]
     directivetype = "bokeh-enum"
     objtype = "enum"
     priority = 20
 
     @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any) -> bool:
         return isinstance(member, Enumeration)
 
     # Override the Sphinx default `Documenter.get_object_members()`
     # which is deprecated, and will soon be removed.
     # Ref: https://github.com/bokeh/bokeh/issues/12462
-    def get_object_members(self, want_all):
+    def get_object_members(self, want_all: bool) -> tuple[bool, list[Any]]:
         return False, []
 
 
-class PropDocumenter(AttributeDocumenter):
+class PropDocumenter(AttributeDocumenter): # type: ignore[misc,no-any-unimported]
     directivetype = "bokeh-prop"
     objtype = "prop"
     priority = 20
     member_order = -100  # This puts properties first in the docs
 
     @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any) -> bool:
         return isinstance(member, PropertyDescriptor)
 
 
-class ModelDocumenter(ClassDocumenter):
+class ModelDocumenter(ClassDocumenter): # type: ignore[misc,no-any-unimported]
     directivetype = "bokeh-model"
     objtype = "model"
     priority = 20
 
     @classmethod
-    def can_document_member(cls, member, membername, isattr, parent):
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any) -> bool:
         return isinstance(member, type) and issubclass(member, Model)
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_autodocumenter(ColorDocumenter)
     app.add_autodocumenter(EnumDocumenter)

@@ -55,6 +55,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import join
+from typing import Any
 
 # External imports
 import toml
@@ -62,7 +63,7 @@ from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
 # Bokeh imports
-from . import PARALLEL_SAFE, REPO_TOP
+from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -89,7 +90,15 @@ BOKEH_GH = "https://github.com/bokeh/bokeh"
 # -----------------------------------------------------------------------------
 
 
-def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_commit(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -102,7 +111,15 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=Non
     return [node], []
 
 
-def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_issue(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -123,7 +140,15 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
     return [node], []
 
 
-def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_minpy(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Provide the minimum supported Python version from pyproject.toml.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -136,7 +161,15 @@ def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None
     return [node], []
 
 
-def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_pull(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -157,7 +190,15 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
     return [node], []
 
 
-def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_requires(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Provide the list of required package dependencies for Bokeh.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -172,7 +213,15 @@ def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=N
     return [node], []
 
 
-def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None):
+def bokeh_tree(
+    name: str,
+    rawtext: str,
+    text: str,
+    lineno: int,
+    inliner: Any,
+    options: dict[str, Any] | None = None,
+    content: list[str] | None = None,
+) -> tuple[list[Any], list[Any]]:
     """Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
     for releases, or to main otherwise.
 
@@ -202,7 +251,7 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
     return [node], []
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_role("bokeh-commit", bokeh_commit)
     app.add_role("bokeh-issue", bokeh_issue)
@@ -218,7 +267,15 @@ def setup(app):
 # -----------------------------------------------------------------------------
 
 
-def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
+def _make_gh_link_node(
+    app: Any,
+    rawtext: str,
+    role: str,
+    kind: str,
+    api_type: str,
+    id: str,
+    options: dict[str, Any] | None = None,
+) -> Any:
     """Return a link to a Bokeh Github resource.
 
     Args:
