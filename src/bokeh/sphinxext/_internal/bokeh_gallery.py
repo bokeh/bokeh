@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import os
+from importlib import import_module
 from os.path import (
     abspath,
     dirname,
@@ -38,8 +39,7 @@ from typing import Any, TypedDict
 
 # External imports
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir
-from sphinx.util.display import status_iterator
+from sphinx.util.osutil import ensuredir
 
 # Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
@@ -49,6 +49,8 @@ from .templates import GALLERY_DETAIL, GALLERY_PAGE
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
+
+status_iterator = import_module("sphinx.util.display").status_iterator
 
 __all__ = (
     "BokehGalleryDirective",

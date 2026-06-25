@@ -55,6 +55,7 @@ from os.path import (
     exists,
     join,
 )
+from types import CoroutineType
 from typing import TYPE_CHECKING, Any, cast
 
 # External imports
@@ -69,7 +70,7 @@ from .server_lifecycle import ServerLifecycleHandler
 from .server_request_handler import ServerRequestHandler
 
 if TYPE_CHECKING:
-    from types import CoroutineType, ModuleType
+    from types import ModuleType
 
     from tornado.httputil import HTTPServerRequest
 
@@ -77,9 +78,6 @@ if TYPE_CHECKING:
     from ...document import Document
     from ...themes import Theme
     from ..application import ServerContext, SessionContext
-else:
-    from collections.abc import Coroutine as CoroutineType
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -280,7 +278,7 @@ class DirectoryHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        return cast(CoroutineType[Any, Any, None], self._lifecycle_handler.on_session_created(session_context))
+        return cast(Any, self._lifecycle_handler.on_session_created(session_context))
 
     def on_session_destroyed(self, session_context: SessionContext) -> CoroutineType[Any, Any, None]:
         ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
@@ -290,7 +288,7 @@ class DirectoryHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        return cast(CoroutineType[Any, Any, None], self._lifecycle_handler.on_session_destroyed(session_context))
+        return cast(Any, self._lifecycle_handler.on_session_destroyed(session_context))
 
     def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of

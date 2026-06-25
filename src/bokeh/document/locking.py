@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import asyncio
+import inspect
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -84,7 +84,7 @@ def without_document_lock[F: Callable[..., Any]](func: F) -> NoLockCallback[F]:
     async function if ``func`` is any of the latter two.
 
     '''
-    if asyncio.iscoroutinefunction(func):
+    if inspect.iscoroutinefunction(func):
         @wraps(func)
         async def _async_wrapper(*args: Any, **kw: Any) -> None:
             await func(*args, **kw)

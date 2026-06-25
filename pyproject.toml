@@ -155,6 +155,7 @@ warn_unreachable = true
 include = ["src/bokeh"]
 extraPaths = ["src", "src/typings"]
 pythonVersion = "3.12"
+typeCheckingMode = "standard"
 
 [tool.coverage.report]
 exclude_also = [

@@ -43,7 +43,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Iterator,
+    Generator,
 )
 
 # Bokeh imports
@@ -200,7 +200,7 @@ class CodeHandler(Handler):
 # code should be calling these functions, and we're only making a best effort to
 # warn people so no big deal if we fail.
 @contextmanager
-def _monkeypatch_io(loggers: dict[str, Callable[..., None]]) -> Iterator[None]:
+def _monkeypatch_io(loggers: dict[str, Callable[..., None]]) -> Generator[None]:
     import bokeh.io as io
     old: dict[str, Any] = {}
     for f in CodeHandler._io_functions:

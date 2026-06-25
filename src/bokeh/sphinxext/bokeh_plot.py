@@ -88,6 +88,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 import warnings
+from importlib import import_module
 from os import getenv
 from os.path import basename, dirname, join
 from typing import Any, cast
@@ -97,9 +98,8 @@ from uuid import uuid4
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
-from sphinx.util import copyfile, ensuredir
-from sphinx.util.display import status_iterator
 from sphinx.util.nodes import set_source_info
+from sphinx.util.osutil import copyfile, ensuredir
 
 # Bokeh imports
 from bokeh.document import Document
@@ -117,6 +117,8 @@ from ._internal.util import get_sphinx_resources
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
+
+status_iterator = import_module("sphinx.util.display").status_iterator
 
 __all__ = (
     "BokehPlotDirective",

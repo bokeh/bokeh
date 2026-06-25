@@ -27,7 +27,6 @@ from typing import (
     Any,
     Mapping,
     Sequence,
-    overload,
 )
 
 # External imports
@@ -224,11 +223,6 @@ class ColumnDataSource(ColumnarDataSource):
         Dataclass, lambda x: ColumnDataSource(asdict(x)),
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1, _cds_lengths_warning)
 
-    @overload
-    def __init__(self, data: DataDict | pd.DataFrame | GroupBy[Any], **kwargs: Any) -> None: ...
-    @overload
-    def __init__(self, **kwargs: Any) -> None: ...
-
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         ''' If called with a single argument that is a dict, dataclass, or
         ``pandas.DataFrame``, treat that implicitly as the "data" attribute.
@@ -377,7 +371,7 @@ class ColumnDataSource(ColumnarDataSource):
             str
 
         '''
-        if df.index.name:
+        if isinstance(df.index.name, str):
             return df.index.name
         elif df.index.names:
             try:

@@ -63,6 +63,7 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
+    cast,
     runtime_checkable,
 )
 
@@ -153,7 +154,7 @@ class SessionCallbackRemovedMixin(Protocol):
 
 @runtime_checkable
 class StreamableDataSource(Protocol):
-    def _stream(self, new_data: DataDict | pd.Series[Any] | pd.DataFrame,
+    def _stream(self, new_data: DataDict | pd.Series[Any] | pd.DataFrame,  # pyright: ignore[reportInvalidTypeArguments]
             rollover: int | None = None, setter: Setter | None = None) -> None: ...
 
 @runtime_checkable
@@ -542,7 +543,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         else:
             import pandas as pd
             assert isinstance(data, pd.DataFrame)
-            stream_data = {c: data[c] for c in data.columns}
+            stream_data = cast(Any, {c: data[c] for c in data.columns})
 
         self.data = stream_data
         self.rollover = rollover

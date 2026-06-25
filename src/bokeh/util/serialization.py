@@ -375,7 +375,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
 
     return array
 
-def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.ExtensionArray) -> npt.NDArray[Any]:
+def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.ExtensionArray) -> npt.NDArray[Any]:  # pyright: ignore[reportInvalidTypeArguments]
     ''' Transforms a Pandas series into serialized form
 
     Args:

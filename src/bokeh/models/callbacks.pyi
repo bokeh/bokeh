@@ -12,9 +12,6 @@ import sys
 from abc import abstractmethod
 from typing import Any, Unpack
 
-if sys.version_info[:2] >= (3, 14):
-    from string.templatelib import Template
-
 # Bokeh imports
 from ..core.enums import AutoType as Auto
 from ..core.has_props import HasProps
@@ -63,7 +60,7 @@ class CustomJS(CustomCode):
 
     if sys.version_info[:2] >= (3, 14):
         @classmethod
-        def from_template(cls, template: Template) -> CustomJS: ...
+        def from_template(cls, template: Any) -> CustomJS: ...
 
 class _SetValueInit(_CallbackInit, total=False):
     obj: HasProps

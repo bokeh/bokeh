@@ -577,7 +577,7 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     modules = sorted(modules, key=lambda spec: spec[0])
 
     bare_modules = []
-    for i, (module, code, deps) in enumerate(modules):
+    for module, code, deps in modules:
         for name, ref in deps.items():
             code = code.replace(f"""require("{name}")""", f"""require("{ref}")""")
             code = code.replace(f"""require('{name}')""", f"""require('{ref}')""")

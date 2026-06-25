@@ -430,6 +430,8 @@ class Plot(LayoutDOM):
                     retina = True
 
                 selected_provider = xyzservices.providers.query_name(tile_source)
+            else:
+                raise ValueError(f"expected a TileSource, xyzservices.TileProvider, or str, got {tile_source!r}")
 
             scale_factor = "@2x" if retina else None
 

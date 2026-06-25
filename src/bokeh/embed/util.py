@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 from typing import (
     TYPE_CHECKING,
     Any,
+    Generator,
     Iterator,
     Sequence,
 )
@@ -80,7 +81,7 @@ class FromCurdoc:
 
 @contextmanager
 def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdoc] | None = None,
-        always_new: bool = False) -> Iterator[Document]:
+        always_new: bool = False) -> Generator[Document]:
     ''' Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
 

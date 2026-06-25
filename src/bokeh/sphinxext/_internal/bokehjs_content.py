@@ -152,9 +152,11 @@ class BokehJSContent(CodeBlock):
 
         if "dedent" in self.options:
             source, line = self.state_machine.get_source_and_line(self.lineno)
-            dedent_location: tuple[str, int] | None = (source, line) if source is not None and line is not None else None
             lines = code.split("\n")
-            lines = dedent_lines(lines, self.options["dedent"], location=dedent_location)
+            if source is not None and line is not None:
+                lines = dedent_lines(lines, self.options["dedent"], location=(source, line))
+            else:
+                lines = dedent_lines(lines, self.options["dedent"])
             code = "\n".join(lines)
 
         literal: nodes.Element = nodes.literal_block(code, code)

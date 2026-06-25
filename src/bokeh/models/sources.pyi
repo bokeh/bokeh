@@ -43,7 +43,7 @@ __all__ = (
     "WebDataSource",
 )
 
-type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
+type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]  # pyright: ignore[reportInvalidTypeArguments]
 
 type DataDictLike = DataDict | pd.DataFrame | GroupBy[Any]
 

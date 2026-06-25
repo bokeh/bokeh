@@ -60,7 +60,6 @@ from typing import Any
 # External imports
 import toml
 from docutils import nodes, utils
-from docutils.parsers.rst.roles import set_classes
 
 # Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
@@ -80,6 +79,16 @@ __all__ = (
 )
 
 BOKEH_GH = "https://github.com/bokeh/bokeh"
+
+def _normalized_role_options(options: dict[str, Any] | None) -> dict[str, Any]:
+    if options is None:
+        return {}
+    result = options.copy()
+    if "class" in result:
+        assert "classes" not in result
+        result["classes"] = result["class"]
+        del result["class"]
+    return result
 
 # -----------------------------------------------------------------------------
 # General API
@@ -245,8 +254,7 @@ def bokeh_tree(
         tag = "main"
 
     url = f"{BOKEH_GH}/tree/{tag}/{text}"
-    options = options or {}
-    set_classes(options)
+    options = _normalized_role_options(options)
     node = nodes.reference(rawtext, text, refuri=url, **options)
     return [node], []
 
@@ -289,8 +297,7 @@ def _make_gh_link_node(
 
     """
     url = f"{BOKEH_GH}/{api_type}/{id}"
-    options = options or {}
-    set_classes(options)
+    options = _normalized_role_options(options)
     node = nodes.reference(rawtext, f"{kind}{utils.unescape(id)}", refuri=url, **options)
     return node
 

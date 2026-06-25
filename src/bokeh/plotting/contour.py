@@ -404,6 +404,8 @@ def _palette_from_collection(collection: PaletteCollection, n: int) -> Palette:
     raise ValueError(f"Unable to extract or interpolate palette of length {n} from PaletteCollection")
 
 def _validate_levels(levels: ArrayLike | None) -> NDArray[np.float64]:
+    if levels is None:
+        raise ValueError("No contour levels specified")
     levels = np.asarray(levels, dtype=float)
     if levels.ndim == 0 or len(levels) == 0:
         raise ValueError("No contour levels specified")

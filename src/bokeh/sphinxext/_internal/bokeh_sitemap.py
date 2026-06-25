@@ -27,12 +27,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from html import escape
+from importlib import import_module
 from os.path import join
 from typing import Any
 
 # External imports
 from sphinx.errors import SphinxError
-from sphinx.util.display import status_iterator
 
 # Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
@@ -40,6 +40,8 @@ from . import PARALLEL_SAFE, SphinxParallelSpec
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
+
+status_iterator = import_module("sphinx.util.display").status_iterator
 
 __all__ = (
     "build_finished",

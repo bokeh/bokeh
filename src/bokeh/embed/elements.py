@@ -146,6 +146,7 @@ def html_page_for_render_items(
         template = FILE
     elif isinstance(template, str):
         template = get_env().from_string("{% extends base %}\n" + template)
+    assert template is not None and not isinstance(template, str)
 
     html = template.render(context)
     return html
