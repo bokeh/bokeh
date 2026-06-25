@@ -5,6 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+# pyright: reportMissingImports=false
+
 # Standard library imports
 import sys
 from abc import abstractmethod

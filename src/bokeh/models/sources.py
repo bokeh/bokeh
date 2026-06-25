@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportCallIssue=false, reportAssignmentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

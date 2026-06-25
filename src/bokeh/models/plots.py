@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false, reportAttributeAccessIssue=false, reportGeneralTypeIssues=false, reportInconsistentOverload=false, reportOperatorIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

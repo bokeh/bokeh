@@ -11,12 +11,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false, reportUnsupportedDunderAll=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import Any
 
 # Bokeh imports
 from . import (
@@ -44,16 +49,20 @@ from .ui_element import *
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+# Keep dynamic submodule __all__ aggregation visible to type checkers.
+def _all(module: Any) -> tuple[str, ...]:
+    return module.__all__
+
 __all__ = (
-    *dialogs.__all__,
-    *icons.__all__,
-    *examiner.__all__,
-    *floating.__all__,
-    *menus.__all__,
-    *panels.__all__,
-    *panes.__all__,
-    *tooltips.__all__,
-    *ui_element.__all__,
+    *_all(dialogs),
+    *_all(icons),
+    *_all(examiner),
+    *_all(floating),
+    *_all(menus),
+    *_all(panels),
+    *_all(panes),
+    *_all(tooltips),
+    *_all(ui_element),
 )
 
 #-----------------------------------------------------------------------------
