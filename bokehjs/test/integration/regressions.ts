@@ -4794,11 +4794,13 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 400, height: 300, tabs_location: "above"})
       const {view} = await display(tabs, [450, 350])
 
-      const headers_wrapper = view.headers_wrapper_el
-      const wrapper_styles = window.getComputedStyle(headers_wrapper)
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
       expect(wrapper_styles.overflowX).to.be.equal("auto")
 
-      const has_scroll = headers_wrapper.scrollWidth > headers_wrapper.clientWidth
+      const has_scroll = headers_wrapper_el.scrollWidth > headers_wrapper_el.clientWidth
       expect(has_scroll).to.be.true
     })
 
@@ -4813,8 +4815,10 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 450, height: 350, tabs_location: "left"})
       const {view} = await display(tabs, [500, 400])
 
-      const headers_wrapper = view.headers_wrapper_el
-      const wrapper_styles = window.getComputedStyle(headers_wrapper)
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
       expect(wrapper_styles.overflowY).to.be.equal("auto")
     })
   })
