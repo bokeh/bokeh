@@ -193,28 +193,22 @@ export class TabsView extends LayoutDOMView {
       }
 
       const toggle_tab = (j: number = i) => {
-        if (!is_disabled) {
-          const n = tabs.length
-          const k = (() => {
-            if (j < 0) {
-              return n + j
-            } else if (j >= n) {
-              return j - n
-            } else {
-              return j
-            }
-          })()
-          this.model.active = clamp(k, 0, n - 1)
-        }
+        this.model.active = this._normalize_active(j)
       }
 
       const on_click = (event: MouseEvent) => {
+        if (is_disabled) {
+          return
+        }
         if (event.target == event.currentTarget) {
           toggle_tab()
         }
       }
 
       const on_key = (event: KeyboardEvent) => {
+        if (is_disabled) {
+          return
+        }
         switch (event.key as Keys) {
           case " ":
           case "Enter": {
