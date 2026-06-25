@@ -69,7 +69,11 @@ def find_stack_level() -> int:
 
     import bokeh
 
-    pkg_dir = os.path.dirname(bokeh.__file__)
+    pkg_file = getattr(bokeh, "__file__", None)
+    if pkg_file is None:
+        return 0
+
+    pkg_dir = os.path.dirname(pkg_file)
 
     # https://stackoverflow.com/questions/17407119/python-inspect-stack-is-slow
     frame = inspect.currentframe()

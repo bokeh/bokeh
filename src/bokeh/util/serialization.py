@@ -33,7 +33,12 @@ import sys
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import TYPE_CHECKING, Any, TypeGuard
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeGuard,
+    cast,
+)
 
 # External imports
 import numpy as np
@@ -364,7 +369,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
         array = _cast_if_can(array, np.uint32)
 
     if isinstance(array, np.ma.MaskedArray):
-        array = array.filled(np.nan)
+        array = cast(Any, array).filled(np.nan)
     if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
 
