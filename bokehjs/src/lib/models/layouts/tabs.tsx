@@ -1,7 +1,6 @@
 import type {ViewStorage, ViewOf} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
-import {show} from "core/dom"
 import {remove_at} from "core/util/array"
 import {isString} from "core/util/types"
 import {clamp} from "core/util/math"
@@ -75,16 +74,10 @@ export class TabsView extends LayoutDOMView {
   override _update_layout(): void {
     super._update_layout()
 
-    for (const view of this.child_views) {
-      view.parent_style.append(":host", {grid_area: "stack"})
-    }
-
     if (this.model.link_layouts) {
       const layoutable = new Container<LayoutDOMView>()
 
       for (const view of this.child_views) {
-        view.parent_style.append(":host", {grid_area: "stack"})
-
         if (view instanceof LayoutDOMView && view.layout != null) {
           layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)
         }
@@ -297,23 +290,36 @@ export class TabsView extends LayoutDOMView {
         }
       }
 
-      show(this.child_views[i].el, active == i)
+      return (
+        <div
+          class={cls(tabs_css.tab, active_cls, disabled_cls)}
+          role="tab"
+          tabIndex={is_disabled ? undefined : 0}
+          aria-selected={is_active ? "true" : "false"}
+          title={description}
+          onClick={(event) => on_click(event)}
+          onKeyUp={(event) => on_key(event)}
+          onMouseEnter={() => toggle_tooltip(true)}
+          onMouseLeave={() => toggle_tooltip(false)}
+          ref={ref}
+        >
+          {tab.title}
+          {close_el}
+        </div>
+      )
+    })
 
-      return <div
-        class={cls(tabs_css.tab, active_cls, disabled_cls)}
-        role="tab"
-        tabIndex={is_disabled ? undefined : 0}
-        aria-selected={is_active ? "true" : "false"}
-        title={description}
-        onClick={(event) => on_click(event)}
-        onKeyUp={(event) => on_key(event)}
-        onMouseEnter={() => toggle_tooltip(true)}
-        onMouseLeave={() => toggle_tooltip(false)}
-        ref={ref}
-      >
-        {tab.title}
-        {close_el}
-      </div>
+    const panel_els = this.child_views.map((view, i) => {
+      const is_active = i == active
+      const active_cls = is_active ? tabs_css.active : null
+
+      const ref = (el: HTMLElement | null) => {
+        if (el != null) {
+          el.append(view.el)
+        }
+      }
+
+      return <div role="tabpanel" class={cls(tabs_css.panel, active_cls)} ref={ref}/>
     })
 
     return (
@@ -323,6 +329,7 @@ export class TabsView extends LayoutDOMView {
             {header_els}
           </div>
         </div>
+        {panel_els}
       </UIComponent>
     )
   }

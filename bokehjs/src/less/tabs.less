@@ -55,6 +55,15 @@
   .no-user-select();
 }
 
+.bk-panel {
+  grid-area: stack;
+  width: max-content;
+  height: max-content;
+}
+.bk-panel:not(.bk-active) {
+  visibility: hidden;
+}
+
 .bk-headers-wrapper {
   display: flex;
   flex-wrap: nowrap;
