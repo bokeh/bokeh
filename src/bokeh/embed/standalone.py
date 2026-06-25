@@ -26,7 +26,6 @@ from typing import (
     Any,
     Literal,
     Sequence,
-    TypeAlias,
     TypedDict,
     cast,
     overload,
@@ -62,10 +61,10 @@ if TYPE_CHECKING:
     from ..document.document import DocJson
     from ..themes import Theme
 
-    ModelLike: TypeAlias = Model | Document
-    ModelLikeCollection: TypeAlias = Sequence[ModelLike] | dict[str, ModelLike]
+    type ModelLike = Model | Document
+    type ModelLikeCollection = Sequence[ModelLike] | dict[str, ModelLike]
 
-    ThemeLike: TypeAlias = None | Theme | str | type[FromCurdoc]
+    type ThemeLike = None | Theme | str | type[FromCurdoc]
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -29,7 +29,6 @@ from typing import (
     Any,
     Callable,
     Sequence,
-    TypeAlias,
     cast,
 )
 
@@ -60,11 +59,11 @@ __all__ = (
 # TODO (bev) the situation with no-argument Button callbacks is a mess. We
 # should migrate to all callbacks receiving the event as the param, even if that
 # means auto-magically wrapping user-supplied callbacks for awhile.
-EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
-EventCallbackWithoutEvent: TypeAlias = Callable[[], None]
-EventCallback: TypeAlias = EventCallbackWithEvent | EventCallbackWithoutEvent
+type EventCallbackWithEvent = Callable[[Event], None]
+type EventCallbackWithoutEvent = Callable[[], None]
+type EventCallback = EventCallbackWithEvent | EventCallbackWithoutEvent
 
-PropertyCallback: TypeAlias = Callable[[str, Any, Any], None]
+type PropertyCallback = Callable[[str, Any, Any], None]
 
 class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and

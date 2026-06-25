@@ -1,8 +1,7 @@
 # Standard library imports
 from collections.abc import Sequence
-from typing import TypeAlias
 
-_KeySeq: TypeAlias = str | int | Sequence[str]
+type _KeySeq = str | int | Sequence[str]
 
 class Keys:
     NULL: str

@@ -29,7 +29,6 @@ from typing import (
     Callable,
     Literal,
     Protocol,
-    TypeVar,
     cast,
 )
 
@@ -51,13 +50,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-F = TypeVar("F", bound=Callable[..., Any])
-
-class NoLockCallback(Protocol[F]):
+class NoLockCallback[F: Callable[..., Any]](Protocol):
     __call__: F
     nolock: Literal[True]
 
-def without_document_lock(func: F) -> NoLockCallback[F]:
+def without_document_lock[F: Callable[..., Any]](func: F) -> NoLockCallback[F]:
     ''' Wrap a callback function to execute without first obtaining the
     document lock.
 

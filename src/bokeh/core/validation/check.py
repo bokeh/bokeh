@@ -64,7 +64,7 @@ class ValidationIssues:
     error: list[ValidationIssue] = field(default_factory=list)
     warning: list[ValidationIssue] = field(default_factory=list)
 
-ValidatorType = Literal["error", "warning"]
+type ValidatorType = Literal["error", "warning"]
 
 class Validator(Protocol):
     def __call__(self) -> list[ValidationIssue]: ...

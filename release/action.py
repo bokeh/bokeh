@@ -10,13 +10,13 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import Callable, Sequence, TypeAlias
+from typing import Callable, Sequence
 
 # Bokeh imports
 from .enums import ActionResult
 from .ui import failed, passed, skipped
 
-UIResultFuncType: TypeAlias = Callable[[str, Sequence[str] | None], str]
+type UIResultFuncType = Callable[[str, Sequence[str] | None], str]
 
 class ActionReturn:
     """"""

@@ -7,7 +7,7 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import Literal, Sequence, TypeAlias
+from typing import Literal, Sequence
 
 # Bokeh imports
 from ..._specs import NullStringSpec
@@ -172,11 +172,11 @@ class Legend(Annotation, ScalarTitleTextProps, ScalarBorderLineProps, ScalarBack
 
     def js_on_click(self, handler: JsEventCallback) -> None: ...
 
-X: TypeAlias = HAlign | float | CoordinateLike
-Y: TypeAlias = VAlign | float | CoordinateLike
+type X = HAlign | float | CoordinateLike
+type Y = VAlign | float | CoordinateLike
 
-Position: TypeAlias = HVAlign | tuple[X, Y]
-PositionUnits: TypeAlias = Literal["data", "screen", "view", "percent"]
+type Position = HVAlign | tuple[X, Y]
+type PositionUnits = Literal["data", "screen", "view", "percent"]
 
 @dataclass
 class ScaleBar(Annotation, ScalarBarLineProps, ScalarLabelTextProps, ScalarTitleTextProps,

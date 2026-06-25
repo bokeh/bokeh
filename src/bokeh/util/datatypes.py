@@ -28,10 +28,8 @@ from collections.abc import (
     Sized,
 )
 from typing import (
-    Generic,
     Protocol,
     TypeGuard,
-    TypeVar,
     cast,
 )
 
@@ -49,11 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-K = TypeVar("K")
-T = TypeVar("T", covariant=True)
-V = TypeVar("V")
-
-class SequenceLike(Iterable[T], Sized, Protocol):
+class SequenceLike[T](Iterable[T], Sized, Protocol):
     """A sized iterable with a stable iteration order."""
 
 def is_SequenceLike(obj: object) -> TypeGuard[SequenceLike[object]]:
@@ -64,7 +58,7 @@ def is_SequenceLike(obj: object) -> TypeGuard[SequenceLike[object]]:
         and not isinstance(obj, (str, bytes, Mapping, Set))
     )
 
-class MultiValuedDict(Generic[K, V]):
+class MultiValuedDict[K, V]:
     ''' Store a mapping from keys to multiple values with minimal overhead.
 
     Avoids storing empty collections.

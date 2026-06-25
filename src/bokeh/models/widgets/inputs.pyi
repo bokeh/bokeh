@@ -11,7 +11,6 @@ from typing import (
     Any,
     Literal,
     Sequence,
-    TypeAlias,
 )
 
 # Bokeh imports
@@ -150,8 +149,8 @@ class AutocompleteInput(TextInput):
 
     search_strategy: Literal["starts_with", "includes"] = ...
 
-Options: TypeAlias = list[str | tuple[Any, str]]
-OptionsGroups: TypeAlias = dict[str, Options]
+type Options = list[str | tuple[Any, str]]
+type OptionsGroups = dict[str, Options]
 
 @dataclass
 class Select(InputWidget):

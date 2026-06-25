@@ -7,12 +7,7 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Generic,
-    Literal,
-    TypeVar,
-)
+from typing import Any, Literal
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
@@ -22,10 +17,8 @@ from ..graphics import Decoration, Marking
 from ..sources import CDSView, DataSource
 from .renderer import DataRenderer
 
-GlyphType = TypeVar("GlyphType", bound=Glyph)
-
 @dataclass
-class GlyphRenderer(DataRenderer, Generic[GlyphType]):
+class GlyphRenderer[GlyphType: Glyph](DataRenderer):
 
     data_source: DataSource = ...
 

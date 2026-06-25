@@ -12,6 +12,8 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Added ``LightDark`` component to switch between light and dark themes (:bokeh-pull:`14807`)
 * Removed PNG icon related CSS and simplified icons' CSS (:bokeh-pull:`14579`)
 * Dropped support for Python 3.10 (:bokeh-pull:`14865`)
+* Dropped support for Python 3.11 (:bokeh-pull:`15174`)
+* Added ``perform_error_diagnostics`` settings flag (:bokeh-pull:`14947`)
 * Redesigned BokehJS' build system to use TypeScript native (tsgo) compiler (:bokeh-pull:`14812`)
 * Redesigned views' internals and components to use virtual DOM (:bokeh-pull:`14829`)
 * Support ``LightDark`` component auto/system option and add tri-state handling to toggle like components (:bokeh-pull:`14915`)

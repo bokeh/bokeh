@@ -36,7 +36,7 @@ from os.path import (
     splitext,
 )
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal
 
 # External imports
 import yaml
@@ -54,7 +54,7 @@ __all__ = (
 
 JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 
-PathLike: TypeAlias = str | bytes | os.PathLike[str] | os.PathLike[bytes]
+type PathLike = str | bytes | os.PathLike[str] | os.PathLike[bytes]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -147,7 +147,7 @@ class Example:
     def store_img(self, img_data: str) -> None:
         _store_binary(self.img_path, b64decode(img_data))
 
-All = Literal["all"]
+type All = Literal["all"]
 
 def add_examples(
     list_of_examples: list[Example],

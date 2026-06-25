@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 from typing import Any
 
 # Bokeh imports
@@ -924,9 +923,7 @@ def create_format_table(fields: tuple[str, ...], primary: TickFormatter) -> str:
         c2_fmt = add_row_item(tertiary, field, lens[3])
         rows.append(extended_join("|", [scale, p_fmt, c1_fmt, c2_fmt]))
         rows.append(separator)
-    n = 0 if sys.version_info[:2] >= (3, 12) else 4 # remove when Python 3.11 is dropped
-    indent = " "*n
-    return f"\n{indent}".join(rows)
+    return "\n".join(rows)
 
 
 DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=create_format_table(
