@@ -501,6 +501,7 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
     color = kwargs.get("color")
     color_selection = isinstance(color, (list, tuple))
     selected_colors = []
+    n_color = 0
     if color_selection:
         n_color = len(color)
 
