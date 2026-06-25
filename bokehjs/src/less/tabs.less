@@ -144,7 +144,7 @@
 :host(.bk-below) .bk-tab {
   border-width: 0 var(--border-width) var(--active-border-width) var(--border-width);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
-  border-color: 0 var(--border-color) var(--active-border-color) var(--border-color);
+  border-color: transparent var(--border-color) var(--active-border-color) var(--border-color);
 
   &:not(:last-child) {
     margin: 0 var(--margin) 0 0;
@@ -153,7 +153,7 @@
 :host(.bk-left) .bk-tab {
   border-width: var(--border-width) 0 var(--border-width) var(--active-border-width);
   border-radius: var(--border-radius) 0 0 var(--border-radius);
-  border-color: var(--border-color) 0 var(--border-color) var(--active-border-color);
+  border-color: var(--border-color) transparent var(--border-color) var(--active-border-color);
 
   &:not(:last-child) {
     margin: 0 0 var(--margin) 0;
