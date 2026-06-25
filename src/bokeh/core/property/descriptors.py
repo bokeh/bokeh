@@ -95,6 +95,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Protocol,
     TypeGuard,
     cast,
     overload,
@@ -105,10 +106,28 @@ from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 if TYPE_CHECKING:
+    from ...document import Document
     from ...document.events import DocumentPatchedEvent
+    from ...model import Model
     from ..has_props import HasProps, Setter
     from .alias import Alias, DeprecatedAlias
     from .bases import Property
+    from .descriptor_factory import PropertyDescriptorLike
+
+class _HasDocument(Protocol):
+    document: Document | None
+
+class _HasOverriddenDefaults(Protocol):
+    __overridden_defaults__: dict[str, Any]
+
+class _HasTrigger(Protocol):
+    def trigger(self, attr: str, old: Any, new: Any,
+            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None: ...
+
+class _DataSpecProperty(Protocol):
+    value_type: Property[Any]
+
+    def to_serializable(self, obj: HasProps, name: str, val: Any) -> Any: ...
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -483,7 +502,7 @@ class PropertyDescriptor[T]:
     def has_unstable_default(self, obj: HasProps) -> bool:
         # _may_have_unstable_default() doesn't have access to overrides, so check manually
         return self.property._may_have_unstable_default() or \
-            self.is_unstable(cast(Any, obj).__overridden_defaults__.get(self.name, None))
+            self.is_unstable(cast(_HasOverriddenDefaults, obj).__overridden_defaults__.get(self.name, None))
 
     @classmethod
     def is_unstable(cls, value: Any) -> TypeGuard[Callable[[], Any]]:
@@ -701,7 +720,7 @@ class PropertyDescriptor[T]:
 
         """
         if hasattr(obj, 'trigger'):
-            cast(Any, obj).trigger(self.name, old, value, hint, setter)
+            cast(_HasTrigger, obj).trigger(self.name, old, value, hint, setter)
 
 
 _CDS_SET_FROM_CDS_ERROR = """
@@ -766,8 +785,8 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
             raise ValueError(_CDS_SET_FROM_CDS_ERROR)
 
         from ...document.events import ColumnDataChangedEvent
-        model = cast(Any, obj)
-        hint = ColumnDataChangedEvent(model.document, model, "data", setter=setter) if model.document else None
+        model = cast(_HasDocument, obj)
+        hint = ColumnDataChangedEvent(model.document, cast("Model", obj), "data", setter=setter) if model.document else None
 
         value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)
@@ -783,7 +802,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         """
 
         """
-        return cast(Any, self.property).to_serializable(obj, self.name, getattr(obj, self.name))
+        return cast(_DataSpecProperty, self.property).to_serializable(obj, self.name, getattr(obj, self.name))
 
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         """ Sets the value of this property from a JSON value.
@@ -816,7 +835,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
             old = getattr(obj, self.name)
             if old is not None:
                 try:
-                    cast(Any, self.property).value_type.validate(old, False)
+                    cast(_DataSpecProperty, self.property).value_type.validate(old, False)
                     if 'value' in value:
                         value = value['value']
                 except ValueError:
@@ -832,7 +851,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
     """
 
-    def __init__(self, name: str, property: Any, units_property: PropertyDescriptor[Any]) -> None:
+    def __init__(self, name: str, property: Any, units_property: PropertyDescriptorLike[Any]) -> None:
         """
 
         Args:

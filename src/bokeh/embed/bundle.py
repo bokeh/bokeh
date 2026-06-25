@@ -283,7 +283,9 @@ def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list
             continue
         names.add(name)
         module = __import__(name)
-        this_file = Path(cast(str, module.__file__)).absolute()
+        if module.__file__ is None:
+            continue
+        this_file = Path(module.__file__).absolute()
         base_dir = this_file.parent
         dist_dir = base_dir / "dist"
 

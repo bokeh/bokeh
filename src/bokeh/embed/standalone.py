@@ -29,7 +29,6 @@ from typing import (
     Literal,
     Sequence,
     TypedDict,
-    cast,
     overload,
 )
 
@@ -484,7 +483,9 @@ def _title_from_models(models: Sequence[Model | Document], title: str | None) ->
             return p.title
 
     # use title from any model's document
-    for p in cast(Sequence[Model], models):
+    for p in models:
+        if isinstance(p, Document):
+            continue
         if p.document is not None:
             return p.document.title
 

@@ -29,11 +29,8 @@ from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
-from .descriptors import (
-    DataSpecPropertyDescriptor,
-    PropertyDescriptor,
-    UnitsSpecPropertyDescriptor,
-)
+from .descriptor_factory import PropertyDescriptorLike
+from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
 from .instance import Instance
@@ -220,7 +217,7 @@ class DataSpec(Either):
 
         return super().transform(value)
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptor[Any]]:
+    def make_descriptors(self, name: str) -> list[PropertyDescriptorLike[Any]]:
         """ Return a list of ``DataSpecPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
         property.
@@ -467,7 +464,7 @@ class UnitsSpec(NumberSpec):
     def get_units(self, obj: HasProps, name: str) -> str:
         return getattr(obj, name + "_units")
 
-    def make_descriptors(self, name: str) -> list[PropertyDescriptor[Any]]:
+    def make_descriptors(self, name: str) -> list[PropertyDescriptorLike[Any]]:
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 

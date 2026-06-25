@@ -71,6 +71,7 @@ from typing import (
     Callable,
     Iterable,
     MutableSequence,
+    Protocol,
     Sequence,
     SupportsIndex,
     cast,
@@ -85,9 +86,13 @@ from ...util.warnings import BokehUserWarning, warn
 if TYPE_CHECKING:
     from ...document import Document
     from ...document.events import DocumentPatchedEvent
+    from ...model import Model
     from ...models.sources import ColumnarDataSource
     from ..has_props import HasProps, Setter
     from .descriptors import PropertyDescriptor
+
+class _HasDocument(Protocol):
+    document: Document | None
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -434,8 +439,8 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         # we must loop ourselves here instead of calling _notify_owners
         # because the hint is customized for each owner separately
         for (owner, descriptor) in self._owners:
-            model = cast(Any, owner)
-            hint = ColumnDataChangedEvent(model.document, model, "data", cols=list(cols))
+            model = cast(_HasDocument, owner)
+            hint = ColumnDataChangedEvent(cast("Document", model.document), cast("Model", owner), "data", cols=list(cols))
             descriptor._notify_mutated(owner, old, hint=hint)
 
         return result

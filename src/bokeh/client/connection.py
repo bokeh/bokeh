@@ -25,12 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
@@ -222,7 +217,9 @@ class ClientConnection:
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to pull document: " + reply.content['text'])
         else:
-            cast(pull_doc_reply, reply).push_to_document(document)
+            if not isinstance(reply, pull_doc_reply):
+                raise RuntimeError(f"Unexpected reply {reply!r}")
+            reply.push_to_document(document)
 
     def push_doc(self, document: Document) -> Message[Any]:
         ''' Push a document to the server, overwriting any existing server-side doc.
@@ -312,7 +309,9 @@ class ClientConnection:
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
-                self._session._handle_patch(cast(patch_doc, message))
+                if not isinstance(message, patch_doc):
+                    raise RuntimeError(f"Unexpected message {message!r}")
+                self._session._handle_patch(message)
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.

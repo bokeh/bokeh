@@ -53,6 +53,7 @@ from .wrappers import (
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
+    from ...models.sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -76,16 +77,16 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Seq[T](ContainerProperty[T]):
+class Seq[T, TSeq](ContainerProperty[TSeq]):
     """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[TSeq] = Undefined, help: str | None = None) -> None:
         super().__init__(item_type, default=default, help=help)
 
     @property
-    def item_type(self) -> Property[Any]:
+    def item_type(self) -> Property[T]:
         return self.type_params[0]
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -122,12 +123,12 @@ class Seq[T](ContainerProperty[T]):
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
-class List[T](Seq[T]):
+class List[T](Seq[T, list[T]]):
     """ Accept Python list values.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[Any] = [], help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = [], help: str | None = None) -> None:
         # TODO: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
@@ -149,12 +150,12 @@ class List[T](Seq[T]):
     def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, list)
 
-class Set[T](Seq[T]):
+class Set[T](Seq[T, set[T]]):
     """ Accept Python ``set()`` values.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[Any] = set(), help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = set(), help: str | None = None) -> None:
         # TODO: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
@@ -174,7 +175,7 @@ class Set[T](Seq[T]):
     def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, set)
 
-class Array[T](Seq[T]):
+class Array[T](Seq[T, Any]):
     """ Accept NumPy array values.
 
     """
@@ -184,7 +185,7 @@ class Array[T](Seq[T]):
         import numpy as np
         return isinstance(value, np.ndarray)
 
-class Dict[T](ContainerProperty[Any]):
+class Dict[K, V](ContainerProperty[dict[K, V]]):
     """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
@@ -192,16 +193,16 @@ class Dict[T](ContainerProperty[Any]):
 
     """
 
-    def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], *,
-            default: Init[Any] = {}, help: str | None = None) -> None:
+    def __init__(self, keys_type: TypeOrInst[Property[K]], values_type: TypeOrInst[Property[V]], *,
+            default: Init[dict[K, V]] = {}, help: str | None = None) -> None:
         super().__init__(keys_type, values_type, default=default, help=help)
 
     @property
-    def keys_type(self) -> Property[Any]:
+    def keys_type(self) -> Property[K]:
         return self.type_params[0]
 
     @property
-    def values_type(self) -> Property[Any]:
+    def values_type(self) -> Property[V]:
         return self.type_params[1]
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -241,7 +242,7 @@ class Dict[T](ContainerProperty[Any]):
         else:
             return value
 
-class ColumnData(Dict[Any]):
+class ColumnData(Dict[str, Any]):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
     :class:`~bokeh.models.sources.ColumnDataSource`.
 
@@ -269,7 +270,7 @@ class ColumnData(Dict[Any]):
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         from ...document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
         if isinstance(hint, ColumnDataChangedEvent):
-            return { col: cast(Any, hint.model).data[col] for col in hint.cols or [] }
+            return { col: cast("ColumnDataSource", hint.model).data[col] for col in hint.cols or [] }
         if isinstance(hint, ColumnsStreamedEvent):
             return hint.data
         return value
@@ -310,12 +311,12 @@ class Tuple(ContainerProperty[Any]):
         """
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
 
-class RelativeDelta(Dict[Any]):
+class RelativeDelta(Dict[str, int]):
     """ Accept RelativeDelta dicts for time delta values.
 
     """
 
-    def __init__(self, default: Init[Any] = {}, *, help: str | None = None) -> None:
+    def __init__(self, default: Init[dict[str, int]] = {}, *, help: str | None = None) -> None:
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
@@ -323,13 +324,13 @@ class RelativeDelta(Dict[Any]):
     def __str__(self) -> str:
         return self.__class__.__name__
 
-class RestrictedDict(Dict[Any]):
+class RestrictedDict[K, V](Dict[K, V]):
     """ Check for disallowed key(s).
 
     """
 
     def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], disallow: Iterable[Any],
-            default: Init[Any] = {}, *, help: str | None = None) -> None:
+            default: Init[dict[K, V]] = {}, *, help: str | None = None) -> None:
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
 
@@ -342,7 +343,7 @@ class RestrictedDict(Dict[Any]):
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValueError(msg)
 
-class NonEmpty[TSeq: Seq[Any]](SingleParameterizedProperty[TSeq]):
+class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
 
     def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = Intrinsic,
@@ -356,7 +357,7 @@ class NonEmpty[TSeq: Seq[Any]](SingleParameterizedProperty[TSeq]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValueError(msg)
 
-class Len[TSeq: Seq[Any]](SingleParameterizedProperty[TSeq]):
+class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
 
     def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = Intrinsic,
@@ -384,11 +385,11 @@ class Len[TSeq: Seq[Any]](SingleParameterizedProperty[TSeq]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Dict)
-def _sphinx_type_dict(obj: Dict[Any]) -> str:
+def _sphinx_type_dict(obj: Dict[Any, Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.keys_type)}, {type_link(obj.values_type)})"
 
 @register_type_link(Seq)
-def _sphinx_type_seq(obj: Seq[Any]) -> str:
+def _sphinx_type_seq(obj: Seq[Any, Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.item_type)})"
 
 @register_type_link(Tuple)

@@ -34,12 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import quote_plus
 
 # Bokeh imports
@@ -508,7 +503,8 @@ class ClientSession:
                 opens a new tab. If **new** is 'window', then opens a new window.
 
         '''
-        document = cast(Document, self.document)
+        document = self.document
+        assert document is not None
         if obj and obj not in document.roots:
             document.add_root(obj)
         show_session(session=self, browser=browser, new=new)
@@ -539,7 +535,9 @@ class ClientSession:
         return session_id
 
     def _handle_patch(self, message: patch_doc) -> None:
-        message.apply_to_document(cast(Document, self.document), self)
+        document = self.document
+        assert document is not None
+        message.apply_to_document(document, self)
 
     def _loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks

@@ -63,7 +63,7 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
-    cast,
+    runtime_checkable,
 )
 
 # Bokeh imports
@@ -123,29 +123,40 @@ if TYPE_CHECKING:
 
     type Invoker = Callable[..., Any] # TODO
 
-class DocumentChangedMixin:
+@runtime_checkable
+class DocumentChangedMixin(Protocol):
     def _document_changed(self, event: DocumentChangedEvent) -> None: ...
-class DocumentPatchedMixin:
+@runtime_checkable
+class DocumentPatchedMixin(Protocol):
     def _document_patched(self, event: DocumentPatchedEvent) -> None: ...
-class DocumentMessageSentMixin:
+@runtime_checkable
+class DocumentMessageSentMixin(Protocol):
     def _document_message_sent(self, event: MessageSentEvent) -> None: ...
-class DocumentModelChangedMixin:
+@runtime_checkable
+class DocumentModelChangedMixin(Protocol):
     def _document_model_changed(self, event: ModelChangedEvent) -> None: ...
-class ColumnDataChangedMixin:
+@runtime_checkable
+class ColumnDataChangedMixin(Protocol):
     def _column_data_changed(self, event: ColumnDataChangedEvent) -> None: ...
-class ColumnsStreamedMixin:
+@runtime_checkable
+class ColumnsStreamedMixin(Protocol):
     def _columns_streamed(self, event: ColumnsStreamedEvent) -> None: ...
-class ColumnsPatchedMixin:
+@runtime_checkable
+class ColumnsPatchedMixin(Protocol):
     def _columns_patched(self, event: ColumnsPatchedEvent) -> None: ...
-class SessionCallbackAddedMixin:
+@runtime_checkable
+class SessionCallbackAddedMixin(Protocol):
     def _session_callback_added(self, event: SessionCallbackAdded) -> None: ...
-class SessionCallbackRemovedMixin:
+@runtime_checkable
+class SessionCallbackRemovedMixin(Protocol):
     def _session_callback_removed(self, event: SessionCallbackRemoved) -> None: ...
 
+@runtime_checkable
 class StreamableDataSource(Protocol):
     def _stream(self, new_data: DataDict | pd.Series[Any] | pd.DataFrame,
             rollover: int | None = None, setter: Setter | None = None) -> None: ...
 
+@runtime_checkable
 class PatchableDataSource(Protocol):
     def patch(self, patches: Patches, setter: Setter | None = None) -> None: ...
 
@@ -199,8 +210,8 @@ class DocumentChangedEvent:
         This method will invoke ``receiver._document_changed`` if it exists.
 
         '''
-        if hasattr(receiver, '_document_changed'):
-            cast(DocumentChangedMixin, receiver)._document_changed(self)
+        if isinstance(receiver, DocumentChangedMixin):
+            receiver._document_changed(self)
 
 class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
     ''' A Base class for events that represent updating Bokeh Models and
@@ -222,8 +233,8 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_document_patched'):
-            cast(DocumentPatchedMixin, receiver)._document_patched(self)
+        if isinstance(receiver, DocumentPatchedMixin):
+            receiver._document_patched(self)
 
     def to_serializable(self, serializer: Serializer) -> DocumentPatched:
         ''' Create a JSON representation of this event suitable for sending
@@ -273,8 +284,8 @@ class MessageSentEvent(DocumentPatchedEvent):
 
     def dispatch(self, receiver: Any) -> None:
         super().dispatch(receiver)
-        if hasattr(receiver, "_document_message_sent"):
-            cast(DocumentMessageSentMixin, receiver)._document_message_sent(self)
+        if isinstance(receiver, DocumentMessageSentMixin):
+            receiver._document_message_sent(self)
 
     def to_serializable(self, serializer: Serializer) -> MessageSent:
         return MessageSent(
@@ -361,8 +372,8 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_document_model_changed'):
-            cast(DocumentModelChangedMixin, receiver)._document_model_changed(self)
+        if isinstance(receiver, DocumentModelChangedMixin):
+            receiver._document_model_changed(self)
 
     def to_serializable(self, serializer: Serializer) -> ModelChanged:
         ''' Create a JSON representation of this event suitable for sending
@@ -435,8 +446,8 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_column_data_changed'):
-            cast(ColumnDataChangedMixin, receiver)._column_data_changed(self)
+        if isinstance(receiver, ColumnDataChangedMixin):
+            receiver._column_data_changed(self)
 
     def to_serializable(self, serializer: Serializer) -> ColumnDataChanged:
         ''' Create a JSON representation of this event suitable for sending
@@ -543,8 +554,8 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_columns_streamed'):
-            cast(ColumnsStreamedMixin, receiver)._columns_streamed(self)
+        if isinstance(receiver, ColumnsStreamedMixin):
+            receiver._columns_streamed(self)
 
     def to_serializable(self, serializer: Serializer) -> ColumnsStreamed:
         ''' Create a JSON representation of this event suitable for sending
@@ -578,7 +589,9 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         assert attr == "data"
         data = event.data
         rollover = event.rollover
-        cast(StreamableDataSource, model)._stream(data, rollover, event.setter)
+        if not isinstance(model, StreamableDataSource):
+            raise RuntimeError(f"expected streamable data source, got {model!r}")
+        model._stream(data, rollover, event.setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches
@@ -626,8 +639,8 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_columns_patched'):
-            cast(ColumnsPatchedMixin, receiver)._columns_patched(self)
+        if isinstance(receiver, ColumnsPatchedMixin):
+            receiver._columns_patched(self)
 
     def to_serializable(self, serializer: Serializer) -> ColumnsPatched:
         ''' Create a JSON representation of this event suitable for sending
@@ -658,7 +671,9 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         attr = event.attr
         assert attr == "data"
         patches = event.patches
-        cast(PatchableDataSource, model).patch(patches, event.setter)
+        if not isinstance(model, PatchableDataSource):
+            raise RuntimeError(f"expected patchable data source, got {model!r}")
+        model.patch(patches, event.setter)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to the title of a Bokeh
@@ -885,8 +900,8 @@ class SessionCallbackAdded(DocumentChangedEvent):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_session_callback_added'):
-            cast(SessionCallbackAddedMixin, receiver)._session_callback_added(self)
+        if isinstance(receiver, SessionCallbackAddedMixin):
+            receiver._session_callback_added(self)
 
 class SessionCallbackRemoved(DocumentChangedEvent):
     ''' A concrete event representing a change to remove an existing callback
@@ -917,8 +932,8 @@ class SessionCallbackRemoved(DocumentChangedEvent):
 
         '''
         super().dispatch(receiver)
-        if hasattr(receiver, '_session_callback_removed'):
-            cast(SessionCallbackRemovedMixin, receiver)._session_callback_removed(self)
+        if isinstance(receiver, SessionCallbackRemovedMixin):
+            receiver._session_callback_removed(self)
 
 DocumentChangeCallback = Callable[[DocumentChangedEvent], None]
 

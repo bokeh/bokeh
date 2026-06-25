@@ -24,14 +24,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from typing import TYPE_CHECKING
 
 # Bokeh imports
 from ..has_props import HasProps
-from .descriptor_factory import PropertyDescriptorFactory
-
-if TYPE_CHECKING:
-    from .descriptors import PropertyDescriptor
+from .descriptor_factory import PropertyDescriptorFactory, PropertyDescriptorLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -60,8 +56,8 @@ class Include[T](PropertyDescriptorFactory[T]):
         self.help = help
         self.prefix = prefix + "_" if prefix else ""
 
-    def make_descriptors(self, _base_name: str) -> list[PropertyDescriptor[T]]:
-        descriptors = []
+    def make_descriptors(self, _base_name: str) -> list[PropertyDescriptorLike[T]]:
+        descriptors: list[PropertyDescriptorLike[T]] = []
 
         for descriptor in self.delegate.descriptors():
             prop = copy(descriptor.property)
