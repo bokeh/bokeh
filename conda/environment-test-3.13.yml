@@ -67,6 +67,7 @@ dependencies:
   - pip
   - pip:
     - mypy >=1.20
+    - pyright
     # docs
     - bokeh_sampledata
     - pydata_sphinx_theme
