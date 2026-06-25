@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from .bases import Property
@@ -33,7 +33,6 @@ from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescrip
 
 if TYPE_CHECKING:
     from ...util.deprecation import Version
-    from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,9 +72,15 @@ class Alias[T](Property[T]):
     _help: str | None
 
     # Alias is somewhat a quasi-property
-    readonly: ClassVar[bool] = False
-    serialized: ClassVar[bool] = False
-    _default = None
+    _default: Any = None
+
+    @property
+    def readonly(self) -> bool:
+        return False
+
+    @property
+    def serialized(self) -> bool:
+        return False
 
     def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
         self.aliased_name = aliased_name
@@ -83,8 +88,8 @@ class Alias[T](Property[T]):
         self.alternatives = []
         self.assertions = []
 
-    def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
-        return [ AliasPropertyDescriptor(base_name, self) ]
+    def make_descriptors(self, name: str) -> list[Any]:
+        return [ AliasPropertyDescriptor(name, self) ]
 
 class DeprecatedAlias[T](Alias[T]):
     """
@@ -97,8 +102,8 @@ class DeprecatedAlias[T](Alias[T]):
         self.since = since
         self.extra = extra
 
-    def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
-        return [ DeprecatedAliasPropertyDescriptor(base_name, self) ]
+    def make_descriptors(self, name: str) -> list[Any]:
+        return [ DeprecatedAliasPropertyDescriptor(name, self) ]
 
 #-----------------------------------------------------------------------------
 # Dev API

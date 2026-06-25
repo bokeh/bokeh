@@ -33,6 +33,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    cast,
 )
 
 # Bokeh imports
@@ -96,7 +97,7 @@ class Property[T](PropertyDescriptorFactory[T]):
     _self_serialized: bool
 
     alternatives: list[tuple[Property[Any], Callable[[Any], T]]]
-    assertions: list[tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
+    assertions: list[tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
     def __init__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
         default = default if default is not Intrinsic else Undefined
@@ -171,7 +172,7 @@ class Property[T](PropertyDescriptorFactory[T]):
         return callable(self._default)
 
     @classmethod
-    def _copy_default(cls, default: Callable[[], T] | T, *, no_eval: bool = False) -> T:
+    def _copy_default(cls, default: Callable[[], T] | Init[T], *, no_eval: bool = False) -> Any:
         """ Return a copy of the default, or a new value if the default
         is specified by a function.
 
@@ -183,7 +184,7 @@ class Property[T](PropertyDescriptorFactory[T]):
                 return default
             return default()
 
-    def _raw_default(self, *, no_eval: bool = False) -> T:
+    def _raw_default(self, *, no_eval: bool = False) -> Any:
         """ Return the untransformed default value.
 
         The raw_default() needs to be validated and transformed by
@@ -193,7 +194,7 @@ class Property[T](PropertyDescriptorFactory[T]):
         """
         return self._copy_default(self._default, no_eval=no_eval)
 
-    def themed_default(self, cls: type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> T:
+    def themed_default(self, cls: type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> Any:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
@@ -241,7 +242,7 @@ class Property[T](PropertyDescriptorFactory[T]):
         import numpy as np
 
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
-            return np.array_equal(new, old)
+            return np.array_equal(cast(Any, new), cast(Any, old))
 
         if uses_pandas(new) or uses_pandas(old):
             import pandas as pd
@@ -249,7 +250,7 @@ class Property[T](PropertyDescriptorFactory[T]):
 
             pandas_types = (pd.Index, pd.Series, ExtensionArray)
             if isinstance(new, pandas_types) or isinstance(old, pandas_types):
-                return np.array_equal(new, old)
+                return np.array_equal(cast(Any, new), cast(Any, old))
 
         try:
             # this handles the special but common case where there is a dict with array
@@ -468,7 +469,7 @@ class ParameterizedProperty[T](Property[T]):
             return False
 
     @staticmethod
-    def _validate_type_param(type_param: TypeOrInst[Property[Any]], *, help_allowed: bool = False) -> Property[Any]:
+    def _validate_type_param(type_param: Any, *, help_allowed: bool = False) -> Property[Any]:
         if isinstance(type_param, type):
             if issubclass(type_param, Property):
                 return type_param()
@@ -583,5 +584,5 @@ def validation_on() -> bool:
 #-----------------------------------------------------------------------------
 
 @register_type_link(SingleParameterizedProperty)
-def _sphinx_type(obj: SingleParameterizedProperty[Any]):
+def _sphinx_type(obj: SingleParameterizedProperty[Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.type_param)})"
