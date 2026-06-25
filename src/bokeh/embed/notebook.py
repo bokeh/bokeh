@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.json_encoder import serialize_json
 from ..core.templates import DOC_NB_JS
@@ -45,7 +48,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-type ThemeSource = Theme | FromCurdoc | None
+type ThemeSource = Theme | type[FromCurdoc] | None
 
 def notebook_content(model: Model, notebook_comms_target: str | None = None, theme: ThemeSource = FromCurdoc) -> tuple[str, str, Document]:
     ''' Return script and div that will display a Bokeh plot in a Jupyter
@@ -85,13 +88,13 @@ def notebook_content(model: Model, notebook_comms_target: str | None = None, the
 
     div = div_for_render_item(render_item)
 
-    render_item = render_item.to_json()
+    render_item_json: dict[str, Any] = render_item.to_json()
     if notebook_comms_target:
-        render_item["notebook_comms_target"] = notebook_comms_target
+        render_item_json["notebook_comms_target"] = notebook_comms_target
 
     script = DOC_NB_JS.render(
         docs_json=serialize_json(docs_json),
-        render_items=serialize_json([render_item]),
+        render_items=serialize_json([render_item_json]),
     )
 
     return script, div, new_doc

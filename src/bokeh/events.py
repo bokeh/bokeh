@@ -82,7 +82,6 @@ if TYPE_CHECKING:
     from .core.types import FactorType, GeometryData
     from .model import Model
     from .models.annotations import Legend, LegendItem
-    from .models.axes import Axis
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
     from .models.widgets.inputs import FileInput, TextInput
@@ -167,7 +166,7 @@ class Event(Serializable):
             raise ValueError(f"unknown event name '{event_name}'")
 
     @classmethod
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         super().__init_subclass__()
 
         if hasattr(cls, "event_name"):
@@ -195,12 +194,12 @@ class Event(Serializable):
         if values is None:
             decoder.error("'values' field is missing")
 
-        cls = _CONCRETE_EVENT_CLASSES.get(name)
-        if cls is None:
+        event_cls = _CONCRETE_EVENT_CLASSES.get(name)
+        if event_cls is None:
             decoder.error(f"can't resolve event '{name}'")
 
         decoded_values = decoder.decode(values)
-        event = cls(**decoded_values)
+        event = event_cls(**decoded_values)
 
         return event
 
@@ -301,7 +300,7 @@ class AxisClick(ModelEvent):
 
     value: float | FactorType | None
 
-    def __init__(self, model: Axis | None, value: float | FactorType | None = None) -> None:
+    def __init__(self, model: Model | None, value: float | FactorType | None = None) -> None:
         from .models import Axis
         if model is not None and not isinstance(model, Axis):
             clsname = self.__class__.__name__
@@ -315,7 +314,7 @@ class ButtonClick(ModelEvent):
     '''
     event_name = 'button_click'
 
-    def __init__(self, model: AbstractButton | None) -> None:
+    def __init__(self, model: Model | None) -> None:
         from .models.widgets import AbstractButton, ToggleButtonGroup
         if model is not None and not isinstance(model, (AbstractButton, ToggleButtonGroup)):
             clsname = self.__class__.__name__
@@ -372,7 +371,7 @@ class ValueSubmit(ModelEvent):
 
     value: str
 
-    def __init__(self, model: TextInput | None, value: str) -> None:
+    def __init__(self, model: Model | None, value: str) -> None:
         from .models.widgets import TextInput
         if model is not None and not isinstance(model, TextInput):
             clsname = self.__class__.__name__

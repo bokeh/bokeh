@@ -86,14 +86,15 @@ def without_document_lock[F: Callable[..., Any]](func: F) -> NoLockCallback[F]:
     '''
     if asyncio.iscoroutinefunction(func):
         @wraps(func)
-        async def _wrapper(*args: Any, **kw: Any) -> None:
+        async def _async_wrapper(*args: Any, **kw: Any) -> None:
             await func(*args, **kw)
+        wrapper = cast(NoLockCallback[F], _async_wrapper)
     else:
         @wraps(func)
-        def _wrapper(*args: Any, **kw: Any) -> None:
+        def _sync_wrapper(*args: Any, **kw: Any) -> None:
             func(*args, **kw)
+        wrapper = cast(NoLockCallback[F], _sync_wrapper)
 
-    wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
 

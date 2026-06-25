@@ -34,10 +34,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    cast,
+)
 from urllib.parse import quote_plus
 
 # Bokeh imports
+from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
 from ..util.browser import NEW_PARAM
 from ..util.token import generate_jwt_token, generate_session_id
@@ -47,7 +53,6 @@ if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
 
     from ..core.types import ID
-    from ..document import Document
     from ..document.events import (
         DocumentPatchedEvent,
         SessionCallbackAdded,
@@ -355,7 +360,7 @@ class ClientSession:
         return self._connection.url
 
     @property
-    def document(self) -> Document:
+    def document(self) -> Document | None:
         ''' A |Document| that will be kept in sync with the corresponding
         ``Document`` on the server.
 
@@ -503,8 +508,9 @@ class ClientSession:
                 opens a new tab. If **new** is 'window', then opens a new window.
 
         '''
-        if obj and obj not in self.document.roots:
-            self.document.add_root(obj)
+        document = cast(Document, self.document)
+        if obj and obj not in document.roots:
+            document.add_root(obj)
         show_session(session=self, browser=browser, new=new)
 
     # Internal methods --------------------------------------------------------
@@ -533,7 +539,7 @@ class ClientSession:
         return session_id
 
     def _handle_patch(self, message: patch_doc) -> None:
-        message.apply_to_document(self.document, self)
+        message.apply_to_document(cast(Document, self.document), self)
 
     def _loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks

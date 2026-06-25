@@ -167,7 +167,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
 
         # models have mixed docs, just make a quick clone
         else:
-            def finish():
+            def finish() -> None:
                 _dispose_temp_doc(objs)
             doc = _create_temp_doc(objs)
 
@@ -247,7 +247,7 @@ class RenderRoot:
     #: A list of any user-supplied tag values for this root
     tags: list[Any] = field(default_factory=list, compare=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Model.name is nullable, and field() won't enforce the default when name=None
         self.name = self.name or ""
 
@@ -260,7 +260,7 @@ class RenderRoots:
         for i in range(0, len(self)):
             yield self[i]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._roots.items())
 
     def __getitem__(self, key: int | str) -> RenderRoot:
@@ -307,6 +307,7 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
 
     docs: dict[Document, tuple[ID, dict[Model, ID]]] = {}
     for model_or_doc in models:
+        doc: Document | None
         if isinstance(model_or_doc, Document):
             model = None
             doc = model_or_doc

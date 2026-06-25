@@ -22,12 +22,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, cast
 
 # Bokeh imports
 from .lifecycle import LifecycleHandler
 
 if TYPE_CHECKING:
+    from ...document import Document
     from ..application import SessionContext
 
 #-----------------------------------------------------------------------------
@@ -58,21 +59,27 @@ class DocumentLifecycleHandler(LifecycleHandler):
 # Private API
 #-----------------------------------------------------------------------------
 
+class _DocumentSessionContext(Protocol):
+    _document: Document
+
 def _on_session_destroyed(session_context: SessionContext) -> None:
     '''
     Calls any on_session_destroyed callbacks defined on the Document
     '''
-    callbacks = session_context._document.session_destroyed_callbacks
-    session_context._document.session_destroyed_callbacks = set()
+    document = cast(_DocumentSessionContext, session_context)._document
+    callbacks = document.session_destroyed_callbacks
+    document.session_destroyed_callbacks = set()
+    callback = None
     for callback in callbacks:
         try:
             callback(session_context)
         except Exception as e:
-            log.warning("DocumentLifeCycleHandler on_session_destroyed "
-                        f"callback {callback} failed with following error: {e}")
+            logging.getLogger().warning("DocumentLifeCycleHandler on_session_destroyed "
+                                        f"callback {callback} failed with following error: {e}")
     if callbacks:
         # If any session callbacks were defined garbage collect after deleting all references
-        del callback
+        if callback is not None:
+            del callback
         del callbacks
 
         import gc

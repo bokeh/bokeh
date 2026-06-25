@@ -25,7 +25,12 @@ log = logging.getLogger(__name__)
 import weakref
 from collections import defaultdict
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    TypeVar,
+)
 
 # Bokeh imports
 from ..core.enums import HoldPolicy
@@ -54,6 +59,7 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..model import Model
     from ..server.callbacks import SessionCallback
+    SessionCallbackT = TypeVar("SessionCallbackT", bound=SessionCallback)
     from .document import Document
     from .events import (
         DocumentChangeCallback,
@@ -61,6 +67,8 @@ if TYPE_CHECKING:
         DocumentPatchedEvent,
         Invoker,
     )
+else:
+    SessionCallbackT = TypeVar("SessionCallbackT")
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -158,7 +166,7 @@ class DocumentCallbackManager:
     def session_destroyed_callbacks(self, callbacks: set[SessionDestroyedCallback]) -> None:
         self._session_destroyed_callbacks = callbacks
 
-    def add_session_callback(self, callback_obj: SessionCallback, callback: Callback, one_shot: bool) -> SessionCallback:
+    def add_session_callback(self, callback_obj: SessionCallbackT, callback: Callback, one_shot: bool) -> SessionCallbackT:
         ''' Internal implementation for adding session callbacks.
 
         Args:

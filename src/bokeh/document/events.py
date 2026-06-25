@@ -61,12 +61,13 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    Literal,
+    Protocol,
     cast,
 )
 
 # Bokeh imports
 from ..core.serialization import Serializable
-from ..util.dependencies import uses_pandas
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -141,6 +142,13 @@ class SessionCallbackAddedMixin:
 class SessionCallbackRemovedMixin:
     def _session_callback_removed(self, event: SessionCallbackRemoved) -> None: ...
 
+class StreamableDataSource(Protocol):
+    def _stream(self, new_data: DataDict | pd.Series[Any] | pd.DataFrame,
+            rollover: int | None = None, setter: Setter | None = None) -> None: ...
+
+class PatchableDataSource(Protocol):
+    def patch(self, patches: Patches, setter: Setter | None = None) -> None: ...
+
 class DocumentChangedEvent:
     ''' Base class for all internal events representing a change to a
     Bokeh Document.
@@ -200,11 +208,11 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     '''
 
-    kind: ClassVar[str]
+    kind: ClassVar[Any]
 
-    _handlers: ClassVar[dict[str, type[DocumentPatchedEvent]]] = {}
+    _handlers: ClassVar[dict[str, type[Any]]] = {}
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         cls._handlers[cls.kind] = cls
 
     def dispatch(self, receiver: Any) -> None:
@@ -235,16 +243,19 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
         '''
 
         '''
-        event_kind = event_rep.pop("kind")
+        event_data = dict(event_rep)
+        event_kind = event_data.pop("kind")
+        if not isinstance(event_kind, str):
+            raise RuntimeError(f"invalid patch event type '{event_kind!r}'")
         event_cls = DocumentPatchedEvent._handlers.get(event_kind, None)
         if event_cls is None:
             raise RuntimeError(f"unknown patch event type '{event_kind!r}'")
 
-        event = event_cls(document=doc, setter=setter, **event_rep)
+        event = event_cls(document=doc, setter=setter, **event_data)
         event_cls._handle_event(doc, event)
 
     @staticmethod
-    def _handle_event(doc: Document, event: DocumentPatchedEvent) -> None:
+    def _handle_event(doc: Document, event: Any) -> None:
         raise NotImplementedError()
 
 class MessageSentEvent(DocumentPatchedEvent):
@@ -252,7 +263,7 @@ class MessageSentEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "MessageSent"
+    kind: ClassVar[Literal["MessageSent"]] = "MessageSent"
 
     def __init__(self, document: Document, msg_type: str, msg_data: Any | bytes,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -284,7 +295,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "ModelChanged"
+    kind: ClassVar[Literal["ModelChanged"]] = "ModelChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, new: Any,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -381,7 +392,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "ColumnDataChanged"
+    kind: ClassVar[Literal["ColumnDataChanged"]] = "ColumnDataChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, data: DataDict | None = None,
             cols: list[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -471,7 +482,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "ColumnsStreamed"
+    kind: ClassVar[Literal["ColumnsStreamed"]] = "ColumnsStreamed"
 
     data: DataDict
 
@@ -514,12 +525,15 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         self.attr = attr
 
 
-        if uses_pandas(data):
+        stream_data: DataDict
+        if isinstance(data, dict):
+            stream_data = data
+        else:
             import pandas as pd
-            if isinstance(data, pd.DataFrame):
-                data = {c: data[c] for c in data.columns}
+            assert isinstance(data, pd.DataFrame)
+            stream_data = {c: data[c] for c in data.columns}
 
-        self.data = data
+        self.data = stream_data
         self.rollover = rollover
 
     def dispatch(self, receiver: Any) -> None:
@@ -564,7 +578,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         assert attr == "data"
         data = event.data
         rollover = event.rollover
-        model._stream(data, rollover, event.setter)
+        cast(StreamableDataSource, model)._stream(data, rollover, event.setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches
@@ -572,7 +586,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "ColumnsPatched"
+    kind: ClassVar[Literal["ColumnsPatched"]] = "ColumnsPatched"
 
     def __init__(self, document: Document, model: Model, attr: str, patches: Patches,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -644,7 +658,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         attr = event.attr
         assert attr == "data"
         patches = event.patches
-        model.patch(patches, event.setter)
+        cast(PatchableDataSource, model).patch(patches, event.setter)
 
 class TitleChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to the title of a Bokeh
@@ -652,7 +666,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "TitleChanged"
+    kind: ClassVar[Literal["TitleChanged"]] = "TitleChanged"
 
     def __init__(self, document: Document, title: str,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
@@ -730,7 +744,7 @@ class RootAddedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "RootAdded"
+    kind: ClassVar[Literal["RootAdded"]] = "RootAdded"
 
     def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
@@ -789,7 +803,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
     '''
 
-    kind = "RootRemoved"
+    kind: ClassVar[Literal["RootRemoved"]] = "RootRemoved"
 
     def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
