@@ -28,7 +28,12 @@ from collections.abc import (
     Sequence,
     Sized,
 )
-from typing import TYPE_CHECKING, Any, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    cast,
+    overload,
+)
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -134,6 +139,11 @@ class List[T](Seq[T, list[T]]):
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
+    @overload
+    def wrap(self, value: list[T]) -> PropertyValueList[T]: ...
+    @overload
+    def wrap[V](self, value: V) -> V: ...
+
     def wrap(self, value: Any) -> Any:
         """ Some property types need to wrap their values in special containers, etc.
 
@@ -160,6 +170,11 @@ class Set[T](Seq[T, set[T]]):
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
+
+    @overload
+    def wrap(self, value: set[T]) -> PropertyValueSet[T]: ...
+    @overload
+    def wrap[V](self, value: V) -> V: ...
 
     def wrap(self, value: Any) -> Any:
         """ Some property types need to wrap their values in special containers, etc. """
@@ -230,6 +245,11 @@ class Dict[K, V](ContainerProperty[dict[K, V]]):
         if err:
             raise err if detail else ValueError("")
 
+    @overload
+    def wrap(self, value: dict[K, V]) -> PropertyValueDict[V]: ...
+    @overload
+    def wrap[T](self, value: T) -> T: ...
+
     def wrap(self, value: Any) -> Any:
         """ Some property types need to wrap their values in special containers, etc.
 
@@ -274,6 +294,11 @@ class ColumnData(Dict[str, Any]):
         if isinstance(hint, ColumnsStreamedEvent):
             return hint.data
         return value
+
+    @overload
+    def wrap(self, value: dict[str, Sequence[Any]]) -> PropertyValueColumnData: ...
+    @overload
+    def wrap[T](self, value: T) -> T: ...
 
     def wrap(self, value: Any) -> Any:
         """ Some property types need to wrap their values in special containers, etc.
