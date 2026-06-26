@@ -16,6 +16,7 @@ import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
+import {defer} from "core/util/defer"
 
 export {type DOMBoxSizing}
 
@@ -92,8 +93,17 @@ export abstract class LayoutDOMView extends PaneView {
       p.width_policy, p.height_policy,
       p.flow_mode, p.sizing_mode,
       p.aspect_ratio,
-      p.visible,
     ], () => this.invalidate_layout())
+  }
+
+  protected override _update_visible(): void {
+    super._update_visible()
+
+    this._await_ready((async () => {
+      // defer layout invalidation until after CSS layout updated visibility
+      await defer()
+      this.invalidate_layout()
+    })())
   }
 
   override children_views(): ChildView[] {
