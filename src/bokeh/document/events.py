@@ -123,6 +123,7 @@ if TYPE_CHECKING:
     type Buffers = list[BufferRef] | None
 
     type Invoker = Callable[..., Any] # TODO
+    type PatchEventHandler = Callable[[Document, Setter | None, dict[str, Any]], None]
 
 @runtime_checkable
 class DocumentChangedMixin(Protocol):
@@ -222,10 +223,10 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     kind: ClassVar[Any]
 
-    _handlers: ClassVar[dict[str, type[Any]]] = {}
+    _handlers: ClassVar[dict[str, PatchEventHandler]] = {}
 
     def __init_subclass__(cls) -> None:
-        cls._handlers[cls.kind] = cls
+        cls._handlers[cls.kind] = cls._handle_json
 
     def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
@@ -259,12 +260,15 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
         event_kind = event_data.pop("kind")
         if not isinstance(event_kind, str):
             raise RuntimeError(f"invalid patch event type '{event_kind!r}'")
-        event_cls = DocumentPatchedEvent._handlers.get(event_kind, None)
-        if event_cls is None:
+        handler = DocumentPatchedEvent._handlers.get(event_kind, None)
+        if handler is None:
             raise RuntimeError(f"unknown patch event type '{event_kind!r}'")
 
-        event = event_cls(document=doc, setter=setter, **event_data)
-        event_cls._handle_event(doc, event)
+        handler(doc, setter, event_data)
+
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        raise NotImplementedError()
 
     @staticmethod
     def _handle_event(doc: Document, event: Any) -> None:
@@ -294,6 +298,11 @@ class MessageSentEvent(DocumentPatchedEvent):
             msg_type=self.msg_type,
             msg_data=serializer.encode(self.msg_data),
         )
+
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, msg_type=event_data["msg_type"], msg_data=event_data["msg_data"])
+        cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: MessageSentEvent) -> None:
@@ -391,6 +400,11 @@ class ModelChangedEvent(DocumentPatchedEvent):
             new   = serializer.encode(self.new),
         )
 
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], new=event_data["new"])
+        cls._handle_event(doc, event)
+
     @staticmethod
     def _handle_event(doc: Document, event: ModelChangedEvent) -> None:
         model = event.model
@@ -480,6 +494,11 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
             data  = serializer.encode(data),
             cols  = serializer.encode(cols),
         )
+
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data["cols"])
+        cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnDataChangedEvent) -> None:
@@ -583,6 +602,11 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             rollover = self.rollover,
         )
 
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data["rollover"])
+        cls._handle_event(doc, event)
+
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsStreamedEvent) -> None:
         model = event.model
@@ -665,6 +689,11 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
             attr    = self.attr,
             patches = serializer.encode(self.patches),
         )
+
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], patches=event_data["patches"])
+        cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsPatchedEvent) -> None:
@@ -750,6 +779,11 @@ class TitleChangedEvent(DocumentPatchedEvent):
             title = self.title,
         )
 
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, title=event_data["title"])
+        cls._handle_event(doc, event)
+
     @staticmethod
     def _handle_event(doc: Document, event: TitleChangedEvent) -> None:
         doc.set_title(event.title, event.setter)
@@ -807,6 +841,11 @@ class RootAddedEvent(DocumentPatchedEvent):
             kind  = self.kind,
             model = serializer.encode(self.model),
         )
+
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, model=event_data["model"])
+        cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: RootAddedEvent) -> None:
@@ -867,6 +906,11 @@ class RootRemovedEvent(DocumentPatchedEvent):
             kind  = self.kind,
             model = self.model.ref,
         )
+
+    @classmethod
+    def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
+        event = cls(document=doc, setter=setter, model=event_data["model"])
+        cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: RootRemovedEvent) -> None:
