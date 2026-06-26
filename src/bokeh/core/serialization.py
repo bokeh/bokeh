@@ -397,24 +397,25 @@ class Serializer:
         itemsize = obj.itemsize
 
         def dtype() -> DataType:
-            if typecode == "f":
-                return "float32"
-            if typecode == "d":
-                return "float64"
-            if typecode in "BHILQ":
-                if itemsize == 1:
-                    return "uint8"
-                if itemsize == 2:
-                    return "uint16"
-                if itemsize == 4:
-                    return "uint32"
-            if typecode in "bhilq":
-                if itemsize == 1:
-                    return "int8"
-                if itemsize == 2:
-                    return "int16"
-                if itemsize == 4:
-                    return "int32"
+            match typecode:
+                case "f":
+                    return "float32"
+                case "d":
+                    return "float64"
+                case "B" | "H" | "I" | "L" | "Q":
+                    match obj.itemsize:
+                        case 1: return "uint8"
+                        case 2: return "uint16"
+                        case 4: return "uint32"
+                        # TODO: support 64-bit integer typed arrays when the wire dtype supports them.
+                        #case 8: return "uint64"
+                case "b" | "h" | "i" | "l" | "q":
+                    match obj.itemsize:
+                        case 1: return "int8"
+                        case 2: return "int16"
+                        case 4: return "int32"
+                        # TODO: support 64-bit integer typed arrays when the wire dtype supports them.
+                        #case 8: return "int64"
             self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 
         return TypedArrayRep(
