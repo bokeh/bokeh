@@ -77,6 +77,7 @@ if TYPE_CHECKING:
     from ...document import Document
     from ...themes import Theme
     from ..application import ServerContext, SessionContext
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
