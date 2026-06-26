@@ -37,11 +37,7 @@ import atexit
 import io
 import queue
 import threading
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..resources import INLINE
