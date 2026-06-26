@@ -55,8 +55,7 @@ from os.path import (
     exists,
     join,
 )
-from types import CoroutineType
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
@@ -270,7 +269,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_unloaded(server_context)
 
-    def on_session_created(self, session_context: SessionContext) -> CoroutineType[Any, Any, None]:
+    async def on_session_created(self, session_context: SessionContext) -> None:
         ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if
         it is defined) when a new session is created.
 
@@ -278,9 +277,9 @@ class DirectoryHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        return cast(Any, self._lifecycle_handler.on_session_created(session_context))
+        await self._lifecycle_handler.on_session_created(session_context)
 
-    def on_session_destroyed(self, session_context: SessionContext) -> CoroutineType[Any, Any, None]:
+    async def on_session_destroyed(self, session_context: SessionContext) -> None:
         ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
         it is defined) when a session is destroyed.
 
@@ -288,7 +287,7 @@ class DirectoryHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        return cast(Any, self._lifecycle_handler.on_session_destroyed(session_context))
+        await self._lifecycle_handler.on_session_destroyed(session_context)
 
     def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of

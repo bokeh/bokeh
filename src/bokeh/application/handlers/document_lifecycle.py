@@ -22,13 +22,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from .lifecycle import LifecycleHandler
 
 if TYPE_CHECKING:
-    from ...document import Document
     from ..application import SessionContext
 
 #-----------------------------------------------------------------------------
@@ -59,14 +58,11 @@ class DocumentLifecycleHandler(LifecycleHandler):
 # Private API
 #-----------------------------------------------------------------------------
 
-class _DocumentSessionContext(Protocol):
-    _document: Document
-
 def _on_session_destroyed(session_context: SessionContext) -> None:
     '''
     Calls any on_session_destroyed callbacks defined on the Document
     '''
-    document = cast(_DocumentSessionContext, session_context)._document
+    document = session_context.document
     callbacks = document.session_destroyed_callbacks
     document.session_destroyed_callbacks = set()
     callback = None
