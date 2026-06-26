@@ -140,6 +140,14 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             raise ProtocolError("No token received in subprotocol header")
 
         now = calendar.timegm(dt.datetime.now(tz=dt.timezone.utc).timetuple())
+        if not check_token_signature(token,
+                                     signed=self.application.sign_sessions,
+                                     secret_key=self.application.secret_key):
+            session_id = get_session_id(token)
+            log.error("Token for session %r had invalid signature", session_id)
+            self.close()
+            raise ProtocolError("Invalid token signature")
+
         payload = get_token_payload(token)
         if 'session_expiry' not in payload:
             self.close()
@@ -147,12 +155,6 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         elif now >= payload['session_expiry']:
             self.close()
             raise ProtocolError("Token is expired. Configure the app with a larger value for --session-token-expiration if necessary")
-        elif not check_token_signature(token,
-                                       signed=self.application.sign_sessions,
-                                       secret_key=self.application.secret_key):
-            session_id = get_session_id(token)
-            log.error("Token for session %r had invalid signature", session_id)
-            raise ProtocolError("Invalid token signature")
 
         try:
             self.application.io_loop.add_callback(self._async_open, self._token)
