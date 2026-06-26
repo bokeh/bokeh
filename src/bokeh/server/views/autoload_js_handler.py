@@ -28,8 +28,10 @@ from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
+from bokeh.settings import settings
 
 # Bokeh imports
+from ..util import check_allowlist
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
@@ -58,12 +60,25 @@ class AutoloadJsHandler(SessionHandler):
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Allow-Credentials", "true")
 
+    def _allow_websocket_origin(self) -> None:
+        if "Origin" not in self.request.headers:
+            return
+
+        origin = self.request.headers["Origin"]
+        origin_host = urlparse(origin).netloc.lower()
+
+        allowed_hosts = self.application.websocket_origins
+        if settings.allowed_ws_origin():
+            allowed_hosts = set(settings.allowed_ws_origin())
+
+        if check_allowlist(origin_host, allowed_hosts):
+            # Only mirror origins already trusted to open Bokeh websockets.
+            # Credentialed CORS requests cannot rely on a wildcard origin.
+            self.set_header("Access-Control-Allow-Origin", origin)
+            self.set_header("Vary", "Origin")
+
     async def get(self, *args, **kwargs):
-        if self.request.cookies and "Origin" in self.request.headers:
-            # If credentials, i.e. cookies, are sent with the request,
-            # we cannot leave the allowed origin as wildcard "*",
-            # but have to make it explicit.
-            self.set_header("Access-Control-Allow-Origin", self.request.headers["Origin"])
+        self._allow_websocket_origin()
 
         session = await self.get_session()
 
@@ -96,7 +111,7 @@ class AutoloadJsHandler(SessionHandler):
     async def options(self, *args, **kwargs):
         '''Browsers make OPTIONS requests under the hood before a GET request'''
         self.set_header('Access-Control-Allow-Methods', 'PUT, GET, OPTIONS')
-        self.set_header("Access-Control-Allow-Origin", self.request.headers["Origin"])
+        self._allow_websocket_origin()
 
 #-----------------------------------------------------------------------------
 # Private API

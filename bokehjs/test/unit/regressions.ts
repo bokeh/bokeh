@@ -723,7 +723,7 @@ describe("Bug", () => {
       const provider = new TableDataProvider(source, view)
       const column = new TableColumn({field: "words"}).toColumn()
 
-      provider.sort([{sortCol: column, sortAsc: true}])
+      provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: true}])
       const records_asc = provider.getRecords()
       expect(records_asc).to.be.equal([
         {words: "met",   [DTINDEX_NAME]: 0},
@@ -734,7 +734,7 @@ describe("Bug", () => {
         {words: "no",    [DTINDEX_NAME]: 1},
       ])
 
-      provider.sort([{sortCol: column, sortAsc: false}])
+      provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: false}])
       const records_dsc = provider.getRecords()
       expect(records_dsc).to.be.equal([
         {words: "no",    [DTINDEX_NAME]: 1},
@@ -2076,6 +2076,30 @@ describe("Bug", () => {
       p.add_layout(cbar, "right")
 
       await display(p)
+    })
+  })
+
+  describe("in issue #15080", () => {
+    it("doesn't allow to change frame width, height and align of a Plot", async () => {
+      const p = new Plot({frame_width: 100, frame_height: 200})
+      const {view} = await display(p, [300, 300])
+
+      expect(view.frame.bbox.width == 100)
+      expect(view.frame.bbox.height == 200)
+
+      p.frame_width = 150
+      p.frame_height = 275
+      await view.ready
+
+      expect(view.frame.bbox.width == 150)
+      expect(view.frame.bbox.height == 275)
+
+      p.frame_width = 160
+      p.frame_height = 180
+      await view.ready
+
+      expect(view.frame.bbox.width == 160)
+      expect(view.frame.bbox.height == 180)
     })
   })
 })

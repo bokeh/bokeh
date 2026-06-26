@@ -27,7 +27,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    TypeAlias,
     cast,
 )
 
@@ -54,7 +53,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Fragment: TypeAlias = str | bytes
+type Fragment = str | bytes
 
 class Receiver:
     ''' Receive wire message fragments and assemble complete Bokeh server

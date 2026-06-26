@@ -2,13 +2,12 @@ name: bk-release-build
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.12
 
   # build
   - boto3
   - colorama
   - conda-build 24*    # pre .conda format
-  - conda-verify 3.4*
   - libiconv
   - nodejs 24.*
   - python-build

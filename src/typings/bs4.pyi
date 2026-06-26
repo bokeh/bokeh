@@ -1,4 +1,4 @@
-from typing import IO, Any, Literal, TypeAlias
+from typing import IO, Any, Literal
 
 # XXX: this is incorrect
 class PageElement:
@@ -8,7 +8,7 @@ class PageElement:
 class ResultSet(list[PageElement]):
     ...
 
-_Features: TypeAlias = Literal["lxml", "lxml-xml", "html.parser", "html5lib" "html", "html5", "xml"]
+type _Features = Literal["lxml", "lxml-xml", "html.parser", "html5lib" "html", "html5", "xml"]
 
 class BeautifulSoup:
     def __init__(self, markup: str | IO[str] = ..., features: _Features | None = ...) -> None: ...

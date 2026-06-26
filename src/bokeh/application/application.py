@@ -36,7 +36,6 @@ from typing import (
     Awaitable,
     Callable,
     ClassVar,
-    TypeAlias,
 )
 
 # Bokeh imports
@@ -68,7 +67,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Callback: TypeAlias = Callable[[], None]
+type Callback = Callable[[], None]
 
 class Application:
     ''' An Application is a factory for Document instances.
