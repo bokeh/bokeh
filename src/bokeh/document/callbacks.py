@@ -25,11 +25,7 @@ log = logging.getLogger(__name__)
 import weakref
 from collections import defaultdict
 from functools import wraps
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..core.enums import HoldPolicy
