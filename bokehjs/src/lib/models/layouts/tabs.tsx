@@ -309,13 +309,14 @@ export class TabsView extends LayoutDOMView {
       )
     })
 
-    const panel_els = this.child_views.map((view, i) => {
+    const panel_els = this.sig_child_views.map((view, i) => {
       const is_active = i == active
       const active_cls = is_active ? tabs_css.active : null
 
       const ref = (el: HTMLElement | null) => {
         if (el != null) {
           view.render_to(el)
+          view.r_after_render()
         }
       }
 
