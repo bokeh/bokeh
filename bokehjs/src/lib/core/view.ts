@@ -54,6 +54,7 @@ export abstract class View implements ISignalable, Equatable {
   readonly views: ViewQuery = new ViewQuery(this)
 
   readonly signals: {readonly [key: string]: PreactSignal<unknown>} = {}
+  readonly values: {readonly [key: string]: unknown} = {}
 
   private _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -103,6 +104,11 @@ export abstract class View implements ISignalable, Equatable {
     for (const prop of this.model) {
       Object.defineProperty(this.signals, prop.attr, {
         get() { return prop.signal },
+        configurable: false,
+        enumerable: true,
+      })
+      Object.defineProperty(this.values, prop.attr, {
+        get() { return prop.signal.value },
         configurable: false,
         enumerable: true,
       })
