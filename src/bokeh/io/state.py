@@ -50,14 +50,13 @@ from typing import TYPE_CHECKING, cast
 
 # Bokeh imports
 from ..resources import Resources, ResourcesMode
+from .notebook import NotebookType
 
 if TYPE_CHECKING:
     from ..core.types import ID, PathLike
     from ..document import Document
     from ..server.server import Server
-    from .notebook import CommsHandle, NotebookType
-else:
-    NotebookType = str
+    from .notebook import CommsHandle
 
 #-----------------------------------------------------------------------------
 # Globals and constants
