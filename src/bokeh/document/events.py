@@ -125,6 +125,17 @@ if TYPE_CHECKING:
     type Invoker = Callable[..., Any] # TODO
     type PatchEventHandler = Callable[[Document, Setter | None, dict[str, Any]], None]
 
+type PatchEventKind = Literal[
+    "MessageSent",
+    "ModelChanged",
+    "ColumnDataChanged",
+    "ColumnsStreamed",
+    "ColumnsPatched",
+    "TitleChanged",
+    "RootAdded",
+    "RootRemoved",
+]
+
 @runtime_checkable
 class DocumentChangedMixin(Protocol):
     def _document_changed(self, event: DocumentChangedEvent) -> None: ...
@@ -221,12 +232,10 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     '''
 
-    kind: ClassVar[Any]
-
     _handlers: ClassVar[dict[str, PatchEventHandler]] = {}
 
-    def __init_subclass__(cls) -> None:
-        cls._handlers[cls.kind] = cls._handle_json
+    def __init_subclass__(cls, *, kind: PatchEventKind) -> None:
+        cls._handlers[kind] = cls._handle_json
 
     def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
@@ -274,7 +283,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
     def _handle_event(doc: Document, event: Any) -> None:
         raise NotImplementedError()
 
-class MessageSentEvent(DocumentPatchedEvent):
+class MessageSentEvent(DocumentPatchedEvent, kind="MessageSent"):
     '''
 
     '''
@@ -310,7 +319,7 @@ class MessageSentEvent(DocumentPatchedEvent):
         for cb in message_callbacks:
             cb(event.msg_data)
 
-class ModelChangedEvent(DocumentPatchedEvent):
+class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
     ''' A concrete event representing updating an attribute and value of a
     specific Bokeh Model.
 
@@ -412,7 +421,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
         value = event.new
         model.set_from_json(attr, value, setter=event.setter)
 
-class ColumnDataChangedEvent(DocumentPatchedEvent):
+class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
     ''' A concrete event representing efficiently replacing *all*
     existing data for a :class:`~bokeh.models.sources.ColumnDataSource`
 
@@ -507,7 +516,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         data = event.data
         model.set_from_json(attr, data, setter=event.setter)
 
-class ColumnsStreamedEvent(DocumentPatchedEvent):
+class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
     ''' A concrete event representing efficiently streaming new data
     to a :class:`~bokeh.models.sources.ColumnDataSource`
 
@@ -618,7 +627,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
             raise RuntimeError(f"expected streamable data source, got {model!r}")
         model._stream(data, rollover, event.setter)
 
-class ColumnsPatchedEvent(DocumentPatchedEvent):
+class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
     ''' A concrete event representing efficiently applying data patches
     to a :class:`~bokeh.models.sources.ColumnDataSource`
 
@@ -705,7 +714,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
             raise RuntimeError(f"expected patchable data source, got {model!r}")
         model.patch(patches, event.setter)
 
-class TitleChangedEvent(DocumentPatchedEvent):
+class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
     ''' A concrete event representing a change to the title of a Bokeh
     Document.
 
@@ -788,7 +797,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
     def _handle_event(doc: Document, event: TitleChangedEvent) -> None:
         doc.set_title(event.title, event.setter)
 
-class RootAddedEvent(DocumentPatchedEvent):
+class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
     ''' A concrete event representing a change to add a new Model to a
     Document's collection of "root" models.
 
@@ -852,7 +861,7 @@ class RootAddedEvent(DocumentPatchedEvent):
         model = event.model
         doc.add_root(model, event.setter)
 
-class RootRemovedEvent(DocumentPatchedEvent):
+class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
     ''' A concrete event representing a change to remove an existing Model
     from a Document's collection of "root" models.
 
