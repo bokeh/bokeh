@@ -144,11 +144,11 @@ automatically. You can override the auto-detection in three ways:
 
     export_png(plot, filename="plot.png", backend="playwright")
 
-You can pass a driver instance directly to any export function using the
-``driver`` keyword argument. This accepts a Selenium ``WebDriver`` or a
-Playwright ``Browser`` / ``BrowserContext``. The older ``webdriver`` parameter
-also accepts these types and is still supported, but is deprecated — use
-``driver`` instead.
+You can also pass a browser instance directly to any export function using the
+``webdriver`` keyword argument. This accepts a Selenium ``WebDriver`` or a
+Playwright ``Browser`` / ``BrowserContext``. The appropriate backend is
+selected automatically from the type of instance passed, overriding the
+``backend`` parameter and the ``export_backend`` setting.
 
 **Global settings** — update the ``export_backend`` setting:
 

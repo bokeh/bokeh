@@ -105,10 +105,11 @@ def get_screenshot_as_png(
         png = web_driver.get_screenshot_as_png()
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
-    return (Image.open(io.BytesIO(png))
-                    .convert("RGBA")
-                    .crop((0, 0, w*dpr, h*dpr))
-                    .resize((int(w*scale_factor), int(h*scale_factor))))
+    return (Image
+        .open(io.BytesIO(png))
+        .convert("RGBA")
+        .crop((0, 0, w*dpr, h*dpr))
+        .resize((int(w*scale_factor), int(h*scale_factor))))
 
 
 def get_svg(

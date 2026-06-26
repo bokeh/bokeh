@@ -41,7 +41,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -71,8 +70,6 @@ if TYPE_CHECKING:
     from ..models.ui import UIElement
     from ..resources import Resources
     from .state import State
-
-T = TypeVar("T")
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -120,10 +117,11 @@ def get_screenshot_as_png(
     png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
-    return (Image.open(io.BytesIO(png_bytes))
-                    .convert("RGBA")
-                    .crop((0, 0, vw*dpr, vh*dpr))
-                    .resize((int(vw*scale_factor), int(vh*scale_factor))))
+    return (Image
+        .open(io.BytesIO(png_bytes))
+        .convert("RGBA")
+        .crop((0, 0, vw*dpr, vh*dpr))
+        .resize((int(vw*scale_factor), int(vh*scale_factor))))
 
 
 def get_svg(
@@ -377,10 +375,10 @@ class _PlaywrightThread:
         self._queue: queue.Queue[tuple[Callable[..., Any], tuple[Any, ...], queue.Queue[Any]] | None] = queue.Queue()
         self._started = False
 
-    def run(self, fn: Callable[..., T], *args: Any) -> T:
+    def run[T](self, fn: Callable[..., T], *args: Any) -> T:
         '''Submit a callable to the Playwright thread and block for the result.'''
         self._ensure_started()
-        result_q: queue.Queue[tuple[str, Any]] = queue.Queue()
+        result_q = queue.Queue[tuple[str, Any]]()
         self._queue.put((fn, args, result_q))
         status, value = result_q.get()
         if status == "error":

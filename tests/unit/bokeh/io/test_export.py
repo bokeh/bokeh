@@ -88,8 +88,6 @@ def webdriver_with_scale_factor(request: pytest.FixtureRequest):
         webdriver_control.terminate(driver)
 
 
-
-
 @pytest.fixture(scope="module", autouse=True)
 def disable_max_image_pixels():
     max_image_pixels = PIL.Image.MAX_IMAGE_PIXELS

@@ -293,6 +293,10 @@ def _resolve_backend(driver: DriverLike | None, backend: ExportBackendType | Non
         return _playwright_backend
     if configured == "selenium":
         return _selenium_backend
+    if configured != "auto":
+        raise ValueError(
+            f"Invalid export backend: {configured!r}. Must be one of 'auto', 'selenium', or 'playwright'.",
+        )
 
     # "auto" — try selenium first (preserves existing behaviour), then playwright
     if import_optional("selenium") is not None:
