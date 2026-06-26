@@ -63,6 +63,7 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
+    TypeGuard,
     cast,
     runtime_checkable,
 )
@@ -135,6 +136,9 @@ type PatchEventKind = Literal[
     "RootAdded",
     "RootRemoved",
 ]
+
+def _is_patch_event_kind(kind: str) -> TypeGuard[PatchEventKind]:
+    return kind in DocumentPatchedEvent._handlers
 
 @runtime_checkable
 class DocumentChangedMixin(Protocol):
@@ -232,7 +236,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     '''
 
-    _handlers: ClassVar[dict[str, PatchEventHandler]] = {}
+    _handlers: ClassVar[dict[PatchEventKind, PatchEventHandler]] = {}
 
     def __init_subclass__(cls, *, kind: PatchEventKind) -> None:
         cls._handlers[kind] = cls._handle_json
@@ -268,11 +272,11 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
         event_data = dict(event_rep)
         event_kind = event_data.pop("kind")
         if not isinstance(event_kind, str):
-            raise RuntimeError(f"invalid patch event type '{event_kind!r}'")
-        handler = DocumentPatchedEvent._handlers.get(event_kind, None)
-        if handler is None:
-            raise RuntimeError(f"unknown patch event type '{event_kind!r}'")
+            raise RuntimeError(f"invalid patch event type {event_kind!r}")
+        if not _is_patch_event_kind(event_kind):
+            raise RuntimeError(f"unknown patch event type {event_kind!r}")
 
+        handler = DocumentPatchedEvent._handlers[event_kind]
         handler(doc, setter, event_data)
 
     @classmethod
