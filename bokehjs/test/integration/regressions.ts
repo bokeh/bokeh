@@ -5041,7 +5041,7 @@ describe("Bug", () => {
       const p = figure({width: 200, height: 200})
       p.scatter({field: "x"}, {field: "y"}, {source, view})
 
-      await display(new Row({children: [table, p]}), [450, 250])
+      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
   })
 })
