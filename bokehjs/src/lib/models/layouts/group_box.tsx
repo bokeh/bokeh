@@ -17,14 +17,8 @@ export class GroupBoxView extends LayoutDOMView {
     return [...super.stylesheets(), group_box_css.default]
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-    const {child} = this.model.properties
-    this.on_change(child, () => this.update_children())
-  }
-
   get child_models(): UIElement[] {
-    return [this.model.child]
+    return [this.values.child]
   }
 
   override component(): VNode {

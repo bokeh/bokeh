@@ -37,7 +37,7 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
   }
 }
 
-export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
+export type BuildResult<T extends HasProps> = {current: ViewOf<T>[], created: ViewOf<T>[], removed: ViewOf<T>[]}
 
 /**
  * A build of a single model's view, shared by all calls that want that model.
@@ -133,12 +133,12 @@ export async function build_views<T extends HasProps>(
 
   const to_remove = difference([...view_storage.keys()], models)
 
-  const removed_views: ViewOf<T>[] = []
+  const removed: ViewOf<T>[] = []
   for (const model of to_remove) {
     const view = view_storage.get(model)
     if (view != null) {
       view_storage.delete(model)
-      removed_views.push(view)
+      removed.push(view)
       view.remove()
     }
   }
@@ -176,7 +176,7 @@ export async function build_views<T extends HasProps>(
       if (stored) {
         built.push([model, view])
       } else {
-        removed_views.push(view)
+        removed.push(view)
       }
     }
   } catch (error) {
@@ -191,12 +191,12 @@ export async function build_views<T extends HasProps>(
     state.baseline = new Set()
   }
 
-  const created_views: ViewOf<T>[] = []
+  const created: ViewOf<T>[] = []
   for (const [model, view] of built) {
     // An overlapping call may have removed this view while we built the rest of
     // the batch, in which case it's destroyed and not ours to report.
     if (view_storage.get(model) === view) {
-      created_views.push(view)
+      created.push(view)
     }
   }
 
@@ -204,10 +204,9 @@ export async function build_views<T extends HasProps>(
     throw failure
   }
 
-  return {
-    created: created_views,
-    removed: removed_views,
-  }
+  // An overlapping call may have stopped wanting some of these models already.
+  const current = models.map((model) => view_storage.get(model)).filter((view) => view != null)
+  return {current, created, removed}
 }
 
 export function remove_views(view_storage: ViewStorage<HasProps>): void {

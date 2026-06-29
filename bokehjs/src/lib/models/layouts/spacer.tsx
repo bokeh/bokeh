@@ -2,7 +2,9 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import type * as p from "core/properties"
 
 export class SpacerView extends LayoutDOMView {
-  declare model: Spacer
+  declare readonly model: Spacer
+  declare readonly signals: p.SignalsOf<Spacer.Props>
+  declare readonly values: Spacer.Attrs
 
   get child_models(): LayoutDOM[] {
     return []
