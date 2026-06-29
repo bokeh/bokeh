@@ -125,6 +125,24 @@
     font-weight: bold;
   }
 
+  & > span {
+    display: inline-block;
+    text-align: center;
+    pointer-events: none;
+
+    &::after {
+      display: block;
+      content: attr(data-title);
+      content: attr(data-title) / "";
+      height: 0;
+      visibility: hidden;
+      overflow: hidden;
+      user-select: none;
+      pointer-events: none;
+      font-weight: bold;
+    }
+  }
+
   .bk-close {
     margin-left: var(--close-icon-space-away-from-tab-text);
   }
