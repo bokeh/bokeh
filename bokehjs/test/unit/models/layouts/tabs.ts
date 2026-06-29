@@ -1,4 +1,4 @@
-import {expect, expect_not_null} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"
@@ -35,7 +35,7 @@ describe("Tabs", () => {
   it("should accept a tooltip", () => {
     const tabs = new_tabs(2, true)
     for (const [tab, i] of enumerate(tabs.tabs)) {
-      expect_not_null(tab.tooltip)
+      expect_instanceof(tab.tooltip, Tooltip)
       expect(tab.tooltip.content).to.be.equal(`Tab #${i}`)
     }
   })

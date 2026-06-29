@@ -204,11 +204,15 @@ export abstract class DOMComponentView extends DOMElementView {
     }
   }
 
+  private _rendered_to: boolean = false
   override render_to(target: Node): void {
     if (this.is_vdom) {
       target.appendChild(this.el)
     }
-    this.render()
+    if (!this._rendered_to) {
+      this.render()
+      this._rendered_to = true
+    }
     if (!this.is_vdom) {
       target.appendChild(this.el)
     }

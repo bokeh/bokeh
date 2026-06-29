@@ -483,8 +483,8 @@ export function undisplay(element: HTMLElement): void {
   element.style.display = "none"
 }
 
-export function show(element: HTMLElement): void {
-  element.style.visibility = ""
+export function show(element: HTMLElement, show: boolean = true): void {
+  element.style.visibility = show ? "" : "hidden"
 }
 
 export function hide(element: HTMLElement): void {

@@ -16,8 +16,11 @@ import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
+import {defer} from "core/util/defer"
 
 export {type DOMBoxSizing}
+
+import {signal} from "@preact/signals"
 
 export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
 
@@ -92,8 +95,17 @@ export abstract class LayoutDOMView extends PaneView {
       p.width_policy, p.height_policy,
       p.flow_mode, p.sizing_mode,
       p.aspect_ratio,
-      p.visible,
     ], () => this.invalidate_layout())
+  }
+
+  protected override _update_visible(): void {
+    super._update_visible()
+
+    this._await_ready((async () => {
+      // defer layout invalidation until after CSS layout updated visibility
+      await defer()
+      this.invalidate_layout()
+    })())
   }
 
   override children_views(): ChildView[] {
@@ -113,8 +125,14 @@ export abstract class LayoutDOMView extends PaneView {
     return this.child_views.filter((c) => c instanceof LayoutDOMView)
   }
 
+  readonly _sig_child_views = signal<UIElementView[]>([])
+  get sig_child_views(): UIElementView[] {
+    return this._sig_child_views.value
+  }
+
   async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>
     const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
+    this._sig_child_views.value = [...this._child_views.values()]
 
     for (const view of removed) {
       this._resize_observer.unobserve(view.el)
@@ -130,9 +148,11 @@ export abstract class LayoutDOMView extends PaneView {
   override render(): void {
     super.render()
 
-    for (const child_view of this.child_views) {
-      const target = child_view.rendering_target() ?? this.shadow_el
-      child_view.render_to(target)
+    if (!this.is_vdom) {
+      for (const child_view of this.child_views) {
+        const target = child_view.rendering_target() ?? this.shadow_el
+        child_view.render_to(target)
+      }
     }
   }
 
@@ -147,6 +167,12 @@ export abstract class LayoutDOMView extends PaneView {
   async update_children(): Promise<void> {
     const created = await this.build_child_views()
     const created_views = new Set(created)
+
+    if (this.is_vdom) {
+      // this is probably too early to call, but it's temporary workaround
+      this.invalidate_layout()
+      return
+    }
 
     // Find index up to which the order of the existing views
     // matches the order of the new views. This allows us to
