@@ -12,7 +12,9 @@ import {Location} from "core/enums"
 import type * as p from "core/properties"
 
 export class GridPlotView extends LayoutDOMView {
-  declare model: GridPlot
+  declare readonly model: GridPlot
+  declare readonly signals: p.SignalsOf<GridPlot.Props>
+  declare readonly values: GridPlot.Attrs
 
   protected _grid_box: GridBox
 
@@ -49,13 +51,10 @@ export class GridPlotView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {toolbar, toolbar_location, children, rows, cols, spacing} = this.model.properties
+    const {toolbar_location, children, rows, cols, spacing} = this.model.properties
     this.on_change(toolbar_location, async () => {
       this._update_location()
       this.invalidate_layout()
-    })
-    this.on_change(toolbar, async () => {
-      await this.update_children()
     })
 
     this.on_change([children, rows, cols, spacing], async () => {
@@ -88,7 +87,7 @@ export class GridPlotView extends LayoutDOMView {
   }
 
   get child_models(): UIElement[] {
-    return [this.model.toolbar, this._grid_box]
+    return [this.values.toolbar, this._grid_box]
   }
 
   override _update_layout(): void {

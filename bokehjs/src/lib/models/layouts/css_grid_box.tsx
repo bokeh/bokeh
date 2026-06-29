@@ -13,7 +13,9 @@ import type * as p from "core/properties"
 const {max} = Math
 
 export abstract class CSSGridBoxView extends LayoutDOMView {
-  declare model: CSSGridBox
+  declare readonly model: CSSGridBox
+  declare readonly signals: p.SignalsOf<CSSGridBox.Props>
+  declare readonly values: CSSGridBox.Attrs
 
   override connect_signals(): void {
     super.connect_signals()

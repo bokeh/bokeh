@@ -8,18 +8,20 @@ import type * as p from "core/properties"
 type Direction = "row" | "column"
 
 export abstract class FlexBoxView extends LayoutDOMView {
-  declare model: FlexBox
+  declare readonly model: FlexBox
+  declare readonly signals: p.SignalsOf<FlexBox.Props>
+  declare readonly values: FlexBox.Attrs
+
   protected abstract _direction: Direction
 
   override connect_signals(): void {
     super.connect_signals()
-    const {children, spacing} = this.model.properties
-    this.on_change(children, () => this.update_children())
+    const {spacing} = this.model.properties
     this.on_change(spacing, () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {
-    return this.model.children
+    return this.values.children
   }
 
   override _update_layout(): void {

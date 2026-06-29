@@ -37,10 +37,6 @@ export class TabsView extends LayoutDOMView {
     const {tabs} = this.model.properties
 
     this.on_transitive_change(tabs, async () => {
-      await this.update_children()
-    }, {signal: (obj) => (obj as TabPanel).properties.child.change})
-
-    this.on_transitive_change(tabs, async () => {
       await this.build_tooltip_views()
     }, {signal: (obj) => (obj as TabPanel).properties.tooltip.change})
   }
@@ -63,7 +59,7 @@ export class TabsView extends LayoutDOMView {
   }
 
   get child_models(): UIElement[] {
-    return this.model.tabs.map((tab) => tab.child)
+    return this.values.tabs.map((tab) => tab.properties.child.signal.value)
   }
 
   override _update_layout(): void {
@@ -318,7 +314,7 @@ export class TabsView extends LayoutDOMView {
       )
     })
 
-    const panel_els = this.sig_child_views.map((view, i) => {
+    const panel_els = this.child_views.map((view, i) => {
       const is_active = i == active
       const active_cls = is_active ? tabs_css.active : null
 

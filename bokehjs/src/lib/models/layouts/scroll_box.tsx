@@ -5,7 +5,9 @@ import type {StyleSheetLike} from "core/dom"
 import type * as p from "core/properties"
 
 export class ScrollBoxView extends LayoutDOMView {
-  declare model: ScrollBox
+  declare readonly model: ScrollBox
+  declare readonly signals: p.SignalsOf<ScrollBox.Props>
+  declare readonly values: ScrollBox.Attrs
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets()]
@@ -14,13 +16,12 @@ export class ScrollBoxView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {child, horizontal_scrollbar, vertical_scrollbar} = this.model.properties
-    this.on_change(child, () => this.update_children())
+    const {horizontal_scrollbar, vertical_scrollbar} = this.model.properties
     this.on_change([horizontal_scrollbar, vertical_scrollbar], () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {
-    return [this.model.child]
+    return [this.values.child]
   }
 
   override _update_layout(): void  {

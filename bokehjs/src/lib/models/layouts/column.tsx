@@ -2,7 +2,10 @@ import {FlexBox, FlexBoxView} from "./flex_box"
 import type * as p from "core/properties"
 
 export class ColumnView extends FlexBoxView {
-  declare model: Column
+  declare readonly model: Column
+  declare readonly signals: p.SignalsOf<Column.Props>
+  declare readonly values: Column.Attrs
+
   protected _direction = "column" as const
 }
 

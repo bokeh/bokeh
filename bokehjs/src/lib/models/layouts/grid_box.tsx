@@ -4,17 +4,18 @@ import {UIElement} from "../ui/ui_element"
 import type * as p from "core/properties"
 
 export class GridBoxView extends CSSGridBoxView {
-  declare model: GridBox
+  declare readonly model: GridBox
+  declare readonly signals: p.SignalsOf<GridBox.Props>
+  declare readonly values: GridBox.Attrs
 
   override connect_signals(): void {
     super.connect_signals()
-    const {children, rows, cols} = this.model.properties
-    this.on_change(children, () => this.update_children())
+    const {rows, cols} = this.model.properties
     this.on_change([rows, cols], () => this.invalidate_layout())
   }
 
   protected get _children(): [UIElement, number, number, number?, number?][] {
-    return this.model.children
+    return this.values.children
   }
 
   protected get _rows(): TracksSizing | null {
