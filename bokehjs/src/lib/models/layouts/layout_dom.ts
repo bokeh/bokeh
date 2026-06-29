@@ -157,8 +157,6 @@ export abstract class LayoutDOMView extends PaneView {
     this.compute_layout()
   }
 
-  protected _update_children(): void {}
-
   async update_children(): Promise<void> {
     const created = await this.build_child_views()
     const created_views = new Set(created)
@@ -199,7 +197,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     this.r_after_render()
-    this._update_children()
     this.invalidate_layout()
   }
 
