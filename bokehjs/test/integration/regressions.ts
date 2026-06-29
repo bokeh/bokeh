@@ -5020,4 +5020,28 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13244", () => {
+    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+      const source = new ColumnDataSource({data: {
+        x: [1, 2, 3, 4, 5],
+        y: [10, 11, 12, 13, 14],
+      }})
+
+      const view = new CDSView({filter: new BooleanFilter({booleans: [true, true, false, true, false]})})
+
+      const table = new DataTable({
+        source,
+        view,
+        columns: [new TableColumn({field: "x", title: "X", width: 150})],
+        width: 200,
+        height: 200,
+      })
+
+      const p = figure({width: 200, height: 200})
+      p.scatter({field: "x"}, {field: "y"}, {source, view})
+
+      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
+    })
+  })
 })
