@@ -11,3 +11,25 @@
   font-weight: 600;
   color: var(--inherit-color);
 }
+
+// from inputs.less
+.bk-input-group {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: start;
+  flex-direction: column;
+  background-color: var(--inherit-background-color);
+
+  white-space: nowrap;
+
+  &.bk-inline {
+    flex-direction: row;
+
+    & > *:not(:first-child) {
+      margin-left: 5px;
+    }
+  }
+}
