@@ -19,7 +19,6 @@ switch_style =  InlineStyleSheet(css="""
     text-transform: inherit;
     border: var(--border);
     border-radius: var(--border-radius);
-    cursor: pointer;
   }
 """)
 
@@ -37,7 +36,6 @@ slider_style =  InlineStyleSheet(css="""
     text-transform: inherit;
     border: var(--border);
     border-radius: var(--border-radius);
-    cursor: pointer;
   }
 """)
 
@@ -56,7 +54,6 @@ legend_style = InlineStyleSheet(css="""
     --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
     border: var(--border);
     border-radius: var(--border-radius);
-    cursor: pointer;
   }
 """)
 
@@ -119,7 +116,6 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
     --border-bottom-right-radius: 20px 5px;
     --font-weight: bold;
     text-transform: uppercase;
-    cursor: pointer;
     background-color: var(--background-color);
   }"""),
 ])

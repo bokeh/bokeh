@@ -37,7 +37,6 @@ describe("Examples", () => {
         text-transform: inherit;
         border: var(--border);
         border-radius: var(--border-radius);
-        cursor: pointer;
       }
     `
 
@@ -55,7 +54,6 @@ describe("Examples", () => {
         text-transform: inherit;
         border: var(--border);
         border-radius: var(--border-radius);
-        cursor: pointer;
       }
     `
 
@@ -74,7 +72,6 @@ describe("Examples", () => {
         --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
         border: var(--border);
         border-radius: var(--border-radius);
-        cursor: pointer;
       }
     `
 
@@ -133,7 +130,6 @@ describe("Examples", () => {
         --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
         --font-weight: bold;
         text-transform: uppercase;
-        cursor: pointer;
         background-color: var(--background-color);
       }`,
     ]})

@@ -41,7 +41,6 @@ export namespace Xkcd {
       text-transform: inherit;
       border: var(--border);
       border-radius: var(--border-radius);
-      cursor: pointer;
     }
   `
 
@@ -59,7 +58,6 @@ export namespace Xkcd {
       text-transform: inherit;
       border: var(--border);
       border-radius: var(--border-radius);
-      cursor: pointer;
     }
   `
 
@@ -78,7 +76,6 @@ export namespace Xkcd {
       --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       border: var(--border);
       border-radius: var(--border-radius);
-      cursor: pointer;
     }
   `
 
@@ -141,7 +138,6 @@ export namespace Xkcd {
       --border-bottom-right-radius: 20px 5px;
       --font-weight: bold;
       text-transform: uppercase;
-      cursor: pointer;
       background-color: var(--background-color);
     }`,
   ]})
