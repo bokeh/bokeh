@@ -66,6 +66,7 @@ export namespace Xkcd {
   const input_style = `
     .bk-input {
       text-transform: inherit;
+      font-weight: var(--font-weight);
     }
   `
 

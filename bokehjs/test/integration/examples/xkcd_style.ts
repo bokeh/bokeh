@@ -38,7 +38,6 @@ describe("Examples", () => {
         border: var(--border);
         border-radius: var(--border-radius);
         cursor: pointer;
-        transition: transform 0.1s ease;
       }
     `
 
@@ -57,13 +56,13 @@ describe("Examples", () => {
         border: var(--border);
         border-radius: var(--border-radius);
         cursor: pointer;
-        transition: transform 0.1s ease;
       }
     `
 
     const input_style = `
       .bk-input {
         text-transform: inherit;
+        font-weight: var(--font-weight);
       }
     `
 
@@ -76,7 +75,6 @@ describe("Examples", () => {
         border: var(--border);
         border-radius: var(--border-radius);
         cursor: pointer;
-        transition: transform 0.1s ease;
       }
     `
 
@@ -133,10 +131,9 @@ describe("Examples", () => {
         --default-border-color: var(--color);
         --bokeh-font-size: 1rem;
         --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
-        font-weight: bold;
+        --font-weight: bold;
         text-transform: uppercase;
         cursor: pointer;
-        transition: transform 0.1s ease;
         background-color: var(--background-color);
       }`,
     ]})

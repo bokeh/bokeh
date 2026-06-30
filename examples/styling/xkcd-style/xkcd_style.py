@@ -44,6 +44,7 @@ slider_style =  InlineStyleSheet(css="""
 input_style =  InlineStyleSheet(css="""
   .bk-input {
     text-transform: inherit;
+    font-weight: var(--font-weight);
   }
 """)
 
