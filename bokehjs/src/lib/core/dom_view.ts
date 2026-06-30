@@ -275,7 +275,7 @@ export abstract class DOMComponentView extends DOMElementView {
 
   readonly component_id: string = `bk-${this.model.id}`
 
-  readonly host_selector = `:host(.${this.component_id})`
+  readonly host_selector = ":host" // TODO `:host(.${this.component_id})`
 
   protected *_css_classes(): Iterable<string> {
     yield this.type_class
