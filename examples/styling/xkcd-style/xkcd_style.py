@@ -119,7 +119,7 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
     --border-top-right-radius: 5px 20px;
     --border-bottom-left-radius: 5px 20px;
     --border-bottom-right-radius: 20px 5px;
-    font-weight: bold;
+    --font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
     transition: transform 0.1s ease;
