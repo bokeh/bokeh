@@ -221,7 +221,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     const styles: CSSStyles = {}
-    styles["--outer-display"] = this.model.flow_mode
 
     const sizing = this.box_sizing()
     const {width_policy, height_policy, width, height, aspect_ratio} = sizing
@@ -368,6 +367,21 @@ export abstract class LayoutDOMView extends PaneView {
     }
 
     this._update_layout()
+
+    // Originally this was supposed to be implemented using CSS variables. However,
+    // due to scoping limitations in shadow DOM, we ended up with this workaround.
+    // We assume default `block` outer display by default. This has to be applied
+    // at the end of style application, to make sure we don't interfere with
+    // components' intrinsic CSS.
+    const {flow_mode} = this.values
+    if (flow_mode == "inline") {
+      const {display} = getComputedStyle(this.el)
+      if (!display.includes("inline")) {
+        this.self_style.append(this.host_selector, {
+          display: `inline ${display}`,
+        })
+      }
+    }
   }
 
   get is_managed(): boolean {

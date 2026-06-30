@@ -33,7 +33,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     super._update_layout()
 
     const styles: CSSStyles = {}
-    styles["--inner-display"] = "grid"
+    styles.display = "grid"
 
     const [row_gap, column_gap] = (() => {
       const {spacing} = this.model

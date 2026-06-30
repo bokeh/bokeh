@@ -521,10 +521,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
   override _update_layout(): void {
     super._update_layout()
 
-    this.self_style.append(this.host_selector, {
-      "--inner-display": "grid",
-    })
-
     // TODO: invalidating all should imply "needs paint"
     this._invalidate_all = true
     this._needs_paint = true

@@ -104,7 +104,7 @@ export class GridPlotView extends LayoutDOMView {
       }
     })()
     this.self_style.append(this.host_selector, {
-      "--inner-display": "flex",
+      display: "flex",
       flex_direction,
     })
   }

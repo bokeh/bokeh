@@ -25,7 +25,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
     super._update_layout()
 
     this.self_style.append(this.host_selector, {
-      "--inner-display": "flex",
+      display: "flex",
       flex_direction: this._direction,
       gap: px(this.model.spacing),
     })
