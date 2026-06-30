@@ -30,7 +30,7 @@ export class BuiltinIconView extends IconView {
     })()
 
     this._style.replace(`
-      :host {
+      ${this.host_selector} {
         --icon: ${icon};
         --size: ${size};
         --color: ${color};
