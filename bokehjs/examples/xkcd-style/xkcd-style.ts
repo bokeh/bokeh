@@ -137,6 +137,10 @@ export namespace Xkcd {
       --default-border-color: var(--color);
       --bokeh-font-size: 1rem;
       --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+      --border-top-left-radius: 20px 5px;
+      --border-top-right-radius: 5px 20px;
+      --border-bottom-left-radius: 5px 20px;
+      --border-bottom-right-radius: 20px 5px;
       font-weight: bold;
       text-transform: uppercase;
       cursor: pointer;
