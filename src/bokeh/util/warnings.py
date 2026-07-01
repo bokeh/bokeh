@@ -71,7 +71,7 @@ def find_stack_level() -> int:
 
     pkg_file = getattr(bokeh, "__file__", None)
     if pkg_file is None:
-        return 0
+        return 2
 
     pkg_dir = os.path.dirname(pkg_file)
 
