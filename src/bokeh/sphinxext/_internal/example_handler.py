@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
-from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
@@ -27,6 +26,8 @@ from bokeh.application.handlers.handler import Handler
 from bokeh.io.doc import curdoc, set_curdoc
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from bokeh.core.types import PathLike
     from bokeh.document import Document
 
