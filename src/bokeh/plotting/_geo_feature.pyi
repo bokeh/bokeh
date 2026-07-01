@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+from typing import Any, Unpack
 
 # External imports
 import cartopy.crs as ccrs
@@ -15,81 +15,82 @@ import numpy as np
 
 # Bokeh imports
 from ..models import Plot
+from .glyph_api import LineArgs, MultiLineArgs, MultiPolygonsArgs
 
 def add_line_geometries(
         p: Plot,
         projection: ccrs.Projection,
         geometries_collection: cfeature.NaturalEarthFeature,
-        **line_kwargs: Any,
+        **line_kwargs: Unpack[MultiLineArgs],
     ) -> Plot: ...
 
 def add_polygon_geometries(
         p: Plot,
         projection: ccrs.Projection,
         geometries_collection: cfeature.NaturalEarthFeature,
-        **poly_kwargs: Any,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
     ) -> Plot: ...
 
 def add_borders(
         p:Plot,
         projection:ccrs.Projection,
         scale: str,
-        **line_kwargs: Any,
+        **line_kwargs: Unpack[MultiLineArgs],
     ) -> Plot: ...
 
 def add_coastlines(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **line_kwargs: Any,
+        **line_kwargs: Unpack[MultiLineArgs],
     ) -> Plot: ...
 
 def add_land(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Any,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
     ) -> Plot: ...
 
 def add_lakes(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Any,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
     ) -> Plot: ...
 
 def add_ocean(
         p:Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Any,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
     ) -> Plot: ...
 
 def add_rivers(
         p:Plot,
         projection: ccrs.Projection,
         scale: str,
-        **line_kwargs: Any,
+        **line_kwargs: Unpack[MultiLineArgs],
     ) -> Plot: ...
 
 def add_projection_boundary(
         p:Plot,
         projection: ccrs.Projection,
-        **line_kwargs: Any,
+        **line_kwargs: Unpack[LineArgs],
     ) -> Plot: ...
 
 def add_provinces(
         p:Plot,
         projection: ccrs.Projection,
         scale: str,
-        **line_kwargs: Any,
+        **line_kwargs: Unpack[MultiLineArgs],
     ) -> Plot: ...
 
 def add_states(
         p: Plot,
         projection: ccrs.Projection,
         scale: str,
-        **poly_kwargs: Any,
+        **poly_kwargs: Unpack[MultiPolygonsArgs],
     ) -> Plot: ...
 
 #-----------------------------------------------------------------------------
