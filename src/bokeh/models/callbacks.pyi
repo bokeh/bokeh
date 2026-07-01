@@ -63,7 +63,7 @@ class CustomJS(CustomCode):
 
     if sys.version_info[:2] >= (3, 14):
         @classmethod
-        def from_template(cls, template: Template) -> CustomJS: ...
+        def from_template(cls, template: Template) -> CustomJS: ... # pyright: ignore[reportInvalidTypeForm]
 
 class _SetValueInit(_CallbackInit, total=False):
     obj: HasProps
