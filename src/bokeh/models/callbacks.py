@@ -43,6 +43,10 @@ from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF
 from ..model import Model
 
 if TYPE_CHECKING:
+    if sys.version_info[:2] >= (3, 14):
+        from string.templatelib import Template as _Template  # novermin
+        type Template = _Template
+
     from ..core.types import PathLike
 
 #-----------------------------------------------------------------------------
@@ -206,9 +210,6 @@ class CustomJS(CustomCode):
         return CustomJS(code=code, args=args, module=module)
 
     if sys.version_info[:2] >= (3, 14):
-        if TYPE_CHECKING:
-            from string.templatelib import Template  # novermin
-
         @classmethod
         def from_template(cls, template: Template) -> CustomJS:
             """

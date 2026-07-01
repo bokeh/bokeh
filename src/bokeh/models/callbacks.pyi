@@ -13,7 +13,8 @@ from abc import abstractmethod
 from typing import Any, Unpack
 
 if sys.version_info[:2] >= (3, 14):
-    from string.templatelib import Template  # novermin
+    from string.templatelib import Template as _Template  # novermin
+    type Template = _Template
 
 # Bokeh imports
 from ..core.enums import AutoType as Auto
