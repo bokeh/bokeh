@@ -50,13 +50,12 @@ from typing import TYPE_CHECKING, cast
 
 # Bokeh imports
 from ..resources import Resources, ResourcesMode
-from .notebook import NotebookType
 
 if TYPE_CHECKING:
     from ..core.types import ID, PathLike
     from ..document import Document
     from ..server.server import Server
-    from .notebook import CommsHandle
+    from .notebook import CommsHandle, NotebookType
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -132,7 +131,7 @@ class State:
         '''
         if notebook_type is None or not isinstance(notebook_type, str):
             raise ValueError("Notebook type must be a string")
-        self._notebook_type = cast(NotebookType, notebook_type.lower())
+        self._notebook_type = cast("NotebookType", notebook_type.lower())
 
     # Public methods ----------------------------------------------------------
 
