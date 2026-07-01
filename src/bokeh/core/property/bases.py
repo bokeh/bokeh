@@ -37,9 +37,6 @@ from typing import (
     cast,
 )
 
-# External imports
-import numpy.typing as npt
-
 # Bokeh imports
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
@@ -53,6 +50,8 @@ from .singletons import (
 )
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps
 
@@ -246,7 +245,7 @@ class Property[T](PropertyDescriptorFactory[T]):
         import numpy as np
 
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
-            return np.array_equal(cast(npt.ArrayLike, new), cast(npt.ArrayLike, old))
+            return np.array_equal(cast("npt.ArrayLike", new), cast("npt.ArrayLike", old))
 
         if uses_pandas(new) or uses_pandas(old):
             import pandas as pd
@@ -254,7 +253,7 @@ class Property[T](PropertyDescriptorFactory[T]):
 
             pandas_types = (pd.Index, pd.Series, ExtensionArray)
             if isinstance(new, pandas_types) or isinstance(old, pandas_types):
-                return np.array_equal(cast(npt.ArrayLike, new), cast(npt.ArrayLike, old))
+                return np.array_equal(cast("npt.ArrayLike", new), cast("npt.ArrayLike", old))
 
         try:
             # this handles the special but common case where there is a dict with array
