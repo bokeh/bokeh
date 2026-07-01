@@ -51,7 +51,6 @@ describe("Examples", () => {
         --bar-to-knob-vertical-pos: 40%;
         text-transform: inherit;
         border: var(--border);
-        cursor: pointer;
       }
     `
 
@@ -62,7 +61,6 @@ describe("Examples", () => {
         background-color: transparent;
         padding: 6px 12px;
         font-size: 14px;
-        cursor: pointer;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -75,7 +73,6 @@ describe("Examples", () => {
         text-transform: inherit;
         border: var(--border);
         border-radius: var(--border-radius);
-        cursor: pointer;
       }
     `
 
@@ -92,7 +89,6 @@ describe("Examples", () => {
       :host {
         border: var(--border);
         border-radius: var(--border-radius);
-        cursor: pointer;
       }
     `
 
@@ -102,7 +98,6 @@ describe("Examples", () => {
         --margin: 0px;
         border: var(--border);
         border-radius: var(--border-radius);
-        cursor: pointer;
       }
 
       .bk-header {
@@ -111,11 +106,11 @@ describe("Examples", () => {
       }
 
       .bk-tab {
-        color: var(--background-color);
+        border: none;
+        color: light-dark(var(--background-color), var(--color));
       }
 
       .bk-tab.bk-active {
-        --active-border-width: 0px;
         font-weight: normal;
       }
 
@@ -203,12 +198,11 @@ describe("Examples", () => {
         --default-border-color: var(--color);
         --bokeh-font-size: 1rem;
         --border-radius: 2px;
-        cursor: pointer;
         transition: transform 0.1s ease;
         background-color: var(--background-color);
       }`,
     ]})
 
-    await display(layout, [920, 920])
+    await display(layout, [1220, 1030])
   })
 })

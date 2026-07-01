@@ -44,7 +44,6 @@ button_style = InlineStyleSheet(css="""
     background-color: transparent;
     padding: 6px 12px;
     font-size: 14px;
-    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -90,11 +89,11 @@ tabs_style = InlineStyleSheet(css="""
   }
 
   .bk-tab {
-    color: var(--background-color);
+    border: none;
+    color: light-dark(var(--background-color), var(--color));
   }
 
   .bk-tab.bk-active {
-    --active-border-width: 0px;
     font-weight: normal;
   }
 

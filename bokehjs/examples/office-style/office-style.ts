@@ -55,7 +55,6 @@ export namespace Office {
       --bar-to-knob-vertical-pos: 40%;
       text-transform: inherit;
       border: var(--border);
-      cursor: pointer;
     }
   `
 
@@ -66,7 +65,6 @@ export namespace Office {
       background-color: transparent;
       padding: 6px 12px;
       font-size: 14px;
-      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -79,7 +77,6 @@ export namespace Office {
       text-transform: inherit;
       border: var(--border);
       border-radius: var(--border-radius);
-      cursor: pointer;
     }
   `
 
@@ -96,7 +93,6 @@ export namespace Office {
     :host {
       border: var(--border);
       border-radius: var(--border-radius);
-      cursor: pointer;
     }
   `
 
@@ -106,7 +102,6 @@ export namespace Office {
       --margin: 0px;
       border: var(--border);
       border-radius: var(--border-radius);
-      cursor: pointer;
     }
 
     .bk-header {
@@ -115,11 +110,11 @@ export namespace Office {
     }
 
     .bk-tab {
-      color: var(--background-color);
+      border: none;
+      color: light-dark(var(--background-color), var(--color));
     }
 
     .bk-tab.bk-active {
-      --active-border-width: 0px;
       font-weight: normal;
     }
 
@@ -211,7 +206,6 @@ export namespace Office {
       --default-border-color: var(--color);
       --bokeh-font-size: 1rem;
       --border-radius: 2px;
-      cursor: pointer;
       transition: transform 0.1s ease;
       background-color: var(--background-color);
     }`,
