@@ -45,10 +45,13 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def marker_method() -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+type GlyphFunction = Callable[..., Any]
+type GlyphMethodDecorator = Callable[[GlyphFunction], GlyphFunction]
+
+def marker_method() -> GlyphMethodDecorator:
     from ..models import Marker, Scatter
     glyphclass = Marker
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+    def decorator(func: GlyphFunction) -> GlyphFunction:
         parameters = cast(list[ParameterSpec], glyphclass.parameters())
 
         sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
@@ -76,8 +79,8 @@ def marker_method() -> Callable[[Callable[..., Any]], Callable[..., Any]]:
 
     return decorator
 
-def glyph_method(glyphclass: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
+    def decorator(func: GlyphFunction) -> GlyphFunction:
         parameters = cast(list[ParameterSpec], glyphclass.parameters())
 
         sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
