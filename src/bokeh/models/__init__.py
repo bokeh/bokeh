@@ -106,6 +106,9 @@ from .transforms import *
 from .ui import *
 from .widgets import *
 
+# Restore the public submodule name without conflicting with __future__.annotations.
+annotations = _annotations # type: ignore[assignment]
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
