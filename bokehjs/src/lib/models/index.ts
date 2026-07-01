@@ -1,7 +1,6 @@
 export * from "./annotations"
 export * from "./axes"
 export * from "./callbacks"
-export {GlobalInlineStyleSheet} from "./dom"
 export * from "./canvas"
 export * from "./comparisons"
 export * from "./coordinates"

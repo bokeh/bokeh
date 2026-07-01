@@ -25,7 +25,7 @@ export namespace Office {
     Toggle,
   } = Bokeh.Widgets
 
-  const url = "/assets/fonts/inter/Inter-VariableFont_opsz,wght.ttf"
+  const url = "https://cdn.jsdelivr.net/npm/inter-font@latest/Inter-VariableFont_slnt,wght.ttf"
   const font_style = new Bokeh.GlobalInlineStyleSheet({
     css: `
         @font-face {
