@@ -63,7 +63,6 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
-    TypeGuard,
     cast,
     runtime_checkable,
 )
@@ -84,6 +83,7 @@ from .json import (
 
 if TYPE_CHECKING:
     import pandas as pd
+    from typing_extensions import TypeIs
 
     from ..core.has_props import Setter
     from ..core.serialization import Serializer
@@ -137,7 +137,7 @@ type PatchEventKind = Literal[
     "RootRemoved",
 ]
 
-def _is_patch_event_kind(kind: str) -> TypeGuard[PatchEventKind]:
+def _is_patch_event_kind(kind: str) -> TypeIs[PatchEventKind]:
     return kind in DocumentPatchedEvent._handlers
 
 @runtime_checkable
