@@ -73,6 +73,7 @@ from typing import (
     ClassVar,
     Literal,
     TypedDict,
+    cast,
 )
 
 # Bokeh imports
@@ -81,6 +82,7 @@ from .core.serialization import Deserializer, Serializable, Serializer
 if TYPE_CHECKING:
     from .core.types import FactorType, GeometryData
     from .model import Model
+    from .models import Axis
     from .models.annotations import Legend, LegendItem
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
@@ -300,9 +302,9 @@ class AxisClick(ModelEvent):
 
     value: float | FactorType | None
 
-    def __init__(self, model: Model | None, value: float | FactorType | None = None) -> None:
+    def __init__(self, model: Axis | None, value: float | FactorType | None = None) -> None:
         from .models import Axis
-        if model is not None and not isinstance(model, Axis):
+        if model is not None and not isinstance(cast(Any, model), Axis):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to axis models")
         super().__init__(model=model)
