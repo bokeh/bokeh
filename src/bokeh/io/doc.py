@@ -79,8 +79,10 @@ def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Generator[None]:
     global _PATCHED_CURDOCS
     _PATCHED_CURDOCS.append(weakref.ref(doc))
     del doc
-    yield
-    _PATCHED_CURDOCS.pop()
+    try:
+        yield
+    finally:
+        _PATCHED_CURDOCS.pop()
 
 def set_curdoc(doc: Document) -> None:
     ''' Configure the current document (returned by curdoc()).

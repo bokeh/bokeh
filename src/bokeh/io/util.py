@@ -222,10 +222,11 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
     if height is not None:
         obj.height = height
 
-    yield
-
-    obj.width = old_width
-    obj.height = old_height
+    try:
+        yield
+    finally:
+        obj.width = old_width
+        obj.height = old_height
 
 #-----------------------------------------------------------------------------
 # Shared JavaScript snippets for Selenium and Playwright backends

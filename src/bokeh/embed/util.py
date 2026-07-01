@@ -176,10 +176,11 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
         doc.validate()
 
     _set_temp_theme(doc, apply_theme)
-    yield doc
-    _unset_temp_theme(doc)
-
-    finish()
+    try:
+        yield doc
+    finally:
+        _unset_temp_theme(doc)
+        finish()
 
 
 class RenderItem:

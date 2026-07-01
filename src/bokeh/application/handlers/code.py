@@ -206,9 +206,11 @@ def _monkeypatch_io(loggers: dict[str, Callable[..., None]]) -> Generator[None]:
     for f in CodeHandler._io_functions:
         old[f] = getattr(io, f)
         setattr(io, f, loggers[f])
-    yield
-    for f in old:
-        setattr(io, f, old[f])
+    try:
+        yield
+    finally:
+        for f in old:
+            setattr(io, f, old[f])
 
 #-----------------------------------------------------------------------------
 # Code

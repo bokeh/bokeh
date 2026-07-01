@@ -120,6 +120,24 @@ class TestCodeHandler:
             raise RuntimeError(handler.error)
         assert not handler.safe_to_fork
 
+
+def test__monkeypatch_io_restores_after_exception() -> None:
+    import bokeh.io as io
+
+    original_show = io.show
+
+    def patched_io_function():
+        return None
+
+    loggers = {name: patched_io_function for name in bahc.CodeHandler._io_functions}
+
+    with pytest.raises(RuntimeError):
+        with bahc._monkeypatch_io(loggers):
+            assert io.show is patched_io_function
+            raise RuntimeError("boom")
+
+    assert io.show is original_show
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

@@ -456,8 +456,10 @@ class Plot(LayoutDOM):
         '''
         if render:
             self.hold_render = True
-            yield
-            self.hold_render = False
+            try:
+                yield
+            finally:
+                self.hold_render = False
 
     @error(REQUIRED_RANGE)
     def _check_required_range(self) -> str | None:
