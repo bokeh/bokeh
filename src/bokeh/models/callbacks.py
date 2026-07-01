@@ -206,8 +206,11 @@ class CustomJS(CustomCode):
         return CustomJS(code=code, args=args, module=module)
 
     if sys.version_info[:2] >= (3, 14):
+        if TYPE_CHECKING:
+            from string.templatelib import Template  # novermin
+
         @classmethod
-        def from_template(cls, template: Any) -> CustomJS:
+        def from_template(cls, template: Template) -> CustomJS:
             """
             Construct a ``CustomJS`` instance from an interpolated string.
 
