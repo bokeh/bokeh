@@ -58,7 +58,8 @@ class DocHandler(SessionHandler):
     '''
     @authenticated
     async def get(self, *args: Any, **kwargs: Any) -> None:
-        session = await cast(Awaitable[ServerSession | None], self.get_session())
+        session_future = cast("Awaitable[ServerSession | None]", self.get_session())
+        session = await session_future
         assert session is not None
 
         page = server_html_page_for_session(session,

@@ -86,7 +86,8 @@ class AutoloadJsHandler(SessionHandler):
     async def get(self, *args: Any, **kwargs: Any) -> None:
         self._allow_websocket_origin()
 
-        session = await cast(Awaitable[ServerSession | None], self.get_session())
+        session_future = cast("Awaitable[ServerSession | None]", self.get_session())
+        session = await session_future
         assert session is not None
 
         element_id = cast(ID | None, self.get_argument("bokeh-autoload-element", default=None))
