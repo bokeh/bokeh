@@ -81,24 +81,31 @@ your notebook:
 Exporting PNG files
 -------------------
 
-To export PNG or SVG files, you might need to install additional dependencies.
+To export PNG or SVG files, you need to install a headless browser backend.
+Bokeh supports two options: **Playwright** and **Selenium**.
+Bokeh uses one of these backends to run in a browser without a graphical user
+interface and render the PNG or SVG files.
 
-In order to create PNG and SVG files, Bokeh uses
-`Selenium <https://github.com/SeleniumHQ/selenium>`_. Selenium allows Bokeh to
-run in a browser without a graphical user interface. Bokeh uses this
-browser to render the PNG or SVG files. In order for this to work, Selenium
+To get started with
+`Playwright <https://github.com/microsoft/playwright-python>`_:
+
+.. code-block:: sh
+
+    pip install playwright
+    playwright install chromium
+
+Alternatively, you can use `Selenium <https://github.com/SeleniumHQ/selenium>`_. Selenium
 needs to be able to access either a Firefox browser (through the geckodriver
-package) or a Chrome/Chromium browser (through the chromedriver package).
-
-Use this command to install Selenium with geckodriver and Firefox in a conda
-environment:
+package) or a Chrome/Chromium browser (through the chromedriver package), thus
+you need to install the appropriate packages for your choice of browser:
 
 .. code-block:: sh
 
     conda install selenium geckodriver firefox -c conda-forge
 
 See :ref:`ug_output_export_dependencies` for more options to install the
-required packages.
+required packages, and :ref:`ug_output_export_backend` for details on choosing
+a backend.
 
 Once the requirements are installed, you can use the
 :func:`~bokeh.io.export_png` function to export your plot into a PNG file:
