@@ -702,7 +702,23 @@ class Settings:
     fixes or changes.
     """)
 
-    ico_path = PrioritizedSetting[str]("ico_path", "BOKEH_ICO_PATH",
+    export_backend: PrioritizedSetting[str] = PrioritizedSetting("export_backend", "BOKEH_EXPORT_BACKEND", default="auto", help="""
+    Which browser backend to use for PNG and SVG export.
+
+    Valid values are:
+
+    - ``auto``: try Selenium first, fall back to Playwright (default).
+      This preserves existing behaviour for users who already have
+      Selenium installed.
+    - ``playwright``: use Playwright (requires ``pip install playwright``
+      and ``playwright install chromium``).
+    - ``selenium``: use Selenium with a browser driver on PATH.
+
+    This can also be overridden per-call via the ``backend`` parameter
+    on ``export_png``, ``export_svg``, etc.
+    """)
+
+    ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
         default="default", dev_default="default-dev", convert=convert_ico_path, help="""
     Configure the file path to a .ico file for the Bokeh server to use as a
     favicon.ico file.
