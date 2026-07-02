@@ -33,8 +33,6 @@ from tornado.web import HTTPError, StaticFileHandler
 if TYPE_CHECKING:
     from ...core.types import PathLike
     Root = dict[str, PathLike]
-else:
-    Root = dict[str, object]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
