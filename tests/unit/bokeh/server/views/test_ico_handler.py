@@ -4,69 +4,45 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a request handler that returns a favicon.ico.
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
 
-# pyright: reportIncompatibleMethodOverride=false
-
-import logging # isort:skip
-log = logging.getLogger(__name__)
+# External imports
+import pytest
+from tornado.web import HTTPError
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
 
-# External imports
-from tornado.web import HTTPError, RequestHandler
+# Module under test
+from bokeh.server.views.ico_handler import IcoHandler # isort:skip
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
-
-__all__ = (
-    'IcoHandler',
-)
-
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+async def test_get_raises_for_missing_app() -> None:
+    handler = object.__new__(IcoHandler)
+    handler.app = None
+
+    with pytest.raises(HTTPError) as exc:
+        await IcoHandler.get(handler)
+
+    assert exc.value.status_code == 500
+    assert exc.value.reason == "Application was not configured"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class IcoHandler(RequestHandler):
-    ''' Implements a custom Tornado request handler for favicon.ico
-    files.
-
-    '''
-
-    app: Any
-
-    def initialize(self, *args: Any, **kw: Any) -> None:
-        self.app = kw.get("app")
-
-    async def get(self, *args: Any, **kwargs: Any) -> Any:
-        app = self.app
-        if app is None:
-            raise HTTPError(status_code=500, reason="Application was not configured")
-
-        if app.icon is None:
-            raise HTTPError(status_code=404)
-
-        self.set_header("Content-Type", "image/x-icon")
-        self.write(app.icon)
-        return self.flush()
 
 #-----------------------------------------------------------------------------
 # Private API

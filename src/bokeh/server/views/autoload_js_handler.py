@@ -27,6 +27,9 @@ from collections.abc import Awaitable
 from typing import Any, cast
 from urllib.parse import urlparse
 
+# External imports
+from tornado.web import HTTPError
+
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.core.types import ID
@@ -88,7 +91,8 @@ class AutoloadJsHandler(SessionHandler):
 
         session_future = cast("Awaitable[ServerSession | None]", self.get_session())
         session = await session_future
-        assert session is not None
+        if session is None:
+            raise HTTPError(status_code=403, reason="Invalid token or session ID")
 
         element_id = cast(ID | None, self.get_argument("bokeh-autoload-element", default=None))
         if not element_id:

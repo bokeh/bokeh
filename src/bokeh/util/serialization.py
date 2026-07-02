@@ -36,6 +36,7 @@ from threading import Lock
 from typing import (
     TYPE_CHECKING,
     Any,
+    Protocol,
     TypeGuard,
     cast,
 )
@@ -53,6 +54,9 @@ if TYPE_CHECKING:
     import pandas as pd
 
     from ..core.types import ID
+
+class _FilledMaskedArray(Protocol):
+    def filled(self, fill_value: Any = ...) -> npt.NDArray[Any]: ...
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -369,7 +373,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
         array = _cast_if_can(array, np.uint32)
 
     if isinstance(array, np.ma.MaskedArray):
-        array = cast(Any, array).filled(np.nan)
+        array = cast(_FilledMaskedArray, array).filled(np.nan)
     if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
 

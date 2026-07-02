@@ -27,7 +27,7 @@ from collections.abc import Awaitable
 from typing import Any, cast
 
 # External imports
-from tornado.web import authenticated
+from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
 from bokeh.embed.server import server_html_page_for_session
@@ -60,7 +60,8 @@ class DocHandler(SessionHandler):
     async def get(self, *args: Any, **kwargs: Any) -> None:
         session_future = cast("Awaitable[ServerSession | None]", self.get_session())
         session = await session_future
-        assert session is not None
+        if session is None:
+            raise HTTPError(status_code=403, reason="Invalid token or session ID")
 
         page = server_html_page_for_session(session,
                                             resources=self.application.resources(),
