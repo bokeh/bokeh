@@ -139,9 +139,9 @@ describe("Examples", () => {
 
     const p = figure()
 
-    p.spline([2, 3, 4], [2, 4, 3], {color: "orange", legend_label: "orange", line_width: 4})
-    p.spline([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
-    p.spline([4, 3, 2], [4, 3, 2], {color: "blue", legend_label: "blue", line_width: 4})
+    p.line([2, 3, 4], [2, 4, 3], {color: "orange", legend_label: "orange", line_width: 4})
+    p.line([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
+    p.line([4, 3, 2], [4, 3, 2], {color: "blue", legend_label: "blue", line_width: 4})
 
     p.xaxis.axis_label = "X-Axis"
     p.xaxis.axis_label_text_font = "Inter"
