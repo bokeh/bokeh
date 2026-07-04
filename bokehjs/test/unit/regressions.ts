@@ -1668,14 +1668,14 @@ describe("Bug", () => {
       table.view.filter = new IndexFilter({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
-      expect(table.source.selected.indices).to.be.equal([])
+      expect(table.source.selected.indices).to.be.equal([2])
 
       const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
       const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox2_el)
       await mouse_click(checkbox2_el)
       expect(view.get_selected_rows()).to.be.equal([0])
-      expect(table.source.selected.indices).to.be.equal([0])
+      expect(table.source.selected.indices).to.be.equal([0, 2])
 
       table.view.filter = new IndexFilter({indices: [0, 1, 2]})
 
