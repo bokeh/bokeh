@@ -140,7 +140,33 @@ export class TabsView extends LayoutDOMView {
 
       const close_tab = (j: number = i) => {
         const new_tabs = remove_at(tabs, j)
-        const new_active = clamp(active, 0, new_tabs.length - 1)
+        let new_active = active
+
+        if (j < active) {
+          new_active = active - 1
+        } else if (j === active) {
+          let found = false
+          for (let k = j; k < new_tabs.length; k++) {
+            if (!new_tabs[k].disabled) {
+              new_active = k
+              found = true
+              break
+            }
+          }
+          if (!found) {
+            for (let k = j - 1; k >= 0; k--) {
+              if (!new_tabs[k].disabled) {
+                new_active = k
+                found = true
+                break
+              }
+            }
+          }
+          if (!found) {
+            new_active = 0
+          }
+        }
+
         this.model.active = new_active
         this.model.tabs = new_tabs
       }
