@@ -1,6 +1,7 @@
 @import "./_mixins.less";
 
 :host {
+  --button-outline-offset: var(--outline-offset);
 
   --file: var(--default-color);
   --file-border: var(--default-border-color);
@@ -80,7 +81,7 @@
   border-radius: var(--border-radius);
 
   outline: 0;
-  outline-offset: -5px;
+  outline-offset: var(--button-outline-offset);
 
   .no-user-select();
 
