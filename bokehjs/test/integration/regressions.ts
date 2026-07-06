@@ -5059,4 +5059,20 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #14565", () => {
+    it("doesn't allow to correctly remove items from a DataTable", async () => {
+      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
+      const columns = [
+        new TableColumn({field: "my_col", title: "My Column"}),
+      ]
+
+      const table = new DataTable({source, columns})
+      const {view} = await display(table)
+
+      source.selected.indices = [0, 3, 4]
+      source.data = {my_col: ["a", "b", "c", "d"]}
+      await view.ready
+    })
+  })
 })

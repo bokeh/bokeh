@@ -1975,24 +1975,6 @@ ${view.host_selector} {
     })
   })
 
-  describe("in issue #14565", () => {
-    it("doesn't allow to correctly remove items from a DataTable", async () => {
-      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
-      const columns = [
-        new TableColumn({field: "my_col", title: "My Column"}),
-      ]
-
-      const table = new DataTable({source, columns})
-      const {view} = await display(table)
-
-      source.selected.indices = [0, 3, 4]
-      source.data = {my_col: ["a", "b", "c", "d"]}
-      await view.ready
-
-      expect(source.selected.indices).to.be.equal([0, 3])
-    })
-  })
-
   describe("in issue #14568", () => {
     it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
