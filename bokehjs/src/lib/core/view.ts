@@ -146,9 +146,8 @@ export abstract class View implements ISignalable, Equatable {
     return Object.is(this, that)
   }
 
-  /** @deprecated use children_views */
-  public *children(): IterViews {
-    yield* this.children_views().filter((view) => view != null)
+  public children(): View[] {
+    return this.children_views().filter((view) => view != null)
   }
 
   public children_views(): ChildView[] {
@@ -189,7 +188,7 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   serializable_children(): View[] {
-    return [...this.children()].filter((view) => view.model.is_syncable)
+    return this.children().filter((view) => view.model.is_syncable)
   }
 
   serializable_state(): SerializableState {
