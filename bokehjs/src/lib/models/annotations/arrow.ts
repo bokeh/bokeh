@@ -56,6 +56,23 @@ export class ArrowView extends DataAnnotationView {
     this.end?.set_data(source, indices)
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const update = () => {
+      this.set_data(this.model.source)
+      this.request_paint()
+    }
+
+    const {start, end} = this.model
+    if (start != null) {
+      this.connect(start.change, update)
+    }
+    if (end != null) {
+      this.connect(end.change, update)
+    }
+  }
+
   map_data(): void {
     const {frame} = this.plot_view
 
