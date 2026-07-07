@@ -126,8 +126,8 @@ export abstract class View implements ISignalable, Equatable {
       return
     }
     this.disconnect_signals()
-    for (const view of this.children_views()) {
-      view?.remove()
+    for (const view of this.children()) {
+      view.remove()
     }
     this.owner.remove(this)
     this.removed.emit()
