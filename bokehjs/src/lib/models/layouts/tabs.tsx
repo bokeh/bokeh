@@ -146,7 +146,7 @@ export class TabsView extends LayoutDOMView {
             return 0
           } else if (j < active) {
             return active - 1
-          } else if (j === active) {
+          } else if (j == active) {
             for (let k = j; k < new_tabs.length; k++) {
               if (!new_tabs[k].disabled) {
                 return k
