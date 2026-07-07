@@ -81,6 +81,22 @@ export namespace Accessible {
     }
   `
 
+  const dropdown_style = `
+    .bk-btn:focus {
+      outline: 2px solid var(--outline-color);
+      outline-offset: 0px;
+      border-color: var(--default-border-color);
+    }
+
+    .bk-btn:focus > .bk-caret {
+      mask-image: var(--bokeh-icon-chevron-up);
+    }
+
+    .bk-caret {
+      mask-image: var(--bokeh-icon-chevron-down);
+    }
+  `
+
   const slider_style = `
   `
 
@@ -180,7 +196,7 @@ export namespace Accessible {
   const w04 = new Button({label: "Danger Button", button_type: "danger", stylesheets: [button_style]})
   const w05 = new Button({label: "Light Button", button_type: "light", stylesheets: [button_style]})
   const w1 = new Toggle({label: "Toggle", stylesheets: [button_style]})
-  const w2 = new Dropdown({label: "Dropdown", stylesheets: [button_style]})
+  const w2 = new Dropdown({label: "Dropdown", menu: [["Item 1", "item_1"], ["Item 2", "item_2"], null, ["Item 3", "item_3"]], stylesheets: [button_style, dropdown_style]})
   const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [input_style]})
   const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [input_style]})
   const w50 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
@@ -230,6 +246,7 @@ export namespace Accessible {
       --outline-width: 2px;
       --outline-offset: 2px;
       --default-outline-color: #5D5E62;
+      --menu-item-hover-text-decoration: underline;
       background-color: var(--background-color);
     }`,
   ]})
