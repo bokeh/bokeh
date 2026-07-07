@@ -25,9 +25,6 @@ export namespace Accessible {
     Toggle,
   } = Bokeh.Widgets
 
-  const font_style = `
-  `
-
   const switch_style = `
   `
 
@@ -88,6 +85,86 @@ export namespace Accessible {
   `
 
   const input_style = `
+    .bk-input:focus {
+      border-width: var(--border-width);
+      border-color: var(--outline-color);
+      box-shadow: none;
+    }
+
+    .bk-input:hover {
+      background-color: var(--hover-color);
+    }
+
+    .bk-input:[disabled], .bk-input.bk-disabled {
+      border-color: var(--disabled-background-color);
+    }
+
+    .bk-input-container.bk-input[disabled]:not(:first-child,:last-child),
+    .bk-input.bk-disabled:not(:first-child,:last-child) {
+      border: var(--border);
+    }
+
+    select:not([multiple]).bk-input, select:not([size]).bk-input {
+      background-image: var(--bokeh-icon-chevron-down);
+      background-size: 16px 16px;
+    }
+
+    select:open:not([multiple]).bk-input,
+    select:open:not([size]).bk-input {
+      height: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: var(--bokeh-icon-chevron-up);
+      background-position: right 0.5em center;
+      background-size: 16px 16px;
+      background-repeat: no-repeat;
+      padding-right: calc(var(--padding-horizontal) + 8px);
+    }
+
+    select:open:not([multiple]).bk-input:hover,
+      select:open:not([size]).bk-input:hover {
+      background-color: var(--background-color);
+    }
+
+    .bk-input-group > label:focus-within{
+      outline: 2px solid var(--outline-color);
+      outline-offset: -1px;
+      border-radius: 5px;
+    }
+
+    input[type="checkbox"], input[type="radio"] {
+      accent-color: var(--primary-color);
+      margin: 2px;
+    }
+
+    input[type="checkbox"]:focus, input[type="radio"]:focus {
+      outline: none;
+    }
+
+    input[type="checkbox"] + *, input[type="radio"] + * {
+      position: relative;
+      top: -2px;
+      margin-left: 3px;
+    }
+
+    input[type="checkbox"]+span, input[type="radio"]+span {
+      margin-right: 3px;
+    }
+
+    input[type="checkbox"]+span:hover, input[type="radio"]+span:hover {
+      text-decoration: underline;
+    }
+
+    input[type="checkbox"][disabled]+span, input[type="radio"][disabled]+span {
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+
+    input[type="checkbox"]:hover:not([disabled]) {
+      accent-color: var(--primary-hover-color);
+      outline: 2px solid var(--outline-color);
+      outline-offset: -1px;
+    }
   `
 
   const choices_style = `
@@ -104,8 +181,8 @@ export namespace Accessible {
   const w05 = new Button({label: "Light Button", button_type: "light", stylesheets: [button_style]})
   const w1 = new Toggle({label: "Toggle", stylesheets: [button_style]})
   const w2 = new Dropdown({label: "Dropdown", stylesheets: [button_style]})
-  const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
-  const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
+  const w3 = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [input_style]})
+  const w4 = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0, stylesheets: [input_style]})
   const w50 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], stylesheets: [button_style]})
   const w51 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "primary", stylesheets: [button_style]})
   const w52 = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1], button_type: "success", stylesheets: [button_style]})
@@ -145,9 +222,9 @@ export namespace Accessible {
     new Column({children: [w7, w8, w9, w10, w11, w12, p]}),
   ]
   const layout = new Row({children: w_columns, sizing_mode: "stretch_both", stylesheets: [
-    font_style,
     `
     :host {
+      --border-width: 2px;
       --outline-color: #B74CA7;
       --outline-style: solid;
       --outline-width: 2px;
