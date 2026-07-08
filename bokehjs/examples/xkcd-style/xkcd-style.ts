@@ -53,7 +53,7 @@ export namespace Xkcd {
   `
 
   const slider_style = `
-    .noUi-target, .noUi-handle {
+    .bk-track, .bk-handle, .bk-tooltip {
       --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
       text-transform: inherit;
       border: var(--border);
