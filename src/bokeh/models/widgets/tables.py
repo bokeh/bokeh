@@ -788,7 +788,7 @@ class DataTable(TableWidget):
         can get unreadable if there is not enough space available.
         
     ``"ignore_viewport"``
-        Similarly to fit_columns column widths are computed based on the cell
+        Similarly to `fit_columns`, the column widths are computed based on the cell
         contents. However the viewport width is not ignored, so that if the 
         columns are smaller than the viewport, there is empty space at the right,
         or if the columns are larger than the viewport, there is a scrollbar.
