@@ -26,6 +26,50 @@ export namespace Accessible {
   } = Bokeh.Widgets
 
   const switch_style = `
+    :host {
+      border-radius: 5px;
+      border: transparent solid;
+    }
+
+    :host(:focus-within) {
+      outline: var(--outline);
+    }
+
+    :host(:hover) {
+      text-decoration: underline;
+    }
+
+    :host(.bk-disabled) {
+      cursor: default;
+      cursor: not-allowed;
+      outline: none;
+      text-decoration: none;
+    }
+
+    :host(.bk-disabled) .bk-label {
+      color: var(--disabled-color);
+    }
+
+    :host(.bk-disabled) .bk-body {
+      cursor: not-allowed;
+    }
+
+    :host(.bk-disabled) .bk-knob:before {
+      content: "";
+      width: 10px;
+      height: 2px;
+      background-color: var(--inverted-color);
+    }
+
+    :host(.bk-disabled) .bk-knob:focus-visible {
+      outline: none;
+    }
+
+    .bk-knob {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   `
 
   const light_dark = new LightDark({active: true, stylesheets: [switch_style]})
