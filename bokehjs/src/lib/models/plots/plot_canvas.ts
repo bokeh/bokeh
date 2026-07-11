@@ -162,12 +162,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected throttled_paint: () => Promise<void>
 
   computed_renderers: Renderer[] = []
+  protected _computed_renderer_views: RendererView[] = []
 
   get computed_renderer_views(): RendererView[] {
-    return this
-      .computed_renderers
-      .map((r) => this.renderer_views.get(r))
-      .filter((rv) => rv != null) // TODO race condition again
+    return this._computed_renderer_views
   }
 
   get all_renderer_views(): RendererView[] {
@@ -914,6 +912,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
     const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    this._computed_renderer_views = this.computed_renderers.map((r) => this.renderer_views.get(r)).filter((rv) => rv != null) // TODO race condition again
     for (const renderer_view of result.created) {
       this.on_change(renderer_view.model.properties.visible, () => this._update_attribution())
     }
