@@ -46,7 +46,7 @@ export class TableColumn extends Model {
       default_sort:       [ Sort, "ascending" ],
       visible:            [ Bool, true ],
       sorter:             [ Nullable(Ref(Comparison)), null ],
-      allow_html_title:  [ Bool, false ],
+      allow_html_title:   [ Bool, false ],
     }))
   }
 
