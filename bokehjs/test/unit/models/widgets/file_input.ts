@@ -166,8 +166,8 @@ describe("FileInputView", () => {
 
     const event = collected_events[0]
 
-    expect(event.values.value).to.be.equal(btoa("foo bar"))
-    expect(event.values.filename).to.be.equal("foo.txt")
-    expect(event.values.mime_type).to.be.equal("text/plain")
+    expect(event.value).to.be.equal(btoa("foo bar"))
+    expect(event.filename).to.be.equal("foo.txt")
+    expect(event.mime_type).to.be.equal("text/plain")
   })
 })

@@ -10,7 +10,15 @@ import {event} from "core/bokeh_events"
 
 @event("file_input_change")
 export class FileInputChange extends PropertyBundleEvent<FileInput, "value" | "filename" | "mime_type"> {
-
+  get value() {
+    return this.values.value
+  }
+  get filename() {
+    return this.values.filename
+  }
+  get mime_type() {
+    return this.values.mime_type
+  }
 }
 
 export class FileInputView extends InputWidgetView {
