@@ -14,6 +14,7 @@ export class Hatch extends VisualProperties {
   protected _update_iteration: number = 0
 
   override update(): void {
+    super.update()
     this._update_iteration++
     this._hatch_image = null
     this._hatch_svg = null
