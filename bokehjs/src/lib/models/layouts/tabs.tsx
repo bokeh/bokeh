@@ -34,7 +34,11 @@ export class TabsView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    const {tabs} = this.model.properties
+    const {active, link_layouts, tabs} = this.model.properties
+
+    this.on_change([active, link_layouts], async () => {
+      await this.update_children()
+    })
 
     this.on_transitive_change(tabs, async () => {
       await this.update_children()
@@ -63,7 +67,15 @@ export class TabsView extends LayoutDOMView {
   }
 
   get child_models(): UIElement[] {
-    return this.model.tabs.map((tab) => tab.child)
+    const {link_layouts, tabs} = this.model
+    if (link_layouts) {
+      return tabs.map((tab) => tab.child)
+    } else if (tabs.length == 0) {
+      return []
+    } else {
+      const tab = tabs[this.normalized_active]
+      return [tab.child]
+    }
   }
 
   override _update_layout(): void {
@@ -318,12 +330,14 @@ export class TabsView extends LayoutDOMView {
       )
     })
 
-    const panel_els = this.sig_child_views.map((view, i) => {
+    const child_views = this.sig_child_views
+    const panel_els = tabs.map((tab, i) => {
       const is_active = i == active
       const active_cls = is_active ? tabs_css.active : null
+      const view = child_views.find((view) => view.model == tab.child)
 
       const ref = (el: HTMLElement | null) => {
-        if (el != null) {
+        if (el != null && view != null) {
           view.render_to(el)
           view.r_after_render()
         }
