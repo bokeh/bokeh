@@ -20,3 +20,4 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Added Playwright as an alternative export backend for PNG and SVG (:bokeh-pull:`14940`)
 * Redesigned ``Tabs`` as vDOM, added keyboard navigation and improved accessibility (:bokeh-pull:`15168`)
 * Migrated UI components to use adopted CSS stylesheets (:bokeh-pull:`14973`)
+* Migrated SlickGrid to version 5.18, bringing several bug fixes and behavioral changes to `DataTable`, including flipped default behavior for HTML escaping in column titles (:bokeh-pull:`15029`, :bokeh-pull:`15139`)
