@@ -15,7 +15,7 @@ from ..model.model import Model, _ModelInit
 from .glyph import Glyph
 from .renderers import GlyphRenderer
 
-ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
+type ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
 
 class BoxNodes:
 

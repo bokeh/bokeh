@@ -1,4 +1,3 @@
-import type {FullDisplay} from "./layout_dom"
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {Container} from "core/layout/grid"
@@ -22,14 +21,11 @@ export abstract class FlexBoxView extends LayoutDOMView {
     return this.model.children
   }
 
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "flex"}
-  }
-
   override _update_layout(): void {
     super._update_layout()
 
-    this.style.append(":host", {
+    this.self_style.append(this.host_selector, {
+      display: "flex",
       flex_direction: this._direction,
       gap: px(this.model.spacing),
     })
@@ -75,16 +71,16 @@ export abstract class FlexBoxView extends LayoutDOMView {
       const min_width = min_size(view.model.min_width)
       const min_height = min_size(view.model.min_height)
 
-      view.parent_style.append(":host", {flex, align_self, min_width, min_height})
+      view.parent_style.append(view.host_selector, {flex, align_self, min_width, min_height})
 
       // undo `width/height: 100%` and let `align-self: stretch` do the work
       if (this._direction == "row") {
         if (sizing.height_policy == "max") {
-          view.parent_style.append(":host", {height: "auto"})
+          view.parent_style.append(view.host_selector, {height: "auto"})
         }
       } else {
         if (sizing.width_policy == "max") {
-          view.parent_style.append(":host", {width: "auto"})
+          view.parent_style.append(view.host_selector, {width: "auto"})
         }
       }
 

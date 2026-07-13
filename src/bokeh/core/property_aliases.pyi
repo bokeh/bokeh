@@ -6,14 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    Generic,
-    Literal,
-    NotRequired,
-    TypeAlias,
-    TypedDict,
-    TypeVar,
-)
+from typing import Literal, NotRequired, TypedDict
 
 # Bokeh imports
 from .._types import NonNegative
@@ -28,79 +21,77 @@ from ..core.enums import (
 from ..core.property.bases import Property
 from ..core.property.visual import ImageType as Image
 
-CSSLengthType: TypeAlias = str
-CSSLength: TypeAlias = Property[CSSLengthType]     # 10px 1.2em, etc.
+type CSSLengthType = str
+type CSSLength = Property[CSSLengthType]     # 10px 1.2em, etc.
 
-CSSClassType: TypeAlias = str
-CSSClass: TypeAlias = Property[CSSClassType]       # ^\..*$
+type CSSClassType = str
+type CSSClass = Property[CSSClassType]       # ^\..*$
 
-CSSVariableType: TypeAlias = str
-CSSVariable: TypeAlias = Property[CSSVariableType] # ^--.*$
+type CSSVariableType = str
+type CSSVariable = Property[CSSVariableType] # ^--.*$
 
-DataImageType: TypeAlias = str
-DataImage: TypeAlias = Property[DataImageType]     # ^data:image.*$
+type DataImageType = str
+type DataImage = Property[DataImageType]     # ^data:image.*$
 
 # Image has to be first! see #12775, temporary fix
-IconLikeType: TypeAlias = Image | ToolIcon | CSSClass | CSSVariable | DataImage
-IconLike: TypeAlias = Property[IconLikeType]
+type IconLikeType = Image | ToolIcon | CSSClass | CSSVariable | DataImage
+type IconLike = Property[IconLikeType]
 
-T = TypeVar("T")
-
-class XY(TypedDict, Generic[T]):
+class XY[T](TypedDict):
     x: NotRequired[T]
     y: NotRequired[T]
 
-class LRTB(TypedDict, Generic[T]):
+class LRTB[T](TypedDict):
     left: NotRequired[T]
     right: NotRequired[T]
     top: NotRequired[T]
     bottom: NotRequired[T]
 
-class Corners(TypedDict, Generic[T]):
+class Corners[T](TypedDict):
     top_left: NotRequired[T]
     top_right: NotRequired[T]
     bottom_right: NotRequired[T]
     bottom_left: NotRequired[T]
 
-PixelsType: TypeAlias = NonNegative[int]
-Pixels: TypeAlias = Property[PixelsType]
+type PixelsType = NonNegative[int]
+type Pixels = Property[PixelsType]
 
-HAnchorType: TypeAlias = Align | HAlign | float
-HAnchor: TypeAlias = Property[HAnchorType]
+type HAnchorType = Align | HAlign | float
+type HAnchor = Property[HAnchorType]
 
-VAnchorType: TypeAlias = Align | VAlign | float
-VAnchor: TypeAlias = Property[VAnchorType]
+type VAnchorType = Align | VAlign | float
+type VAnchor = Property[VAnchorType]
 
-AnchorType: TypeAlias = Anchor_ | tuple[HAnchor, VAnchor]
-Anchor: TypeAlias = Property[AnchorType]
+type AnchorType = Anchor_ | tuple[HAnchor, VAnchor]
+type Anchor = Property[AnchorType]
 
-AutoAnchorType: TypeAlias = Auto | Anchor | tuple[Auto | HAnchor, Auto | VAnchor]
-AutoAnchor: TypeAlias = Property[AutoAnchorType]
+type AutoAnchorType = Auto | Anchor | tuple[Auto | HAnchor, Auto | VAnchor]
+type AutoAnchor = Property[AutoAnchorType]
 
-TextAnchorType: TypeAlias = Anchor | Auto
-TextAnchor: TypeAlias = Property[TextAnchorType]
+type TextAnchorType = Anchor | Auto
+type TextAnchor = Property[TextAnchorType]
 
-BorderRadiusType: TypeAlias = Pixels | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
-BorderRadius: TypeAlias = Property[BorderRadiusType]
+type BorderRadiusType = Pixels | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+type BorderRadius = Property[BorderRadiusType]
 
-PaddingType: TypeAlias = Pixels | tuple[Pixels, Pixels] | XY[Pixels] | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
-Padding: TypeAlias = Property[PaddingType]
+type PaddingType = Pixels | tuple[Pixels, Pixels] | XY[Pixels] | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
+type Padding = Property[PaddingType]
 
-GridSpacingType: TypeAlias = Pixels | tuple[Pixels, Pixels]
-GridSpacing: TypeAlias = Property[GridSpacingType]
+type GridSpacingType = Pixels | tuple[Pixels, Pixels]
+type GridSpacing = Property[GridSpacingType]
 
-TrackAlignType: TypeAlias = Literal["start", "center", "end", "auto"]
-TrackAlign: TypeAlias = Property[TrackAlignType]
+type TrackAlignType = Literal["start", "center", "end", "auto"]
+type TrackAlign = Property[TrackAlignType]
 
-TrackSizeType: TypeAlias = str
-TrackSize: TypeAlias = Property[TrackSizeType]
+type TrackSizeType = str
+type TrackSize = Property[TrackSizeType]
 
 class FullTrackSize(TypedDict):
     size: NotRequired[TrackSize]
     align: NotRequired[TrackAlign]
 
-TrackSizingType: TypeAlias = TrackSize | FullTrackSize
-TrackSizing: TypeAlias = Property[TrackSizingType]
+type TrackSizingType = TrackSize | FullTrackSize
+type TrackSizing = Property[TrackSizingType]
 
-TracksSizingType: TypeAlias = TrackSizing | list[TrackSizing] | dict[int, TrackSizing]
-TracksSizing: TypeAlias = Property[TracksSizingType]
+type TracksSizingType = TrackSizing | list[TrackSizing] | dict[int, TrackSizing]
+type TracksSizing = Property[TracksSizingType]

@@ -8,12 +8,7 @@
 # Standard library imports
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    TypeAlias,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Sequence
 
 # External imports
 import numpy as np
@@ -29,29 +24,27 @@ from .. import enums
 from ..enums import AutoType as Auto
 from .bases import Property
 
-DashPatternType: TypeAlias = enums.DashPatternType | str | Sequence[int]
-DashPattern: TypeAlias = Property[DashPatternType]
+type DashPatternType = enums.DashPatternType | str | Sequence[int]
+type DashPattern = Property[DashPatternType]
 
 CSS_LENGTH_RE: re.Pattern
 
-ImageType: TypeAlias = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
-Image: TypeAlias = Property[ImageType]
+type ImageType = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
+type Image = Property[ImageType]
 
-HatchPatternTypeType: TypeAlias = enums.HatchPatternType | enums.HatchPatternAbbreviationType
-HatchPatternType: TypeAlias = Property[HatchPatternTypeType]
+type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType
+type HatchPatternType = Property[HatchPatternTypeType]
 
-T = TypeVar("T")
+type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 
-Bounds: TypeAlias = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
+type MinMaxBoundsType = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
+type MinMaxBounds = Property[MinMaxBoundsType]
 
-MinMaxBoundsType: TypeAlias = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
-MinMaxBounds: TypeAlias = Property[MinMaxBoundsType]
+type CSSLengthType = str
+type CSSLength = Property[CSSLengthType]
 
-CSSLengthType: TypeAlias = str
-CSSLength: TypeAlias = Property[CSSLengthType]
+type FontSizeType = str
+type FontSize = Property[FontSizeType]
 
-FontSizeType: TypeAlias = str
-FontSize: TypeAlias = Property[FontSizeType]
-
-MarkerTypeType: TypeAlias = enums.MarkerTypeType
-MarkerType: TypeAlias = Property[MarkerTypeType]
+type MarkerTypeType = enums.MarkerTypeType
+type MarkerType = Property[MarkerTypeType]

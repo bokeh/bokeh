@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, ClassVar, TypeVar
+from typing import TYPE_CHECKING, ClassVar
 
 # Bokeh imports
 from .bases import Property
@@ -44,13 +44,11 @@ __all__ = (
     "DeprecatedAlias",
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias(Property[T]):
+class Alias[T](Property[T]):
     """
     Alias another property of a model.
 
@@ -88,7 +86,7 @@ class Alias(Property[T]):
     def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
         return [ AliasPropertyDescriptor(base_name, self) ]
 
-class DeprecatedAlias(Alias[T]):
+class DeprecatedAlias[T](Alias[T]):
     """
     Alias of another property of a model showing a deprecation message when used.
     """

@@ -195,11 +195,12 @@ export class DataTableView extends WidgetView {
       this.connect(column.change, () => this.rerender())
     }
 
-    // changes to the source trigger the callback below via
-    // compute_indices hooks in cds view
     // TODO reevaluate the control flow when taking a general look at events
     this.connect(this.model.view.change, () => this.updateGrid())
-
+    this.connect(this.model.source.change, () => this.updateGrid())
+    this.connect(this.model.source.streaming, () => this.updateGrid())
+    this.connect(this.model.source.patching, () => this.updateGrid())
+    this.connect(this.model.source.properties.data.change, () => this.updateGrid())
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
@@ -249,6 +250,9 @@ export class DataTableView extends WidgetView {
   }
 
   updateGrid(): void {
+    if (!this._is_grid_initialized()) {
+      return
+    }
     this.data.init(this.model.source, this.model.view)
 
     // This is obnoxious but there is no better way to programmatically force
@@ -448,10 +452,13 @@ export class DataTableView extends WidgetView {
   }
 
   override _after_render(): void {
-    const initialized = typeof this.grid !== "undefined"
     this._render_table()
-    this.updateLayout(initialized, false)
+    this.updateLayout(this._is_grid_initialized(), false)
     super._after_render()
+  }
+
+  private _is_grid_initialized(): boolean {
+    return typeof this.grid !== "undefined"
   }
 
   private _calculate_width(): void {

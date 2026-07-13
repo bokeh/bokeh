@@ -4794,11 +4794,13 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 400, height: 300, tabs_location: "above"})
       const {view} = await display(tabs, [450, 350])
 
-      const headers_wrapper = view.headers_wrapper_el
-      const wrapper_styles = window.getComputedStyle(headers_wrapper)
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
       expect(wrapper_styles.overflowX).to.be.equal("auto")
 
-      const has_scroll = headers_wrapper.scrollWidth > headers_wrapper.clientWidth
+      const has_scroll = headers_wrapper_el.scrollWidth > headers_wrapper_el.clientWidth
       expect(has_scroll).to.be.true
     })
 
@@ -4813,8 +4815,10 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 450, height: 350, tabs_location: "left"})
       const {view} = await display(tabs, [500, 400])
 
-      const headers_wrapper = view.headers_wrapper_el
-      const wrapper_styles = window.getComputedStyle(headers_wrapper)
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
       expect(wrapper_styles.overflowY).to.be.equal("auto")
     })
   })
@@ -4990,6 +4994,54 @@ describe("Bug", () => {
       })
 
       await display(table, [200, 280])
+    })
+  })
+
+  describe("in issue #13859", () => {
+    it("doesn't show updates of ColumnDataSource in DataTable", async () => {
+      const source = new ColumnDataSource({
+        data: {x: ["init"]},
+      })
+
+      const columns = [
+        new TableColumn({field: "x", title: "x"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_columns",
+        width: 400,
+        height: 300,
+      })
+
+      const {view} = await display(table)
+      source.data = {x: ["a"]}
+      await view.ready
+    })
+  })
+
+  describe("in issue #13244", () => {
+    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+      const source = new ColumnDataSource({data: {
+        x: [1, 2, 3, 4, 5],
+        y: [10, 11, 12, 13, 14],
+      }})
+
+      const view = new CDSView({filter: new BooleanFilter({booleans: [true, true, false, true, false]})})
+
+      const table = new DataTable({
+        source,
+        view,
+        columns: [new TableColumn({field: "x", title: "X", width: 150})],
+        width: 200,
+        height: 200,
+      })
+
+      const p = figure({width: 200, height: 200})
+      p.scatter({field: "x"}, {field: "y"}, {source, view})
+
+      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
   })
 })

@@ -30,7 +30,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    TypeVar,
 )
 
 # External imports
@@ -65,10 +64,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
-F = TypeVar("F", bound=Callable[..., Any])
-
-def _needs_document_lock(func: F) -> F:
+def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
     '''Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
        method on ServerSession and transforms it into a coroutine
@@ -221,7 +217,7 @@ class ServerSession:
         return current_time() - self._last_unsubscribe_time
 
     @_needs_document_lock
-    def with_document_locked(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    def with_document_locked[T](self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         ''' Asynchronously locks the document and runs the function with it locked.'''
         return func(*args, **kwargs)
 

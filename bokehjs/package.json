@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "3.10.0-dev.5",
+  "version": "3.10.0-dev.6",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -36,6 +36,9 @@
     "prepare": "node ./prepare.mjs",
     "build": "node make build",
     "dev-build": "node make dev-build"
+  },
+  "allowScripts": {
+    "esbuild": true
   },
   "main": "build/js/lib/bokeh.js",
   "types": "build/js/lib/bokeh.d.ts",

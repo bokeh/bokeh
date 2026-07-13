@@ -25,12 +25,7 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import findall, match
-from typing import (
-    TYPE_CHECKING,
-    Self,
-    TypeAlias,
-    cast,
-)
+from typing import TYPE_CHECKING, Self, cast
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
@@ -51,7 +46,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-RGBTuple: TypeAlias = tuple[int, int, int] | tuple[int, int, int, float]
+type RGBTuple = tuple[int, int, int] | tuple[int, int, int, float]
 
 class Color(Serializable, metaclass=ABCMeta):
     ''' A base class for representing color objects.
@@ -218,11 +213,12 @@ class RGB(Color):
     a: float
 
     def __init__(
-            self, r: float | np.floating,
-            g: float | np.floating,
-            b: float | np.floating,
-            a: float | np.floating = 1.0,
-        ) -> None:
+        self,
+        r: float | np.floating | int | np.uint8,
+        g: float | np.floating | int | np.uint8,
+        b: float | np.floating | int | np.uint8,
+        a: float | np.floating = 1.0,
+    ) -> None:
         '''
 
         Args:
@@ -537,7 +533,7 @@ class HSL(Color):
         hsl.l = self.clamp(hsl.l + amount, 1)
         return self.from_hsl(hsl)
 
-ColorLike: TypeAlias = str | Color | RGBTuple
+type ColorLike = str | Color | RGBTuple
 
 #-----------------------------------------------------------------------------
 # Dev API
