@@ -1,4 +1,5 @@
 import {expect, expect_instanceof} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"
@@ -7,6 +8,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Tooltip} from "@bokehjs/models/ui/tooltip"
 import {range} from "@bokehjs/core/util/array"
 import {enumerate} from "@bokehjs/core/util/iterator"
+import {defer} from "@bokehjs/core/util/defer"
 
 describe("Tabs", () => {
   function new_tabs(num_panels: number, add_tooltip: boolean = false): Tabs {
@@ -133,5 +135,17 @@ describe("Tabs", () => {
 
     expect(tabs.active).to.be.equal(1) // Should select old index 2, which is now index 1
     expect(tabs.tabs.length).to.be.equal(2)
+  })
+
+  it("should retain materialized tab child views", async () => {
+    const tabs = new_tabs(3)
+    const {view} = await display(tabs, null)
+
+    expect(view.sig_child_views.map((view) => view.model)).to.be.equal([tabs.tabs[0].child])
+
+    tabs.active = 1
+    await defer()
+
+    expect(view.sig_child_views.map((view) => view.model)).to.be.equal([tabs.tabs[0].child, tabs.tabs[1].child])
   })
 })

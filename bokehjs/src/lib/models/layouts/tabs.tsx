@@ -31,6 +31,7 @@ export class TabsView extends LayoutDOMView {
   declare readonly values: Tabs.Attrs
 
   protected tooltip_views: ViewStorage<Tooltip> = new Map()
+  protected readonly _materialized_tabs: Set<UIElement> = new Set()
 
   override connect_signals(): void {
     super.connect_signals()
@@ -71,10 +72,19 @@ export class TabsView extends LayoutDOMView {
     if (link_layouts) {
       return tabs.map((tab) => tab.child)
     } else if (tabs.length == 0) {
+      this._materialized_tabs.clear()
       return []
     } else {
-      const tab = tabs[this.normalized_active]
-      return [tab.child]
+      const children = tabs.map((tab) => tab.child)
+      const current = new Set(children)
+      for (const child of this._materialized_tabs) {
+        if (!current.has(child)) {
+          this._materialized_tabs.delete(child)
+        }
+      }
+
+      this._materialized_tabs.add(tabs[this.normalized_active].child)
+      return children.filter((child) => this._materialized_tabs.has(child))
     }
   }
 
