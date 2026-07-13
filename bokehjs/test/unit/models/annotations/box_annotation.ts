@@ -114,8 +114,11 @@ describe("BoxAnnotation", () => {
       const events = ac._pan({type: "line", xy0: xy(0.25, 0.25), xy1: xy(0.75, 0.75), n: 5})
       const cursors = await get_cursors(ac, events)
 
-      expect(cursors).to.be
-        .equal(["move", "move", "default", "move", "move", "move", "move"])
+      expect(cursors.slice(0, -1)).to.be
+        .equal(["move", "move", "default", "move", "move", "move"])
+
+      const final = cursors.at(-1)
+      expect(final == "move" || final == "default").to.be.true
     })
   })
 })

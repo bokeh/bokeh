@@ -10,7 +10,7 @@ task("compiler:ts", async () => {
   const is_windows = process.platform == "win32"
   const npx = is_windows ? "npx.cmd" : "npx"
   const config = join(src_dir.compiler, "tsconfig.json")
-  const {status} = cp.spawnSync(`${npx} tsc --project "${config}"`, {stdio: "inherit", shell: true})
+  const {status} = cp.spawnSync(`${npx} --loglevel=warn tsc --project "${config}"`, {stdio: "inherit", shell: true})
   if (status !== 0) {
     throw new BuildError("typescript", "compilation of *.ts and *.tsx files failed")
   }
