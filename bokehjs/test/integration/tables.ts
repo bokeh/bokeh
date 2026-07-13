@@ -59,4 +59,30 @@ describe("DataTable", () => {
     await view.ready
   })
 
+  it("should create a horizontal scrollbar with autosize_mode='fit_columns' inside a narrow layout", async () => {
+    const source = new ColumnDataSource({
+      data: {
+        text: ["something", "something"],
+        number: [0.33, 0.33],
+        other_number: [12345, 12345],
+      },
+    })
+
+    const columns = [
+      new TableColumn({field: "text", title: "Text"}),
+      new TableColumn({field: "number", title: "Number"}),
+      new TableColumn({field: "other_number", title: "Other number"}),
+    ]
+
+    const table = new DataTable({
+      source,
+      columns,
+      width: 150,
+      height: 200,
+      autosize_mode: "fit_columns",
+    })
+
+    await display(table, [150, 200])
+  })
+
 })
