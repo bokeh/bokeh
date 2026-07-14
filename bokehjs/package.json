@@ -59,7 +59,6 @@
     "marked": "^17.0.1",
     "mathjax-full": "^3.2.2",
     "nearley": "^2.20.1",
-    "nouislider": "^15.7.1",
     "preact": "^10.28.0",
     "proj4": "^2.20.4",
     "regl": "^2.1.0",

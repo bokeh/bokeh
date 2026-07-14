@@ -7,10 +7,16 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import NotRequired, TypedDict, Unpack
+from typing import (
+    Never,
+    NotRequired,
+    TypedDict,
+    Unpack,
+)
 
 # Bokeh imports
 from .._types import NonNegative
+from ..colors import ColorLike
 from ..core.enums import (
     AlignType as Align,
     AutoType as Auto,
@@ -45,6 +51,7 @@ class _LayoutDOMInit(_PaneInit, total=False):
     sizing_mode: SizingMode | None
     align: Auto | Align | tuple[Align, Align]
     resizable: bool | Dimensions
+    background: ColorLike
 
 class LayoutDOM(Pane):
     @abstractmethod
@@ -65,6 +72,12 @@ class LayoutDOM(Pane):
     sizing_mode: SizingMode | None = ...
     align: Auto | Align | tuple[Align, Align] = ...
     resizable: bool | Dimensions = ...
+
+    @property
+    def background(self) -> Never: ...
+
+    @background.setter
+    def background(self, value: ColorLike) -> None: ...
 
 class _SpacerInit(_LayoutDOMInit, total=False):
     ...

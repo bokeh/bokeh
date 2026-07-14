@@ -25,6 +25,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
+# Bokeh imports
+from ...util.dataclasses import NotRequired, Unspecified
+
+if TYPE_CHECKING:
+    from .bases import Property
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -87,12 +96,21 @@ class Override[T]:
 
     """
 
-    default_overridden: bool
-    default: T
+    property_overridden: bool
+    property_: NotRequired[Property[T]]
 
-    def __init__(self, *, default: T) -> None:
-        self.default_overridden = True
+    default_overridden: bool
+    default: NotRequired[T]
+
+    def __init__(self, property: NotRequired[Property[T]] = Unspecified, *, default: NotRequired[T] = Unspecified) -> None:
+        self.property_overridden = property is not Unspecified
+        self.property_ = property
+
+        self.default_overridden = default is not Unspecified
         self.default = default
+
+        if self.property_overridden and self.default_overridden:
+            raise ValueError("'property' and 'default' cannot be used simultaneously")
 
 #-----------------------------------------------------------------------------
 # Dev API

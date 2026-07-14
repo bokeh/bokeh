@@ -3,19 +3,14 @@ import {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 
 export abstract class BaseNumericalSliderView extends AbstractSliderView<number> {
-  declare model: BaseNumericalSlider
-
-  override connect_signals(): void {
-    super.connect_signals()
-
-    const {start, end, step} = this.model.properties
-    this.on_change([start, end, step], () => this._update_slider())
-  }
+  declare readonly model: BaseNumericalSlider
+  declare readonly signals: p.SignalsOf<BaseNumericalSlider.Props>
+  declare readonly values: BaseNumericalSlider.Attrs
 
   protected abstract _formatter(value: number, format: string | TickFormatter): string
 
   pretty(value: number): string {
-    return this._formatter(value, this.model.format)
+    return this._formatter(value, this.values.format)
   }
 }
 
@@ -25,7 +20,7 @@ export namespace BaseNumericalSlider {
   export type Props = AbstractSlider.Props & {
     start: p.Property<number>
     end: p.Property<number>
-    step: p.Property<number>
+    step: p.Property<number | null>
     format: p.Property<string | TickFormatter>
   }
 }
@@ -34,18 +29,18 @@ export interface BaseNumericalSlider extends BaseNumericalSlider.Attrs {}
 
 export abstract class BaseNumericalSlider extends AbstractSlider<number> {
   declare properties: BaseNumericalSlider.Props
-  declare declare__view_type__: BaseNumericalSliderView
+  declare __view_type__: BaseNumericalSliderView
 
   constructor(attrs?: Partial<BaseNumericalSlider.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<BaseNumericalSlider.Props>(({Float, Str, Or, Ref}) => {
+    this.define<BaseNumericalSlider.Props>(({Float, Str, Or, Ref, Nullable}) => {
       return {
         start:  [ Float ],
         end:    [ Float ],
-        step:   [ Float, 1 ],
+        step:   [ Nullable(Float), 1 ],
         format: [ Or(Str, Ref(TickFormatter)) ],
       }
     })

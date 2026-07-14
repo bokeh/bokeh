@@ -1,44 +1,34 @@
 import type {SliderSpec} from "./abstract_slider"
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 import type * as p from "core/properties"
-import {isNumber} from "core/util/types"
 
 export class CategoricalSliderView extends AbstractSliderView<string> {
-  declare model: CategoricalSlider
+  declare readonly model: CategoricalSlider
+  declare readonly signals: p.SignalsOf<CategoricalSlider.Props>
+  declare readonly values: CategoricalSlider.Attrs
 
-  override behaviour = "tap" as const
-
-  override connect_signals(): void {
-    super.connect_signals()
-
-    const {categories} = this.model.properties
-    this.on_change([categories], () => this._update_slider())
-  }
-
-  protected _calc_to(): SliderSpec<string> {
-    const {categories} = this.model
+  protected _calc_spec(): SliderSpec<string> {
+    const {categories, value} = this.values
     return {
-      range: {
-        min: 0,
-        max: categories.length - 1,
-      },
-      start: [this.model.value],
+      start: 0,
+      end: categories.length - 1,
       step: 1,
-      format: {
-        to: (value: number) => categories[Math.round(value)], // value may not be an integer due to noUiSlider's FP math
-        from: (value: string) => categories.indexOf(value),
+      values: [value],
+      compute(value: string): number {
+        return categories.indexOf(value)
+      },
+      invert(synthetic: number): string {
+        return categories[synthetic]
       },
     }
   }
 
-  protected _calc_from([value]: number[]): string {
-    const {categories} = this.model
-    return categories[Math.round(value)] // value may not be an integer due to noUiSlider's FP math
+  protected _calc_from([value]: string[]): string {
+    return value
   }
 
-  pretty(value: number | string): string {
-    // value may not be an integer due to noUiSlider's FP math
-    return isNumber(value) ? this.model.categories[Math.round(value)] : value
+  pretty(value: string): string {
+    return value
   }
 }
 

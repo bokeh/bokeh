@@ -1,35 +1,191 @@
 :host {
-  background-color: var(--background-color);
+  --track-size: 0.5em;
+  --handle-size: 1.0em;
+  --default-size: 300px;
 }
 
-.bk-slider-title {
+:host {
+  display: flex !important; // TODO remove important! when layout interference is resolved
+  flex-wrap: nowrap;
+  background-color: var(--background-color);
+}
+:host(.bk-horizontal) {
+  width: var(--default-size);
+  flex-direction: column;
+
+  .bk-title {
+    writing-mode: horizontal-tb;
+  }
+}
+:host(.bk-vertical) {
+  height: var(--default-size);
+  flex-direction: row;
+
+  .bk-title {
+    writing-mode: vertical-lr;
+    rotate: 180deg;
+  }
+}
+
+.bk-title {
   white-space: nowrap;
   color: var(--inherit-color);
 }
 
-.bk-slider-value {
+.bk-value {
   font-weight: 600;
   color: var(--inherit-color);
 }
 
-// from inputs.less
-.bk-input-group {
+.bk-slider {
+  display: flex;
   position: relative;
-  width: 100%;
-  height: 100%;
-  display: inline-flex;
-  flex-wrap: nowrap;
-  align-items: start;
-  flex-direction: column;
-  background-color: var(--inherit-background-color);
-
-  white-space: nowrap;
-
-  &.bk-inline {
+}
+:host(.bk-horizontal) {
+  .bk-slider {
     flex-direction: row;
+    width: 100%;
+    height: var(--handle-size);
+  }
+}
+:host(.bk-vertical) {
+  .bk-slider {
+    flex-direction: column;
+    width: var(--handle-size);
+    height: 100%;
+  }
+}
 
-    & > *:not(:first-child) {
-      margin-left: 5px;
+.bk-track {
+  align-self: center;
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-background-color);;
+  cursor: pointer;
+}
+:host(.bk-horizontal) {
+  .bk-track {
+    width: 100%;
+    height: var(--track-size);
+  }
+}
+:host(.bk-vertical) {
+  .bk-track {
+    width: var(--track-size);
+    height: 100%;
+  }
+}
+:host(.bk-disabled) {
+  .bk-track {
+    cursor: auto;
+  }
+}
+
+.bk-span {
+  --start: 0; // [0, 1]
+  --end: 0;   // [0, 1]
+  --start-position: calc(var(--start)*100%);
+  --end-position: calc(calc(1 - var(--end))*100%);
+
+  position: absolute;
+  background-color: var(--active-background-color);
+}
+:host(.bk-horizontal) {
+  .bk-span {
+    left: var(--start-position);
+    right: var(--end-position);
+    height: 100%;
+    border-top-left-radius: var(--track-size);
+    border-bottom-left-radius: var(--track-size);
+
+    &.bk-draggable {
+      cursor: ew-resize;
     }
+  }
+}
+:host(.bk-vertical) {
+  .bk-span {
+    top: var(--start-position);
+    bottom: var(--end-position);
+    width: 100%;
+    border-top-left-radius: var(--track-size);
+    border-top-right-radius: var(--track-size);
+
+    &.bk-draggable {
+      cursor: ns-resize;
+    }
+  }
+}
+:host(.bk-disabled) {
+  .bk-span {
+    background-color: var(--border-color); // TODO should be disabled-background-color or maybe active-disabled-background-color?
+  }
+}
+
+.bk-handle {
+  --at: 0; // [0, 1]
+  --at-position: calc(var(--at)*100%);
+
+  position: absolute;
+  width: var(--handle-size);
+  height: var(--handle-size);
+  border-radius: 50%;
+  background-color: var(--highlight-color);
+  transform: translate(-50%, -50%);
+}
+:host(.bk-horizontal) {
+  .bk-handle {
+    left: var(--at-position);
+    top: 50%;
+    cursor: ew-resize;
+  }
+}
+:host(.bk-vertical) {
+  .bk-handle {
+    left: 50%;
+    top: var(--at-position);
+    cursor: ns-resize;
+  }
+}
+:host(.bk-disabled) {
+  .bk-handle {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+  }
+}
+
+:host(.bk-stealth:not(:hover)) {
+  .bk-handle {
+    display: none;
+  }
+}
+
+.bk-tooltip {
+  display: none;
+  position: absolute;
+  white-space: nowrap;
+  padding: 0.25em;
+  color: var(--color);
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+}
+.bk-handle:hover {
+  .bk-tooltip {
+    display: block;
+  }
+}
+:host(.bk-horizontal) {
+  .bk-tooltip {
+    left: 50%;
+    bottom: 100%;
+    transform: translate(-50%, 0);
+  }
+}
+:host(.bk-vertical) {
+  .bk-tooltip {
+    right: 100%;
+    top: 50%;
+    transform: translate(0, -50%);
   }
 }
