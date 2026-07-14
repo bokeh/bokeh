@@ -95,33 +95,32 @@ describe("ColorBar annotation", () => {
     ]))
   })
 
-  it("should support title alignments and asymmetric padding", async () => {
+  it("should support title text alignments", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11, low: 0, high: 1})
     const plots = []
-    let i = 0
-    for (const title_text_halign of TextAlign) {
-      for (const title_text_valign of VerticalAlign) {
-        const orientation = i % 2 == 0 ? "horizontal" : "vertical"
-        const title_location = i % 2 == 0 ? "above" : "right"
-        const title_orientation = i % 2 == 0 ? "horizontal" : "vertical"
-        const p = fig([260, 200], {border_fill_color: "lightgray"})
-        const color_bar = new ColorBar({
-          color_mapper,
-          location: "center",
-          orientation,
-          width: orientation == "horizontal" ? 120 : 25,
-          height: orientation == "vertical" ? 120 : 25,
-          title: `${title_text_halign} / ${title_text_valign}`,
-          title_location,
-          title_orientation,
-          title_text_halign,
-          title_text_valign,
-          padding: [5, 20, 10, 30],
-          border_line_color: "black",
-        })
-        p.add_layout(color_bar, "center")
-        plots.push(p)
-        i++
+    for (const orientation of Orientation) {
+      for (const title_text_halign of TextAlign) {
+        for (const title_text_valign of VerticalAlign) {
+          const horizontal = orientation == "horizontal"
+          const p = fig([260, 200], {
+            border_fill_color: horizontal ? "aliceblue" : "lightyellow",
+          })
+          const color_bar = new ColorBar({
+            color_mapper,
+            location: "center",
+            orientation,
+            width: horizontal ? 120 : 25,
+            height: horizontal ? 25 : 120,
+            title: `${horizontal ? "H" : "V"}: ${title_text_halign} / ${title_text_valign}`,
+            title_location: horizontal ? "above" : "right",
+            title_orientation: orientation,
+            title_text_halign,
+            title_text_valign,
+            border_line_color: "black",
+          })
+          p.add_layout(color_bar, "center")
+          plots.push(p)
+        }
       }
     }
 
@@ -129,7 +128,38 @@ describe("ColorBar annotation", () => {
       plots.slice(0, 3),
       plots.slice(3, 6),
       plots.slice(6, 9),
+      plots.slice(9, 12),
+      plots.slice(12, 15),
+      plots.slice(15, 18),
     ]))
+  })
+
+  it("should support asymmetric padding", async () => {
+    const color_mapper = new LinearColorMapper({palette: Spectral11, low: 0, high: 1})
+    const plots = []
+    for (const orientation of Orientation) {
+      const horizontal = orientation == "horizontal"
+      const p = fig([300, 240], {border_fill_color: "lightgray"})
+      const color_bar = new ColorBar({
+        color_mapper,
+        location: "center",
+        orientation,
+        width: horizontal ? 160 : 25,
+        height: horizontal ? 25 : 160,
+        title: "L5 R20 T10 B30",
+        title_location: horizontal ? "above" : "right",
+        title_orientation: orientation,
+        title_text_halign: "center",
+        title_text_valign: "middle",
+        padding: {left: 5, right: 20, top: 10, bottom: 30},
+        border_line_color: "black",
+        background_fill_color: "white",
+      })
+      p.add_layout(color_bar, "center")
+      plots.push(p)
+    }
+
+    await display(grid([plots]))
   })
 
   it("should update the title location and orientation", async () => {
