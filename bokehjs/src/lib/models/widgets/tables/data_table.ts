@@ -10,7 +10,7 @@ import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import {unique_id} from "core/util/string"
 import {isString, isNumber} from "core/util/types"
-import {some, range, sort_by, map} from "core/util/array"
+import {some, range} from "core/util/array"
 import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
 import type {DOMBoxSizing} from "../../layouts/layout_dom"
@@ -164,7 +164,6 @@ export class DataTableView extends WidgetView {
   protected _in_selection_update = false
   protected _width: number | null = null
 
-  private _filtered_selection: number[] = []
   private _needs_full_row_flush = true
 
   get data_source(): p.Property<ColumnarDataSource> {
@@ -267,7 +266,6 @@ export class DataTableView extends WidgetView {
 
       this.data.sort_data(sorters)
     }
-    this._sync_selected_with_view()
     this.updateSelection()
     this.grid.invalidate()
     this.updateLayout(true, true)
@@ -279,9 +277,16 @@ export class DataTableView extends WidgetView {
     }
 
     const {indices} = this.model.source.selected
-    const lookup: {[key: number]: number} = {}
-    this.data.index.forEach((v, i) => lookup[v] = i)
-    const permuted_indices = sort_by(map(indices, (x) => lookup[x]), (x) => x)
+    const lookup = new Map<number, number>()
+    this.data.index.forEach((v, i) => lookup.set(v, i))
+    const permuted_indices: number[] = []
+    for (const i of indices) {
+      const pos = lookup.get(i)
+      if (pos !== undefined) {
+        permuted_indices.push(pos)
+      }
+    }
+    permuted_indices.sort((a, b) => a - b)
 
     this._in_selection_update = true
     try {
@@ -440,8 +445,10 @@ export class DataTableView extends WidgetView {
         if (this._in_selection_update) {
           return
         }
-        const sorted_selected_rows = args.rows.sort((a, b) => a - b)
-        this.model.source.selected.indices = sorted_selected_rows.map((i: number) => this.data.index[i])
+        const in_view_selected_indices = args.rows.map((i: number) => this.data.index[i])
+        const visible_indices = new Set(this.data.index)
+        const hidden_selected_indices = filter(this.model.source.selected.indices, (i) => !visible_indices.has(i))
+        this.model.source.selected.indices = [...in_view_selected_indices, ...hidden_selected_indices].sort((a, b) => a - b)
       })
 
       this.updateSelection()
@@ -479,24 +486,6 @@ export class DataTableView extends WidgetView {
 
   get_selected_rows(): number[] {
     return this.grid.getSelectedRows().sort((a, b) => a - b)
-  }
-
-  protected _sync_selected_with_view(): void {
-    const index = this.data.view.indices
-    const {source} = this.data
-
-    const not_filtered = filter(source.selected.indices, (i) => index.get(i))
-    const was_filtered = new Set(filter(this._filtered_selection, (i) => index.get(i)))
-
-    this._filtered_selection = [
-      ...filter(this._filtered_selection, (i) => !was_filtered.has(i)),
-      ...filter(source.selected.indices, (i) => !index.get(i)),
-    ]
-
-    source.selected.indices = [
-      ...was_filtered,
-      ...not_filtered,
-    ]
   }
 }
 
