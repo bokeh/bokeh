@@ -371,7 +371,7 @@ def _use_tables(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -384,7 +384,7 @@ def _use_widgets(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -437,7 +437,7 @@ def _model_requires_mathjax(model: HasProps) -> bool:
 def _use_mathjax(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
     Returns:
         bool
     '''
@@ -450,7 +450,7 @@ def _use_gl(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool

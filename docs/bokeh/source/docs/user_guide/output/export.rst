@@ -8,14 +8,37 @@ PNG and SVG export
 Additional dependencies
 -----------------------
 
-You will need the following additional dependencies to use the export
-functions:
+To use Bokeh's export functions, you need a headless browser backend.
+Bokeh supports two options: `Playwright`_ and `Selenium`_.
 
-* `Selenium`_
-* Either one of the following `web drivers`_:
+Using Playwright
+~~~~~~~~~~~~~~~~
 
-  * geckodriver for Firefox
-  * ChromeDriver for Chrome / Chromium
+Playwright is fast and easy to install:
+
+.. code-block:: sh
+
+    pip install playwright
+    playwright install chromium
+
+Separate browser driver binaries do not have to be managed.
+
+.. note::
+
+    Currently, when both Playwright and Selenium are installed, Bokeh defaults
+    to Selenium to preserve existing behaviour. To opt in to Playwright,
+    set ``BOKEH_EXPORT_BACKEND=playwright`` or pass ``backend="playwright"``
+    to export functions. See :ref:`ug_output_export_backend` below. This
+    default order may change in a future release.
+
+Using Selenium
+~~~~~~~~~~~~~~
+
+Selenium requires both the ``selenium`` Python package and a
+`web driver`_ binary on your PATH:
+
+* geckodriver for Firefox
+* ChromeDriver for Chrome / Chromium
 
 You can install these dependencies in various ways. The recommended way is to
 use ``conda`` and install Selenium together with geckodriver.
@@ -95,6 +118,45 @@ use ``conda`` and install Selenium together with geckodriver.
               to be available on your system. See the `ChromeDriver documentation`_
               for details about which version of ChromeDriver works with which
               version of Chrome or Chromium.
+
+.. _ug_output_export_backend:
+
+Choosing a backend
+------------------
+
+By default (``auto``), Bokeh tries Selenium first and falls back to
+Playwright. This preserves existing behaviour for users who already have
+Selenium installed. If only Playwright is installed, it is used
+automatically. You can override the auto-detection in three ways:
+
+**Environment variable** — set ``BOKEH_EXPORT_BACKEND`` to one of
+``auto``, ``playwright``, or ``selenium``:
+
+.. code-block:: sh
+
+    BOKEH_EXPORT_BACKEND=playwright python my_script.py
+
+**Per-call parameter** — pass ``backend`` directly to any export function:
+
+.. code-block:: python
+
+    from bokeh.io import export_png
+
+    export_png(plot, filename="plot.png", backend="playwright")
+
+You can also pass a browser instance directly to any export function using the
+``webdriver`` keyword argument. This accepts a Selenium ``WebDriver`` or a
+Playwright ``Browser`` / ``BrowserContext``. The appropriate backend is
+selected automatically from the type of instance passed, overriding the
+``backend`` parameter and the ``export_backend`` setting.
+
+**Global settings** — update the ``export_backend`` setting:
+
+.. code-block:: python
+
+    from bokeh.settings import settings
+
+    settings.export_backend = "playwright"
 
 .. _ug_output_export_png:
 
@@ -215,7 +277,9 @@ You can export an SVG plot in several ways:
 .. |export_svg|      replace:: :func:`~bokeh.io.export_svg`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 
+.. _Playwright: https://playwright.dev/python/
 .. _Selenium: https://www.selenium.dev/documentation/en/
+.. _web driver: https://www.selenium.dev/documentation/en/webdriver/
 .. _web drivers: https://www.selenium.dev/documentation/en/webdriver/
 .. _ChromeDriver documentation: https://chromedriver.chromium.org/
 .. _geckodriver repository on GitHub: https://github.com/mozilla/geckodriver/releases

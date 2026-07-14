@@ -190,8 +190,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         * Opening a new ServerConnection and sending it an ACK
 
         Args:
-            session_id (str) :
-                A session ID to for a session to connect to
+            token (str) :
+                A token containing the ID of the session to connect to
 
                 If no session exists with the given ID, a new session is made
 

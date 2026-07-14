@@ -5044,7 +5044,6 @@ describe("Bug", () => {
       await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
   })
-
   describe("in PR #15184", () => {
     it("should maintain consistent tab widths regardless of the active tab", async () => {
       const p1 = () => new TabPanel({title: "Short", child: new Div({text: "Tab 1"})})

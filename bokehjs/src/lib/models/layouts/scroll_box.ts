@@ -35,7 +35,7 @@ export class ScrollBoxView extends LayoutDOMView {
     }
 
     const {horizontal_scrollbar, vertical_scrollbar} = this.model
-    this.style.append(":host", {
+    this.self_style.append(this.host_selector, {
       overflow_x: to_overflow(horizontal_scrollbar),
       overflow_y: to_overflow(vertical_scrollbar),
     })

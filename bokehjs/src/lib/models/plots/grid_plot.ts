@@ -1,4 +1,3 @@
-import type {FullDisplay} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {UIElement} from "../ui/ui_element"
 import type {GridBoxView} from "../layouts/grid_box"
@@ -92,10 +91,6 @@ export class GridPlotView extends LayoutDOMView {
     return [this.model.toolbar, this._grid_box]
   }
 
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "flex"}
-  }
-
   override _update_layout(): void {
     super._update_layout()
 
@@ -108,7 +103,10 @@ export class GridPlotView extends LayoutDOMView {
         case "right": return "row-reverse"
       }
     })()
-    this.style.append(":host", {flex_direction})
+    this.self_style.append(this.host_selector, {
+      display: "flex",
+      flex_direction,
+    })
   }
 }
 

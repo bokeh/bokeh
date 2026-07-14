@@ -54,6 +54,7 @@ _expected_settings = (
     'default_server_port',
     'docs_cdn',
     'docs_version',
+    'export_backend',
     'ico_path',
     'ignore_filename',
     'log_level',

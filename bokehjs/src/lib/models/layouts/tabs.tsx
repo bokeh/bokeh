@@ -12,7 +12,6 @@ import {UIComponent, cls} from "core/vdom"
 import type {VNode} from "core/vdom"
 import type {Keys} from "core/dom"
 
-import type {FullDisplay} from "./layout_dom"
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
 import {GridAlignmentLayout} from "./alignments"
@@ -65,10 +64,6 @@ export class TabsView extends LayoutDOMView {
 
   get child_models(): UIElement[] {
     return this.model.tabs.map((tab) => tab.child)
-  }
-
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
   }
 
   override _update_layout(): void {
@@ -134,6 +129,34 @@ export class TabsView extends LayoutDOMView {
 
     const location_cls = tabs_css[tabs_location]
 
+    const find_activable = (tabs_array: TabPanel[], i: number, dir: -1 | 1): number | null => {
+      const n = tabs_array.length
+      if (dir == 1) {
+        for (let j = i; j < n; j++) {
+          if (!tabs_array[j].disabled) {
+            return j
+          }
+        }
+        for (let j = 0; j < i; j++) {
+          if (!tabs_array[j].disabled) {
+            return j
+          }
+        }
+      } else {
+        for (let j = i; j >= 0; j--) {
+          if (!tabs_array[j].disabled) {
+            return j
+          }
+        }
+        for (let j = n - 1; j >= i; j--) {
+          if (!tabs_array[j].disabled) {
+            return j
+          }
+        }
+      }
+      return null
+    }
+
     const header_els = tabs.map((tab, i) => {
       const is_active = i == active
       const active_cls = is_active ? tabs_css.active : null
@@ -145,7 +168,21 @@ export class TabsView extends LayoutDOMView {
 
       const close_tab = (j: number = i) => {
         const new_tabs = remove_at(tabs, j)
-        const new_active = clamp(active, 0, new_tabs.length - 1)
+
+        const new_active = (() => {
+          if (new_tabs.length == 0) {
+            return 0
+          } else if (j < active) {
+            return active - 1
+          } else if (j == active) {
+            const dir = j == new_tabs.length ? -1 : 1
+            const start = dir == -1 ? j - 1 : j
+            return find_activable(new_tabs, start, dir) ?? 0
+          } else {
+            return active
+          }
+        })()
+
         this.model.active = new_active
         this.model.tabs = new_tabs
       }
@@ -203,34 +240,6 @@ export class TabsView extends LayoutDOMView {
           return
         }
 
-        const find_activable = (i: number, dir: -1 | 1) => {
-          const n = tabs.length
-          if (dir == 1) {
-            for (let j = i; j < n; j++) {
-              if (!tabs[j].disabled) {
-                return j
-              }
-            }
-            for (let j = 0; j < i; j++) {
-              if (!tabs[j].disabled) {
-                return j
-              }
-            }
-          } else {
-            for (let j = i; j >= 0; j--) {
-              if (!tabs[j].disabled) {
-                return j
-              }
-            }
-            for (let j = n-1; j >= i; j--) {
-              if (!tabs[j].disabled) {
-                return j
-              }
-            }
-          }
-          return active
-        }
-
         switch (event.key as Keys) {
           case " ":
           case "Enter": {
@@ -245,34 +254,34 @@ export class TabsView extends LayoutDOMView {
           }
           case "ArrowLeft": {
             if (this.tabs_orientation == "horizontal") {
-              toggle_tab(find_activable(i-1, -1))
+              toggle_tab(find_activable(tabs, i-1, -1) ?? active)
             }
             break
           }
           case "ArrowRight": {
             if (this.tabs_orientation == "horizontal") {
-              toggle_tab(find_activable(i+1, +1))
+              toggle_tab(find_activable(tabs, i+1, +1) ?? active)
             }
             break
           }
           case "ArrowUp": {
             if (this.tabs_orientation == "vertical") {
-              toggle_tab(find_activable(i-1, -1))
+              toggle_tab(find_activable(tabs, i-1, -1) ?? active)
             }
             break
           }
           case "ArrowDown": {
             if (this.tabs_orientation == "vertical") {
-              toggle_tab(find_activable(i+1, +1))
+              toggle_tab(find_activable(tabs, i+1, +1) ?? active)
             }
             break
           }
           case "Home": {
-            toggle_tab(find_activable(0, +1))
+            toggle_tab(find_activable(tabs, 0, +1) ?? active)
             break
           }
           case "End": {
-            toggle_tab(find_activable(tabs.length-1, -1))
+            toggle_tab(find_activable(tabs, tabs.length-1, -1) ?? active)
             break
           }
           default:

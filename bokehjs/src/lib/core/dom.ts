@@ -709,8 +709,6 @@ export function px(value: number | string): string {
   return isNumber(value) ? `${value}px` : value
 }
 
-export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
-
 export function has_focus(el: Element): boolean {
   const root = el.getRootNode()
   if (root instanceof ShadowRoot || root instanceof Document) {

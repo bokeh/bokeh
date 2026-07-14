@@ -17,4 +17,6 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Make it easier to theme ``Tooltip`` component and migrate it to vDOM (:bokeh-pull:`14955`)
 * Fix broken inverted color mapping when using LogColorMapper (:bokeh-pull:`15035`)
 * Simplified ``CustomJS`` construction with template strings (Python 3.14+) (:bokeh-pull:`14977`)
+* Added Playwright as an alternative export backend for PNG and SVG (:bokeh-pull:`14940`)
 * Redesigned ``Tabs`` as vDOM, added keyboard navigation and improved accessibility (:bokeh-pull:`15168`)
+* Migrated UI components to use adopted CSS stylesheets (:bokeh-pull:`14973`)
