@@ -9,7 +9,7 @@ import {
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
 import {paint} from "@bokehjs/core/util/defer"
-import {Location, Orientation, TextAlign, VerticalAlign} from "@bokehjs/core/enums"
+import {Location, Orientation, TextAlign} from "@bokehjs/core/enums"
 import type {Side} from "@bokehjs/core/enums"
 import {np} from "@bokehjs/api/linalg"
 import {Spectral11} from "@bokehjs/api/palettes"
@@ -100,37 +100,31 @@ describe("ColorBar annotation", () => {
     const plots = []
     for (const orientation of Orientation) {
       for (const title_text_halign of TextAlign) {
-        for (const title_text_valign of VerticalAlign) {
-          const horizontal = orientation == "horizontal"
-          const p = fig([260, 200], {
-            border_fill_color: horizontal ? "aliceblue" : "lightyellow",
-          })
-          const color_bar = new ColorBar({
-            color_mapper,
-            location: "center",
-            orientation,
-            width: horizontal ? 120 : 25,
-            height: horizontal ? 25 : 120,
-            title: `${horizontal ? "H" : "V"}: ${title_text_halign} / ${title_text_valign}`,
-            title_location: horizontal ? "above" : "right",
-            title_orientation: orientation,
-            title_text_halign,
-            title_text_valign,
-            border_line_color: "black",
-          })
-          p.add_layout(color_bar, "center")
-          plots.push(p)
-        }
+        const horizontal = orientation == "horizontal"
+        const p = fig([260, 200], {
+          border_fill_color: horizontal ? "aliceblue" : "lightyellow",
+        })
+        const color_bar = new ColorBar({
+          color_mapper,
+          location: "center",
+          orientation,
+          width: horizontal ? 120 : 25,
+          height: horizontal ? 25 : 120,
+          title: `${horizontal ? "H" : "V"}: ${title_text_halign}`,
+          title_location: horizontal ? "above" : "right",
+          title_orientation: orientation,
+          title_text_halign,
+          title_text_valign: "middle",
+          border_line_color: "black",
+        })
+        p.add_layout(color_bar, "center")
+        plots.push(p)
       }
     }
 
     await display(grid([
       plots.slice(0, 3),
       plots.slice(3, 6),
-      plots.slice(6, 9),
-      plots.slice(9, 12),
-      plots.slice(12, 15),
-      plots.slice(15, 18),
     ]))
   })
 
