@@ -396,7 +396,8 @@ class BokehTornado(TornadoApplication):
             assert isinstance(app, Application) # TODO: unnecessary; improve type flow to remove this
             logout_url = self.auth_provider.logout_url
             if logout_url is not None:
-                logout_url = self._prefix + logout_url
+                # second arg must be lstrip'd to avoid dropping the prefix
+                logout_url = urljoin(self._prefix + "/", logout_url.lstrip("/"))
             self._applications[url] = ApplicationContext(app, url=url, logout_url=logout_url)
 
         extra_patterns = extra_patterns or []
