@@ -54,7 +54,8 @@ export abstract class BaseColorBarView extends AnnotationView {
   protected _ticker: Ticker
   protected _formatter: TickFormatter
 
-  protected _inner_layout: BorderLayout
+  protected _inner_layout: BorderLayout | null = null
+  protected _outer_layout: Grid | null = null
 
   protected _major_range: Range
   protected _major_scale: Scale
@@ -75,8 +76,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     return this._title_location
   }
 
-  private _title_orientation: string
-  get title_orientation(): string {
+  private _title_orientation: Orientation
+  get title_orientation(): Orientation {
     return this._title_orientation
   }
 
@@ -185,7 +186,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     this.connect(this.model.change, () => {
       this._apply_title_properties()
       this._apply_axis_properties()
-      // TODO?: this.plot_view.invalidate_layout()
+      this.update_layout()
+      this.plot_view.request_layout(true)
     })
     this.connect(this._ticker.change, () => this.request_paint())
     this.connect(this._formatter.change, () => this.request_paint())
@@ -269,7 +271,7 @@ export abstract class BaseColorBarView extends AnnotationView {
         if (orientation == "horizontal" || title_location == "above" || title_location == "below") {
           return "horizontal"
         } else {
-          return title_location == "left" ? "upward": "downward"
+          return "vertical"
         }
       } else {
         return title_orientation
@@ -292,7 +294,7 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     center_panel.on_resize((bbox) => this._frame_view.set_geometry(bbox))
 
-    const layout = new BorderLayout()
+    const layout = this._inner_layout ?? new BorderLayout()
     this._inner_layout = layout
     layout.absolute = true
 
@@ -438,14 +440,15 @@ export abstract class BaseColorBarView extends AnnotationView {
       }
     })()
 
-    let title_direction: Side
-    if (title_orientation == "upward") {
-      title_direction = "left"
-    } else if (title_orientation == "downward") {
-      title_direction = "right"
-    } else {
-      title_direction = "above"
-    }
+    const title_direction: Side = (() => {
+      if (title_orientation == "horizontal") {
+        return "above"
+      } else if (title_location == "above" || title_location == "left") {
+        return "left"
+      } else {
+        return "right"
+      }
+    })()
 
     const {_title_view} = this
     _title_view.panel = new SidePanel(title_direction)
@@ -486,7 +489,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     }
 
     if (this.panel != null) {
-      const outer = new Grid([{layout, row: 0, col: 0}])
+      const outer = this._outer_layout ??= new Grid()
+      outer.items = [{layout, row: 0, col: 0}]
       outer.absolute = true
 
       if (orientation == "horizontal") {
@@ -497,7 +501,7 @@ export abstract class BaseColorBarView extends AnnotationView {
 
       this.layout = outer
     } else {
-      this.layout = this._inner_layout
+      this.layout = layout
     }
 
     const {visible} = this.model
@@ -532,8 +536,9 @@ export abstract class BaseColorBarView extends AnnotationView {
 
   protected _paint(ctx: Context2d): void {
     ctx.save()
-    this._paint_bbox(ctx, this._inner_layout.bbox)
-    this._paint_colors(ctx, this._inner_layout.center_panel.bbox)
+    const layout = this._inner_layout!
+    this._paint_bbox(ctx, layout.bbox)
+    this._paint_colors(ctx, layout.center_panel.bbox)
     this._title_view.paint(ctx)
     this._axis_view.paint(ctx)
     ctx.restore()
@@ -571,7 +576,7 @@ export namespace BaseColorBar {
     title: p.Property<string | BaseText | null>
     title_standoff: p.Property<number>
     title_location: p.Property<Location | "auto">
-    title_orientation: p.Property<string>
+    title_orientation: p.Property<Orientation | "auto">
     title_text_halign: p.Property<TextAlign>
     title_text_valign: p.Property<VerticalAlign>
     width: p.Property<number | "auto">

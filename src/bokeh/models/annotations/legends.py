@@ -144,8 +144,8 @@ class BaseColorBar(Annotation):
     """)
 
     title_orientation = Either(Enum(Orientation), Auto, default="auto", help="""
-    Whether the color bar's title should be oriented upward,
-    downward or horizontal.
+    Whether the color bar's title should be oriented vertically or horizontally.
+    When set to ``"auto"``, the orientation is inferred from ``title_location``.
     """)
 
     title_location = Either(Enum(Location), Auto, default="auto", help="""

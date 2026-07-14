@@ -21,14 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    Generic,
-    Literal,
-    NotRequired,
-    TypeAlias,
-    TypedDict,
-    TypeVar,
-)
+from typing import Literal, NotRequired, TypedDict
 
 # Bokeh imports
 from . import enums
@@ -64,8 +57,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-AutoType: TypeAlias = Literal["auto"]
-PercentType: TypeAlias = float
+type AutoType = Literal["auto"]
+type PercentType = float
 
 CSSVariable = Regex(r"^--")
 
@@ -75,13 +68,13 @@ DataImage = Regex(r"^\data:image")
 
 IconLike = Either(Image, Enum(enums.ToolIcon), CSSVariable, CSSClass, DataImage)
 
-PixelsType: TypeAlias = int
+type PixelsType = int
 Pixels = NonNegative(Int)
 
-HAnchorType: TypeAlias = enums.AlignType | enums.HAlignType | PercentType
+type HAnchorType = enums.AlignType | enums.HAlignType | PercentType
 HAnchor = Either(Enum(enums.Align), Enum(enums.HAlign), Percent)
 
-VAnchorType: TypeAlias = enums.AlignType | enums.VAlignType | PercentType
+type VAnchorType = enums.AlignType | enums.VAlignType | PercentType
 VAnchor = Either(Enum(enums.Align), Enum(enums.VAlign), Percent)
 
 Anchor = (
@@ -91,7 +84,7 @@ Anchor = (
     )
 )
 
-AutoAnchorType: TypeAlias = AutoType | enums.AnchorType | tuple[AutoType | HAnchorType, AutoType | VAnchorType]
+type AutoAnchorType = AutoType | enums.AnchorType | tuple[AutoType | HAnchorType, AutoType | VAnchorType]
 AutoAnchor = (
     Either(
         Auto,
@@ -102,25 +95,23 @@ AutoAnchor = (
 
 TextAnchor = Either(Anchor, Auto)
 
-T = TypeVar("T")
-
-class XYType(TypedDict, Generic[T]):
+class XYType[T](TypedDict):
     x: NotRequired[T]
     y: NotRequired[T]
 
-class LRTBType(TypedDict, Generic[T]):
+class LRTBType[T](TypedDict):
     left: NotRequired[T]
     right: NotRequired[T]
     top: NotRequired[T]
     bottom: NotRequired[T]
 
-class CornersType(TypedDict, Generic[T]):
+class CornersType[T](TypedDict):
     top_left: NotRequired[T]
     top_right: NotRequired[T]
     bottom_right: NotRequired[T]
     bottom_left: NotRequired[T]
 
-BorderRadiusType: TypeAlias = (
+type BorderRadiusType = (
     PixelsType |
     tuple[PixelsType, PixelsType, PixelsType, PixelsType] |
     CornersType[PixelsType]
@@ -138,7 +129,7 @@ BorderRadius = (
     )
 )
 
-PaddingType: TypeAlias = (
+type PaddingType = (
     PixelsType |
     tuple[PixelsType, PixelsType] |
     tuple[PixelsType, PixelsType, PixelsType, PixelsType] |
