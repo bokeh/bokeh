@@ -85,8 +85,7 @@ if TYPE_CHECKING:
     from .models import Axis
     from .models.annotations import Legend, LegendItem
     from .models.plots import Plot
-    from .models.widgets.buttons import AbstractButton
-    from .models.widgets.inputs import FileInput, TextInput
+    from .models.widgets.inputs import FileInput
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -337,7 +336,7 @@ class FileInputChange(ModelEvent):
         mime_type: str | list[str],
     ) -> None:
         from .models.widgets import FileInput
-        if model is not None and not isinstance(model, FileInput):
+        if model is not None and not isinstance(cast(Any, model), FileInput):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to FileInput model")
         self.value     = value
