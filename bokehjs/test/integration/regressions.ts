@@ -5020,4 +5020,40 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13244", () => {
+    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+      const source = new ColumnDataSource({data: {
+        x: [1, 2, 3, 4, 5],
+        y: [10, 11, 12, 13, 14],
+      }})
+
+      const view = new CDSView({filter: new BooleanFilter({booleans: [true, true, false, true, false]})})
+
+      const table = new DataTable({
+        source,
+        view,
+        columns: [new TableColumn({field: "x", title: "X", width: 150})],
+        width: 200,
+        height: 200,
+      })
+
+      const p = figure({width: 200, height: 200})
+      p.scatter({field: "x"}, {field: "y"}, {source, view})
+
+      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
+    })
+  })
+
+  describe("in PR #15184", () => {
+    it("should maintain consistent tab widths regardless of the active tab", async () => {
+      const p1 = () => new TabPanel({title: "Short", child: new Div({text: "Tab 1"})})
+      const p2 = () => new TabPanel({title: "Very Long Tab Title", child: new Div({text: "Tab 2"})})
+      
+      const tabs0 = new Tabs({tabs: [p1(), p2()], active: 0})
+      const tabs1 = new Tabs({tabs: [p1(), p2()], active: 1})
+      
+      await display(new Column({children: [tabs0, tabs1]}), [500, 500])
+    })
+  })
 })
