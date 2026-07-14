@@ -64,13 +64,8 @@ export class ArrowView extends DataAnnotationView {
       this.request_paint()
     }
 
-    const {start, end} = this.model
-    if (start != null) {
-      this.connect(start.change, update)
-    }
-    if (end != null) {
-      this.connect(end.change, update)
-    }
+    this.on_transitive_change(this.model.properties.start, update)
+    this.on_transitive_change(this.model.properties.end, update)
   }
 
   map_data(): void {
