@@ -139,21 +139,25 @@ describe("ColorBar annotation", () => {
     const plots = []
     for (const orientation of Orientation) {
       const horizontal = orientation == "horizontal"
-      const p = fig([300, 240], {border_fill_color: "lightgray"})
+      const p = fig([340, 320], {
+        background_fill_color: "whitesmoke",
+        border_fill_color: "whitesmoke",
+      })
       const color_bar = new ColorBar({
         color_mapper,
         location: "center",
         orientation,
         width: horizontal ? 160 : 25,
         height: horizontal ? 25 : 160,
-        title: "L5 R20 T10 B30",
+        title: "L10 R70 T20 B80",
         title_location: horizontal ? "above" : "right",
         title_orientation: orientation,
         title_text_halign: "center",
         title_text_valign: "middle",
-        padding: {left: 5, right: 20, top: 10, bottom: 30},
+        padding: {left: 10, right: 70, top: 20, bottom: 80},
         border_line_color: "black",
-        background_fill_color: "white",
+        border_line_width: 2,
+        background_fill_color: "lemonchiffon",
       })
       p.add_layout(color_bar, "center")
       plots.push(p)
