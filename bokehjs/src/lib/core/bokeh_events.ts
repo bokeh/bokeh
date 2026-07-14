@@ -17,6 +17,7 @@ import type {LegendItem} from "../models/annotations/legend_item"
 import type {Factor} from "../models/ranges/factor_range"
 import type {ClearInput} from "../models/widgets/input_widget"
 import type {ClientConnection} from "../client/connection"
+import type {FileInputChange} from "../models/widgets/file_input"
 
 Deserializer.register("event", (rep: BokehEventRep, deserializer: Deserializer): BokehEvent => {
   const cls = deserializable_events.get(rep.name)
@@ -44,6 +45,7 @@ export type ConnectionEventType =
 export type ModelEventType =
   "axis_click" |
   "button_click" |
+  "file_input_change" |
   "legend_item_click" |
   "menu_item_click" |
   "value_submit" |
@@ -88,6 +90,7 @@ export type BokehEventMap = {
   client_reconnected: ClientReconnected
   document_ready: DocumentReady
   doubletap: DoubleTap
+  file_input_change: FileInputChange
   legend_item_click: LegendItemClick
   lodend: LODEnd
   lodstart: LODStart
@@ -120,7 +123,7 @@ export type BokehEventRep = {
   values: unknown
 }
 
-function event(event_name: string) {
+export function event(event_name: string) {
   return (cls: Class<BokehEvent>) => {
     cls.prototype.event_name = event_name
   }
@@ -196,6 +199,16 @@ export abstract class UserEvent extends ModelEvent {
     const event = new (this as any)(values)
     event.origin = origin
     return event
+  }
+}
+
+export abstract class PropertyBundleEvent<M extends HasProps, K extends keyof M> extends ModelEvent {
+  constructor(readonly values: Pick<M, K>) {
+    super()
+  }
+
+  protected override get event_values(): Attrs {
+    return {...super.event_values, ...this.values}
   }
 }
 
