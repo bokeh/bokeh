@@ -5044,4 +5044,19 @@ describe("Bug", () => {
       await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
   })
+
+  describe("in issue #15026", () => {
+    it("ArrowHead properties not updating from JS callbacks", async () => {
+      const p = fig([200, 200], {x_range: [0, 2], y_range: [0, 2]})
+      const arrow_head = new OpenHead({line_color: "blue", size: 20, line_width: 2})
+      p.add_layout(new Arrow({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
+
+      const {view} = await display(p)
+
+      arrow_head.line_color = "red"
+      arrow_head.line_width = 5
+
+      await view.ready
+    })
+  })
 })
