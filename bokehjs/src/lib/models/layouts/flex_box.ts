@@ -13,8 +13,9 @@ export abstract class FlexBoxView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    const {children} = this.model.properties
+    const {children, spacing} = this.model.properties
     this.on_change(children, () => this.update_children())
+    this.on_change(spacing, () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {
