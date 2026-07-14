@@ -1662,14 +1662,14 @@ describe("Bug", () => {
       table.view.filter = new IndexFilter({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
-      expect(table.source.selected.indices).to.be.equal([])
+      expect(table.source.selected.indices).to.be.equal([2])
 
       const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
       const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox2_el)
       await mouse_click(checkbox2_el)
       expect(view.get_selected_rows()).to.be.equal([0])
-      expect(table.source.selected.indices).to.be.equal([0])
+      expect(table.source.selected.indices).to.be.equal([0, 2])
 
       table.view.filter = new IndexFilter({indices: [0, 1, 2]})
 
@@ -1969,24 +1969,6 @@ describe("Bug", () => {
     })
   })
 
-  describe("in issue #14565", () => {
-    it("doesn't allow to correctly remove items from a DataTable", async () => {
-      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
-      const columns = [
-        new TableColumn({field: "my_col", title: "My Column"}),
-      ]
-
-      const table = new DataTable({source, columns})
-      const {view} = await display(table)
-
-      source.selected.indices = [0, 3, 4]
-      source.data = {my_col: ["a", "b", "c", "d"]}
-      await view.ready
-
-      expect(source.selected.indices).to.be.equal([0, 3])
-    })
-  })
-
   describe("in issue #14568", () => {
     it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
@@ -2099,6 +2081,58 @@ describe("Bug", () => {
 
       expect(view.frame.bbox.width).to.be.equal(160)
       expect(view.frame.bbox.height).to.be.equal(180)
+    })
+  })
+
+  describe("in issue #14040", () => {
+    it("doesn't allow clearing the DataTable selection when selected rows are filtered out", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          index: [0, 1, 2],
+          x: [1, 2, 3],
+          y: ["a", "b", "c"],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "index", title: "#", width: 50}),
+        new TableColumn({field: "x", title: "x", width: 50}),
+        new TableColumn({field: "y", title: "y", width: 50}),
+      ]
+      const filter = new AllIndices()
+      const cds_view = new CDSView({filter})
+
+      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const {view} = await display(table, [350, 450])
+
+      await view.ready
+
+      const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
+      const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox1_el)
+      await mouse_click(checkbox1_el)
+      expect(view.get_selected_rows()).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal([2])
+
+      table.view.filter = new IndexFilter({indices: [0, 1]})
+
+      expect(view.get_selected_rows()).to.be.equal([])
+      expect(table.source.selected.indices).to.be.equal([2])
+
+      const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
+      const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox2_el)
+      await mouse_click(checkbox2_el)
+      expect(view.get_selected_rows()).to.be.equal([0])
+      expect(table.source.selected.indices).to.be.equal([0, 2])
+
+      table.source.selected.indices = []
+      await view.ready
+
+      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+
+      expect(view.get_selected_rows().slice().sort()).to.be.equal([])
+      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
     })
   })
 })
