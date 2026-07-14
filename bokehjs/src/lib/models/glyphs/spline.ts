@@ -2,9 +2,10 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Arrayable} from "core/types"
+import type {Arrayable, Rect} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
+import {generic_line_scalar_legend} from "./utils"
 
 export interface SplineView extends Spline.Data {}
 
@@ -52,6 +53,10 @@ export class SplineView extends XYGlyphView {
 
     this.visuals.line.set_value(ctx)
     ctx.stroke()
+  }
+
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
 

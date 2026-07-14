@@ -12,7 +12,6 @@ from typing import (
     Any,
     Generator,
     Sequence,
-    TypeVar,
     Unpack,
     overload,
 )
@@ -62,8 +61,6 @@ from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
     import xyzservices
-
-GlyphType = TypeVar("GlyphType", bound=Glyph)
 
 class AxisListAttrSplat(list[Axis], Axis):
     pass
@@ -224,9 +221,9 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     def remove_tools(self, *tools: Tool) -> None: ...
 
     @overload
-    def add_glyph(self, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
+    def add_glyph[GlyphType: Glyph](self, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
     @overload
-    def add_glyph(self, source: ColumnarDataSource, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
+    def add_glyph[GlyphType: Glyph](self, source: ColumnarDataSource, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
 
     def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer: ...
 

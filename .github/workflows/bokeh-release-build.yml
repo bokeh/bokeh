@@ -21,7 +21,7 @@ jobs:
       - name: Check Maintainer
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-        uses: tspascoal/get-user-teams-membership@v3
+        uses: tspascoal/get-user-teams-membership@v4
         id: checkUserMember
         with:
           username: ${{ github.actor }}

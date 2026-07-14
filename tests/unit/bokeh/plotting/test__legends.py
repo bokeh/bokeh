@@ -60,7 +60,7 @@ def test_pop_legend_kwarg(key: str) -> None:
     kws = {'foo': 10, key: 'bar'}
     assert bpl.pop_legend_kwarg(kws) == ({key: "bar"}, None)
 
-@pytest.mark.parametrize('keys', all_combinations(LEGEND_KWS))
+@pytest.mark.parametrize('keys', list(all_combinations(LEGEND_KWS)))
 def test_pop_legend_kwarg_error(keys: list[str]) -> None:
     kws = dict(zip(keys, range(len(keys))))
     with pytest.raises(ValueError):

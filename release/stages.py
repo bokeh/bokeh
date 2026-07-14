@@ -6,9 +6,6 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
-from typing import TypeAlias
-
 # Bokeh imports
 from .build import (
     build_bokehjs,
@@ -84,7 +81,7 @@ __all__ = (
     "DEPLOY_STEPS",
 )
 
-StepListType: TypeAlias = tuple[StepType, ...]
+type StepListType = tuple[StepType, ...]
 
 BUILD_CHECKS: StepListType = (
     check_aws_present,
@@ -93,7 +90,6 @@ BUILD_CHECKS: StepListType = (
     check_checkout_is_clean,
     check_checkout_on_base_branch,
     check_checkout_matches_remote,
-    check_docs_version_config,
     check_release_tag_is_available,
     check_version_order,
     check_release_notes_present,
@@ -125,6 +121,7 @@ BUILD_STEPS: StepListType = (
     verify_conda_install,
     build_docs,
     update_switcher_json,
+    check_docs_version_config,
     pack_deployment_tarball,
     upload_deployment_tarball,
     publish_bokehjs_to_cdn,

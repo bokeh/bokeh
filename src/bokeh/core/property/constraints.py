@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -41,13 +41,11 @@ __all__ = (
     "TypeOfAttr",
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class TypeOfAttr(SingleParameterizedProperty[T]):
+class TypeOfAttr[T](SingleParameterizedProperty[T]):
     """ Allows to check if an attribute of an object satisfies the
     given type or a collection of types.
 

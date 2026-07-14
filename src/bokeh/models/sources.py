@@ -25,7 +25,6 @@ from typing import (
     Any,
     Mapping,
     Sequence,
-    TypeAlias,
     overload,
 )
 
@@ -80,13 +79,13 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    Value: TypeAlias = Any
+    type Value = Any
 
-    DataDict: TypeAlias = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
+    type DataDict = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
-    Index: TypeAlias = int | slice | tuple[int | slice, ...]
+    type Index = int | slice | tuple[int | slice, ...]
 
-    Patches: TypeAlias = Mapping[str, Sequence[tuple[Index, Value]]]
+    type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
 
 @abstract
 class DataSource(Model):

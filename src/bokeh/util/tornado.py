@@ -29,7 +29,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    TypeAlias,
 )
 
 # External imports
@@ -59,17 +58,17 @@ __all__ = ()
 # Private API
 #-----------------------------------------------------------------------------
 
-CallbackSync: TypeAlias = Callable[[], None]
-CallbackAsync: TypeAlias = Callable[[], Awaitable[None]]
-Callback: TypeAlias = CallbackSync | CallbackAsync
+type CallbackSync = Callable[[], None]
+type CallbackAsync = Callable[[], Awaitable[None]]
+type Callback = CallbackSync | CallbackAsync
 
-InvokeResult: TypeAlias = Awaitable[None] | Awaitable[list[Any]] | Awaitable[dict[Any, Any]]
+type InvokeResult = Awaitable[None] | Awaitable[list[Any]] | Awaitable[dict[Any, Any]]
 
-Remover: TypeAlias = Callable[[], None]
+type Remover = Callable[[], None]
 
-Removers: TypeAlias = dict[ID, Remover]
+type Removers = dict[ID, Remover]
 
-RemoversByCallable: TypeAlias = dict[Callback, set[ID]]
+type RemoversByCallable = dict[Callback, set[ID]]
 
 class _AsyncPeriodic:
     ''' Like ioloop.PeriodicCallback except the 'func' can be async and return
@@ -94,11 +93,25 @@ class _AsyncPeriodic:
         self._period = period
         self._started = False
         self._stopped = False
+        self._sleep_handle: object | None = None
+        self._sleep_future: gen.Future[None] | None = None
 
     # this is like gen.sleep but uses our IOLoop instead of the current IOLoop
-    def sleep(self) -> gen.Future[None]:
+    def sleep(self, delay: float | None = None) -> gen.Future[None]:
         f: gen.Future[None] = gen.Future()
-        self._loop.call_later(self._period / 1000.0, lambda: f.set_result(None))
+        self._sleep_future = f
+
+        def wake() -> None:
+            if self._sleep_handle is handle:
+                self._sleep_handle = None
+            if self._sleep_future is f:
+                self._sleep_future = None
+            if not f.done():
+                f.set_result(None)
+
+        timeout = self._period / 1000.0 if delay is None else delay
+        handle = self._loop.call_later(timeout, wake)
+        self._sleep_handle = handle
         return f
 
     def start(self) -> None:
@@ -107,10 +120,19 @@ class _AsyncPeriodic:
         self._started = True
 
         def invoke() -> InvokeResult:
-            # important to start the sleep before starting callback so any initial
-            # time spent in callback "counts against" the period.
-            sleep_future = self.sleep()
+            if self._stopped:
+                # The periodic was stopped (e.g. via remove_periodic_callback).
+                # Don't call the callback again; return an already-resolved future.
+                f: gen.Future[None] = gen.Future()
+                f.set_result(None)
+                return f
+
+            start = self._loop.time()
             result = self._func()
+            elapsed = self._loop.time() - start
+
+            delay = max(0, self._period / 1000.0 - elapsed)
+            sleep_future = self.sleep(delay)
 
             if result is None:
                 return sleep_future
@@ -119,10 +141,10 @@ class _AsyncPeriodic:
             return gen.multi([sleep_future, callback_future])
 
         def on_done(future: gen.Future[None]) -> None:
-            if not self._stopped:
+            if not self._stopped and not future.cancelled():
                 # mypy can't infer type of invoker for some reason
                 self._loop.add_future(invoke(), on_done)  # type: ignore
-            ex = future.exception()
+            ex = future.exception() if not future.cancelled() else None
             if ex is not None:
                 log.error("Error thrown from periodic callback:")
                 lines = format_exception(ex.__class__, ex, ex.__traceback__)
@@ -132,6 +154,17 @@ class _AsyncPeriodic:
 
     def stop(self) -> None:
         self._stopped = True
+        if self._sleep_handle is not None:
+            try:
+                self._loop.remove_timeout(self._sleep_handle)
+            except Exception:
+                pass
+            self._sleep_handle = None
+        if self._sleep_future is not None:
+            sleep_future = self._sleep_future
+            self._sleep_future = None
+            if not sleep_future.done() and not sleep_future.get_loop().is_closed():
+                sleep_future.set_result(None)
 
 class _CallbackGroup:
     ''' A collection of callbacks added to a Tornado IOLoop that can be removed

@@ -30,7 +30,6 @@ from typing import (
     ClassVar,
     Literal,
     Sequence,
-    TypeAlias,
 )
 
 # Bokeh imports
@@ -64,8 +63,8 @@ class Argument:
     help: NotRequired[str] = Unspecified
     metavar: NotRequired[str] = Unspecified
 
-Arg: TypeAlias = tuple[str | tuple[str, ...], Argument]
-Args: TypeAlias = tuple[Arg, ...]
+type Arg = tuple[str | tuple[str, ...], Argument]
+type Args = tuple[Arg, ...]
 
 class Subcommand(metaclass=ABCMeta):
     ''' Abstract base class for subcommands

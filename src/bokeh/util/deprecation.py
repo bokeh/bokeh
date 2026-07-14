@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TypeAlias, overload
+from typing import overload
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -28,7 +28,7 @@ __all__ = (
     'deprecated',
 )
 
-Version: TypeAlias = tuple[int, int, int]
+type Version = tuple[int, int, int]
 
 #-----------------------------------------------------------------------------
 # General API

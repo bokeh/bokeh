@@ -4,11 +4,16 @@
   --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   --mono-font: var(--bokeh-mono-font, monospace);
   --font-size: var(--bokeh-font-size, 12px);
+  --font-weight: normal;
 
   --line-height: calc(20 / 14);
   --line-height-computed: calc(var(--font-size) * var(--line-height));
 
   --border-radius: 4px;
+  --border-top-left-radius: var(--border-radius);
+  --border-top-right-radius: var(--border-radius);
+  --border-bottom-left-radius: var(--border-radius);
+  --border-bottom-right-radius: var(--border-radius);
 
   --padding-vertical: 6px;
   --padding-horizontal: 12px;
@@ -27,7 +32,6 @@
   --shortcut-color: #colors[disabled];
   --highlight-color: #colors[highlight];
   --active-bg: #colors[active-background];
-  --active-border: #colors[active-border];
   --active-fg: #colors[primary];
   --inactive-bg: #colors[surface];
   --inactive-fg: #colors[placeholder];
@@ -45,8 +49,8 @@
   --border-style: solid;
   --border-width: 1px;
   --border: var(--border-color) var(--border-style) var(--border-width);
-  --box-shadow-color: rgba(0, 0, 0, 0.175);
-  --box-shadow-inset: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --box-shadow-color: light-dark(rgba(0, 0, 0, 0.175), rgba(255, 255, 255, 0.175));
+  --box-shadow-inset: inset 0 3px 5px var(--box-shadow-color);
   --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color); // symmetric about the x-axis
   --box-shadow: 2px 4px 8px var(--box-shadow-color);
   --divider-width: 1px;
@@ -57,9 +61,39 @@
   --outline: var(--outline-color) var(--outline-style) var(--outline-width);
 
   // Tools (tool buttons and toolbar)
+  --active-tool-border-color: #colors[active-tool-border];
+  --active-tool-background: #colors[active-tool-background];
   --button-width: 30px;
   --button-height: 30px;
   --button-color: lightgray;
+  --disabled-tool-color: #colors[disabled-tool];
+
+  // Buttons colors
+  --default-color: #colors[default];
+  --default-border-color: #colors[default-border];
+  --default-hover-color: #colors[default-hover];
+  --default-active-color: #colors[default-active];
+  --default-disabled-color: #colors[default-disabled];
+  --default-disabled-border-color: #colors[default-border];
+
+  --primary-color: #colors[primary];
+  --primary-hover-color: #colors[primary-hover];
+  --primary-disabled-color: #colors[primary-disabled];
+
+  --success-color: #colors[success];
+  --success-hover-color: #colors[success-hover];
+  --success-disabled-color: #colors[success-disabled];
+
+  --warning-color: #colors[warning];
+  --warning-hover-color: #colors[warning-hover];
+  --warning-disabled-color: #colors[warning-disabled];
+
+  --danger-color: #colors[danger];
+  --danger-hover-color: #colors[danger-hover];
+  --danger-disabled-color: #colors[danger-disabled];
+
+  // Tooltip
+  --tooltip-border-color: #colors[tooltip-border];
 
   // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
   --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
@@ -146,4 +180,10 @@
   --bokeh-icon-y-pan: data-uri("icons/y-pan.svg");
   --bokeh-icon-zoom-in: data-uri("icons/zoom-in.svg");
   --bokeh-icon-zoom-out: data-uri("icons/zoom-out.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --box-shadow-inset: inset 0 -3px 5px var(--box-shadow-color);
+  }
 }

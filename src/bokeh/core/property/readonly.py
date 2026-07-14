@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import TypeVar
-
 # Bokeh imports
 from .bases import (
     Init,
@@ -38,13 +35,11 @@ __all__ = (
     "Readonly",
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Readonly(SingleParameterizedProperty[T]):
+class Readonly[T](SingleParameterizedProperty[T]):
     """ A property that can't be manually modified by the user. """
 
     _readonly = True

@@ -8,6 +8,7 @@ import type {IconLike} from "../models/common/kinds"
 import type {Signalish, SignalLike} from "preact"
 import type {VNode, HTMLAttributes, ContainerNode} from "preact"
 import {Component, render} from "preact"
+import {createPortal} from "preact/compat"
 
 export type {VNode} from "preact"
 
@@ -48,9 +49,25 @@ export class ShadowComponent extends Component<ShadowComponentProps> {
       if (el != null) {
         const shadow_el = el.shadowRoot ?? el.attachShadow({mode: "open"})
         const {stylesheets=[]} = this.props
+        const adopted: CSSStyleSheet[] = []
+        const links: VNode[] = []
+        const global: VNode[] = []
+        for (const stylesheet of stylesheets) {
+          if (!stylesheet.is_global) {
+            if (stylesheet.is_inline) {
+              adopted.push(stylesheet.to_native())
+            } else {
+              links.push(stylesheet.to_vdom())
+            }
+          } else {
+            global.push(stylesheet.to_vdom())
+          }
+        }
+        shadow_el.adoptedStyleSheets = adopted
         const contents = (
           <>
-            {stylesheets.map((sheet) => sheet.to_vdom())}
+            {createPortal(global, document.head)}
+            {...links}
             {this.props.children}
           </>
         )
