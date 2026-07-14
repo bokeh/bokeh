@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar
+from typing import Any
 
 # Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
@@ -39,13 +39,11 @@ __all__ = (
     "NotSerialized",
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class NotSerialized(SingleParameterizedProperty[T]):
+class NotSerialized[T](SingleParameterizedProperty[T]):
     """
     A property which state won't be synced with the browser.
     """

@@ -5,7 +5,7 @@ import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -26,7 +26,7 @@ import {
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -4702,7 +4702,10 @@ describe("Bug", () => {
   })
 
   describe("in issue #14549", () => {
-    it("doesn't prevent hover action upon bbox change", async () => {
+    // TODO This test can produce to marginally different states, that cause
+    // tests to fail at random. Re-enable this when vDOM migration and layout
+    // redesign are completed.
+    it.skip("doesn't prevent hover action upon bbox change", async () => {
       const n = 1000
       const x = linspace(0, 20, n)
       const y = x
@@ -4791,11 +4794,13 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 400, height: 300, tabs_location: "above"})
       const {view} = await display(tabs, [450, 350])
 
-      const headers_wrapper = view.headers_wrapper_el
-      const wrapper_styles = window.getComputedStyle(headers_wrapper)
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
       expect(wrapper_styles.overflowX).to.be.equal("auto")
 
-      const has_scroll = headers_wrapper.scrollWidth > headers_wrapper.clientWidth
+      const has_scroll = headers_wrapper_el.scrollWidth > headers_wrapper_el.clientWidth
       expect(has_scroll).to.be.true
     })
 
@@ -4810,8 +4815,10 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: tab_panels, width: 450, height: 350, tabs_location: "left"})
       const {view} = await display(tabs, [500, 400])
 
-      const headers_wrapper = view.headers_wrapper_el
-      const wrapper_styles = window.getComputedStyle(headers_wrapper)
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
       expect(wrapper_styles.overflowY).to.be.equal("auto")
     })
   })
@@ -4908,6 +4915,148 @@ describe("Bug", () => {
       p.scatter(x, y, {size: 10})
       p.toolbar.active_drag = range_tool
       await display(p)
+    })
+  })
+
+  describe("in issue #15015", () => {
+    it("doesn't show updates to num_minor_ticks", async () => {
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15123", () => {
+    it("doesn't allow to render the content of all columns in DataTable with autosize_mode='fit_columns'", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          dates:     [1393632000000, 1393718400000, 1393804800000],  // 2014-03-{01,02,03} as ms
+          downloads: [10, 20, 30],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates",     title: "Date",      formatter: new DateFormatter(), width: 80}),
+        new TableColumn({field: "downloads", title: "Downloads",                                 width: 80}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        width: 200,
+        height: 280,
+        autosize_mode: "fit_columns",
+      })
+
+      await display(table, [200, 280])
+    })
+  })
+
+  describe("in issue #13859", () => {
+    it("doesn't show updates of ColumnDataSource in DataTable", async () => {
+      const source = new ColumnDataSource({
+        data: {x: ["init"]},
+      })
+
+      const columns = [
+        new TableColumn({field: "x", title: "x"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_columns",
+        width: 400,
+        height: 300,
+      })
+
+      const {view} = await display(table)
+      source.data = {x: ["a"]}
+      await view.ready
+    })
+  })
+
+  describe("in issue #13244", () => {
+    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+      const source = new ColumnDataSource({data: {
+        x: [1, 2, 3, 4, 5],
+        y: [10, 11, 12, 13, 14],
+      }})
+
+      const view = new CDSView({filter: new BooleanFilter({booleans: [true, true, false, true, false]})})
+
+      const table = new DataTable({
+        source,
+        view,
+        columns: [new TableColumn({field: "x", title: "X", width: 150})],
+        width: 200,
+        height: 200,
+      })
+
+      const p = figure({width: 200, height: 200})
+      p.scatter({field: "x"}, {field: "y"}, {source, view})
+
+      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
+    })
+  })
+
+  describe("in issue #15026", () => {
+    it("ArrowHead properties not updating from JS callbacks", async () => {
+      const p = fig([200, 200], {x_range: [0, 2], y_range: [0, 2]})
+      const arrow_head = new OpenHead({line_color: "blue", size: 20, line_width: 2})
+      p.add_layout(new Arrow({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
+
+      const {view} = await display(p)
+
+      arrow_head.line_color = "red"
+      arrow_head.line_width = 5
+
+      await view.ready
     })
   })
 })

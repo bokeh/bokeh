@@ -420,7 +420,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING
 
 # External imports
 import numpy as np
@@ -441,9 +441,9 @@ if TYPE_CHECKING:
 # General API
 #-----------------------------------------------------------------------------
 
-Palette: TypeAlias = tuple[str, ...]
-PaletteCollection: TypeAlias = dict[int, Palette]
-PaletteMap: TypeAlias = dict[str, PaletteCollection]
+type Palette = tuple[str, ...]
+type PaletteCollection = dict[int, Palette]
+type PaletteMap = dict[str, PaletteCollection]
 
 YlGn3 = ("#31a354", "#addd8e", "#f7fcb9")
 YlGn4 = ("#238443", "#78c679", "#c2e699", "#ffffcc")

@@ -502,7 +502,7 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
 
     - **Coverage**: 11 jobs total
     - **Unit tests**: Latest Python (3.14) on all platforms (Ubuntu, macOS, Windows)
-    - **Codebase checks**: All platforms with Python 3.11
+    - **Codebase checks**: All platforms with Python 3.12
     - **Other tests**: Linux only (examples, minimal-deps, core-deps, documentation)
     - **Features**: Cancel-in-progress enabled for faster iteration
 
@@ -512,7 +512,7 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
 
     - **Coverage**: 29 jobs total
     - **Platforms**: Ubuntu 24.04, macOS latest, Windows latest
-    - **Python versions**: 3.11, 3.12, 3.13, 3.14
+    - **Python versions**: 3.12, 3.13, 3.14
     - **Test suites**: All test types across all combinations
 
     **To manually trigger the full workflow:**

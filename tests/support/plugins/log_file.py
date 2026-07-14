@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from datetime import datetime
 from typing import IO, Iterator
 
 # External imports
@@ -40,10 +41,14 @@ __all__ = (
 
 @pytest.fixture(scope="session")
 def log_file(request: pytest.FixtureRequest) -> Iterator[IO[str]]:
-    with open(request.config.option.log_file, 'w') as f:
+    log_file = request.config.option.log_file
+    if log_file is None:
+        dt = datetime.now().isoformat(timespec="seconds")
+        log_file = f"bokeh_{dt}.log"
+    with open(log_file, "w") as f:
         # Clean-out any existing log-file
         f.write("")
-    with open(request.config.option.log_file, 'a') as f:
+    with open(log_file, "a") as f:
         yield f
 
 #-----------------------------------------------------------------------------

@@ -11,7 +11,6 @@ from typing import (
     Any,
     Literal,
     Sequence,
-    TypeAlias,
     Unpack,
 )
 
@@ -71,8 +70,8 @@ from .glyph_api import (
     MultiPolygonsArgs,
 )
 
-EagerDataFrame: TypeAlias = IntoDataFrame
-EagerSeries: TypeAlias = IntoSeries
+type EagerDataFrame = IntoDataFrame
+type EagerSeries = IntoSeries
 
 class BaseFigureOptions(_PlotInit, total=False):
     tools: str | Sequence[str | Tool]
@@ -89,7 +88,7 @@ class BaseFigureOptions(_PlotInit, total=False):
     active_multi: Auto | str | GestureTool | None
     tooltips: Template | str | list[tuple[str, str] | None]
 
-RangeLike: TypeAlias = (
+type RangeLike = (
     Range |
     tuple[float, float] |
     tuple[Datetime, Datetime] |
@@ -99,7 +98,7 @@ RangeLike: TypeAlias = (
     GroupBy[Any]
 )
 
-AxisType: TypeAlias = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
+type AxisType = Auto | Literal["linear", "log", "datetime", "timedelta", "mercator"] | None
 
 DEFAULT_TOOLS: str
 

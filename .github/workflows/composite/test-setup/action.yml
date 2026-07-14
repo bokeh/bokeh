@@ -25,7 +25,7 @@ runs:
         grep -v '^\s*-\s*nodejs\b' $LOC.yml > $LOC-no-nodejs.yml
 
     - name: Setup conda environment
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v4
       with:
         miniforge-version: latest
         mamba-version: "*"

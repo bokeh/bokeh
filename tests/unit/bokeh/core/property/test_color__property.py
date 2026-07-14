@@ -56,8 +56,24 @@ class Test_Color:
         assert prop.is_valid("BLUE")
 
         assert prop.is_valid('rgb(10, 20, 30)')
+        assert prop.is_valid('rgb(0.0, 127.5, 1.0)')
+        assert prop.is_valid('rgb(10, 20, 30, 1)')
+        assert prop.is_valid('rgb(10, 20, 30, 0.5)')
+        assert prop.is_valid('rgb(10.2, 20.2, 30.2, 1)')
+        assert prop.is_valid('rgb(10.2, 20.2, 30.2, 1.)')
+        assert prop.is_valid('rgb(10.2, 20.2, 30.2, 1.0)')
+        assert prop.is_valid('rgb(10.2, 20.2, 30.2, 0.5)')
+        assert prop.is_valid('rgb(10.2, 20.2, 30.2, 0.5)')
+        assert prop.is_valid('rgb(10.2 20.2 30.2 / 1)')
+        assert prop.is_valid('rgb(10.2 20.2 30.2 / 1.)')
+        assert prop.is_valid('rgb(10.2 20.2 30.2 / 0.5)')
+        assert prop.is_valid('rgba(10, 20, 30)')
         assert prop.is_valid('rgba(10, 20, 30, 1)')
         assert prop.is_valid('rgba(10, 20, 30, 0.5)')
+        assert prop.is_valid('rgba(10.2, 20.2, 30.2, 0.5)')
+        assert prop.is_valid('rgba(10.2, 20.2, 30.2, 0.5)')
+        assert prop.is_valid('rgba(10.2, 20.2, 30.2, 0.5)')
+        assert prop.is_valid('rgba(10.2 20.2 30.2 / 0.5)')
 
         assert prop.is_valid(RGB(10, 20, 30))
 
@@ -86,18 +102,18 @@ class Test_Color:
         assert not prop.is_valid('(0, 127, 255)')
         assert not prop.is_valid('rgb(0, -127, 255)')
         assert not prop.is_valid('rgb(0, 127)')
-        assert not prop.is_valid('rgb(0, 127, 1.0)')
         assert not prop.is_valid('rgb(256, 1, 1)')
         assert not prop.is_valid('rgb(256, 1, 1, 1.0)')
 
         assert not prop.is_valid('(10, 20, 30')
         assert not prop.is_valid('rgba(10, 20, 30')
-        assert not prop.is_valid('rgba(10, 20, 30)')
         assert not prop.is_valid('rgba(10, 20, 30,)')
         assert not prop.is_valid('rgba(10, 20)')
         assert not prop.is_valid('rgba(10, 20, 256, 1)')
         assert not prop.is_valid('rgba(10, 20, 256, 10)')
         assert not prop.is_valid('rgba(10, 20, 30, 50)')
+        assert not prop.is_valid('rgba(10, 20, 30 / 0.5)')
+        assert not prop.is_valid('rgba(10 20 30 0.5)')
 
         assert not prop.is_valid("00aaff")
         assert not prop.is_valid("00AAFF")
@@ -113,6 +129,8 @@ class Test_Color:
         prop = bcpc.Color()
         assert prop.transform((0, 127, 255)) == "rgb(0, 127, 255)"
         assert prop.transform((0, 127, 255, 0.1)) == "rgba(0, 127, 255, 0.1)"
+        assert prop.transform((0.5, 127.5, 255.5)) == "rgb(0.5, 127.5, 255.5)"
+        assert prop.transform((0.5, 127.5, 255.5, 0.1)) == "rgba(0.5, 127.5, 255.5, 0.1)"
 
     def test_has_ref(self) -> None:
         prop = bcpc.Color()

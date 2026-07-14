@@ -19,7 +19,9 @@ import pytest ; pytest
 # Standard library imports
 import logging
 from collections.abc import Callable
+from types import SimpleNamespace
 from typing import Generator
+from unittest import mock
 
 # External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
@@ -28,6 +30,7 @@ from tornado.websocket import WebSocketClosedError, websocket_connect
 
 # Bokeh imports
 from bokeh.application import Application
+from bokeh.protocol.exceptions import ProtocolError
 from bokeh.server.tornado import BokehTornado
 from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.util.logconfig import basicConfig
@@ -123,6 +126,26 @@ async def test_ws_handler_rejects_disallowed_origins(
     assert f"Refusing websocket connection from Origin {request_origin!r}" in caplog.text
     assert f"currently we allow origins {set(allowed_origins)!r}" in caplog.text
 
+
+def test_open_rejects_invalid_signed_token_before_payload() -> None:
+    handler = object.__new__(WSHandler)
+    handler._token = generate_jwt_token("bad-session", signed=True, secret_key="bar", extra_payload=dict(foo="bar"))
+    handler.application = SimpleNamespace(
+        sign_sessions=True,
+        secret_key="foo",
+        io_loop=SimpleNamespace(add_callback=mock.Mock()),
+    )
+    handler.close = mock.Mock()
+
+    with (
+        mock.patch.object(WSHandler, "selected_subprotocol", new_callable=mock.PropertyMock, return_value="bokeh"),
+        mock.patch("bokeh.server.views.ws.get_token_payload") as get_token_payload,
+        pytest.raises(ProtocolError, match="Invalid token signature"),
+    ):
+        WSHandler.open.__wrapped__(handler)
+
+    handler.close.assert_called_once()
+    get_token_payload.assert_not_called()
 
 #-----------------------------------------------------------------------------
 # Dev API

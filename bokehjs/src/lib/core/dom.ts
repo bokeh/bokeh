@@ -483,8 +483,8 @@ export function undisplay(element: HTMLElement): void {
   element.style.display = "none"
 }
 
-export function show(element: HTMLElement): void {
-  element.style.visibility = ""
+export function show(element: HTMLElement, show: boolean = true): void {
+  element.style.visibility = show ? "" : "hidden"
 }
 
 export function hide(element: HTMLElement): void {
@@ -708,8 +708,6 @@ export async function dom_ready(): Promise<void> {
 export function px(value: number | string): string {
   return isNumber(value) ? `${value}px` : value
 }
-
-export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
 
 export function has_focus(el: Element): boolean {
   const root = el.getRootNode()

@@ -22,13 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    TypeAlias,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...util.dataclasses import NotRequired, Unspecified
@@ -64,10 +58,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
-
 @dataclass
-class Value(Generic[T], Serializable):
+class Value[T](Serializable):
     value: T
     transform: NotRequired[Transform] = Unspecified
     units: NotRequired[str] = Unspecified
@@ -150,7 +142,7 @@ class Expr(Serializable):
         else:
             raise KeyError(f"key '{key}' not found")
 
-Vectorized: TypeAlias = Value[Any] | Field | Expr
+type Vectorized = Value[Any] | Field | Expr
 
 value = Value
 

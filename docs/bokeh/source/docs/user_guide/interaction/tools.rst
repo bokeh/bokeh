@@ -731,6 +731,31 @@ over the plot below:
 The |CustomJSHover| model allows you to use JavaScript to specify a custom
 formatter that can display derived quantities in the tooltip.
 
+.. note::
+
+    When combining the selection of columns using the @-notation in combination with f-strings,
+    it is neccessary to write three curly braces instead of one to get the wanted behavior.
+
+    .. bokeh-plot::
+
+        from bokeh.models import ColumnDataSource, HoverTool
+        from bokeh.plotting import figure, show
+
+        source = ColumnDataSource({"a=1": [1, 2, 3], "index": [1, 2, 3]})
+        names = ["a=1"]
+
+        p = figure(width=300, height=300)
+        for name in names:
+            line = p.line("index", name, source=source)
+            p.add_tools(
+                HoverTool(
+                    tooltips=[("value", f"@{{{name}}}")],
+                    renderers=[line],
+                    mode="vline"
+                )
+            )
+        show(p)
+
 Filtering, sorting and limits
 '''''''''''''''''''''''''''''
 

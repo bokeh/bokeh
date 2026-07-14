@@ -22,11 +22,11 @@ export class SVGIconView extends IconView {
     })()
 
     this._style.replace(`
-      :host {
+      ${this.host_selector} {
         display: inline-block;
         vertical-align: middle;
       }
-      :host svg {
+      ${this.host_selector} svg {
         width: ${size};
         height: ${size};
       }

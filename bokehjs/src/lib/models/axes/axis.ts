@@ -23,7 +23,7 @@ import type {Factor} from "models/ranges/factor_range"
 import {FactorRange} from "models/ranges/factor_range"
 import type {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
@@ -101,9 +101,8 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
-  override children_views(): View[] {
-    const this_axis_label_view = this._axis_label_view != null ? [this._axis_label_view] : []
-    return [...super.children_views(), ...this_axis_label_view, ...this._major_label_views.values()]
+  override children_views(): ChildView[] {
+    return [...super.children_views(), this._axis_label_view, ...this._major_label_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -197,6 +196,8 @@ export abstract class AxisView extends GuideRendererView {
     })
 
     this.connect(this.model.change, () => this.plot_view.request_layout())
+    this.connect(this.model.ticker.change, () => this.plot_view.request_layout())
+    this.connect(this.model.formatter.change, () => this.plot_view.request_layout())
   }
 
   override get needs_clip(): boolean {
@@ -727,16 +728,6 @@ export abstract class AxisView extends GuideRendererView {
   }
 
   // }}}
-
-  override remove(): void {
-    this._axis_label_view?.remove()
-
-    for (const label_view of this._major_label_views.values()) {
-      label_view.remove()
-    }
-
-    super.remove()
-  }
 
   override has_finished(): boolean {
     if (!super.has_finished()) {

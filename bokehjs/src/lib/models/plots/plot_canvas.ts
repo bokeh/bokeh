@@ -12,7 +12,7 @@ import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
-import type {DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
+import type {DOMBoxSizing} from "../layouts/layout_dom"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
@@ -29,8 +29,8 @@ import {Panel} from "../ui/panel"
 import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
-import type {ViewStorage, View, ViewOf, BuildResult} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import type {ViewStorage, ChildView, View, ViewOf, BuildResult} from "core/build_views"
+import {build_views} from "core/build_views"
 import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
@@ -202,7 +202,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
   /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
   }
 
@@ -278,12 +278,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
       this.reset_selection()
     }
     this.model.trigger_event(new Reset())
-  }
-
-  override remove(): void {
-    remove_views(this.renderer_views)
-    remove_views(this.tool_views)
-    super.remove()
   }
 
   protected override _provide_context_menu(): Menu | null {
@@ -450,10 +444,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
       width_policy: frame_width != null && width_policy == "auto" ? "fit" : width_policy,
       height_policy: frame_height != null && height_policy == "auto" ? "fit" : height_policy,
     }
-  }
-
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
   }
 
   private _compute_layout_panels(): LayoutPanels {
@@ -790,7 +780,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const right_width = max(right.width, layout.min_border.right)
 
     this._computed_style.replace(`
-      :host {
+      ${this.host_selector} {
         grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
         grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
       }
@@ -1003,6 +993,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
       await this.build_tool_views()
       await this._update_renderers()
     })
+
+    const {frame_width, frame_height, frame_align} = this.model.properties
+    this.on_change([frame_width, frame_height, frame_align], () => this.invalidate_layout())
 
     const {min_border, min_border_top, min_border_bottom, min_border_left, min_border_right} = this.model.properties
     this.on_change([min_border, min_border_top, min_border_bottom, min_border_left, min_border_right], () => this.invalidate_layout())

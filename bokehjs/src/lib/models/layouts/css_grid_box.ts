@@ -1,4 +1,3 @@
-import type {FullDisplay} from "./layout_dom"
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import type {UIElement} from "../ui/ui_element"
@@ -26,10 +25,6 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     return this._children.map(([child]) => child)
   }
 
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
-  }
-
   protected abstract get _children(): [UIElement, number, number, number?, number?][]
   protected abstract get _rows(): TracksSizing | null
   protected abstract get _cols(): TracksSizing | null
@@ -38,6 +33,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     super._update_layout()
 
     const styles: CSSStyles = {}
+    styles.display = "grid"
 
     const [row_gap, column_gap] = (() => {
       const {spacing} = this.model
@@ -64,7 +60,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
       styles.grid_row_end = `span ${row_span}`
       styles.grid_column_start = `${col + 1}`
       styles.grid_column_end = `span ${col_span}`
-      view.parent_style.append(":host", styles)
+      view.parent_style.append(view.host_selector, styles)
 
       if (view instanceof LayoutDOMView && view.layout != null) {
         const r0 = row
@@ -127,7 +123,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
       const view = this.child_views[i]
 
       const {halign, valign} = view.box_sizing()
-      view.parent_style.append(":host", {
+      view.parent_style.append(view.host_selector, {
         justify_self: halign ?? cols_template[col].align,
         align_self: valign ?? rows_template[row].align,
       })
@@ -137,7 +133,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     styles.grid_template_rows = rows_template.map(({size}) => size ?? default_size).join(" ")
     styles.grid_template_columns = cols_template.map(({size}) => size ?? default_size).join(" ")
 
-    this.style.append(":host", styles)
+    this.self_style.append(this.host_selector, styles)
 
     if (layoutable.size != 0) {
       this.layout = new GridAlignmentLayout(layoutable)

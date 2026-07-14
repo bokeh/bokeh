@@ -11,7 +11,6 @@ from typing import (
     Any,
     Literal,
     Sequence,
-    TypeAlias,
     Unpack,
 )
 
@@ -193,8 +192,8 @@ class AutocompleteInput(TextInput):
     restrict: bool = ...
     search_strategy: Literal["starts_with", "includes"] = ...
 
-Options: TypeAlias = list[str | tuple[Any, str]]
-OptionsGroups: TypeAlias = dict[str, Options]
+type Options = list[str | tuple[Any, str]]
+type OptionsGroups = dict[str, Options]
 
 class _SelectInit(_InputWidgetInit, total=False):
     options: Options | OptionsGroups | list[str | None]

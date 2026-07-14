@@ -3,48 +3,67 @@ import {compose_stylesheet} from "./css"
 import {isString} from "core/util/types"
 
 import type {VNode} from "preact"
-import {signal} from "@preact/signals"
+import {signal, effect} from "@preact/signals"
+
+export class StyleSheetComposer {
+  constructor(public css: string = "") {}
+
+  private _to_css(css: string, styles: CSSStyles | undefined): string {
+    if (styles == null) {
+      return css
+    } else {
+      return compose_stylesheet({[css]: styles})
+    }
+  }
+
+  append(css: string, styles?: CSSStyles): void {
+    this.css = `${this.css}\n${this._to_css(css, styles)}`
+  }
+}
 
 export abstract class StyleSheet {
-  protected readonly el: HTMLStyleElement | HTMLLinkElement
+  protected readonly _dom_stylesheet = new CSSStyleSheet()
 
-  install(el: HTMLElement | ShadowRoot): void {
-    el.append(this.el)
+  to_native(): CSSStyleSheet {
+    return this._dom_stylesheet
   }
-
-  uninstall(): void {
-    this.el.remove()
-  }
-
-  abstract to_native(): CSSStyleSheet
 
   abstract to_vdom(): VNode
+
+  abstract to_element(): HTMLElement
+
+  readonly abstract is_global: boolean
+  readonly abstract is_inline: boolean
 }
 
 export class InlineStyleSheet extends StyleSheet {
-  protected override readonly el = document.createElement("style")
+  readonly is_global: boolean = false
+  readonly is_inline: boolean = true
 
-  protected vdom_css = signal("")
+  private _css = signal("")
+  get css(): string {
+    return this._css.value
+  }
 
-  constructor(css?: string | CSSStyleSheetDecl, id?: string, readonly persistent: boolean = false) {
+  constructor(css?: string | CSSStyleSheetDecl, _id?: string) {
     super()
     if (isString(css)) {
       this._update(css)
     } else if (css != null) {
       this._update(compose_stylesheet(css))
     }
+    effect(() => {
+      this._dom_stylesheet.replaceSync(this.css)
+    })
+    /*
     if (id != null) {
       this.el.dataset.css = id
     }
-  }
-
-  get css(): string {
-    return this.el.textContent
+    */
   }
 
   protected _update(css: string): void {
-    this.el.textContent = css
-    this.vdom_css.value = css
+    this._css.value = css
   }
 
   clear(): void {
@@ -60,75 +79,60 @@ export class InlineStyleSheet extends StyleSheet {
   }
 
   replace(css: string, styles?: CSSStyles): void {
-    this._update(this._to_css(css, styles))
+    const new_css = this._to_css(css, styles)
+    this._update(new_css)
   }
 
   prepend(css: string, styles?: CSSStyles): void {
-    this._update(`${this._to_css(css, styles)}\n${this.css}`)
+    const new_css = `${this._to_css(css, styles)}\n${this.css}`
+    this._update(new_css)
   }
 
   append(css: string, styles?: CSSStyles): void {
-    this._update(`${this.css}\n${this._to_css(css, styles)}`)
-  }
-
-  remove(): void {
-    this.el.remove()
-  }
-
-  to_native(): CSSStyleSheet {
-    const sheet = new CSSStyleSheet()
-    sheet.replaceSync(this.css)
-    return sheet
+    const new_css = `${this.css}\n${this._to_css(css, styles)}`
+    this._update(new_css)
   }
 
   to_vdom(): VNode {
-    return <style>{this.vdom_css}</style>
+    return <style>{this._css}</style>
+  }
+
+  to_element(): HTMLStyleElement {
+    const el = document.createElement("style")
+    el.textContent = this.css
+    return el
   }
 }
 
 export class GlobalInlineStyleSheet extends InlineStyleSheet {
-  override install(): void {
-    if (!this.el.isConnected) {
-      document.head.appendChild(this.el)
-    }
-  }
+  override readonly is_global: boolean = true
 }
 
 export class ImportedStyleSheet extends StyleSheet {
-  protected override readonly el: HTMLLinkElement
+  override readonly is_global: boolean = false
+  override readonly is_inline: boolean = false
 
-  constructor(url: string) {
+  constructor(readonly url: string) {
     super()
-    this.el = document.createElement("link")
-    this.el.rel = "stylesheet"
-    this.el.href = url
-  }
-
-  replace(url: string): void {
-    this.el.href = url
-  }
-
-  remove(): void {
-    this.el.remove()
-  }
-
-  to_native(): CSSStyleSheet {
-    const sheet = new CSSStyleSheet()
-    sheet.replaceSync(`@import "${this.el.href}"`)
-    return sheet
+    this._dom_stylesheet.replaceSync(`@import "${this.url}"`)
   }
 
   to_vdom(): VNode {
-    return <link rel="stylesheet" href={this.el.href}></link>
+    return <link rel="stylesheet" href={this.url}></link>
+  }
+
+  to_element(): HTMLLinkElement {
+    const el = document.createElement("link")
+    el.rel = "stylesheet"
+    el.href = this.url
+    return el
   }
 }
 
 export class GlobalImportedStyleSheet extends ImportedStyleSheet {
-  override install(): void {
-    if (!this.el.isConnected) {
-      document.head.appendChild(this.el)
-    }
-  }
+  override readonly is_global: boolean = true
 }
 
 export type StyleSheetLike = StyleSheet | string
+
+export type GlobalStyleSheet = GlobalImportedStyleSheet | GlobalInlineStyleSheet

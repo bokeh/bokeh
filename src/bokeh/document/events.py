@@ -61,7 +61,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    TypeAlias,
     cast,
 )
 
@@ -119,9 +118,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Buffers: TypeAlias = list[BufferRef] | None
+    type Buffers = list[BufferRef] | None
 
-    Invoker: TypeAlias = Callable[..., Any] # TODO
+    type Invoker = Callable[..., Any] # TODO
 
 class DocumentChangedMixin:
     def _document_changed(self, event: DocumentChangedEvent) -> None: ...

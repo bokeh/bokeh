@@ -53,7 +53,7 @@ export class CanvasPanelView extends StyledElementView {
     const {bbox, position} = this
     if (!bbox.is_valid) {
       position.replace(`
-      :host {
+      ${this.host_selector} {
         display: none;
       }
       `)

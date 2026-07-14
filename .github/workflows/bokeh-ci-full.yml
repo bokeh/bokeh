@@ -61,7 +61,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.11'
+          test-env: '3.12'
           source-tree: 'keep'
 
       - name: List installed software
@@ -78,7 +78,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@v6
@@ -113,7 +113,7 @@ jobs:
       matrix:
         # Examples only run on Linux (Chrome/Chromium dependency)
         os: [ubuntu-24.04]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@v6
@@ -170,7 +170,7 @@ jobs:
       matrix:
         # Comprehensive: All platforms × all Python versions
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -190,6 +190,9 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
 
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
       - name: Run unit tests
         uses: ./.github/workflows/composite/run-unit-tests
 
@@ -200,7 +203,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Comprehensive: All platforms, Python 3.11 (defined in minimal-deps environment)
+        # Comprehensive: All platforms, Python 3.12 (defined in minimal-deps environment)
         os: [ubuntu-24.04, macos-latest, windows-latest]
     env:
       OS: ${{ matrix.os }}
@@ -260,7 +263,7 @@ jobs:
       matrix:
         # Comprehensive: All platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.11']
+        python-version: ['3.12', '3.14']
 
     steps:
       - uses: actions/checkout@v6

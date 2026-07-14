@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Generic, TypeVar, cast
+from typing import cast
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -35,10 +35,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-K = TypeVar("K")
-V = TypeVar("V")
-
-class MultiValuedDict(Generic[K, V]):
+class MultiValuedDict[K, V]:
     ''' Store a mapping from keys to multiple values with minimal overhead.
 
     Avoids storing empty collections.

@@ -19,12 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    TypeAlias,
-    cast,
-)
+from typing import TYPE_CHECKING, Sequence, cast
 
 # External imports
 import numpy as np
@@ -45,8 +40,8 @@ if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 
-    ContourColor: TypeAlias = ColorLike | Sequence[ColorLike]
-    ContourColorOrPalette: TypeAlias = ContourColor | Palette | PaletteCollection | ContourColor
+    type ContourColor = ColorLike | Sequence[ColorLike]
+    type ContourColorOrPalette = ContourColor | Palette | PaletteCollection | ContourColor
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeAlias, TypeVar
+from typing import Any
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -30,8 +30,6 @@ __all__ = (
     "Optional",
     "Undefined",
 )
-
-T = TypeVar("T")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -62,7 +60,7 @@ class UndefinedType:
 
 Undefined = UndefinedType()
 
-Optional: TypeAlias = T | UndefinedType
+type Optional[T] = T | UndefinedType
 
 # TODO turn this into an actual singleton class
 class IntrinsicType:

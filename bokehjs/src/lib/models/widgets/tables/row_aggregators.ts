@@ -1,6 +1,7 @@
-import type {GroupTotals} from "@bokeh/slickgrid"
-import {Data} from "@bokeh/slickgrid"
-const {Avg, Min, Max, Sum} = Data.Aggregators
+import type {SlickGroupTotals} from "slickgrid"
+import {Aggregators} from "slickgrid"
+import type {Aggregator} from "slickgrid"
+const {Avg, Min, Max, Sum} = Aggregators
 
 import type * as p from "core/properties"
 import {Model} from "model"
@@ -20,6 +21,11 @@ export interface RowAggregator extends RowAggregator.Attrs {
 export abstract class RowAggregator extends Model {
   declare properties: RowAggregator.Props
 
+  // This holds the actual SlickGrid aggregator instance (Avg, Sum, etc.)
+  protected _aggregator: Aggregator
+
+  protected abstract readonly aggregator_cls: new (field: string) => Aggregator
+
   constructor(attrs?: Partial<RowAggregator.Attrs>) {
     super(attrs)
   }
@@ -30,43 +36,36 @@ export abstract class RowAggregator extends Model {
     }))
   }
 
-  abstract init(): void
-  abstract accumulate(item: {[key: string]: unknown}): void
-  abstract storeResult(totals: GroupTotals<number>): void
+  init(): void {
+    this._aggregator = new this.aggregator_cls(this.field_)
+    this._aggregator.init()
+  }
+
+  accumulate(item: {[key: string]: unknown}): void {
+    this._aggregator.accumulate!(item)
+  }
+
+  storeResult(totals: SlickGroupTotals): void {
+    this._aggregator.storeResult(totals)
+  }
 }
 
-const avg = new Avg()
 export class AvgAggregator extends RowAggregator {
   override readonly key = "avg"
-
-  init = avg.init
-  accumulate = avg.accumulate
-  storeResult = avg.storeResult
+  protected readonly aggregator_cls = Avg
 }
 
-const min = new Min()
 export class MinAggregator extends RowAggregator {
   override readonly key = "min"
-
-  init = min.init
-  accumulate = min.accumulate
-  storeResult = min.storeResult
+  protected readonly aggregator_cls = Min
 }
 
-const max = new Max()
 export class MaxAggregator extends RowAggregator {
   override readonly key = "max"
-
-  init = max.init
-  accumulate = max.accumulate
-  storeResult = max.storeResult
+  protected readonly aggregator_cls = Max
 }
 
-const sum = new Sum()
 export class SumAggregator extends RowAggregator {
   override readonly key = "sum"
-
-  init = sum.init
-  accumulate = sum.accumulate
-  storeResult = sum.storeResult
+  protected readonly aggregator_cls = Sum
 }

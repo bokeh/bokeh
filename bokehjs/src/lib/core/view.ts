@@ -12,10 +12,13 @@ import {Indexed} from "../models/coordinates/indexed"
 import {ViewManager, ViewQuery} from "./view_manager"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
+import {logger} from "./logging"
 
 import type {Signal as PreactSignal} from "@preact/signals"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
+
+export type ChildView = View | null | undefined
 
 export type SerializableState = {
   type: string
@@ -51,6 +54,7 @@ export abstract class View implements ISignalable, Equatable {
   readonly views: ViewQuery = new ViewQuery(this)
 
   readonly signals: {readonly [key: string]: PreactSignal<unknown>} = {}
+  readonly values: {readonly [key: string]: unknown} = {}
 
   private _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -103,6 +107,11 @@ export abstract class View implements ISignalable, Equatable {
         configurable: false,
         enumerable: true,
       })
+      Object.defineProperty(this.values, prop.attr, {
+        get() { return prop.signal.value },
+        configurable: false,
+        enumerable: true,
+      })
     }
   }
 
@@ -112,7 +121,14 @@ export abstract class View implements ISignalable, Equatable {
 
   protected _destroyed: boolean = false
   remove(): void {
+    if (this._destroyed) {
+      logger.warn(`${this}.remove(): view was already destroyed`)
+      return
+    }
     this.disconnect_signals()
+    for (const view of this.children_views()) {
+      view?.remove()
+    }
     this.owner.remove(this)
     this.removed.emit()
     this._destroyed = true
@@ -132,10 +148,10 @@ export abstract class View implements ISignalable, Equatable {
 
   /** @deprecated use children_views */
   public *children(): IterViews {
-    yield* this.children_views()
+    yield* this.children_views().filter((view) => view != null)
   }
 
-  public children_views(): View[] {
+  public children_views(): ChildView[] {
     return []
   }
 
