@@ -49,6 +49,18 @@ class TestGetLoginUrl:
         handler = _make_handler(login_url="/login", prefix="/pre")
         assert handler.get_login_url() == "/pre/login"
 
+    def test_login_url_without_leading_slash(self) -> None:
+        handler = _make_handler(login_url="login", prefix="/pre")
+        assert handler.get_login_url() == "/pre/login"
+
+    def test_login_url_with_trailing_slash(self) -> None:
+        handler = _make_handler(login_url="/login/", prefix="/pre")
+        assert handler.get_login_url() == "/pre/login/"
+
+    def test_login_url_multi_segment_prefix(self) -> None:
+        handler = _make_handler(login_url="/login", prefix="/a/b")
+        assert handler.get_login_url() == "/a/b/login"
+
     def test_get_login_url_func_not_affected_by_prefix(self) -> None:
         handler = _make_handler(get_login_url=lambda req: "/custom_login", prefix="/pre")
         assert handler.get_login_url() == "/custom_login"
