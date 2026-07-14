@@ -5048,10 +5048,10 @@ describe("Bug", () => {
     it("should maintain consistent tab widths regardless of the active tab", async () => {
       const p1 = () => new TabPanel({title: "Short", child: new Div({text: "Tab 1"})})
       const p2 = () => new TabPanel({title: "Very Long Tab Title", child: new Div({text: "Tab 2"})})
-      
+
       const tabs0 = new Tabs({tabs: [p1(), p2()], active: 0})
       const tabs1 = new Tabs({tabs: [p1(), p2()], active: 1})
-      
+
       await display(new Column({children: [tabs0, tabs1]}), [500, 500])
     })
   })
