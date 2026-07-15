@@ -5,6 +5,7 @@ import {with_log_level} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
 
 import {keys} from "@bokehjs/core/util/object"
+import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Int32NDArray, Float32NDArray, Float64NDArray, ndarray} from "@bokehjs/core/util/ndarray"
 
@@ -187,5 +188,46 @@ describe("column_data_source module", () => {
       ["d14", null],
       // TODO ["d15", new Map([[0, "a"], [1, "b"], [2, "c"]])],
     ]))
+  })
+
+  describe("selection pruning", () => {
+    it("should prune out-of-bounds indices when data is replaced", () => {
+      const selected = new Selection({
+        indices: [-1, 0, 2, 3],
+        line_indices: [-1, 0, 2, 3],
+        multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
+        image_indices: [
+          {index: -1, i: 0, j: 0, flat_index: 0},
+          {index: 0, i: 0, j: 0, flat_index: 0},
+          {index: 2, i: 0, j: 0, flat_index: 0},
+          {index: 3, i: 0, j: 0, flat_index: 0},
+        ],
+      })
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+
+      source.data = {foo: [0, 1]}
+
+      expect(selected.indices).to.be.equal([0])
+      expect(selected.line_indices).to.be.equal([0])
+      expect(selected.multiline_indices).to.be.equal(new Map([[0, [0]]]))
+      expect(selected.image_indices).to.be.equal([{index: 0, i: 0, j: 0, flat_index: 0}])
+
+      source.clear()
+
+      expect(selected.indices).to.be.empty
+      expect(selected.line_indices).to.be.empty
+      expect(selected.multiline_indices).to.be.equal(new Map())
+      expect(selected.image_indices).to.be.empty
+    })
+
+    it("should prune out-of-bounds indices after streaming with rollover", () => {
+      const selected = new Selection({indices: [0, 1, 2, 3]})
+      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+
+      source.stream({foo: [4]}, 2)
+
+      expect(source.length).to.be.equal(2)
+      expect(selected.indices).to.be.equal([0, 1])
+    })
   })
 })

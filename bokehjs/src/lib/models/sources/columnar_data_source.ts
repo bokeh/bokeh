@@ -7,6 +7,7 @@ import type {Arrayable, ArrayableNew, Data, Dict} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
+import {filter} from "core/util/arrayable"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
@@ -121,6 +122,27 @@ export abstract class ColumnarDataSource extends DataSource {
 
   set(name: string, column: Arrayable<unknown>): void {
     dict(this.data).set(name, column)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const prune_selection = () => this._prune_selection()
+    this.connect(this.properties.data.change, prune_selection)
+    this.connect(this.streaming, prune_selection)
+  }
+
+  protected _prune_selection(): void {
+    const length = this.length
+    const in_bounds = (index: number) => 0 <= index && index < length
+    const {selected} = this
+
+    selected.setv({
+      indices: filter(selected.indices, in_bounds),
+      line_indices: filter(selected.line_indices, in_bounds),
+      multiline_indices: new Map([...selected.multiline_indices].filter(([index]) => in_bounds(index))),
+      image_indices: selected.image_indices.filter(({index}) => in_bounds(index)),
+    })
   }
 
   get_column(name: string): Arrayable | null {
