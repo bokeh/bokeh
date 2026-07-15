@@ -128,7 +128,10 @@ export abstract class ColumnarDataSource extends DataSource {
     super.connect_signals()
 
     const prune_selection = () => this._prune_selection()
-    this.connect(this.properties.data.change, prune_selection)
+    const {data} = this.properties as Partial<ColumnarDataSource.Props>
+    if (data != null) {
+      this.connect(data.change, prune_selection)
+    }
     this.connect(this.streaming, prune_selection)
   }
 
