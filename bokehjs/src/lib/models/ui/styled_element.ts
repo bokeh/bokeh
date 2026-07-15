@@ -4,7 +4,7 @@ import {Styles} from "../dom/styles"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import {DOMComponentView} from "core/dom_view"
 import type {StyleSheet, StyleSheetLike} from "core/dom"
-import {apply_styles} from "core/css"
+import {apply_styles, iter_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {entries} from "core/util/object"
 import {isNumber, isString} from "core/util/types"
@@ -26,15 +26,20 @@ export abstract class StyledElementView extends DOMComponentView {
   /**
    * Computed styles applied to self.
    */
-  readonly style = new InlineStyleSheet("", "style") // TODO rename to `self_style`
+  readonly self_style = new InlineStyleSheet("", "StyledElementView.self_style")
+
+  /** @deprecated */
+  get style(): InlineStyleSheet {
+    return this.self_style
+  }
 
   /**
    * Computed styles append by the parent.
    */
-  readonly parent_style = new InlineStyleSheet("", "parent", true)
+  readonly parent_style = new InlineStyleSheet("", "StyledElementView.parent_style")
 
   override computed_stylesheets(): InlineStyleSheet[] {
-    return [...super.computed_stylesheets(), this.style, this.parent_style]
+    return [...super.computed_stylesheets(), this.self_style, this.parent_style]
   }
 
   override connect_signals(): void {
@@ -43,7 +48,7 @@ export abstract class StyledElementView extends DOMComponentView {
     const {html_attributes, html_id, styles, css_classes, css_variables, stylesheets} = this.model.properties
     this.on_change([html_attributes, html_id, css_classes, styles], () => this._apply_html_attributes())
     this.on_transitive_change(css_variables, () => this._apply_html_attributes())
-    this.on_transitive_change(stylesheets, () => this._update_stylesheets())
+    this.on_transitive_change(stylesheets, () => this._apply_stylesheets())
   }
 
   protected override *_css_classes(): Iterable<string> {
@@ -112,6 +117,14 @@ export abstract class StyledElementView extends DOMComponentView {
 
   protected _apply_styles(): void {
     apply_styles(this.el.style, this.model.styles)
+  }
+
+  override get resolved_style() {
+    const style = {...super.resolved_style}
+    for (const [key, val] of iter_styles(this.model.styles)) {
+      style[key] = val
+    }
+    return style
   }
 }
 

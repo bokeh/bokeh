@@ -33,18 +33,21 @@ export class ToolProxy<T extends Tool> extends Model {
 
   constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
     super(attrs)
+    // This is not ideal, because this should be done in connect signals,
+    // but that would fail with accessing undefined 'do' attribute.
+    this.connect(this.do, () => this.doit())
   }
 
   static {
-    this.define<ToolProxy.Props<Tool>>(({Bool, List, Ref, Or}) => ({
+    this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or}) => ({
       tools:    [ List(Or(Ref(Tool), Ref(ToolProxy))), [] ],
-      visible:  [ Bool, (self) => some((self as ToolProxy<Tool>).tools, (tool) => tool.visible) ],
-      active:   [ Bool, (self) => some((self as ToolProxy<Tool>).tools, (tool) => tool.active) ],
+      visible:  [ Bool, (self) => some(self.tools, (tool) => tool.visible) ],
+      active:   [ Bool, (self) => some(self.tools, (tool) => tool.active) ],
       disabled: [ Bool, false ],
     }))
   }
 
-  do: Signal0<this>
+  readonly do: Signal0<this> = new Signal0(this, "do")
 
   // Operates all the tools given only one button
 
@@ -104,14 +107,8 @@ export class ToolProxy<T extends Tool> extends Model {
     return tool.group
   }
 
-  override initialize(): void {
-    super.initialize()
-    this.do = new Signal0(this, "do")
-  }
-
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.do, () => this.doit())
     this.connect(this.properties.active.change, () => this.set_active())
     for (const tool of this.tools) {
       this.connect(tool.properties.active.change, () => {

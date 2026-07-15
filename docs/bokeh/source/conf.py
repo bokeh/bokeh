@@ -8,6 +8,7 @@
 # Standard library imports
 import os
 import re
+import sys
 from datetime import date
 
 from sphinx.util import logging
@@ -122,9 +123,8 @@ if "GOOGLE_API_KEY" not in os.environ:
             "But bokeh_missing_google_api_key_ok set to true in conf.py, so building docs anyway (with broken Google Maps)",
         )
     elif os.environ.get("BOKEH_DOCS_CDN") == "local":
-        print(
-            "But BOKEH_DOCS_CDN=local, so building docs anyway (with broken Google Maps)",
-        )
+        bokeh_missing_google_api_key_ok = True
+        print("But BOKEH_DOCS_CDN=local, so building docs anyway (with broken Google Maps)")
     else:
         raise RuntimeError(
             "\n\nThe GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
@@ -140,11 +140,14 @@ bokeh_sampledata_xref_skiplist = [
     "examples/models/widgets.py",
 ]
 
+if sys.version_info[:2] < (3, 14):
+    bokeh_sampledata_xref_skiplist.append("examples/interaction/widgets/slider_template_string.py")
+
 copybutton_prompt_text = ">>> "
 
 intersphinx_mapping = {
     "numpy"       : ("https://numpy.org/doc/stable/", None),
-    "pandas"      : ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "pandas"      : ("https://pandas.pydata.org/docs/", None),
     "python"      : ("https://docs.python.org/3/", None),
     "sphinx"      : ("https://www.sphinx-doc.org/en/master/", None),
     "xyzservices" : ("https://xyzservices.readthedocs.io/en/stable/", None),

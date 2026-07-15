@@ -85,6 +85,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
       const angle_i = end_angle_i - start_angle_i
 
+      ctx.save()
       ctx.translate(sx_i, sy_i)
       ctx.rotate(start_angle_i)
 
@@ -96,12 +97,11 @@ export class AnnularWedgeView extends XYGlyphView {
       ctx.arc(0, 0, sinner_radius_i, 0, -angle_i, !anticlock)
       ctx.closePath()
 
-      ctx.rotate(-angle_i - start_angle_i)
-      ctx.translate(-sx_i, -sy_i)
-
       this.visuals.fill.apply(ctx, i)
       this.visuals.hatch.apply(ctx, i)
       this.visuals.line.apply(ctx, i)
+
+      ctx.restore()
     }
   }
 

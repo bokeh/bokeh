@@ -1,5 +1,5 @@
-import {expect} from "assertions"
-import {display} from "../../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {ClickPanTool} from "@bokehjs/models/tools/actions/click_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

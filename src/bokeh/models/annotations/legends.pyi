@@ -7,15 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    Sequence,
-    TypeAlias,
-)
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Literal, Sequence, Unpack
 
 # Bokeh imports
 from ..._specs import NullStringSpec
@@ -213,11 +205,11 @@ class Legend(Annotation, ScalarTitleTextProps, ScalarBorderLineProps, ScalarBack
 
     def js_on_click(self, handler: JsEventCallback) -> None: ...
 
-X: TypeAlias = HAlign | float | CoordinateLike
-Y: TypeAlias = VAlign | float | CoordinateLike
+type X = HAlign | float | CoordinateLike
+type Y = VAlign | float | CoordinateLike
 
-Position: TypeAlias = HVAlign | tuple[X, Y]
-PositionUnits: TypeAlias = Literal["data", "screen", "view", "percent"]
+type Position = HVAlign | tuple[X, Y]
+type PositionUnits = Literal["data", "screen", "view", "percent"]
 
 class _ScaleBarInit(_AnnotationInit, _ScalarBarLinePropsInit, _ScalarLabelTextPropsInit, _ScalarTitleTextPropsInit,
         _ScalarBorderLinePropsInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, total=False):

@@ -8,21 +8,17 @@
 # Standard library imports
 from functools import lru_cache
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Iterable,
     Literal,
     NoReturn,
-    TypeAlias,
+    NotRequired,
+    Self,
     TypedDict,
-    TypeVar,
     overload,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self
 
 # Bokeh imports
 from ..client.session import ClientSession
@@ -37,11 +33,9 @@ from .serialization import (
     Serializer,
 )
 
-Setter: TypeAlias = ClientSession | ServerSession
+type Setter = ClientSession | ServerSession
 
-HasPropsType = TypeVar("HasPropsType", bound=type[HasProps])
-
-def abstract(cls: HasPropsType) -> HasPropsType: ...
+def abstract[HasPropsType: type[HasProps]](cls: HasPropsType) -> HasPropsType: ...
 
 def is_abstract(cls: type[HasProps]) -> bool: ...
 

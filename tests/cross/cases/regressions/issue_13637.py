@@ -2,10 +2,7 @@
 
 # Standard library imports
 from types import SimpleNamespace
-from typing import NamedTuple, TypedDict
-
-# External imports
-from typing_extensions import NotRequired
+from typing import NamedTuple, NotRequired, TypedDict
 
 # Bokeh imports
 from bokeh.core.property.struct import struct

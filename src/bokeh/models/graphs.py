@@ -100,7 +100,7 @@ class StaticLayoutProvider(LayoutProvider):
 @abstract
 class GraphCoordinates(CoordinateTransform):
     '''
-    Abstract class for coordinate transform expression obtained from ``LayoutProvider``
+    Abstract class for coordinate transform expression obtained from ``LayoutProvider``.
 
     '''
 
@@ -112,7 +112,7 @@ class GraphCoordinates(CoordinateTransform):
 
 class NodeCoordinates(GraphCoordinates):
     '''
-    Node coordinate expression obtained from ``LayoutProvider``
+    Node coordinate expression obtained from ``LayoutProvider``.
 
     '''
 

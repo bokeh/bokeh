@@ -3,14 +3,15 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": [],
     "paths": {
-      "@bokehjs/*": ["../../build/js/lib/*"]
+      "@bokehjs/*": ["../../build/js/lib/*"],
+      "#framework/*": ["../../build/test/framework/*"]
     },
-    "outDir": "../../build/test"
+    "outDir": "../../build/test/defaults"
   },
   "extends": "../../tsconfig.base",
   "include": [
-    "../framework.ts",
-    "../*.d.ts",
-    "./**/*.ts"
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../framework/globals.d.ts"
   ]
 }

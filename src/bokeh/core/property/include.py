@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from ..has_props import HasProps
@@ -39,13 +39,11 @@ __all__ = (
     'Include',
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Include(PropertyDescriptorFactory[T]):
+class Include[T](PropertyDescriptorFactory[T]):
     """ Include "mix-in" property collection in a Bokeh model.
 
     See :ref:`bokeh.core.property_mixins` for more details.

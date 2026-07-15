@@ -5,7 +5,7 @@ import {Message} from "protocol/message"
 import type {ClientConnection} from "./connection"
 import {logger} from "core/logging"
 
-export type OkMsg = Message<{}>
+export type OkMsg = Message<void>
 export type ErrorMsg = Message<{text: string, traceback: string | null}>
 export type PatchMsg = Message<Patch>
 

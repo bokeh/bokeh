@@ -215,6 +215,21 @@ Run all available tests
 
         pytest
 
+.. _contributor_guide_testing_local_python_parallel:
+
+Run unit tests in parallel
+    To speed up the Python unit test suite, use the ``-n`` option to distribute tests
+    across multiple CPU cores. Some examples are given below:
+
+    .. code-block:: sh
+
+        pytest tests/unit -n auto     # All physically available CPU cores
+        pytest tests/unit -n logical  # All logical CPU cores
+        pytest tests/unit -n 4        # 4 CPU cores
+
+    .. seealso::
+        Parallel test execution is provided by `pytest-xdist`_.
+
 .. _contributor_guide_testing_local_python_select:
 
 Select specific tests
@@ -475,6 +490,57 @@ Bokeh's CI runs tests on Linux, macOS, and Windows. It also runs tests with
 different versions of Python. The various testing environments are defined
 in their respective YAML files in the :bokeh-tree:`conda` folder. In case you
 add or change dependencies, you need to update these files.
+
+CI Workflows
+~~~~~~~~~~~~
+
+Bokeh uses multiple CI workflows to balance speed and coverage:
+
+**Standard CI (bokeh-ci.yml)**
+    Runs on every push and pull request for fast feedback. Tests critical
+    cross-platform functionality while keeping CI times manageable.
+
+    - **Coverage**: 11 jobs total
+    - **Unit tests**: Latest Python (3.14) on all platforms (Ubuntu, macOS, Windows)
+    - **Codebase checks**: All platforms with Python 3.12
+    - **Other tests**: Linux only (examples, minimal-deps, core-deps, documentation)
+    - **Features**: Cancel-in-progress enabled for faster iteration
+
+**Full CI (bokeh-ci-full.yml)**
+    Runs daily at 2 AM UTC and can be manually triggered by maintainers.
+    Tests all platform × Python version combinations for complete coverage.
+
+    - **Coverage**: 29 jobs total
+    - **Platforms**: Ubuntu 24.04, macOS latest, Windows latest
+    - **Python versions**: 3.12, 3.13, 3.14
+    - **Test suites**: All test types across all combinations
+
+    **To manually trigger the full workflow:**
+
+    Via GitHub Web UI:
+
+    1. Go to the `Actions tab <https://github.com/bokeh/bokeh/actions>`_
+    2. Select "Bokeh-CI-Full" from the workflow list
+    3. Click "Run workflow" (top right)
+    4. Select the branch to test
+    5. Optionally provide a reason for the manual run
+    6. Click "Run workflow" to start
+
+    Via GitHub CLI:
+
+    .. code-block:: sh
+
+        # Trigger on a specific branch
+        gh workflow run bokeh-ci-full.yml --ref branch-name
+
+        # Trigger on a PR's branch
+        gh workflow run bokeh-ci-full.yml --ref $(gh pr view PR_NUMBER --json headRefName --jq .headRefName)
+
+        # With a custom reason
+        gh workflow run bokeh-ci-full.yml --ref branch-name -f reason="Testing before release"
+
+    Manual triggers are useful before major releases, after dependency updates,
+    or when investigating platform-specific bugs.
 
 Etiquette
 ~~~~~~~~~

@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provides additional core types based on ``typing`` and ``typing_extensions``.
+""" Provides additional core types based on ``typing``.
 
 """
 
@@ -26,7 +26,6 @@ from typing import (
     Literal,
     NewType,
     Sequence,
-    TypeAlias,
     TypedDict,
 )
 
@@ -49,10 +48,10 @@ __all__ = (
 
 ID = NewType("ID", str)
 
-PathLike: TypeAlias = str | os.PathLike[str]
+type PathLike = str | os.PathLike[str]
 
-FactorType: TypeAlias = str | tuple[str, str] | tuple[str, str, str]
-FactorSeqType: TypeAlias = Sequence[str] | Sequence[tuple[str, str]] | Sequence[tuple[str, str, str]]
+type FactorType = str | tuple[str, str] | tuple[str, str, str]
+type FactorSeqType = Sequence[str] | Sequence[tuple[str, str]] | Sequence[tuple[str, str, str]]
 
 
 # TODO: move this to types/geometry.py
@@ -79,7 +78,7 @@ class PolyGeometry(TypedDict):
     sx: Sequence[float]
     sy: Sequence[float]
 
-Geometry: TypeAlias = PointGeometry | SpanGeometry | RectGeometry | PolyGeometry
+type Geometry = PointGeometry | SpanGeometry | RectGeometry | PolyGeometry
 
 class PointGeometryData(PointGeometry):
     x: float
@@ -99,7 +98,7 @@ class PolyGeometryData(PolyGeometry):
     x: Sequence[float]
     y: Sequence[float]
 
-GeometryData: TypeAlias = PointGeometryData | SpanGeometryData | RectGeometryData | PolyGeometryData
+type GeometryData = PointGeometryData | SpanGeometryData | RectGeometryData | PolyGeometryData
 
 #-----------------------------------------------------------------------------
 # Private API

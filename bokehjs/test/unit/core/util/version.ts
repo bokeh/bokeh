@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {Version, ReleaseType} from "@bokehjs/core/util/version"
 
 describe("core/util/version module", () => {

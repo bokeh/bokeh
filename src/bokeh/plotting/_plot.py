@@ -19,12 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    TypeAlias,
-)
+from typing import TYPE_CHECKING, Any, Literal
 
 # External imports
 import numpy as np
@@ -54,7 +49,9 @@ from ..models import (
 from ..util.dependencies import uses_pandas
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
     import pandas as pd
+    from pandas.api.extensions import ExtensionArray
     from pandas.core.groupby import GroupBy
 
     from ..models.plots import Plot
@@ -78,22 +75,12 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Series[Any] | GroupBy | None) -> Range:
-    if uses_pandas(range_input):
-        import pandas as pd
-        from pandas.core.groupby import GroupBy
-    else:
-        pd = GroupBy = None
-
+def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequence[str] | pd.Series[Any] | ExtensionArray | GroupBy[Any] | None) -> Range:
     if range_input is None:
         return DataRange1d()
-    if GroupBy and isinstance(range_input, GroupBy):
-        return FactorRange(factors=sorted(list(range_input.groups.keys())))
-    if isinstance(range_input, Range):
+    elif isinstance(range_input, Range):
         return range_input
-    if pd and isinstance(range_input, pd.Series):
-        range_input = range_input.values
-    if isinstance(range_input, (Sequence, np.ndarray)):
+    elif isinstance(range_input, (Sequence, np.ndarray)):
         if all(isinstance(x, str) for x in range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
@@ -106,11 +93,23 @@ def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Seri
                 return Range1d(start=start, end=end)
             except ValueError:  # @mattpap suggests ValidationError instead
                 pass
+    elif uses_pandas(range_input):
+        from pandas import Series
+        from pandas.api.extensions import ExtensionArray
+        from pandas.core.groupby import GroupBy
+
+        if isinstance(range_input, Series):
+            return get_range(range_input.values)
+        elif isinstance(range_input, ExtensionArray):
+            return get_range(list(range_input))
+        elif isinstance(range_input, GroupBy):
+            return FactorRange(factors=sorted(range_input.groups.keys()))
+
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-AxisType: TypeAlias = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
-AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
-Dim: TypeAlias = Literal[0, 1]
+type AxisType = Literal["linear", "log", "datetime", "timedelta", "mercator", "auto"]
+type AxisLocation = Literal["above", "below", "left", "right"]
+type Dim = Literal[0, 1]
 
 def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
     if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "timedelta", "mercator", "auto", None]:

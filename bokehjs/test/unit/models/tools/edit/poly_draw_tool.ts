@@ -1,7 +1,7 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import {display} from "../../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {build_view} from "@bokehjs/core/build_views"
 import type {Arrayable} from "@bokehjs/core/types"

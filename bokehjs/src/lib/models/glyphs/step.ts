@@ -1,13 +1,18 @@
+import type {PointGeometry, SpanGeometry} from "core/geometry"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend} from "./utils"
+import {Selection} from "../selections/selection"
+import * as hittest from "core/hittest"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
-import type {Rect} from "core/types"
+import type {Rect, Arrayable} from "core/types"
 import {StepMode} from "core/enums"
 import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {StepGL} from "./webgl/step"
+
+type XY = {x: number, y: number}
 
 export interface StepView extends Step.Data {}
 
@@ -178,6 +183,113 @@ export class StepView extends XYGlyphView {
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
     generic_line_scalar_legend(this.visuals, ctx, bbox)
+  }
+
+  get_interpolation_hit(i: number, _geometry: PointGeometry | SpanGeometry): [number, number] {
+    // For step glyphs, return the data point at index i (snapped)
+    return [this.x[i], this.y[i]]
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const result = new Selection()
+    const point = {x: geometry.sx, y: geometry.sy}
+    const threshold = Math.max(2, this.line_width.value / 2)
+    const mode = this.model.mode
+    const n = Math.min(this.sx.length, this.sy.length)
+
+    let shortest = Infinity
+    let hit_index: number | null = null
+
+    for (let j = 0; j < n - 1; j++) {
+      const segments = this._get_step_segments(j, mode)
+
+      for (const [p0, p1] of segments) {
+        const dist = hittest.dist_to_segment(point, p0, p1)
+        if (dist < threshold && dist < shortest) {
+          shortest = dist
+          hit_index = j
+        }
+      }
+    }
+
+    if (hit_index != null) {
+      result.add_to_selected_glyphs(this.model)
+      result.view = this
+      result.line_indices = [hit_index]
+    }
+
+    return result
+  }
+
+  protected override _hit_span(geometry: SpanGeometry): Selection {
+    const {sx, sy} = geometry
+
+    let val: number
+    let values: Arrayable<number>
+    if (geometry.direction == "v") {
+      val = this.renderer.yscale.invert(sy)
+      values = this.y
+    } else {
+      val = this.renderer.xscale.invert(sx)
+      values = this.x
+    }
+
+    const indices = []
+    for (let i = 0, end = values.length - 1; i < end; i++) {
+      const curr = values[i]
+      const next = values[i + 1]
+
+      if ((curr <= val && val <= next) || (next <= val && val <= curr)) {
+        indices.push(i)
+      }
+    }
+
+    const result = new Selection()
+    if (indices.length != 0) {
+      result.add_to_selected_glyphs(this.model)
+      result.view = this
+      result.line_indices = indices
+    }
+    return result
+  }
+
+  /**
+   * Convert a step between two data points into line segments.
+   * For "before" mode: vertical then horizontal.
+   * For "after" mode: horizontal then vertical.
+   * For "center" mode: horizontal to midpoint, vertical, then horizontal.
+   */
+  protected _get_step_segments(j: number, mode: StepMode): [XY, XY][] {
+    const segments: [XY, XY][] = []
+
+    const x0 = this.sx[j]
+    const y0 = this.sy[j]
+    const x1 = this.sx[j + 1]
+    const y1 = this.sy[j + 1]
+
+    if (!isFinite(x0 + y0 + x1 + y1)) {
+      return segments
+    }
+
+    switch (mode) {
+      case "before":
+        segments.push([{x: x0, y: y0}, {x: x0, y: y1}])
+        segments.push([{x: x0, y: y1}, {x: x1, y: y1}])
+        break
+      case "after":
+        segments.push([{x: x0, y: y0}, {x: x1, y: y0}])
+        segments.push([{x: x1, y: y0}, {x: x1, y: y1}])
+        break
+      case "center": {
+        const midx = (x0 + x1) / 2
+        segments.push([{x: x0, y: y0}, {x: midx, y: y0}])
+        segments.push([{x: midx, y: y0}, {x: midx, y: y1}])
+        segments.push([{x: midx, y: y1}, {x: x1, y: y1}])
+        break
+      }
+    }
+
+    return segments
   }
 }
 

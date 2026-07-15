@@ -32,13 +32,11 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Generic,
     Literal,
     NoReturn,
+    NotRequired,
     Sequence,
-    TypeAlias,
     TypedDict,
-    TypeVar,
     cast,
 )
 
@@ -63,7 +61,6 @@ from .types import ID
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import NotRequired
 
     from ..core.has_props import Setter
     from ..model import Model
@@ -87,7 +84,7 @@ _MAX_SAFE_INT = 2**53 - 1
 # General API
 #-----------------------------------------------------------------------------
 
-AnyRep: TypeAlias = Any
+type AnyRep = Any
 
 class Ref(TypedDict):
     id: ID
@@ -108,7 +105,7 @@ class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: NotRequired[list[AnyRep]]
 
-ArrayRepLike: TypeAlias = ArrayRep | list[AnyRep]
+type ArrayRepLike = ArrayRep | list[AnyRep]
 
 class SetRep(TypedDict):
     type: Literal["set"]
@@ -141,10 +138,10 @@ class ObjectRefRep(TypedDict):
 
 ModelRep = ObjectRefRep
 
-ByteOrder: TypeAlias = Literal["little", "big"]
+type ByteOrder = Literal["little", "big"]
 
-DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
-NDDataType: TypeAlias = Literal["bool"] | DataType | Literal["object"]
+type DataType = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
+type NDDataType = Literal["bool"] | DataType | Literal["object"]
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]
@@ -182,15 +179,13 @@ class Buffer:
     def to_base64(self) -> str:
         return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
 
-T = TypeVar("T")
-
 @dataclass
-class Serialized(Generic[T]):
+class Serialized[T]:
     content: T
     buffers: list[Buffer] = field(default_factory=list[Buffer])
 
-Encoder: TypeAlias = Callable[[Any, "Serializer"], AnyRep]
-Decoder: TypeAlias = Callable[[AnyRep, "Deserializer"], Any]
+type Encoder = Callable[[Any, "Serializer"], AnyRep]
+type Decoder = Callable[[AnyRep, "Deserializer"], Any]
 
 class SerializationError(ValueError):
     pass
@@ -433,7 +428,10 @@ class Serializer:
 
         data: ArrayRepLike | BytesRep
         dtype: NDDataType
-        if array_encoding_disabled(array):
+        if array.dtype.kind == 'U':
+            data = obj.flatten().tolist()
+            dtype = "object"
+        elif array_encoding_disabled(array):
             data = self._encode_list(array.flatten().tolist())
             dtype = "object"
         else:
@@ -451,13 +449,13 @@ class Serializer:
     def _encode_other(self, obj: Any) -> AnyRep:
         # date/time values that get serialized as milliseconds
         if is_datetime_type(obj):
-            return convert_datetime_type(obj)
+            return self.encode(convert_datetime_type(obj))
 
         if is_timedelta_type(obj):
-            return convert_timedelta_type(obj)
+            return self.encode(convert_timedelta_type(obj))
 
         if isinstance(obj, dt.date):
-            return obj.isoformat()
+            return self.encode(obj.isoformat())
 
         # NumPy scalars
         if np.issubdtype(type(obj), np.floating):

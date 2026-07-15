@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TypeAlias, TypeVar
+from typing import Any
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -31,8 +31,6 @@ __all__ = (
     "Undefined",
 )
 
-T = TypeVar("T")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -41,6 +39,7 @@ T = TypeVar("T")
 # Dev API
 #-----------------------------------------------------------------------------
 
+# TODO turn this into an actual singleton class
 class UndefinedType:
     """ Indicates no value set, which is not the same as setting ``None``. """
 
@@ -53,10 +52,17 @@ class UndefinedType:
     def __repr__(self) -> str:
         return "Undefined"
 
+    def __eq__(self, other: Any) -> bool:
+        return other is Undefined
+
+    def __ne__(self, other: Any) -> bool:
+        return other is not Undefined
+
 Undefined = UndefinedType()
 
-Optional: TypeAlias = T | UndefinedType
+type Optional[T] = T | UndefinedType
 
+# TODO turn this into an actual singleton class
 class IntrinsicType:
     """ Indicates usage of the intrinsic default value of a property. """
 
@@ -68,6 +74,12 @@ class IntrinsicType:
 
     def __repr__(self) -> str:
         return "Intrinsic"
+
+    def __eq__(self, other: Any) -> bool:
+        return other is Intrinsic
+
+    def __ne__(self, other: Any) -> bool:
+        return other is not Intrinsic
 
 Intrinsic = IntrinsicType()
 

@@ -61,7 +61,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    TypeAlias,
     cast,
 )
 
@@ -86,11 +85,10 @@ if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.serialization import Serializer
     from ..model import Model
-    from ..models.sources import DataDict
+    from ..models.sources import DataDict, Patches
     from ..protocol.message import BufferRef
     from ..server.callbacks import SessionCallback
     from .document import Document
-    from .json import Patches
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -120,9 +118,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Buffers: TypeAlias = list[BufferRef] | None
+    type Buffers = list[BufferRef] | None
 
-    Invoker: TypeAlias = Callable[..., Any] # TODO
+    type Invoker = Callable[..., Any] # TODO
 
 class DocumentChangedMixin:
     def _document_changed(self, event: DocumentChangedEvent) -> None: ...

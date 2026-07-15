@@ -5,26 +5,37 @@ import {union} from "./array"
 export const {assign} = Object
 export const extend = assign
 
+/**
+ * Clone an object with out a subset of keys.
+ */
+export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
+  const result = {...obj}
+  for (const key of keys) {
+    delete result[key]
+  }
+  return result
+}
+
 export function to_object<T = any>(obj: PlainObject<T> | Iterable<readonly [PropertyKey, T]>): PlainObject<T> {
   return isPlainObject(obj) ? obj : Object.fromEntries(obj)
 }
 
 export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[]
-export function keys(obj: {}): string[]
+export function keys(obj: object): string[]
 
 export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[] {
   return obj instanceof Map ? [...obj.keys()] : Object.keys(obj)
 }
 
 export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[]
-export function values(obj: {}): unknown[]
+export function values(obj: object): unknown[]
 
 export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[] {
   return obj instanceof Map ? [...obj.values()] : Object.values(obj)
 }
 
 export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][]
-export function entries(obj: {}): [string, unknown][]
+export function entries(obj: object): [string, unknown][]
 
 export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][] {
   return obj instanceof Map ? [...obj.entries()] : Object.entries(obj)

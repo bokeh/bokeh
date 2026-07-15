@@ -1,4 +1,4 @@
-import {display, fig, row} from "../_util"
+import {display, fig, row} from "#framework/layouts"
 
 import type {Plot} from "@bokehjs/models"
 import {Range1d, FactorRange, ZoomOutTool, LinearScale, CategoricalScale} from "@bokehjs/models"

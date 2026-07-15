@@ -37,16 +37,15 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
-    TypeAlias,
+    NotRequired,
+    Self,
     TypedDict,
-    TypeVar,
     overload,
 )
 from weakref import WeakSet
 
 if TYPE_CHECKING:
-    F = TypeVar("F", bound=Callable[..., Any])
-    def lru_cache(arg: int | None) -> Callable[[F], F]: ...
+    def lru_cache[F: Callable[..., Any]](arg: int | None) -> Callable[[F], F]: ...
 else:
     from functools import lru_cache
 
@@ -66,8 +65,6 @@ from .serialization import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Self
-
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property
@@ -94,13 +91,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Setter: TypeAlias = ClientSession | ServerSession
-
-C = TypeVar("C", bound=type["HasProps"])
+    type Setter = ClientSession | ServerSession
 
 _abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
-def abstract(cls: C) -> C:
+def abstract[C: type[HasProps]](cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
 
     '''
@@ -373,6 +368,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         self._raise_attribute_error_with_matches(name, properties)
 
     def _raise_attribute_error_with_matches(self, name: str, properties: Iterable[str]) -> NoReturn:
+        if not settings.perform_error_diagnostics():
+            raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}")
+
         matches, text = difflib.get_close_matches(name.lower(), properties), "similar"
 
         if not matches:
@@ -839,10 +837,9 @@ Serializer.register(MetaHasProps, _HasProps_to_serializable)
 #-----------------------------------------------------------------------------
 
 _ABSTRACT_ADMONITION = '''
-    .. note::
-        This is an abstract base class used to help organize the hierarchy of Bokeh
-        model types. **It is not useful to instantiate on its own.**
-
+.. note::
+    This is an abstract base class used to help organize the hierarchy of Bokeh
+    model types. **It is not useful to instantiate on its own.**
 '''
 
 #-----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
-import {display, fig} from "../_util"
-import {PlotActions, xy} from "../../interactive"
+import {display, fig} from "#framework/layouts"
+import {PlotActions, xy} from "#framework/interactive"
 
 import {PanTool, RangeTool, Range1d} from "@bokehjs/models"
 

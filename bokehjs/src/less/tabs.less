@@ -1,8 +1,8 @@
 @import "./_mixins.less";
 
 :host {
-  // The border opposite the divider
-  --block-start-border-width: 3px;
+  --active-border-width: 3px;
+  --active-border-color: var(--border-color);
 
   --close-icon-hover-background-color: var(--error);
   --close-icon-width: 14px;
@@ -10,8 +10,10 @@
   --close-icon-color: var(--icon-color);
   --close-icon-space-away-from-tab-text: 10px;
 
-  --padding-vertical: 4px;
-  --padding-horizontal: 8px;
+  --margin: 4px;
+
+  --tab-padding-vertical: 4px;
+  --tab-padding-horizontal: 8px;
 
   --outline-offset: -5px;
 
@@ -20,6 +22,7 @@
 
 :host {
   display: grid;
+  background-color: var(--inherit-background-color);
 }
 
 :host(.bk-above) {
@@ -45,24 +48,49 @@
 }
 
 .bk-header {
-  grid-area: "header";
+  grid-area: header;
+  display: flex;
+  overflow: hidden;
 
+  .no-user-select();
+}
+
+.bk-panel {
+  grid-area: stack;
+  width: max-content;
+  height: max-content;
+}
+.bk-panel:not(.bk-active) {
+  visibility: hidden;
+}
+
+.bk-headers-wrapper {
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
-
-  .no-user-select();
 }
 
 :host(.bk-above), :host(.bk-below) {
   .bk-header {
     flex-direction: row;
   }
+
+  .bk-headers-wrapper {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 }
 
 :host(.bk-left), :host(.bk-right) {
   .bk-header {
     flex-direction: column;
+  }
+
+  .bk-headers-wrapper {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 
@@ -72,13 +100,14 @@
 :host(.bk-left)  .bk-header { border-right:  var(--divider); }
 
 .bk-tab {
-  padding: var(--padding-vertical) var(--padding-horizontal);
-  border: var(--border-style) transparent;
+  padding: var(--tab-padding-vertical) var(--tab-padding-horizontal);
+  border: var(--border-style) var(--border-color);
   outline: 0;
   outline-offset: var(--outline-offset);
   white-space: nowrap;
   cursor: pointer;
   text-align: center;
+  color: var(--inherit-color);
 
   &:hover {
     background-color: var(--hover-color);
@@ -89,33 +118,55 @@
   }
 
   &.bk-active {
+    --active-border-color: var(--highlight-color);
     color: var(--color);
     background-color: var(--background-color);
     border-color: var(--border-color);
+    font-weight: bold;
   }
 
   .bk-close {
     margin-left: var(--close-icon-space-away-from-tab-text);
   }
 
-  .bk-disabled(var(--disabled-opacity), inherit, inherit, inherit);
+  .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
 }
 
 :host(.bk-above) .bk-tab {
-  border-width: var(--block-start-border-width) var(--divider-width) 0 var(--divider-width);
+  border-width: var(--active-border-width) var(--border-width) 0 var(--border-width);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+  border-color: var(--active-border-color) var(--border-color) transparent var(--border-color);
+
+  &:not(:last-child) {
+    margin: 0 var(--margin) 0 0;
+  }
 }
 :host(.bk-right) .bk-tab {
-  border-width: var(--divider-width) var(--block-start-border-width) var(--divider-width) 0;
+  border-width: var(--border-width) var(--active-border-width) var(--border-width) 0;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  border-color: var(--border-color) var(--active-border-color) var(--border-color) transparent;
+
+  &:not(:last-child) {
+    margin: 0 0 var(--margin) 0;
+  }
 }
 :host(.bk-below) .bk-tab {
-  border-width: 0 var(--divider-width) var(--block-start-border-width) var(--divider-width);
+  border-width: 0 var(--border-width) var(--active-border-width) var(--border-width);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
+  border-color: transparent var(--border-color) var(--active-border-color) var(--border-color);
+
+  &:not(:last-child) {
+    margin: 0 var(--margin) 0 0;
+  }
 }
 :host(.bk-left) .bk-tab {
-  border-width: var(--divider-width) 0 var(--divider-width) var(--block-start-border-width);
+  border-width: var(--border-width) 0 var(--border-width) var(--active-border-width);
   border-radius: var(--border-radius) 0 0 var(--border-radius);
+  border-color: var(--border-color) transparent var(--border-color) var(--active-border-color);
+
+  &:not(:last-child) {
+    margin: 0 0 var(--margin) 0;
+  }
 }
 
 .bk-close {

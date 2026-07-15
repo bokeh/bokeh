@@ -20,6 +20,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
+  color: var(--inherit-color);
 }
 
 .bk-item, .bk-divider {
@@ -58,6 +59,7 @@
 
   &:hover {
     background-color: var(--hover-color);
+    border-radius: var(--border-radius);
   }
   &:focus, &:focus-visible {
     outline: 1px dotted var(--highlight-color);
@@ -70,13 +72,13 @@
   .bk-disabled(inherit, inherit, var(--disabled-color), var(--icon-color-disabled));
 
   &:first-of-type {
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+    border-top-left-radius: var(--border-top-left-radius);
+    border-top-right-radius: var(--border-top-right-radius);
   }
 
   &:last-of-type {
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-bottom-left-radius);
+    border-bottom-right-radius: var(--border-bottom-right-radius);
   }
 }
 
@@ -87,7 +89,6 @@
   height: 16px;
 
   .icon-mask-base();
-  .icon-mask-base-png();
 }
 
 .bk-label {

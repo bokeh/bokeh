@@ -1,4 +1,4 @@
-import {expect, expect_instanceof} from "assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"

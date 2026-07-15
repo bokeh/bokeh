@@ -54,12 +54,14 @@ _expected_settings = (
     'default_server_port',
     'docs_cdn',
     'docs_version',
+    'export_backend',
     'ico_path',
     'ignore_filename',
     'log_level',
     'minified',
     'nodejs_path',
     'perform_document_validation',
+    'perform_error_diagnostics',
     'pretty',
     'py_log_level',
     'resources',
@@ -95,6 +97,7 @@ class TestSettings:
         assert bs.settings.ignore_filename.convert_type == "Bool"
         assert bs.settings.minified.convert_type == "Bool"
         assert bs.settings.perform_document_validation.convert_type == "Bool"
+        assert bs.settings.perform_error_diagnostics.convert_type == "Bool"
         assert bs.settings.simple_ids.convert_type == "Bool"
         assert bs.settings.xsrf_cookies.convert_type == "Bool"
 
@@ -118,6 +121,7 @@ class TestSettings:
             'ignore_filename',
             'minified',
             'perform_document_validation',
+            'perform_error_diagnostics',
             'py_log_level',
             'simple_ids',
             'validation_level',
@@ -357,6 +361,9 @@ class TestDefaults:
     def test_chromedriver_path(self):
         assert bs.settings.chromedriver_path.default is None
 
+    def test_compression_level(self):
+        assert bs.settings.compression_level.default == 2
+
     def test_cookie_secret(self):
         assert bs.settings.cookie_secret.default is None
 
@@ -383,6 +390,9 @@ class TestDefaults:
 
     def test_perform_document_validation(self):
         assert bs.settings.perform_document_validation.default is True
+
+    def test_perform_error_diagnostics(self):
+        assert bs.settings.perform_error_diagnostics.default is True
 
     def test_pretty(self):
         assert bs.settings.pretty.default is False

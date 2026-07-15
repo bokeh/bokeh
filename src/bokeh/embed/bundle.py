@@ -31,6 +31,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Iterator,
+    NotRequired,
     Sequence,
     TypedDict,
 )
@@ -46,8 +47,6 @@ from ..util.compiler import bundle_models
 from .util import contains_tex_string
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
-
     from ..resources import Hashes
 
 #-----------------------------------------------------------------------------
@@ -71,13 +70,13 @@ class Artifact:
     pass
 
 class ScriptRef(Artifact):
-    def __init__(self, url: str, type: str = "text/javascript") -> None:
+    def __init__(self, url: str, type: str | None = None) -> None:
         self.url = URL(url)
         self.type = type
 
 
 class Script(Artifact):
-    def __init__(self, content: str, type: str = "text/javascript") -> None:
+    def __init__(self, content: str, type: str | None = None) -> None:
         self.content = content
         self.type = type
 
@@ -372,7 +371,7 @@ def _use_tables(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -385,7 +384,7 @@ def _use_widgets(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -438,7 +437,7 @@ def _model_requires_mathjax(model: HasProps) -> bool:
 def _use_mathjax(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
     Returns:
         bool
     '''
@@ -451,7 +450,7 @@ def _use_gl(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
-        objs (seq[HasProps or Document]) :
+        all_objs (seq[HasProps or Document]) :
 
     Returns:
         bool

@@ -1,8 +1,8 @@
 import {logger} from "core/logging"
 import type {StyleSheetLike} from "core/dom"
 import {div, a} from "core/dom"
-import type {ViewStorage, View, ViewOf} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
+import type {ViewStorage, ChildView, ViewOf} from "core/build_views"
+import {build_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location, ToolName} from "core/enums"
@@ -56,7 +56,7 @@ export class ToolbarView extends UIElementView {
     return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this._tool_button_views.values()]
   }
 
@@ -124,7 +124,6 @@ export class ToolbarView extends UIElementView {
   }
 
   override remove(): void {
-    remove_views(this._tool_button_views)
     this._destroy_proxies()
     super.remove()
   }
@@ -347,6 +346,8 @@ const GestureEntry = Struct({
   tools: List(GestureToolLike),
   active: Nullable(GestureToolLike),
 })
+type GestureEntry = typeof GestureEntry["__type__"]
+
 const GesturesMap = Struct({
   pan:       GestureEntry,
   scroll:    GestureEntry,
@@ -455,7 +456,7 @@ export class Toolbar extends UIElement {
     })
   }
 
-  active_changed: Signal0<this>
+  readonly active_changed: Signal0<this> = new Signal0(this, "active_changed")
 
   get horizontal(): boolean {
     return this.location == "above" || this.location == "below"
@@ -471,15 +472,14 @@ export class Toolbar extends UIElement {
     const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
     this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => {
       this._init_tools()
-      this._activate_tools()
+      this._activate_tools(true)
     })
   }
 
   override initialize(): void {
     super.initialize()
-    this.active_changed = new Signal0(this, "active_changed")
     this._init_tools()
-    this._activate_tools()
+    this._activate_tools(false)
   }
 
   protected _init_tools(): void {
@@ -522,7 +522,7 @@ export class Toolbar extends UIElement {
     this.auxiliaries = new_auxiliaries
   }
 
-  protected _activate_tools(): void {
+  protected _activate_tools(emit: boolean): void {
     if (this.active_inspect == "auto") {
       // do nothing as all tools are active be default
     } else if (this.active_inspect == null) {
@@ -568,7 +568,9 @@ export class Toolbar extends UIElement {
         // XXX: connect once
         this.connect(tool.properties.active.change, () => {
           this._active_change(tool)
-          this.active_changed.emit()
+          if (emit) {
+            this.active_changed.emit()
+          }
         })
       }
     }
@@ -592,13 +594,43 @@ export class Toolbar extends UIElement {
       return this.tools.includes(active_tool) || (active_tool instanceof Tool && this.tools.some((tool) => tool instanceof ToolProxy && tool.tools.includes(active_tool)))
     }
 
+    const _resolve_gesture_activation = (gesture: GestureEntry, active_attr: keyof ActiveGestureToolsProps | null): void => {
+      // some tools may already be initialized as active
+      if (gesture.tools.every((tool) => !tool.active)) {
+        return
+      }
+
+      // active attr takes precedence over any active initialization
+      if (active_attr != null && this[active_attr] != null && this[active_attr] != "auto") {
+        gesture.tools.forEach((tool) => {
+          if (tool.tool_name != this[active_attr]) {
+            tool.active = false
+          }
+        })
+        return
+      }
+
+      for (const tool of gesture.tools) {
+        if (!tool.active) {
+          continue
+        }
+
+        if (gesture.active == null) {
+          _activate_gesture(tool)
+        } else if (gesture.active.id != tool.id && gesture.active.tool_name != tool.tool_name) {
+          tool.active = false
+        }
+      }
+    }
+
     for (const [event_role, gesture] of entries(this.gestures)) {
       const et = event_role as EventRole
       const active_attr = _get_active_attr(et)
+      _resolve_gesture_activation(gesture, active_attr)
       if (active_attr != null) {
         const active_tool = this[active_attr]
         if (active_tool == "auto") {
-          if (gesture.tools.length != 0) {
+          if (gesture.tools.length != 0 && gesture.active == null) {
             const [tool] = gesture.tools
             if (_supports_auto(et, tool)) {
               _activate_gesture(tool)
@@ -619,7 +651,9 @@ export class Toolbar extends UIElement {
       }
     }
 
-    this.active_changed.emit()
+    if (emit) {
+      this.active_changed.emit()
+    }
   }
 
   _active_change(tool: ToolLike<GestureTool>): void {

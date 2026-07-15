@@ -5,7 +5,7 @@ import type {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import type * as p from "core/properties"
-import type {View} from "core/build_views"
+import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {logger} from "core/logging"
 import type {Geometry} from "core/geometry"
@@ -28,7 +28,7 @@ export class GraphRendererView extends DataRendererView {
     return this.node_view.glyph
   }
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this.edge_view, this.node_view]
   }
 
@@ -112,12 +112,6 @@ export class GraphRendererView extends DataRendererView {
       glyph.x = x
       glyph.y = y
     }
-  }
-
-  override remove(): void {
-    this.edge_view.remove()
-    this.node_view.remove()
-    super.remove()
   }
 
   protected _paint(ctx: Context2d): void {

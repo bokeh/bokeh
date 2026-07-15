@@ -29,7 +29,6 @@ export class PaletteSelectView extends InputWidgetView {
   protected _pane: DropPane
 
   protected readonly _style = new InlineStyleSheet("", "select")
-  protected readonly _style_menu = new InlineStyleSheet("", "menu")
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), palette_select_css.default, item_css.default, icons_css.default, this._style]
@@ -76,7 +75,7 @@ export class PaletteSelectView extends InputWidgetView {
 
   protected _render_input(): HTMLElement {
     this._value_el = div({class: [palette_select_css.value, item_css.entry]}, this._render_value())
-    const chevron_el = div({class: [palette_select_css.chevron, icons_css.tool_icon_chevron_down]})
+    const chevron_el = div({class: [palette_select_css.chevron]})
 
     const input_el = div({class: [inputs_css.input, palette_select_css.value_input]}, this._value_el, chevron_el)
 
@@ -120,10 +119,6 @@ export class PaletteSelectView extends InputWidgetView {
         }
       `)
     }
-
-    // The widget and its menu are independent components, so they need
-    // to have their own stylesheets.
-    this._style_menu.replace(this._style.css)
 
     const item_els: HTMLElement[] = []
     for (const [item, i] of enumerate(this.model.items)) {
@@ -173,7 +168,7 @@ export class PaletteSelectView extends InputWidgetView {
     this._pane = new DropPane(item_els, {
       target: this.group_el,
       prevent_hide: this.input_el,
-      extra_stylesheets: [item_css.default, pane_css.default, this._style_menu],
+      extra_stylesheets: [item_css.default, pane_css.default, this._style],
     })
 
     this._update_ncols()

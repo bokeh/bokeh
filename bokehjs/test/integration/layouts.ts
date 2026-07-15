@@ -1,6 +1,6 @@
-import {expect} from "../unit/assertions"
-import {display, fig} from "./_util"
-import {mouse_click} from "../interactive"
+import {expect} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
+import {mouse_click} from "#framework/interactive"
 
 import {Spacer, Tabs, TabPanel, GridBox, GroupBox, ScrollBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
 import {TextInput, Button} from "@bokehjs/models/widgets"
@@ -577,12 +577,12 @@ describe("Tabs", () => {
 
   it("should allow tabs header location left with overflow", async () => {
     const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location right with overflow", async () => {
     const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location above with overflow and active off-screen", async () => {
@@ -600,13 +600,13 @@ describe("Tabs", () => {
   it("should allow tabs header location left with overflow and active off-screen", async () => {
     const obj = tabs("left", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location right with overflow and active off-screen", async () => {
     const obj = tabs("right", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [200, 170])
   })
 
   it("should allow tabs header location above with disabled=true", async () => {
@@ -657,7 +657,7 @@ describe("Tabs", () => {
     await display(obj, [200, 150])
   })
 
-  it("should allow axis alignment across tabs", async () => {
+  async function linked_tabs(link_layouts: boolean) {
     const tabs = new Tabs({
       tabs: [
         new TabPanel({title: "Tab 0", child: plot(10**0, 10**0, "red")}),
@@ -665,8 +665,17 @@ describe("Tabs", () => {
         new TabPanel({title: "Tab 2", child: plot(10**4, 10**4, "blue")}),
       ],
       tabs_location: "above",
+      link_layouts,
     })
     await display(tabs, [250, 250])
+  }
+
+  it("should allow axis alignment across tabs", async () => {
+    await linked_tabs(true)
+  })
+
+  it("should allow to disable axis alignment across tabs", async () => {
+    await linked_tabs(false)
   })
 })
 

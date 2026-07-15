@@ -2,18 +2,23 @@ import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/type
 import {entries} from "./util/object"
 import {BBox} from "./util/bbox"
 import type {Size, Box, Extents, PlainObject} from "./types"
-import type {CSSStyles, CSSStyleSheetDecl} from "./css"
-import {compose_stylesheet, apply_styles} from "./css"
+import type {CSSStyles} from "./css"
+import {apply_styles} from "./css"
 import {logger} from "./logging"
+
+// {{{ TODO remove this
+export type {StyleSheet, StyleSheetLike} from "./stylesheets"
+export {InlineStyleSheet, ImportedStyleSheet, GlobalInlineStyleSheet, GlobalImportedStyleSheet} from "./stylesheets"
+// }}}
 
 export type Optional<T> = {[P in keyof T]?: T[P] | null | undefined}
 
 export type HTMLElementName = keyof HTMLElementTagNameMap
 
-export type CSSClass = string
+export type CSSClass = string | null | undefined
 
 export type ElementOurAttrs = {
-  class?: CSSClass | (CSSClass | null | undefined)[]
+  class?: CSSClass | CSSClass[]
   style?: CSSStyles | string
   data?: PlainObject<string | null | undefined>
 }
@@ -119,7 +124,7 @@ const _element = <T extends keyof HTMLElementTagNameMap, ElementSpecificAttrs>(t
 }
 
 export function create_element<T extends keyof HTMLElementTagNameMap>(
-    tag: T, attrs: HTMLAttrs<T, {}> | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
+    tag: T, attrs: HTMLAttrs<T, object> | null, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _element(tag)(attrs, ...children)
 }
 
@@ -478,8 +483,8 @@ export function undisplay(element: HTMLElement): void {
   element.style.display = "none"
 }
 
-export function show(element: HTMLElement): void {
-  element.style.visibility = ""
+export function show(element: HTMLElement, show: boolean = true): void {
+  element.style.visibility = show ? "" : "hidden"
 }
 
 export function hide(element: HTMLElement): void {
@@ -496,11 +501,16 @@ export function offset_bbox(element: Element): BBox {
   })
 }
 
-export function parent(el: HTMLElement, selector: string): HTMLElement | null {
-  let node: HTMLElement | null = el
+export function parent(el: Element, query: string | ((node: Element) => boolean)): Element | null {
+  let node: Element | null = el
+
+  if (isString(query)) {
+    const selector = query
+    query = (node) => node.matches(selector)
+  }
 
   while ((node = node.parentElement) != null) {
-    if (node.matches(selector)) {
+    if (query(node)) {
       return node
     }
   }
@@ -687,105 +697,6 @@ export enum MouseButton {
   Middle = Auxiliary,
 }
 
-export abstract class StyleSheet {
-  protected readonly el: HTMLStyleElement | HTMLLinkElement
-
-  install(el: HTMLElement | ShadowRoot): void {
-    el.append(this.el)
-  }
-
-  uninstall(): void {
-    this.el.remove()
-  }
-}
-
-export class InlineStyleSheet extends StyleSheet {
-  protected override readonly el = style()
-
-  constructor(css?: string | CSSStyleSheetDecl, id?: string, readonly persistent: boolean = false) {
-    super()
-    if (isString(css)) {
-      this._update(css)
-    } else if (css != null) {
-      this._update(compose_stylesheet(css))
-    }
-    if (id != null) {
-      this.el.dataset.css = id
-    }
-  }
-
-  get css(): string {
-    return this.el.textContent
-  }
-
-  protected _update(css: string): void {
-    this.el.textContent = css
-  }
-
-  clear(): void {
-    this.replace("")
-  }
-
-  private _to_css(css: string, styles: CSSStyles | undefined): string {
-    if (styles == null) {
-      return css
-    } else {
-      return compose_stylesheet({[css]: styles})
-    }
-  }
-
-  replace(css: string, styles?: CSSStyles): void {
-    this._update(this._to_css(css, styles))
-  }
-
-  prepend(css: string, styles?: CSSStyles): void {
-    this._update(`${this._to_css(css, styles)}\n${this.css}`)
-  }
-
-  append(css: string, styles?: CSSStyles): void {
-    this._update(`${this.css}\n${this._to_css(css, styles)}`)
-  }
-
-  remove(): void {
-    this.el.remove()
-  }
-}
-
-export class GlobalInlineStyleSheet extends InlineStyleSheet {
-  override install(): void {
-    if (!this.el.isConnected) {
-      document.head.appendChild(this.el)
-    }
-  }
-}
-
-export class ImportedStyleSheet extends StyleSheet {
-  protected override readonly el: HTMLLinkElement
-
-  constructor(url: string) {
-    super()
-    this.el = link({rel: "stylesheet", href: url})
-  }
-
-  replace(url: string): void {
-    this.el.href = url
-  }
-
-  remove(): void {
-    this.el.remove()
-  }
-}
-
-export class GlobalImportedStyleSheet extends ImportedStyleSheet {
-  override install(): void {
-    if (!this.el.isConnected) {
-      document.head.appendChild(this.el)
-    }
-  }
-}
-
-export type StyleSheetLike = StyleSheet | string
-
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {
     return new Promise((resolve, _reject) => {
@@ -797,8 +708,6 @@ export async function dom_ready(): Promise<void> {
 export function px(value: number | string): string {
   return isNumber(value) ? `${value}px` : value
 }
-
-export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
 
 export function has_focus(el: Element): boolean {
   const root = el.getRootNode()

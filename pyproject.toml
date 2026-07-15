@@ -7,15 +7,14 @@ name = "bokeh"
 dynamic = ["version"]
 description = "Interactive plots and applications in the browser from Python"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
-    "Jinja2 >=2.9",
-    "contourpy >=1.2",
+    "jinja2 >=2.9",
     "narwhals>=1.13",
     "numpy >=1.16",
     "packaging >=16.8",
     "pillow >=7.1.0",
-    "PyYAML >=3.10",
+    "pyyaml >=3.10",
     "tornado >=6.2; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
@@ -41,8 +40,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -54,6 +51,21 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+sampledata = [
+    "bokeh_sampledata >=2025.0",
+]
+extra = [
+    "contourpy >=1.2",
+    "pandas >=2.0",
+]
+export = [
+    "selenium ~=4.2",
+]
+all = [
+    "bokeh[sampledata,extra,export]",
 ]
 
 [project.urls]
@@ -114,6 +126,7 @@ filterwarnings = [
     '''ignore:'asyncio.[gs]et_event_loop_policy' is deprecated and slated for removal in Python 3\.16''',                                           # https://github.com/bokeh/bokeh/issues/14664
     '''ignore:Implicitly cleaning up <HTTPError 404. 'File Not Found.'>:ResourceWarning''',                             # only on Windows and Python 3.14
     '''ignore:coroutine 'SelectorThread\.__init__\.<locals>\.thread_manager_anext' was never awaited:RuntimeWarning''', # only on Windows and Python 3.14
+    '''ignore:bitcount function is deprecated:DeprecationWarning:mpmath''', # https://github.com/bokeh/bokeh/issues/14873
 ]
 
 [tool.coverage.run]
@@ -121,7 +134,7 @@ source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 
@@ -180,7 +193,9 @@ lint.ignore = [
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
 line-length = 165
-target-version = "py310"
+
+[tool.ruff.per-file-target-version]
+"examples/interaction/widgets/slider_template_string.py" = "py314"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

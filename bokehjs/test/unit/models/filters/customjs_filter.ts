@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {CustomJSFilter} from "@bokehjs/models/filters/customjs_filter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

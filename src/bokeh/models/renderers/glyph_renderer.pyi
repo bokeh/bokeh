@@ -6,16 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Literal,
-    TypeVar,
-)
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Any, Literal, Unpack
 
 # Bokeh imports
 from ...core.enums import AutoType as Auto
@@ -25,9 +16,7 @@ from ..graphics import Decoration, Marking
 from ..sources import CDSView, DataSource
 from .renderer import DataRenderer, _DataRendererInit
 
-GlyphType = TypeVar("GlyphType", bound=Glyph)
-
-class _GlyphRendererInit(_DataRendererInit, Generic[GlyphType], total=False):
+class _GlyphRendererInit[GlyphType: Glyph](_DataRendererInit, total=False):
     data_source: DataSource
     view: CDSView
     glyph: GlyphType
@@ -37,7 +26,7 @@ class _GlyphRendererInit(_DataRendererInit, Generic[GlyphType], total=False):
     muted_glyph: Auto | GlyphType | None
     muted: bool
 
-class GlyphRenderer(DataRenderer, Generic[GlyphType]):
+class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     def __init__(self, **kwargs: Unpack[_GlyphRendererInit[GlyphType]]) -> None: ...
 
     data_source: DataSource = ...

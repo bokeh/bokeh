@@ -7,10 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, TypedDict
-
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired, Unpack
+from typing import NotRequired, TypedDict, Unpack
 
 # Bokeh imports
 from .._types import NonNegative
@@ -27,6 +24,7 @@ from ..core.enums import (
 from ..core.has_props import HasProps
 from ..core.property_aliases import GridSpacing, TracksSizing
 from ..model.model import Model, _ModelInit
+from .dom import HTML
 from .ui.panes import Pane, _PaneInit
 from .ui.tooltips import Tooltip
 from .ui.ui_element import UIElement
@@ -162,7 +160,7 @@ class Column(FlexBox):
 
 class _TabPanelInit(_ModelInit, total=False):
     title: str
-    tooltip: Tooltip | None
+    tooltip: str | HTML | Tooltip | None
     child: UIElement
     closable: bool
     disabled: bool
@@ -171,7 +169,7 @@ class TabPanel(Model):
     def __init__(self, **kwargs: Unpack[_TabPanelInit]) -> None: ...
 
     title: str = ...
-    tooltip: Tooltip | None = ...
+    tooltip: str | HTML | Tooltip | None = ...
     child: UIElement = ...
     closable: bool = ...
     disabled: bool = ...
@@ -180,6 +178,7 @@ class _TabsInit(_LayoutDOMInit, total=False):
     tabs: list[TabPanel] | list[tuple[str, UIElement]]
     tabs_location: Location
     active: int
+    link_layouts: bool
 
 class Tabs(LayoutDOM):
     def __init__(self, **kwargs: Unpack[_TabsInit]) -> None: ...
@@ -191,6 +190,7 @@ class Tabs(LayoutDOM):
 
     tabs_location: Location = ...
     active: int = ...
+    link_layouts: bool = ...
 
 class _GroupBoxInit(_LayoutDOMInit, total=False):
     title: str | None

@@ -25,7 +25,12 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 # Bokeh imports
-from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
+from ..core.enums import (
+    AxisType,
+    HorizontalLocation,
+    MarkerType,
+    VerticalLocation,
+)
 from ..core.property.auto import Auto
 from ..core.property.container import List, Seq, Tuple
 from ..core.property.data_frame import EagerSeries, PandasGroupBy
@@ -102,11 +107,13 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.arc`
         * :func:`~bokeh.plotting.figure.asterisk`
         * :func:`~bokeh.plotting.figure.bezier`
+        * :func:`~bokeh.plotting.figure.block`
         * :func:`~bokeh.plotting.figure.circle`
         * :func:`~bokeh.plotting.figure.circle_cross`
         * :func:`~bokeh.plotting.figure.circle_dot`
         * :func:`~bokeh.plotting.figure.circle_x`
         * :func:`~bokeh.plotting.figure.circle_y`
+        * :func:`~bokeh.plotting.figure.contour`
         * :func:`~bokeh.plotting.figure.cross`
         * :func:`~bokeh.plotting.figure.dash`
         * :func:`~bokeh.plotting.figure.diamond`
@@ -126,6 +133,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.image_url`
         * :func:`~bokeh.plotting.figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.line`
+        * :func:`~bokeh.plotting.figure.mathml`
         * :func:`~bokeh.plotting.figure.multi_line`
         * :func:`~bokeh.plotting.figure.multi_polygons`
         * :func:`~bokeh.plotting.figure.ngon`
@@ -145,6 +153,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.star`
         * :func:`~bokeh.plotting.figure.star_dot`
         * :func:`~bokeh.plotting.figure.step`
+        * :func:`~bokeh.plotting.figure.tex`
         * :func:`~bokeh.plotting.figure.text`
         * :func:`~bokeh.plotting.figure.triangle`
         * :func:`~bokeh.plotting.figure.triangle_dot`
@@ -280,16 +289,16 @@ class figure(Plot, GlyphAPI):
                 Whether the hexagonal tiles should be oriented with a pointed
                 corner on top, or a flat side on top. (default: "pointytop")
 
-            palette (str or seq[color], optional) :
+            palette (str or seq[ColorLike], optional) :
                 A palette (or palette name) to use to colormap the bins according
                 to count. (default: 'Viridis256')
 
                 If ``fill_color`` is supplied, it overrides this value.
 
-            line_color (color, optional) :
+            line_color (ColorLike, optional) :
                 The outline color for hex tiles, or None (default: None)
 
-            fill_color (color, optional) :
+            fill_color (ColorLike, optional) :
                 An optional fill color for hex tiles, or None. If None, then
                 the ``palette`` will be used to color map the tiles by
                 count. (default: None)
@@ -1119,7 +1128,7 @@ RangeLike = Either(
     PandasGroupBy,
 )
 
-AxisType = Nullable(Either(Auto, Enum("linear", "log", "datetime", "timedelta", "mercator")))
+AxisInit = Nullable(Either(Auto, Enum(AxisType)))
 
 class FigureOptions(BaseFigureOptions):
 
@@ -1131,11 +1140,11 @@ class FigureOptions(BaseFigureOptions):
     Customize the y-range of the plot.
     """)
 
-    x_axis_type = AxisType(default="auto", help="""
+    x_axis_type = AxisInit(default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = AxisType(default="auto", help="""
+    y_axis_type = AxisInit(default="auto", help="""
     The type of the y-axis.
     """)
 

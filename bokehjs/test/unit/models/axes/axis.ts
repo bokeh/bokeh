@@ -1,6 +1,6 @@
-import {expect} from "assertions"
-import {fig, display} from "../../_util"
-import {PlotActions, xy} from "../../../interactive"
+import {expect} from "#framework/assertions"
+import {fig, display} from "#framework/layouts"
+import {PlotActions, xy} from "#framework/interactive"
 
 import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"

@@ -1,9 +1,9 @@
-import {expect, expect_not_null} from "assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"
-import type {ViewStorage} from "@bokehjs/core/build_views"
-import {build_view, build_views, remove_views} from "@bokehjs/core/build_views"
+import type {ChildView, ViewStorage} from "@bokehjs/core/build_views"
+import {build_view, build_views} from "@bokehjs/core/build_views"
 import type * as p from "@bokehjs/core/properties"
 import {Ref, List} from "@bokehjs/core/kinds"
 
@@ -12,18 +12,13 @@ class SomeModelView extends View {
 
   protected _children_views: ViewStorage<HasProps> = new Map()
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), ...this._children_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await build_views(this._children_views, this.model.children, {parent: this})
-  }
-
-  override remove(): void {
-    remove_views(this._children_views)
-    super.remove()
   }
 }
 

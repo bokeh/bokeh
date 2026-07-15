@@ -1,9 +1,12 @@
 import sinon from "sinon"
 
-import {expect, expect_instanceof, expect_not_null} from "assertions"
-import {display, fig, restorable} from "./_util"
-import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "../interactive"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
+import {restorable} from "#framework/util"
+import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {ViewOf} from "@bokehjs/core/build_views"
 
 import {
   AllIndices,
@@ -14,6 +17,7 @@ import {
   CDSView,
   Canvas,
   CategoricalColorMapper,
+  ColorBar,
   Column,
   ColumnDataSource,
   CopyTool,
@@ -29,6 +33,7 @@ import {
   LegendItem,
   Line,
   LinearColorMapper,
+  LogColorMapper,
   Node,
   PanTool,
   Pane,
@@ -77,7 +82,7 @@ import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {Spectral11, Viridis11, Viridis256} from "@bokehjs/api/palettes"
+import {Spectral11, Spectral6, Viridis11, Viridis256} from "@bokehjs/api/palettes"
 import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 import type {AxisType, ToolName} from "@bokehjs/api/figure"
@@ -412,7 +417,7 @@ describe("Bug", () => {
           },
         }],
         title: "Bokeh Application",
-        version: "3.1.0",
+        version,
       }
 
       const events0: DocumentEvent[] = []
@@ -719,7 +724,7 @@ describe("Bug", () => {
       const provider = new TableDataProvider(source, view)
       const column = new TableColumn({field: "words"}).toColumn()
 
-      provider.sort([{sortCol: column, sortAsc: true}])
+      provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: true}])
       const records_asc = provider.getRecords()
       expect(records_asc).to.be.equal([
         {words: "met",   [DTINDEX_NAME]: 0},
@@ -730,7 +735,7 @@ describe("Bug", () => {
         {words: "no",    [DTINDEX_NAME]: 1},
       ])
 
-      provider.sort([{sortCol: column, sortAsc: false}])
+      provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: false}])
       const records_dsc = provider.getRecords()
       expect(records_dsc).to.be.equal([
         {words: "no",    [DTINDEX_NAME]: 1},
@@ -908,6 +913,7 @@ describe("Bug", () => {
                 context_menu: null,
               },
             },
+            color_scheme: "auto",
           },
         },
         roots: [{
@@ -1034,11 +1040,15 @@ describe("Bug", () => {
       expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
       expect(view.shadow_el.querySelectorAll("link[href='/assets/css/local.css']").length).to.be.equal(1)
 
-      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
-      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent.includes("--local-inline: 1")).length).to.be.equal(1)
+      const to_css = (stylesheet: CSSStyleSheet) => {
+        return [...stylesheet.cssRules].map((r) => r.cssText).join("\n")
+      }
 
-      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
-      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
+      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent.includes("--global-inline: 1")).length).to.be.equal(1)
+      expect(view.shadow_el.adoptedStyleSheets.map(to_css).filter((css) => css.includes("--local-inline: 1")).length).to.be.equal(1)
+
+      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
+      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css") ?? false))
 
       expect(getComputedStyle(document.documentElement).getPropertyValue("--global-imported")).to.be.equal("1")
       expect(getComputedStyle(view.el).getPropertyValue("--local-imported")).to.be.equal("1")
@@ -1658,14 +1668,14 @@ describe("Bug", () => {
       table.view.filter = new IndexFilter({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
-      expect(table.source.selected.indices).to.be.equal([])
+      expect(table.source.selected.indices).to.be.equal([2])
 
       const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
       const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox2_el)
       await mouse_click(checkbox2_el)
       expect(view.get_selected_rows()).to.be.equal([0])
-      expect(table.source.selected.indices).to.be.equal([0])
+      expect(table.source.selected.indices).to.be.equal([0, 2])
 
       table.view.filter = new IndexFilter({indices: [0, 1, 2]})
 
@@ -1919,23 +1929,23 @@ describe("Bug", () => {
       const sv1 = view.owner.get_one(s1)
       const sv2 = view.owner.get_one(s2)
 
-      const css = `
-:host {
+      const css = (view: ViewOf<Spacer>) => `
+${view.host_selector} {
   flex: 0 0 50px;
   min-width: 0;
   min-height: 0;
 }`
-      expect(sv0.parent_style.css).to.be.equal(css)
-      expect(sv1.parent_style.css).to.be.equal(css)
-      expect(sv2.parent_style.css).to.be.equal(css)
+      expect(sv0.parent_style.css).to.be.equal(css(sv0))
+      expect(sv1.parent_style.css).to.be.equal(css(sv1))
+      expect(sv2.parent_style.css).to.be.equal(css(sv2))
 
       sv0.rerender()
       sv1.rerender()
       sv2.rerender()
 
-      expect(sv0.parent_style.css).to.be.equal(css)
-      expect(sv1.parent_style.css).to.be.equal(css)
-      expect(sv2.parent_style.css).to.be.equal(css)
+      expect(sv0.parent_style.css).to.be.equal(css(sv0))
+      expect(sv1.parent_style.css).to.be.equal(css(sv1))
+      expect(sv2.parent_style.css).to.be.equal(css(sv2))
     })
   })
 
@@ -1965,24 +1975,6 @@ describe("Bug", () => {
     })
   })
 
-  describe("in issue #14565", () => {
-    it("doesn't allow to correctly remove items from a DataTable", async () => {
-      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
-      const columns = [
-        new TableColumn({field: "my_col", title: "My Column"}),
-      ]
-
-      const table = new DataTable({source, columns})
-      const {view} = await display(table)
-
-      source.selected.indices = [0, 3, 4]
-      source.data = {my_col: ["a", "b", "c", "d"]}
-      await view.ready
-
-      expect(source.selected.indices).to.be.equal([0, 3])
-    })
-  })
-
   describe("in issue #14568", () => {
     it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
@@ -2002,6 +1994,151 @@ describe("Bug", () => {
       await view.ready
 
       expect(x_range.interval).to.be.equal([0, 3])
+    })
+  })
+
+  describe("in issue #14815", () => {
+    it("doesn't apply explicit bounds on initial render when using FactorRange", async () => {
+      const factors = ["a", "b", "c"]
+      const x_range = new FactorRange({factors, bounds: [1, 3]})
+      const p = fig([200, 200], {tools: "reset,pan", x_range})
+      p.line(factors, [1, 2, 3])
+
+      await display(p)
+
+      expect(x_range.start).to.be.equal(1)
+      expect(x_range.end).to.be.equal(3)
+
+      const a = x_range.synthetic("a")
+      const b = x_range.synthetic("b")
+      const c = x_range.synthetic("c")
+
+      expect(a).to.be.below(x_range.start)
+      expect(b).to.be.within(x_range.start, x_range.end)
+      expect(c).to.be.within(x_range.start, x_range.end)
+    })
+  })
+
+  describe("in issue #14869", () => {
+    function get_cursor(plot_view: PlotView): string {
+      return getComputedStyle(plot_view.canvas_view.events_el).cursor
+    }
+
+    async function has_cursor_at(plot_view: PlotView, point: XY, cursor: string) {
+      const ac = actions(plot_view, {units: "data"})
+      await ac.hover(point)
+      expect(get_cursor(plot_view)).to.be.equal(cursor)
+    }
+
+    it("doesn't hide resize cursors if BoxAnnotation is non editable", async () => {
+      const p = fig([200, 200], {x_range: [0, 4], y_range: [0, 4]})
+      const box = new BoxAnnotation({left: 1, right: 3, bottom: 1, top: 3})
+      p.add_layout(box)
+      const {view} = await display(p)
+
+      await has_cursor_at(view, xy(1, 1), "default")
+      await has_cursor_at(view, xy(1, 2), "default")
+      await has_cursor_at(view, xy(1, 3), "default")
+      await has_cursor_at(view, xy(2, 3), "default")
+      await has_cursor_at(view, xy(3, 3), "default")
+      await has_cursor_at(view, xy(3, 2), "default")
+      await has_cursor_at(view, xy(3, 1), "default")
+      await has_cursor_at(view, xy(2, 1), "default")
+      await has_cursor_at(view, xy(2, 2), "default")
+    })
+  })
+
+  describe("in issue #7297", () => {
+    it("doesn't support reversed LogColorMapper when low is grater than high", async () => {
+      const x = linspace(0.5, 10.5, 21)
+      const y = linspace(0.5, 10.5, 21)
+      const source = new ColumnDataSource({data: {x, y}})
+
+      const p = fig([200, 200])
+      const cmap = new LogColorMapper({
+        palette: Spectral6, low: 10, high: 1, low_color: "gray", high_color: "black",
+      })
+      const cbar = new ColorBar({color_mapper: cmap})
+      p.scatter("x", "y", {color: {field: "x", transform: cmap}, size: 15, source})
+      p.add_layout(cbar, "right")
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #15080", () => {
+    it("doesn't allow to change frame width, height and align of a Plot", async () => {
+      const p = new Plot({frame_width: 100, frame_height: 200})
+      const {view} = await display(p, [300, 300])
+
+      expect(view.frame.bbox.width == 100)
+      expect(view.frame.bbox.height == 200)
+
+      p.frame_width = 150
+      p.frame_height = 275
+      await view.ready
+
+      expect(view.frame.bbox.width == 150)
+      expect(view.frame.bbox.height == 275)
+
+      p.frame_width = 160
+      p.frame_height = 180
+      await view.ready
+
+      expect(view.frame.bbox.width == 160)
+      expect(view.frame.bbox.height == 180)
+    })
+  })
+
+  describe("in issue #14040", () => {
+    it("doesn't allow clearing the DataTable selection when selected rows are filtered out", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          index: [0, 1, 2],
+          x: [1, 2, 3],
+          y: ["a", "b", "c"],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "index", title: "#", width: 50}),
+        new TableColumn({field: "x", title: "x", width: 50}),
+        new TableColumn({field: "y", title: "y", width: 50}),
+      ]
+      const filter = new AllIndices()
+      const cds_view = new CDSView({filter})
+
+      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const {view} = await display(table, [350, 450])
+
+      await view.ready
+
+      const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
+      const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox1_el)
+      await mouse_click(checkbox1_el)
+      expect(view.get_selected_rows()).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal([2])
+
+      table.view.filter = new IndexFilter({indices: [0, 1]})
+
+      expect(view.get_selected_rows()).to.be.equal([])
+      expect(table.source.selected.indices).to.be.equal([2])
+
+      const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
+      const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
+      expect_not_null(checkbox2_el)
+      await mouse_click(checkbox2_el)
+      expect(view.get_selected_rows()).to.be.equal([0])
+      expect(table.source.selected.indices).to.be.equal([0, 2])
+
+      table.source.selected.indices = []
+      await view.ready
+
+      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+
+      expect(view.get_selected_rows().slice().sort()).to.be.equal([])
+      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
     })
   })
 })

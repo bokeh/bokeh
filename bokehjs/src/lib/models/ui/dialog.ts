@@ -5,7 +5,7 @@ import {Signal} from "core/signaling"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {InlineStyleSheet, px, div, bounding_box, dom_ready} from "core/dom"
 import {isString} from "core/util/types"
-import type {View, ViewOf} from "core/build_views"
+import type {ChildView, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import type {XY, LRTB} from "core/util/bbox"
@@ -51,7 +51,7 @@ const _minimization_area: HTMLElement = (() => {
   display: none;
 }
 `)
-  stylesheet.install(shadow_el)
+  shadow_el.adoptedStyleSheets = [stylesheet.to_native()]
   void dom_ready().then(() => document.body.append(el))
   return el
 })()
@@ -59,10 +59,14 @@ const _minimization_area: HTMLElement = (() => {
 export class DialogView extends UIElementView {
   declare model: Dialog
 
+  override get is_top_level(): boolean {
+    return true
+  }
+
   protected _title: ViewOf<UIElementLike>
   protected _content: ViewOf<UIElementLike>
 
-  override children_views(): View[] {
+  override children_views(): ChildView[] {
     return [...super.children_views(), this._title, this._content]
   }
 
@@ -99,8 +103,6 @@ export class DialogView extends UIElementView {
 
   override remove(): void {
     remove(_stacking_order, this)
-    this._content.remove()
-    this._title.remove()
     super.remove()
   }
 

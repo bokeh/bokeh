@@ -6,7 +6,7 @@
 {% for css_file in css_files %}
 <link rel="stylesheet" href="{{css_file}}" type="text/css" />{% endfor %}
 {% for js_file in js_files %}
-<script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
+<script src="{{js_file}}"></script>{% endfor %}
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     let HTML = ""

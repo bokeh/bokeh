@@ -33,8 +33,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    TypeAlias,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -72,13 +70,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
+type TypeOrInst[T] = type[T] | T
 
-TypeOrInst: TypeAlias = type[T] | T
+type Init[T] = T | UndefinedType | IntrinsicType
 
-Init: TypeAlias = T | UndefinedType | IntrinsicType
-
-class Property(PropertyDescriptorFactory[T]):
+class Property[T](PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -249,10 +245,10 @@ class Property(PropertyDescriptorFactory[T]):
 
         if uses_pandas(new) or uses_pandas(old):
             import pandas as pd
+            from pandas.api.extensions import ExtensionArray
 
-            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
-                return np.array_equal(new, old)
-            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+            pandas_types = (pd.Index, pd.Series, ExtensionArray)
+            if isinstance(new, pandas_types) or isinstance(old, pandas_types):
                 return np.array_equal(new, old)
 
         try:
@@ -293,7 +289,7 @@ class Property(PropertyDescriptorFactory[T]):
 
         Args:
             value (obj) : the value to validate against this property type
-            detail (bool, options) : whether to construct detailed exceptions
+            detail (bool, optional) : whether to construct detailed exceptions
 
                 Generating detailed type validation error messages can be
                 expensive. When doing type checks internally that will not
@@ -438,7 +434,7 @@ class Property(PropertyDescriptorFactory[T]):
         else:
             return self
 
-class ParameterizedProperty(Property[T]):
+class ParameterizedProperty[T](Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
@@ -505,7 +501,7 @@ class ParameterizedProperty(Property[T]):
             params = [ type_param.replace(old, new) for type_param in self.type_params ]
             return self.__class__(*params)
 
-class SingleParameterizedProperty(ParameterizedProperty[T]):
+class SingleParameterizedProperty[T](ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
     @property
@@ -525,7 +521,7 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)
 
-class PrimitiveProperty(Property[T]):
+class PrimitiveProperty[T](Property[T]):
     """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
@@ -560,7 +556,7 @@ class PrimitiveProperty(Property[T]):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
 
-class ContainerProperty(ParameterizedProperty[T]):
+class ContainerProperty[T](ParameterizedProperty[T]):
     """ A base class for Container-like type properties.
 
     """

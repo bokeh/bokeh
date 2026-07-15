@@ -4,17 +4,11 @@
   width: 28px;
   height: 28px;
 
-  mask-size: 60% 60%;
-  mask-position: center center;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 60% 60%;
-  -webkit-mask-position: center center;
-  -webkit-mask-repeat: no-repeat;
+  .mask-size(60% 60%);
+  .mask-position(center center);
+  .mask-repeat(no-repeat);
 
-  background-size: 60%;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center center;
+  background-color: var(--icon-color);
 }
 
 :host {
@@ -30,10 +24,10 @@
 
   cursor: pointer;
   font-size: var(--font-size);
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.175);
+  box-shadow: 2px 4px 8px var(--box-shadow-color);
 }
 
 :host(.bk-horizontal) {
@@ -46,7 +40,7 @@
 .bk-divider {
   cursor: default;
   overflow: hidden;
-  background-color: #e5e5e5;
+  background-color: var(--divider-color);
 }
 :host(.bk-horizontal) > .bk-divider {
   width: 1px;
@@ -64,7 +58,7 @@
     border-color: var(--highlight-color);
   }
   &:hover {
-    background-color: #f9f9f9;
+    background-color: var(--hover-color);
   }
   &:focus, &:focus-visible {
     outline: 1px dotted var(--highlight-color);

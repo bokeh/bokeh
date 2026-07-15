@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 import {Signal} from "@bokehjs/core/signaling"
 
 describe("core/signaling module", () => {
@@ -9,7 +9,7 @@ describe("core/signaling module", () => {
     })
 
     it("should support `{dis}connect()` method", () => {
-      const signal = new Signal<number, {}>(Object.create(null), "some")
+      const signal = new Signal<number, object>(Object.create(null), "some")
 
       let signaled: number = 0
       const fn = (val: number) => signaled = val

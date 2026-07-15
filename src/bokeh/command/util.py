@@ -24,15 +24,13 @@ import contextlib
 import errno
 import os
 import sys
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Never
 
 # Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
 
 if TYPE_CHECKING:
-    from typing_extensions import Never
-
     from bokeh.application.handlers import Handler
 
 #-----------------------------------------------------------------------------

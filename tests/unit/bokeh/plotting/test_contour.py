@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING
 
 # External imports
 import numpy as np
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     # The following type annotation is to make the fixture typing simpler.
     # The X, Y, Z and Levels are simple valid data passed to the contouring
     # functions to allow testing of visual properties.
-    XYZ_Levels: TypeAlias = tuple[list[float], list[float], list[list[float]], list[float]]
+    type XYZ_Levels = tuple[list[float], list[float], list[list[float]], list[float]]
 
 #-----------------------------------------------------------------------------
 # Setup

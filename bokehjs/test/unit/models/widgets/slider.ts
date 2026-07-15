@@ -1,5 +1,5 @@
-import {expect} from "assertions"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
 import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"

@@ -109,7 +109,7 @@ def _docstring_other():
 
 _OTHER_PARAMS = """
 Other Parameters:
-    alpha (float, optional) :
+    alpha (``float``, optional) :
         An alias to set all alpha keyword arguments at once. (default: None)
 
         Alpha values must be between 0 (fully transparent) and 1 (fully opaque).
@@ -117,7 +117,7 @@ Other Parameters:
         Any explicitly set values for ``line_alpha``, etc. will override this
         setting.
 
-    color (color, optional) :
+    color (ColorLike, optional) :
         An alias to set all color keyword arguments at once. (default: None)
 
         See :ref:`ug_styling_colors` in the user guide for different

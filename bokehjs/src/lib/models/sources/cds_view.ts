@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import type * as p from "core/properties"
+import {SubsetIndexMapper} from "core/util/indices"
 import type {Selection} from "../selections/selection"
 import {View} from "core/view"
 import {Indices} from "core/types"
@@ -82,7 +83,13 @@ export class CDSViewView extends View {
     indices.intersect(filtered)
 
     this.model.indices = indices
-    this.model._indices_map_to_subset()
+
+    // reuse mapper if possible
+    if (size !== this.model.indices_map.size) {
+      this.model.indices_map = new SubsetIndexMapper(size)
+    }
+
+    this.model.indices_map.set_subset(indices.ones())
   }
 }
 
@@ -93,7 +100,7 @@ export namespace CDSView {
     filter: p.Property<Filter>
     // internal
     indices: p.Property<Indices>
-    indices_map: p.Property<Arrayable<number>>
+    indices_map: p.Property<SubsetIndexMapper>
     masked: p.Property<Indices | null>
   }
 }
@@ -115,61 +122,35 @@ export class CDSView extends Model {
       filter: [ Ref(Filter), () => new AllIndices() ],
     }))
 
-    this.internal<CDSView.Props>(({Ref, Int, Arrayable, Nullable}) => ({
+    this.internal<CDSView.Props>(({Ref, Nullable}) => ({
       indices:     [ Ref(Indices) ],
-      indices_map: [ Arrayable(Int), [] ],
+      indices_map: [ Ref(SubsetIndexMapper), () => new SubsetIndexMapper(0) ],
       masked:      [ Nullable(Ref(Indices)), null ],
     }))
   }
 
-  private _indices: number[]
-
-  _indices_map_to_subset(): void {
-    this._indices = this.indices.ones()
-
-    const {_indices} = this
-    // _indices are sorted thus we can use the last value
-    const n_map = _indices.length > 0 ? _indices.at(-1)! + 1 : 0
-    const indices_map = new Array(n_map).fill(-1)
-
-    const n = _indices.length
-    for (let i = 0; i < n; i++) {
-      indices_map[_indices[i]] = i
-    }
-
-    this.indices_map = indices_map
-  }
-
-  get_subset_index(index: number): number | undefined {
-    const subset_index = this.indices_map[index] as number | undefined
-    return subset_index !== undefined && subset_index != -1 ? subset_index : undefined
+  get_subset_index(index: number): number {
+    return this.indices_map.get_subset_index(index)
   }
 
   has_subset_index(index: number): boolean {
-    return this.get_subset_index(index) !== undefined
+    return this.indices_map.has_subset_index(index)
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    return selection_subset.map((i) => this._indices[i])
+    return selection_subset.map((i) => this.indices_map.get_superset_index(i))
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    return selection_full.map((i) => this.get_subset_index(i)!) // XXX ?? NaN
+    return selection_full.map((i) => this.indices_map.get_subset_index(i)) // XXX ?? NaN
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
-    return indices.map((i) => this._indices[i])
+    return this.indices_map.convert_indices_from_subset(indices)
   }
 
-  get_reference_point(array: Arrayable, value?: unknown): number | undefined | null {
-    const {_indices} = this
-    const n = _indices.length
-    for (let i = 0; i < n; i++) {
-      if (array[_indices[i]] == value) {
-        return this.get_subset_index(_indices[i])
-      }
-    }
-    return null
+  get_reference_point(array: Arrayable, value: unknown): number | null {
+    return this.indices_map.subset_index_of(array, value)
   }
 
   /** @deprecated */

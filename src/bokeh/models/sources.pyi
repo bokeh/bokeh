@@ -11,13 +11,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
+    Mapping,
     Sequence,
-    TypeAlias,
+    Unpack,
     overload,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
 
 # External imports
 import numpy.typing as npt
@@ -34,13 +32,13 @@ from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
 
-DataDict: TypeAlias = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
+type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
 
-DataDictLike: TypeAlias = DataDict | pd.DataFrame | GroupBy[Any]
+type DataDictLike = DataDict | pd.DataFrame | GroupBy[Any]
 
-Index: TypeAlias = int | slice | tuple[int | slice, ...]
+type Index = int | slice | tuple[int | slice, ...]
 
-Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
+type Patches = Mapping[str, Sequence[tuple[Index, Any]]]
 
 class _DataSourceInit(_ModelInit, total=False):
     selected: Selection

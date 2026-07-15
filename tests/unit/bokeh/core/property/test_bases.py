@@ -250,7 +250,7 @@ class TestProperty:
 
     def test_nat(self):
         # Property.matches handles this as False could change in the future.
-        nat = np.datetime64("NAT")
+        nat = np.datetime64("NAT", "ms")
         assert np.isnat(nat)
         assert bcpb.Property().matches(nat, nat) is False
         assert bcpb.Property().matches({"name": nat}, {"name": nat}) is False

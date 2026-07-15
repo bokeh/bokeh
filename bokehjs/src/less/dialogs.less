@@ -88,16 +88,13 @@
 .bk-ctrl {
   width: var(--bokeh-ctrl-size);
   height: var(--bokeh-ctrl-size);
-  cursor: pointer;
 
-  .mask-size(100% 100%);
-  .mask-position(center center);
-  .mask-repeat(no-repeat);
-
-  background-color: var(--bokeh-ctrl-color);
+  .icon-mask-base(var(--bokeh-ctrl-color));
   &:hover {
     background-color: var(--hover-color);
   }
+
+  cursor: pointer;
 }
 
 .bk-pin {

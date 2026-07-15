@@ -38,6 +38,7 @@ def dump_hash_file(version: str) -> None:
 
     with open(json_path, "w") as f:
         json.dump(dict(sorted(hashes.items())), f, indent=2)
+        f.write("\n")
 
 
 if __name__ == "__main__":

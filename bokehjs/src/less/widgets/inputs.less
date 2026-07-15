@@ -15,6 +15,7 @@
   min-height: var(--input-min-height);
   padding: 0 var(--padding-horizontal);
   background-color: var(--background-color);
+  color: var(--inherit-color);
   border: var(--border);
   border-radius: var(--border-radius);
   resize: none;
@@ -46,6 +47,7 @@
     border-radius: var(--border-radius);
     padding: 0 var(--padding-horizontal);
     background-color: var(--surface-background-color);
+    color: var(--inherit-color);
   }
 
   .bk-input-prefix {
@@ -93,9 +95,9 @@ select:not([multiple]), select:not([size]) {
     height: auto;
     appearance: none;
     -webkit-appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg version="1.1" viewBox="0 0 25 20" xmlns="http://www.w3.org/2000/svg"><path d="M 0,0 25,0 12.5,20 Z" fill="black" /></svg>');
+    background-image: var(--bokeh-icon-caret-down);
     background-position: right 0.5em center;
-    background-size: 8px 6px;
+    background-size: 12px;
     background-repeat: no-repeat;
     padding-right: calc(var(--padding-horizontal) + 8px);
   }
@@ -119,6 +121,7 @@ select[multiple], select[size], textarea {
   flex-wrap: nowrap;
   align-items: start;
   flex-direction: column;
+  background-color: var(--inherit-background-color);
 
   white-space: nowrap;
 
@@ -208,4 +211,8 @@ select[multiple], select[size], textarea {
 
 label:hover > .bk-description > .bk-icon, .bk-icon.bk-opaque {
   opacity: 1.0;
+}
+
+label {
+  color: var(--inherit-color);
 }

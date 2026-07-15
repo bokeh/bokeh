@@ -1,5 +1,5 @@
 import * as sinon from "sinon"
-import {expect, expect_instanceof} from "assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

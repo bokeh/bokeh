@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
@@ -59,6 +59,22 @@ describe("LogColorMapper module", () => {
 
       const vals = color_mapper.v_compute([0.5, 1, 10, 100, 101])
       expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))
+    })
+
+    it("Should map colors if high value is grather than low value", () => {
+      const palette = ["red", "green", "blue"]
+      const color_mapper = new LogColorMapper({low: 1, high: 100, palette})
+
+      const vals = color_mapper.v_compute([0.5, 1, 10, 100, 100.5])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["red", "red", "green", "blue", "blue"]))
+    })
+
+    it("Should map inverted colors if low value is grather than high value", () => {
+      const palette = ["red", "green", "blue"]
+      const color_mapper = new LogColorMapper({low: 100, high: 1, palette})
+
+      const vals = color_mapper.v_compute([0.5, 1, 10, 100, 100.5])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["blue", "blue", "green", "red", "red"]))
     })
   })
 })

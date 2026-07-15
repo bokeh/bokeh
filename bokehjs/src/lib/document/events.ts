@@ -122,7 +122,7 @@ export abstract class DocumentEvent implements Equatable {
   constructor(readonly document: Document) {}
 
   get [Symbol.toStringTag](): string {
-    return (this.constructor as any).__name__
+    return this.constructor.name
   }
 
   [equals](that: this, cmp: Comparator): boolean {

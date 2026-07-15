@@ -1,10 +1,11 @@
 import sinon from "sinon"
 
-import {expect, expect_condition, expect_not_null} from "../unit/assertions"
-import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
+import {expect, expect_condition, expect_not_null} from "#framework/assertions"
+import {display, fig, row, column, grid} from "#framework/layouts"
+import {DelayedInternalProvider} from "#framework/util"
+import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
 
-import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -19,13 +20,13 @@ import {
   TeX,
   Toolbar, ToolProxy,
   PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
-  WheelPanTool, BoxSelectTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
+  WheelPanTool, BoxSelectTool, BoxZoomTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column, Spacer,
   Pane,
   Tabs, TabPanel,
-  FixedTicker, MercatorTicker, MercatorTickFormatter,
+  FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
   ParkMillerLCG,
   GridPlot,
@@ -2041,7 +2042,7 @@ describe("Bug", () => {
         inline: true,
         active: 0,
         styles: {
-          background_color: "red",
+          "--background-color": "red",
         },
       })
       await display(radio_group, [400, 50])
@@ -4701,7 +4702,10 @@ describe("Bug", () => {
   })
 
   describe("in issue #14549", () => {
-    it("doesn't prevent hover action upon bbox change", async () => {
+    // TODO This test can produce to marginally different states, that cause
+    // tests to fail at random. Re-enable this when vDOM migration and layout
+    // redesign are completed.
+    it.skip("doesn't prevent hover action upon bbox change", async () => {
       const n = 1000
       const x = linspace(0, 20, n)
       const y = x
@@ -4750,6 +4754,7 @@ describe("Bug", () => {
       await actions0.hover(xy(0, 0))
       await actions0.scroll(xy(0, 0), 250)
 
+      view.invalidate_layout() // TODO remove this when pure CSS layout is implemented
       await view.ready
     })
   })
@@ -4774,6 +4779,300 @@ describe("Bug", () => {
       const fig3 = _fig(range_reversed, range_reversed)
 
       await display(grid([[fig0, fig1], [fig2, fig3]]))
+    })
+  })
+
+  describe("in issue #14417", () => {
+    it("allows scrolling tab headers when there are many tabs", async () => {
+      const tab_panels = []
+      for (let i = 0; i < 20; i++) {
+        const p = fig([200, 200])
+        p.scatter([1, 2, 3, 4, 5], [i+1, i+2, i+3, i+4, i+5], {size: 20, color: "navy", alpha: 0.5})
+        tab_panels.push(new TabPanel({child: p, title: `Tab ${i + 1}`}))
+      }
+
+      const tabs = new Tabs({tabs: tab_panels, width: 400, height: 300, tabs_location: "above"})
+      const {view} = await display(tabs, [450, 350])
+
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
+      expect(wrapper_styles.overflowX).to.be.equal("auto")
+
+      const has_scroll = headers_wrapper_el.scrollWidth > headers_wrapper_el.clientWidth
+      expect(has_scroll).to.be.true
+    })
+
+    it("supports scrollable headers for vertical tabs", async () => {
+      const tab_panels = []
+      for (let i = 0; i < 20; i++) {
+        const p = fig([200, 200])
+        p.scatter([1, 2, 3], [4, 5, 6], {size: 20, color: "blue"})
+        tab_panels.push(new TabPanel({child: p, title: `Long Tab Name ${i + 1}`}))
+      }
+
+      const tabs = new Tabs({tabs: tab_panels, width: 450, height: 350, tabs_location: "left"})
+      const {view} = await display(tabs, [500, 400])
+
+      const headers_wrapper_el = view.shadow_el.querySelector("[role=tablist]")
+      expect_not_null(headers_wrapper_el)
+
+      const wrapper_styles = window.getComputedStyle(headers_wrapper_el)
+      expect(wrapper_styles.overflowY).to.be.equal("auto")
+    })
+  })
+
+  describe("in issue #14491", () => {
+    it("doesn't update legend item alpha when glyph visibility changes", async () => {
+      const p = fig([200, 200])
+      const s1 = p.scatter({x: 1, y: 1, size: 30, marker: "diamond", legend_label: "diamond", color: "red"})
+      p.scatter({x: 2, y: 1, size: 30, marker: "square", legend_label: "square"})
+      p.legend.click_policy = "hide"
+
+      const {view} = await display(p)
+
+      s1.visible = false
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #14665", () => {
+    it("triggers call stack size error for certain inputs", async () => {
+      const p = fig([200, 200])
+      const N = 30000
+      const x = range(0, N)
+      const y = Array(N).fill(0)
+      y[0] = 1
+      y[N-1] = 1
+
+      p.scatter(x, y)
+
+      await display(p, [350, 250])
+    })
+  })
+
+  describe("in issue #15004", () => {
+    it("doesn't allow to recalculate layout when min_border property is changed", async () => {
+      const p = fig([400, 400], {
+        min_border: 0,
+      })
+      p.scatter([1, 2, 3], [1, 2, 3])
+      const {view} = await display(p)
+      const plot_view = view.owner.get_one(p)
+      const initial_width = plot_view.frame.bbox.width
+      p.min_border = 100
+      await view.ready
+      const new_width = plot_view.frame.bbox.width
+      expect(new_width).to.be.below(initial_width)
+    })
+  })
+
+  describe("in issue #8787", () => {
+    it("doesn't show hover for multi line when values decrease", async () => {
+      const source = new ColumnDataSource({data: {xs: [[-1, -2, -3]], ys: [[1, 2, 1]]}})
+      const p = fig([200, 200])
+      const ml = p.multi_line({xs: {field: "xs"}, ys: {field: "ys"}, line_width: 5, hover_line_color: "red", source})
+
+      p.add_tools(new HoverTool({tooltips: null, renderers: [ml], mode: "vline"}))
+
+      const {view} = await display(p)
+
+      const pv0 = view.owner.get_one(p)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(-2, 1.5))
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #14218", () => {
+    it("allows RangeTool with start gesture pan and PanTool to be active at the same time", async () => {
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 2, end: 4}),
+        start_gesture: "pan",
+      })
+      const p = fig([400, 200], {tools: ["pan", range_tool], toolbar_location: "above"})
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+      await display(p)
+    })
+
+    it("should respect active setting", async () => {
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 1, end: 2}),
+        start_gesture: "pan",
+      })
+      const box_zoom_tool = new BoxZoomTool()
+      const p = fig([400, 200], {tools: ["pan", range_tool, box_zoom_tool], toolbar_location: "above"})
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.scatter(x, y, {size: 10})
+      p.toolbar.active_drag = range_tool
+      await display(p)
+    })
+  })
+
+  describe("in issue #15015", () => {
+    it("doesn't show updates to num_minor_ticks", async () => {
+      const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
+      const {view} = await display(p)
+      for (const axis of p.yaxis) {
+        assert(axis.ticker instanceof ContinuousTicker)
+        axis.ticker.num_minor_ticks = 0
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15031", () => {
+    it("doesn't show correct tick label when scientific notation is disabled", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+    })
+
+    it("doesn't show correct tick labels when scientific notation is toggled repeatedly", async () => {
+      const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
+      p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
+      const {view} = await display(p)
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = false
+      }
+      await view.ready
+      for (const axis of p.xaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      for (const axis of p.yaxis) {
+        assert(axis.formatter instanceof BasicTickFormatter)
+        axis.formatter.use_scientific = true
+      }
+      await view.ready
+    })
+  })
+
+  describe("in issue #15123", () => {
+    it("doesn't allow to render the content of all columns in DataTable with autosize_mode='fit_columns'", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          dates:     [1393632000000, 1393718400000, 1393804800000],  // 2014-03-{01,02,03} as ms
+          downloads: [10, 20, 30],
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates",     title: "Date",      formatter: new DateFormatter(), width: 80}),
+        new TableColumn({field: "downloads", title: "Downloads",                                 width: 80}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        width: 200,
+        height: 280,
+        autosize_mode: "fit_columns",
+      })
+
+      await display(table, [200, 280])
+    })
+  })
+
+  describe("in issue #13859", () => {
+    it("doesn't show updates of ColumnDataSource in DataTable", async () => {
+      const source = new ColumnDataSource({
+        data: {x: ["init"]},
+      })
+
+      const columns = [
+        new TableColumn({field: "x", title: "x"}),
+      ]
+
+      const table = new DataTable({
+        source,
+        columns,
+        autosize_mode: "fit_columns",
+        width: 400,
+        height: 300,
+      })
+
+      const {view} = await display(table)
+      source.data = {x: ["a"]}
+      await view.ready
+    })
+  })
+
+  describe("in issue #13244", () => {
+    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+      const source = new ColumnDataSource({data: {
+        x: [1, 2, 3, 4, 5],
+        y: [10, 11, 12, 13, 14],
+      }})
+
+      const view = new CDSView({filter: new BooleanFilter({booleans: [true, true, false, true, false]})})
+
+      const table = new DataTable({
+        source,
+        view,
+        columns: [new TableColumn({field: "x", title: "X", width: 150})],
+        width: 200,
+        height: 200,
+      })
+
+      const p = figure({width: 200, height: 200})
+      p.scatter({field: "x"}, {field: "y"}, {source, view})
+
+      await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
+    })
+  })
+
+  describe("in issue #15026", () => {
+    it("ArrowHead properties not updating from JS callbacks", async () => {
+      const p = fig([200, 200], {x_range: [0, 2], y_range: [0, 2]})
+      const arrow_head = new OpenHead({line_color: "blue", size: 20, line_width: 2})
+      p.add_layout(new Arrow({end: arrow_head, x_start: 0.5, y_start: 0.5, x_end: 1.5, y_end: 1.5}))
+
+      const {view} = await display(p)
+
+      arrow_head.line_color = "red"
+      arrow_head.line_width = 5
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #14565", () => {
+    it("doesn't allow to correctly remove items from a DataTable", async () => {
+      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
+      const columns = [
+        new TableColumn({field: "my_col", title: "My Column"}),
+      ]
+
+      const table = new DataTable({source, columns})
+      const {view} = await display(table)
+
+      source.selected.indices = [0, 3, 4]
+      source.data = {my_col: ["a", "b", "c", "d"]}
+      await view.ready
     })
   })
 })

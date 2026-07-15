@@ -84,6 +84,25 @@ There is full WebGL support for :func:`~bokeh.plotting.figure.line`,
 glyphs, although the appearance of dashed lines with round and square end caps
 may differ slightly from the default HTML canvas rendering.
 
+Polygon glyphs
+^^^^^^^^^^^^^^
+
+There is WebGL support for :func:`~bokeh.plotting.figure.patch` and
+:func:`~bokeh.plotting.figure.patches` glyphs, including polygons with holes
+and disjoint parts (via NaN-separated coordinates). WebGL support covers:
+
+* all :ref:`fill properties <ug_styling_fill_properties>`
+* all :ref:`line properties <ug_styling_line_properties>`, including dashed
+  lines
+* all :ref:`hatch properties <ug_styling_hatch_properties>` except for
+  hatch images using the ``hatch_extra`` property (which will be ignored).
+
+.. note::
+    When adjacent fill-only polygons share the same color and have no outline
+    (``line_width=0``), thin seam artifacts may be visible at shared edges due
+    to anti-aliasing. Adding a thin outline (e.g. ``line_width=0.5``) or using
+    distinct fill colors eliminates this artifact.
+
 Image glyphs
 ^^^^^^^^^^^^
 

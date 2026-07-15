@@ -56,6 +56,4 @@ export class SingleIntervalTicker extends BaseSingleIntervalTicker {
       interval: [ Float ],
     }))
   }
-
-  interval: number
 }

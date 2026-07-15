@@ -15,6 +15,10 @@ export namespace Range {
     bounds: p.Property<Bounds>
     min_interval: p.Property<number | null>
     max_interval: p.Property<number | null>
+  } & Internal
+
+  export type Internal = {
+    computed_bounds: p.Property<[number, number]>
   }
 }
 
@@ -28,21 +32,20 @@ export abstract class Range extends Model {
   }
 
   static {
-    this.define<Range.Props>(({Float, Nullable}) => ({
+    this.internal<Range.Internal, Range>(({Tuple, Float}) => ({
+      computed_bounds: [ Tuple(Float, Float) ],
+    }))
+
+    this.define<Range.Props, Range>(({Float, Nullable}) => ({
       bounds:       [ Bounds, null, {
-        on_update(bounds: Bounds, obj: Range) {
+        on_update(bounds, obj) {
           const [lower, upper] = bounds == "auto" || bounds == null ? [null, null] : bounds
-          obj._computed_bounds = [lower ?? -Infinity, upper ?? Infinity]
+          obj.computed_bounds = [lower ?? -Infinity, upper ?? Infinity]
         },
       }],
       min_interval: [ Nullable(Float), null ],
       max_interval: [ Nullable(Float), null ],
     }))
-  }
-
-  protected _computed_bounds: [number, number]
-  get computed_bounds(): [number, number] {
-    return this._computed_bounds
   }
 
   abstract start: number

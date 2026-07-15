@@ -8,15 +8,7 @@
 # Standard library imports
 from abc import abstractmethod
 from datetime import datetime as DateTime, timedelta as TimeDelta
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    TypeAlias,
-    overload,
-)
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Sequence, Unpack, overload
 
 # Bokeh imports
 from ..core.enums import (
@@ -27,18 +19,18 @@ from ..core.enums import (
 from ..core.property.visual import Bounds, MinMaxBoundsType as MinMaxBounds
 from ..model.model import Model, _ModelInit
 
-Value: TypeAlias = float | DateTime | TimeDelta
+type Value = float | DateTime | TimeDelta
 
-Interval: TypeAlias = float | TimeDelta
+type Interval = float | TimeDelta
 
-MinMaxInterval: TypeAlias = Auto | Bounds[float] | Bounds[TimeDelta]
+type MinMaxInterval = Auto | Bounds[float] | Bounds[TimeDelta]
 
-L1Factor: TypeAlias = str
-L2Factor: TypeAlias = tuple[str, str]
-L3Factor: TypeAlias = tuple[str, str, str]
+type L1Factor = str
+type L2Factor = tuple[str, str]
+type L3Factor = tuple[str, str, str]
 
-Factor: TypeAlias = L1Factor | L2Factor | L3Factor
-FactorSeq: TypeAlias = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
+type Factor = L1Factor | L2Factor | L3Factor
+type FactorSeq = Sequence[L1Factor] | Sequence[L2Factor] | Sequence[L3Factor]
 
 class _RangeInit(_ModelInit, total=False):
     ...

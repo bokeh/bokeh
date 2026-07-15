@@ -57,7 +57,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .descriptors import PropertyDescriptor
@@ -78,9 +78,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-T = TypeVar("T")
-
-class PropertyDescriptorFactory(Generic[T]):
+class PropertyDescriptorFactory[T]:
     """ Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"

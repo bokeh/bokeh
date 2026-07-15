@@ -62,10 +62,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Generic,
-    TypeAlias,
+    NotRequired,
     TypedDict,
-    TypeVar,
 )
 
 # Bokeh imports
@@ -78,8 +76,6 @@ from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired
-
     from ..client.websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------
@@ -107,16 +103,14 @@ class Header(TypedDict):
 class BufferHeader(TypedDict):
     id: ID
 
-Content = TypeVar("Content")
+type Metadata = dict[str, Any]
 
-Metadata: TypeAlias = dict[str, Any]
-
-BufferRef: TypeAlias = tuple[BufferHeader, bytes]
+type BufferRef = tuple[BufferHeader, bytes]
 
 class Empty(TypedDict):
     pass
 
-class Message(Generic[Content]):
+class Message[Content]:
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
     provide hooks

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {
   isBoolean,
@@ -15,6 +15,8 @@ import {
   isPlainObject,
   isBasicObject,
 } from "@bokehjs/core/util/types"
+
+import {GeneratorFunction, AsyncGeneratorFunction} from "@bokehjs/core/types"
 
 class X {}
 
@@ -46,6 +48,8 @@ describe("core/util/types module", () => {
     expect(isNumber("0")).to.be.false
     expect(isNumber("Infinity")).to.be.false
     expect(isNumber(new X())).to.be.false
+    /* eslint-disable no-new-wrappers */
+    expect(isNumber(new Number(5))).to.be.true
   })
 
   it("should support isInteger() function", () => {
@@ -62,6 +66,8 @@ describe("core/util/types module", () => {
     expect(isNumber("0")).to.be.false
     expect(isNumber("Infinity")).to.be.false
     expect(isInteger(new X())).to.be.false
+    /* eslint-disable no-new-wrappers */
+    expect(isNumber(new Number(5))).to.be.true
   })
 
   it("should support isString() function", () => {
@@ -89,6 +95,13 @@ describe("core/util/types module", () => {
 
     expect(isFunction(function* () { yield 0; return 10 })).to.be.true
     expect(isFunction(async function* () { yield 0; return 10 })).to.be.true
+
+    expect(isFunction(new GeneratorFunction("a", "b", "yield a + b"))).to.be.true
+    expect(isFunction(new AsyncGeneratorFunction("a", "b", "yield await a + b"))).to.be.true
+
+    expect(isFunction(5)).to.be.false
+    expect(isFunction("5")).to.be.false
+    expect(isFunction("function")).to.be.false
   })
 
   it("should support isArray() function", () => {

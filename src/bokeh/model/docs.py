@@ -115,12 +115,11 @@ _HTML_REPR = """
 """
 
 _EXAMPLE_TEMPLATE = '''
+Example
+-------
 
-    Example
-    -------
-
-    .. bokeh-plot:: __REPO__/{path}
-        :source-position: below
+.. bokeh-plot:: __REPO__/{path}
+    :source-position: below
 
 '''
 

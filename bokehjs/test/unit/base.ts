@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {Models} from "@bokehjs/base"
 import {Plot} from "@bokehjs/models"
@@ -216,6 +216,7 @@ describe("default model resolver", () => {
       "LayoutProvider",
       "Legend",
       "LegendItem",
+      "LightDark",
       "Line",
       "LineEditTool",
       "LinearAxis",

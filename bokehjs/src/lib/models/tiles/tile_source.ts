@@ -36,7 +36,7 @@ export abstract class TileSource extends Model {
 
   static {
     this.define<TileSource.Props>(({Float, Str, Dict, Nullable /*, Null, Or, Ref*/}) => ({
-      url:                [ Str, "" ],
+      url:                [ Str, "", {convert: (url) => TileSource._normalize_case(url)} ],
       tile_size:          [ Float, 256 ],
       max_zoom:           [ Float, 30 ],
       min_zoom:           [ Float, 0 ],
@@ -48,13 +48,7 @@ export abstract class TileSource extends Model {
     }))
   }
 
-  tiles: Map<string, Tile>
-
-  override initialize(): void {
-    super.initialize()
-    this.tiles = new Map()
-    this._normalize_case()
-  }
+  readonly tiles: Map<string, Tile> = new Map()
 
   override connect_signals(): void {
     super.connect_signals()
@@ -69,11 +63,8 @@ export abstract class TileSource extends Model {
     return result_str
   }
 
-  protected _normalize_case(): void {
-    /*
-     * Note: should probably be refactored into subclasses.
-     */
-    const url = this.url
+  protected static _normalize_case(url: string): string {
+    return url
       .replace("{x}", "{X}")
       .replace("{y}", "{Y}")
       .replace("{z}", "{Z}")
@@ -82,11 +73,10 @@ export abstract class TileSource extends Model {
       .replace("{ymin}", "{YMIN}")
       .replace("{xmax}", "{XMAX}")
       .replace("{ymax}", "{YMAX}")
-    this.url = url
   }
 
   protected _clear_cache(): void {
-    this.tiles = new Map()
+    this.tiles.clear()
   }
 
   tile_xyz_to_key(x: number, y: number, z: number): string {

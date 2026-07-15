@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {NumeralTickFormatter} from "@bokehjs/models/formatters/numeral_tick_formatter"
 

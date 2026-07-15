@@ -1,5 +1,5 @@
-import {display} from "./_util"
-import {mouse_click} from "../interactive"
+import {display} from "#framework/layouts"
+import {mouse_click} from "#framework/interactive"
 
 import {ColumnDataSource, CustomJSCompare, NanCompare} from "@bokehjs/models"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
@@ -57,6 +57,32 @@ describe("DataTable", () => {
     const el = view.shadow_el.querySelectorAll(".slick-header-column")[2]
     await mouse_click(el)
     await view.ready
+  })
+
+  it("should create a horizontal scrollbar with autosize_mode='fit_columns' inside a narrow layout", async () => {
+    const source = new ColumnDataSource({
+      data: {
+        text: ["something", "something"],
+        number: [0.33, 0.33],
+        other_number: [12345, 12345],
+      },
+    })
+
+    const columns = [
+      new TableColumn({field: "text", title: "Text"}),
+      new TableColumn({field: "number", title: "Number"}),
+      new TableColumn({field: "other_number", title: "Other number"}),
+    ]
+
+    const table = new DataTable({
+      source,
+      columns,
+      width: 150,
+      height: 200,
+      autosize_mode: "fit_columns",
+    })
+
+    await display(table, [150, 200])
   })
 
 })

@@ -1,14 +1,15 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
-import {display} from "../../../framework"
-import {restorable} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
+import {restorable} from "#framework/util"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"
 import {paint} from "@bokehjs/core/util/defer"
 import type {StyleSheetLike} from "@bokehjs/core/dom"
-import base_css from "@bokehjs/styles/base.css"
+import vars_css from "@bokehjs/styles/vars.css"
+import core_css from "@bokehjs/styles/core.css"
 
 class UIView extends UIElementView {
   declare model: UI
@@ -44,13 +45,13 @@ describe("UIElement", () => {
 
     const render_spy = sinon.spy(view, "render")
     try {
-      expect([...view.el.classList]).to.be.equal(["bk-UI", "cls0", "cls1", "user_cls0", "user_cls1", "render0"])
+      expect([...view.el.classList]).to.be.equal(["bk-UI", view.component_id, "cls0", "cls1", "user_cls0", "user_cls1", "render0"])
 
       ui.css_classes = [...ui.css_classes, "user_cls2"]
       await view.ready
 
       // TODO: preserve order
-      expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1", "user_cls0", "user_cls1", "user_cls2"])
+      expect([...view.el.classList]).to.be.equal(["render0", "bk-UI",  view.component_id, "cls0", "cls1", "user_cls0", "user_cls1", "user_cls2"])
       expect(render_spy.callCount).to.be.equal(0)
     } finally {
       render_spy.restore()
@@ -63,41 +64,55 @@ describe("UIElement", () => {
       css_variables: {"--foo": "violet"},
       visible: false,
     })
-    const {view} = await display(ui, [100, 100])
 
+    const {view} = await display(ui, [100, 100])
     using render_spy = restorable(sinon.spy(view, "render"))
 
-    const stylesheets = () => {
-      return [...view.shadow_el.children]
-        .filter((c) => c instanceof HTMLStyleElement)
-        .map((c) => c.textContent)
+    const to_css = (stylesheet: CSSStyleSheet) => {
+      return [...stylesheet.cssRules].map((rule) => rule.cssText).join("\n")
     }
 
-    expect(stylesheets()).to.be.equal([
-      base_css,
+    const stylesheets = () => {
+      return view.shadow_el.adoptedStyleSheets.map(to_css)
+    }
+
+    const normalize = (css: string) => {
+      const stylesheet = new CSSStyleSheet()
+      stylesheet.replaceSync(css)
+      return to_css(stylesheet)
+    }
+
+    const stylesheets0 = stylesheets()
+    expect(stylesheets0.length).to.be.equal(9)
+    expect(stylesheets0).to.be.equal([
+      vars_css,
+      core_css,
       ":host{position:relative;pointer-events:auto;}", // ui.css
-      ":host { background-color: #000; }",             // UIView.stylesheets
-      ":host {\n--foo: violet;\n}",                    // StyledElement.css_variables
+      ":host { background-color: #000; }",           // UIView.stylesheets
+      `${view.host_selector} {\n--foo: violet;\n}`,    // StyledElement.css_variables
       "",                                              // StyledElement.style
       "",                                              // StyledElement.parent_style
-      ":host { display: none; }",                      // UIElementView._display
-      ":host { background-color: #f00; }",             // UIElement.stylesheets
-    ])
+      `${view.host_selector} { display: none; }`,      // UIElementView._display
+      ":host { background-color: #f00; }",           // UIElement.stylesheets
+    ].map(normalize))
 
     ui.stylesheets = [...ui.stylesheets, ":host { background-color: #ff0; }"]
     await view.ready
 
-    expect(stylesheets()).to.be.equal([
-      base_css,
+    const stylesheets1 = stylesheets()
+    expect(stylesheets1.length).to.be.equal(10)
+    expect(stylesheets1).to.be.equal([
+      vars_css,
+      core_css,
       ":host{position:relative;pointer-events:auto;}", // ui.css
-      ":host { background-color: #000; }",             // UIView.stylesheets
-      ":host {\n--foo: violet;\n}",                    // StyledElement.css_variables
+      ":host { background-color: #000; }",           // UIView.stylesheets
+      `${view.host_selector} {\n--foo: violet;\n}`,    // StyledElement.css_variables
       "",                                              // StyledElement.style
       "",                                              // StyledElement.parent_style
-      ":host { display: none; }",                      // UIElementView._display
-      ":host { background-color: #f00; }",             // UIElement.stylesheets
-      ":host { background-color: #ff0; }",             // UIElement.stylesheets
-    ])
+      `${view.host_selector} { display: none; }`,      // UIElementView._display
+      ":host { background-color: #f00; }",           // UIElement.stylesheets
+      ":host { background-color: #ff0; }",           // UIElement.stylesheets
+    ].map(normalize))
     expect(render_spy.callCount).to.be.equal(0)
   })
 
@@ -235,22 +250,22 @@ describe("UIElement", () => {
     })
     const {view} = await display(ui, [100, 100])
 
-    expect([...view.el.classList]).to.be.equal(["bk-UI", "cls0", "cls1", "a", "b", "c", "d", "render0"])
+    expect([...view.el.classList]).to.be.equal(["bk-UI", view.component_id, "cls0", "cls1", "a", "b", "c", "d", "render0"])
 
     ui.html_attributes = {}
     await view.ready
 
     // TODO preserve order of "render0"
-    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1", "a", "b"])
+    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", view.component_id, "cls0", "cls1", "a", "b"])
 
     ui.css_classes = []
     await view.ready
 
-    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1"])
+    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", view.component_id, "cls0", "cls1"])
 
     ui.html_attributes = {class: "e f"}
     await view.ready
 
-    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", "cls0", "cls1", "e", "f"])
+    expect([...view.el.classList]).to.be.equal(["render0", "bk-UI", view.component_id, "cls0", "cls1", "e", "f"])
   })
 })

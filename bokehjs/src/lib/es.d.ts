@@ -40,7 +40,7 @@ interface Element {
   webkitRequestFullscreen(options?: FullscreenOptions): Promise<void>
 }
 
-// from lib.esnext.d.ts (needs TS 6/7)
+// from lib.esnext.d.ts (needs TS 6/7) (remove when #15012 is resolved)
 interface Uint8Array<TArrayBuffer extends ArrayBufferLike> {
   /**
    * Converts the `Uint8Array` to a base64-encoded string.
@@ -55,7 +55,7 @@ interface Uint8Array<TArrayBuffer extends ArrayBufferLike> {
   ): string
 }
 
-// from lib.esnext.d.ts (needs TS 6/7)
+// from lib.esnext.d.ts (needs TS 6/7) (remove when #15012 is resolved)
 interface Uint8ArrayConstructor {
   /**
    * Creates a new `Uint8Array` from a base64-encoded string.
@@ -72,4 +72,9 @@ interface Uint8ArrayConstructor {
       lastChunkHandling?: "loose" | "strict" | "stop-before-partial" | undefined
     },
   ): Uint8Array<ArrayBuffer>
+}
+
+// from lib.dom.d.ts (needs TS 6/7) (remove when #15012 is resolved)
+interface HTMLElement {
+  showPopover(options?: {source?: Element}): void
 }

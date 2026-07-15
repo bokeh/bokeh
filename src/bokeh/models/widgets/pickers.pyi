@@ -7,10 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Literal, TypedDict
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Literal, TypedDict, Unpack
 
 # Bokeh imports
 from ..._types import (

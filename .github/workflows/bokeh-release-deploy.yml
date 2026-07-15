@@ -24,7 +24,7 @@ jobs:
       - name: Check Maintainer
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-        uses: tspascoal/get-user-teams-membership@v3
+        uses: tspascoal/get-user-teams-membership@v4
         id: checkUserMember
         with:
           username: ${{ github.actor }}
@@ -45,14 +45,14 @@ jobs:
           echo "Please contact @bokeh/core about conducting releases."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@v4
         with:
-          miniconda-version: 'latest'
+          miniforge-version: latest
+          mamba-version: "*"
           activate-environment: bk-release-deploy
           environment-file: conda/environment-release-deploy.yml
-          conda-remove-defaults: true
 
       - name: Deploy Release Tarball
         env:

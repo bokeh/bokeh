@@ -7,6 +7,11 @@ export namespace Range1d {
   export type Props = NumericalRange.Props & {
     reset_start: p.Property<number | null>
     reset_end: p.Property<number | null>
+  } & Internal
+
+  export type Internal = {
+    _reset_start: p.Property<number>
+    _reset_end: p.Property<number>
   }
 }
 
@@ -20,14 +25,19 @@ export class Range1d extends NumericalRange {
   }
 
   static {
-    this.define<Range1d.Props>(({Float, Nullable}) => ({
+    this.internal<Range1d.Internal>(({Float}) => ({
+      _reset_start: [ Float ],
+      _reset_end: [ Float ],
+    }))
+
+    this.define<Range1d.Props, Range1d>(({Float, Nullable}) => ({
       reset_start: [ Nullable(Float), null, {
-        on_update(reset_start, self: Range1d) {
+        on_update(reset_start, self) {
           self._reset_start = reset_start ?? self.start
         },
       }],
       reset_end: [ Nullable(Float), null, {
-        on_update(reset_end, self: Range1d) {
+        on_update(reset_end, self) {
           self._reset_end = reset_end ?? self.end
         },
       }],
@@ -43,12 +53,9 @@ export class Range1d extends NumericalRange {
     if (this.bounds == "auto") {
       const min = Math.min(this._reset_start, this._reset_end)
       const max = Math.max(this._reset_start, this._reset_end)
-      this._computed_bounds = [min, max]
+      this.computed_bounds = [min, max]
     }
   }
-
-  private _reset_start: number
-  private _reset_end: number
 
   override initialize(): void {
     super.initialize()

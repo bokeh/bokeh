@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
 import {ColumnDataSource, LinearAxis} from "@bokehjs/models"

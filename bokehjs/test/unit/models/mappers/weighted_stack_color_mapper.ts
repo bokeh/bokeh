@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {varying_alpha_palette} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import * as enums from "@bokehjs/core/enums"
 
@@ -319,6 +319,7 @@ describe("enums module", () => {
       "square",
       "square_check",
       "subtract_mode",
+      "system_theme",
       "tap_select",
       "text_align_center",
       "text_align_left",

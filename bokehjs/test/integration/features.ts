@@ -1,5 +1,5 @@
-import {display, fig} from "./_util"
-import {PlotActions, xy} from "../interactive"
+import {display, fig} from "#framework/layouts"
+import {PlotActions, xy} from "#framework/interactive"
 
 import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane, Slope, GridPlot} from "@bokehjs/models"
 import {paint} from "@bokehjs/core/util/defer"

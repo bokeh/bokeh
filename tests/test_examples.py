@@ -30,12 +30,7 @@ from os.path import (
     relpath,
 )
 from types import FrameType
-from typing import (
-    Iterator,
-    Literal,
-    NoReturn,
-    TypeAlias,
-)
+from typing import Iterator, Literal, NoReturn
 
 # External imports
 import _pytest.config
@@ -90,9 +85,16 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
         examples = get_all_examples(config)
 
         def marks(example: Example) -> list[_pytest.mark.MarkDecorator]:
-            result = []
+            result: list[_pytest.mark.MarkDecorator] = []
             if example.is_skip:
                 result.append(pytest.mark.skip(reason=f"skipping {example.relpath}"))
+            if example.min_python is not None:
+                result.append(
+                    pytest.mark.skipif(
+                        sys.version_info[:2] < example.min_python,
+                        reason=f"skipping {example.relpath}; requires Python {example.min_python} or above",
+                    ),
+                )
             if example.is_xfail and not example.no_js:
                 result.append(pytest.mark.xfail(reason=f"xfail {example.relpath}", strict=True))
             return result
@@ -241,7 +243,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], verbose: 
 
     assert no_errors, f"{example.relpath} failed with {len(errors)} errors"
 
-ProcStatus: TypeAlias = int | Literal["timeout"]
+type ProcStatus = int | Literal["timeout"]
 
 def _run_example(example: Example) -> tuple[ProcStatus, float, str, str]:
     code = f"""\

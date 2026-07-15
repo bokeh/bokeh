@@ -397,6 +397,7 @@ type CSSStylesCamel = {
   zIndex?: string | null
 }
 
+/* eslint-disable @stylistic/quote-props */
 type CSSStylesDashed = {
   "accent-color"?: CSSStylesCamel["accentColor"]
   "align-content"?: CSSStylesCamel["alignContent"]
@@ -782,6 +783,7 @@ type CSSStylesDashed = {
   "writing-mode"?: CSSStylesCamel["writingMode"]
   "z-index"?: CSSStylesCamel["zIndex"]
 }
+/* eslint-enable @stylistic/quote-props */
 
 type CSSStylesSnake = {
   accent_color?: CSSStylesCamel["accentColor"]
@@ -1171,7 +1173,9 @@ type CSSStylesSnake = {
 
 export type CSSVariables = {[key in `--${string}`]?: string | null}
 
-export type CSSStyles = CSSStylesCamel & CSSStylesDashed & CSSStylesSnake & CSSVariables
+export type CSSProps = CSSStylesCamel & CSSStylesDashed & CSSVariables
+
+export type CSSStyles = CSSStylesSnake & CSSProps
 
 export type CSSStylesLike = CSSStyles | Dict<string | null> | Styles
 
@@ -1197,7 +1201,7 @@ function _css_name(attr: string): string | null {
   return null
 }
 
-function* _iter_styles(styles: CSSStylesLike): Iterable<[string, unknown]> {
+export function* iter_styles(styles: CSSStylesLike): Iterable<[string, string | null | undefined]> {
   if (isPlainObject(styles) || styles instanceof Map) {
     for (const [key, val] of entries(styles)) {
       const name = _css_name(key)
@@ -1210,7 +1214,7 @@ function* _iter_styles(styles: CSSStylesLike): Iterable<[string, unknown]> {
       if (prop.dirty) {
         const name = _css_name(prop.attr)
         if (name != null) {
-          yield [name, prop.get_value()]
+          yield [name, prop.get_value() as string | null | undefined]
         }
       }
     }
@@ -1218,7 +1222,7 @@ function* _iter_styles(styles: CSSStylesLike): Iterable<[string, unknown]> {
 }
 
 export function apply_styles(declaration: CSSStyleDeclaration, styles: CSSStylesLike): void {
-  for (const [name, value] of _iter_styles(styles)) {
+  for (const [name, value] of iter_styles(styles)) {
     if (isString(value)) {
       declaration.setProperty(name, value)
     } else {
@@ -1235,7 +1239,7 @@ export function compose_stylesheet(stylesheet: CSSStyleSheetDecl): string {
   for (const [selector, styles] of entries(stylesheet)) {
     css.push(`${selector} {`)
 
-    for (const [name, value] of _iter_styles(styles)) {
+    for (const [name, value] of iter_styles(styles)) {
       if (isString(value) && value.length != 0) {
         css.push(`  ${name}: ${value};`)
       }

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {EqHistColorMapper} from "@bokehjs/models/mappers/eqhist_color_mapper"
 

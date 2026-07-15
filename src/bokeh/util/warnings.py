@@ -23,10 +23,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import inspect
-import os
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -68,6 +64,8 @@ def find_stack_level() -> int:
 
     Inspired by: pandas.util._exceptions.find_stack_level
     """
+    import inspect
+    import os
 
     import bokeh
 
@@ -76,13 +74,16 @@ def find_stack_level() -> int:
     # https://stackoverflow.com/questions/17407119/python-inspect-stack-is-slow
     frame = inspect.currentframe()
     n = 0
-    while frame:
-        fname = inspect.getfile(frame)
-        if fname.startswith(pkg_dir):
-            frame = frame.f_back
-            n += 1
-        else:
-            break
+    try:
+        while frame:
+            fname = inspect.getfile(frame)
+            if fname.startswith(pkg_dir):
+                frame = frame.f_back
+                n += 1
+            else:
+                break
+    finally:
+        del frame
     return n
 
 #-----------------------------------------------------------------------------

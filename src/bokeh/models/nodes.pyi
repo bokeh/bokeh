@@ -7,10 +7,7 @@
 
 # Standard library imports
 from abc import abstractmethod
-from typing import TYPE_CHECKING, ClassVar, Literal
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import ClassVar, Literal, Unpack
 
 # Bokeh imports
 from .._types import CoordinateLike
@@ -18,7 +15,7 @@ from ..model.model import Model, _ModelInit
 from .glyph import Glyph
 from .renderers import GlyphRenderer
 
-ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
+type ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
 
 class BoxNodes:
 

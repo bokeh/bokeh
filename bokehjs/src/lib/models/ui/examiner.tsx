@@ -1,11 +1,13 @@
 import {UIElement, UIElementView} from "./ui_element"
 import * as p from "core/properties"
 import {HasProps} from "core/has_props"
-import type {StyleSheetLike} from "core/dom"
-import {isArray} from "core/util/types"
+import type {StyleSheetLike, Keys} from "core/dom"
+import {cls} from "core/vdom"
 import {keys} from "core/util/object"
+import {map} from "core/util/iterator"
 import {receivers_for_sender} from "core/signaling"
 import {diagnostics} from "core/diagnostics"
+import {assert} from "core/util/assert"
 import {ValuePrinter, KindPrinter, OpaqueKindPrinter} from "./printers"
 
 import examiner_css from "styles/examiner.css"
@@ -13,11 +15,11 @@ import pretty_css from "styles/pretty.css"
 import icons_css from "styles/icons.css"
 
 import {render, Component} from "preact"
-import type {VNode} from "preact"
+import type {VNode, TargetedEvent} from "preact"
 import {signal, computed} from "@preact/signals"
 
-import type {Kind} from "core/kinds"
-import {Kinds} from "core/kinds"
+import {Serializer} from "core/serialization/serializer"
+import {Deserializer} from "core/serialization/deserializer"
 
 function highlight(el: Element): void {
   for (const animation of el.getAnimations()) {
@@ -88,16 +90,6 @@ export class ExaminerView extends UIElementView {
     const show_internal = signal(true)
     const opaque_types = signal(false)
     const watched_props = signal(new Set<p.Property>())
-
-    type CSSClass = string | null | undefined
-    function cls(...classes: (CSSClass | CSSClass[])[]): string {
-      const transformed = classes
-        .flatMap((cls) => isArray(cls) ? cls : [cls])
-        .filter((cls) => cls != null)
-        .map((cls) => cls.trim())
-        .filter((cls) => cls.length != 0)
-      return [...new Set(transformed)].join(" ")
-    }
 
     function click(obj: unknown) {
       if (obj instanceof HasProps) {
@@ -210,7 +202,7 @@ export class ExaminerView extends UIElementView {
     }
 
     type ModelsListProps = {models: HasProps[]}
-    class ModelsList extends Component<ModelsListProps, {}> {
+    class ModelsList extends Component<ModelsListProps> {
       constructor(props: ModelsListProps) {
         super(props)
       }
@@ -230,49 +222,89 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type PropEditorProps = {prop: p.Property}
+    type PropEditorProps = {prop: p.Property, close: () => void}
     class PropEditor extends Component<PropEditorProps> {
       constructor(props: PropEditorProps) {
         super(props)
       }
 
-      editors(kind: Kind<unknown>): VNode<HTMLElement> {
-        if (kind instanceof Kinds.Int) {
-          return <input type="number" step="1"></input>
-        } else if (kind instanceof Kinds.Float) {
-          return <input type="number"></input>
-        } else if (kind instanceof Kinds.Str) {
-          return <input type="text"></input>
-        } else if (kind instanceof Kinds.Enum) {
-          return <select>
-            {[...kind.values].map((value) => <option>{value}</option>)}
-          </select>
-        } else if (kind instanceof Kinds.Nullable) {
-          return (
-            <div class="col">
-              {this.editors(kind.base_type)}
-              <label><input type="radio"></input>null</label>
-            </div>
-          )
-        } else {
-          return <div>Not supported</div>
-        }
+      get serializer(): Serializer {
+        const doc = this.props.prop.obj.document
+        assert(doc != null)
+        const all_refs = new Map(map(doc.all_models, (model) => [model, model.ref()]))
+        return new Serializer({binary: false, include_defaults: false, references: all_refs})
       }
 
-      protected _editor_el: HTMLElement | null = null
+      get deserializer(): Deserializer {
+        const doc = this.props.prop.obj.document
+        assert(doc != null)
+        const all_models = new Map(map(doc.all_models, (model) => [model.id, model]))
+        return new Deserializer(doc.resolver, all_models, (obj) => obj.attach_document(doc))
+      }
+
+      commit(value: string): void {
+        const parsed = JSON.parse(value)
+        const decoded = this.deserializer.decode(parsed)
+        const {prop} = this.props
+        prop.obj.setv({[prop.attr]: decoded})
+      }
+
+      protected input_el: HTMLInputElement | null = null
 
       render(): VNode<HTMLElement> {
         const {prop} = this.props
+        const value = this.serializer.encode(prop.get_value())
         return (
-          <div popover ref={(el) =>{ this._editor_el = el }} onToggle={() => console.log("XXX")}>
-            <div>Editing {to_html(prop)}</div>
-            {this.editors(prop.kind)}
-          </div>
+          <>
+            <input
+              type="text"
+              ref={(el) => { this.input_el = el }}
+              onKeyUp={(event) => this.on_key_up(event)}
+              value={JSON.stringify(value)}></input>
+            <div class="btn btn-accept" onClick={() => this.accept_edit()}></div>
+            <div class="btn btn-cancel" onClick={() => this.cancel_edit()}></div>
+            <div class="btn btn-delete" onClick={() => this.delete_value()}></div>
+          </>
         )
       }
 
+      accept_edit() {
+        assert(this.input_el != null)
+        this.commit(this.input_el.value)
+        this.finalize()
+      }
+
+      cancel_edit() {
+        this.finalize()
+      }
+
+      delete_value() {
+        const {prop} = this.props
+        const value = prop.default_value(prop.obj)
+        prop.obj.setv({[prop.attr]: value})
+        this.finalize()
+      }
+
+      finalize(): void {
+        this.props.close()
+      }
+
+      on_key_up(event: TargetedEvent<HTMLInputElement, KeyboardEvent>): void {
+        switch (event.key as Keys) {
+          case "Enter": {
+            this.commit(event.currentTarget.value)
+            break
+          }
+          case "Escape": {
+            this.cancel_edit()
+            break
+          }
+          default:
+        }
+      }
+
       override componentDidMount(): void {
-        this._editor_el?.showPopover()
+        this.input_el?.focus()
       }
     }
 
@@ -314,15 +346,14 @@ export class ExaminerView extends UIElementView {
 
     type PropItemProps = {prop: p.Property}
     class PropItem extends Component<PropItemProps, {editing: boolean}> {
-      protected _editor_el: VNode<HTMLElement> | null = null
-
       constructor(props: PropItemProps) {
         super(props)
         this.state = {editing: false}
       }
 
-      edit_value(): void {
-        this.setState({editing: true})
+      toggle_edit(): void {
+        const {editing} = this.state
+        this.setState({editing: !editing})
       }
 
       render(): VNode<HTMLElement> {
@@ -348,6 +379,7 @@ export class ExaminerView extends UIElementView {
 
         const kind_printer = opaque_types.value ? new OpaqueKindPrinter() : new KindPrinter()
 
+        const {editing} = this.state
         return (
           <div class={cls("prop", dirty, internal, hidden)}>
             <div class="prop-attr" tabIndex={0}>
@@ -361,10 +393,14 @@ export class ExaminerView extends UIElementView {
             <div class="prop-kind">
               {kind_printer.to_html(prop.kind)}
             </div>
-            <div class="prop-value">
-              <PropValue prop={prop}></PropValue>
-              <div class="btn btn-edit" onClick={() => this.edit_value()}></div>
-              {this.state.editing ? <PropEditor prop={prop}></PropEditor> : null}
+            <div class={cls("prop-value", editing ? "editing" : null)}>
+              {!editing ?
+                <>
+                  <PropValue prop={prop}></PropValue>
+                  <div class="btn btn-edit" onClick={() => this.toggle_edit()}></div>
+                </>
+                :
+                <PropEditor prop={prop} close={() => this.toggle_edit()}></PropEditor>}
             </div>
           </div>
         )
@@ -395,11 +431,7 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type PropsListProps = {}
-    class PropsList extends Component<PropsListProps> {
-      constructor(props: PropsListProps) {
-        super(props)
-      }
+    class PropsList extends Component {
       readonly model_props = computed(() => {
         const model = current_model.value
         return model != null ? compute_attrs(model) : []
@@ -417,11 +449,7 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type PropsPanelProps = {}
-    class PropsPanel extends Component<PropsPanelProps> {
-      constructor(props: PropsPanelProps) {
-        super(props)
-      }
+    class PropsPanel extends Component {
       render(): VNode<HTMLElement> {
         return (
           <div class="props-panel">
@@ -447,8 +475,7 @@ export class ExaminerView extends UIElementView {
       }
     }
 
-    type WatchesListProps = {}
-    class WatchesList extends Component<WatchesListProps> {
+    class WatchesList extends Component {
       remove_watch(prop: p.Property): void {
         const watched = watched_props.value
         watched.delete(prop)

@@ -27,7 +27,6 @@ from typing import (
     Iterator,
     Literal,
     Sequence,
-    TypeAlias,
     cast,
 )
 
@@ -64,12 +63,12 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 # TODO: str should be literal union of e.g. pan | xpan | ypan
-Auto: TypeAlias = Literal["auto"]
-ActiveDrag: TypeAlias = Drag | Auto | str | None
-ActiveInspect: TypeAlias = list[InspectTool] | InspectTool | Auto | str | None
-ActiveScroll: TypeAlias = Scroll | Auto | str | None
-ActiveTap: TypeAlias = Tap | Auto | str | None
-ActiveMulti: TypeAlias = GestureTool | Auto | str | None
+type Auto = Literal["auto"]
+type ActiveDrag = Drag | Auto | str | None
+type ActiveInspect = list[InspectTool] | InspectTool | Auto | str | None
+type ActiveScroll = Scroll | Auto | str | None
+type ActiveTap = Tap | Auto | str | None
+type ActiveMulti = GestureTool | Auto | str | None
 
 def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
         active_drag: ActiveDrag, active_inspect: ActiveInspect, active_scroll: ActiveScroll,

@@ -1,23 +1,19 @@
 import {ToggleButtonGroup, ToggleButtonGroupView} from "./toggle_button_group"
-
 import type * as p from "core/properties"
-import * as buttons from "styles/buttons.css"
+
+import {computed} from "@preact/signals"
 
 export class RadioButtonGroupView extends ToggleButtonGroupView {
   declare model: RadioButtonGroup
+  declare readonly signals: p.SignalsOf<RadioButtonGroup.Props>
+
+  override active_indices = computed(() => {
+    const active = this.signals.active.value
+    return new Set(active == null ? [] : [active])
+  })
 
   change_active(i: number): void {
-    if (this.model.active !== i) {
-      this.model.active = i
-    }
-  }
-
-  protected _update_active(): void {
-    const {active} = this.model
-
-    this._buttons.forEach((button_el, i) => {
-      button_el.classList.toggle(buttons.active, active === i)
-    })
+    this.model.active = i
   }
 }
 

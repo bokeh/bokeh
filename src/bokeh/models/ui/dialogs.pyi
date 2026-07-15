@@ -6,10 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    from typing_extensions import Unpack
+from typing import Literal, Unpack
 
 # Bokeh imports
 from ...core.enums import MovableType as Movable, ResizableType as Resizable

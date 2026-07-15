@@ -1,4 +1,4 @@
-import {display, fig, column} from "../_util"
+import {display, fig, column} from "#framework/layouts"
 
 import type {Plot, Column, ColorMapper} from "@bokehjs/models"
 import {

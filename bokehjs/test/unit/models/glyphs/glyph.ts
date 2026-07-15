@@ -1,4 +1,5 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
+import {trap} from "#framework/util"
 
 import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {Selection} from "@bokehjs/models/selections"
@@ -9,7 +10,6 @@ import {with_log_level} from "@bokehjs/core/logging"
 import {version} from "@bokehjs/version"
 
 import {create_glyph_view} from "./_util"
-import {trap} from "../../../util"
 
 describe("glyph module", () => {
 

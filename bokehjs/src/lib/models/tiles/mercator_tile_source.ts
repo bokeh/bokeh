@@ -10,6 +10,10 @@ export namespace MercatorTileSource {
   export type Props = TileSource.Props & {
     snap_to_zoom: p.Property<boolean>
     wrap_around: p.Property<boolean>
+  } & Internal
+
+  export type Internal = {
+    _resolutions: p.Property<number[]>
   }
 }
 
@@ -28,18 +32,17 @@ export class MercatorTileSource extends TileSource {
       wrap_around:  [ Bool, true ],
     }))
 
+    this.internal<MercatorTileSource.Internal, MercatorTileSource>(({Float, List}) => ({
+      _resolutions: [ List(Float), (obj) => { // TODO computed property of min_zoom, max_zoom, etc.
+        return range(obj.min_zoom, obj.max_zoom+1).map((z) => obj.get_resolution(z))
+      } ],
+    }))
+
     this.override<MercatorTileSource.Props>({
       x_origin_offset:    20037508.34,
       y_origin_offset:    20037508.34,
       initial_resolution: 156543.03392804097,
     })
-  }
-
-  protected _resolutions: number[]
-
-  override initialize(): void {
-    super.initialize()
-    this._resolutions = range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z))
   }
 
   protected _computed_initial_resolution(): number {

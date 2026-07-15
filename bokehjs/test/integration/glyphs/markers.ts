@@ -1,5 +1,5 @@
-import {expect} from "../../unit/assertions"
-import {display, fig, row} from "../_util"
+import {expect} from "#framework/assertions"
+import {display, fig, row} from "#framework/layouts"
 
 import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import type {LineJoin} from "@bokehjs/core/enums"

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect} from "#framework/assertions"
 
 import {SingleIntervalTicker} from "@bokehjs/models/tickers/single_interval_ticker"
 

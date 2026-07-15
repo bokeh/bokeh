@@ -71,6 +71,7 @@ __all__ = (
     'MultiChoice',
     'MultiSelect',
     'NumericInput',
+    'LightDark',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -307,12 +308,16 @@ class ToggleInput(Widget):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    active = Bool(default=False, help="""
+    active = Nullable(Bool, default=False, help="""
     The state of the widget.
     """)
 
     label = String(default="", help="""
     The label next to the input.
+    """)
+
+    tri_state = Bool(default=False, help="""
+    Allow handle of third intermediate state of the widget (``active = None``).
     """)
 
 class Checkbox(ToggleInput):
@@ -330,10 +335,33 @@ class Switch(ToggleInput):
         super().__init__(*args, **kwargs)
 
     on_icon = Nullable(IconLike, default=None, help="""
+    Icon to represent widget on state (``active = True``).
     """)
 
     off_icon = Nullable(IconLike, default=None, help="""
+    Icon to represent widget off state (``active = False``).
     """)
+
+    indeterminate_icon = Nullable(IconLike, default=None, help="""
+    Icon to represent widget indeterminate state (``active = None``).
+    """)
+
+class LightDark(Switch):
+    """ A switch widget to change between themes (light and dark). """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    active = Override(default=None)
+
+    on_icon = Override(default="light_theme")
+
+    off_icon = Override(default="dark_theme")
+
+    indeterminate_icon = Override(default="system_theme")
+
+    tri_state = Override(default=True)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.

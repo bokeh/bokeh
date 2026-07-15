@@ -1,4 +1,4 @@
-import {display} from "../../_util"
+import {display} from "#framework/layouts"
 
 import type {Arrayable} from "@bokehjs/core/types"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

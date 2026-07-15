@@ -1,7 +1,7 @@
-import {expect} from "assertions"
-import {display} from "../../_util"
+import {expect} from "#framework/assertions"
+import {display} from "#framework/layouts"
 
-import {FileInput} from "@bokehjs/models/widgets"
+import {FileInput, FileInputChange} from "@bokehjs/models/widgets"
 import type {MessageSent, Patch} from "@bokehjs/document"
 import {zip} from "@bokehjs/core/util/array"
 
@@ -145,5 +145,29 @@ describe("FileInputView", () => {
     expect(model.value).to.be.equal([btoa("foo")])
     expect(model.filename).to.be.equal(["subdir/foo.txt"])
     expect(model.mime_type).to.be.equal(["text/plain"])
+  })
+
+  it("should emit FileInputChange when files are loaded", async () => {
+    const widget = new FileInput({accept: ".txt", multiple: false})
+
+    const collected_events: FileInputChange[] = []
+    widget.on_event(FileInputChange, (event) => {
+      collected_events.push(event)
+    })
+
+    const {view} = await display(widget, null)
+
+    const file = new File(["foo bar"], "foo.txt", {type: "text/plain"})
+    const files = new _FileList(file)
+
+    await view.load_files(files)
+
+    expect(collected_events.length).to.be.equal(1)
+
+    const event = collected_events[0]
+
+    expect(event.value).to.be.equal(btoa("foo bar"))
+    expect(event.filename).to.be.equal("foo.txt")
+    expect(event.mime_type).to.be.equal("text/plain")
   })
 })

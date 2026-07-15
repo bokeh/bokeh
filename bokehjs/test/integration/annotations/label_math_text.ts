@@ -1,5 +1,5 @@
-import {display, fig, row} from "../_util"
-import {with_internal, with_delayed, with_none} from "../_util"
+import {display, fig, row} from "#framework/layouts"
+import {with_internal, with_delayed, with_none} from "#framework/util"
 
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {Label, TeX, Ascii, MathML} from "@bokehjs/models"

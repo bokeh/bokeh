@@ -1,11 +1,18 @@
 name: Bokeh-CI
 
+# Standard testing for faster feedback on common configurations
+# Runs unit tests on latest Python across all platforms, everything else on Linux only
+
 on:
   push:
     branches:
       - main
       - branch-*
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -20,7 +27,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -34,77 +41,96 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Run codebase checks on all platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
+      # Required for codebase tests that check file formatting (line endings, whitespace, etc).
       - name: Configure line endings in git
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: '3.12'
           source-tree: 'keep'
 
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
+        uses: ./.github/workflows/composite/list-software
 
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
 
-      - name: MyPy
+  typing:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: ['3.12', '3.14']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'keep'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        uses: ./.github/workflows/composite/list-software
+
+      - name: Check library types with mypy
+        run: |
+          mypy --version && mypy
+
+      - name: Check types in examples with mypy
         if: success() || failure()
-        run: mypy --version && mypy
+        run: |
+          mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
 
   examples:
     needs: build
     runs-on: ubuntu-24.04
 
+    strategy:
+      fail-fast: false
+      matrix:
+        # Examples: Linux only (Chrome/Chromium dependency)
+        python-version: ['3.14']
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: ${{ matrix.python-version }}
           source-tree: 'delete'
 
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
       - name: Install chromium
-        run: |
-          INSTALLED=$(chromium --version | cut -d' ' -f2 | cut -d'.' -f1-3)
-          EXPECTED=$(echo "$CHROME_VER" | cut -d'.' -f1-3)
-
-          echo "Currently installed Chromium $INSTALLED; expected $EXPECTED"
-
-          if [[ "$INSTALLED" = "$EXPECTED" ]]; then
-            echo "Using pre-installed version of chromium"
-          else
-            URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
-            wget --no-verbose $URL/$CHROME_REV.assert
-            wget --no-verbose $URL/$CHROME_REV.snap
-
-            sudo snap ack $CHROME_REV.assert
-            sudo snap install $CHROME_REV.snap
-          fi
+        uses: ./.github/workflows/composite/install-chromium
 
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
-          chromium --version
+        uses: ./.github/workflows/composite/list-software
+        with:
+          include-chromium: 'true'
 
       - name: Start chrome headless
         working-directory: ./bokehjs
-        run: node make test:spawn:headless # starts chrome in the background on port 9222
+        run: node make test:spawn:headless
 
       - name: Run tests
         env:
@@ -122,7 +148,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: examples-report
           path: examples-report
@@ -133,16 +159,16 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 6
       matrix:
+        # Unit tests: Latest Python (3.14) on all platforms
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.14']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -154,47 +180,23 @@ jobs:
         run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
+        uses: ./.github/workflows/composite/list-software
 
-      - name: Test defaults
-        run: pytest tests/test_defaults.py
+      - name: Install Playwright browsers
+        run: playwright install chromium
 
-      - name: Test cross
-        run: pytest tests/test_cross.py
-
-      - name: Run tests
-        if: success() || failure()
-        run: |
-          COLOR="--color=yes"
-          COVERAGE="--cov=bokeh --cov-report=xml"
-          POLICY="--last-failed --last-failed-no-failures none"
-          pytest $COLOR $COVERAGE tests/unit || pytest $COLOR $POLICY tests/unit
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v4
-        if: success() || failure()
-        with:
-          env_vars: OS,PYTHON
-          flags: unit
-          verbose: true
+      - name: Run unit tests
+        uses: ./.github/workflows/composite/run-unit-tests
 
   minimal-deps:
     needs: build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04
 
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04, windows-latest]
     env:
-      OS: ${{ matrix.os }}
+      OS: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -203,39 +205,22 @@ jobs:
           source-tree: 'delete'
 
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
+        uses: ./.github/workflows/composite/list-software
 
-      - name: Run tests
-        run: |
-          COLOR="--color=yes"
-          COVERAGE="--cov=bokeh --cov-report=xml"
-          POLICY="--last-failed --last-failed-no-failures none"
-          pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+      - name: Run dependency tests
+        uses: ./.github/workflows/composite/run-deps-tests
         with:
-          env_vars: OS
-          flags: unit,minimal
-          verbose: true
+          dep-type: 'minimal'
 
   core-deps:
     needs: build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04
 
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04]
     env:
-      OS: ${{ matrix.os }}
+      OS: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -244,51 +229,46 @@ jobs:
           source-tree: 'delete'
 
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
+        uses: ./.github/workflows/composite/list-software
 
-      - name: Run tests
-        run: |
-          COLOR="--color=yes"
-          COVERAGE="--cov=bokeh --cov-report=xml"
-          POLICY="--last-failed --last-failed-no-failures none"
-          pytest -m "not sampledata" $COLOR $COVERAGE tests/unit || pytest -m "not sampledata" $COLOR $POLICY tests/unit
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v4
+      - name: Run dependency tests
+        uses: ./.github/workflows/composite/run-deps-tests
         with:
-          env_vars: OS
-          flags: unit,core
-          verbose: true
+          dep-type: 'core'
 
   documentation:
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Documentation: Linux only
+        os: [ubuntu-24.04]
+        # Build only on the most recent version of Python, so that documentation
+        # and included examples can utilize newest available syntax and standard APIs.
+        python-version: ['3.14']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.10'
+          test-env: ${{ matrix.python-version }}
           source-tree: 'delete'
 
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
       - name: List installed software
-        run: |
-          conda info
-          conda list
-          echo "node $(node --version)"
-          echo "npm $(npm --version)"
+        uses: ./.github/workflows/composite/list-software
 
       - name: Build docs
         run: bash scripts/ci/build_docs.sh
 
       - name: Upload docs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docs-html
           path: docs/bokeh/docs-html.tgz

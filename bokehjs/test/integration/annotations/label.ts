@@ -1,6 +1,6 @@
-import {display, fig, row} from "../_util"
-import type {Point} from "../../interactive"
-import {PlotActions, xy} from "../../interactive"
+import {display, fig, row} from "#framework/layouts"
+import type {Point} from "#framework/interactive"
+import {PlotActions, xy} from "#framework/interactive"
 import {tex} from "./_text_utils"
 
 import {Label, HTMLLabel} from "@bokehjs/models/annotations"

@@ -1,7 +1,7 @@
 import {task, run, log} from "../task.js"
 import {keep_alive, debounce} from "./_util.js"
 
-import {build_scripts} from "./scripts.js"
+import {build_scripts} from "./build.js"
 import {build_defaults, build_unit, build_integration} from "./test.js"
 
 import * as paths from "../paths.js"
