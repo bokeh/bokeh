@@ -1,6 +1,6 @@
 import {display, fig} from "#framework/layouts"
 
-import {HTMLLabel} from "@bokehjs/models"
+import {ColumnDataSource, HTMLLabel, Line} from "@bokehjs/models"
 
 describe("HTMLLabel annotation", () => {
 
@@ -28,4 +28,34 @@ describe("HTMLLabel annotation", () => {
 
     await display(plot)
   })
+
+  it("should allow overlaying HTML labels across the canvas framework boundaries", async () => {
+    const plot = fig([400, 400])
+
+    const source = new ColumnDataSource({
+      data: { x: [1, 2, 3, 4, 5], y: [6, 7, 2, 4, 15] }
+    })
+    
+    const line = new Line({
+      x: {field: "x"},
+      y: {field: "y"},
+      line_width: 2,
+      line_color: "blue",
+    })
+    plot.add_glyph(line, source)
+
+    const x_label = new HTMLLabel({
+      x: 0,
+      y: 200,
+      text: "Sample Label",
+      text_color: "black",
+      level: "overlay",
+      x_units: "canvas",
+      y_units: "canvas",
+    })
+    plot.add_layout(x_label)
+
+    await display(plot)
+  })
+
 })
