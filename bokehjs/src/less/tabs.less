@@ -126,19 +126,17 @@
   }
 
   & > span {
-    display: inline-block;
+    display: inline-grid;
     text-align: center;
     pointer-events: none;
 
+    & > span, &::after {
+      grid-area: 1 / 1;
+    }
+
     &::after {
-      display: block;
-      content: attr(data-title);
       content: attr(data-title) / "";
-      height: 0;
       visibility: hidden;
-      overflow: hidden;
-      user-select: none;
-      pointer-events: none;
       font-weight: bold;
     }
   }
