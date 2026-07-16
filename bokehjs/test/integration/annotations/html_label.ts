@@ -33,9 +33,9 @@ describe("HTMLLabel annotation", () => {
     const plot = fig([400, 400])
 
     const source = new ColumnDataSource({
-      data: { x: [1, 2, 3, 4, 5], y: [6, 7, 2, 4, 15] }
+      data: {x: [1, 2, 3, 4, 5], y: [6, 7, 2, 4, 15]},
     })
-    
+
     const line = new Line({
       x: {field: "x"},
       y: {field: "y"},
