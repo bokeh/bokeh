@@ -19,7 +19,7 @@ describe("mercator_tick_formatter module", () => {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)
         const labels = obj.doFormat([mlat], {loc: mlon})
-        expect(labels[0]).to.be.similar(unicode_replace(`${lat}`), 1e-13)
+        expect(labels[0]).to.be.equal(unicode_replace(`${lat}`))
       }
     }
   })
