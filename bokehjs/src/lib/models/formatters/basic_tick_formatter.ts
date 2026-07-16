@@ -58,7 +58,7 @@ export class BasicTickFormatter extends TickFormatter {
 
     const {scientific_limit_high} = this
     const {scientific_limit_low} = this
-    const zeroish = ticks.length < 2 ? 0 : Math.abs(ticks[1] - ticks[0]) / 10000
+    const zeroish = ticks.length < 2 ? 1e-13 : Math.abs(ticks[1] - ticks[0]) / 10000
 
     for (const tick of ticks) {
       const tick_abs = Math.abs(tick)
