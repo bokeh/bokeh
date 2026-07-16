@@ -677,6 +677,25 @@ describe("Tabs", () => {
   it("should allow to disable axis alignment across tabs", async () => {
     await linked_tabs(false)
   })
+
+  for (const tabs_location of ["above", "left"] as const) {
+    it(`should keep ${tabs_location} tab bounds stable when switching the active tab`, async () => {
+      const obj = tabs(tabs_location, ["Status", "Overview"])
+      const {view} = await display(obj, [200, 150])
+      const tab_els = [...view.shadow_el.querySelectorAll<HTMLElement>(".bk-tab")]
+
+      const bounds = () => tab_els.map((el) => {
+        const {y, height} = el.getBoundingClientRect()
+        return {y: Math.round(y), height: Math.round(height)}
+      })
+      const initial_bounds = bounds()
+
+      await mouse_click(tab_els[1])
+      await view.ready
+
+      expect(bounds()).to.be.structurally.equal(initial_bounds)
+    })
+  }
 })
 
 describe("gridplot()", () => {

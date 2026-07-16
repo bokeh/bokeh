@@ -125,6 +125,22 @@
     font-weight: bold;
   }
 
+  & > span {
+    display: inline-grid;
+    text-align: center;
+    pointer-events: none;
+
+    & > span, &::after {
+      grid-area: 1 / 1;
+    }
+
+    &::after {
+      content: attr(data-title) / "";
+      visibility: hidden;
+      font-weight: bold;
+    }
+  }
+
   .bk-close {
     margin-left: var(--close-icon-space-away-from-tab-text);
   }

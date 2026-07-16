@@ -312,7 +312,7 @@ export class TabsView extends LayoutDOMView {
           onMouseLeave={() => toggle_tooltip(false)}
           ref={ref}
         >
-          {tab.title}
+          <span data-title={tab.title}><span>{tab.title}</span></span>
           {close_el}
         </div>
       )
