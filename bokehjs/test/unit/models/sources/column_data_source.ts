@@ -229,5 +229,14 @@ describe("column_data_source module", () => {
       expect(source.length).to.be.equal(2)
       expect(selected.indices).to.be.equal([0, 1])
     })
+
+    it("should prune out-of-bounds indices after patching", () => {
+      const selected = new Selection({indices: [0, 2]})
+      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+
+      source.patch({foo: [[0, 2]]})
+
+      expect(selected.indices).to.be.equal([0])
+    })
   })
 })

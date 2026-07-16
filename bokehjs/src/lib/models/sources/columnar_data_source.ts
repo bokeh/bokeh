@@ -128,17 +128,16 @@ export abstract class ColumnarDataSource extends DataSource {
     super.connect_signals()
 
     const prune_selection = () => this._prune_selection()
-    const {data} = this.properties as Partial<ColumnarDataSource.Props>
-    if (data != null) {
-      this.connect(data.change, prune_selection)
+    if ("data" in this.properties) {
+      this.connect(this.properties.data.change, prune_selection)
     }
     this.connect(this.streaming, prune_selection)
+    this.connect(this.patching, prune_selection)
   }
 
   protected _prune_selection(): void {
-    const length = this.length
+    const {selected, length} = this
     const in_bounds = (index: number) => 0 <= index && index < length
-    const {selected} = this
 
     selected.setv({
       indices: filter(selected.indices, in_bounds),
