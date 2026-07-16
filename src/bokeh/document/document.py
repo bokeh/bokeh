@@ -142,10 +142,6 @@ class Document:
     _template_variables: dict[str, Any]
 
     def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
-        self.callbacks = DocumentCallbackManager(self)
-        self.models = DocumentModelManager(self)
-        self.modules = DocumentModuleManager(self)
-
         self._config = DocumentConfig()
         self._roots = []
         self._template = FILE
@@ -154,6 +150,13 @@ class Document:
         self._title = title # avoid triggering title event
 
         self._session_context = None
+
+        self.callbacks = DocumentCallbackManager(self)
+        self.models = DocumentModelManager(self)
+        self.modules = DocumentModuleManager(self)
+
+        self.models.recompute()
+        self.models.flush_synced()
 
     # Properties --------------------------------------------------------------
 
@@ -169,9 +172,17 @@ class Document:
         ''' A list of all the root models in this document.
 
         '''
-        # TODO: config serialization
-        # return [*list(self._roots), self.config]
         return list(self._roots)
+
+    @property
+    def _all_roots(self) -> list[Model]:
+        ''' A list of all models that anchor the document's model graph.
+
+        Unlike :attr:`roots`, this includes models owned by the document that
+        aren't user-visible roots.
+
+        '''
+        return [*self._roots, self._config]
 
     @property
     def session_callbacks(self) -> list[SessionCallback]:
@@ -390,9 +401,7 @@ class Document:
             None
 
         '''
-        # TODO: config serialization. Not passing config here causes an
-        # `UnknownReferenceError`
-        deserializer = Deserializer([*list(self.models), self.config], setter=setter)
+        deserializer = Deserializer(list(self.models), setter=setter)
 
         try:
             patch: PatchJson = deserializer.deserialize(patch_json)
@@ -468,7 +477,7 @@ side of a communications channel while it was being removed on the other end.\
         title = doc_struct["title"]
 
         doc = Document()
-        doc._config = config
+        doc._set_config(config)
 
         for root in roots:
             doc.add_root(root)
@@ -852,6 +861,13 @@ side of a communications channel while it was being removed on the other end.\
 
     # Private methods ---------------------------------------------------------
 
+    def _set_config(self, config: DocumentConfig) -> None:
+        if self._config is config:
+            return
+
+        with self.models.freeze():
+            self._config = config
+
     def _destructively_move(self, dest_doc: Document) -> None:
         ''' Move all data in this doc to the dest_doc, leaving this doc empty.
 
@@ -879,15 +895,18 @@ side of a communications channel while it was being removed on the other end.\
                 root = next(iter(self.roots))
                 self.remove_root(root)
                 roots.append(root)
+            self._config = DocumentConfig()
 
         for root in roots:
             if root.document is not None:
                 raise RuntimeError(f"Somehow we didn't detach {root!r}")
 
-        if len(self.models) != 0:
-            raise RuntimeError(f"_all_models still had stuff in it: {self.models!r}")
+        if set(self.models) != self.config.references():
+            raise RuntimeError(
+                f"_all_models still had unexpected models in it: {self.models!r}",
+            )
 
-        dest_doc._config = config
+        dest_doc._set_config(config)
 
         for root in roots:
             dest_doc.add_root(root)
