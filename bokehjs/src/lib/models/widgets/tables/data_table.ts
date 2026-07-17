@@ -190,9 +190,8 @@ export class DataTableView extends WidgetView {
     super.connect_signals()
     this.connect(this.model.change, () => this.rerender())
 
-    for (const column of this.model.columns) {
-      this.connect(column.change, () => this.rerender())
-    }
+    const {columns} = this.model.properties
+    this.on_transitive_change(columns, () => this.rerender(), {recursive: true})
 
     // TODO reevaluate the control flow when taking a general look at events
     this.connect(this.model.view.change, () => this.updateGrid())
