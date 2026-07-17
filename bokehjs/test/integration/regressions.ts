@@ -5136,4 +5136,24 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #15121", () => {
+    it("doesn't allow to correctly render time stamps with the format 'TIMESTAMP", async () => {
+      const indices = range(0, 5)
+      const source = new ColumnDataSource({
+        data: {
+          dates: indices.map((i) => `1970-01-${i + 1}`),
+          downloads: indices,
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter({format: "TIMESTAMP"})}),
+        new TableColumn({field: "downloads", title: "Downloads"}),
+      ]
+
+      const table = new DataTable({source, columns, width: 300, height: 400})
+      await display(table, [350, 450])
+    })
+  })
 })
