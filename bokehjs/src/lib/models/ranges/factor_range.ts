@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import {Float, Or, Str, List, Tuple} from "core/kinds"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
@@ -334,8 +334,8 @@ export class FactorRange extends Range {
       group_padding:       [ Float, 1.4 ],
       range_padding:       [ Float, 0 ],
       range_padding_units: [ PaddingUnits, "percent" ],
-      start:               [ Float, p.unset, {readonly: true} ],
-      end:                 [ Float, p.unset, {readonly: true} ],
+      start:               [ Float, 0, {readonly: true} ],
+      end:                 [ Float, 0, {readonly: true} ],
     }))
 
     this.internal<FactorRange.Internal>(({AnyRef}) => ({
