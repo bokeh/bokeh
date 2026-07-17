@@ -36,6 +36,7 @@ from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
+from ..core.property.numeric import Interval
 from ..core.property.override import Override
 from ..core.property.primitive import Float, Int, String
 from ..core.property.required import Required
@@ -164,12 +165,12 @@ class ContinuousTicker(Ticker):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    num_minor_ticks = Int(5, help="""
+    num_minor_ticks = Interval(Int, start=0, end=1000, default=5, help="""
     The number of minor tick positions to generate between
     adjacent major tick values.
     """)
 
-    desired_num_ticks = Int(6, help="""
+    desired_num_ticks = Interval(Int, start=0, end=1000, default=6, help="""
     A desired target number of major tick positions to generate across
     the plot range.
 
