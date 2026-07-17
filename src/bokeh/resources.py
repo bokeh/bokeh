@@ -51,7 +51,6 @@ from typing import (
     Protocol,
     Sequence,
     TypedDict,
-    assert_never,
     cast,
 )
 
@@ -373,8 +372,6 @@ class Resources:
                 self.messages.extend(server.messages)
             case "inline" | "relative" | "absolute":
                 pass
-            case _:
-                assert_never(self.mode)
 
         self.base_dir = Path(base_dir) if base_dir is not None else settings.bokehjs_path()
 
@@ -489,8 +486,6 @@ class Resources:
             case "server":
                 server = self._server_urls()
                 files = list(server.urls(self.components_for(kind), kind))
-            case _:
-                assert_never(self.mode)
 
         return (files, raw, hashes)
 

@@ -44,9 +44,9 @@ from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
     _BOKEH_LOADED_CHECK,
+    _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
-    _VIEWPORT_SIZE_SCRIPT,
     _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
@@ -282,7 +282,8 @@ def _log_console(driver: WebDriver) -> None:
 
 
 def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
-    viewport_size: tuple[int, int, int] = web_driver.execute_script(_VIEWPORT_SIZE_SCRIPT)
+    _, _, w, h, dpr = web_driver.execute_script(_ROOT_VIEW_BBOX_SCRIPT)
+    viewport_size = (w, h, dpr)
     calculate_window_size = """\
         const [width, height, dpr] = arguments
         return [

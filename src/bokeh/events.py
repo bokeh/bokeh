@@ -85,7 +85,9 @@ if TYPE_CHECKING:
     from .models import Axis
     from .models.annotations import Legend, LegendItem
     from .models.plots import Plot
-    from .models.widgets.inputs import FileInput
+    from .models.widgets.buttons import AbstractButton
+    from .models.widgets.groups import ToggleButtonGroup
+    from .models.widgets.inputs import FileInput, TextInput
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -302,8 +304,9 @@ class AxisClick(ModelEvent):
     value: float | FactorType | None
 
     def __init__(self, model: Axis | None, value: float | FactorType | None = None) -> None:
-        from .models import Axis
-        if model is not None and not isinstance(cast(Any, model), Axis):
+        from .models import Model
+        from .models.axes import Axis
+        if model is not None and not isinstance(cast(Model, model), Axis):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to axis models")
         super().__init__(model=model)
@@ -315,9 +318,10 @@ class ButtonClick(ModelEvent):
     '''
     event_name = 'button_click'
 
-    def __init__(self, model: Model | None) -> None:
+    def __init__(self, model: AbstractButton | ToggleButtonGroup | None) -> None:
+        from .models import Model
         from .models.widgets import AbstractButton, ToggleButtonGroup
-        if model is not None and not isinstance(model, (AbstractButton, ToggleButtonGroup)):
+        if model is not None and not isinstance(cast(Model, model), (AbstractButton, ToggleButtonGroup)):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to button and button group models")
         super().__init__(model=model)
@@ -335,8 +339,9 @@ class FileInputChange(ModelEvent):
         filename:  str | list[str],
         mime_type: str | list[str],
     ) -> None:
+        from .models import Model
         from .models.widgets import FileInput
-        if model is not None and not isinstance(cast(Any, model), FileInput):
+        if model is not None and not isinstance(cast(Model, model), FileInput):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to FileInput model")
         self.value     = value
@@ -372,9 +377,10 @@ class ValueSubmit(ModelEvent):
 
     value: str
 
-    def __init__(self, model: Model | None, value: str) -> None:
+    def __init__(self, model: TextInput | None, value: str) -> None:
+        from .models import Model
         from .models.widgets import TextInput
-        if model is not None and not isinstance(model, TextInput):
+        if model is not None and not isinstance(cast(Model, model), TextInput):
             clsname = self.__class__.__name__
             raise ValueError(f"{clsname} event only applies to text input models")
         super().__init__(model=model)

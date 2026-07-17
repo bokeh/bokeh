@@ -25,14 +25,15 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 # External imports
 from tornado.web import HTTPError, StaticFileHandler
 
 if TYPE_CHECKING:
     from ...core.types import PathLike
-    Root = dict[str, PathLike]
+    type RootPaths = dict[str, PathLike]
+    type RootPathLike = str | RootPaths
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,12 +53,12 @@ __all__ = (
 
 class MultiRootStaticHandler(StaticFileHandler):
 
-    def initialize(self, root: str | Root, default_filename: str | None = None) -> None:
-        self.root = cast(Any, root)
-        self.default_filename = None
+    def initialize(self, root: RootPathLike, default_filename: str | None = None) -> None:
+        self.root = root  # type: ignore[assignment]
+        self.default_filename = default_filename
 
     @classmethod
-    def get_absolute_path(cls, root: str | Root, path: str) -> str:
+    def get_absolute_path(cls, root: RootPathLike, path: str) -> str:
         if isinstance(root, str):
             return super().get_absolute_path(root, path)
 
@@ -72,7 +73,7 @@ class MultiRootStaticHandler(StaticFileHandler):
         else:
             raise HTTPError(404)
 
-    def validate_absolute_path(self, root: str | Root, absolute_path: str) -> str | None:
+    def validate_absolute_path(self, root: RootPathLike, absolute_path: str) -> str | None:
         if isinstance(root, str):
             return super().validate_absolute_path(root, absolute_path)
 

@@ -45,9 +45,9 @@ from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
     _BOKEH_LOADED_CHECK,
+    _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
-    _VIEWPORT_SIZE_SCRIPT,
     _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
@@ -294,15 +294,9 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
 
 def maximize_viewport(page: Page) -> tuple[float, float, int, int, int]:
     '''Resize viewport to fit the Bokeh layout. Returns (x, y, width, height, dpr).'''
-    [w, h, dpr] = execute_script(page, _VIEWPORT_SIZE_SCRIPT)
+    [_, _, w, h, _] = execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
     page.set_viewport_size({"width": w + 100, "height": h + 100})
-    [x, y, w, h, dpr] = execute_script(page, """\
-        (() => {
-        const root_view = Bokeh.index.roots[0];
-        const {x, y, width, height} = root_view.el.getBoundingClientRect();
-        return [x, y, Math.round(width), Math.round(height), window.devicePixelRatio];
-        })()
-    """)
+    [x, y, w, h, dpr] = execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
     return (x, y, w, h, dpr)
 
 

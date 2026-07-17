@@ -42,8 +42,8 @@ if TYPE_CHECKING:
     from contourpy._contourpy import FillReturn_OuterOffset, LineReturn_ChunkCombinedNan
     from numpy.typing import ArrayLike, NDArray
 
+    from ..colors import ColorLike
     from ..palettes import Palette, PaletteCollection
-    from ..transform import ColorLike
 
     type ContourColor = ColorLike | Sequence[ColorLike]
     type ContourColorOrPalette = ContourColor | Palette | PaletteCollection | ContourColor
