@@ -69,6 +69,7 @@ class AuthRequestHandler(RequestHandler):
             return auth_provider.get_login_url(self)
         if auth_provider.login_url is not None:
             # second arg must be lstrip'd to avoid dropping the prefix
+            # (urljoin treats a leading-slash second arg as an absolute path and discards the base)
             return urljoin(self.bokeh_app.prefix + "/", auth_provider.login_url.lstrip("/"))
         raise RuntimeError('login_url or get_login_url() must be supplied when authentication hooks are enabled')
 
