@@ -174,6 +174,38 @@ def test_auth_provider() -> None:
     bt = bst.BokehTornado(applications={}, auth_provider=FakeAuth)
     assert bt.auth_provider is FakeAuth
 
+def test_logout_url_prefix() -> None:
+    class FakeAuth:
+        get_user = None
+        get_user_async = None
+        login_url = None
+        logout_url = "/logout"
+        endpoints = []
+
+    # no prefix
+    bt = bst.BokehTornado({"/": Application()}, auth_provider=FakeAuth)
+    assert bt._applications["/"]._logout_url == "/logout"
+
+    # with prefix
+    bt = bst.BokehTornado({"/": Application()}, prefix="/pre", auth_provider=FakeAuth)
+    assert bt._applications["/"]._logout_url == "/pre/logout"
+
+    # prefix is normalized first, so surrounding slashes collapse to the same result
+    for prefix in ["pre", "/pre", "/pre/", "pre/"]:
+        bt = bst.BokehTornado({"/": Application()}, prefix=prefix, auth_provider=FakeAuth)
+        assert bt._applications["/"]._logout_url == "/pre/logout"
+
+    # multi-part prefix
+    bt = bst.BokehTornado({"/": Application()}, prefix="/a/b", auth_provider=FakeAuth)
+    assert bt._applications["/"]._logout_url == "/a/b/logout"
+
+    # no-leading-slash suffix
+    class FakeAuthNoSlash(FakeAuth):
+        logout_url = "logout"
+
+    bt = bst.BokehTornado({"/": Application()}, prefix="/pre", auth_provider=FakeAuthNoSlash)
+    assert bt._applications["/"]._logout_url == "/pre/logout"
+
 def test_websocket_max_message_size_bytes() -> None:
     app = Application()
     t = bst.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
