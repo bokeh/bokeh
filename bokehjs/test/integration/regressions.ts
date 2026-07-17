@@ -5122,4 +5122,54 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13857", () => {
+    function make_table() {
+      const source = new ColumnDataSource({
+        data: {
+          name:   ["Alice", "Bob", "Carol"],
+          salary: [50000,   70000,  90000],
+          bonus:  [1000,    2000,   3000],
+        },
+      })
+
+      const col_name   = new TableColumn({field: "name",   title: "Name",   width: 150})
+      const col_salary = new TableColumn({field: "salary", title: "Salary", width: 150})
+      const col_bonus  = new TableColumn({field: "bonus",  title: "Bonus",  width: 150})
+
+      const table = new DataTable({
+        source,
+        columns: [col_name, col_salary],
+        width: 600,
+        height: 200,
+      })
+
+      return {table, col_name, col_salary, col_bonus}
+    }
+
+    it("doesn't hide a column appended after construction when visible is set to false", async () => {
+      const {table, col_bonus} = make_table()
+      const {view} = await display(table, [620, 220])
+
+      table.columns = [...table.columns, col_bonus]
+      await view.ready
+
+      col_bonus.visible = false
+      await view.ready
+    })
+
+    it("doesn't show a hidden column appended after construction when visible is set back to true", async () => {
+      const {table, col_bonus} = make_table()
+      const {view} = await display(table, [620, 220])
+
+      table.columns = [...table.columns, col_bonus]
+      await view.ready
+
+      col_bonus.visible = false
+      await view.ready
+
+      col_bonus.visible = true
+      await view.ready
+    })
+  })
 })
