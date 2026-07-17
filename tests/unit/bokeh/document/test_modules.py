@@ -20,6 +20,7 @@ import pytest ; pytest
 import gc
 import logging
 import sys
+import weakref
 
 # Bokeh imports
 from bokeh.document import Document
@@ -47,9 +48,12 @@ class TestDocumentModuleManager:
         d = Document()
         dm = bdm.DocumentModuleManager(d)
         assert len(dm) == 0
+        ref = weakref.ref(d)
 
         # module manager should only hold a weak ref
-        assert len(gc.get_referrers(d)) == 0
+        del d
+        gc.collect()
+        assert ref() is None
 
     def test_add(self) -> None:
         d = Document()

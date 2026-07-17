@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import gc
 import weakref
 
 # Bokeh imports
@@ -85,9 +86,10 @@ def _doc():
 
 def test_patch_curdoc_weakref_raises() -> None:
     with bid.patch_curdoc(_doc()):
+        gc.collect()
         with pytest.raises(RuntimeError) as e:
             bid.curdoc()
-            assert str(e) == "Patched curdoc has been previously destroyed"
+        assert str(e.value) == "Patched curdoc has been previously destroyed"
 
 #-----------------------------------------------------------------------------
 # Private API
