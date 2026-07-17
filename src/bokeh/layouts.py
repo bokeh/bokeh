@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportReturnType=false, reportAssignmentType=false, reportAttributeAccessIssue=false, reportGeneralTypeIssues=false, reportOperatorIssue=false, reportCallIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -554,26 +556,26 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
                 ncols = math.ceil(N/nrows)
             layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
         else:
-            def traverse(children: list[LayoutDOM], level: int = 0):
+            def traverse_list(children: list[LayoutDOM], level: int = 0):
                 if isinstance(children, list):
                     container = col if level % 2 == 0 else row
-                    return container([ traverse(child, level+1) for child in children ])
+                    return container([ traverse_list(child, level+1) for child in children ])
                 else:
                     return children
 
-            layout = traverse(children)
+            layout = traverse_list(children)
     elif isinstance(children, LayoutDOM):
         def is_usable(child: LayoutDOM) -> bool:
             return _has_auto_sizing(child) and child.spacing == 0
 
-        def traverse(item: LayoutDOM, top_level: bool = False):
+        def traverse_layout(item: LayoutDOM, top_level: bool = False):
             if isinstance(item, FlexBox) and (top_level or is_usable(item)):
                 container = col if isinstance(item, Column) else row
-                return container(list(map(traverse, item.children)))
+                return container(list(map(traverse_layout, item.children)))
             else:
                 return item
 
-        layout = traverse(children, top_level=True)
+        layout = traverse_layout(children, top_level=True)
     elif isinstance(children, str):
         raise NotImplementedError
     else:

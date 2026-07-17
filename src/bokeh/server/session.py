@@ -30,6 +30,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    cast,
 )
 
 # External imports
@@ -46,7 +47,11 @@ from .callbacks import DocumentCallbackGroup
 if TYPE_CHECKING:
     from ..core.types import ID
     from ..document.document import Document
-    from ..document.events import DocumentPatchedEvent
+    from ..document.events import (
+        DocumentPatchedEvent,
+        SessionCallbackAdded,
+        SessionCallbackRemoved,
+    )
     from ..protocol import messages as msg
     from .callbacks import Callback, SessionCallback
     from .connection import ServerConnection
@@ -71,7 +76,7 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
        if it wasn't already.
     '''
     @wraps(func)
-    async def _needs_document_lock_wrapper(self: ServerSession, *args, **kwargs):
+    async def _needs_document_lock_wrapper(self: ServerSession, *args: Any, **kwargs: Any) -> Any:
         # while we wait for and hold the lock, prevent the session
         # from being discarded. This avoids potential weirdness
         # with the session vanishing in the middle of some async
@@ -103,7 +108,7 @@ def _needs_document_lock[F: Callable[..., Any]](func: F) -> F:
             return result
         finally:
             self.unblock_expiration()
-    return _needs_document_lock_wrapper
+    return cast(F, _needs_document_lock_wrapper)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -138,7 +143,7 @@ class ServerSession:
         self._lock = locks.Lock()
         self._current_patch_connection = None
         self._document.callbacks.on_change_dispatch_to(self)
-        self._callbacks = DocumentCallbackGroup(io_loop)
+        self._callbacks = DocumentCallbackGroup(cast(Any, io_loop))
         self._pending_writes = None
         self._destroyed = False
         self._expiration_requested = False
@@ -224,7 +229,7 @@ class ServerSession:
     def _wrap_document_callback(self, callback: Callback) -> Callback:
         if getattr(callback, "nolock", False):
             return callback
-        def wrapped_callback(*args: Any, **kwargs: Any):
+        def wrapped_callback(*args: Any, **kwargs: Any) -> Any:
             return self.with_document_locked(callback, *args, **kwargs)
         return wrapped_callback
 
@@ -252,11 +257,11 @@ class ServerSession:
         log.debug(f"Sending pull-doc-reply from session {self.id!r}")
         return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
 
-    def _session_callback_added(self, event: SessionCallback):
+    def _session_callback_added(self, event: SessionCallbackAdded) -> None:
         wrapped = self._wrap_session_callback(event.callback)
         self._callbacks.add_session_callback(wrapped)
 
-    def _session_callback_removed(self, event):
+    def _session_callback_removed(self, event: SessionCallbackRemoved) -> None:
         self._callbacks.remove_session_callback(event.callback)
 
     @classmethod

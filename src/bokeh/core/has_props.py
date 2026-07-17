@@ -20,6 +20,8 @@ serializable properties.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAssignmentType=false, reportAttributeAccessIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

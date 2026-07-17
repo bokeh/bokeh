@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib
 import textwrap
+from typing import Any
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -43,7 +44,7 @@ from sphinx.errors import SphinxError
 from bokeh.settings import PrioritizedSetting, _Unset
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import SETTINGS_DETAIL
 
@@ -72,7 +73,7 @@ class BokehSettingsDirective(BokehDirective):
     optional_arguments = 1
     option_spec = {"module": unchanged}
 
-    def run(self):
+    def run(self) -> list[Any]:
         sig = " ".join(self.arguments)
 
         m = py_sig_re.match(sig)
@@ -110,7 +111,7 @@ class BokehSettingsDirective(BokehDirective):
         return self.parse(rst_text, "<bokeh-settings>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-settings", BokehSettingsDirective)
 

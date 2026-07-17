@@ -20,6 +20,7 @@ import pytest ; pytest
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
+import bokeh
 import bokeh.util.deprecation as dep
 
 # Module under test
@@ -44,3 +45,7 @@ def test_find_stack_level(mock_warn: MagicMock) -> None:
     dep.deprecated((1,2,3), old="foo", new="bar", extra="baz")
     assert mock_warn.call_count == 2
     assert mock_warn.call_args[1] == {'stacklevel': 3}
+
+def test_find_stack_level_without_bokeh_file(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delattr(bokeh, "__file__")
+    assert warn.find_stack_level() == 2

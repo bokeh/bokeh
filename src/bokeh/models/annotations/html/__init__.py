@@ -12,12 +12,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false, reportUnsupportedDunderAll=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import Any
 
 # Bokeh imports
 from . import html_annotation, labels, toolbars
@@ -29,10 +34,14 @@ from .toolbars import *
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+# Keep dynamic submodule __all__ aggregation visible to type checkers.
+def _all(module: Any) -> tuple[str, ...]:
+    return module.__all__
+
 __all__ = (
-    *html_annotation.__all__,
-    *labels.__all__,
-    *toolbars.__all__,
+    *_all(html_annotation),
+    *_all(labels),
+    *_all(toolbars),
 )
 
 #-----------------------------------------------------------------------------

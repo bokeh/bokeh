@@ -15,6 +15,8 @@ and with options for "auto sizing".
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportCallIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

@@ -246,7 +246,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
 #-----------------------------------------------------------------------------
 
 def server_html_page_for_session(session: ServerSession, resources: Resources, title: str,
-        template: Template = FILE, template_variables: dict[str, Any] | None = None):
+        template: Template = FILE, template_variables: dict[str, Any] | None = None) -> str:
     '''
 
     Args:

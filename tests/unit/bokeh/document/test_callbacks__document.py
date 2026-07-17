@@ -391,7 +391,7 @@ class TestDocumentCallbackManager:
 
         cm.hold(policy)
         assert cm.hold_value == policy
-        cm.unhold() # type: ignore[unreachable]
+        cm.unhold() # type: ignore[unreachable] # mypy 2.x over-narrows after the parametrized literal assertion
         assert cm.hold_value is None
 
     @patch("bokeh.document.callbacks.DocumentCallbackManager.trigger_on_change")

@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,13 +23,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 # External imports
 from tornado.httputil import HTTPServerRequest
 from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
+from bokeh.core.types import ID
 from bokeh.util.token import (
     check_token_signature,
     generate_jwt_token,
@@ -39,7 +42,6 @@ from bokeh.util.token import (
 from .auth_request_handler import AuthRequestHandler
 
 if TYPE_CHECKING:
-    from ...core.types import ID
     from ..contexts import ApplicationContext
     from ..session import ServerSession
     from ..tornado import BokehTornado
@@ -71,25 +73,25 @@ class SessionHandler(AuthRequestHandler):
     application_context: ApplicationContext
     bokeh_websocket_path: str
 
-    def __init__(self, tornado_app: BokehTornado, *args, **kw) -> None:
+    def __init__(self, tornado_app: BokehTornado, *args: Any, **kw: Any) -> None:
         self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
 
-    def initialize(self, *args, **kw):
+    def initialize(self, *args: Any, **kw: Any) -> None:
         pass
 
-    @authenticated
-    async def get_session(self) -> ServerSession:
+    @authenticated # type: ignore[arg-type]
+    async def get_session(self) -> ServerSession | None:
         app = self.application
         token = self.get_argument("bokeh-token", default=None)
-        session_id: ID | None = self.get_argument("bokeh-session-id", default=None)
+        session_id = cast(ID | None, self.get_argument("bokeh-session-id", default=None))
         if 'Bokeh-Session-Id' in self.request.headers:
             if session_id is not None:
                 log.debug("Server received session ID in request argument and header, expected only one")
                 raise HTTPError(status_code=403, reason="session ID was provided as an argument and header")
-            session_id = self.request.headers.get('Bokeh-Session-Id')
+            session_id = cast(ID | None, self.request.headers.get('Bokeh-Session-Id'))
 
         if token is not None:
             if session_id is not None:

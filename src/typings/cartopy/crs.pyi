@@ -1,0 +1,6 @@
+from typing import Any
+
+class Projection:
+    def project_geometry(self, geometry: Any, src_crs: Projection | None = ...) -> Any: ...
+
+class PlateCarree(Projection): ...

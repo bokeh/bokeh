@@ -47,6 +47,10 @@ class Test_div_for_render_item:
             """<div id="foo123" style="display: contents;"></div>"""
 
 class Test_html_page_for_render_items:
+    def test_invalid_template(self) -> None:
+        with pytest.raises(TypeError, match="expected Template, str, or None, got object"):
+            bee.html_page_for_render_items(("", ""), {}, [], None, template=object()) # type: ignore[arg-type]
+
     def test_issue_13629(self) -> None:
         bundle = Bundle(js_files=[
             URL(url='http://localhost:5006/static/js/bokeh.js'),

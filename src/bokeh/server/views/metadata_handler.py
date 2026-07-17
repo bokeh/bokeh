@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
+from typing import Any
 
 # External imports
 from tornado.web import authenticated
@@ -53,7 +54,7 @@ class MetadataHandler(SessionHandler, AuthRequestHandler):
     '''
 
     @authenticated
-    async def get(self, *args, **kwargs):
+    async def get(self, *args: Any, **kwargs: Any) -> None:
         url = self.application_context.url
         userdata = self.application_context.application.metadata
         if callable(userdata):

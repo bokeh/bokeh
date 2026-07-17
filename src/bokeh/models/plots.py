@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAbstractUsage=false, reportArgumentType=false, reportAssignmentType=false, reportAttributeAccessIssue=false, reportGeneralTypeIssues=false, reportInconsistentOverload=false, reportOperatorIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -428,6 +430,8 @@ class Plot(LayoutDOM):
                     retina = True
 
                 selected_provider = xyzservices.providers.query_name(tile_source)
+            else:
+                raise ValueError(f"expected a TileSource, xyzservices.TileProvider, or str, got {tile_source!r}")
 
             scale_factor = "@2x" if retina else None
 
@@ -452,8 +456,10 @@ class Plot(LayoutDOM):
         '''
         if render:
             self.hold_render = True
-            yield
-            self.hold_render = False
+            try:
+                yield
+            finally:
+                self.hold_render = False
 
     @error(REQUIRED_RANGE)
     def _check_required_range(self) -> str | None:

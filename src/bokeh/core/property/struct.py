@@ -79,10 +79,10 @@ class Struct[T](ParameterizedProperty[T]):
             return False
 
     @property
-    def type_params(self):
+    def type_params(self) -> list[Property[Any]]:
         return list(self._fields.values())
 
-    def validate(self, value: Any, detail: bool = True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if isinstance(value, SimpleNamespace):

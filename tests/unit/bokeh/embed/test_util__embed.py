@@ -165,6 +165,18 @@ class Test_OutputDocumentFor_general:
             pass
         assert not check_integrity.called
 
+    def test_cleans_up_after_exception(self) -> None:
+        p = SomeModel()
+        theme = Theme(json={})
+
+        with pytest.raises(RuntimeError):
+            with beu.OutputDocumentFor([p], always_new=True, apply_theme=theme) as doc:
+                assert p.document is doc
+                assert doc.theme is theme
+                raise RuntimeError("boom")
+
+        assert p.document is None
+
 
 class Test_OutputDocumentFor_default_apply_theme:
     def test_single_model_with_document(self) -> None:

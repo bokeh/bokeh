@@ -19,7 +19,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Sequence, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Sequence,
+    cast,
+)
 
 # External imports
 import numpy as np
@@ -37,8 +42,8 @@ if TYPE_CHECKING:
     from contourpy._contourpy import FillReturn_OuterOffset, LineReturn_ChunkCombinedNan
     from numpy.typing import ArrayLike, NDArray
 
+    from ..colors import ColorLike
     from ..palettes import Palette, PaletteCollection
-    from ..transform import ColorLike
 
     type ContourColor = ColorLike | Sequence[ColorLike]
     type ContourColorOrPalette = ContourColor | Palette | PaletteCollection | ContourColor
@@ -204,15 +209,15 @@ def from_contour(
     nlevels = len(levels)
 
     want_line = visuals.get("line_color", None) is not None
+    line_visuals: dict[str, Any] = {}
+    line_cds = ColumnDataSource()
     if want_line:
         # Handle possible callback or interpolation for line_color.
         visuals["line_color"] = _color(visuals["line_color"], nlevels)
 
-        line_cds = ColumnDataSource()
         _process_sequence_literals(MultiLine, visuals, line_cds, False)
 
         # Remove line visuals identified from visuals dict.
-        line_visuals = {}
         for name in LineProps.properties():
             prop = visuals.pop(name, None)
             if prop is not None:
@@ -221,19 +226,19 @@ def from_contour(
         visuals.pop("line_color", None)
 
     want_fill = visuals.get("fill_color", None) is not None
+    fill_cds = ColumnDataSource()
     if want_fill:
         # Handle possible callback or interpolation for fill_color and hatch_color.
         visuals["fill_color"] = _color(visuals["fill_color"], nlevels-1)
         if "hatch_color" in visuals:
             visuals["hatch_color"] = _color(visuals["hatch_color"], nlevels-1)
 
-        fill_cds = ColumnDataSource()
         _process_sequence_literals(MultiPolygons, visuals, fill_cds, False)
     else:
         visuals.pop("fill_color", None)
 
     # Check for extra unknown kwargs.
-    unknown = visuals.keys() - FillProps.properties() - HatchProps.properties()
+    unknown = set(visuals) - set(FillProps.properties()) - set(HatchProps.properties())
     if unknown:
         raise ValueError(f"Unknown keyword arguments in 'from_contour': {', '.join(unknown)}")
 
@@ -247,13 +252,13 @@ def from_contour(
     contour_renderer.set_data(new_contour_data)
 
     if new_contour_data.fill_data:
-        glyph = contour_renderer.fill_renderer.glyph
+        glyph = cast(Any, contour_renderer.fill_renderer.glyph)
         for name, value in visuals.items():
             setattr(glyph, name, value)
 
-        cds = contour_renderer.fill_renderer.data_source
+        cds = cast(ColumnDataSource, contour_renderer.fill_renderer.data_source)
         for name, value in fill_cds.data.items():
-            cds.add(value, name)
+            cds.add(cast(Sequence[Any], value), name)
 
         glyph.line_alpha = 0  # Don't display lines around fill.
         glyph.line_width = 0
@@ -263,9 +268,9 @@ def from_contour(
         for name, value in line_visuals.items():
             setattr(glyph, name, value)
 
-        cds = contour_renderer.line_renderer.data_source
+        cds = cast(ColumnDataSource, contour_renderer.line_renderer.data_source)
         for name, value in line_cds.data.items():
-            cds.add(value, name)
+            cds.add(cast(Sequence[Any], value), name)
 
     return contour_renderer
 
@@ -300,7 +305,7 @@ def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
         return _palette_from_collection(color, n)
 
     if isinstance(color, Sequence) and not isinstance(color, (bytes, str)) and len(color) != n:
-        return interp_palette(color, n)
+        return interp_palette(cast(Any, color), n)
 
     return color
 
@@ -308,7 +313,7 @@ def _contour_coords(
     x: ArrayLike | None,
     y: ArrayLike | None,
     z: ArrayLike | np.ma.MaskedArray | None,
-    levels: ArrayLike,
+    levels: NDArray[np.float64],
     want_fill: bool,
     want_line: bool,
 ) -> ContourCoords:
@@ -328,7 +333,7 @@ def _contour_coords(
         for i in range(len(levels)-1):
             filled = cont_gen.filled(levels[i], levels[i+1])
             # This is guaranteed by use of fill_type=FillType.OuterOffset in contour_generator call.
-            filled = cast("FillReturn_OuterOffset", filled)
+            filled = cast(Any, filled)
             coords = _filled_to_coords(filled)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
@@ -341,7 +346,7 @@ def _contour_coords(
         for level in levels:
             lines = cont_gen.lines(level)
             # This is guaranteed by use of line_type=LineType.ChunkCombinedNan in contour_generator call.
-            lines = cast("LineReturn_ChunkCombinedNan", lines)
+            lines = cast(Any, lines)
             coords = _lines_to_coords(lines)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
@@ -398,8 +403,10 @@ def _palette_from_collection(collection: PaletteCollection, n: int) -> Palette:
 
     raise ValueError(f"Unable to extract or interpolate palette of length {n} from PaletteCollection")
 
-def _validate_levels(levels: ArrayLike | None) -> NDArray[float]:
-    levels = np.asarray(levels)
+def _validate_levels(levels: ArrayLike | None) -> NDArray[np.float64]:
+    if levels is None:
+        raise ValueError("No contour levels specified")
+    levels = np.asarray(levels, dtype=float)
     if levels.ndim == 0 or len(levels) == 0:
         raise ValueError("No contour levels specified")
     if len(levels) > 1 and np.diff(levels).min() <= 0.0:

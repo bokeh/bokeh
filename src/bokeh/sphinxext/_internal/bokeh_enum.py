@@ -37,13 +37,14 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib
 import textwrap
+from typing import Any
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import ENUM_DETAIL
 
@@ -74,7 +75,7 @@ class BokehEnumDirective(BokehDirective):
         "noindex": lambda x: True,  # directives.flag weirdly returns None
     }
 
-    def run(self):
+    def run(self) -> list[Any]:
         enum_name = self.arguments[0]
         module_name = self.options["module"]
 
@@ -85,12 +86,13 @@ class BokehEnumDirective(BokehDirective):
 
         enum = getattr(module, enum_name, None)
 
-        fullrepr = repr(enum)
-        if len(fullrepr) > 180:
-            shortrepr = f"{fullrepr[:40]} .... {fullrepr[-40:]}"
-            fullrepr = _wrapper.wrap(fullrepr)
+        repr_text = repr(enum)
+        fullrepr: list[str] | None
+        if len(repr_text) > 180:
+            shortrepr = f"{repr_text[:40]} .... {repr_text[-40:]}"
+            fullrepr = _wrapper.wrap(repr_text)
         else:
-            shortrepr = fullrepr
+            shortrepr = repr_text
             fullrepr = None
 
         rst_text = ENUM_DETAIL.render(
@@ -105,7 +107,7 @@ class BokehEnumDirective(BokehDirective):
         return self.parse(rst_text, f"<bokeh-enum: {enum_name}>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-enum", BokehEnumDirective)
 

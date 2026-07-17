@@ -25,26 +25,26 @@ from ..enums import AutoType as Auto
 from .bases import Property
 
 type DashPatternType = enums.DashPatternType | str | Sequence[int]
-type DashPattern = Property[DashPatternType]
+class DashPattern(Property[DashPatternType]): ...
 
-CSS_LENGTH_RE: re.Pattern
+CSS_LENGTH_RE: re.Pattern[str]
 
 type ImageType = str | Path | PIL.Image.Image | npt.NDArray[np.uint8]
-type Image = Property[ImageType]
+class Image(Property[ImageType]): ...
 
 type HatchPatternTypeType = enums.HatchPatternType | enums.HatchPatternAbbreviationType
-type HatchPatternType = Property[HatchPatternTypeType]
+class HatchPatternType(Property[HatchPatternTypeType]): ...
 
 type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 
 type MinMaxBoundsType = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
-type MinMaxBounds = Property[MinMaxBoundsType]
+class MinMaxBounds(Property[MinMaxBoundsType]): ...
 
 type CSSLengthType = str
-type CSSLength = Property[CSSLengthType]
+class CSSLength(Property[CSSLengthType]): ...
 
 type FontSizeType = str
-type FontSize = Property[FontSizeType]
+class FontSize(Property[FontSizeType]): ...
 
 type MarkerTypeType = enums.MarkerTypeType
-type MarkerType = Property[MarkerTypeType]
+class MarkerType(Property[MarkerTypeType]): ...

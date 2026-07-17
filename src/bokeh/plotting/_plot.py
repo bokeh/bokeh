@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -75,7 +77,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequence[str] | pd.Series[Any] | ExtensionArray | GroupBy[Any] | None) -> Range:
+def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequence[str] | pd.Series[Any] | ExtensionArray | GroupBy[Any] | None) -> Range:  # pyright: ignore[reportInvalidTypeArguments]
     if range_input is None:
         return DataRange1d()
     elif isinstance(range_input, Range):

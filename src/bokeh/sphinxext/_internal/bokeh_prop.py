@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 import importlib
 import textwrap
 import warnings
+from typing import Any
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -46,7 +47,7 @@ from bokeh.core.property._sphinx import type_link
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL
 
@@ -75,7 +76,7 @@ class BokehPropDirective(BokehDirective):
     optional_arguments = 2
     option_spec = {"module": unchanged, "type": unchanged}
 
-    def run(self):
+    def run(self) -> list[Any]:
 
         full_name = self.arguments[0]
         model_name, prop_name = full_name.rsplit(".")
@@ -113,7 +114,7 @@ class BokehPropDirective(BokehDirective):
         return self.parse(rst_text, f"<bokeh-prop: {model_name}.{prop_name}>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-prop", BokehPropDirective)
 
