@@ -3,6 +3,12 @@ import {LatLon} from "core/enums"
 import type * as p from "core/properties"
 import {wgs84_mercator} from "core/util/projections"
 
+const zero_threshold = 1e-12 // degrees; about 0.1 micrometers at the equator
+
+function normalize_zeroish(value: number): number {
+  return Math.abs(value) < zero_threshold ? 0 : value
+}
+
 export namespace MercatorTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
@@ -41,12 +47,12 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     if (this.dimension == "lon") {
       for (let i = 0; i < n; i++) {
         const [lon] = wgs84_mercator.invert(ticks[i], opts.loc)
-        proj_ticks[i] = lon
+        proj_ticks[i] = normalize_zeroish(lon)
       }
     } else {
       for (let i = 0; i < n; i++) {
         const [, lat] = wgs84_mercator.invert(opts.loc, ticks[i])
-        proj_ticks[i] = lat
+        proj_ticks[i] = normalize_zeroish(lat)
       }
     }
 
