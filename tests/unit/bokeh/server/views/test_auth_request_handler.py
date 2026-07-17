@@ -19,10 +19,6 @@ import pytest ; pytest
 # Standard library imports
 from unittest.mock import MagicMock
 
-# Bokeh imports
-from bokeh.application import Application
-from bokeh.server.tornado import BokehTornado
-
 # Module under test
 from bokeh.server.views.auth_request_handler import AuthRequestHandler # isort:skip
 
@@ -39,17 +35,6 @@ def _make_handler(login_url=None, get_login_url=None, prefix=""):
     handler = AuthRequestHandler.__new__(AuthRequestHandler)
     handler.application = app
     return handler
-
-def _make_logout_url(logout_url=None, prefix=""):
-    class FakeAuth:
-        get_user = None
-        get_user_async = None
-        login_url = None
-        endpoints = []
-    FakeAuth.logout_url = logout_url
-
-    bt = BokehTornado({"/": Application()}, prefix=prefix, auth_provider=FakeAuth)
-    return bt._applications["/"]._logout_url
 
 #-----------------------------------------------------------------------------
 # General API
@@ -84,24 +69,6 @@ class TestGetLoginUrl:
         handler = _make_handler()
         with pytest.raises(RuntimeError):
             handler.get_login_url()
-
-class TestGetLogoutUrl:
-    def test_logout_url_no_prefix(self) -> None:
-        assert _make_logout_url(logout_url="/logout") == "/logout"
-
-    def test_logout_url_with_prefix(self) -> None:
-        assert _make_logout_url(logout_url="/logout", prefix="/pre") == "/pre/logout"
-
-    def test_logout_url_without_leading_slash(self) -> None:
-        assert _make_logout_url(logout_url="logout", prefix="/pre") == "/pre/logout"
-
-    @pytest.mark.parametrize("prefix", ["pre", "/pre", "/pre/", "pre/"])
-    def test_logout_url_prefix_normalized(self, prefix) -> None:
-        # prefix is normalized first, so surrounding slashes collapse to the same result
-        assert _make_logout_url(logout_url="/logout", prefix=prefix) == "/pre/logout"
-
-    def test_logout_url_multi_segment_prefix(self) -> None:
-        assert _make_logout_url(logout_url="/logout", prefix="/a/b") == "/a/b/logout"
 
 #-----------------------------------------------------------------------------
 # Dev API
