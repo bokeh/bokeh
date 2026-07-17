@@ -65,7 +65,7 @@ describe("cell_formatters module", () => {
 
       it("should map TIMESTAMP", () => {
         const df = new DateFormatter({format: "TIMESTAMP"})
-        expect(df.getFormat()).to.be.undefined
+        expect(df.getFormat()).to.be.equal("@")
       })
 
       it("should map custom formats to themselves", () => {

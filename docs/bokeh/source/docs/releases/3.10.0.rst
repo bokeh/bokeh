@@ -20,3 +20,4 @@ Bokeh version ``3.10.0`` (May 2026) is a minor milestone of Bokeh project.
 * Added Playwright as an alternative export backend for PNG and SVG (:bokeh-pull:`14940`)
 * Redesigned ``Tabs`` as vDOM, added keyboard navigation and improved accessibility (:bokeh-pull:`15168`)
 * Migrated UI components to use adopted CSS stylesheets (:bokeh-pull:`14973`)
+* Fix broken support for DateFormatter in tables when the format "TIMESTAMP" is selected (:bokeh-pull:`15221`)
