@@ -10,6 +10,7 @@ import {values, entries, dict} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Serializer} from "@bokehjs/core/serialization"
+import {unique_id} from "@bokehjs/core/util/string"
 
 import {default_resolver} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"
@@ -331,7 +332,13 @@ describe("Defaults", () => {
 
     fn(`bokehjs should implement serializable ${name} model and match defaults with bokeh`, () => {
       const model = default_resolver.get(name)
-      const obj: HasProps = new (model as any)() // TODO: instantiating a possibly abstract class?
+
+      // This will initialize abstract classes, which can lead to errors.
+      // However, given this is only partial initialization, i.e. we
+      // don't finalize instances or connect signals, then any code that
+      // may depend on fully initialized state will not run.
+      const obj: HasProps = new (model as any)({id: unique_id()})
+      obj.initialize_props({})
 
       const serializer = new DefaultsSerializer()
       const defaults = serializer.encode(obj)

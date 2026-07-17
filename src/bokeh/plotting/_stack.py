@@ -17,6 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Sequence
+
 # Bokeh imports
 from ..transform import stack
 
@@ -37,7 +40,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def single_stack(stackers, spec, **kw):
+def single_stack(stackers: Sequence[str], spec: str, **kw: Any) -> list[dict[str, Any]]:
     if spec in kw:
         raise ValueError(f"Stack property '{spec}' cannot appear in keyword args")
 
@@ -50,12 +53,12 @@ def single_stack(stackers, spec, **kw):
         if lengths.pop() != len(stackers):
             raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
-    s = []
+    s: list[str] = []
 
-    _kw = []
+    _kw: list[dict[str, Any]] = []
 
     for i, val in enumerate(stackers):
-        d  = {'name': val}
+        d: dict[str, Any] = {'name': val}
         s.append(val)
 
         d[spec] = stack(*s)
@@ -70,7 +73,7 @@ def single_stack(stackers, spec, **kw):
 
     return _kw
 
-def double_stack(stackers, spec0, spec1, **kw):
+def double_stack(stackers: Sequence[str], spec0: str, spec1: str, **kw: Any) -> list[dict[str, Any]]:
     for name in (spec0, spec1):
         if name in kw:
             raise ValueError(f"Stack property '{name}' cannot appear in keyword args")
@@ -84,13 +87,13 @@ def double_stack(stackers, spec0, spec1, **kw):
         if lengths.pop() != len(stackers):
             raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
-    s0 = []
-    s1 = []
+    s0: list[str] = []
+    s1: list[str] = []
 
-    _kw = []
+    _kw: list[dict[str, Any]] = []
 
     for i, val in enumerate(stackers):
-        d  = {'name': val}
+        d: dict[str, Any] = {'name': val}
         s0 = list(s1)
         s1.append(val)
 

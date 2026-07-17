@@ -70,7 +70,7 @@ class ProtocolHandler:
         self._handlers['PATCH-DOC'] = ServerSession.patch
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
 
-    async def handle(self, message, connection):
+    async def handle(self, message: Any, connection: Any) -> Any:
         ''' Delegate a received message to the appropriate handler.
 
         Args:
@@ -98,7 +98,7 @@ class ProtocolHandler:
             work = connection.error(message, repr(e))
         return work
 
-    async def _server_info_req(self, message, connection):
+    async def _server_info_req(self, message: Any, connection: Any) -> Any:
         return connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid'])
 
 #-----------------------------------------------------------------------------

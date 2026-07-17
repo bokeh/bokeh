@@ -36,7 +36,7 @@ __all__ = ("get_sphinx_resources",)
 # Dev API
 # -----------------------------------------------------------------------------
 
-def get_sphinx_resources(include_bokehjs_api=False):
+def get_sphinx_resources(include_bokehjs_api: bool = False) -> Resources:
     docs_cdn = settings.docs_cdn()
 
     # if BOKEH_DOCS_CDN is unset just use default CDN resources

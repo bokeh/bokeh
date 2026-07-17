@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import weakref
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Iterator, cast
+from typing import TYPE_CHECKING, Generator, cast
 
 # Bokeh imports
 from ..document import Document
@@ -65,7 +65,7 @@ def curdoc() -> Document:
 #-----------------------------------------------------------------------------
 
 @contextmanager
-def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Iterator[None]:
+def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Generator[None]:
     ''' Temporarily override the value of ``curdoc()`` and then return it to
     its original state.
 
@@ -79,8 +79,10 @@ def patch_curdoc(doc: Document | UnlockedDocumentProxy) -> Iterator[None]:
     global _PATCHED_CURDOCS
     _PATCHED_CURDOCS.append(weakref.ref(doc))
     del doc
-    yield
-    _PATCHED_CURDOCS.pop()
+    try:
+        yield
+    finally:
+        _PATCHED_CURDOCS.pop()
 
 def set_curdoc(doc: Document) -> None:
     ''' Configure the current document (returned by curdoc()).

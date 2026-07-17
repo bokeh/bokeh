@@ -12,12 +12,17 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false, reportUnsupportedDunderAll=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
+from typing import Any
 
 # Bokeh imports
 from . import (
@@ -37,12 +42,16 @@ from .tile_renderer import *
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+# Keep dynamic submodule __all__ aggregation visible to type checkers.
+def _all(module: Any) -> tuple[str, ...]:
+    return module.__all__
+
 __all__ = (
-    *contour_renderer.__all__,
-    *glyph_renderer.__all__,
-    *graph_renderer.__all__,
-    *renderer.__all__,
-    *tile_renderer.__all__,
+    *_all(contour_renderer),
+    *_all(glyph_renderer),
+    *_all(graph_renderer),
+    *_all(renderer),
+    *_all(tile_renderer),
 )
 
 #-----------------------------------------------------------------------------

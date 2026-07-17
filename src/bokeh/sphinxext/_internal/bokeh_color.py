@@ -33,6 +33,9 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
@@ -41,7 +44,7 @@ from docutils.parsers.rst.directives import unchanged
 from bokeh.colors import named
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import COLOR_DETAIL
 
@@ -71,7 +74,7 @@ class BokehColorDirective(BokehDirective):
         "module": unchanged,
     }
 
-    def run(self):
+    def run(self) -> list[Any]:
         color = self.arguments[0]
 
         html = COLOR_DETAIL.render(color=getattr(named, color).to_css(), text=color)
@@ -79,7 +82,7 @@ class BokehColorDirective(BokehDirective):
         return [node]
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-color", BokehColorDirective)
 

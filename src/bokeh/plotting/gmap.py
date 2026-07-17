@@ -17,8 +17,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, cast
+
 # Bokeh imports
 from ..models import (
+    GMapOptions,
     GMapPlot,
     LinearAxis,
     MercatorTicker,
@@ -68,8 +72,8 @@ class GMap(GMapPlot, GlyphAPI):
 
     '''
 
-    def __init__(self, **kw) -> None:
-        opts = GMapFigureOptions(kw)
+    def __init__(self, **kw: Any) -> None:
+        opts = cast(Any, GMapFigureOptions)(kw)
         super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
         if opts.x_axis_location is not None:
@@ -97,14 +101,14 @@ class GMap(GMapPlot, GlyphAPI):
         )
 
     @property
-    def plot(self):
+    def plot(self) -> GMap:
         return self
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> None:
         return None
 
-def gmap(google_api_key, map_options, **kwargs) -> GMap:
+def gmap(google_api_key: str, map_options: GMapOptions, **kwargs: Any) -> GMap:
     ''' Create a new :class:`~bokeh.plotting.GMap` for plotting.
 
     Args:

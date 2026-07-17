@@ -24,7 +24,7 @@ import contextlib
 import errno
 import os
 import sys
-from typing import TYPE_CHECKING, Iterator, Never
+from typing import TYPE_CHECKING, Generator, Never
 
 # Bokeh imports
 from bokeh.application import Application
@@ -180,7 +180,7 @@ def build_single_handler_applications(paths: list[str], argvs: dict[str, list[st
 
 
 @contextlib.contextmanager
-def report_server_init_errors(address: str | None = None, port: int | None = None, **kwargs: str) -> Iterator[None]:
+def report_server_init_errors(address: str | None = None, port: int | None = None, **kwargs: str) -> Generator[None]:
     ''' A context manager to help print more informative error messages when a
     ``Server`` cannot be started due to a network problem.
 

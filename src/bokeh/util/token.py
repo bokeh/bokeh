@@ -116,7 +116,7 @@ def generate_jwt_token(session_id: ID,
         str
     """
     now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
-    payload = {'session_id': session_id, 'session_expiry': now + expiration}
+    payload: TokenPayload = {'session_id': session_id, 'session_expiry': now + expiration}
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")

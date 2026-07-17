@@ -22,6 +22,9 @@ import subprocess
 import sys
 from unittest.mock import MagicMock, patch
 
+# Bokeh imports
+from bokeh.models import Plot
+
 # Module under test
 import bokeh.io.util as biu # isort:skip
 
@@ -124,6 +127,18 @@ def test__shares_exec_prefix() -> None:
         assert biu._shares_exec_prefix("/foo/bar") is False
     finally:
         sys.exec_prefix = old_ex
+
+def test__resized_restores_after_exception() -> None:
+    plot = Plot(width=100, height=200)
+
+    with pytest.raises(RuntimeError):
+        with biu._resized(plot, width=300, height=400):
+            assert plot.width == 300
+            assert plot.height == 400
+            raise RuntimeError("boom")
+
+    assert plot.width == 100
+    assert plot.height == 200
 
 #-----------------------------------------------------------------------------
 # Code

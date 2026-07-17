@@ -35,6 +35,8 @@ from tornado.websocket import WebSocketError, websocket_connect
 # Bokeh imports
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
+from ..protocol.messages.patch_doc import patch_doc
+from ..protocol.messages.pull_doc_reply import pull_doc_reply
 from ..protocol.receiver import Receiver
 from ..util.strings import format_url_query_arguments
 from .states import (
@@ -51,7 +53,7 @@ from .websocket import WebSocketClientConnectionWrapper
 if TYPE_CHECKING:
     from ..core.types import ID
     from ..document import Document
-    from ..document.events import DocumentChangedEvent
+    from ..document.events import DocumentPatchedEvent
     from ..protocol.message import Message
     from ..protocol.messages.server_info_reply import ServerInfo
     from .session import ClientSession
@@ -79,7 +81,9 @@ class ClientConnection:
 
     _state: State
     _loop: IOLoop
+    _socket: WebSocketClientConnectionWrapper | None
     _until_predicate: Callable[[], bool] | None
+    _server_info: ServerInfo | None
 
     def __init__(self, session: ClientSession, websocket_url: str, io_loop: IOLoop | None = None,
             arguments: dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> None:
@@ -213,6 +217,8 @@ class ClientConnection:
         elif reply.header['msgtype'] == 'ERROR':
             raise RuntimeError("Failed to pull document: " + reply.content['text'])
         else:
+            if not isinstance(reply, pull_doc_reply):
+                raise RuntimeError(f"Unexpected reply {reply!r}")
             reply.push_to_document(document)
 
     def push_doc(self, document: Document) -> Message[Any]:
@@ -303,6 +309,8 @@ class ClientConnection:
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
+                if not isinstance(message, patch_doc):
+                    raise RuntimeError(f"Unexpected message {message!r}")
                 self._session._handle_patch(message)
             else:
                 log.debug("Ignoring %r", message)
@@ -363,8 +371,8 @@ class ClientConnection:
 
         send_result: list[None] = []
         async def handle_message(message: Message[Any], send_result: list[None]) -> None:
-            result = await self.send_message(message)
-            send_result.append(result)
+            await self.send_message(message)
+            send_result.append(None)
         self._loop.add_callback(handle_message, message, send_result)
 
         def have_send_result_or_disconnected() -> bool:
@@ -377,7 +385,7 @@ class ClientConnection:
 
         return waiter.reply
 
-    def _send_patch_document(self, session_id: ID, event: DocumentChangedEvent) -> None:
+    def _send_patch_document(self, session_id: ID, event: DocumentPatchedEvent) -> None:
         msg = self._protocol.create('PATCH-DOC', [event])
         self._loop.add_callback(self.send_message, msg)
 

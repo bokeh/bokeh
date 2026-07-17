@@ -32,7 +32,18 @@ from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy
 
-type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]
+__all__ = (
+    "AjaxDataSource",
+    "CDSView",
+    "ColumnarDataSource",
+    "ColumnDataSource",
+    "DataSource",
+    "GeoJSONDataSource",
+    "ServerSentDataSource",
+    "WebDataSource",
+)
+
+type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]  # pyright: ignore[reportInvalidTypeArguments]
 
 type DataDictLike = DataDict | pd.DataFrame | GroupBy[Any]
 

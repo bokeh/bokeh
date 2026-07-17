@@ -68,9 +68,13 @@ import copy
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Iterable,
     MutableSequence,
+    Protocol,
     Sequence,
+    SupportsIndex,
+    cast,
 )
 
 # External imports
@@ -80,13 +84,15 @@ import numpy as np
 from ...util.warnings import BokehUserWarning, warn
 
 if TYPE_CHECKING:
-    import numpy.typing as npt
-
     from ...document import Document
     from ...document.events import DocumentPatchedEvent
-    from ...models.sources import ColumnarDataSource, Patches
+    from ...model import Model
+    from ...models.sources import ColumnarDataSource
     from ..has_props import HasProps, Setter
     from .descriptors import PropertyDescriptor
+
+class _HasDocument(Protocol):
+    document: Document | None
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -109,7 +115,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def notify_owner(func):
+def notify_owner[F: Callable[..., Any]](func: F) -> F:
     """ A decorator for mutating methods of property container classes
     that notifies owners of the property container about mutating changes.
 
@@ -134,13 +140,13 @@ def notify_owner(func):
     original method it is wrapping.
 
     """
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: PropertyValueContainer, *args: Any, **kwargs: Any) -> Any:
         old = self._saved_copy()
         result = func(self, *args, **kwargs)
         self._notify_owners(old)
         return result
     wrapper.__doc__ = f"Container method ``{func.__name__}`` instrumented to notify property owners"
-    return wrapper
+    return cast(F, wrapper)
 
 class PropertyValueContainer:
     """ A base class for property container classes that support change
@@ -154,7 +160,7 @@ class PropertyValueContainer:
     """
     _owners: set[tuple[HasProps, PropertyDescriptor[Any]]]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._owners = set()
         super().__init__(*args, **kwargs)
 
@@ -213,7 +219,7 @@ class PropertyValueList[T](PropertyValueContainer, list[T]):
 
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _saved_copy(self) -> list[T]:
@@ -221,50 +227,50 @@ class PropertyValueList[T](PropertyValueContainer, list[T]):
 
     # delete x[y]
     @notify_owner
-    def __delitem__(self, y):
+    def __delitem__(self, y: Any) -> None:
         return super().__delitem__(y)
 
     # x += y
     @notify_owner
-    def __iadd__(self, y):
+    def __iadd__(self, y: Iterable[T]) -> PropertyValueList[T]: # type: ignore[override]
         return super().__iadd__(y)
 
     # x *= y
     @notify_owner
-    def __imul__(self, y):
+    def __imul__(self, y: SupportsIndex) -> PropertyValueList[T]:
         return super().__imul__(y)
 
     # x[i] = y
     @notify_owner
-    def __setitem__(self, i, y):
+    def __setitem__(self, i: Any, y: Any) -> None:
         return super().__setitem__(i, y)
 
     @notify_owner
-    def append(self, obj):
+    def append(self, obj: T) -> None:
         return super().append(obj)
 
     @notify_owner
-    def extend(self, iterable):
+    def extend(self, iterable: Iterable[T]) -> None:
         return super().extend(iterable)
 
     @notify_owner
-    def insert(self, index, obj):
+    def insert(self, index: SupportsIndex, obj: T) -> None:
         return super().insert(index, obj)
 
     @notify_owner
-    def pop(self, index=-1):
+    def pop(self, index: SupportsIndex = -1) -> T:
         return super().pop(index)
 
     @notify_owner
-    def remove(self, obj):
+    def remove(self, obj: T) -> None:
         return super().remove(obj)
 
     @notify_owner
-    def reverse(self):
+    def reverse(self) -> None:
         return super().reverse()
 
     @notify_owner
-    def sort(self, **kwargs):
+    def sort(self, **kwargs: Any) -> None:
         return super().sort(**kwargs)
 
 class PropertyValueSet[T](PropertyValueContainer, set[T]):
@@ -273,7 +279,7 @@ class PropertyValueSet[T](PropertyValueContainer, set[T]):
 
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     def _saved_copy(self) -> set[T]:
@@ -288,8 +294,8 @@ class PropertyValueSet[T](PropertyValueContainer, set[T]):
         super().difference_update(*s)
 
     @notify_owner
-    def discard(self, element: T) -> None:
-        super().discard(element)
+    def discard(self, element: object) -> None:
+        super().discard(cast(T, element))
 
     @notify_owner
     def intersection_update(self, *s: Iterable[Any]) -> None:
@@ -345,40 +351,40 @@ class PropertyValueDict[T_Val](PropertyValueContainer, dict[str, T_Val]):
         x.update
 
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    def _saved_copy(self):
+    def _saved_copy(self) -> dict[str, T_Val]:
         return dict(self)
 
     # delete x[y]
     @notify_owner
-    def __delitem__(self, y):
+    def __delitem__(self, y: str) -> None:
         return super().__delitem__(y)
 
     # x[i] = y
     @notify_owner
-    def __setitem__(self, i, y):
+    def __setitem__(self, i: str, y: T_Val) -> None:
         return super().__setitem__(i, y)
 
     @notify_owner
-    def clear(self):
+    def clear(self) -> None:
         return super().clear()
 
     @notify_owner
-    def pop(self, *args):
+    def pop(self, *args: Any) -> T_Val:
         return super().pop(*args)
 
     @notify_owner
-    def popitem(self):
+    def popitem(self) -> tuple[str, T_Val]:
         return super().popitem()
 
     @notify_owner
-    def setdefault(self, *args):
+    def setdefault(self, *args: Any) -> T_Val:
         return super().setdefault(*args)
 
     @notify_owner
-    def update(self, *args, **kwargs):
+    def update(self, *args: Any, **kwargs: T_Val) -> None:
         return super().update(*args, **kwargs)
 
 class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
@@ -399,17 +405,17 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
 
     # x[i] = y
     # don't wrap with notify_owner --- notifies owners explicitly
-    def __setitem__(self, i, y):
+    def __setitem__(self, i: str, y: Sequence[Any]) -> None:
         return self.update([(i, y)])
 
-    def __copy__(self):
+    def __copy__(self) -> PropertyValueColumnData:
         return PropertyValueColumnData(dict(self))
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict: dict[Any, Any] = {}) -> PropertyValueColumnData:
         return PropertyValueColumnData(copy.deepcopy(dict(self), memodict))
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def update(self, *args, **kwargs):
+    def update(self, *args: Any, **kwargs: Sequence[Any]) -> None:
         old = self._saved_copy()
 
         # call dict.update directly, bypass wrapped version on base class
@@ -433,13 +439,14 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         # we must loop ourselves here instead of calling _notify_owners
         # because the hint is customized for each owner separately
         for (owner, descriptor) in self._owners:
-            hint = ColumnDataChangedEvent(owner.document, owner, "data", cols=list(cols))
+            model = cast(_HasDocument, owner)
+            hint = ColumnDataChangedEvent(cast("Document", model.document), cast("Model", owner), "data", cols=list(cols))
             descriptor._notify_mutated(owner, old, hint=hint)
 
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Sequence[Any] | npt.NDArray[Any]],
+    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any],
             rollover: int | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.
@@ -472,8 +479,8 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
         for k in new_data:
-            old_seq = self[k]
-            new_seq = new_data[k]
+            old_seq: Any = self[k]
+            new_seq: Any = new_data[k]
 
             if isinstance(old_seq, np.ndarray) or isinstance(new_seq, np.ndarray):
                 # Special case for streaming with empty arrays, to allow this:
@@ -512,7 +519,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _patch(self, doc: Document, source: ColumnarDataSource, patches: Patches, setter: Setter | None = None) -> None:
+    def _patch(self, doc: Document, source: ColumnarDataSource, patches: Any, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing patch events
         on ``ColumnDataSource`` columns.
 
@@ -540,7 +547,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
         old = self._saved_copy()
 
         for name, patch in patches.items():
-            array = self[name]
+            array: Any = self[name]
 
             # The generic type of PropertyValueColumnData doesn't respect
             # the implementation of validation in Seq(), so this first

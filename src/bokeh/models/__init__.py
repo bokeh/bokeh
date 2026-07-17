@@ -21,6 +21,8 @@ a Bokeh scene graph are called :ref:`Models <bokeh.model>`.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false, reportUnsupportedDunderAll=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -28,10 +30,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..model import Model
 from . import (
-    annotations,
+    annotations as _annotations,
     axes,
     callbacks,
     canvas,
@@ -101,46 +106,53 @@ from .transforms import *
 from .ui import *
 from .widgets import *
 
+# Restore the public submodule name without conflicting with __future__.annotations.
+annotations = _annotations # type: ignore[assignment]
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+# Keep dynamic submodule __all__ aggregation visible to type checkers.
+def _all(module: Any) -> tuple[str, ...]:
+    return module.__all__
+
 __all__ = (
     "Model",
-    *annotations.__all__,
-    *axes.__all__,
-    *callbacks.__all__,
-    *canvas.__all__,
-    *comparisons.__all__,
-    *coordinates.__all__,
-    *css.__all__,
-    *expressions.__all__,
-    *filters.__all__,
-    *formatters.__all__,
-    *glyphs.__all__,
-    *graphs.__all__,
-    *grids.__all__,
-    *labeling.__all__,
-    *layouts.__all__,
-    *map_plots.__all__,
-    *mappers.__all__,
-    *misc.__all__,
-    *nodes.__all__,
-    *plots.__all__,
-    *ranges.__all__,
-    *renderers.__all__,
-    *scales.__all__,
-    *selections.__all__,
-    *selectors.__all__,
-    *sources.__all__,
-    *text.__all__,
-    *textures.__all__,
-    *tickers.__all__,
-    *tiles.__all__,
-    *tools.__all__,
-    *transforms.__all__,
-    *ui.__all__,
-    *widgets.__all__,
+    *_all(_annotations),
+    *_all(axes),
+    *_all(callbacks),
+    *_all(canvas),
+    *_all(comparisons),
+    *_all(coordinates),
+    *_all(css),
+    *_all(expressions),
+    *_all(filters),
+    *_all(formatters),
+    *_all(glyphs),
+    *_all(graphs),
+    *_all(grids),
+    *_all(labeling),
+    *_all(layouts),
+    *_all(map_plots),
+    *_all(mappers),
+    *_all(misc),
+    *_all(nodes),
+    *_all(plots),
+    *_all(ranges),
+    *_all(renderers),
+    *_all(scales),
+    *_all(selections),
+    *_all(selectors),
+    *_all(sources),
+    *_all(text),
+    *_all(textures),
+    *_all(tickers),
+    *_all(tiles),
+    *_all(tools),
+    *_all(transforms),
+    *_all(ui),
+    *_all(widgets),
 )
 
 #-----------------------------------------------------------------------------

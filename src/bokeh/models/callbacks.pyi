@@ -5,13 +5,15 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+# pyright: reportMissingImports=false
+
 # Standard library imports
 import sys
 from abc import abstractmethod
 from typing import Any, Unpack
 
 if sys.version_info[:2] >= (3, 14):
-    from string.templatelib import Template
+    from string.templatelib import Template  # novermin
 
 # Bokeh imports
 from ..core.enums import AutoType as Auto
@@ -61,7 +63,7 @@ class CustomJS(CustomCode):
 
     if sys.version_info[:2] >= (3, 14):
         @classmethod
-        def from_template(cls, template: Template) -> CustomJS: ...
+        def from_template(cls, template: Template) -> CustomJS: ... # pyright: ignore[reportInvalidTypeForm]
 
 class _SetValueInit(_CallbackInit, total=False):
     obj: HasProps

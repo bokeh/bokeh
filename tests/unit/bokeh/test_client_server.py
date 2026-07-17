@@ -20,6 +20,7 @@ import pytest ; pytest
 import asyncio
 import logging
 import sys
+import time
 from unittest.mock import MagicMock, patch
 
 # External imports
@@ -369,15 +370,24 @@ class TestClientServer:
             assert session.document is None
 
             connection = next(iter(server._tornado._clients))
+
+            def wait_for_pong(pong: int) -> None:
+                # Websocket control frames may be processed after an application-level roundtrip.
+                deadline = time.monotonic() + 1
+                while time.monotonic() < deadline:
+                    session.force_roundtrip()
+                    if connection._socket.latest_pong == pong:
+                        return
+
             expected_pong = connection._ping_count
             server._tornado._keep_alive() # send ping
-            session.force_roundtrip()
+            wait_for_pong(expected_pong)
 
             assert expected_pong == connection._socket.latest_pong
 
             # check that each ping increments by 1
             server._tornado._keep_alive()
-            session.force_roundtrip()
+            wait_for_pong(expected_pong + 1)
 
             assert (expected_pong + 1) == connection._socket.latest_pong
 

@@ -69,6 +69,17 @@ def test_patch_curdoc() -> None:
 
     assert bid.curdoc() is orig_doc
 
+def test_patch_curdoc_pops_after_exception() -> None:
+    doc = Document()
+
+    assert bid._PATCHED_CURDOCS == []
+
+    with pytest.raises(RuntimeError):
+        with bid.patch_curdoc(doc):
+            raise RuntimeError("boom")
+
+    assert bid._PATCHED_CURDOCS == []
+
 def _doc():
     return Document()
 

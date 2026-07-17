@@ -95,14 +95,16 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
 
-      - name: Check library types with mypy
-        run: |
-          mypy --version && mypy
-
-      - name: Check types in examples with mypy
-        if: success() || failure()
-        run: |
-          mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
+      - parallel:
+        - name: Check library types with mypy
+          run: |
+            mypy --version && mypy
+        - name: Check types in examples with mypy
+          run: |
+            mypy --version && mypy --config-file examples/mypy.cfg examples/basic/scatters/color_scatter.py
+        - name: Check library types with pyright
+          run: |
+            pyright --version && pyright
 
   examples:
     needs: build
