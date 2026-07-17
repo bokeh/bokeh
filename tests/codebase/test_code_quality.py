@@ -102,10 +102,10 @@ def collect_errors() -> list[str]:
 
             if idx == 0 and len(line.strip()) == 0:
                 errors.append((message_multi_bof, fname, line_no))
-            # if line.endswith(" \n") or line.endswith("\t\n"):
-            #     errors.append((message_space, fname, line_no))
-            # if line.endswith("\r\n") or line.endswith("\r"):
-            #     errors.append((message_carriage, fname, line_no))
+            if line.endswith(" \n") or line.endswith("\t\n"):
+                errors.append((message_space, fname, line_no))
+            if line.endswith("\r\n") or line.endswith("\r"):
+                errors.append((message_carriage, fname, line_no))
             if use_tab_rule(fname) and tab_in_leading(line):
                 errors.append((message_tabs, fname, line_no))
             if line.strip().startswith('..') and 'https://docs.bokeh.org' in line:
