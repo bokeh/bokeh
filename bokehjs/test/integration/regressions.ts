@@ -5138,7 +5138,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #15121", () => {
-    it("doesn't allow to correctly render time stamps with the format 'TIMESTAMP", async () => {
+    it("doesn't allow to correctly render time stamps with the format TIMESTAMP", async () => {
       const indices = range(0, 5)
       const source = new ColumnDataSource({
         data: {
