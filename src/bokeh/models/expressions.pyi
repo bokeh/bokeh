@@ -47,14 +47,14 @@ class ScalarExpression(Model):
 @dataclass
 class Minimum(ScalarExpression):
 
-    field: str
-    initial: float | None
+    field: str = ...
+    initial: float | None = ...
 
 @dataclass
 class Maximum(ScalarExpression):
 
-    field: str
-    initial: float | None
+    field: str = ...
+    initial: float | None = ...
 
 @abstract
 @dataclass(init=False)

@@ -19,23 +19,23 @@ from ..core.enums import (
     VAlignType as VAlign,
 )
 from ..core.property.bases import Property
-from ..core.property.visual import ImageType as Image
+from ..core.property.visual import ImageType
 
 type CSSLengthType = str
-type CSSLength = Property[CSSLengthType]     # 10px 1.2em, etc.
+class CSSLength(Property[CSSLengthType]): ...     # 10px 1.2em, etc.
 
 type CSSClassType = str
-type CSSClass = Property[CSSClassType]       # ^\..*$
+class CSSClass(Property[CSSClassType]): ...       # ^\..*$
 
 type CSSVariableType = str
-type CSSVariable = Property[CSSVariableType] # ^--.*$
+class CSSVariable(Property[CSSVariableType]): ... # ^--.*$
 
 type DataImageType = str
-type DataImage = Property[DataImageType]     # ^data:image.*$
+class DataImage(Property[DataImageType]): ...     # ^data:image.*$
 
 # Image has to be first! see #12775, temporary fix
-type IconLikeType = Image | ToolIcon | CSSClass | CSSVariable | DataImage
-type IconLike = Property[IconLikeType]
+type IconLikeType = ImageType | ToolIcon | CSSClassType | CSSVariableType | DataImageType
+class IconLike(Property[IconLikeType]): ...
 
 class XY[T](TypedDict):
     x: NotRequired[T]
@@ -54,44 +54,44 @@ class Corners[T](TypedDict):
     bottom_left: NotRequired[T]
 
 type PixelsType = NonNegative[int]
-type Pixels = Property[PixelsType]
+class Pixels(Property[PixelsType]): ...
 
 type HAnchorType = Align | HAlign | float
-type HAnchor = Property[HAnchorType]
+class HAnchor(Property[HAnchorType]): ...
 
 type VAnchorType = Align | VAlign | float
-type VAnchor = Property[VAnchorType]
+class VAnchor(Property[VAnchorType]): ...
 
-type AnchorType = Anchor_ | tuple[HAnchor, VAnchor]
-type Anchor = Property[AnchorType]
+type AnchorType = Anchor_ | tuple[HAnchorType, VAnchorType]
+class Anchor(Property[AnchorType]): ...
 
-type AutoAnchorType = Auto | Anchor | tuple[Auto | HAnchor, Auto | VAnchor]
-type AutoAnchor = Property[AutoAnchorType]
+type AutoAnchorType = Auto | AnchorType | tuple[Auto | HAnchorType, Auto | VAnchorType]
+class AutoAnchor(Property[AutoAnchorType]): ...
 
-type TextAnchorType = Anchor | Auto
-type TextAnchor = Property[TextAnchorType]
+type TextAnchorType = AnchorType | Auto
+class TextAnchor(Property[TextAnchorType]): ...
 
-type BorderRadiusType = Pixels | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
-type BorderRadius = Property[BorderRadiusType]
+type BorderRadiusType = PixelsType | tuple[PixelsType, PixelsType, PixelsType, PixelsType] | Corners[PixelsType]
+class BorderRadius(Property[BorderRadiusType]): ...
 
-type PaddingType = Pixels | tuple[Pixels, Pixels] | XY[Pixels] | tuple[Pixels, Pixels, Pixels, Pixels] | Corners[Pixels]
-type Padding = Property[PaddingType]
+type PaddingType = PixelsType | tuple[PixelsType, PixelsType] | XY[PixelsType] | tuple[PixelsType, PixelsType, PixelsType, PixelsType] | Corners[PixelsType]
+class Padding(Property[PaddingType]): ...
 
-type GridSpacingType = Pixels | tuple[Pixels, Pixels]
-type GridSpacing = Property[GridSpacingType]
+type GridSpacingType = PixelsType | tuple[PixelsType, PixelsType]
+class GridSpacing(Property[GridSpacingType]): ...
 
 type TrackAlignType = Literal["start", "center", "end", "auto"]
-type TrackAlign = Property[TrackAlignType]
+class TrackAlign(Property[TrackAlignType]): ...
 
 type TrackSizeType = str
-type TrackSize = Property[TrackSizeType]
+class TrackSize(Property[TrackSizeType]): ...
 
 class FullTrackSize(TypedDict):
-    size: NotRequired[TrackSize]
-    align: NotRequired[TrackAlign]
+    size: NotRequired[TrackSizeType]
+    align: NotRequired[TrackAlignType]
 
-type TrackSizingType = TrackSize | FullTrackSize
-type TrackSizing = Property[TrackSizingType]
+type TrackSizingType = TrackSizeType | FullTrackSize
+class TrackSizing(Property[TrackSizingType]): ...
 
-type TracksSizingType = TrackSizing | list[TrackSizing] | dict[int, TrackSizing]
-type TracksSizing = Property[TracksSizingType]
+type TracksSizingType = TrackSizingType | list[TrackSizingType] | dict[int, TrackSizingType]
+class TracksSizing(Property[TracksSizingType]): ...

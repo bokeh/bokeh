@@ -28,10 +28,11 @@ from typing import (
     Awaitable,
     Callable,
     Iterable,
+    cast,
 )
 
 # External imports
-from tornado import gen
+from tornado.concurrent import Future
 
 if TYPE_CHECKING:
     from tornado.httputil import HTTPServerRequest
@@ -124,6 +125,10 @@ class BokehSessionContext(SessionContext):
             return self._session.destroyed
 
     @property
+    def document(self) -> Document:
+        return self._document
+
+    @property
     def logout_url(self) -> str | None:
         return self._logout_url
 
@@ -149,7 +154,7 @@ class ApplicationContext:
     '''
 
     _sessions: dict[ID, ServerSession]
-    _pending_sessions: dict[ID, gen.Future[ServerSession]]
+    _pending_sessions: dict[ID, Future[ServerSession]]
     _session_contexts: dict[ID, SessionContext]
     _server_context: BokehServerContext
 
@@ -205,7 +210,7 @@ class ApplicationContext:
 
         if session_id not in self._sessions and \
            session_id not in self._pending_sessions:
-            future = self._pending_sessions[session_id] = gen.Future()
+            future = self._pending_sessions[session_id] = Future()
 
             doc = Document()
 
@@ -283,10 +288,10 @@ class ApplicationContext:
                 session.destroy()
                 del self._sessions[session.id]
                 del self._session_contexts[session.id]
-                log.trace(f"Session {session.id!r} was successfully discarded")
+                log.debug("Session %r was successfully discarded", session.id)
             else:
                 log.warning(f"Session {session.id!r} was scheduled to discard but came back to life")
-        await session.with_document_locked(do_discard)
+        await cast(Awaitable[None], session.with_document_locked(do_discard))
 
         # session lifecycle hooks are supposed to be called outside the document lock,
         # we only run these if we actually ended up destroying the session.
@@ -338,7 +343,7 @@ class _RequestProxy:
         self._request = request
 
         if arguments is not None:
-            self._arguments = arguments
+            self._arguments = {key: value if isinstance(value, list) else [value] for key, value in arguments.items()}
         elif hasattr(request, 'arguments'):
             self._arguments = dict(request.arguments)
         else:
@@ -350,7 +355,8 @@ class _RequestProxy:
             self._cookies = cookies
         elif hasattr(request, 'cookies'):
             # Django cookies are plain strings, tornado cookies are objects with a value
-            self._cookies = {k: v if isinstance(v, str) else v.value for k, v in request.cookies.items()}
+            request_cookies = cast(dict[str, Any], request.cookies)
+            self._cookies = {k: v if isinstance(v, str) else v.value for k, v in request_cookies.items()}
         else:
             self._cookies = {}
 
@@ -378,7 +384,7 @@ class _RequestProxy:
             val = getattr(self._request, name, None)
             if val is not None:
                 return val
-        return super().__getattr__(name)
+        raise AttributeError(name)
 
 #-----------------------------------------------------------------------------
 # Code

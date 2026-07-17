@@ -35,6 +35,10 @@ class MockSessionContext:
         self.status = None
         self.counter = 0
 
+    @property
+    def document(self) -> Document:
+        return self._document
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -65,7 +69,7 @@ class Test_DocumentLifecycleHandler:
         handler = bahd.DocumentLifecycleHandler()
 
         def destroy(session_context):
-            assert doc is session_context._document
+            assert doc is session_context.document
             session_context.status = 'Destroyed'
 
         doc.on_session_destroyed(destroy)
@@ -73,7 +77,7 @@ class Test_DocumentLifecycleHandler:
         session_context = MockSessionContext(doc)
         await handler.on_session_destroyed(session_context)
         assert session_context.status == 'Destroyed'
-        assert set(session_context._document.session_destroyed_callbacks) == set()
+        assert set(session_context.document.session_destroyed_callbacks) == set()
 
     async def test_document_on_session_destroyed_calls_multiple(self) -> None:
         doc = Document()

@@ -401,9 +401,9 @@ class PrioritizedSetting[T]:
     _parent: Settings | None
     _user_value: Unset[str | T]
 
-    def __init__(self, name: str, env_var: str | None = None, default: Unset[T] = _Unset,
-            dev_default: Unset[T] = _Unset, convert: Callable[[T | str], T] | None = None, help: str = "") -> None:
-        self._convert = convert if convert else convert_str
+    def __init__(self, name: str, env_var: str | None = None, default: Unset[T | str] = _Unset,
+            dev_default: Unset[T | str] = _Unset, convert: Callable[[Any], T] | None = None, help: str = "") -> None:
+        self._convert = convert if convert else cast(Callable[[Any], T], convert_str)
         self._default = default
         self._dev_default = dev_default
         self._env_var = env_var
@@ -415,7 +415,7 @@ class PrioritizedSetting[T]:
     def get_value_with_provenance(
         self,
         value: T | str | None = None,
-        default: Unset[T] = _Unset,
+        default: Unset[T | str] = _Unset,
     ) -> tuple[T, SettingProvenance]:
         """Return the setting value and where it came from."""
 
@@ -457,7 +457,7 @@ class PrioritizedSetting[T]:
 
         raise RuntimeError(f"No configured value found for setting {self._name!r}")
 
-    def __call__(self, value: T | str | None = None, default: Unset[T] = _Unset) -> T:
+    def __call__(self, value: T | str | None = None, default: Unset[T | str] = _Unset) -> T:
         '''Return the setting value according to the standard precedence.
 
         Args:
@@ -518,11 +518,11 @@ class PrioritizedSetting[T]:
         return self._env_var
 
     @property
-    def default(self) -> Unset[T]:
+    def default(self) -> Unset[T | str]:
         return self._default
 
     @property
-    def dev_default(self) -> Unset[T]:
+    def dev_default(self) -> Unset[T | str]:
         return self._dev_default
 
     @property

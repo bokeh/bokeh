@@ -60,12 +60,12 @@ def single_stack(stackers: SequenceLike[str], spec: str, **kw: Any) -> list[dict
         if lengths.pop() != len(stackers):
             raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
-    s = []
+    s: list[str] = []
 
-    _kw = []
+    _kw: list[dict[str, Any]] = []
 
     for i, val in enumerate(stackers):
-        d  = {'name': val}
+        d: dict[str, Any] = {'name': val}
         s.append(val)
 
         d[spec] = stack(*s)
@@ -96,13 +96,13 @@ def double_stack(stackers: SequenceLike[str], spec0: str, spec1: str, **kw: Any)
         if lengths.pop() != len(stackers):
             raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
-    s0 = []
-    s1 = []
+    s0: list[str] = []
+    s1: list[str] = []
 
-    _kw = []
+    _kw: list[dict[str, Any]] = []
 
     for i, val in enumerate(stackers):
-        d  = {'name': val}
+        d: dict[str, Any] = {'name': val}
         s0 = list(s1)
         s1.append(val)
 

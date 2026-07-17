@@ -115,7 +115,7 @@ class LifecycleHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        return self._on_session_created(session_context)
+        self._on_session_created(session_context)
 
     async def on_session_destroyed(self, session_context: SessionContext) -> None:
         ''' Execute ``on_session_destroyed`` from the configured module (if
@@ -125,7 +125,7 @@ class LifecycleHandler(Handler):
             session_context (SessionContext) :
 
         '''
-        return self._on_session_destroyed(session_context)
+        self._on_session_destroyed(session_context)
 
 #-----------------------------------------------------------------------------
 # Dev API

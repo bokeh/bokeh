@@ -50,7 +50,7 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
-from . import PARALLEL_SAFE
+from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
 
@@ -83,7 +83,7 @@ class BokehModelDirective(BokehDirective):
         "canonical": unchanged,
     }
 
-    def run(self):
+    def run(self) -> list[Any]:
 
         sig = " ".join(self.arguments)
 
@@ -130,7 +130,7 @@ class BokehModelDirective(BokehDirective):
         return self.parse(rst_text, f"<bokeh-model: {model_name}>")
 
 
-def setup(app):
+def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive_to_domain("py", "bokeh-model", BokehModelDirective)
 

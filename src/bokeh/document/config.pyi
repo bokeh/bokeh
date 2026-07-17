@@ -4,7 +4,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-
 # Bokeh imports
 from ..model import Model
 from ..models.ui.notifications import Notifications

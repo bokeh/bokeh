@@ -45,9 +45,9 @@ from ..util.dependencies import import_required
 from .state import curstate
 from .util import (
     _BOKEH_LOADED_CHECK,
+    _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
-    _VIEWPORT_SIZE_SCRIPT,
     _WAIT_SCRIPT,
     get_layout_html,
     tmp_html,
@@ -227,16 +227,18 @@ class _PlaywrightState:
             "('pip install playwright' then 'playwright install chromium')",
         )
 
-        self._playwright = sync_api.sync_playwright().start()
+        playwright = sync_api.sync_playwright().start()
+        self._playwright = playwright
 
         try:
-            self._browser = self._playwright.chromium.launch(
+            browser = playwright.chromium.launch(
                 args=[
                     "--hide-scrollbars",
                     f"--force-device-scale-factor={scale_factor}",
                     "--force-color-profile=srgb",
                 ],
             )
+            self._browser = browser
         except Exception as e:
             self.cleanup()
             raise RuntimeError(
@@ -244,7 +246,7 @@ class _PlaywrightState:
                 "are installed by running 'playwright install chromium'.",
             ) from e
 
-        return self._browser
+        return browser
 
 
 def execute_script(page: Page, script: str) -> Any:
@@ -290,11 +292,12 @@ def wait_until_render_complete(page: Page, timeout: int) -> None:
         )
 
 
-def maximize_viewport(page: Page) -> tuple[int, int, int]:
-    '''Resize viewport to fit the Bokeh layout. Returns (width, height, dpr).'''
-    [w, h, dpr] = execute_script(page, _VIEWPORT_SIZE_SCRIPT)
+def maximize_viewport(page: Page) -> tuple[float, float, int, int, int]:
+    '''Resize viewport to fit the Bokeh layout. Returns (x, y, width, height, dpr).'''
+    [_, _, w, h, _] = execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
     page.set_viewport_size({"width": w + 100, "height": h + 100})
-    return (w, h, dpr)
+    [x, y, w, h, dpr] = execute_script(page, _ROOT_VIEW_BBOX_SCRIPT)
+    return (x, y, w, h, dpr)
 
 
 #-----------------------------------------------------------------------------
@@ -336,8 +339,11 @@ def _playwright_render(
 
                 page.goto(f"file://{tmp.name}")
                 wait_until_render_complete(page, timeout)
-                [w, h, dpr] = maximize_viewport(page)
-                result = page.screenshot() if not script else execute_script(page, script)
+                [x, y, w, h, dpr] = maximize_viewport(page)
+                if not script:
+                    result = page.screenshot(clip={"x": x, "y": y, "width": w, "height": h})
+                else:
+                    result = execute_script(page, script)
         finally:
             if not page.is_closed():
                 page.close()

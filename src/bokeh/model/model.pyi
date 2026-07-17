@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from inspect import Parameter
 from typing import (
     Any,
-    Final,
     Iterable,
     Self,
 )
@@ -41,7 +40,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def destroy(self) -> None: ...
 
-    id: Final[ID] = ...
+    id: ID = ...
 
     name: str | None = ...
 

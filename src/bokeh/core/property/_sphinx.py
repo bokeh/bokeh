@@ -53,7 +53,7 @@ def property_link(obj: Any) -> str:
 type Fn = Callable[[Any], str]
 
 def register_type_link(cls: type[Any]) -> Callable[[Fn], Fn]:
-    def decorator(func: Fn):
+    def decorator(func: Fn) -> Fn:
         _type_links[cls] = func
         return func
     return decorator

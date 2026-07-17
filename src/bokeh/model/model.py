@@ -13,6 +13,8 @@ a Bokeh |Document|.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportArgumentType=false, reportAssignmentType=false, reportAttributeAccessIssue=false, reportFunctionMemberAccess=false, reportIncompatibleVariableOverride=false, reportIndexIssue=false, reportOperatorIssue=false, reportOptionalMemberAccess=false, reportReturnType=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

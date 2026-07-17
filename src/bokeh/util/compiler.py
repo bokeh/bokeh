@@ -108,6 +108,7 @@ def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None)
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
     lines = output.split("\n")
+    i = 0
     for i, line in enumerate(lines):
         if not line.startswith("LOG"):
             break
@@ -576,7 +577,7 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     modules = sorted(modules, key=lambda spec: spec[0])
 
     bare_modules = []
-    for i, (module, code, deps) in enumerate(modules):
+    for module, code, deps in modules:
         for name, ref in deps.items():
             code = code.replace(f"""require("{name}")""", f"""require("{ref}")""")
             code = code.replace(f"""require('{name}')""", f"""require('{ref}')""")

@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import UIElement
+from .ui_element import UIElement
 
 class Notifications(UIElement):
     pass

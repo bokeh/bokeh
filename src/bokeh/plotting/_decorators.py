@@ -10,6 +10,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAttributeAccessIssue=false, reportIndexIssue=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,9 +22,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from functools import wraps
 from inspect import Parameter, Signature, signature
+from typing import Any, Callable, cast
 
 # Bokeh imports
-from ._docstring import generate_docstring
+from ._docstring import ParameterSpec, generate_docstring
 from ._renderer import create_renderer
 
 #-----------------------------------------------------------------------------
@@ -42,29 +45,33 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def marker_method():
+type GlyphFunction = Callable[..., Any]
+type GlyphMethodDecorator = Callable[[GlyphFunction], GlyphFunction]
+
+def marker_method() -> GlyphMethodDecorator:
     from ..models import Marker, Scatter
     glyphclass = Marker
-    def decorator(func):
-        parameters = glyphclass.parameters()
+    def decorator(func: GlyphFunction) -> GlyphFunction:
+        parameters = cast(list[ParameterSpec], glyphclass.parameters())
 
         sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
 
         marker_type = func.__name__
 
         @wraps(func)
-        def wrapped(self, *args, **kwargs):
+        def wrapped(self: Any, *args: Any, **kwargs: Any) -> Any:
             from ..util.deprecation import deprecated
 
             deprecated((3, 4, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
-            if len(args) > len(glyphclass._args):
-                raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
+            glyph_args = cast(Any, glyphclass)._args
+            if len(args) > len(glyph_args):
+                raise TypeError(f"{func.__name__} takes {len(glyph_args)} positional argument but {len(args)} were given")
             for arg, param in zip(args, sigparams[1:]):
                 kwargs[param.name] = arg
             kwargs["marker"] = marker_type
             return create_renderer(Scatter, self, **kwargs)
 
-        wrapped.__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
+        cast(Any, wrapped).__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 
@@ -72,14 +79,14 @@ def marker_method():
 
     return decorator
 
-def glyph_method(glyphclass):
-    def decorator(func):
-        parameters = glyphclass.parameters()
+def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
+    def decorator(func: GlyphFunction) -> GlyphFunction:
+        parameters = cast(list[ParameterSpec], glyphclass.parameters())
 
         sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
 
         @wraps(func)
-        def wrapped(self, *args, **kwargs):
+        def wrapped(self: Any, *args: Any, **kwargs: Any) -> Any:
             if len(args) > len(glyphclass._args):
                 raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
             for arg, param in zip(args, sigparams[1:]):
@@ -88,7 +95,7 @@ def glyph_method(glyphclass):
                 kwargs.setdefault("coordinates", self.coordinates)
             return create_renderer(glyphclass, self.plot, **kwargs)
 
-        wrapped.__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
+        cast(Any, wrapped).__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 

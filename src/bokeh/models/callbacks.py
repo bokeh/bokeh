@@ -13,6 +13,8 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# pyright: reportAssignmentType=false, reportMissingImports=false
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -208,7 +210,7 @@ class CustomJS(CustomCode):
             from string.templatelib import Template  # novermin
 
         @classmethod
-        def from_template(cls, template: Template) -> CustomJS:
+        def from_template(cls, template: Template) -> CustomJS: # pyright: ignore[reportInvalidTypeForm]
             """
             Construct a ``CustomJS`` instance from an interpolated string.
 

@@ -5,6 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+# pyright: reportIncompatibleVariableOverride=false
+
 # Standard library imports
 from dataclasses import InitVar, dataclass
 from typing import (

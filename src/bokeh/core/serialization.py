@@ -407,12 +407,14 @@ class Serializer:
                         case 1: return "uint8"
                         case 2: return "uint16"
                         case 4: return "uint32"
+                        # TODO: support 64-bit integer typed arrays when the wire dtype supports them.
                         #case 8: return "uint64"
                 case "b" | "h" | "i" | "l" | "q":
                     match obj.itemsize:
                         case 1: return "int8"
                         case 2: return "int16"
                         case 4: return "int32"
+                        # TODO: support 64-bit integer typed arrays when the wire dtype supports them.
                         #case 8: return "int64"
             self.error(f"can't serialize array with items of type '{typecode}@{itemsize}'")
 

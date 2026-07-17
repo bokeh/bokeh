@@ -83,9 +83,9 @@ class XY(Coordinate):
 @dataclass
 class Indexed(Coordinate):
 
-    index: int
+    index: int = ...
 
-    renderer: GlyphRenderer[Glyph]
+    renderer: GlyphRenderer[Glyph] = ...
 
 @dataclass
 class Node(Coordinate):

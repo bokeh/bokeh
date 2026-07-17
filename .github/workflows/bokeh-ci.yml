@@ -89,9 +89,13 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
 
-      - name: Check library types with mypy
-        run: |
-          mypy --version && mypy
+      - parallel:
+        - name: Check library types with mypy
+          run: |
+            mypy --version && mypy
+        - name: Check library types with pyright
+          run: |
+            pyright --version && pyright
 
   examples:
     needs: build

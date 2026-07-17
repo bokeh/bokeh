@@ -106,6 +106,9 @@ __all__ = (
     'Document',
 )
 
+def _no_op_callback() -> None:
+    pass
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -283,7 +286,7 @@ class Document:
 
         '''
         from ..server.callbacks import NextTickCallback
-        cb = NextTickCallback(callback=None, callback_id=make_id())
+        cb = NextTickCallback(callback=_no_op_callback, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int) -> PeriodicCallback:
@@ -306,7 +309,7 @@ class Document:
 
         '''
         from ..server.callbacks import PeriodicCallback
-        cb = PeriodicCallback(callback=None, period=period_milliseconds, callback_id=make_id())
+        cb = PeriodicCallback(callback=_no_op_callback, period=period_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=False)
 
     def add_root(self, model: Model, setter: Setter | None = None) -> None:
@@ -360,7 +363,7 @@ class Document:
 
         '''
         from ..server.callbacks import TimeoutCallback
-        cb = TimeoutCallback(callback=None, timeout=timeout_milliseconds, callback_id=make_id())
+        cb = TimeoutCallback(callback=_no_op_callback, timeout=timeout_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
     def apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
@@ -747,7 +750,7 @@ side of a communications channel while it was being removed on the other end.\
         from ..model import Model
 
         if isinstance(selector, type) and issubclass(selector, Model):
-            selector = dict(type=selector)
+            selector = {"type": selector}
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)
