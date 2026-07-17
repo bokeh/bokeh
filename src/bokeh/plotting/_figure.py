@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 # Standard library imports
-from collections.abc import Iterable, Mapping, Sized
 from typing import TYPE_CHECKING, Any, cast
 
 import logging # isort:skip
@@ -62,6 +61,7 @@ from ..models.tools import (
     Tap,
 )
 from ..transform import linear_cmap
+from ..util.datatypes import is_sequence_like
 from ..util.options import Options
 from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
@@ -86,13 +86,6 @@ __all__ = (
     'figure',
     'markers',
 )
-
-def _stackers(stackers) -> bool:
-    return (
-        isinstance(stackers, Iterable)
-        and isinstance(stackers, Sized)
-        and not isinstance(stackers, (str, bytes, Mapping))
-    )
 
 #-----------------------------------------------------------------------------
 # General API
@@ -493,18 +486,18 @@ class figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        if all(_stackers(val) for val in (x, y)):
+        if all(is_sequence_like(val) for val in (x, y)):
             raise ValueError("Only one of x or y may be a list of stackers")
 
         result = []
 
-        if _stackers(y):
+        if is_sequence_like(y):
             kw['x'] = x
             for kw in single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
-        if _stackers(x):
+        if is_sequence_like(x):
             kw['y'] = y
             for kw in single_stack(x, "x", **kw):
                 result.append(self.line(**kw))

@@ -21,7 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import cast
+from collections.abc import Iterable, Mapping, Sized
+from typing import Any, cast
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -29,11 +30,19 @@ from typing import cast
 
 __all__ = (
     'MultiValuedDict',
+    'is_sequence_like',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def is_sequence_like(obj: Any) -> bool:
+    return (
+        isinstance(obj, Iterable)
+        and isinstance(obj, Sized)
+        and not isinstance(obj, (str, bytes, Mapping))
+    )
 
 class MultiValuedDict[K, V]:
     ''' Store a mapping from keys to multiple values with minimal overhead.
