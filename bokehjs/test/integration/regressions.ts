@@ -5044,6 +5044,17 @@ describe("Bug", () => {
       await display(new Row({children: [new Column({children: [table]}), p]}), [450, 250])
     })
   })
+  describe("in PR #15184", () => {
+    it("should maintain consistent tab widths regardless of the active tab", async () => {
+      const p1 = () => new TabPanel({title: "Short", child: new Div({text: "Tab 1"})})
+      const p2 = () => new TabPanel({title: "Very Long Tab Title", child: new Div({text: "Tab 2"})})
+
+      const tabs0 = new Tabs({tabs: [p1(), p2()], active: 0})
+      const tabs1 = new Tabs({tabs: [p1(), p2()], active: 1})
+
+      await display(new Column({children: [tabs0, tabs1]}), [500, 500])
+    })
+  })
 
   describe("in issue #15026", () => {
     it("ArrowHead properties not updating from JS callbacks", async () => {
@@ -5056,6 +5067,22 @@ describe("Bug", () => {
       arrow_head.line_color = "red"
       arrow_head.line_width = 5
 
+      await view.ready
+    })
+  })
+
+  describe("in issue #14565", () => {
+    it("doesn't allow to correctly remove items from a DataTable", async () => {
+      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c", "d", "e"]}})
+      const columns = [
+        new TableColumn({field: "my_col", title: "My Column"}),
+      ]
+
+      const table = new DataTable({source, columns})
+      const {view} = await display(table)
+
+      source.selected.indices = [0, 3, 4]
+      source.data = {my_col: ["a", "b", "c", "d"]}
       await view.ready
     })
   })
