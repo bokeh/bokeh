@@ -177,6 +177,7 @@ def test_auth_provider() -> None:
 def test_logout_url_prefix() -> None:
     class FakeAuth:
         get_user = None
+        get_user_async = None
         login_url = None
         logout_url = "/logout"
         endpoints = []

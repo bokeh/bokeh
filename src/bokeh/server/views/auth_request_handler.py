@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Stdlib imports
+# Standard library imports
 from urllib.parse import urljoin
 
 # External imports
