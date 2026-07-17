@@ -24,6 +24,14 @@ describe("mercator_tick_formatter module", () => {
     }
   })
 
+  it("should decay tick values close to zero", () => {
+    const lat = new MercatorTickFormatter({dimension: "lat"})
+    const lon = new MercatorTickFormatter({dimension: "lon"})
+
+    expect(lat.doFormat([-1e-7, 1e-7], {loc: 0})).to.be.equal(["0", "0"])
+    expect(lon.doFormat([-1e-7, 1e-7], {loc: 0})).to.be.equal(["0", "0"])
+  })
+
   it("should compute longitude tick labels when dimension=lon", () => {
     const obj = new MercatorTickFormatter({dimension: "lon"})
     for (const lat of [-72, -60.5, -30, -2, 1, -0.5, 0, 0.5, 1, 10, 33.7, 42.123, 50]) {
