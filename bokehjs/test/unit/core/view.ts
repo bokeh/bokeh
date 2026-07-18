@@ -10,15 +10,15 @@ import {Ref, List} from "@bokehjs/core/kinds"
 class SomeModelView extends View {
   declare model: SomeModel
 
-  protected _children_views: ViewStorage<HasProps> = new Map()
+  protected _children_views_map: ViewStorage<HasProps> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this._children_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this._children_views_map.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this._children_views, this.model.children, {parent: this})
+    await build_views(this._children_views_map, this.model.children, {parent: this})
   }
 }
 

@@ -51,8 +51,8 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return this._context_menu
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this._context_menu]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._context_menu]
   }
 
   protected _coordinates?: CoordinateTransform

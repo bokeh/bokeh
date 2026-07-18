@@ -18,8 +18,8 @@ export class ContourColorBarView extends BaseColorBarView {
   protected _fill_view: GlyphRendererView
   protected _line_view: GlyphRendererView
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this._fill_view, this._line_view]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._fill_view, this._line_view]
   }
 
   override async lazy_initialize(): Promise<void> {

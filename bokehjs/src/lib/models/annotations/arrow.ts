@@ -33,8 +33,8 @@ export class ArrowView extends DataAnnotationView {
 
   protected _angles: ScreenArray
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.start, this.end]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.start, this.end]
   }
 
   override async lazy_initialize(): Promise<void> {

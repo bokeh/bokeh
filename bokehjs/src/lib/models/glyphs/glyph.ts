@@ -100,8 +100,8 @@ export abstract class GlyphView extends DOMComponentView {
 
   readonly decorations: ViewStorage<Decoration> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this.decorations.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this.decorations.values()]
   }
 
   override async lazy_initialize(): Promise<void> {

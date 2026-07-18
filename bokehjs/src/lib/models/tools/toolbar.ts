@@ -56,8 +56,8 @@ export class ToolbarView extends UIElementView {
     return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this._tool_button_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this._tool_button_views.values()]
   }
 
   override has_finished(): boolean {

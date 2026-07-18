@@ -202,8 +202,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
   /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), ...this.renderer_views.values(), ...this.tool_views.values()]
   }
 
   get child_models(): LayoutDOM[] {

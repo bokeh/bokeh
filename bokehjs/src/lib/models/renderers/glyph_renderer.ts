@@ -70,9 +70,9 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph
   }
 
-  override children_views(): ChildView[] {
+  override _children_views(): ChildView[] {
     return [
-      ...super.children_views(),
+      ...super._children_views(),
       this.cds_view,
       this.glyph,
       this.selection_glyph,

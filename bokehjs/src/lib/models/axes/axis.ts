@@ -101,8 +101,8 @@ export abstract class AxisView extends GuideRendererView {
     }
   }
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this._axis_label_view, ...this._major_label_views.values()]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this._axis_label_view, ...this._major_label_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {

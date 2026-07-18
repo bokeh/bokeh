@@ -16,8 +16,8 @@ export class ContourRendererView extends DataRendererView {
   fill_view: GlyphRendererView
   line_view: GlyphRendererView
 
-  override children_views(): ChildView[] {
-    return [...super.children_views(), this.fill_view, this.line_view]
+  override _children_views(): ChildView[] {
+    return [...super._children_views(), this.fill_view, this.line_view]
   }
 
   get glyph_view(): GlyphView {
